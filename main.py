@@ -12,6 +12,7 @@ import base58
 import requests
 import time
 import queue
+import sys
 
 # Helius RPC endpoints (rotate if rate limited)
 #RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=f084fae8-d111-4337-9960-2d9c5e02a726"  # MARZEL
@@ -344,19 +345,19 @@ class RaydiumMonitor:
                         pool_data['quoteMint'] = quote_mint
                         print(f"Quote mint: {quote_mint} (WSOL)")
                     
-                    # Wait longer for metadata to be indexed (important for fresh tokens)
-                    print("Waiting for token metadata to be indexed...")
-                    time.sleep(8)
-                    
-                    # Fetch token metadata (try on-chain Metaplex first for new tokens, then external APIs)
+                    # Wait for metadata to be indexed on-chain (critical for fresh tokens)
+                    print("Waiting for token metadata to be indexed (6 seconds)...")
+                    time.sleep(6)
+
+                    # Fetch token metadata (try on-chain Metaplex first - this is authoritative)
                     if base_mint:
-                        # Try Metaplex on-chain first (crucial for brand new tokens)
+                        # Try Metaplex on-chain first (crucial for brand new tokens, most reliable source)
                         metadata = self.fetch_metaplex_metadata(base_mint)
 
-                        # Fall back to external APIs if Metaplex lookup failed
+                        # Only fall back to external APIs if Metaplex lookup fails
                         if not metadata:
-                            print("[METADATA] Metaplex lookup failed, trying external APIs...")
-                            metadata = self.get_token_metadata_onchain(base_mint)
+                            print("[METADATA] Metaplex lookup failed, trying Jupiter API (fast)...")
+                            metadata = self.get_token_metadata_fast(base_mint)
 
                         if metadata:
                             pool_data['name'] = metadata.get('name', 'Unknown')
@@ -364,7 +365,7 @@ class RaydiumMonitor:
                             pool_data['image'] = metadata.get('image', '')
                             print(f"Token: {pool_data['name']} ({pool_data['symbol']})")
                         else:
-                            print("No metadata found from any source")
+                            print("No metadata found from any source - broadcasting with Unknown")
                     
                     # Successfully parsed, exit retry loop
                     return pool_data
@@ -498,6 +499,32 @@ class RaydiumMonitor:
         except Exception as e:
             print(f"[METAPLEX] Error: {e}")
             return None
+
+    def get_token_metadata_fast(self, mint_address: str) -> Dict:
+        """Fetch token metadata quickly from Jupiter API only (no retries)
+
+        For real-time UI updates, we need speed over completeness.
+        This tries only Jupiter with a single attempt for quick results.
+        """
+        print(f"[METADATA] Trying Jupiter API (single attempt) for {mint_address}")
+        try:
+            url = f"https://token.jup.ag/mint/{mint_address}"
+            response = requests.get(url, timeout=5)
+
+            if response.status_code == 200:
+                data = response.json()
+                print(f"[METADATA] ✓ Found metadata on Jupiter: {data.get('name', 'Unknown')} ({data.get('symbol', '')})")
+                return {
+                    'name': data.get('name', 'Unknown'),
+                    'symbol': data.get('symbol', ''),
+                    'image': data.get('logoURI', '')
+                }
+            else:
+                print(f"[METADATA] Jupiter API returned {response.status_code}")
+        except Exception as e:
+            print(f"[METADATA] Jupiter API lookup failed: {e}")
+
+        return None
 
     def get_token_metadata_onchain(self, mint_address: str) -> Dict:
         """Fetch token metadata from multiple external API sources with fallbacks"""
@@ -760,6 +787,8 @@ class RaydiumMonitor:
                                                 'first_seen': datetime.now().isoformat()
                                             }
                                             print(f"[BROADCAST] Adding {broadcast_data['name']} ({broadcast_data['symbol']}) to queue. Queue size before: {pool_broadcast_queue.qsize()}")
+                                            if broadcast_data['image']:
+                                                print(f"[BROADCAST] Image URL: {broadcast_data['image']}")
                                             pool_broadcast_queue.put(broadcast_data)
                                             print(f"[BROADCAST] Queue size after: {pool_broadcast_queue.qsize()}")
 
@@ -1269,10 +1298,12 @@ HTML_TEMPLATE = '''
             // Build pool icon: use image if available, otherwise use initials with gradient
             let iconHTML = '';
             if (pool.image && pool.image.trim()) {
-                // Image available - use it as background
-                iconHTML = `<div class="pool-icon has-image" style="background-image: url('${pool.image}'); background-size: cover; background-position: center;" title="${pool.name}"></div>`;
+                // Image available - create div and set image via JavaScript to handle special characters
+                console.log(`[RENDER] Pool: ${pool.name}, Image URL: ${pool.image}`);
+                iconHTML = `<div class="pool-icon has-image" id="icon-${pool.base_mint}" style="overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #1a2847;"></div>`;
             } else {
                 // No image - use initials with gradient background
+                console.log(`[RENDER] Pool: ${pool.name}, No image URL`);
                 iconHTML = `<div class="pool-icon">${initials}</div>`;
             }
 
@@ -1320,20 +1351,67 @@ HTML_TEMPLATE = '''
         }
 
         function addNewPoolToUI(pool) {
+            console.log(`[RENDER] addNewPoolToUI called for: ${pool.name}`);
             const container = document.getElementById('poolsContainer');
+            console.log(`[RENDER] Container found:`, container);
+
+            if (!container) {
+                console.error(`[RENDER] ERROR: poolsContainer not found!`);
+                return;
+            }
+
             // Remove loading message if present
             const loading = container.querySelector('.loading');
             if (loading) {
+                console.log(`[RENDER] Removing loading message`);
                 loading.remove();
             }
             // Insert new pool at the top
+            console.log(`[RENDER] Rendering pool HTML for: ${pool.name}`);
             const newPoolHTML = renderPool(pool);
-            const firstChild = container.firstChild;
-            if (firstChild) {
-                firstChild.insertAdjacentHTML('beforebegin', newPoolHTML);
+
+            // Find first element child (skip text nodes)
+            const firstElementChild = container.firstElementChild;
+            if (firstElementChild) {
+                console.log(`[RENDER] Inserting pool before existing first child`);
+                firstElementChild.insertAdjacentHTML('beforebegin', newPoolHTML);
             } else {
+                console.log(`[RENDER] Container is empty, setting innerHTML directly`);
                 container.innerHTML = newPoolHTML;
             }
+
+            // If pool has image, set it via JavaScript to handle special characters
+            if (pool.image && pool.image.trim()) {
+                // Use setTimeout to ensure DOM is updated
+                setTimeout(() => {
+                    const iconElement = document.getElementById(`icon-${pool.base_mint}`);
+                    if (iconElement) {
+                        console.log(`[RENDER] Setting image for ${pool.name}, mint: ${pool.base_mint}`);
+                        const img = document.createElement('img');
+                        img.src = pool.image;
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.objectFit = 'cover';
+                        img.alt = pool.name;
+                        img.onerror = function() {
+                            console.log(`[RENDER] Image failed to load for ${pool.name}, using initials`);
+                            iconElement.innerHTML = getInitials(pool.name);
+                            iconElement.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                            iconElement.style.fontSize = '14px';
+                            iconElement.style.color = '#fff';
+                            iconElement.style.fontWeight = 'bold';
+                        };
+                        img.onload = function() {
+                            console.log(`[RENDER] Image loaded successfully for ${pool.name}`);
+                        };
+                        iconElement.innerHTML = '';
+                        iconElement.appendChild(img);
+                    } else {
+                        console.log(`[RENDER] ERROR: Could not find icon element with ID: icon-${pool.base_mint}`);
+                    }
+                }, 0);
+            }
+
             // Update stats
             fetch('/api/pools')
                 .then(response => response.json())
@@ -1341,39 +1419,50 @@ HTML_TEMPLATE = '''
                 .catch(error => console.error('Error updating stats:', error));
         }
 
-        function connectToStream() {
-            const eventSource = new EventSource('/api/pools/stream');
-
-            eventSource.onmessage = function(event) {
-                try {
-                    const message = JSON.parse(event.data);
-                    if (message.type === 'new_pool') {
-                        console.log('New pool received:', message.pool);
-                        addNewPoolToUI(message.pool);
+        function pollForNewPools() {
+            // Poll for new pools every 1 second for near real-time updates
+            fetch('/api/pools/new')
+                .then(response => {
+                    console.log(`[POLL] Fetch response status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(`[POLL] Response received:`, data);
+                    if (data.new_pools && data.new_pools.length > 0) {
+                        console.log(`[POLL] ✓ Received ${data.new_pools.length} new pool(s)`);
+                        console.log(`[POLL] Pool details:`, data.new_pools);
+                        // Add each new pool to the UI
+                        data.new_pools.forEach(pool => {
+                            console.log(`[POLL] Adding pool: ${pool.name} (${pool.symbol}) with image: ${pool.image}`);
+                            addNewPoolToUI(pool);
+                        });
+                    } else {
+                        console.log(`[POLL] No new pools in response`);
                     }
-                } catch (error) {
-                    console.error('Error parsing stream data:', error);
-                }
-            };
-
-            eventSource.onerror = function(error) {
-                console.error('Stream error:', error);
-                eventSource.close();
-                // Reconnect after 3 seconds
-                setTimeout(connectToStream, 3000);
-            };
-
-            return eventSource;
+                })
+                .catch(error => {
+                    console.error('[POLL] Error fetching new pools:', error);
+                    console.error('[POLL] Error details:', error.message);
+                });
         }
 
         // Initial load
+        console.log('[INIT] Starting initial pool load');
         updatePools();
 
-        // Connect to real-time stream for new pool updates
-        connectToStream();
+        // Poll for new pools every 1 second (near real-time updates)
+        console.log('[INIT] Setting up polling interval (every 1 second)');
+        setInterval(pollForNewPools, 1000);
+
+        // First poll should happen immediately
+        console.log('[INIT] Running first immediate poll');
+        pollForNewPools();
 
         // Keep 30-second refresh as backup
+        console.log('[INIT] Setting up backup refresh (every 30 seconds)');
         setInterval(updatePools, 30000);
+
+        console.log('[INIT] Application initialization complete');
     </script>
 </body>
 </html>
@@ -1396,30 +1485,37 @@ def get_pools():
         print(f"API Error: {e}")
         return jsonify({'pools': [], 'total_pools': 0})
 
-@app.route('/api/pools/stream')
-def stream_pools():
-    """Server-Sent Events endpoint for real-time pool updates"""
-    print("[SSE] Client connected to stream")
+@app.route('/api/pools/new')
+def get_new_pools():
+    """Get new pools from broadcast queue (faster than 30s refresh)
 
-    def event_stream():
-        while True:
-            try:
-                # Try to get a pool from the queue (non-blocking with 1 second timeout)
-                pool = pool_broadcast_queue.get(timeout=1)
-                print(f"[SSE] Broadcasting pool to client: {pool.get('name')} ({pool.get('symbol')})")
-                # Send new pool data to client
-                yield f"data: {json.dumps({'type': 'new_pool', 'pool': pool})}\n\n"
-            except queue.Empty:
-                # Keep connection alive with heartbeat (every 1 second)
-                yield f": heartbeat\n\n"
-            except Exception as e:
-                print(f"[SSE] Stream error: {e}")
-                break
+    Returns pools that were added to the queue but haven't been polled yet.
+    Clients should poll this every 1-2 seconds for near real-time updates.
+    """
+    new_pools = []
 
-    return Response(event_stream(), mimetype='text/event-stream',
-                    headers={'Cache-Control': 'no-cache',
-                            'X-Accel-Buffering': 'no',
-                            'Connection': 'keep-alive'})
+    # Drain the queue and collect all new pools
+    queue_size_before = pool_broadcast_queue.qsize()
+    while not pool_broadcast_queue.empty():
+        try:
+            pool = pool_broadcast_queue.get_nowait()
+            new_pools.append(pool)
+            print(f"[API] Delivered pool to client: {pool.get('name')} ({pool.get('symbol')})")
+            if pool.get('image'):
+                print(f"[API] Image URL: {pool.get('image')}")
+            sys.stdout.flush()
+        except queue.Empty:
+            break
+
+    if new_pools:
+        print(f"[API] Queue size before: {queue_size_before}, Returning {len(new_pools)} new pool(s)")
+        sys.stdout.flush()
+    else:
+        if queue_size_before > 0:
+            print(f"[API] WARNING: Queue had {queue_size_before} items but couldn't drain them!")
+        # Uncomment for verbose logging: else: print(f"[API] Poll received, queue empty")
+
+    return jsonify({'new_pools': new_pools})
 
 def main():
     """Main function to run the monitor with web UI"""

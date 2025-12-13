@@ -4,13 +4,14 @@ import asyncio
 import websockets
 from datetime import datetime
 from typing import Dict, List
-from flask import Flask, jsonify
+from flask import Flask, jsonify, Response
 from threading import Thread
 import base64
 import struct
 import base58
 import requests
 import time
+import queue
 
 # Helius RPC endpoints (rotate if rate limited)
 #RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=f084fae8-d111-4337-9960-2d9c5e02a726"  # MARZEL
@@ -633,6 +634,21 @@ class RaydiumMonitor:
                                         if self.db.insert_pool(pool_data):
                                             print(f"Stored new {dex_source} pool: {pool_data['ammId']}")
 
+                                            # Broadcast new pool to UI immediately with snake_case field names
+                                            broadcast_data = {
+                                                'amm_id': pool_data.get('ammId'),
+                                                'name': pool_data.get('name', 'Unknown'),
+                                                'symbol': pool_data.get('symbol', ''),
+                                                'image': pool_data.get('image', ''),
+                                                'base_mint': pool_data.get('baseMint'),
+                                                'liquidity': pool_data.get('liquidity', 0),
+                                                'price': pool_data.get('price', 0),
+                                                'signature': pool_data.get('signature'),
+                                                'dex': dex_source,
+                                                'first_seen': datetime.now().isoformat()
+                                            }
+                                            pool_broadcast_queue.put(broadcast_data)
+
                         except asyncio.TimeoutError:
                             # Send ping to keep connection alive
                             await ws.ping()
@@ -661,6 +677,9 @@ class RaydiumMonitor:
 # Flask Web Application
 app = Flask(__name__)
 monitor = RaydiumMonitor()
+
+# Global queue for real-time pool broadcasts
+pool_broadcast_queue = queue.Queue()
 
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
@@ -1186,10 +1205,60 @@ HTML_TEMPLATE = '''
                 });
         }
 
+        function addNewPoolToUI(pool) {
+            const container = document.getElementById('poolsContainer');
+            // Remove loading message if present
+            const loading = container.querySelector('.loading');
+            if (loading) {
+                loading.remove();
+            }
+            // Insert new pool at the top
+            const newPoolHTML = renderPool(pool);
+            const firstChild = container.firstChild;
+            if (firstChild) {
+                firstChild.insertAdjacentHTML('beforebegin', newPoolHTML);
+            } else {
+                container.innerHTML = newPoolHTML;
+            }
+            // Update stats
+            fetch('/api/pools')
+                .then(response => response.json())
+                .then(data => updateStats(data))
+                .catch(error => console.error('Error updating stats:', error));
+        }
+
+        function connectToStream() {
+            const eventSource = new EventSource('/api/pools/stream');
+
+            eventSource.onmessage = function(event) {
+                try {
+                    const message = JSON.parse(event.data);
+                    if (message.type === 'new_pool') {
+                        console.log('New pool received:', message.pool);
+                        addNewPoolToUI(message.pool);
+                    }
+                } catch (error) {
+                    console.error('Error parsing stream data:', error);
+                }
+            };
+
+            eventSource.onerror = function(error) {
+                console.error('Stream error:', error);
+                eventSource.close();
+                // Reconnect after 3 seconds
+                setTimeout(connectToStream, 3000);
+            };
+
+            return eventSource;
+        }
+
         // Initial load
         updatePools();
 
-        // Auto-refresh every 30 seconds
+        // Connect to real-time stream for new pool updates
+        connectToStream();
+
+        // Keep 30-second refresh as backup
         setInterval(updatePools, 30000);
     </script>
 </body>
@@ -1212,6 +1281,28 @@ def get_pools():
     except Exception as e:
         print(f"API Error: {e}")
         return jsonify({'pools': [], 'total_pools': 0})
+
+@app.route('/api/pools/stream')
+def stream_pools():
+    """Server-Sent Events endpoint for real-time pool updates"""
+    def event_stream():
+        while True:
+            try:
+                # Try to get a pool from the queue (non-blocking)
+                pool = pool_broadcast_queue.get(timeout=1)
+                # Send new pool data to client
+                yield f"data: {json.dumps({'type': 'new_pool', 'pool': pool})}\n\n"
+            except queue.Empty:
+                # Keep connection alive with heartbeat
+                yield f": heartbeat\n\n"
+            except Exception as e:
+                print(f"Stream error: {e}")
+                break
+
+    return Response(event_stream(), mimetype='text/event-stream',
+                    headers={'Cache-Control': 'no-cache',
+                            'X-Accel-Buffering': 'no',
+                            'Connection': 'keep-alive'})
 
 def main():
     """Main function to run the monitor with web UI"""

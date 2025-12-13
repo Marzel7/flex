@@ -376,6 +376,8 @@ class RaydiumMonitor:
     def fetch_metaplex_metadata(self, mint_address: str) -> Dict:
         """Fetch token metadata directly from Metaplex on-chain account"""
         try:
+            print(f"[METADATA] Attempting Metaplex on-chain lookup for {mint_address}")
+
             # Metaplex token metadata program ID
             TOKEN_METADATA_PROGRAM_ID = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 
@@ -401,6 +403,7 @@ class RaydiumMonitor:
             if response.status_code == 200:
                 data = response.json()
                 if "result" in data and len(data["result"]) > 0:
+                    print(f"[METADATA] Found Metaplex account for {mint_address}")
                     account = data["result"][0]
                     account_data = base64.b64decode(account["account"]["data"][0])
 
@@ -419,17 +422,24 @@ class RaydiumMonitor:
                             symbol = account_data[symbol_offset+4:symbol_offset+4+symbol_len].decode('utf-8', errors='ignore').strip('\x00')
 
                             if name or symbol:
-                                print(f"Found Metaplex metadata for {mint_address}: {name} ({symbol})")
+                                print(f"[METADATA] ✓ Successfully parsed Metaplex metadata: {name} ({symbol})")
                                 return {
                                     'name': name or 'Unknown',
                                     'symbol': symbol or '',
                                     'image': ''
                                 }
+                            else:
+                                print(f"[METADATA] Metaplex account found but no name/symbol data")
                     except Exception as parse_err:
-                        print(f"Error parsing Metaplex metadata: {parse_err}")
+                        print(f"[METADATA] Error parsing Metaplex metadata: {parse_err}")
+                else:
+                    print(f"[METADATA] No Metaplex account found for {mint_address}")
+            else:
+                print(f"[METADATA] Metaplex RPC call failed with status {response.status_code}")
         except Exception as e:
-            print(f"Metaplex metadata fetch failed: {e}")
+            print(f"[METADATA] Metaplex metadata fetch failed: {e}")
 
+        print(f"[METADATA] Metaplex lookup failed, falling back to external APIs")
         return None
 
     def get_token_metadata_onchain(self, mint_address: str) -> Dict:
@@ -441,6 +451,7 @@ class RaydiumMonitor:
 
         # Try DexScreener (fastest for established tokens)
         # Retry multiple times with increasing delays since it takes time to index new tokens
+        print(f"[METADATA] Trying DexScreener API for {mint_address}")
         for dex_attempt in range(5):
             try:
                 url = f"https://api.dexscreener.com/latest/dex/tokens/{mint_address}"
@@ -457,7 +468,7 @@ class RaydiumMonitor:
                         
                         # Check if this mint is the base or quote token
                         if base_token.get('address') == mint_address:
-                            print(f"Found metadata on DexScreener for {mint_address}")
+                            print(f"[METADATA] ✓ Found metadata on DexScreener: {base_token.get('name', 'Unknown')} ({base_token.get('symbol', '')})")
                             return {
                                 'name': base_token.get('name', 'Unknown'),
                                 'symbol': base_token.get('symbol', ''),
@@ -465,7 +476,7 @@ class RaydiumMonitor:
                             }
                         else:
                             quote_token = pair.get('quoteToken', {})
-                            print(f"Found metadata on DexScreener for {mint_address}")
+                            print(f"[METADATA] ✓ Found metadata on DexScreener: {quote_token.get('name', 'Unknown')} ({quote_token.get('symbol', '')})")
                             return {
                                 'name': quote_token.get('name', 'Unknown'),
                                 'symbol': quote_token.get('symbol', ''),
@@ -481,41 +492,45 @@ class RaydiumMonitor:
                 print(f"DexScreener lookup failed: {e}")
         
         # Fallback: Try Jupiter API (good for new tokens)
+        print(f"[METADATA] Trying Jupiter API for {mint_address}")
         try:
             url = f"https://token.jup.ag/mint/{mint_address}"
             response = requests.get(url, timeout=5)
-            
+
             if response.status_code == 200:
                 data = response.json()
-                print(f"Found metadata on Jupiter API for {mint_address}")
+                print(f"[METADATA] ✓ Found metadata on Jupiter API: {data.get('name', 'Unknown')} ({data.get('symbol', '')})")
                 return {
                     'name': data.get('name', 'Unknown'),
                     'symbol': data.get('symbol', ''),
                     'image': data.get('logoURI', '')
                 }
         except Exception as e:
-            print(f"Jupiter API lookup failed: {e}")
-        
+            print(f"[METADATA] Jupiter API lookup failed: {e}")
+
         # Fallback: Try Solscan API (on-chain metadata via Metaplex)
+        print(f"[METADATA] Trying Solscan API for {mint_address}")
         try:
             solscan_url = f"https://api.solscan.io/token/meta?tokenAddress={mint_address}"
             response = requests.get(solscan_url, timeout=5)
-            
+
             if response.status_code == 200:
                 data = response.json()
                 if data.get('success'):
                     metadata = data.get('data', {})
-                    print(f"Found metadata on Solscan for {mint_address}")
+                    print(f"[METADATA] ✓ Found metadata on Solscan: {metadata.get('name', 'Unknown')} ({metadata.get('symbol', '')})")
                     return {
                         'name': metadata.get('name', 'Unknown'),
                         'symbol': metadata.get('symbol', ''),
                         'image': metadata.get('icon', '')
                     }
+                else:
+                    print(f"[METADATA] Solscan returned unsuccessful response")
         except Exception as e:
-            print(f"Solscan lookup failed: {e}")
-        
+            print(f"[METADATA] Solscan lookup failed: {e}")
+
         # If all sources fail, return None
-        print(f"No metadata found for {mint_address} on any source")
+        print(f"[METADATA] ✗ No metadata found for {mint_address} on any source")
         return None
 
     async def subscribe_to_program(self, ws, program_id: str):

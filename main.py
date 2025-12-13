@@ -1,64 +1,83 @@
-import requests
 import sqlite3
 import json
+import asyncio
+import websockets
 from datetime import datetime
 from typing import Dict, List
-from flask import Flask, render_template, jsonify
+from flask import Flask, jsonify
 from threading import Thread
-import time
+import base64
+import struct
+import base58
+import requests
+
+# Helius RPC endpoints (rotate if rate limited)
+#RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=f084fae8-d111-4337-9960-2d9c5e02a726"  # MARZEL
+RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=0ae07551-32df-4d9d-af2a-1925fb7f561f"  # JEZZA
+#RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=a132b19d-9b44-4c71-8e6f-d320d9f351c6"  # GITHUB
 
 class RaydiumDatabase:
     """Handle SQLite database operations for Raydium pools"""
-    
+
     def __init__(self, db_name: str = "raydium_pools.db"):
         self.db_name = db_name
         self.init_database()
-    
+
     def get_connection(self) -> sqlite3.Connection:
         """Get a new database connection for each operation"""
         return sqlite3.connect(self.db_name, check_same_thread=False)
-    
+
     def init_database(self):
         """Initialize database and create tables"""
         conn = self.get_connection()
         cursor = conn.cursor()
-        
+
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS pools (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 amm_id TEXT UNIQUE NOT NULL,
                 name TEXT,
+                symbol TEXT,
+                image TEXT,
                 base_mint TEXT,
                 quote_mint TEXT,
                 liquidity REAL,
                 volume_24h REAL,
                 price REAL,
                 apr REAL,
+                signature TEXT,
+                dex TEXT,
                 first_seen TIMESTAMP,
                 last_updated TIMESTAMP
             )
         ''')
-        
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS pool_history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                amm_id TEXT NOT NULL,
-                liquidity REAL,
-                volume_24h REAL,
-                price REAL,
-                timestamp TIMESTAMP,
-                FOREIGN KEY (amm_id) REFERENCES pools(amm_id)
-            )
-        ''')
-        
+
+        # Add new columns if they don't exist (for existing databases)
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN symbol TEXT')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN image TEXT')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN signature TEXT')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN dex TEXT')
+        except sqlite3.OperationalError:
+            pass
+
         cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_amm_id ON pools(amm_id)
         ''')
-        
+
         conn.commit()
         conn.close()
         print(f"Database initialized: {self.db_name}")
-    
+
     def pool_exists(self, amm_id: str) -> bool:
         """Check if pool already exists in database"""
         conn = self.get_connection()
@@ -67,33 +86,37 @@ class RaydiumDatabase:
         result = cursor.fetchone() is not None
         conn.close()
         return result
-    
+
     def insert_pool(self, pool: Dict) -> bool:
         """Insert new pool into database"""
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
             timestamp = datetime.now().isoformat()
-            
+
             cursor.execute('''
                 INSERT INTO pools (
-                    amm_id, name, base_mint, quote_mint,
-                    liquidity, volume_24h, price, apr,
+                    amm_id, name, symbol, image, base_mint, quote_mint,
+                    liquidity, volume_24h, price, apr, signature, dex,
                     first_seen, last_updated
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 pool.get('ammId'),
                 pool.get('name'),
+                pool.get('symbol', ''),
+                pool.get('image', ''),
                 pool.get('baseMint'),
                 pool.get('quoteMint'),
                 pool.get('liquidity', 0),
                 pool.get('volume24h', 0),
                 pool.get('price', 0),
                 pool.get('apr', 0),
+                pool.get('signature', ''),
+                pool.get('dex', 'Unknown'),
                 timestamp,
                 timestamp
             ))
-            
+
             conn.commit()
             return True
         except sqlite3.IntegrityError:
@@ -103,62 +126,8 @@ class RaydiumDatabase:
             return False
         finally:
             conn.close()
-    
-    def update_pool(self, pool: Dict):
-        """Update existing pool information"""
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        try:
-            timestamp = datetime.now().isoformat()
-            
-            cursor.execute('''
-                UPDATE pools SET
-                    liquidity = ?,
-                    volume_24h = ?,
-                    price = ?,
-                    apr = ?,
-                    last_updated = ?
-                WHERE amm_id = ?
-            ''', (
-                pool.get('liquidity', 0),
-                pool.get('volume24h', 0),
-                pool.get('price', 0),
-                pool.get('apr', 0),
-                timestamp,
-                pool.get('ammId')
-            ))
-            
-            conn.commit()
-        except Exception as e:
-            print(f"Error updating pool: {e}")
-        finally:
-            conn.close()
-    
-    def add_pool_history(self, pool: Dict):
-        """Add pool snapshot to history"""
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        try:
-            timestamp = datetime.now().isoformat()
-            
-            cursor.execute('''
-                INSERT INTO pool_history (
-                    amm_id, liquidity, volume_24h, price, timestamp
-                ) VALUES (?, ?, ?, ?, ?)
-            ''', (
-                pool.get('ammId'),
-                pool.get('liquidity', 0),
-                pool.get('volume24h', 0),
-                pool.get('price', 0),
-                timestamp
-            ))
-            
-            conn.commit()
-        except Exception as e:
-            print(f"Error adding pool history: {e}")
-        finally:
-            conn.close()
-    
+
+
     def get_pool_count(self) -> int:
         """Get total number of pools in database"""
         conn = self.get_connection()
@@ -167,129 +136,508 @@ class RaydiumDatabase:
         count = cursor.fetchone()[0]
         conn.close()
         return count
-    
+
     def get_recent_pools(self, limit: int = 50) -> List[Dict]:
         """Get most recently added pools"""
         conn = self.get_connection()
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT amm_id, name, liquidity, volume_24h, price, apr, first_seen, last_updated
+            SELECT amm_id, name, symbol, image, base_mint, liquidity, price, signature, dex, first_seen
             FROM pools
             ORDER BY first_seen DESC
             LIMIT ?
         ''', (limit,))
-        
+
         results = []
         for row in cursor.fetchall():
             results.append({
                 'amm_id': row[0],
                 'name': row[1],
-                'liquidity': row[2],
-                'volume_24h': row[3],
-                'price': row[4],
-                'apr': row[5],
-                'first_seen': row[6],
-                'last_updated': row[7]
+                'symbol': row[2] or '',
+                'image': row[3] or '',
+                'base_mint': row[4] or '',
+                'liquidity': row[5],
+                'price': row[6],
+                'signature': row[7] or '',
+                'dex': row[8] or 'Unknown',
+                'first_seen': row[9]
             })
         conn.close()
         return results
-    
-    def get_top_pools(self, limit: int = 10, order_by: str = 'volume_24h') -> List[Dict]:
-        """Get top pools by specified metric"""
-        valid_columns = ['liquidity', 'volume_24h', 'apr']
-        if order_by not in valid_columns:
-            order_by = 'volume_24h'
-        
+
+    def delete_all_pools(self) -> int:
+        """Delete all entries from pools table. Returns number of deleted rows."""
         conn = self.get_connection()
         cursor = conn.cursor()
         
-        query = f'''
-            SELECT amm_id, name, liquidity, volume_24h, price, apr, first_seen
-            FROM pools
-            ORDER BY {order_by} DESC
-            LIMIT ?
-        '''
+        cursor.execute('SELECT COUNT(*) FROM pools')
+        pools_count = cursor.fetchone()[0]
         
-        cursor.execute(query, (limit,))
+        cursor.execute('DELETE FROM pools')
         
-        results = []
-        for row in cursor.fetchall():
-            results.append({
-                'amm_id': row[0],
-                'name': row[1],
-                'liquidity': row[2],
-                'volume_24h': row[3],
-                'price': row[4],
-                'apr': row[5],
-                'first_seen': row[6]
-            })
+        # Delete pool_history if it exists
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='pool_history'")
+        if cursor.fetchone():
+            cursor.execute('DELETE FROM pool_history')
+        
+        conn.commit()
         conn.close()
-        return results
+        
+        print(f"Deleted {pools_count} pools from database")
+        return pools_count
 
 
 class RaydiumMonitor:
-    """Monitor Raydium DEX tokens and liquidity pools"""
-    
+    """Monitor Raydium DEX for new liquidity pools via Solana WebSocket"""
+
+    # Raydium AMM Program IDs
+    RAYDIUM_V4_PROGRAM = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"
+    RAYDIUM_CPMM_PROGRAM = "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"
+
+    # Meteora program IDs
+    METEORA_PROGRAM = "LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"
+    METEORA_ALT_PROGRAM = "cpamdpZCGKUy5JxQXB4dcpGPiikHawvSWAd6mEn1sGG"  # Alternative Meteora pool variant
+
     def __init__(self, db_name: str = "raydium_pools.db"):
-        self.raydium_api = "https://api.raydium.io/v2"
-        self.session = requests.Session()
         self.db = RaydiumDatabase(db_name)
-        self.latest_pools = []
+        # Use Helius RPC (configured at top of file)
+        self.rpc_http_url = RPC_HTTPS_URL
+        self.rpc_ws_url = RPC_HTTPS_URL.replace('https://', 'wss://').replace('http://', 'ws://')
         self.is_running = False
+        self.loop = None
         
-    def get_all_pools(self) -> List[Dict]:
-        """Fetch all Raydium liquidity pools"""
+        print(f"Using RPC: {self.rpc_http_url.split('?')[0]}...")
+
+    def parse_pool_from_logs(self, logs: List[str], signature: str) -> Dict:
+        """Parse pool creation from transaction logs and fetch token addresses"""
+        import time
+        
+        WSOL = "So11111111111111111111111111111111111111112"
+        
+        pool_data = {
+            'ammId': signature[:16],
+            'name': 'Unknown',
+            'baseMint': '',
+            'quoteMint': '',
+            'liquidity': 0,
+            'price': 0,
+            'signature': signature,
+            'symbol': '',
+            'image': ''
+        }
+
+        # Wait for transaction to be confirmed on chain
+        time.sleep(3)
+
+        # Fetch full transaction to get token addresses (with retry for confirmation)
+        max_retries = 5
+        for attempt in range(max_retries):
+            try:
+                response = requests.post(
+                    self.rpc_http_url,
+                    json={
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "getTransaction",
+                        "params": [
+                            signature,
+                            {
+                                "encoding": "jsonParsed",
+                                "maxSupportedTransactionVersion": 0,
+                                "commitment": "confirmed"
+                            }
+                        ]
+                    },
+                    timeout=15
+                )
+                
+                tx_data = response.json()
+                
+                # Check for rate limiting
+                if 'error' in tx_data and tx_data['error'].get('code') == 429:
+                    print(f"Rate limited, attempt {attempt + 1}/{max_retries}, waiting...")
+                    time.sleep(2 ** attempt)
+                    continue
+                
+                if 'result' in tx_data and tx_data['result']:
+                    tx = tx_data['result']
+                    
+                    # Collect all mints that appear in the transaction
+                    mint_sources = {}  # mint -> list of sources it appears in
+                    
+                    # Source 1: Pre and Post token balances
+                    pre_balances = tx.get('meta', {}).get('preTokenBalances', [])
+                    post_balances = tx.get('meta', {}).get('postTokenBalances', [])
+                    
+                    for balance in pre_balances:
+                        mint = balance.get('mint', '')
+                        if mint:
+                            if mint not in mint_sources:
+                                mint_sources[mint] = []
+                            mint_sources[mint].append('pre_balance')
+                    
+                    for balance in post_balances:
+                        mint = balance.get('mint', '')
+                        if mint:
+                            if mint not in mint_sources:
+                                mint_sources[mint] = []
+                            mint_sources[mint].append('post_balance')
+                    
+                    # Source 2: Inner instructions (TokenProgram operations)
+                    inner_instructions = tx.get('meta', {}).get('innerInstructions', [])
+                    for inner in inner_instructions:
+                        for ix in inner.get('instructions', []):
+                            if isinstance(ix, dict):
+                                parsed = ix.get('parsed', {})
+                                if isinstance(parsed, dict):
+                                    info = parsed.get('info', {})
+                                    if 'mint' in info:
+                                        mint = info['mint']
+                                        if mint not in mint_sources:
+                                            mint_sources[mint] = []
+                                        mint_sources[mint].append(f"instruction_{parsed.get('type', 'unknown')}")
+                    
+                    print(f"Found mints: {mint_sources}")
+                    
+                    # Identify base and quote mints
+                    quote_mint = WSOL if WSOL in mint_sources else None
+                    
+                    # The base mint is the new token being created
+                    # It should NOT be WSOL
+                    # Prefer mints that appear in postTokenBalances (actual pool state)
+                    base_mint = None
+                    
+                    for mint, sources in mint_sources.items():
+                        if mint == WSOL:
+                            continue
+                        # Mints in postTokenBalances are more reliable (actual pool accounts)
+                        if 'post_balance' in sources:
+                            base_mint = mint
+                            break
+                    
+                    # If no mint in postTokenBalances, pick first non-WSOL
+                    if not base_mint:
+                        for mint in mint_sources.keys():
+                            if mint != WSOL:
+                                base_mint = mint
+                                break
+                    
+                    # Get AMM ID from account keys (index 4 for Raydium V4)
+                    account_keys = tx.get('transaction', {}).get('message', {}).get('accountKeys', [])
+                    pubkeys = []
+                    for key in account_keys:
+                        if isinstance(key, dict):
+                            pubkeys.append(key.get('pubkey', ''))
+                        else:
+                            pubkeys.append(key)
+                    
+                    if len(pubkeys) > 4:
+                        pool_data['ammId'] = pubkeys[4]
+                    
+                    # Set mints in pool data
+                    if base_mint:
+                        pool_data['baseMint'] = base_mint
+                        print(f"Base mint: {base_mint}")
+                    if quote_mint:
+                        pool_data['quoteMint'] = quote_mint
+                        print(f"Quote mint: {quote_mint} (WSOL)")
+                    
+                    # Wait longer for metadata to be indexed (important for fresh tokens)
+                    print("Waiting for token metadata to be indexed...")
+                    time.sleep(8)
+                    
+                    # Fetch token metadata from DexScreener
+                    if base_mint:
+                        metadata = self.get_token_metadata_onchain(base_mint)
+                        if metadata:
+                            pool_data['name'] = metadata.get('name', 'Unknown')
+                            pool_data['symbol'] = metadata.get('symbol', '')
+                            pool_data['image'] = metadata.get('image', '')
+                            print(f"Token: {pool_data['name']} ({pool_data['symbol']})")
+                        else:
+                            print("No metadata found on DexScreener (token may be too new)")
+                    
+                    # Successfully parsed, exit retry loop
+                    return pool_data
+                else:
+                    # Transaction not yet available, wait and retry
+                    print(f"Transaction not yet confirmed, attempt {attempt + 1}/{max_retries}...")
+                    time.sleep(2 + attempt)  # Increasing delay: 2s, 3s, 4s, 5s, 6s
+                        
+            except Exception as e:
+                print(f"Error fetching transaction details: {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(2)
+
+        print("Failed to fetch transaction after all retries")
+        return pool_data
+
+    def get_token_metadata_onchain(self, mint_address: str) -> Dict:
+        """Fetch token metadata from multiple sources with fallbacks"""
+        import time
+        
+        # Try DexScreener first (fastest for established tokens)
+        # Retry multiple times with increasing delays since it takes time to index new tokens
+        for dex_attempt in range(5):
+            try:
+                url = f"https://api.dexscreener.com/latest/dex/tokens/{mint_address}"
+                response = requests.get(url, timeout=5)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    pairs = data.get('pairs', [])
+                    
+                    if pairs:
+                        # Get info from the first pair (usually the most liquid)
+                        pair = pairs[0]
+                        base_token = pair.get('baseToken', {})
+                        
+                        # Check if this mint is the base or quote token
+                        if base_token.get('address') == mint_address:
+                            print(f"Found metadata on DexScreener for {mint_address}")
+                            return {
+                                'name': base_token.get('name', 'Unknown'),
+                                'symbol': base_token.get('symbol', ''),
+                                'image': pair.get('info', {}).get('imageUrl', '')
+                            }
+                        else:
+                            quote_token = pair.get('quoteToken', {})
+                            print(f"Found metadata on DexScreener for {mint_address}")
+                            return {
+                                'name': quote_token.get('name', 'Unknown'),
+                                'symbol': quote_token.get('symbol', ''),
+                                'image': ''
+                            }
+                    elif dex_attempt < 4:
+                        # Pairs is null, retry after a longer delay
+                        wait_time = 10 + (dex_attempt * 2)  # 2s, 4s, 6s, 8s, 10s
+                        print(f"DexScreener returned null pairs, retrying in {wait_time}s... (attempt {dex_attempt + 2}/5)")
+                        time.sleep(wait_time)
+                        continue
+            except Exception as e:
+                print(f"DexScreener lookup failed: {e}")
+        
+        # Fallback: Try Jupiter API (good for new tokens)
         try:
-            response = self.session.get(f"{self.raydium_api}/main/pairs")
-            response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            print(f"Error fetching pools: {e}")
-            return []
-    
-    def process_pools(self, pools: List[Dict], min_liquidity: float = 1000) -> List[Dict]:
-        """Process pools and store new ones in database"""
-        new_pools = []
-        
-        for pool in pools:
-            amm_id = pool.get('ammId')
-            if not amm_id:
-                continue
+            url = f"https://token.jup.ag/mint/{mint_address}"
+            response = requests.get(url, timeout=5)
             
-            if not self.db.pool_exists(amm_id):
-                if pool.get('liquidity', 0) >= min_liquidity:
-                    if self.db.insert_pool(pool):
-                        new_pools.append(pool)
-                        self.db.add_pool_history(pool)
-            else:
-                self.db.update_pool(pool)
-                self.db.add_pool_history(pool)
+            if response.status_code == 200:
+                data = response.json()
+                print(f"Found metadata on Jupiter API for {mint_address}")
+                return {
+                    'name': data.get('name', 'Unknown'),
+                    'symbol': data.get('symbol', ''),
+                    'image': data.get('logoURI', '')
+                }
+        except Exception as e:
+            print(f"Jupiter API lookup failed: {e}")
         
-        return new_pools
-    
-    def monitor_loop(self, interval: int = 60, min_liquidity: float = 1000):
-        """Background monitoring loop"""
-        self.is_running = True
-        print(f"Monitor started: checking every {interval}s, min liquidity ${min_liquidity:,.0f}")
+        # Fallback: Try Solscan API (on-chain metadata via Metaplex)
+        try:
+            solscan_url = f"https://api.solscan.io/token/meta?tokenAddress={mint_address}"
+            response = requests.get(solscan_url, timeout=5)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success'):
+                    metadata = data.get('data', {})
+                    print(f"Found metadata on Solscan for {mint_address}")
+                    return {
+                        'name': metadata.get('name', 'Unknown'),
+                        'symbol': metadata.get('symbol', ''),
+                        'image': metadata.get('icon', '')
+                    }
+        except Exception as e:
+            print(f"Solscan lookup failed: {e}")
         
+        # If all sources fail, return None
+        print(f"No metadata found for {mint_address} on any source")
+        return None
+
+    async def subscribe_to_program(self, ws, program_id: str):
+        """Subscribe to a Raydium program for new transactions"""
+        subscribe_msg = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "logsSubscribe",
+            "params": [
+                {"mentions": [program_id]},
+                {"commitment": "confirmed"}
+            ]
+        }
+        await ws.send(json.dumps(subscribe_msg))
+        response = await ws.recv()
+        result = json.loads(response)
+        print(f"Subscribed to {program_id[:8]}... : {result}")
+        return result
+
+    def is_pool_creation(self, logs: List[str]) -> bool:
+        """Check if logs indicate a new pool creation (not swaps/deposits/add liquidity)"""
+        logs_text = ' '.join(logs)
+
+        # Exclude non-creation operations
+        exclude_patterns = [
+            'swap', 'route', 'Swap', 'Route',
+            'process_swap', 'swap_base',
+            'routeUGWgWzqBWFcrCfv8tritsqukccJPu3q5GPP3xS',  # Raydium router
+            'deposit', 'Deposit',
+            'withdraw', 'Withdraw',
+            'harvest', 'Harvest',
+            'liquidity', 'Liquidity',
+            'extend_account',  # Token account extension
+            'collect', 'Collect',  # Fee collection operations
+        ]
+        if any(pattern in logs_text for pattern in exclude_patterns):
+            return False
+
+        # Check for Raydium V4 pool creation - use initialize2 instruction
+        if f'Program {self.RAYDIUM_V4_PROGRAM} invoke [1]' in logs_text:
+            # Raydium V4 uses 'initialize2' for new pool creation
+            has_initialize2 = 'initialize2' in logs_text.lower()
+            return has_initialize2
+        
+        # Check for Raydium CPMM pool creation - check for specific instruction right after invoke
+        if f'Program {self.RAYDIUM_CPMM_PROGRAM} invoke [1]' in logs_text:
+            # Look for the instruction log immediately after invoke [1]
+            # CPMM pool creation uses: Instruction: InitializeWithPermission
+            # Must be the MAIN instruction (not InitializeImmutableOwner or InitializeAccount3)
+            cpmm_pool_creation = (
+                'Instruction: InitializeWithPermission' in logs_text or
+                'Instruction: Initialize2' in logs_text
+            )
+            return cpmm_pool_creation
+        
+        # Check for Meteora pool creation (standard DLMM)
+        if f'Program {self.METEORA_PROGRAM} invoke [1]' in logs_text:
+            # Meteora DLMM on-chain instruction discriminators (NOT SDK function names)
+            # These are the actual instruction types sent to Solana
+            meteora_instructions = [
+                'initialize_customizable_permissionless_lb_pair',
+                'initialize_customizable_permissionless_lb_pair2',
+                'initialize_lb_pair',
+                'initialize_lb_pair2',
+                'initialize_permission_lb_pair',
+                'migration_damm_v2',  # Meteora migration instruction
+            ]
+            return any(instr in logs_text.lower() for instr in meteora_instructions)
+
+        # Check for Meteora pool creation (alternative program variant)
+        if f'Program {self.METEORA_ALT_PROGRAM} invoke' in logs_text:
+            # Alternative Meteora program uses different instruction names
+            return 'InitializePoolWithDynamicConfig' in logs_text
+
+        return False
+
+    def get_dex_source(self, logs: List[str]) -> str:
+        """Determine which DEX the pool is from based on transaction logs"""
+        logs_text = ' '.join(logs)
+        
+        if f'Program {self.RAYDIUM_V4_PROGRAM}' in logs_text:
+            return 'Raydium V4'
+        elif f'Program {self.RAYDIUM_CPMM_PROGRAM}' in logs_text:
+            return 'Raydium CPMM'
+        elif f'Program {self.METEORA_PROGRAM}' in logs_text:
+            return 'Meteora'
+        elif f'Program {self.METEORA_ALT_PROGRAM}' in logs_text:
+            return 'Meteora'
+        else:
+            return 'Unknown'
+
+    async def listen_for_pools(self):
+        """Listen for new pool creation events from Raydium (V4 & CPMM) and Meteora
+
+        Filters for specific pool creation instructions (on-chain discriminators):
+        - Raydium V4: 'initialize2' instruction
+        - Raydium CPMM: 'InitializeWithPermission' or 'Initialize' instruction
+        - Meteora DLMM (standard): 'initialize_customizable_permissionless_lb_pair',
+          'initialize_customizable_permissionless_lb_pair2', 'initialize_lb_pair',
+          'initialize_lb_pair2', 'initialize_permission_lb_pair', or
+          'migration_damm_v2' (pool migration) instructions
+        - Meteora (alternative): 'InitializePoolWithDynamicConfig' instruction
+
+        Note: Uses actual on-chain instruction discriminators, NOT SDK function names.
+        SDK functions like createLbPair map to on-chain initialize_* instruction types.
+
+        Excludes:
+        - Swaps, routes, deposits, withdrawals, harvests, fee collection
+        """
+        print(f"Connecting to Solana WebSocket: {self.rpc_ws_url}")
+
         while self.is_running:
             try:
-                pools = self.get_all_pools()
-                if pools:
-                    new_pools = self.process_pools(pools, min_liquidity)
-                    if new_pools:
-                        self.latest_pools = new_pools
-                        print(f"Found {len(new_pools)} new pool(s)")
-                
-                time.sleep(interval)
+                async with websockets.connect(self.rpc_ws_url) as ws:
+                    # Subscribe to Raydium V4, Raydium CPMM, and Meteora programs
+                    await self.subscribe_to_program(ws, self.RAYDIUM_V4_PROGRAM)
+                    await self.subscribe_to_program(ws, self.RAYDIUM_CPMM_PROGRAM)
+                    await self.subscribe_to_program(ws, self.METEORA_PROGRAM)
+                    await self.subscribe_to_program(ws, self.METEORA_ALT_PROGRAM)
+
+                    print("Listening for new pool launches from Raydium (V4 & CPMM) and Meteora...")
+                    print("- Raydium V4: Filtering for 'initialize2' instruction")
+                    print("- Raydium CPMM: Filtering for 'InitializeWithPermission' or 'Initialize' instruction")
+                    print("- Meteora (standard): Filtering for on-chain initialize_* and migration_damm_v2 instructions")
+                    print("- Meteora (alternative): Filtering for 'InitializePoolWithDynamicConfig' instruction")
+
+                    while self.is_running:
+                        try:
+                            msg = await asyncio.wait_for(ws.recv(), timeout=30)
+                            data = json.loads(msg)
+
+                            if 'params' in data and 'result' in data['params']:
+                                result = data['params']['result']
+                                logs = result.get('value', {}).get('logs', [])
+                                signature = result.get('value', {}).get('signature', '')
+                                err = result.get('value', {}).get('err')
+
+                                # Skip failed transactions
+                                if err:
+                                    continue
+
+                                # Determine which DEX this is from
+                                dex_source = self.get_dex_source(logs)
+
+                                # Only process actual pool creations (not swaps, deposits, etc)
+                                if signature and self.is_pool_creation(logs):
+                                    print(f"\n{'='*50}")
+                                    print(f"New {dex_source} pool launch: {signature}")
+
+                                    pool_data = self.parse_pool_from_logs(logs, signature)
+                                    pool_data['dex'] = dex_source
+
+                                    # Log token address and symbol
+                                    print(f"Token Address: {pool_data.get('baseMint', 'Unknown')}")
+                                    print(f"Token Symbol: {pool_data.get('symbol', 'Unknown')}")
+                                    print(f"Token Name: {pool_data.get('name', 'Unknown')}")
+                                    print(f"DEX: {dex_source}")
+                                    print(f"{'='*50}\n")
+
+                                    if not self.db.pool_exists(pool_data['ammId']):
+                                        if self.db.insert_pool(pool_data):
+                                            print(f"Stored new {dex_source} pool: {pool_data['ammId']}")
+
+                        except asyncio.TimeoutError:
+                            # Send ping to keep connection alive
+                            await ws.ping()
+
             except Exception as e:
-                print(f"Error in monitor loop: {e}")
-                time.sleep(interval)
-    
-    def start_background_monitor(self, interval: int = 60, min_liquidity: float = 1000):
-        """Start monitoring in background thread"""
-        thread = Thread(target=self.monitor_loop, args=(interval, min_liquidity), daemon=True)
+                print(f"WebSocket error: {e}")
+                if self.is_running:
+                    print("Reconnecting in 5 seconds...")
+                    await asyncio.sleep(5)
+
+    def run_websocket_loop(self):
+        """Run the async WebSocket listener in a thread"""
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+        self.loop.run_until_complete(self.listen_for_pools())
+
+    def start_background_monitor(self):
+        """Start WebSocket monitoring in background thread"""
+        self.is_running = True
+        thread = Thread(target=self.run_websocket_loop, daemon=True)
         thread.start()
+        print("WebSocket monitor started")
         return thread
 
 
@@ -303,230 +651,419 @@ HTML_TEMPLATE = '''
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raydium Token Monitor</title>
+    <title>Raydium Launchlab Monitor</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #0a0e27;
+            color: #e0e8f0;
             min-height: 100vh;
-            padding: 20px;
         }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
-        }
-        
-        h1 {
-            color: #667eea;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-        
-        .subtitle {
-            color: #666;
-            font-size: 1.1em;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .stat-label {
-            color: #888;
-            font-size: 0.9em;
-            margin-bottom: 5px;
-        }
-        
-        .stat-value {
-            color: #333;
-            font-size: 2em;
-            font-weight: bold;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .tab {
-            background: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .tab.active {
-            background: #667eea;
-            color: white;
-        }
-        
-        .tab:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-        
-        .pool-grid {
-            display: grid;
-            gap: 20px;
-        }
-        
-        .pool-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            animation: slideIn 0.5s ease-out;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .pool-header {
+
+        .top-bar {
+            background: #0f1429;
+            border-bottom: 1px solid #1a2847;
+            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
         }
-        
-        .pool-name {
-            font-size: 1.5em;
+
+        .logo {
+            font-size: 20px;
             font-weight: bold;
-            color: #333;
+            color: #fff;
         }
-        
-        .new-badge {
-            background: #4CAF50;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: bold;
+
+        .logo-accent {
+            color: #ffd700;
         }
-        
-        .pool-details {
+
+        .nav-tabs {
+            display: flex;
+            gap: 30px;
+            font-size: 14px;
+        }
+
+        .nav-tabs a {
+            color: #8892b0;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .nav-tabs a:hover,
+        .nav-tabs a.active {
+            color: #fff;
+        }
+
+        .nav-tabs a.active {
+            border-bottom: 2px solid #ffd700;
+            padding-bottom: 12px;
+            margin-bottom: -12px;
+        }
+
+        .container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
         }
-        
-        .detail-item {
-            padding: 15px;
-            background: #f8f9fa;
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .chart-section {
+            background: #111729;
+            border: 1px solid #1a2847;
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chart-controls button {
+            background: transparent;
+            border: 1px solid #1a2847;
+            color: #8892b0;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .chart-controls button:hover {
+            border-color: #2a3847;
+            color: #fff;
+        }
+
+        .chart-placeholder {
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8892b0;
+            font-size: 14px;
+        }
+
+        .pools-section {
+            background: #111729;
+            border: 1px solid #1a2847;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .pools-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .pool-item {
+            background: #0a0e27;
+            border: 1px solid #1a2847;
             border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-        
-        .detail-label {
-            color: #888;
-            font-size: 0.85em;
-            margin-bottom: 5px;
+
+        .pool-item:hover {
+            border-color: #2a4a7f;
+            background: #0f1735;
         }
-        
-        .detail-value {
-            color: #333;
-            font-size: 1.2em;
+
+        .pool-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .pool-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .pool-info {
+            flex: 1;
+        }
+
+        .pool-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .pool-address {
+            font-size: 11px;
+            color: #8892b0;
+            font-family: monospace;
+            margin-top: 2px;
+        }
+
+        .pool-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .pool-time {
+            font-size: 11px;
+            color: #8892b0;
+        }
+
+        .pool-change {
+            font-size: 12px;
+            font-weight: 600;
+            color: #00d084;
+        }
+
+        .pool-change.negative {
+            color: #ff6b6b;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar-card {
+            background: #111729;
+            border: 1px solid #1a2847;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .card-label {
+            font-size: 12px;
+            color: #8892b0;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .card-subvalue {
+            font-size: 12px;
+            color: #8892b0;
+        }
+
+        .token-select {
+            background: #0a0e27;
+            border: 1px solid #1a2847;
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .token-select:hover {
+            border-color: #2a4a7f;
+        }
+
+        .token-select-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .token-select-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: bold;
         }
-        
-        .pool-id {
-            color: #888;
-            font-size: 0.85em;
-            margin-top: 15px;
-            font-family: monospace;
+
+        .token-select-text {
+            display: flex;
+            flex-direction: column;
         }
-        
+
+        .token-select-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .token-select-amount {
+            font-size: 11px;
+            color: #8892b0;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, #00d084 0%, #00a066 100%);
+            border: none;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 208, 132, 0.3);
+        }
+
         .loading {
             text-align: center;
-            color: white;
-            font-size: 1.5em;
-            padding: 50px;
+            color: #8892b0;
+            font-size: 14px;
+            padding: 40px;
         }
-        
-        .refresh-info {
-            color: white;
-            text-align: center;
-            margin-top: 20px;
-            font-size: 0.9em;
+
+        .refresh-badge {
+            background: #1a2847;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #8892b0;
+            margin-left: 8px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🚀 Raydium Token Monitor</h1>
-            <p class="subtitle">Real-time tracking of new Raydium liquidity pools</p>
+    <div class="top-bar">
+        <div class="logo">Raydium <span class="logo-accent">Launchlab</span></div>
+        <div class="nav-tabs">
+            <a class="active">Monitor</a>
+            <a>Portfolio</a>
+            <a>Analytics</a>
+            <a>Settings</a>
         </div>
-        
-        <div class="stats" id="stats">
-            <div class="stat-card">
-                <div class="stat-label">Total Pools</div>
-                <div class="stat-value" id="totalPools">-</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">New Today</div>
-                <div class="stat-value" id="newToday">-</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Liquidity</div>
-                <div class="stat-value" id="totalLiquidity">-</div>
-            </div>
-        </div>
-        
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('recent')">Recent Pools</button>
-            <button class="tab" onclick="switchTab('volume')">Top by Volume</button>
-            <button class="tab" onclick="switchTab('liquidity')">Top by Liquidity</button>
-        </div>
-        
-        <div id="poolsContainer" class="pool-grid">
-            <div class="loading">Loading pools...</div>
-        </div>
-        
-        <div class="refresh-info">Auto-refreshing every 30 seconds</div>
     </div>
-    
+
+    <div class="container">
+        <div class="main-content">
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div class="chart-title">New Pool Launches</div>
+                    <div class="chart-controls">
+                        <button>15m</button>
+                        <button>1h</button>
+                        <button class="active">24h</button>
+                        <button>1w</button>
+                    </div>
+                </div>
+                <div class="chart-placeholder">
+                    📊 Chart data will be displayed here
+                </div>
+            </div>
+
+            <div class="pools-section">
+                <div class="section-title">Latest Pools <span class="refresh-badge">Auto-refresh: 30s</span></div>
+                <div class="pools-list" id="poolsContainer">
+                    <div class="loading">Loading pools...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="sidebar-card">
+                <div class="card-label">Total Pools</div>
+                <div class="card-value" id="totalPools">-</div>
+                <div class="card-subvalue">All time</div>
+            </div>
+
+            <div class="sidebar-card">
+                <div class="card-label">New Today</div>
+                <div class="card-value" id="newToday">-</div>
+                <div class="card-subvalue">Last 24 hours</div>
+            </div>
+
+            <div class="sidebar-card">
+                <div class="card-label">Total Liquidity</div>
+                <div class="card-value" id="totalLiquidity">-</div>
+                <div class="card-subvalue">Across all pools</div>
+            </div>
+
+            <div class="token-select">
+                <div class="token-select-content">
+                    <div class="token-select-icon">✨</div>
+                    <div class="token-select-text">
+                        <div class="token-select-name">SOL</div>
+                        <div class="token-select-amount">-$0</div>
+                    </div>
+                </div>
+                <div>⌄</div>
+            </div>
+
+            <button class="action-button">Buy New Token</button>
+        </div>
+    </div>
+
     <script>
-        let currentTab = 'recent';
-        
         function formatNumber(num) {
             if (num >= 1000000) {
                 return '$' + (num / 1000000).toFixed(2) + 'M';
@@ -535,62 +1072,74 @@ HTML_TEMPLATE = '''
             }
             return '$' + num.toFixed(2);
         }
-        
+
         function formatPrice(price) {
             if (price < 0.01) {
                 return '$' + price.toFixed(8);
             }
             return '$' + price.toFixed(4);
         }
-        
-        function isNewPool(firstSeen) {
+
+        function formatActiveTime(firstSeen) {
             const poolTime = new Date(firstSeen);
             const now = new Date();
-            const hoursDiff = (now - poolTime) / (1000 * 60 * 60);
-            return hoursDiff < 24;
+            const diffMs = now - poolTime;
+            const diffSecs = Math.floor(diffMs / 1000);
+            const diffMins = Math.floor(diffSecs / 60);
+            const diffHours = Math.floor(diffMins / 60);
+            const diffDays = Math.floor(diffHours / 24);
+
+            if (diffDays > 0) {
+                return `${diffDays}d ${diffHours % 24}h`;
+            } else if (diffHours > 0) {
+                return `${diffHours}h ${diffMins % 60}m`;
+            } else if (diffMins > 0) {
+                return `${diffMins}m ${diffSecs % 60}s`;
+            } else {
+                return `${diffSecs}s ago`;
+            }
         }
-        
+
+        function getInitials(name) {
+            if (!name || name === 'Unknown') return '?';
+            return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        }
+
         function renderPool(pool) {
-            const isNew = isNewPool(pool.first_seen);
+            const initials = getInitials(pool.name);
+            const shortAddress = pool.base_mint ? pool.base_mint.slice(0, 8) + '...' + pool.base_mint.slice(-6) : 'Unknown';
+            const changePercent = Math.floor(Math.random() * 400) - 100; // Simulated change
+            const changeClass = changePercent >= 0 ? '' : 'negative';
+            const dexBadge = pool.dex ? `<span style="background: #1a2847; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 8px; color: #ffd700;">${pool.dex}</span>` : '';
+
             return `
-                <div class="pool-card">
-                    <div class="pool-header">
-                        <div class="pool-name">${pool.name}</div>
-                        ${isNew ? '<span class="new-badge">NEW</span>' : ''}
-                    </div>
-                    <div class="pool-details">
-                        <div class="detail-item">
-                            <div class="detail-label">Liquidity</div>
-                            <div class="detail-value">${formatNumber(pool.liquidity)}</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">24h Volume</div>
-                            <div class="detail-value">${formatNumber(pool.volume_24h)}</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Price</div>
-                            <div class="detail-value">${formatPrice(pool.price)}</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">APR</div>
-                            <div class="detail-value">${pool.apr.toFixed(2)}%</div>
+                <div class="pool-item">
+                    <div class="pool-left">
+                        <div class="pool-icon">${initials}</div>
+                        <div class="pool-info">
+                            <div class="pool-name" style="display: flex; align-items: center;">${pool.name || 'Unknown'} ${pool.symbol ? '(' + pool.symbol + ')' : ''} ${dexBadge}</div>
+                            <div class="pool-address">
+                                <a href="https://solscan.io/token/${pool.base_mint}" target="_blank" style="color: #8892b0; text-decoration: none;">${shortAddress}</a>
+                            </div>
                         </div>
                     </div>
-                    <div class="pool-id">Pool ID: ${pool.amm_id}</div>
+                    <div class="pool-right">
+                        <div class="pool-time">${formatActiveTime(pool.first_seen)}</div>
+                        <div class="pool-change ${changeClass}">${changePercent >= 0 ? '+' : ''}${changePercent}%</div>
+                    </div>
                 </div>
             `;
         }
-        
+
         function updateStats(data) {
             document.getElementById('totalPools').textContent = data.total_pools.toLocaleString();
-            const newToday = data.pools.filter(p => isNewPool(p.first_seen)).length;
-            document.getElementById('newToday').textContent = newToday;
+            document.getElementById('newToday').textContent = data.pools.length;
             const totalLiq = data.pools.reduce((sum, p) => sum + p.liquidity, 0);
             document.getElementById('totalLiquidity').textContent = formatNumber(totalLiq);
         }
-        
+
         function updatePools() {
-            fetch(`/api/pools/${currentTab}`)
+            fetch('/api/pools')
                 .then(response => response.json())
                 .then(data => {
                     updateStats(data);
@@ -605,17 +1154,10 @@ HTML_TEMPLATE = '''
                     console.error('Error fetching pools:', error);
                 });
         }
-        
-        function switchTab(tab) {
-            currentTab = tab;
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            updatePools();
-        }
-        
+
         // Initial load
         updatePools();
-        
+
         // Auto-refresh every 30 seconds
         setInterval(updatePools, 30000);
     </script>
@@ -627,19 +1169,11 @@ HTML_TEMPLATE = '''
 def index():
     return HTML_TEMPLATE
 
-@app.route('/api/pools/<tab_type>')
-def get_pools(tab_type):
-    """API endpoint to get pools based on tab selection"""
+@app.route('/api/pools')
+def get_pools():
+    """API endpoint to get new pools"""
     try:
-        if tab_type == 'recent':
-            pools = monitor.db.get_recent_pools(50)
-        elif tab_type == 'volume':
-            pools = monitor.db.get_top_pools(50, 'volume_24h')
-        elif tab_type == 'liquidity':
-            pools = monitor.db.get_top_pools(50, 'liquidity')
-        else:
-            pools = monitor.db.get_recent_pools(50)
-        
+        pools = monitor.db.get_recent_pools(50)
         return jsonify({
             'pools': pools,
             'total_pools': monitor.db.get_pool_count()
@@ -651,24 +1185,19 @@ def get_pools(tab_type):
 def main():
     """Main function to run the monitor with web UI"""
     print("=" * 60)
-    print("Raydium Token Monitor - Web UI")
+    print("Raydium Token Monitor - WebSocket")
     print("=" * 60)
-    
-    # Configuration
-    CHECK_INTERVAL = 60  # seconds
-    MIN_LIQUIDITY = 5000  # USD
-    PORT = 5001  # Changed from 5000 to avoid conflicts
-    
-    # Start background monitoring
-    monitor.start_background_monitor(interval=CHECK_INTERVAL, min_liquidity=MIN_LIQUIDITY)
-    
+
+    PORT = 5002
+
+    # Start WebSocket monitoring
+    monitor.start_background_monitor()
+
     # Start web server
-    print("\n🌐 Starting web interface...")
-    print(f"📊 Open your browser to: http://localhost:{PORT}")
-    print("\nPress Ctrl+C to stop\n")
-    
+    print(f"\nWeb UI: http://localhost:{PORT}")
+    print("Press Ctrl+C to stop\n")
+
     app.run(host='0.0.0.0', port=PORT, debug=False)
 
 if __name__ == "__main__":
     main()
-    

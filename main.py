@@ -393,7 +393,12 @@ class RaydiumMonitor:
                     TOKEN_METADATA_PROGRAM_ID,
                     {
                         "filters": [
-                            {"memcmp": {"offset": 33, "bytes": mint_address}}
+                            {
+                                "memcmp": {
+                                    "offset": 33,
+                                    "bytes": mint_address
+                                }
+                            }
                         ]
                     }
                 ]
@@ -402,38 +407,43 @@ class RaydiumMonitor:
             response = requests.post(url, json=payload, timeout=10)
             if response.status_code == 200:
                 data = response.json()
-                if "result" in data and len(data["result"]) > 0:
-                    print(f"[METADATA] Found Metaplex account for {mint_address}")
-                    account = data["result"][0]
-                    account_data = base64.b64decode(account["account"]["data"][0])
+                if "error" in data:
+                    print(f"[METADATA] RPC Error: {data.get('error')}")
+                elif "result" in data:
+                    result_len = len(data["result"]) if isinstance(data["result"], list) else 0
+                    print(f"[METADATA] getProgramAccounts returned {result_len} accounts for {mint_address}")
+                    if result_len > 0:
+                        print(f"[METADATA] Found Metaplex account for {mint_address}")
+                        account = data["result"][0]
+                        account_data = base64.b64decode(account["account"]["data"][0])
 
-                    # Parse Metaplex metadata layout
-                    # Structure: key(1) + updateAuthority(32) + mint(32) + nameLen(4) + name(max 32)
-                    try:
-                        key = account_data[0]
-                        if key == 4:  # MetadataKey = 4
-                            # Skip to name section (after updateAuthority + mint + nameLen)
-                            name_len = struct.unpack('<I', account_data[69:73])[0]
-                            name = account_data[73:73+name_len].decode('utf-8', errors='ignore').strip('\x00')
+                        # Parse Metaplex metadata layout
+                        # Structure: key(1) + updateAuthority(32) + mint(32) + nameLen(4) + name(max 32)
+                        try:
+                            key = account_data[0]
+                            if key == 4:  # MetadataKey = 4
+                                # Skip to name section (after updateAuthority + mint + nameLen)
+                                name_len = struct.unpack('<I', account_data[69:73])[0]
+                                name = account_data[73:73+name_len].decode('utf-8', errors='ignore').strip('\x00')
 
-                            # Symbol offset
-                            symbol_offset = 73 + name_len + 4
-                            symbol_len = struct.unpack('<I', account_data[symbol_offset:symbol_offset+4])[0]
-                            symbol = account_data[symbol_offset+4:symbol_offset+4+symbol_len].decode('utf-8', errors='ignore').strip('\x00')
+                                # Symbol offset
+                                symbol_offset = 73 + name_len + 4
+                                symbol_len = struct.unpack('<I', account_data[symbol_offset:symbol_offset+4])[0]
+                                symbol = account_data[symbol_offset+4:symbol_offset+4+symbol_len].decode('utf-8', errors='ignore').strip('\x00')
 
-                            if name or symbol:
-                                print(f"[METADATA] ✓ Successfully parsed Metaplex metadata: {name} ({symbol})")
-                                return {
-                                    'name': name or 'Unknown',
-                                    'symbol': symbol or '',
-                                    'image': ''
-                                }
-                            else:
-                                print(f"[METADATA] Metaplex account found but no name/symbol data")
-                    except Exception as parse_err:
-                        print(f"[METADATA] Error parsing Metaplex metadata: {parse_err}")
-                else:
-                    print(f"[METADATA] No Metaplex account found for {mint_address}")
+                                if name or symbol:
+                                    print(f"[METADATA] ✓ Successfully parsed Metaplex metadata: {name} ({symbol})")
+                                    return {
+                                        'name': name or 'Unknown',
+                                        'symbol': symbol or '',
+                                        'image': ''
+                                    }
+                                else:
+                                    print(f"[METADATA] Metaplex account found but no name/symbol data")
+                        except Exception as parse_err:
+                            print(f"[METADATA] Error parsing Metaplex metadata: {parse_err}")
+                    else:
+                        print(f"[METADATA] No Metaplex account found for {mint_address}")
             else:
                 print(f"[METADATA] Metaplex RPC call failed with status {response.status_code}")
         except Exception as e:

@@ -1337,13 +1337,22 @@ HTML_TEMPLATE = '''
             fetch('/api/pools')
                 .then(response => response.json())
                 .then(data => {
+                    // Update stats only, don't re-render all pools
+                    // This prevents the full DOM re-render that was causing images to disappear
                     updateStats(data);
+
+                    // Only update container on initial load (if it has loading message)
                     const container = document.getElementById('poolsContainer');
-                    if (data.pools.length === 0) {
-                        container.innerHTML = '<div class="loading">No pools found yet. Monitoring...</div>';
-                    } else {
-                        container.innerHTML = data.pools.map(renderPool).join('');
+                    const loading = container.querySelector('.loading');
+                    if (loading) {
+                        console.log('[INIT] Replacing loading message with pools');
+                        if (data.pools.length === 0) {
+                            container.innerHTML = '<div class="loading">No pools found yet. Monitoring...</div>';
+                        } else {
+                            container.innerHTML = data.pools.map(renderPool).join('');
+                        }
                     }
+                    // Otherwise, don't touch the DOM to prevent flickering and re-fetching images
                 })
                 .catch(error => {
                     console.error('Error fetching pools:', error);

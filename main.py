@@ -759,7 +759,9 @@ class RaydiumMonitor:
                                                 'dex': dex_source,
                                                 'first_seen': datetime.now().isoformat()
                                             }
+                                            print(f"[BROADCAST] Adding {broadcast_data['name']} ({broadcast_data['symbol']}) to queue. Queue size before: {pool_broadcast_queue.qsize()}")
                                             pool_broadcast_queue.put(broadcast_data)
+                                            print(f"[BROADCAST] Queue size after: {pool_broadcast_queue.qsize()}")
 
                         except asyncio.TimeoutError:
                             # Send ping to keep connection alive
@@ -1397,18 +1399,21 @@ def get_pools():
 @app.route('/api/pools/stream')
 def stream_pools():
     """Server-Sent Events endpoint for real-time pool updates"""
+    print("[SSE] Client connected to stream")
+
     def event_stream():
         while True:
             try:
-                # Try to get a pool from the queue (non-blocking)
+                # Try to get a pool from the queue (non-blocking with 1 second timeout)
                 pool = pool_broadcast_queue.get(timeout=1)
+                print(f"[SSE] Broadcasting pool to client: {pool.get('name')} ({pool.get('symbol')})")
                 # Send new pool data to client
                 yield f"data: {json.dumps({'type': 'new_pool', 'pool': pool})}\n\n"
             except queue.Empty:
-                # Keep connection alive with heartbeat
+                # Keep connection alive with heartbeat (every 1 second)
                 yield f": heartbeat\n\n"
             except Exception as e:
-                print(f"Stream error: {e}")
+                print(f"[SSE] Stream error: {e}")
                 break
 
     return Response(event_stream(), mimetype='text/event-stream',

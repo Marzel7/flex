@@ -385,10 +385,12 @@ class RaydiumMonitor:
             # Using Helius API to get the metadata account
             url = f"https://mainnet.helius-rpc.com/?api-key=0ae07551-32df-4d9d-af2a-1925fb7f561f"
 
+            # Use getProgramAccountsV2 with pagination to avoid rate limits
+            # This is Helius's optimized version of getProgramAccounts
             payload = {
                 "jsonrpc": "2.0",
                 "id": 1,
-                "method": "getProgramAccounts",
+                "method": "getProgramAccountsV2",
                 "params": [
                     TOKEN_METADATA_PROGRAM_ID,
                     {

@@ -348,16 +348,23 @@ class RaydiumMonitor:
                     print("Waiting for token metadata to be indexed...")
                     time.sleep(8)
                     
-                    # Fetch token metadata from DexScreener
+                    # Fetch token metadata (try on-chain Metaplex first for new tokens, then external APIs)
                     if base_mint:
-                        metadata = self.get_token_metadata_onchain(base_mint)
+                        # Try Metaplex on-chain first (crucial for brand new tokens)
+                        metadata = self.fetch_metaplex_metadata(base_mint)
+
+                        # Fall back to external APIs if Metaplex lookup failed
+                        if not metadata:
+                            print("[METADATA] Metaplex lookup failed, trying external APIs...")
+                            metadata = self.get_token_metadata_onchain(base_mint)
+
                         if metadata:
                             pool_data['name'] = metadata.get('name', 'Unknown')
                             pool_data['symbol'] = metadata.get('symbol', '')
                             pool_data['image'] = metadata.get('image', '')
                             print(f"Token: {pool_data['name']} ({pool_data['symbol']})")
                         else:
-                            print("No metadata found on DexScreener (token may be too new)")
+                            print("No metadata found from any source")
                     
                     # Successfully parsed, exit retry loop
                     return pool_data
@@ -375,17 +382,122 @@ class RaydiumMonitor:
         return pool_data
 
     def fetch_metaplex_metadata(self, mint_address: str) -> Dict:
-        """Placeholder for future Metaplex on-chain metadata fetching
-        
-        Note: Direct Metaplex PDA lookup is unreliable because:
-        1. Not all tokens have Metaplex metadata accounts
-        2. Many tokens use Token-2022 Metadata Extensions instead
-        3. PDA derivation requires solders library which adds overhead
-        
-        The external API fallback (DexScreener -> Jupiter -> Solscan) handles all cases
-        and is more reliable than trying to query on-chain Metaplex accounts.
+        """Fetch Metaplex metadata directly from on-chain PDA.
+
+        This is crucial for brand new tokens that haven't been indexed by external APIs yet.
+        Uses Metaplex Token Metadata program to derive and fetch the metadata account.
         """
-        return None
+        try:
+            from solders.pubkey import Pubkey
+
+            TOKEN_METADATA_PROGRAM_ID = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+
+            print(f"[METAPLEX] Deriving metadata PDA for {mint_address}")
+            mint_pubkey = Pubkey.from_string(mint_address)
+            program_pubkey = Pubkey.from_string(TOKEN_METADATA_PROGRAM_ID)
+
+            # Derive PDA: metadata + program_id + mint
+            metadata_pda, _ = Pubkey.find_program_address(
+                [b"metadata", bytes(program_pubkey), bytes(mint_pubkey)],
+                program_pubkey
+            )
+
+            print(f"[METAPLEX] Fetching account from RPC: {metadata_pda}")
+
+            # Fetch the account data
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getAccountInfo",
+                "params": [str(metadata_pda), {"encoding": "base64"}]
+            }
+
+            response = requests.post(self.rpc_http_url, json=payload, timeout=10)
+            data = response.json()
+
+            if "error" in data:
+                print(f"[METAPLEX] RPC Error: {data['error']}")
+                return None
+
+            if not data.get("result") or not data["result"].get("value"):
+                print(f"[METAPLEX] Metadata account not found at PDA")
+                return None
+
+            account_info = data["result"]["value"]
+            if not account_info.get("data"):
+                print(f"[METAPLEX] Account has no data")
+                return None
+
+            # Decode base64 data
+            account_data = base64.b64decode(account_info["data"][0])
+            print(f"[METAPLEX] Decoded {len(account_data)} bytes")
+
+            # Parse Metaplex metadata structure
+            if len(account_data) < 69:
+                print(f"[METAPLEX] Account data too short")
+                return None
+
+            # Check metadata key (should be 4 for MetadataV1)
+            key = account_data[0]
+            if key != 4:
+                print(f"[METAPLEX] Invalid metadata key: {key}")
+                return None
+
+            # Parse name (offset 65-69 is name length, then name data)
+            name_len = struct.unpack('<I', account_data[65:69])[0]
+            name = account_data[69:69+name_len].decode('utf-8', errors='ignore').strip('\x00')
+
+            # Parse symbol (after name)
+            symbol_offset = 69 + name_len
+            if symbol_offset + 4 > len(account_data):
+                symbol = ""
+            else:
+                symbol_len = struct.unpack('<I', account_data[symbol_offset:symbol_offset+4])[0]
+                symbol_offset += 4
+                if symbol_offset + symbol_len > len(account_data):
+                    symbol = ""
+                else:
+                    symbol = account_data[symbol_offset:symbol_offset+symbol_len].decode('utf-8', errors='ignore').strip('\x00')
+
+            # Parse URI (after symbol)
+            uri_offset = symbol_offset + symbol_len
+            uri = ""
+            if uri_offset + 4 <= len(account_data):
+                uri_len = struct.unpack('<I', account_data[uri_offset:uri_offset+4])[0]
+                uri_offset += 4
+                if uri_offset + uri_len <= len(account_data):
+                    uri = account_data[uri_offset:uri_offset+uri_len].decode('utf-8', errors='ignore').strip('\x00')
+
+            # Try to fetch image from URI if available
+            image_url = ""
+            if uri:
+                try:
+                    print(f"[METAPLEX] Fetching metadata from URI: {uri}")
+                    response = requests.get(uri, timeout=5)
+                    if response.status_code == 200:
+                        metadata_json = response.json()
+                        image_url = metadata_json.get('image', '')
+                        print(f"[METAPLEX] Got image URL from URI: {image_url}")
+                except Exception as e:
+                    print(f"[METAPLEX] Error fetching URI: {e}")
+
+            if name or symbol:
+                print(f"[METAPLEX] ✓ Found metadata: {name} ({symbol})")
+                return {
+                    'name': name or 'Unknown',
+                    'symbol': symbol or '',
+                    'image': image_url
+                }
+            else:
+                print(f"[METAPLEX] Metadata account found but empty name/symbol")
+                return None
+
+        except ImportError:
+            print(f"[METAPLEX] solders library not available - skipping on-chain fetch")
+            return None
+        except Exception as e:
+            print(f"[METAPLEX] Error: {e}")
+            return None
 
     def get_token_metadata_onchain(self, mint_address: str) -> Dict:
         """Fetch token metadata from multiple external API sources with fallbacks"""

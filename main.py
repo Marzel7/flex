@@ -849,6 +849,10 @@ HTML_TEMPLATE = '''
             flex-shrink: 0;
         }
 
+        .pool-icon.has-image {
+            font-size: 0;
+        }
+
         .pool-info {
             flex: 1;
         }
@@ -1129,10 +1133,20 @@ HTML_TEMPLATE = '''
             const changeClass = changePercent >= 0 ? '' : 'negative';
             const dexBadge = pool.dex ? `<span style="background: #1a2847; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 8px; color: #ffd700;">${pool.dex}</span>` : '';
 
+            // Build pool icon: use image if available, otherwise use initials with gradient
+            let iconHTML = '';
+            if (pool.image && pool.image.trim()) {
+                // Image available - use it as background
+                iconHTML = `<div class="pool-icon has-image" style="background-image: url('${pool.image}'); background-size: cover; background-position: center;" title="${pool.name}"></div>`;
+            } else {
+                // No image - use initials with gradient background
+                iconHTML = `<div class="pool-icon">${initials}</div>`;
+            }
+
             return `
                 <div class="pool-item">
                     <div class="pool-left">
-                        <div class="pool-icon">${initials}</div>
+                        ${iconHTML}
                         <div class="pool-info">
                             <div class="pool-name" style="display: flex; align-items: center;">${pool.name || 'Unknown'} ${pool.symbol ? '(' + pool.symbol + ')' : ''} ${dexBadge}</div>
                             <div class="pool-address">

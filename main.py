@@ -1327,6 +1327,9 @@ HTML_TEMPLATE = '''
             }
         }
 
+        // Track which pools have been rendered to prevent duplicates
+        const renderedPoolMints = new Set();
+
         function getInitials(name) {
             if (!name || name === 'Unknown') return '?';
             return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
@@ -1342,9 +1345,10 @@ HTML_TEMPLATE = '''
             // Build pool icon: use image if available, otherwise use initials with gradient
             let iconHTML = '';
             if (pool.image && pool.image.trim()) {
-                // Image available - store URL in data attribute, apply in JavaScript
+                // Image available - embed directly as <img> tag
                 console.log(`[RENDER] Pool: ${pool.name}, Image URL: ${pool.image}`);
-                iconHTML = `<div class="pool-icon has-image" id="icon-${pool.base_mint}" data-image-url="${pool.image.replace(/"/g, '&quot;')}"></div>`;
+                const safeImageUrl = pool.image.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                iconHTML = `<div class="pool-icon has-image" id="icon-${pool.base_mint}"><img src="${safeImageUrl}" alt="${pool.name}" style="width:100%; height:100%; object-fit: cover; display: block;" /></div>`;
             } else {
                 // No image - use initials with gradient background
                 console.log(`[RENDER] Pool: ${pool.name}, No image URL`);
@@ -1408,6 +1412,14 @@ HTML_TEMPLATE = '''
 
         function addNewPoolToUI(pool) {
             console.log(`[RENDER] addNewPoolToUI called for: ${pool.name}`);
+
+            // Skip if this pool was already rendered
+            if (renderedPoolMints.has(pool.base_mint)) {
+                console.log(`[RENDER] Pool ${pool.name} already rendered, skipping duplicate`);
+                return;
+            }
+            renderedPoolMints.add(pool.base_mint);
+
             const container = document.getElementById('poolsContainer');
             console.log(`[RENDER] Container found:`, container);
 
@@ -1436,20 +1448,7 @@ HTML_TEMPLATE = '''
                 container.innerHTML = newPoolHTML;
             }
 
-            // Load images from data attributes - do this once per pool, never again
-            // This prevents images from being affected by subsequent polling or data updates
-            const iconElement = document.getElementById(`icon-${pool.base_mint}`);
-            if (iconElement && iconElement.dataset.imageUrl) {
-                const imageUrl = iconElement.dataset.imageUrl;
-                // Use requestAnimationFrame to ensure this happens after DOM is fully painted
-                requestAnimationFrame(() => {
-                    iconElement.style.backgroundImage = `url("${imageUrl}")`;
-                    iconElement.style.backgroundSize = 'cover';
-                    iconElement.style.backgroundPosition = 'center';
-                    iconElement.style.backgroundRepeat = 'no-repeat';
-                    console.log(`[RENDER] ✓ Applied background-image for ${pool.name}`);
-                });
-            }
+            // Images are embedded as <img> tags directly in the HTML - no post-processing needed
         }
 
         function pollForNewPools() {

@@ -1263,9 +1263,9 @@ class RaydiumMonitor:
                     if current_price is not None:
                         # Update in database
                         self.db.update_pool_price(amm_id, current_price)
-                        print(f"[PRICE UPDATER] ✓ Updated price for {amm_id}: ${current_price:.8f}")
+                        print(f"[PRICE UPDATER] ✓ Updated price for {base_mint[:8]}...: ${current_price:.8f}")
                     else:
-                        print(f"[PRICE UPDATER] ✗ Could not fetch price for {amm_id}")
+                        print(f"[PRICE UPDATER] ✗ Could not fetch price for {base_mint[:8]}...")
 
                     # Rate limiting - small delay between updates
                     time.sleep(0.5)

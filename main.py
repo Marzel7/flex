@@ -323,8 +323,9 @@ class RaydiumMonitor:
             'first_seen': pool_detected_time  # Pool creation time - when we detected it
         }
 
-        # Wait for transaction to be confirmed on chain
-        time.sleep(3)
+        # Wait for transaction to be confirmed and indexed on chain
+        # New accounts created in the transaction may take time to be queryable via RPC
+        time.sleep(5)
 
         # Fetch full transaction to get token addresses (with retry for confirmation)
         max_retries = 5
@@ -442,8 +443,8 @@ class RaydiumMonitor:
 
                             print(f"[POOL ACCOUNT] Checking index {idx}: {candidate[:8]}...")
                             try:
-                                # Query the account
-                                for attempt in range(2):
+                                # Query the account (retry up to 3 times with delays)
+                                for attempt in range(3):
                                     check_response = requests.post(
                                         self.rpc_http_url,
                                         json={
@@ -473,12 +474,13 @@ class RaydiumMonitor:
 
                                         break  # Account exists, try next
                                     else:
-                                        # Account doesn't exist yet, wait and retry once
-                                        if attempt == 0:
-                                            print(f"[POOL ACCOUNT]   → Account not found yet, retrying in 1s...")
-                                            time.sleep(1)
+                                        # Account doesn't exist yet, wait and retry
+                                        if attempt < 2:
+                                            wait_time = 2 if attempt == 0 else 1
+                                            print(f"[POOL ACCOUNT]   → Account not found, retrying in {wait_time}s...")
+                                            time.sleep(wait_time)
                                         else:
-                                            print(f"[POOL ACCOUNT]   → No account data")
+                                            print(f"[POOL ACCOUNT]   → Account still not found after retries")
                                             break
                                 if lbpair_found:
                                     break

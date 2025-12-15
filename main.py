@@ -1056,15 +1056,7 @@ HTML_TEMPLATE = '''
 
         .pool-icon.has-image {
             font-size: 0;
-            background: transparent !important;
-            background-color: transparent !important;
-        }
-
-        .pool-icon.has-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
+            /* CSS background-image will be set inline via style attribute */
         }
 
         .pool-info {
@@ -1350,9 +1342,11 @@ HTML_TEMPLATE = '''
             // Build pool icon: use image if available, otherwise use initials with gradient
             let iconHTML = '';
             if (pool.image && pool.image.trim()) {
-                // Image available - create div and set image via JavaScript to handle special characters
+                // Image available - use CSS background-image instead of <img> tag
                 console.log(`[RENDER] Pool: ${pool.name}, Image URL: ${pool.image}`);
-                iconHTML = `<div class="pool-icon has-image" id="icon-${pool.base_mint}" style="overflow: hidden; display: flex; align-items: center; justify-content: center;"></div>`;
+                // Escape the URL for CSS
+                const escapedUrl = pool.image.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                iconHTML = `<div class="pool-icon has-image" id="icon-${pool.base_mint}" style="background-image: url('${escapedUrl}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>`;
             } else {
                 // No image - use initials with gradient background
                 console.log(`[RENDER] Pool: ${pool.name}, No image URL`);
@@ -1444,47 +1438,8 @@ HTML_TEMPLATE = '''
                 container.innerHTML = newPoolHTML;
             }
 
-            // If pool has image, set it via JavaScript to handle special characters
-            if (pool.image && pool.image.trim()) {
-                // Use setTimeout to ensure DOM is updated
-                setTimeout(() => {
-                    const iconElement = document.getElementById(`icon-${pool.base_mint}`);
-                    if (iconElement) {
-                        console.log(`[RENDER] Setting image for ${pool.name}, mint: ${pool.base_mint}`);
-                        const img = document.createElement('img');
-                        img.src = pool.image;
-                        img.crossOrigin = 'anonymous';
-                        img.style.width = '100%';
-                        img.style.height = '100%';
-                        img.style.objectFit = 'cover';
-                        img.style.display = 'block';
-                        img.alt = pool.name;
-                        img.onerror = function(event) {
-                            console.error(`[RENDER] Image failed to load for ${pool.name}`, event);
-                            console.error(`[RENDER] Image source was: ${pool.image}`);
-                            iconElement.innerHTML = getInitials(pool.name);
-                            iconElement.classList.remove('has-image');
-                            iconElement.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                            iconElement.style.fontSize = '14px';
-                            iconElement.style.color = '#fff';
-                            iconElement.style.fontWeight = 'bold';
-                        };
-                        img.onload = function() {
-                            console.log(`[RENDER] ✓ Image loaded successfully for ${pool.name}`);
-                        };
-                        // Clear content and background before adding image
-                        iconElement.innerHTML = '';
-                        iconElement.style.background = 'transparent';
-                        iconElement.style.backgroundColor = 'transparent';
-                        iconElement.appendChild(img);
-                    } else {
-                        console.log(`[RENDER] ERROR: Could not find icon element with ID: icon-${pool.base_mint}`);
-                    }
-                }, 0);
-            }
-
-            // Don't fetch stats for every pool - let the 30-second refresh handle it
-            // This was causing the images to disappear as network calls interfered with image loading
+            // Images are now loaded via CSS background-image, no JavaScript manipulation needed
+            // This prevents the images from being affected by network requests or DOM updates
         }
 
         function pollForNewPools() {

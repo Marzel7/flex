@@ -393,9 +393,11 @@ class RaydiumMonitor:
                                         mint_sources[mint].append(f"instruction_{parsed.get('type', 'unknown')}")
                     
                     print(f"Found mints: {mint_sources}")
-                    
+                    print(f"[POOL PARSE] DEX type for account extraction: {dex}")
+
                     # Extract pool account address based on DEX type
                     account_keys = tx.get('transaction', {}).get('message', {}).get('accountKeys', [])
+                    print(f"[POOL PARSE] Found {len(account_keys)} account keys in transaction")
                     pubkeys = []
                     for key in account_keys:
                         if isinstance(key, dict):

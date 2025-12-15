@@ -303,6 +303,8 @@ class RaydiumMonitor:
         """Parse pool creation from transaction logs and fetch token addresses"""
         import time
 
+        print(f"[POOL PARSE] Starting parse_pool_from_logs with dex={dex}, signature={signature[:16]}...")
+
         WSOL = "So11111111111111111111111111111111111111112"
 
         # Capture the time when the pool was first detected (from logs)

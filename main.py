@@ -1164,7 +1164,9 @@ class RaydiumMonitor:
                                                 'price': pool_data.get('price', 0),
                                                 'signature': pool_data.get('signature'),
                                                 'dex': dex_source,
-                                                'first_seen': pool_data.get('first_seen')  # Use detection time, not broadcast time
+                                                'first_seen': pool_data.get('first_seen'),  # Use detection time, not broadcast time
+                                                'creation_price': initial_price if initial_price is not None else 0,
+                                                'current_price': initial_price if initial_price is not None else 0
                                             }
                                             print(f"[BROADCAST] Adding {broadcast_data['name']} ({broadcast_data['symbol']}) to queue. Queue size before: {pool_broadcast_queue.qsize()}")
                                             if broadcast_data['image']:
@@ -1566,6 +1568,13 @@ HTML_TEMPLATE = '''
             color: #ff6b6b;
         }
 
+        .pool-price {
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffd700;
+            margin-bottom: 4px;
+        }
+
         .sidebar {
             display: flex;
             flex-direction: column;
@@ -1804,8 +1813,11 @@ HTML_TEMPLATE = '''
         }
 
         function formatPrice(price) {
+            if (!price || price === 0) return '-';
             if (price < 0.01) {
                 return '$' + price.toFixed(8);
+            } else if (price < 1) {
+                return '$' + price.toFixed(6);
             }
             return '$' + price.toFixed(4);
         }
@@ -1888,6 +1900,7 @@ HTML_TEMPLATE = '''
                     </div>
                     <div class="pool-right">
                         <div class="pool-time" data-first-seen="${pool.first_seen}">${formatActiveTime(pool.first_seen)}</div>
+                        <div class="pool-price">${formatPrice(pool.current_price)}</div>
                         <div class="pool-change ${changeClass}">${changePercent >= 0 ? '+' : ''}${changePercent}%</div>
                     </div>
                 </div>

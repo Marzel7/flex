@@ -1327,6 +1327,15 @@ HTML_TEMPLATE = '''
             }
         }
 
+        // Update all pool times every second
+        function updateAllPoolTimes() {
+            const poolTimes = document.querySelectorAll('[data-first-seen]');
+            poolTimes.forEach(el => {
+                const firstSeen = el.dataset.firstSeen;
+                el.textContent = formatActiveTime(firstSeen);
+            });
+        }
+
         // Track which pools have been rendered to prevent duplicates
         const renderedPoolMints = new Set();
 
@@ -1367,7 +1376,7 @@ HTML_TEMPLATE = '''
                         </div>
                     </div>
                     <div class="pool-right">
-                        <div class="pool-time">${formatActiveTime(pool.first_seen)}</div>
+                        <div class="pool-time" data-first-seen="${pool.first_seen}">${formatActiveTime(pool.first_seen)}</div>
                         <div class="pool-change ${changeClass}">${changePercent >= 0 ? '+' : ''}${changePercent}%</div>
                     </div>
                 </div>
@@ -1454,14 +1463,13 @@ HTML_TEMPLATE = '''
         console.log('[INIT] Setting up polling interval (every 1 second)');
         setInterval(pollForNewPools, 1000);
 
+        // Update pool times every 1 second to show "X seconds ago" dynamically
+        console.log('[INIT] Setting up time update interval (every 1 second)');
+        setInterval(updateAllPoolTimes, 1000);
+
         // First poll should happen immediately to load initial pools
         console.log('[INIT] Running first immediate poll');
         pollForNewPools();
-
-        // Note: 30-second backup refresh DISABLED - it was interfering with image loading
-        // We rely on 1-second polling via /api/pools/new for real-time updates
-        // Stats will be slightly out of date but images will load properly
-        // If needed in future, stats can be updated less frequently (every 5 minutes+)
 
         console.log('[INIT] Application initialization complete');
     </script>

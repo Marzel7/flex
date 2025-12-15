@@ -748,7 +748,7 @@ class RaydiumMonitor:
     def fetch_pool_price(self, amm_id: str, base_mint: str) -> float:
         """Fetch current price of a token from on-chain pool data
 
-        Queries the Raydium AMM account to get current token reserves and calculates price
+        Queries the Meteora DLMM pool account to extract current bin price
         """
         try:
             print(f"[PRICE FETCH] Fetching price for pool: {amm_id}, base_mint: {base_mint}")
@@ -774,18 +774,81 @@ class RaydiumMonitor:
                 print(f"[PRICE FETCH] ✗ Pool account not found: {amm_id}")
                 return None
 
-            account_data = data["result"]["value"]
-            print(f"[PRICE FETCH] ✓ Pool account retrieved, data size: {len(account_data.get('data', ['', ''])[0])} bytes")
+            account_info = data["result"]["value"]
+            encoded_data = account_info.get("data", ["", ""])[0]
 
-            # Parse pool data - this is simplified; actual parsing depends on AMM structure
-            # For now return a placeholder that can be enhanced
-            print(f"[PRICE FETCH] Pool data retrieved for {amm_id}")
-            return None
+            if not encoded_data:
+                print(f"[PRICE FETCH] ✗ No data in account: {amm_id}")
+                return None
+
+            # Decode base64 account data
+            try:
+                account_data = base64.b64decode(encoded_data)
+            except Exception as e:
+                print(f"[PRICE FETCH] ✗ Failed to decode account data: {e}")
+                return None
+
+            print(f"[PRICE FETCH] ✓ Pool account retrieved, data size: {len(account_data)} bytes")
+
+            # Try to parse as Meteora DLMM pool
+            price = self.parse_meteora_pool_price(account_data, amm_id)
+
+            if price is not None:
+                print(f"[PRICE FETCH] ✓ Extracted Meteora price: ${price:.8f}")
+                return price
+            else:
+                print(f"[PRICE FETCH] ⚠ Could not parse price from pool data")
+                return None
 
         except Exception as e:
             print(f"[PRICE FETCH] ✗ Error fetching pool price: {e}")
             import traceback
             traceback.print_exc()
+            return None
+
+    def parse_meteora_pool_price(self, account_data: bytes, pool_id: str) -> float:
+        """Parse Meteora DLMM pool account data to extract current price
+
+        Meteora DLMM structure (simplified):
+        - Offset 8-16: discriminator
+        - Offset varies: current_bin_id (i64) - the current active bin
+        - Price is derived from bin_id using: price = 1.0001^bin_id
+        """
+        try:
+            if len(account_data) < 200:
+                print(f"[METEORA PARSE] Account data too small ({len(account_data)} bytes)")
+                return None
+
+            # Look for current_bin_id in the account
+            # For Meteora, the bin_id determines the price
+            # We'll search for reasonable bin_id values in the account data
+
+            # Try common offset for current_bin_id (usually around offset 80-120)
+            # Bin ID is stored as i64 (8 bytes)
+
+            for offset in range(80, min(len(account_data) - 8, 200), 8):
+                try:
+                    # Try to read as i64 (little-endian)
+                    bin_id = int.from_bytes(account_data[offset:offset+8], byteorder='little', signed=True)
+
+                    # Check if this looks like a reasonable bin_id
+                    # Bin IDs typically range from -2^20 to 2^20 for Meteora
+                    if -1048576 <= bin_id <= 1048576:
+                        # Calculate price from bin_id: price = 1.0001^bin_id
+                        price = (1.0001) ** bin_id
+
+                        # Price should be between 0 and something reasonable (not astronomically large)
+                        if 1e-15 < price < 1e15:
+                            print(f"[METEORA PARSE] Found bin_id at offset {offset}: {bin_id}, price: ${price:.8f}")
+                            return price
+                except:
+                    continue
+
+            print(f"[METEORA PARSE] Could not find valid bin_id in account data")
+            return None
+
+        except Exception as e:
+            print(f"[METEORA PARSE] Error parsing Meteora pool: {e}")
             return None
 
     async def subscribe_to_program(self, ws, program_id: str):

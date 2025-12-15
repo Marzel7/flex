@@ -1342,11 +1342,9 @@ HTML_TEMPLATE = '''
             // Build pool icon: use image if available, otherwise use initials with gradient
             let iconHTML = '';
             if (pool.image && pool.image.trim()) {
-                // Image available - use CSS background-image instead of <img> tag
+                // Image available - store URL in data attribute, apply in JavaScript
                 console.log(`[RENDER] Pool: ${pool.name}, Image URL: ${pool.image}`);
-                // Escape the URL for CSS
-                const escapedUrl = pool.image.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-                iconHTML = `<div class="pool-icon has-image" id="icon-${pool.base_mint}" style="background-image: url('${escapedUrl}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>`;
+                iconHTML = `<div class="pool-icon has-image" id="icon-${pool.base_mint}" data-image-url="${pool.image.replace(/"/g, '&quot;')}"></div>`;
             } else {
                 // No image - use initials with gradient background
                 console.log(`[RENDER] Pool: ${pool.name}, No image URL`);
@@ -1438,8 +1436,20 @@ HTML_TEMPLATE = '''
                 container.innerHTML = newPoolHTML;
             }
 
-            // Images are now loaded via CSS background-image, no JavaScript manipulation needed
-            // This prevents the images from being affected by network requests or DOM updates
+            // Load images from data attributes - do this once per pool, never again
+            // This prevents images from being affected by subsequent polling or data updates
+            const iconElement = document.getElementById(`icon-${pool.base_mint}`);
+            if (iconElement && iconElement.dataset.imageUrl) {
+                const imageUrl = iconElement.dataset.imageUrl;
+                // Use requestAnimationFrame to ensure this happens after DOM is fully painted
+                requestAnimationFrame(() => {
+                    iconElement.style.backgroundImage = `url("${imageUrl}")`;
+                    iconElement.style.backgroundSize = 'cover';
+                    iconElement.style.backgroundPosition = 'center';
+                    iconElement.style.backgroundRepeat = 'no-repeat';
+                    console.log(`[RENDER] ✓ Applied background-image for ${pool.name}`);
+                });
+            }
         }
 
         function pollForNewPools() {

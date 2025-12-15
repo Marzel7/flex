@@ -1141,6 +1141,7 @@ class RaydiumMonitor:
                                 # Only process actual pool creations (not swaps, deposits, etc)
                                 if signature and self.is_pool_creation(logs):
                                     # Check if we're paused from processing new pools
+                                    # Skip entire processing if paused
                                     with pause_lock:
                                         if pause_new_pools:
                                             print(f"[PAUSE] ⏸ Ignoring new {dex_source} pool (pause mode): {signature}")

@@ -188,17 +188,29 @@ class RaydiumDatabase:
         conn.close()
         return results
 
-    def update_pool_price(self, amm_id: str, current_price: float) -> bool:
-        """Update current price for a pool"""
+    def update_pool_price(self, amm_id: str, current_price: float, is_initial: bool = False) -> bool:
+        """Update current price for a pool
+
+        If is_initial=True, also sets creation_price (the price at pool creation).
+        """
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
             timestamp = datetime.now().isoformat()
-            cursor.execute('''
-                UPDATE pools
-                SET current_price = ?, last_price_update = ?
-                WHERE amm_id = ?
-            ''', (current_price, timestamp, amm_id))
+            if is_initial:
+                # First price update - set both creation_price and current_price
+                cursor.execute('''
+                    UPDATE pools
+                    SET creation_price = ?, current_price = ?, last_price_update = ?
+                    WHERE amm_id = ?
+                ''', (current_price, current_price, timestamp, amm_id))
+            else:
+                # Subsequent price update - only update current_price
+                cursor.execute('''
+                    UPDATE pools
+                    SET current_price = ?, last_price_update = ?
+                    WHERE amm_id = ?
+                ''', (current_price, timestamp, amm_id))
             conn.commit()
             return True
         except Exception as e:
@@ -1136,7 +1148,7 @@ class RaydiumMonitor:
                                                 print(f"[PRICE INIT] Fetching initial price for {pool_data['ammId'][:8]}...")
                                                 initial_price = self.fetch_pool_price(pool_data['ammId'], pool_data['baseMint'])
                                                 if initial_price is not None:
-                                                    self.db.update_pool_price(pool_data['ammId'], initial_price)
+                                                    self.db.update_pool_price(pool_data['ammId'], initial_price, is_initial=True)
                                                     print(f"[PRICE INIT] ✓ Initial price set: ${initial_price:.8f}")
                                                 else:
                                                     print(f"[PRICE INIT] ⚠ Could not fetch initial price")
@@ -2003,7 +2015,7 @@ def get_updated_prices():
     # Filter pools that have price data
     pools_with_prices = []
     for pool in all_pools:
-        if pool.get('creation_price') and pool.get('current_price'):
+        if pool.get('creation_price') and pool.get('current_price') and pool.get('creation_price') != 0:
             price_change_percent = ((pool.get('current_price') - pool.get('creation_price')) / pool.get('creation_price')) * 100
             pools_with_prices.append({
                 'amm_id': pool['amm_id'],

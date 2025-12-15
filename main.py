@@ -214,9 +214,12 @@ class RaydiumMonitor:
     def parse_pool_from_logs(self, logs: List[str], signature: str) -> Dict:
         """Parse pool creation from transaction logs and fetch token addresses"""
         import time
-        
+
         WSOL = "So11111111111111111111111111111111111111112"
-        
+
+        # Capture the time when the pool was first detected (from logs)
+        pool_detected_time = datetime.now().isoformat()
+
         pool_data = {
             'ammId': signature[:16],
             'name': 'Unknown',
@@ -226,7 +229,8 @@ class RaydiumMonitor:
             'price': 0,
             'signature': signature,
             'symbol': '',
-            'image': ''
+            'image': '',
+            'first_seen': pool_detected_time  # Pool creation time - when we detected it
         }
 
         # Wait for transaction to be confirmed on chain
@@ -825,7 +829,7 @@ class RaydiumMonitor:
                                                 'price': pool_data.get('price', 0),
                                                 'signature': pool_data.get('signature'),
                                                 'dex': dex_source,
-                                                'first_seen': datetime.now().isoformat()
+                                                'first_seen': pool_data.get('first_seen')  # Use detection time, not broadcast time
                                             }
                                             print(f"[BROADCAST] Adding {broadcast_data['name']} ({broadcast_data['symbol']}) to queue. Queue size before: {pool_broadcast_queue.qsize()}")
                                             if broadcast_data['image']:

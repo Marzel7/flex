@@ -1377,9 +1377,11 @@ HTML_TEMPLATE = '''
         }
 
         function updatePools() {
+            console.log('[REFRESH] 30-second backup refresh - checking for pool updates');
             fetch('/api/pools')
                 .then(response => response.json())
                 .then(data => {
+                    console.log('[REFRESH] Got pools from /api/pools:', data.pools.length);
                     // Update stats only, don't re-render all pools
                     // This prevents the full DOM re-render that was causing images to disappear
                     updateStats(data);
@@ -1396,6 +1398,7 @@ HTML_TEMPLATE = '''
                         }
                     }
                     // Otherwise, don't touch the DOM to prevent flickering and re-fetching images
+                    console.log('[REFRESH] Refresh complete - DOM not modified (preserving images)');
                 })
                 .catch(error => {
                     console.error('Error fetching pools:', error);
@@ -1441,9 +1444,11 @@ HTML_TEMPLATE = '''
                         console.log(`[RENDER] Setting image for ${pool.name}, mint: ${pool.base_mint}`);
                         const img = document.createElement('img');
                         img.src = pool.image;
+                        img.crossOrigin = 'anonymous';
                         img.style.width = '100%';
                         img.style.height = '100%';
                         img.style.objectFit = 'cover';
+                        img.style.display = 'block';
                         img.alt = pool.name;
                         img.onerror = function() {
                             console.log(`[RENDER] Image failed to load for ${pool.name}, using initials`);
@@ -1456,7 +1461,9 @@ HTML_TEMPLATE = '''
                         img.onload = function() {
                             console.log(`[RENDER] Image loaded successfully for ${pool.name}`);
                         };
+                        // Clear content and background before adding image
                         iconElement.innerHTML = '';
+                        iconElement.style.background = 'transparent';
                         iconElement.appendChild(img);
                     } else {
                         console.log(`[RENDER] ERROR: Could not find icon element with ID: icon-${pool.base_mint}`);

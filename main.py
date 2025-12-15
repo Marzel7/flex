@@ -1374,41 +1374,13 @@ HTML_TEMPLATE = '''
             `;
         }
 
-        function updateStats(data) {
-            document.getElementById('totalPools').textContent = data.total_pools.toLocaleString();
-            document.getElementById('newToday').textContent = data.pools.length;
-            const totalLiq = data.pools.reduce((sum, p) => sum + p.liquidity, 0);
-            document.getElementById('totalLiquidity').textContent = formatNumber(totalLiq);
-        }
+        // DISABLED: updateStats() was causing images to disappear
+        // Stats are not updated - focus is on stability over metrics
+        // function updateStats(data) { ... }
 
-        function updatePools() {
-            console.log('[REFRESH] 30-second backup refresh - checking for pool updates');
-            fetch('/api/pools')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('[REFRESH] Got pools from /api/pools:', data.pools.length);
-                    // Update stats only, don't re-render all pools
-                    // This prevents the full DOM re-render that was causing images to disappear
-                    updateStats(data);
-
-                    // Only update container on initial load (if it has loading message)
-                    const container = document.getElementById('poolsContainer');
-                    const loading = container.querySelector('.loading');
-                    if (loading) {
-                        console.log('[INIT] Replacing loading message with pools');
-                        if (data.pools.length === 0) {
-                            container.innerHTML = '<div class="loading">No pools found yet. Monitoring...</div>';
-                        } else {
-                            container.innerHTML = data.pools.map(renderPool).join('');
-                        }
-                    }
-                    // Otherwise, don't touch the DOM to prevent flickering and re-fetching images
-                    console.log('[REFRESH] Refresh complete - DOM not modified (preserving images)');
-                })
-                .catch(error => {
-                    console.error('Error fetching pools:', error);
-                });
-        }
+        // DISABLED: updatePools() was causing images to disappear
+        // We rely entirely on /api/pools/new polling which never modifies existing DOM
+        // function updatePools() { ... }
 
         function addNewPoolToUI(pool) {
             console.log(`[RENDER] addNewPoolToUI called for: ${pool.name}`);

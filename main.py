@@ -434,32 +434,43 @@ class RaydiumMonitor:
                                 candidate = pubkeys[idx]
                                 print(f"[POOL ACCOUNT] Checking index {idx}: {candidate[:8]}...")
                                 try:
-                                    # Query the account to check its owner
-                                    check_response = requests.post(
-                                        self.rpc_http_url,
-                                        json={
-                                            "jsonrpc": "2.0",
-                                            "id": 1,
-                                            "method": "getAccountInfo",
-                                            "params": [candidate, {"encoding": "base64"}]
-                                        },
-                                        timeout=5
-                                    )
-                                    check_data = check_response.json()
-                                    if check_data.get("result") and check_data["result"].get("value"):
-                                        owner = check_data["result"]["value"].get("owner", "")
-                                        account_size = len(check_data["result"]["value"].get("data", ["", ""])[0] or "")
-                                        print(f"[POOL ACCOUNT]   → Owner: {owner[:8]}..., Size: {account_size} bytes")
+                                    # Query the account to check its owner (retry once if account is not found)
+                                    for attempt in range(2):
+                                        check_response = requests.post(
+                                            self.rpc_http_url,
+                                            json={
+                                                "jsonrpc": "2.0",
+                                                "id": 1,
+                                                "method": "getAccountInfo",
+                                                "params": [candidate, {"encoding": "base64"}]
+                                            },
+                                            timeout=5
+                                        )
+                                        check_data = check_response.json()
+                                        if check_data.get("result") and check_data["result"].get("value"):
+                                            owner = check_data["result"]["value"].get("owner", "")
+                                            account_size = len(check_data["result"]["value"].get("data", ["", ""])[0] or "")
+                                            print(f"[POOL ACCOUNT]   → Owner: {owner[:8]}..., Size: {account_size} bytes")
 
-                                        # Check if this is the Meteora program
-                                        if owner == METEORA_PROGRAM and account_size > 500:
-                                            print(f"[POOL ACCOUNT] ✓ Found Meteora LBPair at index {idx}!")
-                                            pool_data['ammId'] = candidate
-                                            pool_account_set = True
-                                            lbpair_found = True
-                                            break
-                                    else:
-                                        print(f"[POOL ACCOUNT]   → No account data or value at index {idx}")
+                                            # Check if this is the Meteora program
+                                            if owner == METEORA_PROGRAM and account_size > 500:
+                                                print(f"[POOL ACCOUNT] ✓ Found Meteora LBPair at index {idx}!")
+                                                pool_data['ammId'] = candidate
+                                                pool_account_set = True
+                                                lbpair_found = True
+                                                break
+                                            else:
+                                                break  # Account exists but is not LBPair, try next index
+                                        else:
+                                            # Account doesn't exist yet, wait and retry once
+                                            if attempt == 0:
+                                                print(f"[POOL ACCOUNT]   → Account not found yet at index {idx}, retrying in 1s...")
+                                                time.sleep(1)
+                                            else:
+                                                print(f"[POOL ACCOUNT]   → No account data or value at index {idx}")
+                                                break
+                                    if lbpair_found:
+                                        break
                                 except Exception as e:
                                     print(f"[POOL ACCOUNT] ⚠ Error checking index {idx}: {e}")
 

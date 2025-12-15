@@ -1334,9 +1334,15 @@ HTML_TEMPLATE = '''
         // Update all pool times every second
         function updateAllPoolTimes() {
             const poolTimes = document.querySelectorAll('[data-first-seen]');
+            if (poolTimes.length > 0) {
+                console.log(`[TIME] Updating ${poolTimes.length} pool time(s)`);
+            }
             poolTimes.forEach(el => {
                 const firstSeen = el.dataset.firstSeen;
-                el.textContent = formatActiveTime(firstSeen);
+                const newTime = formatActiveTime(firstSeen);
+                if (el.textContent !== newTime) {
+                    el.textContent = newTime;
+                }
             });
         }
 
@@ -1468,12 +1474,18 @@ HTML_TEMPLATE = '''
         setInterval(pollForNewPools, 1000);
 
         // Update pool times every 1 second to show "X seconds ago" dynamically
-        console.log('[INIT] Setting up time update interval (every 1 second)');
-        setInterval(updateAllPoolTimes, 1000);
+        // Offset by 500ms to avoid race conditions with polling
+        console.log('[INIT] Setting up time update interval (every 1 second, offset by 500ms)');
+        setTimeout(() => {
+            setInterval(updateAllPoolTimes, 1000);
+        }, 500);
 
         // First poll should happen immediately to load initial pools
         console.log('[INIT] Running first immediate poll');
         pollForNewPools();
+
+        // First time update should happen after a short delay
+        setTimeout(updateAllPoolTimes, 100);
 
         console.log('[INIT] Application initialization complete');
     </script>

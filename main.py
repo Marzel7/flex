@@ -1478,15 +1478,11 @@ HTML_TEMPLATE = '''
                 });
         }
 
-        // Initial load
-        console.log('[INIT] Starting initial pool load');
-        updatePools();
-
         // Poll for new pools every 1 second (near real-time updates)
         console.log('[INIT] Setting up polling interval (every 1 second)');
         setInterval(pollForNewPools, 1000);
 
-        // First poll should happen immediately
+        // First poll should happen immediately to load initial pools
         console.log('[INIT] Running first immediate poll');
         pollForNewPools();
 

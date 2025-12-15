@@ -796,7 +796,8 @@ class RaydiumMonitor:
         Note: amm_id may be truncated (first 16 chars of signature), not the actual pool address.
         """
         try:
-            print(f"[PRICE FETCH] Fetching price for: amm_id={amm_id[:8]}..., base_mint={base_mint[:8]}...")
+            print(f"[PRICE FETCH] Fetching price for: amm_id full length={len(amm_id)}, value={amm_id}")
+            print(f"[PRICE FETCH] base_mint={base_mint[:8]}...")
 
             # Try to fetch the pool account
             response = requests.post(
@@ -822,6 +823,10 @@ class RaydiumMonitor:
                 return None
 
             account_info = data["result"]["value"]
+            # Log account owner for debugging
+            owner = account_info.get("owner", "Unknown")
+            print(f"[PRICE FETCH] Account owner: {owner}")
+
             encoded_data = account_info.get("data", ["", ""])[0]
 
             if not encoded_data:

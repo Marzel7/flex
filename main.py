@@ -422,63 +422,83 @@ class RaydiumMonitor:
                     pool_account_set = False
                     if dex == "Meteora":
                         # For Meteora DLMM, we need to find the LBPair account
-                        # The LBPair is owned by the Meteora program
-                        # Try to find it by checking account owners via RPC
-                        print(f"[POOL ACCOUNT] Searching for Meteora LBPair account (owned by {METEORA_PROGRAM[:8]}...)")
+                        # Strategy: Check ALL accounts to find the one with largest size (likely the LBPair)
+                        # The pool account is typically much larger than token accounts (400+ bytes vs 220 bytes)
+                        print(f"[POOL ACCOUNT] Searching for Meteora LBPair account")
+                        print(f"[POOL ACCOUNT] Will scan {len(pubkeys)} account keys to find largest account")
 
-                        # Strategy: The LBPair is typically one of the writable accounts
-                        # Try indices 1, 2, 3, 5, 6 in order (skip 0=user, 4=program authority)
                         lbpair_found = False
-                        for idx in [1, 2, 3, 5, 6, 7, 8]:
-                            if idx < len(pubkeys):
-                                candidate = pubkeys[idx]
-                                print(f"[POOL ACCOUNT] Checking index {idx}: {candidate[:8]}...")
-                                try:
-                                    # Query the account to check its owner (retry once if account is not found)
-                                    for attempt in range(2):
-                                        check_response = requests.post(
-                                            self.rpc_http_url,
-                                            json={
-                                                "jsonrpc": "2.0",
-                                                "id": 1,
-                                                "method": "getAccountInfo",
-                                                "params": [candidate, {"encoding": "base64"}]
-                                            },
-                                            timeout=5
-                                        )
-                                        check_data = check_response.json()
-                                        if check_data.get("result") and check_data["result"].get("value"):
-                                            owner = check_data["result"]["value"].get("owner", "")
-                                            account_size = len(check_data["result"]["value"].get("data", ["", ""])[0] or "")
-                                            print(f"[POOL ACCOUNT]   → Owner: {owner[:8]}..., Size: {account_size} bytes")
+                        largest_account = None
+                        largest_size = 0
+                        checked_count = 0
 
-                                            # Check if this is the Meteora program
-                                            if owner == METEORA_PROGRAM and account_size > 500:
-                                                print(f"[POOL ACCOUNT] ✓ Found Meteora LBPair at index {idx}!")
-                                                pool_data['ammId'] = candidate
-                                                pool_account_set = True
-                                                lbpair_found = True
-                                                break
-                                            else:
-                                                break  # Account exists but is not LBPair, try next index
+                        for idx, candidate in enumerate(pubkeys):
+                            if idx == 0:  # Skip user/signer
+                                continue
+
+                            checked_count += 1
+                            # Only check first 15 accounts to avoid excessive RPC calls
+                            if checked_count > 15:
+                                break
+
+                            print(f"[POOL ACCOUNT] Checking index {idx}: {candidate[:8]}...")
+                            try:
+                                # Query the account
+                                for attempt in range(2):
+                                    check_response = requests.post(
+                                        self.rpc_http_url,
+                                        json={
+                                            "jsonrpc": "2.0",
+                                            "id": 1,
+                                            "method": "getAccountInfo",
+                                            "params": [candidate, {"encoding": "base64"}]
+                                        },
+                                        timeout=5
+                                    )
+                                    check_data = check_response.json()
+                                    if check_data.get("result") and check_data["result"].get("value"):
+                                        owner = check_data["result"]["value"].get("owner", "")
+                                        account_data = check_data["result"]["value"].get("data", ["", ""])[0] or ""
+                                        account_size = len(account_data)
+                                        print(f"[POOL ACCOUNT]   → Owner: {owner[:8]}..., Size: {account_size} bytes")
+
+                                        # Track the largest account - likely the LBPair
+                                        if account_size > largest_size and account_size > 300:
+                                            largest_size = account_size
+                                            largest_account = candidate
+                                            print(f"[POOL ACCOUNT]   → New largest: {account_size} bytes at index {idx}")
+
+                                        # Preferentially use Meteora-owned accounts
+                                        if owner == METEORA_PROGRAM and account_size > 500:
+                                            print(f"[POOL ACCOUNT] ✓ Found Meteora program-owned LBPair at index {idx}!")
+                                            pool_data['ammId'] = candidate
+                                            pool_account_set = True
+                                            lbpair_found = True
+                                            break
                                         else:
-                                            # Account doesn't exist yet, wait and retry once
-                                            if attempt == 0:
-                                                print(f"[POOL ACCOUNT]   → Account not found yet at index {idx}, retrying in 1s...")
-                                                time.sleep(1)
-                                            else:
-                                                print(f"[POOL ACCOUNT]   → No account data or value at index {idx}")
-                                                break
-                                    if lbpair_found:
-                                        break
-                                except Exception as e:
-                                    print(f"[POOL ACCOUNT] ⚠ Error checking index {idx}: {e}")
+                                            break  # Account exists, try next
+                                    else:
+                                        # Account doesn't exist yet, wait and retry once
+                                        if attempt == 0:
+                                            print(f"[POOL ACCOUNT]   → Account not found yet, retrying in 1s...")
+                                            time.sleep(1)
+                                        else:
+                                            print(f"[POOL ACCOUNT]   → No account data")
+                                            break
+                                if lbpair_found:
+                                    break
+                            except Exception as e:
+                                print(f"[POOL ACCOUNT] ⚠ Error checking index {idx}: {e}")
 
-                        if not lbpair_found:
-                            print(f"[POOL ACCOUNT] ⚠ Could not find LBPair account, using index 1 as fallback")
-                            if len(pubkeys) > 1:
-                                pool_data['ammId'] = pubkeys[1]
-                                pool_account_set = True
+                        # If we didn't find a Meteora-owned account, use the largest account found
+                        if not lbpair_found and largest_account:
+                            print(f"[POOL ACCOUNT] ⚠ No Meteora-owned account found")
+                            print(f"[POOL ACCOUNT] ✓ Using largest account ({largest_size} bytes) as LBPair")
+                            pool_data['ammId'] = largest_account
+                            pool_account_set = True
+                        elif not lbpair_found:
+                            print(f"[POOL ACCOUNT] ⚠ Could not find suitable LBPair account")
+                            print(f"[POOL ACCOUNT] Using index 1 as fallback (may not work for price fetching)")
                     elif dex == "Raydium CPMM":
                         # For Raydium CPMM, the pool is typically at index 4 (CpmmConfig) or 5 (PoolState)
                         if len(pubkeys) > 5:

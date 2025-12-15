@@ -415,21 +415,20 @@ class RaydiumMonitor:
 
                     print(f"[POOL PARSE] Extracted {len(pubkeys)} pubkeys")
 
-                    # METEORA PROGRAM ID (the owner of LBPair accounts)
-                    METEORA_PROGRAM = "LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"
+                    # METEORA PROGRAM IDs
+                    METEORA_DLMM_PROGRAM = "dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN"  # Main DLMM program (owns LBPair)
+                    METEORA_REFERRAL_PROGRAM = "cpamdpZCGKUy5JxQXB4dcpGPiikHawvSWAd6mEn1sGG"  # Referral program (not the pool)
 
                     # DEX-specific pool account extraction
                     pool_account_set = False
                     if dex == "Meteora":
                         # For Meteora DLMM, we need to find the LBPair account
-                        # Strategy: Check ALL accounts to find the one with largest size (likely the LBPair)
-                        # The pool account is typically much larger than token accounts (400+ bytes vs 220 bytes)
-                        print(f"[POOL ACCOUNT] Searching for Meteora LBPair account")
-                        print(f"[POOL ACCOUNT] Will scan {len(pubkeys)} account keys to find largest account")
+                        # The actual LBPair is owned by the DLMM program, NOT the Referral program
+                        print(f"[POOL ACCOUNT] Searching for Meteora DLMM LBPair account (owned by {METEORA_DLMM_PROGRAM[:8]}...)")
+                        print(f"[POOL ACCOUNT] Will scan {len(pubkeys)} account keys")
 
                         lbpair_found = False
-                        largest_account = None
-                        largest_size = 0
+                        dlmm_accounts = []  # Accounts owned by DLMM program
                         checked_count = 0
 
                         for idx, candidate in enumerate(pubkeys):
@@ -462,21 +461,17 @@ class RaydiumMonitor:
                                         account_size = len(account_data)
                                         print(f"[POOL ACCOUNT]   → Owner: {owner[:8]}..., Size: {account_size} bytes")
 
-                                        # Track the largest account - likely the LBPair
-                                        if account_size > largest_size and account_size > 300:
-                                            largest_size = account_size
-                                            largest_account = candidate
-                                            print(f"[POOL ACCOUNT]   → New largest: {account_size} bytes at index {idx}")
+                                        # Prefer DLMM program-owned accounts (these are actual LBPair pools)
+                                        if owner == METEORA_DLMM_PROGRAM:
+                                            dlmm_accounts.append((candidate, account_size, idx))
+                                            print(f"[POOL ACCOUNT]   ✓ Found DLMM-owned account at index {idx}")
+                                            if account_size > 300:  # LBPair accounts are typically 400+ bytes
+                                                pool_data['ammId'] = candidate
+                                                pool_account_set = True
+                                                lbpair_found = True
+                                                break
 
-                                        # Preferentially use Meteora-owned accounts
-                                        if owner == METEORA_PROGRAM and account_size > 500:
-                                            print(f"[POOL ACCOUNT] ✓ Found Meteora program-owned LBPair at index {idx}!")
-                                            pool_data['ammId'] = candidate
-                                            pool_account_set = True
-                                            lbpair_found = True
-                                            break
-                                        else:
-                                            break  # Account exists, try next
+                                        break  # Account exists, try next
                                     else:
                                         # Account doesn't exist yet, wait and retry once
                                         if attempt == 0:
@@ -490,15 +485,14 @@ class RaydiumMonitor:
                             except Exception as e:
                                 print(f"[POOL ACCOUNT] ⚠ Error checking index {idx}: {e}")
 
-                        # If we didn't find a Meteora-owned account, use the largest account found
-                        if not lbpair_found and largest_account:
-                            print(f"[POOL ACCOUNT] ⚠ No Meteora-owned account found")
-                            print(f"[POOL ACCOUNT] ✓ Using largest account ({largest_size} bytes) as LBPair")
-                            pool_data['ammId'] = largest_account
+                        # If we found DLMM accounts but not yet set, use the first one
+                        if not lbpair_found and dlmm_accounts:
+                            best_account, best_size, best_idx = dlmm_accounts[0]
+                            print(f"[POOL ACCOUNT] ✓ Using DLMM account ({best_size} bytes) from index {best_idx}")
+                            pool_data['ammId'] = best_account
                             pool_account_set = True
                         elif not lbpair_found:
-                            print(f"[POOL ACCOUNT] ⚠ Could not find suitable LBPair account")
-                            print(f"[POOL ACCOUNT] Using index 1 as fallback (may not work for price fetching)")
+                            print(f"[POOL ACCOUNT] ⚠ Could not find DLMM-owned LBPair account")
                     elif dex == "Raydium CPMM":
                         # For Raydium CPMM, the pool is typically at index 4 (CpmmConfig) or 5 (PoolState)
                         if len(pubkeys) > 5:

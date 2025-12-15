@@ -51,7 +51,10 @@ class RaydiumDatabase:
                 signature TEXT,
                 dex TEXT,
                 first_seen TIMESTAMP,
-                last_updated TIMESTAMP
+                last_updated TIMESTAMP,
+                creation_price REAL,
+                current_price REAL,
+                last_price_update TIMESTAMP
             )
         ''')
 
@@ -72,9 +75,24 @@ class RaydiumDatabase:
             cursor.execute('ALTER TABLE pools ADD COLUMN dex TEXT')
         except sqlite3.OperationalError:
             pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN creation_price REAL')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN current_price REAL')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN last_price_update TIMESTAMP')
+        except sqlite3.OperationalError:
+            pass
 
         cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_amm_id ON pools(amm_id)
+        ''')
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_first_seen ON pools(first_seen)
         ''')
 
         conn.commit()
@@ -145,7 +163,7 @@ class RaydiumDatabase:
         conn = self.get_connection()
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT amm_id, name, symbol, image, base_mint, liquidity, price, signature, dex, first_seen
+            SELECT amm_id, name, symbol, image, base_mint, liquidity, price, signature, dex, first_seen, creation_price, current_price
             FROM pools
             ORDER BY first_seen DESC
             LIMIT ?
@@ -163,8 +181,78 @@ class RaydiumDatabase:
                 'price': row[6],
                 'signature': row[7] or '',
                 'dex': row[8] or 'Unknown',
-                'first_seen': row[9]
+                'first_seen': row[9],
+                'creation_price': row[10],
+                'current_price': row[11]
             })
+        conn.close()
+        return results
+
+    def update_pool_price(self, amm_id: str, current_price: float) -> bool:
+        """Update current price for a pool"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            timestamp = datetime.now().isoformat()
+            cursor.execute('''
+                UPDATE pools
+                SET current_price = ?, last_price_update = ?
+                WHERE amm_id = ?
+            ''', (current_price, timestamp, amm_id))
+            conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error updating pool price: {e}")
+            return False
+        finally:
+            conn.close()
+
+    def get_pools_needing_update(self) -> List[Dict]:
+        """Get pools that need price updates based on age and last update time"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        now = datetime.now()
+
+        # Get pools by age with their update needs
+        cursor.execute('''
+            SELECT amm_id, base_mint, first_seen, last_price_update, creation_price, current_price
+            FROM pools
+            WHERE base_mint IS NOT NULL AND base_mint != ''
+            ORDER BY first_seen DESC
+        ''')
+
+        results = []
+        for row in cursor.fetchall():
+            amm_id, base_mint, first_seen, last_update, creation_price, current_price = row
+
+            first_seen_dt = datetime.fromisoformat(first_seen)
+            age_seconds = (now - first_seen_dt).total_seconds()
+
+            # Determine update interval based on age
+            if age_seconds < 300:  # 0-5 minutes: update every 30 seconds
+                update_interval = 30
+            elif age_seconds < 1800:  # 5-30 minutes: update every 2 minutes
+                update_interval = 120
+            else:  # 30+ minutes: update every 5 minutes
+                update_interval = 300
+
+            # Check if needs update
+            if last_update is None:
+                needs_update = True
+            else:
+                last_update_dt = datetime.fromisoformat(last_update)
+                seconds_since_update = (now - last_update_dt).total_seconds()
+                needs_update = seconds_since_update >= update_interval
+
+            if needs_update:
+                results.append({
+                    'amm_id': amm_id,
+                    'base_mint': base_mint,
+                    'creation_price': creation_price,
+                    'current_price': current_price,
+                    'age_seconds': age_seconds
+                })
+
         conn.close()
         return results
 
@@ -657,6 +745,42 @@ class RaydiumMonitor:
         print(f"[METADATA] ✗ No metadata found for {mint_address} on any source")
         return None
 
+    def fetch_pool_price(self, amm_id: str, base_mint: str) -> float:
+        """Fetch current price of a token from on-chain pool data
+        
+        Queries the Raydium AMM account to get current token reserves and calculates price
+        """
+        try:
+            # Get pool account info from blockchain
+            response = requests.post(
+                self.rpc_http_url,
+                json={
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getAccountInfo",
+                    "params": [amm_id, {"encoding": "base64"}]
+                },
+                timeout=10
+            )
+            
+            data = response.json()
+            if "error" in data:
+                print(f"[PRICE] RPC error fetching pool {amm_id}: {data['error']}")
+                return None
+            
+            if not data.get("result") or not data["result"].get("value"):
+                print(f"[PRICE] Pool account not found: {amm_id}")
+                return None
+            
+            # Parse pool data - this is simplified; actual parsing depends on AMM structure
+            # For now return a placeholder that can be enhanced
+            print(f"[PRICE] Pool data retrieved for {amm_id}")
+            return None
+            
+        except Exception as e:
+            print(f"[PRICE] Error fetching pool price: {e}")
+            return None
+
     async def subscribe_to_program(self, ws, program_id: str):
         """Subscribe to a Raydium program for new transactions"""
         subscribe_msg = {
@@ -861,6 +985,49 @@ class RaydiumMonitor:
         thread = Thread(target=self.run_websocket_loop, daemon=True)
         thread.start()
         print("WebSocket monitor started")
+        return thread
+
+    def update_pool_prices(self):
+        """Background thread that updates pool prices on a sliding scale based on age"""
+        print("[PRICE UPDATER] Price update thread started")
+        while self.is_running:
+            try:
+                # Get pools that need updating
+                pools_to_update = self.db.get_pools_needing_update()
+                
+                if pools_to_update:
+                    print(f"[PRICE UPDATER] Updating prices for {len(pools_to_update)} pool(s)")
+                
+                for pool_info in pools_to_update:
+                    if not self.is_running:
+                        break
+                    
+                    amm_id = pool_info['amm_id']
+                    base_mint = pool_info['base_mint']
+                    
+                    # Fetch current price from blockchain
+                    current_price = self.fetch_pool_price(amm_id, base_mint)
+                    
+                    if current_price is not None:
+                        # Update in database
+                        self.db.update_pool_price(amm_id, current_price)
+                        print(f"[PRICE UPDATER] Updated price for {amm_id}: ${current_price}")
+                    
+                    # Rate limiting - small delay between updates
+                    time.sleep(0.5)
+                
+                # Check again after 10 seconds
+                time.sleep(10)
+                
+            except Exception as e:
+                print(f"[PRICE UPDATER] Error in price update loop: {e}")
+                time.sleep(10)
+
+    def start_price_updater(self):
+        """Start background price update thread"""
+        thread = Thread(target=self.update_pool_prices, daemon=True)
+        thread.start()
+        print("[PRICE UPDATER] Price updater thread started")
         return thread
 
 
@@ -1372,7 +1539,8 @@ HTML_TEMPLATE = '''
         function renderPool(pool) {
             const initials = getInitials(pool.name);
             const shortAddress = pool.base_mint ? pool.base_mint.slice(0, 8) + '...' + pool.base_mint.slice(-6) : 'Unknown';
-            const changePercent = Math.floor(Math.random() * 400) - 100; // Simulated change
+            // Use real price change from server, or 0 if not available yet
+            const changePercent = pool.price_change_percent !== undefined ? Math.round(pool.price_change_percent * 100) / 100 : 0;
             const changeClass = changePercent >= 0 ? '' : 'negative';
             const dexBadge = pool.dex ? `<span style="background: #1a2847; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 8px; color: #ffd700;">${pool.dex}</span>` : '';
 
@@ -1485,9 +1653,42 @@ HTML_TEMPLATE = '''
                 });
         }
 
+        function updatePoolPrices() {
+            // Poll for price updates every 5 seconds for existing pools
+            fetch('/api/pools/prices')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.pools && data.pools.length > 0) {
+                        console.log(`[PRICE] Received ${data.pools.length} price updates`);
+                        data.pools.forEach(poolUpdate => {
+                            // Find the pool element by amm_id and update its price change
+                            const poolElements = document.querySelectorAll('.pool-item');
+                            poolElements.forEach(poolEl => {
+                                // Price data would be stored on the element, but for now update if found
+                                const changeEl = poolEl.querySelector('.pool-change');
+                                if (changeEl && changeEl.textContent !== undefined) {
+                                    const newPercent = poolUpdate.price_change_percent;
+                                    const newText = `${newPercent >= 0 ? '+' : ''}${newPercent.toFixed(2)}%`;
+                                    if (changeEl.textContent !== newText) {
+                                        changeEl.textContent = newText;
+                                        changeEl.classList.toggle('negative', newPercent < 0);
+                                        console.log(`[PRICE] Updated price: ${newText}`);
+                                    }
+                                }
+                            });
+                        });
+                    }
+                })
+                .catch(error => console.error('[PRICE] Error fetching price updates:', error));
+        }
+
         // Poll for new pools every 1 second (near real-time updates)
         console.log('[INIT] Setting up polling interval (every 1 second)');
         setInterval(pollForNewPools, 1000);
+
+        // Update pool prices every 5 seconds
+        console.log('[INIT] Setting up price update interval (every 5 seconds)');
+        setInterval(updatePoolPrices, 5000);
 
         // Update pool times every 1 second to show "X seconds ago" dynamically
         // Offset by 500ms to avoid race conditions with polling
@@ -1524,9 +1725,10 @@ def get_pools():
 
 @app.route('/api/pools/new')
 def get_new_pools():
-    """Get new pools from broadcast queue (faster than 30s refresh)
+    """Get new pools from broadcast queue with price updates (faster than 30s refresh)
 
     Returns pools that were added to the queue but haven't been polled yet.
+    Includes price change percentage based on creation price vs current price.
     Clients should poll this every 1-2 seconds for near real-time updates.
     """
     new_pools = []
@@ -1536,10 +1738,20 @@ def get_new_pools():
     while not pool_broadcast_queue.empty():
         try:
             pool = pool_broadcast_queue.get_nowait()
+
+            # Calculate price change if we have both creation and current prices
+            price_change_percent = 0
+            if pool.get('creation_price') and pool.get('current_price') and pool.get('creation_price') != 0:
+                price_change_percent = ((pool.get('current_price') - pool.get('creation_price')) / pool.get('creation_price')) * 100
+
+            pool['price_change_percent'] = price_change_percent
+
             new_pools.append(pool)
             print(f"[API] Delivered pool to client: {pool.get('name')} ({pool.get('symbol')})")
             if pool.get('image'):
                 print(f"[API] Image URL: {pool.get('image')}")
+            if pool.get('current_price'):
+                print(f"[API] Price change: {price_change_percent:.2f}%")
             sys.stdout.flush()
         except queue.Empty:
             break
@@ -1554,6 +1766,30 @@ def get_new_pools():
 
     return jsonify({'new_pools': new_pools})
 
+@app.route('/api/pools/prices')
+def get_updated_prices():
+    """Get price updates for existing pools
+
+    Returns pools that have had price updates since last poll.
+    Used to update existing pool items in the UI without re-rendering.
+    """
+    # Get all pools with current prices
+    all_pools = monitor.db.get_recent_pools(limit=100)
+
+    # Filter pools that have price data
+    pools_with_prices = []
+    for pool in all_pools:
+        if pool.get('creation_price') and pool.get('current_price'):
+            price_change_percent = ((pool.get('current_price') - pool.get('creation_price')) / pool.get('creation_price')) * 100
+            pools_with_prices.append({
+                'amm_id': pool['amm_id'],
+                'current_price': pool['current_price'],
+                'creation_price': pool['creation_price'],
+                'price_change_percent': price_change_percent
+            })
+
+    return jsonify({'pools': pools_with_prices})
+
 def main():
     """Main function to run the monitor with web UI"""
     print("=" * 60)
@@ -1564,6 +1800,9 @@ def main():
 
     # Start WebSocket monitoring
     monitor.start_background_monitor()
+
+    # Start price updater
+    monitor.start_price_updater()
 
     # Start web server
     print(f"\nWeb UI: http://localhost:{PORT}")

@@ -407,7 +407,9 @@ class RaydiumMonitor:
                                             mint_sources[mint] = []
                                         mint_sources[mint].append(f"instruction_{parsed.get('type', 'unknown')}")
                     
-                    print(f"Found mints: {mint_sources}")
+                    print(f"[POOL PARSE] Found {len(mint_sources)} distinct mints in transaction")
+                    for mint, sources in mint_sources.items():
+                        print(f"[POOL PARSE]   Mint: {mint} - Sources: {sources}")
                     print(f"[POOL PARSE] DEX type for account extraction: {dex}")
 
                     # Extract pool account address based on DEX type
@@ -532,34 +534,41 @@ class RaydiumMonitor:
                     
                     # Identify base and quote mints
                     quote_mint = WSOL if WSOL in mint_sources else None
-                    
+
                     # The base mint is the new token being created
                     # It should NOT be WSOL
                     # Prefer mints that appear in postTokenBalances (actual pool state)
                     base_mint = None
-                    
+
+                    print(f"[POOL PARSE] Identifying base mint (token address)...")
                     for mint, sources in mint_sources.items():
                         if mint == WSOL:
+                            print(f"[POOL PARSE]   Skipping WSOL: {mint}")
                             continue
                         # Mints in postTokenBalances are more reliable (actual pool accounts)
                         if 'post_balance' in sources:
+                            print(f"[POOL PARSE]   ✓ Found base mint with post_balance: {mint}")
                             base_mint = mint
                             break
-                    
+
                     # If no mint in postTokenBalances, pick first non-WSOL
                     if not base_mint:
+                        print(f"[POOL PARSE]   No post_balance mints found, selecting first non-WSOL...")
                         for mint in mint_sources.keys():
                             if mint != WSOL:
+                                print(f"[POOL PARSE]   ✓ Selected base mint: {mint}")
                                 base_mint = mint
                                 break
-                    
+
                     # Set mints in pool data
                     if base_mint:
                         pool_data['baseMint'] = base_mint
-                        print(f"Base mint: {base_mint}")
+                        print(f"[POOL PARSE] ✓ Base mint (TOKEN ADDRESS): {base_mint}")
+                    else:
+                        print(f"[POOL PARSE] ✗ WARNING: No base mint found!")
                     if quote_mint:
                         pool_data['quoteMint'] = quote_mint
-                        print(f"Quote mint: {quote_mint} (WSOL)")
+                        print(f"[POOL PARSE] Quote mint (WSOL): {quote_mint}")
                     
                     # Wait for metadata to be indexed on-chain (critical for fresh tokens)
                     print("Waiting for token metadata to be indexed (6 seconds)...")

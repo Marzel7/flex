@@ -364,6 +364,14 @@ class RaydiumMonitor:
                             pool_data['symbol'] = metadata.get('symbol', '')
                             pool_data['image'] = metadata.get('image', '')
                             print(f"Token: {pool_data['name']} ({pool_data['symbol']})")
+
+                            # If we have name/symbol but no image, try to get image separately
+                            if not pool_data['image']:
+                                print("[METADATA] Have name/symbol but no image, trying logo service...")
+                                image_url = self.get_token_logo(base_mint)
+                                if image_url:
+                                    pool_data['image'] = image_url
+                                    print(f"[METADATA] ✓ Added image URL: {image_url}")
                         else:
                             print("No metadata found from any source - broadcasting with Unknown")
                     
@@ -484,6 +492,10 @@ class RaydiumMonitor:
 
             if name or symbol:
                 print(f"[METAPLEX] ✓ Found metadata: {name} ({symbol})")
+                if image_url:
+                    print(f"[METAPLEX] ✓ Image URL from metadata: {image_url}")
+                else:
+                    print(f"[METAPLEX] ✗ No image URL in metadata")
                 return {
                     'name': name or 'Unknown',
                     'symbol': symbol or '',
@@ -514,15 +526,76 @@ class RaydiumMonitor:
             if response.status_code == 200:
                 data = response.json()
                 print(f"[METADATA] ✓ Found metadata on Jupiter: {data.get('name', 'Unknown')} ({data.get('symbol', '')})")
+                image_url = data.get('logoURI', '')
+                if image_url:
+                    print(f"[METADATA] ✓ Image URL from Jupiter: {image_url}")
+                else:
+                    print(f"[METADATA] ✗ No image URL from Jupiter")
                 return {
                     'name': data.get('name', 'Unknown'),
                     'symbol': data.get('symbol', ''),
-                    'image': data.get('logoURI', '')
+                    'image': image_url
                 }
             else:
                 print(f"[METADATA] Jupiter API returned {response.status_code}")
         except Exception as e:
             print(f"[METADATA] Jupiter API lookup failed: {e}")
+
+        return None
+
+    def get_token_metadata_solana_tokens(self, mint_address: str) -> Dict:
+        """Fetch token metadata from Solana token list (another fallback source)"""
+        print(f"[METADATA] Trying Solana token list for {mint_address}")
+        try:
+            # Try Solana's official token list
+            url = f"https://token.solflare.com/solana/{mint_address}"
+            response = requests.get(url, timeout=5)
+
+            if response.status_code == 200:
+                data = response.json()
+                print(f"[METADATA] ✓ Found metadata on Solflare: {data.get('name', 'Unknown')} ({data.get('symbol', '')})")
+                return {
+                    'name': data.get('name', 'Unknown'),
+                    'symbol': data.get('symbol', ''),
+                    'image': data.get('logoURI', '') or data.get('image', '')
+                }
+            else:
+                print(f"[METADATA] Solflare returned {response.status_code}")
+        except Exception as e:
+            print(f"[METADATA] Solflare lookup failed: {e}")
+
+        return None
+
+    def get_token_logo(self, mint_address: str) -> str:
+        """Try multiple sources to get a token logo URL"""
+        sources = [
+            f"https://cdn.jsdelivr.net/gh/solana-labs/token-list@main/assets/mainnet/{mint_address}/logo.png",
+            f"https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/{mint_address}/logo.png",
+            f"https://api.solscan.io/api/token/meta?token={mint_address}",
+        ]
+
+        for url in sources:
+            try:
+                print(f"[LOGO] Trying {url}")
+                response = requests.head(url, timeout=3)
+                if response.status_code == 200:
+                    print(f"[LOGO] ✓ Found logo at: {url}")
+                    return url
+            except Exception as e:
+                print(f"[LOGO] Failed: {e}")
+                continue
+
+        # Try Solscan API as last resort
+        try:
+            url = f"https://api.solscan.io/api/token/meta?token={mint_address}"
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('logo'):
+                    print(f"[LOGO] ✓ Found logo from Solscan API")
+                    return data.get('logo')
+        except Exception as e:
+            print(f"[LOGO] Solscan API failed: {e}")
 
         return None
 
@@ -788,7 +861,9 @@ class RaydiumMonitor:
                                             }
                                             print(f"[BROADCAST] Adding {broadcast_data['name']} ({broadcast_data['symbol']}) to queue. Queue size before: {pool_broadcast_queue.qsize()}")
                                             if broadcast_data['image']:
-                                                print(f"[BROADCAST] Image URL: {broadcast_data['image']}")
+                                                print(f"[BROADCAST] ✓ Image URL present: {broadcast_data['image']}")
+                                            else:
+                                                print(f"[BROADCAST] ✗ WARNING: No image URL for {broadcast_data['name']} - metadata fetch may have failed")
                                             pool_broadcast_queue.put(broadcast_data)
                                             print(f"[BROADCAST] Queue size after: {pool_broadcast_queue.qsize()}")
 

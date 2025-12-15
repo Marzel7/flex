@@ -1060,7 +1060,21 @@ HTML_TEMPLATE = '''
 
         .pool-icon.has-image {
             font-size: 0;
-            /* CSS background-image will be set inline via style attribute */
+            background: #1a2847;
+            /* Remove gradient background while image loads */
+        }
+
+        .pool-icon.has-image img {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         .pool-info {

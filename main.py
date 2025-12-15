@@ -965,14 +965,16 @@ class RaydiumMonitor:
             
             try:
                 # Read as i64 (little-endian)
-                bin_id = int.from_bytes(account_data[offset:offset+8], byteorder='little', signed=True)
+                bin_id_bytes = account_data[offset:offset+8]
+                bin_id = int.from_bytes(bin_id_bytes, byteorder='little', signed=True)
 
-                # Always log the bin_id to track changes
-                print(f"[METEORA PARSE] bin_id={bin_id} at offset {offset}")
+                # Log bin_id with hex bytes for debugging
+                hex_bytes = bin_id_bytes.hex()
+                print(f"[METEORA PARSE] bin_id={bin_id} (bytes: {hex_bytes}) at offset {offset}")
 
                 # Check if this looks like a reasonable bin_id
                 if bin_id == 0:
-                    print(f"[METEORA PARSE] ⚠ bin_id is zero")
+                    print(f"[METEORA PARSE] ⚠ bin_id is zero - pool may not have active trades yet")
                     return None
 
                 # Try to calculate price from bin_id: price = 1.0001^bin_id

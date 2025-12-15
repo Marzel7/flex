@@ -299,7 +299,7 @@ class RaydiumMonitor:
         
         print(f"Using RPC: {self.rpc_http_url.split('?')[0]}...")
 
-    def parse_pool_from_logs(self, logs: List[str], signature: str) -> Dict:
+    def parse_pool_from_logs(self, logs: List[str], signature: str, dex: str = "Unknown") -> Dict:
         """Parse pool creation from transaction logs and fetch token addresses"""
         import time
 
@@ -394,6 +394,42 @@ class RaydiumMonitor:
                     
                     print(f"Found mints: {mint_sources}")
                     
+                    # Extract pool account address based on DEX type
+                    account_keys = tx.get('transaction', {}).get('message', {}).get('accountKeys', [])
+                    pubkeys = []
+                    for key in account_keys:
+                        if isinstance(key, dict):
+                            pubkeys.append(key.get('pubkey', ''))
+                        else:
+                            pubkeys.append(key)
+                    
+                    # DEX-specific pool account extraction
+                    if dex == "Meteora":
+                        # For Meteora DLMM, the LBPair account is typically at index 1 or 2
+                        # In Meteora transactions: [user, lbpair, event_authority, program, ...]
+                        if len(pubkeys) > 1:
+                            pool_account = pubkeys[1]
+                            print(f"[POOL ACCOUNT] Meteora LBPair extracted from index 1: {pool_account}")
+                            pool_data['ammId'] = pool_account
+                        else:
+                            print(f"[POOL ACCOUNT] ⚠ Not enough accounts for Meteora (need >1, got {len(pubkeys)})")
+                    elif dex == "Raydium CPMM":
+                        # For Raydium CPMM, the pool is typically at index 4 (CpmmConfig) or 5 (PoolState)
+                        if len(pubkeys) > 5:
+                            pool_account = pubkeys[5]
+                            print(f"[POOL ACCOUNT] Raydium CPMM PoolState extracted from index 5: {pool_account}")
+                            pool_data['ammId'] = pool_account
+                        elif len(pubkeys) > 4:
+                            pool_account = pubkeys[4]
+                            print(f"[POOL ACCOUNT] Raydium CPMM Config extracted from index 4: {pool_account}")
+                            pool_data['ammId'] = pool_account
+                    else:  # Raydium V4 or Unknown
+                        # For Raydium V4, the pool is at index 4
+                        if len(pubkeys) > 4:
+                            pool_account = pubkeys[4]
+                            print(f"[POOL ACCOUNT] Raydium V4 pool extracted from index 4: {pool_account}")
+                            pool_data['ammId'] = pool_account
+                    
                     # Identify base and quote mints
                     quote_mint = WSOL if WSOL in mint_sources else None
                     
@@ -416,18 +452,6 @@ class RaydiumMonitor:
                             if mint != WSOL:
                                 base_mint = mint
                                 break
-                    
-                    # Get AMM ID from account keys (index 4 for Raydium V4)
-                    account_keys = tx.get('transaction', {}).get('message', {}).get('accountKeys', [])
-                    pubkeys = []
-                    for key in account_keys:
-                        if isinstance(key, dict):
-                            pubkeys.append(key.get('pubkey', ''))
-                        else:
-                            pubkeys.append(key)
-                    
-                    if len(pubkeys) > 4:
-                        pool_data['ammId'] = pubkeys[4]
                     
                     # Set mints in pool data
                     if base_mint:
@@ -748,12 +772,13 @@ class RaydiumMonitor:
     def fetch_pool_price(self, amm_id: str, base_mint: str) -> float:
         """Fetch current price of a token from on-chain pool data
 
-        Queries the Meteora DLMM pool account to extract current bin price
+        Queries the Meteora DLMM pool account to extract current bin price.
+        Note: amm_id may be truncated (first 16 chars of signature), not the actual pool address.
         """
         try:
-            print(f"[PRICE FETCH] Fetching price for pool: {amm_id}, base_mint: {base_mint}")
+            print(f"[PRICE FETCH] Fetching price for: amm_id={amm_id[:8]}..., base_mint={base_mint[:8]}...")
 
-            # Get pool account info from blockchain
+            # Try to fetch the pool account
             response = requests.post(
                 self.rpc_http_url,
                 json={
@@ -766,19 +791,21 @@ class RaydiumMonitor:
             )
 
             data = response.json()
+
             if "error" in data:
-                print(f"[PRICE FETCH] ✗ RPC error for {amm_id}: {data['error']}")
+                print(f"[PRICE FETCH] ⚠ RPC error: {data['error'].get('message', data['error'])}")
                 return None
 
             if not data.get("result") or not data["result"].get("value"):
-                print(f"[PRICE FETCH] ✗ Pool account not found: {amm_id}")
+                print(f"[PRICE FETCH] ⚠ Account not found at {amm_id[:8]}... (may be signature, not pool address)")
+                print(f"[PRICE FETCH] ℹ Need actual Meteora LBPair account address to fetch price")
                 return None
 
             account_info = data["result"]["value"]
             encoded_data = account_info.get("data", ["", ""])[0]
 
             if not encoded_data:
-                print(f"[PRICE FETCH] ✗ No data in account: {amm_id}")
+                print(f"[PRICE FETCH] ✗ Account has no data")
                 return None
 
             # Decode base64 account data
@@ -788,67 +815,66 @@ class RaydiumMonitor:
                 print(f"[PRICE FETCH] ✗ Failed to decode account data: {e}")
                 return None
 
-            print(f"[PRICE FETCH] ✓ Pool account retrieved, data size: {len(account_data)} bytes")
+            print(f"[PRICE FETCH] ✓ Account retrieved ({len(account_data)} bytes), parsing...")
 
             # Try to parse as Meteora DLMM pool
             price = self.parse_meteora_pool_price(account_data, amm_id)
 
             if price is not None:
-                print(f"[PRICE FETCH] ✓ Extracted Meteora price: ${price:.8f}")
+                print(f"[PRICE FETCH] ✓ Extracted price: ${price:.8f}")
                 return price
             else:
-                print(f"[PRICE FETCH] ⚠ Could not parse price from pool data")
+                print(f"[PRICE FETCH] ⚠ Could not extract price from account data")
                 return None
 
         except Exception as e:
-            print(f"[PRICE FETCH] ✗ Error fetching pool price: {e}")
-            import traceback
-            traceback.print_exc()
+            print(f"[PRICE FETCH] ✗ Exception: {e}")
             return None
 
     def parse_meteora_pool_price(self, account_data: bytes, pool_id: str) -> float:
         """Parse Meteora DLMM pool account data to extract current price
 
-        Meteora DLMM structure (simplified):
-        - Offset 8-16: discriminator
-        - Offset varies: current_bin_id (i64) - the current active bin
+        Meteora DLMM LBPair structure:
+        - The account must be at least 200+ bytes for Meteora LBPair
+        - Current bin_id is typically stored in the early-middle part of the account
         - Price is derived from bin_id using: price = 1.0001^bin_id
         """
         try:
-            if len(account_data) < 200:
-                print(f"[METEORA PARSE] Account data too small ({len(account_data)} bytes)")
+            if len(account_data) < 100:
+                print(f"[METEORA PARSE] ⚠ Account data too small ({len(account_data)} bytes), likely not a pool account")
                 return None
 
-            # Look for current_bin_id in the account
-            # For Meteora, the bin_id determines the price
-            # We'll search for reasonable bin_id values in the account data
+            print(f"[METEORA PARSE] Parsing {len(account_data)} byte account for bin_id...")
 
-            # Try common offset for current_bin_id (usually around offset 80-120)
-            # Bin ID is stored as i64 (8 bytes)
+            # Meteora DLMM LBPair structure has bin_id stored as i64
+            # Search across multiple offset ranges to find it
+            # Typically found in range 40-150 bytes
 
-            for offset in range(80, min(len(account_data) - 8, 200), 8):
+            for offset in range(40, min(len(account_data) - 8, 400), 8):
                 try:
                     # Try to read as i64 (little-endian)
                     bin_id = int.from_bytes(account_data[offset:offset+8], byteorder='little', signed=True)
 
                     # Check if this looks like a reasonable bin_id
                     # Bin IDs typically range from -2^20 to 2^20 for Meteora
-                    if -1048576 <= bin_id <= 1048576:
+                    if -1048576 <= bin_id <= 1048576 and bin_id != 0:
                         # Calculate price from bin_id: price = 1.0001^bin_id
                         price = (1.0001) ** bin_id
 
-                        # Price should be between 0 and something reasonable (not astronomically large)
+                        # Price should be between 0 and something reasonable
                         if 1e-15 < price < 1e15:
-                            print(f"[METEORA PARSE] Found bin_id at offset {offset}: {bin_id}, price: ${price:.8f}")
+                            print(f"[METEORA PARSE] ✓ Found valid bin_id at offset {offset}: {bin_id}, price: ${price:.8f}")
                             return price
-                except:
+                except Exception as e:
                     continue
 
-            print(f"[METEORA PARSE] Could not find valid bin_id in account data")
+            print(f"[METEORA PARSE] ⚠ No valid bin_id found in account data")
             return None
 
         except Exception as e:
-            print(f"[METEORA PARSE] Error parsing Meteora pool: {e}")
+            print(f"[METEORA PARSE] ✗ Error parsing Meteora pool: {e}")
+            import traceback
+            traceback.print_exc()
             return None
 
     async def subscribe_to_program(self, ws, program_id: str):
@@ -998,7 +1024,7 @@ class RaydiumMonitor:
                                     print(f"\n{'='*50}")
                                     print(f"New {dex_source} pool launch: {signature}")
 
-                                    pool_data = self.parse_pool_from_logs(logs, signature)
+                                    pool_data = self.parse_pool_from_logs(logs, signature, dex_source)
                                     pool_data['dex'] = dex_source
 
                                     # Log token address and symbol
@@ -1011,6 +1037,16 @@ class RaydiumMonitor:
                                     if not self.db.pool_exists(pool_data['ammId']):
                                         if self.db.insert_pool(pool_data):
                                             print(f"Stored new {dex_source} pool: {pool_data['ammId']}")
+
+                                            # Fetch initial price for new pool
+                                            if pool_data.get('baseMint'):
+                                                print(f"[PRICE INIT] Fetching initial price for {pool_data['ammId'][:8]}...")
+                                                initial_price = self.fetch_pool_price(pool_data['ammId'], pool_data['baseMint'])
+                                                if initial_price is not None:
+                                                    self.db.update_pool_price(pool_data['ammId'], initial_price)
+                                                    print(f"[PRICE INIT] ✓ Initial price set: ${initial_price:.8f}")
+                                                else:
+                                                    print(f"[PRICE INIT] ⚠ Could not fetch initial price")
 
                                             # Broadcast new pool to UI immediately with snake_case field names
                                             broadcast_data = {

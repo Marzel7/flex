@@ -1056,6 +1056,15 @@ HTML_TEMPLATE = '''
 
         .pool-icon.has-image {
             font-size: 0;
+            background: transparent !important;
+            background-color: transparent !important;
+        }
+
+        .pool-icon.has-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
         .pool-info {
@@ -1450,16 +1459,18 @@ HTML_TEMPLATE = '''
                         img.style.objectFit = 'cover';
                         img.style.display = 'block';
                         img.alt = pool.name;
-                        img.onerror = function() {
-                            console.log(`[RENDER] Image failed to load for ${pool.name}, using initials`);
+                        img.onerror = function(event) {
+                            console.error(`[RENDER] Image failed to load for ${pool.name}`, event);
+                            console.error(`[RENDER] Image source was: ${pool.image}`);
                             iconElement.innerHTML = getInitials(pool.name);
+                            iconElement.classList.remove('has-image');
                             iconElement.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
                             iconElement.style.fontSize = '14px';
                             iconElement.style.color = '#fff';
                             iconElement.style.fontWeight = 'bold';
                         };
                         img.onload = function() {
-                            console.log(`[RENDER] Image loaded successfully for ${pool.name}`);
+                            console.log(`[RENDER] ✓ Image loaded successfully for ${pool.name}`);
                         };
                         // Clear content and background before adding image
                         iconElement.innerHTML = '';
@@ -1472,11 +1483,8 @@ HTML_TEMPLATE = '''
                 }, 0);
             }
 
-            // Update stats
-            fetch('/api/pools')
-                .then(response => response.json())
-                .then(data => updateStats(data))
-                .catch(error => console.error('Error updating stats:', error));
+            // Don't fetch stats for every pool - let the 30-second refresh handle it
+            // This was causing the images to disappear as network calls interfered with image loading
         }
 
         function pollForNewPools() {

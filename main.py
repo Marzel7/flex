@@ -747,10 +747,12 @@ class RaydiumMonitor:
 
     def fetch_pool_price(self, amm_id: str, base_mint: str) -> float:
         """Fetch current price of a token from on-chain pool data
-        
+
         Queries the Raydium AMM account to get current token reserves and calculates price
         """
         try:
+            print(f"[PRICE FETCH] Fetching price for pool: {amm_id}, base_mint: {base_mint}")
+
             # Get pool account info from blockchain
             response = requests.post(
                 self.rpc_http_url,
@@ -762,23 +764,28 @@ class RaydiumMonitor:
                 },
                 timeout=10
             )
-            
+
             data = response.json()
             if "error" in data:
-                print(f"[PRICE] RPC error fetching pool {amm_id}: {data['error']}")
+                print(f"[PRICE FETCH] ✗ RPC error for {amm_id}: {data['error']}")
                 return None
-            
+
             if not data.get("result") or not data["result"].get("value"):
-                print(f"[PRICE] Pool account not found: {amm_id}")
+                print(f"[PRICE FETCH] ✗ Pool account not found: {amm_id}")
                 return None
-            
+
+            account_data = data["result"]["value"]
+            print(f"[PRICE FETCH] ✓ Pool account retrieved, data size: {len(account_data.get('data', ['', ''])[0])} bytes")
+
             # Parse pool data - this is simplified; actual parsing depends on AMM structure
             # For now return a placeholder that can be enhanced
-            print(f"[PRICE] Pool data retrieved for {amm_id}")
+            print(f"[PRICE FETCH] Pool data retrieved for {amm_id}")
             return None
-            
+
         except Exception as e:
-            print(f"[PRICE] Error fetching pool price: {e}")
+            print(f"[PRICE FETCH] ✗ Error fetching pool price: {e}")
+            import traceback
+            traceback.print_exc()
             return None
 
     async def subscribe_to_program(self, ws, program_id: str):
@@ -990,37 +997,62 @@ class RaydiumMonitor:
     def update_pool_prices(self):
         """Background thread that updates pool prices on a sliding scale based on age"""
         print("[PRICE UPDATER] Price update thread started")
+        update_cycle = 0
+
         while self.is_running:
             try:
+                update_cycle += 1
+                print(f"\n[PRICE UPDATER] === Cycle {update_cycle} ===")
+
                 # Get pools that need updating
                 pools_to_update = self.db.get_pools_needing_update()
-                
+
                 if pools_to_update:
-                    print(f"[PRICE UPDATER] Updating prices for {len(pools_to_update)} pool(s)")
-                
-                for pool_info in pools_to_update:
+                    print(f"[PRICE UPDATER] Found {len(pools_to_update)} pool(s) needing update")
+                    ages_str = ", ".join([f"{p['age_seconds']:.0f}s" for p in pools_to_update])
+                    print(f"[PRICE UPDATER] Pool ages: {ages_str}")
+                else:
+                    print(f"[PRICE UPDATER] No pools need updating at this time")
+
+                for i, pool_info in enumerate(pools_to_update, 1):
                     if not self.is_running:
                         break
-                    
+
                     amm_id = pool_info['amm_id']
                     base_mint = pool_info['base_mint']
-                    
+                    age_seconds = pool_info['age_seconds']
+
+                    # Determine update interval
+                    if age_seconds < 300:
+                        interval_str = "30s (0-5min)"
+                    elif age_seconds < 1800:
+                        interval_str = "2min (5-30min)"
+                    else:
+                        interval_str = "5min (30+min)"
+
+                    print(f"[PRICE UPDATER] [{i}/{len(pools_to_update)}] Pool age: {age_seconds:.0f}s, interval: {interval_str}")
+
                     # Fetch current price from blockchain
                     current_price = self.fetch_pool_price(amm_id, base_mint)
-                    
+
                     if current_price is not None:
                         # Update in database
                         self.db.update_pool_price(amm_id, current_price)
-                        print(f"[PRICE UPDATER] Updated price for {amm_id}: ${current_price}")
-                    
+                        print(f"[PRICE UPDATER] ✓ Updated price for {amm_id}: ${current_price:.8f}")
+                    else:
+                        print(f"[PRICE UPDATER] ✗ Could not fetch price for {amm_id}")
+
                     # Rate limiting - small delay between updates
                     time.sleep(0.5)
-                
+
                 # Check again after 10 seconds
+                print(f"[PRICE UPDATER] Cycle {update_cycle} complete, sleeping 10s before next cycle...")
                 time.sleep(10)
-                
+
             except Exception as e:
-                print(f"[PRICE UPDATER] Error in price update loop: {e}")
+                print(f"[PRICE UPDATER] ✗ Error in price update loop: {e}")
+                import traceback
+                traceback.print_exc()
                 time.sleep(10)
 
     def start_price_updater(self):

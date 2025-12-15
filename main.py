@@ -1475,7 +1475,9 @@ def index():
 
 @app.route('/api/pools')
 def get_pools():
-    """API endpoint to get new pools"""
+    """API endpoint to get new pools - SHOULD NOT BE CALLED"""
+    print("[WARNING] /api/pools endpoint called - this is causing image issues!")
+    print("[WARNING] Stack trace would help identify the caller")
     try:
         pools = monitor.db.get_recent_pools(50)
         return jsonify({

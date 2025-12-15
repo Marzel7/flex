@@ -1314,6 +1314,53 @@ HTML_TEMPLATE = '''
             color: #ffd700;
         }
 
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .toggle-btn {
+            background: #1a2847;
+            border: 1px solid #ffd700;
+            color: #ffd700;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background: #ffd700;
+            color: #0a0e27;
+        }
+
+        .toggle-btn.paused {
+            background: #ff6b6b;
+            border-color: #ff6b6b;
+            color: #fff;
+        }
+
+        .toggle-btn.paused:hover {
+            background: #ff5252;
+        }
+
+        .status-indicator {
+            font-size: 12px;
+            color: #8892b0;
+            padding: 0 8px;
+        }
+
+        .status-indicator.active {
+            color: #4ade80;
+        }
+
+        .status-indicator.paused {
+            color: #ff6b6b;
+        }
+
         .nav-tabs {
             display: flex;
             gap: 30px;
@@ -1650,6 +1697,10 @@ HTML_TEMPLATE = '''
             <a>Analytics</a>
             <a>Settings</a>
         </div>
+        <div class="controls">
+            <span class="status-indicator active" id="statusIndicator">● Live</span>
+            <button class="toggle-btn" id="pauseBtn">Pause New Pools</button>
+        </div>
     </div>
 
     <div class="container">
@@ -1712,6 +1763,37 @@ HTML_TEMPLATE = '''
     </div>
 
     <script>
+        // Global state for pause/resume
+        let isPaused = false;
+
+        // Setup pause button handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const pauseBtn = document.getElementById('pauseBtn');
+            const statusIndicator = document.getElementById('statusIndicator');
+
+            if (pauseBtn) {
+                pauseBtn.addEventListener('click', function() {
+                    isPaused = !isPaused;
+
+                    if (isPaused) {
+                        pauseBtn.textContent = 'Resume New Pools';
+                        pauseBtn.classList.add('paused');
+                        statusIndicator.textContent = '● Paused';
+                        statusIndicator.classList.remove('active');
+                        statusIndicator.classList.add('paused');
+                        console.log('[PAUSE] New pool additions paused');
+                    } else {
+                        pauseBtn.textContent = 'Pause New Pools';
+                        pauseBtn.classList.remove('paused');
+                        statusIndicator.textContent = '● Live';
+                        statusIndicator.classList.add('active');
+                        statusIndicator.classList.remove('paused');
+                        console.log('[PAUSE] New pool additions resumed');
+                    }
+                });
+            }
+        });
+
         function formatNumber(num) {
             if (num >= 1000000) {
                 return '$' + (num / 1000000).toFixed(2) + 'M';
@@ -1873,12 +1955,18 @@ HTML_TEMPLATE = '''
                     if (data.new_pools && data.new_pools.length > 0) {
                         console.log(`[POLL] ✓ Received ${data.new_pools.length} new pool(s)`);
                         console.log(`[POLL] Pool details:`, data.new_pools);
-                        // Add each new pool to the UI
-                        data.new_pools.forEach(pool => {
-                            console.log(`[POLL] Adding pool: ${pool.name} (${pool.symbol}) with image: ${pool.image}`);
-                            console.log(`[POLL] Pool first_seen: ${pool.first_seen}`);
-                            addNewPoolToUI(pool);
-                        });
+
+                        // Check if paused before adding new pools
+                        if (isPaused) {
+                            console.log(`[POLL] ⏸ Paused - ignoring ${data.new_pools.length} new pool(s)`);
+                        } else {
+                            // Add each new pool to the UI
+                            data.new_pools.forEach(pool => {
+                                console.log(`[POLL] Adding pool: ${pool.name} (${pool.symbol}) with image: ${pool.image}`);
+                                console.log(`[POLL] Pool first_seen: ${pool.first_seen}`);
+                                addNewPoolToUI(pool);
+                            });
+                        }
                     } else {
                         console.log(`[POLL] No new pools in response`);
                     }

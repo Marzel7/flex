@@ -941,8 +941,13 @@ class RaydiumMonitor:
 
         Meteora DLMM LBPair structure:
         - The account must be at least 200+ bytes for Meteora LBPair
-        - Current bin_id is typically stored in the early-middle part of the account
+        - Current bin_id is stored as i64 at a specific location in the account
         - Price is derived from bin_id using: price = 1.0001^bin_id
+
+        Account structure (approximate):
+        - 0-8: Discriminator
+        - 8-40: Various fields
+        - Around 72-80: Current bin_id (main field we need)
         """
         try:
             if len(account_data) < 100:
@@ -951,11 +956,25 @@ class RaydiumMonitor:
 
             print(f"[METEORA PARSE] Parsing {len(account_data)} byte account for bin_id...")
 
-            # Meteora DLMM LBPair structure has bin_id stored as i64
-            # Search across multiple offset ranges to find it
-            # Typically found in range 40-150 bytes
+            # Meteora DLMM LBPair structure has current bin_id stored as i64
+            # The current bin should be around offset 72 based on Meteora's account layout
+            # Let's check a few likely offsets with priority
 
-            for offset in range(40, min(len(account_data) - 8, 400), 8):
+            candidate_offsets = []
+
+            # Primary candidates based on Meteora LBPair structure
+            for offset in [72, 80, 88, 96]:  # Most likely offsets
+                if offset + 8 <= len(account_data):
+                    candidate_offsets.append(offset)
+
+            # Secondary candidates - broader search
+            for offset in range(40, min(len(account_data) - 8, 200), 8):
+                if offset not in candidate_offsets:
+                    candidate_offsets.append(offset)
+
+            found_candidates = []
+
+            for offset in candidate_offsets:
                 try:
                     # Try to read as i64 (little-endian)
                     bin_id = int.from_bytes(account_data[offset:offset+8], byteorder='little', signed=True)
@@ -968,10 +987,16 @@ class RaydiumMonitor:
 
                         # Price should be between 0 and something reasonable
                         if 1e-15 < price < 1e15:
-                            print(f"[METEORA PARSE] ✓ Found valid bin_id at offset {offset}: {bin_id}, price: ${price:.8f}")
-                            return price
+                            found_candidates.append((offset, bin_id, price))
+                            print(f"[METEORA PARSE] Found candidate at offset {offset}: bin_id={bin_id}, price=${price:.8f}")
                 except Exception as e:
                     continue
+
+            if found_candidates:
+                # Use the first/primary candidate
+                offset, bin_id, price = found_candidates[0]
+                print(f"[METEORA PARSE] ✓ Using bin_id from offset {offset}: {bin_id}, price: ${price:.8f}")
+                return price
 
             print(f"[METEORA PARSE] ⚠ No valid bin_id found in account data")
             return None

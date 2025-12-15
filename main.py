@@ -458,8 +458,10 @@ class RaydiumMonitor:
                                             pool_account_set = True
                                             lbpair_found = True
                                             break
-                                except:
-                                    pass
+                                    else:
+                                        print(f"[POOL ACCOUNT]   → No account data or value at index {idx}")
+                                except Exception as e:
+                                    print(f"[POOL ACCOUNT] ⚠ Error checking index {idx}: {e}")
 
                         if not lbpair_found:
                             print(f"[POOL ACCOUNT] ⚠ Could not find LBPair account, using index 1 as fallback")

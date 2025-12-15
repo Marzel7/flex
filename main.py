@@ -1336,14 +1336,15 @@ HTML_TEMPLATE = '''
             const poolTimes = document.querySelectorAll('[data-first-seen]');
             if (poolTimes.length > 0) {
                 console.log(`[TIME] Updating ${poolTimes.length} pool time(s)`);
+                poolTimes.forEach(el => {
+                    const firstSeen = el.dataset.firstSeen;
+                    const newTime = formatActiveTime(firstSeen);
+                    if (el.textContent !== newTime) {
+                        console.log(`[TIME] Updated: ${el.textContent} → ${newTime}`);
+                        el.textContent = newTime;
+                    }
+                });
             }
-            poolTimes.forEach(el => {
-                const firstSeen = el.dataset.firstSeen;
-                const newTime = formatActiveTime(firstSeen);
-                if (el.textContent !== newTime) {
-                    el.textContent = newTime;
-                }
-            });
         }
 
         // Track which pools have been rendered to prevent duplicates
@@ -1457,6 +1458,7 @@ HTML_TEMPLATE = '''
                         // Add each new pool to the UI
                         data.new_pools.forEach(pool => {
                             console.log(`[POLL] Adding pool: ${pool.name} (${pool.symbol}) with image: ${pool.image}`);
+                            console.log(`[POLL] Pool first_seen: ${pool.first_seen}`);
                             addNewPoolToUI(pool);
                         });
                     } else {

@@ -1343,7 +1343,7 @@ HTML_TEMPLATE = '''
             if (pool.image && pool.image.trim()) {
                 // Image available - create div and set image via JavaScript to handle special characters
                 console.log(`[RENDER] Pool: ${pool.name}, Image URL: ${pool.image}`);
-                iconHTML = `<div class="pool-icon has-image" id="icon-${pool.base_mint}" style="overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #1a2847;"></div>`;
+                iconHTML = `<div class="pool-icon has-image" id="icon-${pool.base_mint}" style="overflow: hidden; display: flex; align-items: center; justify-content: center;"></div>`;
             } else {
                 // No image - use initials with gradient background
                 console.log(`[RENDER] Pool: ${pool.name}, No image URL`);
@@ -1464,6 +1464,7 @@ HTML_TEMPLATE = '''
                         // Clear content and background before adding image
                         iconElement.innerHTML = '';
                         iconElement.style.background = 'transparent';
+                        iconElement.style.backgroundColor = 'transparent';
                         iconElement.appendChild(img);
                     } else {
                         console.log(`[RENDER] ERROR: Could not find icon element with ID: icon-${pool.base_mint}`);

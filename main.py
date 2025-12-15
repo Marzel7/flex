@@ -1475,18 +1475,12 @@ def index():
 
 @app.route('/api/pools')
 def get_pools():
-    """API endpoint to get new pools - SHOULD NOT BE CALLED"""
-    print("[WARNING] /api/pools endpoint called - this is causing image issues!")
-    print("[WARNING] Stack trace would help identify the caller")
-    try:
-        pools = monitor.db.get_recent_pools(50)
-        return jsonify({
-            'pools': pools,
-            'total_pools': monitor.db.get_pool_count()
-        })
-    except Exception as e:
-        print(f"API Error: {e}")
-        return jsonify({'pools': [], 'total_pools': 0})
+    """DEPRECATED: /api/pools endpoint - disabled to prevent image loading issues
+    Use /api/pools/new instead for polling
+    """
+    print("[WARNING] /api/pools called - this endpoint should not be used! Use /api/pools/new instead")
+    # Return 410 Gone to indicate this endpoint is no longer available
+    return jsonify({'error': 'This endpoint is deprecated. Use /api/pools/new for polling.'}), 410
 
 @app.route('/api/pools/new')
 def get_new_pools():

@@ -1526,9 +1526,10 @@ HTML_TEMPLATE = '''
         console.log('[INIT] Running first immediate poll');
         pollForNewPools();
 
-        // Keep 30-second refresh as backup
-        console.log('[INIT] Setting up backup refresh (every 30 seconds)');
-        setInterval(updatePools, 30000);
+        // Note: 30-second backup refresh DISABLED - it was interfering with image loading
+        // We rely on 1-second polling via /api/pools/new for real-time updates
+        // Stats will be slightly out of date but images will load properly
+        // If needed in future, stats can be updated less frequently (every 5 minutes+)
 
         console.log('[INIT] Application initialization complete');
     </script>

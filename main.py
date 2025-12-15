@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Dict, List
 from flask import Flask, jsonify, Response
 from threading import Thread
+import threading
 import base64
 import struct
 import base58
@@ -1143,6 +1144,12 @@ class RaydiumMonitor:
 
                                 # Only process actual pool creations (not swaps, deposits, etc)
                                 if signature and self.is_pool_creation(logs):
+                                    # Check if we're paused from processing new pools
+                                    with pause_lock:
+                                        if pause_new_pools:
+                                            print(f"[PAUSE] ⏸ Ignoring new {dex_source} pool (pause mode): {signature}")
+                                            continue
+
                                     print(f"\n{'='*50}")
                                     print(f"New {dex_source} pool launch: {signature}")
 
@@ -1292,6 +1299,10 @@ monitor = RaydiumMonitor()
 
 # Global queue for real-time pool broadcasts
 pool_broadcast_queue = queue.Queue()
+
+# Global pause state for new pool listening
+pause_new_pools = False
+pause_lock = threading.Lock()
 
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
@@ -1797,26 +1808,46 @@ HTML_TEMPLATE = '''
             const pauseBtn = document.getElementById('pauseBtn');
             const statusIndicator = document.getElementById('statusIndicator');
 
+            // Get initial pause state from server
+            fetch('/api/pause-status')
+                .then(response => response.json())
+                .then(data => {
+                    isPaused = data.paused;
+                    updatePauseUI();
+                });
+
             if (pauseBtn) {
                 pauseBtn.addEventListener('click', function() {
-                    isPaused = !isPaused;
-
-                    if (isPaused) {
-                        pauseBtn.textContent = 'Resume New Pools';
-                        pauseBtn.classList.add('paused');
-                        statusIndicator.textContent = '● Paused';
-                        statusIndicator.classList.remove('active');
-                        statusIndicator.classList.add('paused');
-                        console.log('[PAUSE] New pool additions paused');
-                    } else {
-                        pauseBtn.textContent = 'Pause New Pools';
-                        pauseBtn.classList.remove('paused');
-                        statusIndicator.textContent = '● Live';
-                        statusIndicator.classList.add('active');
-                        statusIndicator.classList.remove('paused');
-                        console.log('[PAUSE] New pool additions resumed');
-                    }
+                    // Send pause toggle request to server
+                    fetch('/api/pause', { method: 'POST' })
+                        .then(response => response.json())
+                        .then(data => {
+                            isPaused = data.paused;
+                            console.log(`[PAUSE] Server response: ${data.message}`);
+                            updatePauseUI();
+                        })
+                        .catch(error => {
+                            console.error('[PAUSE] Error toggling pause state:', error);
+                        });
                 });
+            }
+
+            function updatePauseUI() {
+                if (isPaused) {
+                    pauseBtn.textContent = 'Resume New Pools';
+                    pauseBtn.classList.add('paused');
+                    statusIndicator.textContent = '● Paused';
+                    statusIndicator.classList.remove('active');
+                    statusIndicator.classList.add('paused');
+                    console.log('[PAUSE] UI updated: New pool additions paused - only price updates');
+                } else {
+                    pauseBtn.textContent = 'Pause New Pools';
+                    pauseBtn.classList.remove('paused');
+                    statusIndicator.textContent = '● Live';
+                    statusIndicator.classList.add('active');
+                    statusIndicator.classList.remove('paused');
+                    console.log('[PAUSE] UI updated: New pool additions resumed');
+                }
             }
         });
 
@@ -2143,6 +2174,39 @@ def get_updated_prices():
             })
 
     return jsonify({'pools': pools_with_prices})
+
+@app.route('/api/pause', methods=['POST'])
+def toggle_pause():
+    """Toggle pause state for new pool listening
+    
+    When paused, the WebSocket listener still runs but ignores new pools.
+    Price updates for existing pools continue normally.
+    """
+    global pause_new_pools
+    
+    with pause_lock:
+        pause_new_pools = not pause_new_pools
+        new_state = pause_new_pools
+    
+    state_text = "⏸ PAUSED" if new_state else "▶ LISTENING"
+    print(f"[API] Pause state changed: {state_text}")
+    
+    return jsonify({
+        'paused': new_state,
+        'message': f'New pool listening {state_text}'
+    })
+
+@app.route('/api/pause-status', methods=['GET'])
+def get_pause_status():
+    """Get current pause state"""
+    global pause_new_pools
+    
+    with pause_lock:
+        current_state = pause_new_pools
+    
+    return jsonify({
+        'paused': current_state
+    })
 
 def main():
     """Main function to run the monitor with web UI"""

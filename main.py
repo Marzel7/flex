@@ -959,8 +959,6 @@ class RaydiumMonitor:
                 print(f"[METEORA PARSE] ⚠ Account data too small ({len(account_data)} bytes), need at least 264 bytes")
                 return None
 
-            print(f"[METEORA PARSE] Parsing {len(account_data)} byte account for bin_id at offset 256...")
-
             # Meteora DLMM LBPair structure has current bin_id stored as i64 at offset 256
             # This is the active bin position in the liquidity book
             offset = 256
@@ -969,9 +967,12 @@ class RaydiumMonitor:
                 # Read as i64 (little-endian)
                 bin_id = int.from_bytes(account_data[offset:offset+8], byteorder='little', signed=True)
 
+                # Always log the bin_id to track changes
+                print(f"[METEORA PARSE] bin_id={bin_id} at offset {offset}")
+
                 # Check if this looks like a reasonable bin_id
                 if bin_id == 0:
-                    print(f"[METEORA PARSE] ⚠ bin_id is zero at offset {offset}")
+                    print(f"[METEORA PARSE] ⚠ bin_id is zero")
                     return None
 
                 # Try to calculate price from bin_id: price = 1.0001^bin_id
@@ -979,7 +980,7 @@ class RaydiumMonitor:
 
                 # Validate price is in reasonable range
                 if 1e-20 < price < 1e20:
-                    print(f"[METEORA PARSE] ✓ Found valid bin_id at offset {offset}: {bin_id}, price: ${price:.8f}")
+                    print(f"[METEORA PARSE] ✓ price: ${price:.8f}")
                     return price
                 else:
                     print(f"[METEORA PARSE] ⚠ Calculated price out of range: ${price}")

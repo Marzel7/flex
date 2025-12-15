@@ -941,65 +941,48 @@ class RaydiumMonitor:
 
         Meteora DLMM LBPair structure:
         - The account must be at least 200+ bytes for Meteora LBPair
-        - Current bin_id is stored as i64 at a specific location in the account
+        - Current bin_id is stored as i64 at offset 256 in the account
         - Price is derived from bin_id using: price = 1.0001^bin_id
 
-        Account structure (approximate):
+        Account structure:
         - 0-8: Discriminator
-        - 8-40: Various fields
-        - Around 72-80: Current bin_id (main field we need)
+        - 8-256: Various pool configuration fields
+        - 256+: Current bin_id (main field we need)
         """
         try:
-            if len(account_data) < 100:
-                print(f"[METEORA PARSE] ⚠ Account data too small ({len(account_data)} bytes), likely not a pool account")
+            if len(account_data) < 264:  # Need at least 256 + 8 bytes
+                print(f"[METEORA PARSE] ⚠ Account data too small ({len(account_data)} bytes), need at least 264 bytes")
                 return None
 
-            print(f"[METEORA PARSE] Parsing {len(account_data)} byte account for bin_id...")
+            print(f"[METEORA PARSE] Parsing {len(account_data)} byte account for bin_id at offset 256...")
 
-            # Meteora DLMM LBPair structure has current bin_id stored as i64
-            # The current bin should be around offset 72 based on Meteora's account layout
-            # Let's check a few likely offsets with priority
+            # Meteora DLMM LBPair structure has current bin_id stored as i64 at offset 256
+            # This is the active bin position in the liquidity book
+            offset = 256
+            
+            try:
+                # Read as i64 (little-endian)
+                bin_id = int.from_bytes(account_data[offset:offset+8], byteorder='little', signed=True)
 
-            candidate_offsets = []
+                # Check if this looks like a reasonable bin_id
+                if bin_id == 0:
+                    print(f"[METEORA PARSE] ⚠ bin_id is zero at offset {offset}")
+                    return None
 
-            # Primary candidates based on Meteora LBPair structure
-            for offset in [72, 80, 88, 96]:  # Most likely offsets
-                if offset + 8 <= len(account_data):
-                    candidate_offsets.append(offset)
+                # Try to calculate price from bin_id: price = 1.0001^bin_id
+                price = (1.0001) ** bin_id
 
-            # Secondary candidates - broader search
-            for offset in range(40, min(len(account_data) - 8, 200), 8):
-                if offset not in candidate_offsets:
-                    candidate_offsets.append(offset)
+                # Validate price is in reasonable range
+                if 1e-20 < price < 1e20:
+                    print(f"[METEORA PARSE] ✓ Found valid bin_id at offset {offset}: {bin_id}, price: ${price:.8f}")
+                    return price
+                else:
+                    print(f"[METEORA PARSE] ⚠ Calculated price out of range: ${price}")
+                    return None
 
-            found_candidates = []
-
-            for offset in candidate_offsets:
-                try:
-                    # Try to read as i64 (little-endian)
-                    bin_id = int.from_bytes(account_data[offset:offset+8], byteorder='little', signed=True)
-
-                    # Check if this looks like a reasonable bin_id
-                    # Bin IDs typically range from -2^20 to 2^20 for Meteora
-                    if -1048576 <= bin_id <= 1048576 and bin_id != 0:
-                        # Calculate price from bin_id: price = 1.0001^bin_id
-                        price = (1.0001) ** bin_id
-
-                        # Price should be between 0 and something reasonable
-                        if 1e-15 < price < 1e15:
-                            found_candidates.append((offset, bin_id, price))
-                            print(f"[METEORA PARSE] Found candidate at offset {offset}: bin_id={bin_id}, price=${price:.8f}")
-                except Exception as e:
-                    continue
-
-            if found_candidates:
-                # Use the first/primary candidate
-                offset, bin_id, price = found_candidates[0]
-                print(f"[METEORA PARSE] ✓ Using bin_id from offset {offset}: {bin_id}, price: ${price:.8f}")
-                return price
-
-            print(f"[METEORA PARSE] ⚠ No valid bin_id found in account data")
-            return None
+            except Exception as e:
+                print(f"[METEORA PARSE] ✗ Error reading bin_id at offset {offset}: {e}")
+                return None
 
         except Exception as e:
             print(f"[METEORA PARSE] ✗ Error parsing Meteora pool: {e}")

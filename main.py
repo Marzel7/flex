@@ -414,19 +414,58 @@ class RaydiumMonitor:
                             pubkeys.append(key)
 
                     print(f"[POOL PARSE] Extracted {len(pubkeys)} pubkeys")
-                    
+
+                    # METEORA PROGRAM ID (the owner of LBPair accounts)
+                    METEORA_PROGRAM = "LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"
+
                     # DEX-specific pool account extraction
                     pool_account_set = False
                     if dex == "Meteora":
-                        # For Meteora DLMM, the LBPair account is typically at index 1 or 2
-                        # In Meteora transactions: [user, lbpair, event_authority, program, ...]
-                        if len(pubkeys) > 1:
-                            pool_account = pubkeys[1]
-                            print(f"[POOL ACCOUNT] Meteora LBPair extracted from index 1: {pool_account}")
-                            pool_data['ammId'] = pool_account
-                            pool_account_set = True
-                        else:
-                            print(f"[POOL ACCOUNT] ⚠ Not enough accounts for Meteora (need >1, got {len(pubkeys)})")
+                        # For Meteora DLMM, we need to find the LBPair account
+                        # The LBPair is owned by the Meteora program
+                        # Try to find it by checking account owners via RPC
+                        print(f"[POOL ACCOUNT] Searching for Meteora LBPair account (owned by {METEORA_PROGRAM[:8]}...)")
+
+                        # Strategy: The LBPair is typically one of the writable accounts
+                        # Try indices 1, 2, 3, 5, 6 in order (skip 0=user, 4=program authority)
+                        lbpair_found = False
+                        for idx in [1, 2, 3, 5, 6, 7, 8]:
+                            if idx < len(pubkeys):
+                                candidate = pubkeys[idx]
+                                print(f"[POOL ACCOUNT] Checking index {idx}: {candidate[:8]}...")
+                                try:
+                                    # Query the account to check its owner
+                                    check_response = requests.post(
+                                        self.rpc_http_url,
+                                        json={
+                                            "jsonrpc": "2.0",
+                                            "id": 1,
+                                            "method": "getAccountInfo",
+                                            "params": [candidate, {"encoding": "base64"}]
+                                        },
+                                        timeout=5
+                                    )
+                                    check_data = check_response.json()
+                                    if check_data.get("result") and check_data["result"].get("value"):
+                                        owner = check_data["result"]["value"].get("owner", "")
+                                        account_size = len(check_data["result"]["value"].get("data", ["", ""])[0] or "")
+                                        print(f"[POOL ACCOUNT]   → Owner: {owner[:8]}..., Size: {account_size} bytes")
+
+                                        # Check if this is the Meteora program
+                                        if owner == METEORA_PROGRAM and account_size > 500:
+                                            print(f"[POOL ACCOUNT] ✓ Found Meteora LBPair at index {idx}!")
+                                            pool_data['ammId'] = candidate
+                                            pool_account_set = True
+                                            lbpair_found = True
+                                            break
+                                except:
+                                    pass
+
+                        if not lbpair_found:
+                            print(f"[POOL ACCOUNT] ⚠ Could not find LBPair account, using index 1 as fallback")
+                            if len(pubkeys) > 1:
+                                pool_data['ammId'] = pubkeys[1]
+                                pool_account_set = True
                     elif dex == "Raydium CPMM":
                         # For Raydium CPMM, the pool is typically at index 4 (CpmmConfig) or 5 (PoolState)
                         if len(pubkeys) > 5:

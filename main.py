@@ -398,14 +398,23 @@ class RaydiumMonitor:
                     # Extract pool account address based on DEX type
                     account_keys = tx.get('transaction', {}).get('message', {}).get('accountKeys', [])
                     print(f"[POOL PARSE] Found {len(account_keys)} account keys in transaction")
+
+                    # Debug: show first few account keys to understand structure
+                    if account_keys:
+                        sample_key = account_keys[0]
+                        print(f"[POOL PARSE] Sample account key type: {type(sample_key)}, value: {str(sample_key)[:100]}")
+
                     pubkeys = []
                     for key in account_keys:
                         if isinstance(key, dict):
                             pubkeys.append(key.get('pubkey', ''))
                         else:
                             pubkeys.append(key)
+
+                    print(f"[POOL PARSE] Extracted {len(pubkeys)} pubkeys")
                     
                     # DEX-specific pool account extraction
+                    pool_account_set = False
                     if dex == "Meteora":
                         # For Meteora DLMM, the LBPair account is typically at index 1 or 2
                         # In Meteora transactions: [user, lbpair, event_authority, program, ...]
@@ -413,6 +422,7 @@ class RaydiumMonitor:
                             pool_account = pubkeys[1]
                             print(f"[POOL ACCOUNT] Meteora LBPair extracted from index 1: {pool_account}")
                             pool_data['ammId'] = pool_account
+                            pool_account_set = True
                         else:
                             print(f"[POOL ACCOUNT] ⚠ Not enough accounts for Meteora (need >1, got {len(pubkeys)})")
                     elif dex == "Raydium CPMM":
@@ -421,16 +431,22 @@ class RaydiumMonitor:
                             pool_account = pubkeys[5]
                             print(f"[POOL ACCOUNT] Raydium CPMM PoolState extracted from index 5: {pool_account}")
                             pool_data['ammId'] = pool_account
+                            pool_account_set = True
                         elif len(pubkeys) > 4:
                             pool_account = pubkeys[4]
                             print(f"[POOL ACCOUNT] Raydium CPMM Config extracted from index 4: {pool_account}")
                             pool_data['ammId'] = pool_account
+                            pool_account_set = True
                     else:  # Raydium V4 or Unknown
                         # For Raydium V4, the pool is at index 4
                         if len(pubkeys) > 4:
                             pool_account = pubkeys[4]
                             print(f"[POOL ACCOUNT] Raydium V4 pool extracted from index 4: {pool_account}")
                             pool_data['ammId'] = pool_account
+                            pool_account_set = True
+
+                    if not pool_account_set:
+                        print(f"[POOL ACCOUNT] ✗ Failed to extract pool account for DEX={dex}, keeping signature-based ammId: {pool_data['ammId']}")
                     
                     # Identify base and quote mints
                     quote_mint = WSOL if WSOL in mint_sources else None

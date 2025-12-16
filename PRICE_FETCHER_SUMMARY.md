@@ -21,13 +21,20 @@ The enhanced `meteora_price_fetcher_v2.py` script now compares on-chain spot pri
 ### 3. Price Discrepancy Analysis
 - Calculates ratio: `On-Chain / DexScreener`
 - Shows percentage difference
+- **Logs both SOL and USD prices** for easy comparison
 - Flags large discrepancies (>10%) with explanation
 - Helps identify:
   - Stale DexScreener data
   - Significant liquidity changes
   - Arbitrage opportunities
 
-### 4. Pool Depletion Detection
+### 4. Smart Vault Pair Selection
+- **Priority 1**: Prefers SOL/Token pairs (known quotes) over Token/Token pairs
+- **Priority 2**: Among same-type pairs, selects the pair with larger base token balance (better liquidity)
+- **Fallback**: Uses "closest to 1.0" heuristic only when balances are within 10%
+- Ensures most liquid and accurate price is selected from multiple vault combinations
+
+### 5. Pool Depletion Detection
 - Flags pools where smallest vault < 0.00001 SOL
 - Flags pools with >100x imbalance between vaults
 - Returns meaningful error messages instead of meaningless prices

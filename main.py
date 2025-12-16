@@ -1960,6 +1960,16 @@ class RaydiumMonitor:
                                             if pool_data.get('baseMint'):
                                                 dex_data = self.get_dexscreener_price(pool_data['baseMint'])
                                                 if dex_data and dex_data.get('priceUsd'):
+                                                    # Sanity check: if on-chain price is very different from DexScreener, mark as corrupted
+                                                    if initial_price and dex_data.get('priceNative'):
+                                                        dex_native = dex_data.get('priceNative', 0)
+                                                        if dex_native > 0:
+                                                            ratio = initial_price / dex_native
+                                                            if ratio > 50 or ratio < 0.02:
+                                                                print(f"[PRICE SANITY INIT] ⚠ On-chain price differs {ratio:.1f}x from DexScreener, using DexScreener only")
+                                                                initial_price = None
+                                                                self.db.update_pool_supply_and_price(pool_data['ammId'], total_supply, None, is_initial=True)
+
                                                     self.db.update_dexscreener_price(pool_data['ammId'], dex_data['priceUsd'], dex_data.get('priceNative'))
                                                     print(f"[DEXSCREENER INIT] ✓ Initial DexScreener price: ${dex_data['priceUsd']:.10f}")
 
@@ -2068,9 +2078,21 @@ class RaydiumMonitor:
                     else:
                         print(f"[PRICE UPDATER] ✗ Could not fetch price for {base_mint[:8]}...")
 
-                    # Also fetch DexScreener price for comparison
+                    # Also fetch DexScreener price for comparison and sanity check
                     dex_data = self.get_dexscreener_price(base_mint)
                     if dex_data and dex_data.get('priceUsd'):
+                        # Sanity check: compare on-chain price with DexScreener
+                        # If they're wildly different (>50x), the on-chain extraction is corrupted
+                        if current_price and dex_data.get('priceNative'):
+                            dex_native = dex_data.get('priceNative', 0)
+                            if dex_native > 0:
+                                ratio = current_price / dex_native
+                                # If prices differ by >50x, reject the on-chain price as corrupted
+                                if ratio > 50 or ratio < 0.02:
+                                    print(f"[PRICE SANITY] ⚠ On-chain price ({current_price:.18f}) differs {ratio:.1f}x from DexScreener ({dex_native:.18f})")
+                                    print(f"[PRICE SANITY] ⚠ Discarding corrupted on-chain price, using DexScreener only")
+                                    self.db.update_pool_price(amm_id, None)  # Clear the corrupted price
+
                         self.db.update_dexscreener_price(amm_id, dex_data['priceUsd'], dex_data.get('priceNative'))
                         print(f"[DEXSCREENER] Updated for {base_mint[:8]}...: ${dex_data['priceUsd']:.10f}")
 

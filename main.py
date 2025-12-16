@@ -3,7 +3,7 @@ import json
 import asyncio
 import websockets
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, Optional, Tuple
 from flask import Flask, jsonify, Response
 from threading import Thread
 import threading
@@ -19,6 +19,244 @@ import sys
 #RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=f084fae8-d111-4337-9960-2d9c5e02a726"  # MARZEL
 RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=0ae07551-32df-4d9d-af2a-1925fb7f561f"  # JEZZA
 #RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=a132b19d-9b44-4c71-8e6f-d320d9f351c6"  # GITHUB
+
+# Known quote tokens for smart price pair selection
+KNOWN_QUOTES = {
+    "So11111111111111111111111111111111111111112": "SOL",
+    "EPjFWaLb3odccjf2cj6zpf5p6A8wMJvhystNRepAHRA": "USDC",
+    "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenErt": "USDT",
+    "BXXx3hqV7pZGT3XKRsvB9LyXYH2JjHVHwp4GbpNXYL3": "PAI",
+}
+
+
+class MeteoraPriceFetcher:
+    """Fetch prices from Meteora DAMM V2 pools and compare with DexScreener"""
+
+    def __init__(self):
+        self.rpc_url = RPC_HTTPS_URL
+        self.sol_mint = "So11111111111111111111111111111111111111112"
+
+    def rpc_call(self, method: str, params: list) -> Optional[Dict]:
+        """Make RPC call to Helius"""
+        payload = {"jsonrpc": "2.0", "id": 1, "method": method, "params": params}
+        try:
+            response = requests.post(self.rpc_url, json=payload, timeout=15)
+            return response.json() if response.status_code == 200 else None
+        except Exception as e:
+            print(f"[RPC] Error: {e}")
+            return None
+
+    def get_dexscreener_price(self, token_mint: str) -> Optional[Dict]:
+        """Get price data from DexScreener API"""
+        try:
+            url = f"https://api.dexscreener.com/latest/dex/tokens/{token_mint}"
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if "pairs" in data and data["pairs"]:
+                    pair = data["pairs"][0]
+                    return {
+                        "priceNative": float(pair.get("priceNative", 0)),
+                        "priceUsd": float(pair.get("priceUsd", 0)),
+                        "liquidity": pair.get("liquidity", {}),
+                        "pairAddress": pair.get("pairAddress"),
+                        "volume24h": pair.get("volume", {}).get("h24", 0),
+                        "baseToken": pair.get("baseToken", {}).get("symbol"),
+                        "quoteToken": pair.get("quoteToken", {}).get("symbol"),
+                    }
+            return None
+        except Exception:
+            return None
+
+    def fetch_price(self, pool_address_or_mint: str) -> Optional[Dict]:
+        """Fetch price from Meteora pool or token mint"""
+        try:
+            # Try to fetch vaults from the token mint
+            result = self.rpc_call("getSignaturesForAddress", [pool_address_or_mint, {"limit": 1}])
+            if not result or not result.get("result"):
+                return None
+
+            sigs = result.get("result", [])
+            if not sigs:
+                return None
+
+            # Get most recent transaction
+            tx_sig = sigs[0]["signature"]
+
+            # Extract vaults from transaction
+            vaults = self._extract_vaults_from_tx(tx_sig, pool_address_or_mint)
+            if not vaults:
+                return None
+
+            # Fetch vault balances
+            token_vaults = []
+            for vault_addr in vaults:
+                vault_data = self._get_vault_info(vault_addr)
+                if vault_data:
+                    token_vaults.append((vault_addr, vault_data))
+
+            if len(token_vaults) < 2:
+                return None
+
+            # Calculate best price
+            best_price = self._calculate_best_price(token_vaults)
+            if not best_price or best_price.get("warning") == "POOL_DEPLETED":
+                return None
+
+            # Get DexScreener data
+            dex_data = self.get_dexscreener_price(pool_address_or_mint)
+
+            return {
+                "on_chain_price": best_price.get("price"),
+                "dexscreener_data": dex_data,
+                "vault_count": len(token_vaults),
+            }
+        except Exception as e:
+            print(f"[PRICE] Error fetching price: {e}")
+            return None
+
+    def _extract_vaults_from_tx(self, tx_sig: str, pool_address: str) -> List[str]:
+        """Extract vault addresses from pool creation transaction"""
+        try:
+            result = self.rpc_call(
+                "getTransaction",
+                [tx_sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}],
+            )
+            if not result or not result.get("result"):
+                return []
+
+            tx_data = result["result"]
+            accounts = tx_data["transaction"]["message"]["accountKeys"]
+            account_keys = [acc["pubkey"] for acc in accounts]
+
+            # Filter SPL token accounts
+            vaults = []
+            for acc in account_keys:
+                if acc != pool_address and len(acc) == 44:
+                    if self._is_token_account(acc):
+                        vaults.append(acc)
+
+            return vaults[:3]  # Return first 3 vaults
+        except Exception:
+            return []
+
+    def _is_token_account(self, account_addr: str) -> bool:
+        """Check if account is SPL token account"""
+        try:
+            result = self.rpc_call("getAccountInfo", [account_addr, {"encoding": "base64"}])
+            if not result or not result.get("result"):
+                return False
+            acc_info = result["result"]["value"]
+            if acc_info is None:
+                return False
+            owner = acc_info.get("owner", "")
+            return owner == "TokenkegQfeZyiNwAJsyFbPVwwQQfaut1PNcZiHon8"
+        except Exception:
+            return False
+
+    def _get_vault_info(self, vault_addr: str) -> Optional[Dict]:
+        """Get vault balance and mint info"""
+        try:
+            result = self.rpc_call("getAccountInfo", [vault_addr, {"encoding": "base64"}])
+            if not result or not result.get("result"):
+                return None
+
+            acc_info = result["result"]["value"]
+            if not acc_info or not acc_info.get("data"):
+                return None
+
+            account_data = base64.b64decode(acc_info["data"][0])
+            if len(account_data) < 165:
+                return None
+
+            # Parse SPL token account
+            mint = base58.b58encode(account_data[0:32]).decode()
+            amount = struct.unpack("<Q", account_data[64:72])[0]
+            decimals_byte = account_data[72]
+
+            # Get mint decimals
+            decimals = self._get_mint_decimals(mint)
+            human_balance = amount / (10 ** (decimals or 6))
+
+            return {"mint": mint, "amount": amount, "decimals": decimals or 6, "human": human_balance}
+        except Exception:
+            return None
+
+    def _get_mint_decimals(self, mint_address: str) -> Optional[int]:
+        """Get token decimals from mint account"""
+        try:
+            result = self.rpc_call("getAccountInfo", [mint_address, {"encoding": "base64"}])
+            if not result or not result.get("result"):
+                return None
+            acc_info = result["result"]["value"]
+            if not acc_info or not acc_info.get("data"):
+                return None
+            account_data = base64.b64decode(acc_info["data"][0])
+            if len(account_data) < 45:
+                return None
+            return account_data[44]
+        except Exception:
+            return None
+
+    def _calculate_best_price(self, token_vaults: List[Tuple[str, Dict]]) -> Optional[Dict]:
+        """Calculate best price from vault pairs with smart selection"""
+        if len(token_vaults) < 2:
+            return None
+
+        best_result = None
+        best_is_quote_pair = False
+
+        for i in range(len(token_vaults)):
+            for j in range(i + 1, len(token_vaults)):
+                vault_i, info_i = token_vaults[i]
+                vault_j, info_j = token_vaults[j]
+
+                if info_i["human"] <= 0 or info_j["human"] <= 0:
+                    continue
+
+                is_i_quote = (
+                    info_i["mint"] in KNOWN_QUOTES or info_i["mint"] == self.sol_mint
+                )
+                is_j_quote = (
+                    info_j["mint"] in KNOWN_QUOTES or info_j["mint"] == self.sol_mint
+                )
+
+                # Try both directions
+                price_j_per_i = info_j["human"] / info_i["human"]
+                price_i_per_j = info_i["human"] / info_j["human"]
+
+                # Process j/i direction
+                if price_j_per_i > 0:
+                    this_is_quote_pair = is_j_quote
+                    should_update = False
+
+                    if best_result is None:
+                        should_update = True
+                    elif this_is_quote_pair and not best_is_quote_pair:
+                        should_update = True
+                    elif this_is_quote_pair == best_is_quote_pair:
+                        best_base_balance = token_vaults[best_result["base_idx"]][1]["human"]
+                        if info_i["human"] > best_base_balance * 1.1:
+                            should_update = True
+                        elif (
+                            abs(info_i["human"] - best_base_balance) / best_base_balance
+                            < 0.1
+                        ):
+                            should_update = (
+                                abs(price_j_per_i - 1)
+                                < abs(best_result["price"] - 1)
+                            )
+
+                    if should_update:
+                        best_result = {
+                            "price": price_j_per_i,
+                            "base_idx": i,
+                            "quote_idx": j,
+                        }
+                        best_is_quote_pair = this_is_quote_pair
+
+        return best_result
+
 
 class RaydiumDatabase:
     """Handle SQLite database operations for Raydium pools"""
@@ -2005,6 +2243,74 @@ HTML_TEMPLATE = '''
             }
         }
 
+        // Fetch Meteora price data for a pool
+        async function fetchMeteoraPriceData(tokenMint) {
+            const priceDataDiv = document.getElementById(`price-data-${tokenMint}`);
+            const btn = event.target;
+
+            if (!priceDataDiv) return;
+
+            btn.disabled = true;
+            btn.textContent = '⏳ Loading...';
+            priceDataDiv.style.display = 'block';
+            priceDataDiv.textContent = 'Fetching price data...';
+
+            try {
+                const response = await fetch(`/api/meteora/price/${tokenMint}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    priceDataDiv.textContent = `❌ ${data.error || 'Failed to fetch price'}`;
+                    btn.textContent = '🔍 Price';
+                    btn.disabled = false;
+                    return;
+                }
+
+                let html = '<strong style="color: #4ade80;">Meteora Price Data:</strong><br>';
+
+                // On-chain price
+                if (data.on_chain_price) {
+                    html += `💹 <strong>On-chain:</strong> ${data.on_chain_price.toFixed(10)} SOL<br>`;
+                }
+
+                // DexScreener data
+                if (data.dexscreener_data) {
+                    const dex = data.dexscreener_data;
+                    html += `📊 <strong>DexScreener:</strong> ${dex.priceNative.toFixed(10)} SOL<br>`;
+                    if (dex.priceUsd) {
+                        html += `   USD: $${dex.priceUsd.toFixed(8)}<br>`;
+                    }
+                    if (dex.liquidity && dex.liquidity.usd) {
+                        html += `   Liquidity: $${dex.liquidity.usd.toFixed(2)}<br>`;
+                    }
+                }
+
+                // Comparison
+                if (data.comparison) {
+                    const comp = data.comparison;
+                    const statusColor = comp.status === 'matched' ? '#4ade80' : '#ff6b6b';
+                    html += `<br>📈 <strong style="color: ${statusColor}">Comparison:</strong><br>`;
+                    html += `   Ratio: ${comp.ratio.toFixed(4)}x<br>`;
+                    html += `   Difference: ${comp.difference_pct.toFixed(2)}%`;
+                }
+
+                priceDataDiv.innerHTML = html;
+                btn.textContent = '✅ Fetched';
+
+                // Auto-hide after 10 seconds
+                setTimeout(() => {
+                    priceDataDiv.style.display = 'none';
+                    btn.textContent = '🔍 Price';
+                    btn.disabled = false;
+                }, 10000);
+
+            } catch (error) {
+                priceDataDiv.textContent = `❌ Error: ${error.message}`;
+                btn.textContent = '🔍 Price';
+                btn.disabled = false;
+            }
+        }
+
         // Track which pools have been rendered to prevent duplicates
         const renderedPoolMints = new Set();
 
@@ -2034,8 +2340,14 @@ HTML_TEMPLATE = '''
                 iconHTML = `<div class="pool-icon">${initials}</div>`;
             }
 
+            // Fetch Meteora price if available
+            let meteoraPriceHTML = '';
+            if (pool.base_mint && pool.base_mint.length === 44) {
+                meteoraPriceHTML = `<button class="meteora-price-btn" onclick="fetchMeteoraPriceData('${pool.base_mint}')" style="margin-top: 4px; padding: 4px 8px; font-size: 11px; background: #1a2847; border: 1px solid #4ade80; color: #4ade80; border-radius: 4px; cursor: pointer;">🔍 Price</button>`;
+            }
+
             return `
-                <div class="pool-item">
+                <div class="pool-item" id="pool-${pool.base_mint}">
                     <div class="pool-left">
                         ${iconHTML}
                         <div class="pool-info">
@@ -2049,6 +2361,8 @@ HTML_TEMPLATE = '''
                         <div class="pool-time" data-first-seen="${pool.first_seen}">${formatActiveTime(pool.first_seen)}</div>
                         <div class="pool-price">${formatPrice(pool.current_price)}</div>
                         <div class="pool-change ${changeClass}">${changePercent >= 0 ? '+' : ''}${changePercent}%</div>
+                        ${meteoraPriceHTML}
+                        <div id="price-data-${pool.base_mint}" style="font-size: 11px; margin-top: 8px; padding: 8px; background: #0f1429; border-radius: 4px; display: none;"></div>
                     </div>
                 </div>
             `;
@@ -2273,6 +2587,43 @@ def get_updated_prices():
             })
 
     return jsonify({'pools': pools_with_prices})
+
+@app.route('/api/meteora/price/<token_mint>')
+def get_meteora_price(token_mint):
+    """Get Meteora pool price with DexScreener comparison
+
+    Returns on-chain price and DexScreener data for comparison
+    """
+    try:
+        price_fetcher = MeteoraPriceFetcher()
+        price_data = price_fetcher.fetch_price(token_mint)
+
+        if not price_data:
+            return jsonify({'error': 'Could not fetch price'}), 404
+
+        on_chain = price_data.get('on_chain_price')
+        dex_data = price_data.get('dexscreener_data')
+
+        response = {
+            'on_chain_price': on_chain,
+            'dexscreener_data': dex_data,
+        }
+
+        # Calculate comparison metrics if both prices available
+        if on_chain and dex_data:
+            dex_native = dex_data.get('priceNative', 0)
+            if dex_native > 0:
+                ratio = on_chain / dex_native
+                diff_pct = abs(on_chain - dex_native) / dex_native * 100
+                response['comparison'] = {
+                    'ratio': ratio,
+                    'difference_pct': diff_pct,
+                    'status': 'large_discrepancy' if diff_pct > 10 else 'matched'
+                }
+
+        return jsonify(response)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/pause', methods=['POST'])
 def toggle_pause():

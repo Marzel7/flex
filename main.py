@@ -2246,13 +2246,9 @@ HTML_TEMPLATE = '''
         // Fetch Meteora price data for a pool
         async function fetchMeteoraPriceData(tokenMint) {
             const priceDataDiv = document.getElementById(`price-data-${tokenMint}`);
-            const btn = event.target;
 
             if (!priceDataDiv) return;
 
-            btn.disabled = true;
-            btn.textContent = '⏳ Loading...';
-            priceDataDiv.style.display = 'block';
             priceDataDiv.textContent = 'Fetching price data...';
 
             try {
@@ -2260,11 +2256,20 @@ HTML_TEMPLATE = '''
                 const data = await response.json();
 
                 if (!response.ok) {
-                    priceDataDiv.textContent = `❌ ${data.error || 'Failed to fetch price'}`;
-                    btn.textContent = '🔍 Price';
-                    btn.disabled = false;
+                    const errorMsg = `❌ ${data.error || 'Failed to fetch price'}`;
+                    priceDataDiv.textContent = errorMsg;
+                    console.log(`[PRICE] Failed to fetch price for ${tokenMint}: ${data.error}`);
                     return;
                 }
+
+                // Log to console
+                console.log(`[PRICE] ✓ Fetched prices for ${tokenMint}`, {
+                    on_chain_price: data.on_chain_price,
+                    dexscreener_price: data.dexscreener_data?.priceNative,
+                    dexscreener_usd: data.dexscreener_data?.priceUsd,
+                    liquidity: data.dexscreener_data?.liquidity,
+                    comparison: data.comparison
+                });
 
                 let html = '<strong style="color: #4ade80; font-size: 12px;">💰 PRICE COMPARISON</strong><br>';
                 html += '<div style="border-top: 1px solid #4ade80; margin: 4px 0; padding-top: 4px;"></div>';
@@ -2333,19 +2338,10 @@ HTML_TEMPLATE = '''
                 }
 
                 priceDataDiv.innerHTML = html;
-                btn.textContent = '✅ Fetched';
-
-                // Auto-hide after 10 seconds
-                setTimeout(() => {
-                    priceDataDiv.style.display = 'none';
-                    btn.textContent = '🔍 Price';
-                    btn.disabled = false;
-                }, 10000);
 
             } catch (error) {
                 priceDataDiv.textContent = `❌ Error: ${error.message}`;
-                btn.textContent = '🔍 Price';
-                btn.disabled = false;
+                console.error(`[PRICE] Error fetching price for ${tokenMint}:`, error);
             }
         }
 
@@ -2378,12 +2374,6 @@ HTML_TEMPLATE = '''
                 iconHTML = `<div class="pool-icon">${initials}</div>`;
             }
 
-            // Fetch Meteora price if available
-            let meteoraPriceHTML = '';
-            if (pool.base_mint && pool.base_mint.length === 44) {
-                meteoraPriceHTML = `<button class="meteora-price-btn" onclick="fetchMeteoraPriceData('${pool.base_mint}')" style="margin-top: 4px; padding: 4px 8px; font-size: 11px; background: #1a2847; border: 1px solid #4ade80; color: #4ade80; border-radius: 4px; cursor: pointer;">🔍 Price</button>`;
-            }
-
             return `
                 <div class="pool-item" id="pool-${pool.base_mint}">
                     <div class="pool-left">
@@ -2399,8 +2389,7 @@ HTML_TEMPLATE = '''
                         <div class="pool-time" data-first-seen="${pool.first_seen}">${formatActiveTime(pool.first_seen)}</div>
                         <div class="pool-price">${formatPrice(pool.current_price)}</div>
                         <div class="pool-change ${changeClass}">${changePercent >= 0 ? '+' : ''}${changePercent}%</div>
-                        ${meteoraPriceHTML}
-                        <div id="price-data-${pool.base_mint}" style="font-size: 11px; margin-top: 8px; padding: 8px; background: #0f1429; border-radius: 4px; display: none;"></div>
+                        <div id="price-data-${pool.base_mint}" style="font-size: 11px; margin-top: 8px; padding: 8px; background: #0f1429; border-radius: 4px;"></div>
                     </div>
                 </div>
             `;
@@ -2453,6 +2442,15 @@ HTML_TEMPLATE = '''
             }
 
             // Images are embedded as <img> tags directly in the HTML - no post-processing needed
+
+            // Auto-fetch Meteora price data if valid token mint
+            if (pool.base_mint && pool.base_mint.length === 44) {
+                console.log(`[RENDER] Auto-fetching Meteora price for: ${pool.name} (${pool.base_mint})`);
+                // Small delay to ensure DOM is updated
+                setTimeout(() => {
+                    fetchMeteoraPriceData(pool.base_mint);
+                }, 100);
+            }
         }
 
         function pollForNewPools() {

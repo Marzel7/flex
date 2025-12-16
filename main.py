@@ -1348,11 +1348,15 @@ class RaydiumMonitor:
         try:
             print(f"[PRICE FETCH] Fetching price for base_mint={base_mint[:8]}... amm_id={amm_id[:8]}...")
 
-            # Import V2 functions dynamically
-            import importlib.util
-            spec = importlib.util.spec_from_file_location("v2", "/Users/kevinkeaveney/Dev/claude/flex/meteora_price_fetcher_v2.py")
-            v2 = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(v2)
+            # Import V2 functions dynamically (cache to avoid repeated imports)
+            if not hasattr(self, '_v2_fetcher_cache'):
+                import importlib.util
+                spec = importlib.util.spec_from_file_location("v2", "/Users/kevinkeaveney/Dev/claude/flex/meteora_price_fetcher_v2.py")
+                self._v2_fetcher_cache = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(self._v2_fetcher_cache)
+                print(f"[PRICE FETCH] ℹ Loaded V2 fetcher module")
+
+            v2 = self._v2_fetcher_cache
 
             # Use V2 fetcher which has proven working logic
             try:
@@ -1369,6 +1373,8 @@ class RaydiumMonitor:
                     return {'price': None, 'is_depleted': True, 'depletion_reason': 'V2 fetcher detected depletion'}
             except Exception as e:
                 print(f"[PRICE FETCH] ⚠ V2 fetcher error: {e}")
+                import traceback
+                traceback.print_exc()
                 return {'price': None, 'is_depleted': False, 'depletion_reason': None}
 
         except Exception as e:

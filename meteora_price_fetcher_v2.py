@@ -457,7 +457,7 @@ def print_price_result(result: Dict, verbose: bool = False):
     print(f"\nPool: {result['pool']}")
 
     if result["on_chain_price"] is not None:
-        print(f"On-chain price (spot):  {result['on_chain_price']:.18f}")
+        print(f"On-chain price (spot):  {result['on_chain_price']:.18f} SOL")
     else:
         print("On-chain price (spot):  Failed to fetch")
 
@@ -465,7 +465,7 @@ def print_price_result(result: Dict, verbose: bool = False):
     if dex_data:
         print(f"\nDexScreener data:")
         print(f"  Native price (SOL):    {dex_data.get('priceNative'):.18f}")
-        print(f"  USD price:             {dex_data.get('priceUsd'):.8f}")
+        print(f"  USD price:             ${dex_data.get('priceUsd'):.8f}")
         print(f"  Base token:            {dex_data.get('baseToken')}")
         print(f"  Quote token:           {dex_data.get('quoteToken')}")
         print(f"  Liquidity USD:         ${dex_data.get('liquidity', {}).get('usd', 'N/A')}")
@@ -478,6 +478,14 @@ def print_price_result(result: Dict, verbose: bool = False):
         print(f"\nPrice Comparison:")
         print(f"  On-chain / DexScreener ratio: {comp['ratio']:.6f}x")
         print(f"  Difference:                   {comp['difference_pct']:.2f}%")
+
+        # Log USD prices if available
+        if comp.get('dexscreener_usd') and result["on_chain_price"] is not None:
+            # Get current SOL price from DexScreener data to calculate on-chain USD
+            sol_price_usd = comp.get('dexscreener_usd') / (comp.get('dexscreener_native', 1) or 1)
+            on_chain_usd = result["on_chain_price"] * sol_price_usd
+            print(f"\n  On-chain USD price:    ${on_chain_usd:.8f}")
+            print(f"  DexScreener USD price: ${comp.get('dexscreener_usd'):.8f}")
 
         if comp['difference_pct'] > 10:
             print(f"  ⚠️  Large discrepancy detected!")

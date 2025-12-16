@@ -711,7 +711,13 @@ class RaydiumMonitor:
                                     check_data = check_response.json()
                                     if check_data.get("result") and check_data["result"].get("value"):
                                         owner = check_data["result"]["value"].get("owner", "")
-                                        account_data = check_data["result"]["value"].get("data", ["", ""])[0] or ""
+                                        encoded_data = check_data["result"]["value"].get("data", ["", ""])[0] or ""
+                                        # Decode base64 account data
+                                        try:
+                                            account_data = base64.b64decode(encoded_data) if encoded_data else b""
+                                        except Exception as decode_err:
+                                            print(f"[POOL ACCOUNT]   → Failed to decode account data: {decode_err}")
+                                            account_data = b""
                                         account_size = len(account_data)
                                         print(f"[POOL ACCOUNT]   → Owner: {owner[:8]}..., Size: {account_size} bytes")
 

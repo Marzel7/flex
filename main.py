@@ -2846,41 +2846,51 @@ HTML_TEMPLATE = '''
         }
 
         function updatePoolPrices() {
-            // Poll for price updates every 5 seconds for existing pools
+            // Poll for price updates for existing pools
             fetch('/api/pools/prices')
                 .then(response => response.json())
                 .then(data => {
                     if (data.pools && data.pools.length > 0) {
-                        console.log(`[PRICE] Received ${data.pools.length} price updates`);
+                        console.log(`[PRICE UPDATE] Received ${data.pools.length} price updates`);
                         data.pools.forEach(poolUpdate => {
-                            // Find the pool element by amm_id and update its price change
+                            // Find the pool element by amm_id and update prices
                             const poolElements = document.querySelectorAll('.pool-item');
                             poolElements.forEach(poolEl => {
-                                // Price data would be stored on the element, but for now update if found
+                                // Update price change percentage
                                 const changeEl = poolEl.querySelector('.pool-change');
-                                if (changeEl && changeEl.textContent !== undefined) {
+                                if (changeEl) {
                                     const newPercent = poolUpdate.price_change_percent;
                                     const newText = `${newPercent >= 0 ? '+' : ''}${newPercent.toFixed(2)}%`;
                                     if (changeEl.textContent !== newText) {
                                         changeEl.textContent = newText;
                                         changeEl.classList.toggle('negative', newPercent < 0);
-                                        console.log(`[PRICE] Updated price: ${newText}`);
+                                        changeEl.classList.toggle('positive', newPercent >= 0);
+                                        console.log(`[PRICE UPDATE] ✓ Updated ${poolUpdate.amm_id?.slice(0,8)}... change: ${newText}`);
+                                    }
+                                }
+
+                                // Update current price if available
+                                const priceEl = poolEl.querySelector('.pool-price');
+                                if (priceEl && poolUpdate.current_price) {
+                                    const newPriceText = `$${poolUpdate.current_price.toFixed(10)}`;
+                                    if (priceEl.textContent !== newPriceText) {
+                                        priceEl.textContent = newPriceText;
                                     }
                                 }
                             });
                         });
                     }
                 })
-                .catch(error => console.error('[PRICE] Error fetching price updates:', error));
+                .catch(error => console.error('[PRICE UPDATE] Error fetching price updates:', error));
         }
 
         // Poll for new pools every 1 second (near real-time updates)
         console.log('[INIT] Setting up polling interval (every 1 second)');
         setInterval(pollForNewPools, 1000);
 
-        // Update pool prices every 5 seconds
-        console.log('[INIT] Setting up price update interval (every 5 seconds)');
-        setInterval(updatePoolPrices, 5000);
+        // Update pool prices every 2 seconds (faster updates)
+        console.log('[INIT] Setting up price update interval (every 2 seconds)');
+        setInterval(updatePoolPrices, 2000);
 
         // Update pool times every 1 second to show "X seconds ago" dynamically
         // Offset by 500ms to avoid race conditions with polling

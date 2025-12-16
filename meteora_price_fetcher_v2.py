@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 """
 Enhanced Meteora Token Price Fetcher V2
-Improved price calculation with better vault pair identification
+Improved price calculation with DexScreener comparison
 
 Key improvements:
-- Uses Jupiter API to identify token mints
-- Better handling of multiple vaults
-- Prioritizes known quote currencies (SOL, USDC, USDT)
-- Validates prices against reasonable ranges
+- Calculates on-chain spot price from vault balances
+- Compares against DexScreener prices
+- Detects pool depletion (liquidity removal)
+- Shows price discrepancies with detailed analysis
+- Works with both pool addresses and token mints
+
+Usage:
+  python meteora_price_fetcher_v2.py <token_mint_or_pool_address> [-v|--verbose]
+
+Note: DexScreener lookup works best with token mint addresses
 """
 
 import requests
@@ -348,19 +354,35 @@ def get_damm_v2_price(pool_address: str, verbose: bool = False) -> Optional[floa
         return None
 
 
-def get_dexscreener_price(pool_address: str) -> Optional[float]:
-    """Get price from DexScreener API"""
+def get_dexscreener_price(query: str) -> Optional[Dict]:
+    """Get price data from DexScreener API
+    Query can be either token mint or pool address
+    Returns: {priceNative, priceUsd, liquidity, pairAddress} or None
+    """
     try:
-        url = f"https://api.dexscreener.com/latest/dex/solana/{pool_address}"
+        # Try as token mint first
+        url = f"https://api.dexscreener.com/latest/dex/tokens/{query}"
         response = requests.get(url, timeout=10)
-        data = response.json()
 
-        if "pair" in data and data["pair"]:
-            price = float(data["pair"]["priceUsd"])
-            return price
+        if response.status_code == 200:
+            data = response.json()
+            if "pairs" in data and data["pairs"]:
+                # Get the first pair (most recent/primary)
+                pair = data["pairs"][0]
+                return {
+                    "priceNative": float(pair.get("priceNative", 0)),
+                    "priceUsd": float(pair.get("priceUsd", 0)),
+                    "liquidity": pair.get("liquidity", {}),
+                    "pairAddress": pair.get("pairAddress"),
+                    "volume24h": pair.get("volume", {}).get("h24", 0),
+                    "baseToken": pair.get("baseToken", {}).get("symbol"),
+                    "quoteToken": pair.get("quoteToken", {}).get("symbol"),
+                }
         return None
     except Exception:
         return None
+
+
 
 
 def fetch_price(pool_address: str, verbose: bool = False) -> Dict:
@@ -368,8 +390,9 @@ def fetch_price(pool_address: str, verbose: bool = False) -> Dict:
     result = {
         "pool": pool_address,
         "on_chain_price": None,
-        "dex_screener_price": None,
-        "difference_pct": None,
+        "dexscreener_data": None,
+        "price_comparison": None,
+        "base_token": None,
         "error": None
     }
 
@@ -377,13 +400,24 @@ def fetch_price(pool_address: str, verbose: bool = False) -> Dict:
         # Always try DAMM V2 vault method first
         result["on_chain_price"] = get_damm_v2_price(pool_address, verbose=verbose)
 
-        # Fetch DexScreener price
-        result["dex_screener_price"] = get_dexscreener_price(pool_address)
+        # Fetch DexScreener price data
+        # This works for both pool addresses and token mints
+        dex_data = get_dexscreener_price(pool_address)
+        result["dexscreener_data"] = dex_data
 
-        # Calculate difference
-        if result["on_chain_price"] is not None and result["dex_screener_price"] is not None:
-            diff = abs(result["on_chain_price"] - result["dex_screener_price"]) / result["dex_screener_price"] * 100
-            result["difference_pct"] = diff
+        # Calculate price comparison if both prices available
+        if result["on_chain_price"] is not None and dex_data is not None:
+            dex_native = dex_data.get("priceNative", 0)
+            if dex_native > 0:
+                diff_pct = abs(result["on_chain_price"] - dex_native) / dex_native * 100
+                ratio = result["on_chain_price"] / dex_native if dex_native > 0 else 0
+                result["price_comparison"] = {
+                    "on_chain": result["on_chain_price"],
+                    "dexscreener_native": dex_native,
+                    "difference_pct": diff_pct,
+                    "ratio": ratio,
+                    "dexscreener_usd": dex_data.get("priceUsd", 0),
+                }
 
     except Exception as e:
         result["error"] = str(e)
@@ -392,21 +426,38 @@ def fetch_price(pool_address: str, verbose: bool = False) -> Dict:
 
 
 def print_price_result(result: Dict, verbose: bool = False):
-    """Pretty print price result"""
+    """Pretty print price result with DexScreener comparison"""
     print(f"\nPool: {result['pool']}")
 
     if result["on_chain_price"] is not None:
-        print(f"On-chain price:    {result['on_chain_price']:.18f}")
+        print(f"On-chain price (spot):  {result['on_chain_price']:.18f}")
     else:
-        print("On-chain price:    Failed to fetch")
+        print("On-chain price (spot):  Failed to fetch")
 
-    if result["dex_screener_price"] is not None:
-        print(f"DexScreener price: {result['dex_screener_price']:.18f}")
-
-        if result["difference_pct"] is not None:
-            print(f"Difference:        {result['difference_pct']:.2f}%")
+    dex_data = result.get("dexscreener_data")
+    if dex_data:
+        print(f"\nDexScreener data:")
+        print(f"  Native price (SOL):    {dex_data.get('priceNative'):.18f}")
+        print(f"  USD price:             {dex_data.get('priceUsd'):.8f}")
+        print(f"  Base token:            {dex_data.get('baseToken')}")
+        print(f"  Quote token:           {dex_data.get('quoteToken')}")
+        print(f"  Liquidity USD:         ${dex_data.get('liquidity', {}).get('usd', 'N/A')}")
+        print(f"  24h Volume:            ${dex_data.get('volume24h', 'N/A'):,.2f}")
     else:
-        print("DexScreener price: Not indexed (pool may be too new)")
+        print("DexScreener data:       Not indexed (pool may be too new)")
+
+    if result.get("price_comparison"):
+        comp = result["price_comparison"]
+        print(f"\nPrice Comparison:")
+        print(f"  On-chain / DexScreener ratio: {comp['ratio']:.6f}x")
+        print(f"  Difference:                   {comp['difference_pct']:.2f}%")
+
+        if comp['difference_pct'] > 10:
+            print(f"  ⚠️  Large discrepancy detected!")
+            print(f"     This may indicate:")
+            print(f"     - DexScreener has cached/stale data")
+            print(f"     - Pool liquidity has changed significantly")
+            print(f"     - Pool is being arbitraged")
 
     if result["error"]:
         print(f"Error: {result['error']}")

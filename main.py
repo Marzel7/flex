@@ -2038,6 +2038,10 @@ class RaydiumMonitor:
                                         if self.db.insert_pool(pool_data):
                                             print(f"Stored new {dex_source} pool: {pool_data['ammId']}")
 
+                                            # Initialize depletion tracking variables
+                                            is_depleted = False
+                                            depletion_reason = None
+
                                             # Fetch initial price and supply for new pool
                                             if pool_data.get('baseMint'):
                                                 print(f"[PRICE INIT] Fetching initial price and supply for {pool_data['ammId'][:8]}...")
@@ -2092,7 +2096,9 @@ class RaydiumMonitor:
                                                 'dex': dex_source,
                                                 'first_seen': pool_data.get('first_seen'),  # Use detection time, not broadcast time
                                                 'creation_price': initial_price if initial_price is not None else 0,
-                                                'current_price': initial_price if initial_price is not None else 0
+                                                'current_price': initial_price if initial_price is not None else 0,
+                                                'is_depleted': is_depleted,
+                                                'depletion_reason': depletion_reason
                                             }
                                             print(f"[BROADCAST] Adding {broadcast_data['name']} ({broadcast_data['symbol']}) to queue. Queue size before: {pool_broadcast_queue.qsize()}")
                                             if broadcast_data['image']:
@@ -2648,6 +2654,24 @@ HTML_TEMPLATE = '''
             margin-left: 8px;
         }
 
+        .badge-depleted {
+            background: #ff6b6b;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-left: 8px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .badge-depleted::before {
+            content: '⚠';
+            font-size: 11px;
+        }
+
         @media (max-width: 1024px) {
             .container {
                 grid-template-columns: 1fr;
@@ -2962,6 +2986,7 @@ HTML_TEMPLATE = '''
             const changePercent = pool.price_change_percent !== undefined ? Math.round(pool.price_change_percent * 100) / 100 : 0;
             const changeClass = changePercent >= 0 ? '' : 'negative';
             const dexBadge = pool.dex ? `<span style="background: #1a2847; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 8px; color: #ffd700;">${pool.dex}</span>` : '';
+            const depletedBadge = pool.is_depleted ? `<span class="badge-depleted" title="Liquidity has drained">Depleted</span>` : '';
 
             // Convert on-chain price to USD if SOL rate available
             let displayPrice = pool.current_price;
@@ -2987,7 +3012,7 @@ HTML_TEMPLATE = '''
                     <div class="pool-left">
                         ${iconHTML}
                         <div class="pool-info">
-                            <div class="pool-name" style="display: flex; align-items: center;">${pool.name || 'Unknown'} ${pool.symbol ? '(' + pool.symbol + ')' : ''} ${dexBadge}</div>
+                            <div class="pool-name" style="display: flex; align-items: center;">${pool.name || 'Unknown'} ${pool.symbol ? '(' + pool.symbol + ')' : ''} ${dexBadge} ${depletedBadge}</div>
                             <div class="pool-address">
                                 <a href="https://solscan.io/token/${pool.base_mint}" target="_blank" style="color: #8892b0; text-decoration: none;">${shortAddress}</a>
                             </div>

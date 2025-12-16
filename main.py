@@ -3019,20 +3019,15 @@ HTML_TEMPLATE = '''
                 }
 
                 // Log to console
-                console.log(`[PRICE] ✓ Fetched prices for ${tokenMint}`, {
+                console.log(`[PRICE] ✓ Fetched on-chain price for ${tokenMint}`, {
                     on_chain_price: data.on_chain_price,
-                    dexscreener_price: data.dexscreener_data?.priceNative,
-                    dexscreener_usd: data.dexscreener_data?.priceUsd,
-                    liquidity: data.dexscreener_data?.liquidity,
-                    comparison: data.comparison
+                    total_supply: data.total_supply,
+                    market_cap: data.market_cap
                 });
 
                 let html = '';
 
-                // Main price display - side by side with equal prominence
-                html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0;">';
-
-                // On-chain price - in USD (calculated from SOL price)
+                // On-chain price display
                 if (data.on_chain_price) {
                     // Use pre-calculated USD price if available, otherwise calculate from SOL rate
                     let onChainUsd = data.on_chain_price_usd;
@@ -3047,59 +3042,18 @@ HTML_TEMPLATE = '''
                     const onChainDisplay = onChainUsd ? `$${onChainUsd.toFixed(10)}` : (data.on_chain_price ? `${data.on_chain_price.toFixed(10)} SOL` : 'N/A');
 
                     html += `<div style="background: #1a2847; padding: 8px; border-radius: 4px; border: 2px solid #00d4ff; text-align: center;">
-                        <div style="font-size: 8px; color: #888; margin-bottom: 3px;">💹 ON-CHAIN (USD)</div>
+                        <div style="font-size: 8px; color: #888; margin-bottom: 3px;">💹 ON-CHAIN PRICE</div>
                         <div style="font-size: 12px; color: #00d4ff; font-weight: bold; word-break: break-all;">${onChainDisplay}</div>
                         <div style="font-size: 9px; color: #0088ff; margin-top: 3px;">Supply: ${data.total_supply ? (data.total_supply / 1e9).toFixed(2) + 'B' : 'N/A'}</div>
                     </div>`;
-                }
 
-                // DexScreener price - equally prominent (show in USD)
-                if (data.dexscreener_data) {
-                    const dex = data.dexscreener_data;
-                    const priceDisplay = dex.priceUsd ? `$${dex.priceUsd.toFixed(10)}` : `${dex.priceNative.toFixed(10)} SOL`;
-                    const mcapDisplay = data.market_cap ? (data.market_cap < 1000 ? `$${data.market_cap.toFixed(2)}` : `$${(data.market_cap / 1000).toFixed(1)}k`) : 'N/A';
-                    html += `<div style="background: #1a2847; padding: 8px; border-radius: 4px; border: 2px solid #ffd700; text-align: center;">
-                        <div style="font-size: 8px; color: #888; margin-bottom: 3px;">📈 DEXSCREENER (USD)</div>
-                        <div class="pool-dexscreener-price" style="font-size: 12px; color: #ffd700; font-weight: bold; word-break: break-all;">${priceDisplay}</div>
-                        <div style="font-size: 9px; color: #ffaa00; margin-top: 3px;">MCap: ${mcapDisplay}</div>
-                    </div>`;
-                    console.log(`[PRICE] ✓ DexScreener box added for ${tokenMint}: ${priceDisplay}`);
+                    // Add market cap if available
+                    if (data.market_cap) {
+                        const mcapDisplay = data.market_cap < 1000 ? `$${data.market_cap.toFixed(2)}` : `$${(data.market_cap / 1000).toFixed(1)}k`;
+                        html += `<div style="font-size: 9px; color: #aaa; margin-top: 8px; padding: 4px; background: #0f1429; border-radius: 3px;">Market Cap: ${mcapDisplay}</div>`;
+                    }
                 } else {
-                    console.log(`[PRICE] ⚠ No DexScreener data for ${tokenMint}`);
-                }
-
-                html += '</div>';
-
-                // Liquidity and volume
-                if (data.dexscreener_data) {
-                    const dex = data.dexscreener_data;
-                    let liquidityHTML = '';
-                    if (dex.liquidity && dex.liquidity.usd) {
-                        liquidityHTML += `💰 Liquidity: $${(dex.liquidity.usd / 1000).toFixed(1)}k`;
-                    }
-                    if (dex.volume24h) {
-                        if (liquidityHTML) liquidityHTML += ' | ';
-                        liquidityHTML += `📊 Vol: $${(dex.volume24h / 1000).toFixed(1)}k`;
-                    }
-                    if (liquidityHTML) {
-                        html += `<div style="font-size: 9px; color: #aaa; margin-bottom: 8px; padding: 4px; background: #0f1429; border-radius: 3px;">${liquidityHTML}</div>`;
-                    }
-                }
-
-                // Price comparison analysis - bottom section
-                if (data.comparison) {
-                    const comp = data.comparison;
-                    const statusColor = comp.status === 'matched' ? '#4ade80' : '#ff6b6b';
-                    const statusEmoji = comp.status === 'matched' ? '✅' : '⚠️';
-                    const statusText = comp.status === 'matched' ? 'Prices Matched' : 'Large Discrepancy';
-
-                    html += `<div style="background: ${statusColor}22; border: 1px solid ${statusColor}; padding: 6px; border-radius: 4px;">
-                        <div style="color: ${statusColor}; font-weight: bold; font-size: 10px; margin-bottom: 4px;">${statusEmoji} ${statusText}</div>
-                        <div style="font-size: 9px; color: #ccc;">
-                            Ratio: <span style="color: #ffff00; font-weight: bold;">${comp.ratio.toFixed(6)}x</span><br>
-                            Diff: <span style="color: ${statusColor}; font-weight: bold;">${comp.difference_pct.toFixed(2)}%</span>
-                        </div>
-                    </div>`;
+                    html = '<div style="color: #aaa; font-size: 9px;">No on-chain price data available</div>';
                 }
 
                 priceDataDiv.innerHTML = html;

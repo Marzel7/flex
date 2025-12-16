@@ -223,6 +223,7 @@ def is_pool_depleted(token_vaults: List[Tuple[str, Dict]]) -> bool:
 def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = False) -> Optional[Dict]:
     """
     Calculate the best price from vault pairs
+    Priority: Use known quote tokens (SOL) over token/token pairs
     Returns: {price, base_vault_idx, quote_vault_idx, explanation, warning}
     """
     if len(token_vaults) < 2:
@@ -236,7 +237,9 @@ def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = F
             'reason': 'Pool liquidity has been removed or is extremely low',
         }
 
+    sol_mint = "So11111111111111111111111111111111111111112"
     best_result = None
+    best_is_quote_pair = False  # Track if we found a pair with known quote
 
     for i in range(len(token_vaults)):
         for j in range(i + 1, len(token_vaults)):
@@ -246,35 +249,54 @@ def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = F
             if info_i['human'] <= 0 or info_j['human'] <= 0:
                 continue
 
+            # Check if either vault is a known quote token
+            is_i_quote = info_i['mint'] in KNOWN_QUOTES or info_i['mint'] == sol_mint
+            is_j_quote = info_j['mint'] in KNOWN_QUOTES or info_j['mint'] == sol_mint
+
             # Try both directions
             price_j_per_i = info_j['human'] / info_i['human']
             price_i_per_j = info_i['human'] / info_j['human']
 
-            # Accept any valid positive price (no hard range limits)
-            # Meteora pools can have extreme prices depending on liquidity and decimals
+            # Process j/i direction (quote/base)
             if price_j_per_i > 0:
-                if best_result is None:
-                    best_result = {
-                        'price': price_j_per_i,
-                        'base_idx': i,
-                        'quote_idx': j,
-                        'direction': f"vault[{j}] / vault[{i}]",
-                        'base_mint': info_i['mint'],
-                        'quote_mint': info_j['mint'],
-                    }
-                # Prefer prices closer to 1 for readability (but accept any valid price)
-                elif abs(price_j_per_i - 1) < abs(best_result['price'] - 1):
-                    best_result = {
-                        'price': price_j_per_i,
-                        'base_idx': i,
-                        'quote_idx': j,
-                        'direction': f"vault[{j}] / vault[{i}]",
-                        'base_mint': info_i['mint'],
-                        'quote_mint': info_j['mint'],
-                    }
+                this_is_quote_pair = is_j_quote  # j is in numerator (quote)
 
-            if price_i_per_j > 0:
+                should_update = False
                 if best_result is None:
+                    should_update = True
+                elif this_is_quote_pair and not best_is_quote_pair:
+                    # Prefer quote pairs over token/token pairs
+                    should_update = True
+                elif this_is_quote_pair == best_is_quote_pair:
+                    # Both are same type - prefer price closer to 1.0 for readability
+                    should_update = abs(price_j_per_i - 1) < abs(best_result['price'] - 1)
+
+                if should_update:
+                    best_result = {
+                        'price': price_j_per_i,
+                        'base_idx': i,
+                        'quote_idx': j,
+                        'direction': f"vault[{j}] / vault[{i}]",
+                        'base_mint': info_i['mint'],
+                        'quote_mint': info_j['mint'],
+                    }
+                    best_is_quote_pair = this_is_quote_pair
+
+            # Process i/j direction (quote/base)
+            if price_i_per_j > 0:
+                this_is_quote_pair = is_i_quote  # i is in numerator (quote)
+
+                should_update = False
+                if best_result is None:
+                    should_update = True
+                elif this_is_quote_pair and not best_is_quote_pair:
+                    # Prefer quote pairs over token/token pairs
+                    should_update = True
+                elif this_is_quote_pair == best_is_quote_pair:
+                    # Both are same type - prefer price closer to 1.0
+                    should_update = abs(price_i_per_j - 1) < abs(best_result['price'] - 1)
+
+                if should_update:
                     best_result = {
                         'price': price_i_per_j,
                         'base_idx': j,
@@ -283,16 +305,7 @@ def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = F
                         'base_mint': info_j['mint'],
                         'quote_mint': info_i['mint'],
                     }
-                # Prefer prices closer to 1 for readability
-                elif abs(price_i_per_j - 1) < abs(best_result['price'] - 1):
-                    best_result = {
-                        'price': price_i_per_j,
-                        'base_idx': j,
-                        'quote_idx': i,
-                        'direction': f"vault[{i}] / vault[{j}]",
-                        'base_mint': info_j['mint'],
-                        'quote_mint': info_i['mint'],
-                    }
+                    best_is_quote_pair = this_is_quote_pair
 
     return best_result
 

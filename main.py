@@ -69,10 +69,10 @@ class MeteoraPriceFetcher:
             return None
 
     def fetch_price(self, pool_address_or_mint: str) -> Optional[Dict]:
-        """Fetch price from Meteora pool or token mint"""
+        """Fetch price from Meteora pool using pool creation transaction"""
         try:
-            # Try to fetch vaults from the token mint
-            result = self.rpc_call("getSignaturesForAddress", [pool_address_or_mint, {"limit": 1}])
+            # Fetch pool creation transaction (last in history = oldest = creation)
+            result = self.rpc_call("getSignaturesForAddress", [pool_address_or_mint, {"limit": 10}])
             if not result or not result.get("result"):
                 return None
 
@@ -80,12 +80,12 @@ class MeteoraPriceFetcher:
             if not sigs:
                 return None
 
-            # Get most recent transaction
-            tx_sig = sigs[0]["signature"]
+            # Get pool creation transaction (last signature = oldest = creation)
+            tx_sig = sigs[-1]["signature"]
 
-            # Extract vaults from transaction
+            # Extract vaults from transaction (including inner instructions)
             vaults = self._extract_vaults_from_tx(tx_sig, pool_address_or_mint)
-            if not vaults:
+            if not vaults or len(vaults) < 2:
                 return None
 
             # Fetch vault balances
@@ -116,7 +116,7 @@ class MeteoraPriceFetcher:
             return None
 
     def _extract_vaults_from_tx(self, tx_sig: str, pool_address: str) -> List[str]:
-        """Extract vault addresses from pool creation transaction"""
+        """Extract vault addresses from pool creation transaction, including inner instructions"""
         try:
             result = self.rpc_call(
                 "getTransaction",
@@ -129,15 +129,32 @@ class MeteoraPriceFetcher:
             accounts = tx_data["transaction"]["message"]["accountKeys"]
             account_keys = [acc["pubkey"] for acc in accounts]
 
-            # Filter SPL token accounts
+            # Filter SPL token accounts from main instruction
             vaults = []
             for acc in account_keys:
                 if acc != pool_address and len(acc) == 44:
                     if self._is_token_account(acc):
                         vaults.append(acc)
 
-            return vaults[:3]  # Return first 3 vaults
-        except Exception:
+            # Also check inner instructions for vault references
+            meta = tx_data.get("meta", {})
+            inner_instructions = meta.get("innerInstructions", [])
+
+            for inner in inner_instructions:
+                for instr in inner.get("instructions", []):
+                    for idx in instr.get("accounts", []):
+                        if isinstance(idx, int) and idx < len(account_keys):
+                            acc = account_keys[idx]
+                            if acc != pool_address and acc not in vaults and len(acc) == 44:
+                                if self._is_token_account(acc):
+                                    vaults.append(acc)
+
+            # Remove duplicates while preserving order
+            vaults = list(dict.fromkeys(vaults))
+
+            return vaults
+        except Exception as e:
+            print(f"[VAULT EXTRACT] Error extracting vaults: {e}")
             return []
 
     def _is_token_account(self, account_addr: str) -> bool:
@@ -1324,85 +1341,40 @@ class RaydiumMonitor:
             return None
 
     def fetch_pool_price(self, amm_id: str, base_mint: str, signature: str = None) -> Dict:
-        """Fetch current price of a token from on-chain pool data
-
-        Strategy:
-        1. If signature available: Extract vaults from pool creation tx (most reliable)
-        2. Fallback: Parse bin_id from account data
+        """Fetch current price using V2 fetcher logic for proven reliability
 
         Returns: {'price': float, 'is_depleted': bool, 'depletion_reason': str or None}
         """
         try:
             print(f"[PRICE FETCH] Fetching price for base_mint={base_mint[:8]}... amm_id={amm_id[:8]}...")
 
-            is_depleted = False
-            depletion_reason = None
+            # Import V2 functions dynamically
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("v2", "/Users/kevinkeaveney/Dev/claude/flex/meteora_price_fetcher_v2.py")
+            v2 = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(v2)
 
-            # First try: Extract price from transaction (most reliable)
-            if signature:
-                result = self.extract_pool_price_from_transaction(amm_id, signature)
-                if result and isinstance(result, dict):
-                    price = result.get('price')
-                    is_depleted = result.get('is_depleted', False)
-                    depletion_reason = result.get('depletion_reason')
-
-                    if price and price > 0:
-                        print(f"[PRICE FETCH] ✓ Successfully got price from transaction: ${price:.18f}")
-                        return {'price': price, 'is_depleted': is_depleted, 'depletion_reason': depletion_reason}
-                else:
-                    print(f"[PRICE FETCH] ℹ Transaction method didn't work, trying account data...")
-            
-            # Fallback: Try to fetch the pool account and parse bin_id
-            response = requests.post(
-                self.rpc_http_url,
-                json={
-                    "jsonrpc": "2.0",
-                    "id": 1,
-                    "method": "getAccountInfo",
-                    "params": [amm_id, {"encoding": "base64"}]
-                },
-                timeout=10
-            )
-            
-            data = response.json()
-
-            if "error" in data:
-                print(f"[PRICE FETCH] ⚠ RPC error: {data['error'].get('message', data['error'])}")
-                return {'price': None, 'is_depleted': False, 'depletion_reason': None}
-            
-            if not data.get("result") or not data["result"].get("value"):
-                print(f"[PRICE FETCH] ⚠ Account not found at {amm_id[:8]}... (may be signature, not pool address)")
-                print(f"[PRICE FETCH] ℹ Need actual Meteora LBPair account address to fetch price")
-                return {'price': None, 'is_depleted': False, 'depletion_reason': None}
-            
-            account_info = data["result"]["value"]
-            encoded_data = account_info.get("data", ["", ""])[0]
-            
-            if not encoded_data:
-                print(f"[PRICE FETCH] ✗ Account has no data")
-                return {'price': None, 'is_depleted': False, 'depletion_reason': None}
-            
-            # Decode base64 account data
+            # Use V2 fetcher which has proven working logic
             try:
-                account_data = base64.b64decode(encoded_data)
+                result = v2.get_damm_v2_price(amm_id, verbose=False)
+                if result:
+                    print(f"[PRICE FETCH] ✓ Successfully fetched price: ${result:.18f} SOL")
+                    return {
+                        'price': result,
+                        'is_depleted': False,
+                        'depletion_reason': None
+                    }
+                else:
+                    print(f"[PRICE FETCH] ⚠ V2 fetcher returned None (pool may be depleted)")
+                    return {'price': None, 'is_depleted': True, 'depletion_reason': 'V2 fetcher detected depletion'}
             except Exception as e:
-                print(f"[PRICE FETCH] ✗ Failed to decode account data: {e}")
-                return {'price': None, 'is_depleted': False, 'depletion_reason': None}
-            
-            print(f"[PRICE FETCH] ✓ Account retrieved ({len(account_data)} bytes), parsing...")
-            
-            # Parse Meteora DLMM pool price using bin_id
-            price = self.parse_meteora_pool_price(account_data, amm_id)
-
-            if price is not None:
-                print(f"[PRICE FETCH] ✓ Extracted price from account data: ${price:.8f}")
-                return {'price': price, 'is_depleted': False, 'depletion_reason': None}
-            else:
-                print(f"[PRICE FETCH] ⚠ Could not extract price from either method")
+                print(f"[PRICE FETCH] ⚠ V2 fetcher error: {e}")
                 return {'price': None, 'is_depleted': False, 'depletion_reason': None}
 
         except Exception as e:
             print(f"[PRICE FETCH] ✗ Exception: {e}")
+            import traceback
+            traceback.print_exc()
             return {'price': None, 'is_depleted': False, 'depletion_reason': None}
 
     def _get_vault_info(self, vault_addr: str) -> dict:

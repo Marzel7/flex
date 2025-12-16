@@ -352,6 +352,14 @@ class RaydiumDatabase:
             cursor.execute('ALTER TABLE pools ADD COLUMN sol_usd_price REAL')
         except sqlite3.OperationalError:
             pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN is_depleted BOOLEAN')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN depletion_reason TEXT')
+        except sqlite3.OperationalError:
+            pass
 
         cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_amm_id ON pools(amm_id)
@@ -542,6 +550,24 @@ class RaydiumDatabase:
             return True
         except Exception as e:
             print(f"Error updating DexScreener price: {e}")
+            return False
+        finally:
+            conn.close()
+
+    def update_depletion_status(self, amm_id: str, is_depleted: bool, reason: str = None) -> bool:
+        """Update pool depletion status"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute('''
+                UPDATE pools
+                SET is_depleted = ?, depletion_reason = ?
+                WHERE amm_id = ?
+            ''', (is_depleted, reason, amm_id))
+            conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error updating depletion status: {e}")
             return False
         finally:
             conn.close()
@@ -1297,22 +1323,32 @@ class RaydiumMonitor:
             traceback.print_exc()
             return None
 
-    def fetch_pool_price(self, amm_id: str, base_mint: str, signature: str = None) -> float:
+    def fetch_pool_price(self, amm_id: str, base_mint: str, signature: str = None) -> Dict:
         """Fetch current price of a token from on-chain pool data
-        
+
         Strategy:
         1. If signature available: Extract vaults from pool creation tx (most reliable)
         2. Fallback: Parse bin_id from account data
+
+        Returns: {'price': float, 'is_depleted': bool, 'depletion_reason': str or None}
         """
         try:
             print(f"[PRICE FETCH] Fetching price for base_mint={base_mint[:8]}... amm_id={amm_id[:8]}...")
-            
+
+            is_depleted = False
+            depletion_reason = None
+
             # First try: Extract price from transaction (most reliable)
             if signature:
-                price = self.extract_pool_price_from_transaction(amm_id, signature)
-                if price and price > 0:
-                    print(f"[PRICE FETCH] ✓ Successfully got price from transaction: ${price:.18f}")
-                    return price
+                result = self.extract_pool_price_from_transaction(amm_id, signature)
+                if result and isinstance(result, dict):
+                    price = result.get('price')
+                    is_depleted = result.get('is_depleted', False)
+                    depletion_reason = result.get('depletion_reason')
+
+                    if price and price > 0:
+                        print(f"[PRICE FETCH] ✓ Successfully got price from transaction: ${price:.18f}")
+                        return {'price': price, 'is_depleted': is_depleted, 'depletion_reason': depletion_reason}
                 else:
                     print(f"[PRICE FETCH] ℹ Transaction method didn't work, trying account data...")
             
@@ -1329,45 +1365,45 @@ class RaydiumMonitor:
             )
             
             data = response.json()
-            
+
             if "error" in data:
                 print(f"[PRICE FETCH] ⚠ RPC error: {data['error'].get('message', data['error'])}")
-                return None
+                return {'price': None, 'is_depleted': False, 'depletion_reason': None}
             
             if not data.get("result") or not data["result"].get("value"):
                 print(f"[PRICE FETCH] ⚠ Account not found at {amm_id[:8]}... (may be signature, not pool address)")
                 print(f"[PRICE FETCH] ℹ Need actual Meteora LBPair account address to fetch price")
-                return None
+                return {'price': None, 'is_depleted': False, 'depletion_reason': None}
             
             account_info = data["result"]["value"]
             encoded_data = account_info.get("data", ["", ""])[0]
             
             if not encoded_data:
                 print(f"[PRICE FETCH] ✗ Account has no data")
-                return None
+                return {'price': None, 'is_depleted': False, 'depletion_reason': None}
             
             # Decode base64 account data
             try:
                 account_data = base64.b64decode(encoded_data)
             except Exception as e:
                 print(f"[PRICE FETCH] ✗ Failed to decode account data: {e}")
-                return None
+                return {'price': None, 'is_depleted': False, 'depletion_reason': None}
             
             print(f"[PRICE FETCH] ✓ Account retrieved ({len(account_data)} bytes), parsing...")
             
             # Parse Meteora DLMM pool price using bin_id
             price = self.parse_meteora_pool_price(account_data, amm_id)
-            
+
             if price is not None:
                 print(f"[PRICE FETCH] ✓ Extracted price from account data: ${price:.8f}")
-                return price
+                return {'price': price, 'is_depleted': False, 'depletion_reason': None}
             else:
                 print(f"[PRICE FETCH] ⚠ Could not extract price from either method")
-                return None
-        
+                return {'price': None, 'is_depleted': False, 'depletion_reason': None}
+
         except Exception as e:
             print(f"[PRICE FETCH] ✗ Exception: {e}")
-            return None
+            return {'price': None, 'is_depleted': False, 'depletion_reason': None}
 
     def _get_vault_info(self, vault_addr: str) -> dict:
         """Get vault balance and mint info from Solana RPC"""
@@ -1721,22 +1757,28 @@ class RaydiumMonitor:
             # Check for pool depletion (liquidity removal)
             # A pool is depleted if one vault is nearly empty while the other has balance
             balances = [v["human"] for v in token_vaults if v["human"] > 0]
+            is_depleted = False
+            depletion_reason = None
+
             if len(balances) < 2:
                 print(f"[METEORA TX] ⚠ Pool appears depleted - less than 2 non-zero vaults")
-                return None
+                is_depleted = True
+                depletion_reason = "Less than 2 non-zero vaults"
+            else:
+                min_balance = min(balances)
+                max_balance = max(balances)
 
-            min_balance = min(balances)
-            max_balance = max(balances)
+                # Depletion threshold: if smallest vault < 0.00001 (essentially dust)
+                if min_balance < 0.00001:
+                    print(f"[METEORA TX] ⚠ Pool appears depleted - smallest vault has only {min_balance:.18f}")
+                    is_depleted = True
+                    depletion_reason = f"Dust balance: {min_balance:.10f}"
 
-            # Depletion threshold: if smallest vault < 0.00001 (essentially dust)
-            if min_balance < 0.00001:
-                print(f"[METEORA TX] ⚠ Pool appears depleted - smallest vault has only {min_balance:.18f}")
-                return None
-
-            # Additional check: if smallest < 0.0001 and >100x smaller than largest
-            if min_balance < 0.0001 and max_balance > 0 and (max_balance / min_balance) > 100:
-                print(f"[METEORA TX] ⚠ Pool appears depleted - {max_balance/min_balance:.1f}x imbalance")
-                return None
+                # Additional check: if smallest < 0.0001 and >100x smaller than largest
+                elif min_balance < 0.0001 and max_balance > 0 and (max_balance / min_balance) > 100:
+                    print(f"[METEORA TX] ⚠ Pool appears depleted - {max_balance/min_balance:.1f}x imbalance")
+                    is_depleted = True
+                    depletion_reason = f"Imbalance: {max_balance/min_balance:.1f}x"
 
             # Calculate best price from all vault pairs (matching V2 logic)
             # Priority: SOL pairs > token/token pairs, then by balance size
@@ -1797,13 +1839,30 @@ class RaydiumMonitor:
 
             if best_price is not None and best_pair is not None:
                 base, quote = best_pair
-                print(f"[METEORA TX] ✓ Best pair: {quote['mint'][:8]}... / {base['mint'][:8]}... = {best_price:.18f}")
-                return best_price
+                if is_depleted:
+                    print(f"[METEORA TX] ⚠ Depleted pool but price: {quote['mint'][:8]}... / {base['mint'][:8]}... = {best_price:.18f} (Reason: {depletion_reason})")
+                else:
+                    print(f"[METEORA TX] ✓ Best pair: {quote['mint'][:8]}... / {base['mint'][:8]}... = {best_price:.18f}")
+
+                # Return dict with price and depletion status
+                return {
+                    'price': best_price,
+                    'is_depleted': is_depleted,
+                    'depletion_reason': depletion_reason
+                }
 
             # Fallback: use first pair if algo didn't select
             price = token_vaults[1]["human"] / token_vaults[0]["human"] if token_vaults[0]["human"] > 0 else 0
-            print(f"[METEORA TX] ✓ Fallback price: {token_vaults[1]['human']:.8f} / {token_vaults[0]['human']:.8f} = ${price:.18f}")
-            return price
+            if is_depleted:
+                print(f"[METEORA TX] ⚠ Depleted pool fallback: {token_vaults[1]['human']:.8f} / {token_vaults[0]['human']:.8f} = ${price:.18f}")
+            else:
+                print(f"[METEORA TX] ✓ Fallback price: {token_vaults[1]['human']:.8f} / {token_vaults[0]['human']:.8f} = ${price:.18f}")
+
+            return {
+                'price': price,
+                'is_depleted': is_depleted,
+                'depletion_reason': depletion_reason
+            }
         
         except Exception as e:
             print(f"[METEORA TX] ✗ Error extracting price from transaction: {e}")
@@ -1982,22 +2041,34 @@ class RaydiumMonitor:
                                             # Fetch initial price and supply for new pool
                                             if pool_data.get('baseMint'):
                                                 print(f"[PRICE INIT] Fetching initial price and supply for {pool_data['ammId'][:8]}...")
-                                                initial_price = self.fetch_pool_price(pool_data['ammId'], pool_data['baseMint'], signature)
-                                                if initial_price is not None:
+                                                price_result = self.fetch_pool_price(pool_data['ammId'], pool_data['baseMint'], signature)
+                                                if price_result and price_result.get('price') is not None:
+                                                    initial_price = price_result['price']
+                                                    is_depleted = price_result.get('is_depleted', False)
+                                                    depletion_reason = price_result.get('depletion_reason')
+
                                                     # Also fetch total supply
                                                     total_supply = self.get_token_total_supply(pool_data['baseMint'])
 
                                                     if total_supply is not None:
                                                         market_cap = total_supply * initial_price
                                                         self.db.update_pool_supply_and_price(pool_data['ammId'], total_supply, initial_price, is_initial=True)
+                                                        if is_depleted:
+                                                            self.db.update_depletion_status(pool_data['ammId'], is_depleted, depletion_reason)
                                                         print(f"[PRICE INIT] ✓ Initial price set: ${initial_price:.8f}")
                                                         print(f"[PRICE INIT] ✓ Total supply: {total_supply:,.0f}")
                                                         print(f"[PRICE INIT] ✓ Market cap: ${market_cap:,.0f}")
+                                                        if is_depleted:
+                                                            print(f"[PRICE INIT] ⚠ Pool is depleted: {depletion_reason}")
                                                     else:
                                                         # Just update price if supply fetch fails
                                                         self.db.update_pool_price(pool_data['ammId'], initial_price, is_initial=True)
+                                                        if is_depleted:
+                                                            self.db.update_depletion_status(pool_data['ammId'], is_depleted, depletion_reason)
                                                         print(f"[PRICE INIT] ✓ Initial price set: ${initial_price:.8f}")
                                                         print(f"[PRICE INIT] ⚠ Could not fetch total supply")
+                                                        if is_depleted:
+                                                            print(f"[PRICE INIT] ⚠ Pool is depleted: {depletion_reason}")
                                                 else:
                                                     print(f"[PRICE INIT] ⚠ Could not fetch initial price")
 
@@ -2095,21 +2166,33 @@ class RaydiumMonitor:
                     print(f"[PRICE UPDATER] [{i}/{len(pools_to_update)}] Pool age: {age_seconds:.0f}s, interval: {interval_str}")
 
                     # Fetch current price from blockchain (use signature if available)
-                    current_price = self.fetch_pool_price(amm_id, base_mint, signature)
+                    price_result = self.fetch_pool_price(amm_id, base_mint, signature)
 
-                    if current_price is not None:
+                    if price_result and price_result.get('price') is not None:
+                        current_price = price_result['price']
+                        is_depleted = price_result.get('is_depleted', False)
+                        depletion_reason = price_result.get('depletion_reason')
+
                         # Fetch total supply
                         total_supply = self.get_token_total_supply(base_mint)
-                        
+
                         if total_supply is not None:
                             # Update in database with supply and price
                             self.db.update_pool_supply_and_price(amm_id, total_supply, current_price)
+                            if is_depleted:
+                                self.db.update_depletion_status(amm_id, is_depleted, depletion_reason)
                             market_cap = total_supply * current_price
                             print(f"[PRICE UPDATER] ✓ Updated {base_mint[:8]}...: ${current_price:.8f} (supply: {total_supply:,.0f}, mcap: ${market_cap:,.0f})")
+                            if is_depleted:
+                                print(f"[PRICE UPDATER] ⚠ Pool is depleted: {depletion_reason}")
                         else:
                             # Update price only if supply fetch fails
                             self.db.update_pool_price(amm_id, current_price)
+                            if is_depleted:
+                                self.db.update_depletion_status(amm_id, is_depleted, depletion_reason)
                             print(f"[PRICE UPDATER] ✓ Updated price for {base_mint[:8]}...: ${current_price:.8f}")
+                            if is_depleted:
+                                print(f"[PRICE UPDATER] ⚠ Pool is depleted: {depletion_reason}")
                     else:
                         print(f"[PRICE UPDATER] ✗ Could not fetch price for {base_mint[:8]}...")
 

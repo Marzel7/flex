@@ -336,6 +336,22 @@ class RaydiumDatabase:
             cursor.execute('ALTER TABLE pools ADD COLUMN market_cap REAL')
         except sqlite3.OperationalError:
             pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN dexscreener_price_usd REAL')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN dexscreener_price_native REAL')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN last_dexscreener_update TIMESTAMP')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN sol_usd_price REAL')
+        except sqlite3.OperationalError:
+            pass
 
         cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_amm_id ON pools(amm_id)
@@ -412,7 +428,7 @@ class RaydiumDatabase:
         conn = self.get_connection()
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT amm_id, name, symbol, image, base_mint, liquidity, price, signature, dex, first_seen, creation_price, current_price
+            SELECT amm_id, name, symbol, image, base_mint, liquidity, price, signature, dex, first_seen, creation_price, current_price, dexscreener_price_usd, dexscreener_price_native, sol_usd_price
             FROM pools
             ORDER BY first_seen DESC
             LIMIT ?
@@ -432,7 +448,10 @@ class RaydiumDatabase:
                 'dex': row[8] or 'Unknown',
                 'first_seen': row[9],
                 'creation_price': row[10],
-                'current_price': row[11]
+                'current_price': row[11],
+                'dexscreener_price_usd': row[12],
+                'dexscreener_price_native': row[13],
+                'sol_usd_price': row[14]
             })
         conn.close()
         return results
@@ -468,24 +487,61 @@ class RaydiumDatabase:
         finally:
             conn.close()
 
-    def update_pool_supply_and_price(self, amm_id: str, total_supply: float, price: float) -> bool:
-        """Update total supply and current price, calculate market cap"""
+    def update_pool_supply_and_price(self, amm_id: str, total_supply: float, price: float, is_initial: bool = False) -> bool:
+        """Update total supply and current price, calculate market cap
+
+        If is_initial=True, also sets creation_price (initial price at pool creation)
+        """
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
             timestamp = datetime.now().isoformat()
             market_cap = total_supply * price if total_supply and price else None
-            
-            cursor.execute('''
-                UPDATE pools
-                SET total_supply = ?, current_price = ?, market_cap = ?, last_price_update = ?
-                WHERE amm_id = ?
-            ''', (total_supply, price, market_cap, timestamp, amm_id))
-            
+
+            if is_initial:
+                # First price update - set both creation_price and current_price
+                cursor.execute('''
+                    UPDATE pools
+                    SET total_supply = ?, creation_price = ?, current_price = ?, market_cap = ?, last_price_update = ?
+                    WHERE amm_id = ?
+                ''', (total_supply, price, price, market_cap, timestamp, amm_id))
+            else:
+                # Subsequent updates - only update current_price
+                cursor.execute('''
+                    UPDATE pools
+                    SET total_supply = ?, current_price = ?, market_cap = ?, last_price_update = ?
+                    WHERE amm_id = ?
+                ''', (total_supply, price, market_cap, timestamp, amm_id))
+
             conn.commit()
             return True
         except Exception as e:
             print(f"Error updating pool supply/price: {e}")
+            return False
+        finally:
+            conn.close()
+
+    def update_dexscreener_price(self, amm_id: str, price_usd: float, price_native: float = None) -> bool:
+        """Update DexScreener price data for a pool and calculate SOL/USD rate"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            timestamp = datetime.now().isoformat()
+
+            # Calculate SOL/USD rate if both prices available
+            sol_usd_rate = None
+            if price_native and price_native > 0 and price_usd:
+                sol_usd_rate = price_usd / price_native
+
+            cursor.execute('''
+                UPDATE pools
+                SET dexscreener_price_usd = ?, dexscreener_price_native = ?, last_dexscreener_update = ?, sol_usd_price = ?
+                WHERE amm_id = ?
+            ''', (price_usd, price_native, timestamp, sol_usd_rate, amm_id))
+            conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error updating DexScreener price: {e}")
             return False
         finally:
             conn.close()
@@ -1439,9 +1495,31 @@ class RaydiumMonitor:
                 return None
             
             return None
-            
+
         except Exception as e:
             print(f"[TOKEN SUPPLY] Error fetching total supply: {e}")
+            return None
+
+    def get_dexscreener_price(self, token_mint: str) -> Optional[Dict]:
+        """Get price data from DexScreener API"""
+        try:
+            url = f"https://api.dexscreener.com/latest/dex/tokens/{token_mint}"
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if "pairs" in data and data["pairs"]:
+                    pair = data["pairs"][0]
+                    return {
+                        "priceNative": float(pair.get("priceNative", 0)),
+                        "priceUsd": float(pair.get("priceUsd", 0)),
+                        "liquidity": pair.get("liquidity", {}),
+                        "pairAddress": pair.get("pairAddress"),
+                        "volume24h": pair.get("volume", {}).get("h24", 0),
+                        "baseToken": pair.get("baseToken", {}).get("symbol"),
+                        "quoteToken": pair.get("quoteToken", {}).get("symbol"),
+                    }
+            return None
+        except Exception:
             return None
 
     def parse_meteora_pool_price(self, account_data: bytes, pool_id: str) -> float:
@@ -1639,13 +1717,33 @@ class RaydiumMonitor:
             if len(token_vaults) < 2:
                 print(f"[METEORA TX] ⚠ Could not get balances for {len(token_vaults)} vaults")
                 return None
-            
+
+            # Check for pool depletion (liquidity removal)
+            # A pool is depleted if one vault is nearly empty while the other has balance
+            balances = [v["human"] for v in token_vaults if v["human"] > 0]
+            if len(balances) < 2:
+                print(f"[METEORA TX] ⚠ Pool appears depleted - less than 2 non-zero vaults")
+                return None
+
+            min_balance = min(balances)
+            max_balance = max(balances)
+
+            # Depletion threshold: if smallest vault < 0.00001 (essentially dust)
+            if min_balance < 0.00001:
+                print(f"[METEORA TX] ⚠ Pool appears depleted - smallest vault has only {min_balance:.18f}")
+                return None
+
+            # Additional check: if smallest < 0.0001 and >100x smaller than largest
+            if min_balance < 0.0001 and max_balance > 0 and (max_balance / min_balance) > 100:
+                print(f"[METEORA TX] ⚠ Pool appears depleted - {max_balance/min_balance:.1f}x imbalance")
+                return None
+
             # Calculate price: quote / base
             # Prefer SOL as quote
             sol_mint = "So11111111111111111111111111111111111111112"
-            
+
             v1, v2 = token_vaults[0], token_vaults[1]
-            
+
             if v2["mint"] == sol_mint:
                 # v2 is SOL (quote), v1 is token (base)
                 price = v2["human"] / v1["human"] if v1["human"] > 0 else 0
@@ -1846,7 +1944,7 @@ class RaydiumMonitor:
 
                                                     if total_supply is not None:
                                                         market_cap = total_supply * initial_price
-                                                        self.db.update_pool_supply_and_price(pool_data['ammId'], total_supply, initial_price)
+                                                        self.db.update_pool_supply_and_price(pool_data['ammId'], total_supply, initial_price, is_initial=True)
                                                         print(f"[PRICE INIT] ✓ Initial price set: ${initial_price:.8f}")
                                                         print(f"[PRICE INIT] ✓ Total supply: {total_supply:,.0f}")
                                                         print(f"[PRICE INIT] ✓ Market cap: ${market_cap:,.0f}")
@@ -1857,6 +1955,13 @@ class RaydiumMonitor:
                                                         print(f"[PRICE INIT] ⚠ Could not fetch total supply")
                                                 else:
                                                     print(f"[PRICE INIT] ⚠ Could not fetch initial price")
+
+                                            # Also fetch DexScreener price for initial setup
+                                            if pool_data.get('baseMint'):
+                                                dex_data = self.get_dexscreener_price(pool_data['baseMint'])
+                                                if dex_data and dex_data.get('priceUsd'):
+                                                    self.db.update_dexscreener_price(pool_data['ammId'], dex_data['priceUsd'], dex_data.get('priceNative'))
+                                                    print(f"[DEXSCREENER INIT] ✓ Initial DexScreener price: ${dex_data['priceUsd']:.10f}")
 
                                             # Broadcast new pool to UI immediately with snake_case field names
                                             broadcast_data = {
@@ -1962,6 +2067,12 @@ class RaydiumMonitor:
                             print(f"[PRICE UPDATER] ✓ Updated price for {base_mint[:8]}...: ${current_price:.8f}")
                     else:
                         print(f"[PRICE UPDATER] ✗ Could not fetch price for {base_mint[:8]}...")
+
+                    # Also fetch DexScreener price for comparison
+                    dex_data = self.get_dexscreener_price(base_mint)
+                    if dex_data and dex_data.get('priceUsd'):
+                        self.db.update_dexscreener_price(amm_id, dex_data['priceUsd'], dex_data.get('priceNative'))
+                        print(f"[DEXSCREENER] Updated for {base_mint[:8]}...: ${dex_data['priceUsd']:.10f}")
 
                     # Rate limiting - small delay between updates
                     time.sleep(0.5)
@@ -2625,17 +2736,28 @@ HTML_TEMPLATE = '''
                     comparison: data.comparison
                 });
 
-                let html = '<strong style="color: #4ade80; font-size: 12px;">💰 PRICE COMPARISON</strong><br>';
-                html += '<div style="border-top: 1px solid #4ade80; margin: 4px 0; padding-top: 4px;"></div>';
+                let html = '';
 
                 // Main price display - side by side with equal prominence
                 html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0;">';
 
-                // On-chain price - prominent (in SOL)
+                // On-chain price - in USD (calculated from SOL price)
                 if (data.on_chain_price) {
+                    // Use pre-calculated USD price if available, otherwise calculate from SOL rate
+                    let onChainUsd = data.on_chain_price_usd;
+                    if (!onChainUsd) {
+                        // Fallback: Calculate SOL/USD rate from DexScreener data if available
+                        if (data.dexscreener_data && data.dexscreener_data.priceNative && data.dexscreener_data.priceUsd) {
+                            const solUsdRate = data.dexscreener_data.priceUsd / data.dexscreener_data.priceNative;
+                            onChainUsd = data.on_chain_price * solUsdRate;
+                        }
+                    }
+
+                    const onChainDisplay = onChainUsd ? `$${onChainUsd.toFixed(10)}` : (data.on_chain_price ? `${data.on_chain_price.toFixed(10)} SOL` : 'N/A');
+
                     html += `<div style="background: #1a2847; padding: 8px; border-radius: 4px; border: 2px solid #00d4ff; text-align: center;">
-                        <div style="font-size: 8px; color: #888; margin-bottom: 3px;">💹 ON-CHAIN (SOL)</div>
-                        <div style="font-size: 12px; color: #00d4ff; font-weight: bold; word-break: break-all;">${data.on_chain_price.toFixed(10)} SOL</div>
+                        <div style="font-size: 8px; color: #888; margin-bottom: 3px;">💹 ON-CHAIN (USD)</div>
+                        <div style="font-size: 12px; color: #00d4ff; font-weight: bold; word-break: break-all;">${onChainDisplay}</div>
                         <div style="font-size: 9px; color: #0088ff; margin-top: 3px;">Supply: ${data.total_supply ? (data.total_supply / 1e9).toFixed(2) + 'B' : 'N/A'}</div>
                     </div>`;
                 }
@@ -2647,21 +2769,15 @@ HTML_TEMPLATE = '''
                     const mcapDisplay = data.market_cap ? (data.market_cap < 1000 ? `$${data.market_cap.toFixed(2)}` : `$${(data.market_cap / 1000).toFixed(1)}k`) : 'N/A';
                     html += `<div style="background: #1a2847; padding: 8px; border-radius: 4px; border: 2px solid #ffd700; text-align: center;">
                         <div style="font-size: 8px; color: #888; margin-bottom: 3px;">📈 DEXSCREENER (USD)</div>
-                        <div style="font-size: 12px; color: #ffd700; font-weight: bold; word-break: break-all;">${priceDisplay}</div>
+                        <div class="pool-dexscreener-price" style="font-size: 12px; color: #ffd700; font-weight: bold; word-break: break-all;">${priceDisplay}</div>
                         <div style="font-size: 9px; color: #ffaa00; margin-top: 3px;">MCap: ${mcapDisplay}</div>
                     </div>`;
+                    console.log(`[PRICE] ✓ DexScreener box added for ${tokenMint}: ${priceDisplay}`);
+                } else {
+                    console.log(`[PRICE] ⚠ No DexScreener data for ${tokenMint}`);
                 }
 
                 html += '</div>';
-
-                // USD conversion prominently displayed
-                if (data.dexscreener_data && data.dexscreener_data.priceUsd) {
-                    const dex = data.dexscreener_data;
-                    html += `<div style="background: #1a2847; padding: 6px; border-radius: 4px; border-left: 3px solid #88ff88; margin-bottom: 8px;">
-                        <div style="font-size: 8px; color: #888;">💵 USD Price (DexScreener)</div>
-                        <div style="font-size: 11px; color: #88ff88; font-weight: bold;">$${dex.priceUsd.toFixed(8)}</div>
-                    </div>`;
-                }
 
                 // Liquidity and volume
                 if (data.dexscreener_data) {
@@ -2719,6 +2835,12 @@ HTML_TEMPLATE = '''
             const changeClass = changePercent >= 0 ? '' : 'negative';
             const dexBadge = pool.dex ? `<span style="background: #1a2847; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 8px; color: #ffd700;">${pool.dex}</span>` : '';
 
+            // Convert on-chain price to USD if SOL rate available
+            let displayPrice = pool.current_price;
+            if (pool.sol_usd_price && pool.sol_usd_price > 0) {
+                displayPrice = pool.current_price * pool.sol_usd_price;
+            }
+
             // Build pool icon: use image if available, otherwise use initials with gradient
             let iconHTML = '';
             if (pool.image && pool.image.trim()) {
@@ -2745,7 +2867,7 @@ HTML_TEMPLATE = '''
                     </div>
                     <div class="pool-right">
                         <div class="pool-time" data-first-seen="${pool.first_seen}">${formatActiveTime(pool.first_seen)}</div>
-                        <div class="pool-price">${formatPrice(pool.current_price)}</div>
+                        <div class="pool-price">${formatPrice(displayPrice)}</div>
                         <div class="pool-change ${changeClass}">${changePercent >= 0 ? '+' : ''}${changePercent}%</div>
                         <div id="price-data-${pool.base_mint}" style="font-size: 11px; margin-top: 8px; padding: 8px; background: #0f1429; border-radius: 4px;"></div>
                     </div>
@@ -2869,12 +2991,28 @@ HTML_TEMPLATE = '''
                                     }
                                 }
 
-                                // Update current price if available
+                                // Update current price if available (convert to USD using SOL rate)
                                 const priceEl = poolEl.querySelector('.pool-price');
                                 if (priceEl && poolUpdate.current_price) {
-                                    const newPriceText = `$${poolUpdate.current_price.toFixed(10)}`;
+                                    let displayPrice = poolUpdate.current_price;
+                                    if (poolUpdate.sol_usd_price && poolUpdate.sol_usd_price > 0) {
+                                        displayPrice = poolUpdate.current_price * poolUpdate.sol_usd_price;
+                                    }
+                                    const newPriceText = `$${displayPrice.toFixed(10)}`;
                                     if (priceEl.textContent !== newPriceText) {
                                         priceEl.textContent = newPriceText;
+                                    }
+                                }
+
+                                // Update DexScreener price if available
+                                if (poolUpdate.dexscreener_price_usd) {
+                                    const dexPriceEl = poolEl.querySelector('.pool-dexscreener-price');
+                                    if (dexPriceEl) {
+                                        const newDexPriceText = `$${poolUpdate.dexscreener_price_usd.toFixed(10)}`;
+                                        if (dexPriceEl.textContent !== newDexPriceText) {
+                                            dexPriceEl.textContent = newDexPriceText;
+                                            console.log(`[PRICE UPDATE] ✓ Updated DexScreener price for ${poolUpdate.amm_id?.slice(0,8)}...`);
+                                        }
                                     }
                                 }
                             });
@@ -2987,7 +3125,10 @@ def get_updated_prices():
                 'amm_id': pool['amm_id'],
                 'current_price': pool['current_price'],
                 'creation_price': pool['creation_price'],
-                'price_change_percent': price_change_percent
+                'price_change_percent': price_change_percent,
+                'dexscreener_price_usd': pool.get('dexscreener_price_usd'),
+                'dexscreener_price_native': pool.get('dexscreener_price_native'),
+                'sol_usd_price': pool.get('sol_usd_price')
             })
 
     return jsonify({'pools': pools_with_prices})
@@ -2995,28 +3136,32 @@ def get_updated_prices():
 @app.route('/api/meteora/price/<token_mint>')
 def get_meteora_price(token_mint):
     """Get Meteora pool price from database or fallback to live fetch
-    
+
     First checks database for cached price data.
     Falls back to live fetch if not found in database.
     """
     try:
+        print(f"[API PRICE] Fetching price for token_mint: {token_mint[:16]}...", flush=True)
+        sys.stdout.flush()
         # Try to get from database first (most reliable)
         db = RaydiumDatabase()
         conn = db.get_connection()
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT current_price, total_supply, market_cap, dex
+            SELECT current_price, total_supply, market_cap, dex, dexscreener_price_usd, dexscreener_price_native, sol_usd_price
             FROM pools
             WHERE base_mint = ?
             LIMIT 1
         ''', (token_mint,))
-        
+
         result = cursor.fetchone()
         conn.close()
-        
+
         if result:
-            current_price, total_supply, market_cap, dex = result
-            
+            current_price, total_supply, market_cap, dex, dex_price_usd, dex_price_native, sol_usd_price = result
+            print(f"[API PRICE] ✓ Found in database - on_chain: {current_price}, dex_usd: {dex_price_usd}, dex_native: {dex_price_native}, sol_rate: {sol_usd_price}", flush=True)
+            sys.stdout.flush()
+
             # Build response from database
             response = {
                 'on_chain_price': current_price,
@@ -3025,39 +3170,50 @@ def get_meteora_price(token_mint):
                 'total_supply': total_supply,
                 'market_cap': market_cap,
             }
-            
-            # Try to get DexScreener data for comparison
-            try:
-                price_fetcher = MeteoraPriceFetcher()
-                dex_data = price_fetcher.get_dexscreener_price(token_mint)
-                if dex_data:
-                    response['dexscreener_data'] = dex_data
-                    
+
+            # Add DexScreener data if available
+            if dex_price_usd or dex_price_native:
+                response['dexscreener_data'] = {
+                    'priceUsd': dex_price_usd,
+                    'priceNative': dex_price_native,
+                }
+                print(f"[API PRICE] ✓ Added DexScreener data to response")
+
+                # Add SOL/USD rate if available
+                if sol_usd_price:
+                    response['sol_usd_price'] = sol_usd_price
+                    # Convert on-chain price to USD
+                    response['on_chain_price_usd'] = current_price * sol_usd_price if current_price else None
+                    print(f"[API PRICE] ✓ Added SOL/USD rate and converted on-chain price to USD: {response['on_chain_price_usd']}")
+
                     # Calculate comparison metrics if both prices available
-                    if current_price and dex_data.get('priceNative'):
-                        dex_native = dex_data.get('priceNative', 0)
-                        if dex_native > 0:
-                            ratio = current_price / dex_native
-                            diff_pct = abs(current_price - dex_native) / dex_native * 100
+                    if current_price and dex_price_native:
+                        if dex_price_native > 0:
+                            ratio = current_price / dex_price_native
+                            diff_pct = abs(current_price - dex_price_native) / dex_price_native * 100
                             response['comparison'] = {
                                 'ratio': ratio,
                                 'difference_pct': diff_pct,
                                 'status': 'large_discrepancy' if diff_pct > 10 else 'matched'
                             }
-            except:
-                pass  # DexScreener fetch is optional
-            
+            else:
+                print(f"[API PRICE] ⚠ No DexScreener data for {token_mint[:16]}...")
+
             return jsonify(response)
-        
+
         # Fallback: Try live fetch if not in database
+        print(f"[API PRICE] ⚠ Pool {token_mint[:16]}... not found in database, attempting live fetch...")
         price_fetcher = MeteoraPriceFetcher()
         price_data = price_fetcher.fetch_price(token_mint)
 
         if not price_data:
+            print(f"[API PRICE] ✗ Live fetch failed for {token_mint[:16]}...")
             return jsonify({'error': 'Could not fetch price'}), 404
 
         on_chain = price_data.get('on_chain_price')
         dex_data = price_data.get('dexscreener_data')
+
+        print(f"[API PRICE] ✓ Live fetch succeeded - on_chain: {on_chain}, dex_usd: {dex_data.get('priceUsd') if dex_data else None}")
 
         response = {
             'on_chain_price': on_chain,
@@ -3079,6 +3235,9 @@ def get_meteora_price(token_mint):
 
         return jsonify(response)
     except Exception as e:
+        print(f"[API PRICE] ERROR: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/pause', methods=['POST'])

@@ -2266,32 +2266,68 @@ HTML_TEMPLATE = '''
                     return;
                 }
 
-                let html = '<strong style="color: #4ade80;">Meteora Price Data:</strong><br>';
+                let html = '<strong style="color: #4ade80;">📊 Price Comparison:</strong><br><br>';
 
-                // On-chain price
+                // Side-by-side price comparison
+                html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">';
+
+                // On-chain price box
                 if (data.on_chain_price) {
-                    html += `💹 <strong>On-chain:</strong> ${data.on_chain_price.toFixed(10)} SOL<br>`;
+                    html += `<div style="background: #1a2847; padding: 6px; border-radius: 3px; border-left: 3px solid #00d4ff;">
+                        <div style="font-size: 9px; color: #888;">💹 On-chain (SOL)</div>
+                        <div style="font-size: 11px; color: #00d4ff; font-weight: bold;">${data.on_chain_price.toFixed(10)}</div>
+                    </div>`;
                 }
 
-                // DexScreener data
+                // DexScreener price box
                 if (data.dexscreener_data) {
                     const dex = data.dexscreener_data;
-                    html += `📊 <strong>DexScreener:</strong> ${dex.priceNative.toFixed(10)} SOL<br>`;
-                    if (dex.priceUsd) {
-                        html += `   USD: $${dex.priceUsd.toFixed(8)}<br>`;
-                    }
+                    html += `<div style="background: #1a2847; padding: 6px; border-radius: 3px; border-left: 3px solid #ffd700;">
+                        <div style="font-size: 9px; color: #888;">📈 DexScreener (SOL)</div>
+                        <div style="font-size: 11px; color: #ffd700; font-weight: bold;">${dex.priceNative.toFixed(10)}</div>
+                    </div>`;
+                }
+
+                html += '</div>';
+
+                // USD prices
+                if (data.dexscreener_data && data.dexscreener_data.priceUsd) {
+                    const dex = data.dexscreener_data;
+                    html += `<div style="background: #1a2847; padding: 6px; border-radius: 3px; margin-bottom: 8px;">
+                        <div style="font-size: 9px; color: #888;">💵 DexScreener USD</div>
+                        <div style="font-size: 11px; color: #88ff88;">$${dex.priceUsd.toFixed(8)}</div>
+                    </div>`;
+                }
+
+                // Liquidity and volume
+                if (data.dexscreener_data) {
+                    const dex = data.dexscreener_data;
+                    let liquidityHTML = '';
                     if (dex.liquidity && dex.liquidity.usd) {
-                        html += `   Liquidity: $${dex.liquidity.usd.toFixed(2)}<br>`;
+                        liquidityHTML += `💰 Liquidity: $${(dex.liquidity.usd / 1000).toFixed(1)}k<br>`;
+                    }
+                    if (dex.volume24h) {
+                        liquidityHTML += `📊 24h Volume: $${(dex.volume24h / 1000).toFixed(1)}k`;
+                    }
+                    if (liquidityHTML) {
+                        html += `<div style="font-size: 9px; color: #aaa; margin-bottom: 8px;">${liquidityHTML}</div>`;
                     }
                 }
 
-                // Comparison
+                // Comparison with status indicator
                 if (data.comparison) {
                     const comp = data.comparison;
                     const statusColor = comp.status === 'matched' ? '#4ade80' : '#ff6b6b';
-                    html += `<br>📈 <strong style="color: ${statusColor}">Comparison:</strong><br>`;
-                    html += `   Ratio: ${comp.ratio.toFixed(4)}x<br>`;
-                    html += `   Difference: ${comp.difference_pct.toFixed(2)}%`;
+                    const statusEmoji = comp.status === 'matched' ? '✅' : '⚠️';
+                    const statusText = comp.status === 'matched' ? 'Matched' : 'Large Discrepancy';
+
+                    html += `<div style="background: ${statusColor}22; border: 1px solid ${statusColor}; padding: 6px; border-radius: 3px;">
+                        <div style="color: ${statusColor}; font-weight: bold; margin-bottom: 4px;">${statusEmoji} ${statusText}</div>
+                        <div style="font-size: 9px; color: #ccc;">
+                            Ratio: <span style="color: #ffff00;">${comp.ratio.toFixed(4)}x</span><br>
+                            Difference: <span style="color: ${statusColor};">${comp.difference_pct.toFixed(2)}%</span>
+                        </div>
+                    </div>`;
                 }
 
                 priceDataDiv.innerHTML = html;

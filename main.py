@@ -293,7 +293,9 @@ class RaydiumDatabase:
                 last_updated TIMESTAMP,
                 creation_price REAL,
                 current_price REAL,
-                last_price_update TIMESTAMP
+                last_price_update TIMESTAMP,
+                total_supply REAL,
+                market_cap REAL
             )
         ''')
 
@@ -324,6 +326,14 @@ class RaydiumDatabase:
             pass
         try:
             cursor.execute('ALTER TABLE pools ADD COLUMN last_price_update TIMESTAMP')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN total_supply REAL')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN market_cap REAL')
         except sqlite3.OperationalError:
             pass
 
@@ -458,6 +468,28 @@ class RaydiumDatabase:
         finally:
             conn.close()
 
+    def update_pool_supply_and_price(self, amm_id: str, total_supply: float, price: float) -> bool:
+        """Update total supply and current price, calculate market cap"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            timestamp = datetime.now().isoformat()
+            market_cap = total_supply * price if total_supply and price else None
+            
+            cursor.execute('''
+                UPDATE pools
+                SET total_supply = ?, current_price = ?, market_cap = ?, last_price_update = ?
+                WHERE amm_id = ?
+            ''', (total_supply, price, market_cap, timestamp, amm_id))
+            
+            conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error updating pool supply/price: {e}")
+            return False
+        finally:
+            conn.close()
+
     def get_pools_needing_update(self) -> List[Dict]:
         """Get pools that need price updates based on age and last update time"""
         conn = self.get_connection()
@@ -466,7 +498,7 @@ class RaydiumDatabase:
 
         # Get pools by age with their update needs
         cursor.execute('''
-            SELECT amm_id, base_mint, first_seen, last_price_update, creation_price, current_price
+            SELECT amm_id, base_mint, first_seen, last_price_update, creation_price, current_price, signature
             FROM pools
             WHERE base_mint IS NOT NULL AND base_mint != ''
             ORDER BY first_seen DESC
@@ -474,7 +506,7 @@ class RaydiumDatabase:
 
         results = []
         for row in cursor.fetchall():
-            amm_id, base_mint, first_seen, last_update, creation_price, current_price = row
+            amm_id, base_mint, first_seen, last_update, creation_price, current_price, signature = row
 
             first_seen_dt = datetime.fromisoformat(first_seen)
             age_seconds = (now - first_seen_dt).total_seconds()
@@ -501,7 +533,8 @@ class RaydiumDatabase:
                     'base_mint': base_mint,
                     'creation_price': creation_price,
                     'current_price': current_price,
-                    'age_seconds': age_seconds
+                    'age_seconds': age_seconds,
+                    'signature': signature
                 })
 
         conn.close()
@@ -1367,6 +1400,50 @@ class RaydiumMonitor:
             print(f"[MINT DECIMALS] Error: {e}")
             return 6  # Default fallback
 
+    def get_token_total_supply(self, mint: str) -> Optional[float]:
+        """Get total supply of a token from on-chain mint account"""
+        try:
+            response = requests.post(
+                self.rpc_http_url,
+                json={
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getAccountInfo",
+                    "params": [mint, {"encoding": "base64"}]
+                },
+                timeout=10
+            )
+            
+            result = response.json()
+            if "error" in result or not result.get("result"):
+                return None
+            
+            acc_info = result["result"]["value"]
+            if not acc_info or not acc_info.get("data"):
+                return None
+            
+            try:
+                mint_data = base64.b64decode(acc_info["data"][0])
+                # Mint account structure:
+                # 0-31: mint_authority (32 bytes)
+                # 32-39: supply (8 bytes, u64)
+                # 40-43: decimals (1 byte) + isInitialized (1 byte) + owner (4 bytes?)
+                if len(mint_data) >= 40:
+                    supply = struct.unpack("<Q", mint_data[32:40])[0]
+                    decimals = self._get_mint_decimals(mint)
+                    human_supply = supply / (10 ** (decimals or 6))
+                    print(f"[TOKEN SUPPLY] {mint[:8]}...: {human_supply:,.2f} tokens (decimals: {decimals})")
+                    return human_supply
+            except Exception as e:
+                print(f"[TOKEN SUPPLY] Error parsing mint data: {e}")
+                return None
+            
+            return None
+            
+        except Exception as e:
+            print(f"[TOKEN SUPPLY] Error fetching total supply: {e}")
+            return None
+
     def parse_meteora_pool_price(self, account_data: bytes, pool_id: str) -> float:
         """Parse Meteora DLMM pool account data to extract current price
         
@@ -1759,13 +1836,25 @@ class RaydiumMonitor:
                                         if self.db.insert_pool(pool_data):
                                             print(f"Stored new {dex_source} pool: {pool_data['ammId']}")
 
-                                            # Fetch initial price for new pool
+                                            # Fetch initial price and supply for new pool
                                             if pool_data.get('baseMint'):
-                                                print(f"[PRICE INIT] Fetching initial price for {pool_data['ammId'][:8]}...")
+                                                print(f"[PRICE INIT] Fetching initial price and supply for {pool_data['ammId'][:8]}...")
                                                 initial_price = self.fetch_pool_price(pool_data['ammId'], pool_data['baseMint'], signature)
                                                 if initial_price is not None:
-                                                    self.db.update_pool_price(pool_data['ammId'], initial_price, is_initial=True)
-                                                    print(f"[PRICE INIT] ✓ Initial price set: ${initial_price:.8f}")
+                                                    # Also fetch total supply
+                                                    total_supply = self.get_token_total_supply(pool_data['baseMint'])
+
+                                                    if total_supply is not None:
+                                                        market_cap = total_supply * initial_price
+                                                        self.db.update_pool_supply_and_price(pool_data['ammId'], total_supply, initial_price)
+                                                        print(f"[PRICE INIT] ✓ Initial price set: ${initial_price:.8f}")
+                                                        print(f"[PRICE INIT] ✓ Total supply: {total_supply:,.0f}")
+                                                        print(f"[PRICE INIT] ✓ Market cap: ${market_cap:,.0f}")
+                                                    else:
+                                                        # Just update price if supply fetch fails
+                                                        self.db.update_pool_price(pool_data['ammId'], initial_price, is_initial=True)
+                                                        print(f"[PRICE INIT] ✓ Initial price set: ${initial_price:.8f}")
+                                                        print(f"[PRICE INIT] ⚠ Could not fetch total supply")
                                                 else:
                                                     print(f"[PRICE INIT] ⚠ Could not fetch initial price")
 
@@ -1843,6 +1932,7 @@ class RaydiumMonitor:
                     amm_id = pool_info['amm_id']
                     base_mint = pool_info['base_mint']
                     age_seconds = pool_info['age_seconds']
+                    signature = pool_info.get('signature')  # Get stored signature
 
                     # Determine update interval
                     if age_seconds < 300:
@@ -1854,13 +1944,22 @@ class RaydiumMonitor:
 
                     print(f"[PRICE UPDATER] [{i}/{len(pools_to_update)}] Pool age: {age_seconds:.0f}s, interval: {interval_str}")
 
-                    # Fetch current price from blockchain
-                    current_price = self.fetch_pool_price(amm_id, base_mint)
+                    # Fetch current price from blockchain (use signature if available)
+                    current_price = self.fetch_pool_price(amm_id, base_mint, signature)
 
                     if current_price is not None:
-                        # Update in database
-                        self.db.update_pool_price(amm_id, current_price)
-                        print(f"[PRICE UPDATER] ✓ Updated price for {base_mint[:8]}...: ${current_price:.8f}")
+                        # Fetch total supply
+                        total_supply = self.get_token_total_supply(base_mint)
+                        
+                        if total_supply is not None:
+                            # Update in database with supply and price
+                            self.db.update_pool_supply_and_price(amm_id, total_supply, current_price)
+                            market_cap = total_supply * current_price
+                            print(f"[PRICE UPDATER] ✓ Updated {base_mint[:8]}...: ${current_price:.8f} (supply: {total_supply:,.0f}, mcap: ${market_cap:,.0f})")
+                        else:
+                            # Update price only if supply fetch fails
+                            self.db.update_pool_price(amm_id, current_price)
+                            print(f"[PRICE UPDATER] ✓ Updated price for {base_mint[:8]}...: ${current_price:.8f}")
                     else:
                         print(f"[PRICE UPDATER] ✗ Could not fetch price for {base_mint[:8]}...")
 

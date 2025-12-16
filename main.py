@@ -1664,9 +1664,9 @@ class RaydiumMonitor:
                 print(f"[METEORA TX] ⚠ Found only {len(vaults)} vaults, need 2")
                 return None
             
-            # Get vault balances and mints
+            # Get vault balances and mints - try ALL vaults, not just first 2
             token_vaults = []
-            for vault in vaults[:2]:  # Take first 2 vaults
+            for vault in vaults:  # Try all vaults found
                 try:
                     vault_info_response = requests.post(
                         self.rpc_http_url,
@@ -1678,28 +1678,28 @@ class RaydiumMonitor:
                         },
                         timeout=5
                     )
-                    
+
                     vault_data = vault_info_response.json()
                     if not vault_data.get("result") or not vault_data["result"].get("value"):
                         continue
-                    
+
                     account_data_b64 = vault_data["result"]["value"].get("data", ["", ""])[0]
                     if not account_data_b64:
                         continue
-                    
+
                     account_data = base64.b64decode(account_data_b64)
-                    
+
                     if len(account_data) < 72:
                         continue
-                    
+
                     # Parse SPL token account
                     mint = base58.b58encode(account_data[0:32]).decode()
                     amount = struct.unpack("<Q", account_data[64:72])[0]
-                    
+
                     # Get decimals
                     decimals = self._get_mint_decimals(mint)
                     human_amount = amount / (10 ** (decimals or 6))
-                    
+
                     token_vaults.append({
                         "vault": vault,
                         "mint": mint,
@@ -1707,13 +1707,13 @@ class RaydiumMonitor:
                         "decimals": decimals or 6,
                         "human": human_amount
                     })
-                    
+
                     print(f"[METEORA TX] ✓ Vault {vault[:8]}... balance: {human_amount:.8f} ({mint[:8]}...)")
-                
+
                 except Exception as e:
                     print(f"[METEORA TX] ⚠ Error processing vault: {e}")
                     continue
-            
+
             if len(token_vaults) < 2:
                 print(f"[METEORA TX] ⚠ Could not get balances for {len(token_vaults)} vaults")
                 return None
@@ -1738,27 +1738,72 @@ class RaydiumMonitor:
                 print(f"[METEORA TX] ⚠ Pool appears depleted - {max_balance/min_balance:.1f}x imbalance")
                 return None
 
-            # Calculate price: quote / base
-            # Prefer SOL as quote
+            # Calculate best price from all vault pairs (matching V2 logic)
+            # Priority: SOL pairs > token/token pairs, then by balance size
             sol_mint = "So11111111111111111111111111111111111111112"
+            best_price = None
+            best_pair = None
+            best_is_sol_pair = False
 
-            v1, v2 = token_vaults[0], token_vaults[1]
+            # Try all possible pairs
+            for i in range(len(token_vaults)):
+                for j in range(i + 1, len(token_vaults)):
+                    vi, vj = token_vaults[i], token_vaults[j]
+                    if vi["human"] <= 0 or vj["human"] <= 0:
+                        continue
 
-            if v2["mint"] == sol_mint:
-                # v2 is SOL (quote), v1 is token (base)
-                price = v2["human"] / v1["human"] if v1["human"] > 0 else 0
-                print(f"[METEORA TX] ✓ Calculated price: {v2['human']:.8f} SOL / {v1['human']:.8f} token = ${price:.18f}")
-                return price
-            elif v1["mint"] == sol_mint:
-                # v1 is SOL (quote), v2 is token (base)
-                price = v1["human"] / v2["human"] if v2["human"] > 0 else 0
-                print(f"[METEORA TX] ✓ Calculated price: {v1['human']:.8f} SOL / {v2['human']:.8f} token = ${price:.18f}")
-                return price
-            else:
-                # Neither is SOL, use first as quote, second as base
-                price = v1["human"] / v2["human"] if v2["human"] > 0 else 0
-                print(f"[METEORA TX] ✓ Calculated price (no SOL): {v1['human']:.8f} / {v2['human']:.8f} = ${price:.18f}")
-                return price
+                    # Try both directions: vj/vi (j as quote) and vi/vj (i as quote)
+                    # Direction 1: vj as quote, vi as base (vj/vi)
+                    price_vj_per_vi = vj["human"] / vi["human"]
+                    is_vj_quote = vj["mint"] == sol_mint
+
+                    should_use_vj = False
+                    if best_price is None:
+                        should_use_vj = True
+                    elif is_vj_quote and not best_is_sol_pair:
+                        # Prefer SOL pairs
+                        should_use_vj = True
+                    elif is_vj_quote == best_is_sol_pair:
+                        # Both same type - prefer larger base balance (better liquidity)
+                        best_base_balance = best_pair[1]["human"]
+                        if vi["human"] > best_base_balance * 1.1:  # 10% threshold
+                            should_use_vj = True
+
+                    if should_use_vj:
+                        best_price = price_vj_per_vi
+                        best_pair = (vi, vj)
+                        best_is_sol_pair = is_vj_quote
+
+                    # Direction 2: vi as quote, vj as base (vi/vj)
+                    price_vi_per_vj = vi["human"] / vj["human"]
+                    is_vi_quote = vi["mint"] == sol_mint
+
+                    should_use_vi = False
+                    if best_price is None:
+                        should_use_vi = True
+                    elif is_vi_quote and not best_is_sol_pair:
+                        # Prefer SOL pairs
+                        should_use_vi = True
+                    elif is_vi_quote == best_is_sol_pair:
+                        # Both same type - prefer larger base balance
+                        best_base_balance = best_pair[1]["human"]
+                        if vj["human"] > best_base_balance * 1.1:  # 10% threshold
+                            should_use_vi = True
+
+                    if should_use_vi:
+                        best_price = price_vi_per_vj
+                        best_pair = (vj, vi)
+                        best_is_sol_pair = is_vi_quote
+
+            if best_price is not None and best_pair is not None:
+                base, quote = best_pair
+                print(f"[METEORA TX] ✓ Best pair: {quote['mint'][:8]}... / {base['mint'][:8]}... = {best_price:.18f}")
+                return best_price
+
+            # Fallback: use first pair if algo didn't select
+            price = token_vaults[1]["human"] / token_vaults[0]["human"] if token_vaults[0]["human"] > 0 else 0
+            print(f"[METEORA TX] ✓ Fallback price: {token_vaults[1]['human']:.8f} / {token_vaults[0]['human']:.8f} = ${price:.18f}")
+            return price
         
         except Exception as e:
             print(f"[METEORA TX] ✗ Error extracting price from transaction: {e}")
@@ -1960,16 +2005,6 @@ class RaydiumMonitor:
                                             if pool_data.get('baseMint'):
                                                 dex_data = self.get_dexscreener_price(pool_data['baseMint'])
                                                 if dex_data and dex_data.get('priceUsd'):
-                                                    # Sanity check: if on-chain price is very different from DexScreener, mark as corrupted
-                                                    if initial_price and dex_data.get('priceNative'):
-                                                        dex_native = dex_data.get('priceNative', 0)
-                                                        if dex_native > 0:
-                                                            ratio = initial_price / dex_native
-                                                            if ratio > 50 or ratio < 0.02:
-                                                                print(f"[PRICE SANITY INIT] ⚠ On-chain price differs {ratio:.1f}x from DexScreener, using DexScreener only")
-                                                                initial_price = None
-                                                                self.db.update_pool_supply_and_price(pool_data['ammId'], total_supply, None, is_initial=True)
-
                                                     self.db.update_dexscreener_price(pool_data['ammId'], dex_data['priceUsd'], dex_data.get('priceNative'))
                                                     print(f"[DEXSCREENER INIT] ✓ Initial DexScreener price: ${dex_data['priceUsd']:.10f}")
 
@@ -2078,21 +2113,9 @@ class RaydiumMonitor:
                     else:
                         print(f"[PRICE UPDATER] ✗ Could not fetch price for {base_mint[:8]}...")
 
-                    # Also fetch DexScreener price for comparison and sanity check
+                    # Also fetch DexScreener price for comparison
                     dex_data = self.get_dexscreener_price(base_mint)
                     if dex_data and dex_data.get('priceUsd'):
-                        # Sanity check: compare on-chain price with DexScreener
-                        # If they're wildly different (>50x), the on-chain extraction is corrupted
-                        if current_price and dex_data.get('priceNative'):
-                            dex_native = dex_data.get('priceNative', 0)
-                            if dex_native > 0:
-                                ratio = current_price / dex_native
-                                # If prices differ by >50x, reject the on-chain price as corrupted
-                                if ratio > 50 or ratio < 0.02:
-                                    print(f"[PRICE SANITY] ⚠ On-chain price ({current_price:.18f}) differs {ratio:.1f}x from DexScreener ({dex_native:.18f})")
-                                    print(f"[PRICE SANITY] ⚠ Discarding corrupted on-chain price, using DexScreener only")
-                                    self.db.update_pool_price(amm_id, None)  # Clear the corrupted price
-
                         self.db.update_dexscreener_price(amm_id, dex_data['priceUsd'], dex_data.get('priceNative'))
                         print(f"[DEXSCREENER] Updated for {base_mint[:8]}...: ${dex_data['priceUsd']:.10f}")
 

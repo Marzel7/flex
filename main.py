@@ -1288,21 +1288,31 @@ class RaydiumMonitor:
                 return None
 
             try:
+                # Debug: Log raw bytes at key offsets to understand account structure
+                print(f"[METEORA PARSE] Account size: {len(account_data)} bytes")
+                print(f"[METEORA PARSE] Bytes [40-50]: {account_data[40:50].hex()}")
+                print(f"[METEORA PARSE] Bytes [70-80]: {account_data[70:80].hex()}")
+
                 # Read decimals first (needed for price calculation)
                 base_decimals = struct.unpack_from("<B", account_data, 44)[0]
                 quote_decimals = struct.unpack_from("<B", account_data, 45)[0]
-                
+
                 # Read active_id as i32 (signed 32-bit, little-endian)
                 active_id = struct.unpack_from("<i", account_data, 72)[0]
-                
+
                 # Read bin_step as u16 (unsigned 16-bit, little-endian)
                 bin_step = struct.unpack_from("<H", account_data, 76)[0]
-                
-                print(f"[METEORA PARSE] active_id={active_id}, bin_step={bin_step}, base_dec={base_decimals}, quote_dec={quote_decimals}")
 
-                # Check if pool is initialized
-                if bin_step == 0 or bin_step > 10000:
-                    print(f"[METEORA PARSE] ⚠ Invalid bin_step: {bin_step}")
+                print(f"[METEORA PARSE] Read: active_id={active_id}, bin_step={bin_step}, base_dec={base_decimals}, quote_dec={quote_decimals}")
+
+                # Check if pool is initialized - allow reasonable bin_step values (typically 1-10000)
+                # Also accept 0 bin_step as it might mean 1% (handled as special case)
+                if bin_step > 10000:
+                    print(f"[METEORA PARSE] ⚠ Invalid bin_step: {bin_step} (> 10000)")
+                    return None
+
+                if bin_step == 0:
+                    print(f"[METEORA PARSE] ℹ bin_step is 0, treating as not initialized or special pool")
                     return None
 
                 # Calculate raw price: (1 + bin_step / 10_000) ^ active_id

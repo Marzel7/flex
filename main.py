@@ -1208,16 +1208,26 @@ class RaydiumMonitor:
             traceback.print_exc()
             return None
 
-    def fetch_pool_price(self, amm_id: str, base_mint: str) -> float:
+    def fetch_pool_price(self, amm_id: str, base_mint: str, signature: str = None) -> float:
         """Fetch current price of a token from on-chain pool data
-
-        First tries to calculate price from vault balances (more reliable),
-        falls back to Meteora DLMM bin_id calculation.
+        
+        Strategy:
+        1. If signature available: Extract vaults from pool creation tx (most reliable)
+        2. Fallback: Parse bin_id from account data
         """
         try:
-            print(f"[PRICE FETCH] base_mint={base_mint[:8]}...")
-
-            # Try to fetch the pool account
+            print(f"[PRICE FETCH] Fetching price for base_mint={base_mint[:8]}... amm_id={amm_id[:8]}...")
+            
+            # First try: Extract price from transaction (most reliable)
+            if signature:
+                price = self.extract_pool_price_from_transaction(amm_id, signature)
+                if price and price > 0:
+                    print(f"[PRICE FETCH] ✓ Successfully got price from transaction: ${price:.18f}")
+                    return price
+                else:
+                    print(f"[PRICE FETCH] ℹ Transaction method didn't work, trying account data...")
+            
+            # Fallback: Try to fetch the pool account and parse bin_id
             response = requests.post(
                 self.rpc_http_url,
                 json={
@@ -1228,126 +1238,355 @@ class RaydiumMonitor:
                 },
                 timeout=10
             )
-
+            
             data = response.json()
-
+            
             if "error" in data:
                 print(f"[PRICE FETCH] ⚠ RPC error: {data['error'].get('message', data['error'])}")
                 return None
-
+            
             if not data.get("result") or not data["result"].get("value"):
                 print(f"[PRICE FETCH] ⚠ Account not found at {amm_id[:8]}... (may be signature, not pool address)")
                 print(f"[PRICE FETCH] ℹ Need actual Meteora LBPair account address to fetch price")
                 return None
-
+            
             account_info = data["result"]["value"]
             encoded_data = account_info.get("data", ["", ""])[0]
-
+            
             if not encoded_data:
                 print(f"[PRICE FETCH] ✗ Account has no data")
                 return None
-
+            
             # Decode base64 account data
             try:
                 account_data = base64.b64decode(encoded_data)
             except Exception as e:
                 print(f"[PRICE FETCH] ✗ Failed to decode account data: {e}")
                 return None
-
+            
             print(f"[PRICE FETCH] ✓ Account retrieved ({len(account_data)} bytes), parsing...")
-
+            
             # Parse Meteora DLMM pool price using bin_id
-            # (Vault balance method requires exact Meteora SDK account structure offsets)
             price = self.parse_meteora_pool_price(account_data, amm_id)
-
+            
             if price is not None:
-                print(f"[PRICE FETCH] ✓ Extracted price from bin_id: ${price:.8f}")
+                print(f"[PRICE FETCH] ✓ Extracted price from account data: ${price:.8f}")
                 return price
             else:
                 print(f"[PRICE FETCH] ⚠ Could not extract price from either method")
                 return None
-
+        
         except Exception as e:
             print(f"[PRICE FETCH] ✗ Exception: {e}")
             return None
 
+    def _get_vault_info(self, vault_addr: str) -> dict:
+        """Get vault balance and mint info from Solana RPC"""
+        try:
+            response = requests.post(
+                self.rpc_http_url,
+                json={
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getAccountInfo",
+                    "params": [vault_addr, {"encoding": "base64"}]
+                },
+                timeout=10
+            )
+            
+            result = response.json()
+            if "error" in result or not result.get("result"):
+                return {}
+            
+            acc_info = result["result"]["value"]
+            if not acc_info or not acc_info.get("data"):
+                return {}
+            
+            try:
+                account_data = base64.b64decode(acc_info["data"][0])
+            except:
+                return {}
+            
+            if len(account_data) < 72:
+                return {}
+            
+            # Parse SPL token account structure
+            try:
+                mint = base58.b58encode(account_data[0:32]).decode()
+                amount = struct.unpack("<Q", account_data[64:72])[0]
+                decimals = self._get_mint_decimals(mint)
+                
+                return {
+                    "mint": mint,
+                    "amount": amount,
+                    "decimals": decimals or 6,
+                    "human": amount / (10 ** (decimals or 6))
+                }
+            except Exception as e:
+                print(f"[VAULT INFO] Error parsing account: {e}")
+                return {}
+                
+        except Exception as e:
+            print(f"[VAULT INFO] Error fetching vault info: {e}")
+            return {}
+
+    def _get_mint_decimals(self, mint: str) -> int:
+        """Get token decimals from mint account"""
+        try:
+            response = requests.post(
+                self.rpc_http_url,
+                json={
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getAccountInfo",
+                    "params": [mint, {"encoding": "base64"}]
+                },
+                timeout=10
+            )
+            
+            result = response.json()
+            if "error" in result or not result.get("result"):
+                return 6  # Default fallback
+            
+            acc_info = result["result"]["value"]
+            if not acc_info or not acc_info.get("data"):
+                return 6
+            
+            try:
+                mint_data = base64.b64decode(acc_info["data"][0])
+                # Decimals field is at offset 44 in Mint account (1 byte)
+                if len(mint_data) > 44:
+                    decimals = mint_data[44]
+                    return decimals
+            except:
+                pass
+            
+            return 6  # Default fallback
+            
+        except Exception as e:
+            print(f"[MINT DECIMALS] Error: {e}")
+            return 6  # Default fallback
+
     def parse_meteora_pool_price(self, account_data: bytes, pool_id: str) -> float:
         """Parse Meteora DLMM pool account data to extract current price
         
-        Meteora DLMM uses a bin-based pricing model with a mathematical formula.
-        Price depends only on:
-        - active_id (current active bin index)
-        - bin_step (step size between bins)
-        - base_decimals (decimals of base token)
-        - quote_decimals (decimals of quote token)
+        Note: This method receives raw account data. For more reliable vault extraction,
+        use extract_pool_price_from_transaction() which fetches vaults from creation TX.
         
-        Formula:
-        raw_price = (1 + bin_step / 10_000) ^ active_id
-        price = raw_price * 10^(base_decimals - quote_decimals)
+        This method tries the bin_id formula as fallback.
+        Returns: quote token amount per 1 base token (SOL price)
+        """
+        try:
+            # Validate minimum account size
+            if len(account_data) < 232:
+                print(f"[METEORA PARSE] ⚠ Account data too small ({len(account_data)} bytes), need at least 232 bytes")
+                return None
+            
+            # Try bin_id parsing (fallback method)
+            try:
+                print(f"[METEORA PARSE] Attempting bin_id parsing from account data...")
+                # Try common offset variations
+                for base_dec_offset in [44, 50, 56]:
+                    for quote_dec_offset in [45, 51, 57]:
+                        for active_id_offset in [72, 80, 88, 96]:
+                            for bin_step_offset in [76, 84, 92, 100]:
+                                try:
+                                    base_decimals = struct.unpack_from("<B", account_data, base_dec_offset)[0]
+                                    quote_decimals = struct.unpack_from("<B", account_data, quote_dec_offset)[0]
+                                    active_id = struct.unpack_from("<i", account_data, active_id_offset)[0]
+                                    bin_step = struct.unpack_from("<H", account_data, bin_step_offset)[0]
+                                    
+                                    # Check if values look reasonable
+                                    if 0 < bin_step <= 10000 and 0 < base_decimals <= 18 and 0 < quote_decimals <= 18:
+                                        base = 1.0 + (bin_step / 10_000.0)
+                                        raw_price = base ** active_id
+                                        decimal_adjustment = 10 ** (base_decimals - quote_decimals)
+                                        price = raw_price * decimal_adjustment
+                                        
+                                        if 1e-20 < price < 1e20:
+                                            print(f"[METEORA PARSE] ✓ Found valid offsets: dec_off={base_dec_offset},{quote_dec_offset}, id_off={active_id_offset},{bin_step_offset}")
+                                            print(f"[METEORA PARSE] ✓ price: ${price:.18f}")
+                                            return price
+                                except:
+                                    pass
+                
+                print(f"[METEORA PARSE] ⚠ Could not find valid bin_id at any offset combination")
+                return None
+            
+            except Exception as e:
+                print(f"[METEORA PARSE] ✗ Error in bin_id parsing: {e}")
+                return None
         
+        except Exception as e:
+            print(f"[METEORA PARSE] ✗ Error parsing Meteora pool: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    def extract_pool_price_from_transaction(self, pool_id: str, signature: str) -> Optional[float]:
+        """Extract Meteora pool price by:
+        1. Fetching the pool creation transaction
+        2. Extracting vault addresses from transaction
+        3. Fetching actual vault balances from RPC
+        4. Calculating price from balances
+        
+        This is MORE RELIABLE than parsing account data directly.
         Returns: quote token amount per 1 base token
         """
         try:
-            # Validate minimum account size (need at least 78 bytes for all fields)
-            if len(account_data) < 78:
-                print(f"[METEORA PARSE] ⚠ Account data too small ({len(account_data)} bytes), need at least 78 bytes")
+            print(f"[METEORA TX] Fetching price from transaction: {signature[:16]}...")
+            
+            # Get pool creation transaction
+            response = requests.post(
+                self.rpc_http_url,
+                json={
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getTransaction",
+                    "params": [
+                        signature,
+                        {
+                            "encoding": "jsonParsed",
+                            "maxSupportedTransactionVersion": 0
+                        }
+                    ]
+                },
+                timeout=15
+            )
+            
+            data = response.json()
+            if "error" in data or not data.get("result"):
+                print(f"[METEORA TX] ⚠ Transaction not found or error: {data.get('error', 'Unknown')}")
                 return None
-
-            try:
-                # Debug: Log raw bytes at key offsets to understand account structure
-                print(f"[METEORA PARSE] Account size: {len(account_data)} bytes")
-                print(f"[METEORA PARSE] Bytes [40-50]: {account_data[40:50].hex()}")
-                print(f"[METEORA PARSE] Bytes [70-80]: {account_data[70:80].hex()}")
-
-                # Read decimals first (needed for price calculation)
-                base_decimals = struct.unpack_from("<B", account_data, 44)[0]
-                quote_decimals = struct.unpack_from("<B", account_data, 45)[0]
-
-                # Read active_id as i32 (signed 32-bit, little-endian)
-                active_id = struct.unpack_from("<i", account_data, 72)[0]
-
-                # Read bin_step as u16 (unsigned 16-bit, little-endian)
-                bin_step = struct.unpack_from("<H", account_data, 76)[0]
-
-                print(f"[METEORA PARSE] Read: active_id={active_id}, bin_step={bin_step}, base_dec={base_decimals}, quote_dec={quote_decimals}")
-
-                # Check if pool is initialized - allow reasonable bin_step values (typically 1-10000)
-                # Also accept 0 bin_step as it might mean 1% (handled as special case)
-                if bin_step > 10000:
-                    print(f"[METEORA PARSE] ⚠ Invalid bin_step: {bin_step} (> 10000)")
-                    return None
-
-                if bin_step == 0:
-                    print(f"[METEORA PARSE] ℹ bin_step is 0, treating as not initialized or special pool")
-                    return None
-
-                # Calculate raw price: (1 + bin_step / 10_000) ^ active_id
-                base = 1.0 + (bin_step / 10_000.0)
-                raw_price = base ** active_id
-                
-                # Apply decimal adjustment: multiply by 10^(base_decimals - quote_decimals)
-                decimal_adjustment = 10 ** (base_decimals - quote_decimals)
-                price = raw_price * decimal_adjustment
-                
-                # Validate price is in reasonable range
-                if 1e-20 < price < 1e20:
-                    print(f"[METEORA PARSE] ✓ price: ${price:.18f} ({base:.6f}^{active_id} * 10^{base_decimals - quote_decimals})")
-                    return price
+            
+            tx_data = data["result"]
+            
+            # Get account keys
+            account_keys = tx_data.get("transaction", {}).get("message", {}).get("accountKeys", [])
+            if not account_keys:
+                print(f"[METEORA TX] ⚠ No account keys in transaction")
+                return None
+            
+            # Extract pubkeys (handle both dict and string formats)
+            pubkeys = []
+            for key in account_keys:
+                if isinstance(key, dict):
+                    pubkeys.append(key.get("pubkey", ""))
                 else:
-                    print(f"[METEORA PARSE] ⚠ Calculated price out of range: ${price}")
-                    return None
-
-            except struct.error as e:
-                print(f"[METEORA PARSE] ✗ Error unpacking data: {e}")
+                    pubkeys.append(key)
+            
+            # Find SPL token accounts (vaults)
+            token_program = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+            vaults = []
+            
+            # Check a subset of accounts for token accounts
+            for idx, account in enumerate(pubkeys[1:10]):  # Skip signer, check next 10
+                if not account or len(account) != 44:
+                    continue
+                
+                try:
+                    check_response = requests.post(
+                        self.rpc_http_url,
+                        json={
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": "getAccountInfo",
+                            "params": [account, {"encoding": "base64"}]
+                        },
+                        timeout=5
+                    )
+                    
+                    check_data = check_response.json()
+                    if check_data.get("result") and check_data["result"].get("value"):
+                        owner = check_data["result"]["value"].get("owner", "")
+                        if owner == token_program:
+                            vaults.append(account)
+                            print(f"[METEORA TX] ✓ Found vault: {account[:8]}...")
+                except:
+                    pass
+            
+            if len(vaults) < 2:
+                print(f"[METEORA TX] ⚠ Found only {len(vaults)} vaults, need 2")
                 return None
-            except Exception as e:
-                print(f"[METEORA PARSE] ✗ Error reading fields: {e}")
-                import traceback
-                traceback.print_exc()
+            
+            # Get vault balances and mints
+            token_vaults = []
+            for vault in vaults[:2]:  # Take first 2 vaults
+                try:
+                    vault_info_response = requests.post(
+                        self.rpc_http_url,
+                        json={
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": "getAccountInfo",
+                            "params": [vault, {"encoding": "base64"}]
+                        },
+                        timeout=5
+                    )
+                    
+                    vault_data = vault_info_response.json()
+                    if not vault_data.get("result") or not vault_data["result"].get("value"):
+                        continue
+                    
+                    account_data_b64 = vault_data["result"]["value"].get("data", ["", ""])[0]
+                    if not account_data_b64:
+                        continue
+                    
+                    account_data = base64.b64decode(account_data_b64)
+                    
+                    if len(account_data) < 72:
+                        continue
+                    
+                    # Parse SPL token account
+                    mint = base58.b58encode(account_data[0:32]).decode()
+                    amount = struct.unpack("<Q", account_data[64:72])[0]
+                    
+                    # Get decimals
+                    decimals = self._get_mint_decimals(mint)
+                    human_amount = amount / (10 ** (decimals or 6))
+                    
+                    token_vaults.append({
+                        "vault": vault,
+                        "mint": mint,
+                        "amount": amount,
+                        "decimals": decimals or 6,
+                        "human": human_amount
+                    })
+                    
+                    print(f"[METEORA TX] ✓ Vault {vault[:8]}... balance: {human_amount:.8f} ({mint[:8]}...)")
+                
+                except Exception as e:
+                    print(f"[METEORA TX] ⚠ Error processing vault: {e}")
+                    continue
+            
+            if len(token_vaults) < 2:
+                print(f"[METEORA TX] ⚠ Could not get balances for {len(token_vaults)} vaults")
                 return None
-
+            
+            # Calculate price: quote / base
+            # Prefer SOL as quote
+            sol_mint = "So11111111111111111111111111111111111111112"
+            
+            v1, v2 = token_vaults[0], token_vaults[1]
+            
+            if v2["mint"] == sol_mint:
+                # v2 is SOL (quote), v1 is token (base)
+                price = v2["human"] / v1["human"] if v1["human"] > 0 else 0
+                print(f"[METEORA TX] ✓ Calculated price: {v2['human']:.8f} SOL / {v1['human']:.8f} token = ${price:.18f}")
+                return price
+            elif v1["mint"] == sol_mint:
+                # v1 is SOL (quote), v2 is token (base)
+                price = v1["human"] / v2["human"] if v2["human"] > 0 else 0
+                print(f"[METEORA TX] ✓ Calculated price: {v1['human']:.8f} SOL / {v2['human']:.8f} token = ${price:.18f}")
+                return price
+            else:
+                # Neither is SOL, use first as quote, second as base
+                price = v1["human"] / v2["human"] if v2["human"] > 0 else 0
+                print(f"[METEORA TX] ✓ Calculated price (no SOL): {v1['human']:.8f} / {v2['human']:.8f} = ${price:.18f}")
+                return price
+        
         except Exception as e:
-            print(f"[METEORA PARSE] ✗ Error parsing Meteora pool: {e}")
+            print(f"[METEORA TX] ✗ Error extracting price from transaction: {e}")
             import traceback
             traceback.print_exc()
             return None
@@ -1523,7 +1762,7 @@ class RaydiumMonitor:
                                             # Fetch initial price for new pool
                                             if pool_data.get('baseMint'):
                                                 print(f"[PRICE INIT] Fetching initial price for {pool_data['ammId'][:8]}...")
-                                                initial_price = self.fetch_pool_price(pool_data['ammId'], pool_data['baseMint'])
+                                                initial_price = self.fetch_pool_price(pool_data['ammId'], pool_data['baseMint'], signature)
                                                 if initial_price is not None:
                                                     self.db.update_pool_price(pool_data['ammId'], initial_price, is_initial=True)
                                                     print(f"[PRICE INIT] ✓ Initial price set: ${initial_price:.8f}")

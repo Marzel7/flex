@@ -2631,20 +2631,24 @@ HTML_TEMPLATE = '''
                 // Main price display - side by side with equal prominence
                 html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0;">';
 
-                // On-chain price - prominent
+                // On-chain price - prominent (in SOL)
                 if (data.on_chain_price) {
                     html += `<div style="background: #1a2847; padding: 8px; border-radius: 4px; border: 2px solid #00d4ff; text-align: center;">
-                        <div style="font-size: 8px; color: #888; margin-bottom: 3px;">💹 ON-CHAIN</div>
+                        <div style="font-size: 8px; color: #888; margin-bottom: 3px;">💹 ON-CHAIN (SOL)</div>
                         <div style="font-size: 12px; color: #00d4ff; font-weight: bold; word-break: break-all;">${data.on_chain_price.toFixed(10)} SOL</div>
+                        <div style="font-size: 9px; color: #0088ff; margin-top: 3px;">Supply: ${data.total_supply ? (data.total_supply / 1e9).toFixed(2) + 'B' : 'N/A'}</div>
                     </div>`;
                 }
 
-                // DexScreener price - equally prominent
+                // DexScreener price - equally prominent (show in USD)
                 if (data.dexscreener_data) {
                     const dex = data.dexscreener_data;
+                    const priceDisplay = dex.priceUsd ? `$${dex.priceUsd.toFixed(10)}` : `${dex.priceNative.toFixed(10)} SOL`;
+                    const mcapDisplay = data.market_cap ? (data.market_cap < 1000 ? `$${data.market_cap.toFixed(2)}` : `$${(data.market_cap / 1000).toFixed(1)}k`) : 'N/A';
                     html += `<div style="background: #1a2847; padding: 8px; border-radius: 4px; border: 2px solid #ffd700; text-align: center;">
-                        <div style="font-size: 8px; color: #888; margin-bottom: 3px;">📈 DEXSCREENER</div>
-                        <div style="font-size: 12px; color: #ffd700; font-weight: bold; word-break: break-all;">${dex.priceNative.toFixed(10)} SOL</div>
+                        <div style="font-size: 8px; color: #888; margin-bottom: 3px;">📈 DEXSCREENER (USD)</div>
+                        <div style="font-size: 12px; color: #ffd700; font-weight: bold; word-break: break-all;">${priceDisplay}</div>
+                        <div style="font-size: 9px; color: #ffaa00; margin-top: 3px;">MCap: ${mcapDisplay}</div>
                     </div>`;
                 }
 

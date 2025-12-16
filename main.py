@@ -2208,11 +2208,18 @@ class RaydiumMonitor:
                                                     print(f"[PRICE INIT] ⚠ Could not fetch initial price")
 
                                             # Also fetch DexScreener price for initial setup
+                                            dex_data = None
+                                            sol_usd_price = None
                                             if pool_data.get('baseMint'):
                                                 dex_data = self.get_dexscreener_price(pool_data['baseMint'])
                                                 if dex_data and dex_data.get('priceUsd'):
                                                     self.db.update_dexscreener_price(pool_data['ammId'], dex_data['priceUsd'], dex_data.get('priceNative'))
                                                     print(f"[DEXSCREENER INIT] ✓ Initial DexScreener price: ${dex_data['priceUsd']:.10f}")
+
+                                                    # Calculate SOL/USD rate from DexScreener data for UI price conversion
+                                                    if dex_data.get('priceNative') and dex_data.get('priceNative') > 0:
+                                                        sol_usd_price = dex_data['priceUsd'] / dex_data['priceNative']
+                                                        print(f"[DEXSCREENER INIT] ✓ Calculated SOL/USD rate: {sol_usd_price:.8f}")
 
                                             # Broadcast new pool to UI immediately with snake_case field names
                                             broadcast_data = {
@@ -2229,7 +2236,8 @@ class RaydiumMonitor:
                                                 'creation_price': initial_price if initial_price is not None else 0,
                                                 'current_price': initial_price if initial_price is not None else 0,
                                                 'is_depleted': is_depleted,
-                                                'depletion_reason': depletion_reason
+                                                'depletion_reason': depletion_reason,
+                                                'sol_usd_price': sol_usd_price  # Include SOL/USD rate for UI price conversion
                                             }
                                             print(f"[BROADCAST] Adding {broadcast_data['name']} ({broadcast_data['symbol']}) to queue. Queue size before: {pool_broadcast_queue.qsize()}")
                                             if broadcast_data['image']:

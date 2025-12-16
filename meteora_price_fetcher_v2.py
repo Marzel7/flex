@@ -223,7 +223,11 @@ def is_pool_depleted(token_vaults: List[Tuple[str, Dict]]) -> bool:
 def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = False) -> Optional[Dict]:
     """
     Calculate the best price from vault pairs
-    Priority: Use known quote tokens (SOL) over token/token pairs
+    Priority:
+    1. Use known quote tokens (SOL) over token/token pairs
+    2. Among same-type pairs, prefer larger base token balances (better liquidity)
+    3. Fall back to price closer to 1.0 if balances similar
+
     Returns: {price, base_vault_idx, quote_vault_idx, explanation, warning}
     """
     if len(token_vaults) < 2:
@@ -268,8 +272,13 @@ def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = F
                     # Prefer quote pairs over token/token pairs
                     should_update = True
                 elif this_is_quote_pair == best_is_quote_pair:
-                    # Both are same type - prefer price closer to 1.0 for readability
-                    should_update = abs(price_j_per_i - 1) < abs(best_result['price'] - 1)
+                    # Both are same type - prefer larger base balance (better liquidity)
+                    best_base_balance = token_vaults[best_result['base_idx']][1]['human']
+                    if info_i['human'] > best_base_balance * 1.1:  # 10% threshold to avoid churn
+                        should_update = True
+                    elif abs(info_i['human'] - best_base_balance) / best_base_balance < 0.1:
+                        # Balances are similar - prefer price closer to 1.0 for readability
+                        should_update = abs(price_j_per_i - 1) < abs(best_result['price'] - 1)
 
                 if should_update:
                     best_result = {
@@ -293,8 +302,13 @@ def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = F
                     # Prefer quote pairs over token/token pairs
                     should_update = True
                 elif this_is_quote_pair == best_is_quote_pair:
-                    # Both are same type - prefer price closer to 1.0
-                    should_update = abs(price_i_per_j - 1) < abs(best_result['price'] - 1)
+                    # Both are same type - prefer larger base balance (better liquidity)
+                    best_base_balance = token_vaults[best_result['base_idx']][1]['human']
+                    if info_j['human'] > best_base_balance * 1.1:  # 10% threshold to avoid churn
+                        should_update = True
+                    elif abs(info_j['human'] - best_base_balance) / best_base_balance < 0.1:
+                        # Balances are similar - prefer price closer to 1.0
+                        should_update = abs(price_i_per_j - 1) < abs(best_result['price'] - 1)
 
                 if should_update:
                     best_result = {

@@ -2266,36 +2266,37 @@ HTML_TEMPLATE = '''
                     return;
                 }
 
-                let html = '<strong style="color: #4ade80;">📊 Price Comparison:</strong><br><br>';
+                let html = '<strong style="color: #4ade80; font-size: 12px;">💰 PRICE COMPARISON</strong><br>';
+                html += '<div style="border-top: 1px solid #4ade80; margin: 4px 0; padding-top: 4px;"></div>';
 
-                // Side-by-side price comparison
-                html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">';
+                // Main price display - side by side with equal prominence
+                html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0;">';
 
-                // On-chain price box
+                // On-chain price - prominent
                 if (data.on_chain_price) {
-                    html += `<div style="background: #1a2847; padding: 6px; border-radius: 3px; border-left: 3px solid #00d4ff;">
-                        <div style="font-size: 9px; color: #888;">💹 On-chain (SOL)</div>
-                        <div style="font-size: 11px; color: #00d4ff; font-weight: bold;">${data.on_chain_price.toFixed(10)}</div>
+                    html += `<div style="background: #1a2847; padding: 8px; border-radius: 4px; border: 2px solid #00d4ff; text-align: center;">
+                        <div style="font-size: 8px; color: #888; margin-bottom: 3px;">💹 ON-CHAIN</div>
+                        <div style="font-size: 12px; color: #00d4ff; font-weight: bold; word-break: break-all;">${data.on_chain_price.toFixed(10)} SOL</div>
                     </div>`;
                 }
 
-                // DexScreener price box
+                // DexScreener price - equally prominent
                 if (data.dexscreener_data) {
                     const dex = data.dexscreener_data;
-                    html += `<div style="background: #1a2847; padding: 6px; border-radius: 3px; border-left: 3px solid #ffd700;">
-                        <div style="font-size: 9px; color: #888;">📈 DexScreener (SOL)</div>
-                        <div style="font-size: 11px; color: #ffd700; font-weight: bold;">${dex.priceNative.toFixed(10)}</div>
+                    html += `<div style="background: #1a2847; padding: 8px; border-radius: 4px; border: 2px solid #ffd700; text-align: center;">
+                        <div style="font-size: 8px; color: #888; margin-bottom: 3px;">📈 DEXSCREENER</div>
+                        <div style="font-size: 12px; color: #ffd700; font-weight: bold; word-break: break-all;">${dex.priceNative.toFixed(10)} SOL</div>
                     </div>`;
                 }
 
                 html += '</div>';
 
-                // USD prices
+                // USD conversion prominently displayed
                 if (data.dexscreener_data && data.dexscreener_data.priceUsd) {
                     const dex = data.dexscreener_data;
-                    html += `<div style="background: #1a2847; padding: 6px; border-radius: 3px; margin-bottom: 8px;">
-                        <div style="font-size: 9px; color: #888;">💵 DexScreener USD</div>
-                        <div style="font-size: 11px; color: #88ff88;">$${dex.priceUsd.toFixed(8)}</div>
+                    html += `<div style="background: #1a2847; padding: 6px; border-radius: 4px; border-left: 3px solid #88ff88; margin-bottom: 8px;">
+                        <div style="font-size: 8px; color: #888;">💵 USD Price (DexScreener)</div>
+                        <div style="font-size: 11px; color: #88ff88; font-weight: bold;">$${dex.priceUsd.toFixed(8)}</div>
                     </div>`;
                 }
 
@@ -2304,28 +2305,29 @@ HTML_TEMPLATE = '''
                     const dex = data.dexscreener_data;
                     let liquidityHTML = '';
                     if (dex.liquidity && dex.liquidity.usd) {
-                        liquidityHTML += `💰 Liquidity: $${(dex.liquidity.usd / 1000).toFixed(1)}k<br>`;
+                        liquidityHTML += `💰 Liquidity: $${(dex.liquidity.usd / 1000).toFixed(1)}k`;
                     }
                     if (dex.volume24h) {
-                        liquidityHTML += `📊 24h Volume: $${(dex.volume24h / 1000).toFixed(1)}k`;
+                        if (liquidityHTML) liquidityHTML += ' | ';
+                        liquidityHTML += `📊 Vol: $${(dex.volume24h / 1000).toFixed(1)}k`;
                     }
                     if (liquidityHTML) {
-                        html += `<div style="font-size: 9px; color: #aaa; margin-bottom: 8px;">${liquidityHTML}</div>`;
+                        html += `<div style="font-size: 9px; color: #aaa; margin-bottom: 8px; padding: 4px; background: #0f1429; border-radius: 3px;">${liquidityHTML}</div>`;
                     }
                 }
 
-                // Comparison with status indicator
+                // Price comparison analysis - bottom section
                 if (data.comparison) {
                     const comp = data.comparison;
                     const statusColor = comp.status === 'matched' ? '#4ade80' : '#ff6b6b';
                     const statusEmoji = comp.status === 'matched' ? '✅' : '⚠️';
-                    const statusText = comp.status === 'matched' ? 'Matched' : 'Large Discrepancy';
+                    const statusText = comp.status === 'matched' ? 'Prices Matched' : 'Large Discrepancy';
 
-                    html += `<div style="background: ${statusColor}22; border: 1px solid ${statusColor}; padding: 6px; border-radius: 3px;">
-                        <div style="color: ${statusColor}; font-weight: bold; margin-bottom: 4px;">${statusEmoji} ${statusText}</div>
+                    html += `<div style="background: ${statusColor}22; border: 1px solid ${statusColor}; padding: 6px; border-radius: 4px;">
+                        <div style="color: ${statusColor}; font-weight: bold; font-size: 10px; margin-bottom: 4px;">${statusEmoji} ${statusText}</div>
                         <div style="font-size: 9px; color: #ccc;">
-                            Ratio: <span style="color: #ffff00;">${comp.ratio.toFixed(4)}x</span><br>
-                            Difference: <span style="color: ${statusColor};">${comp.difference_pct.toFixed(2)}%</span>
+                            Ratio: <span style="color: #ffff00; font-weight: bold;">${comp.ratio.toFixed(6)}x</span><br>
+                            Diff: <span style="color: ${statusColor}; font-weight: bold;">${comp.difference_pct.toFixed(2)}%</span>
                         </div>
                     </div>`;
                 }

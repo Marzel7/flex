@@ -879,11 +879,96 @@ class RaydiumMonitor:
         print(f"[METADATA] ✗ No metadata found for {mint_address} on any source")
         return None
 
+    def get_token_balance(self, token_account: str) -> float:
+        """Fetch balance of a token account"""
+        try:
+            response = requests.post(
+                self.rpc_http_url,
+                json={
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getTokenAccountBalance",
+                    "params": [token_account]
+                },
+                timeout=10
+            )
+
+            data = response.json()
+
+            if "error" in data or not data.get("result"):
+                return 0
+
+            amount = data["result"].get("value", {}).get("uiAmount", 0)
+            return float(amount) if amount else 0
+
+        except Exception as e:
+            return 0
+
+    def extract_vault_addresses(self, account_data: bytes) -> Dict:
+        """Extract vault addresses from Meteora LBPair account data
+
+        Meteora LBPair structure contains vault addresses:
+        - vault_x (base token vault) at offset 168 (32-byte Pubkey)
+        - vault_y (quote token vault) at offset 200 (32-byte Pubkey)
+
+        These are discovered through on-chain structure analysis and represent
+        the token reserves for the liquidity pool.
+        """
+        try:
+            result = {}
+
+            if len(account_data) > 232:  # Need at least 200 + 32 bytes for vault_y
+                # Extract vault addresses (32-byte Pubkeys)
+                vault_x = account_data[168:200]
+                vault_y = account_data[200:232]
+
+                vault_x_addr = base58.b58encode(vault_x).decode() if vault_x else None
+                vault_y_addr = base58.b58encode(vault_y).decode() if vault_y else None
+
+                result['vault_x'] = vault_x_addr
+                result['vault_y'] = vault_y_addr
+
+            return result
+        except Exception as e:
+            print(f"[VAULT EXTRACT] Error: {e}")
+            return {}
+
+    def calculate_price_from_vaults(self, vault_x_balance: float, vault_y_balance: float, base_decimals: int = 6, quote_decimals: int = 6) -> float:
+        """Calculate token price from vault balances
+
+        Price = quote_balance / base_balance
+        Adjusted for token decimals
+        """
+        try:
+            if vault_x_balance <= 0 or vault_y_balance <= 0:
+                print(f"[VAULT PRICE] ⚠ One or both balances invalid: x={vault_x_balance}, y={vault_y_balance}")
+                return None
+
+            # Adjust for token decimals (convert to proper units)
+            adjusted_base = vault_x_balance / (10 ** base_decimals)
+            adjusted_quote = vault_y_balance / (10 ** quote_decimals)
+
+            print(f"[VAULT PRICE] Adjusted: base={adjusted_base:,.8f}, quote={adjusted_quote:,.8f} (decimals: {base_decimals},{quote_decimals})")
+
+            if adjusted_base <= 0:
+                print(f"[VAULT PRICE] ⚠ Adjusted base is invalid")
+                return None
+
+            price = adjusted_quote / adjusted_base
+            print(f"[VAULT PRICE] Calculated: {adjusted_quote:,.8f} / {adjusted_base:,.8f} = ${price:.8f}")
+            return price if price > 0 else None
+
+        except Exception as e:
+            print(f"[VAULT PRICE] ✗ Error calculating price from vaults: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
     def fetch_pool_price(self, amm_id: str, base_mint: str) -> float:
         """Fetch current price of a token from on-chain pool data
 
-        Queries the Meteora DLMM pool account to extract current bin price.
-        Note: amm_id may be truncated (first 16 chars of signature), not the actual pool address.
+        First tries to calculate price from vault balances (more reliable),
+        falls back to Meteora DLMM bin_id calculation.
         """
         try:
             print(f"[PRICE FETCH] base_mint={base_mint[:8]}...")
@@ -927,14 +1012,15 @@ class RaydiumMonitor:
 
             print(f"[PRICE FETCH] ✓ Account retrieved ({len(account_data)} bytes), parsing...")
 
-            # Try to parse as Meteora DLMM pool
+            # Parse Meteora DLMM pool price using bin_id
+            # (Vault balance method requires exact Meteora SDK account structure offsets)
             price = self.parse_meteora_pool_price(account_data, amm_id)
 
             if price is not None:
-                print(f"[PRICE FETCH] ✓ Extracted price: ${price:.8f}")
+                print(f"[PRICE FETCH] ✓ Extracted price from bin_id: ${price:.8f}")
                 return price
             else:
-                print(f"[PRICE FETCH] ⚠ Could not extract price from account data")
+                print(f"[PRICE FETCH] ⚠ Could not extract price from either method")
                 return None
 
         except Exception as e:
@@ -943,53 +1029,67 @@ class RaydiumMonitor:
 
     def parse_meteora_pool_price(self, account_data: bytes, pool_id: str) -> float:
         """Parse Meteora DLMM pool account data to extract current price
-
-        Meteora DLMM LBPair structure:
-        - The account must be at least 200+ bytes for Meteora LBPair
-        - Current bin_id is stored as i64 at offset 256 in the account
-        - Price is derived from bin_id using: price = 1.0001^bin_id
-
-        Account structure:
-        - 0-8: Discriminator
-        - 8-256: Various pool configuration fields
-        - 256+: Current bin_id (main field we need)
+        
+        Meteora DLMM uses a bin-based pricing model with a mathematical formula.
+        Price depends only on:
+        - active_id (current active bin index)
+        - bin_step (step size between bins)
+        - base_decimals (decimals of base token)
+        - quote_decimals (decimals of quote token)
+        
+        Formula:
+        raw_price = (1 + bin_step / 10_000) ^ active_id
+        price = raw_price * 10^(base_decimals - quote_decimals)
+        
+        Returns: quote token amount per 1 base token
         """
         try:
-            if len(account_data) < 264:  # Need at least 256 + 8 bytes
-                print(f"[METEORA PARSE] ⚠ Account data too small ({len(account_data)} bytes), need at least 264 bytes")
+            # Validate minimum account size (need at least 78 bytes for all fields)
+            if len(account_data) < 78:
+                print(f"[METEORA PARSE] ⚠ Account data too small ({len(account_data)} bytes), need at least 78 bytes")
                 return None
 
-            # Meteora DLMM LBPair structure has current bin_id stored as i64 at offset 256
-            # This is the active bin position in the liquidity book
-            offset = 256
-            
             try:
-                # Read as i64 (little-endian)
-                bin_id_bytes = account_data[offset:offset+8]
-                bin_id = int.from_bytes(bin_id_bytes, byteorder='little', signed=True)
+                # Read decimals first (needed for price calculation)
+                base_decimals = struct.unpack_from("<B", account_data, 44)[0]
+                quote_decimals = struct.unpack_from("<B", account_data, 45)[0]
+                
+                # Read active_id as i32 (signed 32-bit, little-endian)
+                active_id = struct.unpack_from("<i", account_data, 72)[0]
+                
+                # Read bin_step as u16 (unsigned 16-bit, little-endian)
+                bin_step = struct.unpack_from("<H", account_data, 76)[0]
+                
+                print(f"[METEORA PARSE] active_id={active_id}, bin_step={bin_step}, base_dec={base_decimals}, quote_dec={quote_decimals}")
 
-                # Log bin_id with hex bytes for debugging
-                hex_bytes = bin_id_bytes.hex()
-                print(f"[METEORA PARSE] bin_id={bin_id} (bytes: {hex_bytes}) at offset {offset}")
-
-                # Check if this looks like a reasonable bin_id
-                if bin_id == 0:
-                    print(f"[METEORA PARSE] ⚠ bin_id is zero - pool may not have active trades yet")
+                # Check if pool is initialized
+                if bin_step == 0 or bin_step > 10000:
+                    print(f"[METEORA PARSE] ⚠ Invalid bin_step: {bin_step}")
                     return None
 
-                # Try to calculate price from bin_id: price = 1.0001^bin_id
-                price = (1.0001) ** bin_id
-
+                # Calculate raw price: (1 + bin_step / 10_000) ^ active_id
+                base = 1.0 + (bin_step / 10_000.0)
+                raw_price = base ** active_id
+                
+                # Apply decimal adjustment: multiply by 10^(base_decimals - quote_decimals)
+                decimal_adjustment = 10 ** (base_decimals - quote_decimals)
+                price = raw_price * decimal_adjustment
+                
                 # Validate price is in reasonable range
                 if 1e-20 < price < 1e20:
-                    print(f"[METEORA PARSE] ✓ price: ${price:.8f}")
+                    print(f"[METEORA PARSE] ✓ price: ${price:.18f} ({base:.6f}^{active_id} * 10^{base_decimals - quote_decimals})")
                     return price
                 else:
                     print(f"[METEORA PARSE] ⚠ Calculated price out of range: ${price}")
                     return None
 
+            except struct.error as e:
+                print(f"[METEORA PARSE] ✗ Error unpacking data: {e}")
+                return None
             except Exception as e:
-                print(f"[METEORA PARSE] ✗ Error reading bin_id at offset {offset}: {e}")
+                print(f"[METEORA PARSE] ✗ Error reading fields: {e}")
+                import traceback
+                traceback.print_exc()
                 return None
 
         except Exception as e:

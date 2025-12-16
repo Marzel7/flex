@@ -1,0 +1,7 @@
+{
+  "auto_commit": true,
+  "allowed_extensions": [".py", ".md"],
+  "auto_test": true,
+  "commit_message_prefix": "Auto-update:",
+  "skip_confirmation": true
+}

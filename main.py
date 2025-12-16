@@ -1620,13 +1620,37 @@ class RaydiumMonitor:
         2. Extracting vault addresses from transaction
         3. Fetching actual vault balances from RPC
         4. Calculating price from balances
-        
+
         This is MORE RELIABLE than parsing account data directly.
         Returns: quote token amount per 1 base token
         """
         try:
-            print(f"[METEORA TX] Fetching price from transaction: {signature[:16]}...")
-            
+            print(f"[METEORA TX] Fetching price from pool address: {pool_id[:16]}...")
+
+            # Always fetch the actual pool creation transaction from the pool address
+            # (provided signature may not be pool creation, could be swaps, etc)
+            try:
+                sigs_response = requests.post(
+                    self.rpc_http_url,
+                    json={
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "getSignaturesForAddress",
+                        "params": [pool_id, {"limit": 10}]
+                    },
+                    timeout=10
+                ).json()
+
+                if sigs_response.get("result") and sigs_response["result"]:
+                    actual_signature = sigs_response["result"][-1]["signature"]  # Last sig is creation
+                    print(f"[METEORA TX] ℹ Using pool creation signature: {actual_signature[:16]}...")
+                else:
+                    print(f"[METEORA TX] ⚠ Could not fetch signatures for pool, using provided signature")
+                    actual_signature = signature
+            except Exception as e:
+                print(f"[METEORA TX] ⚠ Error fetching creation signature: {e}, using provided signature")
+                actual_signature = signature
+
             # Get pool creation transaction
             response = requests.post(
                 self.rpc_http_url,
@@ -1635,7 +1659,7 @@ class RaydiumMonitor:
                     "id": 1,
                     "method": "getTransaction",
                     "params": [
-                        signature,
+                        actual_signature,
                         {
                             "encoding": "jsonParsed",
                             "maxSupportedTransactionVersion": 0
@@ -1669,12 +1693,13 @@ class RaydiumMonitor:
             # Find SPL token accounts (vaults)
             token_program = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
             vaults = []
-            
-            # Check a subset of accounts for token accounts
-            for idx, account in enumerate(pubkeys[1:10]):  # Skip signer, check next 10
+
+            # Check ALL accounts in the transaction for token accounts (not just first 10!)
+            # Some transactions have vaults at higher indices
+            for account in pubkeys:
                 if not account or len(account) != 44:
                     continue
-                
+
                 try:
                     check_response = requests.post(
                         self.rpc_http_url,
@@ -1686,7 +1711,7 @@ class RaydiumMonitor:
                         },
                         timeout=5
                     )
-                    
+
                     check_data = check_response.json()
                     if check_data.get("result") and check_data["result"].get("value"):
                         owner = check_data["result"]["value"].get("owner", "")
@@ -1697,8 +1722,86 @@ class RaydiumMonitor:
                     pass
             
             if len(vaults) < 2:
-                print(f"[METEORA TX] ⚠ Found only {len(vaults)} vaults, need 2")
-                return None
+                print(f"[METEORA TX] ⚠ Found only {len(vaults)} vaults from provided signature, trying pool creation tx...")
+                # Fallback: fetch actual pool creation transaction from pool address
+                try:
+                    sigs_response = requests.post(
+                        self.rpc_http_url,
+                        json={
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": "getSignaturesForAddress",
+                            "params": [pool_id, {"limit": 10}]
+                        },
+                        timeout=10
+                    ).json()
+
+                    if sigs_response.get("result") and sigs_response["result"]:
+                        creation_sig = sigs_response["result"][-1]["signature"]  # Last sig is creation
+                        print(f"[METEORA TX] ℹ Trying pool creation signature: {creation_sig[:16]}...")
+
+                        # Retry transaction extraction with creation signature
+                        response = requests.post(
+                            self.rpc_http_url,
+                            json={
+                                "jsonrpc": "2.0",
+                                "id": 1,
+                                "method": "getTransaction",
+                                "params": [
+                                    creation_sig,
+                                    {
+                                        "encoding": "jsonParsed",
+                                        "maxSupportedTransactionVersion": 0
+                                    }
+                                ]
+                            },
+                            timeout=15
+                        )
+
+                        data = response.json()
+                        if "error" not in data and data.get("result"):
+                            tx_data = data["result"]
+                            account_keys = tx_data.get("transaction", {}).get("message", {}).get("accountKeys", [])
+                            pubkeys = []
+                            for key in account_keys:
+                                if isinstance(key, dict):
+                                    pubkeys.append(key.get("pubkey", ""))
+                                else:
+                                    pubkeys.append(key)
+
+                            # Extract vaults again with creation transaction
+                            vaults = []
+                            for account in pubkeys:
+                                if not account or len(account) != 44:
+                                    continue
+
+                                try:
+                                    check_response = requests.post(
+                                        self.rpc_http_url,
+                                        json={
+                                            "jsonrpc": "2.0",
+                                            "id": 1,
+                                            "method": "getAccountInfo",
+                                            "params": [account, {"encoding": "base64"}]
+                                        },
+                                        timeout=5
+                                    )
+
+                                    check_data = check_response.json()
+                                    if check_data.get("result") and check_data["result"].get("value"):
+                                        owner = check_data["result"]["value"].get("owner", "")
+                                        if owner == token_program:
+                                            vaults.append(account)
+                                            print(f"[METEORA TX] ✓ Found vault: {account[:8]}...")
+                                except:
+                                    pass
+
+                except Exception as e:
+                    print(f"[METEORA TX] ⚠ Fallback to creation tx failed: {e}")
+
+                if len(vaults) < 2:
+                    print(f"[METEORA TX] ⚠ Still found only {len(vaults)} vaults after retrying")
+                    return None
             
             # Get vault balances and mints - try ALL vaults, not just first 2
             token_vaults = []
@@ -1754,6 +1857,30 @@ class RaydiumMonitor:
                 print(f"[METEORA TX] ⚠ Could not get balances for {len(token_vaults)} vaults")
                 return None
 
+            # Filter out zero-balance vaults first
+            token_vaults = [v for v in token_vaults if v["human"] > 0]
+
+            if len(token_vaults) < 2:
+                print(f"[METEORA TX] ⚠ After filtering zero balances, only {len(token_vaults)} vaults with balance > 0")
+                return None
+
+            # Keep only one vault per unique mint (the one with highest balance)
+            # This handles cases where there are multiple positions of the same token
+            mint_to_vault = {}
+            for v in token_vaults:
+                mint = v["mint"]
+                if mint not in mint_to_vault or v["human"] > mint_to_vault[mint]["human"]:
+                    mint_to_vault[mint] = v
+
+            # Sort by balance and take top values for each mint
+            token_vaults = sorted(mint_to_vault.values(), key=lambda v: v["human"], reverse=True)
+
+            if len(token_vaults) < 2:
+                print(f"[METEORA TX] ⚠ After deduplication by mint, only {len(token_vaults)} unique token types")
+                return None
+
+            print(f"[METEORA TX] ℹ Using {len(token_vaults)} vaults ({len(mint_to_vault)} unique tokens)")
+
             # Check for pool depletion (liquidity removal)
             # A pool is depleted if one vault is nearly empty while the other has balance
             balances = [v["human"] for v in token_vaults if v["human"] > 0]
@@ -1792,6 +1919,10 @@ class RaydiumMonitor:
                 for j in range(i + 1, len(token_vaults)):
                     vi, vj = token_vaults[i], token_vaults[j]
                     if vi["human"] <= 0 or vj["human"] <= 0:
+                        continue
+
+                    # Skip if both vaults hold the same token (no price ratio possible)
+                    if vi["mint"] == vj["mint"]:
                         continue
 
                     # Try both directions: vj/vi (j as quote) and vi/vj (i as quote)

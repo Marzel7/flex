@@ -2980,11 +2980,62 @@ def get_updated_prices():
 
 @app.route('/api/meteora/price/<token_mint>')
 def get_meteora_price(token_mint):
-    """Get Meteora pool price with DexScreener comparison
-
-    Returns on-chain price and DexScreener data for comparison
+    """Get Meteora pool price from database or fallback to live fetch
+    
+    First checks database for cached price data.
+    Falls back to live fetch if not found in database.
     """
     try:
+        # Try to get from database first (most reliable)
+        db = RaydiumDatabase()
+        conn = db.get_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT current_price, total_supply, market_cap, dex
+            FROM pools
+            WHERE base_mint = ?
+            LIMIT 1
+        ''', (token_mint,))
+        
+        result = cursor.fetchone()
+        conn.close()
+        
+        if result:
+            current_price, total_supply, market_cap, dex = result
+            
+            # Build response from database
+            response = {
+                'on_chain_price': current_price,
+                'source': 'database',
+                'dex': dex,
+                'total_supply': total_supply,
+                'market_cap': market_cap,
+            }
+            
+            # Try to get DexScreener data for comparison
+            try:
+                price_fetcher = MeteoraPriceFetcher()
+                dex_data = price_fetcher.get_dexscreener_price(token_mint)
+                if dex_data:
+                    response['dexscreener_data'] = dex_data
+                    
+                    # Calculate comparison metrics if both prices available
+                    if current_price and dex_data.get('priceNative'):
+                        dex_native = dex_data.get('priceNative', 0)
+                        if dex_native > 0:
+                            ratio = current_price / dex_native
+                            diff_pct = abs(current_price - dex_native) / dex_native * 100
+                            response['comparison'] = {
+                                'ratio': ratio,
+                                'difference_pct': diff_pct,
+                                'status': 'large_discrepancy' if diff_pct > 10 else 'matched'
+                            }
+            except:
+                pass  # DexScreener fetch is optional
+            
+            return jsonify(response)
+        
+        # Fallback: Try live fetch if not in database
         price_fetcher = MeteoraPriceFetcher()
         price_data = price_fetcher.fetch_price(token_mint)
 
@@ -2997,6 +3048,7 @@ def get_meteora_price(token_mint):
         response = {
             'on_chain_price': on_chain,
             'dexscreener_data': dex_data,
+            'source': 'live_fetch'
         }
 
         # Calculate comparison metrics if both prices available

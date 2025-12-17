@@ -1360,7 +1360,7 @@ class RaydiumMonitor:
 
             # Use V2 fetcher which has proven working logic
             try:
-                result = v2.get_damm_v2_price(amm_id, verbose=False)
+                result = v2.get_damm_v2_price(base_mint, verbose=False)
                 if result:
                     print(f"[PRICE FETCH] ✓ Successfully fetched price: ${result:.18f} SOL")
                     return {
@@ -3159,6 +3159,7 @@ HTML_TEMPLATE = '''
 
         function pollForNewPools() {
             // Poll for new pools every 1 second for near real-time updates
+            // Try broadcast queue first, fallback to database
             fetch('/api/pools/new')
                 .then(response => {
                     console.log(`[POLL] Fetch response status: ${response.status}`);
@@ -3166,27 +3167,43 @@ HTML_TEMPLATE = '''
                 })
                 .then(data => {
                     console.log(`[POLL] Response received:`, data);
-                    if (data.new_pools && data.new_pools.length > 0) {
-                        console.log(`[POLL] ✓ Received ${data.new_pools.length} new pool(s)`);
-                        console.log(`[POLL] Pool details:`, data.new_pools);
+                    let pools = data.new_pools || [];
+
+                    // If no new pools from broadcast queue, try database
+                    if (!pools || pools.length === 0) {
+                        console.log(`[POLL] No new pools in queue, trying database fallback...`);
+                        return fetch('/api/pools').then(r => r.json()).then(dbData => {
+                            pools = (dbData.pools || []).slice(0, 10); // Get last 10
+                            return { pools: pools, isFromDatabase: true };
+                        });
+                    }
+                    return { pools: pools, isFromDatabase: false };
+                })
+                .then(result => {
+                    const pools = result.pools || [];
+                    const isFromDatabase = result.isFromDatabase;
+
+                    if (pools && pools.length > 0) {
+                        console.log(`[POLL] ✓ Received ${pools.length} pool(s)${isFromDatabase ? ' from database' : ''}`);
+                        console.log(`[POLL] Pool details:`, pools);
 
                         // Check if paused before adding new pools
                         if (isPaused) {
-                            console.log(`[POLL] ⏸ Paused - ignoring ${data.new_pools.length} new pool(s)`);
+                            console.log(`[POLL] ⏸ Paused - ignoring ${pools.length} pool(s)`);
                         } else {
                             // Add each new pool to the UI
-                            data.new_pools.forEach(pool => {
+                            pools.forEach(pool => {
                                 console.log(`[POLL] Adding pool: ${pool.name} (${pool.symbol}) with image: ${pool.image}`);
                                 console.log(`[POLL] Pool first_seen: ${pool.first_seen}`);
                                 addNewPoolToUI(pool);
                             });
                         }
                     } else {
-                        console.log(`[POLL] No new pools in response`);
+                        console.log(`[POLL] No pools in response`);
                     }
                 })
                 .catch(error => {
-                    console.error('[POLL] Error fetching new pools:', error);
+                    console.error('[POLL] Error fetching pools:', error);
                     console.error('[POLL] Error details:', error.message);
                 });
         }
@@ -3280,12 +3297,13 @@ def index():
 
 @app.route('/api/pools')
 def get_pools():
-    """DEPRECATED: /api/pools endpoint - disabled to prevent image loading issues
-    Use /api/pools/new instead for polling
+    """Get recent pools from database with prices
+
+    Fallback endpoint when broadcast queue is empty (e.g., during WebSocket connection issues)
+    Returns recent pools from database sorted by detection time
     """
-    print("[WARNING] /api/pools called - this endpoint should not be used! Use /api/pools/new instead")
-    # Return 410 Gone to indicate this endpoint is no longer available
-    return jsonify({'error': 'This endpoint is deprecated. Use /api/pools/new for polling.'}), 410
+    recent_pools = monitor.db.get_recent_pools(limit=50)
+    return jsonify({'pools': recent_pools})
 
 @app.route('/api/pools/new')
 def get_new_pools():

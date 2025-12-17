@@ -3015,9 +3015,19 @@ HTML_TEMPLATE = '''
                         <div style="font-size: 9px; color: #0088ff; margin-top: 3px;">Supply: ${data.total_supply ? (data.total_supply / 1e9).toFixed(2) + 'B' : 'N/A'}</div>
                     </div>`;
 
-                    // Add market cap if available
-                    if (data.market_cap) {
-                        const mcapDisplay = data.market_cap < 1000 ? `$${data.market_cap.toFixed(2)}` : `$${(data.market_cap / 1000).toFixed(1)}k`;
+                    // Add market cap if available (use USD if available, otherwise SOL)
+                    const marketCapValue = data.market_cap_usd || data.market_cap;
+                    if (marketCapValue) {
+                        let mcapDisplay;
+                        if (marketCapValue >= 1000000) {
+                            mcapDisplay = `$${(marketCapValue / 1000000).toFixed(2)}M`;
+                        } else if (marketCapValue >= 1000) {
+                            mcapDisplay = `$${(marketCapValue / 1000).toFixed(2)}K`;
+                        } else if (marketCapValue >= 1) {
+                            mcapDisplay = `$${marketCapValue.toFixed(2)}`;
+                        } else {
+                            mcapDisplay = `$${marketCapValue.toExponential(2)}`;
+                        }
                         html += `<div style="font-size: 9px; color: #aaa; margin-top: 8px; padding: 4px; background: #0f1429; border-radius: 3px;">Market Cap: ${mcapDisplay}</div>`;
                     }
                 } else {
@@ -3351,6 +3361,8 @@ def get_meteora_price(token_mint):
                     response['sol_usd_price'] = sol_usd_price
                     # Convert on-chain price to USD
                     response['on_chain_price_usd'] = current_price * sol_usd_price if current_price else None
+                    # Convert market cap from SOL to USD
+                    response['market_cap_usd'] = market_cap * sol_usd_price if market_cap else None
                     print(f"[API PRICE] ✓ Added SOL/USD rate and converted on-chain price to USD: {response['on_chain_price_usd']}")
 
                     # Calculate comparison metrics if both prices available

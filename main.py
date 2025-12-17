@@ -2656,13 +2656,6 @@ HTML_TEMPLATE = '''
             color: #ff6b6b;
         }
 
-        .pool-price {
-            font-size: 12px;
-            font-weight: 600;
-            color: #ffd700;
-            margin-bottom: 4px;
-        }
-
         .sidebar {
             display: flex;
             flex-direction: column;
@@ -3099,7 +3092,6 @@ HTML_TEMPLATE = '''
                     </div>
                     <div class="pool-right">
                         <div class="pool-time" data-first-seen="${pool.first_seen}">${formatActiveTime(pool.first_seen)}</div>
-                        <div class="pool-price">${formatPrice(displayPrice)}</div>
                         <div class="pool-change ${changeClass}">${changePercent >= 0 ? '+' : ''}${changePercent}%</div>
                         <div id="price-data-${pool.base_mint}" style="font-size: 11px; margin-top: 8px; padding: 8px; background: #0f1429; border-radius: 4px;"></div>
                     </div>
@@ -3240,18 +3232,6 @@ HTML_TEMPLATE = '''
                                     }
                                 }
 
-                                // Update current price if available (convert to USD using SOL rate)
-                                const priceEl = poolEl.querySelector('.pool-price');
-                                if (priceEl && poolUpdate.current_price) {
-                                    let displayPrice = poolUpdate.current_price;
-                                    if (poolUpdate.sol_usd_price && poolUpdate.sol_usd_price > 0) {
-                                        displayPrice = poolUpdate.current_price * poolUpdate.sol_usd_price;
-                                    }
-                                    const newPriceText = `$${displayPrice.toFixed(10)}`;
-                                    if (priceEl.textContent !== newPriceText) {
-                                        priceEl.textContent = newPriceText;
-                                    }
-                                }
 
                                 // Update DexScreener price if available
                                 if (poolUpdate.dexscreener_price_usd) {

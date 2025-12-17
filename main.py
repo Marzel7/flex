@@ -1360,17 +1360,24 @@ class RaydiumMonitor:
 
             # Use V2 fetcher which has proven working logic
             try:
-                result = v2.get_damm_v2_price(amm_id, verbose=False)
-                if result:
-                    print(f"[PRICE FETCH] ✓ Successfully fetched price: ${result:.18f} SOL")
+                # Use fetch_price() which returns complete data structure with price, depletion info, etc.
+                fetch_result = v2.fetch_price(amm_id, verbose=False)
+                price = fetch_result.get('on_chain_price')
+
+                if price is not None and price > 0:
+                    print(f"[PRICE FETCH] ✓ Successfully fetched price: {price:.18f} SOL")
                     return {
-                        'price': result,
-                        'is_depleted': False,
-                        'depletion_reason': None
+                        'price': price,
+                        'is_depleted': fetch_result.get('is_depleted', False),
+                        'depletion_reason': fetch_result.get('depletion_reason')
                     }
                 else:
-                    print(f"[PRICE FETCH] ⚠ V2 fetcher returned None (pool may be depleted)")
-                    return {'price': None, 'is_depleted': True, 'depletion_reason': 'V2 fetcher detected depletion'}
+                    print(f"[PRICE FETCH] ⚠ V2 fetcher returned no price (pool may be depleted or not found)")
+                    return {
+                        'price': None,
+                        'is_depleted': fetch_result.get('is_depleted', True),
+                        'depletion_reason': fetch_result.get('depletion_reason', 'No valid price returned')
+                    }
             except Exception as e:
                 print(f"[PRICE FETCH] ⚠ V2 fetcher error: {e}")
                 import traceback

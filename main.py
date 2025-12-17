@@ -2954,17 +2954,13 @@ HTML_TEMPLATE = '''
         // Update all pool times every second
         function updateAllPoolTimes() {
             const poolTimes = document.querySelectorAll('[data-first-seen]');
-            if (poolTimes.length > 0) {
-                console.log(`[TIME] Updating ${poolTimes.length} pool time(s)`);
-                poolTimes.forEach(el => {
-                    const firstSeen = el.dataset.firstSeen;
-                    const newTime = formatActiveTime(firstSeen);
-                    if (el.textContent !== newTime) {
-                        console.log(`[TIME] Updated: ${el.textContent} → ${newTime}`);
-                        el.textContent = newTime;
-                    }
-                });
-            }
+            poolTimes.forEach(el => {
+                const firstSeen = el.dataset.firstSeen;
+                const newTime = formatActiveTime(firstSeen);
+                if (el.textContent !== newTime) {
+                    el.textContent = newTime;
+                }
+            });
         }
 
         // Fetch Meteora price data for a pool
@@ -3150,22 +3146,11 @@ HTML_TEMPLATE = '''
             // Poll for new pools every 1 second for near real-time updates
             // Try broadcast queue first, fallback to database
             fetch('/api/pools/new')
-                .then(response => {
-                    console.log(`[POLL] Fetch response status: ${response.status}`);
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    console.log(`[POLL] Response received:`, data);
                     let pools = data.new_pools || [];
 
-                    // If no new pools from broadcast queue, try database
-                    if (!pools || pools.length === 0) {
-                        console.log(`[POLL] No new pools in queue, trying database fallback...`);
-                        return fetch('/api/pools').then(r => r.json()).then(dbData => {
-                            pools = (dbData.pools || []).slice(0, 10); // Get last 10
-                            return { pools: pools, isFromDatabase: true };
-                        });
-                    }
+                    // Only use broadcast queue, don't fall back to database to avoid re-rendering existing pools
                     return { pools: pools, isFromDatabase: false };
                 })
                 .then(result => {
@@ -3173,22 +3158,13 @@ HTML_TEMPLATE = '''
                     const isFromDatabase = result.isFromDatabase;
 
                     if (pools && pools.length > 0) {
-                        console.log(`[POLL] ✓ Received ${pools.length} pool(s)${isFromDatabase ? ' from database' : ''}`);
-                        console.log(`[POLL] Pool details:`, pools);
-
                         // Check if paused before adding new pools
-                        if (isPaused) {
-                            console.log(`[POLL] ⏸ Paused - ignoring ${pools.length} pool(s)`);
-                        } else {
+                        if (!isPaused) {
                             // Add each new pool to the UI
                             pools.forEach(pool => {
-                                console.log(`[POLL] Adding pool: ${pool.name} (${pool.symbol}) with image: ${pool.image}`);
-                                console.log(`[POLL] Pool first_seen: ${pool.first_seen}`);
                                 addNewPoolToUI(pool);
                             });
                         }
-                    } else {
-                        console.log(`[POLL] No pools in response`);
                     }
                 })
                 .catch(error => {

@@ -185,6 +185,30 @@ done
 
 ---
 
+## Known Precision Issues
+
+### Price Display Format (Detailed Price Box)
+The detailed price information box uses `.toFixed(10)` formatting:
+```javascript
+const onChainDisplay = `$${onChainUsd.toFixed(10)}`;
+```
+
+This can potentially display different prices identically if they round to the same 10 decimals.
+
+**Example:**
+- Price A: $0.00000002904924 (rounds to $0.0000000290)
+- Price B: $0.00000003050000 (rounds to $0.0000000305)
+
+**Recommendation:** Use dynamic `formatPrice()` function instead for better precision at various scales.
+
+### Main Pool Display (Correct)
+The main pool list uses the `formatPrice()` function which provides appropriate precision:
+- Prices < $0.01: 8 decimals
+- Prices < $1: 6 decimals
+- Prices ≥ $1: 4 decimals
+
+---
+
 ## Success Criteria
 
 ✓ All tests pass if:
@@ -194,3 +218,4 @@ done
 4. SOL/USD rates are available and realistic
 5. USD conversion calculations are correct
 6. No data corruption detected over time
+7. Price values in database match the actual on-chain prices fetched

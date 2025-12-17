@@ -3024,7 +3024,7 @@ HTML_TEMPLATE = '''
                         }
                     }
 
-                    const onChainDisplay = onChainUsd ? `$${onChainUsd.toFixed(10)}` : (data.on_chain_price ? `${data.on_chain_price.toFixed(10)} SOL` : 'N/A');
+                    const onChainDisplay = onChainUsd ? formatPrice(onChainUsd) : (data.on_chain_price ? `${data.on_chain_price.toFixed(10)} SOL` : 'N/A');
 
                     html += `<div style="background: #1a2847; padding: 8px; border-radius: 4px; border: 2px solid #00d4ff; text-align: center;">
                         <div style="font-size: 8px; color: #888; margin-bottom: 3px;">💹 ON-CHAIN PRICE</div>

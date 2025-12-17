@@ -3199,32 +3199,14 @@ HTML_TEMPLATE = '''
 
         function updatePoolPrices() {
             // Poll for price updates for existing pools
-            fetch('/api/pools/prices')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.pools && data.pools.length > 0) {
-                        console.log(`[PRICE UPDATE] Received ${data.pools.length} price updates`);
-                        data.pools.forEach(poolUpdate => {
-                            // Find the pool element by amm_id and update prices
-                            const poolElements = document.querySelectorAll('.pool-item');
-                            poolElements.forEach(poolEl => {
-
-                                // Update DexScreener price if available
-                                if (poolUpdate.dexscreener_price_usd) {
-                                    const dexPriceEl = poolEl.querySelector('.pool-dexscreener-price');
-                                    if (dexPriceEl) {
-                                        const newDexPriceText = `$${poolUpdate.dexscreener_price_usd.toFixed(10)}`;
-                                        if (dexPriceEl.textContent !== newDexPriceText) {
-                                            dexPriceEl.textContent = newDexPriceText;
-                                            console.log(`[PRICE UPDATE] ✓ Updated DexScreener price for ${poolUpdate.amm_id?.slice(0,8)}...`);
-                                        }
-                                    }
-                                }
-                            });
-                        });
-                    }
-                })
-                .catch(error => console.error('[PRICE UPDATE] Error fetching price updates:', error));
+            const poolElements = document.querySelectorAll('.pool-item');
+            poolElements.forEach(poolEl => {
+                const baseMint = poolEl.id.replace('pool-', '');
+                if (baseMint && baseMint.length === 44) {
+                    // Re-fetch price data for each pool
+                    fetchMeteoraPriceData(baseMint);
+                }
+            });
         }
 
         // Poll for new pools every 1 second (near real-time updates)

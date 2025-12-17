@@ -2156,6 +2156,7 @@ class RaydiumMonitor:
                                             # Initialize depletion tracking variables
                                             is_depleted = False
                                             depletion_reason = None
+                                            initial_price = None
 
                                             # Fetch initial price and supply for new pool
                                             if pool_data.get('baseMint'):

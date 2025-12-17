@@ -3357,13 +3357,19 @@ def get_meteora_price(token_mint):
                 }
                 print(f"[API PRICE] ✓ Added DexScreener data to response")
 
-                # Add SOL/USD rate if available
-                if sol_usd_price:
-                    response['sol_usd_price'] = sol_usd_price
+                # Determine SOL/USD rate (use provided rate or calculate from DexScreener)
+                effective_sol_usd_rate = sol_usd_price
+                if not effective_sol_usd_rate and dex_price_usd and dex_price_native and dex_price_native > 0:
+                    effective_sol_usd_rate = dex_price_usd / dex_price_native
+                    print(f"[API PRICE] ✓ Calculated SOL/USD rate from DexScreener: {effective_sol_usd_rate:.8f}")
+
+                # Add SOL/USD rate and USD conversions if available
+                if effective_sol_usd_rate:
+                    response['sol_usd_price'] = effective_sol_usd_rate
                     # Convert on-chain price to USD
-                    response['on_chain_price_usd'] = current_price * sol_usd_price if current_price else None
+                    response['on_chain_price_usd'] = current_price * effective_sol_usd_rate if current_price else None
                     # Convert market cap from SOL to USD
-                    response['market_cap_usd'] = market_cap * sol_usd_price if market_cap else None
+                    response['market_cap_usd'] = market_cap * effective_sol_usd_rate if market_cap else None
                     print(f"[API PRICE] ✓ Added SOL/USD rate and converted on-chain price to USD: {response['on_chain_price_usd']}")
 
                     # Calculate comparison metrics if both prices available

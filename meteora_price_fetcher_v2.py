@@ -233,13 +233,11 @@ def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = F
     if len(token_vaults) < 2:
         return None
 
-    # Check for depleted pools
-    if is_pool_depleted(token_vaults):
-        return {
-            'price': None,
-            'warning': 'POOL_DEPLETED',
-            'reason': 'Pool liquidity has been removed or is extremely low',
-        }
+    # Check for depleted pools (but still calculate price)
+    is_depleted = is_pool_depleted(token_vaults)
+    depletion_reason = None
+    if is_depleted:
+        depletion_reason = 'Pool liquidity has been removed or is extremely low'
 
     sol_mint = "So11111111111111111111111111111111111111112"
     best_result = None
@@ -321,6 +319,11 @@ def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = F
                     }
                     best_is_quote_pair = this_is_quote_pair
 
+    # Add depletion info to result if found
+    if best_result and is_depleted:
+        best_result['is_depleted'] = True
+        best_result['depletion_reason'] = depletion_reason
+
     return best_result
 
 
@@ -363,6 +366,11 @@ def get_damm_v2_price(pool_address: str, verbose: bool = False) -> Optional[floa
             if best.get('warning') == 'POOL_DEPLETED':
                 if verbose:
                     print(f"  ⚠️  Pool appears depleted: {best['reason']}")
+                # Still return the price even if depleted, but log it
+                if best.get('price') is not None:
+                    if verbose:
+                        print(f"  📊 Returning price despite depletion: {best['price']:.18f}")
+                    return best['price']
                 return None
 
             if best.get('price') is not None:
@@ -420,7 +428,9 @@ def fetch_price(pool_address: str, verbose: bool = False) -> Dict:
         "dexscreener_data": None,
         "price_comparison": None,
         "base_token": None,
-        "error": None
+        "error": None,
+        "is_depleted": False,
+        "depletion_reason": None
     }
 
     try:
@@ -457,7 +467,10 @@ def print_price_result(result: Dict, verbose: bool = False):
     print(f"\nPool: {result['pool']}")
 
     if result["on_chain_price"] is not None:
-        print(f"On-chain price (spot):  {result['on_chain_price']:.18f} SOL")
+        price_str = f"{result['on_chain_price']:.18f} SOL"
+        if result.get('is_depleted'):
+            price_str += f" (⚠️  DEPLETED: {result.get('depletion_reason', 'unknown')})"
+        print(f"On-chain price (spot):  {price_str}")
     else:
         print("On-chain price (spot):  Failed to fetch")
 

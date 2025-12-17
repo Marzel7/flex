@@ -1360,7 +1360,7 @@ class RaydiumMonitor:
 
             # Use V2 fetcher which has proven working logic
             try:
-                result = v2.get_damm_v2_price(base_mint, verbose=False)
+                result = v2.get_damm_v2_price(amm_id, verbose=False)
                 if result:
                     print(f"[PRICE FETCH] ✓ Successfully fetched price: ${result:.18f} SOL")
                     return {

@@ -14,6 +14,7 @@ import requests
 import time
 import queue
 import sys
+from spl.token.core import MINT_LAYOUT, MintInfo
 
 # Helius RPC endpoints (rotate if rate limited)
 #RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=f084fae8-d111-4337-9960-2d9c5e02a726"  # MARZEL
@@ -1441,7 +1442,7 @@ class RaydiumMonitor:
             return {}
 
     def _get_mint_decimals(self, mint: str) -> int:
-        """Get token decimals from mint account"""
+        """Get token decimals from mint account using spl.token.core"""
         try:
             response = requests.post(
                 self.rpc_http_url,
@@ -1453,32 +1454,32 @@ class RaydiumMonitor:
                 },
                 timeout=10
             )
-            
+
             result = response.json()
             if "error" in result or not result.get("result"):
                 return 6  # Default fallback
-            
+
             acc_info = result["result"]["value"]
             if not acc_info or not acc_info.get("data"):
                 return 6
-            
+
             try:
                 mint_data = base64.b64decode(acc_info["data"][0])
-                # Decimals field is at offset 44 in Mint account (1 byte)
-                if len(mint_data) > 44:
-                    decimals = mint_data[44]
-                    return decimals
-            except:
+                # Use spl.token.core's MINT_LAYOUT to properly parse the account
+                mint_info = MINT_LAYOUT.parse(mint_data)
+                if mint_info and hasattr(mint_info, 'decimals'):
+                    return mint_info.decimals
+            except Exception as parse_error:
                 pass
-            
+
             return 6  # Default fallback
-            
+
         except Exception as e:
             print(f"[MINT DECIMALS] Error: {e}")
             return 6  # Default fallback
 
     def get_token_total_supply(self, mint: str) -> Optional[float]:
-        """Get total supply of a token from on-chain mint account"""
+        """Get total supply of a token from on-chain mint account using spl.token.core"""
         try:
             response = requests.post(
                 self.rpc_http_url,
@@ -1490,31 +1491,29 @@ class RaydiumMonitor:
                 },
                 timeout=10
             )
-            
+
             result = response.json()
             if "error" in result or not result.get("result"):
                 return None
-            
+
             acc_info = result["result"]["value"]
             if not acc_info or not acc_info.get("data"):
                 return None
-            
+
             try:
                 mint_data = base64.b64decode(acc_info["data"][0])
-                # Mint account structure:
-                # 0-31: mint_authority (32 bytes)
-                # 32-39: supply (8 bytes, u64)
-                # 40-43: decimals (1 byte) + isInitialized (1 byte) + owner (4 bytes?)
-                if len(mint_data) >= 40:
-                    supply = struct.unpack("<Q", mint_data[32:40])[0]
-                    decimals = self._get_mint_decimals(mint)
-                    human_supply = supply / (10 ** (decimals or 6))
+                # Use spl.token.core's MINT_LAYOUT to properly parse the mint account
+                mint_info = MINT_LAYOUT.parse(mint_data)
+                if mint_info and hasattr(mint_info, 'supply') and hasattr(mint_info, 'decimals'):
+                    supply_raw = mint_info.supply
+                    decimals = mint_info.decimals
+                    human_supply = supply_raw / (10 ** (decimals or 6))
                     print(f"[TOKEN SUPPLY] {mint[:8]}...: {human_supply:,.2f} tokens (decimals: {decimals})")
                     return human_supply
             except Exception as e:
                 print(f"[TOKEN SUPPLY] Error parsing mint data: {e}")
                 return None
-            
+
             return None
 
         except Exception as e:
@@ -2997,14 +2996,18 @@ HTML_TEMPLATE = '''
                     // Use pre-calculated USD price if available, otherwise calculate from SOL rate
                     let onChainUsd = data.on_chain_price_usd;
                     if (!onChainUsd) {
-                        // Fallback: Calculate SOL/USD rate from DexScreener data if available
-                        if (data.dexscreener_data && data.dexscreener_data.priceNative && data.dexscreener_data.priceUsd) {
+                        // Calculate from SOL/USD rate if available
+                        if (data.sol_usd_price && data.sol_usd_price > 0) {
+                            onChainUsd = data.on_chain_price * data.sol_usd_price;
+                        }
+                        // Fallback: Calculate from DexScreener data if available
+                        if (!onChainUsd && data.dexscreener_data && data.dexscreener_data.priceNative && data.dexscreener_data.priceUsd) {
                             const solUsdRate = data.dexscreener_data.priceUsd / data.dexscreener_data.priceNative;
                             onChainUsd = data.on_chain_price * solUsdRate;
                         }
                     }
 
-                    const onChainDisplay = onChainUsd ? formatPrice(onChainUsd) : (data.on_chain_price ? `${data.on_chain_price.toFixed(10)} SOL` : 'N/A');
+                    const onChainDisplay = onChainUsd && onChainUsd > 0 ? formatPrice(onChainUsd) : 'N/A';
 
                     html += `<div style="background: #1a2847; padding: 8px; border-radius: 4px; text-align: center;">
                         <div style="font-size: 8px; color: #888; margin-bottom: 3px;">💹 ON-CHAIN PRICE</div>
@@ -3174,7 +3177,14 @@ HTML_TEMPLATE = '''
         }
 
         function updatePoolPrices() {
-            // Update pool times only (prices are cached after initial fetch)
+            // Refetch prices for all visible pools every 30 seconds to get latest data
+            const poolCards = document.querySelectorAll('[id^="price-data-"]');
+            poolCards.forEach(priceDiv => {
+                const tokenMint = priceDiv.id.replace('price-data-', '');
+                if (tokenMint && tokenMint.length === 44) {
+                    fetchMeteoraPriceData(tokenMint);
+                }
+            });
             updateAllPoolTimes();
         }
 
@@ -3182,9 +3192,9 @@ HTML_TEMPLATE = '''
         console.log('[INIT] Setting up polling interval (every 1 second)');
         setInterval(pollForNewPools, 1000);
 
-        // Update pool prices every 2 seconds (faster updates)
-        console.log('[INIT] Setting up price update interval (every 2 seconds)');
-        setInterval(updatePoolPrices, 2000);
+        // Update pool prices every 30 seconds (match backend refresh rate)
+        console.log('[INIT] Setting up price update interval (every 30 seconds)');
+        setInterval(updatePoolPrices, 30000);
 
         // Update pool times every 1 second to show "X seconds ago" dynamically
         // Offset by 500ms to avoid race conditions with polling

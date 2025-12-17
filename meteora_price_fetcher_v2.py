@@ -248,19 +248,25 @@ def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = F
             vault_i, info_i = token_vaults[i]
             vault_j, info_j = token_vaults[j]
 
-            if info_i['human'] <= 0 or info_j['human'] <= 0:
+            # Skip pairs where BOTH vaults are zero/empty
+            if info_i['human'] <= 0 and info_j['human'] <= 0:
+                continue
+
+            # For depleted pools, allow calculating with one empty vault
+            # For non-depleted pools, skip if either is empty
+            if not is_depleted and (info_i['human'] <= 0 or info_j['human'] <= 0):
                 continue
 
             # Check if either vault is a known quote token
             is_i_quote = info_i['mint'] in KNOWN_QUOTES or info_i['mint'] == sol_mint
             is_j_quote = info_j['mint'] in KNOWN_QUOTES or info_j['mint'] == sol_mint
 
-            # Try both directions
-            price_j_per_i = info_j['human'] / info_i['human']
-            price_i_per_j = info_i['human'] / info_j['human']
+            # Try both directions (handle division by zero)
+            price_j_per_i = info_j['human'] / info_i['human'] if info_i['human'] > 0 else float('inf')
+            price_i_per_j = info_i['human'] / info_j['human'] if info_j['human'] > 0 else float('inf')
 
             # Process j/i direction (quote/base)
-            if price_j_per_i > 0:
+            if price_j_per_i > 0 and price_j_per_i != float('inf'):
                 this_is_quote_pair = is_j_quote  # j is in numerator (quote)
 
                 should_update = False
@@ -290,7 +296,7 @@ def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = F
                     best_is_quote_pair = this_is_quote_pair
 
             # Process i/j direction (quote/base)
-            if price_i_per_j > 0:
+            if price_i_per_j > 0 and price_i_per_j != float('inf'):
                 this_is_quote_pair = is_i_quote  # i is in numerator (quote)
 
                 should_update = False
@@ -363,9 +369,11 @@ def get_damm_v2_price(pool_address: str, verbose: bool = False) -> Optional[floa
         best = calculate_best_price(token_vaults, verbose=verbose)
 
         if best:
-            if best.get('warning') == 'POOL_DEPLETED':
+            # Handle both old and new depletion indicators
+            if best.get('warning') == 'POOL_DEPLETED' or best.get('is_depleted'):
                 if verbose:
-                    print(f"  ⚠️  Pool appears depleted: {best['reason']}")
+                    reason = best.get('depletion_reason', best.get('reason', 'Pool appears depleted'))
+                    print(f"  ⚠️  Pool appears depleted: {reason}")
                 # Still return the price even if depleted, but log it
                 if best.get('price') is not None:
                     if verbose:

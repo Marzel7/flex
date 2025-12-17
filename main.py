@@ -3013,7 +3013,8 @@ HTML_TEMPLATE = '''
                 let html = '';
 
                 // On-chain price display
-                if (data.on_chain_price) {
+                // Always display price if it's a valid number (not null, undefined, or 0)
+                if (data.on_chain_price !== null && data.on_chain_price !== undefined && data.on_chain_price !== 0) {
                     // Use pre-calculated USD price if available, otherwise calculate from SOL rate
                     let onChainUsd = data.on_chain_price_usd;
                     if (!onChainUsd) {

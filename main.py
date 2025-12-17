@@ -2206,6 +2206,25 @@ class RaydiumMonitor:
                                                         sol_usd_price = dex_data['priceUsd'] / dex_data['priceNative']
                                                         print(f"[DEXSCREENER INIT] ✓ Calculated SOL/USD rate: {sol_usd_price:.8f}")
 
+                                                        # VALIDATION: Compare on-chain price with DexScreener
+                                                        if initial_price is not None and initial_price > 0:
+                                                            dex_price_native = dex_data.get('priceNative', 0)
+                                                            if dex_price_native and dex_price_native > 0:
+                                                                price_ratio = initial_price / dex_price_native
+                                                                price_diff_pct = abs(initial_price - dex_price_native) / dex_price_native * 100
+                                                                print(f"[PRICE VALIDATION] On-chain: {initial_price:.10e} SOL vs DexScreener: {dex_price_native:.10e} SOL")
+                                                                print(f"[PRICE VALIDATION] Ratio: {price_ratio:.4f}, Difference: {price_diff_pct:.2f}%")
+                                                                if price_diff_pct > 50:
+                                                                    print(f"[PRICE VALIDATION] ⚠️  WARNING: Large price discrepancy (>{50}%)! Check on-chain calculation.")
+                                                            # Calculate expected market cap from DexScreener USD price
+                                                            if dex_data.get('priceUsd') and total_supply:
+                                                                expected_mcap_usd = dex_data['priceUsd'] * total_supply
+                                                                actual_mcap_usd = (initial_price * sol_usd_price) * total_supply if initial_price else 0
+                                                                print(f"[PRICE VALIDATION] Market Cap - Expected (DexScreener): ${expected_mcap_usd:,.2f}, Actual (on-chain): ${actual_mcap_usd:,.2f}")
+                                                                if expected_mcap_usd > 0 and actual_mcap_usd > 0:
+                                                                    mcap_ratio = actual_mcap_usd / expected_mcap_usd
+                                                                    print(f"[PRICE VALIDATION] Market Cap Ratio: {mcap_ratio:.4f}")
+
                                             # Broadcast new pool to UI immediately with snake_case field names
                                             broadcast_data = {
                                                 'amm_id': pool_data.get('ammId'),

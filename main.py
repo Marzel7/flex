@@ -2646,16 +2646,6 @@ HTML_TEMPLATE = '''
             color: #8892b0;
         }
 
-        .pool-change {
-            font-size: 12px;
-            font-weight: 600;
-            color: #00d084;
-        }
-
-        .pool-change.negative {
-            color: #ff6b6b;
-        }
-
         .sidebar {
             display: flex;
             flex-direction: column;
@@ -3020,7 +3010,7 @@ HTML_TEMPLATE = '''
 
                     const onChainDisplay = onChainUsd ? formatPrice(onChainUsd) : (data.on_chain_price ? `${data.on_chain_price.toFixed(10)} SOL` : 'N/A');
 
-                    html += `<div style="background: #1a2847; padding: 8px; border-radius: 4px; border: 2px solid #00d4ff; text-align: center;">
+                    html += `<div style="background: #1a2847; padding: 8px; border-radius: 4px; text-align: center;">
                         <div style="font-size: 8px; color: #888; margin-bottom: 3px;">💹 ON-CHAIN PRICE</div>
                         <div style="font-size: 12px; color: #00d4ff; font-weight: bold; word-break: break-all;">${onChainDisplay}</div>
                         <div style="font-size: 9px; color: #0088ff; margin-top: 3px;">Supply: ${data.total_supply ? (data.total_supply / 1e9).toFixed(2) + 'B' : 'N/A'}</div>
@@ -3092,7 +3082,6 @@ HTML_TEMPLATE = '''
                     </div>
                     <div class="pool-right">
                         <div class="pool-time" data-first-seen="${pool.first_seen}">${formatActiveTime(pool.first_seen)}</div>
-                        <div class="pool-change ${changeClass}">${changePercent >= 0 ? '+' : ''}${changePercent}%</div>
                         <div id="price-data-${pool.base_mint}" style="font-size: 11px; margin-top: 8px; padding: 8px; background: #0f1429; border-radius: 4px;"></div>
                     </div>
                 </div>
@@ -3219,19 +3208,6 @@ HTML_TEMPLATE = '''
                             // Find the pool element by amm_id and update prices
                             const poolElements = document.querySelectorAll('.pool-item');
                             poolElements.forEach(poolEl => {
-                                // Update price change percentage
-                                const changeEl = poolEl.querySelector('.pool-change');
-                                if (changeEl) {
-                                    const newPercent = poolUpdate.price_change_percent;
-                                    const newText = `${newPercent >= 0 ? '+' : ''}${newPercent.toFixed(2)}%`;
-                                    if (changeEl.textContent !== newText) {
-                                        changeEl.textContent = newText;
-                                        changeEl.classList.toggle('negative', newPercent < 0);
-                                        changeEl.classList.toggle('positive', newPercent >= 0);
-                                        console.log(`[PRICE UPDATE] ✓ Updated ${poolUpdate.amm_id?.slice(0,8)}... change: ${newText}`);
-                                    }
-                                }
-
 
                                 // Update DexScreener price if available
                                 if (poolUpdate.dexscreener_price_usd) {

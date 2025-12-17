@@ -3198,15 +3198,8 @@ HTML_TEMPLATE = '''
         }
 
         function updatePoolPrices() {
-            // Poll for price updates for existing pools
-            const poolElements = document.querySelectorAll('.pool-item');
-            poolElements.forEach(poolEl => {
-                const baseMint = poolEl.id.replace('pool-', '');
-                if (baseMint && baseMint.length === 44) {
-                    // Re-fetch price data for each pool
-                    fetchMeteoraPriceData(baseMint);
-                }
-            });
+            // Update pool times only (prices are cached after initial fetch)
+            updateAllPoolTimes();
         }
 
         // Poll for new pools every 1 second (near real-time updates)

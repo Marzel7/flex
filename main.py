@@ -3082,7 +3082,7 @@ HTML_TEMPLATE = '''
                     </div>
                     <div class="pool-right">
                         <div class="pool-time" data-first-seen="${pool.first_seen}">${formatActiveTime(pool.first_seen)}</div>
-                        <div id="price-data-${pool.base_mint}" style="font-size: 11px; margin-top: 8px; padding: 8px; background: #0f1429; border-radius: 4px;"></div>
+                        <div id="price-data-${pool.base_mint}" style="font-size: 11px; margin-top: 8px; padding: 8px; background: transparent; border: none; border-radius: 4px;"></div>
                     </div>
                 </div>
             `;

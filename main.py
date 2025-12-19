@@ -386,6 +386,26 @@ class RaydiumDatabase:
             CREATE INDEX IF NOT EXISTS idx_first_seen ON pools(first_seen)
         ''')
 
+        # Create liquidity events table for monitoring
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS liquidity_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                pool_address TEXT NOT NULL,
+                event_type TEXT,
+                severity TEXT,
+                price_change_pct REAL,
+                timestamp TIMESTAMP,
+                UNIQUE(pool_address, timestamp)
+            )
+        ''')
+
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_pool_address ON liquidity_events(pool_address)
+        ''')
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_event_timestamp ON liquidity_events(timestamp)
+        ''')
+
         conn.commit()
         conn.close()
         print(f"Database initialized: {self.db_name}")
@@ -2266,6 +2286,12 @@ class RaydiumMonitor:
                                             pool_broadcast_queue.put(broadcast_data)
                                             print(f"[BROADCAST] Queue size after: {pool_broadcast_queue.qsize()}")
 
+                                            # Start liquidity monitoring for this pool
+                                            pool_address = pool_data.get('ammId')
+                                            pool_symbol = broadcast_data.get('symbol', 'UNKNOWN')
+                                            if pool_address:
+                                                start_liquidity_monitor_for_pool(pool_address, pool_symbol)
+
                         except asyncio.TimeoutError:
                             # Send ping to keep connection alive
                             await ws.ping()
@@ -2397,6 +2423,11 @@ pool_broadcast_queue = queue.Queue()
 # Global pause state for new pool listening
 pause_new_pools = False
 pause_lock = threading.Lock()
+
+# Liquidity monitoring state
+liquidity_monitors = {}  # pool_address -> monitor_thread
+liquidity_monitoring_enabled = True
+liquidity_monitoring_lock = threading.Lock()
 
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
@@ -3485,13 +3516,171 @@ def toggle_pause():
 def get_pause_status():
     """Get current pause state"""
     global pause_new_pools
-    
+
     with pause_lock:
         current_state = pause_new_pools
-    
+
     return jsonify({
         'paused': current_state
     })
+
+@app.route('/api/liquidity-events', methods=['GET'])
+def get_liquidity_events():
+    """Get recent liquidity removal events"""
+    try:
+        pool_address = request.args.get('pool')
+        limit = request.args.get('limit', 20, type=int)
+
+        conn = monitor.db.get_connection()
+        cursor = conn.cursor()
+
+        if pool_address:
+            cursor.execute('''
+                SELECT pool_address, event_type, severity, price_change_pct, timestamp
+                FROM liquidity_events
+                WHERE pool_address = ?
+                ORDER BY timestamp DESC
+                LIMIT ?
+            ''', (pool_address, limit))
+        else:
+            cursor.execute('''
+                SELECT pool_address, event_type, severity, price_change_pct, timestamp
+                FROM liquidity_events
+                ORDER BY timestamp DESC
+                LIMIT ?
+            ''', (limit,))
+
+        events = []
+        for row in cursor.fetchall():
+            events.append({
+                'pool_address': row[0],
+                'event_type': row[1],
+                'severity': row[2],
+                'price_change_pct': row[3],
+                'timestamp': row[4]
+            })
+
+        conn.close()
+
+        return jsonify({
+            'events': events,
+            'count': len(events)
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/monitoring-status', methods=['GET'])
+def get_monitoring_status():
+    """Get status of liquidity monitoring"""
+    global liquidity_monitors, liquidity_monitoring_enabled
+
+    with liquidity_monitoring_lock:
+        active_monitors = list(liquidity_monitors.keys())
+
+    return jsonify({
+        'monitoring_enabled': liquidity_monitoring_enabled,
+        'active_monitors': len(active_monitors),
+        'monitored_pools': active_monitors
+    })
+
+def start_liquidity_monitor_for_pool(pool_address: str, pool_symbol: str) -> None:
+    """Start a background liquidity monitor for a specific pool
+
+    Monitors the pool for liquidity removal events using test_liquidity_monitoring.py
+    This runs in a separate thread to avoid blocking the main app.
+    """
+    global liquidity_monitors, liquidity_monitoring_enabled
+
+    # Check if already monitoring
+    if pool_address in liquidity_monitors:
+        return
+
+    if not liquidity_monitoring_enabled:
+        return
+
+    def monitor_thread():
+        """Run liquidity monitoring in background"""
+        try:
+            from establish_baseline_price import BaselinePriceManager
+
+            manager = BaselinePriceManager(pool_address)
+
+            # Establish baseline if not exists
+            if not manager.baseline_data:
+                print(f"[LIQUIDITY MONITOR] Establishing baseline for {pool_symbol} ({pool_address[:16]}...)")
+                baseline_data = manager.establish_baseline(num_samples=3)
+                if baseline_data:
+                    manager.save_baseline(baseline_data)
+                    print(f"[LIQUIDITY MONITOR] ✓ Baseline established for {pool_symbol}")
+                else:
+                    print(f"[LIQUIDITY MONITOR] ✗ Failed to establish baseline for {pool_symbol}")
+                    return
+
+            # Monitor for events (every 30 seconds, check for up to 24 hours)
+            print(f"[LIQUIDITY MONITOR] Starting monitoring for {pool_symbol}")
+            check_count = 0
+            max_checks = 2880  # 24 hours at 30-second intervals
+
+            while liquidity_monitoring_enabled and check_count < max_checks:
+                check_count += 1
+
+                # Get current price and check for events
+                result = manager.check_against_baseline()
+
+                if result and result.get('alerts'):
+                    # Alert detected!
+                    alerts = result['alerts']
+                    for alert in alerts:
+                        print(f"\n[LIQUIDITY MONITOR] 🔴 ALERT: {pool_symbol}")
+                        print(f"  Type: {alert['type']}")
+                        print(f"  Message: {alert['message']}")
+                        print(f"  Cause: {alert['cause']}")
+
+                        # Store alert in database
+                        try:
+                            conn = monitor.db.get_connection()
+                            cursor = conn.cursor()
+                            cursor.execute('''
+                                INSERT OR IGNORE INTO liquidity_events (
+                                    pool_address, event_type, severity, price_change_pct,
+                                    timestamp
+                                ) VALUES (?, ?, ?, ?, ?)
+                            ''', (
+                                pool_address,
+                                'LIQUIDITY_REMOVAL',
+                                alert['type'],
+                                result.get('change_pct', 0),
+                                datetime.now().isoformat()
+                            ))
+                            conn.commit()
+                            conn.close()
+                        except Exception as e:
+                            print(f"[LIQUIDITY MONITOR] Error saving alert: {e}")
+
+                import time
+                time.sleep(30)  # Check every 30 seconds
+
+        except Exception as e:
+            print(f"[LIQUIDITY MONITOR] Error monitoring {pool_symbol}: {e}")
+            import traceback
+            traceback.print_exc()
+        finally:
+            # Remove from active monitors when done
+            with liquidity_monitoring_lock:
+                if pool_address in liquidity_monitors:
+                    del liquidity_monitors[pool_address]
+                    print(f"[LIQUIDITY MONITOR] Stopped monitoring {pool_symbol}")
+
+    # Start monitoring in background thread
+    thread = threading.Thread(target=monitor_thread, daemon=True)
+    thread.name = f"LiquidityMonitor-{pool_symbol}"
+
+    with liquidity_monitoring_lock:
+        liquidity_monitors[pool_address] = thread
+
+    thread.start()
+    print(f"[LIQUIDITY MONITOR] Started background thread for {pool_symbol}")
 
 def main():
     """Main function to run the monitor with web UI"""

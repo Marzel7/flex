@@ -223,10 +223,20 @@ def is_pool_depleted(token_vaults: List[Tuple[str, Dict]]) -> bool:
 def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = False) -> Optional[Dict]:
     """
     Calculate the best price from vault pairs
+
+    IMPORTANT: Vault-based pricing works well for simple DAMM pools but is
+    fundamentally inaccurate for Meteora DLMM bin-based AMMs, which require
+    reading the active bin ID from the pool account (complex binary parsing).
+
+    For multi-bin pools (many vaults), we use a heuristic approach that may
+    not match the true active bin price.
+
     Priority:
-    1. Use known quote tokens (SOL) over token/token pairs
-    2. Among same-type pairs, prefer larger base token balances (better liquidity)
-    3. Fall back to price closer to 1.0 if balances similar
+    1. Avoid quote-only pairs (e.g., SOL/SOL) - need one token + one quote
+    2. Prefer known quote tokens (SOL) as the quote currency
+    3. For many vaults (Meteora-style): prefer smaller vault pairs (might be active bins)
+    4. For few vaults (Raydium-style): prefer larger balances (more liquidity)
+    5. Fall back to price closer to 1.0 if balances similar
 
     Returns: {price, base_vault_idx, quote_vault_idx, explanation, warning}
     """
@@ -242,6 +252,9 @@ def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = F
     sol_mint = "So11111111111111111111111111111111111111112"
     best_result = None
     best_is_quote_pair = False  # Track if we found a pair with known quote
+
+    # Detect if this is a multi-bin pool (like Meteora) or simple pool
+    is_multibin = len(token_vaults) > 6  # Heuristic: many vaults = multi-bin
 
     for i in range(len(token_vaults)):
         for j in range(i + 1, len(token_vaults)):
@@ -261,13 +274,18 @@ def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = F
             is_i_quote = info_i['mint'] in KNOWN_QUOTES or info_i['mint'] == sol_mint
             is_j_quote = info_j['mint'] in KNOWN_QUOTES or info_j['mint'] == sol_mint
 
+            # Skip if both are quote tokens (quote/quote pair is meaningless)
+            if is_i_quote and is_j_quote:
+                continue
+
             # Try both directions (handle division by zero)
             price_j_per_i = info_j['human'] / info_i['human'] if info_i['human'] > 0 else float('inf')
             price_i_per_j = info_i['human'] / info_j['human'] if info_j['human'] > 0 else float('inf')
 
             # Process j/i direction (quote/base)
+            # j is quote (numerator), i is base (denominator)
             if price_j_per_i > 0 and price_j_per_i != float('inf'):
-                this_is_quote_pair = is_j_quote  # j is in numerator (quote)
+                this_is_quote_pair = is_j_quote and not is_i_quote  # j quote, i not quote
 
                 should_update = False
                 if best_result is None:
@@ -276,13 +294,20 @@ def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = F
                     # Prefer quote pairs over token/token pairs
                     should_update = True
                 elif this_is_quote_pair == best_is_quote_pair:
-                    # Both are same type - prefer larger base balance (better liquidity)
+                    # Both are same type - selection depends on pool type
                     best_base_balance = token_vaults[best_result['base_idx']][1]['human']
-                    if info_i['human'] > best_base_balance * 1.1:  # 10% threshold to avoid churn
-                        should_update = True
-                    elif abs(info_i['human'] - best_base_balance) / best_base_balance < 0.1:
-                        # Balances are similar - prefer price closer to 1.0 for readability
-                        should_update = abs(price_j_per_i - 1) < abs(best_result['price'] - 1)
+
+                    if is_multibin and this_is_quote_pair:
+                        # For multi-bin pools with quote pairs: prefer SMALLER balances (active bins)
+                        if info_i['human'] > 0 and info_i['human'] < best_base_balance * 2:
+                            should_update = True
+                    else:
+                        # For simple pools or non-quote pairs: prefer LARGER balances (better liquidity)
+                        if info_i['human'] > best_base_balance * 1.1:  # 10% threshold to avoid churn
+                            should_update = True
+                        elif abs(info_i['human'] - best_base_balance) / best_base_balance < 0.1:
+                            # Balances are similar - prefer price closer to 1.0 for readability
+                            should_update = abs(price_j_per_i - 1) < abs(best_result['price'] - 1)
 
                 if should_update:
                     best_result = {
@@ -306,13 +331,20 @@ def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = F
                     # Prefer quote pairs over token/token pairs
                     should_update = True
                 elif this_is_quote_pair == best_is_quote_pair:
-                    # Both are same type - prefer larger base balance (better liquidity)
+                    # Both are same type - selection depends on pool type
                     best_base_balance = token_vaults[best_result['base_idx']][1]['human']
-                    if info_j['human'] > best_base_balance * 1.1:  # 10% threshold to avoid churn
-                        should_update = True
-                    elif abs(info_j['human'] - best_base_balance) / best_base_balance < 0.1:
-                        # Balances are similar - prefer price closer to 1.0
-                        should_update = abs(price_i_per_j - 1) < abs(best_result['price'] - 1)
+
+                    if is_multibin and this_is_quote_pair:
+                        # For multi-bin pools with quote pairs: prefer SMALLER balances (active bins)
+                        if info_j['human'] > 0 and info_j['human'] < best_base_balance * 2:
+                            should_update = True
+                    else:
+                        # For simple pools or non-quote pairs: prefer LARGER balances (better liquidity)
+                        if info_j['human'] > best_base_balance * 1.1:  # 10% threshold to avoid churn
+                            should_update = True
+                        elif abs(info_j['human'] - best_base_balance) / best_base_balance < 0.1:
+                            # Balances are similar - prefer price closer to 1.0
+                            should_update = abs(price_i_per_j - 1) < abs(best_result['price'] - 1)
 
                 if should_update:
                     best_result = {

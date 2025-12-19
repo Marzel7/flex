@@ -1342,47 +1342,62 @@ class RaydiumMonitor:
             return None
 
     def fetch_pool_price(self, amm_id: str, base_mint: str, signature: str = None) -> Dict:
-        """Fetch current price using V2 fetcher logic for proven reliability
+        """Fetch current price by directly calculating from vault balances
 
+        Uses proven working vault extraction logic instead of relying on V2 fetcher.
         Returns: {'price': float, 'is_depleted': bool, 'depletion_reason': str or None}
         """
         try:
             print(f"[PRICE FETCH] Fetching price for base_mint={base_mint[:8]}... amm_id={amm_id[:8]}...")
 
-            # Import V2 functions dynamically (cache to avoid repeated imports)
-            if not hasattr(self, '_v2_fetcher_cache'):
-                import importlib.util
-                spec = importlib.util.spec_from_file_location("v2", "/Users/kevinkeaveney/Dev/claude/flex/meteora_price_fetcher_v2.py")
-                self._v2_fetcher_cache = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(self._v2_fetcher_cache)
-                print(f"[PRICE FETCH] ℹ Loaded V2 fetcher module")
+            # If signature is provided, use it to extract vaults; otherwise look up from recent transactions
+            tx_sig = signature
+            if not tx_sig:
+                try:
+                    # Get the most recent transaction for this pool
+                    result = self.rpc_call("getSignaturesForAddress", [amm_id, {"limit": 1}])
+                    if result and result.get("result") and result["result"]:
+                        tx_sig = result["result"][0]["signature"]
+                    else:
+                        print(f"[PRICE FETCH] ⚠ No transactions found for pool {amm_id[:8]}...")
+                        return {'price': None, 'is_depleted': False, 'depletion_reason': None}
+                except Exception as e:
+                    print(f"[PRICE FETCH] ⚠ Failed to get tx signature: {e}")
+                    return {'price': None, 'is_depleted': False, 'depletion_reason': None}
 
-            v2 = self._v2_fetcher_cache
+            # Extract vaults from transaction
+            vaults = self._extract_vaults_from_tx(tx_sig, amm_id)
+            if not vaults or len(vaults) < 2:
+                print(f"[PRICE FETCH] ⚠ Could not find 2+ vaults (found {len(vaults)})")
+                return {'price': None, 'is_depleted': False, 'depletion_reason': None}
 
-            # Use V2 fetcher which has proven working logic
-            try:
-                # Use fetch_price() which returns complete data structure with price, depletion info, etc.
-                fetch_result = v2.fetch_price(amm_id, verbose=False)
-                price = fetch_result.get('on_chain_price')
+            # Get vault balances
+            token_vaults = []
+            for vault_addr in vaults:
+                vault_data = self._get_vault_info(vault_addr)
+                if vault_data:
+                    token_vaults.append((vault_addr, vault_data))
 
-                if price is not None and price > 0:
-                    print(f"[PRICE FETCH] ✓ Successfully fetched price: {price:.18f} SOL")
-                    return {
-                        'price': price,
-                        'is_depleted': fetch_result.get('is_depleted', False),
-                        'depletion_reason': fetch_result.get('depletion_reason')
-                    }
-                else:
-                    print(f"[PRICE FETCH] ⚠ V2 fetcher returned no price (pool may be depleted or not found)")
-                    return {
-                        'price': None,
-                        'is_depleted': fetch_result.get('is_depleted', True),
-                        'depletion_reason': fetch_result.get('depletion_reason', 'No valid price returned')
-                    }
-            except Exception as e:
-                print(f"[PRICE FETCH] ⚠ V2 fetcher error: {e}")
-                import traceback
-                traceback.print_exc()
+            if len(token_vaults) < 2:
+                print(f"[PRICE FETCH] ⚠ Could not get valid vault data (got {len(token_vaults)} vaults)")
+                return {'price': None, 'is_depleted': False, 'depletion_reason': None}
+
+            # Calculate best price from vaults
+            best_price_result = self._calculate_best_price(token_vaults)
+            if not best_price_result or best_price_result.get('price') is None:
+                print(f"[PRICE FETCH] ⚠ Could not calculate price from vaults")
+                return {'price': None, 'is_depleted': False, 'depletion_reason': None}
+
+            price = best_price_result['price']
+            if price > 0:
+                print(f"[PRICE FETCH] ✓ Successfully fetched price: {price:.18f} SOL")
+                return {
+                    'price': price,
+                    'is_depleted': False,
+                    'depletion_reason': None
+                }
+            else:
+                print(f"[PRICE FETCH] ⚠ Calculated price was zero or negative")
                 return {'price': None, 'is_depleted': False, 'depletion_reason': None}
 
         except Exception as e:

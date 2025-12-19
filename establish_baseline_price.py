@@ -46,6 +46,55 @@ class BaselinePriceManager:
             except Exception as e:
                 print(f"⚠️  Could not load baseline: {e}")
 
+    def estimate_liquidity_removal(self, price_ratio: float) -> float:
+        """
+        Estimate percentage of liquidity removed based on price ratio change
+
+        For a constant-product AMM (x * y = k):
+        - If one side (e.g., SOL) is removed, the other side's price decreases
+        - Price ratio = current_price / baseline_price
+        - Liquidity removal affects vault balances proportionally
+
+        For simple pools:
+          liquidity_removed ≈ 1 - (1 / price_ratio) if price_ratio < 1
+          liquidity_removed ≈ 1 - price_ratio if price_ratio > 1
+
+        For Meteora DLMM (approximation):
+          The relationship is more complex due to multiple bins,
+          but we can approximate based on vault balance changes.
+
+        Returns: Estimated percentage of liquidity removed (0-100)
+        """
+        if price_ratio <= 0:
+            return 100.0  # Complete removal
+
+        if price_ratio == 1.0:
+            return 0.0  # No removal
+
+        # For a price drop (ratio < 1): token side was drained
+        # For a price increase (ratio > 1): SOL side was drained
+
+        if price_ratio < 1:
+            # Price dropped - token side liquidity removed
+            # liquidity_removed = 1 - (1 / ratio)
+            # Examples:
+            #   ratio = 0.5 -> 1 - 2.0 = -1.0 (not used, use different formula)
+            #   ratio = 0.5 -> removed = 50%
+            #   ratio = 0.25 -> removed = 75%
+            #   ratio = 0.1 -> removed = 90%
+            liquidity_removed = (1 - price_ratio) * 100
+        else:
+            # Price increased - SOL side liquidity removed
+            # liquidity_removed = (ratio - 1) / ratio * 100
+            # Examples:
+            #   ratio = 2.0 -> removed = 50%
+            #   ratio = 4.0 -> removed = 75%
+            #   ratio = 10.0 -> removed = 90%
+            liquidity_removed = (1 - (1 / price_ratio)) * 100
+
+        # Cap at 100% (can't remove more than 100%)
+        return min(liquidity_removed, 100.0)
+
     def establish_baseline(self, num_samples: int = 5) -> Optional[Dict]:
         """
         Establish baseline price by taking multiple samples and averaging
@@ -182,10 +231,18 @@ class BaselinePriceManager:
         ratio = current_price / baseline_price if baseline_price > 0 else 0
         change_pct = (ratio - 1) * 100
 
+        # Calculate liquidity removal percentage
+        # When price drops, it means vault balances changed
+        # Lower price = vault was drained
+        liquidity_removed_pct = self.estimate_liquidity_removal(ratio)
+
         print(f"Baseline Price:  ${baseline_price:.18f}")
         print(f"Current Price:   ${current_price:.18f}")
         print(f"Change:          {change_pct:+.2f}%")
         print(f"Ratio:           {ratio:.6f}x")
+        print(f"\nLiquidity Removal Estimate:")
+        print(f"  Price ratio: {ratio:.6f}x")
+        print(f"  Estimated liquidity removed: {liquidity_removed_pct:.1f}%")
 
         # Detect anomalies
         alerts = []
@@ -231,6 +288,7 @@ class BaselinePriceManager:
             'current_price': current_price,
             'change_pct': change_pct,
             'ratio': ratio,
+            'liquidity_removed_pct': liquidity_removed_pct,
             'alerts': alerts,
             'check_time': datetime.now().isoformat()
         }

@@ -394,10 +394,17 @@ class RaydiumDatabase:
                 event_type TEXT,
                 severity TEXT,
                 price_change_pct REAL,
+                liquidity_removed_pct REAL,
                 timestamp TIMESTAMP,
                 UNIQUE(pool_address, timestamp)
             )
         ''')
+
+        # Add liquidity_removed_pct column if it doesn't exist (for existing databases)
+        try:
+            cursor.execute('ALTER TABLE liquidity_events ADD COLUMN liquidity_removed_pct REAL')
+        except sqlite3.OperationalError:
+            pass
 
         cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_pool_address ON liquidity_events(pool_address)
@@ -3536,7 +3543,7 @@ def get_liquidity_events():
 
         if pool_address:
             cursor.execute('''
-                SELECT pool_address, event_type, severity, price_change_pct, timestamp
+                SELECT pool_address, event_type, severity, price_change_pct, liquidity_removed_pct, timestamp
                 FROM liquidity_events
                 WHERE pool_address = ?
                 ORDER BY timestamp DESC
@@ -3544,7 +3551,7 @@ def get_liquidity_events():
             ''', (pool_address, limit))
         else:
             cursor.execute('''
-                SELECT pool_address, event_type, severity, price_change_pct, timestamp
+                SELECT pool_address, event_type, severity, price_change_pct, liquidity_removed_pct, timestamp
                 FROM liquidity_events
                 ORDER BY timestamp DESC
                 LIMIT ?
@@ -3557,7 +3564,8 @@ def get_liquidity_events():
                 'event_type': row[1],
                 'severity': row[2],
                 'price_change_pct': row[3],
-                'timestamp': row[4]
+                'liquidity_removed_pct': row[4],
+                'timestamp': row[5]
             })
 
         conn.close()
@@ -3631,11 +3639,13 @@ def start_liquidity_monitor_for_pool(pool_address: str, pool_symbol: str) -> Non
                 if result and result.get('alerts'):
                     # Alert detected!
                     alerts = result['alerts']
+                    liquidity_removed = result.get('liquidity_removed_pct', 0)
                     for alert in alerts:
                         print(f"\n[LIQUIDITY MONITOR] 🔴 ALERT: {pool_symbol}")
                         print(f"  Type: {alert['type']}")
                         print(f"  Message: {alert['message']}")
                         print(f"  Cause: {alert['cause']}")
+                        print(f"  Liquidity Removed: {liquidity_removed:.1f}%")
 
                         # Store alert in database
                         try:
@@ -3644,13 +3654,14 @@ def start_liquidity_monitor_for_pool(pool_address: str, pool_symbol: str) -> Non
                             cursor.execute('''
                                 INSERT OR IGNORE INTO liquidity_events (
                                     pool_address, event_type, severity, price_change_pct,
-                                    timestamp
-                                ) VALUES (?, ?, ?, ?, ?)
+                                    liquidity_removed_pct, timestamp
+                                ) VALUES (?, ?, ?, ?, ?, ?)
                             ''', (
                                 pool_address,
                                 'LIQUIDITY_REMOVAL',
                                 alert['type'],
                                 result.get('change_pct', 0),
+                                liquidity_removed,
                                 datetime.now().isoformat()
                             ))
                             conn.commit()

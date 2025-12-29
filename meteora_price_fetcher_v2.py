@@ -282,10 +282,21 @@ def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = F
             price_j_per_i = info_j['human'] / info_i['human'] if info_i['human'] > 0 else float('inf')
             price_i_per_j = info_i['human'] / info_j['human'] if info_j['human'] > 0 else float('inf')
 
+            # IMPORTANT FIX: Check if quote token has suspiciously low balance
+            # If quote token (e.g., SOL) has < 1% of token balance, invert the pair
+            # Example: 0.00007 SOL vs 1,875,222 tokens
+            #   Normal calc: SOL/Token = 0.00007/1875222 = 3.85e-11 (WRONG - way too tiny!)
+            #   Inverted:    Token/SOL = 1875222/0.00007 = 26 billion (RIGHT - matches DEX!)
+            quote_balance_ratio_j = info_j['human'] / info_i['human'] if info_i['human'] > 0 else 0
+            quote_balance_ratio_i = info_i['human'] / info_j['human'] if info_j['human'] > 0 else 0
+
+            j_quote_too_small = is_j_quote and not is_i_quote and 0 < quote_balance_ratio_j < 0.01
+            i_quote_too_small = is_i_quote and not is_j_quote and 0 < quote_balance_ratio_i < 0.01
+
             # Process j/i direction (quote/base)
-            # j is quote (numerator), i is base (denominator)
-            if price_j_per_i > 0 and price_j_per_i != float('inf'):
-                this_is_quote_pair = is_j_quote and not is_i_quote  # j quote, i not quote
+            # If j is quote but suspiciously small, skip this direction (use i/j instead)
+            if price_j_per_i > 0 and price_j_per_i != float('inf') and not j_quote_too_small:
+                this_is_quote_pair = is_j_quote and not is_i_quote
 
                 should_update = False
                 if best_result is None:
@@ -321,8 +332,9 @@ def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = F
                     best_is_quote_pair = this_is_quote_pair
 
             # Process i/j direction (quote/base)
-            if price_i_per_j > 0 and price_i_per_j != float('inf'):
-                this_is_quote_pair = is_i_quote  # i is in numerator (quote)
+            # If i is quote but suspiciously small, skip this direction (use j/i instead)
+            if price_i_per_j > 0 and price_i_per_j != float('inf') and not i_quote_too_small:
+                this_is_quote_pair = is_i_quote and not is_j_quote
 
                 should_update = False
                 if best_result is None:
@@ -366,7 +378,11 @@ def calculate_best_price(token_vaults: List[Tuple[str, Dict]], verbose: bool = F
 
 
 def get_damm_v2_price(pool_address: str, verbose: bool = False) -> Optional[float]:
-    """Get DAMM V2 pool price from vault balances"""
+    """Get DAMM V2 pool price from vault balances
+
+    Returns price in the format: quote_balance / base_balance
+    For a token/SOL pair, this returns: SOL / token (price in SOL per token)
+    """
     try:
         # Get pool account info
         result = rpc_call("getAccountInfo", [pool_address, {"encoding": "base64"}])
@@ -401,25 +417,24 @@ def get_damm_v2_price(pool_address: str, verbose: bool = False) -> Optional[floa
         best = calculate_best_price(token_vaults, verbose=verbose)
 
         if best:
-            # Handle both old and new depletion indicators
-            if best.get('warning') == 'POOL_DEPLETED' or best.get('is_depleted'):
+            price = best.get('price')
+            is_depleted = best.get('warning') == 'POOL_DEPLETED' or best.get('is_depleted')
+
+            if is_depleted:
                 if verbose:
                     reason = best.get('depletion_reason', best.get('reason', 'Pool appears depleted'))
                     print(f"  ⚠️  Pool appears depleted: {reason}")
-                # Still return the price even if depleted, but log it
-                if best.get('price') is not None:
-                    if verbose:
-                        print(f"  📊 Returning price despite depletion: {best['price']:.18f}")
-                    return best['price']
-                return None
 
-            if best.get('price') is not None:
+            if price is not None:
                 if verbose:
                     base_sym = get_token_symbol(best['base_mint']) or best['base_mint'][:8]
                     quote_sym = get_token_symbol(best['quote_mint']) or best['quote_mint'][:8]
-                    print(f"  Price calculation: {quote_sym} / {base_sym}")
+                    print(f"  Price: {quote_sym} / {base_sym}")
+                    print(f"  Value: {price:.18f} {quote_sym} per {base_sym}")
                     print(f"  Direction: {best['direction']}")
-                return best['price']
+                    if is_depleted and not verbose:
+                        print(f"  📊 Returning price despite depletion: {price:.18f}")
+                return price
 
         return None
 

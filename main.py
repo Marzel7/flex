@@ -1433,6 +1433,141 @@ class RaydiumMonitor:
             traceback.print_exc()
             return {'price': None, 'is_depleted': False, 'depletion_reason': None}
 
+    def _extract_vaults_from_tx(self, tx_sig: str, pool_address: str) -> List[str]:
+        """Extract vault addresses from pool creation transaction, including inner instructions"""
+        try:
+            response = requests.post(
+                self.rpc_http_url,
+                json={
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getTransaction",
+                    "params": [tx_sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+                },
+                timeout=10
+            )
+            result = response.json()
+            if "error" in result or not result.get("result"):
+                return []
+
+            tx_data = result["result"]
+            accounts = tx_data["transaction"]["message"]["accountKeys"]
+            account_keys = [acc["pubkey"] for acc in accounts]
+
+            # Filter SPL token accounts from main instruction
+            vaults = []
+            for acc in account_keys:
+                if acc != pool_address and len(acc) == 44:
+                    if self._is_token_account(acc):
+                        vaults.append(acc)
+
+            # Also check inner instructions for vault references
+            meta = tx_data.get("meta", {})
+            inner_instructions = meta.get("innerInstructions", [])
+
+            for inner in inner_instructions:
+                for instr in inner.get("instructions", []):
+                    for idx in instr.get("accounts", []):
+                        if isinstance(idx, int) and idx < len(account_keys):
+                            acc = account_keys[idx]
+                            if acc != pool_address and acc not in vaults and len(acc) == 44:
+                                if self._is_token_account(acc):
+                                    vaults.append(acc)
+
+            # Remove duplicates while preserving order
+            vaults = list(dict.fromkeys(vaults))
+
+            return vaults
+        except Exception as e:
+            print(f"[VAULT EXTRACT] Error extracting vaults: {e}")
+            return []
+
+    def _is_token_account(self, account_addr: str) -> bool:
+        """Check if account is SPL token account"""
+        try:
+            response = requests.post(
+                self.rpc_http_url,
+                json={
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getAccountInfo",
+                    "params": [account_addr, {"encoding": "base64"}]
+                },
+                timeout=10
+            )
+            result = response.json()
+            if "error" in result or not result.get("result"):
+                return False
+            acc_info = result["result"]["value"]
+            if acc_info is None:
+                return False
+            owner = acc_info.get("owner", "")
+            return owner == "TokenkegQfeZyiNwAJsyFbPVwwQQfaut1PNcZiHon8"
+        except Exception:
+            return False
+
+    def _calculate_best_price(self, token_vaults: List[Tuple[str, Dict]]) -> Optional[Dict]:
+        """Calculate best price from vault pairs with smart selection"""
+        if len(token_vaults) < 2:
+            return None
+
+        KNOWN_QUOTES = {"EPjFWaLb3sSgvzLvtVQaVzpqDotVo1b9czwUNgYqoDW9"}  # USDC
+        SOL = "So11111111111111111111111111111111111111112"
+
+        best_result = None
+        best_is_quote_pair = False
+
+        for i in range(len(token_vaults)):
+            for j in range(i + 1, len(token_vaults)):
+                vault_i, info_i = token_vaults[i]
+                vault_j, info_j = token_vaults[j]
+
+                if info_i.get("human", 0) <= 0 or info_j.get("human", 0) <= 0:
+                    continue
+
+                is_i_quote = (
+                    info_i.get("mint") in KNOWN_QUOTES or info_i.get("mint") == SOL
+                )
+                is_j_quote = (
+                    info_j.get("mint") in KNOWN_QUOTES or info_j.get("mint") == SOL
+                )
+
+                # Try both directions
+                price_j_per_i = info_j.get("human", 0) / info_i.get("human", 1)
+                price_i_per_j = info_i.get("human", 0) / info_j.get("human", 1)
+
+                # Process j/i direction
+                if price_j_per_i > 0:
+                    this_is_quote_pair = is_j_quote
+                    should_update = False
+
+                    if best_result is None:
+                        should_update = True
+                    elif this_is_quote_pair and not best_is_quote_pair:
+                        should_update = True
+                    elif this_is_quote_pair == best_is_quote_pair:
+                        best_base_balance = token_vaults[best_result.get("base_idx", 0)][1].get("human", 0)
+                        if info_i.get("human", 0) > best_base_balance * 1.1:
+                            should_update = True
+                        elif (
+                            abs(info_i.get("human", 0) - best_base_balance) / max(best_base_balance, 1)
+                            < 0.1
+                        ):
+                            should_update = (
+                                abs(price_j_per_i - 1)
+                                < abs(best_result.get("price", 1) - 1)
+                            )
+
+                    if should_update:
+                        best_result = {
+                            "price": price_j_per_i,
+                            "base_idx": i,
+                            "quote_idx": j,
+                        }
+                        best_is_quote_pair = this_is_quote_pair
+
+        return best_result
+
     def _get_vault_info(self, vault_addr: str) -> dict:
         """Get vault balance and mint info from Solana RPC"""
         try:

@@ -1416,12 +1416,17 @@ class RaydiumMonitor:
                 return {'price': None, 'is_depleted': False, 'depletion_reason': None}
 
             price = best_price_result['price']
+            is_depleted = best_price_result.get('is_depleted', False)
+            depletion_reason = best_price_result.get('depletion_reason')
+
             if price > 0:
                 print(f"[PRICE FETCH] ✓ Successfully fetched price: {price:.18f} SOL")
+                if is_depleted:
+                    print(f"[PRICE FETCH] ⚠ Pool appears depleted: {depletion_reason}")
                 return {
                     'price': price,
-                    'is_depleted': False,
-                    'depletion_reason': None
+                    'is_depleted': is_depleted,
+                    'depletion_reason': depletion_reason
                 }
             else:
                 print(f"[PRICE FETCH] ⚠ Calculated price was zero or negative")
@@ -1506,6 +1511,35 @@ class RaydiumMonitor:
         except Exception:
             return False
 
+    def _is_pool_depleted(self, token_vaults: List[Tuple[str, Dict]]) -> bool:
+        """Check if pool appears to be depleted (liquidity removed)"""
+        if len(token_vaults) < 2:
+            return False
+
+        # Count non-zero vaults
+        non_zero_vaults = [info for _, info in token_vaults if info.get('human', 0) > 0]
+        if len(non_zero_vaults) < 2:
+            return True  # Less than 2 non-zero vaults = depleted
+
+        # Get all non-zero balances
+        balances = [info['human'] for info in non_zero_vaults if info['human'] > 0]
+        if len(balances) < 2:
+            return True
+
+        sorted_balances = sorted(balances)
+        smallest = sorted_balances[0]
+        largest = sorted_balances[-1]
+
+        # If smallest vault is nearly empty (< 0.00001), it's depleted
+        if smallest < 0.00001:
+            return True
+
+        # If smallest vault has < 0.1% of largest, it's also depleted
+        if smallest > 0 and (largest / smallest) > 1000:
+            return True
+
+        return False
+
     def _calculate_best_price(self, token_vaults: List[Tuple[str, Dict]]) -> Optional[Dict]:
         """Calculate best price from vault pairs with smart selection"""
         if len(token_vaults) < 2:
@@ -1513,6 +1547,9 @@ class RaydiumMonitor:
 
         KNOWN_QUOTES = {"EPjFWaLb3sSgvzLvtVQaVzpqDotVo1b9czwUNgYqoDW9"}  # USDC
         SOL = "So11111111111111111111111111111111111111112"
+
+        # Check for depletion
+        is_depleted = self._is_pool_depleted(token_vaults)
 
         best_result = None
         best_is_quote_pair = False
@@ -1563,8 +1600,14 @@ class RaydiumMonitor:
                             "price": price_j_per_i,
                             "base_idx": i,
                             "quote_idx": j,
+                            "is_depleted": is_depleted,
                         }
                         best_is_quote_pair = this_is_quote_pair
+
+        # Add depletion status to result
+        if best_result and is_depleted:
+            best_result["is_depleted"] = True
+            best_result["depletion_reason"] = "Vault balance ratio indicates liquidity removal"
 
         return best_result
 

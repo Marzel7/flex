@@ -105,14 +105,7 @@ class ContinuousPumpSwapListener:
             print(f"\n{'='*80}")
             print("  DETECTED PUMPSWAP TOKENS")
             print(f"{'='*80}\n")
-
-            for i, token in enumerate(self.pumpswap_tokens, 1):
-                print(f"{i}. {token.get('name', 'Unknown')} ({token.get('symbol', 'N/A')})")
-                print(f"   Mint: {token.get('mint', 'N/A')[:16]}...")
-                print(f"   Pool: {token.get('pool', 'N/A')[:16]}...")
-                print(f"   Creator: {token.get('creator', 'Unknown')}")
-                print(f"   Detected: {token.get('timestamp', 'N/A')}")
-                print()
+            print(f"Total PumpSwap tokens detected: {len(self.pumpswap_tokens)}")
 
         print("="*80)
         print("\nTo keep listening, run the script again.")

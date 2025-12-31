@@ -596,11 +596,12 @@ class PumpSwapDatabase:
 
 
 class TokenMonitor:
-    """Monitor Raydium DEX for new liquidity pools via Solana WebSocket and detect PumpSwap migrations"""
+    """Monitor PumpSwap DEX for new token migrations via Solana WebSocket"""
 
-    # Raydium AMM Program IDs
-    RAYDIUM_V4_PROGRAM = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"
-    RAYDIUM_CPMM_PROGRAM = "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"
+    # AMM Program IDs
+    PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"  # PumpSwap/Pump.fun AMM
+    RAYDIUM_V4_PROGRAM = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"  # For comparison only
+    RAYDIUM_CPMM_PROGRAM = "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"  # For comparison only
 
 
     def __init__(self, db_name: str = "pumpswap_tokens.db"):
@@ -2008,7 +2009,9 @@ class TokenMonitor:
         """Determine which DEX the pool is from based on transaction logs"""
         logs_text = ' '.join(logs)
 
-        if f'Program {self.RAYDIUM_V4_PROGRAM}' in logs_text:
+        if f'Program {self.PUMPSWAP_PROGRAM}' in logs_text:
+            return 'PumpSwap'
+        elif f'Program {self.RAYDIUM_V4_PROGRAM}' in logs_text:
             return 'Raydium V4'
         elif f'Program {self.RAYDIUM_CPMM_PROGRAM}' in logs_text:
             return 'Raydium CPMM'
@@ -2038,14 +2041,13 @@ class TokenMonitor:
         while self.is_running:
             try:
                 async with websockets.connect(self.rpc_ws_url) as ws:
-                    # Subscribe to Raydium V4 and CPMM programs
-                    # PumpSwap tokens are detected as Raydium V4 pools with bonding_curve markers
-                    await self.subscribe_to_program(ws, self.RAYDIUM_V4_PROGRAM)
-                    await self.subscribe_to_program(ws, self.RAYDIUM_CPMM_PROGRAM)
+                    # Subscribe to PumpSwap program for token migrations from Pump.fun bonding curve
+                    # PumpSwap: pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA
+                    await self.subscribe_to_program(ws, self.PUMPSWAP_PROGRAM)
 
-                    print("Listening for new pool launches from Raydium (V4 & CPMM)...")
-                    print("- Raydium V4: Filtering for 'initialize2' instruction (includes PumpSwap migrations)")
-                    print("- Raydium CPMM: Filtering for 'InitializeWithPermission' or 'Initialize' instruction")
+                    print("Listening for new token migrations from Pump.fun → PumpSwap...")
+                    print("- PumpSwap Program: Detecting pool creation events from migrated tokens")
+                    print("- Event Type: Pool creation in the PumpSwap AMM")
 
                     while self.is_running:
                         try:
@@ -2080,34 +2082,31 @@ class TokenMonitor:
                                     pool_data = self.parse_pool_from_logs(logs, signature, dex_source)
                                     pool_data['dex'] = dex_source
 
-                                    # PHASE 2: Detect PumpSwap migrations (PumpFun tokens migrated to Raydium V4)
+                                    # PHASE 2: Detect PumpSwap tokens
+                                    # Since we're now listening to PumpSwap program (pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA),
+                                    # any pool detected here IS a PumpSwap token migration
                                     is_pumpswap = False
                                     pumpswap_info = None
 
-                                    # PumpSwap detection: Check if this is a Raydium V4 pool with PumpFun characteristics
-                                    if dex_source == "Raydium V4":
-                                        # Try to detect PumpSwap markers
-                                        # Looking for: bonding curve reference + creator metadata
+                                    # PumpSwap detection: If dex_source is "PumpSwap", it's from the PumpSwap program
+                                    if dex_source == "PumpSwap":
                                         token_data = {
                                             'mint': pool_data.get('baseMint'),
                                             'name': pool_data.get('name'),
                                             'symbol': pool_data.get('symbol'),
-                                            'bonding_curve': pool_data.get('bonding_curve'),
-                                            'raydium_pool': pool_data.get('ammId'),
                                         }
 
-                                        # Use Phase 1 detection method
-                                        is_pumpswap = self.is_pumpswap_token(token_data)
+                                        # Check using updated detection method
+                                        is_pumpswap = self.is_pumpswap_token(token_data, dex_source)
 
                                         if is_pumpswap:
-                                            print(f"[PUMPSWAP] 🚀 DETECTED: PumpFun token migrated to PumpSwap!")
+                                            print(f"[PUMPSWAP] 🚀 DETECTED: Token migrated from Pump.fun bonding curve → PumpSwap!")
                                             pumpswap_info = self.get_pumpfun_origin_info(pool_data.get('baseMint'))
                                             if pumpswap_info:
                                                 print(f"[PUMPSWAP] Creator: {pumpswap_info.get('creator', 'Unknown')}")
-                                                print(f"[PUMPSWAP] Bonding Curve: {pumpswap_info.get('bonding_curve', 'Unknown')[:16]}...")
-                                                self.track_pumpswap_pool(pool_data.get('ammId'), pool_data.get('baseMint'))
-                                        else:
-                                            print(f"[PUMPSWAP] Regular Raydium V4 pool (not from PumpFun)")
+                                            self.track_pumpswap_pool(pool_data.get('ammId'), pool_data.get('baseMint'))
+                                    elif dex_source == "Raydium V4":
+                                        print(f"[RAYDIUM V4] Regular Raydium V4 pool detected (not PumpSwap)")
 
                                     # Log token address and symbol
                                     print(f"Token Address: {pool_data.get('baseMint', 'Unknown')}")
@@ -2352,30 +2351,22 @@ class TokenMonitor:
         print("[PRICE UPDATER] Price updater thread started")
         return thread
 
-    def is_pumpswap_token(self, token_data: Dict) -> bool:
-        """Check if token migrated from PumpFun to PumpSwap (Raydium V4)
+    def is_pumpswap_token(self, token_data: Dict, dex_source: str = "Unknown") -> bool:
+        """Check if pool is from PumpSwap AMM
 
-        PumpSwap is the Raydium V4 destination where PumpFun tokens migrate
-        after their bonding curve completes. This method detects PumpFun-origin
-        tokens by checking for bonding curve metadata and creator patterns.
+        Since we're now listening to the PumpSwap program (pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA),
+        a pool detected in PumpSwap IS PumpSwap by definition.
 
         Args:
             token_data: Token information dict
+            dex_source: DEX source from transaction logs
 
         Returns:
-            True if token appears to be from PumpFun → PumpSwap migration
+            True if the pool is from the PumpSwap program
         """
-        # PumpSwap tokens have specific attributes:
-        # - bonding_curve: indicates it originated from PumpFun bonding curve
-        # - raydium_pool: indicates it migrated to Raydium V4 (PumpSwap)
-        # - Creator info: website/twitter/discord from creator verification
-
-        has_bonding_curve = token_data.get("bonding_curve") is not None
-        has_raydium_pool = token_data.get("raydium_pool") is not None
-        has_creator_info = any(token_data.get(k) for k in ["website", "twitter", "discord"])
-
-        # A PumpSwap token should have migrated from bonding curve to Raydium
-        is_pumpswap = has_bonding_curve and has_raydium_pool
+        # If we detected this pool in the PumpSwap program, it's PumpSwap
+        # The dex_source will be 'PumpSwap' when WebSocket listener detects it
+        is_pumpswap = dex_source == "PumpSwap"
 
         return is_pumpswap
 

@@ -46,52 +46,46 @@ class PumpSwapPhase2Test:
             print(f"      {detail}")
         self.test_results.append({"name": name, "passed": passed, "detail": detail})
 
-    def test_pumpswap_detection_in_raydium_v4(self) -> None:
-        """Test 1: Detect PumpSwap tokens in Raydium V4 pool creation"""
-        self.print_header("Test 1: PumpSwap Detection in Raydium V4 Pools")
+    def test_pumpswap_detection_in_pumpswap_program(self) -> None:
+        """Test 1: Detect PumpSwap tokens from PumpSwap program"""
+        self.print_header("Test 1: PumpSwap Detection from PumpSwap Program")
 
-        # Simulate a Raydium V4 pool that is a PumpSwap (has bonding curve marker)
+        # Simulate a pool detected in the PumpSwap program (pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA)
         pumpswap_pool = {
-            'ammId': 'RayPoolABC123XYZ',
+            'ammId': 'PumpPoolABC123XYZ',
             'baseMint': 'PumpTokenMint111',
             'symbol': 'PUMP',
             'name': 'PumpSwap Token',
-            'bonding_curve': 'BondingCurveAddress999',  # Marker for PumpFun origin
-            'raydium_pool': 'RayPoolABC123XYZ',
         }
 
-        dex_source = "Raydium V4"
+        dex_source = "PumpSwap"
 
         # Simulate Phase 2 detection logic
         is_pumpswap = False
-        if dex_source == "Raydium V4":
+        if dex_source == "PumpSwap":
             token_data = {
                 'mint': pumpswap_pool.get('baseMint'),
                 'name': pumpswap_pool.get('name'),
                 'symbol': pumpswap_pool.get('symbol'),
-                'bonding_curve': pumpswap_pool.get('bonding_curve'),
-                'raydium_pool': pumpswap_pool.get('ammId'),
             }
-            is_pumpswap = self.monitor.is_pumpswap_token(token_data)
+            is_pumpswap = self.monitor.is_pumpswap_token(token_data, dex_source)
 
         self.print_test(
-            "Detect PumpSwap token (Raydium V4 + bonding_curve marker)",
+            "Detect PumpSwap token from PumpSwap program",
             is_pumpswap is True,
-            f"Pool: {pumpswap_pool['ammId'][:16]}..., PumpSwap: {is_pumpswap}"
+            f"Pool: {pumpswap_pool['ammId'][:16]}..., DEX: {dex_source}, PumpSwap: {is_pumpswap}"
         )
 
     def test_regular_raydium_v4_not_flagged_as_pumpswap(self) -> None:
         """Test 2: Regular Raydium V4 pools are NOT flagged as PumpSwap"""
         self.print_header("Test 2: Regular Raydium V4 Pools (Non-PumpSwap)")
 
-        # Regular Raydium V4 pool (no bonding curve)
+        # Regular Raydium V4 pool (detected in Raydium V4 program, not PumpSwap)
         regular_pool = {
             'ammId': 'RayPoolDEF456UVW',
             'baseMint': 'RegularTokenMint222',
             'symbol': 'REG',
             'name': 'Regular Token',
-            'bonding_curve': None,  # No bonding curve = not from PumpFun
-            'raydium_pool': 'RayPoolDEF456UVW',
         }
 
         dex_source = "Raydium V4"
@@ -102,15 +96,13 @@ class PumpSwapPhase2Test:
                 'mint': regular_pool.get('baseMint'),
                 'name': regular_pool.get('name'),
                 'symbol': regular_pool.get('symbol'),
-                'bonding_curve': regular_pool.get('bonding_curve'),
-                'raydium_pool': regular_pool.get('ammId'),
             }
-            is_pumpswap = self.monitor.is_pumpswap_token(token_data)
+            is_pumpswap = self.monitor.is_pumpswap_token(token_data, dex_source)
 
         self.print_test(
-            "Reject regular Raydium V4 pool (no PumpSwap marker)",
+            "Reject Raydium V4 pool (not from PumpSwap program)",
             is_pumpswap is False,
-            f"Pool: {regular_pool['ammId'][:16]}..., PumpSwap: {is_pumpswap}"
+            f"Pool: {regular_pool['ammId'][:16]}..., DEX: {dex_source}, PumpSwap: {is_pumpswap}"
         )
 
     def test_pumpswap_badge_generation(self) -> None:
@@ -216,42 +208,39 @@ class PumpSwapPhase2Test:
         self.print_header("Test 7: WebSocket Detection Flow Simulation")
 
         # Simulate the flow:
-        # 1. WebSocket detects new Raydium V4 pool
+        # 1. WebSocket detects new PumpSwap pool
         # 2. Parse pool data
-        # 3. Check if PumpSwap
+        # 3. Identify as PumpSwap
         # 4. Broadcast with badge
 
         pool_data = {
-            'ammId': 'RayPoolTest999',
+            'ammId': 'PumpPoolTest999',
             'baseMint': 'TokenMintTest999',
             'symbol': 'TEST',
-            'name': 'Test PumpSwap',
-            'bonding_curve': 'BondingCurveTest999',
+            'name': 'Test PumpSwap Token',
         }
-        dex_source = "Raydium V4"
+        dex_source = "PumpSwap"
 
         # Step 1: Log detection
         detection_logged = True
         self.print_test(
-            "Step 1: Log new pool detection",
+            "Step 1: Log new PumpSwap pool detection",
             detection_logged,
             f"Pool: {pool_data['ammId'][:16]}..., DEX: {dex_source}"
         )
 
-        # Step 2: Check if PumpSwap
+        # Step 2: Identify as PumpSwap
         token_data = {
             'mint': pool_data.get('baseMint'),
             'name': pool_data.get('name'),
             'symbol': pool_data.get('symbol'),
-            'bonding_curve': pool_data.get('bonding_curve'),
-            'raydium_pool': pool_data.get('ammId'),
         }
-        is_pumpswap = self.monitor.is_pumpswap_token(token_data)
+        is_pumpswap = self.monitor.is_pumpswap_token(token_data, dex_source)
 
         self.print_test(
-            "Step 2: Detect PumpSwap marker",
+            "Step 2: Identify pool as PumpSwap",
             is_pumpswap is True,
-            f"PumpSwap detected: {is_pumpswap}"
+            f"PumpSwap identified: {is_pumpswap}"
         )
 
         # Step 3: Add badge to broadcast
@@ -287,20 +276,17 @@ class PumpSwapPhase2Test:
         tokens = [
             {
                 'symbol': 'PUMP1',
-                'bonding_curve': 'bc1',
-                'raydium_pool': 'ray1',
+                'dex': 'PumpSwap',
                 'is_pumpswap': True,
             },
             {
                 'symbol': 'PUMP2',
-                'bonding_curve': 'bc2',
-                'raydium_pool': 'ray2',
+                'dex': 'PumpSwap',
                 'is_pumpswap': True,
             },
             {
                 'symbol': 'REGULAR',
-                'bonding_curve': None,
-                'raydium_pool': 'ray3',
+                'dex': 'Raydium V4',
                 'is_pumpswap': False,
             },
         ]
@@ -309,10 +295,8 @@ class PumpSwapPhase2Test:
         for token in tokens:
             token_data = {
                 'symbol': token['symbol'],
-                'bonding_curve': token['bonding_curve'],
-                'raydium_pool': token['raydium_pool'],
             }
-            is_pumpswap = self.monitor.is_pumpswap_token(token_data)
+            is_pumpswap = self.monitor.is_pumpswap_token(token_data, token['dex'])
             if is_pumpswap:
                 pumpswap_count += 1
 
@@ -354,7 +338,7 @@ class PumpSwapPhase2Test:
         print("\nTesting real-time PumpSwap detection in WebSocket pool monitoring")
         print("Verifying: Detection, Flagging, Metadata Extraction, Broadcasting\n")
 
-        self.test_pumpswap_detection_in_raydium_v4()
+        self.test_pumpswap_detection_in_pumpswap_program()
         self.test_regular_raydium_v4_not_flagged_as_pumpswap()
         self.test_pumpswap_badge_generation()
         self.test_broadcast_data_includes_pumpswap_fields()

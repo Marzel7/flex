@@ -44,93 +44,83 @@ class PumpSwapDetectionTest:
         self.test_results.append({"name": name, "passed": passed, "detail": detail})
 
     def test_is_pumpswap_token_with_bonding_curve(self) -> None:
-        """Test 1: Detect PumpSwap token with bonding curve metadata"""
-        self.print_header("Test 1: is_pumpswap_token() - With Bonding Curve")
+        """Test 1: Detect PumpSwap token from PumpSwap program"""
+        self.print_header("Test 1: is_pumpswap_token() - PumpSwap Program Detection")
 
-        # Test case 1a: Valid PumpSwap token
+        # Test case 1a: Token detected from PumpSwap program
         token_data = {
             "mint": "TokenMint123",
-            "bonding_curve": "BondingCurveAddress",
-            "raydium_pool": "RaydiumPoolAddress",
             "name": "PumpSwap Token",
             "symbol": "PST",
-            "website": "https://example.com",
-            "twitter": "https://twitter.com/example",
         }
 
-        result = self.monitor.is_pumpswap_token(token_data)
+        result = self.monitor.is_pumpswap_token(token_data, "PumpSwap")
         self.print_test(
-            "Detect valid PumpSwap token (has bonding curve + raydium pool)",
+            "Detect token from PumpSwap program",
             result is True,
-            f"Result: {result}"
+            f"DEX: PumpSwap, Result: {result}"
         )
 
-        # Test case 1b: Token without bonding curve (regular Raydium pool)
+        # Test case 1b: Token from Raydium V4 (not PumpSwap)
         regular_token = {
             "mint": "RegularTokenMint",
-            "raydium_pool": "RaydiumPoolAddress",
             "name": "Regular Token",
             "symbol": "RT"
         }
 
-        result = self.monitor.is_pumpswap_token(regular_token)
+        result = self.monitor.is_pumpswap_token(regular_token, "Raydium V4")
         self.print_test(
-            "Reject regular Raydium token (no bonding curve)",
+            "Reject Raydium V4 token (not from PumpSwap program)",
             result is False,
-            f"Result: {result}"
+            f"DEX: Raydium V4, Result: {result}"
         )
 
-        # Test case 1c: Token with bonding curve but no Raydium pool (still on bonding)
-        bonding_only = {
-            "mint": "BondingToken",
-            "bonding_curve": "BondingCurveAddress",
-            "name": "Bonding Token",
-            "symbol": "BT"
+        # Test case 1c: Token from Raydium CPMM (not PumpSwap)
+        cpmm_token = {
+            "mint": "CPMMToken",
+            "name": "CPMM Token",
+            "symbol": "CPMM"
         }
 
-        result = self.monitor.is_pumpswap_token(bonding_only)
+        result = self.monitor.is_pumpswap_token(cpmm_token, "Raydium CPMM")
         self.print_test(
-            "Reject token still on bonding curve (no raydium pool yet)",
+            "Reject Raydium CPMM token (not from PumpSwap program)",
             result is False,
-            f"Result: {result}"
+            f"DEX: Raydium CPMM, Result: {result}"
         )
 
-        # Test case 1d: Empty token data
-        result = self.monitor.is_pumpswap_token({})
+        # Test case 1d: Empty token data (any source is not PumpSwap without proper DEX check)
+        result = self.monitor.is_pumpswap_token({}, "Unknown")
         self.print_test(
-            "Reject empty token data",
+            "Reject empty token data with unknown DEX",
             result is False,
-            f"Result: {result}"
+            f"DEX: Unknown, Result: {result}"
         )
 
     def test_is_pumpswap_token_edge_cases(self) -> None:
         """Test 2: Edge cases for is_pumpswap_token()"""
         self.print_header("Test 2: is_pumpswap_token() - Edge Cases")
 
-        # Test case 2a: None values
-        token_with_nones = {
+        # Test case 2a: Unknown DEX source
+        token_unknown = {
             "mint": "Token",
-            "bonding_curve": None,
-            "raydium_pool": "RaydiumPool"
         }
-        result = self.monitor.is_pumpswap_token(token_with_nones)
+        result = self.monitor.is_pumpswap_token(token_unknown, "Unknown")
         self.print_test(
-            "Reject token with None bonding curve",
+            "Reject token from Unknown DEX",
             result is False,
-            f"Result: {result}"
+            f"DEX: Unknown, Result: {result}"
         )
 
-        # Test case 2b: Empty string values
-        token_with_empty = {
+        # Test case 2b: Empty DEX source
+        token_empty = {
             "mint": "Token",
-            "bonding_curve": "",
-            "raydium_pool": "RaydiumPool"
         }
-        result = self.monitor.is_pumpswap_token(token_with_empty)
+        result = self.monitor.is_pumpswap_token(token_empty, "")
         self.print_test(
-            "Accept token with empty string bonding curve (gets is not None check)",
-            isinstance(result, bool),
-            f"Result: {result}"
+            "Reject token with empty DEX source",
+            result is False,
+            f"DEX: (empty), Result: {result}"
         )
 
     def test_get_pumpfun_origin_info_no_pool(self) -> None:
@@ -217,7 +207,7 @@ class PumpSwapDetectionTest:
         """Test 6: PumpSwap token data structure validation"""
         self.print_header("Test 6: PumpSwap Token Data Structure")
 
-        # Create mock token data structure with all PumpSwap fields
+        # Create mock token data structure detected from PumpSwap program
         pumpswap_token = {
             "mint": "EPjFWaLb3odcccccccccccccccccccccccccccccccc",
             "symbol": "USDC",
@@ -226,21 +216,19 @@ class PumpSwapDetectionTest:
             "website": "https://usdc.example.com",
             "twitter": "https://twitter.com/usdc",
             "discord": "https://discord.gg/usdc",
-            "bonding_curve": "BC12345678",
-            "raydium_pool": "RayPool123456",
             "image_uri": "https://example.com/usdc.png"
         }
 
-        # Test is_pumpswap detection
-        is_pumpswap = self.monitor.is_pumpswap_token(pumpswap_token)
+        # Test is_pumpswap detection (token from PumpSwap program)
+        is_pumpswap = self.monitor.is_pumpswap_token(pumpswap_token, "PumpSwap")
         self.print_test(
-            "PumpSwap token data structure detected correctly",
+            "PumpSwap token detected from PumpSwap program",
             is_pumpswap is True,
-            f"Token mint: {pumpswap_token['mint'][:8]}..."
+            f"Token mint: {pumpswap_token['mint'][:8]}..., DEX: PumpSwap"
         )
 
         # Verify structure has required fields
-        required_fields = ["mint", "bonding_curve", "raydium_pool"]
+        required_fields = ["mint", "symbol", "name"]
         has_all_fields = all(field in pumpswap_token for field in required_fields)
         self.print_test(
             "Token data has all required PumpSwap fields",
@@ -252,34 +240,31 @@ class PumpSwapDetectionTest:
         """Test 7: Compare PumpSwap token vs regular Raydium pool detection"""
         self.print_header("Test 7: PumpSwap vs Regular Raydium - Differentiation")
 
-        # PumpSwap token (migrated from bonding curve)
+        # PumpSwap token (detected from PumpSwap program)
         pumpswap_token = {
             "mint": "PumpSwapMint",
-            "bonding_curve": "BondingCurveXYZ",
-            "raydium_pool": "RayPoolABC",
             "creator": "PumpFunCreator"
         }
 
-        # Regular Raydium pool (created directly, not from PumpFun)
+        # Regular Raydium pool (created directly, not from PumpSwap)
         regular_raydium = {
             "mint": "RegularMint",
-            "raydium_pool": "RayPoolDEF",
             "creator": "SomeOtherCreator"
         }
 
-        pumpswap_result = self.monitor.is_pumpswap_token(pumpswap_token)
-        regular_result = self.monitor.is_pumpswap_token(regular_raydium)
+        pumpswap_result = self.monitor.is_pumpswap_token(pumpswap_token, "PumpSwap")
+        regular_result = self.monitor.is_pumpswap_token(regular_raydium, "Raydium V4")
 
         self.print_test(
             "PumpSwap token correctly identified",
             pumpswap_result is True,
-            f"PumpSwap detection: {pumpswap_result}"
+            f"DEX: PumpSwap, Detection: {pumpswap_result}"
         )
 
         self.print_test(
             "Regular Raydium pool correctly rejected",
             regular_result is False,
-            f"Regular detection: {regular_result}"
+            f"DEX: Raydium V4, Detection: {regular_result}"
         )
 
         self.print_test(

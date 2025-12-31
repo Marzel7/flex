@@ -1,0 +1,16 @@
+{
+  "pool_address": "7cK3wSgNVFvRBeVCfmsmWdw5RZ5zXY2V84ZGiKExEF6J",
+  "established_at": "2025-12-29T16:05:55.348546",
+  "baseline_price": 2.4978450898794182e-11,
+  "min_observed": 3.7467657614362464e-17,
+  "max_observed": 3.7467657614362466e-11,
+  "variance": 149.9997750001125,
+  "stability": "VERY LOW (Highly volatile)",
+  "samples": 3,
+  "sample_prices": [
+    3.7467657614362466e-11,
+    3.7467657614362466e-11,
+    3.7467657614362464e-17
+  ],
+  "notes": "This baseline will be used to detect liquidity removal events"
+}

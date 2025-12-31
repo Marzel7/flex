@@ -410,6 +410,22 @@ class RaydiumDatabase:
             cursor.execute('ALTER TABLE pools ADD COLUMN pumpswap_initial_price REAL')
         except sqlite3.OperationalError:
             pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN creator TEXT')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN website TEXT')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN twitter TEXT')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN discord TEXT')
+        except sqlite3.OperationalError:
+            pass
 
         cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_amm_id ON pools(amm_id)
@@ -540,6 +556,110 @@ class RaydiumDatabase:
             })
         conn.close()
         return results
+
+    def get_pool(self, base_mint: str) -> Optional[Dict]:
+        """Get a single pool by base_mint address
+
+        Args:
+            base_mint: Token mint address
+
+        Returns:
+            Pool dict or None if not found
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT amm_id, name, symbol, image, base_mint, quote_mint, liquidity, price,
+                   signature, dex, first_seen, current_price, is_pumpswap, pumpfun_creator,
+                   bonding_curve_address, pumpfun_migration_timestamp, pumpfun_launch_time,
+                   pumpfun_launch_price, pumpfun_final_price, pumpswap_initial_price,
+                   creator, website, twitter, discord, is_depleted, depletion_reason
+            FROM pools
+            WHERE base_mint = ?
+            LIMIT 1
+        ''', (base_mint,))
+
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            return None
+
+        return {
+            'amm_id': row[0],
+            'name': row[1],
+            'symbol': row[2],
+            'image': row[3],
+            'base_mint': row[4],
+            'quote_mint': row[5],
+            'liquidity': row[6],
+            'price': row[7],
+            'signature': row[8],
+            'dex': row[9],
+            'first_seen': row[10],
+            'current_price': row[11],
+            'is_pumpswap': row[12],
+            'pumpfun_creator': row[13],
+            'bonding_curve_address': row[14],
+            'pumpfun_migration_timestamp': row[15],
+            'pumpfun_launch_time': row[16],
+            'pumpfun_launch_price': row[17],
+            'pumpfun_final_price': row[18],
+            'pumpswap_initial_price': row[19],
+            'creator': row[20],
+            'website': row[21],
+            'twitter': row[22],
+            'discord': row[23],
+            'is_depleted': row[24],
+            'depletion_reason': row[25]
+        }
+
+    def update_pool_data(self, base_mint: str, updates: Dict) -> bool:
+        """Update multiple fields for a pool
+
+        Args:
+            base_mint: Token mint address
+            updates: Dict of field names to values to update
+
+        Returns:
+            True if update successful, False otherwise
+        """
+        if not updates:
+            return False
+
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        try:
+            # Build dynamic UPDATE query
+            set_clauses = []
+            values = []
+
+            for field, value in updates.items():
+                # Validate field names to prevent SQL injection
+                if field in ['is_pumpswap', 'pumpfun_creator', 'bonding_curve_address',
+                            'pumpfun_migration_timestamp', 'pumpfun_launch_time',
+                            'pumpfun_launch_price', 'pumpfun_final_price', 'pumpswap_initial_price',
+                            'current_price', 'name', 'symbol', 'liquidity', 'price']:
+                    set_clauses.append(f"{field} = ?")
+                    values.append(value)
+
+            if not set_clauses:
+                conn.close()
+                return False
+
+            values.append(base_mint)
+
+            query = f"UPDATE pools SET {', '.join(set_clauses)} WHERE base_mint = ?"
+            cursor.execute(query, values)
+            conn.commit()
+            conn.close()
+
+            return True
+        except Exception as e:
+            print(f"[DATABASE] Error updating pool {base_mint[:8]}...: {e}")
+            conn.close()
+            return False
 
     def update_pool_price(self, amm_id: str, current_price: float, is_initial: bool = False) -> bool:
         """Update current price for a pool

@@ -32,6 +32,7 @@ raydium_pools.db
 .claude/
 .serena/
 test_*.py
+!test_pumpswap_detection.py
 backfill_*.py
 benchmark.py
 tmp.py

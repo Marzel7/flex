@@ -2514,11 +2514,42 @@ class TokenMonitor:
                                     pool_data = self.parse_pool_from_logs(logs, signature, dex_source)
                                     pool_data['dex'] = dex_source
 
+                                    # PHASE 2: Detect PumpSwap migrations (PumpFun tokens migrated to Raydium V4)
+                                    is_pumpswap = False
+                                    pumpswap_info = None
+
+                                    # PumpSwap detection: Check if this is a Raydium V4 pool with PumpFun characteristics
+                                    if dex_source == "Raydium V4":
+                                        # Try to detect PumpSwap markers
+                                        # Looking for: bonding curve reference + creator metadata
+                                        token_data = {
+                                            'mint': pool_data.get('baseMint'),
+                                            'name': pool_data.get('name'),
+                                            'symbol': pool_data.get('symbol'),
+                                            'bonding_curve': pool_data.get('bonding_curve'),
+                                            'raydium_pool': pool_data.get('ammId'),
+                                        }
+
+                                        # Use Phase 1 detection method
+                                        is_pumpswap = self.is_pumpswap_token(token_data)
+
+                                        if is_pumpswap:
+                                            print(f"[PUMPSWAP] 🚀 DETECTED: PumpFun token migrated to PumpSwap!")
+                                            pumpswap_info = self.get_pumpfun_origin_info(pool_data.get('baseMint'))
+                                            if pumpswap_info:
+                                                print(f"[PUMPSWAP] Creator: {pumpswap_info.get('creator', 'Unknown')}")
+                                                print(f"[PUMPSWAP] Bonding Curve: {pumpswap_info.get('bonding_curve', 'Unknown')[:16]}...")
+                                                self.track_pumpswap_pool(pool_data.get('ammId'), pool_data.get('baseMint'))
+                                        else:
+                                            print(f"[PUMPSWAP] Regular Raydium V4 pool (not from PumpFun)")
+
                                     # Log token address and symbol
                                     print(f"Token Address: {pool_data.get('baseMint', 'Unknown')}")
                                     print(f"Token Symbol: {pool_data.get('symbol', 'Unknown')}")
                                     print(f"Token Name: {pool_data.get('name', 'Unknown')}")
                                     print(f"DEX: {dex_source}")
+                                    if is_pumpswap:
+                                        print(f"PumpSwap: ✓ YES (PumpFun migration)")
                                     print(f"{'='*50}\n")
 
                                     if not self.db.pool_exists(pool_data['ammId']):
@@ -2613,13 +2644,19 @@ class TokenMonitor:
                                                 'current_price': initial_price if initial_price is not None else 0,
                                                 'is_depleted': is_depleted,
                                                 'depletion_reason': depletion_reason,
-                                                'sol_usd_price': sol_usd_price  # Include SOL/USD rate for UI price conversion
+                                                'sol_usd_price': sol_usd_price,  # Include SOL/USD rate for UI price conversion
+                                                # PHASE 2: PumpSwap migration fields
+                                                'is_pumpswap': is_pumpswap,
+                                                'pumpswap_badge': '🚀 PumpSwap' if is_pumpswap else None
                                             }
                                             print(f"[BROADCAST] Adding {broadcast_data['name']} ({broadcast_data['symbol']}) to queue. Queue size before: {pool_broadcast_queue.qsize()}")
                                             if broadcast_data['image']:
                                                 print(f"[BROADCAST] ✓ Image URL present: {broadcast_data['image']}")
                                             else:
                                                 print(f"[BROADCAST] ✗ WARNING: No image URL for {broadcast_data['name']} - metadata fetch may have failed")
+                                            if is_pumpswap:
+                                                print(f"[BROADCAST] 🚀 PUMPSWAP TOKEN DETECTED: {broadcast_data['name']} ({broadcast_data['symbol']})")
+                                                print(f"[BROADCAST] ✓ Marked as PumpSwap migration for UI display")
                                             pool_broadcast_queue.put(broadcast_data)
                                             print(f"[BROADCAST] Queue size after: {pool_broadcast_queue.qsize()}")
 

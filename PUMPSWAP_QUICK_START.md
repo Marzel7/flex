@@ -252,7 +252,7 @@ All PumpSwap information is stored in the `pools` table:
 
 **Solution**:
 - Restart application: `python main.py`
-- Ensure database is not corrupted: `rm raydium_pools.db` and restart
+- Ensure database is not corrupted: `rm pumpswap_tokens.db` and restart
 
 ### Tests failing?
 

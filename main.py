@@ -30,10 +30,10 @@ KNOWN_QUOTES = {
 }
 
 
-class RaydiumDatabase:
+class PumpSwapDatabase:
     """Handle SQLite database operations for Raydium pools"""
 
-    def __init__(self, db_name: str = "raydium_pools.db"):
+    def __init__(self, db_name: str = "pumpswap_tokens.db"):
         self.db_name = db_name
         self.init_database()
 
@@ -603,8 +603,8 @@ class TokenMonitor:
     RAYDIUM_CPMM_PROGRAM = "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"
 
 
-    def __init__(self, db_name: str = "raydium_pools.db"):
-        self.db = RaydiumDatabase(db_name)
+    def __init__(self, db_name: str = "pumpswap_tokens.db"):
+        self.db = PumpSwapDatabase(db_name)
         # Use Helius RPC (configured at top of file)
         self.rpc_http_url = RPC_HTTPS_URL
         self.rpc_ws_url = RPC_HTTPS_URL.replace('https://', 'wss://').replace('http://', 'ws://')
@@ -3449,7 +3449,7 @@ def get_pumpswap_price(token_mint):
         print(f"[API PRICE] Fetching price for token_mint: {token_mint[:16]}...", flush=True)
         sys.stdout.flush()
         # Try to get from database first (most reliable)
-        db = RaydiumDatabase()
+        db = PumpSwapDatabase()
         conn = db.get_connection()
         cursor = conn.cursor()
         cursor.execute('''

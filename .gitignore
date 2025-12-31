@@ -28,7 +28,7 @@ wheels/
 
 # Project specific
 *.db
-raydium_pools.db
+pumpswap_tokens.db
 .claude/
 .serena/
 test_*.py

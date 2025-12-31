@@ -30,7 +30,7 @@ Web UI available at: http://localhost:5002
 
 Single-file application (`main.py`) with four main components:
 
-1. **RaydiumDatabase** - SQLite persistence layer for pool data
+1. **PumpSwapDatabase** - SQLite persistence layer for pool data
    - Tables: `pools` (current state), `pool_history` (snapshots over time)
    - Thread-safe via `check_same_thread=False` connections
 
@@ -67,4 +67,4 @@ Single-file application (`main.py`) with four main components:
 
 ## Data Storage
 
-SQLite database `raydium_pools.db` stores pool data locally.
+SQLite database `pumpswap_tokens.db` stores pool data locally.

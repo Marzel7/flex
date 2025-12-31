@@ -185,8 +185,8 @@ PumpSwap Tokens Found: M
 - `RaydiumMonitor` → `TokenMonitor` (reflects multi-protocol monitoring)
 
 **Database Methods** (Lines 544-646):
-- `RaydiumDatabase.get_pool(base_mint)` - Retrieve single pool with all fields
-- `RaydiumDatabase.update_pool_data(base_mint, updates)` - Update multiple fields safely
+- `PumpSwapDatabase.get_pool(base_mint)` - Retrieve single pool with all fields
+- `PumpSwapDatabase.update_pool_data(base_mint, updates)` - Update multiple fields safely
 
 **PumpSwap Detection Methods** (Lines 2600-2693):
 - `TokenMonitor.is_pumpswap_token(token_data)` - Core detection logic
@@ -421,7 +421,7 @@ db.update_pool_data(token_mint, {
 ```
 bc058c3 Remove old test data files
 49c0f61 Phase 2: Real-time WebSocket PumpSwap migration detection
-0e0bae6 Add RaydiumDatabase helper methods and comprehensive PumpSwap detection tests
+0e0bae6 Add PumpSwapDatabase helper methods and comprehensive PumpSwap detection tests
 268f81f Clean up: Remove Meteora and legacy test files
 19f5e76 Phase 1: Rename RaydiumMonitor to TokenMonitor and add PumpSwap detection
 ```

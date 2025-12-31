@@ -303,7 +303,7 @@ DEX: Raydium V4
 ├── PUMPSWAP_QUICK_START.md             # User guide
 ├── PUMPFUN_INTEGRATION_PLAN.md         # Architecture design
 ├── VERIFY_PHASE2.sh                    # Verification script
-└── raydium_pools.db                    # SQLite database (created at runtime)
+└── pumpswap_tokens.db                    # SQLite database (created at runtime)
 ```
 
 ---
@@ -362,7 +362,7 @@ cdf5b0c Add Phase 2 code map with exact file locations
 7f6adc2 Add quick start guide for PumpSwap Phase 2
 78fcaf3 Add Phase 2 completion report and documentation
 49c0f61 Phase 2: Real-time WebSocket PumpSwap migration detection
-0e0bae6 Add RaydiumDatabase helper methods and comprehensive tests
+0e0bae6 Add PumpSwapDatabase helper methods and comprehensive tests
 268f81f Clean up: Remove Meteora and legacy test files
 19f5e76 Phase 1: Rename RaydiumMonitor to TokenMonitor and add PumpSwap detection
 ```
@@ -418,7 +418,7 @@ Check the output to see which checks failed.
 
 ### Tests Failing?
 1. Verify Python dependencies: `pip install requests flask solders`
-2. Check database permissions: `ls -la raydium_pools.db`
+2. Check database permissions: `ls -la pumpswap_tokens.db`
 3. Check console for error messages
 4. See PUMPSWAP_QUICK_START.md for troubleshooting
 
@@ -429,7 +429,7 @@ Check the output to see which checks failed.
 4. Run `python test_pumpswap_listener.py` for continuous monitoring
 
 ### Database Issues?
-1. Delete corrupted database: `rm raydium_pools.db`
+1. Delete corrupted database: `rm pumpswap_tokens.db`
 2. Restart application: `python main.py`
 3. Database will be recreated with proper schema
 

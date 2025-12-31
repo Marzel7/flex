@@ -24,7 +24,7 @@ ALTER TABLE pools ADD COLUMN twitter TEXT;
 ALTER TABLE pools ADD COLUMN discord TEXT;
 ```
 
-### RaydiumDatabase Helper Methods (Lines 544-590)
+### PumpSwapDatabase Helper Methods (Lines 544-590)
 
 **Location**: `main.py:544-590`
 
@@ -411,7 +411,7 @@ pool_broadcast_queue.put(broadcast_data)
 78fcaf3 Add Phase 2 completion report and documentation
 bc058c3 Remove old test data files
 49c0f61 Phase 2: Real-time WebSocket PumpSwap migration detection
-0e0bae6 Add RaydiumDatabase helper methods and comprehensive PumpSwap detection tests
+0e0bae6 Add PumpSwapDatabase helper methods and comprehensive PumpSwap detection tests
 268f81f Clean up: Remove Meteora and legacy test files
 19f5e76 Phase 1: Rename RaydiumMonitor to TokenMonitor and add PumpSwap detection
 ```

@@ -21,7 +21,7 @@ from typing import Dict, Optional, List
 from datetime import datetime
 
 sys.path.insert(0, '/Users/kevinkeaveney/Dev/claude/flex')
-from main import TokenMonitor, RaydiumDatabase
+from main import TokenMonitor, PumpSwapDatabase
 
 
 class PumpSwapPhase2Test:
@@ -29,7 +29,7 @@ class PumpSwapPhase2Test:
 
     def __init__(self):
         self.monitor = TokenMonitor()
-        self.db = RaydiumDatabase()
+        self.db = PumpSwapDatabase()
         self.test_results = []
 
     def print_header(self, title: str) -> None:

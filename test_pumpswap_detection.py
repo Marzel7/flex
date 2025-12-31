@@ -18,7 +18,7 @@ from datetime import datetime
 
 # Import TokenMonitor from main
 sys.path.insert(0, '/Users/kevinkeaveney/Dev/claude/flex')
-from main import TokenMonitor, RaydiumDatabase
+from main import TokenMonitor, PumpSwapDatabase
 
 
 class PumpSwapDetectionTest:
@@ -26,7 +26,7 @@ class PumpSwapDetectionTest:
 
     def __init__(self):
         self.monitor = TokenMonitor()
-        self.db = RaydiumDatabase()
+        self.db = PumpSwapDatabase()
         self.test_results = []
 
     def print_header(self, title: str) -> None:

@@ -2095,12 +2095,20 @@ class TokenMonitor:
         logs_text = ' '.join(logs)
 
         if f'Program {self.PUMPSWAP_PROGRAM}' in logs_text:
+            print(f"[DEX DETECT] ✓ Found PumpSwap program in logs")
             return 'PumpSwap'
         elif f'Program {self.RAYDIUM_V4_PROGRAM}' in logs_text:
+            print(f"[DEX DETECT] ✓ Found Raydium V4 program in logs")
             return 'Raydium V4'
         elif f'Program {self.RAYDIUM_CPMM_PROGRAM}' in logs_text:
+            print(f"[DEX DETECT] ✓ Found Raydium CPMM program in logs")
             return 'Raydium CPMM'
         else:
+            # Debug: show what programs ARE in the logs
+            programs_found = [log for log in logs if 'Program' in log and 'invoke' in log]
+            if programs_found:
+                print(f"[DEX DETECT] ⚠ Found programs but not recognized: {programs_found[:2]}")
+            print(f"[DEX DETECT] ⚠ Could not determine DEX source, defaulting to Unknown")
             return 'Unknown'
 
     async def listen_for_pools(self):
@@ -2122,6 +2130,10 @@ class TokenMonitor:
         - Swaps, routes, deposits, withdrawals, harvests, fee collection
         """
         print(f"Connecting to Solana WebSocket: {self.rpc_ws_url}")
+
+        # Track which program this WebSocket is subscribed to
+        # Since we're only subscribed to PumpSwap, all events are PumpSwap
+        current_subscribed_program = self.PUMPSWAP_PROGRAM
 
         while self.is_running:
             try:
@@ -2150,7 +2162,9 @@ class TokenMonitor:
                                     continue
 
                                 # Determine which DEX this is from
-                                dex_source = self.get_dex_source(logs)
+                                # Since we're only subscribed to PumpSwap program, all events are PumpSwap
+                                dex_source = "PumpSwap"
+                                print(f"[WEBSOCKET] Received {dex_source} transaction: {signature}")
 
                                 # Only process actual pool creations (not swaps, deposits, etc)
                                 if signature and self.is_pool_creation(logs):

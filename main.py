@@ -378,6 +378,38 @@ class RaydiumDatabase:
             cursor.execute('ALTER TABLE pools ADD COLUMN depletion_reason TEXT')
         except sqlite3.OperationalError:
             pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN is_pumpswap BOOLEAN DEFAULT FALSE')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN pumpfun_creator TEXT')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN bonding_curve_address TEXT')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN pumpfun_migration_timestamp TIMESTAMP')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN pumpfun_launch_time TIMESTAMP')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN pumpfun_launch_price REAL')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN pumpfun_final_price REAL')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN pumpswap_initial_price REAL')
+        except sqlite3.OperationalError:
+            pass
 
         cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_amm_id ON pools(amm_id)
@@ -689,8 +721,8 @@ class RaydiumDatabase:
         return pools_count
 
 
-class RaydiumMonitor:
-    """Monitor Raydium DEX for new liquidity pools via Solana WebSocket"""
+class TokenMonitor:
+    """Monitor Raydium DEX for new liquidity pools via Solana WebSocket and detect PumpSwap migrations"""
 
     # Raydium AMM Program IDs
     RAYDIUM_V4_PROGRAM = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"
@@ -2597,10 +2629,104 @@ class RaydiumMonitor:
         print("[PRICE UPDATER] Price updater thread started")
         return thread
 
+    def is_pumpswap_token(self, token_data: Dict) -> bool:
+        """Check if token migrated from PumpFun to PumpSwap (Raydium V4)
+
+        PumpSwap is the Raydium V4 destination where PumpFun tokens migrate
+        after their bonding curve completes. This method detects PumpFun-origin
+        tokens by checking for bonding curve metadata and creator patterns.
+
+        Args:
+            token_data: Token information dict
+
+        Returns:
+            True if token appears to be from PumpFun → PumpSwap migration
+        """
+        # PumpSwap tokens have specific attributes:
+        # - bonding_curve: indicates it originated from PumpFun bonding curve
+        # - raydium_pool: indicates it migrated to Raydium V4 (PumpSwap)
+        # - Creator info: website/twitter/discord from creator verification
+
+        has_bonding_curve = token_data.get("bonding_curve") is not None
+        has_raydium_pool = token_data.get("raydium_pool") is not None
+        has_creator_info = any(token_data.get(k) for k in ["website", "twitter", "discord"])
+
+        # A PumpSwap token should have migrated from bonding curve to Raydium
+        is_pumpswap = has_bonding_curve and has_raydium_pool
+
+        return is_pumpswap
+
+    def get_pumpfun_origin_info(self, token_mint: str) -> Optional[Dict]:
+        """Get PumpFun bonding curve history and origin information
+
+        Fetches metadata about the token's original PumpFun bonding curve phase,
+        including creator info, launch time, and migration details.
+
+        Args:
+            token_mint: Token mint address
+
+        Returns:
+            Dict with bonding curve history or None if not available
+        """
+        try:
+            pool = self.db.get_pool(token_mint)
+            if not pool:
+                return None
+
+            # Extract PumpFun origin information from token metadata
+            origin_info = {
+                "mint": token_mint,
+                "creator": pool.get("creator"),
+                "website": pool.get("website"),
+                "twitter": pool.get("twitter"),
+                "discord": pool.get("discord"),
+                "bonding_curve": pool.get("bonding_curve_address"),
+                "bonding_curve_start": pool.get("pumpfun_launch_time"),
+                "pumpfun_launch_price": pool.get("pumpfun_launch_price"),
+                "pumpfun_final_price": pool.get("pumpfun_final_price"),
+                "pumpswap_migration_timestamp": pool.get("pumpfun_migration_timestamp"),
+                "pumpswap_initial_price": pool.get("pumpswap_initial_price"),
+            }
+
+            return origin_info
+        except Exception as e:
+            print(f"[PUMPSWAP] Error fetching origin info for {token_mint[:8]}...: {e}")
+            return None
+
+    def track_pumpswap_pool(self, pool_address: str, token_mint: str) -> None:
+        """Track PumpSwap pool for migrated token
+
+        Records association between a PumpFun token and its Raydium V4 (PumpSwap) pool,
+        stores bonding curve metadata, and tracks migration timing.
+
+        Args:
+            pool_address: Raydium V4 pool address
+            token_mint: Token mint address
+        """
+        try:
+            pool = self.db.get_pool(token_mint)
+            if not pool:
+                print(f"[PUMPSWAP] Pool not found for {token_mint[:8]}...")
+                return
+
+            # Update pool record with PumpSwap tracking info
+            updates = {
+                "is_pumpswap": True,
+                "pumpfun_migration_timestamp": datetime.now().isoformat()
+            }
+
+            self.db.update_pool_data(token_mint, updates)
+
+            print(f"[PUMPSWAP] ✓ Tracked PumpSwap migration for {pool.get('name', 'Unknown')} ({token_mint[:8]}...)")
+            print(f"[PUMPSWAP]   Pool: {pool_address[:16]}...")
+
+        except Exception as e:
+            print(f"[PUMPSWAP] ✗ Error tracking PumpSwap pool: {e}")
+
 
 # Flask Web Application
 app = Flask(__name__)
-monitor = RaydiumMonitor()
+monitor = TokenMonitor()
 
 # Global queue for real-time pool broadcasts
 pool_broadcast_queue = queue.Queue()

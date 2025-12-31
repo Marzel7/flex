@@ -108,13 +108,37 @@ def get_sol_balance(account_address):
     try:
         result = rpc_call("getBalance", [account_address])
         if result is not None:
+            # RPC returns {'context': {...}, 'value': lamports}
+            if isinstance(result, dict) and 'value' in result:
+                lamports = result['value']
+            else:
+                lamports = result
+
             return {
-                'lamports': result,
-                'sol': result / (10 ** SOL_DECIMALS)
+                'lamports': lamports,
+                'sol': lamports / (10 ** SOL_DECIMALS)
             }
     except:
         pass
     return None
+
+def get_token_accounts_by_owner(owner_address, mint_address):
+    """Find token accounts owned by a specific owner for a specific mint
+
+    This RPC method returns all token accounts (held by owner) for a given mint.
+    Much faster and more reliable than getProgramAccounts with filters.
+    """
+    try:
+        result = rpc_call("getTokenAccountsByOwner", [
+            owner_address,
+            {"mint": mint_address},
+            {"encoding": "jsonParsed"}
+        ])
+        if result and result.get('value'):
+            return result['value']
+        return []
+    except Exception as e:
+        return []
 
 def get_account_info(address):
     """Get account info from RPC"""
@@ -197,6 +221,60 @@ def get_transaction(signature):
         pass
     return None
 
+def extract_vault_account_addresses(tx_data, base_mint):
+    """Extract actual token and SOL vault account addresses from transaction
+
+    The postTokenBalances contain accountIndex values that point to the
+    message.accountKeys array. This function maps those indices to actual
+    account addresses which are the REAL token accounts we need to query
+    for real-time balances.
+
+    Note: Account keys may have either 'pubkey' field (dict) or be strings directly.
+    """
+    try:
+        if not tx_data:
+            return None, None
+
+        # Transaction structure: tx_data['transaction']['message']['accountKeys']
+        message = tx_data.get('transaction', {}).get('message', {})
+        account_keys = message.get('accountKeys', [])
+        meta = tx_data.get('meta', {})
+        post_balances = meta.get('postTokenBalances', [])
+
+        SOL_MINT = "So11111111111111111111111111111111111111112"
+        token_account = None
+        sol_account = None
+        max_token_balance = 0
+
+        for balance_info in post_balances:
+            mint = balance_info.get('mint')
+            account_index = balance_info.get('accountIndex', -1)
+            ui_amount = balance_info.get('uiTokenAmount', {}).get('uiAmount', 0)
+
+            # Map accountIndex to actual account address
+            if account_index >= 0 and account_index < len(account_keys):
+                account_key = account_keys[account_index]
+                # Extract pubkey - could be dict or string
+                if isinstance(account_key, dict):
+                    account_address = account_key.get('pubkey')
+                else:
+                    account_address = account_key
+
+                if mint == base_mint and ui_amount > 0:
+                    # Store the token account with the largest balance
+                    if ui_amount > max_token_balance:
+                        token_account = account_address
+                        max_token_balance = ui_amount
+
+                elif mint == SOL_MINT and ui_amount > 0:
+                    sol_account = account_address
+
+        return token_account, sol_account
+    except:
+        pass
+
+    return None, None
+
 def extract_price_from_transaction(tx_data, base_mint):
     """Extract token and SOL balances from transaction logs
 
@@ -219,18 +297,22 @@ def extract_price_from_transaction(tx_data, base_mint):
         token_balances = []  # All balances of the base token
         sol_balance = None
         sol_vault_owner = None
+        token_vault_account = None  # Actual token account address
+        sol_vault_account = None    # Actual SOL account address
 
         for balance_info in post_balances:
             mint = balance_info.get("mint")
             ui_amount = balance_info.get("uiTokenAmount", {}).get("uiAmount", 0)
             owner = balance_info.get("owner", "")
+            account_index = balance_info.get("accountIndex", -1)
 
             if mint == base_mint and ui_amount > 0:
                 # Collect all token balances (might be in multiple vault accounts)
+                # Also store the actual account address (from accountIndex)
                 token_balances.append({
                     'amount': ui_amount,
                     'owner': owner,
-                    'index': balance_info.get("accountIndex", -1)
+                    'index': account_index
                 })
             elif mint == SOL_MINT and ui_amount > 0:
                 # Take the largest SOL balance
@@ -429,17 +511,82 @@ def fetch_live_vault_balances(pool):
         print(f"✗ ({str(e)[:50]})")
         return None
 
+def fetch_realtime_vault_prices(pool):
+    """Fetch REAL-TIME current vault balances using RPC
+
+    Strategy:
+    1. Fetch the pool creation transaction
+    2. Extract the actual token and SOL account addresses from the transaction
+    3. Query the CURRENT balances of those actual accounts
+    4. Calculate the real-time price
+
+    This gives us the REAL CURRENT state of the vault, not the snapshot at creation.
+    """
+    signature = pool.get('signature', '')
+    base_mint = pool['base_mint']
+
+    if not signature:
+        return None
+
+    try:
+        # Fetch the transaction to get actual vault account addresses
+        tx_data = get_transaction(signature)
+        if not tx_data:
+            return None
+
+        # Extract the actual token and SOL account addresses from transaction
+        token_account, sol_account = extract_vault_account_addresses(tx_data, base_mint)
+        if not token_account or not sol_account:
+            return None
+
+        # Fetch CURRENT balances of these accounts
+        print(f"    [RT] Token acct: {token_account[:8]}...", end=" ", flush=True)
+        token_balance_result = get_token_account_balance(token_account)
+        if not token_balance_result:
+            print("✗")
+            return None
+        token_balance = token_balance_result.get('ui_amount', 0)
+        print(f"✓", flush=True)
+
+        print(f"    [RT] SOL acct:   {sol_account[:8]}...", end=" ", flush=True)
+        sol_balance_result = get_sol_balance(sol_account)
+        if not sol_balance_result:
+            print("✗")
+            return None
+        sol_balance = sol_balance_result.get('sol', 0)
+        print(f"✓", flush=True)
+
+        # Only return valid prices
+        if token_balance > 0 and sol_balance > 0:
+            return {
+                'token_balance': token_balance,
+                'sol_balance': sol_balance,
+                'token_account': token_account,
+                'sol_account': sol_account,
+                'is_realtime': True,
+                'data_source': 'CURRENT VAULT BALANCES (Real-time RPC)'
+            }
+        else:
+            # Vault is empty or drained - still return as valid realtime data
+            print(f"    [RT] Vault drained: token={token_balance:.6f}, sol={sol_balance:.6f}")
+            return {
+                'token_balance': token_balance,
+                'sol_balance': sol_balance,
+                'token_account': token_account,
+                'sol_account': sol_account,
+                'is_realtime': True,
+                'data_source': 'CURRENT VAULT BALANCES (Real-time RPC - DRAINED)'
+            }
+
+    except Exception as e:
+        return None
+
 def fetch_pool_price(pool):
-    """Fetch LIVE price for a pool using blockchain source (RPC)
+    """Fetch REAL-TIME or LIVE price for a pool
 
-    Uses pool creation transaction snapshot which contains the canonical
-    vault balances at the moment the pool was created on-chain.
-
-    This IS LIVE in the sense that:
-    - Data comes directly from blockchain via RPC (not cached database)
-    - Uses the official getTransaction RPC method
-    - Shows actual vault balances at a known on-chain point
-    - Is immutable and canonical on-chain
+    Strategy:
+    1. Try to fetch REAL-TIME current vault balances
+    2. Fall back to pool creation snapshot from transaction
     """
     symbol = pool['symbol'] or pool['base_mint'][:8]
     base_mint = pool['base_mint']
@@ -447,10 +594,43 @@ def fetch_pool_price(pool):
     signature = pool.get('signature', '')
 
     try:
+        # First, try real-time current prices
+        print(f"  {symbol:<12} [Attempting REAL-TIME current balances]")
+        realtime_result = fetch_realtime_vault_prices(pool)
+
+        if realtime_result:
+            token_balance = realtime_result['token_balance']
+            sol_balance = realtime_result['sol_balance']
+
+            # Calculate price if we have non-zero balances
+            if token_balance > 0 and sol_balance > 0:
+                price_sol = sol_balance / token_balance
+                price_usd = price_sol * SOL_USD_PRICE
+            else:
+                # Vault is drained - price is 0
+                price_sol = 0
+                price_usd = 0
+
+            market_cap = (price_usd * total_supply) if total_supply and price_usd > 0 else None
+
+            return {
+                'symbol': symbol,
+                'price_sol': price_sol,
+                'price_usd': price_usd,
+                'liquidity_sol': sol_balance,
+                'market_cap': market_cap,
+                'token_balance': token_balance,
+                'sol_balance': sol_balance,
+                'token_mint': base_mint,
+                'timestamp': datetime.now().isoformat(),
+                'is_realtime': True,
+                'data_source': realtime_result.get('data_source', 'REAL-TIME RPC')
+            }
+
+        # Fall back to pool creation snapshot
+        print(f"  {symbol:<12} [Falling back to pool creation snapshot]")
         print(f"  {symbol:<12} Fetching transaction...", end=" ", flush=True)
 
-        # For PumpSwap pools, extract price from the pool creation transaction
-        # The signature field contains the transaction that created the pool
         tx_data = get_transaction(signature)
         if not tx_data:
             print("✗")
@@ -476,11 +656,9 @@ def fetch_pool_price(pool):
             'token_balance': price_result['token_balance'],
             'sol_balance': price_result['sol_balance'],
             'token_mint': price_result['token_mint'],
-            'vault_owner': price_result['vault_owner'],
-            'sol_vault_owner': price_result['sol_vault_owner'],
             'timestamp': datetime.now().isoformat(),
-            'is_live': True,
-            'data_source': 'LIVE BLOCKCHAIN SOURCE'
+            'is_realtime': False,
+            'data_source': 'POOL CREATION SNAPSHOT'
         }
 
     except Exception as e:
@@ -581,25 +759,37 @@ def main():
         result = fetch_pool_price(dict(pool))
 
         if result:
-            is_live = result.get('is_live', False)
+            is_realtime = result.get('is_realtime', False)
             data_source = result.get('data_source', 'UNKNOWN')
+            status_indicator = "[✓ REAL-TIME]" if is_realtime else "[! SNAPSHOT]"
 
-            print(f"\n[✓] LIVE BLOCKCHAIN-SOURCED PRICE DATA")
+            print(f"\n[✓] BLOCKCHAIN-SOURCED PRICE DATA {status_indicator}")
             print("-" * 140)
             print(f"Token Mint:       {result['token_mint']}")
             print(f"Price (SOL):      {format_price(result['price_sol'])} SOL/token")
             print(f"Price (USD):      {format_price(result['price_usd'])} USD/token")
 
-            print(f"\nVault Balances (From Pool Creation TX):")
+            balance_label = "Vault Balances (NOW - REAL-TIME):" if is_realtime else "Vault Balances (At Pool Creation):"
+            print(f"\n{balance_label}")
             print(f"  Token Balance:  {format_number(result['token_balance'])} {result['token_mint'][:8]}...")
             print(f"  SOL Balance:    {format_number(result['sol_balance'])} SOL")
-            print(f"\nVault Accounts:")
-            print(f"  Token Vault:    {result['vault_owner']}")
-            print(f"  SOL Vault:      {result['sol_vault_owner']}")
+
+            # Show vault accounts if available
+            if result.get('vault_owner') or result.get('token_account'):
+                print(f"\nVault Accounts:")
+                if result.get('vault_owner'):
+                    print(f"  Token Vault:    {result['vault_owner']}")
+                if result.get('token_account'):
+                    print(f"  Token Account:  {result['token_account']}")
+                if result.get('sol_vault_owner'):
+                    print(f"  SOL Vault:      {result['sol_vault_owner']}")
+                if result.get('sol_account'):
+                    print(f"  SOL Account:    {result['sol_account']}")
+
             print(f"\nMarket Data:")
             print(f"  Liquidity (SOL): {format_number(result['liquidity_sol'])} SOL")
             print(f"  Market Cap:      ${format_number(result['market_cap'])} USD")
-            print(f"  Source:          {data_source} (fetched via RPC)")
+            print(f"  Source:          {data_source}")
             print(f"  Timestamp:       {result['timestamp']}")
 
     else:
@@ -609,12 +799,13 @@ def main():
             print("[✗] No pools in database")
             return
 
-        print(f"\n[FETCHING] LIVE prices for {len(pools)} PumpSwap tokens via blockchain RPC...")
-        print("-" * 185)
-        print(f"{'Symbol':<15} {'Price (SOL)':<20} {'Price (USD)':<20} {'SOL Balance':<20} {'Token Address':<44} {'Supply':<12}")
-        print("-" * 185)
+        print(f"\n[FETCHING] Fetching prices for {len(pools)} PumpSwap tokens via blockchain RPC...")
+        print("-" * 235)
+        print(f"{'Symbol':<15} {'Price (SOL)':<20} {'Price (USD)':<20} {'SOL Balance':<20} {'Token Address':<44} {'Supply':<12} {'Status':<16}")
+        print("-" * 235)
 
         success = 0
+        realtime_count = 0
         for pool in pools:
             result = fetch_pool_price(dict(pool))
             if result:
@@ -622,10 +813,14 @@ def main():
                 sol_balance_str = f"${format_number(result['liquidity_sol'])} SOL"
                 supply_str = format_number(pool['total_supply'])
                 token_address = result['token_mint']
-                print(f"{result['symbol']:<15} {format_price(result['price_sol']):<20} {format_price(result['price_usd']):<20} {sol_balance_str:<20} {token_address:<44} {supply_str:<12}")
+                is_realtime = result.get('is_realtime', False)
+                status = "✓ REAL-TIME" if is_realtime else "! SNAPSHOT"
+                if is_realtime:
+                    realtime_count += 1
+                print(f"{result['symbol']:<15} {format_price(result['price_sol']):<20} {format_price(result['price_usd']):<20} {sol_balance_str:<20} {token_address:<44} {supply_str:<12} {status:<16}")
 
-        print("-" * 185)
-        print(f"\n[RESULT] ✓ Fetched {success}/{len(pools)} LIVE prices from blockchain via RPC")
+        print("-" * 235)
+        print(f"\n[RESULT] ✓ Fetched {success}/{len(pools)} prices | {realtime_count} real-time | {success - realtime_count} snapshot")
 
 if __name__ == "__main__":
     main()

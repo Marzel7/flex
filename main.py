@@ -30,252 +30,6 @@ KNOWN_QUOTES = {
 }
 
 
-class MeteoraPriceFetcher:
-    """Fetch prices from Meteora DAMM V2 pools and compare with DexScreener"""
-
-    def __init__(self):
-        self.rpc_url = RPC_HTTPS_URL
-        self.sol_mint = "So11111111111111111111111111111111111111112"
-
-    def rpc_call(self, method: str, params: list) -> Optional[Dict]:
-        """Make RPC call to Helius"""
-        payload = {"jsonrpc": "2.0", "id": 1, "method": method, "params": params}
-        try:
-            response = requests.post(self.rpc_url, json=payload, timeout=15)
-            return response.json() if response.status_code == 200 else None
-        except Exception as e:
-            print(f"[RPC] Error: {e}")
-            return None
-
-    def get_dexscreener_price(self, token_mint: str) -> Optional[Dict]:
-        """Get price data from DexScreener API"""
-        try:
-            url = f"https://api.dexscreener.com/latest/dex/tokens/{token_mint}"
-            response = requests.get(url, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                if "pairs" in data and data["pairs"]:
-                    pair = data["pairs"][0]
-                    return {
-                        "priceNative": float(pair.get("priceNative", 0)),
-                        "priceUsd": float(pair.get("priceUsd", 0)),
-                        "liquidity": pair.get("liquidity", {}),
-                        "pairAddress": pair.get("pairAddress"),
-                        "volume24h": pair.get("volume", {}).get("h24", 0),
-                        "baseToken": pair.get("baseToken", {}).get("symbol"),
-                        "quoteToken": pair.get("quoteToken", {}).get("symbol"),
-                    }
-            return None
-        except Exception:
-            return None
-
-    def fetch_price(self, pool_address_or_mint: str) -> Optional[Dict]:
-        """Fetch price from Meteora pool using pool creation transaction"""
-        try:
-            # Fetch pool creation transaction (last in history = oldest = creation)
-            result = self.rpc_call("getSignaturesForAddress", [pool_address_or_mint, {"limit": 10}])
-            if not result or not result.get("result"):
-                return None
-
-            sigs = result.get("result", [])
-            if not sigs:
-                return None
-
-            # Get pool creation transaction (last signature = oldest = creation)
-            tx_sig = sigs[-1]["signature"]
-
-            # Extract vaults from transaction (including inner instructions)
-            vaults = self._extract_vaults_from_tx(tx_sig, pool_address_or_mint)
-            if not vaults or len(vaults) < 2:
-                return None
-
-            # Fetch vault balances
-            token_vaults = []
-            for vault_addr in vaults:
-                vault_data = self._get_vault_info(vault_addr)
-                if vault_data:
-                    token_vaults.append((vault_addr, vault_data))
-
-            if len(token_vaults) < 2:
-                return None
-
-            # Calculate best price
-            best_price = self._calculate_best_price(token_vaults)
-            if not best_price or best_price.get("warning") == "POOL_DEPLETED":
-                return None
-
-            # Get DexScreener data
-            dex_data = self.get_dexscreener_price(pool_address_or_mint)
-
-            return {
-                "on_chain_price": best_price.get("price"),
-                "dexscreener_data": dex_data,
-                "vault_count": len(token_vaults),
-            }
-        except Exception as e:
-            print(f"[PRICE] Error fetching price: {e}")
-            return None
-
-    def _extract_vaults_from_tx(self, tx_sig: str, pool_address: str) -> List[str]:
-        """Extract vault addresses from pool creation transaction, including inner instructions"""
-        try:
-            result = self.rpc_call(
-                "getTransaction",
-                [tx_sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}],
-            )
-            if not result or not result.get("result"):
-                return []
-
-            tx_data = result["result"]
-            accounts = tx_data["transaction"]["message"]["accountKeys"]
-            account_keys = [acc["pubkey"] for acc in accounts]
-
-            # Filter SPL token accounts from main instruction
-            vaults = []
-            for acc in account_keys:
-                if acc != pool_address and len(acc) == 44:
-                    if self._is_token_account(acc):
-                        vaults.append(acc)
-
-            # Also check inner instructions for vault references
-            meta = tx_data.get("meta", {})
-            inner_instructions = meta.get("innerInstructions", [])
-
-            for inner in inner_instructions:
-                for instr in inner.get("instructions", []):
-                    for idx in instr.get("accounts", []):
-                        if isinstance(idx, int) and idx < len(account_keys):
-                            acc = account_keys[idx]
-                            if acc != pool_address and acc not in vaults and len(acc) == 44:
-                                if self._is_token_account(acc):
-                                    vaults.append(acc)
-
-            # Remove duplicates while preserving order
-            vaults = list(dict.fromkeys(vaults))
-
-            return vaults
-        except Exception as e:
-            print(f"[VAULT EXTRACT] Error extracting vaults: {e}")
-            return []
-
-    def _is_token_account(self, account_addr: str) -> bool:
-        """Check if account is SPL token account"""
-        try:
-            result = self.rpc_call("getAccountInfo", [account_addr, {"encoding": "base64"}])
-            if not result or not result.get("result"):
-                return False
-            acc_info = result["result"]["value"]
-            if acc_info is None:
-                return False
-            owner = acc_info.get("owner", "")
-            return owner == "TokenkegQfeZyiNwAJsyFbPVwwQQfaut1PNcZiHon8"
-        except Exception:
-            return False
-
-    def _get_vault_info(self, vault_addr: str) -> Optional[Dict]:
-        """Get vault balance and mint info"""
-        try:
-            result = self.rpc_call("getAccountInfo", [vault_addr, {"encoding": "base64"}])
-            if not result or not result.get("result"):
-                return None
-
-            acc_info = result["result"]["value"]
-            if not acc_info or not acc_info.get("data"):
-                return None
-
-            account_data = base64.b64decode(acc_info["data"][0])
-            if len(account_data) < 165:
-                return None
-
-            # Parse SPL token account
-            mint = base58.b58encode(account_data[0:32]).decode()
-            amount = struct.unpack("<Q", account_data[64:72])[0]
-            decimals_byte = account_data[72]
-
-            # Get mint decimals
-            decimals = self._get_mint_decimals(mint)
-            human_balance = amount / (10 ** (decimals or 6))
-
-            return {"mint": mint, "amount": amount, "decimals": decimals or 6, "human": human_balance}
-        except Exception:
-            return None
-
-    def _get_mint_decimals(self, mint_address: str) -> Optional[int]:
-        """Get token decimals from mint account"""
-        try:
-            result = self.rpc_call("getAccountInfo", [mint_address, {"encoding": "base64"}])
-            if not result or not result.get("result"):
-                return None
-            acc_info = result["result"]["value"]
-            if not acc_info or not acc_info.get("data"):
-                return None
-            account_data = base64.b64decode(acc_info["data"][0])
-            if len(account_data) < 45:
-                return None
-            return account_data[44]
-        except Exception:
-            return None
-
-    def _calculate_best_price(self, token_vaults: List[Tuple[str, Dict]]) -> Optional[Dict]:
-        """Calculate best price from vault pairs with smart selection"""
-        if len(token_vaults) < 2:
-            return None
-
-        best_result = None
-        best_is_quote_pair = False
-
-        for i in range(len(token_vaults)):
-            for j in range(i + 1, len(token_vaults)):
-                vault_i, info_i = token_vaults[i]
-                vault_j, info_j = token_vaults[j]
-
-                if info_i["human"] <= 0 or info_j["human"] <= 0:
-                    continue
-
-                is_i_quote = (
-                    info_i["mint"] in KNOWN_QUOTES or info_i["mint"] == self.sol_mint
-                )
-                is_j_quote = (
-                    info_j["mint"] in KNOWN_QUOTES or info_j["mint"] == self.sol_mint
-                )
-
-                # Try both directions
-                price_j_per_i = info_j["human"] / info_i["human"]
-                price_i_per_j = info_i["human"] / info_j["human"]
-
-                # Process j/i direction
-                if price_j_per_i > 0:
-                    this_is_quote_pair = is_j_quote
-                    should_update = False
-
-                    if best_result is None:
-                        should_update = True
-                    elif this_is_quote_pair and not best_is_quote_pair:
-                        should_update = True
-                    elif this_is_quote_pair == best_is_quote_pair:
-                        best_base_balance = token_vaults[best_result["base_idx"]][1]["human"]
-                        if info_i["human"] > best_base_balance * 1.1:
-                            should_update = True
-                        elif (
-                            abs(info_i["human"] - best_base_balance) / best_base_balance
-                            < 0.1
-                        ):
-                            should_update = (
-                                abs(price_j_per_i - 1)
-                                < abs(best_result["price"] - 1)
-                            )
-
-                    if should_update:
-                        best_result = {
-                            "price": price_j_per_i,
-                            "base_idx": i,
-                            "quote_idx": j,
-                        }
-                        best_is_quote_pair = this_is_quote_pair
-
-        return best_result
-
-
 class RaydiumDatabase:
     """Handle SQLite database operations for Raydium pools"""
 
@@ -848,9 +602,6 @@ class TokenMonitor:
     RAYDIUM_V4_PROGRAM = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"
     RAYDIUM_CPMM_PROGRAM = "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"
 
-    # Meteora program IDs
-    METEORA_PROGRAM = "LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"
-    METEORA_ALT_PROGRAM = "cpamdpZCGKUy5JxQXB4dcpGPiikHawvSWAd6mEn1sGG"  # Alternative Meteora pool variant
 
     def __init__(self, db_name: str = "raydium_pools.db"):
         self.db = RaydiumDatabase(db_name)
@@ -987,107 +738,6 @@ class TokenMonitor:
 
                     # DEX-specific pool account extraction
                     pool_account_set = False
-                    if dex == "Meteora":
-                        # For Meteora DLMM, we need to find the LBPair account
-                        # The actual LBPair is owned by the DLMM program, NOT the Referral program
-                        print(f"[POOL ACCOUNT] Searching for Meteora DLMM LBPair account (owned by {METEORA_DLMM_PROGRAM[:8]}...)")
-                        print(f"[POOL ACCOUNT] Will scan {len(pubkeys)} account keys")
-
-                        lbpair_found = False
-                        dlmm_accounts = []  # Accounts owned by DLMM program
-                        checked_count = 0
-
-                        for idx, candidate in enumerate(pubkeys):
-                            if idx == 0:  # Skip user/signer
-                                continue
-
-                            checked_count += 1
-                            # Only check first 15 accounts to avoid excessive RPC calls
-                            if checked_count > 15:
-                                break
-
-                            print(f"[POOL ACCOUNT] Checking index {idx}: {candidate[:8]}...")
-                            try:
-                                # Query the account (retry up to 3 times with delays)
-                                for attempt in range(3):
-                                    check_response = requests.post(
-                                        self.rpc_http_url,
-                                        json={
-                                            "jsonrpc": "2.0",
-                                            "id": 1,
-                                            "method": "getAccountInfo",
-                                            "params": [candidate, {"encoding": "base64"}]
-                                        },
-                                        timeout=5
-                                    )
-                                    check_data = check_response.json()
-                                    if check_data.get("result") and check_data["result"].get("value"):
-                                        owner = check_data["result"]["value"].get("owner", "")
-                                        encoded_data = check_data["result"]["value"].get("data", ["", ""])[0] or ""
-                                        # Decode base64 account data
-                                        try:
-                                            account_data = base64.b64decode(encoded_data) if encoded_data else b""
-                                        except Exception as decode_err:
-                                            print(f"[POOL ACCOUNT]   → Failed to decode account data: {decode_err}")
-                                            account_data = b""
-                                        account_size = len(account_data)
-                                        print(f"[POOL ACCOUNT]   → Owner: {owner[:8]}..., Size: {account_size} bytes")
-
-                                        # Prefer DLMM program-owned accounts (these are actual LBPair pools)
-                                        if owner == METEORA_DLMM_PROGRAM:
-                                            dlmm_accounts.append((candidate, account_size, idx))
-                                            print(f"[POOL ACCOUNT]   ✓ Found DLMM-owned account at index {idx}")
-                                            if account_size > 300:  # LBPair accounts are typically 400+ bytes
-                                                pool_data['ammId'] = candidate
-                                                pool_account_set = True
-                                                lbpair_found = True
-                                                break
-
-                                        break  # Account exists, try next
-                                    else:
-                                        # Account doesn't exist yet, wait and retry
-                                        if attempt < 2:
-                                            wait_time = 2 if attempt == 0 else 1
-                                            print(f"[POOL ACCOUNT]   → Account not found, retrying in {wait_time}s...")
-                                            time.sleep(wait_time)
-                                        else:
-                                            print(f"[POOL ACCOUNT]   → Account still not found after retries")
-                                            break
-                                if lbpair_found:
-                                    break
-                            except Exception as e:
-                                print(f"[POOL ACCOUNT] ⚠ Error checking index {idx}: {e}")
-
-                        # If we found DLMM accounts but not yet set, use the first one
-                        if not lbpair_found and dlmm_accounts:
-                            best_account, best_size, best_idx = dlmm_accounts[0]
-                            print(f"[POOL ACCOUNT] ✓ Using DLMM account ({best_size} bytes) from index {best_idx}")
-                            pool_data['ammId'] = best_account
-                            pool_account_set = True
-                        elif not lbpair_found:
-                            print(f"[POOL ACCOUNT] ⚠ Could not find DLMM-owned LBPair account")
-                    elif dex == "Raydium CPMM":
-                        # For Raydium CPMM, the pool is typically at index 4 (CpmmConfig) or 5 (PoolState)
-                        if len(pubkeys) > 5:
-                            pool_account = pubkeys[5]
-                            print(f"[POOL ACCOUNT] Raydium CPMM PoolState extracted from index 5: {pool_account}")
-                            pool_data['ammId'] = pool_account
-                            pool_account_set = True
-                        elif len(pubkeys) > 4:
-                            pool_account = pubkeys[4]
-                            print(f"[POOL ACCOUNT] Raydium CPMM Config extracted from index 4: {pool_account}")
-                            pool_data['ammId'] = pool_account
-                            pool_account_set = True
-                    else:  # Raydium V4 or Unknown
-                        # For Raydium V4, the pool is at index 4
-                        if len(pubkeys) > 4:
-                            pool_account = pubkeys[4]
-                            print(f"[POOL ACCOUNT] Raydium V4 pool extracted from index 4: {pool_account}")
-                            pool_data['ammId'] = pool_account
-                            pool_account_set = True
-
-                    if not pool_account_set:
-                        print(f"[POOL ACCOUNT] ✗ Failed to extract pool account for DEX={dex}, keeping signature-based ammId: {pool_data['ammId']}")
                     
                     # Identify base and quote mints
                     quote_mint = WSOL if WSOL in mint_sources else None
@@ -1461,9 +1111,9 @@ class TokenMonitor:
             return 0
 
     def extract_vault_addresses(self, account_data: bytes) -> Dict:
-        """Extract vault addresses from Meteora LBPair account data
+        """Extract vault addresses from PumpSwap LBPair account data
 
-        Meteora LBPair structure contains vault addresses:
+        PumpSwap LBPair structure contains vault addresses:
         - vault_x (base token vault) at offset 168 (32-byte Pubkey)
         - vault_y (quote token vault) at offset 200 (32-byte Pubkey)
 
@@ -1914,64 +1564,8 @@ class TokenMonitor:
         except Exception:
             return None
 
-    def parse_meteora_pool_price(self, account_data: bytes, pool_id: str) -> float:
-        """Parse Meteora DLMM pool account data to extract current price
-        
-        Note: This method receives raw account data. For more reliable vault extraction,
-        use extract_pool_price_from_transaction() which fetches vaults from creation TX.
-        
-        This method tries the bin_id formula as fallback.
-        Returns: quote token amount per 1 base token (SOL price)
-        """
-        try:
-            # Validate minimum account size
-            if len(account_data) < 232:
-                print(f"[METEORA PARSE] ⚠ Account data too small ({len(account_data)} bytes), need at least 232 bytes")
-                return None
-            
-            # Try bin_id parsing (fallback method)
-            try:
-                print(f"[METEORA PARSE] Attempting bin_id parsing from account data...")
-                # Try common offset variations
-                for base_dec_offset in [44, 50, 56]:
-                    for quote_dec_offset in [45, 51, 57]:
-                        for active_id_offset in [72, 80, 88, 96]:
-                            for bin_step_offset in [76, 84, 92, 100]:
-                                try:
-                                    base_decimals = struct.unpack_from("<B", account_data, base_dec_offset)[0]
-                                    quote_decimals = struct.unpack_from("<B", account_data, quote_dec_offset)[0]
-                                    active_id = struct.unpack_from("<i", account_data, active_id_offset)[0]
-                                    bin_step = struct.unpack_from("<H", account_data, bin_step_offset)[0]
-                                    
-                                    # Check if values look reasonable
-                                    if 0 < bin_step <= 10000 and 0 < base_decimals <= 18 and 0 < quote_decimals <= 18:
-                                        base = 1.0 + (bin_step / 10_000.0)
-                                        raw_price = base ** active_id
-                                        decimal_adjustment = 10 ** (base_decimals - quote_decimals)
-                                        price = raw_price * decimal_adjustment
-                                        
-                                        if 1e-20 < price < 1e20:
-                                            print(f"[METEORA PARSE] ✓ Found valid offsets: dec_off={base_dec_offset},{quote_dec_offset}, id_off={active_id_offset},{bin_step_offset}")
-                                            print(f"[METEORA PARSE] ✓ price: ${price:.18f}")
-                                            return price
-                                except:
-                                    pass
-                
-                print(f"[METEORA PARSE] ⚠ Could not find valid bin_id at any offset combination")
-                return None
-            
-            except Exception as e:
-                print(f"[METEORA PARSE] ✗ Error in bin_id parsing: {e}")
-                return None
-        
-        except Exception as e:
-            print(f"[METEORA PARSE] ✗ Error parsing Meteora pool: {e}")
-            import traceback
-            traceback.print_exc()
-            return None
-
     def extract_pool_price_from_transaction(self, pool_id: str, signature: str) -> Optional[float]:
-        """Extract Meteora pool price by:
+        """Extract PumpSwap pool price by:
         1. Fetching the pool creation transaction
         2. Extracting vault addresses from transaction
         3. Fetching actual vault balances from RPC
@@ -1981,7 +1575,7 @@ class TokenMonitor:
         Returns: quote token amount per 1 base token
         """
         try:
-            print(f"[METEORA TX] Fetching price from pool address: {pool_id[:16]}...")
+            print(f"[PUMPSWAP] Fetching price from pool address: {pool_id[:16]}...")
 
             # Always fetch the actual pool creation transaction from the pool address
             # (provided signature may not be pool creation, could be swaps, etc)
@@ -1999,12 +1593,12 @@ class TokenMonitor:
 
                 if sigs_response.get("result") and sigs_response["result"]:
                     actual_signature = sigs_response["result"][-1]["signature"]  # Last sig is creation
-                    print(f"[METEORA TX] ℹ Using pool creation signature: {actual_signature[:16]}...")
+                    print(f"[PUMPSWAP] ℹ Using pool creation signature: {actual_signature[:16]}...")
                 else:
-                    print(f"[METEORA TX] ⚠ Could not fetch signatures for pool, using provided signature")
+                    print(f"[PUMPSWAP] ⚠ Could not fetch signatures for pool, using provided signature")
                     actual_signature = signature
             except Exception as e:
-                print(f"[METEORA TX] ⚠ Error fetching creation signature: {e}, using provided signature")
+                print(f"[PUMPSWAP] ⚠ Error fetching creation signature: {e}, using provided signature")
                 actual_signature = signature
 
             # Get pool creation transaction
@@ -2027,7 +1621,7 @@ class TokenMonitor:
             
             data = response.json()
             if "error" in data or not data.get("result"):
-                print(f"[METEORA TX] ⚠ Transaction not found or error: {data.get('error', 'Unknown')}")
+                print(f"[PUMPSWAP] ⚠ Transaction not found or error: {data.get('error', 'Unknown')}")
                 return None
             
             tx_data = data["result"]
@@ -2035,7 +1629,7 @@ class TokenMonitor:
             # Get account keys
             account_keys = tx_data.get("transaction", {}).get("message", {}).get("accountKeys", [])
             if not account_keys:
-                print(f"[METEORA TX] ⚠ No account keys in transaction")
+                print(f"[PUMPSWAP] ⚠ No account keys in transaction")
                 return None
             
             # Extract pubkeys (handle both dict and string formats)
@@ -2073,12 +1667,12 @@ class TokenMonitor:
                         owner = check_data["result"]["value"].get("owner", "")
                         if owner == token_program:
                             vaults.append(account)
-                            print(f"[METEORA TX] ✓ Found vault: {account[:8]}...")
+                            print(f"[PUMPSWAP] ✓ Found vault: {account[:8]}...")
                 except:
                     pass
             
             if len(vaults) < 2:
-                print(f"[METEORA TX] ⚠ Found only {len(vaults)} vaults from provided signature, trying pool creation tx...")
+                print(f"[PUMPSWAP] ⚠ Found only {len(vaults)} vaults from provided signature, trying pool creation tx...")
                 # Fallback: fetch actual pool creation transaction from pool address
                 try:
                     sigs_response = requests.post(
@@ -2094,7 +1688,7 @@ class TokenMonitor:
 
                     if sigs_response.get("result") and sigs_response["result"]:
                         creation_sig = sigs_response["result"][-1]["signature"]  # Last sig is creation
-                        print(f"[METEORA TX] ℹ Trying pool creation signature: {creation_sig[:16]}...")
+                        print(f"[PUMPSWAP] ℹ Trying pool creation signature: {creation_sig[:16]}...")
 
                         # Retry transaction extraction with creation signature
                         response = requests.post(
@@ -2148,15 +1742,15 @@ class TokenMonitor:
                                         owner = check_data["result"]["value"].get("owner", "")
                                         if owner == token_program:
                                             vaults.append(account)
-                                            print(f"[METEORA TX] ✓ Found vault: {account[:8]}...")
+                                            print(f"[PUMPSWAP] ✓ Found vault: {account[:8]}...")
                                 except:
                                     pass
 
                 except Exception as e:
-                    print(f"[METEORA TX] ⚠ Fallback to creation tx failed: {e}")
+                    print(f"[PUMPSWAP] ⚠ Fallback to creation tx failed: {e}")
 
                 if len(vaults) < 2:
-                    print(f"[METEORA TX] ⚠ Still found only {len(vaults)} vaults after retrying")
+                    print(f"[PUMPSWAP] ⚠ Still found only {len(vaults)} vaults after retrying")
                     return None
             
             # Get vault balances and mints - try ALL vaults, not just first 2
@@ -2203,21 +1797,21 @@ class TokenMonitor:
                         "human": human_amount
                     })
 
-                    print(f"[METEORA TX] ✓ Vault {vault[:8]}... balance: {human_amount:.8f} ({mint[:8]}...)")
+                    print(f"[PUMPSWAP] ✓ Vault {vault[:8]}... balance: {human_amount:.8f} ({mint[:8]}...)")
 
                 except Exception as e:
-                    print(f"[METEORA TX] ⚠ Error processing vault: {e}")
+                    print(f"[PUMPSWAP] ⚠ Error processing vault: {e}")
                     continue
 
             if len(token_vaults) < 2:
-                print(f"[METEORA TX] ⚠ Could not get balances for {len(token_vaults)} vaults")
+                print(f"[PUMPSWAP] ⚠ Could not get balances for {len(token_vaults)} vaults")
                 return None
 
             # Filter out zero-balance vaults first
             token_vaults = [v for v in token_vaults if v["human"] > 0]
 
             if len(token_vaults) < 2:
-                print(f"[METEORA TX] ⚠ After filtering zero balances, only {len(token_vaults)} vaults with balance > 0")
+                print(f"[PUMPSWAP] ⚠ After filtering zero balances, only {len(token_vaults)} vaults with balance > 0")
                 return None
 
             # Keep only one vault per unique mint (the one with highest balance)
@@ -2232,10 +1826,10 @@ class TokenMonitor:
             token_vaults = sorted(mint_to_vault.values(), key=lambda v: v["human"], reverse=True)
 
             if len(token_vaults) < 2:
-                print(f"[METEORA TX] ⚠ After deduplication by mint, only {len(token_vaults)} unique token types")
+                print(f"[PUMPSWAP] ⚠ After deduplication by mint, only {len(token_vaults)} unique token types")
                 return None
 
-            print(f"[METEORA TX] ℹ Using {len(token_vaults)} vaults ({len(mint_to_vault)} unique tokens)")
+            print(f"[PUMPSWAP] ℹ Using {len(token_vaults)} vaults ({len(mint_to_vault)} unique tokens)")
 
             # Check for pool depletion (liquidity removal)
             # A pool is depleted if one vault is nearly empty while the other has balance
@@ -2244,7 +1838,7 @@ class TokenMonitor:
             depletion_reason = None
 
             if len(balances) < 2:
-                print(f"[METEORA TX] ⚠ Pool appears depleted - less than 2 non-zero vaults")
+                print(f"[PUMPSWAP] ⚠ Pool appears depleted - less than 2 non-zero vaults")
                 is_depleted = True
                 depletion_reason = "Less than 2 non-zero vaults"
             else:
@@ -2253,13 +1847,13 @@ class TokenMonitor:
 
                 # Depletion threshold: if smallest vault < 0.00001 (essentially dust)
                 if min_balance < 0.00001:
-                    print(f"[METEORA TX] ⚠ Pool appears depleted - smallest vault has only {min_balance:.18f}")
+                    print(f"[PUMPSWAP] ⚠ Pool appears depleted - smallest vault has only {min_balance:.18f}")
                     is_depleted = True
                     depletion_reason = f"Dust balance: {min_balance:.10f}"
 
                 # Additional check: if smallest < 0.0001 and >100x smaller than largest
                 elif min_balance < 0.0001 and max_balance > 0 and (max_balance / min_balance) > 100:
-                    print(f"[METEORA TX] ⚠ Pool appears depleted - {max_balance/min_balance:.1f}x imbalance")
+                    print(f"[PUMPSWAP] ⚠ Pool appears depleted - {max_balance/min_balance:.1f}x imbalance")
                     is_depleted = True
                     depletion_reason = f"Imbalance: {max_balance/min_balance:.1f}x"
 
@@ -2327,9 +1921,9 @@ class TokenMonitor:
             if best_price is not None and best_pair is not None:
                 base, quote = best_pair
                 if is_depleted:
-                    print(f"[METEORA TX] ⚠ Depleted pool but price: {quote['mint'][:8]}... / {base['mint'][:8]}... = {best_price:.18f} (Reason: {depletion_reason})")
+                    print(f"[PUMPSWAP] ⚠ Depleted pool but price: {quote['mint'][:8]}... / {base['mint'][:8]}... = {best_price:.18f} (Reason: {depletion_reason})")
                 else:
-                    print(f"[METEORA TX] ✓ Best pair: {quote['mint'][:8]}... / {base['mint'][:8]}... = {best_price:.18f}")
+                    print(f"[PUMPSWAP] ✓ Best pair: {quote['mint'][:8]}... / {base['mint'][:8]}... = {best_price:.18f}")
 
                 # Return dict with price and depletion status
                 return {
@@ -2341,9 +1935,9 @@ class TokenMonitor:
             # Fallback: use first pair if algo didn't select
             price = token_vaults[1]["human"] / token_vaults[0]["human"] if token_vaults[0]["human"] > 0 else 0
             if is_depleted:
-                print(f"[METEORA TX] ⚠ Depleted pool fallback: {token_vaults[1]['human']:.8f} / {token_vaults[0]['human']:.8f} = ${price:.18f}")
+                print(f"[PUMPSWAP] ⚠ Depleted pool fallback: {token_vaults[1]['human']:.8f} / {token_vaults[0]['human']:.8f} = ${price:.18f}")
             else:
-                print(f"[METEORA TX] ✓ Fallback price: {token_vaults[1]['human']:.8f} / {token_vaults[0]['human']:.8f} = ${price:.18f}")
+                print(f"[PUMPSWAP] ✓ Fallback price: {token_vaults[1]['human']:.8f} / {token_vaults[0]['human']:.8f} = ${price:.18f}")
 
             return {
                 'price': price,
@@ -2352,7 +1946,7 @@ class TokenMonitor:
             }
         
         except Exception as e:
-            print(f"[METEORA TX] ✗ Error extracting price from transaction: {e}")
+            print(f"[PUMPSWAP] ✗ Error extracting price from transaction: {e}")
             import traceback
             traceback.print_exc()
             return None
@@ -2410,23 +2004,23 @@ class TokenMonitor:
             )
             return cpmm_pool_creation
         
-        # Check for Meteora pool creation (standard DLMM)
+        # Check for PumpSwap pool creation (standard DLMM)
         if f'Program {self.METEORA_PROGRAM} invoke [1]' in logs_text:
-            # Meteora DLMM on-chain instruction discriminators (NOT SDK function names)
+            # PumpSwap DLMM on-chain instruction discriminators (NOT SDK function names)
             # These are the actual instruction types sent to Solana
-            meteora_instructions = [
+            pumpswap_instructions = [
                 'initialize_customizable_permissionless_lb_pair',
                 'initialize_customizable_permissionless_lb_pair2',
                 'initialize_lb_pair',
                 'initialize_lb_pair2',
                 'initialize_permission_lb_pair',
-                'migration_damm_v2',  # Meteora migration instruction
+                'migration_damm_v2',  # PumpSwap migration instruction
             ]
-            return any(instr in logs_text.lower() for instr in meteora_instructions)
+            return any(instr in logs_text.lower() for instr in pumpswap_instructions)
 
-        # Check for Meteora pool creation (alternative program variant)
+        # Check for PumpSwap pool creation (alternative program variant)
         if f'Program {self.METEORA_ALT_PROGRAM} invoke' in logs_text:
-            # Alternative Meteora program uses different instruction names
+            # Alternative PumpSwap program uses different instruction names
             return 'InitializePoolWithDynamicConfig' in logs_text
 
         return False
@@ -2440,23 +2034,23 @@ class TokenMonitor:
         elif f'Program {self.RAYDIUM_CPMM_PROGRAM}' in logs_text:
             return 'Raydium CPMM'
         elif f'Program {self.METEORA_PROGRAM}' in logs_text:
-            return 'Meteora'
+            return 'PumpSwap'
         elif f'Program {self.METEORA_ALT_PROGRAM}' in logs_text:
-            return 'Meteora'
+            return 'PumpSwap'
         else:
             return 'Unknown'
 
     async def listen_for_pools(self):
-        """Listen for new pool creation events from Raydium (V4 & CPMM) and Meteora
+        """Listen for new pool creation events from Raydium (V4 & CPMM) and PumpSwap
 
         Filters for specific pool creation instructions (on-chain discriminators):
         - Raydium V4: 'initialize2' instruction
         - Raydium CPMM: 'InitializeWithPermission' or 'Initialize' instruction
-        - Meteora DLMM (standard): 'initialize_customizable_permissionless_lb_pair',
+        - PumpSwap DLMM (standard): 'initialize_customizable_permissionless_lb_pair',
           'initialize_customizable_permissionless_lb_pair2', 'initialize_lb_pair',
           'initialize_lb_pair2', 'initialize_permission_lb_pair', or
           'migration_damm_v2' (pool migration) instructions
-        - Meteora (alternative): 'InitializePoolWithDynamicConfig' instruction
+        - PumpSwap (alternative): 'InitializePoolWithDynamicConfig' instruction
 
         Note: Uses actual on-chain instruction discriminators, NOT SDK function names.
         SDK functions like createLbPair map to on-chain initialize_* instruction types.
@@ -2469,17 +2063,17 @@ class TokenMonitor:
         while self.is_running:
             try:
                 async with websockets.connect(self.rpc_ws_url) as ws:
-                    # Subscribe to Raydium V4, Raydium CPMM, and Meteora programs
+                    # Subscribe to Raydium V4, Raydium CPMM, and PumpSwap programs
                     await self.subscribe_to_program(ws, self.RAYDIUM_V4_PROGRAM)
                     await self.subscribe_to_program(ws, self.RAYDIUM_CPMM_PROGRAM)
                     await self.subscribe_to_program(ws, self.METEORA_PROGRAM)
                     await self.subscribe_to_program(ws, self.METEORA_ALT_PROGRAM)
 
-                    print("Listening for new pool launches from Raydium (V4 & CPMM) and Meteora...")
+                    print("Listening for new pool launches from Raydium (V4 & CPMM) and PumpSwap...")
                     print("- Raydium V4: Filtering for 'initialize2' instruction")
                     print("- Raydium CPMM: Filtering for 'InitializeWithPermission' or 'Initialize' instruction")
-                    print("- Meteora (standard): Filtering for on-chain initialize_* and migration_damm_v2 instructions")
-                    print("- Meteora (alternative): Filtering for 'InitializePoolWithDynamicConfig' instruction")
+                    print("- PumpSwap (standard): Filtering for on-chain initialize_* and migration_damm_v2 instructions")
+                    print("- PumpSwap (alternative): Filtering for 'InitializePoolWithDynamicConfig' instruction")
 
                     while self.is_running:
                         try:
@@ -3496,8 +3090,8 @@ HTML_TEMPLATE = '''
             });
         }
 
-        // Fetch Meteora price data for a pool
-        async function fetchMeteoraPriceData(tokenMint) {
+        // Fetch PumpSwap price data for a pool
+        async function fetchPumpSwapPriceData(tokenMint) {
             const priceDataDiv = document.getElementById(`price-data-${tokenMint}`);
 
             if (!priceDataDiv) return;
@@ -3505,7 +3099,7 @@ HTML_TEMPLATE = '''
             priceDataDiv.textContent = 'Fetching price data...';
 
             try {
-                const response = await fetch(`/api/meteora/price/${tokenMint}`);
+                const response = await fetch(`/api/pumpswap/price/${tokenMint}`);
                 const data = await response.json();
 
                 if (!response.ok) {
@@ -3679,12 +3273,12 @@ HTML_TEMPLATE = '''
 
             // Images are embedded as <img> tags directly in the HTML - no post-processing needed
 
-            // Auto-fetch Meteora price data if valid token mint
+            // Auto-fetch PumpSwap price data if valid token mint
             if (pool.base_mint && pool.base_mint.length === 44) {
-                console.log(`[RENDER] Auto-fetching Meteora price for: ${pool.name} (${pool.base_mint})`);
+                console.log(`[RENDER] Auto-fetching PumpSwap price for: ${pool.name} (${pool.base_mint})`);
                 // Small delay to ensure DOM is updated
                 setTimeout(() => {
-                    fetchMeteoraPriceData(pool.base_mint);
+                    fetchPumpSwapPriceData(pool.base_mint);
                 }, 100);
             }
         }
@@ -3726,7 +3320,7 @@ HTML_TEMPLATE = '''
             poolCards.forEach(priceDiv => {
                 const tokenMint = priceDiv.id.replace('price-data-', '');
                 if (tokenMint && tokenMint.length === 44) {
-                    fetchMeteoraPriceData(tokenMint);
+                    fetchPumpSwapPriceData(tokenMint);
                 }
             });
             updateAllPoolTimes();
@@ -3844,9 +3438,9 @@ def get_updated_prices():
 
     return jsonify({'pools': pools_with_prices})
 
-@app.route('/api/meteora/price/<token_mint>')
-def get_meteora_price(token_mint):
-    """Get Meteora pool price from database or fallback to live fetch
+@app.route('/api/pumpswap/price/<token_mint>')
+def get_pumpswap_price(token_mint):
+    """Get PumpSwap pool price from database or fallback to live fetch
 
     First checks database for cached price data.
     Falls back to live fetch if not found in database.
@@ -3922,7 +3516,7 @@ def get_meteora_price(token_mint):
 
         # Fallback: Try live fetch if not in database
         print(f"[API PRICE] ⚠ Pool {token_mint[:16]}... not found in database, attempting live fetch...")
-        price_fetcher = MeteoraPriceFetcher()
+        price_fetcher = PumpSwapPriceFetcher()
         price_data = price_fetcher.fetch_price(token_mint)
 
         if not price_data:

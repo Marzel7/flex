@@ -34,9 +34,10 @@ Single-file application (`main.py`) with four main components:
    - Tables: `pools` (current state), `pool_history` (snapshots over time)
    - Thread-safe via `check_same_thread=False` connections
 
-2. **RaydiumMonitor** - WebSocket-based pool detection
+2. **TokenMonitor** - WebSocket-based pool detection
    - Subscribes to Solana program logs via Helius WebSocket RPC
-   - Detects pool creation events from Raydium V4, CPMM, and Meteora programs
+   - Detects pool creation events from Raydium V4 and CPMM programs
+   - Detects PumpSwap migrations (PumpFun → Raydium V4) in real-time
    - Parses transaction logs to extract pool details (mint, liquidity, symbol)
    - Detects pool creation events in real-time (~3-8 seconds after on-chain)
    - Broadcasts new pools to broadcast queue for client polling

@@ -191,7 +191,7 @@ Use this index to find the right documentation for your needs.
 7. **PUMPFUN_INTEGRATION_PLAN.md** (7.7 KB)
    - 4-phase implementation strategy
    - Architecture and design decisions
-   - Key differences from Meteora
+   - Key focus areas
    - Timeline and benefits
    - **Read this for design context**
 

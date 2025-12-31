@@ -205,19 +205,9 @@ For each pool, show:
    - Compare curve → swap price changes
    - Track creator performance metrics
 
-## Key Differences from Meteora
+## Architecture Philosophy
 
-| Aspect | Meteora | PumpSwap (PumpFun) |
-|--------|---------|---------|
-| Entry Point | DLMM (multiple bins) | Bonding Curve (PumpFun) |
-| Final Venue | Meteora DLMM | Raydium V4 (PumpSwap) |
-| Price Source | Active bin (complex) | Vault ratio (simple) |
-| Detection | Look for DLMM pool | Look for token migration from PumpFun |
-| Monitoring | Parse active bin | Track vault balances (same as other Raydium V4) |
-| Bonus Data | Limited metadata | Creator info, launch time, bonding curve history |
-
-## Benefits of PumpSwap Approach
-
+PumpSwap integration focuses on:
 1. **Simpler pricing** - uses vault ratio (proven calculation, no complex bin parsing)
 2. **Larger market** - all PumpFun tokens migrate to PumpSwap (Raydium V4)
 3. **Better detection** - clear bonding curve origin marks, less ambiguous
@@ -225,6 +215,7 @@ For each pool, show:
 5. **Reuses existing code** - 95% leverages our Raydium V4 monitoring
 6. **Rich metadata** - bonding curve history, creator info, launch timing
 7. **Measurable impact** - can track price changes from curve → swap migration
+
 
 ## Timeline
 

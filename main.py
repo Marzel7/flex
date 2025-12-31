@@ -2000,9 +2000,21 @@ class TokenMonitor:
                 'Instruction: Initialize2' in logs_text
             )
             return cpmm_pool_creation
-        
-        # PumpSwap tokens are detected as Raydium V4 pools with bonding_curve markers
-        # (no separate DLMM detection needed for our PumpSwap focus)
+
+        # Check for PumpSwap pool creation
+        # PumpSwap program: pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA
+        if f'Program {self.PUMPSWAP_PROGRAM} invoke [1]' in logs_text:
+            # PumpSwap pool creation instructions (from program's initialization)
+            # These are the discriminators for pool creation on PumpSwap
+            pumpswap_creation_patterns = [
+                'initialize',  # Generic pool initialization
+                'create_pool',  # Pool creation instruction
+                'InitializePool',  # Camel case variant
+                'Program log: Instruction: Initialize',  # Explicit initialize
+            ]
+            is_pumpswap_creation = any(pattern.lower() in logs_text.lower() for pattern in pumpswap_creation_patterns)
+            return is_pumpswap_creation
+
         return False
 
     def get_dex_source(self, logs: List[str]) -> str:

@@ -48,7 +48,7 @@ Two new helper methods for PumpSwap data access:
 # OLD: class RaydiumMonitor:
 # NEW:
 class TokenMonitor:
-    """Unified token monitor for Raydium V4, CPMM, Meteora, and PumpSwap detection"""
+    """Unified token monitor for Raydium V4, CPMM, and PumpSwap detection"""
 ```
 
 Also updated instantiation at line 2603:

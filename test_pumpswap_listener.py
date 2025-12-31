@@ -52,23 +52,20 @@ class ContinuousPumpSwapListener:
     def print_header(self) -> None:
         """Print startup header"""
         print("\n" + "="*80)
-        print("  PUMPSWAP CONTINUOUS LISTENER - Phase 2 Real-Time Detection")
+        print("  PUMPSWAP LISTENER - New Launches & Price Updates")
         print("="*80)
-        print(f"\nStarted at: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-        print("\nListening for:")
-        print("  ✓ PumpSwap program pool creation events (ONLY)")
-        print("  ✓ PumpFun → PumpSwap token migrations")
-        print("  ✓ Price extraction and metadata tracking")
-        print("\nOutput will show:")
-        print("  [WEBSOCKET]  - Pool creation event detected")
-        print("  [PUMPSWAP]   - PumpSwap token identified")
-        print("  [BROADCAST]  - Token marked for UI display")
-        print("\nPress Ctrl+C to stop listening...\n")
+        print(f"\nStarted: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        print("\nMonitoring:")
+        print("  • New PumpSwap token launches (Pump.fun migrations)")
+        print("  • Token price extraction and updates")
+        print("\nWatch for:")
+        print("  🚀 DETECTED - New token launch")
+        print("  [PUMPSWAP PRICE] - Token price")
+        print("\nPress Ctrl+C to stop\n")
         print("="*80 + "\n")
 
     def run_listener(self) -> None:
         """Run the WebSocket listener"""
-        print("[LISTENER] Starting WebSocket monitoring...")
         print("[LISTENER] Connecting to Solana WebSocket...\n")
 
         try:
@@ -134,34 +131,8 @@ def main():
     # Print startup info
     listener.print_header()
 
-    # Explain what's happening
-    print("[SETUP] Configuration:")
-    print(f"  RPC Endpoint: {listener.monitor.rpc_http_url.split('?')[0]}...")
-    print(f"  Database: pumpswap_tokens.db")
-    print(f"  Monitoring PumpSwap Program: {listener.monitor.PUMPSWAP_PROGRAM[:16]}...")
-    print()
-
-    print("[SETUP] The listener will:")
-    print("  1. Connect to Solana WebSocket RPC")
-    print("  2. Subscribe to PumpSwap program events (ONLY)")
-    print("  3. Detect new pool creation transactions from PumpSwap")
-    print("  4. Parse pool data from transaction logs")
-    print("  5. Extract SOL/Token balances for price calculation")
-    print("  6. Extract and store migration metadata")
-    print("  7. Broadcast with 🚀 PumpSwap badge")
-    print("  8. Update prices for all existing tokens (every 30s-5min)")
-    print()
-
-    print("[SETUP] Look for these indicators:")
-    print("  🚀 DETECTED - PumpSwap token found")
-    print("  [PUMPSWAP] - Metadata logging")
-    print("  [BROADCAST] - UI broadcast notification")
-    print("  [PRICE UPDATER] - Price update cycles")
-    print()
-
-    print("[SETUP] NOTE: Detection takes 3-8 seconds after on-chain confirmation")
-    print("[SETUP] Price updates run on sliding scale: 30s (0-5min), 2min (5-30min), 5min (30+min)")
-    print()
+    # Minimal setup info
+    print("[SETUP] Monitoring PumpSwap for new token migrations and price updates\n")
 
     # Run listener
     try:

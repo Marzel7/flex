@@ -180,6 +180,14 @@ class PumpSwapDatabase:
             cursor.execute('ALTER TABLE pools ADD COLUMN discord TEXT')
         except sqlite3.OperationalError:
             pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN token_vault_account TEXT')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute('ALTER TABLE pools ADD COLUMN sol_vault_account TEXT')
+        except sqlite3.OperationalError:
+            pass
 
         cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_amm_id ON pools(amm_id)
@@ -1227,6 +1235,84 @@ class TokenMonitor:
             print(f"[PUMPSWAP PRICE] ✗ Error extracting price: {e}")
             return None
 
+    def extract_and_store_vault_addresses(self, base_mint: str, signature: str) -> Dict:
+        """Extract vault addresses from PumpSwap pool creation transaction and store in database
+
+        Returns: {'token_vault': str, 'sol_vault': str}
+        """
+        try:
+            # Fetch the transaction
+            response = requests.post(
+                self.rpc_http_url,
+                json={
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getTransaction",
+                    "params": [signature, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+                },
+                timeout=10
+            )
+            result = response.json()
+            if "error" in result or not result.get("result"):
+                return {}
+
+            tx_data = result["result"]
+            meta = tx_data.get("meta", {})
+            post_balances = meta.get("postTokenBalances", [])
+
+            SOL_MINT = "So11111111111111111111111111111111111111112"
+            token_vault = None
+            sol_vault = None
+            token_vault_amount = 0
+            sol_vault_amount = 0
+
+            # Find the vault addresses from postTokenBalances
+            for balance_info in post_balances:
+                mint = balance_info.get("mint")
+                ui_amount = balance_info.get("uiTokenAmount", {}).get("uiAmount", 0)
+                owner = balance_info.get("owner", "")
+
+                # Find the token vault (owner of the base_mint tokens with largest balance)
+                if mint == base_mint and ui_amount > 0 and ui_amount > token_vault_amount:
+                    token_vault = owner
+                    token_vault_amount = ui_amount
+
+                # Find the SOL vault (owner of SOL with largest balance, excluding typical fee payers)
+                if mint == SOL_MINT and ui_amount > 0 and ui_amount > sol_vault_amount:
+                    sol_vault = owner
+                    sol_vault_amount = ui_amount
+
+            result_dict = {}
+            if token_vault:
+                result_dict['token_vault'] = token_vault
+            if sol_vault:
+                result_dict['sol_vault'] = sol_vault
+
+            if token_vault or sol_vault:
+                print(f"[VAULT EXTRACT] ✓ Found vaults - Token: {token_vault[:8] if token_vault else 'N/A'}..., SOL: {sol_vault[:8] if sol_vault else 'N/A'}...")
+                # Update database
+                conn = self.get_connection()
+                cursor = conn.cursor()
+                try:
+                    cursor.execute('''
+                        UPDATE pools
+                        SET token_vault_account = ?, sol_vault_account = ?
+                        WHERE base_mint = ?
+                    ''', (token_vault, sol_vault, base_mint))
+                    conn.commit()
+                except Exception as e:
+                    print(f"[VAULT EXTRACT] ⚠ Failed to update database: {e}")
+                finally:
+                    conn.close()
+                return result_dict
+            else:
+                print(f"[VAULT EXTRACT] ⚠ Could not find vault addresses in transaction")
+                return {}
+
+        except Exception as e:
+            print(f"[VAULT EXTRACT] ✗ Error extracting vaults: {e}")
+            return {}
+
     def fetch_pool_price(self, amm_id: str, base_mint: str, signature: str = None, dex: str = "Unknown") -> Dict:
         """Fetch current price by directly calculating from vault balances
 
@@ -2131,10 +2217,6 @@ class TokenMonitor:
         """
         print(f"Connecting to Solana WebSocket: {self.rpc_ws_url}")
 
-        # Track which program this WebSocket is subscribed to
-        # Since we're only subscribed to PumpSwap, all events are PumpSwap
-        current_subscribed_program = self.PUMPSWAP_PROGRAM
-
         while self.is_running:
             try:
                 async with websockets.connect(self.rpc_ws_url) as ws:
@@ -2162,8 +2244,7 @@ class TokenMonitor:
                                     continue
 
                                 # Determine which DEX this is from
-                                # Since we're only subscribed to PumpSwap program, all events are PumpSwap
-                                dex_source = "PumpSwap"
+                                dex_source = self.get_dex_source(logs)
                                 print(f"[WEBSOCKET] Received {dex_source} transaction: {signature}")
 
                                 # Only process actual pool creations (not swaps, deposits, etc)
@@ -3728,11 +3809,7 @@ def start_liquidity_monitor_for_pool(pool_address: str, pool_symbol: str) -> Non
     def monitor_thread():
         """Run liquidity monitoring in background"""
         try:
-            try:
-                from establish_baseline_price import BaselinePriceManager
-            except ImportError:
-                print(f"[LIQUIDITY MONITOR] ⚠ BaselinePriceManager module not available")
-                return
+            from establish_baseline_price import BaselinePriceManager
 
             manager = BaselinePriceManager(pool_address)
 

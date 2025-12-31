@@ -48,8 +48,17 @@ Since we only subscribe to one program, we can definitively set `dex_source = "P
 
 ## Why PumpSwap Only?
 
-### Reason 1: Focused Monitoring
+### Reason 1: Pump.fun Migration Destination
+**New Pump.fun tokens automatically graduate to PumpSwap liquidity pools once they complete their bonding curve.** This replaces the previous Raydium migration process.
+
+- Pump.fun bonding curve → **PumpSwap AMM** (destination for liquidity)
+- Liquidity now lives on **PumpSwap rather than Raydium**
+- This is the primary token migration flow we monitor
+
 The original requirement was to detect **PumpSwap tokens specifically** - tokens that migrate from Pump.fun bonding curve to the PumpSwap AMM. This is a specific use case that only requires monitoring the PumpSwap program.
+
+### Reason 1b: Focused Monitoring
+The system is designed to detect the Pump.fun → PumpSwap migration flow, which is a specific use case requiring only PumpSwap program subscription.
 
 ### Reason 2: Cleaner Architecture
 By listening to a single program:
@@ -71,13 +80,20 @@ Listening to only PumpSwap program means:
 
 ### ✅ Will Be Detected
 
-1. **PumpSwap Pool Creation**
-   - Pools created in the PumpSwap program (pAMMBay6...)
-   - Tokens migrating from Pump.fun bonding curve
+1. **Pump.fun → PumpSwap Migration** (Primary Use Case)
+   - Tokens graduating from Pump.fun bonding curve
+   - Automatic liquidity pool creation in PumpSwap AMM
+   - Represented as new PumpSwap pool creation events
    - Price extracted from transaction post-balances
    - Metadata extracted and stored
 
-2. **Example Events**
+2. **PumpSwap Pool Creation**
+   - Any pools created in the PumpSwap program (pAMMBay6...)
+   - Includes migrated Pump.fun tokens and other PumpSwap pools
+   - Price extracted from transaction post-balances
+   - Metadata extracted and stored
+
+3. **Example Events**
    ```
    [WEBSOCKET] Received PumpSwap transaction: 5xYz9ABC...
    New PumpSwap pool launch: 5xYz9ABC...
@@ -179,12 +195,14 @@ To confirm the system is monitoring only PumpSwap:
 
 | Aspect | Status |
 |--------|--------|
+| **Primary Flow** | 🎯 Pump.fun → PumpSwap (automatic graduation) |
 | **PumpSwap Program** | ✅ Monitored (pAMMBay6...) |
-| **Raydium V4** | ❌ Not monitored |
+| **Raydium V4** | ❌ Not monitored (legacy migration destination) |
 | **Meteora DLMM** | ❌ Not monitored |
 | **Other DEX** | ❌ Not monitored |
-| **Focus** | 🎯 PumpSwap tokens only |
-| **Why Single Program** | Focused monitoring, cleaner code, resource efficient |
+| **Focus** | 🎯 Detect PumpSwap pool creations from Pump.fun tokens |
+| **Price Method** | Transaction post-balances (on-chain data) |
+| **Why Single Program** | Pump.fun tokens exclusively graduate to PumpSwap |
 
 ---
 

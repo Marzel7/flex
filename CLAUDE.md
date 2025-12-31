@@ -71,6 +71,39 @@ Single-file application (`main.py`) with four main components:
 
 SQLite database `pumpswap_tokens.db` stores pool data locally.
 
+## Price Freshness & Updates
+
+**Automatic Price Updates:**
+- Background thread updates prices continuously on a sliding scale
+- Update frequency based on pool age:
+  - 0-5 minutes old: Every 30 seconds ⚡
+  - 5-30 minutes old: Every 2 minutes
+  - 30+ minutes old: Every 5 minutes
+- Implementation: `main.py` lines 2357-2452
+  - `update_pool_prices()` - Background daemon thread
+  - `get_pools_needing_update()` - Determines which pools to refresh
+  - Updates: `dexscreener_price_usd`, `dexscreener_price_native`, `market_cap`
+  - Records timestamp in `last_price_update` for every refresh
+
+**Checking Price Freshness:**
+```bash
+python get_price_from_pools.py <TOKEN_MINT>
+```
+Output shows: `Price Status: Updated 30s ago ✓ (fresh)`
+
+Status indicators:
+- `✓ (fresh)` = Less than 5 minutes old
+- `~ (ok)` = 5-30 minutes old
+- `⚠ (stale)` = More than 1 hour old
+
+**Database Timestamps:**
+- `first_seen` - Pool detection time (never changes)
+- `last_price_update` - Last time price was refreshed (updates constantly)
+
+**Scripts:**
+- `get_price_from_pools.py` - Query prices with freshness status
+- `get_price_live_with_balances.py` - Advanced lookup with vault details
+
 ## Development Guidelines
 
 **Before making UI changes:**

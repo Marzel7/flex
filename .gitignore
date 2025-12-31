@@ -34,6 +34,7 @@ pumpswap_tokens.db
 test_*.py
 !test_pumpswap_detection.py
 !test_pumpswap_phase2.py
+!test_pumpswap_listener.py
 backfill_*.py
 benchmark.py
 tmp.py

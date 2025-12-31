@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Template for fetching LIVE token prices from PumpSwap pool vaults.
+Fetch LIVE token prices from PumpSwap pool vaults via blockchain RPC.
 
 This shows how to:
-1. Get pool addresses from database
+1. Get pool addresses from database OR search blockchain for any token
 2. Fetch LIVE vault balances from RPC
 3. Calculate CURRENT prices from vault ratio (SOL Balance / Token Balance)
-4. Display market cap, liquidity, and all fresh metrics
+4. Display price in USD with market data
 
 REQUIREMENTS:
 - Helius API key for RPC access: https://www.helius.dev/
@@ -20,8 +20,9 @@ Formula:
 
 Usage:
     export HELIUS_API_KEY="your-key"
-    python test_vault_price_template.py              # All tokens
-    python test_vault_price_template.py <TOKEN_MINT> # Single token
+    python test_vault_price_template.py                          # All tokens in DB
+    python test_vault_price_template.py <TOKEN_MINT>             # Single token from DB
+    python test_vault_price_template.py -s <POOL_SIGNATURE>      # Any token via signature
 """
 
 import sqlite3
@@ -220,6 +221,66 @@ def get_transaction(signature):
     except:
         pass
     return None
+
+def find_pool_creation_tx(token_mint):
+    """Find pool creation transaction for a token mint by searching blockchain.
+
+    Uses getSignaturesForAddress on the token mint account to find its creation
+    transaction, then filters for PumpSwap pool creation signature patterns.
+
+    Note: This searches token account history which may contain many transactions.
+    """
+    try:
+        print(f"  [SEARCHING] Finding pool creation transaction for {token_mint[:8]}...")
+
+        # Get signatures for the token mint account (limited to recent ones)
+        result = rpc_call("getSignaturesForAddress", [
+            token_mint,
+            {"limit": 100}  # Search recent 100 transactions
+        ])
+
+        if not result:
+            print(f"  [✗] No transactions found for token")
+            return None
+
+        # The first signature should be the creation (oldest is usually first in some implementations)
+        # For PumpSwap, we want to find the signature that created the token
+        # Typically this is among the first few transactions
+
+        print(f"  [FOUND] {len(result)} transactions, checking first few...")
+
+        for sig_info in result[:10]:  # Check first 10 transactions
+            signature = sig_info.get('signature')
+            if not signature:
+                continue
+
+            print(f"    [CHECKING] {signature[:16]}...", end=" ", flush=True)
+            tx_data = get_transaction(signature)
+
+            if not tx_data:
+                print("✗ (fetch failed)")
+                continue
+
+            # Check if this transaction has token balance changes (pool creation signature)
+            meta = tx_data.get('meta', {})
+            post_balances = meta.get('postTokenBalances', [])
+
+            # Pool creation will have the token mint with balance changes
+            has_token = any(b.get('mint') == token_mint for b in post_balances)
+            has_sol = any(b.get('mint') == 'So11111111111111111111111111111111111111112' for b in post_balances)
+
+            if has_token and has_sol:
+                print("✓ [POOL CREATION FOUND]")
+                return signature
+            else:
+                print("✗")
+
+        print(f"  [✗] Could not find pool creation transaction in recent history")
+        return None
+
+    except Exception as e:
+        print(f"  [✗] Error searching transactions: {str(e)[:50]}")
+        return None
 
 def extract_vault_account_addresses(tx_data, base_mint):
     """Extract actual token and SOL vault account addresses from transaction
@@ -736,13 +797,63 @@ def main():
 
     # With API key, fetch live prices
     conn = connect_db()
-    if not conn:
-        print("[✗] Cannot connect to database")
-        return
 
-    token_mint = sys.argv[1] if len(sys.argv) > 1 else None
+    # Parse command-line arguments
+    token_mint = None
+    pool_signature = None
+    use_signature = False
 
-    if token_mint:
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "-s" and len(sys.argv) > 2:
+            # Signature-based lookup: python script.py -s <SIGNATURE>
+            pool_signature = sys.argv[2]
+            use_signature = True
+            print(f"\n[MODE] Direct signature lookup: {pool_signature[:16]}...")
+        else:
+            # Token mint lookup: python script.py <TOKEN_MINT>
+            token_mint = sys.argv[1]
+
+    if use_signature and pool_signature:
+        # Direct signature lookup - no database needed
+        print(f"[FETCHING] Fetching pool info from signature...")
+        print("-" * 140)
+
+        # Create a minimal pool dict with just the signature
+        pool = {
+            'symbol': pool_signature[:8],
+            'base_mint': None,  # Will be extracted from tx
+            'total_supply': None,
+            'signature': pool_signature
+        }
+
+        # We need to fetch the tx first to get the token mint
+        print(f"[EXTRACTING] Getting token mint from transaction...")
+        tx_data = get_transaction(pool_signature)
+        if not tx_data:
+            print(f"[✗] Could not fetch transaction")
+            return
+
+        # Extract token mint from transaction (first non-SOL balance)
+        SOL_MINT = "So11111111111111111111111111111111111111112"
+        for balance_info in tx_data.get('meta', {}).get('postTokenBalances', []):
+            mint = balance_info.get('mint')
+            if mint and mint != SOL_MINT:
+                pool['base_mint'] = mint
+                print(f"[FOUND] Token mint: {mint}")
+                break
+
+        if not pool['base_mint']:
+            print(f"[✗] Could not extract token mint from transaction")
+            return
+
+        result = fetch_pool_price(pool)
+
+    elif token_mint:
+        # Token mint lookup from database
+        if not conn:
+            print("[✗] Cannot connect to database")
+            return
+
         cursor = conn.cursor()
         cursor.execute("""
             SELECT symbol, base_mint, amm_id, total_supply, signature
@@ -750,14 +861,33 @@ def main():
             WHERE base_mint = ?
         """, (token_mint,))
         pool = cursor.fetchone()
+
         if not pool:
-            print(f"[✗] Token not found")
-            return
+            # Token not in database - try to find it on blockchain
+            print(f"\n[NOT IN DB] Token not found in database, searching blockchain...")
+            print(f"[SEARCHING] This may take a moment...")
+            found_signature = find_pool_creation_tx(token_mint)
 
-        print(f"\n[FETCHING] Live price for {dict(pool)['symbol']}...")
+            if not found_signature:
+                print(f"[✗] Could not find pool creation transaction on blockchain")
+                return
+
+            # Found signature - use it
+            pool = {
+                'symbol': token_mint[:8],
+                'base_mint': token_mint,
+                'total_supply': None,
+                'signature': found_signature
+            }
+            print(f"\n[FETCHING] Live price for {token_mint[:8]}...")
+        else:
+            print(f"\n[FETCHING] Live price for {dict(pool)['symbol']}...")
+
         print("-" * 140)
-        result = fetch_pool_price(dict(pool))
+        result = fetch_pool_price(dict(pool) if hasattr(pool, '__getitem__') else pool)
 
+    # Show single token result if we fetched one
+    if token_mint or use_signature:
         if result:
             is_realtime = result.get('is_realtime', False)
             data_source = result.get('data_source', 'UNKNOWN')
@@ -793,6 +923,11 @@ def main():
             print(f"  Timestamp:       {result['timestamp']}")
 
     else:
+        # No arguments - fetch all tokens from database
+        if not conn:
+            print("[✗] Cannot connect to database")
+            return
+
         pools = fetch_all_pools(conn)
 
         if not pools:

@@ -35,6 +35,7 @@ test_*.py
 !test_pumpswap_detection.py
 !test_pumpswap_phase2.py
 !test_pumpswap_listener.py
+!test_vault_price_template.py
 backfill_*.py
 benchmark.py
 tmp.py

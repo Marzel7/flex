@@ -1167,14 +1167,87 @@ class TokenMonitor:
             traceback.print_exc()
             return None
 
-    def fetch_pool_price(self, amm_id: str, base_mint: str, signature: str = None) -> Dict:
+    def fetch_pumpswap_price_from_transaction(self, amm_id: str, base_mint: str, signature: str) -> Optional[float]:
+        """Fetch PumpSwap pool price directly from transaction balances
+
+        PumpSwap pools are constant-product AMMs with SOL/Token pairs.
+        Extract the SOL and Token vault balances from the transaction logs.
+
+        Price = Token Balance / SOL Balance
+        """
+        try:
+            print(f"[PUMPSWAP PRICE] Extracting price from transaction logs...")
+
+            # Fetch the full transaction
+            response = requests.post(
+                self.rpc_http_url,
+                json={
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getTransaction",
+                    "params": [signature, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+                },
+                timeout=10
+            )
+            result = response.json()
+            if "error" in result or not result.get("result"):
+                print(f"[PUMPSWAP PRICE] ⚠ Could not fetch transaction")
+                return None
+
+            tx_data = result["result"]
+            meta = tx_data.get("meta", {})
+            post_balances = meta.get("postTokenBalances", [])
+
+            # Find the token and SOL balances
+            SOL = "So11111111111111111111111111111111111111112"
+            token_balance = None
+            sol_balance = None
+
+            for balance_info in post_balances:
+                mint = balance_info.get("mint")
+                ui_amount = balance_info.get("uiTokenAmount", {}).get("uiAmount", 0)
+
+                if mint == base_mint:
+                    token_balance = ui_amount
+                    print(f"[PUMPSWAP PRICE] ✓ Found token balance: {token_balance:.2f} {base_mint[:8]}...")
+                elif mint == SOL:
+                    sol_balance = ui_amount
+                    print(f"[PUMPSWAP PRICE] ✓ Found SOL balance: {sol_balance:.6f} SOL")
+
+            # Calculate price: Token/SOL
+            if token_balance is not None and sol_balance is not None and sol_balance > 0:
+                price = token_balance / sol_balance
+                print(f"[PUMPSWAP PRICE] ✓ Calculated price: {price:.18f} SOL per token")
+                return price
+            else:
+                print(f"[PUMPSWAP PRICE] ⚠ Missing balances - Token: {token_balance}, SOL: {sol_balance}")
+                return None
+
+        except Exception as e:
+            print(f"[PUMPSWAP PRICE] ✗ Error extracting price: {e}")
+            return None
+
+    def fetch_pool_price(self, amm_id: str, base_mint: str, signature: str = None, dex: str = "Unknown") -> Dict:
         """Fetch current price by directly calculating from vault balances
 
         Uses proven working vault extraction logic instead of relying on V2 fetcher.
+        For PumpSwap, uses specialized transaction-based price extraction.
         Returns: {'price': float, 'is_depleted': bool, 'depletion_reason': str or None}
         """
         try:
-            print(f"[PRICE FETCH] Fetching price for base_mint={base_mint[:8]}... amm_id={amm_id[:8]}...")
+            print(f"[PRICE FETCH] Fetching price for base_mint={base_mint[:8]}... amm_id={amm_id[:8]}... dex={dex}")
+
+            # Use specialized PumpSwap price fetcher
+            if dex == "PumpSwap" and signature:
+                pumpswap_price = self.fetch_pumpswap_price_from_transaction(amm_id, base_mint, signature)
+                if pumpswap_price is not None and pumpswap_price > 0:
+                    return {
+                        'price': pumpswap_price,
+                        'is_depleted': False,
+                        'depletion_reason': None
+                    }
+                else:
+                    print(f"[PRICE FETCH] ⚠ PumpSwap price extraction failed, falling back to vault method")
 
             # If signature is provided, use it to extract vaults; otherwise look up from recent transactions
             tx_sig = signature
@@ -2141,7 +2214,7 @@ class TokenMonitor:
                                             # Fetch initial price and supply for new pool
                                             if pool_data.get('baseMint'):
                                                 print(f"[PRICE INIT] Fetching initial price and supply for {pool_data['ammId'][:8]}...")
-                                                price_result = self.fetch_pool_price(pool_data['ammId'], pool_data['baseMint'], signature)
+                                                price_result = self.fetch_pool_price(pool_data['ammId'], pool_data['baseMint'], signature, dex_source)
                                                 if price_result and price_result.get('price') is not None:
                                                     initial_price = price_result['price']
                                                     is_depleted = price_result.get('is_depleted', False)
@@ -2295,6 +2368,7 @@ class TokenMonitor:
                     base_mint = pool_info['base_mint']
                     age_seconds = pool_info['age_seconds']
                     signature = pool_info.get('signature')  # Get stored signature
+                    dex = pool_info.get('dex', 'Unknown')  # Get DEX type
 
                     # Determine update interval
                     if age_seconds < 300:
@@ -2307,7 +2381,7 @@ class TokenMonitor:
                     print(f"[PRICE UPDATER] [{i}/{len(pools_to_update)}] Pool age: {age_seconds:.0f}s, interval: {interval_str}")
 
                     # Fetch current price from blockchain (use signature if available)
-                    price_result = self.fetch_pool_price(amm_id, base_mint, signature)
+                    price_result = self.fetch_pool_price(amm_id, base_mint, signature, dex)
 
                     if price_result and price_result.get('price') is not None:
                         current_price = price_result['price']

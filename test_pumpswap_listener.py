@@ -2,13 +2,15 @@
 """
 Continuous PumpSwap Listener Test
 
-Runs the real-time WebSocket listener and logs all detected PumpSwap tokens
-as they migrate from PumpFun bonding curve to PumpSwap AMM.
+Runs the real-time WebSocket listener and price updater for PumpSwap tokens.
+Detects new token migrations from PumpFun bonding curve to PumpSwap AMM
+and continuously updates prices for all existing tokens.
 
 This test demonstrates Phase 2 in action:
 - Listens to WebSocket for new PumpSwap pool creation events (ONLY)
 - Detects token migrations from Pump.fun bonding curve
-- Extracts prices from SOL/Token balances in transaction metadata
+- Extracts initial prices from SOL/Token balances in transaction metadata
+- Continuously updates prices for existing tokens (every 30s-5min)
 - Logs PumpSwap detections in real-time with detailed metadata
 
 Usage:
@@ -19,6 +21,7 @@ Usage:
   - PumpSwap tokens with 🚀 badge
   - Migration metadata (creator, bonding curve, timestamp)
   - Price extraction logs ([PUMPSWAP PRICE] prefix)
+  - Price update cycles ([PRICE UPDATER] prefix)
   - Console output with [PUMPSWAP] and [BROADCAST] prefixes
 
 Press Ctrl+C to stop the listener.
@@ -71,6 +74,9 @@ class ContinuousPumpSwapListener:
         try:
             # Start the background WebSocket monitor
             self.monitor.start_background_monitor()
+
+            # Also start price updater to continuously update existing tokens
+            self.monitor.start_price_updater()
 
             # Keep the listener running
             import time
@@ -135,7 +141,7 @@ def main():
     print(f"  Monitoring PumpSwap Program: {listener.monitor.PUMPSWAP_PROGRAM[:16]}...")
     print()
 
-    print("[SETUP] The WebSocket listener will:")
+    print("[SETUP] The listener will:")
     print("  1. Connect to Solana WebSocket RPC")
     print("  2. Subscribe to PumpSwap program events (ONLY)")
     print("  3. Detect new pool creation transactions from PumpSwap")
@@ -143,16 +149,18 @@ def main():
     print("  5. Extract SOL/Token balances for price calculation")
     print("  6. Extract and store migration metadata")
     print("  7. Broadcast with 🚀 PumpSwap badge")
+    print("  8. Update prices for all existing tokens (every 30s-5min)")
     print()
 
     print("[SETUP] Look for these indicators:")
     print("  🚀 DETECTED - PumpSwap token found")
     print("  [PUMPSWAP] - Metadata logging")
     print("  [BROADCAST] - UI broadcast notification")
+    print("  [PRICE UPDATER] - Price update cycles")
     print()
 
     print("[SETUP] NOTE: Detection takes 3-8 seconds after on-chain confirmation")
-    print("[SETUP] because the WebSocket must receive, parse, and verify the transaction")
+    print("[SETUP] Price updates run on sliding scale: 30s (0-5min), 2min (5-30min), 5min (30+min)")
     print()
 
     # Run listener

@@ -732,10 +732,6 @@ class TokenMonitor:
 
                     print(f"[POOL PARSE] Extracted {len(pubkeys)} pubkeys")
 
-                    # METEORA PROGRAM IDs
-                    METEORA_DLMM_PROGRAM = "dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN"  # Main DLMM program (owns LBPair)
-                    METEORA_REFERRAL_PROGRAM = "cpamdpZCGKUy5JxQXB4dcpGPiikHawvSWAd6mEn1sGG"  # Referral program (not the pool)
-
                     # DEX-specific pool account extraction
                     pool_account_set = False
                     
@@ -2004,39 +2000,18 @@ class TokenMonitor:
             )
             return cpmm_pool_creation
         
-        # Check for PumpSwap pool creation (standard DLMM)
-        if f'Program {self.METEORA_PROGRAM} invoke [1]' in logs_text:
-            # PumpSwap DLMM on-chain instruction discriminators (NOT SDK function names)
-            # These are the actual instruction types sent to Solana
-            pumpswap_instructions = [
-                'initialize_customizable_permissionless_lb_pair',
-                'initialize_customizable_permissionless_lb_pair2',
-                'initialize_lb_pair',
-                'initialize_lb_pair2',
-                'initialize_permission_lb_pair',
-                'migration_damm_v2',  # PumpSwap migration instruction
-            ]
-            return any(instr in logs_text.lower() for instr in pumpswap_instructions)
-
-        # Check for PumpSwap pool creation (alternative program variant)
-        if f'Program {self.METEORA_ALT_PROGRAM} invoke' in logs_text:
-            # Alternative PumpSwap program uses different instruction names
-            return 'InitializePoolWithDynamicConfig' in logs_text
-
+        # PumpSwap tokens are detected as Raydium V4 pools with bonding_curve markers
+        # (no separate DLMM detection needed for our PumpSwap focus)
         return False
 
     def get_dex_source(self, logs: List[str]) -> str:
         """Determine which DEX the pool is from based on transaction logs"""
         logs_text = ' '.join(logs)
-        
+
         if f'Program {self.RAYDIUM_V4_PROGRAM}' in logs_text:
             return 'Raydium V4'
         elif f'Program {self.RAYDIUM_CPMM_PROGRAM}' in logs_text:
             return 'Raydium CPMM'
-        elif f'Program {self.METEORA_PROGRAM}' in logs_text:
-            return 'PumpSwap'
-        elif f'Program {self.METEORA_ALT_PROGRAM}' in logs_text:
-            return 'PumpSwap'
         else:
             return 'Unknown'
 
@@ -2063,17 +2038,14 @@ class TokenMonitor:
         while self.is_running:
             try:
                 async with websockets.connect(self.rpc_ws_url) as ws:
-                    # Subscribe to Raydium V4, Raydium CPMM, and PumpSwap programs
+                    # Subscribe to Raydium V4 and CPMM programs
+                    # PumpSwap tokens are detected as Raydium V4 pools with bonding_curve markers
                     await self.subscribe_to_program(ws, self.RAYDIUM_V4_PROGRAM)
                     await self.subscribe_to_program(ws, self.RAYDIUM_CPMM_PROGRAM)
-                    await self.subscribe_to_program(ws, self.METEORA_PROGRAM)
-                    await self.subscribe_to_program(ws, self.METEORA_ALT_PROGRAM)
 
-                    print("Listening for new pool launches from Raydium (V4 & CPMM) and PumpSwap...")
-                    print("- Raydium V4: Filtering for 'initialize2' instruction")
+                    print("Listening for new pool launches from Raydium (V4 & CPMM)...")
+                    print("- Raydium V4: Filtering for 'initialize2' instruction (includes PumpSwap migrations)")
                     print("- Raydium CPMM: Filtering for 'InitializeWithPermission' or 'Initialize' instruction")
-                    print("- PumpSwap (standard): Filtering for on-chain initialize_* and migration_damm_v2 instructions")
-                    print("- PumpSwap (alternative): Filtering for 'InitializePoolWithDynamicConfig' instruction")
 
                     while self.is_running:
                         try:

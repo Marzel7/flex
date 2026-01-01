@@ -46,14 +46,17 @@ from threading import Thread
 # Helius RPC configuration
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "0ae07551-32df-4d9d-af2a-1925fb7f561f"
 HELIUS_RPC = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
+
+# Alternative API key for WebSocket (separates WebSocket from HTTP load)
+# Using different key reduces rate limiting by distributing across endpoints
+HELIUS_WEBSOCKET_API_KEY = os.getenv("HELIUS_WEBSOCKET_API_KEY", "") or "f084fae8-d111-4337-9960-2d9c5e02a726"
+HELIUS_RPC_WS = f"wss://mainnet.helius-rpc.com/?api-key={HELIUS_WEBSOCKET_API_KEY}"
+
 SOL_DECIMALS = 9
 SOL_USD_PRICE = 125  # Current SOL price
 
 # PumpSwap program ID
 PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
-
-# WebSocket configuration for live event listening
-HELIUS_RPC_WS = HELIUS_RPC.replace('https://', 'wss://').replace('http://', 'ws://')
 
 
 class VaultPriceFetcher:

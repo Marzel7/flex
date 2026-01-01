@@ -174,8 +174,9 @@ class VaultPriceFetcher:
                 result = self.rpc_call("getTransaction", [
                     signature,
                     {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}
-                ])
+                ], retries=2)  # Inner retries handled by rpc_call
                 if result:
+                    print(f"[RPC] ✓ getTransaction succeeded on attempt {attempt + 1}/{retries}: {signature[:20]}...")
                     return result
 
                 # On failure, wait before retry with exponential backoff + jitter
@@ -183,14 +184,17 @@ class VaultPriceFetcher:
                     base_wait = 0.5 * (2 ** attempt)  # Exponential: 0.5s, 1s, 2s
                     jitter = random.uniform(0, 0.5)    # Add 0-0.5s random jitter
                     wait_time = base_wait + jitter
+                    print(f"[RPC] ⚠ getTransaction attempt {attempt + 1}/{retries} failed for {signature[:20]}... Waiting {wait_time:.2f}s before retry")
                     time.sleep(wait_time)
             except Exception as e:
+                print(f"[RPC] ✗ Exception in getTransaction attempt {attempt + 1}/{retries}: {e}")
                 if attempt < retries - 1:
                     base_wait = 0.5 * (2 ** attempt)
                     jitter = random.uniform(0, 0.5)
                     wait_time = base_wait + jitter
                     time.sleep(wait_time)
 
+        print(f"[RPC] ✗ getTransaction failed after {retries} retries: {signature[:20]}...")
         return None
 
     def get_recent_signatures(self, limit=10):
@@ -1021,14 +1025,16 @@ class StandalonePumpSwapListener:
                                     'meta': {'logMessages': logs, 'err': err},
                                     'blockTime': int(time.time())
                                 }):
-                                    print(f"[WEBSOCKET] 🚨 Migration detected: {signature}")
+                                    print(f"[WEBSOCKET] 🚨 Migration detected: {signature[:60]}...")
 
                                     # Fetch full transaction to extract token (with retry logic)
-                                    print(f"[WEBSOCKET] Fetching full transaction (with 3 retries)...")
+                                    print(f"[WEBSOCKET] Starting transaction fetch for {signature[:20]}... (3 retries, will show detailed logging)")
                                     full_tx = self.price_fetcher.get_transaction(signature, retries=3)
                                     if not full_tx:
-                                        print(f"[WEBSOCKET] ✗ Failed to fetch transaction after 3 retries: {signature}")
+                                        print(f"[WEBSOCKET] ✗ Failed to fetch transaction after 3 retries: {signature[:60]}...")
                                         continue
+
+                                    print(f"[WEBSOCKET] ✓ Successfully fetched transaction, extracting token...")
 
                                     token_mint = self.price_fetcher.extract_token_from_tx_data(full_tx)
                                     if not token_mint:

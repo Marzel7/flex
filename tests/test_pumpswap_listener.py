@@ -924,7 +924,7 @@ class StandalonePumpSwapListener:
                                     continue
 
                                 # Check if this is a pool creation transaction (migration)
-                                if signature and self.is_pool_creation_transaction({
+                                if signature and self.price_fetcher.is_pool_creation_transaction({
                                     'meta': {'logMessages': logs, 'err': err},
                                     'blockTime': int(time.time())
                                 }):

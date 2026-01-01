@@ -129,6 +129,39 @@ class VaultPriceFetcher:
         except:
             return None
 
+    def get_recent_signatures(self, limit=10):
+        """Get recent transaction signatures for PumpSwap program"""
+        try:
+            result = self.rpc_call("getSignaturesForAddress", [
+                PUMPSWAP_PROGRAM,
+                {"limit": limit}
+            ])
+            return result if result else []
+        except:
+            return []
+
+    def extract_token_from_signature(self, signature):
+        """Extract token mint from a transaction signature"""
+        try:
+            tx_data = self.get_transaction(signature)
+            if not tx_data:
+                return None
+
+            # Look for token mint in transaction logs
+            logs = tx_data.get('meta', {}).get('logMessages', [])
+            post_balances = tx_data.get('meta', {}).get('postTokenBalances', [])
+
+            # Extract mints from postTokenBalances
+            for balance_info in post_balances:
+                mint = balance_info.get('mint', '')
+                # Skip SOL and wrapped SOL
+                if mint and mint != "So11111111111111111111111111111111111111112" and len(mint) == 44:
+                    return mint
+
+            return None
+        except:
+            return None
+
     def extract_vault_account_addresses(self, tx_data, base_mint, debug=False):
         """Extract token and SOL vault accounts from transaction
 
@@ -428,34 +461,67 @@ class StandalonePumpSwapListener:
 
         return tokens
 
+    def scan_for_new_launches(self, seen_signatures):
+        """Scan recent PumpSwap transactions for new launches"""
+        new_launches = []
+
+        # Get recent signatures from PumpSwap program
+        signatures = self.price_fetcher.get_recent_signatures(limit=20)
+
+        for sig_info in signatures:
+            signature = sig_info.get('signature', '')
+
+            if signature in seen_signatures:
+                continue
+
+            # Extract token mint from transaction
+            token_mint = self.price_fetcher.extract_token_from_signature(signature)
+
+            if token_mint:
+                new_launches.append({
+                    'token_mint': token_mint,
+                    'signature': signature,
+                    'timestamp': sig_info.get('blockTime', 0)
+                })
+                seen_signatures.add(signature)
+
+        return new_launches
+
     def run_listener(self) -> None:
         """Run the standalone listener - continuously monitors and updates prices"""
         print("[LISTENER] Starting continuous PumpSwap listener (independent from main.py)\n")
-        print("[LISTENER] Monitoring for new launches and updating prices every 60 seconds\n")
+        print("[LISTENER] Scanning for new launches and updating prices every 60 seconds\n")
 
         try:
             refresh_interval = 60  # Refresh every 60 seconds
             last_refresh = 0
             active_mints = set()  # Track which tokens we're monitoring
+            seen_signatures = set()  # Track signatures we've already seen
 
             while self.is_running:
                 current_time = time.time()
 
-                # Load tokens from database (checks for new launches every iteration)
+                # Scan for new launches on-chain
+                new_launches = self.scan_for_new_launches(seen_signatures)
+
+                if new_launches:
+                    print(f"\n[🆕 NEW LAUNCHES] Detected {len(new_launches)} new token(s) on-chain:")
+                    for launch in new_launches:
+                        print(f"   Token: {launch['token_mint'][:16]}...")
+                        print(f"   Sig: {launch['signature'][:32]}...\n")
+
+                # Load tokens from database (for tracking previously detected tokens)
                 all_tokens = self.load_tokens_from_db()
 
                 if not all_tokens:
-                    print("[ERROR] No tokens found in database")
+                    print("[WARNING] No tokens found in database")
                     time.sleep(5)
                     continue
 
-                # Detect new launches
+                # Detect new launches from database
                 current_mints = {t['base_mint'] for t in all_tokens}
-                new_tokens = current_mints - active_mints
-
-                if new_tokens:
-                    print(f"\n[NEW LAUNCHES] Detected {len(new_tokens)} new token(s):\n")
-                    active_mints = current_mints
+                db_new_tokens = current_mints - active_mints
+                active_mints = current_mints
 
                 # Update prices for all tokens
                 if current_time - last_refresh >= refresh_interval:
@@ -471,7 +537,7 @@ class StandalonePumpSwapListener:
                         token_mint = token_data.get('base_mint', '')
                         symbol = token_data.get('symbol', '?')
                         signature = token_data.get('signature', '')
-                        is_new = token_mint in new_tokens
+                        is_new = token_mint in db_new_tokens
 
                         if not signature:
                             continue

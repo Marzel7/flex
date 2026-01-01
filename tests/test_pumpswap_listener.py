@@ -389,11 +389,20 @@ class VaultPriceFetcher:
                 print(f"    [DEBUG] Error in extract_vault_account_addresses: {e}")
             return None, None
 
-    def fetch_live_price_for_token(self, token_mint, signature, symbol="", debug=False):
-        """Fetch live vault-based price for a token"""
+    def fetch_live_price_for_token(self, token_mint, signature, symbol="", debug=False, tx_data=None):
+        """Fetch live vault-based price for a token
+
+        Args:
+            token_mint: Token mint address
+            signature: Transaction signature
+            symbol: Token symbol (for display)
+            debug: Enable debug logging
+            tx_data: Optional pre-fetched transaction data to avoid redundant RPC calls
+        """
         try:
-            # Get pool creation transaction
-            tx_data = self.get_transaction(signature)
+            # Get pool creation transaction (use provided data if available)
+            if not tx_data:
+                tx_data = self.get_transaction(signature)
             if not tx_data:
                 if debug:
                     print(f"    [DEBUG] {symbol} - Could not fetch transaction {signature[:20]}...")
@@ -1020,7 +1029,7 @@ class StandalonePumpSwapListener:
                                         # Immediately fetch and display price for this token
                                         print(f"\n[WEBSOCKET] Fetching price for newly detected token...")
                                         price_result = self.price_fetcher.fetch_live_price_for_token(
-                                            token_mint, signature, "?", debug=True
+                                            token_mint, signature, "?", debug=True, tx_data=full_tx
                                         )
 
                                         # Display the new token's price immediately (any amount of SOL)

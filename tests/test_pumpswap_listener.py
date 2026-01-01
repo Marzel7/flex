@@ -166,45 +166,55 @@ class VaultPriceFetcher:
         except:
             return None
 
-    def get_transaction(self, signature, retries=3):
-        """Get full transaction details with retry logic and jitter
+    def get_transaction(self, signature, retries=12, retry_interval=10, max_duration=120):
+        """Get full transaction details with consistent retry interval over extended period
 
-        WebSocket transactions are detected early and may not be indexed immediately.
-        First attempt waits 1 second to allow RPC indexing, then uses exponential backoff.
+        Some transactions take longer to index on RPC (up to 1-2 minutes).
+        Strategy: Retry every 10 seconds for up to 2 minutes instead of exponential backoff.
+
+        Args:
+            signature: Transaction signature
+            retries: Maximum number of retry attempts (default 12 = 2 minutes with 10s interval)
+            retry_interval: Seconds between retries (default 10)
+            max_duration: Maximum total time to retry in seconds (default 120 = 2 minutes)
         """
         import random
-
-        # Initial delay for WebSocket-detected transactions (RPC indexing lag)
-        # WebSocket detection is ~3-8 seconds ahead of RPC indexing
-        print(f"[RPC] Waiting 1s before first fetch attempt for {signature[:20]}... (allows RPC indexing)")
-        time.sleep(1)
+        start_time = time.time()
 
         for attempt in range(retries):
             try:
                 result = self.rpc_call("getTransaction", [
                     signature,
                     {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}
-                ], retries=2)  # Inner retries handled by rpc_call
+                ], retries=1)  # Single attempt per call, we handle retries here
                 if result:
-                    print(f"[RPC] ✓ getTransaction succeeded on attempt {attempt + 1}/{retries}: {signature[:20]}...")
+                    elapsed = time.time() - start_time
+                    print(f"[RPC] ✓ getTransaction succeeded on attempt {attempt + 1}/{retries} after {elapsed:.1f}s: {signature[:20]}...")
                     return result
 
-                # On failure, wait before retry with exponential backoff + jitter
+                # Check if we've exceeded max duration
+                elapsed = time.time() - start_time
+                if elapsed >= max_duration:
+                    print(f"[RPC] ✗ getTransaction timeout: exceeded {max_duration}s max duration after {attempt + 1} attempts: {signature[:20]}...")
+                    break
+
+                # On failure, wait before retry with small jitter
                 if attempt < retries - 1:
-                    base_wait = 0.5 * (2 ** attempt)  # Exponential: 0.5s, 1s, 2s
-                    jitter = random.uniform(0, 0.5)    # Add 0-0.5s random jitter
-                    wait_time = base_wait + jitter
-                    print(f"[RPC] ⚠ getTransaction attempt {attempt + 1}/{retries} failed for {signature[:20]}... Waiting {wait_time:.2f}s before retry")
+                    jitter = random.uniform(0, 1)  # Add 0-1s random jitter
+                    wait_time = retry_interval + jitter
+                    elapsed = time.time() - start_time
+                    remaining = max_duration - elapsed
+                    print(f"[RPC] ⚠ getTransaction attempt {attempt + 1}/{retries} failed for {signature[:20]}... Waiting {wait_time:.1f}s before retry (elapsed: {elapsed:.1f}s, remaining: {remaining:.1f}s)")
                     time.sleep(wait_time)
             except Exception as e:
                 print(f"[RPC] ✗ Exception in getTransaction attempt {attempt + 1}/{retries}: {e}")
-                if attempt < retries - 1:
-                    base_wait = 0.5 * (2 ** attempt)
-                    jitter = random.uniform(0, 0.5)
-                    wait_time = base_wait + jitter
+                elapsed = time.time() - start_time
+                if elapsed < max_duration and attempt < retries - 1:
+                    jitter = random.uniform(0, 1)
+                    wait_time = retry_interval + jitter
                     time.sleep(wait_time)
 
-        print(f"[RPC] ✗ getTransaction failed after {retries} retries: {signature[:20]}...")
+        print(f"[RPC] ✗ getTransaction failed after {retries} retries over {time.time() - start_time:.1f}s: {signature[:20]}...")
         return None
 
     def get_recent_signatures(self, limit=10):

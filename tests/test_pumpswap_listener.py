@@ -34,6 +34,8 @@ import json
 import signal
 import requests
 import os
+import time
+import sqlite3
 from datetime import datetime
 from typing import Dict, List, Optional
 from pathlib import Path
@@ -389,77 +391,118 @@ class StandalonePumpSwapListener:
             print(f"[LIVE PRICE] {symbol:<12} ⚠ Could not fetch live price from vaults")
             return None
 
-    def run_listener(self) -> None:
-        """Run the standalone listener - fetches prices for known PumpSwap tokens"""
-        print("[LISTENER] Starting standalone PumpSwap listener (independent from main.py)\n")
+    def load_tokens_from_db(self) -> List[Dict]:
+        """Load all PumpSwap tokens from database"""
+        db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+        tokens = []
+
+        if not db_path.exists():
+            print(f"[ERROR] Database not found: {db_path}\n")
+            return tokens
 
         try:
-            import sqlite3
+            conn = sqlite3.connect(str(db_path), check_same_thread=False)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
 
-            # Fetch all PumpSwap tokens from database (matching price_template)
-            db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
-            test_tokens = []
+            # Query all PumpSwap tokens
+            cursor.execute('''
+                SELECT symbol, base_mint, signature, total_supply, dexscreener_price_usd
+                FROM pools
+                WHERE is_pumpswap = 1 AND signature IS NOT NULL
+                ORDER BY first_seen DESC
+            ''')
 
-            if db_path.exists():
-                print(f"[SETUP] Loading tokens from database: {db_path.name}\n")
-                try:
-                    conn = sqlite3.connect(str(db_path), check_same_thread=False)
-                    conn.row_factory = sqlite3.Row
-                    cursor = conn.cursor()
+            for row in cursor.fetchall():
+                tokens.append({
+                    'base_mint': row['base_mint'],
+                    'symbol': row['symbol'] or row['base_mint'][:8],
+                    'signature': row['signature'],
+                    'total_supply': row['total_supply'],
+                    'dexscreener_price_usd': row['dexscreener_price_usd']
+                })
 
-                    # Query all PumpSwap tokens (matching price_template.py)
-                    cursor.execute('''
-                        SELECT symbol, base_mint, signature, total_supply, dexscreener_price_usd
-                        FROM pools
-                        WHERE is_pumpswap = 1 AND signature IS NOT NULL
-                        ORDER BY base_mint DESC
-                    ''')
+            conn.close()
+        except Exception as e:
+            print(f"[ERROR] Could not load from database: {e}\n")
 
-                    for row in cursor.fetchall():
-                        test_tokens.append({
-                            'base_mint': row['base_mint'],
-                            'symbol': row['symbol'] or row['base_mint'][:8],
-                            'signature': row['signature'],
-                            'total_supply': row['total_supply'],
-                            'dexscreener_price_usd': row['dexscreener_price_usd']
-                        })
+        return tokens
 
-                    conn.close()
-                except Exception as e:
-                    print(f"[ERROR] Could not load from database: {e}\n")
-            else:
-                print(f"[ERROR] Database not found: {db_path}\n")
+    def run_listener(self) -> None:
+        """Run the standalone listener - continuously monitors and updates prices"""
+        print("[LISTENER] Starting continuous PumpSwap listener (independent from main.py)\n")
+        print("[LISTENER] Monitoring for new launches and updating prices every 60 seconds\n")
 
-            print("="*100)
+        try:
+            refresh_interval = 60  # Refresh every 60 seconds
+            last_refresh = 0
+            active_mints = set()  # Track which tokens we're monitoring
 
-            for token_data in test_tokens:
-                if not self.is_running:
-                    break
+            while self.is_running:
+                current_time = time.time()
 
-                token_mint = token_data.get('base_mint', '')
-                symbol = token_data.get('symbol', '?')
-                signature = token_data.get('signature', '')
+                # Load tokens from database (checks for new launches every iteration)
+                all_tokens = self.load_tokens_from_db()
 
-                if not signature:
-                    print(f"\n⚠ Skipping {symbol} - no signature available\n")
+                if not all_tokens:
+                    print("[ERROR] No tokens found in database")
+                    time.sleep(5)
                     continue
 
-                # Debug mode disabled - vault extraction now correct
-                debug_enabled = False
+                # Detect new launches
+                current_mints = {t['base_mint'] for t in all_tokens}
+                new_tokens = current_mints - active_mints
 
-                print(f"\n🚀 Fetching LIVE price for {symbol}")
-                print(f"   Token: {token_mint}")
-                print(f"   Signature: {signature[:32]}...\n")
+                if new_tokens:
+                    print(f"\n[NEW LAUNCHES] Detected {len(new_tokens)} new token(s):\n")
+                    active_mints = current_mints
 
-                price_result = self.fetch_and_log_price(token_mint, signature, symbol, debug=debug_enabled)
+                # Update prices for all tokens
+                if current_time - last_refresh >= refresh_interval:
+                    print(f"\n[UPDATE] Refreshing prices at {datetime.now().strftime('%H:%M:%S')}")
+                    print("="*100)
 
-                if price_result:
-                    self.pumpswap_tokens.append(token_data)
-                    print(f"   ✓ Successfully fetched live price\n")
-                else:
-                    print(f"   ⚠ Could not fetch price (pool may be drained or signature invalid)\n")
+                    self.pumpswap_tokens = []  # Clear old tokens
 
-                print("="*100)
+                    for token_data in all_tokens:
+                        if not self.is_running:
+                            break
+
+                        token_mint = token_data.get('base_mint', '')
+                        symbol = token_data.get('symbol', '?')
+                        signature = token_data.get('signature', '')
+                        is_new = token_mint in new_tokens
+
+                        if not signature:
+                            continue
+
+                        # Show indicator for new tokens
+                        indicator = "🆕 NEW" if is_new else "   "
+
+                        print(f"{indicator} {symbol:<12} {token_mint[:16]}...")
+
+                        price_result = self.price_fetcher.fetch_live_price_for_token(
+                            token_mint, signature, symbol
+                        )
+
+                        if price_result:
+                            self.pumpswap_tokens.append(token_data)
+                            sol_balance = price_result.get('sol_balance', 0)
+                            price_usd = price_result.get('price_usd', 0)
+
+                            if sol_balance >= 1:
+                                status = "✓ ACTIVE"
+                                price_str = f"${price_usd:.8f}" if price_usd > 0 else "$0.00"
+                                print(f"       → {price_str} | {sol_balance:.2f} SOL | {status}\n")
+                            else:
+                                print(f"       → Low liquidity\n")
+
+                    print("="*100)
+                    self.print_summary()
+                    last_refresh = current_time
+
+                # Sleep briefly to avoid busy waiting
+                time.sleep(1)
 
         except KeyboardInterrupt:
             print("\n\n[LISTENER] Stopping listener...")

@@ -487,16 +487,99 @@ class StandalonePumpSwapListener:
 
         return new_launches
 
+    def print_live_table(self):
+        """Print live price table for active tokens"""
+        if not self.pumpswap_tokens:
+            return
+
+        active_tokens = []
+        low_count = 0
+
+        for token in self.pumpswap_tokens:
+            # Fetch live price from blockchain vaults
+            price_result = self.price_fetcher.fetch_live_price_for_token(
+                token.get('base_mint', ''),
+                token.get('signature', ''),
+                token.get('symbol', '?')
+            )
+
+            if price_result:
+                sol_balance = price_result.get('sol_balance', 0)
+                if sol_balance >= 1:
+                    active_tokens.append((token, price_result))
+                else:
+                    low_count += 1
+
+        if active_tokens:
+            print(f"\n{'-'*200}")
+            print(f"{'Symbol':<15} {'Price (USD)':<20} {'SOL Balance':<15} {'Market Cap':<20} {'FDV':<20} {'Match':<12} {'Token Address':<38}")
+            print(f"{'-'*200}")
+
+            for token, price_result in active_tokens:
+                symbol = token.get('symbol', '?')[:15]
+                base_mint = token.get('base_mint', '')
+                price_usd = price_result.get('price_usd', 0)
+                sol_balance = price_result.get('sol_balance', 0)
+                token_balance = price_result.get('token_balance', 0)
+
+                # Format price
+                price_str = f"${price_usd:.8f}" if price_usd > 0 else "$0.00"
+                sol_str = f"{sol_balance:.2f} SOL"
+
+                # Calculate market cap
+                market_cap = price_usd * token_balance if token_balance > 0 else 0
+                if market_cap > 1000000:
+                    market_cap_str = f"${market_cap/1000000:.2f}M"
+                elif market_cap > 1000:
+                    market_cap_str = f"${market_cap/1000:.2f}K"
+                else:
+                    market_cap_str = f"${market_cap:.2f}"
+
+                # Calculate FDV
+                total_supply = price_result.get('total_supply') or token.get('total_supply')
+                if total_supply and total_supply > 0:
+                    fdv = price_usd * total_supply
+                else:
+                    fdv = market_cap
+
+                if fdv > 1000000:
+                    fdv_str = f"${fdv/1000000:.2f}M"
+                elif fdv > 1000:
+                    fdv_str = f"${fdv/1000:.2f}K"
+                else:
+                    fdv_str = f"${fdv:.2f}"
+
+                # Calculate match ratio vs DexScreener
+                dexscreener_price = token.get('dexscreener_price_usd', 0)
+                if dexscreener_price and dexscreener_price > 0 and price_usd > 0:
+                    match_ratio = price_usd / dexscreener_price
+                    if 0.95 <= match_ratio <= 1.05:
+                        match_str = f"✓ {match_ratio:.2f}x"
+                    elif 0.90 <= match_ratio <= 1.10:
+                        match_str = f"~ {match_ratio:.2f}x"
+                    else:
+                        match_str = f"⚠ {match_ratio:.2f}x"
+                elif dexscreener_price and dexscreener_price > 0:
+                    match_str = "N/A"
+                else:
+                    match_str = "—"
+
+                print(f"{symbol:<15} {price_str:<20} {sol_str:<15} {market_cap_str:<20} {fdv_str:<20} {match_str:<12} {base_mint:<38}")
+
+            print(f"{'-'*200}")
+            print(f"\n[RESULT] ✓ Active: {len(active_tokens)} | Low liquidity: {low_count}")
+
     def run_listener(self) -> None:
         """Run the standalone listener - continuously monitors and updates prices"""
         print("[LISTENER] Starting continuous PumpSwap listener (independent from main.py)\n")
-        print("[LISTENER] Scanning for new launches and updating prices every 60 seconds\n")
+        print("[LISTENER] Scanning for new launches and printing price table every 60 seconds\n")
 
         try:
             refresh_interval = 60  # Refresh every 60 seconds
             last_refresh = 0
             active_mints = set()  # Track which tokens we're monitoring
             seen_signatures = set()  # Track signatures we've already seen
+            cycle_count = 0
 
             while self.is_running:
                 current_time = time.time()
@@ -506,11 +589,12 @@ class StandalonePumpSwapListener:
 
                 if new_launches:
                     print(f"\n[🆕 NEW LAUNCHES] Detected {len(new_launches)} new token(s) on-chain:")
-                    for launch in new_launches:
-                        print(f"   Token: {launch['token_mint'][:16]}...")
-                        print(f"   Sig: {launch['signature'][:32]}...\n")
+                    for launch in new_launches[:5]:  # Show first 5
+                        print(f"   Token: {launch['token_mint'][:16]}... | Sig: {launch['signature'][:28]}...")
+                    if len(new_launches) > 5:
+                        print(f"   ... and {len(new_launches) - 5} more")
 
-                # Load tokens from database (for tracking previously detected tokens)
+                # Load tokens from database
                 all_tokens = self.load_tokens_from_db()
 
                 if not all_tokens:
@@ -523,13 +607,16 @@ class StandalonePumpSwapListener:
                 db_new_tokens = current_mints - active_mints
                 active_mints = current_mints
 
-                # Update prices for all tokens
+                # Update prices and print table every 60 seconds
                 if current_time - last_refresh >= refresh_interval:
-                    print(f"\n[UPDATE] Refreshing prices at {datetime.now().strftime('%H:%M:%S')}")
-                    print("="*100)
+                    cycle_count += 1
+                    print(f"\n{'='*200}")
+                    print(f"[CYCLE {cycle_count}] Price Update at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                    print(f"{'='*200}")
 
                     self.pumpswap_tokens = []  # Clear old tokens
 
+                    # Fetch prices for all tokens
                     for token_data in all_tokens:
                         if not self.is_running:
                             break
@@ -537,15 +624,9 @@ class StandalonePumpSwapListener:
                         token_mint = token_data.get('base_mint', '')
                         symbol = token_data.get('symbol', '?')
                         signature = token_data.get('signature', '')
-                        is_new = token_mint in db_new_tokens
 
                         if not signature:
                             continue
-
-                        # Show indicator for new tokens
-                        indicator = "🆕 NEW" if is_new else "   "
-
-                        print(f"{indicator} {symbol:<12} {token_mint[:16]}...")
 
                         price_result = self.price_fetcher.fetch_live_price_for_token(
                             token_mint, signature, symbol
@@ -553,18 +634,9 @@ class StandalonePumpSwapListener:
 
                         if price_result:
                             self.pumpswap_tokens.append(token_data)
-                            sol_balance = price_result.get('sol_balance', 0)
-                            price_usd = price_result.get('price_usd', 0)
 
-                            if sol_balance >= 1:
-                                status = "✓ ACTIVE"
-                                price_str = f"${price_usd:.8f}" if price_usd > 0 else "$0.00"
-                                print(f"       → {price_str} | {sol_balance:.2f} SOL | {status}\n")
-                            else:
-                                print(f"       → Low liquidity\n")
-
-                    print("="*100)
-                    self.print_summary()
+                    # Print live table
+                    self.print_live_table()
                     last_refresh = current_time
 
                 # Sleep briefly to avoid busy waiting
@@ -576,6 +648,8 @@ class StandalonePumpSwapListener:
 
         except Exception as e:
             print(f"\n[LISTENER] Error: {e}")
+            import traceback
+            traceback.print_exc()
             self.is_running = False
 
     def print_summary(self) -> None:

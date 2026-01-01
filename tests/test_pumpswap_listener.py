@@ -930,10 +930,15 @@ class StandalonePumpSwapListener:
                                 }):
                                     print(f"[WEBSOCKET] 🚨 Migration detected: {signature}")
 
-                                    # Add to database if not already seen
-                                    if signature not in self.seen_mints:
-                                        self.seen_mints.add(signature)
-                                        print(f"[WEBSOCKET] Processing migration: {signature}")
+                                    # Fetch full transaction to extract token
+                                    full_tx = self.price_fetcher.get_transaction(signature)
+                                    if full_tx:
+                                        token_mint = self.price_fetcher.extract_token_from_tx_data(full_tx)
+                                        if token_mint and token_mint not in self.seen_mints:
+                                            self.seen_mints.add(token_mint)
+                                            print(f"[WEBSOCKET] ✓ Added token: {token_mint}")
+                                            # Add to database for tracking
+                                            self.add_token_to_db(token_mint, signature)
                         except asyncio.TimeoutError:
                             continue
                         except Exception as e:

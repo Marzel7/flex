@@ -959,11 +959,11 @@ class StandalonePumpSwapListener:
                                             # Immediately fetch and display price for this token
                                             print(f"\n[WEBSOCKET] Fetching price for newly detected token...")
                                             price_result = self.price_fetcher.fetch_live_price_for_token(
-                                                token_mint, signature, "?"
+                                                token_mint, signature, "?", debug=True
                                             )
 
-                                            # Display the new token's price immediately
-                                            if price_result and price_result.get('sol_balance', 0) >= 1:
+                                            # Display the new token's price immediately (any amount of SOL)
+                                            if price_result:
                                                 print(f"\n{'-'*150}")
                                                 print(f"{'Token':<35} {'Price (USD)':<20} {'SOL Balance':<15} {'Market Cap':<20} {'FDV':<20} {'Source':<12}")
                                                 print(f"{'-'*150}")
@@ -1003,7 +1003,7 @@ class StandalonePumpSwapListener:
                                                 print(f"{base_mint:<35} {price_str:<20} {sol_str:<15} {market_cap_str:<20} {fdv_str:<20} 🔗 OnChain")
                                                 print(f"{'-'*150}\n")
                                             else:
-                                                print(f"[WEBSOCKET] ⚠ Could not fetch price or insufficient SOL balance\n")
+                                                print(f"[WEBSOCKET] ⚠ Could not fetch price for newly detected token")
                         except asyncio.TimeoutError:
                             continue
                         except Exception as e:

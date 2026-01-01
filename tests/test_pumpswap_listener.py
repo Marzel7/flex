@@ -553,7 +553,7 @@ class StandalonePumpSwapListener:
         tokens = []
 
         if not db_path.exists():
-            print(f"[ERROR] Database not found: {db_path}\n")
+            print(f"[INFO] Database is empty - no tokens tracked yet\n")
             return tokens
 
         try:

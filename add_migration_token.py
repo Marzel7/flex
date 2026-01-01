@@ -26,7 +26,8 @@ def add_migration_to_db(token_mint: str, signature: str):
     db_path = Path(__file__).parent / 'pumpswap_tokens.db'
 
     if not db_path.exists():
-        print(f"[ERROR] Database not found at {db_path}")
+        print(f"[ERROR] Database not found - listener hasn't detected any tokens yet")
+        print(f"Database path would be: {db_path}")
         return False
 
     try:

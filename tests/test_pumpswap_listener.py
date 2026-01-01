@@ -1110,32 +1110,16 @@ class StandalonePumpSwapListener:
         print("[LISTENER] WebSocket listener running in background for LIVE migration detection\n")
 
         try:
-            refresh_interval = 60  # Refresh every 60 seconds
-            scan_interval = 30    # Scan for new launches every 30 seconds (not every second!)
+            refresh_interval = 60  # Refresh price table every 60 seconds
             last_refresh = 0
-            last_scan = 0
             active_mints = set()  # Track which tokens we're monitoring
-            seen_signatures = set()  # Track signatures we've already seen
             cycle_count = 0
 
             while self.is_running:
                 current_time = time.time()
 
-                # Scan for new launches on-chain (throttled to every 30 seconds)
-                new_launches = []
-                if current_time - last_scan >= scan_interval:
-                    new_launches = self.scan_for_new_launches(seen_signatures)
-                    last_scan = current_time
-
-                if new_launches:
-                    print(f"\n[🆕 NEW LAUNCHES] Detected {len(new_launches)} new token(s) on-chain:")
-                    for launch in new_launches[:5]:  # Show first 5
-                        print(f"   Token: {launch['token_mint']}")
-                        print(f"   Sig:   {launch['signature']}")
-                    if len(new_launches) > 5:
-                        print(f"   ... and {len(new_launches) - 5} more")
-
                 # Load tokens from database
+                # (WebSocket listener populates this in real-time)
                 all_tokens = self.load_tokens_from_db()
 
                 if not all_tokens:

@@ -589,12 +589,28 @@ class StandalonePumpSwapListener:
         """Add newly detected token to database for future price tracking"""
         db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
 
-        if not db_path.exists():
-            return False
-
         try:
             conn = sqlite3.connect(str(db_path), check_same_thread=False)
             cursor = conn.cursor()
+
+            # Create table if it doesn't exist
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS pools (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    base_mint TEXT UNIQUE,
+                    signature TEXT,
+                    is_pumpswap BOOLEAN DEFAULT 1,
+                    first_seen TIMESTAMP,
+                    last_updated TIMESTAMP,
+                    amm_id TEXT,
+                    symbol TEXT,
+                    name TEXT,
+                    total_supply REAL,
+                    dexscreener_price_usd REAL,
+                    dexscreener_price_native REAL,
+                    last_price_update TIMESTAMP
+                )
+            ''')
 
             # Check if token already exists
             cursor.execute('SELECT id FROM pools WHERE base_mint = ?', (token_mint,))

@@ -25,14 +25,28 @@ def add_migration_to_db(token_mint: str, signature: str):
     """Add a migration token to the database"""
     db_path = Path(__file__).parent / 'pumpswap_tokens.db'
 
-    if not db_path.exists():
-        print(f"[ERROR] Database not found - listener hasn't detected any tokens yet")
-        print(f"Database path would be: {db_path}")
-        return False
-
     try:
         conn = sqlite3.connect(str(db_path), check_same_thread=False)
         cursor = conn.cursor()
+
+        # Create table if it doesn't exist
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS pools (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                base_mint TEXT UNIQUE,
+                signature TEXT,
+                is_pumpswap BOOLEAN DEFAULT 1,
+                first_seen TIMESTAMP,
+                last_updated TIMESTAMP,
+                amm_id TEXT,
+                symbol TEXT,
+                name TEXT,
+                total_supply REAL,
+                dexscreener_price_usd REAL,
+                dexscreener_price_native REAL,
+                last_price_update TIMESTAMP
+            )
+        ''')
 
         # Check if token already exists
         cursor.execute('SELECT id FROM pools WHERE base_mint = ?', (token_mint,))

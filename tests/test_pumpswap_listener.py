@@ -503,9 +503,9 @@ class StandalonePumpSwapListener:
                         low_count += 1
 
             if active_tokens:
-                print(f"\n{'-'*165}")
-                print(f"{'Symbol':<15} {'Price (USD)':<20} {'SOL Balance':<15} {'Market Cap':<20} {'FDV':<20} {'Token Address':<50}")
-                print(f"{'-'*165}")
+                print(f"\n{'-'*200}")
+                print(f"{'Symbol':<15} {'Price (USD)':<20} {'SOL Balance':<15} {'Market Cap':<20} {'FDV':<20} {'Match':<12} {'Token Address':<38}")
+                print(f"{'-'*200}")
 
                 for token, price_result in active_tokens:
                     symbol = token.get('symbol', '?')[:15]
@@ -542,9 +542,24 @@ class StandalonePumpSwapListener:
                     else:
                         fdv_str = f"${fdv:.2f}"
 
-                    print(f"{symbol:<15} {price_str:<20} {sol_str:<15} {market_cap_str:<20} {fdv_str:<20} {base_mint:<50}")
+                    # Calculate match ratio vs DexScreener price
+                    dexscreener_price = token.get('dexscreener_price_usd', 0)
+                    if dexscreener_price and dexscreener_price > 0 and price_usd > 0:
+                        match_ratio = price_usd / dexscreener_price
+                        if 0.95 <= match_ratio <= 1.05:
+                            match_str = f"✓ {match_ratio:.2f}x"
+                        elif 0.90 <= match_ratio <= 1.10:
+                            match_str = f"~ {match_ratio:.2f}x"
+                        else:
+                            match_str = f"⚠ {match_ratio:.2f}x"
+                    elif dexscreener_price and dexscreener_price > 0:
+                        match_str = "N/A"
+                    else:
+                        match_str = "—"
 
-                print(f"{'-'*165}")
+                    print(f"{symbol:<15} {price_str:<20} {sol_str:<15} {market_cap_str:<20} {fdv_str:<20} {match_str:<12} {base_mint:<38}")
+
+                print(f"{'-'*200}")
 
             print(f"\n[RESULT] ✓ Fetched {len(self.pumpswap_tokens)}/10 prices | {len(active_tokens)} active | {low_count} low/drained")
         else:

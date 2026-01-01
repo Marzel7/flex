@@ -642,13 +642,13 @@ class StandalonePumpSwapListener:
 
         Filters for pool creation transactions only (not swaps or other operations).
         Also deduplicates by token mint to avoid reporting the same token multiple times.
-        Only detects launches from the last 2 minutes (120 seconds).
+        Only detects launches from the last 10 minutes (600 seconds).
         Automatically adds new tokens to database for future price tracking.
         """
         import time
         new_launches = []
         current_time = time.time()
-        max_age_seconds = 120  # Only detect launches from last 2 minutes
+        max_age_seconds = 600  # Only detect launches from last 10 minutes
 
         # Get recent signatures from PumpSwap program
         signatures = self.price_fetcher.get_recent_signatures(limit=20)
@@ -673,7 +673,7 @@ class StandalonePumpSwapListener:
             tx_age_seconds = current_time - block_time
 
             if tx_age_seconds > max_age_seconds:
-                # Transaction is older than 2 minutes, skip it
+                # Transaction is older than 10 minutes, skip it
                 continue
 
             # Extract token mint from transaction (only pool creations)

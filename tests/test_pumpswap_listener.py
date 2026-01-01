@@ -997,8 +997,14 @@ class StandalonePumpSwapListener:
                                 if err:
                                     continue
 
+                                # Skip invalid signatures (must be 88 chars for valid base58 Solana signature)
+                                if not signature or len(signature) != 88:
+                                    if signature:
+                                        print(f"[WEBSOCKET] ⚠ Invalid signature format (len={len(signature)}, expected 88): {signature[:20]}...")
+                                    continue
+
                                 # Check if this is a pool creation transaction (migration)
-                                if signature and self.price_fetcher.is_pool_creation_transaction({
+                                if self.price_fetcher.is_pool_creation_transaction({
                                     'meta': {'logMessages': logs, 'err': err},
                                     'blockTime': int(time.time())
                                 }):

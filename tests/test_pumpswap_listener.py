@@ -167,8 +167,18 @@ class VaultPriceFetcher:
             return None
 
     def get_transaction(self, signature, retries=3):
-        """Get full transaction details with retry logic and jitter"""
+        """Get full transaction details with retry logic and jitter
+
+        WebSocket transactions are detected early and may not be indexed immediately.
+        First attempt waits 1 second to allow RPC indexing, then uses exponential backoff.
+        """
         import random
+
+        # Initial delay for WebSocket-detected transactions (RPC indexing lag)
+        # WebSocket detection is ~3-8 seconds ahead of RPC indexing
+        print(f"[RPC] Waiting 1s before first fetch attempt for {signature[:20]}... (allows RPC indexing)")
+        time.sleep(1)
+
         for attempt in range(retries):
             try:
                 result = self.rpc_call("getTransaction", [

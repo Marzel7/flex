@@ -1010,11 +1010,16 @@ class StandalonePumpSwapListener:
                                 if err:
                                     continue
 
-                                # Skip invalid signatures (must be 88 chars for valid base58 Solana signature)
-                                if not signature or len(signature) != 88:
+                                # Validate signature length (Solana signatures are 88 chars, but WebSocket may send 87)
+                                # Accept both 87 and 88 to handle Helius WebSocket quirks
+                                if not signature or len(signature) < 87 or len(signature) > 88:
                                     if signature:
-                                        print(f"[WEBSOCKET] ⚠ Invalid signature format (len={len(signature)}, expected 88): {signature[:20]}...")
+                                        print(f"[WEBSOCKET] ⚠ Invalid signature format (len={len(signature)}, expected 87-88): {signature[:20]}...")
                                     continue
+
+                                # If signature is 87 chars, it may be truncated - try to fetch anyway
+                                if len(signature) == 87:
+                                    print(f"[WEBSOCKET] ⚠ Signature truncated to {len(signature)} chars (expected 88), will attempt fetch")
 
                                 # Check if this is a pool creation transaction (migration)
                                 if self.price_fetcher.is_pool_creation_transaction({

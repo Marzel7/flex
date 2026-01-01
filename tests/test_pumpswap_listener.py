@@ -651,7 +651,7 @@ class StandalonePumpSwapListener:
         max_age_seconds = 600  # Only detect launches from last 10 minutes
 
         # Get recent signatures from PumpSwap program
-        signatures = self.price_fetcher.get_recent_signatures(limit=20)
+        signatures = self.price_fetcher.get_recent_signatures(limit=50)
 
         for sig_info in signatures:
             signature = sig_info.get('signature', '')

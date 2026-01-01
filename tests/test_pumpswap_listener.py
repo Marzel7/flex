@@ -434,6 +434,7 @@ class StandalonePumpSwapListener:
         self.pumpswap_tokens: List[Dict] = []
         self.start_time = datetime.now()
         self.is_running = True
+        self.seen_mints = set()  # Track unique token mints to avoid duplicates
 
     def print_header(self) -> None:
         """Print startup header"""
@@ -524,6 +525,7 @@ class StandalonePumpSwapListener:
         """Scan recent PumpSwap transactions for Pump.fun → PumpSwap migrations
 
         Filters for pool creation transactions only (not swaps or other operations).
+        Also deduplicates by token mint to avoid reporting the same token multiple times.
         """
         new_launches = []
 
@@ -541,11 +543,15 @@ class StandalonePumpSwapListener:
             token_mint = self.price_fetcher.extract_token_from_signature(signature)
 
             if token_mint:
-                new_launches.append({
-                    'token_mint': token_mint,
-                    'signature': signature,
-                    'timestamp': sig_info.get('blockTime', 0)
-                })
+                # Skip if we've already reported this token mint
+                if token_mint not in self.seen_mints:
+                    new_launches.append({
+                        'token_mint': token_mint,
+                        'signature': signature,
+                        'timestamp': sig_info.get('blockTime', 0)
+                    })
+                    self.seen_mints.add(token_mint)
+
                 seen_signatures.add(signature)
 
         return new_launches

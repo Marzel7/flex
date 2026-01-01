@@ -67,6 +67,7 @@ class VaultPriceFetcher:
         """Make JSON-RPC call to Solana with retry logic"""
         try:
             if not self.helius_api_key:
+                print(f"[RPC] ✗ No API key configured")
                 return None
 
             payload = {
@@ -83,30 +84,39 @@ class VaultPriceFetcher:
 
                     # Handle rate limiting (429)
                     if response.status_code == 429:
+                        print(f"[RPC] ⚠ Rate limited (429) on attempt {attempt + 1}/{retries + 1}: {method}")
                         if attempt < retries:
                             wait_time = 0.5 * (2 ** attempt)  # Exponential backoff
                             time.sleep(wait_time)
                             continue
                         else:
+                            print(f"[RPC] ✗ Failed after {retries + 1} attempts due to rate limiting")
                             return None
 
                     if response.status_code == 200:
                         data = response.json()
                         if "error" in data:
+                            error_msg = data.get("error", {}).get("message", "Unknown error")
+                            print(f"[RPC] ✗ RPC error from {method}: {error_msg}")
                             return None
                         return data.get("result")
 
+                    print(f"[RPC] ✗ Unexpected status {response.status_code} on {method}")
                     return None
                 except requests.exceptions.Timeout:
+                    print(f"[RPC] ⚠ Timeout on attempt {attempt + 1}/{retries + 1}: {method}")
                     if attempt < retries:
                         wait_time = 0.5 * (2 ** attempt)
                         time.sleep(wait_time)
                         continue
                     else:
+                        print(f"[RPC] ✗ Failed after {retries + 1} attempts due to timeouts")
                         return None
 
+            print(f"[RPC] ✗ All retries exhausted for {method}")
             return None
         except Exception as e:
+            print(f"[RPC] ✗ Exception in RPC call: {e}")
             return None
 
     def get_token_supply(self, token_mint):

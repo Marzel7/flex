@@ -140,11 +140,47 @@ class VaultPriceFetcher:
         except:
             return []
 
+    def is_pool_creation_transaction(self, tx_data):
+        """Check if transaction is a pool creation (not a swap or other operation)
+
+        PumpSwap pool creation uses initialization instructions like:
+        - 'initialize'
+        - 'create_pool'
+        - 'InitializePool'
+        - 'Program log: Instruction: Initialize'
+
+        This filters for only Pump.fun → PumpSwap migrations, not regular swaps.
+        """
+        try:
+            logs = tx_data.get('meta', {}).get('logMessages', [])
+            logs_text = ' '.join(logs)
+
+            # Check if this is a pool creation, not a swap
+            pool_creation_patterns = [
+                'initialize',
+                'create_pool',
+                'InitializePool',
+                'Program log: Instruction: Initialize',
+            ]
+
+            is_creation = any(pattern.lower() in logs_text.lower() for pattern in pool_creation_patterns)
+            return is_creation
+        except:
+            return False
+
     def extract_token_from_signature(self, signature):
-        """Extract token mint from a transaction signature"""
+        """Extract token mint from a transaction signature (pool creation only)
+
+        Filters to only detect Pump.fun → PumpSwap migrations (pool creations),
+        not regular swaps or other PumpSwap transactions.
+        """
         try:
             tx_data = self.get_transaction(signature)
             if not tx_data:
+                return None
+
+            # First verify this is a pool creation, not a swap
+            if not self.is_pool_creation_transaction(tx_data):
                 return None
 
             # Look for token mint in transaction logs
@@ -462,7 +498,10 @@ class StandalonePumpSwapListener:
         return tokens
 
     def scan_for_new_launches(self, seen_signatures):
-        """Scan recent PumpSwap transactions for new launches"""
+        """Scan recent PumpSwap transactions for Pump.fun → PumpSwap migrations
+
+        Filters for pool creation transactions only (not swaps or other operations).
+        """
         new_launches = []
 
         # Get recent signatures from PumpSwap program
@@ -474,7 +513,8 @@ class StandalonePumpSwapListener:
             if signature in seen_signatures:
                 continue
 
-            # Extract token mint from transaction
+            # Extract token mint from transaction (only pool creations)
+            # This filters out swaps, deposits, and other non-migration transactions
             token_mint = self.price_fetcher.extract_token_from_signature(signature)
 
             if token_mint:

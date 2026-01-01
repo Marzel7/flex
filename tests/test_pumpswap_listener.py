@@ -36,9 +36,12 @@ import requests
 import os
 import time
 import sqlite3
+import asyncio
+import websockets
 from datetime import datetime
 from typing import Dict, List, Optional
 from pathlib import Path
+from threading import Thread
 
 # Helius RPC configuration
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "0ae07551-32df-4d9d-af2a-1925fb7f561f"
@@ -48,6 +51,9 @@ SOL_USD_PRICE = 125  # Current SOL price
 
 # PumpSwap program ID
 PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+
+# WebSocket configuration for live event listening
+HELIUS_RPC_WS = HELIUS_RPC.replace('https://', 'wss://').replace('http://', 'ws://')
 
 
 class VaultPriceFetcher:
@@ -491,6 +497,7 @@ class StandalonePumpSwapListener:
         self.start_time = datetime.now()
         self.is_running = True
         self.seen_mints = set()  # Track unique token mints to avoid duplicates
+        self.websocket_running = False  # Flag for WebSocket listener
 
     def print_header(self) -> None:
         """Print startup header"""
@@ -868,10 +875,99 @@ class StandalonePumpSwapListener:
             dex_fallback_count = sum(1 for _, _, src in active_tokens if src == 'dexscreener')
             print(f"\n[RESULT] ✓ OnChain: {on_chain_count} | DexScreen Fallback: {dex_fallback_count} | Low liquidity: {low_count} | No price: {fetch_failed_count}")
 
+    async def listen_websocket(self) -> None:
+        """Listen to PumpSwap program via WebSocket for live migration events
+
+        This listens to the PumpSwap program (pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA)
+        and receives live transaction notifications for Pump.fun → PumpSwap migrations.
+        """
+        print(f"[WEBSOCKET] Connecting to: {HELIUS_RPC_WS}")
+
+        while self.is_running:
+            try:
+                async with websockets.connect(HELIUS_RPC_WS) as ws:
+                    self.websocket_running = True
+                    print(f"[WEBSOCKET] ✓ Connected to {PUMPSWAP_PROGRAM}")
+
+                    # Subscribe to PumpSwap program for pool creation transactions
+                    subscribe_msg = {
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "logsSubscribe",
+                        "params": [
+                            {
+                                "mentions": [PUMPSWAP_PROGRAM]
+                            },
+                            {
+                                "commitment": "confirmed"
+                            }
+                        ]
+                    }
+                    await ws.send(json.dumps(subscribe_msg))
+                    print(f"[WEBSOCKET] Subscribed to PumpSwap program transactions")
+
+                    while self.is_running:
+                        try:
+                            msg = await asyncio.wait_for(ws.recv(), timeout=30)
+                            data = json.loads(msg)
+
+                            # Process subscription response
+                            if 'params' in data and 'result' in data['params']:
+                                result = data['params']['result']
+                                value = result.get('value', {})
+                                logs = value.get('logs', [])
+                                signature = value.get('signature', '')
+                                err = value.get('err')
+
+                                # Skip failed transactions
+                                if err:
+                                    continue
+
+                                # Check if this is a pool creation transaction (migration)
+                                if signature and self.is_pool_creation_transaction({
+                                    'meta': {'logMessages': logs, 'err': err},
+                                    'blockTime': int(time.time())
+                                }):
+                                    print(f"[WEBSOCKET] 🚨 Migration detected: {signature}")
+
+                                    # Add to database if not already seen
+                                    if signature not in self.seen_mints:
+                                        self.seen_mints.add(signature)
+                                        print(f"[WEBSOCKET] Processing migration: {signature}")
+                        except asyncio.TimeoutError:
+                            continue
+                        except Exception as e:
+                            print(f"[WEBSOCKET] Error processing message: {e}")
+                            break
+
+            except Exception as e:
+                print(f"[WEBSOCKET] Connection error: {e}")
+                self.websocket_running = False
+                if self.is_running:
+                    await asyncio.sleep(5)  # Wait before reconnecting
+
+    def run_websocket(self) -> None:
+        """Run WebSocket listener in async event loop"""
+        try:
+            asyncio.run(self.listen_websocket())
+        except Exception as e:
+            print(f"[WEBSOCKET] Error in async loop: {e}")
+
+    def start_websocket_listener(self) -> None:
+        """Start WebSocket listener in background thread"""
+        if not self.websocket_running:
+            ws_thread = Thread(target=self.run_websocket, daemon=True)
+            ws_thread.start()
+            print("[WEBSOCKET] Background listener thread started")
+
     def run_listener(self) -> None:
         """Run the standalone listener - continuously monitors and updates prices"""
         print("[LISTENER] Starting continuous PumpSwap listener (independent from main.py)\n")
         print("[LISTENER] Scanning for new launches and printing price table every 60 seconds\n")
+
+        # Start WebSocket listener in background for live migration detection
+        self.start_websocket_listener()
+        print("[LISTENER] WebSocket listener running in background for LIVE migration detection\n")
 
         try:
             refresh_interval = 60  # Refresh every 60 seconds

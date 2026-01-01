@@ -64,7 +64,8 @@ class VaultPriceFetcher:
         self.helius_rpc = HELIUS_RPC
 
     def rpc_call(self, method, params, retries=2):
-        """Make JSON-RPC call to Solana with retry logic"""
+        """Make JSON-RPC call to Solana with retry logic and jitter"""
+        import random
         try:
             if not self.helius_api_key:
                 print(f"[RPC] ✗ No API key configured")
@@ -77,7 +78,7 @@ class VaultPriceFetcher:
                 "params": params
             }
 
-            # Retry logic with exponential backoff
+            # Retry logic with exponential backoff + jitter
             for attempt in range(retries + 1):
                 try:
                     response = requests.post(self.helius_rpc, json=payload, timeout=10)
@@ -86,7 +87,9 @@ class VaultPriceFetcher:
                     if response.status_code == 429:
                         print(f"[RPC] ⚠ Rate limited (429) on attempt {attempt + 1}/{retries + 1}: {method}")
                         if attempt < retries:
-                            wait_time = 0.5 * (2 ** attempt)  # Exponential backoff
+                            base_wait = 0.5 * (2 ** attempt)  # Exponential backoff
+                            jitter = random.uniform(0, 0.5)    # Add jitter to spread retries
+                            wait_time = base_wait + jitter
                             time.sleep(wait_time)
                             continue
                         else:
@@ -106,7 +109,9 @@ class VaultPriceFetcher:
                 except requests.exceptions.Timeout:
                     print(f"[RPC] ⚠ Timeout on attempt {attempt + 1}/{retries + 1}: {method}")
                     if attempt < retries:
-                        wait_time = 0.5 * (2 ** attempt)
+                        base_wait = 0.5 * (2 ** attempt)
+                        jitter = random.uniform(0, 0.5)
+                        wait_time = base_wait + jitter
                         time.sleep(wait_time)
                         continue
                     else:
@@ -159,7 +164,8 @@ class VaultPriceFetcher:
             return None
 
     def get_transaction(self, signature, retries=3):
-        """Get full transaction details with retry logic"""
+        """Get full transaction details with retry logic and jitter"""
+        import random
         for attempt in range(retries):
             try:
                 result = self.rpc_call("getTransaction", [
@@ -169,13 +175,17 @@ class VaultPriceFetcher:
                 if result:
                     return result
 
-                # On failure, wait before retry
+                # On failure, wait before retry with exponential backoff + jitter
                 if attempt < retries - 1:
-                    wait_time = 0.5 * (2 ** attempt)  # Exponential backoff: 0.5s, 1s, 2s
+                    base_wait = 0.5 * (2 ** attempt)  # Exponential: 0.5s, 1s, 2s
+                    jitter = random.uniform(0, 0.5)    # Add 0-0.5s random jitter
+                    wait_time = base_wait + jitter
                     time.sleep(wait_time)
             except Exception as e:
                 if attempt < retries - 1:
-                    wait_time = 0.5 * (2 ** attempt)
+                    base_wait = 0.5 * (2 ** attempt)
+                    jitter = random.uniform(0, 0.5)
+                    wait_time = base_wait + jitter
                     time.sleep(wait_time)
 
         return None

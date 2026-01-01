@@ -659,7 +659,8 @@ class StandalonePumpSwapListener:
                 if new_launches:
                     print(f"\n[🆕 NEW LAUNCHES] Detected {len(new_launches)} new token(s) on-chain:")
                     for launch in new_launches[:5]:  # Show first 5
-                        print(f"   Token: {launch['token_mint'][:16]}... | Sig: {launch['signature'][:28]}...")
+                        print(f"   Token: {launch['token_mint']}")
+                        print(f"   Sig:   {launch['signature']}")
                     if len(new_launches) > 5:
                         print(f"   ... and {len(new_launches) - 5} more")
 

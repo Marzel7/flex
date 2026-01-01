@@ -1111,7 +1111,9 @@ class StandalonePumpSwapListener:
 
         try:
             refresh_interval = 60  # Refresh every 60 seconds
+            scan_interval = 30    # Scan for new launches every 30 seconds (not every second!)
             last_refresh = 0
+            last_scan = 0
             active_mints = set()  # Track which tokens we're monitoring
             seen_signatures = set()  # Track signatures we've already seen
             cycle_count = 0
@@ -1119,8 +1121,11 @@ class StandalonePumpSwapListener:
             while self.is_running:
                 current_time = time.time()
 
-                # Scan for new launches on-chain
-                new_launches = self.scan_for_new_launches(seen_signatures)
+                # Scan for new launches on-chain (throttled to every 30 seconds)
+                new_launches = []
+                if current_time - last_scan >= scan_interval:
+                    new_launches = self.scan_for_new_launches(seen_signatures)
+                    last_scan = current_time
 
                 if new_launches:
                     print(f"\n[🆕 NEW LAUNCHES] Detected {len(new_launches)} new token(s) on-chain:")

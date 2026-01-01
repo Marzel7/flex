@@ -39,3 +39,6 @@ test_*.py
 backfill_*.py
 benchmark.py
 tmp.py
+
+# Runtime artifacts
+.logs/

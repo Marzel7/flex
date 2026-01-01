@@ -34,11 +34,11 @@ import sys
 import os
 
 # Configuration
-DB_PATH = Path(__file__).parent / "pumpswap_tokens.db"
+DB_PATH = Path(__file__).parent.parent / "pumpswap_tokens.db"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "0ae07551-32df-4d9d-af2a-1925fb7f561f"
 HELIUS_RPC = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://mainnet.helius-rpc.com/"
 SOL_DECIMALS = 9
-SOL_USD_PRICE = 200  # Update to current SOL price
+SOL_USD_PRICE = 125  # Current SOL price (from CoinGecko/Binance)
 
 def connect_db():
     """Connect to database"""
@@ -435,6 +435,8 @@ def format_price(price):
     """Format price for display"""
     if price is None:
         return "N/A"
+    if price == 0:
+        return "$0.00"
     if price < 0.00000001:
         return f"${price:.18f}"
     elif price < 0.0001:
@@ -617,27 +619,30 @@ def fetch_realtime_vault_prices(pool):
         sol_balance = sol_balance_result.get('sol', 0)
         print(f"✓", flush=True)
 
-        # Only return valid prices
+        # Determine drain status
+        drain_status_info = None
         if token_balance > 0 and sol_balance > 0:
-            return {
-                'token_balance': token_balance,
-                'sol_balance': sol_balance,
-                'token_account': token_account,
-                'sol_account': sol_account,
-                'is_realtime': True,
-                'data_source': 'CURRENT VAULT BALANCES (Real-time RPC)'
-            }
+            drain_status_info = None  # Normal
+        elif sol_balance == 0 and token_balance > 0:
+            drain_status_info = 'LIQUIDITY_DRAINED'
+            print(f"    [RT] ⚠ LIQUIDITY DRAINED (tokens={token_balance:.0f}, sol={sol_balance:.6f})")
+        elif token_balance == 0 and sol_balance > 0:
+            drain_status_info = 'TOKENS_SWEPT'
+            print(f"    [RT] ⚠ TOKENS SWEPT (tokens={token_balance:.0f}, sol={sol_balance:.6f})")
         else:
-            # Vault is empty or drained - still return as valid realtime data
-            print(f"    [RT] Vault drained: token={token_balance:.6f}, sol={sol_balance:.6f}")
-            return {
-                'token_balance': token_balance,
-                'sol_balance': sol_balance,
-                'token_account': token_account,
-                'sol_account': sol_account,
-                'is_realtime': True,
-                'data_source': 'CURRENT VAULT BALANCES (Real-time RPC - DRAINED)'
-            }
+            drain_status_info = 'FULLY_DRAINED'
+            print(f"    [RT] ⚠ FULLY DRAINED (tokens={token_balance:.0f}, sol={sol_balance:.6f})")
+
+        # Return data
+        return {
+            'token_balance': token_balance,
+            'sol_balance': sol_balance,
+            'token_account': token_account,
+            'sol_account': sol_account,
+            'is_realtime': True,
+            'data_source': 'CURRENT VAULT BALANCES (Real-time RPC)' if not drain_status_info else f'CURRENT VAULT BALANCES (Real-time RPC - {drain_status_info})',
+            'drain_status_detected': drain_status_info
+        }
 
     except Exception as e:
         return None
@@ -663,12 +668,13 @@ def fetch_pool_price(pool):
             token_balance = realtime_result['token_balance']
             sol_balance = realtime_result['sol_balance']
 
-            # Calculate price if we have non-zero balances
-            if token_balance > 0 and sol_balance > 0:
+            # Calculate price if we have sufficient liquidity
+            # Minimum 1 SOL required for reliable pricing
+            if token_balance > 0 and sol_balance >= 1:
                 price_sol = sol_balance / token_balance
                 price_usd = price_sol * SOL_USD_PRICE
             else:
-                # Vault is drained - price is 0
+                # Vault is drained or has insufficient liquidity - price is 0
                 price_sol = 0
                 price_usd = 0
 
@@ -685,7 +691,8 @@ def fetch_pool_price(pool):
                 'token_mint': base_mint,
                 'timestamp': datetime.now().isoformat(),
                 'is_realtime': True,
-                'data_source': realtime_result.get('data_source', 'REAL-TIME RPC')
+                'data_source': realtime_result.get('data_source', 'REAL-TIME RPC'),
+                'drain_status': realtime_result.get('drain_status_detected')
             }
 
         # Fall back to pool creation snapshot
@@ -935,27 +942,77 @@ def main():
             return
 
         print(f"\n[FETCHING] Fetching prices for {len(pools)} PumpSwap tokens via blockchain RPC...")
-        print("-" * 235)
-        print(f"{'Symbol':<15} {'Price (SOL)':<20} {'Price (USD)':<20} {'SOL Balance':<20} {'Token Address':<44} {'Supply':<12} {'Status':<16}")
-        print("-" * 235)
+        print("-" * 130)
+        print(f"{'Symbol':<15} {'Price (USD)':<20} {'SOL Balance':<20} {'Status':<18} {'Token Address':<44}")
+        print("-" * 130)
 
         success = 0
         realtime_count = 0
+        drained_count = 0
+
+        # Collect results for sorting
+        results_by_status = {
+            'active': [],
+            'low': [],
+            'drained': []
+        }
+
         for pool in pools:
             result = fetch_pool_price(dict(pool))
             if result:
                 success += 1
-                sol_balance_str = f"${format_number(result['liquidity_sol'])} SOL"
-                supply_str = format_number(pool['total_supply'])
-                token_address = result['token_mint']
                 is_realtime = result.get('is_realtime', False)
-                status = "✓ REAL-TIME" if is_realtime else "! SNAPSHOT"
+                drain_status = result.get('drain_status')
+                sol_balance = result.get('liquidity_sol', 0)
+
+                # Determine liquidity status and sort order
+                if drain_status == 'LIQUIDITY_DRAINED':
+                    liquidity_status = "⚠ LIQUIDITY DRAINED"
+                    status_key = 'drained'
+                    drained_count += 1
+                elif drain_status == 'TOKENS_SWEPT':
+                    liquidity_status = "⚠ TOKENS SWEPT"
+                    status_key = 'drained'
+                    drained_count += 1
+                elif drain_status == 'FULLY_DRAINED':
+                    liquidity_status = "⚠ FULLY DRAINED"
+                    status_key = 'drained'
+                    drained_count += 1
+                elif sol_balance < 1:
+                    # Very small liquidity (< 1 SOL)
+                    liquidity_status = f"⚠ LOW ({format_number(sol_balance)} SOL)"
+                    status_key = 'low'
+                    drained_count += 1
+                else:
+                    liquidity_status = "✓ ACTIVE"
+                    status_key = 'active'
+
                 if is_realtime:
                     realtime_count += 1
-                print(f"{result['symbol']:<15} {format_price(result['price_sol']):<20} {format_price(result['price_usd']):<20} {sol_balance_str:<20} {token_address:<44} {supply_str:<12} {status:<16}")
 
-        print("-" * 235)
-        print(f"\n[RESULT] ✓ Fetched {success}/{len(pools)} prices | {realtime_count} real-time | {success - realtime_count} snapshot")
+                # Store formatted result
+                sol_balance_str = f"${format_number(sol_balance)} SOL"
+                status = "✓ REAL-TIME" if is_realtime else "! SNAPSHOT"
+                token_mint = result.get('token_mint', '')
+
+                results_by_status[status_key].append({
+                    'symbol': result['symbol'],
+                    'price': format_price(result['price_usd']),
+                    'sol_balance': sol_balance_str,
+                    'status': status,
+                    'liquidity_status': liquidity_status,
+                    'token_mint': token_mint
+                })
+
+        # Display active tokens first, then low liquidity, then drained
+        for status_key in ['active', 'low', 'drained']:
+            for result in results_by_status[status_key]:
+                # Add liquidity status indicator to status
+                status_with_liquidity = f"{result['status']} {result['liquidity_status']}" if result['liquidity_status'] != "✓ ACTIVE" else result['status']
+                print(f"{result['symbol']:<15} {result['price']:<20} {result['sol_balance']:<20} {status_with_liquidity:<40} {result['token_mint']:<44}")
+
+        print("-" * 260)
+        print(f"\n[RESULT] ✓ Fetched {success}/{len(pools)} prices | {realtime_count} real-time | {success - realtime_count} snapshot | {drained_count} low/drained")
 
 if __name__ == "__main__":
     main()

@@ -3809,7 +3809,11 @@ def start_liquidity_monitor_for_pool(pool_address: str, pool_symbol: str) -> Non
     def monitor_thread():
         """Run liquidity monitoring in background"""
         try:
-            from establish_baseline_price import BaselinePriceManager
+            try:
+                from establish_baseline_price import BaselinePriceManager
+            except ModuleNotFoundError:
+                print(f"[LIQUIDITY MONITOR] Note: Baseline price manager not available, skipping liquidity monitoring")
+                return
 
             manager = BaselinePriceManager(pool_address)
 

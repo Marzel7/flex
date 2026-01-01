@@ -622,6 +622,7 @@ class StandalonePumpSwapListener:
                     'UPDATE pools SET is_pumpswap = 1, signature = ? WHERE base_mint = ?',
                     (signature, token_mint)
                 )
+                print(f"[DB] Updated existing token in database: {token_mint}")
             else:
                 # Insert new token
                 cursor.execute('''
@@ -629,10 +630,14 @@ class StandalonePumpSwapListener:
                         base_mint, signature, is_pumpswap, first_seen, last_updated, amm_id
                     ) VALUES (?, ?, 1, ?, ?, ?)
                 ''', (token_mint, signature, datetime.now(), datetime.now(), token_mint))
+                print(f"[DB] Inserted new token into database: {token_mint}")
 
             conn.commit()
             conn.close()
             return True
+        except sqlite3.IntegrityError as e:
+            print(f"[ERROR] Integrity error adding token (likely duplicate): {e}")
+            return False
         except Exception as e:
             print(f"[ERROR] Could not add token to database: {e}")
             return False
@@ -954,7 +959,11 @@ class StandalonePumpSwapListener:
                                             self.seen_mints.add(token_mint)
                                             print(f"[WEBSOCKET] ✓ Added token: {token_mint}")
                                             # Add to database for tracking
-                                            self.add_token_to_db(token_mint, signature)
+                                            success = self.add_token_to_db(token_mint, signature)
+                                            if success:
+                                                print(f"[WEBSOCKET] ✓ Token persisted to database: {token_mint}")
+                                            else:
+                                                print(f"[WEBSOCKET] ✗ FAILED to persist token to database: {token_mint}")
 
                                             # Immediately fetch and display price for this token
                                             print(f"\n[WEBSOCKET] Fetching price for newly detected token...")

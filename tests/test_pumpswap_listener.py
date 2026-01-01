@@ -57,8 +57,8 @@ class VaultPriceFetcher:
         self.helius_api_key = HELIUS_API_KEY
         self.helius_rpc = HELIUS_RPC
 
-    def rpc_call(self, method, params):
-        """Make JSON-RPC call to Solana"""
+    def rpc_call(self, method, params, retries=2):
+        """Make JSON-RPC call to Solana with retry logic"""
         try:
             if not self.helius_api_key:
                 return None
@@ -69,12 +69,36 @@ class VaultPriceFetcher:
                 "method": method,
                 "params": params
             }
-            response = requests.post(self.helius_rpc, json=payload, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                if "error" in data:
+
+            # Retry logic with exponential backoff
+            for attempt in range(retries + 1):
+                try:
+                    response = requests.post(self.helius_rpc, json=payload, timeout=10)
+
+                    # Handle rate limiting (429)
+                    if response.status_code == 429:
+                        if attempt < retries:
+                            wait_time = 0.5 * (2 ** attempt)  # Exponential backoff
+                            time.sleep(wait_time)
+                            continue
+                        else:
+                            return None
+
+                    if response.status_code == 200:
+                        data = response.json()
+                        if "error" in data:
+                            return None
+                        return data.get("result")
+
                     return None
-                return data.get("result")
+                except requests.exceptions.Timeout:
+                    if attempt < retries:
+                        wait_time = 0.5 * (2 ** attempt)
+                        time.sleep(wait_time)
+                        continue
+                    else:
+                        return None
+
             return None
         except Exception as e:
             return None
@@ -140,33 +164,64 @@ class VaultPriceFetcher:
         except:
             return []
 
+    def get_dexscreener_price(self, token_mint):
+        """Fetch price data from DexScreener API"""
+        try:
+            url = f"https://api.dexscreener.com/latest/dex/tokens/{token_mint}"
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('pairs') and len(data['pairs']) > 0:
+                    pair = data['pairs'][0]
+                    return {
+                        'price_usd': float(pair.get('priceUsd', 0)),
+                        'price_native': float(pair.get('priceNative', 0))
+                    }
+            return None
+        except:
+            return None
+
     def is_pool_creation_transaction(self, tx_data):
-        """Check if transaction is a pool creation (not a swap or other operation)
+        """Check if transaction is a Pump.fun → PumpSwap migration (NOT a new pool creation)
 
-        Identifies Pump.fun → PumpSwap migrations by detecting pool initialization.
+        MIGRATION ONLY: Detects tokens migrating from Pump.fun to PumpSwap
+        Does NOT detect brand new pools created directly on PumpSwap.
 
-        Distinguishes from swaps by:
+        Identifies migrations by:
+        - Requiring "Instruction: Migrate" (must be present)
         - Excluding transactions with Buy/Sell instructions (those are swaps)
-        - Looking for pool initialization patterns specific to pool creation
+        - Excluding transactions with Swap instructions from other DEXes (Raydium, etc)
+        - Excluding failed transactions
 
-        True pool creation patterns:
-        - Mint new token account (initial setup)
-        - Initialize bonding curve vault accounts
-        - Does NOT contain Buy or Sell instructions
+        Pump.fun → PumpSwap migration patterns:
+        - Contains "Instruction: Migrate" (Pump.fun migration marker)
+        - Contains pool initialization (Initialize account, CreatePool, etc)
+        - Does NOT contain Buy/Sell/Swap instructions
+        - Transaction status is SUCCESS
         """
         try:
+            # First check: Exclude failed transactions
+            tx_err = tx_data.get('meta', {}).get('err')
+            if tx_err:
+                return False
+
             logs = tx_data.get('meta', {}).get('logMessages', [])
             logs_text = ' '.join(logs)
 
-            # First check: Exclude swaps (they have Buy/Sell instructions)
+            # CRITICAL: Must have Migrate instruction (Pump.fun → PumpSwap migration marker)
+            if 'Instruction: Migrate' not in logs_text:
+                return False
+
+            # Exclude swaps (they have Buy/Sell instructions from PumpSwap)
             if 'Instruction: Buy' in logs_text or 'Instruction: Sell' in logs_text:
                 return False
 
-            # Check if this looks like pool initialization
-            # Pool creation creates new accounts and initializes vaults
-            has_account_creation = 'CreateIdempotent' in logs_text or 'InitializeAccount' in logs_text
+            # Exclude other DEX swaps (Raydium, etc have "Instruction: Swap")
+            if 'Instruction: Swap' in logs_text:
+                return False
 
-            # Pool creation initializes bonding curve
+            # Check if this looks like pool initialization
+            # Migrations should have initialization patterns
             pool_creation_patterns = [
                 'initialize',
                 'create_pool',
@@ -174,31 +229,34 @@ class VaultPriceFetcher:
             ]
             has_init_pattern = any(pattern.lower() in logs_text.lower() for pattern in pool_creation_patterns)
 
-            # For true pool creation, we need account setup (token accounts for vault)
-            # but NOT token setup for the user (InitializeImmutableOwner is token account init, not pool init)
-            # Pool creation would have token transfers TO initialize vaults
-            has_token_transfers = 'TransferChecked' in logs_text or 'Transfer' in logs_text
+            # Must have both: Migrate instruction AND initialization pattern
+            is_migration = ('Instruction: Migrate' in logs_text) and has_init_pattern and not ('Instruction: Buy' in logs_text or 'Instruction: Sell' in logs_text)
 
-            # A pool creation should have account creation OR token transfers, not just account init
-            # (because swaps also initialize temporary accounts)
-            # The key difference: pool creation sets up vaults with transfers, swaps just trade
-
-            # If it has Buy/Sell, it's definitely not a pool creation
-            # If it has both initialization patterns and doesn't have Buy/Sell, likely creation
-            is_creation = has_init_pattern and not ('Instruction: Buy' in logs_text or 'Instruction: Sell' in logs_text)
-
-            return is_creation
+            return is_migration
         except:
             return False
 
     def extract_token_from_signature(self, signature):
-        """Extract token mint from a transaction signature (pool creation only)
+        """Extract token mint from a transaction signature (migrations only)
 
-        Filters to only detect Pump.fun → PumpSwap migrations (pool creations),
-        not regular swaps or other PumpSwap transactions.
+        Filters to ONLY detect Pump.fun → PumpSwap migrations.
+        Does NOT detect brand new pools created directly on PumpSwap.
+        Requires "Instruction: Migrate" in transaction logs.
         """
         try:
             tx_data = self.get_transaction(signature)
+            if not tx_data:
+                return None
+            return self.extract_token_from_tx_data(tx_data)
+        except:
+            return None
+
+    def extract_token_from_tx_data(self, tx_data):
+        """Extract token mint from transaction data (pool creation only)
+
+        Accepts pre-fetched tx_data to avoid redundant RPC calls.
+        """
+        try:
             if not tx_data:
                 return None
 
@@ -311,26 +369,24 @@ class VaultPriceFetcher:
             tx_data = self.get_transaction(signature)
             if not tx_data:
                 if debug:
-                    print(f"    [DEBUG] Could not fetch transaction {signature}")
+                    print(f"    [DEBUG] {symbol} - Could not fetch transaction {signature[:20]}...")
                 return None
 
             # Extract vault accounts from transaction
             token_account, sol_account = self.extract_vault_account_addresses(tx_data, token_mint, debug=debug)
             if not token_account:
                 if debug:
-                    print(f"    [DEBUG] Could not extract token vault account")
+                    print(f"    [DEBUG] {symbol} - Could not extract token vault account")
                 return None
 
             if debug:
-                print(f"    [DEBUG] Extracted accounts:")
-                print(f"      Token Vault: {token_account}")
-                print(f"      SOL Vault: {sol_account}")
+                print(f"    [DEBUG] {symbol} - Extracted accounts: Token={token_account[:16]}..., SOL={sol_account[:16] if sol_account else 'None'}...")
 
             # Get CURRENT token balance from blockchain RPC
             token_balance_result = self.get_token_account_balance(token_account)
             if not token_balance_result:
                 if debug:
-                    print(f"    [DEBUG] Could not fetch token balance")
+                    print(f"    [DEBUG] {symbol} - Could not fetch token balance")
                 return None
 
             # Get SOL balance - try sol_account first, fallback to searching transaction
@@ -340,7 +396,7 @@ class VaultPriceFetcher:
 
             if not sol_balance_result:
                 if debug:
-                    print(f"    [DEBUG] Could not fetch SOL balance from vault account, searching transaction...")
+                    print(f"    [DEBUG] {symbol} - Could not fetch SOL balance from vault account, searching transaction...")
                 # Try to find SOL balance from postBalances in transaction
                 meta = tx_data.get('meta', {})
                 post_balances = meta.get('postBalances', [])
@@ -366,11 +422,11 @@ class VaultPriceFetcher:
                 if sol_account_fallback:
                     sol_balance_result = self.get_sol_balance(sol_account_fallback)
                     if debug:
-                        print(f"    [DEBUG] Found SOL account fallback: {sol_account_fallback}")
+                        print(f"    [DEBUG] {symbol} - Found SOL account fallback: {sol_account_fallback[:16]}...")
 
             if not sol_balance_result:
                 if debug:
-                    print(f"    [DEBUG] Could not fetch SOL balance from any source")
+                    print(f"    [DEBUG] {symbol} - Could not fetch SOL balance from any source")
                 return None
 
             if not token_balance_result or not sol_balance_result:
@@ -500,7 +556,7 @@ class StandalonePumpSwapListener:
 
             # Query all PumpSwap tokens
             cursor.execute('''
-                SELECT symbol, base_mint, signature, total_supply, dexscreener_price_usd
+                SELECT symbol, name, base_mint, signature, total_supply, dexscreener_price_usd
                 FROM pools
                 WHERE is_pumpswap = 1 AND signature IS NOT NULL
                 ORDER BY first_seen DESC
@@ -509,7 +565,8 @@ class StandalonePumpSwapListener:
             for row in cursor.fetchall():
                 tokens.append({
                     'base_mint': row['base_mint'],
-                    'symbol': row['symbol'] or row['base_mint'][:8],
+                    'symbol': row['symbol'],
+                    'name': row['name'],
                     'signature': row['signature'],
                     'total_supply': row['total_supply'],
                     'dexscreener_price_usd': row['dexscreener_price_usd']
@@ -521,13 +578,77 @@ class StandalonePumpSwapListener:
 
         return tokens
 
+    def add_token_to_db(self, token_mint, signature):
+        """Add newly detected token to database for future price tracking"""
+        db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+
+        if not db_path.exists():
+            return False
+
+        try:
+            conn = sqlite3.connect(str(db_path), check_same_thread=False)
+            cursor = conn.cursor()
+
+            # Check if token already exists
+            cursor.execute('SELECT id FROM pools WHERE base_mint = ?', (token_mint,))
+            existing = cursor.fetchone()
+
+            if existing:
+                # Token already in DB, just ensure it's marked as PumpSwap
+                cursor.execute(
+                    'UPDATE pools SET is_pumpswap = 1, signature = ? WHERE base_mint = ?',
+                    (signature, token_mint)
+                )
+            else:
+                # Insert new token
+                cursor.execute('''
+                    INSERT INTO pools (
+                        base_mint, signature, is_pumpswap, first_seen, last_updated, amm_id
+                    ) VALUES (?, ?, 1, ?, ?, ?)
+                ''', (token_mint, signature, datetime.now(), datetime.now(), token_mint))
+
+            conn.commit()
+            conn.close()
+            return True
+        except Exception as e:
+            print(f"[ERROR] Could not add token to database: {e}")
+            return False
+
+    def update_dexscreener_price(self, token_mint, price_usd, price_native):
+        """Update DexScreener price in database"""
+        db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+
+        if not db_path.exists():
+            return False
+
+        try:
+            conn = sqlite3.connect(str(db_path), check_same_thread=False)
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                UPDATE pools
+                SET dexscreener_price_usd = ?, dexscreener_price_native = ?, last_dexscreener_update = ?
+                WHERE base_mint = ?
+            ''', (price_usd, price_native, datetime.now(), token_mint))
+
+            conn.commit()
+            conn.close()
+            return True
+        except Exception as e:
+            return False
+
     def scan_for_new_launches(self, seen_signatures):
         """Scan recent PumpSwap transactions for Pump.fun → PumpSwap migrations
 
         Filters for pool creation transactions only (not swaps or other operations).
         Also deduplicates by token mint to avoid reporting the same token multiple times.
+        Only detects launches from the last 2 minutes (120 seconds).
+        Automatically adds new tokens to database for future price tracking.
         """
+        import time
         new_launches = []
+        current_time = time.time()
+        max_age_seconds = 120  # Only detect launches from last 2 minutes
 
         # Get recent signatures from PumpSwap program
         signatures = self.price_fetcher.get_recent_signatures(limit=20)
@@ -538,9 +659,27 @@ class StandalonePumpSwapListener:
             if signature in seen_signatures:
                 continue
 
+            # Fetch transaction to get accurate blockTime
+            tx_data = self.price_fetcher.get_transaction(signature)
+            if not tx_data:
+                continue
+
+            # Filter by transaction age - only process recent transactions
+            block_time = tx_data.get('blockTime', 0)
+            if block_time == 0:
+                # If blockTime is 0 or missing, skip this transaction
+                continue
+
+            tx_age_seconds = current_time - block_time
+
+            if tx_age_seconds > max_age_seconds:
+                # Transaction is older than 2 minutes, skip it
+                continue
+
             # Extract token mint from transaction (only pool creations)
             # This filters out swaps, deposits, and other non-migration transactions
-            token_mint = self.price_fetcher.extract_token_from_signature(signature)
+            # Note: We're using tx_data we already fetched above to avoid redundant RPC call
+            token_mint = self.price_fetcher.extract_token_from_tx_data(tx_data)
 
             if token_mint:
                 # Skip if we've already reported this token mint
@@ -551,6 +690,24 @@ class StandalonePumpSwapListener:
                         'timestamp': sig_info.get('blockTime', 0)
                     })
                     self.seen_mints.add(token_mint)
+
+                    # Add to database for future price tracking
+                    if self.add_token_to_db(token_mint, signature):
+                        print(f"   [✓ ADDED] Token added to database for tracking")
+
+                        # Fetch DexScreener price for the new token
+                        dex_price = self.price_fetcher.get_dexscreener_price(token_mint)
+                        if dex_price:
+                            self.update_dexscreener_price(
+                                token_mint,
+                                dex_price['price_usd'],
+                                dex_price['price_native']
+                            )
+                            print(f"   [✓ DEXSCREENER] Price: ${dex_price['price_usd']:.8f}")
+                        else:
+                            print(f"   [⚠] Could not fetch DexScreener price (will use fallback)")
+                    else:
+                        print(f"   [⚠] Could not add token to database")
 
                 seen_signatures.add(signature)
 
@@ -563,37 +720,89 @@ class StandalonePumpSwapListener:
 
         active_tokens = []
         low_count = 0
+        fetch_failed_count = 0
 
-        for token in self.pumpswap_tokens:
-            # Fetch live price from blockchain vaults
-            price_result = self.price_fetcher.fetch_live_price_for_token(
-                token.get('base_mint', ''),
-                token.get('signature', ''),
-                token.get('symbol', '?')
-            )
+        for token_entry in self.pumpswap_tokens:
+            # Extract token data and price result (already fetched in run_listener)
+            token = token_entry.get('token_data', {})
+            price_result = token_entry.get('price_result')
 
+            # Use on-chain price if available
             if price_result:
                 sol_balance = price_result.get('sol_balance', 0)
                 if sol_balance >= 1:
-                    active_tokens.append((token, price_result))
+                    active_tokens.append((token, price_result, 'onchain'))
                 else:
                     low_count += 1
+            else:
+                # On-chain fetch failed - use DexScreener price as fallback
+                dexscreener_price = token.get('dexscreener_price_usd', 0)
+                if dexscreener_price and dexscreener_price > 0:
+                    # Create a fallback result with DexScreener price but attempt to fetch on-chain data
+                    fallback_result = {
+                        'price_usd': dexscreener_price,
+                        'sol_balance': 0,
+                        'token_balance': 0,
+                        'total_supply': token.get('total_supply')
+                    }
+
+                    # Try to fetch actual SOL balance and token balance from vault
+                    signature = token.get('signature', '')
+                    if signature:
+                        try:
+                            tx_data = self.price_fetcher.get_transaction(signature)
+                            if tx_data:
+                                base_mint = token.get('base_mint', '')
+                                token_acct, sol_acct = self.price_fetcher.extract_vault_account_addresses(tx_data, base_mint)
+
+                                if token_acct and sol_acct:
+                                    token_bal = self.price_fetcher.get_token_account_balance(token_acct)
+                                    sol_bal = self.price_fetcher.get_sol_balance(sol_acct)
+
+                                    if token_bal and sol_bal:
+                                        fallback_result['token_balance'] = token_bal.get('ui_amount', 0)
+                                        fallback_result['sol_balance'] = sol_bal.get('sol', 0)
+                        except:
+                            pass  # Keep fallback values if fetch fails
+
+                    active_tokens.append((token, fallback_result, 'dexscreener'))
+                else:
+                    fetch_failed_count += 1
 
         if active_tokens:
-            print(f"\n{'-'*200}")
-            print(f"{'Symbol':<15} {'Price (USD)':<20} {'SOL Balance':<15} {'Market Cap':<20} {'FDV':<20} {'Match':<12} {'Token Address':<38}")
-            print(f"{'-'*200}")
+            print(f"\n{'-'*250}")
+            print(f"{'Name':<32} {'Price (USD)':<20} {'SOL Balance':<15} {'Market Cap':<20} {'FDV':<20} {'Source':<12} {'Match':<12} {'Token Address':<35}")
+            print(f"{'-'*250}")
 
-            for token, price_result in active_tokens:
-                symbol = token.get('symbol', '?')[:15]
+            for token, price_result, source in active_tokens:
                 base_mint = token.get('base_mint', '')
+                name = token.get('name')
+                symbol = token.get('symbol')
+
+                # Display name: use token name if available, otherwise use symbol or mint prefix
+                if name and name != 'Unknown':
+                    # Use full token name, limited to 30 chars for display
+                    display_name = name[:30]
+                elif symbol and symbol != 'Unknown':
+                    # Fallback to symbol
+                    display_name = symbol[:30]
+                else:
+                    # Unnamed tokens: show first 30 chars of mint as identifier
+                    display_name = base_mint[:30]
+
+                # Get price and balances from result (now includes fallback data)
                 price_usd = price_result.get('price_usd', 0)
                 sol_balance = price_result.get('sol_balance', 0)
                 token_balance = price_result.get('token_balance', 0)
 
                 # Format price
                 price_str = f"${price_usd:.8f}" if price_usd > 0 else "$0.00"
-                sol_str = f"{sol_balance:.2f} SOL"
+
+                # Format SOL balance - show actual balance or N/A if couldn't fetch
+                if sol_balance > 0:
+                    sol_str = f"{sol_balance:.2f} SOL"
+                else:
+                    sol_str = "N/A"
 
                 # Calculate market cap
                 market_cap = price_usd * token_balance if token_balance > 0 else 0
@@ -602,41 +811,62 @@ class StandalonePumpSwapListener:
                 elif market_cap > 1000:
                     market_cap_str = f"${market_cap/1000:.2f}K"
                 else:
-                    market_cap_str = f"${market_cap:.2f}"
+                    market_cap_str = f"${market_cap:.2f}" if market_cap > 0 else "N/A"
 
                 # Calculate FDV
-                total_supply = price_result.get('total_supply') or token.get('total_supply')
+                total_supply = (price_result.get('total_supply') if price_result else None) or token.get('total_supply')
                 if total_supply and total_supply > 0:
                     fdv = price_usd * total_supply
                 else:
-                    fdv = market_cap
+                    fdv = market_cap if market_cap > 0 else 0
 
                 if fdv > 1000000:
                     fdv_str = f"${fdv/1000000:.2f}M"
                 elif fdv > 1000:
                     fdv_str = f"${fdv/1000:.2f}K"
                 else:
-                    fdv_str = f"${fdv:.2f}"
+                    fdv_str = f"${fdv:.2f}" if fdv > 0 else "N/A"
 
-                # Calculate match ratio vs DexScreener
-                dexscreener_price = token.get('dexscreener_price_usd', 0)
-                if dexscreener_price and dexscreener_price > 0 and price_usd > 0:
-                    match_ratio = price_usd / dexscreener_price
-                    if 0.95 <= match_ratio <= 1.05:
-                        match_str = f"✓ {match_ratio:.2f}x"
-                    elif 0.90 <= match_ratio <= 1.10:
-                        match_str = f"~ {match_ratio:.2f}x"
+                # Source indicator
+                source_str = "🔗 OnChain" if source == 'onchain' else "📊 DexScreen"
+
+                # Calculate match ratio vs DexScreener (only if on-chain)
+                if source == 'onchain':
+                    dexscreener_price = token.get('dexscreener_price_usd', 0)
+
+                    # Fetch DexScreener price on-demand if not in database
+                    if not dexscreener_price or dexscreener_price == 0:
+                        dex_data = self.price_fetcher.get_dexscreener_price(base_mint)
+                        if dex_data:
+                            dexscreener_price = dex_data['price_usd']
+                            # Also update database for next time
+                            self.update_dexscreener_price(
+                                base_mint,
+                                dex_data['price_usd'],
+                                dex_data['price_native']
+                            )
+
+                    if dexscreener_price and dexscreener_price > 0 and price_usd > 0:
+                        match_ratio = price_usd / dexscreener_price
+                        if 0.95 <= match_ratio <= 1.05:
+                            match_str = f"✓ {match_ratio:.2f}x"
+                        elif 0.90 <= match_ratio <= 1.10:
+                            match_str = f"~ {match_ratio:.2f}x"
+                        else:
+                            match_str = f"⚠ {match_ratio:.2f}x"
+                    elif dexscreener_price and dexscreener_price > 0:
+                        match_str = "—"
                     else:
-                        match_str = f"⚠ {match_ratio:.2f}x"
-                elif dexscreener_price and dexscreener_price > 0:
-                    match_str = "N/A"
+                        match_str = "—"
                 else:
                     match_str = "—"
 
-                print(f"{symbol:<15} {price_str:<20} {sol_str:<15} {market_cap_str:<20} {fdv_str:<20} {match_str:<12} {base_mint:<38}")
+                print(f"{display_name:<32} {price_str:<20} {sol_str:<15} {market_cap_str:<20} {fdv_str:<20} {source_str:<12} {match_str:<12} {base_mint:<35}")
 
-            print(f"{'-'*200}")
-            print(f"\n[RESULT] ✓ Active: {len(active_tokens)} | Low liquidity: {low_count}")
+            print(f"{'-'*250}")
+            on_chain_count = sum(1 for _, _, src in active_tokens if src == 'onchain')
+            dex_fallback_count = sum(1 for _, _, src in active_tokens if src == 'dexscreener')
+            print(f"\n[RESULT] ✓ OnChain: {on_chain_count} | DexScreen Fallback: {dex_fallback_count} | Low liquidity: {low_count} | No price: {fetch_failed_count}")
 
     def run_listener(self) -> None:
         """Run the standalone listener - continuously monitors and updates prices"""
@@ -702,8 +932,11 @@ class StandalonePumpSwapListener:
                             token_mint, signature, symbol
                         )
 
-                        if price_result:
-                            self.pumpswap_tokens.append(token_data)
+                        # Always add token, even if price fetch failed (price_result is None)
+                        self.pumpswap_tokens.append({
+                            'token_data': token_data,
+                            'price_result': price_result
+                        })
 
                     # Print live table
                     self.print_live_table()

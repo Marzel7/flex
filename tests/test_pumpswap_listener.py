@@ -143,27 +143,50 @@ class VaultPriceFetcher:
     def is_pool_creation_transaction(self, tx_data):
         """Check if transaction is a pool creation (not a swap or other operation)
 
-        PumpSwap pool creation uses initialization instructions like:
-        - 'initialize'
-        - 'create_pool'
-        - 'InitializePool'
-        - 'Program log: Instruction: Initialize'
+        Identifies Pump.fun → PumpSwap migrations by detecting pool initialization.
 
-        This filters for only Pump.fun → PumpSwap migrations, not regular swaps.
+        Distinguishes from swaps by:
+        - Excluding transactions with Buy/Sell instructions (those are swaps)
+        - Looking for pool initialization patterns specific to pool creation
+
+        True pool creation patterns:
+        - Mint new token account (initial setup)
+        - Initialize bonding curve vault accounts
+        - Does NOT contain Buy or Sell instructions
         """
         try:
             logs = tx_data.get('meta', {}).get('logMessages', [])
             logs_text = ' '.join(logs)
 
-            # Check if this is a pool creation, not a swap
+            # First check: Exclude swaps (they have Buy/Sell instructions)
+            if 'Instruction: Buy' in logs_text or 'Instruction: Sell' in logs_text:
+                return False
+
+            # Check if this looks like pool initialization
+            # Pool creation creates new accounts and initializes vaults
+            has_account_creation = 'CreateIdempotent' in logs_text or 'InitializeAccount' in logs_text
+
+            # Pool creation initializes bonding curve
             pool_creation_patterns = [
                 'initialize',
                 'create_pool',
                 'InitializePool',
-                'Program log: Instruction: Initialize',
             ]
+            has_init_pattern = any(pattern.lower() in logs_text.lower() for pattern in pool_creation_patterns)
 
-            is_creation = any(pattern.lower() in logs_text.lower() for pattern in pool_creation_patterns)
+            # For true pool creation, we need account setup (token accounts for vault)
+            # but NOT token setup for the user (InitializeImmutableOwner is token account init, not pool init)
+            # Pool creation would have token transfers TO initialize vaults
+            has_token_transfers = 'TransferChecked' in logs_text or 'Transfer' in logs_text
+
+            # A pool creation should have account creation OR token transfers, not just account init
+            # (because swaps also initialize temporary accounts)
+            # The key difference: pool creation sets up vaults with transfers, swaps just trade
+
+            # If it has Buy/Sell, it's definitely not a pool creation
+            # If it has both initialization patterns and doesn't have Buy/Sell, likely creation
+            is_creation = has_init_pattern and not ('Instruction: Buy' in logs_text or 'Instruction: Sell' in logs_text)
+
             return is_creation
         except:
             return False

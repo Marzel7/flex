@@ -953,66 +953,73 @@ class StandalonePumpSwapListener:
 
                                     # Fetch full transaction to extract token
                                     full_tx = self.price_fetcher.get_transaction(signature)
-                                    if full_tx:
-                                        token_mint = self.price_fetcher.extract_token_from_tx_data(full_tx)
-                                        if token_mint and token_mint not in self.seen_mints:
-                                            self.seen_mints.add(token_mint)
-                                            print(f"[WEBSOCKET] ✓ Added token: {token_mint}")
-                                            # Add to database for tracking
-                                            success = self.add_token_to_db(token_mint, signature)
-                                            if success:
-                                                print(f"[WEBSOCKET] ✓ Token persisted to database: {token_mint}")
+                                    if not full_tx:
+                                        print(f"[WEBSOCKET] ⚠ Could not fetch full transaction: {signature}")
+                                        continue
+
+                                    token_mint = self.price_fetcher.extract_token_from_tx_data(full_tx)
+                                    if not token_mint:
+                                        print(f"[WEBSOCKET] ⚠ Could not extract token from transaction: {signature}")
+                                        continue
+
+                                    if token_mint not in self.seen_mints:
+                                        self.seen_mints.add(token_mint)
+                                        print(f"[WEBSOCKET] ✓ Added token: {token_mint}")
+                                        # Add to database for tracking
+                                        success = self.add_token_to_db(token_mint, signature)
+                                        if success:
+                                            print(f"[WEBSOCKET] ✓ Token persisted to database: {token_mint}")
+                                        else:
+                                            print(f"[WEBSOCKET] ✗ FAILED to persist token to database: {token_mint}")
+
+                                        # Immediately fetch and display price for this token
+                                        print(f"\n[WEBSOCKET] Fetching price for newly detected token...")
+                                        price_result = self.price_fetcher.fetch_live_price_for_token(
+                                            token_mint, signature, "?", debug=True
+                                        )
+
+                                        # Display the new token's price immediately (any amount of SOL)
+                                        if price_result:
+                                            print(f"\n{'-'*150}")
+                                            print(f"{'Token':<35} {'Price (USD)':<20} {'SOL Balance':<15} {'Market Cap':<20} {'FDV':<20} {'Source':<12}")
+                                            print(f"{'-'*150}")
+
+                                            base_mint = token_mint
+                                            price_usd = price_result.get('price_usd', 0)
+                                            sol_balance = price_result.get('sol_balance', 0)
+                                            token_balance = price_result.get('token_balance', 0)
+
+                                            # Format output
+                                            price_str = f"${price_usd:.8f}" if price_usd > 0 else "$0.00"
+                                            sol_str = f"{sol_balance:.2f} SOL"
+
+                                            # Calculate market cap
+                                            market_cap = price_usd * token_balance if token_balance > 0 else 0
+                                            if market_cap > 1000000:
+                                                market_cap_str = f"${market_cap/1000000:.2f}M"
+                                            elif market_cap > 1000:
+                                                market_cap_str = f"${market_cap/1000:.2f}K"
                                             else:
-                                                print(f"[WEBSOCKET] ✗ FAILED to persist token to database: {token_mint}")
+                                                market_cap_str = f"${market_cap:.2f}" if market_cap > 0 else "N/A"
 
-                                            # Immediately fetch and display price for this token
-                                            print(f"\n[WEBSOCKET] Fetching price for newly detected token...")
-                                            price_result = self.price_fetcher.fetch_live_price_for_token(
-                                                token_mint, signature, "?", debug=True
-                                            )
-
-                                            # Display the new token's price immediately (any amount of SOL)
-                                            if price_result:
-                                                print(f"\n{'-'*150}")
-                                                print(f"{'Token':<35} {'Price (USD)':<20} {'SOL Balance':<15} {'Market Cap':<20} {'FDV':<20} {'Source':<12}")
-                                                print(f"{'-'*150}")
-
-                                                base_mint = token_mint
-                                                price_usd = price_result.get('price_usd', 0)
-                                                sol_balance = price_result.get('sol_balance', 0)
-                                                token_balance = price_result.get('token_balance', 0)
-
-                                                # Format output
-                                                price_str = f"${price_usd:.8f}" if price_usd > 0 else "$0.00"
-                                                sol_str = f"{sol_balance:.2f} SOL"
-
-                                                # Calculate market cap
-                                                market_cap = price_usd * token_balance if token_balance > 0 else 0
-                                                if market_cap > 1000000:
-                                                    market_cap_str = f"${market_cap/1000000:.2f}M"
-                                                elif market_cap > 1000:
-                                                    market_cap_str = f"${market_cap/1000:.2f}K"
-                                                else:
-                                                    market_cap_str = f"${market_cap:.2f}" if market_cap > 0 else "N/A"
-
-                                                # Calculate FDV
-                                                total_supply = price_result.get('total_supply', 0)
-                                                if total_supply and total_supply > 0:
-                                                    fdv = price_usd * total_supply
-                                                else:
-                                                    fdv = market_cap if market_cap > 0 else 0
-
-                                                if fdv > 1000000:
-                                                    fdv_str = f"${fdv/1000000:.2f}M"
-                                                elif fdv > 1000:
-                                                    fdv_str = f"${fdv/1000:.2f}K"
-                                                else:
-                                                    fdv_str = f"${fdv:.2f}" if fdv > 0 else "N/A"
-
-                                                print(f"{base_mint:<35} {price_str:<20} {sol_str:<15} {market_cap_str:<20} {fdv_str:<20} 🔗 OnChain")
-                                                print(f"{'-'*150}\n")
+                                            # Calculate FDV
+                                            total_supply = price_result.get('total_supply', 0)
+                                            if total_supply and total_supply > 0:
+                                                fdv = price_usd * total_supply
                                             else:
-                                                print(f"[WEBSOCKET] ⚠ Could not fetch price for newly detected token")
+                                                fdv = market_cap if market_cap > 0 else 0
+
+                                            if fdv > 1000000:
+                                                fdv_str = f"${fdv/1000000:.2f}M"
+                                            elif fdv > 1000:
+                                                fdv_str = f"${fdv/1000:.2f}K"
+                                            else:
+                                                fdv_str = f"${fdv:.2f}" if fdv > 0 else "N/A"
+
+                                            print(f"{base_mint:<35} {price_str:<20} {sol_str:<15} {market_cap_str:<20} {fdv_str:<20} 🔗 OnChain")
+                                            print(f"{'-'*150}\n")
+                                        else:
+                                            print(f"[WEBSOCKET] ⚠ Could not fetch price for newly detected token")
                         except asyncio.TimeoutError:
                             continue
                         except Exception as e:

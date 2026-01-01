@@ -665,6 +665,29 @@ class StandalonePumpSwapListener:
         except Exception as e:
             return False
 
+    def update_token_supply(self, token_mint, total_supply):
+        """Update token total supply in database"""
+        db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+
+        if not db_path.exists():
+            return False
+
+        try:
+            conn = sqlite3.connect(str(db_path), check_same_thread=False)
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                UPDATE pools
+                SET total_supply = ?, last_price_update = ?
+                WHERE base_mint = ?
+            ''', (total_supply, datetime.now(), token_mint))
+
+            conn.commit()
+            conn.close()
+            return True
+        except Exception as e:
+            return False
+
     def scan_for_new_launches(self, seen_signatures):
         """Scan recent PumpSwap transactions for Pump.fun → PumpSwap migrations
 
@@ -1113,6 +1136,10 @@ class StandalonePumpSwapListener:
                         price_result = self.price_fetcher.fetch_live_price_for_token(
                             token_mint, signature, symbol
                         )
+
+                        # Update total supply if we got a price result
+                        if price_result and price_result.get('total_supply'):
+                            self.update_token_supply(token_mint, price_result['total_supply'])
 
                         # Always add token, even if price fetch failed (price_result is None)
                         self.pumpswap_tokens.append({

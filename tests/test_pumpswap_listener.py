@@ -553,6 +553,59 @@ class VaultPriceFetcher:
         except Exception as e:
             return None
 
+    def calculate_migration_initial_price(self, token_mint, symbol="", debug=False):
+        """Calculate initial price for migrating token based on 85 SOL initial liquidity
+
+        PumpFun tokens that migrate to PumpSwap always start with 85 SOL in liquidity.
+        If we know the total supply, we can calculate the exact initial price:
+
+        Price = 85 SOL / Total Supply
+        Price USD = Price SOL × SOL USD Price
+
+        This is more reliable than fetching from vault for newly migrated tokens
+        because the vault data might not reflect the exact migration values.
+        """
+        try:
+            # Fetch total supply
+            total_supply = self.get_token_supply(token_mint)
+            if not total_supply or total_supply <= 0:
+                if debug:
+                    print(f"[MIGRATION] ⚠ Could not fetch total supply for {symbol}: {token_mint[:16]}...")
+                return None
+
+            # PumpFun migrations always start with 85 SOL
+            initial_sol_liquidity = 85.0
+
+            # Calculate initial price
+            price_sol = initial_sol_liquidity / total_supply
+            price_usd = price_sol * SOL_USD_PRICE
+
+            market_cap = price_usd * total_supply
+            fdv = price_usd * total_supply  # At migration, all tokens are in circulation
+
+            if debug:
+                print(f"\n[MIGRATION] 🎯 Initial Price Calculation (85 SOL migration):")
+                print(f"  Total Supply: {total_supply:,.0f}")
+                print(f"  Initial SOL: {initial_sol_liquidity:.2f} SOL")
+                print(f"  Price: ${price_usd:.8f} USD (${price_sol:.10f} SOL)")
+                print(f"  Market Cap: ${market_cap:,.0f}")
+                print(f"  FDV: ${fdv:,.0f}")
+
+            return {
+                'price_usd': price_usd,
+                'price_sol': price_sol,
+                'sol_balance': initial_sol_liquidity,
+                'token_balance': total_supply,
+                'total_supply': total_supply,
+                'market_cap': market_cap,
+                'fdv': fdv,
+                'is_migration_initial': True
+            }
+        except Exception as e:
+            if debug:
+                print(f"[MIGRATION] ✗ Error calculating initial price: {e}")
+            return None
+
 
 class StandalonePumpSwapListener:
     """Standalone PumpSwap listener - Independent from main.py"""
@@ -707,6 +760,33 @@ class StandalonePumpSwapListener:
             return False
         except Exception as e:
             print(f"[ERROR] Could not add token to database: {e}")
+            return False
+
+    def update_initial_price(self, token_mint, price_result):
+        """Update initial migration price and total supply in database"""
+        db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+
+        if not db_path.exists():
+            return False
+
+        try:
+            conn = sqlite3.connect(str(db_path), check_same_thread=False)
+            cursor = conn.cursor()
+
+            price_usd = price_result.get('price_usd', 0)
+            total_supply = price_result.get('total_supply', 0)
+
+            cursor.execute('''
+                UPDATE pools
+                SET dexscreener_price_usd = ?, total_supply = ?, last_price_update = ?
+                WHERE base_mint = ?
+            ''', (price_usd, total_supply, datetime.now(), token_mint))
+
+            conn.commit()
+            conn.close()
+            return True
+        except Exception as e:
+            print(f"[ERROR] Could not update initial price: {e}")
             return False
 
     def update_dexscreener_price(self, token_mint, price_usd, price_native):
@@ -1071,11 +1151,18 @@ class StandalonePumpSwapListener:
                                         else:
                                             print(f"[WEBSOCKET] ✗ FAILED to persist token to database: {token_mint}")
 
-                                        # Immediately fetch and display price for this token
-                                        print(f"\n[WEBSOCKET] Fetching price for newly detected token...")
-                                        price_result = self.price_fetcher.fetch_live_price_for_token(
-                                            token_mint, signature, "?", debug=True, tx_data=full_tx
+                                        # Immediately calculate and display initial price for this token
+                                        print(f"\n[WEBSOCKET] Calculating initial price from 85 SOL migration...")
+                                        price_result = self.price_fetcher.calculate_migration_initial_price(
+                                            token_mint, symbol="?", debug=True
                                         )
+
+                                        # If calculation fails, fall back to live price fetch
+                                        if not price_result:
+                                            print(f"[WEBSOCKET] Initial price calculation failed, fetching live price from vault...")
+                                            price_result = self.price_fetcher.fetch_live_price_for_token(
+                                                token_mint, signature, "?", debug=True, tx_data=full_tx
+                                            )
 
                                         # Display the new token's price immediately (any amount of SOL)
                                         if price_result:
@@ -1117,6 +1204,12 @@ class StandalonePumpSwapListener:
 
                                             print(f"{base_mint:<35} {price_str:<20} {sol_str:<15} {market_cap_str:<20} {fdv_str:<20} 🔗 OnChain")
                                             print(f"{'-'*150}\n")
+
+                                            # Store initial price in database
+                                            if self.update_initial_price(token_mint, price_result):
+                                                print(f"[WEBSOCKET] ✓ Stored initial price in database")
+                                            else:
+                                                print(f"[WEBSOCKET] ⚠ Could not store initial price in database")
                                         else:
                                             print(f"[WEBSOCKET] ⚠ Could not fetch price for newly detected token")
                         except asyncio.TimeoutError:

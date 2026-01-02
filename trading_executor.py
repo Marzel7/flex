@@ -17,6 +17,7 @@ Features:
 import asyncio
 import time
 import json
+import os
 import requests
 from typing import Dict, Optional, Tuple
 from dataclasses import dataclass
@@ -24,11 +25,11 @@ from datetime import datetime
 from pathlib import Path
 
 from solders.pubkey import Pubkey
-
-# Note: Additional Solders imports needed for complete transaction building:
-# from solders.transaction import VersionedTransaction
-# from solders.message import MessageV0
-# from solders.instruction import Instruction
+from solders.transaction import VersionedTransaction
+from solders.message import MessageV0
+from solders.instruction import Instruction, AccountMeta
+from solders.hash import Hash
+import base64
 
 
 @dataclass
@@ -56,12 +57,16 @@ class SwapResult:
 
 
 class JupiterClient:
-    """Jupiter routing and quote client (Free API)"""
+    """Jupiter routing and quote client (supports API key for higher limits)"""
 
-    BASE_URL = "https://api.jup.ag/v6"
+    BASE_URL = "https://api.jup.ag/v6"  # Jupiter API endpoint
 
-    def __init__(self):
+    def __init__(self, api_key: Optional[str] = None):
         self.session = requests.Session()
+        self.api_key = api_key or os.environ.get("JUPITER_API_KEY")
+        self.base_url = self.BASE_URL
+        if self.api_key:
+            self.session.headers.update({"x-token": self.api_key})
 
     async def get_quote(
         self,
@@ -93,7 +98,7 @@ class JupiterClient:
             }
 
             response = self.session.get(
-                f"{self.BASE_URL}/quote",
+                f"{self.base_url}/quote",
                 params=params,
                 timeout=10
             )
@@ -138,7 +143,7 @@ class JupiterClient:
             }
 
             response = self.session.post(
-                f"{self.BASE_URL}/swap-instructions",
+                f"{self.base_url}/swap-instructions",
                 json=body,
                 timeout=10
             )
@@ -272,6 +277,7 @@ class TokenTrader:
         network: str = "mainnet",
         default_slippage_bps: int = 300,  # 3%
         default_tip_amount: int = 50000,  # ~$0.006
+        jupiter_api_key: Optional[str] = None,  # Jupiter API key for higher limits
     ):
         """
         Initialize TokenTrader
@@ -281,13 +287,14 @@ class TokenTrader:
             network: "mainnet" or "devnet"
             default_slippage_bps: Default slippage in basis points
             default_tip_amount: Default tip in lamports
+            jupiter_api_key: Optional Jupiter API key for higher rate limits
         """
         self.rpc_endpoint = rpc_endpoint
         self.network = network
         self.default_slippage_bps = default_slippage_bps
         self.default_tip_amount = default_tip_amount
 
-        self.jupiter_client = JupiterClient()
+        self.jupiter_client = JupiterClient(api_key=jupiter_api_key)
         self.jito_client = JitoClient(network=network)
 
         self.session = requests.Session()
@@ -352,34 +359,24 @@ class TokenTrader:
 
             print(f"[TRADER] Building swap transaction with {len(instructions_data)} instructions...")
 
-            # TODO: Complete transaction building with Solders library:
-            # 1. Get recent blockhash from RPC
-            # 2. Parse Jupiter instruction data into Solders Instruction objects
-            # 3. Create MessageV0 with instructions and address lookup tables
-            # 4. Create VersionedTransaction with MessageV0
-            # 5. Sign with user_keypair
-            # 6. Serialize and send via Jito
+            # 4. Build, sign, and send transaction via Jito
+            signature, success = await self._build_and_send_transaction(
+                quote=quote,
+                swap_instructions=swap_instructions,
+                user_keypair=user_keypair,
+                tip_amount=tip_amount
+            )
 
-            # 4. Sign transaction
-            print(f"[TRADER] Signing transaction...")
-
-            # 5. Send via Jito for MEV protection
-            print(f"[TRADER] Sending via Jito with {tip_amount} lamport tip...")
-
-            # Placeholder for actual transaction sending
-            # signature, success = await self.jito_client.send_transaction(
-            #     transaction=serialized_tx,
-            #     tip_amount=tip_amount
-            # )
-
-            # Return result with pending status
+            # Return result with actual signature and status
+            status = "confirmed" if success else "failed"
             result = SwapResult(
-                signature="pending",  # Would be actual signature from Jito
-                status="pending",
+                signature=signature or "failed",
+                status=status,
                 timestamp=datetime.now(),
                 input_amount=sol_lamports,
-                output_amount=quote.out_amount,
-                price_executed=quote.out_amount / sol_lamports,
+                output_amount=quote.out_amount if success else 0,
+                price_executed=quote.out_amount / sol_lamports if success else 0,
+                error=None if success else "Transaction failed to submit"
             )
 
             self.transaction_history.append(result)
@@ -453,33 +450,24 @@ class TokenTrader:
 
             print(f"[TRADER] Building sell transaction with {len(instructions_data)} instructions...")
 
-            # TODO: Complete transaction building with Solders library:
-            # 1. Get recent blockhash from RPC
-            # 2. Parse Jupiter instruction data into Solders Instruction objects
-            # 3. Create MessageV0 with instructions and address lookup tables
-            # 4. Create VersionedTransaction with MessageV0
-            # 5. Sign with user_keypair
-            # 6. Serialize and send via Jito
+            # 4. Build, sign, and send transaction via Jito
+            signature, success = await self._build_and_send_transaction(
+                quote=quote,
+                swap_instructions=swap_instructions,
+                user_keypair=user_keypair,
+                tip_amount=tip_amount
+            )
 
-            # 4. Sign transaction
-            print(f"[TRADER] Signing transaction...")
-
-            # 5. Send via Jito
-            print(f"[TRADER] Sending via Jito with {tip_amount} lamport tip...")
-
-            # Placeholder for actual transaction sending
-            # signature, success = await self.jito_client.send_transaction(
-            #     transaction=serialized_tx,
-            #     tip_amount=tip_amount
-            # )
-
+            # Return result with actual signature and status
+            status = "confirmed" if success else "failed"
             result = SwapResult(
-                signature="pending",
-                status="pending",
+                signature=signature or "failed",
+                status=status,
                 timestamp=datetime.now(),
                 input_amount=token_amount,
-                output_amount=quote.out_amount,
-                price_executed=quote.out_amount / token_amount,
+                output_amount=quote.out_amount if success else 0,
+                price_executed=quote.out_amount / token_amount if success else 0,
+                error=None if success else "Transaction failed to submit"
             )
 
             self.transaction_history.append(result)
@@ -497,6 +485,45 @@ class TokenTrader:
                 price_executed=0,
                 error=str(e)
             )
+
+    def _parse_jupiter_instruction(self, instr_dict: Dict) -> Instruction:
+        """
+        Parse a Jupiter instruction dict into a Solders Instruction object
+
+        Jupiter returns instructions in the format:
+        {
+            "programId": "...",
+            "accounts": [...],
+            "data": "..."
+        }
+
+        Args:
+            instr_dict: Instruction dictionary from Jupiter
+
+        Returns:
+            Solders Instruction object
+        """
+        program_id = Pubkey.from_string(instr_dict["programId"])
+        data = base64.b64decode(instr_dict["data"])
+
+        # Parse accounts into AccountMeta objects
+        accounts = []
+        for account in instr_dict["accounts"]:
+            pubkey = Pubkey.from_string(account["pubkey"])
+            is_signer = account.get("isSigner", False)
+            is_writable = account.get("isWritable", False)
+
+            accounts.append(AccountMeta(
+                pubkey=pubkey,
+                is_signer=is_signer,
+                is_writable=is_writable
+            ))
+
+        return Instruction(
+            program_id=program_id,
+            accounts=accounts,
+            data=data
+        )
 
     async def _build_and_send_transaction(
         self,
@@ -518,8 +545,8 @@ class TokenTrader:
             Tuple of (signature, success)
         """
         try:
-            # TODO: Complete transaction building with Solders:
             # 1. Get recent blockhash from RPC
+            print("[TRADER] Fetching recent blockhash...")
             response = self.session.get(
                 self.rpc_endpoint,
                 json={
@@ -537,27 +564,71 @@ class TokenTrader:
             if not recent_blockhash:
                 raise Exception("No blockhash in response")
 
+            print(f"[TRADER] Blockhash: {recent_blockhash}")
+
             # 2. Parse Jupiter instructions into Solders Instruction objects
-            # This would require parsing the instruction data from Jupiter
+            print(f"[TRADER] Parsing {len(swap_instructions.get('instructions', []))} instructions...")
             instructions = []
-            for instr in swap_instructions.get("instructions", []):
-                # TODO: Parse instruction dict into Solders Instruction
-                # This is where Jupiter's instruction data gets converted
-                pass
+            for instr_dict in swap_instructions.get("instructions", []):
+                instr = self._parse_jupiter_instruction(instr_dict)
+                instructions.append(instr)
+                print(f"[TRADER] Parsed instruction from {instr_dict['programId']}")
 
-            # 3. Create transaction with instructions
-            # For now, we return pending status
-            # Complete implementation would:
-            # - Create MessageV0 with instructions and address lookup tables
-            # - Create VersionedTransaction
-            # - Sign with user_keypair
-            # - Send via Jito with tip
+            # 3. Parse address lookup tables if provided
+            address_lookup_tables = []
+            for alt_address in swap_instructions.get("addressLookupTableAddresses", []):
+                # Note: Full ALT resolution would require fetching ALT account from blockchain
+                # For now, we store the addresses for reference
+                print(f"[TRADER] Address Lookup Table: {alt_address}")
+                address_lookup_tables.append(alt_address)
 
-            print("[TRADER] Transaction building requires Solders library integration")
-            return "pending", False
+            # 4. Get payer (user's) public key
+            payer = Pubkey(bytes(user_keypair.pubkey()))
+            print(f"[TRADER] Payer: {payer}")
+
+            # 5. Create MessageV0 with instructions
+            print("[TRADER] Building MessageV0...")
+            message = MessageV0.try_compile(
+                payer=payer,
+                instructions=instructions,
+                address_lookup_table_accounts=[]  # TODO: Fetch actual ALT accounts if needed
+            )
+
+            # 6. Create VersionedTransaction
+            print("[TRADER] Creating VersionedTransaction...")
+            tx = VersionedTransaction(
+                message=message,
+                signatures=[]
+            )
+
+            # 7. Sign with user keypair
+            print("[TRADER] Signing transaction...")
+            tx.sign([user_keypair], recent_blockhash)
+            print(f"[TRADER] Transaction signed: {tx.signatures[0]}")
+
+            # 8. Serialize transaction
+            print("[TRADER] Serializing transaction...")
+            serialized_tx = bytes(tx)
+            print(f"[TRADER] Serialized tx size: {len(serialized_tx)} bytes")
+
+            # 9. Send via Jito for MEV protection
+            print(f"[TRADER] Sending via Jito with {tip_amount} lamport tip...")
+            signature, success = await self.jito_client.send_transaction(
+                transaction=serialized_tx,
+                tip_amount=tip_amount
+            )
+
+            if success and signature:
+                print(f"[TRADER] Transaction submitted: {signature}")
+                return signature, True
+            else:
+                print("[TRADER] Failed to send transaction via Jito")
+                return None, False
 
         except Exception as e:
             print(f"[TRADER] Error building transaction: {e}")
+            import traceback
+            traceback.print_exc()
             return None, False
 
     def get_transaction_history(self) -> list:
@@ -605,7 +676,7 @@ if __name__ == "__main__":
     async def main():
         # Initialize trader with RPC endpoint
         trader = TokenTrader(
-            rpc_endpoint="https://api.helius-rpc.com/?api-key=YOUR_API_KEY",
+            rpc_endpoint="https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY",
             network="mainnet",
             default_slippage_bps=300,  # 3% slippage tolerance
             default_tip_amount=50000,  # ~$0.006 tip to validators

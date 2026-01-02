@@ -46,7 +46,7 @@ from solders.keypair import Keypair
 async def main():
     # Initialize trader
     trader = TokenTrader(
-        rpc_endpoint="https://api.helius-rpc.com/?api-key=YOUR_API_KEY",
+        rpc_endpoint="https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY",
         network="mainnet",
         default_slippage_bps=300,  # 3%
         default_tip_amount=50000,  # ~$0.006
@@ -97,7 +97,7 @@ Initialize the trader with configuration.
 **Example:**
 ```python
 trader = TokenTrader(
-    rpc_endpoint="https://api.helius-rpc.com/?api-key=...",
+    rpc_endpoint="https://mainnet.helius-rpc.com/?api-key=...",
     network="mainnet",
     default_slippage_bps=300,  # 3%
     default_tip_amount=50000,
@@ -229,7 +229,7 @@ Tips are sent to validators for priority processing.
 ## RPC Endpoints
 
 **Production (Mainnet):**
-- Helius: `https://api.helius-rpc.com/?api-key=YOUR_KEY`
+- Helius: `https://mainnet.helius-rpc.com/?api-key=YOUR_KEY`
 - Alchemy: `https://solana-mainnet.g.alchemy.com/v2/YOUR_KEY`
 - QuickNode: `https://solana-mainnet.rpcpool.com`
 
@@ -302,7 +302,7 @@ import json
 
 async def simple_trade():
     trader = TokenTrader(
-        rpc_endpoint="https://api.helius-rpc.com/?api-key=...",
+        rpc_endpoint="https://mainnet.helius-rpc.com/?api-key=...",
     )
 
     # Load keypair

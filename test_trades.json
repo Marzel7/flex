@@ -152,5 +152,27 @@
     "signature": "failed",
     "status": "failed",
     "error": "Transaction failed to submit"
+  },
+  {
+    "timestamp": "2026-01-02T15:15:16.957219",
+    "type": "buy",
+    "symbol": "USDC",
+    "token_mint": "EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f",
+    "input_amount_sol": 0.001,
+    "output_amount": 0,
+    "signature": "failed",
+    "status": "failed",
+    "error": "Transaction failed to submit"
+  },
+  {
+    "timestamp": "2026-01-02T15:15:30.422949",
+    "type": "buy",
+    "symbol": "USDC",
+    "token_mint": "EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f",
+    "input_amount_sol": 0.001,
+    "output_amount": 0,
+    "signature": "failed",
+    "status": "failed",
+    "error": "Transaction failed to submit"
   }
 ]

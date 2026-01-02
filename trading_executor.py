@@ -38,11 +38,15 @@ class RaydiumClient:
     # Raydium Program IDs
     RAYDIUM_PROGRAM_ID = "675kPX9MHTjS2zt1qLCxyvVqikv4T5iaD1TajjqJ39k"
     RAYDIUM_AUTHORITY = "5Q544fKrFoe6tsEbD7K5QKLDq1z5MTiP5d3gGJwqDLw"
+    TOKEN_PROGRAM_ID = "TokenkegQfeZyiNwAJsyFbPVwwQQfKazrRvxPJbNrg"
+    ASSOCIATED_TOKEN_PROGRAM_ID = "ATokenGPvbdGVqstVQmcLsNZAqeEVnRBXvs7zA7kmZJ9s"
+    WSOL_MINT = "So11111111111111111111111111111111111111112"
 
     def __init__(self, rpc_endpoint: str):
         """Initialize Raydium client"""
         self.rpc_endpoint = rpc_endpoint
         self.session = requests.Session()
+        self.pool_cache = {}  # Cache for pool info
 
     async def get_quote(
         self,
@@ -90,23 +94,50 @@ class RaydiumClient:
         quote: 'SwapQuote',
         user_pubkey: Pubkey,
     ) -> Dict:
-        """Get simplified swap instructions for Raydium"""
-        # Encode instruction data as base64 (required by transaction parser)
-        instruction_data = base64.b64encode(b"raydium_swap_data").decode()
+        """
+        Get swap instructions for Raydium
 
-        instructions = {
-            "instructions": [
-                {
-                    "programId": self.RAYDIUM_PROGRAM_ID,
-                    "accounts": [
-                        {"pubkey": str(user_pubkey), "isSigner": True, "isWritable": True},
-                    ],
-                    "data": instruction_data
-                }
-            ],
-            "addressLookupTableAddresses": []
-        }
-        return instructions
+        For simplicity, we build a basic instruction structure.
+        In production, you'd need to:
+        1. Query the actual Raydium pool for the token pair
+        2. Get the pool's token vault accounts
+        3. Calculate the correct swap amount with AMM formula
+        4. Add all required accounts to the instruction
+        """
+        try:
+            # Basic instruction structure for Raydium swap
+            # The actual swap would require querying the pool and building proper accounts
+
+            # Encode swap instruction data (minimal version)
+            # In reality, this would contain swap amount, min output amount, etc.
+            swap_data = bytearray([
+                0x09,  # Raydium swap instruction discriminator
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  # Amount in (8 bytes, little-endian)
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  # Min amount out (8 bytes)
+            ])
+            instruction_data = base64.b64encode(swap_data).decode()
+
+            # Minimal account list for swap
+            # This would be expanded with actual pool accounts
+            accounts = [
+                {"pubkey": str(user_pubkey), "isSigner": True, "isWritable": False},
+                {"pubkey": self.TOKEN_PROGRAM_ID, "isSigner": False, "isWritable": False},
+            ]
+
+            instructions = {
+                "instructions": [
+                    {
+                        "programId": self.RAYDIUM_PROGRAM_ID,
+                        "accounts": accounts,
+                        "data": instruction_data
+                    }
+                ],
+                "addressLookupTableAddresses": []
+            }
+            return instructions
+        except Exception as e:
+            print(f"[RAYDIUM] Error building swap instructions: {e}")
+            raise Exception(f"Failed to build Raydium swap instructions: {e}")
 
 
 @dataclass
@@ -136,14 +167,19 @@ class SwapResult:
 class JupiterClient:
     """Jupiter routing and quote client (supports API key for higher limits)"""
 
-    BASE_URL = "https://api.jup.ag/v6"  # Jupiter API endpoint
+    # Standard v6 endpoint with API key authentication
+    # Free tier: 60 requests per minute
+    BASE_URL = "https://api.jup.ag/v6"  # Jupiter API endpoint with authentication
 
     def __init__(self, api_key: Optional[str] = None):
         self.session = requests.Session()
         self.api_key = api_key or os.environ.get("JUPITER_API_KEY")
         self.base_url = self.BASE_URL
         if self.api_key:
-            self.session.headers.update({"x-api-key": self.api_key})
+            self.session.headers.update({
+                "x-api-key": self.api_key,
+                "Content-Type": "application/json"
+            })
 
     async def get_quote(
         self,
@@ -415,7 +451,7 @@ class TokenTrader:
         self.default_slippage_bps = default_slippage_bps
         self.default_tip_amount = default_tip_amount
 
-        self.swap_client = RaydiumClient(rpc_endpoint=rpc_endpoint)
+        self.swap_client = JupiterClient(api_key=jupiter_api_key)
         self.jito_client = JitoClient(network=network)
 
         self.session = requests.Session()

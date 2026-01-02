@@ -1036,9 +1036,20 @@ class StandalonePumpSwapListener:
 
                 # Calculate match ratio vs DexScreener (only if on-chain)
                 if source == 'onchain':
-                    # Always fetch live DexScreener price for match comparison
-                    dex_data = self.price_fetcher.get_dexscreener_price(base_mint)
-                    dexscreener_price = dex_data['price_usd'] if dex_data else 0
+                    # Use cached DexScreener price from database, fallback to fetching fresh
+                    dexscreener_price = token.get('dexscreener_price_usd', 0)
+
+                    if not dexscreener_price or dexscreener_price == 0:
+                        dex_data = self.price_fetcher.get_dexscreener_price(base_mint)
+                        dexscreener_price = dex_data['price_usd'] if dex_data else 0
+
+                        # Cache the fetched price
+                        if dexscreener_price > 0:
+                            self.update_dexscreener_price(
+                                base_mint,
+                                dex_data['price_usd'],
+                                dex_data.get('price_native', 0)
+                            )
 
                     if dexscreener_price and dexscreener_price > 0 and price_usd > 0:
                         match_ratio = price_usd / dexscreener_price

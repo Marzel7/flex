@@ -10,25 +10,39 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
+
+# Load environment variables from .env file
+sys.path.insert(0, str(Path(__file__).parent.parent))  # Parent (root)
+sys.path.insert(0, str(Path(__file__).parent))         # Current (utils)
+
+from load_env import load_env
+load_env()
+
 from trading_executor import TokenTrader
 from solders.keypair import Keypair
 
 
 async def main():
     if len(sys.argv) < 2:
-        print("Usage: python3 buy_token.py <TOKEN_MINT> [SYMBOL]")
+        print("Usage: python3 buy_token.py <TOKEN_MINT>")
         print("\nExamples:")
-        print("  python3 buy_token.py EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f USDC")
-        print("  python3 buy_token.py Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenErt USDT")
+        print("  python3 buy_token.py EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f")
+        print("  python3 buy_token.py 8y45AJzCUBSZL1UDFQRzCKovQBLQFudBrpPeg5yNpump")
         return
 
     token_mint = sys.argv[1]
-    token_symbol = sys.argv[2] if len(sys.argv) > 2 else "UNKNOWN"
+    token_symbol = token_mint[:8]  # Use first 8 chars of mint as symbol
 
     # Validate mint (should be 43-44 chars for Solana base58)
     if len(token_mint) < 40 or len(token_mint) > 44:
         print(f"❌ Invalid mint address (got {len(token_mint)} chars, need 40-44)")
         return
+
+    # Tokens that require legacy transaction format due to size constraints
+    COMPLEX_TOKENS = {
+        "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263": "BONK",  # Requires 3 ALTs, uses legacy to reduce to 2
+    }
+    use_legacy = token_mint in COMPLEX_TOKENS
 
     # Get API key
     helius_key = os.environ.get("HELIUS_API_KEY")
@@ -67,7 +81,10 @@ async def main():
     print(f"Token: {token_mint}")
     print(f"Wallet: {str(keypair.pubkey())}")
     print(f"Amount: 0.001 SOL (~$0.25)")
-    print(f"Slippage: 5%\n")
+    print(f"Slippage: 5%")
+    if use_legacy:
+        print(f"⚠️  Using legacy transaction format (complex token)")
+    print()
 
     try:
         print("[1/4] Getting quote from Jupiter...")
@@ -75,7 +92,8 @@ async def main():
             token_mint=token_mint,
             sol_amount=0.001,
             user_keypair=keypair,
-            slippage_bps=500
+            slippage_bps=500,
+            use_legacy_transaction=use_legacy
         )
 
         print(f"[2/4] Transaction signed")

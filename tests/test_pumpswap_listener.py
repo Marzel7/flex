@@ -626,11 +626,193 @@ class VaultPriceFetcher:
             return None
 
 
+class TradingBot:
+    """Automated trading bot for PumpSwap tokens with profit tracking"""
+
+    def __init__(self, use_trading=False):
+        """Initialize trading bot
+
+        Args:
+            use_trading: Enable actual trading (default False for safety)
+        """
+        self.use_trading = use_trading
+        self.trader = None
+        self.keypair = None
+
+        if use_trading:
+            try:
+                # Import trading utilities only if needed
+                sys.path.insert(0, str(Path(__file__).parent.parent))
+                from utils.load_env import load_env
+                from trading_executor import TokenTrader
+                from solders.keypair import Keypair
+
+                load_env()
+
+                helius_key = os.environ.get("HELIUS_API_KEY")
+                jupiter_key = os.environ.get("JUPITER_API_KEY")
+                trading_keypair_env = os.environ.get("TRADING_KEYPAIR")
+
+                if helius_key and trading_keypair_env:
+                    keypair_array = json.loads(trading_keypair_env)
+                    keypair_bytes = bytes(keypair_array)
+                    self.keypair = Keypair.from_bytes(keypair_bytes)
+                    self.trader = TokenTrader(
+                        rpc_endpoint=f"https://mainnet.helius-rpc.com/?api-key={helius_key}",
+                        network="mainnet",
+                        default_slippage_bps=500,
+                        default_tip_amount=50000,
+                        jupiter_api_key=jupiter_key,
+                    )
+                    print("[TRADING BOT] ✓ Initialized with trading enabled")
+                    print(f"[TRADING BOT] Wallet: {self.keypair.pubkey()}")
+            except Exception as e:
+                print(f"[TRADING BOT] ⚠ Failed to initialize trading: {e}")
+                self.trader = None
+                self.keypair = None
+
+    async def execute_buy(self, token_mint: str, symbol: str = "UNKNOWN", sol_amount: float = 0.001) -> Dict:
+        """Execute buy transaction for newly detected token"""
+        if not self.use_trading or not self.trader:
+            return {
+                'status': 'skipped',
+                'signature': None,
+                'output_amount': 0,
+                'error': 'Trading disabled'
+            }
+
+        try:
+            result = await self.trader.buy_token(
+                token_mint=token_mint,
+                sol_amount=sol_amount,
+                user_keypair=self.keypair,
+                slippage_bps=500
+            )
+
+            print(f"[TRADING BOT] ✓ Buy executed for {symbol}: {result.output_amount} tokens")
+            print(f"[TRADING BOT]   Signature: {result.signature}")
+            return {
+                'status': result.status,
+                'signature': result.signature,
+                'output_amount': result.output_amount,
+                'error': result.error
+            }
+        except Exception as e:
+            print(f"[TRADING BOT] ✗ Buy failed for {symbol}: {e}")
+            return {
+                'status': 'failed',
+                'signature': None,
+                'output_amount': 0,
+                'error': str(e)
+            }
+
+    async def execute_sell(self, token_mint: str, symbol: str, quantity: float) -> Dict:
+        """Execute sell transaction when profit target reached"""
+        if not self.use_trading or not self.trader:
+            return {
+                'status': 'skipped',
+                'signature': None,
+                'output_sol': 0,
+                'error': 'Trading disabled'
+            }
+
+        try:
+            result = await self.trader.sell_token(
+                token_mint=token_mint,
+                token_amount=quantity,
+                user_keypair=self.keypair,
+                slippage_bps=500
+            )
+
+            print(f"[TRADING BOT] ✓ Sell executed for {symbol}: {result.output_amount} SOL")
+            print(f"[TRADING BOT]   Signature: {result.signature}")
+            return {
+                'status': result.status,
+                'signature': result.signature,
+                'output_sol': result.output_amount,
+                'error': result.error
+            }
+        except Exception as e:
+            print(f"[TRADING BOT] ✗ Sell failed for {symbol}: {e}")
+            return {
+                'status': 'failed',
+                'signature': None,
+                'output_sol': 0,
+                'error': str(e)
+            }
+
+    def update_trade_in_db(self, token_mint: str, buy_price_usd: float,
+                          quantity_bought: float, buy_signature: str) -> bool:
+        """Update database with buy information"""
+        db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+
+        try:
+            conn = sqlite3.connect(str(db_path), check_same_thread=False)
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                UPDATE pools
+                SET trade_status = 'bought', buy_price_usd = ?, buy_time = ?,
+                    buy_signature = ?, quantity_bought = ?
+                WHERE base_mint = ?
+            ''', (buy_price_usd, datetime.now(), buy_signature, quantity_bought, token_mint))
+
+            conn.commit()
+            conn.close()
+            return True
+        except Exception as e:
+            print(f"[DB] ✗ Error updating buy trade: {e}")
+            return False
+
+    def update_sell_in_db(self, token_mint: str, sell_price_usd: float,
+                         sell_signature: str) -> bool:
+        """Update database with sell information and calculate P&L"""
+        db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+
+        try:
+            conn = sqlite3.connect(str(db_path), check_same_thread=False)
+            cursor = conn.cursor()
+
+            # Get buy information to calculate P&L
+            cursor.execute('''
+                SELECT buy_price_usd, quantity_bought FROM pools WHERE base_mint = ?
+            ''', (token_mint,))
+            result = cursor.fetchone()
+
+            if result:
+                buy_price_usd, quantity_bought = result
+                if buy_price_usd and quantity_bought:
+                    # Calculate profit/loss
+                    total_cost = buy_price_usd * quantity_bought
+                    total_revenue = sell_price_usd * quantity_bought
+                    profit_loss_usd = total_revenue - total_cost
+                    profit_loss_percent = (profit_loss_usd / total_cost * 100) if total_cost > 0 else 0
+
+                    cursor.execute('''
+                        UPDATE pools
+                        SET trade_status = 'sold', sell_price_usd = ?, sell_time = ?,
+                            sell_signature = ?, profit_loss_usd = ?, profit_loss_percent = ?
+                        WHERE base_mint = ?
+                    ''', (sell_price_usd, datetime.now(), sell_signature, profit_loss_usd,
+                          profit_loss_percent, token_mint))
+
+                    conn.commit()
+                    conn.close()
+                    return True
+
+            conn.close()
+            return False
+        except Exception as e:
+            print(f"[DB] ✗ Error updating sell trade: {e}")
+            return False
+
+
 class StandalonePumpSwapListener:
     """Standalone PumpSwap listener - Independent from main.py"""
 
-    def __init__(self):
+    def __init__(self, use_trading=False):
         self.price_fetcher = VaultPriceFetcher()
+        self.trading_bot = TradingBot(use_trading=use_trading)  # Initialize trading bot
         self.detected_tokens: List[Dict] = []
         self.pumpswap_tokens: List[Dict] = []
         self.start_time = datetime.now()
@@ -750,7 +932,17 @@ class StandalonePumpSwapListener:
                     dexscreener_price_usd REAL,
                     dexscreener_price_native REAL,
                     last_price_update TIMESTAMP,
-                    initial_price_usd REAL DEFAULT 0
+                    initial_price_usd REAL DEFAULT 0,
+                    trade_status TEXT DEFAULT 'waiting',
+                    buy_price_usd REAL,
+                    buy_time TIMESTAMP,
+                    buy_signature TEXT,
+                    sell_price_usd REAL,
+                    sell_time TIMESTAMP,
+                    sell_signature TEXT,
+                    quantity_bought REAL,
+                    profit_loss_usd REAL,
+                    profit_loss_percent REAL
                 )
             ''')
 
@@ -886,6 +1078,82 @@ class StandalonePumpSwapListener:
         price_thread.start()
         print("[SOL PRICE] Background price updater thread started (updates every 30 minutes)\n")
 
+    def monitor_profit_targets(self) -> None:
+        """Monitor bought tokens and sell at 20% profit (background thread)"""
+        while self.is_running:
+            try:
+                if not self.trading_bot.use_trading or not self.trading_bot.trader:
+                    time.sleep(10)
+                    continue
+
+                db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                if not db_path.exists():
+                    time.sleep(10)
+                    continue
+
+                conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                cursor = conn.cursor()
+
+                # Get all bought tokens
+                cursor.execute('''
+                    SELECT base_mint, symbol, buy_price_usd, quantity_bought, dexscreener_price_usd
+                    FROM pools WHERE trade_status = 'bought'
+                ''')
+
+                bought_tokens = cursor.fetchall()
+                conn.close()
+
+                for token_mint, symbol, buy_price, quantity, current_price in bought_tokens:
+                    if not buy_price or not quantity:
+                        continue
+
+                    # Use current market price
+                    if not current_price or current_price <= 0:
+                        # Fetch live price if not cached
+                        price_result = self.price_fetcher.fetch_live_price_for_token(token_mint)
+                        current_price = price_result.get('price_usd', 0) if price_result else 0
+
+                    if not current_price or current_price <= 0:
+                        continue
+
+                    # Check profit percentage
+                    profit_pct = ((current_price - buy_price) / buy_price) * 100
+
+                    if profit_pct >= 20.0:
+                        print(f"[PROFIT MONITOR] ✓ {symbol[:8]} reached {profit_pct:.1f}% profit! Selling...")
+                        try:
+                            # Execute sell
+                            sell_result = asyncio.run(self.trading_bot.execute_sell(
+                                token_mint=token_mint,
+                                symbol=symbol,
+                                quantity=quantity
+                            ))
+
+                            if sell_result['status'] == 'confirmed':
+                                # Update DB with sell and P&L
+                                self.trading_bot.update_sell_in_db(
+                                    token_mint=token_mint,
+                                    sell_price_usd=current_price,
+                                    sell_signature=sell_result['signature']
+                                )
+                                print(f"[PROFIT MONITOR] ✓ Sold {symbol[:8]}: Profit {profit_pct:.1f}%")
+                            else:
+                                print(f"[PROFIT MONITOR] ⚠ Sell failed for {symbol[:8]}: {sell_result['error']}")
+                        except Exception as e:
+                            print(f"[PROFIT MONITOR] ✗ Error selling {symbol[:8]}: {e}")
+
+                time.sleep(30)  # Check every 30 seconds
+            except Exception as e:
+                print(f"[PROFIT MONITOR] Error in profit monitoring: {e}")
+                time.sleep(30)
+
+    def start_profit_monitor(self) -> None:
+        """Start profit monitoring in background thread"""
+        if self.trading_bot.use_trading:
+            profit_thread = Thread(target=self.monitor_profit_targets, daemon=True)
+            profit_thread.start()
+            print("[PROFIT MONITOR] Background profit monitor started (checks every 30 seconds)\n")
+
     def scan_for_new_launches(self, seen_signatures):
         """Scan recent PumpSwap transactions for Pump.fun → PumpSwap migrations
 
@@ -1019,9 +1287,9 @@ class StandalonePumpSwapListener:
                     fetch_failed_count += 1
 
         if active_tokens:
-            print(f"\n{'-'*352}")
-            print(f"{'Name':<12} {'Current Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Market Cap':<20} {'FDV':<20} {'Source':<12} {'Match':<12} {'Token Address':<35}")
-            print(f"{'-'*352}")
+            print(f"\n{'-'*430}")
+            print(f"{'Name':<12} {'Current Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Market Cap':<20} {'FDV':<20} {'Source':<12} {'Match':<12} {'P&L':<20} {'Token Address':<35}")
+            print(f"{'-'*430}")
 
             for token, price_result, source in active_tokens:
                 base_mint = token.get('base_mint', '')
@@ -1121,9 +1389,34 @@ class StandalonePumpSwapListener:
                 else:
                     match_str = "—"
 
-                print(f"{display_name:<12} {price_str:<18} {sol_str:<15} {price_change_str:<15} {market_cap_str:<20} {fdv_str:<20} {source_str:<12} {match_str:<12} {base_mint:<35}")
+                # Fetch P&L from database
+                pnl_str = "—"
+                try:
+                    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                    if db_path.exists():
+                        conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                        cursor = conn.cursor()
+                        cursor.execute('''
+                            SELECT trade_status, profit_loss_percent, profit_loss_usd FROM pools WHERE base_mint = ?
+                        ''', (base_mint,))
+                        pnl_result = cursor.fetchone()
+                        conn.close()
 
-            print(f"{'-'*352}")
+                        if pnl_result:
+                            trade_status, pnl_percent, pnl_usd = pnl_result
+                            if trade_status == 'bought' and pnl_percent is None:
+                                pnl_str = "💰 Holding"
+                            elif trade_status == 'sold' and pnl_percent is not None:
+                                if pnl_percent >= 0:
+                                    pnl_str = f"✓ +{pnl_percent:.1f}% (+${pnl_usd:.2f})"
+                                else:
+                                    pnl_str = f"✗ {pnl_percent:.1f}% (${pnl_usd:.2f})"
+                except:
+                    pass
+
+                print(f"{display_name:<12} {price_str:<18} {sol_str:<15} {price_change_str:<15} {market_cap_str:<20} {fdv_str:<20} {source_str:<12} {match_str:<12} {pnl_str:<20} {base_mint:<35}")
+
+            print(f"{'-'*430}")
             on_chain_count = sum(1 for _, _, src in active_tokens if src == 'onchain')
             dex_fallback_count = sum(1 for _, _, src in active_tokens if src == 'dexscreener')
             print(f"\n[RESULT] ✓ OnChain: {on_chain_count} | DexScreen Fallback: {dex_fallback_count} | Low liquidity: {low_count} | No price: {fetch_failed_count}")
@@ -1210,6 +1503,29 @@ class StandalonePumpSwapListener:
                                         success = self.add_token_to_db(token_mint, signature)
                                         if success:
                                             print(f"[WEBSOCKET] ✓ Token persisted to database: {token_mint}")
+
+                                            # Auto-buy if trading is enabled
+                                            if self.trading_bot.use_trading and self.trading_bot.trader:
+                                                print(f"[TRADING BOT] Attempting auto-buy for new token: {token_mint}")
+                                                try:
+                                                    buy_result = await self.trading_bot.execute_buy(
+                                                        token_mint=token_mint,
+                                                        symbol=token_mint[:8],
+                                                        sol_amount=0.001
+                                                    )
+                                                    if buy_result['status'] == 'confirmed':
+                                                        # Record buy in database
+                                                        self.trading_bot.update_trade_in_db(
+                                                            token_mint=token_mint,
+                                                            buy_price_usd=0,  # Will be set from price
+                                                            quantity_bought=buy_result['output_amount'],
+                                                            buy_signature=buy_result['signature']
+                                                        )
+                                                        print(f"[TRADING BOT] ✓ Auto-buy successful: {buy_result['output_amount']} tokens")
+                                                    else:
+                                                        print(f"[TRADING BOT] ⚠ Auto-buy failed: {buy_result['error']}")
+                                                except Exception as e:
+                                                    print(f"[TRADING BOT] ✗ Auto-buy error: {e}")
                                         else:
                                             print(f"[WEBSOCKET] ✗ FAILED to persist token to database: {token_mint}")
 
@@ -1311,6 +1627,9 @@ class StandalonePumpSwapListener:
 
         # Start SOL price updater in background
         self.start_sol_price_updater()
+
+        # Start profit monitor in background (if trading enabled)
+        self.start_profit_monitor()
 
         try:
             refresh_interval = 60  # Refresh price table every 60 seconds
@@ -1496,7 +1815,10 @@ class StandalonePumpSwapListener:
 
 def main():
     """Run standalone PumpSwap listener"""
-    listener = StandalonePumpSwapListener()
+    # Check if trading should be enabled
+    use_trading = os.environ.get("ENABLE_TRADING", "").lower() == "true"
+
+    listener = StandalonePumpSwapListener(use_trading=use_trading)
 
     # Set up signal handler for Ctrl+C
     signal.signal(signal.SIGINT, listener.signal_handler)
@@ -1510,6 +1832,12 @@ def main():
         print("    Set environment variable to enable: export HELIUS_API_KEY='your-api-key'\n")
     else:
         print("[SETUP] Helius API configured\n")
+
+    # Print trading status
+    if use_trading:
+        print("[TRADING] ⚠️  AUTO-TRADING ENABLED - Bot will buy new tokens and sell at 20% profit\n")
+    else:
+        print("[TRADING] ℹ️  Auto-trading disabled. To enable, set: export ENABLE_TRADING=true\n")
 
     # Run listener
     try:

@@ -31,6 +31,7 @@ wheels/
 pumpswap_tokens.db
 .claude/
 .serena/
+.env
 test_*.py
 !test_pumpswap_detection.py
 !test_pumpswap_phase2.py

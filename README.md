@@ -1,6 +1,9 @@
-# PumpSwap Token Monitor
+# PumpSwap Token Monitor & Trading
 
-Real-time monitoring system for PumpSwap token launches on Solana with live vault-based price calculation.
+Real-time monitoring and trading system for PumpSwap token launches on Solana with:
+- Live vault-based price calculation
+- Automated token trading (buy/sell)
+- Complex token handling (BONK, etc.)
 
 ## Quick Start
 
@@ -8,6 +11,13 @@ Real-time monitoring system for PumpSwap token launches on Solana with live vaul
 
 ```bash
 pip install requests flask solders
+```
+
+### Configure Environment
+
+```bash
+cp .env.example .env
+# Edit .env with your API keys and trading keypair
 ```
 
 ### Run the Application
@@ -23,14 +33,38 @@ This starts:
 
 Web UI: http://localhost:5002
 
+### Trade Tokens
+
+```bash
+# Buy BONK (0.001 SOL)
+python3 utils/buy_token.py DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263
+
+# Sell BONK (500 million tokens)
+python3 utils/sell_token.py DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263 500000000
+
+# Buy any token by mint address
+python3 utils/buy_token.py 8y45AJzCUBSZL1UDFQRzCKovQBLQFudBrpPeg5yNpump
+```
+
+See [docs/TRADING_GUIDE.md](docs/TRADING_GUIDE.md) for detailed trading documentation.
+
 ## Features
 
+### Monitoring
 - **Real-time Detection**: Detects PumpSwap pool creation events within 3-8 seconds
 - **Live Price Calculation**: Extracts prices directly from blockchain vault balances (no external API dependence)
 - **Automatic Updates**: Background thread continuously refreshes prices based on pool age
 - **On-chain Metadata**: Fetches token name, symbol, and image from Metaplex directly
 - **Liquidity Status**: Identifies active tokens vs. drained/low-liquidity pools
 - **Database Persistence**: SQLite stores all pool data for historical tracking
+
+### Trading
+- **Buy/Sell Tokens**: Execute trades directly from command line
+- **Complex Token Support**: Automatic optimization for tokens like BONK (direct routes, size reduction)
+- **Jupiter Integration**: Best-price routing through Jupiter aggregator
+- **Slippage Protection**: Configurable slippage tolerance (default 5%)
+- **Environment-based Configuration**: Secure `.env` file for API keys and keypairs
+- **Audit Trail**: All trades logged with signatures and timestamps
 
 ## Testing
 
@@ -134,22 +168,42 @@ See [docs/](docs/) for detailed documentation:
 
 ```
 .
-├── main.py                              # Main application
+├── main.py                              # Main monitoring application
+├── trading_executor.py                  # Trading core (TokenTrader, JupiterClient)
+│
 ├── tests/                               # Test suite
 │   ├── test_pumpswap_detection.py      # Phase 1 tests (21)
 │   ├── test_pumpswap_phase2.py         # Phase 2 tests (14)
 │   ├── test_pumpswap_listener.py       # Real-time listener
-│   └── test_vault_price_template.py    # Price accuracy
-├── utils/                               # Utility scripts
+│   ├── test_vault_price_template.py    # Price accuracy
+│   ├── test_trading_executor.py        # Trading tests
+│   └── test_buy_only.py                # Quick buy test
+│
+├── utils/                               # Utility and trading scripts
+│   ├── load_env.py                     # Environment configuration loader
+│   ├── buy_token.py                    # Buy tokens via Jupiter
+│   ├── sell_token.py                   # Sell tokens via Jupiter
 │   ├── get_price_from_pools.py         # Price lookup with freshness
 │   ├── get_price_live_with_balances.py # Advanced price lookup
-│   └── get_pool_price.py               # Pool price helper
-├── docs/                                # Documentation
+│   ├── get_pool_price.py               # Pool price helper
+│   ├── check_balance.py                # Check wallet SOL balance
+│   ├── add_migration_token.py          # Add detected migration tokens
+│   ├── convert_base58_keypair.py       # Convert keypair formats
+│   └── verify_helius_setup.py          # Verify Helius API setup
+│
+├── docs/                                # Detailed documentation
+│   ├── TRADING_GUIDE.md                # Trading setup and commands
+│   ├── ENV_SETUP.md                    # Environment configuration
 │   ├── VAULT_PRICE_FIX_SUMMARY.md      # Price calculation proof
-│   └── PUMPSWAP_PRICE_FETCHER_README.md # Development notes
-├── pumpswap_tokens.db                  # SQLite database
+│   └── [other reference docs]          # Additional documentation
+│
+├── .env                                 # Configuration (secrets, gitignored)
+├── .env.example                         # Configuration template
+├── pumpswap_tokens.db                  # SQLite database (gitignored)
+│
 ├── CLAUDE.md                            # Development guidelines
-└── README.md                            # This file
+├── README.md                            # This file
+└── .gitignore                           # Git ignore rules
 ```
 
 ## Status

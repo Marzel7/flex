@@ -1019,9 +1019,9 @@ class StandalonePumpSwapListener:
                     fetch_failed_count += 1
 
         if active_tokens:
-            print(f"\n{'-'*400}")
-            print(f"{'Name':<32} {'Current Price':<18} {'Initial Price':<18} {'SOL Balance':<15} {'Token Balance':<25} {'Market Cap':<20} {'FDV':<20} {'Source':<12} {'Match':<12} {'Token Address':<35}")
-            print(f"{'-'*400}")
+            print(f"\n{'-'*390}")
+            print(f"{'Name':<32} {'Current Price':<18} {'Initial Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Market Cap':<20} {'FDV':<20} {'Source':<12} {'Match':<12} {'Token Address':<35}")
+            print(f"{'-'*390}")
 
             for token, price_result, source in active_tokens:
                 base_mint = token.get('base_mint', '')
@@ -1059,16 +1059,15 @@ class StandalonePumpSwapListener:
                 else:
                     sol_str = "N/A"
 
-                # Format token balance
-                if token_balance > 0:
-                    if token_balance >= 1000000:
-                        token_balance_str = f"{token_balance/1000000:.2f}M"
-                    elif token_balance >= 1000:
-                        token_balance_str = f"{token_balance/1000:.2f}K"
+                # Calculate percentage change from initial price
+                if initial_price > 0 and price_usd > 0:
+                    price_change_pct = ((price_usd - initial_price) / initial_price) * 100
+                    if price_change_pct >= 0:
+                        price_change_str = f"+{price_change_pct:.1f}%"
                     else:
-                        token_balance_str = f"{token_balance:.2f}"
+                        price_change_str = f"{price_change_pct:.1f}%"
                 else:
-                    token_balance_str = "N/A"
+                    price_change_str = "N/A"
 
                 # Calculate market cap
                 market_cap = price_usd * token_balance if token_balance > 0 else 0
@@ -1126,9 +1125,9 @@ class StandalonePumpSwapListener:
                 else:
                     match_str = "—"
 
-                print(f"{display_name:<32} {price_str:<18} {initial_price_str:<18} {sol_str:<15} {token_balance_str:<25} {market_cap_str:<20} {fdv_str:<20} {source_str:<12} {match_str:<12} {base_mint:<35}")
+                print(f"{display_name:<32} {price_str:<18} {initial_price_str:<18} {sol_str:<15} {price_change_str:<15} {market_cap_str:<20} {fdv_str:<20} {source_str:<12} {match_str:<12} {base_mint:<35}")
 
-            print(f"{'-'*400}")
+            print(f"{'-'*390}")
             on_chain_count = sum(1 for _, _, src in active_tokens if src == 'onchain')
             dex_fallback_count = sum(1 for _, _, src in active_tokens if src == 'dexscreener')
             print(f"\n[RESULT] ✓ OnChain: {on_chain_count} | DexScreen Fallback: {dex_fallback_count} | Low liquidity: {low_count} | No price: {fetch_failed_count}")

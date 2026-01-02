@@ -1666,7 +1666,7 @@ class StandalonePumpSwapListener:
 
         # Migrate database schema to add trading columns if needed
         print("[LISTENER] Checking database schema...")
-        self.price_fetcher.migrate_database_schema()
+        self.migrate_database_schema()
 
         # Start WebSocket listener in background for live migration detection
         self.start_websocket_listener()

@@ -778,7 +778,7 @@ class StandalonePumpSwapListener:
 
             cursor.execute('''
                 UPDATE pools
-                SET dexscreener_price_usd = ?, total_supply = ?, last_price_update = ?
+                SET initial_price_usd = ?, total_supply = ?, last_price_update = ?
                 WHERE base_mint = ?
             ''', (price_usd, total_supply, datetime.now(), token_mint))
 
@@ -993,8 +993,8 @@ class StandalonePumpSwapListener:
                 sol_balance = price_result.get('sol_balance', 0)
                 token_balance = price_result.get('token_balance', 0)
 
-                # Get initial price from database
-                initial_price = token.get('dexscreener_price_usd', 0)
+                # Get initial price from database (stored at migration time)
+                initial_price = token.get('initial_price_usd', 0)
 
                 # Format current price
                 price_str = f"${price_usd:.8f}" if price_usd > 0 else "$0.00"
@@ -1036,19 +1036,9 @@ class StandalonePumpSwapListener:
 
                 # Calculate match ratio vs DexScreener (only if on-chain)
                 if source == 'onchain':
-                    dexscreener_price = token.get('dexscreener_price_usd', 0)
-
-                    # Fetch DexScreener price on-demand if not in database
-                    if not dexscreener_price or dexscreener_price == 0:
-                        dex_data = self.price_fetcher.get_dexscreener_price(base_mint)
-                        if dex_data:
-                            dexscreener_price = dex_data['price_usd']
-                            # Also update database for next time
-                            self.update_dexscreener_price(
-                                base_mint,
-                                dex_data['price_usd'],
-                                dex_data['price_native']
-                            )
+                    # Always fetch live DexScreener price for match comparison
+                    dex_data = self.price_fetcher.get_dexscreener_price(base_mint)
+                    dexscreener_price = dex_data['price_usd'] if dex_data else 0
 
                     if dexscreener_price and dexscreener_price > 0 and price_usd > 0:
                         match_ratio = price_usd / dexscreener_price
@@ -1058,8 +1048,6 @@ class StandalonePumpSwapListener:
                             match_str = f"~ {match_ratio:.2f}x"
                         else:
                             match_str = f"⚠ {match_ratio:.2f}x"
-                    elif dexscreener_price and dexscreener_price > 0:
-                        match_str = "—"
                     else:
                         match_str = "—"
                 else:

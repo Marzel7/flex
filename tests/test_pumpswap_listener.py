@@ -53,10 +53,29 @@ HELIUS_WEBSOCKET_API_KEY = os.getenv("HELIUS_WEBSOCKET_API_KEY", "") or "f084fae
 HELIUS_RPC_WS = f"wss://mainnet.helius-rpc.com/?api-key={HELIUS_WEBSOCKET_API_KEY}"
 
 SOL_DECIMALS = 9
-SOL_USD_PRICE = 125  # Current SOL price
+SOL_USD_PRICE = 125  # Current SOL price (updated every 30 mins)
 
 # PumpSwap program ID
 PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+
+def fetch_sol_price():
+    """Fetch current SOL price from CoinGecko API
+
+    Returns:
+        float: Current SOL price in USD, or 125 as fallback
+    """
+    try:
+        response = requests.get(
+            "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd",
+            timeout=5
+        )
+        if response.status_code == 200:
+            data = response.json()
+            price = data.get('solana', {}).get('usd', 125)
+            return float(price)
+    except Exception as e:
+        pass
+    return 125  # Fallback to default
 
 
 class VaultPriceFetcher:
@@ -618,6 +637,7 @@ class StandalonePumpSwapListener:
         self.is_running = True
         self.seen_mints = set()  # Track unique token mints to avoid duplicates
         self.websocket_running = False  # Flag for WebSocket listener
+        self.last_sol_price_update = 0  # Track last SOL price update time
 
     def print_header(self) -> None:
         """Print startup header"""
@@ -836,6 +856,35 @@ class StandalonePumpSwapListener:
             return True
         except Exception as e:
             return False
+
+    def update_sol_price_periodically(self) -> None:
+        """Background thread to fetch SOL price every 30 minutes"""
+        global SOL_USD_PRICE
+
+        while self.is_running:
+            try:
+                current_time = time.time()
+
+                # Update every 30 minutes (1800 seconds)
+                if current_time - self.last_sol_price_update >= 1800:
+                    new_price = fetch_sol_price()
+                    old_price = SOL_USD_PRICE
+                    SOL_USD_PRICE = new_price
+                    self.last_sol_price_update = current_time
+
+                    price_change = ((new_price - old_price) / old_price) * 100
+                    print(f"[SOL PRICE] Updated: ${old_price:.2f} → ${new_price:.2f} ({price_change:+.2f}%)")
+
+                # Sleep for 1 minute before checking again
+                time.sleep(60)
+            except Exception as e:
+                pass
+
+    def start_sol_price_updater(self) -> None:
+        """Start SOL price updater in background thread"""
+        price_thread = Thread(target=self.update_sol_price_periodically, daemon=True)
+        price_thread.start()
+        print("[SOL PRICE] Background price updater thread started (updates every 30 minutes)\n")
 
     def scan_for_new_launches(self, seen_signatures):
         """Scan recent PumpSwap transactions for Pump.fun → PumpSwap migrations
@@ -1264,6 +1313,9 @@ class StandalonePumpSwapListener:
         # Start WebSocket listener in background for live migration detection
         self.start_websocket_listener()
         print("[LISTENER] WebSocket listener running in background for LIVE migration detection\n")
+
+        # Start SOL price updater in background
+        self.start_sol_price_updater()
 
         try:
             refresh_interval = 60  # Refresh price table every 60 seconds

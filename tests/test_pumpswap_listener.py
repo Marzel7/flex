@@ -976,6 +976,49 @@ class StandalonePumpSwapListener:
             print(f"[ERROR] Could not add token to database: {e}")
             return False
 
+    def migrate_database_schema(self):
+        """Migrate database to add trading columns if they don't exist"""
+        db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+
+        if not db_path.exists():
+            return True
+
+        try:
+            conn = sqlite3.connect(str(db_path), check_same_thread=False)
+            cursor = conn.cursor()
+
+            # Get current columns
+            cursor.execute("PRAGMA table_info(pools)")
+            existing_columns = {row[1] for row in cursor.fetchall()}
+
+            # Define trading columns to add
+            trading_columns = {
+                'trade_status': "TEXT DEFAULT 'waiting'",
+                'buy_price_usd': 'REAL',
+                'buy_time': 'TIMESTAMP',
+                'buy_signature': 'TEXT',
+                'sell_price_usd': 'REAL',
+                'sell_time': 'TIMESTAMP',
+                'sell_signature': 'TEXT',
+                'quantity_bought': 'REAL',
+                'profit_loss_usd': 'REAL',
+                'profit_loss_percent': 'REAL'
+            }
+
+            # Add missing columns
+            for col_name, col_type in trading_columns.items():
+                if col_name not in existing_columns:
+                    cursor.execute(f'ALTER TABLE pools ADD COLUMN {col_name} {col_type}')
+                    print(f"[DB] ✓ Added column: {col_name}")
+
+            conn.commit()
+            conn.close()
+            print(f"[DB] ✓ Database schema migrated successfully")
+            return True
+        except Exception as e:
+            print(f"[DB] ⚠ Migration error (may be non-fatal): {e}")
+            return False
+
     def update_initial_price(self, token_mint, price_result):
         """Update initial migration price and total supply in database"""
         db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
@@ -1620,6 +1663,10 @@ class StandalonePumpSwapListener:
         """Run the standalone listener - continuously monitors and updates prices"""
         print("[LISTENER] Starting continuous PumpSwap listener (independent from main.py)\n")
         print("[LISTENER] Scanning for new launches and printing price table every 60 seconds\n")
+
+        # Migrate database schema to add trading columns if needed
+        print("[LISTENER] Checking database schema...")
+        self.price_fetcher.migrate_database_schema()
 
         # Start WebSocket listener in background for live migration detection
         self.start_websocket_listener()

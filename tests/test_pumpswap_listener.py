@@ -968,9 +968,9 @@ class StandalonePumpSwapListener:
                     fetch_failed_count += 1
 
         if active_tokens:
-            print(f"\n{'-'*250}")
-            print(f"{'Name':<32} {'Price (USD)':<20} {'SOL Balance':<15} {'Market Cap':<20} {'FDV':<20} {'Source':<12} {'Match':<12} {'Token Address':<35}")
-            print(f"{'-'*250}")
+            print(f"\n{'-'*310}")
+            print(f"{'Name':<32} {'Current Price':<18} {'Initial Price':<18} {'SOL Balance':<15} {'Market Cap':<20} {'FDV':<20} {'Source':<12} {'Match':<12} {'Token Address':<35}")
+            print(f"{'-'*310}")
 
             for token, price_result, source in active_tokens:
                 base_mint = token.get('base_mint', '')
@@ -993,8 +993,14 @@ class StandalonePumpSwapListener:
                 sol_balance = price_result.get('sol_balance', 0)
                 token_balance = price_result.get('token_balance', 0)
 
-                # Format price
+                # Get initial price from database
+                initial_price = token.get('dexscreener_price_usd', 0)
+
+                # Format current price
                 price_str = f"${price_usd:.8f}" if price_usd > 0 else "$0.00"
+
+                # Format initial price
+                initial_price_str = f"${initial_price:.8f}" if initial_price > 0 else "N/A"
 
                 # Format SOL balance - show actual balance or N/A if couldn't fetch
                 if sol_balance > 0:
@@ -1059,9 +1065,9 @@ class StandalonePumpSwapListener:
                 else:
                     match_str = "—"
 
-                print(f"{display_name:<32} {price_str:<20} {sol_str:<15} {market_cap_str:<20} {fdv_str:<20} {source_str:<12} {match_str:<12} {base_mint:<35}")
+                print(f"{display_name:<32} {price_str:<18} {initial_price_str:<18} {sol_str:<15} {market_cap_str:<20} {fdv_str:<20} {source_str:<12} {match_str:<12} {base_mint:<35}")
 
-            print(f"{'-'*250}")
+            print(f"{'-'*310}")
             on_chain_count = sum(1 for _, _, src in active_tokens if src == 'onchain')
             dex_fallback_count = sum(1 for _, _, src in active_tokens if src == 'dexscreener')
             print(f"\n[RESULT] ✓ OnChain: {on_chain_count} | DexScreen Fallback: {dex_fallback_count} | Low liquidity: {low_count} | No price: {fetch_failed_count}")

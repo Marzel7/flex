@@ -31,5 +31,126 @@
     "signature": null,
     "status": "failed",
     "error": "Failed to get Jupiter quote: 404 Client Error: Not Found for url: https://lite-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f&amount=1000000&slippageBps=500&onlyDirectRoutes=False&asLegacyTransaction=False"
+  },
+  {
+    "timestamp": "2026-01-02T14:55:53.904211",
+    "type": "buy",
+    "symbol": "USDC",
+    "token_mint": "EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f",
+    "input_amount_sol": 0.001,
+    "output_amount": 0,
+    "signature": null,
+    "status": "failed",
+    "error": "Failed to get Jupiter quote: 401 Client Error: Unauthorized for url: https://api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f&amount=1000000&slippageBps=500&onlyDirectRoutes=False&asLegacyTransaction=False"
+  },
+  {
+    "timestamp": "2026-01-02T14:58:08.733609",
+    "type": "buy",
+    "symbol": "USDC",
+    "token_mint": "EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f",
+    "input_amount_sol": 0.001,
+    "output_amount": 0,
+    "signature": null,
+    "status": "failed",
+    "error": "Failed to get Jupiter quote: 404 Client Error: Not Found for url: https://api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f&amount=1000000&slippageBps=500&onlyDirectRoutes=False&asLegacyTransaction=False"
+  },
+  {
+    "timestamp": "2026-01-02T15:02:00.468527",
+    "type": "buy",
+    "symbol": "USDC",
+    "token_mint": "EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f",
+    "input_amount_sol": 0.001,
+    "output_amount": 0,
+    "signature": null,
+    "status": "failed",
+    "error": "Failed to get swap instructions: 404 Client Error: Not Found for url: https://api.jup.ag/v6/swap-instructions"
+  },
+  {
+    "timestamp": "2026-01-02T15:02:48.802546",
+    "type": "buy",
+    "symbol": "USDC",
+    "token_mint": "EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f",
+    "input_amount_sol": 0.001,
+    "output_amount": 0,
+    "signature": "failed",
+    "status": "failed",
+    "error": "Transaction failed to submit"
+  },
+  {
+    "timestamp": "2026-01-02T15:08:10.835489",
+    "type": "buy",
+    "symbol": "USDC",
+    "token_mint": "EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f",
+    "input_amount_sol": 0.001,
+    "output_amount": 0,
+    "signature": "failed",
+    "status": "failed",
+    "error": "Transaction failed to submit"
+  },
+  {
+    "timestamp": "2026-01-02T15:08:27.485817",
+    "type": "buy",
+    "symbol": "USDC",
+    "token_mint": "EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f",
+    "input_amount_sol": 0.001,
+    "output_amount": 0,
+    "signature": "failed",
+    "status": "failed",
+    "error": "Transaction failed to submit"
+  },
+  {
+    "timestamp": "2026-01-02T15:08:45.360930",
+    "type": "buy",
+    "symbol": "USDC",
+    "token_mint": "EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f",
+    "input_amount_sol": 0.001,
+    "output_amount": 0,
+    "signature": "failed",
+    "status": "failed",
+    "error": "Transaction failed to submit"
+  },
+  {
+    "timestamp": "2026-01-02T15:09:05.242966",
+    "type": "buy",
+    "symbol": "USDC",
+    "token_mint": "EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f",
+    "input_amount_sol": 0.001,
+    "output_amount": 0,
+    "signature": "failed",
+    "status": "failed",
+    "error": "Transaction failed to submit"
+  },
+  {
+    "timestamp": "2026-01-02T15:09:22.979401",
+    "type": "buy",
+    "symbol": "USDC",
+    "token_mint": "EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f",
+    "input_amount_sol": 0.001,
+    "output_amount": 0,
+    "signature": "failed",
+    "status": "failed",
+    "error": "Transaction failed to submit"
+  },
+  {
+    "timestamp": "2026-01-02T15:09:37.136730",
+    "type": "buy",
+    "symbol": "USDC",
+    "token_mint": "EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f",
+    "input_amount_sol": 0.001,
+    "output_amount": 0,
+    "signature": "failed",
+    "status": "failed",
+    "error": "Transaction failed to submit"
+  },
+  {
+    "timestamp": "2026-01-02T15:10:16.431702",
+    "type": "buy",
+    "symbol": "USDC",
+    "token_mint": "EPjFWaLb3eTRSAujiFvvrDFiNQ15ghTjciXTo7j5X8f",
+    "input_amount_sol": 0.001,
+    "output_amount": 0,
+    "signature": "failed",
+    "status": "failed",
+    "error": "Transaction failed to submit"
   }
 ]

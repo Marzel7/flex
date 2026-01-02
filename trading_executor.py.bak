@@ -91,9 +91,6 @@ class RaydiumClient:
         user_pubkey: Pubkey,
     ) -> Dict:
         """Get simplified swap instructions for Raydium"""
-        # Encode instruction data as base64 (required by transaction parser)
-        instruction_data = base64.b64encode(b"raydium_swap_data").decode()
-
         instructions = {
             "instructions": [
                 {
@@ -101,7 +98,7 @@ class RaydiumClient:
                     "accounts": [
                         {"pubkey": str(user_pubkey), "isSigner": True, "isWritable": True},
                     ],
-                    "data": instruction_data
+                    "data": "raydium_swap"
                 }
             ],
             "addressLookupTableAddresses": []
@@ -457,7 +454,7 @@ class TokenTrader:
             print(f"[TRADER] Getting quote to buy {token_mint} with {sol_amount} SOL...")
 
             # 1. Get swap quote
-            quote = await self.swap_client.get_quote(
+            quote = await self.jupiter_client.get_quote(
                 input_mint=wrapped_sol_mint,
                 output_mint=token_mint,
                 amount=sol_lamports,
@@ -468,7 +465,7 @@ class TokenTrader:
 
             # 2. Get swap instructions from Jupiter
             print(f"[TRADER] Getting swap instructions...")
-            swap_instructions = await self.swap_client.get_swap_instructions(
+            swap_instructions = await self.jupiter_client.get_swap_instructions(
                 quote=quote,
                 user_pubkey=Pubkey(bytes(user_keypair.pubkey()))
             )
@@ -548,7 +545,7 @@ class TokenTrader:
             print(f"[TRADER] Getting quote to sell {token_amount} tokens for SOL...")
 
             # 1. Get swap quote
-            quote = await self.swap_client.get_quote(
+            quote = await self.jupiter_client.get_quote(
                 input_mint=token_mint,
                 output_mint=wrapped_sol_mint,
                 amount=token_amount,
@@ -560,7 +557,7 @@ class TokenTrader:
 
             # 2. Get swap instructions from Jupiter
             print(f"[TRADER] Getting swap instructions...")
-            swap_instructions = await self.swap_client.get_swap_instructions(
+            swap_instructions = await self.jupiter_client.get_swap_instructions(
                 quote=quote,
                 user_pubkey=Pubkey(bytes(user_keypair.pubkey()))
             )
@@ -681,14 +678,11 @@ class TokenTrader:
             if "error" in blockhash_response:
                 raise Exception(f"Failed to get blockhash: {blockhash_response['error']}")
 
-            recent_blockhash_str = blockhash_response.get("result", {}).get("value", {}).get("blockhash")
-            if not recent_blockhash_str:
+            recent_blockhash = blockhash_response.get("result", {}).get("value", {}).get("blockhash")
+            if not recent_blockhash:
                 raise Exception("No blockhash in response")
 
-            print(f"[TRADER] Blockhash: {recent_blockhash_str}")
-
-            # Convert blockhash string to Hash object
-            recent_blockhash = Hash.from_string(recent_blockhash_str)
+            print(f"[TRADER] Blockhash: {recent_blockhash}")
 
             # 2. Parse Jupiter instructions into Solders Instruction objects
             print(f"[TRADER] Parsing {len(swap_instructions.get('instructions', []))} instructions...")
@@ -715,18 +709,20 @@ class TokenTrader:
             message = MessageV0.try_compile(
                 payer=payer,
                 instructions=instructions,
-                address_lookup_table_accounts=[],  # TODO: Fetch actual ALT accounts if needed
-                recent_blockhash=recent_blockhash
+                address_lookup_table_accounts=[]  # TODO: Fetch actual ALT accounts if needed
             )
 
-            # 6. Create VersionedTransaction with user keypair
+            # 6. Create VersionedTransaction
             print("[TRADER] Creating VersionedTransaction...")
             tx = VersionedTransaction(
                 message=message,
-                keypairs=[user_keypair]
+                signatures=[]
             )
 
-            print(f"[TRADER] Transaction created and signed")
+            # 7. Sign with user keypair
+            print("[TRADER] Signing transaction...")
+            tx.sign([user_keypair], recent_blockhash)
+            print(f"[TRADER] Transaction signed: {tx.signatures[0]}")
 
             # 8. Serialize transaction
             print("[TRADER] Serializing transaction...")
@@ -744,27 +740,8 @@ class TokenTrader:
                 print(f"[TRADER] Transaction submitted: {signature}")
                 return signature, True
             else:
-                print("[TRADER] Jito failed, falling back to direct RPC send...")
-                # Fallback to direct RPC if Jito fails
-                tx_base64 = base64.b64encode(serialized_tx).decode('utf-8')
-                response = self.session.post(
-                    self.rpc_endpoint,
-                    json={
-                        "jsonrpc": "2.0",
-                        "id": 1,
-                        "method": "sendTransaction",
-                        "params": [tx_base64, {"encoding": "base64", "skipPreflight": False}]
-                    },
-                    timeout=10
-                )
-                data = response.json()
-                if "result" in data:
-                    signature = data["result"]
-                    print(f"[TRADER] Transaction submitted via RPC: {signature}")
-                    return signature, True
-                else:
-                    print(f"[TRADER] RPC send failed: {data.get('error', 'Unknown error')}")
-                    return None, False
+                print("[TRADER] Failed to send transaction via Jito")
+                return None, False
 
         except Exception as e:
             print(f"[TRADER] Error building transaction: {e}")

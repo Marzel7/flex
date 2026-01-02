@@ -1287,13 +1287,30 @@ class StandalonePumpSwapListener:
                         token_mint = token_data.get('base_mint', '')
                         symbol = token_data.get('symbol', '?')
                         signature = token_data.get('signature', '')
+                        stored_price = token_data.get('dexscreener_price_usd')
+                        stored_supply = token_data.get('total_supply')
 
                         if not signature:
                             continue
 
-                        price_result = self.price_fetcher.fetch_live_price_for_token(
-                            token_mint, signature, symbol
-                        )
+                        # If we have a stored initial price, use it first
+                        price_result = None
+                        if stored_price and stored_price > 0 and stored_supply and stored_supply > 0:
+                            # Use the stored initial price
+                            price_result = {
+                                'price_usd': stored_price,
+                                'price_sol': stored_price / SOL_USD_PRICE,
+                                'sol_balance': 85.0,  # Known initial migration liquidity
+                                'token_balance': stored_supply,
+                                'total_supply': stored_supply,
+                                'is_initial': True
+                            }
+                            print(f"[STARTUP] ✓ Using stored initial price for {symbol}: ${stored_price:.8f}")
+                        else:
+                            # Fall back to fetching live price from vaults
+                            price_result = self.price_fetcher.fetch_live_price_for_token(
+                                token_mint, signature, symbol
+                            )
 
                         # Update total supply if we got a price result
                         if price_result and price_result.get('total_supply'):

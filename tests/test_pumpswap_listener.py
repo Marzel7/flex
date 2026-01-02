@@ -683,7 +683,7 @@ class StandalonePumpSwapListener:
 
             # Query all PumpSwap tokens
             cursor.execute('''
-                SELECT symbol, name, base_mint, signature, total_supply, dexscreener_price_usd
+                SELECT symbol, name, base_mint, signature, total_supply, dexscreener_price_usd, initial_price_usd
                 FROM pools
                 WHERE is_pumpswap = 1 AND signature IS NOT NULL
                 ORDER BY first_seen DESC
@@ -696,7 +696,8 @@ class StandalonePumpSwapListener:
                     'name': row['name'],
                     'signature': row['signature'],
                     'total_supply': row['total_supply'],
-                    'dexscreener_price_usd': row['dexscreener_price_usd']
+                    'dexscreener_price_usd': row['dexscreener_price_usd'],
+                    'initial_price_usd': row['initial_price_usd']
                 })
 
             conn.close()
@@ -728,7 +729,8 @@ class StandalonePumpSwapListener:
                     total_supply REAL,
                     dexscreener_price_usd REAL,
                     dexscreener_price_native REAL,
-                    last_price_update TIMESTAMP
+                    last_price_update TIMESTAMP,
+                    initial_price_usd REAL DEFAULT 0
                 )
             ''')
 

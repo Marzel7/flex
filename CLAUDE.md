@@ -136,3 +136,76 @@ Status indicators:
 - Modify price extraction logic without tests
 - Change WebSocket subscription (should ONLY be PumpSwap program)
 - Update UI without verifying backend tests pass first
+
+## Security Guidelines
+
+**CRITICAL: NEVER commit private keys, API keys, or sensitive credentials to this repository.**
+
+### What MUST NEVER Be Committed
+
+- ✗ Private keys (TRADING_KEYPAIR)
+- ✗ API keys (HELIUS_API_KEY, JUPITER_API_KEY)
+- ✗ Wallet credentials
+- ✗ Sensitive credentials of any kind
+- ✗ Real example values in documentation
+
+### Credential Management
+
+**Use `.env` file for all credentials:**
+- ✓ Create a `.env` file in project root (never commit)
+- ✓ `.env` is in `.gitignore` - ALWAYS VERIFY THIS
+- ✓ Add credentials only to `.env`, never to code or docs
+- ✓ Load credentials with `from utils.load_env import load_env`
+
+**Example `.env` structure:**
+```
+HELIUS_API_KEY=your_actual_api_key_here
+TRADING_KEYPAIR=[your, actual, keypair, array]
+JUPITER_API_KEY=your_actual_api_key_here
+```
+
+**Documentation uses ONLY placeholders:**
+```
+# In docs (like ENV_SETUP.md):
+HELIUS_API_KEY=your_helius_api_key_here
+TRADING_KEYPAIR=[188, 77, 162, ...]  # Use ellipsis, never full key
+JUPITER_API_KEY=your_jupiter_api_key_here
+```
+
+### Before Every Commit
+
+1. **Check for exposed credentials:**
+   ```bash
+   git diff --staged | grep -i "api_key\|trading_keypair\|secret"
+   ```
+
+2. **Verify .env is ignored:**
+   ```bash
+   git check-ignore .env
+   # Should output: .env
+   ```
+
+3. **Scan for hardcoded keys:**
+   ```bash
+   git diff --staged | grep -E "\[.*[0-9]{2,}.*[0-9]{2,}.*\]"
+   ```
+
+### If Credentials Are Ever Exposed
+
+1. **Immediately rotate all exposed credentials:**
+   - Generate new API keys
+   - Create new trading keypair
+   - Update `.env` file
+
+2. **Never reuse exposed credentials:**
+   - Even if the exposure is "cleaned up"
+   - Git history is permanent
+   - Always create new credentials
+
+3. **Follow SECURITY_FIX_GUIDE.md** if exposure occurs
+
+### Remember
+
+- **Public repositories = Assume all committed content is visible to everyone**
+- **Credentials in git = Consider them permanently compromised**
+- **Use `.env` = Credentials stay safe and local**

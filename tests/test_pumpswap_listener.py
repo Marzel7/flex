@@ -1626,6 +1626,29 @@ class StandalonePumpSwapListener:
                 print(f"{display_name:<6} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str:<8} {market_cap_str:<16} {fdv_str:<12} {source_str:<3} {match_str:<12} {unrealized_str:<20} {pnl_str:<10} {base_mint:<31}")
 
             print(f"{'-'*500}")
+
+            # Save fetched prices to database so profit monitor can use them
+            try:
+                db_save = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                if db_save.exists():
+                    conn_save = sqlite3.connect(str(db_save), check_same_thread=False)
+                    cursor_save = conn_save.cursor()
+
+                    for token, price_result, source in active_tokens:
+                        base_mint = token.get('base_mint', '')
+                        price_usd = price_result.get('price_usd', 0)
+
+                        if base_mint and price_usd and price_usd > 0:
+                            cursor_save.execute('''
+                                UPDATE pools SET dexscreener_price_usd = ?, last_dexscreener_update = ?
+                                WHERE base_mint = ?
+                            ''', (price_usd, datetime.now(), base_mint))
+
+                    conn_save.commit()
+                    conn_save.close()
+            except:
+                pass
+
             on_chain_count = sum(1 for _, _, src in active_tokens if src == 'onchain')
             dex_fallback_count = sum(1 for _, _, src in active_tokens if src == 'dexscreener')
             print(f"\n[RESULT] ✓ OnChain: {on_chain_count} | DexScreen Fallback: {dex_fallback_count} | Low liquidity: {low_count} | No price: {fetch_failed_count}")

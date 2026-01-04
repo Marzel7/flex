@@ -1589,9 +1589,9 @@ class StandalonePumpSwapListener:
                         if peak_result and peak_result[0] is not None:
                             peak_pct = peak_result[0]
                             if peak_pct >= 0:
-                                peak_change_str = f"⬆️ +{peak_pct:.1f}%"
+                                peak_change_str = f"\033[92m+{peak_pct:.1f}%\033[0m"
                             else:
-                                peak_change_str = f"⬇️ {peak_pct:.1f}%"
+                                peak_change_str = f"\033[91m{peak_pct:.1f}%\033[0m"
                 except:
                     pass
 

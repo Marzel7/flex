@@ -164,6 +164,33 @@ class SwapResult:
     error: Optional[str] = None
 
 
+async def get_sol_price_usd() -> float:
+    """
+    Fetch current SOL price in USD from DexScreener API.
+    Falls back to 150 USD if fetch fails.
+
+    Returns:
+        float: Current SOL price in USD
+    """
+    try:
+        response = requests.get(
+            "https://api.dexscreener.com/latest/dex/tokens/So11111111111111111111111111111111111111112",
+            timeout=5
+        )
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("pairs"):
+                pair = data["pairs"][0]
+                price = float(pair.get("priceUsd", 0))
+                if price > 0:
+                    return price
+    except Exception as e:
+        print(f"[TRADER] Warning: Failed to fetch SOL price: {e}")
+
+    # Fallback to recent average if fetch fails
+    return 150
+
+
 class JupiterClient:
     """Jupiter routing and quote client (supports API key for higher limits)"""
 
@@ -592,13 +619,36 @@ class TokenTrader:
 
             # Return result with actual signature and status
             status = "confirmed" if success else "failed"
+
+            # Calculate price executed (USD per token)
+            # quote has price_impact and in_amount (in lamports)
+            # We need to calculate: SOL spent / tokens received * SOL_USD_price
+            sol_usd_price = await get_sol_price_usd()  # Fetch current SOL price dynamically
+
+            # If we have a signature, the transaction was sent to the network
+            # We can use quote.out_amount regardless of confirmation status
+            # because the quote was calculated before sending
+            if signature and quote.out_amount > 0:
+                sol_amount_usd = (sol_lamports / 1e9) * sol_usd_price  # Convert lamports to SOL, then to USD
+
+                # quote.out_amount is in smallest units (e.g., for 6-decimal token, divide by 1e6)
+                # PumpSwap tokens use 6 decimals by standard
+                token_decimals = 6
+                actual_tokens = quote.out_amount / (10 ** token_decimals)
+
+                price_per_token_usd = sol_amount_usd / actual_tokens if actual_tokens > 0 else 0
+                output_tokens = actual_tokens
+            else:
+                price_per_token_usd = 0
+                output_tokens = 0
+
             result = SwapResult(
                 signature=signature or "failed",
                 status=status,
                 timestamp=datetime.now(),
                 input_amount=sol_lamports,
-                output_amount=quote.out_amount if success else 0,
-                price_executed=quote.out_amount / sol_lamports if success else 0,
+                output_amount=output_tokens,
+                price_executed=price_per_token_usd,
                 error=None if success else "Transaction failed to submit"
             )
 
@@ -885,6 +935,45 @@ class TokenTrader:
                 if "result" in data:
                     signature = data["result"]
                     print(f"[TRADER] Transaction submitted via RPC: {signature}")
+
+                    # Wait for confirmation and check status
+                    import time
+                    max_wait = 30
+                    start = time.time()
+                    confirmed = False
+
+                    while time.time() - start < max_wait:
+                        # Check transaction status
+                        check_resp = self.session.post(
+                            self.rpc_endpoint,
+                            json={
+                                "jsonrpc": "2.0",
+                                "id": 1,
+                                "method": "getTransaction",
+                                "params": [signature, {"encoding": "json"}]
+                            },
+                            timeout=10
+                        )
+
+                        check_data = check_resp.json()
+                        if "result" in check_data and check_data["result"]:
+                            tx_result = check_data["result"]
+                            # Check if transaction has an error
+                            if tx_result.get("meta", {}).get("err") is None:
+                                print(f"[TRADER] ✓ Transaction confirmed: {signature}")
+                                confirmed = True
+                                break
+                            else:
+                                err = tx_result.get("meta", {}).get("err")
+                                print(f"[TRADER] ✗ Transaction failed on-chain: {err}")
+                                return signature, False
+
+                        time.sleep(1)
+
+                    if not confirmed:
+                        print(f"[TRADER] Transaction confirmation timeout after {max_wait}s")
+                        return signature, False
+
                     return signature, True
                 else:
                     print(f"[TRADER] RPC send failed: {data.get('error', 'Unknown error')}")

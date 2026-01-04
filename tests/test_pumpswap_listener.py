@@ -638,6 +638,7 @@ class TradingBot:
         self.use_trading = use_trading
         self.trader = None
         self.keypair = None
+        self.bought_tokens = set()  # Track tokens we've already bought to prevent duplicates
 
         if use_trading:
             try:
@@ -653,10 +654,13 @@ class TradingBot:
                 jupiter_key = os.environ.get("JUPITER_API_KEY")
                 trading_keypair_env = os.environ.get("TRADING_KEYPAIR")
 
+                print(f"[TRADING BOT] DEBUG: TRADING_KEYPAIR from environ: {trading_keypair_env[:50] if trading_keypair_env else 'NOT SET'}...")
+
                 if helius_key and trading_keypair_env:
                     keypair_array = json.loads(trading_keypair_env)
                     keypair_bytes = bytes(keypair_array)
                     self.keypair = Keypair.from_bytes(keypair_bytes)
+                    wallet_addr = str(self.keypair.pubkey())
                     self.trader = TokenTrader(
                         rpc_endpoint=f"https://mainnet.helius-rpc.com/?api-key={helius_key}",
                         network="mainnet",
@@ -665,7 +669,10 @@ class TradingBot:
                         jupiter_api_key=jupiter_key,
                     )
                     print("[TRADING BOT] ✓ Initialized with trading enabled")
-                    print(f"[TRADING BOT] Wallet: {self.keypair.pubkey()}")
+                    print(f"[TRADING BOT] ═══════════════════════════════════════")
+                    print(f"[TRADING BOT] Trading Wallet Address:")
+                    print(f"[TRADING BOT] {wallet_addr}")
+                    print(f"[TRADING BOT] ═══════════════════════════════════════")
             except Exception as e:
                 print(f"[TRADING BOT] ⚠ Failed to initialize trading: {e}")
                 self.trader = None
@@ -678,23 +685,59 @@ class TradingBot:
                 'status': 'skipped',
                 'signature': None,
                 'output_amount': 0,
+                'price_executed': 0,
                 'error': 'Trading disabled'
             }
 
+        # Prevent duplicate buys of same token
+        if token_mint in self.bought_tokens:
+            print(f"[TRADING BOT] ⚠ Token already bought: {token_mint}")
+            return {
+                'status': 'skipped',
+                'signature': None,
+                'output_amount': 0,
+                'price_executed': 0,
+                'error': 'Token already bought'
+            }
+
+        # Mark token as bought IMMEDIATELY to prevent race conditions
+        # where multiple WebSocket messages try to buy the same token
+        self.bought_tokens.add(token_mint)
+
         try:
+            # Try with legacy transaction (direct routes) first to avoid ATA creation issues
             result = await self.trader.buy_token(
                 token_mint=token_mint,
                 sol_amount=sol_amount,
                 user_keypair=self.keypair,
-                slippage_bps=500
+                slippage_bps=500,
+                use_legacy_transaction=True  # Use direct routes to avoid ATA issues
             )
 
-            print(f"[TRADING BOT] ✓ Buy executed for {symbol}: {result.output_amount} tokens")
-            print(f"[TRADING BOT]   Signature: {result.signature}")
+            # If first attempt failed, retry once with higher slippage
+            if result.status != 'confirmed' or result.output_amount == 0:
+                print(f"[TRADING BOT] ⚠ First attempt failed: {result.error}")
+                print(f"[TRADING BOT] Retrying with higher slippage (1000 bps)...")
+
+                result = await self.trader.buy_token(
+                    token_mint=token_mint,
+                    sol_amount=sol_amount,
+                    user_keypair=self.keypair,
+                    slippage_bps=1000,  # Higher slippage for retry
+                    use_legacy_transaction=False  # Try without legacy mode on retry
+                )
+
+            if result.status == 'confirmed' or result.output_amount > 0:
+                print(f"[TRADING BOT] ✓ Buy executed for {symbol}: {result.output_amount} tokens")
+                print(f"[TRADING BOT]   Signature: {result.signature}")
+            else:
+                print(f"[TRADING BOT] ⚠ Buy failed after retry: {result.error}")
+
             return {
                 'status': result.status,
                 'signature': result.signature,
                 'output_amount': result.output_amount,
+                'price_executed': result.price_executed,
                 'error': result.error
             }
         except Exception as e:
@@ -703,6 +746,7 @@ class TradingBot:
                 'status': 'failed',
                 'signature': None,
                 'output_amount': 0,
+                'price_executed': 0,
                 'error': str(e)
             }
 
@@ -1139,22 +1183,22 @@ class StandalonePumpSwapListener:
 
                 # Get all bought tokens
                 cursor.execute('''
-                    SELECT base_mint, symbol, buy_price_usd, quantity_bought, dexscreener_price_usd
+                    SELECT base_mint, symbol, buy_price_usd, quantity_bought, dexscreener_price_usd, buy_signature
                     FROM pools WHERE trade_status = 'bought'
                 ''')
 
                 bought_tokens = cursor.fetchall()
                 conn.close()
 
-                for token_mint, symbol, buy_price, quantity, current_price in bought_tokens:
+                for token_mint, symbol, buy_price, quantity, current_price, buy_signature in bought_tokens:
                     if not buy_price or not quantity:
                         continue
 
                     # Use current market price
                     if not current_price or current_price <= 0:
                         # Fetch live price if not cached
-                        price_result = self.price_fetcher.fetch_live_price_for_token(token_mint)
-                        current_price = price_result.get('price_usd', 0) if price_result else 0
+                        price_result = self.price_fetcher.fetch_live_price_for_token(token_mint, buy_signature or "", symbol)
+                        current_price = price_result.get('price_usd', 0) if price_result and isinstance(price_result, dict) else 0
 
                     if not current_price or current_price <= 0:
                         continue
@@ -1449,12 +1493,17 @@ class StandalonePumpSwapListener:
                             trade_status, buy_price, pnl_percent, pnl_usd = trade_result
 
                             # Show unrealized gain if bought but not yet sold
-                            if trade_status == 'bought' and buy_price and buy_price > 0 and price_usd > 0:
-                                unrealized_gain = ((price_usd - buy_price) / buy_price) * 100
-                                if unrealized_gain >= 0:
-                                    unrealized_str = f"📈 +{unrealized_gain:.1f}%"
+                            if trade_status == 'bought' and buy_price and buy_price > 0:
+                                if price_usd and price_usd > 0:
+                                    # Have both current price and buy price - calculate gain
+                                    unrealized_gain = ((price_usd - buy_price) / buy_price) * 100
+                                    if unrealized_gain >= 0:
+                                        unrealized_str = f"📈 +{unrealized_gain:.1f}%"
+                                    else:
+                                        unrealized_str = f"📉 {unrealized_gain:.1f}%"
                                 else:
-                                    unrealized_str = f"📉 {unrealized_gain:.1f}%"
+                                    # Have buy price but no current price - show bought status
+                                    unrealized_str = f"💰 Holding (bought @ ${buy_price:.8f})"
                 except:
                     pass
 
@@ -1575,26 +1624,43 @@ class StandalonePumpSwapListener:
 
                                             # Auto-buy if trading is enabled
                                             if self.trading_bot.use_trading and self.trading_bot.trader:
-                                                print(f"[TRADING BOT] Attempting auto-buy for new token: {token_mint}")
-                                                try:
-                                                    buy_result = await self.trading_bot.execute_buy(
-                                                        token_mint=token_mint,
-                                                        symbol=token_mint[:8],
-                                                        sol_amount=0.001
-                                                    )
-                                                    if buy_result['status'] == 'confirmed':
-                                                        # Record buy in database
-                                                        self.trading_bot.update_trade_in_db(
+                                                # Double-check database to prevent duplicate buys from race conditions
+                                                db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                                                check_conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                                                check_cursor = check_conn.cursor()
+                                                check_cursor.execute('SELECT trade_status FROM pools WHERE base_mint = ?', (token_mint,))
+                                                existing = check_cursor.fetchone()
+                                                check_conn.close()
+
+                                                if existing and existing[0] == 'bought':
+                                                    print(f"[TRADING BOT] ⚠ Token already bought (in database): {token_mint}")
+                                                else:
+                                                    print(f"[TRADING BOT] Attempting auto-buy for new token: {token_mint}")
+                                                    try:
+                                                        buy_result = await self.trading_bot.execute_buy(
                                                             token_mint=token_mint,
-                                                            buy_price_usd=0,  # Will be set from price
-                                                            quantity_bought=buy_result['output_amount'],
-                                                            buy_signature=buy_result['signature']
+                                                            symbol=token_mint[:8],
+                                                            sol_amount=0.001
                                                         )
-                                                        print(f"[TRADING BOT] ✓ Auto-buy successful: {buy_result['output_amount']} tokens")
-                                                    else:
-                                                        print(f"[TRADING BOT] ⚠ Auto-buy failed: {buy_result['error']}")
-                                                except Exception as e:
-                                                    print(f"[TRADING BOT] ✗ Auto-buy error: {e}")
+                                                        # Record buy if we have a signature (tx was sent)
+                                                        # Don't just check status as confirmation might timeout
+                                                        print(f"[TRADING BOT] Buy result: sig={buy_result['signature']}, amount={buy_result['output_amount']}, price={buy_result['price_executed']}")
+                                                        if buy_result['signature'] and buy_result['output_amount'] and buy_result['output_amount'] > 0:
+                                                            # Record buy in database
+                                                            success = self.trading_bot.update_trade_in_db(
+                                                                token_mint=token_mint,
+                                                                buy_price_usd=buy_result['price_executed'],
+                                                                quantity_bought=buy_result['output_amount'],
+                                                                buy_signature=buy_result['signature']
+                                                            )
+                                                            if success:
+                                                                print(f"[TRADING BOT] ✓ Auto-buy recorded: {buy_result['output_amount']} tokens @ ${buy_result['price_executed']:.8f}")
+                                                            else:
+                                                                print(f"[TRADING BOT] ✗ Failed to record buy in database")
+                                                        else:
+                                                            print(f"[TRADING BOT] ⚠ Auto-buy failed: sig={buy_result['signature']}, amount={buy_result['output_amount']}, error={buy_result['error']}")
+                                                    except Exception as e:
+                                                        print(f"[TRADING BOT] ✗ Auto-buy error: {e}")
                                         else:
                                             print(f"[WEBSOCKET] ✗ FAILED to persist token to database: {token_mint}")
 
@@ -1884,6 +1950,8 @@ class StandalonePumpSwapListener:
         """Handle Ctrl+C gracefully"""
         print("\n\n[LISTENER] Caught interrupt signal, shutting down...")
         self.is_running = False
+        print("[LISTENER] ✅ Goodbye!")
+        sys.exit(0)
 
 
 def main():

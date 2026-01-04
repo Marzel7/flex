@@ -1534,6 +1534,23 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
+                # Extract buy price for display column
+                buy_price_str = "—"
+                try:
+                    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                    if db_path.exists():
+                        conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                        cursor = conn.cursor()
+                        cursor.execute('SELECT buy_price_usd FROM pools WHERE base_mint = ?', (base_mint,))
+                        buy_result = cursor.fetchone()
+                        conn.close()
+
+                        if buy_result and buy_result[0]:
+                            buy_price_val = buy_result[0]
+                            buy_price_str = f"${buy_price_val:.8f}"
+                except:
+                    pass
+
                 # Fetch P&L from database
                 pnl_str = "—"
                 try:
@@ -1559,7 +1576,7 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
-                print(f"{display_name:<12} {price_str:<18} {sol_str:<15} {price_change_str:<15} {market_cap_str:<20} {fdv_str:<20} {source_str:<12} {match_str:<12} {unrealized_str:<15} {pnl_str:<20} {base_mint:<35}")
+                print(f"{display_name:<12} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {market_cap_str:<20} {fdv_str:<20} {source_str:<12} {match_str:<12} {unrealized_str:<20} {pnl_str:<25} {base_mint:<35}")
 
             print(f"{'-'*500}")
             on_chain_count = sum(1 for _, _, src in active_tokens if src == 'onchain')

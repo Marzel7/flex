@@ -1510,7 +1510,9 @@ class StandalonePumpSwapListener:
 
                                             # Update peak if current price is higher
                                             if price_usd > current_peak:
-                                                cursor_peak.execute('UPDATE pools SET peak_price_usd = ? WHERE base_mint = ?', (price_usd, base_mint))
+                                                # Calculate peak % change from buy price
+                                                peak_pct_change = ((price_usd - buy_price) / buy_price) * 100
+                                                cursor_peak.execute('UPDATE pools SET peak_price_usd = ?, peak_percent_change = ? WHERE base_mint = ?', (price_usd, peak_pct_change, base_mint))
                                                 conn_peak.commit()
                                                 current_peak = price_usd
 
@@ -1571,26 +1573,23 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
-                # Calculate peak % change for display
+                # Display peak % change (highest % gain from initial price)
                 peak_change_str = "—"
                 try:
                     db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
                     if db_path.exists():
                         conn = sqlite3.connect(str(db_path), check_same_thread=False)
                         cursor = conn.cursor()
-                        cursor.execute('SELECT buy_price_usd, peak_price_usd FROM pools WHERE base_mint = ?', (base_mint,))
+                        cursor.execute('SELECT peak_percent_change FROM pools WHERE base_mint = ?', (base_mint,))
                         peak_result = cursor.fetchone()
                         conn.close()
 
-                        if peak_result and peak_result[0] and peak_result[1]:
-                            buy_p = peak_result[0]
-                            peak_p = peak_result[1]
-                            if buy_p > 0:
-                                peak_pct = ((peak_p - buy_p) / buy_p) * 100
-                                if peak_pct >= 0:
-                                    peak_change_str = f"⬆️ +{peak_pct:.1f}%"
-                                else:
-                                    peak_change_str = f"⬇️ {peak_pct:.1f}%"
+                        if peak_result and peak_result[0] is not None:
+                            peak_pct = peak_result[0]
+                            if peak_pct >= 0:
+                                peak_change_str = f"⬆️ +{peak_pct:.1f}%"
+                            else:
+                                peak_change_str = f"⬇️ {peak_pct:.1f}%"
                 except:
                     pass
 

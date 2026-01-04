@@ -1478,6 +1478,33 @@ class StandalonePumpSwapListener:
                 else:
                     match_str = "—"
 
+                # Update peak % change for ALL tokens - track highest % change ever reached
+                if price_usd and price_usd > 0:
+                    try:
+                        db_peak = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                        if db_peak.exists():
+                            conn_peak = sqlite3.connect(str(db_peak), check_same_thread=False)
+                            cursor_peak = conn_peak.cursor()
+                            # Get initial price and current peak % change
+                            cursor_peak.execute('SELECT initial_price_usd, peak_percent_change FROM pools WHERE base_mint = ?', (base_mint,))
+                            peak_result = cursor_peak.fetchone()
+
+                            if peak_result and peak_result[0]:
+                                initial_price = peak_result[0]
+                                current_peak_pct = peak_result[1] if peak_result[1] is not None else 0
+
+                                # Calculate current % change from initial price
+                                current_pct_change = ((price_usd - initial_price) / initial_price) * 100
+
+                                # Update peak if current % is higher than recorded peak
+                                if current_pct_change > current_peak_pct:
+                                    cursor_peak.execute('UPDATE pools SET peak_price_usd = ?, peak_percent_change = ? WHERE base_mint = ?', (price_usd, current_pct_change, base_mint))
+                                    conn_peak.commit()
+
+                            conn_peak.close()
+                    except:
+                        pass
+
                 # Calculate unrealized gains (current price vs buy price)
                 unrealized_str = "—"
                 try:
@@ -1499,32 +1526,6 @@ class StandalonePumpSwapListener:
                                 if price_usd and price_usd > 0:
                                     # Have both current price and buy price - calculate gain
                                     unrealized_gain_pct = ((price_usd - buy_price) / buy_price) * 100
-
-                                    # Update peak % change - track highest % change ever reached
-                                    try:
-                                        db_peak = Path(__file__).parent.parent / 'pumpswap_tokens.db'
-                                        if db_peak.exists():
-                                            conn_peak = sqlite3.connect(str(db_peak), check_same_thread=False)
-                                            cursor_peak = conn_peak.cursor()
-                                            # Get initial price and current peak % change
-                                            cursor_peak.execute('SELECT initial_price_usd, peak_percent_change FROM pools WHERE base_mint = ?', (base_mint,))
-                                            peak_result = cursor_peak.fetchone()
-
-                                            if peak_result and peak_result[0]:
-                                                initial_price = peak_result[0]
-                                                current_peak_pct = peak_result[1] if peak_result[1] is not None else 0
-
-                                                # Calculate current % change from initial price
-                                                current_pct_change = ((price_usd - initial_price) / initial_price) * 100
-
-                                                # Update peak if current % is higher than recorded peak
-                                                if current_pct_change > current_peak_pct:
-                                                    cursor_peak.execute('UPDATE pools SET peak_price_usd = ?, peak_percent_change = ? WHERE base_mint = ?', (price_usd, current_pct_change, base_mint))
-                                                    conn_peak.commit()
-
-                                            conn_peak.close()
-                                    except:
-                                        pass
                                     # Calculate USD gain (need quantity from database)
                                     db_path_qty = Path(__file__).parent.parent / 'pumpswap_tokens.db'
                                     if db_path_qty.exists():

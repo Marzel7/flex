@@ -1410,33 +1410,17 @@ class StandalonePumpSwapListener:
                 else:
                     sol_str = "N/A"
 
-                # Get initial price from database
-                initial_price_usd = 0
-                try:
-                    db_init = Path(__file__).parent.parent / 'pumpswap_tokens.db'
-                    if db_init.exists():
-                        conn_init = sqlite3.connect(str(db_init), check_same_thread=False)
-                        cursor_init = conn_init.cursor()
-                        cursor_init.execute('SELECT initial_price_usd FROM pools WHERE base_mint = ?', (base_mint,))
-                        init_result = cursor_init.fetchone()
-                        conn_init.close()
-                        if init_result and init_result[0]:
-                            initial_price_usd = init_result[0]
-                except:
-                    pass
-
-                # Calculate price % change from initial price
-                price_pct_change = 0
-                if initial_price_usd and initial_price_usd > 0:
-                    price_pct_change = ((price_usd - initial_price_usd) / initial_price_usd) * 100
-
-                if price_pct_change != 0:
-                    if price_pct_change >= 0:
-                        price_change_str = f"+{price_pct_change:.1f}%"
+                # Calculate percentage change: current SOL balance vs 85 SOL at migration
+                # Positive = gained SOL (pool value increased)
+                # Negative = lost SOL (pool value decreased/drained)
+                if sol_balance > 0:
+                    sol_change_pct = ((sol_balance - 85) / 85) * 100
+                    if sol_change_pct >= 0:
+                        price_change_str = f"+{sol_change_pct:.1f}%"
                     else:
-                        price_change_str = f"{price_pct_change:.1f}%"
+                        price_change_str = f"{sol_change_pct:.1f}%"
                 else:
-                    price_change_str = "0.0%"
+                    price_change_str = "N/A"
 
                 # Calculate market cap
                 market_cap = price_usd * token_balance if token_balance > 0 else 0
@@ -1494,28 +1478,26 @@ class StandalonePumpSwapListener:
                 else:
                     match_str = "—"
 
-                # Update peak % change for ALL tokens - track highest % change ever reached
-                if price_usd and price_usd > 0:
+                # Update peak % change for ALL tokens - track highest SOL balance % change ever reached
+                if sol_balance > 0:
                     try:
                         db_peak = Path(__file__).parent.parent / 'pumpswap_tokens.db'
                         if db_peak.exists():
                             conn_peak = sqlite3.connect(str(db_peak), check_same_thread=False)
                             cursor_peak = conn_peak.cursor()
-                            # Get initial price and current peak % change
-                            cursor_peak.execute('SELECT initial_price_usd, peak_percent_change FROM pools WHERE base_mint = ?', (base_mint,))
+                            # Get current peak % change
+                            cursor_peak.execute('SELECT peak_percent_change FROM pools WHERE base_mint = ?', (base_mint,))
                             peak_result = cursor_peak.fetchone()
 
-                            if peak_result and peak_result[0]:
-                                initial_price = peak_result[0]
-                                current_peak_pct = peak_result[1] if peak_result[1] is not None else 0
+                            current_peak_pct = peak_result[0] if peak_result and peak_result[0] is not None else 0
 
-                                # Calculate current % change from initial price
-                                current_pct_change = ((price_usd - initial_price) / initial_price) * 100
+                            # Calculate current SOL balance % change
+                            current_sol_pct_change = ((sol_balance - 85) / 85) * 100
 
-                                # Update peak if current % is higher than recorded peak
-                                if current_pct_change > current_peak_pct:
-                                    cursor_peak.execute('UPDATE pools SET peak_percent_change = ? WHERE base_mint = ?', (current_pct_change, base_mint))
-                                    conn_peak.commit()
+                            # Update peak if current % is higher than recorded peak
+                            if current_sol_pct_change > current_peak_pct:
+                                cursor_peak.execute('UPDATE pools SET peak_percent_change = ? WHERE base_mint = ?', (current_sol_pct_change, base_mint))
+                                conn_peak.commit()
 
                             conn_peak.close()
                     except:

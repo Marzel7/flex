@@ -1375,7 +1375,7 @@ class StandalonePumpSwapListener:
 
         if active_tokens:
             print(f"\n{'-'*500}")
-            print(f"{'Name':<12} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<12} {'Market Cap':<20} {'FDV':<15} {'Src':<3} {'Match':<12} {'Unrealized %':<20} {'P&L':<3} {'Token Address':<35}")
+            print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<12} {'Market Cap':<20} {'FDV':<15} {'Src':<3} {'Match':<12} {'Unrealized %':<20} {'P&L':<4} {'Token Address':<35}")
             print(f"{'-'*500}")
 
             for token, price_result, source in active_tokens:
@@ -1385,14 +1385,14 @@ class StandalonePumpSwapListener:
 
                 # Display name: use token name if available, otherwise use symbol or mint prefix
                 if name and name != 'Unknown' and name.strip():
-                    # Use full token name, limited to 30 chars for display
-                    display_name = name[:30]
+                    # Use first 6 chars of token name for compact display
+                    display_name = name[:6]
                 elif symbol and symbol != 'Unknown' and symbol.strip():
-                    # Fallback to symbol
-                    display_name = symbol[:30]
+                    # Fallback to symbol, first 6 chars
+                    display_name = symbol[:6]
                 else:
-                    # Unnamed tokens: show first 8 chars of mint as identifier
-                    display_name = base_mint[:8]
+                    # Unnamed tokens: show first 6 chars of mint as identifier
+                    display_name = base_mint[:6]
 
                 # Get price and balances from result (now includes fallback data)
                 price_usd = price_result.get('price_usd', 0)
@@ -1619,7 +1619,7 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
-                print(f"{display_name:<12} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str:<12} {market_cap_str:<20} {fdv_str:<15} {source_str:<3} {match_str:<12} {unrealized_str:<20} {pnl_str:<3} {base_mint:<35}")
+                print(f"{display_name:<6} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str:<12} {market_cap_str:<20} {fdv_str:<15} {source_str:<3} {match_str:<12} {unrealized_str:<20} {pnl_str:<4} {base_mint:<35}")
 
             print(f"{'-'*500}")
             on_chain_count = sum(1 for _, _, src in active_tokens if src == 'onchain')

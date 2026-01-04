@@ -1410,17 +1410,33 @@ class StandalonePumpSwapListener:
                 else:
                     sol_str = "N/A"
 
-                # Calculate percentage change: current SOL balance vs 85 SOL at migration
-                # Positive = gained SOL (pool value increased)
-                # Negative = lost SOL (pool value decreased/drained)
-                if sol_balance > 0:
-                    sol_change_pct = ((sol_balance - 85) / 85) * 100
-                    if sol_change_pct >= 0:
-                        price_change_str = f"+{sol_change_pct:.1f}%"
+                # Get initial price from database
+                initial_price_usd = 0
+                try:
+                    db_init = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                    if db_init.exists():
+                        conn_init = sqlite3.connect(str(db_init), check_same_thread=False)
+                        cursor_init = conn_init.cursor()
+                        cursor_init.execute('SELECT initial_price_usd FROM pools WHERE base_mint = ?', (base_mint,))
+                        init_result = cursor_init.fetchone()
+                        conn_init.close()
+                        if init_result and init_result[0]:
+                            initial_price_usd = init_result[0]
+                except:
+                    pass
+
+                # Calculate price % change from initial price
+                price_pct_change = 0
+                if initial_price_usd and initial_price_usd > 0:
+                    price_pct_change = ((price_usd - initial_price_usd) / initial_price_usd) * 100
+
+                if price_pct_change != 0:
+                    if price_pct_change >= 0:
+                        price_change_str = f"+{price_pct_change:.1f}%"
                     else:
-                        price_change_str = f"{sol_change_pct:.1f}%"
+                        price_change_str = f"{price_pct_change:.1f}%"
                 else:
-                    price_change_str = "N/A"
+                    price_change_str = "0.0%"
 
                 # Calculate market cap
                 market_cap = price_usd * token_balance if token_balance > 0 else 0

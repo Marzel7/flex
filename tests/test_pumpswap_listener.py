@@ -1045,6 +1045,7 @@ class StandalonePumpSwapListener:
                 'sell_time': 'TIMESTAMP',
                 'sell_signature': 'TEXT',
                 'quantity_bought': 'REAL',
+                'quantity_sold': 'REAL',  # For partial sells
                 'profit_loss_usd': 'REAL',
                 'profit_loss_percent': 'REAL',
                 'peak_price_usd': 'REAL',

@@ -1375,7 +1375,7 @@ class StandalonePumpSwapListener:
 
         if active_tokens:
             print(f"\n{'-'*500}")
-            print(f"{'Name':<12} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Market Cap':<20} {'FDV':<20} {'Source':<12} {'Match':<12} {'Unrealized %':<20} {'P&L':<25} {'Token Address':<35}")
+            print(f"{'Name':<12} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<12} {'Market Cap':<20} {'FDV':<20} {'Source':<12} {'Match':<12} {'Unrealized %':<20} {'P&L':<25} {'Token Address':<35}")
             print(f"{'-'*500}")
 
             for token, price_result, source in active_tokens:
@@ -1497,6 +1497,26 @@ class StandalonePumpSwapListener:
                                 if price_usd and price_usd > 0:
                                     # Have both current price and buy price - calculate gain
                                     unrealized_gain_pct = ((price_usd - buy_price) / buy_price) * 100
+
+                                    # Update peak price if current price is higher
+                                    try:
+                                        db_peak = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                                        if db_peak.exists():
+                                            conn_peak = sqlite3.connect(str(db_peak), check_same_thread=False)
+                                            cursor_peak = conn_peak.cursor()
+                                            cursor_peak.execute('SELECT peak_price_usd FROM pools WHERE base_mint = ?', (base_mint,))
+                                            peak_result = cursor_peak.fetchone()
+                                            current_peak = peak_result[0] if peak_result and peak_result[0] else buy_price
+
+                                            # Update peak if current price is higher
+                                            if price_usd > current_peak:
+                                                cursor_peak.execute('UPDATE pools SET peak_price_usd = ? WHERE base_mint = ?', (price_usd, base_mint))
+                                                conn_peak.commit()
+                                                current_peak = price_usd
+
+                                            conn_peak.close()
+                                    except:
+                                        pass
                                     # Calculate USD gain (need quantity from database)
                                     db_path_qty = Path(__file__).parent.parent / 'pumpswap_tokens.db'
                                     if db_path_qty.exists():
@@ -1551,6 +1571,29 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
+                # Calculate peak % change for display
+                peak_change_str = "—"
+                try:
+                    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                    if db_path.exists():
+                        conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                        cursor = conn.cursor()
+                        cursor.execute('SELECT buy_price_usd, peak_price_usd FROM pools WHERE base_mint = ?', (base_mint,))
+                        peak_result = cursor.fetchone()
+                        conn.close()
+
+                        if peak_result and peak_result[0] and peak_result[1]:
+                            buy_p = peak_result[0]
+                            peak_p = peak_result[1]
+                            if buy_p > 0:
+                                peak_pct = ((peak_p - buy_p) / buy_p) * 100
+                                if peak_pct >= 0:
+                                    peak_change_str = f"⬆️ +{peak_pct:.1f}%"
+                                else:
+                                    peak_change_str = f"⬇️ {peak_pct:.1f}%"
+                except:
+                    pass
+
                 # Fetch P&L from database
                 pnl_str = "—"
                 try:
@@ -1576,7 +1619,7 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
-                print(f"{display_name:<12} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {market_cap_str:<20} {fdv_str:<20} {source_str:<12} {match_str:<12} {unrealized_str:<20} {pnl_str:<25} {base_mint:<35}")
+                print(f"{display_name:<12} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str:<12} {market_cap_str:<20} {fdv_str:<20} {source_str:<12} {match_str:<12} {unrealized_str:<20} {pnl_str:<25} {base_mint:<35}")
 
             print(f"{'-'*500}")
             on_chain_count = sum(1 for _, _, src in active_tokens if src == 'onchain')

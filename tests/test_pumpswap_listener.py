@@ -1610,7 +1610,7 @@ class StandalonePumpSwapListener:
                         if pnl_result:
                             trade_status, pnl_percent, pnl_usd = pnl_result
                             if trade_status == 'bought' and pnl_percent is None:
-                                pnl_str = "💰 Holding"
+                                pnl_str = "💰"
                             elif trade_status == 'sold' and pnl_percent is not None:
                                 if pnl_percent >= 0:
                                     pnl_str = f"✓ +{pnl_percent:.1f}% (+${pnl_usd:.2f})"

@@ -1375,7 +1375,7 @@ class StandalonePumpSwapListener:
 
         if active_tokens:
             print(f"\n{'-'*500}")
-            print(f"{'Name':<12} {'Current Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Market Cap':<20} {'FDV':<20} {'Source':<12} {'Match':<12} {'Unrealized %':<15} {'P&L':<20} {'Token Address':<35}")
+            print(f"{'Name':<12} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Market Cap':<20} {'FDV':<20} {'Source':<12} {'Match':<12} {'Unrealized %':<20} {'P&L':<25} {'Token Address':<35}")
             print(f"{'-'*500}")
 
             for token, price_result, source in active_tokens:

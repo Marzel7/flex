@@ -1375,7 +1375,7 @@ class StandalonePumpSwapListener:
 
         if active_tokens:
             print(f"\n{'-'*500}")
-            print(f"{'Name':<12} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<12} {'Market Cap':<20} {'FDV':<20} {'Source':<12} {'Match':<12} {'Unrealized %':<20} {'P&L':<25} {'Token Address':<35}")
+            print(f"{'Name':<12} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<12} {'Market Cap':<20} {'FDV':<20} {'Src':<3} {'Match':<12} {'Unrealized %':<20} {'P&L':<25} {'Token Address':<35}")
             print(f"{'-'*500}")
 
             for token, price_result, source in active_tokens:
@@ -1443,8 +1443,8 @@ class StandalonePumpSwapListener:
                 else:
                     fdv_str = f"${fdv:.2f}" if fdv > 0 else "N/A"
 
-                # Source indicator
-                source_str = "🔗 OnChain" if source == 'onchain' else "📊 DexScreen"
+                # Source indicator (icon only to save space)
+                source_str = "🔗" if source == 'onchain' else "📊"
 
                 # Calculate match ratio vs DexScreener (only if on-chain)
                 if source == 'onchain':
@@ -1619,7 +1619,7 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
-                print(f"{display_name:<12} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str:<12} {market_cap_str:<20} {fdv_str:<20} {source_str:<12} {match_str:<12} {unrealized_str:<20} {pnl_str:<25} {base_mint:<35}")
+                print(f"{display_name:<12} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str:<12} {market_cap_str:<20} {fdv_str:<20} {source_str:<3} {match_str:<12} {unrealized_str:<20} {pnl_str:<25} {base_mint:<35}")
 
             print(f"{'-'*500}")
             on_chain_count = sum(1 for _, _, src in active_tokens if src == 'onchain')

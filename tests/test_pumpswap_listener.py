@@ -1046,7 +1046,9 @@ class StandalonePumpSwapListener:
                 'sell_signature': 'TEXT',
                 'quantity_bought': 'REAL',
                 'profit_loss_usd': 'REAL',
-                'profit_loss_percent': 'REAL'
+                'profit_loss_percent': 'REAL',
+                'peak_price_usd': 'REAL',
+                'peak_percent_change': 'REAL'
             }
 
             # Add missing columns
@@ -1079,9 +1081,9 @@ class StandalonePumpSwapListener:
 
             cursor.execute('''
                 UPDATE pools
-                SET initial_price_usd = ?, total_supply = ?, last_price_update = ?
+                SET initial_price_usd = ?, total_supply = ?, last_price_update = ?, peak_price_usd = ?, peak_percent_change = 0
                 WHERE base_mint = ?
-            ''', (price_usd, total_supply, datetime.now(), token_mint))
+            ''', (price_usd, total_supply, datetime.now(), price_usd, token_mint))
 
             conn.commit()
             conn.close()

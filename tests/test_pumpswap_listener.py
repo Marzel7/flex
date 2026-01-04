@@ -1376,7 +1376,26 @@ class StandalonePumpSwapListener:
                 else:
                     fetch_failed_count += 1
 
-        if active_tokens:
+        # Also fetch sold tokens to show in table
+        sold_tokens = []
+        try:
+            db_sold = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+            if db_sold.exists():
+                conn_sold = sqlite3.connect(str(db_sold), check_same_thread=False)
+                cursor_sold = conn_sold.cursor()
+                cursor_sold.execute('''
+                    SELECT base_mint, name, symbol, sell_price_usd, buy_price_usd,
+                           profit_loss_percent, profit_loss_usd, quantity_bought
+                    FROM pools WHERE trade_status = 'sold'
+                    ORDER BY datetime(sell_time) DESC
+                    LIMIT 20
+                ''')
+                sold_tokens = cursor_sold.fetchall()
+                conn_sold.close()
+        except:
+            pass
+
+        if active_tokens or sold_tokens:
             print(f"\n{'-'*500}")
             print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<8} {'Market Cap':<16} {'FDV':<12} {'Src':<3} {'Match':<12} {'Unrealized %':<20} {'P&L':<10} {'Token Address':<31}")
             print(f"{'-'*500}")
@@ -1625,6 +1644,23 @@ class StandalonePumpSwapListener:
                     pass
 
                 print(f"{display_name:<6} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str:<8} {market_cap_str:<16} {fdv_str:<12} {source_str:<3} {match_str:<12} {unrealized_str:<20} {pnl_str:<10} {base_mint:<31}")
+
+            # Display sold tokens
+            for mint, name, symbol, sell_price, buy_price, profit_pct, profit_usd, qty in sold_tokens:
+                display_name = (symbol or name or mint)[:6]
+                sell_price_str = f"${sell_price:.8f}" if sell_price else "—"
+                buy_price_str = f"${buy_price:.8f}" if buy_price else "—"
+
+                # Mark as sold with profit display
+                if profit_pct is not None:
+                    if profit_pct >= 0:
+                        pnl_str = f"\033[92m✓ +{profit_pct:.1f}%\033[0m"
+                    else:
+                        pnl_str = f"\033[91m✗ {profit_pct:.1f}%\033[0m"
+                else:
+                    pnl_str = "—"
+
+                print(f"{display_name:<6} {sell_price_str:<18} {buy_price_str:<18} {'SOLD':<15} {'—':<15} {'—':<8} {'—':<16} {'—':<12} {'✓':<3} {'CLOSED':<12} {'—':<20} {pnl_str:<10} {mint:<31}")
 
             print(f"{'-'*500}")
 

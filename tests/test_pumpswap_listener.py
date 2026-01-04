@@ -1496,11 +1496,38 @@ class StandalonePumpSwapListener:
                             if trade_status == 'bought' and buy_price and buy_price > 0:
                                 if price_usd and price_usd > 0:
                                     # Have both current price and buy price - calculate gain
-                                    unrealized_gain = ((price_usd - buy_price) / buy_price) * 100
-                                    if unrealized_gain >= 0:
-                                        unrealized_str = f"📈 +{unrealized_gain:.1f}%"
+                                    unrealized_gain_pct = ((price_usd - buy_price) / buy_price) * 100
+                                    # Calculate USD gain (need quantity from database)
+                                    db_path_qty = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                                    if db_path_qty.exists():
+                                        try:
+                                            conn_qty = sqlite3.connect(str(db_path_qty), check_same_thread=False)
+                                            cursor_qty = conn_qty.cursor()
+                                            cursor_qty.execute('SELECT quantity_bought FROM pools WHERE base_mint = ?', (base_mint,))
+                                            qty_result = cursor_qty.fetchone()
+                                            conn_qty.close()
+                                            if qty_result and qty_result[0]:
+                                                qty = qty_result[0]
+                                                unrealized_gain_usd = (price_usd - buy_price) * qty
+                                                if unrealized_gain_pct >= 0:
+                                                    unrealized_str = f"📈 +{unrealized_gain_pct:.1f}% (+${unrealized_gain_usd:.2f})"
+                                                else:
+                                                    unrealized_str = f"📉 {unrealized_gain_pct:.1f}% (${unrealized_gain_usd:.2f})"
+                                            else:
+                                                if unrealized_gain_pct >= 0:
+                                                    unrealized_str = f"📈 +{unrealized_gain_pct:.1f}%"
+                                                else:
+                                                    unrealized_str = f"📉 {unrealized_gain_pct:.1f}%"
+                                        except:
+                                            if unrealized_gain_pct >= 0:
+                                                unrealized_str = f"📈 +{unrealized_gain_pct:.1f}%"
+                                            else:
+                                                unrealized_str = f"📉 {unrealized_gain_pct:.1f}%"
                                     else:
-                                        unrealized_str = f"📉 {unrealized_gain:.1f}%"
+                                        if unrealized_gain_pct >= 0:
+                                            unrealized_str = f"📈 +{unrealized_gain_pct:.1f}%"
+                                        else:
+                                            unrealized_str = f"📉 {unrealized_gain_pct:.1f}%"
                                 else:
                                     # Have buy price but no current price - show bought status
                                     unrealized_str = f"💰 Holding (bought @ ${buy_price:.8f})"

@@ -1048,7 +1048,8 @@ class StandalonePumpSwapListener:
                 'profit_loss_usd': 'REAL',
                 'profit_loss_percent': 'REAL',
                 'peak_price_usd': 'REAL',
-                'peak_percent_change': 'REAL'
+                'peak_percent_change': 'REAL',
+                'current_price_usd': 'REAL'
             }
 
             # Add missing columns
@@ -1185,7 +1186,7 @@ class StandalonePumpSwapListener:
 
                 # Get all bought tokens
                 cursor.execute('''
-                    SELECT base_mint, symbol, buy_price_usd, quantity_bought, dexscreener_price_usd, buy_signature
+                    SELECT base_mint, symbol, buy_price_usd, quantity_bought, current_price_usd, buy_signature
                     FROM pools WHERE trade_status = 'bought'
                 ''')
 
@@ -1640,7 +1641,7 @@ class StandalonePumpSwapListener:
 
                         if base_mint and price_usd and price_usd > 0:
                             cursor_save.execute('''
-                                UPDATE pools SET dexscreener_price_usd = ?, last_dexscreener_update = ?
+                                UPDATE pools SET current_price_usd = ?, last_price_update = ?
                                 WHERE base_mint = ?
                             ''', (price_usd, datetime.now(), base_mint))
 

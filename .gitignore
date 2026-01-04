@@ -32,6 +32,15 @@ pumpswap_tokens.db
 .claude/
 .serena/
 .env
+
+# Credentials and private keys (SECURITY CRITICAL)
+*_keypair.json
+test_keypair.json
+verify_wallet.py
+utils/generate_new_keypair.py
+*.key
+*.pem
+
 test_*.py
 !test_pumpswap_detection.py
 !test_pumpswap_phase2.py

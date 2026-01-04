@@ -1081,9 +1081,9 @@ class StandalonePumpSwapListener:
 
             cursor.execute('''
                 UPDATE pools
-                SET initial_price_usd = ?, total_supply = ?, last_price_update = ?, peak_price_usd = ?, peak_percent_change = 0
+                SET initial_price_usd = ?, total_supply = ?, last_price_update = ?, peak_percent_change = 0
                 WHERE base_mint = ?
-            ''', (price_usd, total_supply, datetime.now(), price_usd, token_mint))
+            ''', (price_usd, total_supply, datetime.now(), token_mint))
 
             conn.commit()
             conn.close()
@@ -1498,7 +1498,7 @@ class StandalonePumpSwapListener:
 
                                 # Update peak if current % is higher than recorded peak
                                 if current_pct_change > current_peak_pct:
-                                    cursor_peak.execute('UPDATE pools SET peak_price_usd = ?, peak_percent_change = ? WHERE base_mint = ?', (price_usd, current_pct_change, base_mint))
+                                    cursor_peak.execute('UPDATE pools SET peak_percent_change = ? WHERE base_mint = ?', (current_pct_change, base_mint))
                                     conn_peak.commit()
 
                             conn_peak.close()

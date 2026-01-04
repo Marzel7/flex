@@ -1375,7 +1375,7 @@ class StandalonePumpSwapListener:
 
         if active_tokens:
             print(f"\n{'-'*500}")
-            print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<8} {'Market Cap':<16} {'FDV':<12} {'Src':<3} {'Match':<12} {'Unrealized %':<25} {'P&L':<6} {'Token Address':<30}")
+            print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<8} {'Market Cap':<16} {'FDV':<12} {'Src':<3} {'Match':<12} {'Unrealized %':<25} {'P&L':<8} {'Token Address':<28}")
             print(f"{'-'*500}")
 
             for token, price_result, source in active_tokens:
@@ -1618,7 +1618,7 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
-                print(f"{display_name:<6} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str:<8} {market_cap_str:<16} {fdv_str:<12} {source_str:<3} {match_str:<12} {unrealized_str:<25} {pnl_str:<6} {base_mint:<30}")
+                print(f"{display_name:<6} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str:<8} {market_cap_str:<16} {fdv_str:<12} {source_str:<3} {match_str:<12} {unrealized_str:<25} {pnl_str:<8} {base_mint:<28}")
 
             print(f"{'-'*500}")
             on_chain_count = sum(1 for _, _, src in active_tokens if src == 'onchain')

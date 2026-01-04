@@ -406,8 +406,8 @@ class JitoClient:
 
     # Free Jito block engine endpoints (no auth key needed)
     ENDPOINTS = {
-        "mainnet": "https://mainnet.block-engine.jito.wtf/api/v1",
-        "devnet": "https://devnet.block-engine.jito.wtf/api/v1",
+        "mainnet": "https://mainnet.block-engine.jito.wtf/api/v1/transactions",
+        "devnet": "https://devnet.block-engine.jito.wtf/api/v1/transactions",
     }
 
     # gRPC endpoints for faster execution

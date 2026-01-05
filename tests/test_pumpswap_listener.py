@@ -1172,7 +1172,8 @@ class StandalonePumpSwapListener:
 
             print(f"[PUMPFUN] Backfilling creator info for {len(tokens_to_fetch)} tokens...")
 
-            for (token_mint,) in tokens_to_fetch:
+            success_count = 0
+            for i, (token_mint,) in enumerate(tokens_to_fetch, 1):
                 try:
                     pumpfun_info = self.price_fetcher.get_pumpfun_token_info(token_mint)
 
@@ -1192,12 +1193,20 @@ class StandalonePumpSwapListener:
                         conn.close()
 
                         if pumpfun_creator:
-                            print(f"[PUMPFUN] ✓ Updated {token_mint[:6]}: {pumpfun_creator[:8]}...")
+                            success_count += 1
+                            print(f"[PUMPFUN] ✓ [{i}/{len(tokens_to_fetch)}] {token_mint[:6]}: {pumpfun_creator[:8]}...")
+                        else:
+                            print(f"[PUMPFUN] ⚠ [{i}/{len(tokens_to_fetch)}] {token_mint[:6]}: No creator found")
+                    else:
+                        error_msg = pumpfun_info.get('error', 'Unknown error') if pumpfun_info else 'No response'
+                        print(f"[PUMPFUN] ✗ [{i}/{len(tokens_to_fetch)}] {token_mint[:6]}: {error_msg}")
 
                     time.sleep(0.5)  # Rate limit the API calls
                 except Exception as e:
-                    print(f"[PUMPFUN] ⚠ Error fetching {token_mint[:6]}: {e}")
+                    print(f"[PUMPFUN] ✗ [{i}/{len(tokens_to_fetch)}] {token_mint[:6]}: Exception - {e}")
                     continue
+
+            print(f"[PUMPFUN] ✓ Backfill complete: {success_count}/{len(tokens_to_fetch)} creators found")
 
         except Exception as e:
             print(f"[PUMPFUN] ⚠ Backfill error: {e}")

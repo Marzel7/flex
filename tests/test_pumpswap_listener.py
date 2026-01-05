@@ -1126,7 +1126,10 @@ class StandalonePumpSwapListener:
                 'profit_loss_percent': 'REAL',
                 'peak_price_usd': 'REAL',
                 'peak_percent_change': 'REAL',
-                'current_price_usd': 'REAL'
+                'current_price_usd': 'REAL',
+                'pumpfun_creator': 'TEXT',
+                'pumpfun_symbol': 'TEXT',
+                'pumpfun_image': 'TEXT'
             }
 
             # Add missing columns
@@ -1142,6 +1145,62 @@ class StandalonePumpSwapListener:
         except Exception as e:
             print(f"[DB] ⚠ Migration error (may be non-fatal): {e}")
             return False
+
+    def backfill_pumpfun_creators(self):
+        """Fetch and backfill PumpFun creator info for tokens missing it"""
+        db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+
+        if not db_path.exists():
+            return
+
+        try:
+            conn = sqlite3.connect(str(db_path), check_same_thread=False)
+            cursor = conn.cursor()
+
+            # Get all tokens without creator info
+            cursor.execute('''
+                SELECT base_mint FROM pools
+                WHERE pumpfun_creator IS NULL OR pumpfun_creator = ''
+                LIMIT 50
+            ''')
+
+            tokens_to_fetch = cursor.fetchall()
+            conn.close()
+
+            if not tokens_to_fetch:
+                return
+
+            print(f"[PUMPFUN] Backfilling creator info for {len(tokens_to_fetch)} tokens...")
+
+            for (token_mint,) in tokens_to_fetch:
+                try:
+                    pumpfun_info = self.price_fetcher.get_pumpfun_token_info(token_mint)
+
+                    if pumpfun_info and 'error' not in pumpfun_info:
+                        pumpfun_creator = pumpfun_info.get('owner', '')
+                        pumpfun_symbol = pumpfun_info.get('symbol', '')
+                        pumpfun_image = pumpfun_info.get('image', '')
+
+                        conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                        cursor = conn.cursor()
+                        cursor.execute('''
+                            UPDATE pools
+                            SET pumpfun_creator = ?, pumpfun_symbol = ?, pumpfun_image = ?
+                            WHERE base_mint = ?
+                        ''', (pumpfun_creator, pumpfun_symbol, pumpfun_image, token_mint))
+                        conn.commit()
+                        conn.close()
+
+                        if pumpfun_creator:
+                            print(f"[PUMPFUN] ✓ Updated {token_mint[:6]}: {pumpfun_creator[:8]}...")
+
+                    time.sleep(0.5)  # Rate limit the API calls
+                except Exception as e:
+                    print(f"[PUMPFUN] ⚠ Error fetching {token_mint[:6]}: {e}")
+                    continue
+
+        except Exception as e:
+            print(f"[PUMPFUN] ⚠ Backfill error: {e}")
 
     def update_initial_price(self, token_mint, price_result):
         """Update initial migration price and total supply in database"""
@@ -2034,6 +2093,10 @@ class StandalonePumpSwapListener:
         # Migrate database schema to add trading columns if needed
         print("[LISTENER] Checking database schema...")
         self.migrate_database_schema()
+
+        # Backfill PumpFun creator info for existing tokens
+        print("[LISTENER] Backfilling PumpFun creator info for tokens...")
+        self.backfill_pumpfun_creators()
 
         # Start WebSocket listener in background for live migration detection
         self.start_websocket_listener()

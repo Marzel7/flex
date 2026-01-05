@@ -854,9 +854,10 @@ class TradingBot:
 class StandalonePumpSwapListener:
     """Standalone PumpSwap listener - Independent from main.py"""
 
-    def __init__(self, use_trading=False):
+    def __init__(self, use_trading=False, enable_selling=False):
         self.price_fetcher = VaultPriceFetcher()
         self.trading_bot = TradingBot(use_trading=use_trading)  # Initialize trading bot
+        self.enable_selling = enable_selling  # Enable automatic selling at 20% profit
         self.detected_tokens: List[Dict] = []
         self.pumpswap_tokens: List[Dict] = []
         self.start_time = datetime.now()
@@ -1173,7 +1174,7 @@ class StandalonePumpSwapListener:
         """Monitor bought tokens and sell at 20% profit (background thread)"""
         while self.is_running:
             try:
-                if not self.trading_bot.use_trading or not self.trading_bot.trader:
+                if not self.enable_selling or not self.trading_bot.use_trading or not self.trading_bot.trader:
                     time.sleep(10)
                     continue
 
@@ -1194,8 +1195,12 @@ class StandalonePumpSwapListener:
                 bought_tokens = cursor.fetchall()
                 conn.close()
 
+                if bought_tokens:
+                    print(f"[PROFIT MONITOR] Checking {len(bought_tokens)} bought tokens for 20% profit...")
+
                 for token_mint, symbol, buy_price, quantity, current_price, buy_signature in bought_tokens:
                     if not buy_price or not quantity:
+                        print(f"[PROFIT MONITOR] Skipping {symbol}: missing buy_price or quantity")
                         continue
 
                     # Use current market price
@@ -1205,10 +1210,12 @@ class StandalonePumpSwapListener:
                         current_price = price_result.get('price_usd', 0) if price_result and isinstance(price_result, dict) else 0
 
                     if not current_price or current_price <= 0:
+                        print(f"[PROFIT MONITOR] Skipping {symbol}: no current price available")
                         continue
 
                     # Check profit percentage
                     profit_pct = ((current_price - buy_price) / buy_price) * 100
+                    print(f"[PROFIT MONITOR] {symbol}: buy=${buy_price:.8f}, current=${current_price:.8f}, profit={profit_pct:.1f}%")
 
                     if profit_pct >= 20.0:
                         print(f"[PROFIT MONITOR] ✓ {symbol[:8]} reached {profit_pct:.1f}% profit! Selling...")
@@ -1220,16 +1227,19 @@ class StandalonePumpSwapListener:
                                 quantity=quantity
                             ))
 
-                            if sell_result['status'] == 'confirmed':
+                            # Defensive check: ensure sell_result is a dict
+                            if sell_result and isinstance(sell_result, dict) and sell_result.get('status') == 'confirmed':
                                 # Update DB with sell and P&L
                                 self.trading_bot.update_sell_in_db(
                                     token_mint=token_mint,
                                     sell_price_usd=current_price,
-                                    sell_signature=sell_result['signature']
+                                    sell_signature=sell_result.get('signature')
                                 )
                                 print(f"[PROFIT MONITOR] ✓ Sold {symbol[:8]}: Profit {profit_pct:.1f}%")
+                            elif sell_result and isinstance(sell_result, dict):
+                                print(f"[PROFIT MONITOR] ⚠ Sell failed for {symbol[:8]}: {sell_result.get('error')}")
                             else:
-                                print(f"[PROFIT MONITOR] ⚠ Sell failed for {symbol[:8]}: {sell_result['error']}")
+                                print(f"[PROFIT MONITOR] ⚠ Sell failed for {symbol[:8]}: Invalid response")
                         except Exception as e:
                             print(f"[PROFIT MONITOR] ✗ Error selling {symbol[:8]}: {e}")
 
@@ -1398,7 +1408,7 @@ class StandalonePumpSwapListener:
 
         if active_tokens or sold_tokens:
             print(f"\n{'-'*500}")
-            print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<8} {'Market Cap':<16} {'FDV':<12} {'Src':<3} {'Match':<12} {'Unrealized %':<20} {'P&L':<10} {'Token Address':<31}")
+            print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<18} {'Market Cap':<16} {'FDV':<12} {'Src':<3} {'Match':<12} {'Unrealized %':<20} {'P&L':<10} {'Token Address':<31}")
             print(f"{'-'*500}")
 
             for token, price_result, source in active_tokens:
@@ -1421,6 +1431,9 @@ class StandalonePumpSwapListener:
                 price_usd = price_result.get('price_usd', 0)
                 sol_balance = price_result.get('sol_balance', 0)
                 token_balance = price_result.get('token_balance', 0)
+
+                # Note: Large SOL balances (>1000) are possible for exceptionally successful pools
+                # No capping applied - trust the fetched value
 
                 # Format current price
                 price_str = f"${price_usd:.8f}" if price_usd > 0 else "$0.00"
@@ -1558,24 +1571,24 @@ class StandalonePumpSwapListener:
                                                 qty = qty_result[0]
                                                 unrealized_gain_usd = (price_usd - buy_price) * qty
                                                 if unrealized_gain_pct >= 0:
-                                                    unrealized_str = f"📈 +{unrealized_gain_pct:.1f}% (+${unrealized_gain_usd:.2f})"
+                                                    unrealized_str = f"+{unrealized_gain_pct:.1f}% (+${unrealized_gain_usd:.2f})"
                                                 else:
-                                                    unrealized_str = f"📉 {unrealized_gain_pct:.1f}% (${unrealized_gain_usd:.2f})"
+                                                    unrealized_str = f"{unrealized_gain_pct:.1f}% (${unrealized_gain_usd:.2f})"
                                             else:
                                                 if unrealized_gain_pct >= 0:
-                                                    unrealized_str = f"📈 +{unrealized_gain_pct:.1f}%"
+                                                    unrealized_str = f"+{unrealized_gain_pct:.1f}%"
                                                 else:
-                                                    unrealized_str = f"📉 {unrealized_gain_pct:.1f}%"
+                                                    unrealized_str = f"{unrealized_gain_pct:.1f}%"
                                         except:
                                             if unrealized_gain_pct >= 0:
-                                                unrealized_str = f"📈 +{unrealized_gain_pct:.1f}%"
+                                                unrealized_str = f"+{unrealized_gain_pct:.1f}%"
                                             else:
-                                                unrealized_str = f"📉 {unrealized_gain_pct:.1f}%"
+                                                unrealized_str = f"{unrealized_gain_pct:.1f}%"
                                     else:
                                         if unrealized_gain_pct >= 0:
-                                            unrealized_str = f"📈 +{unrealized_gain_pct:.1f}%"
+                                            unrealized_str = f"+{unrealized_gain_pct:.1f}%"
                                         else:
-                                            unrealized_str = f"📉 {unrealized_gain_pct:.1f}%"
+                                            unrealized_str = f"{unrealized_gain_pct:.1f}%"
                                 else:
                                     # Have buy price but no current price - show bought status
                                     unrealized_str = f"💰 Holding (bought @ ${buy_price:.8f})"
@@ -1644,7 +1657,7 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
-                print(f"{display_name:<6} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str:<8} {market_cap_str:<16} {fdv_str:<12} {source_str:<3} {match_str:<12} {unrealized_str:<20} {pnl_str:<10} {base_mint:<31}")
+                print(f"{display_name:<6} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str:<18} {market_cap_str:<16} {fdv_str:<12} {source_str:<3} {match_str:<12} {unrealized_str:<20} {pnl_str:<10} {base_mint:<31}")
 
             # Display sold tokens
             for mint, name, symbol, sell_price, buy_price, profit_pct, profit_usd, qty in sold_tokens:
@@ -2110,8 +2123,9 @@ def main():
     """Run standalone PumpSwap listener"""
     # Check if trading should be enabled
     use_trading = os.environ.get("ENABLE_TRADING", "").lower() == "true"
+    enable_selling = os.environ.get("ENABLE_SELLING", "").lower() == "true"
 
-    listener = StandalonePumpSwapListener(use_trading=use_trading)
+    listener = StandalonePumpSwapListener(use_trading=use_trading, enable_selling=enable_selling)
 
     # Set up signal handler for Ctrl+C
     signal.signal(signal.SIGINT, listener.signal_handler)
@@ -2128,7 +2142,11 @@ def main():
 
     # Print trading status
     if use_trading:
-        print("[TRADING] ⚠️  AUTO-TRADING ENABLED - Bot will buy new tokens and sell at 20% profit\n")
+        print("[TRADING] ⚠️  AUTO-BUYING ENABLED - Bot will buy new tokens\n")
+        if enable_selling:
+            print("[SELLING] ⚠️  AUTO-SELLING ENABLED - Bot will sell at 20% profit\n")
+        else:
+            print("[SELLING] ℹ️  Auto-selling disabled. To enable, set: export ENABLE_SELLING=true\n")
     else:
         print("[TRADING] ℹ️  Auto-trading disabled. To enable, set: export ENABLE_TRADING=true\n")
 

@@ -626,49 +626,53 @@ class VaultPriceFetcher:
             return None
 
     def get_pumpfun_token_info(self, mint: str, retries=2) -> Dict:
-        """Fetch token owner and metadata from PumpFun API
+        """Fetch token owner and metadata from PumpFun API v3
 
         Args:
             mint: Token mint address
             retries: Number of retries for failed requests
 
         Returns:
-            Dict with owner, symbol, name, or empty dict if fetch fails
+            Dict with owner, symbol, name, or error dict if fetch fails
         """
         try:
-            url = f"https://frontend-api.pump.fun/metadata/{mint}"
+            url = "https://frontend-api-v3.pump.fun/coins/mints"
+            payload = {"mints": [mint]}
 
             for attempt in range(retries + 1):
                 try:
-                    response = requests.get(url, timeout=5)
+                    response = requests.post(url, json=payload, timeout=5)
 
-                    if response.status_code == 200:
+                    if response.status_code in [200, 201]:
                         data = response.json()
-                        return {
-                            'owner': data.get('creator', ''),
-                            'symbol': data.get('symbol', ''),
-                            'name': data.get('name', ''),
-                            'image': data.get('image_uri', ''),
-                            'description': data.get('description', ''),
-                            'twitter': data.get('twitter', ''),
-                            'website': data.get('website', ''),
-                            'telegram': data.get('telegram', '')
-                        }
-                    elif response.status_code == 404:
-                        # Token not found on PumpFun
-                        return {'error': 'Not found'}
+                        # v3 API returns array, empty if token not found
+                        if data and len(data) > 0:
+                            token_data = data[0]
+                            return {
+                                'owner': token_data.get('creator', ''),
+                                'symbol': token_data.get('symbol', ''),
+                                'name': token_data.get('name', ''),
+                                'image': token_data.get('image_uri', ''),
+                                'description': token_data.get('description', ''),
+                                'twitter': token_data.get('twitter', ''),
+                                'website': token_data.get('website', ''),
+                                'telegram': token_data.get('telegram', '')
+                            }
+                        else:
+                            # Token not found on PumpFun
+                            return {'error': 'Not found on Pump.fun'}
                     elif response.status_code == 429:
                         # Rate limited - wait before retrying
                         if attempt < retries:
-                            wait_time = 1 + attempt  # Backoff: 1, 2 seconds
+                            wait_time = 1 + attempt
                             time.sleep(wait_time)
                             continue
                         else:
                             return {'error': 'Rate limited'}
                     elif response.status_code in [500, 502, 503, 530]:
-                        # Server error - retry with shorter delays
+                        # Server error - retry
                         if attempt < retries:
-                            wait_time = 0.5 + (attempt * 0.5)  # Backoff: 0.5, 1 second
+                            wait_time = 0.5 + (attempt * 0.5)
                             time.sleep(wait_time)
                             continue
                         else:
@@ -678,7 +682,7 @@ class VaultPriceFetcher:
 
                 except requests.exceptions.RequestException as e:
                     if attempt < retries:
-                        wait_time = (2 ** attempt)
+                        wait_time = 0.5 + (attempt * 0.5)
                         time.sleep(wait_time)
                         continue
                     else:

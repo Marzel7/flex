@@ -625,7 +625,7 @@ class VaultPriceFetcher:
                 print(f"[MIGRATION] ✗ Error calculating initial price: {e}")
             return None
 
-    def get_pumpfun_token_info(self, mint: str, retries=3) -> Dict:
+    def get_pumpfun_token_info(self, mint: str, retries=2) -> Dict:
         """Fetch token owner and metadata from PumpFun API
 
         Args:
@@ -640,7 +640,7 @@ class VaultPriceFetcher:
 
             for attempt in range(retries + 1):
                 try:
-                    response = requests.get(url, timeout=10)
+                    response = requests.get(url, timeout=5)
 
                     if response.status_code == 200:
                         data = response.json()
@@ -660,15 +660,15 @@ class VaultPriceFetcher:
                     elif response.status_code == 429:
                         # Rate limited - wait before retrying
                         if attempt < retries:
-                            wait_time = (2 ** attempt) + 1  # Exponential backoff: 2, 5, 10 seconds
+                            wait_time = 1 + attempt  # Backoff: 1, 2 seconds
                             time.sleep(wait_time)
                             continue
                         else:
                             return {'error': 'Rate limited'}
                     elif response.status_code in [500, 502, 503, 530]:
-                        # Server error - retry
+                        # Server error - retry with shorter delays
                         if attempt < retries:
-                            wait_time = (2 ** attempt) + 1
+                            wait_time = 0.5 + (attempt * 0.5)  # Backoff: 0.5, 1 second
                             time.sleep(wait_time)
                             continue
                         else:
@@ -1183,8 +1183,16 @@ class StandalonePumpSwapListener:
             print(f"[PUMPFUN] Backfilling creator info for {len(tokens_to_fetch)} tokens...")
 
             success_count = 0
+            consecutive_errors = 0
+            api_is_down = False
+
             for i, (token_mint,) in enumerate(tokens_to_fetch, 1):
                 try:
+                    # If API is persistently down, stop trying after first 3 errors
+                    if api_is_down:
+                        print(f"[PUMPFUN] ⊘ [{i}/{len(tokens_to_fetch)}] Skipping - API unavailable")
+                        continue
+
                     pumpfun_info = self.price_fetcher.get_pumpfun_token_info(token_mint)
 
                     if pumpfun_info and 'error' not in pumpfun_info:
@@ -1204,19 +1212,37 @@ class StandalonePumpSwapListener:
 
                         if pumpfun_creator:
                             success_count += 1
+                            consecutive_errors = 0  # Reset error counter on success
                             print(f"[PUMPFUN] ✓ [{i}/{len(tokens_to_fetch)}] {token_mint[:6]}: {pumpfun_creator[:8]}...")
                         else:
                             print(f"[PUMPFUN] ⚠ [{i}/{len(tokens_to_fetch)}] {token_mint[:6]}: No creator found")
                     else:
                         error_msg = pumpfun_info.get('error', 'Unknown error') if pumpfun_info else 'No response'
-                        print(f"[PUMPFUN] ✗ [{i}/{len(tokens_to_fetch)}] {token_mint[:6]}: {error_msg}")
+                        consecutive_errors += 1
 
-                    time.sleep(1)  # Rate limit - space out API calls by 1 second
+                        # If 3 consecutive errors, assume API is down
+                        if consecutive_errors >= 3:
+                            api_is_down = True
+                            print(f"[PUMPFUN] ✗ [{i}/{len(tokens_to_fetch)}] {token_mint[:6]}: {error_msg}")
+                            print(f"[PUMPFUN] ⚠ API appears to be unavailable - skipping remaining tokens")
+                        else:
+                            print(f"[PUMPFUN] ✗ [{i}/{len(tokens_to_fetch)}] {token_mint[:6]}: {error_msg}")
+
+                    time.sleep(0.5)  # Rate limit - space out API calls
                 except Exception as e:
-                    print(f"[PUMPFUN] ✗ [{i}/{len(tokens_to_fetch)}] {token_mint[:6]}: Exception - {e}")
+                    consecutive_errors += 1
+                    if consecutive_errors >= 3:
+                        api_is_down = True
+                        print(f"[PUMPFUN] ✗ [{i}/{len(tokens_to_fetch)}] {token_mint[:6]}: Exception - {e}")
+                        print(f"[PUMPFUN] ⚠ API appears to be unavailable - skipping remaining tokens")
+                    else:
+                        print(f"[PUMPFUN] ✗ [{i}/{len(tokens_to_fetch)}] {token_mint[:6]}: Exception - {e}")
                     continue
 
-            print(f"[PUMPFUN] ✓ Backfill complete: {success_count}/{len(tokens_to_fetch)} creators found")
+            if api_is_down:
+                print(f"[PUMPFUN] ⚠ Backfill paused: PumpFun API unavailable (retry on next startup)")
+            else:
+                print(f"[PUMPFUN] ✓ Backfill complete: {success_count}/{len(tokens_to_fetch)} creators found")
 
         except Exception as e:
             print(f"[PUMPFUN] ⚠ Backfill error: {e}")

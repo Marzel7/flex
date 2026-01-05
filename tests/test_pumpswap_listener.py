@@ -2143,6 +2143,20 @@ class StandalonePumpSwapListener:
                                             else:
                                                 print(f"{'':12} {'':46} {'':9} {acct_display:<50} {sol_amount:<12.4f} {transfer_count:<12} {linked_creator_count:<12} {other_creators_str:<24}")
 
+                                            # Query how much SOL the creator has received in total
+                                            cursor.execute('''
+                                                SELECT SUM(total_amount) FROM creator_sol_transfers
+                                                WHERE creator_address = ? AND transfer_type = 'incoming'
+                                            ''', (creator,))
+                                            creator_total_result = cursor.fetchone()
+                                            creator_total_sol = creator_total_result[0] if creator_total_result and creator_total_result[0] else 0
+
+                                            # Display SOL flow visualization
+                                            acct_short = acct_addr[:8] if acct_addr != coinbase_wallet else "Coinbase"
+                                            creator_short = f"{creator[:8]}...{creator[-4:]}"
+                                            flow_line = f"    └─ Flow: {acct_short} ({sol_amount:.4f} SOL) >> Treasury/Creator ({creator_total_sol:.4f} SOL)"
+                                            print(f"{flow_line}")
+
                         conn.close()
                 except:
                     pass
@@ -2700,6 +2714,7 @@ def test_get_funding_account_token_history():
     print("TEST 1: Get Funding Account Token History")
     print("="*160)
 
+    sys.path.insert(0, str(Path(__file__).parent.parent))
     from analyze_creator_wallet import get_funding_account_token_history
 
     # Test with a funding account from the database

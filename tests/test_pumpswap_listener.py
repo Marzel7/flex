@@ -2336,35 +2336,46 @@ class StandalonePumpSwapListener:
 
                                                 # Now check for funding reuse with freshly stored data
                                                 funding_analysis = self.check_funding_account_reuse(creator)
-                                                if funding_analysis is not None:
-                                                    # Store risk level to database for table display
-                                                    try:
-                                                        db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
-                                                        db_conn = sqlite3.connect(str(db_path), check_same_thread=False)
-                                                        db_cursor = db_conn.cursor()
-                                                        db_cursor.execute('''
-                                                            UPDATE pools
-                                                            SET funding_risk_level = ?, funding_risk_pattern = ?, funding_check_timestamp = ?
-                                                            WHERE base_mint = ?
-                                                        ''', (
-                                                            funding_analysis['overall_risk'],
-                                                            funding_analysis['coordination_pattern'],
-                                                            datetime.now(),
-                                                            token_mint
-                                                        ))
-                                                        db_conn.commit()
-                                                        db_conn.close()
-                                                        print(f"[FUNDING] ✓ Risk assessment stored: {funding_analysis['overall_risk']}")
-                                                    except Exception as e:
-                                                        print(f"[FUNDING] ⚠ Could not store risk to database: {e}")
 
-                                                    # Only display alert if there's potential coordination
-                                                    if funding_analysis['overall_risk'] in ['HIGH', 'CRITICAL']:
-                                                        self.display_funding_reuse_alert(token_mint, creator, funding_analysis)
-                                                    else:
-                                                        print(f"[FUNDING] ✓ No significant coordination detected ({funding_analysis['overall_risk']})")
+                                                # If analysis returns data, store it; if None, use default LOW (no funding data found yet)
+                                                if funding_analysis is not None:
+                                                    risk_level = funding_analysis['overall_risk']
+                                                    pattern = funding_analysis['coordination_pattern']
+                                                    status_msg = f"Risk assessment stored: {risk_level}"
                                                 else:
-                                                    print(f"[FUNDING] ⚠ Could not complete funding analysis (returned None)")
+                                                    # No funding data available for this creator - set to LOW (default safe assumption)
+                                                    risk_level = 'LOW'
+                                                    pattern = 'INDEPENDENT_CREATOR'
+                                                    status_msg = "No funding data available yet - set to LOW (default)"
+
+                                                # Store risk level to database for table display
+                                                try:
+                                                    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                                                    db_conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                                                    db_cursor = db_conn.cursor()
+                                                    db_cursor.execute('''
+                                                        UPDATE pools
+                                                        SET funding_risk_level = ?, funding_risk_pattern = ?, funding_check_timestamp = ?
+                                                        WHERE base_mint = ?
+                                                    ''', (
+                                                        risk_level,
+                                                        pattern,
+                                                        datetime.now(),
+                                                        token_mint
+                                                    ))
+                                                    db_conn.commit()
+                                                    db_conn.close()
+                                                    print(f"[FUNDING] ✓ {status_msg}")
+                                                except Exception as e:
+                                                    print(f"[FUNDING] ⚠ Could not store risk to database: {e}")
+
+                                                # Only display alert if there's potential coordination
+                                                if funding_analysis and funding_analysis['overall_risk'] in ['HIGH', 'CRITICAL']:
+                                                    self.display_funding_reuse_alert(token_mint, creator, funding_analysis)
+                                                elif funding_analysis:
+                                                    print(f"[FUNDING] ✓ No significant coordination detected ({funding_analysis['overall_risk']})")
+                                                else:
+                                                    print(f"[FUNDING] ✓ Creator has no on-chain funding data yet (set to LOW risk)")
                                             else:
                                                 print(f"[FUNDING] ⚠ Creator not available yet")
 

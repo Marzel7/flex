@@ -2151,9 +2151,10 @@ class StandalonePumpSwapListener:
                                             creator_total_result = cursor.fetchone()
                                             creator_total_sol = creator_total_result[0] if creator_total_result and creator_total_result[0] else 0
 
-                                            # Display SOL flow visualization with full addresses
+                                            # Display SOL flow visualization with creator context
                                             acct_display = "Coinbase" if acct_addr == coinbase_wallet else acct_addr
-                                            flow_line = f"    └─ Flow: {acct_display} ({sol_amount:.4f} SOL) >> {creator} ({creator_total_sol:.4f} SOL)"
+                                            # Show flow with token symbol for clarity
+                                            flow_line = f"    └─ Flow: {acct_display} ({sol_amount:.4f} SOL) >> {symbol} Creator: {creator} ({creator_total_sol:.4f} SOL)"
                                             print(f"{flow_line}")
 
                         conn.close()

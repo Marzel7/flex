@@ -2083,13 +2083,14 @@ class StandalonePumpSwapListener:
                                 funding_summary_displayed = True
                                 symbol = token.get('symbol') or token.get('pumpfun_symbol', base_mint[:6])
 
-                                # Get funding accounts for this creator
+                                # Get funding accounts for this creator (with transaction signatures)
                                 cursor.execute('''
                                     SELECT counterparty_address, total_amount, transfer_count,
                                            (SELECT COUNT(DISTINCT creator_address) FROM creator_sol_transfers cst2
                                             WHERE cst2.counterparty_address = cst.counterparty_address
                                             AND cst2.transfer_type = 'incoming'
-                                            AND cst2.creator_address != ?) as linked_creators
+                                            AND cst2.creator_address != ?) as linked_creators,
+                                           latest_tx_signature
                                     FROM creator_sol_transfers cst
                                     WHERE creator_address = ? AND transfer_type = 'incoming'
                                     ORDER BY total_amount DESC
@@ -2102,7 +2103,7 @@ class StandalonePumpSwapListener:
                                     # Coinbase hot wallet address
                                     coinbase_wallet = "DPqsobysNf5iA9w7zrQM8HLzCKZEDMkZsWbiidsAt1xo"
 
-                                    for acct_addr, sol_amount, transfer_count, linked_creator_count in funding_accounts:
+                                    for acct_addr, sol_amount, transfer_count, linked_creator_count, tx_sig in funding_accounts:
                                         if linked_creator_count and linked_creator_count > 0:
                                             # Show which other creators use this account
                                             cursor.execute('''
@@ -2151,11 +2152,16 @@ class StandalonePumpSwapListener:
                                             creator_total_result = cursor.fetchone()
                                             creator_total_sol = creator_total_result[0] if creator_total_result and creator_total_result[0] else 0
 
-                                            # Display SOL flow visualization with creator context
+                                            # Display SOL flow visualization with creator context and transaction signature
                                             acct_display = "Coinbase" if acct_addr == coinbase_wallet else acct_addr
                                             # Show flow with token symbol for clarity
                                             flow_line = f"    └─ Flow: {acct_display} ({sol_amount:.4f} SOL) >> {symbol} Creator: {creator} ({creator_total_sol:.4f} SOL)"
                                             print(f"{flow_line}")
+
+                                            # Display transaction signature if available
+                                            if tx_sig:
+                                                print(f"       └─ TX: {tx_sig}")
+                                                print(f"       └─ Link: https://solscan.io/tx/{tx_sig}")
 
                         conn.close()
                 except:

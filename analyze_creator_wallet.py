@@ -404,18 +404,23 @@ def store_creator_wallet_data(creator_address, wallet_stats, sol_transfers):
             source = transfer.get('source', 'unknown')
             amount = transfer.get('amount', 0)
             timestamp = transfer.get('timestamp')
+            signature = transfer.get('signature', None)  # Capture transaction signature
 
             if source not in incoming_by_source:
                 incoming_by_source[source] = {
                     'total': 0,
                     'count': 0,
                     'first_ts': timestamp,
-                    'last_ts': timestamp
+                    'last_ts': timestamp,
+                    'latest_sig': signature  # Store most recent signature
                 }
 
             incoming_by_source[source]['total'] += amount
             incoming_by_source[source]['count'] += 1
             incoming_by_source[source]['last_ts'] = timestamp
+            # Update signature (later transfers override earlier ones = most recent)
+            if signature:
+                incoming_by_source[source]['latest_sig'] = signature
 
         # Insert incoming transfers, marking treasury accounts
         for source, data in incoming_by_source.items():
@@ -430,8 +435,9 @@ def store_creator_wallet_data(creator_address, wallet_stats, sol_transfers):
                     transfer_count,
                     first_transfer_timestamp,
                     last_transfer_timestamp,
-                    is_treasury
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    is_treasury,
+                    latest_tx_signature
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 creator_address,
                 'incoming',
@@ -440,7 +446,8 @@ def store_creator_wallet_data(creator_address, wallet_stats, sol_transfers):
                 data['count'],
                 data['first_ts'],
                 data['last_ts'],
-                is_treasury
+                is_treasury,
+                data.get('latest_sig')
             ))
 
         # Store outgoing SOL transfers (from creator to other addresses)
@@ -450,18 +457,23 @@ def store_creator_wallet_data(creator_address, wallet_stats, sol_transfers):
             dest = transfer.get('destination', 'unknown')
             amount = transfer.get('amount', 0)
             timestamp = transfer.get('timestamp')
+            signature = transfer.get('signature', None)  # Capture transaction signature
 
             if dest not in outgoing_by_dest:
                 outgoing_by_dest[dest] = {
                     'total': 0,
                     'count': 0,
                     'first_ts': timestamp,
-                    'last_ts': timestamp
+                    'last_ts': timestamp,
+                    'latest_sig': signature  # Store most recent signature
                 }
 
             outgoing_by_dest[dest]['total'] += amount
             outgoing_by_dest[dest]['count'] += 1
             outgoing_by_dest[dest]['last_ts'] = timestamp
+            # Update signature (later transfers override earlier ones = most recent)
+            if signature:
+                outgoing_by_dest[dest]['latest_sig'] = signature
 
         # Insert outgoing transfers, marking treasury addresses
         for dest, data in outgoing_by_dest.items():
@@ -476,8 +488,9 @@ def store_creator_wallet_data(creator_address, wallet_stats, sol_transfers):
                     transfer_count,
                     first_transfer_timestamp,
                     last_transfer_timestamp,
-                    is_treasury
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    is_treasury,
+                    latest_tx_signature
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 creator_address,
                 'outgoing',
@@ -486,7 +499,8 @@ def store_creator_wallet_data(creator_address, wallet_stats, sol_transfers):
                 data['count'],
                 data['first_ts'],
                 data['last_ts'],
-                is_treasury
+                is_treasury,
+                data.get('latest_sig')
             ))
 
         conn.commit()

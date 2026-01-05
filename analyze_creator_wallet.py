@@ -1208,6 +1208,47 @@ def get_funding_account_token_history(funding_account):
         return []
 
 
+def calculate_level2_risk_score(funding_sources_to_treasury, creator_address):
+    """
+    Calculate risk score based on LEVEL 2 funding chain connections.
+
+    Level 2 Risk Factors (funding sources TO the treasury):
+    1. Is this treasury funded by accounts that ALSO fund other treasuries?
+    2. Are those Level 2 accounts connected to multiple creators?
+    3. Pattern consistency (all treasuries sharing same funding pattern)?
+
+    Returns risk_score (0-100) that gets added to overall risk calculation.
+
+    Risk Score Components:
+    - Base: 0 points (no Level 2 data)
+    - +10 per Level 2 source funding this treasury
+    - +20 if any Level 2 source is itself a treasury (multi-level coordination)
+    - +15 if Level 2 sources are shared across multiple treasuries of same creator
+    - +30 if Level 2 shows centralized funding (1-2 sources funding many treasuries)
+    - +40 if Level 2 source has high transfer count (>10 transfers = professional operation)
+    """
+    if not funding_sources_to_treasury:
+        return 0
+
+    risk_score = 0
+    level2_count = len(funding_sources_to_treasury)
+
+    # Factor 1: Number of Level 2 sources (+10 per source, max 30)
+    risk_score += min(level2_count * 10, 30)
+
+    # Factor 2: How many Level 2 sources are treasuries themselves?
+    treasury_sources = sum(1 for s in funding_sources_to_treasury if s.get('is_treasury'))
+    if treasury_sources > 0:
+        risk_score += treasury_sources * 20  # Multi-level coordination is very suspicious
+
+    # Factor 3: High transfer count from Level 2 sources (professional operation signal)
+    high_transfer_sources = sum(1 for s in funding_sources_to_treasury if s['transfers'] > 10)
+    if high_transfer_sources > 0:
+        risk_score += high_transfer_sources * 40
+
+    return min(risk_score, 100)  # Cap at 100
+
+
 def get_treasury_funding_sources(treasury_address):
     """
     Get all accounts that have funded a specific treasury/funding account.
@@ -1337,22 +1378,51 @@ def analyze_creator_with_funding_reuse(creator_address):
             other_tokens = [t for t in token_history if t['creator'] != creator_address]
             reuse_count = len(other_tokens)
 
-            # Calculate risk level
-            if reuse_count >= 5:
-                risk_level = 'CRITICAL'
-                risk_flag = f"🚩🚩 SHARED ({reuse_count} creators)"
-            elif reuse_count >= 2:
-                risk_level = 'HIGH'
-                risk_flag = f"🚩 SHARED ({reuse_count} creators)"
-            elif reuse_count == 1:
-                risk_level = 'MEDIUM'
-                risk_flag = f"⚠️  REUSED (1 other)"
-            else:
-                risk_level = 'LOW'
-                risk_flag = "✓ Dedicated"
-
             # LEVEL 2 ANALYSIS: Get the funding sources TO this treasury
             treasury_funding_sources = get_treasury_funding_sources(addr)
+            level2_risk_score = calculate_level2_risk_score(treasury_funding_sources, creator_address)
+
+            # Calculate risk level (Level 1 + Level 2 combined)
+            # Base risk from Level 1 reuse
+            if reuse_count >= 5:
+                base_risk = 80  # CRITICAL base
+                risk_level = 'CRITICAL'
+            elif reuse_count >= 2:
+                base_risk = 60  # HIGH base
+                risk_level = 'HIGH'
+            elif reuse_count == 1:
+                base_risk = 35  # MEDIUM base
+                risk_level = 'MEDIUM'
+            else:
+                base_risk = 10  # LOW base
+                risk_level = 'LOW'
+
+            # Combine with Level 2 risk score
+            combined_risk_score = base_risk + (level2_risk_score * 0.3)  # Level 2 is 30% weight of Level 1
+
+            # Recalculate risk level based on combined score
+            if combined_risk_score >= 70:
+                risk_level = 'CRITICAL'
+                risk_flag = f"🚩🚩 SHARED ({reuse_count} creators + Level 2)"
+            elif combined_risk_score >= 50:
+                risk_level = 'HIGH'
+                risk_flag = f"🚩 SHARED ({reuse_count} creators)"
+                if level2_risk_score > 30:
+                    risk_flag += " + L2"
+            elif combined_risk_score >= 30:
+                risk_level = 'MEDIUM'
+                if reuse_count == 1:
+                    risk_flag = f"⚠️  REUSED (1 other)"
+                else:
+                    risk_flag = f"⚠️  Mixed signals"
+                if level2_risk_score > 20:
+                    risk_flag += " (+ L2)"
+            else:
+                risk_level = 'LOW'
+                if level2_risk_score > 15:
+                    risk_flag = "⚠️  Has Level 2 sources"
+                else:
+                    risk_flag = "✓ Dedicated"
 
             funding_sources.append({
                 'address': addr,
@@ -1366,23 +1436,46 @@ def analyze_creator_with_funding_reuse(creator_address):
                 'reused_tokens': other_tokens,
                 'risk_level': risk_level,
                 'risk_flag': risk_flag,
-                'funding_sources_to_treasury': treasury_funding_sources
+                'funding_sources_to_treasury': treasury_funding_sources,
+                'level2_risk_score': level2_risk_score,
+                'combined_risk_score': combined_risk_score
             })
 
-        # Determine overall risk and coordination pattern
+        # Determine overall risk and coordination pattern (Level 1 + Level 2)
         high_risk_accounts = sum(1 for f in funding_sources if f['reused_token_count'] > 0)
         critical_accounts = sum(1 for f in funding_sources if f['reused_token_count'] >= 5)
 
-        if critical_accounts > 0:
+        # Level 2 risk factors
+        level2_connected_accounts = sum(1 for f in funding_sources if f['level2_risk_score'] > 20)
+        high_level2_connected = sum(1 for f in funding_sources if f['level2_risk_score'] > 50)
+
+        # Calculate overall risk with Level 2 consideration
+        if critical_accounts > 0 or high_level2_connected >= 2:
+            # If ANY treasury funds 5+ creators, OR multiple treasuries have HIGH Level 2 connections
             overall_risk = 'CRITICAL'
             pattern = 'HIGHLY_COORDINATED_GROUP'
+        elif high_risk_accounts >= 2 and level2_connected_accounts > 0:
+            # If 2+ treasuries reuse AND any show Level 2 connections
+            overall_risk = 'HIGH'
+            pattern = 'MULTI_LEVEL_COORDINATED_GROUP'
         elif high_risk_accounts >= 2:
+            # If 2+ treasuries reuse (Level 1 only)
             overall_risk = 'HIGH'
             pattern = 'COORDINATED_GROUP'
+        elif high_risk_accounts >= 1 and level2_connected_accounts > 0:
+            # If 1 treasury reuses AND has Level 2 connections
+            overall_risk = 'MEDIUM'
+            pattern = 'NESTED_COORDINATION'
         elif high_risk_accounts >= 1:
+            # If 1 treasury reuses (Level 1 only)
             overall_risk = 'MEDIUM'
             pattern = 'SOME_COORDINATION'
+        elif level2_connected_accounts > 0:
+            # Level 1 is clean but Level 2 shows connections
+            overall_risk = 'MEDIUM'
+            pattern = 'HIDDEN_COORDINATION'
         else:
+            # No risk signals at either level
             overall_risk = 'LOW'
             pattern = 'INDEPENDENT_CREATOR'
 

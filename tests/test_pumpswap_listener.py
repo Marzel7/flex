@@ -625,7 +625,7 @@ class VaultPriceFetcher:
                 print(f"[MIGRATION] ✗ Error calculating initial price: {e}")
             return None
 
-    def get_pumpfun_token_info(self, mint: str, retries=2) -> Dict:
+    def get_pumpfun_token_info(self, mint: str, retries=3) -> Dict:
         """Fetch token owner and metadata from PumpFun API
 
         Args:
@@ -640,7 +640,7 @@ class VaultPriceFetcher:
 
             for attempt in range(retries + 1):
                 try:
-                    response = requests.get(url, timeout=5)
+                    response = requests.get(url, timeout=10)
 
                     if response.status_code == 200:
                         data = response.json()
@@ -656,23 +656,33 @@ class VaultPriceFetcher:
                         }
                     elif response.status_code == 404:
                         # Token not found on PumpFun
-                        return {'error': 'Token not found on PumpFun'}
+                        return {'error': 'Not found'}
                     elif response.status_code == 429:
                         # Rate limited - wait before retrying
                         if attempt < retries:
-                            time.sleep(2 ** attempt)  # Exponential backoff
+                            wait_time = (2 ** attempt) + 1  # Exponential backoff: 2, 5, 10 seconds
+                            time.sleep(wait_time)
                             continue
                         else:
                             return {'error': 'Rate limited'}
+                    elif response.status_code in [500, 502, 503, 530]:
+                        # Server error - retry
+                        if attempt < retries:
+                            wait_time = (2 ** attempt) + 1
+                            time.sleep(wait_time)
+                            continue
+                        else:
+                            return {'error': f'Server error (HTTP {response.status_code})'}
                     else:
-                        return {'error': f'API error: {response.status_code}'}
+                        return {'error': f'HTTP {response.status_code}'}
 
                 except requests.exceptions.RequestException as e:
                     if attempt < retries:
-                        time.sleep(1)
+                        wait_time = (2 ** attempt)
+                        time.sleep(wait_time)
                         continue
                     else:
-                        return {'error': str(e)}
+                        return {'error': 'Connection failed'}
 
         except Exception as e:
             return {'error': str(e)}
@@ -1201,7 +1211,7 @@ class StandalonePumpSwapListener:
                         error_msg = pumpfun_info.get('error', 'Unknown error') if pumpfun_info else 'No response'
                         print(f"[PUMPFUN] ✗ [{i}/{len(tokens_to_fetch)}] {token_mint[:6]}: {error_msg}")
 
-                    time.sleep(0.5)  # Rate limit the API calls
+                    time.sleep(1)  # Rate limit - space out API calls by 1 second
                 except Exception as e:
                     print(f"[PUMPFUN] ✗ [{i}/{len(tokens_to_fetch)}] {token_mint[:6]}: Exception - {e}")
                     continue

@@ -80,11 +80,11 @@ def fetch_solscan_transactions(wallet_address):
         print("⚠️  requests library not installed. Install with: pip install requests")
         return None
 
-    # Try to get API token from environment
+    # Get API token from environment variable only (NEVER hardcode!)
     api_token = os.getenv('SOLSCAN_API_TOKEN')
 
     if not api_token:
-        # API requires authentication - return None and fall back to manual inspection
+        # No API token available
         return None
 
     try:
@@ -100,6 +100,9 @@ def fetch_solscan_transactions(wallet_address):
         if response.status_code == 200:
             data = response.json()
             return data
+        elif response.status_code == 401:
+            # Invalid token
+            return None
         elif response.status_code == 429:
             print(f"⚠️  Rate limited by Solscan API. Try again in a moment.")
             return None

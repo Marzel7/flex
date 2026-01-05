@@ -180,9 +180,10 @@ def is_valid_solana_address(addr):
     # Solana addresses are 44 characters, Base58 encoded
     if len(addr) != 44:
         return False
-    # Check if it's valid Base58 (no 0, O, I, or l characters)
-    invalid_chars = set('0OIl')
-    if any(c in addr for c in invalid_chars):
+    # Valid Base58 alphabet (excludes 0, O, I, l to avoid confusion)
+    base58_alphabet = set('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz')
+    # Check if all characters are valid Base58
+    if not all(c in base58_alphabet for c in addr):
         return False
     return True
 
@@ -822,26 +823,48 @@ def analyze_creator_wallet(creator_address):
                 # Sort by total amount descending
                 sorted_sources = sorted(sources.items(), key=lambda x: x[1]['total'], reverse=True)
 
+                # Get reuse analysis for this creator
+                reuse_analysis = analyze_creator_with_funding_reuse(creator_address)
+
                 # Display as table if tabulate available, otherwise plain text
                 if HAS_TABULATE:
                     table_data = []
                     for src, data in sorted_sources:
-                        treasury = "🏦 Treasury" if data['count'] > 5 else ""
+                        treasury = "🏦" if data['count'] > 5 else "•"
+
+                        # Look up reuse info for this source
+                        reuse_flag = "✓ Dedicated"
+                        if reuse_analysis and reuse_analysis['funding_sources']:
+                            for funding_src in reuse_analysis['funding_sources']:
+                                if funding_src['address'] == src:
+                                    reuse_flag = funding_src['risk_flag']
+                                    break
+
                         table_data.append([
-                            src,
+                            src[:44],  # Full address
                             f"{data['total']:.4f}",
                             data['count'],
-                            treasury
+                            treasury,
+                            reuse_flag
                         ])
-                    headers = ['Source Address', 'SOL Amount', 'Transfers', 'Type']
+                    headers = ['Source Address', 'SOL Amount', 'Transfers', 'Treasury', 'Reuse Status']
                     print(tabulate(table_data, headers=headers, tablefmt='grid'))
                 else:
                     # Plain text format
-                    print(f"{'Source Address':<45} | {'SOL Amount':<12} | {'Transfers':<10} | Type")
-                    print("-" * 80)
+                    print(f"{'Source Address':<45} | {'SOL':<10} | {'Transfers':<10} | {'Type':<4} | {'Reuse Status':<30}")
+                    print("-" * 115)
                     for src, data in sorted_sources:
-                        treasury = "🏦 Treasury" if data['count'] > 5 else ""
-                        print(f"{src:<45} | {data['total']:<12.4f} | {data['count']:<10} | {treasury}")
+                        treasury = "🏦" if data['count'] > 5 else "•"
+
+                        # Look up reuse info for this source
+                        reuse_flag = "✓ Dedicated"
+                        if reuse_analysis and reuse_analysis['funding_sources']:
+                            for funding_src in reuse_analysis['funding_sources']:
+                                if funding_src['address'] == src:
+                                    reuse_flag = funding_src['risk_flag']
+                                    break
+
+                        print(f"{src:<45} | {data['total']:<10.4f} | {data['count']:<10} | {treasury:<4} | {reuse_flag:<30}")
             else:
                 print(f"  ℹ️  No incoming SOL transfers detected")
 
@@ -867,22 +890,62 @@ def analyze_creator_wallet(creator_address):
                 if HAS_TABULATE:
                     table_data = []
                     for dest, data in sorted_dests:
-                        treasury = "🏦 Treasury" if data['count'] > 5 else ""
+                        treasury = "🏦" if data['count'] > 5 else "•"
+
+                        # Check if other creators extract to the same destination
+                        # Query database to see how many creators send SOL to this address
+                        try:
+                            cursor.execute('''
+                                SELECT COUNT(DISTINCT creator_address)
+                                FROM creator_sol_transfers
+                                WHERE counterparty_address = ?
+                                AND transfer_type = 'outgoing'
+                                AND creator_address != ?
+                            ''', (dest, creator_address))
+                            other_creator_count = cursor.fetchone()[0] or 0
+
+                            if other_creator_count > 0:
+                                extraction_flag = f"⚠️  Hub ({other_creator_count} creators)"
+                            else:
+                                extraction_flag = "✓ Private"
+                        except:
+                            extraction_flag = "?"
+
                         table_data.append([
-                            dest,
+                            dest[:44],  # Full address
                             f"{data['total']:.4f}",
                             data['count'],
-                            treasury
+                            treasury,
+                            extraction_flag
                         ])
-                    headers = ['Destination Address', 'SOL Amount', 'Transfers', 'Type']
+                    headers = ['Destination Address', 'SOL Amount', 'Transfers', 'Treasury', 'Extraction Pattern']
                     print(tabulate(table_data, headers=headers, tablefmt='grid'))
                 else:
                     # Plain text format
-                    print(f"{'Destination Address':<45} | {'SOL Amount':<12} | {'Transfers':<10} | Type")
-                    print("-" * 80)
+                    print(f"{'Destination Address':<45} | {'SOL':<10} | {'Transfers':<10} | {'Type':<4} | {'Extraction Pattern':<30}")
+                    print("-" * 115)
                     for dest, data in sorted_dests:
-                        treasury = "🏦 Treasury" if data['count'] > 5 else ""
-                        print(f"{dest:<45} | {data['total']:<12.4f} | {data['count']:<10} | {treasury}")
+                        treasury = "🏦" if data['count'] > 5 else "•"
+
+                        # Check if other creators extract to the same destination
+                        try:
+                            cursor.execute('''
+                                SELECT COUNT(DISTINCT creator_address)
+                                FROM creator_sol_transfers
+                                WHERE counterparty_address = ?
+                                AND transfer_type = 'outgoing'
+                                AND creator_address != ?
+                            ''', (dest, creator_address))
+                            other_creator_count = cursor.fetchone()[0] or 0
+
+                            if other_creator_count > 0:
+                                extraction_flag = f"⚠️  Hub ({other_creator_count} creators)"
+                            else:
+                                extraction_flag = "✓ Private"
+                        except:
+                            extraction_flag = "?"
+
+                        print(f"{dest:<45} | {data['total']:<10.4f} | {data['count']:<10} | {treasury:<4} | {extraction_flag:<30}")
             else:
                 print(f"  ℹ️  No outgoing SOL transfers detected")
 
@@ -1046,15 +1109,218 @@ def analyze_creator_wallet(creator_address):
     print("     • Multiple transfers to different wallets (potential funds splitting)")
     print("     • Rapid rapid in/out flows (market making or wash trading)")
     print("     • Large SOL movements before token launches (potential insider funding)")
-    print()
 
-    print("DIRECT WALLET LINK:")
-    print("-" * 160)
-    print(f"  Solscan: https://solscan.io/address/{creator_address}")
-    print(f"  Magic Eden: https://magiceden.io/marketplace?search={creator_address}")
-    print()
 
-    print(f"{'='*160}\n")
+def get_funding_account_token_history(funding_account):
+    """
+    Get all tokens that have been funded by a specific account.
+
+    Args:
+        funding_account: The account address to trace
+
+    Returns:
+        List of dicts with:
+        - token_mint: The token being funded
+        - creator: The creator being funded
+        - transfers: Number of transfers from funding_account to creator
+        - sol_amount: Total SOL transferred
+        - is_treasury: Whether this is a treasury account (>5 transfers)
+        - launch_date: When the token was created
+        - days_ago: How many days ago the token launched
+    """
+    db_path = Path(__file__).parent / 'pumpswap_tokens.db'
+
+    if not db_path.exists():
+        return []
+
+    try:
+        conn = sqlite3.connect(str(db_path), check_same_thread=False)
+        cursor = conn.cursor()
+
+        # Query to get all creators funded by this account
+        cursor.execute('''
+            SELECT DISTINCT cst.creator_address
+            FROM creator_sol_transfers cst
+            WHERE cst.counterparty_address = ?
+            AND cst.transfer_type = 'incoming'
+        ''', (funding_account,))
+
+        creators = [row[0] for row in cursor.fetchall()]
+
+        token_history = []
+
+        # For each creator funded by this account, get their tokens
+        for creator in creators:
+            cursor.execute('''
+                SELECT
+                    p.base_mint,
+                    p.symbol,
+                    p.pumpfun_symbol,
+                    p.first_seen,
+                    cst.transfer_count,
+                    cst.total_amount,
+                    cst.is_treasury
+                FROM pools p
+                LEFT JOIN creator_sol_transfers cst
+                    ON p.pumpfun_creator = cst.creator_address
+                    AND cst.counterparty_address = ?
+                    AND cst.transfer_type = 'incoming'
+                WHERE p.pumpfun_creator = ?
+                ORDER BY p.first_seen DESC
+            ''', (funding_account, creator))
+
+            rows = cursor.fetchall()
+
+            for row in rows:
+                mint, symbol, pf_symbol, first_seen, transfers, sol_amount, is_treasury = row
+
+                # Calculate days ago
+                days_ago = None
+                if first_seen:
+                    try:
+                        from datetime import datetime
+                        if isinstance(first_seen, str):
+                            if '.' in first_seen:
+                                first_seen = first_seen.split('.')[0]
+                            dt = datetime.fromisoformat(first_seen.replace('Z', '+00:00'))
+                        else:
+                            dt = datetime.fromtimestamp(first_seen if first_seen < 1e10 else first_seen / 1000)
+                        days_ago = (datetime.now() - dt.replace(tzinfo=None)).days
+                    except:
+                        days_ago = None
+
+                token_history.append({
+                    'token_mint': mint,
+                    'symbol': symbol or pf_symbol or mint[:8],
+                    'creator': creator,
+                    'transfers': transfers or 0,
+                    'sol_amount': sol_amount or 0,
+                    'is_treasury': bool(is_treasury),
+                    'launch_date': first_seen,
+                    'days_ago': days_ago
+                })
+
+        conn.close()
+        return token_history
+
+    except Exception as e:
+        print(f"⚠️  Error querying token history: {e}")
+        return []
+
+
+def analyze_creator_with_funding_reuse(creator_address):
+    """
+    Analyze a creator's funding accounts and detect reuse across multiple tokens.
+
+    Returns a dict with:
+    - creator_address
+    - token_count: How many tokens this creator has launched
+    - funding_sources: List of incoming funding accounts with reuse info
+    - overall_risk: Risk level (LOW, MEDIUM, HIGH, CRITICAL)
+    - coordination_pattern: Type of pattern detected
+    """
+    db_path = Path(__file__).parent / 'pumpswap_tokens.db'
+
+    if not db_path.exists():
+        return None
+
+    try:
+        conn = sqlite3.connect(str(db_path), check_same_thread=False)
+        cursor = conn.cursor()
+
+        # Get creator's tokens
+        cursor.execute('''
+            SELECT COUNT(*) FROM pools WHERE pumpfun_creator = ?
+        ''', (creator_address,))
+
+        token_count = cursor.fetchone()[0] or 0
+
+        # Get creator's funding sources
+        cursor.execute('''
+            SELECT
+                counterparty_address,
+                transfer_count,
+                total_amount,
+                is_treasury,
+                first_transfer_timestamp,
+                last_transfer_timestamp
+            FROM creator_sol_transfers
+            WHERE creator_address = ?
+            AND transfer_type = 'incoming'
+            ORDER BY transfer_count DESC
+        ''', (creator_address,))
+
+        funding_sources = []
+
+        for row in cursor.fetchall():
+            addr, transfers, sol_amount, is_treasury, first_ts, last_ts = row
+
+            # Get token history for this funding account
+            token_history = get_funding_account_token_history(addr)
+
+            # Filter to OTHER tokens (not this creator's)
+            other_tokens = [t for t in token_history if t['creator'] != creator_address]
+            reuse_count = len(other_tokens)
+
+            # Calculate risk level
+            if reuse_count >= 5:
+                risk_level = 'CRITICAL'
+                risk_flag = f"🚩🚩 SHARED ({reuse_count} creators)"
+            elif reuse_count >= 2:
+                risk_level = 'HIGH'
+                risk_flag = f"🚩 SHARED ({reuse_count} creators)"
+            elif reuse_count == 1:
+                risk_level = 'MEDIUM'
+                risk_flag = f"⚠️  REUSED (1 other)"
+            else:
+                risk_level = 'LOW'
+                risk_flag = "✓ Dedicated"
+
+            funding_sources.append({
+                'address': addr,
+                'transfers': transfers,
+                'sol_amount': sol_amount,
+                'is_treasury': bool(is_treasury),
+                'first_ts': first_ts,
+                'last_ts': last_ts,
+                'reused_token_count': reuse_count,
+                'reused_creators': [t['creator'] for t in other_tokens],
+                'reused_tokens': other_tokens,
+                'risk_level': risk_level,
+                'risk_flag': risk_flag
+            })
+
+        # Determine overall risk and coordination pattern
+        high_risk_accounts = sum(1 for f in funding_sources if f['reused_token_count'] > 0)
+        critical_accounts = sum(1 for f in funding_sources if f['reused_token_count'] >= 5)
+
+        if critical_accounts > 0:
+            overall_risk = 'CRITICAL'
+            pattern = 'HIGHLY_COORDINATED_GROUP'
+        elif high_risk_accounts >= 2:
+            overall_risk = 'HIGH'
+            pattern = 'COORDINATED_GROUP'
+        elif high_risk_accounts >= 1:
+            overall_risk = 'MEDIUM'
+            pattern = 'SOME_COORDINATION'
+        else:
+            overall_risk = 'LOW'
+            pattern = 'INDEPENDENT_CREATOR'
+
+        conn.close()
+
+        return {
+            'creator_address': creator_address,
+            'token_count': token_count,
+            'funding_sources': funding_sources,
+            'overall_risk': overall_risk,
+            'coordination_pattern': pattern,
+            'high_risk_accounts': high_risk_accounts
+        }
+
+    except Exception as e:
+        print(f"⚠️  Error analyzing creator with funding reuse: {e}")
+        return None
 
 
 if __name__ == '__main__':

@@ -74,37 +74,32 @@ def get_creator_info(creator_address):
         return None
 
 
-def fetch_solscan_transactions(wallet_address, api_key=None):
-    """Fetch transaction history from Solscan API"""
+def fetch_solscan_transactions(wallet_address):
+    """Fetch transaction history from free Solscan public API"""
     if not HAS_REQUESTS:
         print("⚠️  requests library not installed. Install with: pip install requests")
         return None
 
-    # Try to get API key from environment
-    if not api_key:
-        api_key = os.getenv('SOLSCAN_API_KEY')
-
-    if not api_key:
-        print("⚠️  SOLSCAN_API_KEY environment variable not set")
-        print("    Set it with: export SOLSCAN_API_KEY=your_api_key")
-        print("    Or get a free key from: https://solscan.io/")
-        return None
-
     try:
-        url = "https://api.solscan.io/v2/account/transactions"
-        headers = {"token": api_key}
+        # Public API - no authentication required
+        url = f"https://public-api.solscan.io/account/transactions"
         params = {
-            "address": wallet_address,
+            "account": wallet_address,
             "limit": 100
         }
 
-        response = requests.get(url, headers=headers, params=params, timeout=10)
+        response = requests.get(url, params=params, timeout=10)
 
         if response.status_code == 200:
-            return response.json()
+            data = response.json()
+            return data
+        elif response.status_code == 429:
+            print(f"⚠️  Rate limited by Solscan API. Try again in a moment.")
+            return None
         else:
             print(f"⚠️  Solscan API error: {response.status_code}")
-            print(f"    Response: {response.text[:200]}")
+            if response.text:
+                print(f"    Response: {response.text[:200]}")
             return None
 
     except Exception as e:
@@ -148,53 +143,77 @@ def analyze_creator_wallet(creator_address):
     print("ON-CHAIN TRANSACTION DATA")
     print("-" * 160)
 
+    # For now, provide direct Solscan link since public API is limited
+    print("🔗 Direct Wallet Inspection (Recommended):")
+    print(f"   Open in Solscan: https://solscan.io/address/{creator_address}")
+    print()
+
+    # Still try API for completeness
     tx_data = fetch_solscan_transactions(creator_address)
 
-    if tx_data:
-        print(f"✓ Successfully fetched transaction history")
-        print(f"  Total transactions (last 100): {len(tx_data.get('data', []))}")
+    if tx_data and isinstance(tx_data, dict):
+        print(f"✓ Successfully fetched transaction history from public API")
 
-        # Analyze transaction types
-        print()
-        print("TRANSACTION ANALYSIS")
-        print("-" * 160)
+        transactions = tx_data.get('data', []) if isinstance(tx_data, dict) else tx_data
 
-        transactions = tx_data.get('data', [])
+        if isinstance(transactions, list):
+            print(f"  Total transactions (last 100): {len(transactions)}")
 
-        if transactions:
+            # Analyze transaction types
+            print()
+            print("TRANSACTION ANALYSIS")
+            print("-" * 160)
+
             # Categorize transactions
-            swap_count = sum(1 for tx in transactions if 'swap' in str(tx).lower())
-            transfer_count = sum(1 for tx in transactions if 'transfer' in str(tx).lower())
-            token_mint = sum(1 for tx in transactions if 'initializeMint' in str(tx).lower() or 'createToken' in str(tx).lower())
+            swap_count = 0
+            transfer_count = 0
+            token_mint = 0
+            successful_txs = 0
 
-            print(f"  Swaps: {swap_count}")
-            print(f"  Transfers: {transfer_count}")
-            print(f"  Token creations: {token_mint}")
+            for tx in transactions:
+                tx_str = str(tx).lower() if tx else ""
+                if 'swap' in tx_str or 'jupiteragg' in tx_str:
+                    swap_count += 1
+                if 'transfer' in tx_str or 'token 2022' in tx_str:
+                    transfer_count += 1
+                if 'initializemint' in tx_str or 'createtoken' in tx_str:
+                    token_mint += 1
+                if isinstance(tx, dict) and tx.get('status') == 'Success':
+                    successful_txs += 1
+
+            print(f"  Total transactions: {len(transactions)}")
+            print(f"  Successful transactions: {successful_txs} ({successful_txs/len(transactions)*100:.1f}%)")
+            print(f"  Swaps detected: {swap_count}")
+            print(f"  Transfers detected: {transfer_count}")
+            print(f"  Token creations detected: {token_mint}")
             print()
 
             # Show recent transactions
-            print("RECENT TRANSACTIONS")
+            print("RECENT TRANSACTIONS (Last 10)")
             print("-" * 160)
 
             for i, tx in enumerate(transactions[:10], 1):
-                sig = tx.get('txHash', 'unknown')
-                ts = tx.get('timestamp', 'unknown')
-                tx_type = tx.get('type', 'unknown')
-                status = tx.get('status', 'unknown')
+                if isinstance(tx, dict):
+                    sig = tx.get('txHash', tx.get('signature', 'unknown'))[:16]
+                    ts = tx.get('timestamp', 'unknown')
+                    tx_type = tx.get('type', 'unknown')
+                    status = tx.get('status', 'unknown')
 
-                print(f"  {i}. [{status}] {tx_type} - {sig[:16]}... ({ts})")
+                    print(f"  {i}. [{status}] {sig}... - {tx_type} ({ts})")
+                else:
+                    print(f"  {i}. {str(tx)[:80]}...")
+        else:
+            print(f"⚠️  Unexpected response format from API")
     else:
         print("⚠️  Could not fetch on-chain transactions")
         print()
-        print("SETUP GUIDE:")
+        print("NOTE: Using free public Solscan API (no authentication required)")
         print("-" * 160)
-        print("  1. Get free Solscan API key: https://solscan.io/")
-        print("  2. Set environment variable:")
-        print("     export SOLSCAN_API_KEY=your_api_key_here")
-        print("  3. Run this script again")
+        print("  The public API has rate limits. If you hit them, try again in a few moments.")
         print()
         print("ALTERNATIVE DATA SOURCES:")
-        print("  • Solscan.io - Manual inspection of wallet")
+        print("  • Solscan.io - Manual inspection of wallet at:")
+        print(f"    https://solscan.io/address/{creator_address}")
         print("  • MagicEden - Check NFT/token activity")
         print("  • Dune Analytics - Complex on-chain queries")
         print()

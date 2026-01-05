@@ -625,6 +625,60 @@ class VaultPriceFetcher:
                 print(f"[MIGRATION] ✗ Error calculating initial price: {e}")
             return None
 
+    def get_pumpfun_token_info(self, mint: str, retries=2) -> Dict:
+        """Fetch token owner and metadata from PumpFun API
+
+        Args:
+            mint: Token mint address
+            retries: Number of retries for failed requests
+
+        Returns:
+            Dict with owner, symbol, name, or empty dict if fetch fails
+        """
+        try:
+            url = f"https://frontend-api.pump.fun/metadata/{mint}"
+
+            for attempt in range(retries + 1):
+                try:
+                    response = requests.get(url, timeout=5)
+
+                    if response.status_code == 200:
+                        data = response.json()
+                        return {
+                            'owner': data.get('creator', ''),
+                            'symbol': data.get('symbol', ''),
+                            'name': data.get('name', ''),
+                            'image': data.get('image_uri', ''),
+                            'description': data.get('description', ''),
+                            'twitter': data.get('twitter', ''),
+                            'website': data.get('website', ''),
+                            'telegram': data.get('telegram', '')
+                        }
+                    elif response.status_code == 404:
+                        # Token not found on PumpFun
+                        return {'error': 'Token not found on PumpFun'}
+                    elif response.status_code == 429:
+                        # Rate limited - wait before retrying
+                        if attempt < retries:
+                            time.sleep(2 ** attempt)  # Exponential backoff
+                            continue
+                        else:
+                            return {'error': 'Rate limited'}
+                    else:
+                        return {'error': f'API error: {response.status_code}'}
+
+                except requests.exceptions.RequestException as e:
+                    if attempt < retries:
+                        time.sleep(1)
+                        continue
+                    else:
+                        return {'error': str(e)}
+
+        except Exception as e:
+            return {'error': str(e)}
+
+        return {}
+
 
 class TradingBot:
     """Automated trading bot for PumpSwap tokens with profit tracking"""
@@ -987,7 +1041,10 @@ class StandalonePumpSwapListener:
                     sell_signature TEXT,
                     quantity_bought REAL,
                     profit_loss_usd REAL,
-                    profit_loss_percent REAL
+                    profit_loss_percent REAL,
+                    pumpfun_creator TEXT,
+                    pumpfun_symbol TEXT,
+                    pumpfun_image TEXT
                 )
             ''')
 
@@ -1003,12 +1060,30 @@ class StandalonePumpSwapListener:
                 )
                 print(f"[DB] Updated existing token in database: {token_mint}")
             else:
+                # Fetch PumpFun creator info in background
+                pumpfun_creator = None
+                pumpfun_symbol = None
+                pumpfun_image = None
+
+                try:
+                    pumpfun_info = self.price_fetcher.get_pumpfun_token_info(token_mint)
+                    if pumpfun_info and 'error' not in pumpfun_info:
+                        pumpfun_creator = pumpfun_info.get('owner', '')
+                        pumpfun_symbol = pumpfun_info.get('symbol', '')
+                        pumpfun_image = pumpfun_info.get('image', '')
+                        if pumpfun_creator:
+                            print(f"[PUMPFUN] ✓ Creator for {token_mint}: {pumpfun_creator[:8]}...")
+                except Exception as e:
+                    print(f"[PUMPFUN] ⚠ Could not fetch creator info: {e}")
+
                 # Insert new token
                 cursor.execute('''
                     INSERT INTO pools (
-                        base_mint, signature, is_pumpswap, first_seen, last_updated, amm_id
-                    ) VALUES (?, ?, 1, ?, ?, ?)
-                ''', (token_mint, signature, datetime.now(), datetime.now(), token_mint))
+                        base_mint, signature, is_pumpswap, first_seen, last_updated, amm_id,
+                        pumpfun_creator, pumpfun_symbol, pumpfun_image
+                    ) VALUES (?, ?, 1, ?, ?, ?, ?, ?, ?)
+                ''', (token_mint, signature, datetime.now(), datetime.now(), token_mint,
+                      pumpfun_creator, pumpfun_symbol, pumpfun_image))
                 print(f"[DB] Inserted new token into database: {token_mint}")
 
             conn.commit()
@@ -1407,9 +1482,9 @@ class StandalonePumpSwapListener:
             pass
 
         if active_tokens or sold_tokens:
-            print(f"\n{'-'*500}")
-            print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<18} {'Market Cap':<16} {'FDV':<12} {'Src':<3} {'Match':<12} {'Unrealized %':<20} {'P&L':<10} {'Token Address':<31}")
-            print(f"{'-'*500}")
+            print(f"\n{'-'*580}")
+            print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<18} {'Market Cap':<16} {'FDV':<12} {'Src':<3} {'Match':<12} {'Unrealized %':<20} {'P&L':<10} {'Creator':<20} {'Token Address':<31}")
+            print(f"{'-'*580}")
 
             for token, price_result, source in active_tokens:
                 base_mint = token.get('base_mint', '')
@@ -1657,7 +1732,25 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
-                print(f"{display_name:<6} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str:<18} {market_cap_str:<16} {fdv_str:<12} {source_str:<3} {match_str:<12} {unrealized_str:<20} {pnl_str:<10} {base_mint:<31}")
+                # Fetch creator from database
+                creator_str = "—"
+                try:
+                    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                    if db_path.exists():
+                        conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                        cursor = conn.cursor()
+                        cursor.execute('SELECT pumpfun_creator FROM pools WHERE base_mint = ?', (base_mint,))
+                        creator_result = cursor.fetchone()
+                        conn.close()
+
+                        if creator_result and creator_result[0]:
+                            creator = creator_result[0]
+                            # Show first 8 chars of creator address + last 4 for readability
+                            creator_str = f"{creator[:8]}...{creator[-4:]}" if len(creator) > 12 else creator
+                except:
+                    pass
+
+                print(f"{display_name:<6} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str:<18} {market_cap_str:<16} {fdv_str:<12} {source_str:<3} {match_str:<12} {unrealized_str:<20} {pnl_str:<10} {creator_str:<20} {base_mint:<31}")
 
             # Display sold tokens
             for mint, name, symbol, sell_price, buy_price, profit_pct, profit_usd, qty in sold_tokens:
@@ -1674,9 +1767,26 @@ class StandalonePumpSwapListener:
                 else:
                     pnl_str = "—"
 
-                print(f"{display_name:<6} {sell_price_str:<18} {buy_price_str:<18} {'SOLD':<15} {'—':<15} {'—':<8} {'—':<16} {'—':<12} {'✓':<3} {'CLOSED':<12} {'—':<20} {pnl_str:<10} {mint:<31}")
+                # Fetch creator from database
+                creator_str = "—"
+                try:
+                    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                    if db_path.exists():
+                        conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                        cursor = conn.cursor()
+                        cursor.execute('SELECT pumpfun_creator FROM pools WHERE base_mint = ?', (mint,))
+                        creator_result = cursor.fetchone()
+                        conn.close()
 
-            print(f"{'-'*500}")
+                        if creator_result and creator_result[0]:
+                            creator = creator_result[0]
+                            creator_str = f"{creator[:8]}...{creator[-4:]}" if len(creator) > 12 else creator
+                except:
+                    pass
+
+                print(f"{display_name:<6} {sell_price_str:<18} {buy_price_str:<18} {'SOLD':<15} {'—':<15} {'—':<18} {'—':<16} {'—':<12} {'✓':<3} {'CLOSED':<12} {'—':<20} {pnl_str:<10} {creator_str:<20} {mint:<31}")
+
+            print(f"{'-'*580}")
 
             # Save fetched prices to database so profit monitor can use them
             try:

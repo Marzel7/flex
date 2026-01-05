@@ -12,6 +12,17 @@ import sqlite3
 from pathlib import Path
 from datetime import datetime
 import sys
+import os
+
+# Load environment variables from .env file
+env_path = Path(__file__).parent / '.env'
+if env_path.exists():
+    with open(env_path) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, value = line.split('=', 1)
+                os.environ[key.strip()] = value.strip()
 
 try:
     from tabulate import tabulate

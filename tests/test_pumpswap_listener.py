@@ -1968,6 +1968,8 @@ class StandalonePumpSwapListener:
 
                             # Format risk level with color indicators (lowercase + color)
                             # Pad all to width 8 (longest is "critical")
+                            # NOTE: Risk column shows "—" if token hasn't been checked for treasury/funding history
+                            # If it shows LOW, MEDIUM, HIGH, or CRITICAL - the token HAS been checked
                             if risk_level and risk_level != 'UNKNOWN':
                                 if risk_level == 'CRITICAL':
                                     risk_text = "critical"

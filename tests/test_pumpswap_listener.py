@@ -1181,6 +1181,16 @@ class StandalonePumpSwapListener:
                         print(f"        • {other_token['symbol']} ({other_token['creator'][:8]}...) - {days}")
                     if len(funding['reused_tokens']) > 3:
                         print(f"        ... and {len(funding['reused_tokens']) - 3} more")
+
+                # LEVEL 2: Show funding sources TO this treasury
+                if funding.get('funding_sources_to_treasury'):
+                    treasury_sources = funding['funding_sources_to_treasury']
+                    if treasury_sources:
+                        print(f"     └─ This treasury is funded by {len(treasury_sources)} account(s):")
+                        for source in treasury_sources[:3]:  # Show first 3
+                            print(f"        • {source['address'][:16]}... ({source['transfers']} transfers, {source['sol_amount']:.4f} SOL)")
+                        if len(treasury_sources) > 3:
+                            print(f"        ... and {len(treasury_sources) - 3} more funding sources")
                 print()
 
         # Overall assessment
@@ -1686,7 +1696,7 @@ class StandalonePumpSwapListener:
 
         if active_tokens or sold_tokens:
             print(f"\n{'-'*600}")
-            print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<8} {'Market Cap':<16} {'Src':<3} {'Match':<12} {'Risk':<8} {'Unrealized %':<20} {'P&L':<10} {'Creator':<20} {'Token Address':<31}")
+            print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<8} {'Market Cap':<16} {'Src':<3} {'Match':<12} {'Risk':<8} {'Unrealized %':<20} {'P&L':<10} {'Token Address':<31}")
             print(f"{'-'*600}")
 
             for token, price_result, source in active_tokens:
@@ -1979,7 +1989,7 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
-                print(f"{display_name:<6} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str}  {market_cap_str:<16} {source_str:<3} {match_str:<12} {risk_str}  {unrealized_str:<20} {pnl_str:<10} {creator_str:<20} {base_mint:<31}")
+                print(f"{display_name:<6} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str}  {market_cap_str:<16} {source_str:<3} {match_str:<12} {risk_str}  {unrealized_str:<20} {pnl_str:<10} {base_mint:<31}")
 
             # Display sold tokens
             for mint, name, symbol, sell_price, buy_price, profit_pct, profit_usd, qty in sold_tokens:
@@ -2036,7 +2046,7 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
-                print(f"{display_name:<6} {sell_price_str:<18} {buy_price_str:<18} {'SOLD':<15} {'—':<15} {'—':<18} {'—':<16} {'✓':<3} {'CLOSED':<12} {risk_str}  {'—':<20} {pnl_str:<10} {creator_str:<20} {mint:<31}")
+                print(f"{display_name:<6} {sell_price_str:<18} {buy_price_str:<18} {'SOLD':<15} {'—':<15} {'—':<18} {'—':<16} {'✓':<3} {'CLOSED':<12} {risk_str}  {'—':<20} {pnl_str:<10} {mint:<31}")
 
             print(f"{'-'*600}")
 

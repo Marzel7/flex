@@ -1208,14 +1208,89 @@ def get_funding_account_token_history(funding_account):
         return []
 
 
+def get_treasury_funding_sources(treasury_address):
+    """
+    Get all accounts that have funded a specific treasury/funding account.
+
+    This is the SECOND LEVEL of funding chain analysis:
+    - Level 1: Creator ← Treasury (already implemented)
+    - Level 2: Treasury ← Funding Sources (this function)
+
+    Args:
+        treasury_address: The treasury account to analyze
+
+    Returns:
+        List of dicts with funding sources that sent SOL TO this treasury:
+        - address: The account that sent SOL to treasury
+        - transfers: Number of transfers from source to treasury
+        - sol_amount: Total SOL transferred
+        - is_treasury: Whether source is also a treasury account
+    """
+    db_path = Path(__file__).parent / 'pumpswap_tokens.db'
+
+    if not db_path.exists():
+        return []
+
+    try:
+        conn = sqlite3.connect(str(db_path), check_same_thread=False)
+        cursor = conn.cursor()
+
+        # Query to get all accounts that SENT SOL TO this treasury
+        # (treasury is now the "creator" in the transfer relationship)
+        cursor.execute('''
+            SELECT
+                counterparty_address,
+                transfer_count,
+                total_amount,
+                is_treasury
+            FROM creator_sol_transfers
+            WHERE creator_address = ?
+            AND transfer_type = 'incoming'
+            ORDER BY transfer_count DESC
+        ''', (treasury_address,))
+
+        funding_sources = []
+
+        for row in cursor.fetchall():
+            addr, transfers, sol_amount, is_treasury = row
+
+            funding_sources.append({
+                'address': addr,
+                'transfers': transfers,
+                'sol_amount': sol_amount,
+                'is_treasury': bool(is_treasury)
+            })
+
+        conn.close()
+        return funding_sources
+
+    except Exception as e:
+        print(f"⚠️  Error querying treasury funding sources: {e}")
+        return []
+
+
 def analyze_creator_with_funding_reuse(creator_address):
     """
     Analyze a creator's funding accounts and detect reuse across multiple tokens.
 
+    Performs TWO-LEVEL deep funding chain analysis:
+    - LEVEL 1: Find all treasury/funding accounts that sent SOL to creator
+    - LEVEL 2: For each treasury, find all accounts that sent SOL TO that treasury
+
     Returns a dict with:
     - creator_address
     - token_count: How many tokens this creator has launched
-    - funding_sources: List of incoming funding accounts with reuse info
+    - funding_sources: List of funding accounts with nested structure:
+        - address: Treasury account address
+        - transfers: Number of transfers from treasury to creator
+        - sol_amount: Total SOL from treasury to creator
+        - is_treasury: Whether this is a treasury (>5 transfers)
+        - reused_token_count: How many OTHER tokens this treasury funds
+        - reused_tokens: List of other tokens this treasury funds
+        - risk_level: Risk assessment (LOW, MEDIUM, HIGH, CRITICAL)
+        - funding_sources_to_treasury: NESTED LEVEL 2
+            - Array of accounts that sent SOL TO this treasury
+            - Each with: address, transfers, sol_amount, is_treasury
     - overall_risk: Risk level (LOW, MEDIUM, HIGH, CRITICAL)
     - coordination_pattern: Type of pattern detected
     """
@@ -1276,6 +1351,9 @@ def analyze_creator_with_funding_reuse(creator_address):
                 risk_level = 'LOW'
                 risk_flag = "✓ Dedicated"
 
+            # LEVEL 2 ANALYSIS: Get the funding sources TO this treasury
+            treasury_funding_sources = get_treasury_funding_sources(addr)
+
             funding_sources.append({
                 'address': addr,
                 'transfers': transfers,
@@ -1287,7 +1365,8 @@ def analyze_creator_with_funding_reuse(creator_address):
                 'reused_creators': [t['creator'] for t in other_tokens],
                 'reused_tokens': other_tokens,
                 'risk_level': risk_level,
-                'risk_flag': risk_flag
+                'risk_flag': risk_flag,
+                'funding_sources_to_treasury': treasury_funding_sources
             })
 
         # Determine overall risk and coordination pattern

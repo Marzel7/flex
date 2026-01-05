@@ -196,7 +196,7 @@ def analyze_duplicate_creators():
 
             data.append([
                 display_name,
-                mint[:16] + "..." if len(mint) > 16 else mint,
+                mint,  # Show full mint address
                 peak_pct_str,
                 time_to_peak or "—",
                 status or "—",
@@ -208,10 +208,10 @@ def analyze_duplicate_creators():
             print(tabulate(data, headers=headers, tablefmt='grid'))
         else:
             headers = ['Token', 'Mint', 'Peak %', 'Time to Peak', 'Status', 'Peak Price']
-            print(f"{'Token':<12} | {'Mint':<19} | {'Peak %':<10} | {'Time to Peak':<15} | {'Status':<12} | {'Peak Price':<12}")
-            print("-" * 95)
+            print(f"{'Token':<12} | {'Mint':<44} | {'Peak %':<10} | {'Time to Peak':<15} | {'Status':<12} | {'Peak Price':<12}")
+            print("-" * 130)
             for row in data:
-                print(f"{row[0]:<12} | {row[1]:<19} | {row[2]:<10} | {row[3]:<15} | {row[4]:<12} | {row[5]:<12}")
+                print(f"{row[0]:<12} | {row[1]:<44} | {row[2]:<10} | {row[3]:<15} | {row[4]:<12} | {row[5]:<12}")
 
         print(f"\n  Tokens traded: {traded_count}/{len(tokens)}")
         print(f"  Tokens with peak data: {peaked_count}/{len(tokens)}")

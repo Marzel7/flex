@@ -75,20 +75,27 @@ def get_creator_info(creator_address):
 
 
 def fetch_solscan_transactions(wallet_address):
-    """Fetch transaction history from free Solscan public API"""
+    """Fetch transaction history from Solscan API (requires token)"""
     if not HAS_REQUESTS:
         print("⚠️  requests library not installed. Install with: pip install requests")
         return None
 
+    # Try to get API token from environment
+    api_token = os.getenv('SOLSCAN_API_TOKEN')
+
+    if not api_token:
+        # API requires authentication - return None and fall back to manual inspection
+        return None
+
     try:
-        # Public API - no authentication required
-        url = f"https://public-api.solscan.io/account/transactions"
+        # Pro API endpoint
+        url = "https://pro-api.solscan.io/v2.0/account/detail"
+        headers = {"token": api_token}
         params = {
-            "account": wallet_address,
-            "limit": 100
+            "address": wallet_address,
         }
 
-        response = requests.get(url, params=params, timeout=10)
+        response = requests.get(url, headers=headers, params=params, timeout=10)
 
         if response.status_code == 200:
             data = response.json()
@@ -97,13 +104,9 @@ def fetch_solscan_transactions(wallet_address):
             print(f"⚠️  Rate limited by Solscan API. Try again in a moment.")
             return None
         else:
-            print(f"⚠️  Solscan API error: {response.status_code}")
-            if response.text:
-                print(f"    Response: {response.text[:200]}")
             return None
 
     except Exception as e:
-        print(f"❌ API Error: {e}")
         return None
 
 
@@ -143,15 +146,15 @@ def analyze_creator_wallet(creator_address):
     print("ON-CHAIN TRANSACTION DATA")
     print("-" * 160)
 
-    # For now, provide direct Solscan link since public API is limited
-    print("🔗 Direct Wallet Inspection (Recommended):")
-    print(f"   Open in Solscan: https://solscan.io/address/{creator_address}")
+    # Provide direct Solscan link for manual inspection
+    print("🔗 DIRECT WALLET INSPECTION (Recommended):")
+    print(f"   https://solscan.io/address/{creator_address}")
     print()
 
-    # Still try API for completeness
+    # Try API if token is available
     tx_data = fetch_solscan_transactions(creator_address)
 
-    if tx_data and isinstance(tx_data, dict):
+    if tx_data and isinstance(tx_data, dict) and 'data' in tx_data:
         print(f"✓ Successfully fetched transaction history from public API")
 
         transactions = tx_data.get('data', []) if isinstance(tx_data, dict) else tx_data
@@ -205,17 +208,75 @@ def analyze_creator_wallet(creator_address):
         else:
             print(f"⚠️  Unexpected response format from API")
     else:
-        print("⚠️  Could not fetch on-chain transactions")
+        print("⚠️  API data not available (requires authentication token)")
         print()
-        print("NOTE: Using free public Solscan API (no authentication required)")
+        print("MANUAL WALLET INSPECTION CHECKLIST:")
         print("-" * 160)
-        print("  The public API has rate limits. If you hit them, try again in a few moments.")
         print()
-        print("ALTERNATIVE DATA SOURCES:")
-        print("  • Solscan.io - Manual inspection of wallet at:")
-        print(f"    https://solscan.io/address/{creator_address}")
-        print("  • MagicEden - Check NFT/token activity")
-        print("  • Dune Analytics - Complex on-chain queries")
+        print("When you open the Solscan link above, look for these patterns:\n")
+
+        print("📊 GENERAL METRICS:")
+        print("  □ Wallet age - New wallet (suspicious) vs established (trustworthy)")
+        print("  □ Total SOL balance - High balance vs low")
+        print("  □ Total transactions - Active (100+) vs inactive (<10)")
+        print("  □ Token holdings - How many different SPL tokens do they hold?")
+        print()
+
+        print("💰 FUND FLOWS:")
+        print("  □ SOL inflows - Where does their funding come from?")
+        print("    • From exchange wallets? (suspicious)")
+        print("    • From other private wallets? (potential multi-wallet control)")
+        print("    • Consistent funding source? (organized operation)")
+        print("  □ SOL outflows - Where do profits go?")
+        print("    • To same addresses repeatedly? (treasury/main wallet)")
+        print("    • Dispersed to many wallets? (fund splitting/mixing)")
+        print("  □ Frequency of movements - Daily, weekly, sporadic?")
+        print()
+
+        print("🔄 TRANSACTION PATTERNS:")
+        print("  □ Swap activity - Are they swapping tokens before launches?")
+        print("  □ Token creation - Do they create tokens themselves?")
+        print("  □ Timing patterns - Buy before/after token launches?")
+        print("    • Before launch = potential insider knowledge")
+        print("    • After launch = following public signals")
+        print("  □ Success rate - What % of swaps are successful?")
+        print()
+
+        print("⚠️  RED FLAGS TO WATCH FOR:")
+        print("  ⚠️  Recent wallet (created <1 month ago)")
+        print("  ⚠️  Rapid fund movements (many transactions per hour)")
+        print("  ⚠️  Multiple wallet connections (they control other wallets)")
+        print("  ⚠️  Large SOL deposits before token launches")
+        print("  ⚠️  Immediate profit extraction (buys, then sells within minutes)")
+        print("  ⚠️  Consistent pump & dump timing")
+        print("  ⚠️  No holding period (never holds tokens long-term)")
+        print("  ⚠️  Wash trading signatures (rapid buy-sell with same counterparty)")
+        print()
+
+        print("✓ POSITIVE INDICATORS:")
+        print("  ✓ Wallet age >6 months")
+        print("  ✓ Diverse token holdings (not just pumps)")
+        print("  ✓ Holding periods (keeps tokens 1-7 days)")
+        print("  ✓ Mixed results (some wins, some losses - shows random selection)")
+        print("  ✓ Consistent SOL reserves (not depleting)")
+        print("  ✓ Stable transaction patterns (predictable rhythm)")
+        print()
+
+        print("HOW TO USE SOLSCAN TOOLS:")
+        print("-" * 160)
+        print("  1. Click 'Token' tab to see all SPL tokens in wallet")
+        print("  2. Click 'Transaction' tab to see full history")
+        print("  3. Look for 'Swap' transactions - these show their trading activity")
+        print("  4. Check transaction details - right-click → 'View on Explorer'")
+        print("  5. Trace fund sources - click on incoming transaction sender")
+        print()
+
+        print("API SETUP (for automated analysis):")
+        print("-" * 160)
+        print("  1. Get Solscan Pro API token: https://solscan.io/")
+        print("  2. Set environment variable:")
+        print("     export SOLSCAN_API_TOKEN=your_token_here")
+        print("  3. Re-run this script for automated wallet analysis")
         print()
 
     # Risk assessment based on available data

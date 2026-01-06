@@ -47,6 +47,7 @@ test_*.py
 !test_pumpswap_phase2.py
 !test_pumpswap_listener.py
 !test_vault_price_template.py
+!test_helius_analysis.py
 backfill_*.py
 !backfill_complete_funding_analysis.py
 !backfill_risk_assessment.py

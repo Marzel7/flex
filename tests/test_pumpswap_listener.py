@@ -1369,6 +1369,93 @@ class StandalonePumpSwapListener:
         except Exception as e:
             print(f"[PUMPFUN] ⚠ Backfill error: {e}")
 
+    def backfill_risk_assessment(self):
+        """Backfill risk assessment for existing tokens without risk levels"""
+        db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+
+        if not db_path.exists():
+            return
+
+        try:
+            conn = sqlite3.connect(str(db_path), check_same_thread=False)
+            cursor = conn.cursor()
+
+            # Get all tokens without risk assessment or with UNKNOWN risk
+            cursor.execute('''
+                SELECT base_mint, pumpfun_creator FROM pools
+                WHERE funding_risk_level IS NULL
+                   OR funding_risk_level = ''
+                   OR funding_risk_level = 'UNKNOWN'
+                LIMIT 50
+            ''')
+
+            tokens_to_assess = cursor.fetchall()
+            conn.close()
+
+            if not tokens_to_assess:
+                print(f"[RISK] ✓ All tokens have risk assessment")
+                return
+
+            print(f"[RISK] Backfilling risk assessment for {len(tokens_to_assess)} tokens...")
+
+            for i, (token_mint, creator) in enumerate(tokens_to_assess, 1):
+                if not creator:
+                    print(f"[RISK] ⊘ [{i}/{len(tokens_to_assess)}] {token_mint[:6]}: No creator found - skipping")
+                    continue
+
+                try:
+                    # Analyze creator's wallet funding reuse
+                    print(f"[RISK] [{i}/{len(tokens_to_assess)}] {token_mint[:6]}: Analyzing {creator[:8]}...")
+                    funding_analysis = self.check_funding_account_reuse(creator)
+
+                    # Determine risk level
+                    if funding_analysis is not None:
+                        risk_level = funding_analysis['overall_risk']
+                        pattern = funding_analysis['coordination_pattern']
+                        status_msg = f"Assessment: {risk_level}"
+                    else:
+                        risk_level = 'LOW'
+                        pattern = 'INDEPENDENT_CREATOR'
+                        status_msg = "No funding data found - set to LOW"
+
+                    # Check if creator is in known coordinated registry
+                    try:
+                        from coordinated_funding_registry import CoordinatedFundingRegistry
+                        registry = CoordinatedFundingRegistry()
+                        creator_risk = registry.get_creator_risk(creator)
+
+                        if creator_risk['is_coordinated']:
+                            # Upgrade risk if in known coordinated group
+                            if risk_level == 'LOW':
+                                risk_level = 'HIGH'
+                                pattern = f'COORDINATED_GROUP ({creator_risk["account_count"]} accounts)'
+                                status_msg = f"Found in registry: Upgraded to HIGH"
+                    except:
+                        pass
+
+                    # Store risk assessment
+                    try:
+                        db_conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                        db_cursor = db_conn.cursor()
+                        db_cursor.execute('''
+                            UPDATE pools
+                            SET funding_risk_level = ?, funding_risk_pattern = ?, funding_check_timestamp = ?
+                            WHERE base_mint = ?
+                        ''', (risk_level, pattern, datetime.now(), token_mint))
+                        db_conn.commit()
+                        db_conn.close()
+                        print(f"[RISK] ✓ [{i}/{len(tokens_to_assess)}] {token_mint[:6]}: {status_msg}")
+                    except Exception as e:
+                        print(f"[RISK] ✗ [{i}/{len(tokens_to_assess)}] {token_mint[:6]}: Could not store - {e}")
+
+                except Exception as e:
+                    print(f"[RISK] ✗ [{i}/{len(tokens_to_assess)}] {token_mint[:6]}: {e}")
+
+            print(f"[RISK] ✓ Backfill complete: Risk assessment added for {len(tokens_to_assess)} tokens")
+
+        except Exception as e:
+            print(f"[RISK] ⚠ Backfill error: {e}")
+
     def update_initial_price(self, token_mint, price_result):
         """Update initial migration price and total supply in database"""
         db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
@@ -2621,6 +2708,10 @@ class StandalonePumpSwapListener:
         # Backfill PumpFun creator info for existing tokens
         print("[LISTENER] Backfilling PumpFun creator info for tokens...")
         self.backfill_pumpfun_creators()
+
+        # Backfill risk assessment for existing tokens without risk levels
+        print("[LISTENER] Backfilling risk assessment for existing tokens...")
+        self.backfill_risk_assessment()
 
         # Start WebSocket listener in background for live migration detection
         self.start_websocket_listener()

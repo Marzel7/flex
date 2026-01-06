@@ -2411,6 +2411,40 @@ class StandalonePumpSwapListener:
                                                             status_msg = f"✓ Confirmed: {risk_level} (in {account_count} coordinated accounts)"
 
                                                         print(f"[REGISTRY] ✓ Creator in coordinated group: {account_count} accounts, {linked_creators} linked creators")
+
+                                                    # If we detected NEW coordination (HIGH/CRITICAL), register discovered funding accounts
+                                                    if funding_analysis and funding_analysis['overall_risk'] in ['HIGH', 'CRITICAL']:
+                                                        print(f"[REGISTRY] Discovering new coordinated accounts from funding analysis...")
+                                                        discovered_accounts = funding_analysis.get('funding_sources', [])
+
+                                                        for funding_source in discovered_accounts:
+                                                            funding_account = funding_source.get('address')
+                                                            reused_tokens = funding_source.get('reused_tokens', [])
+
+                                                            # If this account funds 2+ tokens, register it as coordinated
+                                                            if funding_account and len(reused_tokens) > 0:
+                                                                # Get the list of all creators funded by this account from the database
+                                                                try:
+                                                                    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                                                                    db_check = sqlite3.connect(str(db_path), check_same_thread=False)
+                                                                    db_cursor_check = db_check.cursor()
+                                                                    db_cursor_check.execute('''
+                                                                        SELECT DISTINCT pumpfun_creator FROM creator_sol_transfers
+                                                                        WHERE counterparty_address = ? AND pumpfun_creator IS NOT NULL
+                                                                    ''', (funding_account,))
+                                                                    creators_list = [row[0] for row in db_cursor_check.fetchall()]
+                                                                    db_check.close()
+
+                                                                    # Add current creator if not already in list
+                                                                    if creator not in creators_list:
+                                                                        creators_list.append(creator)
+
+                                                                    # Register if 2+ creators
+                                                                    if len(creators_list) >= 2:
+                                                                        if registry.add_account(funding_account, creators_list):
+                                                                            print(f"[REGISTRY] ✓ Registered new coordinated account: {funding_account[:16]}... (funds {len(creators_list)} creators)")
+                                                                except:
+                                                                    pass
                                                 except Exception as e:
                                                     # Registry check failed - continue with existing assessment
                                                     print(f"[REGISTRY] ⚠ Could not check coordinated registry: {e}")

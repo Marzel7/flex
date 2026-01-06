@@ -2791,6 +2791,8 @@ class StandalonePumpSwapListener:
                                                     from threading import Thread
                                                     bot_thread = Thread(target=run_bot_detection_check, daemon=True)
                                                     bot_thread.start()
+                                                    # Give bot detection a chance to complete (10 second timeout)
+                                                    bot_thread.join(timeout=10)
 
                                             except Exception as e:
                                                 print(f"[BOT_DETECTION] ⚠ Could not import bot detection module: {str(e)[:60]}")

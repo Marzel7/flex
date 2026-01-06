@@ -54,8 +54,14 @@ def backfill_risk_assessment():
         
         for mint, creator, symbol in unanalyzed:
             symbol_display = symbol or mint[:6]
+
+            # Skip tokens with no creator
+            if not creator:
+                print(f"\n{symbol_display}: ⚠ No creator found, skipping")
+                continue
+
             print(f"\n{symbol_display}: Analyzing {creator[:16]}...", end=" ")
-            
+
             # Get the funding analysis
             analysis = analyze_creator_with_funding_reuse(creator)
             

@@ -996,13 +996,20 @@ class StandalonePumpSwapListener:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
-            # Query all PumpSwap tokens (excluding those hidden due to poor performance)
+            # Query top 25 performing tokens (excluding those hidden due to poor performance)
+            # Sorted by % Change: ((current_price - initial_price) / initial_price) * 100
             cursor.execute('''
                 SELECT symbol, base_mint, signature, total_supply, dexscreener_price_usd, initial_price_usd
                 FROM pools
                 WHERE base_mint IS NOT NULL
                 AND (hidden_from_table IS NULL OR hidden_from_table = 0)
-                ORDER BY first_seen DESC
+                AND initial_price_usd > 0
+                ORDER BY CASE
+                    WHEN dexscreener_price_usd > 0
+                    THEN ((dexscreener_price_usd - initial_price_usd) / initial_price_usd) * 100
+                    ELSE 0
+                END DESC
+                LIMIT 25
             ''')
 
             for row in cursor.fetchall():

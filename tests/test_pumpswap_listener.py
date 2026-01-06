@@ -1032,24 +1032,17 @@ class StandalonePumpSwapListener:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
-            # Query ALL performing tokens (excluding those hidden due to poor performance)
-            # ALWAYS include CRITICAL/HIGH risk tokens regardless of price data (for safety)
-            # Sorted by % Change: ((current_price - initial_price) / initial_price) * 100
-            # Top 25 will be fetched for live prices, rest will use cached prices
+            # Query 15 most recent token launches (newest first)
+            # Shows latest tokens with their risk assessments
             cursor.execute('''
                 SELECT symbol, base_mint, signature, total_supply, dexscreener_price_usd, initial_price_usd, last_price_update,
-                       ROW_NUMBER() OVER (ORDER BY CASE
-                           WHEN dexscreener_price_usd > 0
-                           THEN ((dexscreener_price_usd - initial_price_usd) / initial_price_usd) * 100
-                           ELSE 0
-                       END DESC) as rank
+                       ROW_NUMBER() OVER (ORDER BY first_seen DESC) as rank
                 FROM pools
                 WHERE base_mint IS NOT NULL
                 AND (hidden_from_table IS NULL OR hidden_from_table = 0)
                 AND initial_price_usd > 0
-                -- Always show CRITICAL/HIGH risk tokens for safety, even if price data missing
-                AND (dexscreener_price_usd > 0 OR funding_risk_level IN ('CRITICAL', 'HIGH'))
-                ORDER BY rank
+                ORDER BY first_seen DESC
+                LIMIT 15
             ''')
 
             for row in cursor.fetchall():
@@ -1854,7 +1847,7 @@ class StandalonePumpSwapListener:
                 suspicious_pct = (suspicious_count * 100) // total_count
                 print(f"⚠️  SUSPICIOUS TOKENS: {suspicious_count}/{total_count} ({suspicious_pct}%) - CRITICAL/HIGH/MEDIUM Risk")
                 print(f"{'-'*650}")
-            print(f"Showing ALL {len(active_tokens)} performing tokens (prices: ✓ LIVE for top 25, ~ CACHED for others)")
+            print(f"Showing {len(active_tokens)} most recent token launches")
             print(f"{'-'*650}")
             print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<8} {'Market Cap':<16} {'Src':<3} {'Match':<12} {'Risk':<8} {'Unrealized %':<20} {'P&L':<10} {'Token Address':<31}")
             print(f"{'-'*650}")

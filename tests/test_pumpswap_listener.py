@@ -1703,7 +1703,26 @@ class StandalonePumpSwapListener:
             pass
 
         if active_tokens or sold_tokens:
+            # Calculate suspicious token count
+            suspicious_count = 0
+            try:
+                db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                if db_path.exists():
+                    conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                    cursor = conn.cursor()
+                    cursor.execute('SELECT COUNT(*) FROM pools WHERE funding_risk_level IN ("CRITICAL", "HIGH", "MEDIUM")')
+                    suspicious_count = cursor.fetchone()[0]
+                    cursor.execute('SELECT COUNT(*) FROM pools')
+                    total_count = cursor.fetchone()[0]
+                    conn.close()
+            except:
+                pass
+
             print(f"\n{'-'*600}")
+            if suspicious_count > 0 and total_count > 0:
+                suspicious_pct = (suspicious_count * 100) // total_count
+                print(f"⚠️  SUSPICIOUS TOKENS: {suspicious_count}/{total_count} ({suspicious_pct}%) - CRITICAL/HIGH/MEDIUM Risk")
+                print(f"{'-'*600}")
             print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<8} {'Market Cap':<16} {'Src':<3} {'Match':<12} {'Risk':<8} {'Unrealized %':<20} {'P&L':<10} {'Token Address':<31}")
             print(f"{'-'*600}")
 

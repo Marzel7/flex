@@ -135,7 +135,7 @@ def check_transaction_for_bots(transaction):
     return found if found else None
 
 
-def check_creator_for_bot_usage(creator_address, quick=True):
+def check_creator_for_bot_usage(creator_address, quick=True, db_path=None):
     """
     Fast check if a creator uses known bot accounts.
 
@@ -143,6 +143,7 @@ def check_creator_for_bot_usage(creator_address, quick=True):
         creator_address: Creator wallet address
         quick: If True, check database first (fast), then do Helius scan
                If False, only do Helius scan
+        db_path: Optional path to database file. If not provided, looks in current directory.
 
     Returns:
         {
@@ -153,7 +154,10 @@ def check_creator_for_bot_usage(creator_address, quick=True):
         }
     """
 
-    db_path = Path(__file__).parent / 'pumpswap_tokens.db'
+    if not db_path:
+        db_path = Path(__file__).parent / 'pumpswap_tokens.db'
+    else:
+        db_path = Path(db_path)
 
     # Quick database check first
     if quick and db_path.exists():

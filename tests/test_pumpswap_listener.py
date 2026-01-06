@@ -2746,7 +2746,9 @@ class StandalonePumpSwapListener:
                                                     def run_bot_detection_check():
                                                         try:
                                                             print(f"[BOT_DETECTION] Checking {creator[:16]}... for volume bot usage...")
-                                                            result = check_creator_for_bot_usage(creator, quick=True)
+                                                            # Pass explicit db_path to ensure bot detection uses correct database
+                                                            db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                                                            result = check_creator_for_bot_usage(creator, quick=True, db_path=db_path)
 
                                                             if result['detected']:
                                                                 print(f"[BOT_DETECTION] 🟢 Creator uses {result['bots'][0]['name']}")

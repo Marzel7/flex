@@ -51,6 +51,7 @@ test_*.py
 backfill_*.py
 !backfill_complete_funding_analysis.py
 !backfill_risk_assessment.py
+!backfill_missing_helius_analysis.py
 benchmark.py
 tmp.py
 

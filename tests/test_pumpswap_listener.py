@@ -2441,6 +2441,8 @@ class StandalonePumpSwapListener:
                                                 if tx_creator:
                                                     creator = tx_creator
                                                     print(f"[FUNDING] ✓ Extracted creator from transaction: {creator[:16]}...")
+                                                else:
+                                                    print(f"[FUNDING] ⚠ DEBUG: extract_creator_from_migration_tx returned None")
 
                                             # Fallback: Get from database if not found in transaction
                                             if not creator:
@@ -2452,8 +2454,12 @@ class StandalonePumpSwapListener:
                                                     row = check_cursor.fetchone()
                                                     if row and row[0]:
                                                         creator = row[0]
+                                                        print(f"[FUNDING] ✓ Retrieved creator from database: {creator[:16]}...")
+                                                    else:
+                                                        print(f"[FUNDING] ⚠ DEBUG: No creator found in database yet (add_token_to_db may still be completing)")
                                                     check_conn.close()
-                                                except:
+                                                except Exception as e:
+                                                    print(f"[FUNDING] ⚠ DEBUG: Error querying database for creator: {e}")
                                                     pass
 
                                             if creator:

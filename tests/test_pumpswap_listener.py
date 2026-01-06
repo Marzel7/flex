@@ -362,6 +362,42 @@ class VaultPriceFetcher:
         except:
             return None
 
+    def extract_creator_from_migration_tx(self, tx_data):
+        """Extract token creator from Pump.fun migration transaction
+
+        In a Pump.fun migration, the creator is the first signer (index 0)
+        in the transaction's account keys list.
+
+        This avoids the need to fetch from PumpFun API and provides instant
+        creator info for immediate risk assessment.
+        """
+        try:
+            if not tx_data:
+                return None
+
+            message = tx_data.get('transaction', {}).get('message', {})
+            account_keys = message.get('accountKeys', [])
+
+            if not account_keys or len(account_keys) == 0:
+                return None
+
+            # First account (index 0) is typically the fee payer/signer (the creator)
+            first_account = account_keys[0]
+
+            # Handle both dict and string account key formats
+            if isinstance(first_account, dict):
+                creator = first_account.get('pubkey')
+            else:
+                creator = first_account
+
+            # Validate it's a valid Solana address (44 characters)
+            if creator and len(creator) == 44:
+                return creator
+
+            return None
+        except Exception as e:
+            return None
+
     def extract_vault_account_addresses(self, tx_data, base_mint, debug=False):
         """Extract token and SOL vault accounts from transaction
 
@@ -2402,8 +2438,16 @@ class StandalonePumpSwapListener:
                                             print(f"\n[FUNDING] Checking funding account reuse...")
                                             creator = None
 
-                                            # Try to get creator from database (may have been fetched in add_token_to_db)
-                                            for attempt in range(3):
+                                            # OPTIMIZATION: Try to extract creator directly from migration transaction
+                                            # This gives us instant creator info without waiting for PumpFun API
+                                            if full_tx:
+                                                tx_creator = self.price_fetcher.extract_creator_from_migration_tx(full_tx)
+                                                if tx_creator:
+                                                    creator = tx_creator
+                                                    print(f"[FUNDING] ✓ Extracted creator from transaction: {creator[:16]}...")
+
+                                            # Fallback: Get from database if not found in transaction
+                                            if not creator:
                                                 try:
                                                     db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
                                                     check_conn = sqlite3.connect(str(db_path), check_same_thread=False)
@@ -2412,16 +2456,9 @@ class StandalonePumpSwapListener:
                                                     row = check_cursor.fetchone()
                                                     if row and row[0]:
                                                         creator = row[0]
-                                                        check_conn.close()
-                                                        break
                                                     check_conn.close()
                                                 except:
                                                     pass
-
-                                                # If creator not found yet, wait a bit and retry (creator API may still be processing)
-                                                if not creator and attempt < 2:
-                                                    print(f"[FUNDING] ⚠ Creator not found yet, retrying in 1s...")
-                                                    await asyncio.sleep(1)
 
                                             if creator:
                                                 # Analyze creator's wallet and store SOL transfers to database

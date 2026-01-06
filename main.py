@@ -286,13 +286,23 @@ class PumpSwapDatabase:
         conn.close()
         return count
 
-    def get_recent_pools(self, limit: int = 50) -> List[Dict]:
-        """Get most recently added pools"""
+    def get_recent_pools(self, limit: int = 50, show_hidden: bool = False) -> List[Dict]:
+        """Get most recently added pools
+
+        Args:
+            limit: Number of pools to return
+            show_hidden: If False, excludes tokens hidden due to poor performance (-75% or worse)
+        """
         conn = self.get_connection()
         cursor = conn.cursor()
-        cursor.execute('''
+
+        # Filter out hidden tokens by default (show_hidden=False)
+        hidden_filter = "" if show_hidden else "WHERE hidden_from_table = 0"
+
+        cursor.execute(f'''
             SELECT amm_id, name, symbol, image, base_mint, liquidity, price, signature, dex, first_seen, creation_price, current_price, dexscreener_price_usd, dexscreener_price_native, sol_usd_price
             FROM pools
+            {hidden_filter}
             ORDER BY first_seen DESC
             LIMIT ?
         ''', (limit,))

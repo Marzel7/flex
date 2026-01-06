@@ -996,11 +996,12 @@ class StandalonePumpSwapListener:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
-            # Query all PumpSwap tokens
+            # Query all PumpSwap tokens (excluding those hidden due to poor performance)
             cursor.execute('''
                 SELECT symbol, base_mint, signature, total_supply, dexscreener_price_usd, initial_price_usd
                 FROM pools
                 WHERE base_mint IS NOT NULL
+                AND (hidden_from_table IS NULL OR hidden_from_table = 0)
                 ORDER BY first_seen DESC
             ''')
 

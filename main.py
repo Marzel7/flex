@@ -3529,6 +3529,8 @@ def get_new_pools():
     Returns pools that were added to the queue but haven't been polled yet.
     Includes price change percentage based on creation price vs current price.
     Clients should poll this every 1-2 seconds for near real-time updates.
+
+    Filters out tokens marked as hidden (poor performers with -75% or worse decline).
     """
     new_pools = []
 
@@ -3537,6 +3539,19 @@ def get_new_pools():
     while not pool_broadcast_queue.empty():
         try:
             pool = pool_broadcast_queue.get_nowait()
+
+            # Check if this token is hidden from table
+            if pool.get('base_mint'):
+                check_conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                check_cursor = check_conn.cursor()
+                check_cursor.execute('SELECT hidden_from_table FROM pools WHERE base_mint = ?', (pool.get('base_mint'),))
+                result = check_cursor.fetchone()
+                check_conn.close()
+
+                # Skip if hidden
+                if result and result[0] == 1:
+                    print(f"[API] Skipping hidden token from queue: {pool.get('name')} ({pool.get('symbol')})")
+                    continue
 
             # Calculate price change if we have both creation and current prices
             price_change_percent = 0

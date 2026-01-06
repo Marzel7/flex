@@ -2709,6 +2709,62 @@ class StandalonePumpSwapListener:
                                             except Exception as e:
                                                 print(f"[COORDINATION] ⚠ Could not import coordination modules: {str(e)[:60]}")
 
+                                            # RUN BOT DETECTION CHECK (Part of complete risk assessment)
+                                            # This identifies if creator uses volume manipulation bots
+                                            try:
+                                                from real_time_bot_detection import check_creator_for_bot_usage, store_bot_detection_result
+
+                                                if creator:
+                                                    def run_bot_detection_check():
+                                                        try:
+                                                            print(f"[BOT_DETECTION] Checking {creator[:16]}... for volume bot usage...")
+                                                            result = check_creator_for_bot_usage(creator, quick=True)
+
+                                                            if result['detected']:
+                                                                print(f"[BOT_DETECTION] 🟢 Creator uses {result['bots'][0]['name']}")
+                                                                print(f"[BOT_DETECTION] 🟢 Risk: LOW+ (bot detected)")
+                                                                print(f"[BOT_DETECTION] Bot transactions: {result['bots'][0]['tx_count']}")
+
+                                                                # Update database with bot detection result
+                                                                db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+
+                                                                try:
+                                                                    # Store bot usage result (updates creator_bot_usage table)
+                                                                    store_success = store_bot_detection_result(creator, result, db_path)
+
+                                                                    # Also update pools table with LOW+ risk level
+                                                                    bot_conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                                                                    bot_cursor = bot_conn.cursor()
+                                                                    bot_cursor.execute('''
+                                                                        UPDATE pools
+                                                                        SET funding_risk_level = ?, bot_detection_flag = ?, funding_check_timestamp = ?
+                                                                        WHERE pumpfun_creator = ?
+                                                                    ''', (
+                                                                        'LOW+',
+                                                                        'BOOSTLEGENDS_VOLUMEBOT',
+                                                                        datetime.now(),
+                                                                        creator
+                                                                    ))
+                                                                    bot_conn.commit()
+                                                                    bot_conn.close()
+
+                                                                    print(f"[BOT_DETECTION] ✓ Token flagged as LOW+ (bot detected)")
+                                                                except Exception as db_e:
+                                                                    print(f"[BOT_DETECTION] ⚠ Error updating database: {str(db_e)[:60]}")
+                                                            else:
+                                                                print(f"[BOT_DETECTION] ✓ No bot usage detected (risk assessment: {result['confidence']})")
+
+                                                        except Exception as e:
+                                                            print(f"[BOT_DETECTION] ⚠ Error checking bot usage: {str(e)[:60]}")
+
+                                                    # Run in background thread (non-blocking)
+                                                    from threading import Thread
+                                                    bot_thread = Thread(target=run_bot_detection_check, daemon=True)
+                                                    bot_thread.start()
+
+                                            except Exception as e:
+                                                print(f"[BOT_DETECTION] ⚠ Could not import bot detection module: {str(e)[:60]}")
+
                                             # Auto-buy if trading is enabled
                                             if self.trading_bot.use_trading and self.trading_bot.trader:
                                                 # Double-check database to prevent duplicate buys from race conditions

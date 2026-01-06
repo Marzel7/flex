@@ -2060,120 +2060,116 @@ class StandalonePumpSwapListener:
 
             print(f"{'-'*600}")
 
-            # Display funding accounts summary for tokens with linked funding (HIGH/MEDIUM risk)
+            # Display funding accounts summary for ALL CRITICAL/HIGH/MEDIUM risk tokens (not just top 25)
             print(f"\n{'='*180}")
-            print(f"{'FUNDING ACCOUNTS SUMMARY - Linked Funding Sources':<180}")
+            print(f"{'FUNDING ACCOUNTS SUMMARY - Linked Funding Sources (All CRITICAL/HIGH/MEDIUM Risk Tokens)':<180}")
             print(f"{'='*180}")
             print(f"{'Token':<12} {'Creator':<46} {'Risk':<8} {'Funding Account':<50} {'SOL':<12} {'Transfers':<12} {'Linked':<12} {'Also Funds':<24}")
             print(f"{'-'*180}\n")
 
             funding_summary_displayed = False
-            for token, price_result, source in active_tokens:
-                base_mint = token.get('base_mint', '')
+            try:
+                db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                if db_path.exists():
+                    conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                    cursor = conn.cursor()
 
-                try:
-                    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
-                    if db_path.exists():
-                        conn = sqlite3.connect(str(db_path), check_same_thread=False)
-                        cursor = conn.cursor()
+                    # Query ALL tokens with CRITICAL/HIGH/MEDIUM risk (not filtered by top 25 performers)
+                    cursor.execute('''
+                        SELECT symbol, base_mint, pumpfun_creator, funding_risk_level
+                        FROM pools
+                        WHERE funding_risk_level IN ('CRITICAL', 'HIGH', 'MEDIUM')
+                        ORDER BY CASE
+                            WHEN funding_risk_level = 'CRITICAL' THEN 0
+                            WHEN funding_risk_level = 'HIGH' THEN 1
+                            WHEN funding_risk_level = 'MEDIUM' THEN 2
+                        END,
+                        symbol
+                    ''')
 
-                        # Get token info and risk level
+                    risk_tokens = cursor.fetchall()
+
+                    # Coinbase hot wallet address
+                    coinbase_wallet = "DPqsobysNf5iA9w7zrQM8HLzCKZEDMkZsWbiidsAt1xo"
+
+                    for symbol, base_mint, creator, risk_level in risk_tokens:
+                        symbol_display = symbol if symbol else base_mint[:6]
+
+                        # Get funding accounts for this creator
                         cursor.execute('''
-                            SELECT pumpfun_creator, funding_risk_level FROM pools WHERE base_mint = ?
-                        ''', (base_mint,))
-                        token_result = cursor.fetchone()
+                            SELECT counterparty_address, total_amount, transfer_count,
+                                   (SELECT COUNT(DISTINCT creator_address) FROM creator_sol_transfers cst2
+                                    WHERE cst2.counterparty_address = cst.counterparty_address
+                                    AND cst2.transfer_type = 'incoming'
+                                    AND cst2.creator_address != ?) as linked_creators,
+                                   latest_tx_signature
+                            FROM creator_sol_transfers cst
+                            WHERE creator_address = ? AND transfer_type = 'incoming'
+                            ORDER BY total_amount DESC
+                        ''', (creator, creator))
 
-                        if token_result:
-                            creator, risk_level = token_result
+                        funding_accounts = cursor.fetchall()
 
-                            # Only show tokens with linked funding (MEDIUM/HIGH risk)
-                            if risk_level in ['MEDIUM', 'HIGH', 'CRITICAL']:
-                                funding_summary_displayed = True
-                                symbol = token.get('symbol') or token.get('pumpfun_symbol', base_mint[:6])
+                        if funding_accounts:
+                            funding_summary_displayed = True
+                            first_row = True
 
-                                # Get funding accounts for this creator (with transaction signatures)
-                                cursor.execute('''
-                                    SELECT counterparty_address, total_amount, transfer_count,
-                                           (SELECT COUNT(DISTINCT creator_address) FROM creator_sol_transfers cst2
-                                            WHERE cst2.counterparty_address = cst.counterparty_address
-                                            AND cst2.transfer_type = 'incoming'
-                                            AND cst2.creator_address != ?) as linked_creators,
-                                           latest_tx_signature
-                                    FROM creator_sol_transfers cst
-                                    WHERE creator_address = ? AND transfer_type = 'incoming'
-                                    ORDER BY total_amount DESC
-                                ''', (creator, creator))
+                            for acct_addr, sol_amount, transfer_count, linked_creator_count, tx_sig in funding_accounts:
+                                if linked_creator_count and linked_creator_count > 0:
+                                    # Show which other creators use this account
+                                    cursor.execute('''
+                                        SELECT DISTINCT creator_address FROM creator_sol_transfers
+                                        WHERE counterparty_address = ? AND transfer_type = 'incoming' AND creator_address != ?
+                                        LIMIT 3
+                                    ''', (acct_addr, creator))
 
-                                funding_accounts = cursor.fetchall()
+                                    other_creators = cursor.fetchall()
+                                    other_creators_str = ", ".join([oc[0][:12] for oc in other_creators]) if other_creators else ""
 
-                                if funding_accounts:
-                                    first_row = True
-                                    # Coinbase hot wallet address
-                                    coinbase_wallet = "DPqsobysNf5iA9w7zrQM8HLzCKZEDMkZsWbiidsAt1xo"
+                                    # Format risk level with color
+                                    if risk_level == 'CRITICAL':
+                                        risk_text = "critical"
+                                        risk_str = f"\033[91m{risk_text}\033[0m"  # Red
+                                    elif risk_level == 'HIGH':
+                                        risk_text = "high"
+                                        risk_str = f"\033[93m{risk_text:<8}\033[0m"  # Yellow/Orange
+                                    elif risk_level == 'MEDIUM':
+                                        risk_text = "medium"
+                                        risk_str = f"\033[94m{risk_text:<8}\033[0m"  # Blue
+                                    else:
+                                        risk_text = risk_level.lower()
+                                        risk_str = f"{risk_text:<8}"
 
-                                    for acct_addr, sol_amount, transfer_count, linked_creator_count, tx_sig in funding_accounts:
-                                        if linked_creator_count and linked_creator_count > 0:
-                                            # Show which other creators use this account
-                                            cursor.execute('''
-                                                SELECT DISTINCT creator_address FROM creator_sol_transfers
-                                                WHERE counterparty_address = ? AND transfer_type = 'incoming' AND creator_address != ?
-                                                LIMIT 3
-                                            ''', (acct_addr, creator))
+                                    # Format account display
+                                    acct_display = "Coinbase" if acct_addr == coinbase_wallet else acct_addr
 
-                                            other_creators = cursor.fetchall()
-                                            other_creators_str = ", ".join([oc[0][:12] for oc in other_creators]) if other_creators else ""
+                                    if first_row:
+                                        print(f"{symbol_display:<12} {creator:<46} {risk_str} {acct_display:<50} {sol_amount:<12.4f} {transfer_count:<12} {linked_creator_count:<12} {other_creators_str:<24}")
+                                        first_row = False
+                                    else:
+                                        print(f"{'':12} {'':46} {'':9} {acct_display:<50} {sol_amount:<12.4f} {transfer_count:<12} {linked_creator_count:<12} {other_creators_str:<24}")
 
-                                            # Format risk level with color (pad to 8 chars for alignment)
-                                            if risk_level == 'CRITICAL':
-                                                risk_text = "critical"
-                                                risk_str = f"\033[91m{risk_text}\033[0m"  # Red
-                                            elif risk_level == 'HIGH':
-                                                risk_text = "high"
-                                                risk_str = f"\033[93m{risk_text:<8}\033[0m"  # Yellow/Orange
-                                            elif risk_level == 'MEDIUM':
-                                                risk_text = "medium"
-                                                risk_str = f"\033[94m{risk_text:<8}\033[0m"  # Blue
-                                            elif risk_level == 'LOW':
-                                                risk_text = "low"
-                                                risk_str = f"\033[92m{risk_text:<8}\033[0m"  # Green
-                                            else:
-                                                risk_text = risk_level.lower()
-                                                risk_str = f"{risk_text:<8}"
+                                    # Query total SOL for creator
+                                    cursor.execute('''
+                                        SELECT SUM(total_amount) FROM creator_sol_transfers
+                                        WHERE creator_address = ? AND transfer_type = 'incoming'
+                                    ''', (creator,))
+                                    creator_total_result = cursor.fetchone()
+                                    creator_total_sol = creator_total_result[0] if creator_total_result and creator_total_result[0] else 0
 
-                                            # Check if this is the Coinbase wallet
-                                            if acct_addr == coinbase_wallet:
-                                                acct_display = "Coinbase"
-                                            else:
-                                                acct_display = acct_addr
+                                    # Display SOL flow visualization
+                                    acct_display = "Coinbase" if acct_addr == coinbase_wallet else acct_addr
+                                    flow_line = f"    └─ Flow: {acct_display} ({sol_amount:.4f} SOL) >> {symbol_display} Creator: {creator} ({creator_total_sol:.4f} SOL)"
+                                    print(f"{flow_line}")
 
-                                            if first_row:
-                                                print(f"{symbol:<12} {creator:<46} {risk_str} {acct_display:<50} {sol_amount:<12.4f} {transfer_count:<12} {linked_creator_count:<12} {other_creators_str:<24}")
-                                                first_row = False
-                                            else:
-                                                print(f"{'':12} {'':46} {'':9} {acct_display:<50} {sol_amount:<12.4f} {transfer_count:<12} {linked_creator_count:<12} {other_creators_str:<24}")
+                                    # Display transaction signature if available
+                                    if tx_sig:
+                                        print(f"       └─ TX: {tx_sig}")
+                                        print(f"       └─ Link: https://solscan.io/tx/{tx_sig}")
 
-                                            # Query how much SOL the creator has received in total
-                                            cursor.execute('''
-                                                SELECT SUM(total_amount) FROM creator_sol_transfers
-                                                WHERE creator_address = ? AND transfer_type = 'incoming'
-                                            ''', (creator,))
-                                            creator_total_result = cursor.fetchone()
-                                            creator_total_sol = creator_total_result[0] if creator_total_result and creator_total_result[0] else 0
-
-                                            # Display SOL flow visualization with creator context and transaction signature
-                                            acct_display = "Coinbase" if acct_addr == coinbase_wallet else acct_addr
-                                            # Show flow with token symbol for clarity
-                                            flow_line = f"    └─ Flow: {acct_display} ({sol_amount:.4f} SOL) >> {symbol} Creator: {creator} ({creator_total_sol:.4f} SOL)"
-                                            print(f"{flow_line}")
-
-                                            # Display transaction signature if available
-                                            if tx_sig:
-                                                print(f"       └─ TX: {tx_sig}")
-                                                print(f"       └─ Link: https://solscan.io/tx/{tx_sig}")
-
-                        conn.close()
-                except:
-                    pass
+                    conn.close()
+            except:
+                pass
 
             if not funding_summary_displayed:
                 print(f"{'No tokens with linked funding accounts':<180}")

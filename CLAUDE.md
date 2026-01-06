@@ -209,3 +209,21 @@ JUPITER_API_KEY=your_jupiter_api_key_here
 - **Public repositories = Assume all committed content is visible to everyone**
 - **Credentials in git = Consider them permanently compromised**
 - **Use `.env` = Credentials stay safe and local**
+
+---
+
+## Working with Claude Code
+
+### Communication Preference
+
+- **Don't create final summary documents after every change**
+- Instead: Provide concise status updates only when requesting confirmation or next steps
+- Summary documents are helpful for **major milestones** (feature complete, cleanup done) but not for routine changes
+- Keep responses focused on the work done, not elaborate wrap-ups
+
+### How to Request Work
+
+- Be clear about what you want done
+- Don't expect comprehensive summaries after every action
+- Ask specifically if you want a summary or status report
+- Otherwise, just move to the next task

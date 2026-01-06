@@ -1849,7 +1849,7 @@ class StandalonePumpSwapListener:
                 print(f"{'-'*650}")
             print(f"Showing {len(active_tokens)} most recent token launches")
             print(f"{'-'*650}")
-            print(f"{'✓':<1}{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<8} {'Market Cap':<16} {'Src':<3} {'Match':<12} {'Risk':<8} {'Unrealized %':<20} {'P&L':<10} {'Token Address':<31}")
+            print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<8} {'Market Cap':<16} {'Src':<3} {'Match':<12} {'Risk✓':<9} {'Unrealized %':<20} {'P&L':<10} {'Token Address':<31}")
             print(f"{'-'*650}")
 
             for token, price_result, source in active_tokens:
@@ -2157,7 +2157,9 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
-                print(f"{assessed_indicator}{display_name:<6} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str}  {market_cap_str:<16} {source_str:<3} {match_str:<12} {risk_str}  {unrealized_str:<20} {pnl_str:<10} {base_mint:<31}")
+                # Combine risk and assessment indicator
+                risk_display = f"{risk_str}{assessed_indicator}" if assessed_indicator == "✓" else risk_str
+                print(f"{display_name:<6} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str}  {market_cap_str:<16} {source_str:<3} {match_str:<12} {risk_display:<9} {unrealized_str:<20} {pnl_str:<10} {base_mint:<31}")
 
             # Display sold tokens
             for mint, name, symbol, sell_price, buy_price, profit_pct, profit_usd, qty in sold_tokens:
@@ -2225,7 +2227,9 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
-                print(f"{assessed_indicator}{display_name:<6} {sell_price_str:<18} {buy_price_str:<18} {'SOLD':<15} {'—':<15} {'—':<18} {'—':<16} {'✓':<3} {'CLOSED':<12} {risk_str}  {'—':<20} {pnl_str:<10} {mint:<31}")
+                # Combine risk and assessment indicator
+                risk_display = f"{risk_str}{assessed_indicator}" if assessed_indicator == "✓" else risk_str
+                print(f"{display_name:<6} {sell_price_str:<18} {buy_price_str:<18} {'SOLD':<15} {'—':<15} {'—':<18} {'—':<16} {'✓':<3} {'CLOSED':<12} {risk_display:<9} {'—':<20} {pnl_str:<10} {mint:<31}")
 
             print(f"{'-'*600}")
 

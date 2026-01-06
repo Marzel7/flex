@@ -2649,6 +2649,66 @@ class StandalonePumpSwapListener:
                                                 except Exception as e:
                                                     print(f"[FUNDING] ⚠ Could not store default risk: {e}")
 
+                                            # Run coordination detection in background (non-blocking)
+                                            # This detects if creator's funding accounts are shared with other creators
+                                            try:
+                                                from analyze_creator_wallet import analyze_creator_with_funding_reuse
+                                                from coordinated_funding_registry import CoordinatedFundingRegistry
+
+                                                if creator:
+                                                    # Run async analysis in background thread to avoid blocking
+                                                    def run_coordination_check():
+                                                        try:
+                                                            analysis = analyze_creator_with_funding_reuse(creator)
+                                                            if analysis and analysis['overall_risk'] in ['HIGH', 'CRITICAL']:
+                                                                print(f"[COORDINATION] ✓ {creator[:16]}... escalated to {analysis['overall_risk']}")
+
+                                                                # Register coordinated accounts
+                                                                registry = CoordinatedFundingRegistry()
+                                                                for source in analysis.get('funding_sources', []):
+                                                                    if source.get('reused_token_count', 0) > 0:
+                                                                        funding_account = source.get('address')
+                                                                        # Get all creators funded by this account
+                                                                        db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                                                                        reg_conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                                                                        reg_cursor = reg_conn.cursor()
+                                                                        reg_cursor.execute('''
+                                                                            SELECT DISTINCT creator_address FROM creator_sol_transfers
+                                                                            WHERE counterparty_address = ? AND transfer_type = 'incoming'
+                                                                        ''', (funding_account,))
+                                                                        creators_list = [row[0] for row in reg_cursor.fetchall()]
+                                                                        reg_conn.close()
+
+                                                                        if len(creators_list) >= 2:
+                                                                            registry.add_account(funding_account, creators_list)
+                                                                            print(f"[COORDINATION] ✓ Registered {funding_account[:16]}... (funds {len(creators_list)} creators)")
+
+                                                                # Update database with new risk level
+                                                                db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                                                                upd_conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                                                                upd_cursor = upd_conn.cursor()
+                                                                upd_cursor.execute('''
+                                                                    UPDATE pools
+                                                                    SET funding_risk_level = ?, funding_risk_pattern = ?, funding_check_timestamp = ?
+                                                                    WHERE pumpfun_creator = ?
+                                                                ''', (
+                                                                    analysis['overall_risk'],
+                                                                    analysis.get('coordination_pattern', 'UNKNOWN'),
+                                                                    datetime.now(),
+                                                                    creator
+                                                                ))
+                                                                upd_conn.commit()
+                                                                upd_conn.close()
+                                                        except Exception as e:
+                                                            print(f"[COORDINATION] ⚠ Error checking coordination: {str(e)[:60]}")
+
+                                                    # Run in background thread
+                                                    from threading import Thread
+                                                    coord_thread = Thread(target=run_coordination_check, daemon=True)
+                                                    coord_thread.start()
+                                            except Exception as e:
+                                                print(f"[COORDINATION] ⚠ Could not import coordination modules: {str(e)[:60]}")
+
                                             # Auto-buy if trading is enabled
                                             if self.trading_bot.use_trading and self.trading_bot.trader:
                                                 # Double-check database to prevent duplicate buys from race conditions

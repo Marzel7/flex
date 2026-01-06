@@ -996,31 +996,36 @@ class StandalonePumpSwapListener:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
-            # Query top 25 performing tokens (excluding those hidden due to poor performance)
+            # Query ALL performing tokens (excluding those hidden due to poor performance)
             # Sorted by % Change: ((current_price - initial_price) / initial_price) * 100
+            # Top 25 will be fetched for live prices, rest will use cached prices
             cursor.execute('''
-                SELECT symbol, base_mint, signature, total_supply, dexscreener_price_usd, initial_price_usd
+                SELECT symbol, base_mint, signature, total_supply, dexscreener_price_usd, initial_price_usd, last_price_update,
+                       ROW_NUMBER() OVER (ORDER BY CASE
+                           WHEN dexscreener_price_usd > 0
+                           THEN ((dexscreener_price_usd - initial_price_usd) / initial_price_usd) * 100
+                           ELSE 0
+                       END DESC) as rank
                 FROM pools
                 WHERE base_mint IS NOT NULL
                 AND (hidden_from_table IS NULL OR hidden_from_table = 0)
                 AND initial_price_usd > 0
-                ORDER BY CASE
-                    WHEN dexscreener_price_usd > 0
-                    THEN ((dexscreener_price_usd - initial_price_usd) / initial_price_usd) * 100
-                    ELSE 0
-                END DESC
-                LIMIT 25
+                ORDER BY rank
             ''')
 
             for row in cursor.fetchall():
-                tokens.append({
+                token_entry = {
                     'base_mint': row['base_mint'],
                     'symbol': row['symbol'],
                     'signature': row['signature'],
                     'total_supply': row['total_supply'],
                     'dexscreener_price_usd': row['dexscreener_price_usd'],
-                    'initial_price_usd': row['initial_price_usd']
-                })
+                    'initial_price_usd': row['initial_price_usd'],
+                    'last_price_update': row['last_price_update'],
+                    'rank': row['rank'],  # Position in performance ranking
+                    'fetch_live_price': row['rank'] <= 25  # Only fetch live prices for top 25
+                }
+                tokens.append(token_entry)
 
             conn.close()
         except Exception as e:
@@ -1718,13 +1723,15 @@ class StandalonePumpSwapListener:
             except:
                 pass
 
-            print(f"\n{'-'*600}")
+            print(f"\n{'-'*650}")
             if suspicious_count > 0 and total_count > 0:
                 suspicious_pct = (suspicious_count * 100) // total_count
                 print(f"⚠️  SUSPICIOUS TOKENS: {suspicious_count}/{total_count} ({suspicious_pct}%) - CRITICAL/HIGH/MEDIUM Risk")
-                print(f"{'-'*600}")
+                print(f"{'-'*650}")
+            print(f"Showing ALL {len(active_tokens)} performing tokens (prices: ✓ LIVE for top 25, ~ CACHED for others)")
+            print(f"{'-'*650}")
             print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<8} {'Market Cap':<16} {'Src':<3} {'Match':<12} {'Risk':<8} {'Unrealized %':<20} {'P&L':<10} {'Token Address':<31}")
-            print(f"{'-'*600}")
+            print(f"{'-'*650}")
 
             for token, price_result, source in active_tokens:
                 base_mint = token.get('base_mint', '')

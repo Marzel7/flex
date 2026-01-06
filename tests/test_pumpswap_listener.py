@@ -1033,6 +1033,7 @@ class StandalonePumpSwapListener:
             cursor = conn.cursor()
 
             # Query ALL performing tokens (excluding those hidden due to poor performance)
+            # ALWAYS include CRITICAL/HIGH risk tokens regardless of price data (for safety)
             # Sorted by % Change: ((current_price - initial_price) / initial_price) * 100
             # Top 25 will be fetched for live prices, rest will use cached prices
             cursor.execute('''
@@ -1046,6 +1047,8 @@ class StandalonePumpSwapListener:
                 WHERE base_mint IS NOT NULL
                 AND (hidden_from_table IS NULL OR hidden_from_table = 0)
                 AND initial_price_usd > 0
+                -- Always show CRITICAL/HIGH risk tokens for safety, even if price data missing
+                AND (dexscreener_price_usd > 0 OR funding_risk_level IN ('CRITICAL', 'HIGH'))
                 ORDER BY rank
             ''')
 

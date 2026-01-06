@@ -2763,17 +2763,18 @@ class StandalonePumpSwapListener:
                                                                     store_success = store_bot_detection_result(creator, result, db_path)
 
                                                                     # Also update pools table with LOW+ risk level
+                                                                    # Use token_mint to find the token, not creator (creator may be funding account)
                                                                     bot_conn = sqlite3.connect(str(db_path), check_same_thread=False)
                                                                     bot_cursor = bot_conn.cursor()
                                                                     bot_cursor.execute('''
                                                                         UPDATE pools
                                                                         SET funding_risk_level = ?, bot_detection_flag = ?, funding_check_timestamp = ?
-                                                                        WHERE pumpfun_creator = ?
+                                                                        WHERE base_mint = ?
                                                                     ''', (
                                                                         'LOW+',
                                                                         'BOOSTLEGENDS_VOLUMEBOT',
                                                                         datetime.now(),
-                                                                        creator
+                                                                        token_mint
                                                                     ))
                                                                     bot_conn.commit()
                                                                     bot_conn.close()

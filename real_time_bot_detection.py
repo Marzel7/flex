@@ -135,6 +135,26 @@ def check_transaction_for_bots(transaction):
     return found if found else None
 
 
+def calculate_bot_activity_level(total_bot_transactions):
+    """
+    Categorize bot activity severity based on transaction count.
+
+    Args:
+        total_bot_transactions: Sum of all bot transactions
+
+    Returns:
+        'NONE', 'LOW' (1-5), 'MEDIUM' (6-20), or 'HIGH' (21+)
+    """
+    if total_bot_transactions == 0:
+        return 'NONE'
+    elif total_bot_transactions <= 5:
+        return 'LOW'
+    elif total_bot_transactions <= 20:
+        return 'MEDIUM'
+    else:
+        return 'HIGH'
+
+
 def check_creator_for_bot_usage(creator_address, quick=True, db_path=None):
     """
     Fast check if a creator uses known bot accounts.
@@ -175,6 +195,7 @@ def check_creator_for_bot_usage(creator_address, quick=True, db_path=None):
             conn.close()
 
             if results:
+                total_tx = sum(tx_count for _, tx_count in results)
                 return {
                     'detected': True,
                     'bots': [
@@ -186,7 +207,8 @@ def check_creator_for_bot_usage(creator_address, quick=True, db_path=None):
                         for bot, tx_count in results
                     ],
                     'confidence': 'HIGH',
-                    'risk_verdict': 'LOW+'  # 🟢 Green - Bot detected
+                    'risk_verdict': 'LOW+',  # 🟢 Green - Bot detected
+                    'bot_activity_level': calculate_bot_activity_level(total_tx)
                 }
         except:
             pass  # Fall through to Helius scan
@@ -199,7 +221,8 @@ def check_creator_for_bot_usage(creator_address, quick=True, db_path=None):
             'detected': False,
             'bots': [],
             'confidence': 'LOW',
-            'risk_verdict': None
+            'risk_verdict': None,
+            'bot_activity_level': 'NONE'
         }
 
     # Scan transactions for bot activity
@@ -218,6 +241,7 @@ def check_creator_for_bot_usage(creator_address, quick=True, db_path=None):
                 bot_accounts[bot]['count'] += 1
 
     if bot_accounts:
+        total_tx = sum(info['count'] for info in bot_accounts.values())
         return {
             'detected': True,
             'bots': [
@@ -229,14 +253,16 @@ def check_creator_for_bot_usage(creator_address, quick=True, db_path=None):
                 for bot, info in bot_accounts.items()
             ],
             'confidence': 'HIGH',
-            'risk_verdict': 'LOW+'  # 🟢 Green - Bot detected
+            'risk_verdict': 'LOW+',  # 🟢 Green - Bot detected
+            'bot_activity_level': calculate_bot_activity_level(total_tx)
         }
 
     return {
         'detected': False,
         'bots': [],
         'confidence': 'NONE',
-        'risk_verdict': None
+        'risk_verdict': None,
+        'bot_activity_level': 'NONE'
     }
 
 

@@ -2762,17 +2762,19 @@ class StandalonePumpSwapListener:
                                                                     # Store bot usage result (updates creator_bot_usage table)
                                                                     store_success = store_bot_detection_result(creator, result, db_path)
 
-                                                                    # Also update pools table with LOW+ risk level
+                                                                    # Also update pools table with bot activity level and flag
                                                                     # Use token_mint to find the token, not creator (creator may be funding account)
                                                                     bot_conn = sqlite3.connect(str(db_path), check_same_thread=False)
                                                                     bot_cursor = bot_conn.cursor()
+                                                                    bot_activity = result.get('bot_activity_level', 'NONE')
                                                                     bot_cursor.execute('''
                                                                         UPDATE pools
-                                                                        SET funding_risk_level = ?, bot_detection_flag = ?, funding_check_timestamp = ?
+                                                                        SET funding_risk_level = ?, bot_detection_flag = ?, bot_activity_level = ?, funding_check_timestamp = ?
                                                                         WHERE base_mint = ?
                                                                     ''', (
                                                                         'LOW+',
                                                                         'BOOSTLEGENDS_VOLUMEBOT',
+                                                                        bot_activity,
                                                                         datetime.now(),
                                                                         token_mint
                                                                     ))

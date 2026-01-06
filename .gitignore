@@ -54,6 +54,8 @@ backfill_*.py
 !backfill_missing_helius_analysis.py
 benchmark.py
 tmp.py
+update_coordination_detection.py
+!update_coordination_detection.py
 
 # Runtime artifacts
 .logs/

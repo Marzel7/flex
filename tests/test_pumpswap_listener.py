@@ -2466,8 +2466,18 @@ class StandalonePumpSwapListener:
                                                     sys.path.insert(0, str(Path(__file__).parent.parent))
                                                     from analyze_creator_wallet import fetch_helius_transactions, analyze_sol_transfers, store_creator_wallet_data
 
+                                                    # Debug: Check if API key is available
+                                                    import os
+                                                    api_key = os.getenv('HELIUS_API_KEY')
+                                                    if not api_key:
+                                                        print(f"[FUNDING] ⚠ DEBUG: HELIUS_API_KEY not found in environment")
+                                                    else:
+                                                        print(f"[FUNDING] ✓ DEBUG: Found HELIUS_API_KEY (first 8 chars: {api_key[:8]}...)")
+
                                                     # Fetch creator's transaction history
+                                                    print(f"[FUNDING] DEBUG: Calling fetch_helius_transactions({creator[:16]}..., fetch_all=False)")
                                                     transactions = fetch_helius_transactions(creator, fetch_all=False)
+                                                    print(f"[FUNDING] DEBUG: fetch_helius_transactions returned: {type(transactions).__name__} (length: {len(transactions) if transactions else 'None'})")
 
                                                     if transactions:
                                                         print(f"[FUNDING] ✓ Fetched {len(transactions)} transactions for creator")
@@ -2495,9 +2505,12 @@ class StandalonePumpSwapListener:
                                                         else:
                                                             print(f"[FUNDING] ⚠ Could not store SOL data to database")
                                                     else:
-                                                        print(f"[FUNDING] ⚠ Could not fetch transactions for creator")
+                                                        print(f"[FUNDING] ⚠ Could not fetch transactions for creator (fetch_helius_transactions returned None/empty)")
                                                 except Exception as e:
+                                                    import traceback
                                                     print(f"[FUNDING] ⚠ Error analyzing creator: {e}")
+                                                    print(f"[FUNDING] ⚠ Traceback:")
+                                                    traceback.print_exc()
 
                                                 # Now check for funding reuse with freshly stored data
                                                 funding_analysis = self.check_funding_account_reuse(creator)

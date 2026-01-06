@@ -103,9 +103,16 @@ def fetch_helius_transactions(wallet_address, fetch_all=False):
     # Get API key from environment variable
     api_key = os.getenv('HELIUS_API_KEY')
 
+    # DEBUG: Log the API key check result
+    print(f"[HELIUS_DEBUG] fetch_helius_transactions called for {wallet_address[:16]}...")
+    print(f"[HELIUS_DEBUG] Environment check: HELIUS_API_KEY = {bool(api_key)}")
+
     if not api_key:
         # No API key available
+        print(f"[HELIUS_DEBUG] ERROR: HELIUS_API_KEY not found in environment")
         return None
+    else:
+        print(f"[HELIUS_DEBUG] ✓ API key found (first 8 chars: {api_key[:8]}...)")
 
     try:
         # Helius API endpoint for transaction history
@@ -125,21 +132,27 @@ def fetch_helius_transactions(wallet_address, fetch_all=False):
             if pagination_token:
                 params["before"] = pagination_token
 
+            print(f"[HELIUS_DEBUG] Attempt {request_count}: GET {url[:60]}...")
             response = requests.get(url, params=params, timeout=10)
             request_count += 1
+            print(f"[HELIUS_DEBUG] Response status: {response.status_code}")
 
             if response.status_code == 200:
                 data = response.json()
+                print(f"[HELIUS_DEBUG] Response type: {type(data).__name__}, length: {len(data) if isinstance(data, (list, dict)) else 'N/A'}")
 
                 if isinstance(data, list):
                     all_transactions.extend(data)
+                    print(f"[HELIUS_DEBUG] Extended with {len(data)} transactions, total: {len(all_transactions)}")
 
                     # If we got fewer transactions than the limit, we've reached the end
                     if len(data) < 100:
+                        print(f"[HELIUS_DEBUG] Fewer than 100 transactions returned, stopping")
                         break
 
                     # If not fetching all, return after first batch
                     if not fetch_all:
+                        print(f"[HELIUS_DEBUG] fetch_all=False, returning {len(all_transactions)} transactions")
                         return all_transactions
 
                     # For pagination, get the signature of the last transaction
@@ -148,22 +161,30 @@ def fetch_helius_transactions(wallet_address, fetch_all=False):
                         last_tx = data[-1]
                         pagination_token = last_tx.get('signature')
                         if not pagination_token:
+                            print(f"[HELIUS_DEBUG] No pagination token available, stopping")
                             break
                 else:
+                    print(f"[HELIUS_DEBUG] Response is not a list, returning early")
                     return all_transactions if all_transactions else data
 
             elif response.status_code == 401:
                 # Invalid API key
+                print(f"[HELIUS_DEBUG] ERROR 401: Invalid API key")
                 return None
             elif response.status_code == 429:
+                print(f"[HELIUS_DEBUG] ERROR 429: Rate limited by Helius API")
                 print(f"⚠️  Rate limited by Helius API. Try again in a moment.")
                 return None
             else:
+                print(f"[HELIUS_DEBUG] ERROR {response.status_code}: Unexpected status code")
                 return all_transactions if all_transactions else None
 
         return all_transactions if all_transactions else None
 
     except Exception as e:
+        print(f"[HELIUS_DEBUG] EXCEPTION in fetch_helius_transactions: {e}")
+        import traceback
+        traceback.print_exc()
         return None
 
 

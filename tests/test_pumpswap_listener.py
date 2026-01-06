@@ -1849,7 +1849,7 @@ class StandalonePumpSwapListener:
                 print(f"{'-'*650}")
             print(f"Showing {len(active_tokens)} most recent token launches")
             print(f"{'-'*650}")
-            print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<8} {'Market Cap':<16} {'Src':<3} {'Match':<12} {'Risk':<8} {'Unrealized %':<20} {'P&L':<10} {'Token Address':<31}")
+            print(f"{'✓':<1}{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<8} {'Market Cap':<16} {'Src':<3} {'Match':<12} {'Risk':<8} {'Unrealized %':<20} {'P&L':<10} {'Token Address':<31}")
             print(f"{'-'*650}")
 
             for token, price_result, source in active_tokens:
@@ -2102,22 +2102,32 @@ class StandalonePumpSwapListener:
                 # Fetch creator and funding risk from database
                 creator_str = "—"
                 risk_str = "—"
+                assessed_indicator = " "  # Space for unassessed, ✓ for fully assessed
                 try:
                     db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
                     if db_path.exists():
                         conn = sqlite3.connect(str(db_path), check_same_thread=False)
                         cursor = conn.cursor()
-                        cursor.execute('SELECT pumpfun_creator, funding_risk_level FROM pools WHERE base_mint = ?', (base_mint,))
+                        cursor.execute('SELECT pumpfun_creator, funding_risk_level, funding_check_timestamp, bot_detection_flag FROM pools WHERE base_mint = ?', (base_mint,))
                         creator_result = cursor.fetchone()
                         conn.close()
 
                         if creator_result:
                             creator = creator_result[0]
                             risk_level = creator_result[1] if len(creator_result) > 1 else None
+                            check_timestamp = creator_result[2] if len(creator_result) > 2 else None
+                            bot_flag = creator_result[3] if len(creator_result) > 3 else 'none'
 
                             # Show first 8 chars of creator address + last 4 for readability
                             if creator:
                                 creator_str = f"{creator[:8]}...{creator[-4:]}" if len(creator) > 12 else creator
+
+                            # Check if token has been fully assessed
+                            # A token is fully assessed when funding_check_timestamp is set (Helius + Coordination completed)
+                            if check_timestamp and risk_level and risk_level != 'UNKNOWN':
+                                assessed_indicator = "✓"  # Token has completed risk assessment (all 3 layers)
+                            else:
+                                assessed_indicator = " "  # Still pending assessment
 
                             # Format risk level with color indicators (lowercase + color)
                             # Pad all to width 8 (longest is "critical")
@@ -2136,6 +2146,9 @@ class StandalonePumpSwapListener:
                                 elif risk_level == 'LOW':
                                     risk_text = "low"
                                     risk_str = f"\033[92m{risk_text:<8}\033[0m"
+                                elif risk_level == 'LOW+':
+                                    risk_text = "low+"
+                                    risk_str = f"\033[92m{risk_text:<8}\033[0m"  # Green for LOW+ (bot detected)
                                 else:
                                     risk_text = risk_level.lower()
                                     risk_str = f"{risk_text:<8}"
@@ -2144,7 +2157,7 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
-                print(f"{display_name:<6} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str}  {market_cap_str:<16} {source_str:<3} {match_str:<12} {risk_str}  {unrealized_str:<20} {pnl_str:<10} {base_mint:<31}")
+                print(f"{assessed_indicator}{display_name:<6} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str}  {market_cap_str:<16} {source_str:<3} {match_str:<12} {risk_str}  {unrealized_str:<20} {pnl_str:<10} {base_mint:<31}")
 
             # Display sold tokens
             for mint, name, symbol, sell_price, buy_price, profit_pct, profit_usd, qty in sold_tokens:
@@ -2164,21 +2177,29 @@ class StandalonePumpSwapListener:
                 # Fetch creator and risk from database
                 creator_str = "—"
                 risk_str = "—"
+                assessed_indicator = " "  # Space for unassessed, ✓ for fully assessed
                 try:
                     db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
                     if db_path.exists():
                         conn = sqlite3.connect(str(db_path), check_same_thread=False)
                         cursor = conn.cursor()
-                        cursor.execute('SELECT pumpfun_creator, funding_risk_level FROM pools WHERE base_mint = ?', (mint,))
+                        cursor.execute('SELECT pumpfun_creator, funding_risk_level, funding_check_timestamp FROM pools WHERE base_mint = ?', (mint,))
                         creator_result = cursor.fetchone()
                         conn.close()
 
                         if creator_result:
                             creator = creator_result[0]
                             risk_level = creator_result[1] if len(creator_result) > 1 else None
+                            check_timestamp = creator_result[2] if len(creator_result) > 2 else None
 
                             if creator:
                                 creator_str = f"{creator[:8]}...{creator[-4:]}" if len(creator) > 12 else creator
+
+                            # Check if token has been fully assessed
+                            if check_timestamp and risk_level and risk_level != 'UNKNOWN':
+                                assessed_indicator = "✓"  # Token has completed risk assessment
+                            else:
+                                assessed_indicator = " "  # Still pending assessment
 
                             if risk_level and risk_level != 'UNKNOWN':
                                 if risk_level == 'CRITICAL':
@@ -2193,6 +2214,9 @@ class StandalonePumpSwapListener:
                                 elif risk_level == 'LOW':
                                     risk_text = "low"
                                     risk_str = f"\033[92m{risk_text:<8}\033[0m"
+                                elif risk_level == 'LOW+':
+                                    risk_text = "low+"
+                                    risk_str = f"\033[92m{risk_text:<8}\033[0m"  # Green for LOW+ (bot detected)
                                 else:
                                     risk_text = risk_level.lower()
                                     risk_str = f"{risk_text:<8}"
@@ -2201,7 +2225,7 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
-                print(f"{display_name:<6} {sell_price_str:<18} {buy_price_str:<18} {'SOLD':<15} {'—':<15} {'—':<18} {'—':<16} {'✓':<3} {'CLOSED':<12} {risk_str}  {'—':<20} {pnl_str:<10} {mint:<31}")
+                print(f"{assessed_indicator}{display_name:<6} {sell_price_str:<18} {buy_price_str:<18} {'SOLD':<15} {'—':<15} {'—':<18} {'—':<16} {'✓':<3} {'CLOSED':<12} {risk_str}  {'—':<20} {pnl_str:<10} {mint:<31}")
 
             print(f"{'-'*600}")
 

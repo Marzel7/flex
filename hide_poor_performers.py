@@ -34,6 +34,7 @@ def hide_poor_performers():
 
     try:
         # Get all tokens with their price data
+        # Include tokens with NULL current_price or initial_price (they may have stale data)
         c.execute('''
             SELECT
                 base_mint,
@@ -43,7 +44,7 @@ def hide_poor_performers():
                 funding_risk_level,
                 hidden_from_table
             FROM pools
-            WHERE initial_price_usd > 0 AND current_price_usd > 0
+            WHERE initial_price_usd > 0
             ORDER BY first_seen DESC
         ''')
 

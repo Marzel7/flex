@@ -2384,6 +2384,37 @@ class StandalonePumpSwapListener:
                                                     pattern = 'INDEPENDENT_CREATOR'
                                                     status_msg = "No funding data available yet - set to LOW (default)"
 
+                                                # Check if creator is in known coordinated account registry
+                                                # This will upgrade risk level if creator is linked to known coordinated accounts
+                                                try:
+                                                    from coordinated_funding_registry import CoordinatedFundingRegistry
+                                                    registry = CoordinatedFundingRegistry()
+                                                    creator_risk = registry.get_creator_risk(creator)
+
+                                                    if creator_risk['is_coordinated']:
+                                                        # Creator is in a known coordinated group
+                                                        account_count = creator_risk['account_count']
+                                                        linked_creators = creator_risk['total_linked_creators']
+
+                                                        # Upgrade risk level if creator is in known coordinated group
+                                                        if risk_level == 'LOW':
+                                                            risk_level = 'HIGH'
+                                                            pattern = f'COORDINATED_GROUP ({account_count} coordinated accounts, {linked_creators} linked creators)'
+                                                            status_msg = f"⚠️ Risk upgraded to HIGH: Creator is in known coordinated group ({account_count} accounts)"
+                                                        elif risk_level == 'MEDIUM':
+                                                            risk_level = 'HIGH'
+                                                            pattern = f'COORDINATED_GROUP ({account_count} coordinated accounts, {linked_creators} linked creators)'
+                                                            status_msg = f"⚠️ Risk upgraded to HIGH: Creator is in known coordinated group"
+                                                        elif risk_level in ['HIGH', 'CRITICAL']:
+                                                            # Already high/critical, just update pattern
+                                                            pattern = f'{pattern} + REGISTERED_COORDINATED_GROUP ({account_count} accounts)'
+                                                            status_msg = f"✓ Confirmed: {risk_level} (in {account_count} coordinated accounts)"
+
+                                                        print(f"[REGISTRY] ✓ Creator in coordinated group: {account_count} accounts, {linked_creators} linked creators")
+                                                except Exception as e:
+                                                    # Registry check failed - continue with existing assessment
+                                                    print(f"[REGISTRY] ⚠ Could not check coordinated registry: {e}")
+
                                                 # Store risk level to database for table display
                                                 try:
                                                     db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'

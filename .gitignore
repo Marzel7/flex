@@ -29,6 +29,7 @@ wheels/
 # Project specific
 *.db
 pumpswap_tokens.db
+coordinated_accounts.json
 .claude/
 .serena/
 .env

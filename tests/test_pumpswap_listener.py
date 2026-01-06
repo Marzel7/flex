@@ -2401,18 +2401,27 @@ class StandalonePumpSwapListener:
                                             # Check funding account reuse for coordination detection
                                             print(f"\n[FUNDING] Checking funding account reuse...")
                                             creator = None
-                                            try:
-                                                # Get creator from database
-                                                db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
-                                                check_conn = sqlite3.connect(str(db_path), check_same_thread=False)
-                                                check_cursor = check_conn.cursor()
-                                                check_cursor.execute('SELECT pumpfun_creator FROM pools WHERE base_mint = ?', (token_mint,))
-                                                row = check_cursor.fetchone()
-                                                if row:
-                                                    creator = row[0]
-                                                check_conn.close()
-                                            except:
-                                                pass
+
+                                            # Try to get creator from database (may have been fetched in add_token_to_db)
+                                            for attempt in range(3):
+                                                try:
+                                                    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                                                    check_conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                                                    check_cursor = check_conn.cursor()
+                                                    check_cursor.execute('SELECT pumpfun_creator FROM pools WHERE base_mint = ?', (token_mint,))
+                                                    row = check_cursor.fetchone()
+                                                    if row and row[0]:
+                                                        creator = row[0]
+                                                        check_conn.close()
+                                                        break
+                                                    check_conn.close()
+                                                except:
+                                                    pass
+
+                                                # If creator not found yet, wait a bit and retry (creator API may still be processing)
+                                                if not creator and attempt < 2:
+                                                    print(f"[FUNDING] ⚠ Creator not found yet, retrying in 1s...")
+                                                    await asyncio.sleep(1)
 
                                             if creator:
                                                 # Analyze creator's wallet and store SOL transfers to database
@@ -2565,7 +2574,28 @@ class StandalonePumpSwapListener:
                                                 else:
                                                     print(f"[FUNDING] ✓ Creator has no on-chain funding data yet (set to LOW risk)")
                                             else:
-                                                print(f"[FUNDING] ⚠ Creator not available yet")
+                                                # Creator not available after retries - set default LOW risk
+                                                # Will be reassessed when creator info becomes available
+                                                print(f"[FUNDING] ⚠ Creator not available yet - setting default LOW risk")
+                                                try:
+                                                    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                                                    db_conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                                                    db_cursor = db_conn.cursor()
+                                                    db_cursor.execute('''
+                                                        UPDATE pools
+                                                        SET funding_risk_level = ?, funding_risk_pattern = ?, funding_check_timestamp = ?
+                                                        WHERE base_mint = ? AND funding_risk_level IS NULL
+                                                    ''', (
+                                                        'LOW',
+                                                        'CREATOR_NOT_FOUND_YET',
+                                                        datetime.now(),
+                                                        token_mint
+                                                    ))
+                                                    db_conn.commit()
+                                                    db_conn.close()
+                                                    print(f"[FUNDING] ✓ Default risk (LOW) stored - will reassess when creator found")
+                                                except Exception as e:
+                                                    print(f"[FUNDING] ⚠ Could not store default risk: {e}")
 
                                             # Auto-buy if trading is enabled
                                             if self.trading_bot.use_trading and self.trading_bot.trader:

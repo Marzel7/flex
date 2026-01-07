@@ -1848,20 +1848,32 @@ class StandalonePumpSwapListener:
                 print(f"⚠️  SUSPICIOUS TOKENS: {suspicious_count}/{total_count} ({suspicious_pct}%) - CRITICAL/HIGH/MEDIUM Risk")
                 print(f"{'-'*650}")
 
-            # Sort active tokens by % Change (SOL balance change) - highest first
-            # Calculate % change for sorting
-            def get_pct_change(token_tuple):
+            # Sort active tokens by peak % change - highest first
+            # Get peak data from database for each token
+            def get_peak_percent(token_tuple):
                 token, price_result, source = token_tuple
-                sol_balance = price_result.get('sol_balance', 0) if price_result else 0
-                if sol_balance > 0:
-                    return ((sol_balance - 85) / 85) * 100
-                return -100  # Put tokens with no SOL balance at the end
+                base_mint = token.get('base_mint', '')
 
-            active_tokens_sorted = sorted(active_tokens, key=get_pct_change, reverse=True)
-            # Show top 30 tokens with highest % change
+                # Query database for peak_percent_change
+                try:
+                    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                    if db_path.exists():
+                        conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                        cursor = conn.cursor()
+                        cursor.execute('SELECT peak_percent_change FROM pools WHERE base_mint = ?', (base_mint,))
+                        result = cursor.fetchone()
+                        conn.close()
+                        if result and result[0]:
+                            return result[0]
+                except:
+                    pass
+                return -100  # Put tokens without peak data at the end
+
+            active_tokens_sorted = sorted(active_tokens, key=get_peak_percent, reverse=True)
+            # Show top 30 tokens with highest peak % change
             top_30_tokens = active_tokens_sorted[:30]
 
-            print(f"Showing top 30 tokens by % Change (highest gains first)")
+            print(f"Showing top 30 tokens by peak % change (highest peaks first)")
             print(f"{'-'*650}")
             print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<8} {'Market Cap':<16} {'Src':<3} {'Match':<12} {'Risk✓':<9} {'Unrealized %':<20} {'P&L':<10} {'Token Address':<31}")
             print(f"{'-'*650}")

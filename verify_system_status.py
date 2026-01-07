@@ -88,12 +88,13 @@ def verify_bot_activity_distribution():
     print(f"{'─'*30}")
     print(f"{'Total':8} │ {total:4} tokens")
 
-    # Check for properly categorized bots
+    # Check for properly categorized bots (actual bots, not 'none')
     cursor.execute('''
         SELECT COUNT(*)
         FROM pools
         WHERE bot_activity_level != 'NONE'
         AND bot_detection_flag IS NOT NULL
+        AND bot_detection_flag != 'none'
     ''')
 
     properly_flagged = cursor.fetchone()[0]
@@ -102,11 +103,12 @@ def verify_bot_activity_distribution():
         SELECT COUNT(*)
         FROM pools
         WHERE bot_detection_flag IS NOT NULL
+        AND bot_detection_flag != 'none'
     ''')
 
     total_with_flag = cursor.fetchone()[0]
 
-    print(f"\n✓ {properly_flagged}/{total_with_flag} flagged tokens have activity level")
+    print(f"\n✓ {properly_flagged}/{total_with_flag} bot-detected tokens have activity level")
 
     conn.close()
     return properly_flagged == total_with_flag
@@ -182,7 +184,7 @@ def verify_price_change_sorting():
     cursor.execute('''
         SELECT
             base_mint,
-            symbol,
+            name,
             dexscreener_price_native
         FROM pools
         WHERE dexscreener_price_native > 0
@@ -195,10 +197,11 @@ def verify_price_change_sorting():
 
     print(f"\nTop 10 tokens by SOL balance (highest gains):\n")
 
-    for i, (mint, symbol, sol_balance) in enumerate(top_tokens, 1):
+    for i, (mint, name, sol_balance) in enumerate(top_tokens, 1):
         pct_change = ((sol_balance - 85) / 85) * 100 if sol_balance > 0 else -100
         marker = "🔥" if pct_change > 100 else "📈" if pct_change > 0 else "📉"
-        print(f"{i:2}. {symbol:8} │ SOL: {sol_balance:8.2f} │ Change: {pct_change:+7.1f}% {marker}")
+        name_str = name if name else "N/A"
+        print(f"{i:2}. {name_str:8} │ SOL: {sol_balance:8.2f} │ Change: {pct_change:+7.1f}% {marker}")
 
     # Count tokens with valid price data
     cursor.execute('''
@@ -241,20 +244,25 @@ def verify_bot_detection_accuracy():
     for flag, count in flags:
         print(f"✓ {flag:30} │ {count:4} tokens")
 
-    # Verify LOW+ risk level is set for bots
+    # Verify LOW+ or higher risk level is set for actual bots (exclude 'none')
     cursor.execute('''
         SELECT COUNT(*)
         FROM pools
         WHERE bot_detection_flag IS NOT NULL
-        AND funding_risk_level = 'LOW+'
+        AND bot_detection_flag != 'none'
+        AND funding_risk_level IN ('LOW+', 'HIGH', 'CRITICAL', 'CONFIRMED_RUG_PULL')
     ''')
 
     correctly_risked = cursor.fetchone()[0]
 
-    cursor.execute('SELECT COUNT(*) FROM pools WHERE bot_detection_flag IS NOT NULL')
+    cursor.execute('''
+        SELECT COUNT(*) FROM pools
+        WHERE bot_detection_flag IS NOT NULL
+        AND bot_detection_flag != 'none'
+    ''')
     total_bots = cursor.fetchone()[0]
 
-    print(f"\n✓ {correctly_risked}/{total_bots} bot-detected tokens marked as LOW+ risk")
+    print(f"\n✓ {correctly_risked}/{total_bots} bot-detected tokens marked with risk (LOW+ or higher)")
 
     # Check database integrity
     cursor.execute('''

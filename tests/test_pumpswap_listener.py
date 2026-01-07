@@ -1752,60 +1752,50 @@ class StandalonePumpSwapListener:
         return new_launches
 
     def print_live_table(self):
-        """Print live price table for active tokens"""
-        if not self.pumpswap_tokens:
+        """Print live price table for top 30 highest peak tokens"""
+        # Get top 30 tokens by peak % change from database (not just active ones)
+        top_30_tokens = []
+        try:
+            db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+            if db_path.exists():
+                conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                cursor = conn.cursor()
+                cursor.execute('''
+                    SELECT
+                        base_mint, name, symbol, peak_percent_change,
+                        dexscreener_price_usd, dexscreener_price_native,
+                        funding_risk_level, bot_activity_level
+                    FROM pools
+                    WHERE peak_percent_change IS NOT NULL
+                    ORDER BY peak_percent_change DESC
+                    LIMIT 30
+                ''')
+                db_tokens = cursor.fetchall()
+                conn.close()
+
+                # Convert database results to token format
+                for db_token in db_tokens:
+                    mint, name, symbol, peak_pct, price_usd, sol_balance, risk, bot_level = db_token
+                    token = {
+                        'base_mint': mint,
+                        'name': name,
+                        'symbol': symbol,
+                        'peak_percent_change': peak_pct
+                    }
+                    price_result = {
+                        'price_usd': price_usd or 0,
+                        'sol_balance': sol_balance or 0,
+                        'token_balance': 0
+                    }
+                    top_30_tokens.append((token, price_result, 'database', risk, bot_level))
+        except:
             return
 
-        active_tokens = []
+        if not top_30_tokens:
+            return
+
         low_count = 0
         fetch_failed_count = 0
-
-        for token_entry in self.pumpswap_tokens:
-            # Extract token data and price result (already fetched in run_listener)
-            token = token_entry.get('token_data', {})
-            price_result = token_entry.get('price_result')
-
-            # Use on-chain price if available
-            if price_result:
-                sol_balance = price_result.get('sol_balance', 0)
-                if sol_balance >= 1:
-                    active_tokens.append((token, price_result, 'onchain'))
-                else:
-                    low_count += 1
-            else:
-                # On-chain fetch failed - use DexScreener price as fallback
-                dexscreener_price = token.get('dexscreener_price_usd', 0)
-                if dexscreener_price and dexscreener_price > 0:
-                    # Create a fallback result with DexScreener price but attempt to fetch on-chain data
-                    fallback_result = {
-                        'price_usd': dexscreener_price,
-                        'sol_balance': 0,
-                        'token_balance': 0,
-                        'total_supply': token.get('total_supply')
-                    }
-
-                    # Try to fetch actual SOL balance and token balance from vault
-                    signature = token.get('signature', '')
-                    if signature:
-                        try:
-                            tx_data = self.price_fetcher.get_transaction(signature)
-                            if tx_data:
-                                base_mint = token.get('base_mint', '')
-                                token_acct, sol_acct = self.price_fetcher.extract_vault_account_addresses(tx_data, base_mint)
-
-                                if token_acct and sol_acct:
-                                    token_bal = self.price_fetcher.get_token_account_balance(token_acct)
-                                    sol_bal = self.price_fetcher.get_sol_balance(sol_acct)
-
-                                    if token_bal and sol_bal:
-                                        fallback_result['token_balance'] = token_bal.get('ui_amount', 0)
-                                        fallback_result['sol_balance'] = sol_bal.get('sol', 0)
-                        except:
-                            pass  # Keep fallback values if fetch fails
-
-                    active_tokens.append((token, fallback_result, 'dexscreener'))
-                else:
-                    fetch_failed_count += 1
 
         # Also fetch sold tokens to show in table
         sold_tokens = []
@@ -1848,37 +1838,14 @@ class StandalonePumpSwapListener:
                 print(f"⚠️  SUSPICIOUS TOKENS: {suspicious_count}/{total_count} ({suspicious_pct}%) - CRITICAL/HIGH/MEDIUM Risk")
                 print(f"{'-'*650}")
 
-            # Sort active tokens by peak % change - highest first
-            # Get peak data from database for each token
-            def get_peak_percent(token_tuple):
-                token, price_result, source = token_tuple
-                base_mint = token.get('base_mint', '')
-
-                # Query database for peak_percent_change
-                try:
-                    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
-                    if db_path.exists():
-                        conn = sqlite3.connect(str(db_path), check_same_thread=False)
-                        cursor = conn.cursor()
-                        cursor.execute('SELECT peak_percent_change FROM pools WHERE base_mint = ?', (base_mint,))
-                        result = cursor.fetchone()
-                        conn.close()
-                        if result and result[0]:
-                            return result[0]
-                except:
-                    pass
-                return -100  # Put tokens without peak data at the end
-
-            active_tokens_sorted = sorted(active_tokens, key=get_peak_percent, reverse=True)
-            # Show top 30 tokens with highest peak % change
-            top_30_tokens = active_tokens_sorted[:30]
-
+            # Tokens are already sorted by peak from database query
             print(f"Showing top 30 tokens by peak % change (highest peaks first)")
             print(f"{'-'*650}")
-            print(f"{'Name':<6} {'Current Price':<18} {'Buy Price':<18} {'SOL Balance':<15} {'% Change':<15} {'Peak %':<8} {'Market Cap':<16} {'Src':<3} {'Match':<12} {'Risk✓':<9} {'Unrealized %':<20} {'P&L':<10} {'Token Address':<31}")
+            print(f"{'Rank':<4} {'Name':<8} {'Peak %':<12} {'Current Price':<18} {'Risk':<12} {'Bots':<8} {'SOL Bal':<12} {'Mint':<31}")
             print(f"{'-'*650}")
 
-            for token, price_result, source in top_30_tokens:
+            for rank, token_data in enumerate(top_30_tokens, 1):
+                token, price_result, source, risk, bot_level = token_data
                 base_mint = token.get('base_mint', '')
                 name = token.get('name')
                 symbol = token.get('symbol')
@@ -2183,9 +2150,16 @@ class StandalonePumpSwapListener:
                 except:
                     pass
 
-                # Combine risk and assessment indicator
-                risk_display = f"{risk_str}{assessed_indicator}" if assessed_indicator == "✓" else risk_str
-                print(f"{display_name:<6} {price_str:<18} {buy_price_str:<18} {sol_str:<15} {price_change_str:<15} {peak_change_str}  {market_cap_str:<16} {source_str:<3} {match_str:<12} {risk_display:<9} {unrealized_str:<20} {pnl_str:<10} {base_mint:<31}")
+                # Get peak % change from token data
+                peak_pct = token.get('peak_percent_change', 0)
+                peak_str = f"{peak_pct:.2f}%" if peak_pct else "N/A"
+
+                # Format risk level
+                risk_str = risk or "UNKNOWN"
+                bot_str = bot_level or "NONE"
+
+                # Print simplified row
+                print(f"{rank:<4} {display_name:<8} {peak_str:<12} {price_str:<18} {risk_str:<12} {bot_str:<8} {sol_str:<12} {base_mint:<31}")
 
             # Display sold tokens
             for mint, name, symbol, sell_price, buy_price, profit_pct, profit_usd, qty in sold_tokens:

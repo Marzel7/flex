@@ -4,7 +4,7 @@ import asyncio
 import websockets
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
-from flask import Flask, jsonify, Response
+from flask import Flask, jsonify, Response, request
 from threading import Thread
 import threading
 import base64
@@ -3718,6 +3718,113 @@ def get_pumpswap_price(token_mint):
         return jsonify(response)
     except Exception as e:
         print(f"[API PRICE] ERROR: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/tokens/query', methods=['GET'])
+def query_tokens():
+    """Query tokens from database with flexible sorting and filtering
+
+    Query Parameters:
+    - sort_by: 'peak' (peak %), 'date' (first_seen), 'price' (current price), 'risk' (risk level)
+    - order: 'asc' or 'desc' (default: 'desc')
+    - limit: max results (default: 20)
+    - risk_filter: filter by risk level (e.g., 'LOW+', 'CRITICAL')
+    - bot_filter: 'with_bots', 'no_bots' (optional)
+
+    Examples:
+    /api/tokens/query?sort_by=peak&order=desc&limit=20
+    /api/tokens/query?sort_by=price&order=desc&risk_filter=LOW
+    /api/tokens/query?sort_by=date&bot_filter=no_bots
+    """
+    try:
+        sort_by = request.args.get('sort_by', 'peak').lower()  # Default to peak
+        order = request.args.get('order', 'desc').lower()
+        limit = int(request.args.get('limit', 20))
+        risk_filter = request.args.get('risk_filter')
+        bot_filter = request.args.get('bot_filter')  # 'with_bots' or 'no_bots'
+
+        # Validate inputs
+        if order not in ['asc', 'desc']:
+            order = 'desc'
+        if limit < 1 or limit > 1000:
+            limit = 20
+
+        # Build dynamic query based on sort_by
+        sort_column = 'peak_percent_change'
+        if sort_by == 'date':
+            sort_column = 'first_seen'
+        elif sort_by == 'price':
+            sort_column = 'dexscreener_price_usd'
+        elif sort_by == 'risk':
+            sort_column = 'funding_risk_level'
+        elif sort_by == 'peak':
+            sort_column = 'peak_percent_change'
+
+        # Build WHERE clause
+        where_conditions = []
+        if risk_filter:
+            where_conditions.append(f"funding_risk_level = '{risk_filter}'")
+
+        if bot_filter == 'with_bots':
+            where_conditions.append("bot_detection_flag IS NOT NULL AND bot_detection_flag != 'none'")
+        elif bot_filter == 'no_bots':
+            where_conditions.append("(bot_detection_flag IS NULL OR bot_detection_flag = 'none')")
+
+        where_clause = ' AND '.join(where_conditions) if where_conditions else '1=1'
+
+        # Execute query
+        conn = sqlite3.connect(str(db_path), check_same_thread=False)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        query = f'''
+            SELECT
+                base_mint, name, symbol, peak_percent_change,
+                dexscreener_price_usd, dexscreener_price_native,
+                funding_risk_level, bot_activity_level,
+                first_seen, initial_price_usd
+            FROM pools
+            WHERE {where_clause}
+            ORDER BY {sort_column} {order.upper()}
+            LIMIT {limit}
+        '''
+
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        conn.close()
+
+        # Convert to list of dicts
+        tokens = []
+        for row in rows:
+            tokens.append({
+                'base_mint': row['base_mint'],
+                'name': row['name'],
+                'symbol': row['symbol'],
+                'peak_percent_change': row['peak_percent_change'],
+                'current_price_usd': row['dexscreener_price_usd'],
+                'sol_balance': row['dexscreener_price_native'],
+                'risk_level': row['funding_risk_level'],
+                'bot_activity': row['bot_activity_level'],
+                'detected': row['first_seen'],
+                'initial_price': row['initial_price_usd']
+            })
+
+        return jsonify({
+            'tokens': tokens,
+            'count': len(tokens),
+            'query_params': {
+                'sort_by': sort_by,
+                'order': order,
+                'limit': limit,
+                'risk_filter': risk_filter,
+                'bot_filter': bot_filter
+            }
+        })
+
+    except Exception as e:
+        print(f"[API QUERY] ERROR: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500

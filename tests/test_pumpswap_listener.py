@@ -1032,7 +1032,7 @@ class StandalonePumpSwapListener:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
-            # Query 15 most recent token launches (newest first)
+            # Query 5 most recent token launches (newest first)
             # Shows latest tokens with their risk assessments
             cursor.execute('''
                 SELECT symbol, base_mint, signature, total_supply, dexscreener_price_usd, initial_price_usd, last_price_update,
@@ -1042,7 +1042,7 @@ class StandalonePumpSwapListener:
                 AND (hidden_from_table IS NULL OR hidden_from_table = 0)
                 AND initial_price_usd > 0
                 ORDER BY first_seen DESC
-                LIMIT 15
+                LIMIT 5
             ''')
 
             for row in cursor.fetchall():
@@ -1055,7 +1055,7 @@ class StandalonePumpSwapListener:
                     'initial_price_usd': row['initial_price_usd'],
                     'last_price_update': row['last_price_update'],
                     'rank': row['rank'],  # Position in performance ranking
-                    'fetch_live_price': row['rank'] <= 25  # Only fetch live prices for top 25
+                    'fetch_live_price': row['rank'] <= 5  # Only fetch live prices for top 5
                 }
                 tokens.append(token_entry)
 

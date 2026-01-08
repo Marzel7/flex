@@ -1867,7 +1867,7 @@ class StandalonePumpSwapListener:
                 token_balance = price_result.get('token_balance', 0) if price_result else 0
 
                 # If fetch failed (price_result is None), use cached database values
-                if sol_balance == 0 and base_mint:
+                if not price_result and base_mint:
                     try:
                         db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
                         if db_path.exists():

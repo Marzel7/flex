@@ -3775,7 +3775,8 @@ def query_tokens():
         where_clause = ' AND '.join(where_conditions) if where_conditions else '1=1'
 
         # Execute query
-        conn = sqlite3.connect(str(db_path), check_same_thread=False)
+        db = PumpSwapDatabase()
+        conn = db.get_connection()
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 

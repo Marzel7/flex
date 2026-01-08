@@ -18,8 +18,9 @@ from spl.token.core import MINT_LAYOUT, MintInfo
 
 # Helius RPC endpoints (rotate if rate limited)
 #RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=f084fae8-d111-4337-9960-2d9c5e02a726"  # MARZEL
-RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=0ae07551-32df-4d9d-af2a-1925fb7f561f"  # JEZZA
+#RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=0ae07551-32df-4d9d-af2a-1925fb7f561f"  # JEZZA
 #RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=a132b19d-9b44-4c71-8e6f-d320d9f351c6"  # GITHUB
+RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=3b2917b8-9bed-4e2e-8c05-a74adbc34bb8"  # NEW KEY
 
 # Known quote tokens for smart price pair selection
 KNOWN_QUOTES = {

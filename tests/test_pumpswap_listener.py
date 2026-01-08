@@ -1752,8 +1752,8 @@ class StandalonePumpSwapListener:
         return new_launches
 
     def print_live_table(self):
-        """Print live price table for top 20 tokens by peak % change"""
-        # Get top 20 tokens by peak % change from database (display shows best data)
+        """Print live price table for 5 most recent tokens"""
+        # Get 5 most recent tokens from database (ordered by detection time)
         top_30_tokens = []
         try:
             db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
@@ -1767,8 +1767,8 @@ class StandalonePumpSwapListener:
                         funding_risk_level, bot_activity_level
                     FROM pools
                     WHERE peak_percent_change IS NOT NULL
-                    ORDER BY peak_percent_change DESC
-                    LIMIT 20
+                    ORDER BY first_seen DESC
+                    LIMIT 5
                 ''')
                 db_tokens = cursor.fetchall()
                 conn.close()
@@ -1838,8 +1838,8 @@ class StandalonePumpSwapListener:
                 print(f"⚠️  SUSPICIOUS TOKENS: {suspicious_count}/{total_count} ({suspicious_pct}%) - CRITICAL/HIGH/MEDIUM Risk")
                 print(f"{'-'*650}")
 
-            # Tokens are already sorted by peak from database query
-            print(f"Showing top 20 tokens by peak % change (highest peaks first)")
+            # Tokens are already sorted by detection time (newest first)
+            print(f"Showing 5 most recent tokens (newest first)")
             print(f"{'-'*650}")
             print(f"{'Rank':<4} {'Name':<8} {'Peak %':<12} {'Current Price':<18} {'Risk':<12} {'Bots':<8} {'SOL Bal':<12} {'Mint':<31}")
             print(f"{'-'*650}")

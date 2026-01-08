@@ -1862,9 +1862,28 @@ class StandalonePumpSwapListener:
                     display_name = base_mint[:6]
 
                 # Get price and balances from result (now includes fallback data)
-                price_usd = price_result.get('price_usd', 0)
-                sol_balance = price_result.get('sol_balance', 0)
-                token_balance = price_result.get('token_balance', 0)
+                price_usd = price_result.get('price_usd', 0) if price_result else 0
+                sol_balance = price_result.get('sol_balance', 0) if price_result else 0
+                token_balance = price_result.get('token_balance', 0) if price_result else 0
+
+                # If fetch failed (price_result is None), use cached database values
+                if sol_balance == 0 and base_mint:
+                    try:
+                        db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                        if db_path.exists():
+                            conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                            cursor = conn.cursor()
+                            cursor.execute('SELECT dexscreener_price_usd, dexscreener_price_native FROM pools WHERE base_mint = ?', (base_mint,))
+                            result = cursor.fetchone()
+                            conn.close()
+                            if result:
+                                cached_price_usd, cached_sol_balance = result
+                                if cached_price_usd and cached_price_usd > 0:
+                                    price_usd = cached_price_usd
+                                if cached_sol_balance and cached_sol_balance > 0:
+                                    sol_balance = cached_sol_balance
+                    except:
+                        pass
 
                 # Note: Large SOL balances (>1000) are possible for exceptionally successful pools
                 # No capping applied - trust the fetched value

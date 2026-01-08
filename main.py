@@ -16,11 +16,52 @@ import queue
 import sys
 from spl.token.core import MINT_LAYOUT, MintInfo
 
-# Helius RPC endpoints (rotate if rate limited)
-#RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=f084fae8-d111-4337-9960-2d9c5e02a726"  # MARZEL
-#RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=0ae07551-32df-4d9d-af2a-1925fb7f561f"  # JEZZA
-#RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=a132b19d-9b44-4c71-8e6f-d320d9f351c6"  # GITHUB
-RPC_HTTPS_URL = "https://mainnet.helius-rpc.com/?api-key=3b2917b8-9bed-4e2e-8c05-a74adbc34bb8"  # NEW KEY
+# Helius RPC endpoints with automatic rotation for rate limit handling
+RPC_KEYS = [
+    ("a132b19d-9b44-4c71-8e6f-d320d9f351c6", "GITHUB"),     # Primary (best quota)
+    ("f084fae8-d111-4337-9960-2d9c5e02a726", "MARZEL"),     # Fallback 1
+    ("0ae07551-32df-4d9d-af2a-1925fb7f561f", "JEZZA"),      # Fallback 2
+    ("3b2917b8-9bed-4e2e-8c05-a74adbc34bb8", "NEW_KEY"),    # Fallback 3 (rate limited but still works)
+]
+
+class RPCRotation:
+    """Manage RPC key rotation with automatic fallback on rate limits"""
+    def __init__(self, keys):
+        self.keys = keys
+        self.current_index = 0
+        self.rate_limit_counts = {key[1]: 0 for key in keys}
+
+    def get_current_url(self):
+        """Get current RPC URL"""
+        key, name = self.keys[self.current_index]
+        return f"https://mainnet.helius-rpc.com/?api-key={key}"
+
+    def get_current_name(self):
+        """Get current RPC key name"""
+        return self.keys[self.current_index][1]
+
+    def on_rate_limit(self):
+        """Call when rate limited - switches to next key"""
+        name = self.get_current_name()
+        self.rate_limit_counts[name] += 1
+        self.current_index = (self.current_index + 1) % len(self.keys)
+        next_name = self.get_current_name()
+        print(f"[RPC] Rate limited on {name}, rotating to {next_name} (attempt {self.rate_limit_counts[name]})")
+        return self.get_current_url()
+
+    def status(self):
+        """Print status of all keys"""
+        print("\n[RPC] Key Status:")
+        for i, (key, name) in enumerate(self.keys):
+            marker = "→" if i == self.current_index else " "
+            limits = self.rate_limit_counts[name]
+            status = "Active" if i == self.current_index else "Standby"
+            print(f"  {marker} {name:<12} - {status} (rate limited {limits}x)")
+        print()
+
+# Initialize RPC rotation
+rpc_rotation = RPCRotation(RPC_KEYS)
+RPC_HTTPS_URL = rpc_rotation.get_current_url()
 
 # Known quote tokens for smart price pair selection
 KNOWN_QUOTES = {
@@ -3408,6 +3449,26 @@ HTML_TEMPLATE = '''
 
                 let html = '';
 
+                // Risk and Bot indicators
+                const riskColor =
+                    data.risk_level === 'CRITICAL' ? '#ff6b6b' :
+                    data.risk_level === 'HIGH' ? '#ff8c42' :
+                    data.risk_level === 'MEDIUM' ? '#fbbf24' :
+                    data.risk_level === 'LOW+' ? '#60a5fa' :
+                    '#4ade80';
+                const peakColor = data.peak_percent_change > 100 ? '#4ade80' : data.peak_percent_change > 0 ? '#fbbf24' : '#ff6b6b';
+
+                html += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px;">
+                    <div style="background: #1a2847; padding: 6px; border-radius: 4px; text-align: center;">
+                        <div style="font-size: 8px; color: #888; margin-bottom: 2px;">💰 SOL BAL</div>
+                        <div style="font-size: 11px; color: #ffd700; font-weight: bold;">${data.sol_balance ? data.sol_balance.toFixed(2) : 'N/A'}</div>
+                    </div>
+                    <div style="background: #1a2847; padding: 6px; border-radius: 4px; text-align: center;">
+                        <div style="font-size: 8px; color: #888; margin-bottom: 2px;">📈 PEAK %</div>
+                        <div style="font-size: 11px; color: ${peakColor}; font-weight: bold;">${data.peak_percent_change ? data.peak_percent_change.toFixed(2) + '%' : 'N/A'}</div>
+                    </div>
+                </div>`;
+
                 // On-chain price display
                 // Always display price if it's a valid number (not null, undefined, or 0)
                 if (data.on_chain_price !== null && data.on_chain_price !== undefined && data.on_chain_price !== 0) {
@@ -3428,9 +3489,21 @@ HTML_TEMPLATE = '''
                     const onChainDisplay = onChainUsd && onChainUsd > 0 ? formatPrice(onChainUsd) : 'N/A';
 
                     html += `<div style="background: #1a2847; padding: 8px; border-radius: 4px; text-align: center;">
-                        <div style="font-size: 8px; color: #888; margin-bottom: 3px;">💹 ON-CHAIN PRICE</div>
+                        <div style="font-size: 8px; color: #888; margin-bottom: 3px;">💹 PRICE</div>
                         <div style="font-size: 12px; color: #00d4ff; font-weight: bold; word-break: break-all;">${onChainDisplay}</div>
                         <div style="font-size: 9px; color: #0088ff; margin-top: 3px;">Supply: ${data.total_supply ? (data.total_supply / 1e9).toFixed(2) + 'B' : 'N/A'}</div>
+                    </div>`;
+
+                    // Add Risk and Bot assessment
+                    html += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
+                        <div style="background: #1a2847; padding: 6px; border-radius: 4px; text-align: center;">
+                            <div style="font-size: 8px; color: #888; margin-bottom: 2px;">⚠️ RISK</div>
+                            <div style="font-size: 11px; color: ${riskColor}; font-weight: bold;">${data.risk_level || 'UNKNOWN'}</div>
+                        </div>
+                        <div style="background: #1a2847; padding: 6px; border-radius: 4px; text-align: center;">
+                            <div style="font-size: 8px; color: #888; margin-bottom: 2px;">🤖 BOTS</div>
+                            <div style="font-size: 11px; color: #ff9800; font-weight: bold;">${data.bot_activity || 'NONE'}</div>
+                        </div>
                     </div>`;
 
                     // Add market cap if available (use USD if available, otherwise SOL)
@@ -3874,17 +3947,18 @@ def get_pumpswap_price(token_mint):
         conn = db.get_connection()
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT current_price, total_supply, market_cap, dex, dexscreener_price_usd, dexscreener_price_native, sol_usd_price
+            SELECT current_price, total_supply, market_cap, dex, dexscreener_price_usd, dexscreener_price_native, sol_usd_price, funding_risk_level, bot_activity_level, peak_percent_change, dexscreener_price_native
             FROM pools
             WHERE base_mint = ?
             LIMIT 1
         ''', (token_mint,))
+        # Note: dexscreener_price_native is used twice - once for DEX price, once for SOL balance
 
         result = cursor.fetchone()
         conn.close()
 
         if result:
-            current_price, total_supply, market_cap, dex, dex_price_usd, dex_price_native, sol_usd_price = result
+            current_price, total_supply, market_cap, dex, dex_price_usd, dex_price_native, sol_usd_price, risk_level, bot_level, peak_pct, sol_balance = result
             print(f"[API PRICE] ✓ Found in database - on_chain: {current_price}, dex_usd: {dex_price_usd}, dex_native: {dex_price_native}, sol_rate: {sol_usd_price}", flush=True)
             sys.stdout.flush()
 
@@ -3895,6 +3969,10 @@ def get_pumpswap_price(token_mint):
                 'dex': dex,
                 'total_supply': total_supply,
                 'market_cap': market_cap,
+                'risk_level': risk_level,
+                'bot_activity': bot_level,
+                'peak_percent_change': peak_pct,
+                'sol_balance': sol_balance,
             }
 
             # Add DexScreener data if available

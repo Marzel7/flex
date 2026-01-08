@@ -3060,9 +3060,90 @@ HTML_TEMPLATE = '''
             font-size: 11px;
         }
 
+        .query-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #0a0e27;
+            border-radius: 8px;
+            border: 1px solid #1a2847;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #8892b0;
+            text-transform: uppercase;
+        }
+
+        .control-group select {
+            background: #111729;
+            border: 1px solid #1a2847;
+            color: #e0e8f0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            min-width: 140px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .control-group select:hover {
+            border-color: #2a4a7f;
+            background: #0f1735;
+        }
+
+        .control-group select:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        }
+
+        .query-button {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border: none;
+            color: #0a0e27;
+            padding: 8px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+            align-self: flex-end;
+        }
+
+        .query-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(255, 215, 0, 0.3);
+        }
+
+        .query-button:active {
+            transform: translateY(0);
+        }
+
         @media (max-width: 1024px) {
             .container {
                 grid-template-columns: 1fr;
+            }
+
+            .query-controls {
+                flex-direction: column;
+            }
+
+            .control-group select {
+                min-width: 100%;
+            }
+
+            .query-button {
+                width: 100%;
             }
         }
     </style>
@@ -3103,6 +3184,60 @@ HTML_TEMPLATE = '''
                 <div class="section-title">Latest Pools <span class="refresh-badge">Auto-refresh: 30s</span></div>
                 <div class="pools-list" id="poolsContainer">
                     <div class="loading">Loading pools...</div>
+                </div>
+            </div>
+
+            <div class="pools-section">
+                <div class="section-title">Token Database Query <span class="refresh-badge">On-demand</span></div>
+                <div class="query-controls">
+                    <div class="control-group">
+                        <label>Sort By:</label>
+                        <select id="sortBy">
+                            <option value="peak">Peak % Gain</option>
+                            <option value="date">Detection Date</option>
+                            <option value="price">Current Price</option>
+                            <option value="risk">Risk Level</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Order:</label>
+                        <select id="sortOrder">
+                            <option value="desc">Descending</option>
+                            <option value="asc">Ascending</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Risk Filter:</label>
+                        <select id="riskFilter">
+                            <option value="">All Risks</option>
+                            <option value="CRITICAL">CRITICAL</option>
+                            <option value="HIGH">HIGH</option>
+                            <option value="MEDIUM">MEDIUM</option>
+                            <option value="LOW+">LOW+</option>
+                            <option value="LOW">LOW</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Bot Activity:</label>
+                        <select id="botFilter">
+                            <option value="">All Bots</option>
+                            <option value="with_bots">With Bots</option>
+                            <option value="no_bots">No Bots</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Results:</label>
+                        <select id="limitFilter">
+                            <option value="10">10</option>
+                            <option value="20" selected>20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                    <button id="queryBtn" class="query-button">Query Tokens</button>
+                </div>
+                <div class="pools-list" id="queryResultsContainer">
+                    <div class="loading">Set filters and click "Query Tokens" to load</div>
                 </div>
             </div>
         </div>
@@ -3479,6 +3614,101 @@ HTML_TEMPLATE = '''
             });
             updateAllPoolTimes();
         }
+
+        // Query tokens from database with flexible filtering
+        async function queryTokens() {
+            const sortBy = document.getElementById('sortBy').value;
+            const order = document.getElementById('sortOrder').value;
+            const limit = document.getElementById('limitFilter').value;
+            const riskFilter = document.getElementById('riskFilter').value;
+            const botFilter = document.getElementById('botFilter').value;
+
+            console.log('[QUERY] Fetching tokens with params:', { sortBy, order, limit, riskFilter, botFilter });
+
+            const resultsContainer = document.getElementById('queryResultsContainer');
+            resultsContainer.innerHTML = '<div class="loading">Loading tokens...</div>';
+
+            try {
+                const params = new URLSearchParams();
+                params.append('sort_by', sortBy);
+                params.append('order', order);
+                params.append('limit', limit);
+                if (riskFilter) params.append('risk_filter', riskFilter);
+                if (botFilter) params.append('bot_filter', botFilter);
+
+                const response = await fetch(`/api/tokens/query?${params}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    resultsContainer.innerHTML = `<div class="loading" style="color: #ff6b6b;">Error: ${data.error}</div>`;
+                    console.error('[QUERY] Error:', data.error);
+                    return;
+                }
+
+                const tokens = data.tokens || [];
+
+                if (tokens.length === 0) {
+                    resultsContainer.innerHTML = '<div class="loading">No tokens found matching your filters</div>';
+                    return;
+                }
+
+                // Build HTML for results
+                let html = '';
+                tokens.forEach((token, index) => {
+                    const peakColor = token.peak_percent_change > 100 ? '#4ade80' : token.peak_percent_change > 0 ? '#fbbf24' : '#ff6b6b';
+                    const riskColor =
+                        token.risk_level === 'CRITICAL' ? '#ff6b6b' :
+                        token.risk_level === 'HIGH' ? '#ff8c42' :
+                        token.risk_level === 'MEDIUM' ? '#fbbf24' :
+                        token.risk_level === 'LOW+' ? '#60a5fa' :
+                        '#4ade80';
+
+                    html += `
+                        <div class="pool-item">
+                            <div class="pool-left">
+                                <div class="pool-icon">
+                                    ${token.symbol.charAt(0).toUpperCase()}
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; margin-bottom: 4px;">
+                                        ${token.name || 'Unknown'} (${token.symbol})
+                                    </div>
+                                    <div style="font-size: 12px; color: #8892b0;">
+                                        Detected: ${new Date(token.detected).toLocaleDateString()}
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="text-align: right; font-size: 12px;">
+                                <div style="color: ${peakColor}; font-weight: 600; margin-bottom: 4px;">
+                                    Peak: ${token.peak_percent_change.toFixed(2)}%
+                                </div>
+                                <div style="color: #8892b0;">
+                                    Price: $${token.current_price_usd ? token.current_price_usd.toFixed(10) : 'N/A'}
+                                </div>
+                                <div style="color: ${riskColor}; font-weight: 600; margin-top: 4px;">
+                                    ${token.risk_level} | Bots: ${token.bot_activity || 'NONE'}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                resultsContainer.innerHTML = html;
+                console.log(`[QUERY] Displayed ${tokens.length} tokens`);
+
+            } catch (error) {
+                console.error('[QUERY] Error fetching tokens:', error);
+                resultsContainer.innerHTML = `<div class="loading" style="color: #ff6b6b;">Error fetching tokens: ${error.message}</div>`;
+            }
+        }
+
+        // Set up query button click handler
+        document.getElementById('queryBtn').addEventListener('click', queryTokens);
+
+        // Also allow Enter key to query
+        document.getElementById('sortBy').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') queryTokens();
+        });
 
         // Poll for new pools every 1 second (near real-time updates)
         console.log('[INIT] Setting up polling interval (every 1 second)');

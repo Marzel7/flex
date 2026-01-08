@@ -43,13 +43,48 @@ from typing import Dict, List, Optional
 from pathlib import Path
 from threading import Thread
 
-# Helius RPC configuration
-HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "3b2917b8-9bed-4e2e-8c05-a74adbc34bb8"
+# Helius RPC configuration with rotation
+RPC_KEYS = [
+    ("a132b19d-9b44-4c71-8e6f-d320d9f351c6", "GITHUB"),     # Primary (best quota)
+    ("f084fae8-d111-4337-9960-2d9c5e02a726", "MARZEL"),     # Fallback 1
+    ("0ae07551-32df-4d9d-af2a-1925fb7f561f", "JEZZA"),      # Fallback 2
+    ("3b2917b8-9bed-4e2e-8c05-a74adbc34bb8", "NEW_KEY"),    # Fallback 3
+]
+
+class RPCRotation:
+    """Manage RPC key rotation with automatic fallback on rate limits"""
+    def __init__(self, keys):
+        self.keys = keys
+        self.current_index = 0
+        self.rate_limit_counts = {key[1]: 0 for key in keys}
+
+    def get_current_key(self):
+        """Get current API key"""
+        return self.keys[self.current_index][0]
+
+    def get_current_name(self):
+        """Get current key name"""
+        return self.keys[self.current_index][1]
+
+    def on_rate_limit(self):
+        """Call when rate limited - switches to next key"""
+        name = self.get_current_name()
+        self.rate_limit_counts[name] += 1
+        self.current_index = (self.current_index + 1) % len(self.keys)
+        next_name = self.get_current_name()
+        print(f"[RPC] Rate limited on {name}, rotating to {next_name}")
+        return self.get_current_key()
+
+# Initialize RPC rotation for HTTP and WebSocket (distributed load)
+rpc_rotation_http = RPCRotation(RPC_KEYS)
+rpc_rotation_ws = RPCRotation(RPC_KEYS)
+rpc_rotation_ws.current_index = 1  # Use different key for WebSocket
+
+HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or rpc_rotation_http.get_current_key()
 HELIUS_RPC = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
 
 # Alternative API key for WebSocket (separates WebSocket from HTTP load)
-# Using different key reduces rate limiting by distributing across endpoints
-HELIUS_WEBSOCKET_API_KEY = os.getenv("HELIUS_WEBSOCKET_API_KEY", "") or "3b2917b8-9bed-4e2e-8c05-a74adbc34bb8"
+HELIUS_WEBSOCKET_API_KEY = os.getenv("HELIUS_WEBSOCKET_API_KEY", "") or rpc_rotation_ws.get_current_key()
 HELIUS_RPC_WS = f"wss://mainnet.helius-rpc.com/?api-key={HELIUS_WEBSOCKET_API_KEY}"
 
 SOL_DECIMALS = 9
@@ -1841,8 +1876,8 @@ class StandalonePumpSwapListener:
             # Tokens are already sorted by detection time (newest first)
             print(f"Showing 5 most recent tokens (newest first)")
             print(f"{'-'*650}")
-            print(f"{'Rank':<4} {'Name':<8} {'Peak %':<12} {'Current Price':<18} {'Risk':<12} {'Bots':<8} {'SOL Bal':<12} {'Mint':<31}")
-            print(f"{'-'*650}")
+            print(f"{'SOL Bal':<12} {'% Change':<10} {'Price':<18} {'Peak %':<18} {'Buy Price':<12} {'Risk':<12} {'Bots':<8} {'Link':<8} {'Level':<8} {'-':<2} {'-':<2} {'Mint':<31}")
+            print(f"{'-'*760}")
 
             for rank, token_data in enumerate(top_30_tokens, 1):
                 token, price_result, source, risk, bot_level = token_data
@@ -2184,10 +2219,36 @@ class StandalonePumpSwapListener:
 
                 # Format risk level
                 risk_str = risk or "UNKNOWN"
-                bot_str = bot_level or "NONE"
+                # Bot data is incorrect - clear it but keep the column
+                bot_str = "-"
 
-                # Print simplified row
-                print(f"{rank:<4} {display_name:<8} {peak_str:<12} {price_str:<18} {risk_str:<12} {bot_str:<8} {sol_str:<12} {base_mint:<31}")
+                # Get buy price from database
+                buy_price_str = "N/A"
+                try:
+                    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
+                    if db_path.exists():
+                        conn = sqlite3.connect(str(db_path), check_same_thread=False)
+                        cursor = conn.cursor()
+                        cursor.execute('SELECT buy_price_usd FROM pools WHERE base_mint = ?', (base_mint,))
+                        buy_result = cursor.fetchone()
+                        conn.close()
+                        if buy_result and buy_result[0]:
+                            buy_price_val = buy_result[0]
+                            buy_price_str = f"${buy_price_val:.8f}" if buy_price_val > 0 else "N/A"
+                except:
+                    pass
+
+                # Print simplified row - new column order: SOL Bal, % Change, Price, Peak %, Buy Price, Risk, Bots, Link, Level, -, -, Mint
+                price_change_str = f"{((sol_balance - 85) / 85 * 100):.1f}%" if sol_balance > 0 else "N/A"
+                # Format Peak % with green color using ANSI codes
+                peak_pct_str = f"{peak_pct:.1f}%" if peak_pct else "N/A"
+                if peak_pct and peak_pct > 0:
+                    # Add green color to Peak %
+                    peak_pct_display = f"\033[92m{peak_pct_str}\033[0m"
+                else:
+                    peak_pct_display = peak_pct_str
+                # Print with proper alignment (Bots column is now empty/dash)
+                print(f"{sol_str:<12} {price_change_str:<10} {price_str:<18} {peak_pct_display:<18} {buy_price_str:<12} {risk_str:<12} {bot_str:<8} {'🔗':<8} {'-':<8} {'-':<2} {'-':<2} {base_mint:<31}")
 
             # Display sold tokens
             for mint, name, symbol, sell_price, buy_price, profit_pct, profit_usd, qty in sold_tokens:

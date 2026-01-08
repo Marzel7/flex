@@ -44,12 +44,12 @@ from pathlib import Path
 from threading import Thread
 
 # Helius RPC configuration
-HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "0ae07551-32df-4d9d-af2a-1925fb7f561f"
+HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "3b2917b8-9bed-4e2e-8c05-a74adbc34bb8"
 HELIUS_RPC = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
 
 # Alternative API key for WebSocket (separates WebSocket from HTTP load)
 # Using different key reduces rate limiting by distributing across endpoints
-HELIUS_WEBSOCKET_API_KEY = os.getenv("HELIUS_WEBSOCKET_API_KEY", "") or "f084fae8-d111-4337-9960-2d9c5e02a726"
+HELIUS_WEBSOCKET_API_KEY = os.getenv("HELIUS_WEBSOCKET_API_KEY", "") or "3b2917b8-9bed-4e2e-8c05-a74adbc34bb8"
 HELIUS_RPC_WS = f"wss://mainnet.helius-rpc.com/?api-key={HELIUS_WEBSOCKET_API_KEY}"
 
 SOL_DECIMALS = 9

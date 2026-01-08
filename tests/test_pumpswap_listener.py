@@ -2371,8 +2371,8 @@ class StandalonePumpSwapListener:
             except:
                 pass
 
-            on_chain_count = sum(1 for _, _, src in active_tokens if src == 'onchain')
-            dex_fallback_count = sum(1 for _, _, src in active_tokens if src == 'dexscreener')
+            on_chain_count = sum(1 for _, _, src, _, _ in top_30_tokens if src == 'database')
+            dex_fallback_count = sum(1 for _, _, src, _, _ in top_30_tokens if src == 'dexscreener')
             print(f"\n[RESULT] ✓ OnChain: {on_chain_count} | DexScreen Fallback: {dex_fallback_count} | Low liquidity: {low_count} | No price: {fetch_failed_count}")
 
     async def listen_websocket(self) -> None:

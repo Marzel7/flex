@@ -3663,8 +3663,9 @@ HTML_TEMPLATE = '''
                         token.risk_level === 'LOW+' ? '#60a5fa' :
                         '#4ade80';
 
+                    const shortMint = token.base_mint.substring(0, 8) + '...' + token.base_mint.substring(token.base_mint.length - 8);
                     html += `
-                        <div class="pool-item">
+                        <div class="pool-item" style="cursor: pointer; position: relative;" title="Click to copy mint address">
                             <div class="pool-left">
                                 <div class="pool-icon">
                                     ${token.symbol.charAt(0).toUpperCase()}
@@ -3672,6 +3673,9 @@ HTML_TEMPLATE = '''
                                 <div style="flex: 1;">
                                     <div style="font-weight: 600; margin-bottom: 4px;">
                                         ${token.name || 'Unknown'} (${token.symbol})
+                                    </div>
+                                    <div style="font-size: 11px; color: #60a5fa; font-family: monospace; margin-bottom: 3px; user-select: all; word-break: break-all;">
+                                        ${token.base_mint}
                                     </div>
                                     <div style="font-size: 12px; color: #8892b0;">
                                         Detected: ${new Date(token.detected).toLocaleDateString()}
@@ -3691,6 +3695,23 @@ HTML_TEMPLATE = '''
                             </div>
                         </div>
                     `;
+
+                    // Add click-to-copy functionality
+                    setTimeout(() => {
+                        const lastItem = resultsContainer.lastElementChild;
+                        if (lastItem && token.base_mint) {
+                            lastItem.addEventListener('click', (e) => {
+                                navigator.clipboard.writeText(token.base_mint).then(() => {
+                                    const original = lastItem.style.borderColor;
+                                    lastItem.style.borderColor = '#4ade80';
+                                    lastItem.style.transition = 'border-color 0.3s';
+                                    setTimeout(() => {
+                                        lastItem.style.borderColor = original;
+                                    }, 1500);
+                                });
+                            });
+                        }
+                    }, 0);
                 });
 
                 resultsContainer.innerHTML = html;

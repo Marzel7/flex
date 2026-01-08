@@ -1816,7 +1816,7 @@ class StandalonePumpSwapListener:
         except:
             pass
 
-        if active_tokens or sold_tokens:
+        if top_30_tokens or sold_tokens:
             # Calculate suspicious token count
             suspicious_count = 0
             try:

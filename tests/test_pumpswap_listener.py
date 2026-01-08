@@ -3033,9 +3033,17 @@ class StandalonePumpSwapListener:
                             token_mint, signature, symbol
                         )
 
-                        # Update total supply if we got a price result
-                        if price_result and price_result.get('total_supply'):
-                            self.update_token_supply(token_mint, price_result['total_supply'])
+                        # Update prices and supply if we got a price result
+                        if price_result:
+                            # Update DexScreener prices (USD and native/SOL)
+                            self.update_dexscreener_price(
+                                token_mint,
+                                price_result.get('price_usd', 0),
+                                price_result.get('sol_balance', 0)
+                            )
+                            # Update total supply if available
+                            if price_result.get('total_supply'):
+                                self.update_token_supply(token_mint, price_result['total_supply'])
 
                         # Always add token, even if price fetch failed (price_result is None)
                         self.pumpswap_tokens.append({

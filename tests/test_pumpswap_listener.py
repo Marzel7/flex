@@ -1893,7 +1893,11 @@ class StandalonePumpSwapListener:
 
                 # Format SOL balance - show actual balance or N/A if couldn't fetch
                 if sol_balance > 0:
-                    sol_str = f"{sol_balance:.2f} SOL"
+                    # For very small values, use scientific notation to show non-zero
+                    if sol_balance < 0.01:
+                        sol_str = f"{sol_balance:.2e} SOL"
+                    else:
+                        sol_str = f"{sol_balance:.2f} SOL"
                 else:
                     sol_str = "N/A"
 
@@ -1901,11 +1905,16 @@ class StandalonePumpSwapListener:
                 # Positive = gained SOL (pool value increased)
                 # Negative = lost SOL (pool value decreased/drained)
                 if sol_balance > 0:
+                    # For very small balances, show percentage change using scientific notation
                     sol_change_pct = ((sol_balance - 85) / 85) * 100
-                    if sol_change_pct >= 0:
-                        price_change_str = f"+{sol_change_pct:.1f}%"
-                    else:
+                    if sol_balance < 0.01:
+                        # Very small balance - just show the negative percentage
                         price_change_str = f"{sol_change_pct:.1f}%"
+                    else:
+                        if sol_change_pct >= 0:
+                            price_change_str = f"+{sol_change_pct:.1f}%"
+                        else:
+                            price_change_str = f"{sol_change_pct:.1f}%"
                 else:
                     price_change_str = "N/A"
 

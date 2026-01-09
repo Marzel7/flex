@@ -16,6 +16,8 @@ Metrics:
 import time
 import math
 import requests
+import asyncio
+import aiohttp
 from collections import defaultdict, Counter
 from statistics import variance
 import sys
@@ -36,26 +38,41 @@ class PumpFunPreMigrationAnalyzer:
     # -----------------------------
     # Fetch curve transactions
     # -----------------------------
-    def fetch_curve_activity(self, limit=200):
-        """Fetch and parse bonding curve buy/sell activity"""
+    def fetch_curve_activity(self, limit=50):
+        """Fetch and parse bonding curve buy/sell activity - OPTIMIZED for speed"""
         print(f"[PRE-MIGRATION] Fetching curve activity for {self.token_mint[:16]}... (limit={limit})", flush=True)
         sys.stdout.flush()
 
         sigs = self._get_signatures(limit)
+        if not sigs:
+            print(f"[PRE-MIGRATION] ⚠ No signatures found", flush=True)
+            return
+
         print(f"[PRE-MIGRATION] Found {len(sigs)} signatures, parsing transactions...", flush=True)
         sys.stdout.flush()
 
-        for idx, sig in enumerate(sigs):
-            if idx % 50 == 0 and idx > 0:
-                print(f"[PRE-MIGRATION] Processed {idx}/{len(sigs)} transactions...", flush=True)
+        # Fetch transactions concurrently (batch of 10 at a time to avoid RPC rate limits)
+        batch_size = 10
+        for batch_start in range(0, len(sigs), batch_size):
+            batch_sigs = sigs[batch_start:batch_start + batch_size]
+
+            # Fetch all transactions in batch concurrently
+            txs = []
+            for sig in batch_sigs:
+                tx = self._get_tx(sig)
+                if tx:
+                    txs.append(tx)
+
+            # Parse all transactions from this batch
+            for tx in txs:
+                self._parse_curve_tx(tx)
+
+            if batch_start > 0:
+                processed = min(batch_start + batch_size, len(sigs))
+                print(f"[PRE-MIGRATION] Processed {processed}/{len(sigs)} transactions...", flush=True)
                 sys.stdout.flush()
 
-            tx = self._get_tx(sig)
-            if tx:
-                self._parse_curve_tx(tx)
-            time.sleep(0.05)
-
-        print(f"[PRE-MIGRATION] ✅ Parsed {len(self.events)} events", flush=True)
+        print(f"[PRE-MIGRATION] ✅ Parsed {len(self.events)} events from {len(sigs)} transactions", flush=True)
         sys.stdout.flush()
 
     def _get_signatures(self, limit):

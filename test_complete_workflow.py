@@ -277,6 +277,7 @@ class CompleteWorkflowTest:
                 print(f"[DB] ❌ Error recording migration: {e}")
         else:
             print(f"[WORKFLOW] ⚠️  Could not extract token mint from {signature[:40]}...")
+            print(f"[DEBUG] Transaction will be queued but not recorded to database")
 
     def _extract_mint_from_migration(self, logs: list) -> Optional[str]:
         """Extract token mint from PumpSwap migration transaction logs
@@ -367,6 +368,7 @@ class CompleteWorkflowTest:
                         raise
 
         except Exception as e:
+            print(f"[DEBUG] Error in _fetch_mint_from_transaction: {e}")
             return None
 
     # =========================================================================

@@ -23,7 +23,7 @@ PUMPFUN_PROGRAM_ID = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
 RPC_HTTP = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com"
 DB_PATH = "pumpswap_tokens.db"
-MARKET_CAP_THRESHOLD_USD = 50000
+MARKET_CAP_THRESHOLD_USD = 30000
 MIGRATION_MARKET_CAP_USD = 80000
 POLL_INTERVAL = 5
 FETCH_LIMIT = 20  # number of recent transactions per poll

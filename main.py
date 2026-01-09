@@ -356,9 +356,12 @@ HTML_TEMPLATE = """
                             <tr>
                                 <td class="mint">${token.mint}</td>
                                 <td>
-                                    <span class="risk-score ${getRiskClass(token.risk_level)}">
-                                        ${(token.rug_probability * 100).toFixed(1)}%
-                                    </span>
+                                    ${token.has_premigration_data ?
+                                        `<span class="risk-score ${getRiskClass(token.risk_level)}">
+                                            ${(token.rug_probability * 100).toFixed(1)}%
+                                        </span>` :
+                                        '<span style="color: #a0a0a0;">—</span>'
+                                    }
                                 </td>
                                 <td>
                                     ${token.has_premigration_data ? '✅ Yes' : '❌ No'}

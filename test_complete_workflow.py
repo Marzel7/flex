@@ -356,25 +356,30 @@ class CompleteWorkflowTest:
 
                         # Fall back to account-based extraction if postTokenBalances only has SOL
                         # For Pump.Fun migrations, the token mint is usually in the early account keys
-                        message = tx_data.get('transaction', {}).get('message', {})
-                        accounts = message.get('accountKeys', [])
+                        # BUT: Only if logs confirm this is a migration (have Migrate + Initialize patterns)
+                        logs_text = ' '.join(logs)
+                        if ('Instruction: Migrate' in logs_text and
+                            any(p.lower() in logs_text.lower() for p in ['initialize', 'create_pool', 'InitializePool'])):
 
-                        if accounts:
-                            # Check first few accounts for valid token mints (44-char addresses, not system programs)
-                            system_programs = [
-                                "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # Pump.Fun
-                                "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap
-                                "11111111111111111111111111111111",               # System program
-                                "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",  # ATA program
-                                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # Token program
-                                "So11111111111111111111111111111111111111112",   # Wrapped SOL
-                            ]
+                            message = tx_data.get('transaction', {}).get('message', {})
+                            accounts = message.get('accountKeys', [])
 
-                            for account in accounts[:10]:
-                                if (len(account) in (43, 44) and
-                                    account not in system_programs and
-                                    account not in ["", "11111111111111111111111111111111"]):
-                                    return account
+                            if accounts:
+                                # Check first few accounts for valid token mints (44-char addresses, not system programs)
+                                system_programs = [
+                                    "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # Pump.Fun
+                                    "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap
+                                    "11111111111111111111111111111111",               # System program
+                                    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",  # ATA program
+                                    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # Token program
+                                    "So11111111111111111111111111111111111111112",   # Wrapped SOL
+                                ]
+
+                                for account in accounts[:10]:
+                                    if (len(account) in (43, 44) and
+                                        account not in system_programs and
+                                        account not in ["", "11111111111111111111111111111111"]):
+                                        return account
 
                         # Last resort: try log-based extraction
                         logs = tx_data.get('meta', {}).get('logMessages', [])

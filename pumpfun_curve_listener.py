@@ -47,6 +47,8 @@ class PumpFunCurveListener:
         # Enable WAL mode for concurrent write support
         conn.execute("PRAGMA journal_mode=WAL")
         cursor = conn.cursor()
+
+        # Table 1: Detected tokens with basic market data
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS curve_completions (
                 mint TEXT PRIMARY KEY,
@@ -56,6 +58,28 @@ class PumpFunCurveListener:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+
+        # Table 2: Pre-migration analysis results for purchase strategy
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS token_analysis (
+                mint TEXT PRIMARY KEY,
+                analyzed_at REAL,
+                events_parsed INTEGER,
+                mint_concentration REAL,
+                unique_minters_ratio REAL,
+                sell_suppression_ratio REAL,
+                mint_velocity_sec REAL,
+                buy_size_variance REAL,
+                sell_volume_concentration REAL,
+                rug_probability REAL,
+                risk_level TEXT,
+                creator_activity_ratio REAL,
+                amm_rug_probability REAL,
+                amm_risk_level TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
         conn.commit()
         conn.close()
 
@@ -75,6 +99,42 @@ class PumpFunCurveListener:
                 print(f"[DB] ✅ Stored {mint} (${market_cap:,.0f})", flush=True)
             except Exception as e:
                 print(f"[DB] ❌ Failed to store {mint}: {e}", flush=True)
+
+    async def _store_analysis(self, mint: str, analysis: dict):
+        """Store analysis results for purchase strategy decision"""
+        async with self.db_lock:
+            try:
+                conn = sqlite3.connect(DB_PATH, timeout=30)
+                conn.execute("PRAGMA journal_mode=WAL")
+                cursor = conn.cursor()
+                cursor.execute("""
+                    INSERT OR REPLACE INTO token_analysis (
+                        mint, analyzed_at, events_parsed, mint_concentration,
+                        unique_minters_ratio, sell_suppression_ratio, mint_velocity_sec,
+                        buy_size_variance, sell_volume_concentration, rug_probability,
+                        risk_level, creator_activity_ratio, amm_rug_probability, amm_risk_level
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    mint,
+                    time.time(),
+                    analysis.get("events_parsed", 0),
+                    analysis.get("mint_concentration", 0),
+                    analysis.get("unique_minters_ratio", 0),
+                    analysis.get("sell_suppression_ratio", 0),
+                    analysis.get("mint_velocity_sec", 0),
+                    analysis.get("buy_size_variance", 0),
+                    analysis.get("sell_volume_concentration", 0),
+                    analysis.get("rug_probability", 0),
+                    analysis.get("risk_level", ""),
+                    analysis.get("creator_activity_ratio", 0),
+                    analysis.get("amm_rug_probability", 0),
+                    analysis.get("amm_risk_level", "")
+                ))
+                conn.commit()
+                conn.close()
+                print(f"[DB] ✅ Stored analysis for {mint}", flush=True)
+            except Exception as e:
+                print(f"[DB] ❌ Failed to store analysis for {mint}: {e}", flush=True)
 
     def _is_already_processed(self, mint: str) -> bool:
         try:
@@ -170,6 +230,9 @@ class PumpFunCurveListener:
             risk_level = summary.get("amm_risk_level", "🟢 Low")
             score = summary.get("amm_rug_probability", 0.0)
             print(f"[ANALYZER] {risk_level} | Score: {score:.2%} | {mint}", flush=True)
+
+            # Store analysis results for purchase strategy
+            await self._store_analysis(mint, summary)
         except Exception as e:
             print(f"[ANALYZER] ⚠ Analysis failed for {mint}: {e}", flush=True)
 

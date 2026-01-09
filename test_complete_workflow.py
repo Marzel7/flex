@@ -319,6 +319,7 @@ class CompleteWorkflowTest:
         This is more reliable than trying to parse transaction logs.
 
         Includes retry logic since recently-confirmed transactions may take time to be indexed.
+        Falls back to log-based extraction if postTokenBalances doesn't have a valid token mint.
         """
         try:
             # Use Helius RPC if available
@@ -351,6 +352,13 @@ class CompleteWorkflowTest:
                             mint = balance_info.get('mint', '')
                             # Skip SOL and wrapped SOL, accept 43 or 44 char mints (pump.fun tokens vary)
                             if mint and mint != "So11111111111111111111111111111111111111112" and len(mint) in (43, 44):
+                                return mint
+
+                        # Fall back to log-based extraction if postTokenBalances only has SOL
+                        logs = tx_data.get('meta', {}).get('logMessages', [])
+                        if logs:
+                            mint = self._extract_mint_from_migration(logs)
+                            if mint:
                                 return mint
 
                         return None

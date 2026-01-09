@@ -282,17 +282,28 @@ class PumpFunCurveListener:
                         last_status = current_time
 
                     txs = await self.fetch_recent_signatures(client)
+
+                    # Filter to only new signatures
+                    new_txs_with_sigs = []
                     for tx_info in txs:
                         sig = tx_info.get("signature")
-                        if not sig or sig == self.last_signature:
-                            continue
-                        self.last_signature = sig
-                        full_tx = await self.fetch_transaction(client, sig)
-                        if not full_tx:
-                            continue
-                        mints = await self.extract_mints_from_tx(full_tx)
-                        for mint in mints:
-                            asyncio.create_task(self.handle_mint(mint, sig))
+                        if sig and sig != self.last_signature:
+                            new_txs_with_sigs.append(sig)
+                            self.last_signature = sig
+
+                    # Fetch all new transactions concurrently (non-blocking)
+                    if new_txs_with_sigs:
+                        fetch_tasks = [self.fetch_transaction(client, sig) for sig in new_txs_with_sigs]
+                        full_txs = await asyncio.gather(*fetch_tasks, return_exceptions=True)
+
+                        # Process results with their signatures
+                        for sig, full_tx in zip(new_txs_with_sigs, full_txs):
+                            if isinstance(full_tx, Exception) or not full_tx:
+                                continue
+                            mints = await self.extract_mints_from_tx(full_tx)
+                            for mint in mints:
+                                # Spawn handle_mint as background task (non-blocking)
+                                asyncio.create_task(self.handle_mint(mint, sig))
 
                     await asyncio.sleep(POLL_INTERVAL)
                 except KeyboardInterrupt:

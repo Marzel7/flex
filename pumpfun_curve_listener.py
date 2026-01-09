@@ -233,11 +233,18 @@ class PumpFunCurveListener:
             return set()
 
     # --- Analyzer ---
-    async def analyze_curve(self, mint: str):
-        if mint in self.analyzed_tokens:
+    async def analyze_curve(self, mint: str, force_reanalyze: bool = False):
+        """Analyze token's pre-migration curve activity
+
+        Args:
+            mint: Token mint address
+            force_reanalyze: If True, re-analyze even if already analyzed (for better data at higher price)
+        """
+        if mint in self.analyzed_tokens and not force_reanalyze:
             return
         try:
-            print(f"[ANALYZER] 🔍 Analyzing {mint}", flush=True)
+            action = "Re-analyzing" if (mint in self.analyzed_tokens and force_reanalyze) else "Analyzing"
+            print(f"[ANALYZER] 🔍 {action} {mint}", flush=True)
             analyzer = PumpFunPreMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
             analyzer.fetch_curve_activity(limit=200)
             summary = analyzer.summary()
@@ -246,7 +253,7 @@ class PumpFunCurveListener:
             score = summary.get("amm_rug_probability", 0.0)
             print(f"[ANALYZER] {risk_level} | Score: {score:.2%} | {mint}", flush=True)
 
-            # Store analysis results for purchase strategy
+            # Store analysis results for purchase strategy (overwrites if re-analyzing)
             await self._store_analysis(mint, summary)
         except Exception as e:
             print(f"[ANALYZER] ⚠ Analysis failed for {mint}: {e}", flush=True)
@@ -255,12 +262,6 @@ class PumpFunCurveListener:
         """Process detected mint safely"""
         # Skip already seen mints immediately
         if mint in self.seen_mints:
-            return
-
-        # Check if token already exists in database (migrated or previously analyzed)
-        if self._token_exists_in_db(mint):
-            self.seen_mints.add(mint)
-            print(f"[FILTER] ⏭️  Token {mint} already in database (previously migrated or analyzed) - SKIPPED", flush=True)
             return
 
         # Fetch market cap first
@@ -274,6 +275,19 @@ class PumpFunCurveListener:
         if market_cap >= MIGRATION_MARKET_CAP_USD:
             return
 
+        # Check if token already exists in database
+        token_exists = self._token_exists_in_db(mint)
+
+        if token_exists:
+            # Re-analyze if token is above $50k (closer to migration, better data)
+            if market_cap < 50000:
+                self.seen_mints.add(mint)
+                print(f"[FILTER] ⏭️  Token {mint} already analyzed at lower price - SKIPPED", flush=True)
+                return
+            else:
+                # Token above $50k - re-analyze for better pre-migration data
+                print(f"[FILTER] 🔄 Token {mint} already analyzed, but now at ${market_cap:,.0f} - RE-ANALYZING for better data", flush=True)
+
         # Only now mark it as seen
         self.seen_mints.add(mint)
         self.filtered_mints.add(mint)
@@ -285,7 +299,9 @@ class PumpFunCurveListener:
         await self._store_completion(mint, market_cap, signature)
 
         # Analyze token asynchronously
-        asyncio.create_task(self.analyze_curve(mint))
+        # Force re-analyze if token was previously analyzed but is now above $50k (better data at higher price)
+        force_reanalyze = token_exists and market_cap >= 50000
+        asyncio.create_task(self.analyze_curve(mint, force_reanalyze=force_reanalyze))
 
     # --- Main listener ---
     async def listen(self):

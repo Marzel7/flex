@@ -72,15 +72,22 @@ class SimplePumpSwapListener:
         self.websocket_connected = False
 
     def is_pool_creation_transaction(self, logs: list) -> bool:
-        """Check if transaction logs indicate a pool creation (Pump.Fun → PumpSwap migration)"""
-        logs_text = ' '.join(logs)
+        """Check if transaction logs indicate a pool creation (Pump.Fun → PumpSwap migration)
 
-        # Must have Migrate instruction (Pump.fun migration marker)
-        if 'Instruction: Migrate' not in logs_text:
-            return False
+        Filters out MigrateBondingCurveCreator which is NOT a pool creation.
+        """
+        logs_text = ' '.join(logs)
 
         # Exclude swaps (Buy/Sell instructions)
         if 'Instruction: Buy' in logs_text or 'Instruction: Sell' in logs_text:
+            return False
+
+        # Filter out MigrateBondingCurveCreator - that's NOT a pool creation
+        if 'MigrateBondingCurveCreator' in logs_text:
+            return False
+
+        # Must have Migrate instruction (Pump.fun migration marker)
+        if 'Instruction: Migrate' not in logs_text:
             return False
 
         # Check for pool initialization patterns

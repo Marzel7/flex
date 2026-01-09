@@ -14,17 +14,23 @@ This covers the COMPLETE lifecycle from token creation on pump.fun
 through bonding curve phase, migration to PumpSwap, and into AMM trading.
 
 Usage:
-  # Run complete workflow for 5 minutes
-  python3 test_complete_workflow.py --duration 300
-
-  # Run indefinitely (Ctrl+C to stop)
+  # Run indefinitely (default - press Ctrl+C to stop)
   python3 test_complete_workflow.py
+
+  # Run with optional duration limit (seconds)
+  python3 test_complete_workflow.py --duration 300
 
   # Show results only (no listening)
   python3 test_complete_workflow.py --results-only
 
   # Show specific token journey
   python3 test_complete_workflow.py --track <MINT>
+
+MODES:
+  Default: Runs indefinitely, detecting and analyzing tokens continuously
+  With --duration: Runs for specified seconds then shows results
+  With --results-only: Shows previous analysis without detecting new tokens
+  With --track: Shows complete journey of specific token
 """
 
 import sys

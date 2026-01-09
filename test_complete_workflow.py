@@ -147,8 +147,12 @@ class SimplePumpSwapListener:
                         except asyncio.TimeoutError:
                             continue
                         except Exception as e:
+                            # Close frame errors mean connection is dead - reconnect
+                            if "close frame" in str(e).lower():
+                                print(f"[WEBSOCKET] ⚠ Connection closed, reconnecting...")
+                                break  # Break inner loop to reconnect
                             # Log but don't spam - continue listening
-                            if "keepalive" not in str(e).lower():
+                            elif "keepalive" not in str(e).lower():
                                 print(f"[WEBSOCKET] ⚠ Error: {e}")
                             continue
 

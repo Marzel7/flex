@@ -86,9 +86,9 @@ class PumpFunCurveListener:
     async def _store_completion(self, mint: str, market_cap: float, signature: str):
         async with self.db_lock:
             try:
-                conn = sqlite3.connect(DB_PATH, timeout=30)
-                # Ensure WAL mode is set for this connection too
+                conn = sqlite3.connect(DB_PATH, timeout=60)
                 conn.execute("PRAGMA journal_mode=WAL")
+                conn.execute("PRAGMA busy_timeout=60000")
                 cursor = conn.cursor()
                 cursor.execute("""
                     INSERT OR REPLACE INTO curve_completions (mint, detected_at, market_cap_usd, signature)
@@ -104,8 +104,9 @@ class PumpFunCurveListener:
         """Store analysis results for purchase strategy decision"""
         async with self.db_lock:
             try:
-                conn = sqlite3.connect(DB_PATH, timeout=30)
+                conn = sqlite3.connect(DB_PATH, timeout=60)
                 conn.execute("PRAGMA journal_mode=WAL")
+                conn.execute("PRAGMA busy_timeout=60000")
                 cursor = conn.cursor()
                 cursor.execute("""
                     INSERT OR REPLACE INTO token_analysis (
@@ -138,7 +139,7 @@ class PumpFunCurveListener:
 
     def _is_already_processed(self, mint: str) -> bool:
         try:
-            conn = sqlite3.connect(DB_PATH)
+            conn = sqlite3.connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
             cursor.execute("SELECT 1 FROM curve_completions WHERE mint = ?", (mint,))
             result = cursor.fetchone()
@@ -151,7 +152,7 @@ class PumpFunCurveListener:
     def _token_exists_in_db(self, mint: str) -> bool:
         """Check if token exists in analysis table (previously migrated or analyzed)"""
         try:
-            conn = sqlite3.connect(DB_PATH)
+            conn = sqlite3.connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
             # Check if token is in token_analysis (either migrated or previously analyzed)
             cursor.execute("SELECT 1 FROM token_analysis WHERE mint = ?", (mint,))
@@ -259,7 +260,7 @@ class PumpFunCurveListener:
         # Check if token already exists in database (migrated or previously analyzed)
         if self._token_exists_in_db(mint):
             self.seen_mints.add(mint)
-            print(f"[FILTER] ⏭️  Token {mint[:30]}... already in database (previously migrated or analyzed) - SKIPPED", flush=True)
+            print(f"[FILTER] ⏭️  Token {mint} already in database (previously migrated or analyzed) - SKIPPED", flush=True)
             return
 
         # Fetch market cap first
@@ -267,12 +268,10 @@ class PumpFunCurveListener:
 
         # Skip low market cap tokens
         if market_cap < MARKET_CAP_THRESHOLD_USD:
-            print(f"[FILTER] ❌ Market cap ${market_cap:,.0f} < ${MARKET_CAP_THRESHOLD_USD} USD - SKIPPED", flush=True)
             return
 
         # Skip if market cap is already above migration threshold
         if market_cap >= MIGRATION_MARKET_CAP_USD:
-            print(f"[FILTER] ⚠ Market cap ${market_cap:,.0f} >= ${MIGRATION_MARKET_CAP_USD} USD - Already migrated or too high, SKIPPED", flush=True)
             return
 
         # Only now mark it as seen

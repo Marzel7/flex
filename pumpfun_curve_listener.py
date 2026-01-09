@@ -239,8 +239,7 @@ class PumpFunCurveListener:
         try:
             print(f"[ANALYZER] 🔍 Analyzing {mint}", flush=True)
             analyzer = PumpFunPreMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
-            # OPTIMIZED: Use limit=50 instead of 200 (still gives good signal, 4x faster)
-            analyzer.fetch_curve_activity(limit=50)
+            analyzer.fetch_curve_activity(limit=200)
             summary = analyzer.summary()
             self.analyzed_tokens[mint] = summary
             risk_level = summary.get("amm_risk_level", "🟢 Low")

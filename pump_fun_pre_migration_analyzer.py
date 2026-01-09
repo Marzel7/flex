@@ -38,8 +38,8 @@ class PumpFunPreMigrationAnalyzer:
     # -----------------------------
     # Fetch curve transactions
     # -----------------------------
-    def fetch_curve_activity(self, limit=50):
-        """Fetch and parse bonding curve buy/sell activity - OPTIMIZED for speed"""
+    def fetch_curve_activity(self, limit=200):
+        """Fetch and parse bonding curve buy/sell activity"""
         print(f"[PRE-MIGRATION] Fetching curve activity for {self.token_mint[:16]}... (limit={limit})", flush=True)
         sys.stdout.flush()
 

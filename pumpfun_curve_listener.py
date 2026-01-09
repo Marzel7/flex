@@ -148,6 +148,20 @@ class PumpFunCurveListener:
             print(f"[DB] ⚠ Could not check {mint}: {e}", flush=True)
             return False
 
+    def _token_exists_in_db(self, mint: str) -> bool:
+        """Check if token exists in analysis table (previously migrated or analyzed)"""
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            # Check if token is in token_analysis (either migrated or previously analyzed)
+            cursor.execute("SELECT 1 FROM token_analysis WHERE mint = ?", (mint,))
+            result = cursor.fetchone()
+            conn.close()
+            return bool(result)
+        except Exception as e:
+            print(f"[DB] ⚠ Could not check if token exists: {e}", flush=True)
+            return False
+
     # --- Market Cap ---
     async def get_token_market_cap(self, mint: str) -> float:
         try:
@@ -240,6 +254,12 @@ class PumpFunCurveListener:
         """Process detected mint safely"""
         # Skip already seen mints immediately
         if mint in self.seen_mints:
+            return
+
+        # Check if token already exists in database (migrated or previously analyzed)
+        if self._token_exists_in_db(mint):
+            self.seen_mints.add(mint)
+            print(f"[FILTER] ⏭️  Token {mint[:30]}... already in database (previously migrated or analyzed) - SKIPPED", flush=True)
             return
 
         # Fetch market cap first

@@ -131,7 +131,7 @@ class SimplePumpSwapListener:
 
                                 # Check if this is a migration
                                 if self.is_pool_creation_transaction(logs):
-                                    print(f"[WEBSOCKET] 🚨 Migration detected: {signature[:60]}...")
+                                    print(f"[WEBSOCKET] 🚨 Migration detected: {signature}")
 
                                     # Trigger callback if provided
                                     if self.on_migration_callback:
@@ -208,8 +208,9 @@ class CompleteWorkflowTest:
         })
         print(f"[WORKFLOW] Migration queued for analysis: {signature[:40]}...")
 
-        # Extract token mint from migration logs
-        token_mint = self._extract_mint_from_migration(logs)
+        # Fetch full transaction to extract mint from postTokenBalances
+        # (logs-based extraction is unreliable and picks up base64 data)
+        token_mint = await self._fetch_mint_from_transaction(signature)
 
         if token_mint:
             # Query database for token analysis
@@ -242,11 +243,11 @@ class CompleteWorkflowTest:
 
                     conn.commit()
 
-                    print(f"[DB] ✅ Updated migration status for {token_mint[:30]}...")
+                    print(f"[DB] ✅ Updated migration status for {token_mint}")
                     print(f"[DB] Time to migration: {time_to_migration} seconds ({time_to_migration/60:.1f} minutes)")
                 else:
                     # Token NOT pre-analyzed - create new record for this migration
-                    print(f"[DB] ℹ️  Token {token_mint[:30]}... not in pre-migration DB")
+                    print(f"[DB] ℹ️  Token {token_mint} not in pre-migration DB")
                     print(f"[DB] Creating new record for post-migration token...")
 
                     cursor.execute("""
@@ -266,14 +267,14 @@ class CompleteWorkflowTest:
 
                     conn.commit()
 
-                    print(f"[DB] ✅ Created record for migrated token {token_mint[:30]}...")
+                    print(f"[DB] ✅ Created record for migrated token {token_mint}")
                     print(f"[DB] Status: Detected at migration time (no pre-migration metrics)")
 
                 conn.close()
             except Exception as e:
                 print(f"[DB] ❌ Error recording migration: {e}")
         else:
-            print(f"[WORKFLOW] ⚠️  Could not extract token mint from migration logs")
+            print(f"[WORKFLOW] ⚠️  Could not extract token mint from {signature[:40]}...")
 
     def _extract_mint_from_migration(self, logs: list) -> Optional[str]:
         """Extract token mint from PumpSwap migration transaction logs
@@ -305,6 +306,65 @@ class CompleteWorkflowTest:
             return None
         except Exception as e:
             print(f"[MIGRATION] Error extracting mint: {e}")
+            return None
+
+    async def _fetch_mint_from_transaction(self, signature: str) -> Optional[str]:
+        """Fetch full transaction and extract token mint from postTokenBalances
+
+        This uses the same approach as the working test_pumpswap_listener.py which
+        extracts the mint from postTokenBalances in transaction metadata.
+        This is more reliable than trying to parse transaction logs.
+
+        Includes retry logic since recently-confirmed transactions may take time to be indexed.
+        """
+        try:
+            # Use Helius RPC if available
+            helius_key = os.getenv('HELIUS_API_KEY')
+            if helius_key:
+                rpc_url = f"https://mainnet.helius-rpc.com/?api-key={helius_key}"
+            else:
+                rpc_url = "https://api.mainnet-beta.solana.com"
+
+            # Retry logic for recently-confirmed transactions (wait up to 10 seconds for indexing)
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    payload = {
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "getTransaction",
+                        "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
+                    }
+
+                    response = requests.post(rpc_url, json=payload, timeout=30)
+                    data = response.json()
+
+                    if "result" in data and data["result"]:
+                        tx_data = data["result"]
+                        post_balances = tx_data.get('meta', {}).get('postTokenBalances', [])
+
+                        # Extract mints from postTokenBalances (same as test_pumpswap_listener.py)
+                        for balance_info in post_balances:
+                            mint = balance_info.get('mint', '')
+                            # Skip SOL and wrapped SOL, accept 43 or 44 char mints (pump.fun tokens vary)
+                            if mint and mint != "So11111111111111111111111111111111111111112" and len(mint) in (43, 44):
+                                return mint
+
+                        return None
+
+                    # Transaction not indexed yet, retry
+                    if attempt < max_retries - 1:
+                        await asyncio.sleep(10)
+                    else:
+                        return None
+
+                except requests.exceptions.Timeout:
+                    if attempt < max_retries - 1:
+                        await asyncio.sleep(10)
+                    else:
+                        raise
+
+        except Exception as e:
             return None
 
     # =========================================================================

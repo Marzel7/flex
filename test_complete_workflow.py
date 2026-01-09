@@ -42,6 +42,7 @@ import json
 import requests
 import websockets
 import sqlite3
+import re
 from datetime import datetime
 from typing import Dict, List, Optional
 from threading import Thread
@@ -198,12 +199,91 @@ class CompleteWorkflowTest:
 
     async def on_token_migrated(self, signature: str, logs: list) -> None:
         """Callback when a token migration is detected on PumpSwap"""
+        detected_at = time.time()
+
         self.migration_queue.append({
             'signature': signature,
             'logs': logs,
-            'detected_at': time.time()
+            'detected_at': detected_at
         })
         print(f"[WORKFLOW] Migration queued for analysis: {signature[:40]}...")
+
+        # Extract token mint from migration logs
+        token_mint = self._extract_mint_from_migration(logs)
+
+        if token_mint:
+            # Query database for token analysis
+            try:
+                conn = sqlite3.connect(DB_PATH, timeout=30)
+                conn.execute("PRAGMA journal_mode=WAL")
+                cursor = conn.cursor()
+
+                # Check if token exists in analysis
+                cursor.execute(
+                    "SELECT analyzed_at FROM token_analysis WHERE mint = ?",
+                    (token_mint,)
+                )
+                result = cursor.fetchone()
+
+                if result:
+                    analyzed_at = result[0]
+                    time_to_migration = int(detected_at - analyzed_at)
+
+                    # UPDATE token_analysis with migration data
+                    cursor.execute("""
+                        UPDATE token_analysis SET
+                            has_migrated = 1,
+                            migrated_at = ?,
+                            migration_signature = ?,
+                            migration_detected_at = ?,
+                            time_to_migration_seconds = ?
+                        WHERE mint = ?
+                    """, (detected_at, signature, detected_at, time_to_migration, token_mint))
+
+                    conn.commit()
+
+                    print(f"[DB] ✅ Updated migration status for {token_mint[:30]}...")
+                    print(f"[DB] Time to migration: {time_to_migration} seconds ({time_to_migration/60:.1f} minutes)")
+                else:
+                    print(f"[DB] ⚠️  Token {token_mint[:30]}... not found in analysis DB (new migration)")
+
+                conn.close()
+            except Exception as e:
+                print(f"[DB] ❌ Error recording migration: {e}")
+        else:
+            print(f"[WORKFLOW] ⚠️  Could not extract token mint from migration logs")
+
+    def _extract_mint_from_migration(self, logs: list) -> Optional[str]:
+        """Extract token mint from PumpSwap migration transaction logs
+
+        Searches logs for patterns indicating token mint address.
+        Looking for 44-character base58 strings (Solana address format).
+        """
+        try:
+            logs_text = ' '.join(logs)
+
+            # Look for mint patterns in logs - Solana addresses are 44 chars base58
+            # Common patterns in migration logs
+            patterns = [
+                r'mint.*?([1-9A-HJ-NP-Z]{44})',  # "mint: <address>"
+                r'token.*?([1-9A-HJ-NP-Z]{44})',  # "token: <address>"
+                r'([1-9A-HJ-NP-Z]{44})',          # Any 44-char address
+            ]
+
+            import re
+            for pattern in patterns:
+                matches = re.findall(pattern, logs_text, re.IGNORECASE)
+                if matches:
+                    # Get the most common match (likely the token mint)
+                    mint = matches[0]
+                    # Validate it's not a known system address
+                    if mint != "So11111111111111111111111111111111111111112":  # Not SOL
+                        return mint
+
+            return None
+        except Exception as e:
+            print(f"[MIGRATION] Error extracting mint: {e}")
+            return None
 
     # =========================================================================
     # PHASE 1: PRE-MIGRATION DETECTION
@@ -301,61 +381,122 @@ class CompleteWorkflowTest:
     # =========================================================================
 
     def check_pumpswap_migrations(self):
-        """Display real-time migration detection results from PumpSwap listener"""
+        """Display recorded migration data from database with pre-migration analysis correlation"""
         self.print_section("🚀 PHASE 4: POST-MIGRATION MONITORING (PumpSwap WebSocket)")
-
-        if not self.migration_queue:
-            print("[MIGRATION] No tokens have migrated yet.")
-            print("[MIGRATION] Listening for migrations on PumpSwap program (pAMMBay6...)...\n")
-            return
 
         analyzed = self.query.get_all_analysis()
         if not analyzed:
-            print("No pre-migration analysis available for correlation.\n")
+            print("❌ No tokens analyzed yet.\n")
             return
 
-        print(f"[MIGRATION] Detected {len(self.migration_queue)} migration event(s):\n")
+        # Query database for recorded migrations
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=30)
+            cursor = conn.cursor()
 
-        for migration in self.migration_queue[:5]:
-            signature = migration['signature']
-            detected_at = datetime.fromtimestamp(migration['detected_at'])
+            cursor.execute("""
+                SELECT mint, amm_rug_probability, amm_risk_level,
+                       has_migrated, migrated_at, migration_signature,
+                       time_to_migration_seconds, analyzed_at
+                FROM token_analysis
+                WHERE has_migrated = 1
+                ORDER BY migrated_at DESC
+                LIMIT 5
+            """)
 
-            print(f"[MIGRATION] Event: {signature[:60]}...")
-            print(f"[MIGRATION] Detected: {detected_at.strftime('%Y-%m-%d %H:%M:%S')}")
+            migrated_tokens = cursor.fetchall()
+            conn.close()
+        except Exception as e:
+            print(f"[DB] ❌ Error querying migrations: {e}")
+            migrated_tokens = []
 
-            # Try to find token in pre-migration analysis
-            matching_token = None
-            for token in analyzed:
-                if token['mint'] in signature or signature in token.get('mint', ''):
-                    matching_token = token
-                    break
+        if migrated_tokens:
+            print(f"[MIGRATION] ✅ Recorded {len(migrated_tokens)} migration(s) in database:\n")
 
-            if matching_token:
-                mint = matching_token['mint']
-                rug_prob = matching_token['amm_rug_probability']
+            for row in migrated_tokens:
+                mint, rug_prob, risk_level, has_migrated, migrated_at, sig, time_to_mig, analyzed_at = row
 
-                # Determine purchase tier based on pre-migration analysis
-                if rug_prob <= 0.25:
-                    tier = "✅ BUY FULL (100%)"
-                elif rug_prob <= 0.50:
-                    tier = "🟡 BUY HALF (50%)"
-                elif rug_prob <= 0.75:
-                    tier = "🔴 BUY SMALL (10%)"
+                if migrated_at:
+                    migration_time = datetime.fromtimestamp(migrated_at)
+                    analysis_time = datetime.fromtimestamp(analyzed_at) if analyzed_at else None
+
+                    print(f"[MIGRATION] Token: {mint[:40]}...")
+                    if analysis_time:
+                        print(f"[MIGRATION] Analysis: {analysis_time.strftime('%Y-%m-%d %H:%M:%S')}")
+                    print(f"[MIGRATION] Migration: {migration_time.strftime('%Y-%m-%d %H:%M:%S')}")
+                    if time_to_mig:
+                        print(f"[MIGRATION] Time to Migration: {time_to_mig} seconds ({time_to_mig/60:.1f} minutes)")
+
+                    # Determine purchase tier based on pre-migration analysis
+                    if rug_prob <= 0.25:
+                        tier = "✅ BUY FULL (100%)"
+                    elif rug_prob <= 0.50:
+                        tier = "🟡 BUY HALF (50%)"
+                    elif rug_prob <= 0.75:
+                        tier = "🔴 BUY SMALL (10%)"
+                    else:
+                        tier = "⛔ SKIP"
+
+                    print(f"  Pre-Migration Risk: {risk_level}")
+                    print(f"  Rug Probability: {rug_prob:.1%}")
+                    print(f"  → Strategy: {tier}")
+                    if sig:
+                        print(f"  Migration Sig: {sig[:40]}...")
+
+                    print()
+
+            print(f"[MIGRATION] WebSocket is actively monitoring {PUMPSWAP_PROGRAM}")
+            print(f"[MIGRATION] {len(analyzed)} tokens in database ready for correlation")
+
+        elif self.migration_queue:
+            # Fallback to migration_queue if no database records yet
+            print(f"[MIGRATION] Detected {len(self.migration_queue)} migration event(s) (pending database update):\n")
+
+            for migration in self.migration_queue[:5]:
+                signature = migration['signature']
+                detected_at = datetime.fromtimestamp(migration['detected_at'])
+
+                print(f"[MIGRATION] Event: {signature[:60]}...")
+                print(f"[MIGRATION] Detected: {detected_at.strftime('%Y-%m-%d %H:%M:%S')}")
+
+                # Try to find token in pre-migration analysis
+                matching_token = None
+                for token in analyzed:
+                    if token['mint'] in signature or signature in token.get('mint', ''):
+                        matching_token = token
+                        break
+
+                if matching_token:
+                    mint = matching_token['mint']
+                    rug_prob = matching_token['amm_rug_probability']
+
+                    # Determine purchase tier based on pre-migration analysis
+                    if rug_prob <= 0.25:
+                        tier = "✅ BUY FULL (100%)"
+                    elif rug_prob <= 0.50:
+                        tier = "🟡 BUY HALF (50%)"
+                    elif rug_prob <= 0.75:
+                        tier = "🔴 BUY SMALL (10%)"
+                    else:
+                        tier = "⛔ SKIP"
+
+                    print(f"  Token: {mint[:30]}...")
+                    print(f"  Pre-Migration Risk: {matching_token['amm_risk_level']}")
+                    print(f"  Rug Probability: {rug_prob:.1%}")
+                    print(f"  → Action: {tier}")
                 else:
-                    tier = "⛔ SKIP"
+                    print(f"  ⚠️  No pre-migration analysis found (token not in database yet)")
 
-                print(f"  Token: {mint[:30]}...")
-                print(f"  Pre-Migration Risk: {matching_token['amm_risk_level']}")
-                print(f"  Rug Probability: {rug_prob:.1%}")
-                print(f"  → Action: {tier}")
-            else:
-                print(f"  ⚠️  No pre-migration analysis found (token not in database yet)")
+                print()
 
-            print()
-
-        # Show analyzing tokens too
-        if self.migration_queue:
+            # Show analyzing tokens too
             print(f"\n[MIGRATION] WebSocket is actively monitoring {PUMPSWAP_PROGRAM}")
+            print(f"[MIGRATION] {len(analyzed)} tokens ready for correlation when migrations occur")
+
+        else:
+            # No migrations detected yet
+            print(f"[MIGRATION] No migrations detected yet during this session")
+            print(f"[MIGRATION] WebSocket is actively monitoring {PUMPSWAP_PROGRAM}")
             print(f"[MIGRATION] {len(analyzed)} tokens ready for correlation when migrations occur")
 
     # =========================================================================

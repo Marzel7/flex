@@ -226,10 +226,10 @@ class CompleteWorkflowTest:
                 result = cursor.fetchone()
 
                 if result:
+                    # Token was pre-analyzed - update with migration data
                     analyzed_at = result[0]
                     time_to_migration = int(detected_at - analyzed_at)
 
-                    # UPDATE token_analysis with migration data
                     cursor.execute("""
                         UPDATE token_analysis SET
                             has_migrated = 1,
@@ -245,7 +245,29 @@ class CompleteWorkflowTest:
                     print(f"[DB] ✅ Updated migration status for {token_mint[:30]}...")
                     print(f"[DB] Time to migration: {time_to_migration} seconds ({time_to_migration/60:.1f} minutes)")
                 else:
-                    print(f"[DB] ⚠️  Token {token_mint[:30]}... not found in analysis DB (new migration)")
+                    # Token NOT pre-analyzed - create new record for this migration
+                    print(f"[DB] ℹ️  Token {token_mint[:30]}... not in pre-migration DB")
+                    print(f"[DB] Creating new record for post-migration token...")
+
+                    cursor.execute("""
+                        INSERT INTO token_analysis (
+                            mint, analyzed_at, has_migrated, migrated_at,
+                            migration_signature, migration_detected_at,
+                            events_parsed, mint_concentration, unique_minters_ratio,
+                            sell_suppression_ratio, mint_velocity_sec, buy_size_variance,
+                            sell_volume_concentration, rug_probability, risk_level,
+                            creator_activity_ratio, amm_rug_probability, amm_risk_level,
+                            created_at
+                        ) VALUES (
+                            ?, ?, 1, ?, ?, ?, 0, 0, 0, 0, 0, 0, 0, 0, '⚠️ UNKNOWN',
+                            0, 0, '⚠️ NO PRE-MIGRATION DATA', datetime('now')
+                        )
+                    """, (token_mint, detected_at, detected_at, signature, detected_at))
+
+                    conn.commit()
+
+                    print(f"[DB] ✅ Created record for migrated token {token_mint[:30]}...")
+                    print(f"[DB] Status: Detected at migration time (no pre-migration metrics)")
 
                 conn.close()
             except Exception as e:

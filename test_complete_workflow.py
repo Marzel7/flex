@@ -133,19 +133,21 @@ class SimplePumpSwapListener:
                                 if self.is_pool_creation_transaction(logs):
                                     print(f"[WEBSOCKET] 🚨 Migration detected: {signature}")
 
-                                    # Trigger callback if provided
+                                    # Queue migration for background processing (don't block WebSocket)
                                     if self.on_migration_callback:
-                                        await self.on_migration_callback(signature, logs)
+                                        asyncio.create_task(self.on_migration_callback(signature, logs))
 
                         except asyncio.TimeoutError:
                             continue
                         except Exception as e:
-                            print(f"[WEBSOCKET] ⚠ Error processing message: {e}")
+                            # Log but don't spam - continue listening
+                            if "keepalive" not in str(e).lower():
+                                print(f"[WEBSOCKET] ⚠ Error: {e}")
                             continue
 
             except Exception as e:
                 if self.is_running:
-                    print(f"[WEBSOCKET] ⚠ Connection error: {e}")
+                    print(f"[WEBSOCKET] ⚠ Connection error, reconnecting in 5s...")
                     await asyncio.sleep(5)  # Reconnect after delay
 
     def start_listening(self):

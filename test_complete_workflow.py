@@ -72,28 +72,18 @@ class SimplePumpSwapListener:
         self.websocket_connected = False
 
     def is_pool_creation_transaction(self, logs: list) -> bool:
-        """Check if transaction logs indicate a pool creation (Pump.Fun → PumpSwap migration)
-
-        A real migration has:
-        - "Instruction: Migrate" as a standalone instruction (not MigrateBondingCurveCreator)
-        - Pool initialization patterns (InitializePool, create_pool, etc.)
-        - NO Buy/Sell instructions
-        """
+        """Check if transaction logs indicate a pool creation (Pump.Fun → PumpSwap migration)"""
         logs_text = ' '.join(logs)
 
-        # Exclude swaps (Buy/Sell instructions) first
-        if 'Instruction: Buy' in logs_text or 'Instruction: Sell' in logs_text:
-            return False
-
-        # Filter out MigrateBondingCurveCreator - that's NOT a pool creation
-        if 'MigrateBondingCurveCreator' in logs_text:
-            return False
-
-        # Must have the actual Migrate instruction
+        # Must have Migrate instruction (Pump.fun migration marker)
         if 'Instruction: Migrate' not in logs_text:
             return False
 
-        # Check for pool initialization patterns (required for pool creation)
+        # Exclude swaps (Buy/Sell instructions)
+        if 'Instruction: Buy' in logs_text or 'Instruction: Sell' in logs_text:
+            return False
+
+        # Check for pool initialization patterns
         if not any(pattern.lower() in logs_text.lower() for pattern in ['initialize', 'create_pool', 'InitializePool']):
             return False
 
@@ -143,21 +133,19 @@ class SimplePumpSwapListener:
                                 if self.is_pool_creation_transaction(logs):
                                     print(f"[WEBSOCKET] 🚨 Migration detected: {signature}")
 
-                                    # Queue migration for background processing (don't block WebSocket)
+                                    # Trigger callback if provided
                                     if self.on_migration_callback:
-                                        asyncio.create_task(self.on_migration_callback(signature, logs))
+                                        await self.on_migration_callback(signature, logs)
 
                         except asyncio.TimeoutError:
                             continue
                         except Exception as e:
-                            # Log but don't spam - continue listening
-                            if "keepalive" not in str(e).lower():
-                                print(f"[WEBSOCKET] ⚠ Error: {e}")
+                            print(f"[WEBSOCKET] ⚠ Error processing message: {e}")
                             continue
 
             except Exception as e:
                 if self.is_running:
-                    print(f"[WEBSOCKET] ⚠ Connection error, reconnecting in 5s...")
+                    print(f"[WEBSOCKET] ⚠ Connection error: {e}")
                     await asyncio.sleep(5)  # Reconnect after delay
 
     def start_listening(self):
@@ -287,7 +275,6 @@ class CompleteWorkflowTest:
                 print(f"[DB] ❌ Error recording migration: {e}")
         else:
             print(f"[WORKFLOW] ⚠️  Could not extract token mint from {signature[:40]}...")
-            print(f"[DEBUG] Transaction will be queued but not recorded to database")
 
     def _extract_mint_from_migration(self, logs: list) -> Optional[str]:
         """Extract token mint from PumpSwap migration transaction logs
@@ -329,7 +316,6 @@ class CompleteWorkflowTest:
         This is more reliable than trying to parse transaction logs.
 
         Includes retry logic since recently-confirmed transactions may take time to be indexed.
-        Falls back to log-based extraction if postTokenBalances doesn't have a valid token mint.
         """
         try:
             # Use Helius RPC if available
@@ -364,40 +350,6 @@ class CompleteWorkflowTest:
                             if mint and mint != "So11111111111111111111111111111111111111112" and len(mint) in (43, 44):
                                 return mint
 
-                        # Fall back to account-based extraction if postTokenBalances only has SOL
-                        # For Pump.Fun migrations, the token mint is usually in the early account keys
-                        # BUT: Only if logs confirm this is a migration (have Migrate + Initialize patterns)
-                        logs_text = ' '.join(logs)
-                        if ('Instruction: Migrate' in logs_text and
-                            any(p.lower() in logs_text.lower() for p in ['initialize', 'create_pool', 'InitializePool'])):
-
-                            message = tx_data.get('transaction', {}).get('message', {})
-                            accounts = message.get('accountKeys', [])
-
-                            if accounts:
-                                # Check first few accounts for valid token mints (44-char addresses, not system programs)
-                                system_programs = [
-                                    "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # Pump.Fun
-                                    "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap
-                                    "11111111111111111111111111111111",               # System program
-                                    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",  # ATA program
-                                    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # Token program
-                                    "So11111111111111111111111111111111111111112",   # Wrapped SOL
-                                ]
-
-                                for account in accounts[:10]:
-                                    if (len(account) in (43, 44) and
-                                        account not in system_programs and
-                                        account not in ["", "11111111111111111111111111111111"]):
-                                        return account
-
-                        # Last resort: try log-based extraction
-                        logs = tx_data.get('meta', {}).get('logMessages', [])
-                        if logs:
-                            mint = self._extract_mint_from_migration(logs)
-                            if mint:
-                                return mint
-
                         return None
 
                     # Transaction not indexed yet, retry
@@ -413,7 +365,6 @@ class CompleteWorkflowTest:
                         raise
 
         except Exception as e:
-            print(f"[DEBUG] Error in _fetch_mint_from_transaction: {e}")
             return None
 
     # =========================================================================

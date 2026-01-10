@@ -619,8 +619,20 @@ HTML_TEMPLATE = """
                 };
 
                 metricsGrid.innerHTML = '';
+
+                // Show notice if using post-migration data
+                if (data.metrics_source === 'post-migration') {
+                    metricsGrid.innerHTML = `
+                        <div style="grid-column: 1 / -1; padding: 15px; background: rgba(234, 179, 8, 0.1); border-left: 3px solid #eab308; border-radius: 8px; margin-bottom: 15px;">
+                            <p style="color: #eab308; margin: 0; font-size: 13px;">
+                                ⚠️ <strong>No pre-migration data</strong> - Using post-migration analysis only
+                            </p>
+                        </div>
+                    `;
+                }
+
                 Object.keys(metricLabels).forEach(key => {
-                    const value = metrics[key] !== null ? metrics[key].toFixed(4) : '—';
+                    const value = metrics[key] !== null && metrics[key] > 0 ? metrics[key].toFixed(4) : '—';
                     metricsGrid.innerHTML += `
                         <div class="metric">
                             <label>${metricLabels[key]}</label>
@@ -747,17 +759,20 @@ def api_token_metrics(token_mint: str):
         if not row:
             return jsonify({'error': 'Token not found'}), 404
 
+        has_pre = row['events_parsed'] > 0
+
         return jsonify({
             'mint': row['mint'],
-            'has_premigration_data': row['events_parsed'] > 0,
+            'has_premigration_data': has_pre,
+            'metrics_source': 'pre-migration' if has_pre else 'post-migration',
             'metrics': {
-                'mint_concentration': row['mint_concentration'],
-                'unique_minters_ratio': row['unique_minters_ratio'],
-                'sell_suppression_ratio': row['sell_suppression_ratio'],
-                'mint_velocity_sec': row['mint_velocity_sec'],
-                'buy_size_variance': row['buy_size_variance'],
-                'sell_volume_concentration': row['sell_volume_concentration'],
-                'creator_activity_ratio': row['creator_activity_ratio']
+                'mint_concentration': row['mint_concentration'] if has_pre else 0,
+                'unique_minters_ratio': row['unique_minters_ratio'] if has_pre else 0,
+                'sell_suppression_ratio': row['sell_suppression_ratio'] if has_pre else 0,
+                'mint_velocity_sec': row['mint_velocity_sec'] if has_pre else 0,
+                'buy_size_variance': row['buy_size_variance'] if has_pre else 0,
+                'sell_volume_concentration': row['sell_volume_concentration'] if has_pre else 0,
+                'creator_activity_ratio': row['creator_activity_ratio'] if has_pre else 0
             },
             'risk': {
                 'pre_rug_probability': row['rug_probability'],

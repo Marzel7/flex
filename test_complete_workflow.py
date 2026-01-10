@@ -435,6 +435,9 @@ class CompleteWorkflowTest:
     async def _analyze_post_migration(self, token_mint: str) -> None:
         """Re-analyze token after migration for post-migration risk score"""
         try:
+            # Small delay to ensure token is fully committed to database
+            await asyncio.sleep(0.5)
+
             print(f"[POST-MIGRATION] 🔄 Re-analyzing {token_mint[:20]}... at migration time", flush=True)
 
             # Use same analyzer as pre-migration

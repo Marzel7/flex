@@ -608,18 +608,12 @@ HTML_TEMPLATE = """
             // Cancel ongoing price fetches to free up bandwidth for modal
             priceLoadController.abort();
             priceLoadController = new AbortController();
-            const t0 = performance.now();
             const modal = document.getElementById('metricsModal');
             document.getElementById('modalMint').textContent = mint;
 
             try {
-                const t1 = performance.now();
                 const response = await fetch(`/api/token-metrics/${mint}`);
-                const t2 = performance.now();
                 const data = await response.json();
-                const t3 = performance.now();
-
-                console.log(`[METRICS UI] Fetch: ${(t2-t1).toFixed(1)}ms, JSON parse: ${(t3-t2).toFixed(1)}ms`);
 
                 if (data.error) {
                     alert('Token metrics not found');
@@ -639,7 +633,6 @@ HTML_TEMPLATE = """
                     'creator_activity_ratio': 'Creator Activity'
                 };
 
-                const t4 = performance.now();
                 metricsGrid.innerHTML = '';
 
                 // Show notice if using post-migration data
@@ -665,12 +658,8 @@ HTML_TEMPLATE = """
                     `;
                 });
                 metricsGrid.innerHTML = metricsHTML;
-                const t5 = performance.now();
-
-                console.log(`[METRICS UI] Grid rendering: ${(t5-t4).toFixed(1)}ms`);
 
                 // Populate risk section
-                const t6 = performance.now();
                 const riskSection = document.getElementById('riskSection');
                 const risk = data.risk;
                 const preRug = risk.pre_rug_probability !== null ? (risk.pre_rug_probability * 100).toFixed(1) : '—';
@@ -702,13 +691,7 @@ HTML_TEMPLATE = """
                 document.getElementById('dextoolsLink').href = `https://www.dextools.io/app/solana/token/${mint}`;
 
                 // Show modal
-                const t7 = performance.now();
                 modal.style.display = 'block';
-                const t8 = performance.now();
-
-                const total = t8 - t0;
-                console.log(`[METRICS UI] Risk rendering: ${(t7-t6).toFixed(1)}ms, Modal display: ${(t8-t7).toFixed(1)}ms`)
-                console.log(`[METRICS UI] TOTAL TIME: ${total.toFixed(1)}ms`);
             } catch (error) {
                 console.error('Error loading metrics:', error);
                 alert('Failed to load token metrics');
@@ -762,16 +745,12 @@ def api_token_price(token_mint: str):
 @app.route('/api/token-metrics/<token_mint>')
 def api_token_metrics(token_mint: str):
     """Get detailed risk metrics for a specific token"""
-    print(f"[METRICS] Request received for {token_mint[:20]}...", flush=True)
-    start = time.time()
     try:
-        t1 = time.time()
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
 
-        t2 = time.time()
         cursor.execute("""
             SELECT
                 mint,
@@ -800,12 +779,8 @@ def api_token_metrics(token_mint: str):
             WHERE mint = ?
         """, (token_mint,))
 
-        t3 = time.time()
         row = cursor.fetchone()
         conn.close()
-        t4 = time.time()
-
-        print(f"[METRICS] Connect: {(t2-t1)*1000:.1f}ms, Query: {(t3-t2)*1000:.1f}ms, Fetch: {(t4-t3)*1000:.1f}ms")
 
         if not row:
             return jsonify({'error': 'Token not found'}), 404
@@ -842,10 +817,8 @@ def api_token_metrics(token_mint: str):
                 'amm_risk_level': row['amm_risk_level']
             }
         })
-        print(f"[METRICS] Response ready, sending", flush=True)
         return response
     except Exception as e:
-        print(f"[API] Error fetching metrics for {token_mint}: {e}")
         return jsonify({'error': str(e)}), 500
 
 

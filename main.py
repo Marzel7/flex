@@ -748,11 +748,13 @@ def api_token_price(token_mint: str):
 @app.route('/api/token-metrics/<token_mint>')
 def api_token_metrics(token_mint: str):
     """Get detailed risk metrics for a specific token"""
+    print(f"[METRICS] Request received for {token_mint[:20]}...", flush=True)
     start = time.time()
     try:
         t1 = time.time()
-        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
 
         t2 = time.time()
@@ -809,9 +811,9 @@ def api_token_metrics(token_mint: str):
         }
 
         elapsed = time.time() - start
-        print(f"[METRICS] Total time: {elapsed*1000:.1f}ms")
+        print(f"[METRICS] Total time: {elapsed*1000:.1f}ms", flush=True)
 
-        return jsonify({
+        response = jsonify({
             'mint': row['mint'],
             'has_premigration_data': has_pre,
             'has_postmigration_metrics': has_post,
@@ -826,6 +828,8 @@ def api_token_metrics(token_mint: str):
                 'amm_risk_level': row['amm_risk_level']
             }
         })
+        print(f"[METRICS] Response ready, sending", flush=True)
+        return response
     except Exception as e:
         print(f"[API] Error fetching metrics for {token_mint}: {e}")
         return jsonify({'error': str(e)}), 500

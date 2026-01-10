@@ -559,15 +559,21 @@ HTML_TEMPLATE = """
 
         async function loadPrice(mint) {
             try {
-                const response = await fetch(`/api/token-price/${mint}`);
+                const response = await fetch(`/api/token-price/${mint}`, {
+                    signal: priceLoadController.signal
+                });
                 const data = await response.json();
 
                 if (data.price !== null) {
                     const priceElement = document.getElementById(`price-${mint}`);
-                    priceElement.innerHTML = `$${data.price.toFixed(8)}`;
+                    if (priceElement) {
+                        priceElement.innerHTML = `$${data.price.toFixed(8)}`;
+                    }
                 }
             } catch (error) {
-                console.error(`Error loading price for ${mint}:`, error);
+                if (error.name !== 'AbortError') {
+                    console.error(`Error loading price for ${mint}:`, error);
+                }
             }
         }
 
@@ -590,12 +596,18 @@ HTML_TEMPLATE = """
             return `${minutes}m ${secs}s`;
         }
 
+        // Abort controller for price loading - allows canceling requests when modal opens
+        let priceLoadController = new AbortController();
+
         // Load tokens immediately and then every 5 seconds
         loadTokens();
         setInterval(loadTokens, 5000);
 
         // Metrics Modal Functions
         async function showTokenMetrics(mint) {
+            // Cancel ongoing price fetches to free up bandwidth for modal
+            priceLoadController.abort();
+            priceLoadController = new AbortController();
             const t0 = performance.now();
             const modal = document.getElementById('metricsModal');
             document.getElementById('modalMint').textContent = mint;

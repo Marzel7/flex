@@ -635,12 +635,23 @@ HTML_TEMPLATE = """
 
                 metricsGrid.innerHTML = '';
 
-                // Show notice if using post-migration data
-                if (data.metrics_source === 'post-migration') {
+                // Show notice if using post-migration data without pre-migration data
+                if (data.metrics_source === 'post-migration' && !data.has_premigration_data) {
                     metricsGrid.innerHTML = `
                         <div style="grid-column: 1 / -1; padding: 15px; background: rgba(234, 179, 8, 0.1); border-left: 3px solid #eab308; border-radius: 8px; margin-bottom: 15px;">
                             <p style="color: #eab308; margin: 0; font-size: 13px;">
                                 ⚠️ <strong>No pre-migration data</strong> - Using post-migration analysis only
+                            </p>
+                        </div>
+                    `;
+                }
+
+                // Show notice if using post-migration data when both exist (most recent)
+                if (data.metrics_source === 'post-migration' && data.has_premigration_data) {
+                    metricsGrid.innerHTML = `
+                        <div style="grid-column: 1 / -1; padding: 15px; background: rgba(100, 200, 255, 0.1); border-left: 3px solid #64c8ff; border-radius: 8px; margin-bottom: 15px;">
+                            <p style="color: #64c8ff; margin: 0; font-size: 13px;">
+                                ℹ️ <strong>Showing post-migration analysis</strong> (most recent metrics)
                             </p>
                         </div>
                     `;

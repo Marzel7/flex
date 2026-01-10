@@ -206,9 +206,10 @@ HTML_TEMPLATE = """
             font-family: 'Courier New', monospace;
             font-size: 11px;
             color: #00d4ff;
-            max-width: 250px;
+            max-width: 350px;
             overflow: hidden;
             text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .risk-score {

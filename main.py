@@ -137,6 +137,7 @@ HTML_TEMPLATE = """
         .header h1 {
             font-size: 28px;
             margin-bottom: 10px;
+            color: #00d4ff;
         }
 
         .header p {

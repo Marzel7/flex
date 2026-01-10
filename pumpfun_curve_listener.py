@@ -76,6 +76,13 @@ class PumpFunCurveListener:
                 creator_activity_ratio REAL,
                 amm_rug_probability REAL,
                 amm_risk_level TEXT,
+                post_migration_mint_concentration REAL,
+                post_migration_unique_minters_ratio REAL,
+                post_migration_sell_suppression_ratio REAL,
+                post_migration_mint_velocity_sec REAL,
+                post_migration_buy_size_variance REAL,
+                post_migration_sell_volume_concentration REAL,
+                post_migration_creator_activity_ratio REAL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)

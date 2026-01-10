@@ -453,11 +453,18 @@ class CompleteWorkflowTest:
             analyzer.fetch_curve_activity(limit=200)
             summary = analyzer.summary()
 
-            # Extract post-migration scores
+            # Extract all post-migration metrics and scores
             post_rug_prob = summary.get("amm_rug_probability", 0.0)
             post_risk_level = summary.get("amm_risk_level", "")
+            post_mint_concentration = summary.get("mint_concentration", 0.0)
+            post_unique_minters_ratio = summary.get("unique_minters_ratio", 0.0)
+            post_sell_suppression_ratio = summary.get("sell_suppression_ratio", 0.0)
+            post_mint_velocity_sec = summary.get("mint_velocity_sec", 0.0)
+            post_buy_size_variance = summary.get("buy_size_variance", 0.0)
+            post_sell_volume_concentration = summary.get("sell_volume_concentration", 0.0)
+            post_creator_activity_ratio = summary.get("creator_activity_ratio", 0.0)
 
-            # Update database with post-migration scores
+            # Update database with post-migration scores and sub-metrics
             try:
                 conn = sqlite3.connect(DB_PATH, timeout=60)
                 conn.execute("PRAGMA journal_mode=WAL")
@@ -475,9 +482,20 @@ class CompleteWorkflowTest:
                 cursor.execute("""
                     UPDATE token_analysis SET
                         post_migration_rug_probability = ?,
-                        post_migration_risk_level = ?
+                        post_migration_risk_level = ?,
+                        post_migration_mint_concentration = ?,
+                        post_migration_unique_minters_ratio = ?,
+                        post_migration_sell_suppression_ratio = ?,
+                        post_migration_mint_velocity_sec = ?,
+                        post_migration_buy_size_variance = ?,
+                        post_migration_sell_volume_concentration = ?,
+                        post_migration_creator_activity_ratio = ?
                     WHERE mint = ?
-                """, (post_rug_prob, post_risk_level, token_mint))
+                """, (post_rug_prob, post_risk_level, post_mint_concentration,
+                      post_unique_minters_ratio, post_sell_suppression_ratio,
+                      post_mint_velocity_sec, post_buy_size_variance,
+                      post_sell_volume_concentration, post_creator_activity_ratio,
+                      token_mint))
 
                 rows_updated = cursor.rowcount
                 conn.commit()

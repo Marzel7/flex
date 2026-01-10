@@ -457,6 +457,14 @@ class CompleteWorkflowTest:
                 conn.execute("PRAGMA journal_mode=WAL")
                 cursor = conn.cursor()
 
+                # Fetch pre-migration score for comparison
+                cursor.execute(
+                    "SELECT rug_probability FROM token_analysis WHERE mint = ?",
+                    (token_mint,)
+                )
+                pre_result = cursor.fetchone()
+                pre_rug_prob = pre_result[0] if pre_result else None
+
                 cursor.execute("""
                     UPDATE token_analysis SET
                         post_migration_rug_probability = ?,
@@ -467,8 +475,13 @@ class CompleteWorkflowTest:
                 conn.commit()
                 conn.close()
 
-                print(f"[POST-MIGRATION] ✅ Stored post-migration risk for {token_mint[:20]}...")
-                print(f"[POST-MIGRATION] Post-migration rug probability: {post_rug_prob:.1%}")
+                # Log with comparison
+                if pre_rug_prob is not None:
+                    change = post_rug_prob - pre_rug_prob
+                    arrow = "📈" if change > 0 else "📉" if change < 0 else "→"
+                    print(f"[POST-MIGRATION] ✅ Risk Score: {pre_rug_prob:.1%} {arrow} {post_rug_prob:.1%}")
+                else:
+                    print(f"[POST-MIGRATION] ✅ Post-migration rug probability: {post_rug_prob:.1%}")
 
             except Exception as e:
                 print(f"[POST-MIGRATION] ❌ Failed to store post-migration analysis: {e}")

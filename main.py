@@ -769,22 +769,22 @@ def api_token_metrics(token_mint: str):
         has_pre = row['events_parsed'] > 0
         has_post = row['post_migration_mint_concentration'] is not None
 
-        # Use pre-migration metrics if available, otherwise use post-migration metrics, then zeros
+        # Use post-migration metrics if available (most recent analysis), otherwise pre-migration, then zeros
         metrics_to_use = {
-            'mint_concentration': row['mint_concentration'] if has_pre else (row['post_migration_mint_concentration'] if has_post else 0),
-            'unique_minters_ratio': row['unique_minters_ratio'] if has_pre else (row['post_migration_unique_minters_ratio'] if has_post else 0),
-            'sell_suppression_ratio': row['sell_suppression_ratio'] if has_pre else (row['post_migration_sell_suppression_ratio'] if has_post else 0),
-            'mint_velocity_sec': row['mint_velocity_sec'] if has_pre else (row['post_migration_mint_velocity_sec'] if has_post else 0),
-            'buy_size_variance': row['buy_size_variance'] if has_pre else (row['post_migration_buy_size_variance'] if has_post else 0),
-            'sell_volume_concentration': row['sell_volume_concentration'] if has_pre else (row['post_migration_sell_volume_concentration'] if has_post else 0),
-            'creator_activity_ratio': row['creator_activity_ratio'] if has_pre else (row['post_migration_creator_activity_ratio'] if has_post else 0)
+            'mint_concentration': row['post_migration_mint_concentration'] if has_post else (row['mint_concentration'] if has_pre else 0),
+            'unique_minters_ratio': row['post_migration_unique_minters_ratio'] if has_post else (row['unique_minters_ratio'] if has_pre else 0),
+            'sell_suppression_ratio': row['post_migration_sell_suppression_ratio'] if has_post else (row['sell_suppression_ratio'] if has_pre else 0),
+            'mint_velocity_sec': row['post_migration_mint_velocity_sec'] if has_post else (row['mint_velocity_sec'] if has_pre else 0),
+            'buy_size_variance': row['post_migration_buy_size_variance'] if has_post else (row['buy_size_variance'] if has_pre else 0),
+            'sell_volume_concentration': row['post_migration_sell_volume_concentration'] if has_post else (row['sell_volume_concentration'] if has_pre else 0),
+            'creator_activity_ratio': row['post_migration_creator_activity_ratio'] if has_post else (row['creator_activity_ratio'] if has_pre else 0)
         }
 
         return jsonify({
             'mint': row['mint'],
             'has_premigration_data': has_pre,
             'has_postmigration_metrics': has_post,
-            'metrics_source': 'pre-migration' if has_pre else ('post-migration' if has_post else 'none'),
+            'metrics_source': 'post-migration' if has_post else ('pre-migration' if has_pre else 'none'),
             'metrics': metrics_to_use,
             'risk': {
                 'pre_rug_probability': row['rug_probability'],

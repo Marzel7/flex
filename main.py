@@ -359,7 +359,7 @@ HTML_TEMPLATE = """
                     <tbody>
                         ${tokens.map(token => `
                             <tr>
-                                <td class="mint"><a href="https://www.dextools.io/app/solana/token/${token.mint}" target="_blank" style="color: #00d4ff; text-decoration: none; cursor: pointer;">${token.mint}</a></td>
+                                <td class="mint"><a href="https://dexscreener.com/solana/${token.mint}" target="_blank" style="color: #00d4ff; text-decoration: none; cursor: pointer;">${token.mint}</a></td>
                                 <td>
                                     ${(() => {
                                         const preScore = token.has_premigration_data ? (token.rug_probability * 100).toFixed(1) + '%' : '—';

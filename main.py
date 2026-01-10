@@ -549,9 +549,11 @@ HTML_TEMPLATE = """
 
             document.getElementById('tokens-container').innerHTML = html;
 
-            // Load prices
-            tokens.forEach(token => {
-                loadPrice(token.mint);
+            // Load prices in background with delays to avoid network saturation
+            tokens.forEach((token, index) => {
+                setTimeout(() => {
+                    loadPrice(token.mint);
+                }, index * 50);  // Stagger requests 50ms apart
             });
         }
 

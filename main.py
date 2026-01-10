@@ -17,6 +17,7 @@ from datetime import datetime
 from flask import Flask, jsonify, render_template_string
 from typing import Dict, List, Optional
 import os
+import time
 
 # Database
 DB_PATH = "pumpswap_tokens.db"
@@ -727,11 +728,14 @@ def api_token_price(token_mint: str):
 @app.route('/api/token-metrics/<token_mint>')
 def api_token_metrics(token_mint: str):
     """Get detailed risk metrics for a specific token"""
+    start = time.time()
     try:
+        t1 = time.time()
         conn = sqlite3.connect(DB_PATH, timeout=30)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
+        t2 = time.time()
         cursor.execute("""
             SELECT
                 mint,
@@ -760,8 +764,12 @@ def api_token_metrics(token_mint: str):
             WHERE mint = ?
         """, (token_mint,))
 
+        t3 = time.time()
         row = cursor.fetchone()
         conn.close()
+        t4 = time.time()
+
+        print(f"[METRICS] Connect: {(t2-t1)*1000:.1f}ms, Query: {(t3-t2)*1000:.1f}ms, Fetch: {(t4-t3)*1000:.1f}ms")
 
         if not row:
             return jsonify({'error': 'Token not found'}), 404
@@ -779,6 +787,9 @@ def api_token_metrics(token_mint: str):
             'sell_volume_concentration': row['post_migration_sell_volume_concentration'] if has_post else (row['sell_volume_concentration'] if has_pre else 0),
             'creator_activity_ratio': row['post_migration_creator_activity_ratio'] if has_post else (row['creator_activity_ratio'] if has_pre else 0)
         }
+
+        elapsed = time.time() - start
+        print(f"[METRICS] Total time: {elapsed*1000:.1f}ms")
 
         return jsonify({
             'mint': row['mint'],

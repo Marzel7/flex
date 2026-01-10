@@ -453,8 +453,9 @@ class CompleteWorkflowTest:
 
             # Update database with post-migration scores
             try:
-                conn = sqlite3.connect(DB_PATH, timeout=30)
+                conn = sqlite3.connect(DB_PATH, timeout=60)
                 conn.execute("PRAGMA journal_mode=WAL")
+                conn.execute("PRAGMA busy_timeout=60000")
                 cursor = conn.cursor()
 
                 # Fetch pre-migration score for comparison
@@ -472,6 +473,7 @@ class CompleteWorkflowTest:
                     WHERE mint = ?
                 """, (post_rug_prob, post_risk_level, token_mint))
 
+                rows_updated = cursor.rowcount
                 conn.commit()
                 conn.close()
 
@@ -482,6 +484,9 @@ class CompleteWorkflowTest:
                     print(f"[POST-MIGRATION] ✅ Risk Score: {pre_rug_prob:.1%} {arrow} {post_rug_prob:.1%}")
                 else:
                     print(f"[POST-MIGRATION] ✅ Post-migration rug probability: {post_rug_prob:.1%}")
+
+                if rows_updated == 0:
+                    print(f"[POST-MIGRATION] ⚠️  Warning: Token {token_mint[:20]}... not found for update")
 
             except Exception as e:
                 print(f"[POST-MIGRATION] ❌ Failed to store post-migration analysis: {e}")

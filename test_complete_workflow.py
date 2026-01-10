@@ -286,6 +286,9 @@ class CompleteWorkflowTest:
                     print(f"[DB] ✅ Created record for migrated token {token_mint}")
                     print(f"[DB] Status: Detected at migration time (no pre-migration metrics)")
 
+                    # Queue post-migration analysis for this token too
+                    asyncio.create_task(self._analyze_post_migration(token_mint))
+
                 conn.close()
             except Exception as e:
                 print(f"[DB] ❌ Error recording migration: {e}")

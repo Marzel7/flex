@@ -46,7 +46,9 @@ def get_migrated_tokens() -> List[Dict]:
                 amm_rug_probability,
                 amm_risk_level,
                 time_to_migration_seconds,
-                events_parsed
+                events_parsed,
+                post_migration_rug_probability,
+                post_migration_risk_level
             FROM token_analysis
             WHERE has_migrated = 1
             ORDER BY migrated_at DESC
@@ -63,7 +65,9 @@ def get_migrated_tokens() -> List[Dict]:
                 'amm_rug_probability': row['amm_rug_probability'],
                 'amm_risk_level': row['amm_risk_level'],
                 'time_to_migration_seconds': row['time_to_migration_seconds'],
-                'has_premigration_data': row['events_parsed'] > 0
+                'has_premigration_data': row['events_parsed'] > 0,
+                'post_migration_rug_probability': row['post_migration_rug_probability'],
+                'post_migration_risk_level': row['post_migration_risk_level']
             })
 
         conn.close()
@@ -356,12 +360,14 @@ HTML_TEMPLATE = """
                             <tr>
                                 <td class="mint">${token.mint}</td>
                                 <td>
-                                    ${token.has_premigration_data ?
-                                        `<span class="risk-score ${getRiskClass(token.risk_level)}">
-                                            ${(token.rug_probability * 100).toFixed(1)}%
-                                        </span>` :
-                                        '<span style="color: #a0a0a0;">—</span>'
-                                    }
+                                    ${(() => {
+                                        const preScore = token.has_premigration_data ? (token.rug_probability * 100).toFixed(1) + '%' : '—';
+                                        const postScore = token.post_migration_rug_probability !== null ? (token.post_migration_rug_probability * 100).toFixed(1) + '%' : '—';
+                                        const preClass = token.has_premigration_data ? getRiskClass(token.risk_level) : '';
+                                        const postClass = token.post_migration_rug_probability !== null ? getRiskClass(token.post_migration_risk_level) : '';
+
+                                        return `<span class="risk-score ${preClass}">${preScore}</span> / <span class="risk-score ${postClass}">${postScore}</span>`;
+                                    })()}
                                 </td>
                                 <td>
                                     ${token.has_premigration_data ? '✅ Yes' : '❌ No'}

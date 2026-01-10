@@ -34,6 +34,8 @@ class PumpFunPreMigrationAnalyzer:
         self.token_mint = token_mint
         self.rpc_url = rpc_url
         self.events = []  # {wallet, type, amount, ts}
+        self.token_name = None
+        self.token_symbol = None
 
     # -----------------------------
     # Fetch curve transactions
@@ -74,6 +76,23 @@ class PumpFunPreMigrationAnalyzer:
 
         print(f"[PRE-MIGRATION] ✅ Parsed {len(self.events)} events from {len(sigs)} transactions", flush=True)
         sys.stdout.flush()
+
+        # Fetch token metadata in background (fast, ~100-200ms)
+        self._fetch_token_metadata()
+
+    def _fetch_token_metadata(self):
+        """Fetch token name and symbol from Jupiter API (fast, non-blocking)"""
+        try:
+            url = f"https://api.jup.ag/tokens/v1?search={self.token_mint}"
+            res = requests.get(url, timeout=5)
+            if res.status_code == 200:
+                data = res.json()
+                if data:
+                    self.token_name = data[0].get("name", None)
+                    self.token_symbol = data[0].get("symbol", None)
+        except Exception:
+            # Silently fail - metadata is optional
+            pass
 
     def _get_signatures(self, limit):
         """Fetch transaction signatures for token"""
@@ -388,6 +407,8 @@ class PumpFunPreMigrationAnalyzer:
         """Return analysis as dictionary"""
         return {
             "token_mint": self.token_mint,
+            "token_name": self.token_name,
+            "token_symbol": self.token_symbol,
             "events_parsed": len(self.events),
             "mint_concentration": round(self.mint_concentration(), 3),
             "unique_minters_ratio": round(self.unique_minters_ratio(), 3),

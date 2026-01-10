@@ -258,6 +258,9 @@ class CompleteWorkflowTest:
 
                     print(f"[DB] ✅ Updated migration status for {token_mint}")
                     print(f"[DB] Time to migration: {time_to_migration} seconds ({time_to_migration/60:.1f} minutes)")
+
+                    # Queue post-migration analysis in background
+                    asyncio.create_task(self._analyze_post_migration(token_mint))
                 else:
                     # Token NOT pre-analyzed - create new record for this migration
                     print(f"[DB] ℹ️  Token {token_mint} not in pre-migration DB")
@@ -428,6 +431,50 @@ class CompleteWorkflowTest:
             print(f"\n[LISTENER] Duration {duration}s reached")
         except KeyboardInterrupt:
             print(f"\n[LISTENER] Interrupted by user")
+
+    async def _analyze_post_migration(self, token_mint: str) -> None:
+        """Re-analyze token after migration for post-migration risk score"""
+        try:
+            print(f"[POST-MIGRATION] 🔄 Re-analyzing {token_mint[:20]}... at migration time", flush=True)
+
+            # Use same analyzer as pre-migration
+            from pump_fun_pre_migration_analyzer import PumpFunPreMigrationAnalyzer
+
+            helius_key = os.getenv('HELIUS_API_KEY')
+            rpc_url = f"https://mainnet.helius-rpc.com/?api-key={helius_key}" if helius_key else "https://api.mainnet-beta.solana.com"
+
+            analyzer = PumpFunPreMigrationAnalyzer(token_mint, rpc_url=rpc_url)
+            analyzer.fetch_curve_activity(limit=200)
+            summary = analyzer.summary()
+
+            # Extract post-migration scores
+            post_rug_prob = summary.get("amm_rug_probability", 0.0)
+            post_risk_level = summary.get("amm_risk_level", "")
+
+            # Update database with post-migration scores
+            try:
+                conn = sqlite3.connect(DB_PATH, timeout=30)
+                conn.execute("PRAGMA journal_mode=WAL")
+                cursor = conn.cursor()
+
+                cursor.execute("""
+                    UPDATE token_analysis SET
+                        post_migration_rug_probability = ?,
+                        post_migration_risk_level = ?
+                    WHERE mint = ?
+                """, (post_rug_prob, post_risk_level, token_mint))
+
+                conn.commit()
+                conn.close()
+
+                print(f"[POST-MIGRATION] ✅ Stored post-migration risk for {token_mint[:20]}...")
+                print(f"[POST-MIGRATION] Post-migration rug probability: {post_rug_prob:.1%}")
+
+            except Exception as e:
+                print(f"[POST-MIGRATION] ❌ Failed to store post-migration analysis: {e}")
+
+        except Exception as e:
+            print(f"[POST-MIGRATION] ⚠️ Analysis failed for {token_mint}: {e}")
 
     # =========================================================================
     # PHASE 2: ANALYSIS RESULTS

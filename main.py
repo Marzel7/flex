@@ -811,9 +811,6 @@ def api_token_metrics(token_mint: str):
             'creator_activity_ratio': row['post_migration_creator_activity_ratio'] if has_post else (row['creator_activity_ratio'] if has_pre else 0)
         }
 
-        elapsed = time.time() - start
-        print(f"[METRICS] Total time: {elapsed*1000:.1f}ms", flush=True)
-
         response = jsonify({
             'mint': row['mint'],
             'has_premigration_data': has_pre,

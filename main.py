@@ -272,6 +272,131 @@ HTML_TEMPLATE = """
             margin-top: 20px;
             text-align: center;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: #1e1e2e;
+            margin: 5% auto;
+            padding: 30px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content h2 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .modal-content h3 {
+            color: #00d4ff;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .close {
+            color: #a0a0a0;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 20px;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #00d4ff;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #00d4ff;
+        }
+
+        .metric label {
+            display: block;
+            color: #a0a0a0;
+            font-size: 11px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .metric span {
+            display: block;
+            color: #00d4ff;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .risk-section {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .risk-section p {
+            margin: 8px 0;
+            color: #e0e0e0;
+        }
+
+        .risk-section label {
+            color: #a0a0a0;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .risk-value {
+            color: #00d4ff;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .mint-link {
+            cursor: pointer;
+            color: #00d4ff;
+            text-decoration: none;
+            border-bottom: 1px dotted #00d4ff;
+            transition: all 0.2s;
+        }
+
+        .mint-link:hover {
+            text-decoration: none;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -305,6 +430,33 @@ HTML_TEMPLATE = """
         </div>
 
         <div class="refresh-info">Auto-refreshing every 5 seconds</div>
+    </div>
+
+    <!-- Metrics Modal -->
+    <div id="metricsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeTokenMetrics()">&times;</span>
+            <h2>Token Metrics - <span id="modalMint" style="font-family: monospace; font-size: 14px;"></span></h2>
+
+            <h3>Risk Metrics</h3>
+            <div class="metrics-grid" id="metricsGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+
+            <h3>Risk Scores</h3>
+            <div class="risk-section" id="riskSection">
+                <!-- Populated by JavaScript -->
+            </div>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0, 212, 255, 0.2);">
+                <p style="color: #a0a0a0; font-size: 12px;">
+                    💡 <strong>Tip:</strong> Click "DexTools" link below to view live trading data
+                </p>
+                <a id="dextoolsLink" href="#" target="_blank" style="color: #00d4ff; margin-top: 10px; display: inline-block;">
+                    → View on DexTools
+                </a>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -359,7 +511,7 @@ HTML_TEMPLATE = """
                     <tbody>
                         ${tokens.map(token => `
                             <tr>
-                                <td class="mint"><a href="https://www.dextools.io/app/solana/token/${token.mint}" target="_blank" style="color: #00d4ff; text-decoration: none; cursor: pointer;">${token.mint}</a></td>
+                                <td class="mint"><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="Click for metrics, Ctrl+Click for DexTools">${token.mint}</a></td>
                                 <td>
                                     ${(() => {
                                         const preScore = token.has_premigration_data ? (token.rug_probability * 100).toFixed(1) + '%' : '—';
@@ -438,6 +590,102 @@ HTML_TEMPLATE = """
         // Load tokens immediately and then every 5 seconds
         loadTokens();
         setInterval(loadTokens, 5000);
+
+        // Metrics Modal Functions
+        async function showTokenMetrics(mint) {
+            const modal = document.getElementById('metricsModal');
+            document.getElementById('modalMint').textContent = mint;
+
+            try {
+                const response = await fetch(`/api/token-metrics/${mint}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    alert('Token metrics not found');
+                    return;
+                }
+
+                // Populate metrics grid
+                const metricsGrid = document.getElementById('metricsGrid');
+                const metrics = data.metrics;
+                const metricLabels = {
+                    'mint_concentration': 'Mint Concentration',
+                    'unique_minters_ratio': 'Unique Minters',
+                    'sell_suppression_ratio': 'Sell Suppression',
+                    'mint_velocity_sec': 'Mint Velocity (per sec)',
+                    'buy_size_variance': 'Buy Size Variance',
+                    'sell_volume_concentration': 'Sell Volume Concentration',
+                    'creator_activity_ratio': 'Creator Activity'
+                };
+
+                metricsGrid.innerHTML = '';
+                Object.keys(metricLabels).forEach(key => {
+                    const value = metrics[key] !== null ? metrics[key].toFixed(4) : '—';
+                    metricsGrid.innerHTML += `
+                        <div class="metric">
+                            <label>${metricLabels[key]}</label>
+                            <span>${value}</span>
+                        </div>
+                    `;
+                });
+
+                // Populate risk section
+                const riskSection = document.getElementById('riskSection');
+                const risk = data.risk;
+                const preRug = risk.pre_rug_probability !== null ? (risk.pre_rug_probability * 100).toFixed(1) : '—';
+                const postRug = risk.post_rug_probability !== null ? (risk.post_rug_probability * 100).toFixed(1) : '—';
+                const ammRug = risk.amm_rug_probability !== null ? (risk.amm_rug_probability * 100).toFixed(1) : '—';
+
+                riskSection.innerHTML = `
+                    <p>
+                        <label>Pre-Migration Rug Probability:</label>
+                        <span class="risk-value">${preRug}%</span>
+                        <span style="color: #a0a0a0; margin-left: 10px;">${risk.pre_risk_level || '—'}</span>
+                    </p>
+                    <p>
+                        <label>AMM Pool Rug Probability:</label>
+                        <span class="risk-value">${ammRug}%</span>
+                        <span style="color: #a0a0a0; margin-left: 10px;">${risk.amm_risk_level || '—'}</span>
+                    </p>
+                    <p>
+                        <label>Post-Migration Rug Probability:</label>
+                        <span class="risk-value">${postRug}%</span>
+                        <span style="color: #a0a0a0; margin-left: 10px;">${risk.post_risk_level || '—'}</span>
+                    </p>
+                    <p style="margin-top: 15px; color: #a0a0a0; font-size: 12px;">
+                        ${data.has_premigration_data ? '✅ Pre-migration data available' : '⚠️ No pre-migration data (detected at migration time)'}
+                    </p>
+                `;
+
+                // Set DexTools link
+                document.getElementById('dextoolsLink').href = `https://www.dextools.io/app/solana/token/${mint}`;
+
+                // Show modal
+                modal.style.display = 'block';
+            } catch (error) {
+                console.error('Error loading metrics:', error);
+                alert('Failed to load token metrics');
+            }
+        }
+
+        function closeTokenMetrics() {
+            document.getElementById('metricsModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('metricsModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close modal when pressing Escape
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeTokenMetrics();
+            }
+        });
     </script>
 </body>
 </html>
@@ -462,6 +710,67 @@ def api_token_price(token_mint: str):
     """Get current price for a specific token"""
     price = get_token_price(token_mint)
     return jsonify({'mint': token_mint, 'price': price})
+
+
+@app.route('/api/token-metrics/<token_mint>')
+def api_token_metrics(token_mint: str):
+    """Get detailed risk metrics for a specific token"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT
+                mint,
+                mint_concentration,
+                unique_minters_ratio,
+                sell_suppression_ratio,
+                mint_velocity_sec,
+                buy_size_variance,
+                sell_volume_concentration,
+                creator_activity_ratio,
+                rug_probability,
+                risk_level,
+                amm_rug_probability,
+                amm_risk_level,
+                post_migration_rug_probability,
+                post_migration_risk_level,
+                events_parsed
+            FROM token_analysis
+            WHERE mint = ?
+        """, (token_mint,))
+
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            return jsonify({'error': 'Token not found'}), 404
+
+        return jsonify({
+            'mint': row['mint'],
+            'has_premigration_data': row['events_parsed'] > 0,
+            'metrics': {
+                'mint_concentration': row['mint_concentration'],
+                'unique_minters_ratio': row['unique_minters_ratio'],
+                'sell_suppression_ratio': row['sell_suppression_ratio'],
+                'mint_velocity_sec': row['mint_velocity_sec'],
+                'buy_size_variance': row['buy_size_variance'],
+                'sell_volume_concentration': row['sell_volume_concentration'],
+                'creator_activity_ratio': row['creator_activity_ratio']
+            },
+            'risk': {
+                'pre_rug_probability': row['rug_probability'],
+                'pre_risk_level': row['risk_level'],
+                'post_rug_probability': row['post_migration_rug_probability'],
+                'post_risk_level': row['post_migration_risk_level'],
+                'amm_rug_probability': row['amm_rug_probability'],
+                'amm_risk_level': row['amm_risk_level']
+            }
+        })
+    except Exception as e:
+        print(f"[API] Error fetching metrics for {token_mint}: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 # =========================================================================

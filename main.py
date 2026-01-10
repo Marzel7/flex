@@ -380,9 +380,9 @@ HTML_TEMPLATE = """
                                     ${formatDate(token.migrated_at)}
                                 </td>
                                 <td>
-                                    ${token.time_to_migration_seconds ?
+                                    ${token.has_premigration_data && token.time_to_migration_seconds ?
                                         `<span class="time-badge">${formatTime(token.time_to_migration_seconds)}</span>` :
-                                        '<span style="color: #a0a0a0;">Unknown</span>'
+                                        '<span style="color: #a0a0a0;">—</span>'
                                     }
                                 </td>
                                 <td id="price-${token.mint}">

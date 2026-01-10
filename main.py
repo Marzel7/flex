@@ -594,12 +594,18 @@ HTML_TEMPLATE = """
 
         // Metrics Modal Functions
         async function showTokenMetrics(mint) {
+            const t0 = performance.now();
             const modal = document.getElementById('metricsModal');
             document.getElementById('modalMint').textContent = mint;
 
             try {
+                const t1 = performance.now();
                 const response = await fetch(`/api/token-metrics/${mint}`);
+                const t2 = performance.now();
                 const data = await response.json();
+                const t3 = performance.now();
+
+                console.log(`[METRICS UI] Fetch: ${(t2-t1).toFixed(1)}ms, JSON parse: ${(t3-t2).toFixed(1)}ms`);
 
                 if (data.error) {
                     alert('Token metrics not found');
@@ -619,6 +625,7 @@ HTML_TEMPLATE = """
                     'creator_activity_ratio': 'Creator Activity'
                 };
 
+                const t4 = performance.now();
                 metricsGrid.innerHTML = '';
 
                 // Show notice if using post-migration data
@@ -632,17 +639,24 @@ HTML_TEMPLATE = """
                     `;
                 }
 
+                // Build HTML string first, then set it once
+                let metricsHTML = metricsGrid.innerHTML;
                 Object.keys(metricLabels).forEach(key => {
                     const value = metrics[key] !== null && metrics[key] > 0 ? metrics[key].toFixed(4) : '—';
-                    metricsGrid.innerHTML += `
+                    metricsHTML += `
                         <div class="metric">
                             <label>${metricLabels[key]}</label>
                             <span>${value}</span>
                         </div>
                     `;
                 });
+                metricsGrid.innerHTML = metricsHTML;
+                const t5 = performance.now();
+
+                console.log(`[METRICS UI] Grid rendering: ${(t5-t4).toFixed(1)}ms`);
 
                 // Populate risk section
+                const t6 = performance.now();
                 const riskSection = document.getElementById('riskSection');
                 const risk = data.risk;
                 const preRug = risk.pre_rug_probability !== null ? (risk.pre_rug_probability * 100).toFixed(1) : '—';
@@ -674,7 +688,13 @@ HTML_TEMPLATE = """
                 document.getElementById('dextoolsLink').href = `https://www.dextools.io/app/solana/token/${mint}`;
 
                 // Show modal
+                const t7 = performance.now();
                 modal.style.display = 'block';
+                const t8 = performance.now();
+
+                const total = t8 - t0;
+                console.log(`[METRICS UI] Risk rendering: ${(t7-t6).toFixed(1)}ms, Modal display: ${(t8-t7).toFixed(1)}ms`)
+                console.log(`[METRICS UI] TOTAL TIME: ${total.toFixed(1)}ms`);
             } catch (error) {
                 console.error('Error loading metrics:', error);
                 alert('Failed to load token metrics');

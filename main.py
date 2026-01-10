@@ -371,7 +371,10 @@ HTML_TEMPLATE = """
                                     })()}
                                 </td>
                                 <td>
-                                    ${token.has_premigration_data ? '✅ Yes' : '❌ No'}
+                                    ${token.has_premigration_data ?
+                                        '<span style="color: #00d4ff; background: rgba(0, 212, 255, 0.1); padding: 4px 8px; border-radius: 4px; font-size: 12px;">✓ Yes</span>' :
+                                        '<span style="color: #a0a0a0; background: rgba(160, 160, 160, 0.1); padding: 4px 8px; border-radius: 4px; font-size: 12px;">✗ No</span>'
+                                    }
                                 </td>
                                 <td>
                                     ${formatDate(token.migrated_at)}

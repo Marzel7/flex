@@ -450,7 +450,7 @@ class CompleteWorkflowTest:
             rpc_url = f"https://mainnet.helius-rpc.com/?api-key={helius_key}" if helius_key else "https://api.mainnet-beta.solana.com"
 
             analyzer = PumpFunPreMigrationAnalyzer(token_mint, rpc_url=rpc_url)
-            analyzer.fetch_curve_activity(limit=200)
+            analyzer.fetch_curve_activity(limit=100000)  # Fetch all available transactions (paginated)
             summary = analyzer.summary()
 
             # Extract all post-migration metrics and scores
@@ -463,6 +463,7 @@ class CompleteWorkflowTest:
             post_buy_size_variance = summary.get("buy_size_variance", 0.0)
             post_sell_volume_concentration = summary.get("sell_volume_concentration", 0.0)
             post_creator_activity_ratio = summary.get("creator_activity_ratio", 0.0)
+            post_coverage = summary.get("pre_migration_coverage", 0.0)  # Coverage from analyzer
 
             # Update database with post-migration scores and sub-metrics
             try:
@@ -489,13 +490,14 @@ class CompleteWorkflowTest:
                         post_migration_mint_velocity_sec = ?,
                         post_migration_buy_size_variance = ?,
                         post_migration_sell_volume_concentration = ?,
-                        post_migration_creator_activity_ratio = ?
+                        post_migration_creator_activity_ratio = ?,
+                        post_migration_coverage = ?
                     WHERE mint = ?
                 """, (post_rug_prob, post_risk_level, post_mint_concentration,
                       post_unique_minters_ratio, post_sell_suppression_ratio,
                       post_mint_velocity_sec, post_buy_size_variance,
                       post_sell_volume_concentration, post_creator_activity_ratio,
-                      token_mint))
+                      post_coverage, token_mint))
 
                 rows_updated = cursor.rowcount
                 conn.commit()

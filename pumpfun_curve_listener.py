@@ -76,6 +76,7 @@ class PumpFunCurveListener:
                 creator_activity_ratio REAL,
                 amm_rug_probability REAL,
                 amm_risk_level TEXT,
+                pre_migration_coverage REAL,
                 post_migration_mint_concentration REAL,
                 post_migration_unique_minters_ratio REAL,
                 post_migration_sell_suppression_ratio REAL,
@@ -83,9 +84,21 @@ class PumpFunCurveListener:
                 post_migration_buy_size_variance REAL,
                 post_migration_sell_volume_concentration REAL,
                 post_migration_creator_activity_ratio REAL,
+                post_migration_coverage REAL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+
+        # Add coverage columns if they don't exist (for existing databases)
+        try:
+            cursor.execute("ALTER TABLE token_analysis ADD COLUMN pre_migration_coverage REAL")
+        except sqlite3.OperationalError:
+            pass  # Column already exists
+
+        try:
+            cursor.execute("ALTER TABLE token_analysis ADD COLUMN post_migration_coverage REAL")
+        except sqlite3.OperationalError:
+            pass  # Column already exists
 
         conn.commit()
         conn.close()
@@ -120,8 +133,9 @@ class PumpFunCurveListener:
                         mint, analyzed_at, events_parsed, mint_concentration,
                         unique_minters_ratio, sell_suppression_ratio, mint_velocity_sec,
                         buy_size_variance, sell_volume_concentration, rug_probability,
-                        risk_level, creator_activity_ratio, amm_rug_probability, amm_risk_level
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        risk_level, creator_activity_ratio, amm_rug_probability, amm_risk_level,
+                        pre_migration_coverage
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     mint,
                     time.time(),
@@ -136,7 +150,8 @@ class PumpFunCurveListener:
                     analysis.get("risk_level", ""),
                     analysis.get("creator_activity_ratio", 0),
                     analysis.get("amm_rug_probability", 0),
-                    analysis.get("amm_risk_level", "")
+                    analysis.get("amm_risk_level", ""),
+                    analysis.get("pre_migration_coverage", 0)
                 ))
                 conn.commit()
                 conn.close()
@@ -253,7 +268,7 @@ class PumpFunCurveListener:
             action = "Re-analyzing" if (mint in self.analyzed_tokens and force_reanalyze) else "Analyzing"
             print(f"[ANALYZER] 🔍 {action} {mint}", flush=True)
             analyzer = PumpFunPreMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
-            analyzer.fetch_curve_activity(limit=200)
+            analyzer.fetch_curve_activity(limit=100000)  # Fetch all available transactions (paginated)
             summary = analyzer.summary()
             self.analyzed_tokens[mint] = summary
             risk_level = summary.get("amm_risk_level", "🟢 Low")

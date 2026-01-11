@@ -22,6 +22,8 @@ from collections import defaultdict, Counter
 from statistics import variance
 import sys
 from typing import Optional, Dict
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
 
 
 class PumpFunPreMigrationAnalyzer:
@@ -36,6 +38,8 @@ class PumpFunPreMigrationAnalyzer:
         self.events = []  # {wallet, type, amount, ts}
         self.token_name = None
         self.token_symbol = None
+        self.signatures_requested = 0  # Number of signatures we requested
+        self.transactions_fetched = 0  # Successfully fetched transactions
 
     # -----------------------------
     # Fetch curve transactions
@@ -45,36 +49,42 @@ class PumpFunPreMigrationAnalyzer:
         print(f"[PRE-MIGRATION] Fetching curve activity for {self.token_mint[:16]}... (limit={limit})", flush=True)
         sys.stdout.flush()
 
-        sigs = self._get_signatures(limit)
+        # Try Helius API first (much faster), fall back to standard RPC
+        sigs = self._get_signatures_helius(limit)
+        if not sigs:
+            print(f"[PRE-MIGRATION] Helius unavailable, falling back to standard RPC...", flush=True)
+            sigs = self._get_signatures(limit)
         if not sigs:
             print(f"[PRE-MIGRATION] ⚠ No signatures found", flush=True)
             return
 
+        self.signatures_requested = len(sigs)
         print(f"[PRE-MIGRATION] Found {len(sigs)} signatures, parsing transactions...", flush=True)
         sys.stdout.flush()
 
-        # Fetch transactions concurrently (batch of 10 at a time to avoid RPC rate limits)
-        batch_size = 10
-        for batch_start in range(0, len(sigs), batch_size):
-            batch_sigs = sigs[batch_start:batch_start + batch_size]
+        # Fetch transactions in parallel using ThreadPoolExecutor
+        # Use Helius if available (shows in RPC URL), otherwise be conservative
+        is_helius = "helius" in self.rpc_url.lower()
+        max_workers = 50 if is_helius else 20  # Helius allows more aggressive parallel requests
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {executor.submit(self._get_tx, sig): sig for sig in sigs}
 
-            # Fetch all transactions in batch concurrently
-            txs = []
-            for sig in batch_sigs:
-                tx = self._get_tx(sig)
-                if tx:
-                    txs.append(tx)
+            for i, future in enumerate(as_completed(futures), 1):
+                try:
+                    tx = future.result()
+                    if tx:
+                        self.transactions_fetched += 1
+                        self._parse_curve_tx(tx)
+                except Exception:
+                    pass  # RPC fetch failed, covered in coverage metric
 
-            # Parse all transactions from this batch
-            for tx in txs:
-                self._parse_curve_tx(tx)
+                # Progress update every 50 transactions
+                if i % 50 == 0:
+                    print(f"[PRE-MIGRATION] Processed {i}/{len(sigs)} transactions...", flush=True)
+                    sys.stdout.flush()
 
-            if batch_start > 0:
-                processed = min(batch_start + batch_size, len(sigs))
-                print(f"[PRE-MIGRATION] Processed {processed}/{len(sigs)} transactions...", flush=True)
-                sys.stdout.flush()
-
-        print(f"[PRE-MIGRATION] ✅ Parsed {len(self.events)} events from {len(sigs)} transactions", flush=True)
+        coverage = round((self.transactions_fetched / self.signatures_requested * 100) if self.signatures_requested > 0 else 0, 1)
+        print(f"[PRE-MIGRATION] {self.token_mint} | ✅ Parsed {len(self.events)} events from {self.transactions_fetched}/{self.signatures_requested} transactions ({coverage}% coverage)", flush=True)
         sys.stdout.flush()
 
         # Fetch token metadata in background (fast, ~100-200ms)
@@ -94,20 +104,102 @@ class PumpFunPreMigrationAnalyzer:
             # Silently fail - metadata is optional
             pass
 
-    def _get_signatures(self, limit):
-        """Fetch transaction signatures for token"""
-        payload = {
-            "jsonrpc": "2.0",
-            "id": 1,
-            "method": "getSignaturesForAddress",
-            "params": [self.token_mint, {"limit": limit}]
-        }
-        try:
-            res = requests.post(self.rpc_url, json=payload, timeout=10).json()
-            return [x["signature"] for x in res.get("result", [])]
-        except Exception as e:
-            print(f"[PRE-MIGRATION] ❌ Failed to fetch signatures: {e}", flush=True)
+    def _get_signatures_helius(self, limit):
+        """Fetch ALL transaction signatures using Helius API (much faster with pagination)"""
+        helius_api_key = os.getenv('HELIUS_API_KEY')
+        if not helius_api_key:
             return []
+
+        all_sigs = []
+        page_token = None
+        page = 0
+
+        while True:
+            page += 1
+            url = f"https://api.helius.xyz/v0/addresses/{self.token_mint}/transactions"
+            params = {
+                "api-key": helius_api_key,
+                "limit": 1000,  # Helius supports up to 1000 per request
+                "type": "all"
+            }
+            if page_token:
+                params["page-token"] = page_token
+
+            try:
+                res = requests.get(url, params=params, timeout=10).json()
+                txs = res.get("transactions", [])
+
+                if not txs:
+                    break
+
+                # Extract signatures
+                sigs = [tx.get("signature") for tx in txs if tx.get("signature")]
+                all_sigs.extend(sigs)
+
+                print(f"[PRE-MIGRATION] Helius: Fetched {len(all_sigs)} total signatures (page {page})...", flush=True)
+
+                # Check for next page
+                page_token = res.get("page-token")
+                if not page_token:
+                    break
+
+                # Respect the limit parameter
+                if len(all_sigs) >= limit:
+                    all_sigs = all_sigs[:limit]
+                    break
+
+            except Exception as e:
+                print(f"[PRE-MIGRATION] ❌ Helius API failed (page {page}): {e}", flush=True)
+                break
+
+        return all_sigs
+
+    def _get_signatures(self, limit):
+        """Fetch ALL transaction signatures for token using pagination"""
+        all_sigs = []
+        before = None
+        page = 0
+
+        while True:
+            page += 1
+            params = {"limit": min(limit, 1000)}  # Max 1000 per RPC call
+            if before:
+                params["before"] = before
+
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getSignaturesForAddress",
+                "params": [self.token_mint, params]
+            }
+            try:
+                res = requests.post(self.rpc_url, json=payload, timeout=10).json()
+                sigs = res.get("result", [])
+                if not sigs:
+                    break
+
+                sig_list = [x["signature"] for x in sigs]
+                all_sigs.extend(sig_list)
+
+                print(f"[PRE-MIGRATION] Fetched {len(all_sigs)} total signatures (page {page})...", flush=True)
+
+                # Stop if we got fewer than requested (reached end)
+                if len(sig_list) < 1000:
+                    break
+
+                # Set 'before' to last signature for next page
+                before = sig_list[-1]
+
+                # Respect the limit parameter (total max signatures to fetch)
+                if len(all_sigs) >= limit:
+                    all_sigs = all_sigs[:limit]
+                    break
+
+            except Exception as e:
+                print(f"[PRE-MIGRATION] ❌ Failed to fetch signatures (page {page}): {e}", flush=True)
+                break
+
+        return all_sigs
 
     def _get_tx(self, sig):
         """Fetch full transaction data"""
@@ -405,6 +497,7 @@ class PumpFunPreMigrationAnalyzer:
 
     def summary(self):
         """Return analysis as dictionary"""
+        coverage = round((self.transactions_fetched / self.signatures_requested * 100) if self.signatures_requested > 0 else 0, 1)
         return {
             "token_mint": self.token_mint,
             "token_name": self.token_name,
@@ -420,5 +513,6 @@ class PumpFunPreMigrationAnalyzer:
             "risk_level": self.risk_level(),
             "creator_activity_ratio": round(self.creator_activity_ratio(), 3),
             "amm_rug_probability": self.compute_amm_rug_score(),
-            "amm_risk_level": self.amm_risk_level()
+            "amm_risk_level": self.amm_risk_level(),
+            "pre_migration_coverage": coverage
         }

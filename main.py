@@ -669,6 +669,22 @@ HTML_TEMPLATE = """
                         </div>
                     `;
                 });
+
+                // Add coverage metrics
+                const preCoverage = data.coverage && data.coverage.pre_migration !== null ? (data.coverage.pre_migration).toFixed(1) : '—';
+                const postCoverage = data.coverage && data.coverage.post_migration !== null ? (data.coverage.post_migration).toFixed(1) : '—';
+
+                metricsHTML += `
+                    <div class="metric">
+                        <label>Pre-Migration Coverage</label>
+                        <span>${preCoverage}%</span>
+                    </div>
+                    <div class="metric">
+                        <label>Post-Migration Coverage</label>
+                        <span>${postCoverage}%</span>
+                    </div>
+                `;
+
                 metricsGrid.innerHTML = metricsHTML;
 
                 // Populate risk section
@@ -786,7 +802,9 @@ def api_token_metrics(token_mint: str):
                 post_migration_buy_size_variance,
                 post_migration_sell_volume_concentration,
                 post_migration_creator_activity_ratio,
-                events_parsed
+                events_parsed,
+                pre_migration_coverage,
+                post_migration_coverage
             FROM token_analysis
             WHERE mint = ?
         """, (token_mint,))
@@ -824,6 +842,10 @@ def api_token_metrics(token_mint: str):
                 'post_risk_level': row['post_migration_risk_level'],
                 'amm_rug_probability': row['amm_rug_probability'],
                 'amm_risk_level': row['amm_risk_level']
+            },
+            'coverage': {
+                'pre_migration': row['pre_migration_coverage'],
+                'post_migration': row['post_migration_coverage']
             }
         })
         return response

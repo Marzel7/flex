@@ -24,6 +24,9 @@ import sys
 from typing import Optional, Dict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
+from dotenv import load_dotenv
+
+load_dotenv()  # Load environment variables from .env
 
 
 class PumpFunPreMigrationAnalyzer:
@@ -126,7 +129,7 @@ class PumpFunPreMigrationAnalyzer:
                 params["page-token"] = page_token
 
             try:
-                res = requests.get(url, params=params, timeout=10).json()
+                res = requests.get(url, params=params, timeout=30).json()  # Helius can be slow
                 txs = res.get("transactions", [])
 
                 if not txs:

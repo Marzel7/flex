@@ -55,8 +55,10 @@ class PumpFunPreMigrationAnalyzer:
         # Try Helius API first (much faster), fall back to standard RPC
         sigs = self._get_signatures_helius(limit)
         if not sigs:
-            print(f"[PRE-MIGRATION] Helius unavailable, falling back to standard RPC...", flush=True)
+            print(f"[FETCH-METHOD] ⏱️  Helius unavailable/timed out, falling back to standard RPC (slower)", flush=True)
             sigs = self._get_signatures(limit)
+        else:
+            print(f"[FETCH-METHOD] ✅ Helius API succeeded", flush=True)
         if not sigs:
             print(f"[PRE-MIGRATION] ⚠ No signatures found", flush=True)
             return
@@ -113,6 +115,7 @@ class PumpFunPreMigrationAnalyzer:
         if not helius_api_key:
             return []
 
+        print(f"[FETCH-METHOD] 🚀 Using Helius API (fast indexed transactions)", flush=True)
         all_sigs = []
         page_token = None
         page = 0
@@ -159,6 +162,7 @@ class PumpFunPreMigrationAnalyzer:
 
     def _get_signatures(self, limit):
         """Fetch ALL transaction signatures for token using pagination"""
+        print(f"[FETCH-METHOD] 📡 Using Standard RPC with pagination", flush=True)
         all_sigs = []
         before = None
         page = 0

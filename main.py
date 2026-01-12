@@ -35,40 +35,20 @@ def get_migrated_tokens() -> List[Dict]:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
-        # Try new schema first, then fall back to old schema
-        try:
-            cursor.execute("""
-                SELECT
-                    mint,
-                    analyzed_at,
-                    total_txs,
-                    total_events,
-                    rug_probability,
-                    risk_level,
-                    coverage,
-                    market_cap_current,
-                    market_cap_highest
-                FROM token_analysis
-                ORDER BY analyzed_at DESC
-            """)
-            use_new_schema = True
-        except sqlite3.OperationalError:
-            # Fall back to old schema - map old columns to new ones
-            cursor.execute("""
-                SELECT
-                    mint,
-                    analyzed_at,
-                    rug_probability,
-                    risk_level,
-                    events_parsed as total_events,
-                    0 as total_txs,
-                    COALESCE(pre_migration_coverage, 0) as coverage,
-                    NULL as market_cap_current,
-                    NULL as market_cap_highest
-                FROM token_analysis
-                ORDER BY analyzed_at DESC
-            """)
-            use_new_schema = False
+        # Query post-migration analysis data
+        cursor.execute("""
+            SELECT
+                mint,
+                analyzed_at,
+                events_parsed,
+                rug_probability,
+                risk_level,
+                post_migration_coverage,
+                market_cap_current,
+                market_cap_highest
+            FROM token_analysis
+            ORDER BY analyzed_at DESC
+        """)
 
         tokens = []
         for row in cursor.fetchall():
@@ -77,9 +57,9 @@ def get_migrated_tokens() -> List[Dict]:
                 'analyzed_at': row['analyzed_at'],
                 'rug_probability': row['rug_probability'] if row['rug_probability'] else 0,
                 'risk_level': row['risk_level'],
-                'total_txs': row['total_txs'],
-                'total_events': row['total_events'],
-                'coverage': row['coverage'],
+                'total_txs': 0,  # Not used in new schema
+                'total_events': row['events_parsed'] if row['events_parsed'] else 0,
+                'coverage': row['post_migration_coverage'] if row['post_migration_coverage'] else 0,
                 'market_cap_current': row['market_cap_current'] if row['market_cap_current'] else None,
                 'market_cap_highest': row['market_cap_highest'] if row['market_cap_highest'] else None
             })
@@ -231,7 +211,7 @@ HTML_TEMPLATE = """
             display: inline-block;
             padding: 4px 8px;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 600;
         }
 

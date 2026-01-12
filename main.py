@@ -749,6 +749,7 @@ def api_token_metrics(token_mint: str):
                 post_migration_mint_velocity_sec,
                 post_migration_buy_size_variance,
                 post_migration_sell_volume_concentration,
+                post_migration_creator_activity_ratio,
                 rug_probability,
                 risk_level,
                 post_migration_coverage as coverage
@@ -773,7 +774,8 @@ def api_token_metrics(token_mint: str):
                 'sell_suppression_ratio': row['post_migration_sell_suppression_ratio'] if row['post_migration_sell_suppression_ratio'] else 0,
                 'mint_velocity_sec': row['post_migration_mint_velocity_sec'] if row['post_migration_mint_velocity_sec'] else 0,
                 'buy_size_variance': row['post_migration_buy_size_variance'] if row['post_migration_buy_size_variance'] else 0,
-                'sell_volume_concentration': row['post_migration_sell_volume_concentration'] if row['post_migration_sell_volume_concentration'] else 0
+                'sell_volume_concentration': row['post_migration_sell_volume_concentration'] if row['post_migration_sell_volume_concentration'] else 0,
+                'creator_activity_ratio': row['post_migration_creator_activity_ratio'] if row['post_migration_creator_activity_ratio'] else 0
             },
             'risk': {
                 'rug_probability': row['rug_probability'] if row['rug_probability'] else 0,

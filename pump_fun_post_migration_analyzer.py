@@ -327,6 +327,19 @@ class PostMigrationAnalyzer:
         top3_sum = sum(v for _, v in sorted(wallet_volumes.items(), key=lambda x: x[1], reverse=True)[:3])
         return top3_sum / total if total else 0.0
 
+    def creator_activity_ratio(self):
+        """Ratio of transactions from top minter (creator proxy)"""
+        if not self.events:
+            return 0.0
+        
+        minters = Counter(e["wallet"] for e in self.events if e["type"] == "buy")
+        if not minters:
+            return 0.0
+        
+        creator_wallet = minters.most_common(1)[0][0]
+        creator_txs = sum(1 for e in self.events if e["wallet"] == creator_wallet)
+        return creator_txs / len(self.events)
+
     def compute_rug_score(self):
         """Calculate rug probability (0-1)"""
         score = 0.0
@@ -392,5 +405,6 @@ class PostMigrationAnalyzer:
             "mint_velocity_sec": self.mint_velocity(),
             "buy_size_variance": self.buy_size_variance(),
             "sell_volume_concentration": self.sell_volume_concentration(),
+            "creator_activity_ratio": self.creator_activity_ratio(),
             "coverage": (self.transactions_fetched / self.signatures_requested * 100) if self.signatures_requested > 0 else 0
         }

@@ -98,8 +98,9 @@ class PumpFunCurveListener:
                         post_migration_mint_concentration, post_migration_unique_minters_ratio,
                         post_migration_sell_suppression_ratio, post_migration_mint_velocity_sec,
                         post_migration_buy_size_variance, post_migration_sell_volume_concentration,
+                        post_migration_creator_activity_ratio,
                         rug_probability, risk_level, post_migration_coverage
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     mint,
                     time.time(),
@@ -110,6 +111,7 @@ class PumpFunCurveListener:
                     analysis.get("mint_velocity_sec", 0),
                     analysis.get("buy_size_variance", 0),
                     analysis.get("sell_volume_concentration", 0),
+                    analysis.get("creator_activity_ratio", 0),
                     analysis.get("rug_probability", 0),
                     analysis.get("risk_level", ""),
                     analysis.get("coverage", 0)

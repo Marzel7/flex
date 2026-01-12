@@ -253,7 +253,7 @@ class PostMigrationAnalyzer:
             return
 
         self.signatures_requested = len(sigs)
-        await self.fetch_transactions_async(sigs, batch_size=BATCH_SIZE)
+        await self.fetch_transactions_async(sigs)
 
         print(f"[STREAM] ✅ Analysis complete: {len(self.events)} events from {self.transactions_fetched} txs", flush=True)
 

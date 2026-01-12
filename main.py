@@ -30,51 +30,59 @@ app = Flask(__name__)
 # =========================================================================
 
 def get_migrated_tokens() -> List[Dict]:
-    """Get all tokens that have migrated with analysis data"""
+    """Get all analyzed post-migration tokens"""
     try:
         conn = sqlite3.connect(DB_PATH, timeout=30)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
-        cursor.execute("""
-            SELECT
-                mint,
-                analyzed_at,
-                has_migrated,
-                migrated_at,
-                rug_probability,
-                risk_level,
-                amm_rug_probability,
-                amm_risk_level,
-                time_to_migration_seconds,
-                events_parsed,
-                post_migration_rug_probability,
-                post_migration_risk_level
-            FROM token_analysis
-            WHERE has_migrated = 1
-            ORDER BY migrated_at DESC
-        """)
+        # Try new schema first, then fall back to old schema
+        try:
+            cursor.execute("""
+                SELECT
+                    mint,
+                    analyzed_at,
+                    total_txs,
+                    total_events,
+                    rug_probability,
+                    risk_level,
+                    coverage
+                FROM token_analysis
+                ORDER BY analyzed_at DESC
+            """)
+            use_new_schema = True
+        except sqlite3.OperationalError:
+            # Fall back to old schema - map old columns to new ones
+            cursor.execute("""
+                SELECT
+                    mint,
+                    analyzed_at,
+                    rug_probability,
+                    risk_level,
+                    events_parsed as total_events,
+                    0 as total_txs,
+                    COALESCE(pre_migration_coverage, 0) as coverage
+                FROM token_analysis
+                ORDER BY analyzed_at DESC
+            """)
+            use_new_schema = False
 
         tokens = []
         for row in cursor.fetchall():
             tokens.append({
                 'mint': row['mint'],
                 'analyzed_at': row['analyzed_at'],
-                'migrated_at': row['migrated_at'],
-                'rug_probability': row['rug_probability'],
+                'rug_probability': row['rug_probability'] if row['rug_probability'] else 0,
                 'risk_level': row['risk_level'],
-                'amm_rug_probability': row['amm_rug_probability'],
-                'amm_risk_level': row['amm_risk_level'],
-                'time_to_migration_seconds': row['time_to_migration_seconds'],
-                'has_premigration_data': row['events_parsed'] > 0,
-                'post_migration_rug_probability': row['post_migration_rug_probability'],
-                'post_migration_risk_level': row['post_migration_risk_level']
+                'total_txs': row['total_txs'],
+                'total_events': row['total_events'],
+                'coverage': row['coverage']
             })
 
         conn.close()
         return tokens
     except Exception as e:
-        print(f"[DB] Error fetching migrated tokens: {e}")
+        print(f"[DB] Error fetching analyzed tokens: {e}")
         return []
 
 
@@ -487,12 +495,12 @@ HTML_TEMPLATE = """
 
         function updateStats(data) {
             const tokens = data.tokens;
-            const withAnalysis = tokens.filter(t => t.has_premigration_data).length;
             const highRisk = tokens.filter(t => t.risk_level?.includes('HIGH')).length;
+            const mediumRisk = tokens.filter(t => t.risk_level?.includes('MEDIUM')).length;
             const lowRisk = tokens.filter(t => t.risk_level?.includes('LOW')).length;
 
             document.getElementById('total-migrations').textContent = tokens.length;
-            document.getElementById('with-analysis').textContent = withAnalysis;
+            document.getElementById('with-analysis').textContent = tokens.length;
             document.getElementById('high-risk').textContent = highRisk;
             document.getElementById('low-risk').textContent = lowRisk;
         }
@@ -503,44 +511,35 @@ HTML_TEMPLATE = """
                     <thead>
                         <tr>
                             <th>Token Mint</th>
+                            <th>Risk Level</th>
                             <th>Risk Score</th>
-                            <th>Analysis Data</th>
-                            <th>Migrated</th>
-                            <th>Time to Migration</th>
-                            <th>Current Price</th>
+                            <th>Transactions</th>
+                            <th>Events</th>
+                            <th>Coverage</th>
+                            <th>Analyzed</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${tokens.map(token => `
                             <tr>
-                                <td class="mint"><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="Click for metrics, Ctrl+Click for DexTools">${token.mint}</a></td>
+                                <td class="mint"><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="Click for metrics">${token.mint}</a></td>
                                 <td>
-                                    ${(() => {
-                                        const preScore = token.has_premigration_data ? (token.rug_probability * 100).toFixed(1) + '%' : '—';
-                                        const postScore = token.post_migration_rug_probability !== null ? (token.post_migration_rug_probability * 100).toFixed(1) + '%' : '—';
-                                        const preClass = token.has_premigration_data ? getRiskClass(token.risk_level) : '';
-                                        const postClass = token.post_migration_rug_probability !== null ? getRiskClass(token.post_migration_risk_level) : '';
-
-                                        return `<span class="risk-score ${preClass}">${preScore}</span> / <span class="risk-score ${postClass}">${postScore}</span>`;
-                                    })()}
+                                    <span class="risk-score ${getRiskClass(token.risk_level)}">${token.risk_level}</span>
                                 </td>
                                 <td>
-                                    ${token.has_premigration_data ?
-                                        '<span style="color: #00d4ff; font-size: 16px;">✓</span>' :
-                                        '<span style="color: #a0a0a0; font-size: 16px;">✗</span>'
-                                    }
+                                    ${token.rug_probability !== null && token.rug_probability !== undefined ? (token.rug_probability * 100).toFixed(1) + '%' : '—'}
                                 </td>
                                 <td>
-                                    ${formatDate(token.migrated_at)}
+                                    ${token.total_txs}
                                 </td>
                                 <td>
-                                    ${token.has_premigration_data && token.time_to_migration_seconds ?
-                                        `<span class="time-badge">${formatTime(token.time_to_migration_seconds)}</span>` :
-                                        '<span style="color: #a0a0a0;">—</span>'
-                                    }
+                                    ${token.total_events}
                                 </td>
-                                <td id="price-${token.mint}">
-                                    <span style="color: #a0a0a0;">Loading...</span>
+                                <td>
+                                    ${token.coverage ? token.coverage.toFixed(1) + '%' : '—'}
+                                </td>
+                                <td>
+                                    ${formatDate(token.analyzed_at)}
                                 </td>
                             </tr>
                         `).join('')}
@@ -671,8 +670,19 @@ HTML_TEMPLATE = """
                 });
 
                 // Add coverage metrics
-                const preCoverage = data.coverage && data.coverage.pre_migration !== null ? (data.coverage.pre_migration).toFixed(1) : '—';
-                const postCoverage = data.coverage && data.coverage.post_migration !== null ? (data.coverage.post_migration).toFixed(1) : '—';
+                let preCoverage = '—';
+                let postCoverage = '—';
+
+                // Handle both nested object and flat coverage formats
+                if (data.coverage !== null && data.coverage !== undefined) {
+                    if (typeof data.coverage === 'object') {
+                        preCoverage = data.coverage.pre_migration !== null ? (data.coverage.pre_migration).toFixed(1) : '—';
+                        postCoverage = data.coverage.post_migration !== null ? (data.coverage.post_migration).toFixed(1) : '—';
+                    } else {
+                        // Flat coverage value (post-migration only)
+                        postCoverage = data.coverage.toFixed(1);
+                    }
+                }
 
                 metricsHTML += `
                     <div class="metric">
@@ -779,35 +789,44 @@ def api_token_metrics(token_mint: str):
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
 
-        cursor.execute("""
-            SELECT
-                mint,
-                mint_concentration,
-                unique_minters_ratio,
-                sell_suppression_ratio,
-                mint_velocity_sec,
-                buy_size_variance,
-                sell_volume_concentration,
-                creator_activity_ratio,
-                rug_probability,
-                risk_level,
-                amm_rug_probability,
-                amm_risk_level,
-                post_migration_rug_probability,
-                post_migration_risk_level,
-                post_migration_mint_concentration,
-                post_migration_unique_minters_ratio,
-                post_migration_sell_suppression_ratio,
-                post_migration_mint_velocity_sec,
-                post_migration_buy_size_variance,
-                post_migration_sell_volume_concentration,
-                post_migration_creator_activity_ratio,
-                events_parsed,
-                pre_migration_coverage,
-                post_migration_coverage
-            FROM token_analysis
-            WHERE mint = ?
-        """, (token_mint,))
+        # Try new schema first, then old schema
+        try:
+            cursor.execute("""
+                SELECT
+                    mint,
+                    total_txs,
+                    total_events,
+                    mint_concentration,
+                    unique_minters_ratio,
+                    sell_suppression_ratio,
+                    mint_velocity_sec,
+                    buy_size_variance,
+                    sell_volume_concentration,
+                    rug_probability,
+                    risk_level,
+                    coverage
+                FROM token_analysis
+                WHERE mint = ?
+            """, (token_mint,))
+        except sqlite3.OperationalError:
+            # Fall back to old schema
+            cursor.execute("""
+                SELECT
+                    mint,
+                    0 as total_txs,
+                    events_parsed as total_events,
+                    mint_concentration,
+                    unique_minters_ratio,
+                    sell_suppression_ratio,
+                    mint_velocity_sec,
+                    buy_size_variance,
+                    sell_volume_concentration,
+                    rug_probability,
+                    risk_level,
+                    COALESCE(pre_migration_coverage, 0) as coverage
+                FROM token_analysis
+                WHERE mint = ?
+            """, (token_mint,))
 
         row = cursor.fetchone()
         conn.close()
@@ -815,38 +834,35 @@ def api_token_metrics(token_mint: str):
         if not row:
             return jsonify({'error': 'Token not found'}), 404
 
-        has_pre = row['events_parsed'] > 0
-        has_post = row['post_migration_mint_concentration'] is not None
-
-        # Use post-migration metrics if available (most recent analysis), otherwise pre-migration, then zeros
-        metrics_to_use = {
-            'mint_concentration': row['post_migration_mint_concentration'] if has_post else (row['mint_concentration'] if has_pre else 0),
-            'unique_minters_ratio': row['post_migration_unique_minters_ratio'] if has_post else (row['unique_minters_ratio'] if has_pre else 0),
-            'sell_suppression_ratio': row['post_migration_sell_suppression_ratio'] if has_post else (row['sell_suppression_ratio'] if has_pre else 0),
-            'mint_velocity_sec': row['post_migration_mint_velocity_sec'] if has_post else (row['mint_velocity_sec'] if has_pre else 0),
-            'buy_size_variance': row['post_migration_buy_size_variance'] if has_post else (row['buy_size_variance'] if has_pre else 0),
-            'sell_volume_concentration': row['post_migration_sell_volume_concentration'] if has_post else (row['sell_volume_concentration'] if has_pre else 0),
-            'creator_activity_ratio': row['post_migration_creator_activity_ratio'] if has_post else (row['creator_activity_ratio'] if has_pre else 0)
-        }
-
+        # Format response compatible with UI expectations (pre/post migration comparison)
         response = jsonify({
             'mint': row['mint'],
-            'has_premigration_data': has_pre,
-            'has_postmigration_metrics': has_post,
-            'metrics_source': 'post-migration' if has_post else ('pre-migration' if has_pre else 'none'),
-            'metrics': metrics_to_use,
-            'risk': {
-                'pre_rug_probability': row['rug_probability'],
-                'pre_risk_level': row['risk_level'],
-                'post_rug_probability': row['post_migration_rug_probability'],
-                'post_risk_level': row['post_migration_risk_level'],
-                'amm_rug_probability': row['amm_rug_probability'],
-                'amm_risk_level': row['amm_risk_level']
+            'total_txs': row['total_txs'],
+            'total_events': row['total_events'],
+            'metrics': {
+                'mint_concentration': row['mint_concentration'] if row['mint_concentration'] else 0,
+                'unique_minters_ratio': row['unique_minters_ratio'] if row['unique_minters_ratio'] else 0,
+                'sell_suppression_ratio': row['sell_suppression_ratio'] if row['sell_suppression_ratio'] else 0,
+                'mint_velocity_sec': row['mint_velocity_sec'] if row['mint_velocity_sec'] else 0,
+                'buy_size_variance': row['buy_size_variance'] if row['buy_size_variance'] else 0,
+                'sell_volume_concentration': row['sell_volume_concentration'] if row['sell_volume_concentration'] else 0
             },
-            'coverage': {
-                'pre_migration': row['pre_migration_coverage'],
-                'post_migration': row['post_migration_coverage']
-            }
+            'risk': {
+                'rug_probability': row['rug_probability'] if row['rug_probability'] else 0,
+                'risk_level': row['risk_level'],
+                # For UI compatibility (showing post-migration data)
+                'pre_rug_probability': None,
+                'pre_risk_level': None,
+                'post_rug_probability': row['rug_probability'] if row['rug_probability'] else 0,
+                'post_risk_level': row['risk_level'],
+                'amm_rug_probability': None,
+                'amm_risk_level': None
+            },
+            # For UI compatibility (flat coverage for post-migration only)
+            'coverage': row['coverage'],
+            # UI expects nested coverage object for pre/post comparison
+            'metrics_source': 'post-migration',
+            'has_premigration_data': False
         })
         return response
     except Exception as e:

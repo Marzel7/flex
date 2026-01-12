@@ -68,9 +68,8 @@ class PumpFunPreMigrationAnalyzer:
         sys.stdout.flush()
 
         # Fetch transactions in parallel using ThreadPoolExecutor
-        # Use Helius if available (shows in RPC URL), otherwise be conservative
-        is_helius = "helius" in self.rpc_url.lower()
-        max_workers = 50 if is_helius else 20  # Helius allows more aggressive parallel requests
+        # Balance speed vs rate limiting on public RPC endpoints
+        max_workers = 10  # Moderate: 10 concurrent requests (balance between speed and stability)
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {executor.submit(self._get_tx, sig): sig for sig in sigs}
 

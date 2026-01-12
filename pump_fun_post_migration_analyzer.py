@@ -18,13 +18,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Configuration
-BATCH_SIZE = 1  # Ultra-conservative: 1 concurrent request at a time (safe for 15 req/sec with margin)
+# Configuration - Optimized for QuickNode (much higher limits than public RPC)
+BATCH_SIZE = 50  # Aggressive batch for QuickNode's higher rate limits (1000+ req/sec)
 MAX_SIGNATURES = 1000000  # Fetch entire transaction history
 RPC_TIMEOUT = 60  # Increased timeout to handle slow RPC responses
-MAX_RETRIES = 15  # More retries for aggressive rate limit recovery
-RETRY_DELAYS = [2.0, 3.0, 5.0, 8.0, 13.0, 20.0, 30.0, 45.0, 60.0, 90.0, 120.0, 150.0, 180.0, 210.0, 240.0]  # Very aggressive backoff up to 4min
-BATCH_DELAY = 2.0  # 2 second delay between batches (allows ~0.5 req/sec = very safe for 15 req/sec limit)
+MAX_RETRIES = 7  # Standard retries for transient errors
+RETRY_DELAYS = [0.5, 1.0, 2.0, 3.0, 5.0, 10.0, 15.0]  # Exponential backoff for rate limits
+BATCH_DELAY = 0.1  # Very short delay between batches (QuickNode can handle rapid requests)
 
 
 class PostMigrationAnalyzer:

@@ -21,7 +21,9 @@ load_dotenv()
 # === Config ===
 PUMPFUN_PROGRAM_ID = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
-RPC_HTTP = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com"
+RPC_URL = os.getenv("RPC_URL", "")
+# Use QuickNode if available, otherwise fall back to Helius, then public RPC
+RPC_HTTP = RPC_URL if RPC_URL else (f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com")
 DB_PATH = "pumpswap_tokens.db"
 MARKET_CAP_THRESHOLD_USD = 30000
 MIGRATION_MARKET_CAP_USD = 80000

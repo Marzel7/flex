@@ -51,6 +51,7 @@ class PumpFunCurveListener:
         print(f"[INIT] Pump.Fun → PumpSwap Migration Listener ready", flush=True)
         print(f"[INIT] Monitoring PumpSwap program: {PUMPSWAP_PROGRAM}", flush=True)
         print(f"[INIT] WebSocket: {HELIUS_RPC_WS[:60]}...", flush=True)
+        print(f"[INIT] HTTP RPC: {RPC_HTTP[:60]}...", flush=True)
 
     # --- Database ---
     def _ensure_db(self):

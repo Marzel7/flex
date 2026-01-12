@@ -40,6 +40,9 @@ class PostMigrationAnalyzer:
 
         self.token_name = None
         self.token_symbol = None
+        
+        print(f"[ANALYZER_INIT] Token: {token_mint}", flush=True)
+        print(f"[ANALYZER_INIT] RPC: {rpc_url[:80]}{'...' if len(rpc_url) > 80 else ''}", flush=True)
 
     # --- Signature Fetching ---
     def fetch_signatures(self, limit=MAX_SIGNATURES) -> List[str]:
@@ -87,15 +90,22 @@ class PostMigrationAnalyzer:
 
     # --- Async Transaction Fetching ---
     async def fetch_transactions_async(self, sigs: List[str], batch_size: int = BATCH_SIZE):
-        """Fetch transactions asynchronously in batches"""
-        async with aiohttp.ClientSession() as session:
+        """Fetch transactions asynchronously in batches with connection pool optimization"""
+        # Create session with optimized connector for connection pooling
+        connector = aiohttp.TCPConnector(
+            limit=batch_size,  # Max concurrent connections
+            limit_per_host=batch_size,  # Max per host (QuickNode)
+            ttl_dns_cache=None
+        )
+        
+        async with aiohttp.ClientSession(connector=connector) as session:
             successful = 0
             failed = 0
             
             for i in range(0, len(sigs), batch_size):
                 batch = sigs[i:i+batch_size]
                 tasks = [self.fetch_tx_with_retry(session, sig) for sig in batch]
-
+                
                 results = await asyncio.gather(*tasks, return_exceptions=True)
 
                 for tx in results:

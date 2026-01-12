@@ -91,54 +91,29 @@ class PumpFunCurveListener:
                 conn.execute("PRAGMA busy_timeout=60000")
                 cursor = conn.cursor()
 
-                # Try new schema first
-                try:
-                    cursor.execute("""
-                        INSERT OR REPLACE INTO token_analysis (
-                            mint, analyzed_at, total_txs, total_events,
-                            mint_concentration, unique_minters_ratio, sell_suppression_ratio,
-                            mint_velocity_sec, buy_size_variance, sell_volume_concentration,
-                            rug_probability, risk_level, coverage
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """, (
-                        mint,
-                        time.time(),
-                        analysis.get("total_txs", 0),
-                        analysis.get("total_events", 0),
-                        analysis.get("mint_concentration", 0),
-                        analysis.get("unique_minters_ratio", 0),
-                        analysis.get("sell_suppression_ratio", 0),
-                        analysis.get("mint_velocity_sec", 0),
-                        analysis.get("buy_size_variance", 0),
-                        analysis.get("sell_volume_concentration", 0),
-                        analysis.get("rug_probability", 0),
-                        analysis.get("risk_level", ""),
-                        analysis.get("coverage", 0)
-                    ))
-                except sqlite3.OperationalError:
-                    # Fall back to post-migration schema (new columns)
-                    cursor.execute("""
-                        INSERT OR REPLACE INTO token_analysis (
-                            mint, analyzed_at, events_parsed,
-                            post_migration_mint_concentration, post_migration_unique_minters_ratio,
-                            post_migration_sell_suppression_ratio, post_migration_mint_velocity_sec,
-                            post_migration_buy_size_variance, post_migration_sell_volume_concentration,
-                            rug_probability, risk_level, post_migration_coverage
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """, (
-                        mint,
-                        time.time(),
-                        analysis.get("total_events", 0),
-                        analysis.get("mint_concentration", 0),
-                        analysis.get("unique_minters_ratio", 0),
-                        analysis.get("sell_suppression_ratio", 0),
-                        analysis.get("mint_velocity_sec", 0),
-                        analysis.get("buy_size_variance", 0),
-                        analysis.get("sell_volume_concentration", 0),
-                        analysis.get("rug_probability", 0),
-                        analysis.get("risk_level", ""),
-                        analysis.get("coverage", 0)
-                    ))
+                # Store post-migration analysis in post_migration_* columns
+                cursor.execute("""
+                    INSERT OR REPLACE INTO token_analysis (
+                        mint, analyzed_at, events_parsed,
+                        post_migration_mint_concentration, post_migration_unique_minters_ratio,
+                        post_migration_sell_suppression_ratio, post_migration_mint_velocity_sec,
+                        post_migration_buy_size_variance, post_migration_sell_volume_concentration,
+                        rug_probability, risk_level, post_migration_coverage
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    mint,
+                    time.time(),
+                    analysis.get("total_events", 0),
+                    analysis.get("mint_concentration", 0),
+                    analysis.get("unique_minters_ratio", 0),
+                    analysis.get("sell_suppression_ratio", 0),
+                    analysis.get("mint_velocity_sec", 0),
+                    analysis.get("buy_size_variance", 0),
+                    analysis.get("sell_volume_concentration", 0),
+                    analysis.get("rug_probability", 0),
+                    analysis.get("risk_level", ""),
+                    analysis.get("coverage", 0)
+                ))
 
                 conn.commit()
                 conn.close()

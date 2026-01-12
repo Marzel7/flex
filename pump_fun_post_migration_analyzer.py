@@ -450,12 +450,11 @@ class PostMigrationAnalyzer:
     def get_risk_level(self, score: float) -> str:
         """Determine risk level from score"""
         if score >= 0.7:
-            return "🔴 HIGH RISK"
+            return "HIGH"
         elif score >= 0.4:
-            return "🟡 MEDIUM RISK"
+            return "MEDIUM"
         else:
-            return "🟢 LOW RISK"
-
+            return "LOW"
     def summary(self) -> Dict:
         """Get complete analysis summary"""
         score = self.compute_rug_score()

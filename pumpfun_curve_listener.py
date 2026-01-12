@@ -304,62 +304,52 @@ class PumpFunCurveListener:
             print(f"[ANALYZER] ⚠ Analysis failed for {mint}: {e}", flush=True)
 
     async def update_market_caps_background(self):
-        """Background task: Update market caps for all tokens every 3 minutes"""
-        import time as time_module
-        await asyncio.sleep(5)  # Wait 5s before starting
+        """Background task: Update market caps continuously for live prices"""
+        await asyncio.sleep(2)  # Wait 2s before starting
         
         while True:
             try:
-                await asyncio.sleep(180)  # Update every 3 minutes
                 tokens = self._get_tokens_needing_mc_update()
                 
                 if not tokens:
+                    await asyncio.sleep(5)
                     continue
                 
-                print(f"\n[MARKET_CAP] Starting update cycle for {len(tokens)} tokens...", flush=True)
-                updated_count = 0
-                stopped_count = 0
-                failed_count = 0
+                print(f"[MARKET_CAP] Updating {len(tokens)} tokens live...", flush=True)
                 
                 for token_mint in tokens:
                     try:
                         url = f"https://api.dexscreener.com/latest/dex/tokens/{token_mint}"
-                        response = requests.get(url, timeout=10)
+                        response = requests.get(url, timeout=5)
                         
                         if response.status_code != 200:
-                            failed_count += 1
                             continue
                         
                         data = response.json()
                         pairs = data.get("pairs", [])
                         
                         if not pairs:
-                            failed_count += 1
                             continue
                         
                         market_cap = pairs[0].get("marketCap")
                         
                         if market_cap is None:
-                            failed_count += 1
                             continue
                         
                         # Update database
-                        stopped = await self._update_market_cap_in_db(token_mint, market_cap)
-                        updated_count += 1
-                        if stopped:
-                            stopped_count += 1
+                        await self._update_market_cap_in_db(token_mint, market_cap)
                         
-                        # Rate limit
-                        await asyncio.sleep(0.2)
+                        # Fast rate limit for live updates
+                        await asyncio.sleep(0.1)
                     except Exception as e:
-                        failed_count += 1
-                        print(f"[MARKET_CAP_ERROR] {token_mint}: {e}", flush=True)
+                        print(f"[MARKET_CAP_ERROR] {token_mint[:16]}...: {e}", flush=True)
                 
-                print(f"[MARKET_CAP] ✓ Cycle complete: {updated_count} updated, {stopped_count} stopped, {failed_count} failed\n", flush=True)
+                # Loop back immediately for continuous live updates
+                await asyncio.sleep(1)
                         
             except Exception as e:
                 print(f"[MARKET_CAP_BG] Error in background task: {e}", flush=True)
-                await asyncio.sleep(60)
+                await asyncio.sleep(5)
 
     def _get_tokens_needing_mc_update(self) -> List[str]:
         """Get tokens that need market cap updates (prioritize newer)"""
@@ -417,9 +407,8 @@ class PumpFunCurveListener:
                 if should_stop:
                     print(f"[MARKET_CAP] ⏹ Stopped tracking {token_mint[:16]}... (MC: ${current_cap:,.0f})", flush=True)
                     return True
-                else:
-                    print(f"[MARKET_CAP] ✓ {token_mint[:16]}... → ${current_cap:,.0f} (Peak: ${highest_cap:,.0f})", flush=True)
-                    return False
+                
+                return False
             except Exception as e:
                 print(f"[DB_ERROR] Failed to update market cap for {token_mint}: {e}", flush=True)
                 return False

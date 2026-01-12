@@ -12,7 +12,7 @@ from typing import Set, Optional, List
 import aiohttp
 from solders.pubkey import Pubkey
 from solders.signature import Signature
-from pump_fun_pre_migration_analyzer import PumpFunPreMigrationAnalyzer
+from pump_fun_pre_migration_analyzer_v2 import PumpFunPreMigrationAnalyzerV2
 from solana.rpc.async_api import AsyncClient
 from dotenv import load_dotenv
 
@@ -149,8 +149,8 @@ class PumpFunCurveListener:
                     analysis.get("rug_probability", 0),
                     analysis.get("risk_level", ""),
                     analysis.get("creator_activity_ratio", 0),
-                    analysis.get("amm_rug_probability", 0),
-                    analysis.get("amm_risk_level", ""),
+                    analysis.get("rug_probability", 0),  # V2 uses rug_probability, store in amm_rug_probability
+                    analysis.get("risk_level", ""),      # V2 uses risk_level, store in amm_risk_level
                     analysis.get("pre_migration_coverage", 0)
                 ))
                 conn.commit()
@@ -267,12 +267,12 @@ class PumpFunCurveListener:
         try:
             action = "Re-analyzing" if (mint in self.analyzed_tokens and force_reanalyze) else "Analyzing"
             print(f"[ANALYZER] 🔍 {action} {mint}", flush=True)
-            analyzer = PumpFunPreMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
-            analyzer.fetch_curve_activity(limit=100000)  # Fetch all available transactions (paginated)
+            analyzer = PumpFunPreMigrationAnalyzerV2(mint, rpc_url=RPC_HTTP)
+            await analyzer.fetch_curve_activity_async()  # Async fetch with batching
             summary = analyzer.summary()
             self.analyzed_tokens[mint] = summary
-            risk_level = summary.get("amm_risk_level", "🟢 Low")
-            score = summary.get("amm_rug_probability", 0.0)
+            risk_level = summary.get("risk_level", "🟢 LOW RISK")
+            score = summary.get("rug_probability", 0.0)
             print(f"[ANALYZER] {risk_level} | Score: {score:.2%} | {mint}", flush=True)
 
             # Store analysis results for purchase strategy (overwrites if re-analyzing)

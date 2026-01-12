@@ -316,7 +316,10 @@ class PumpFunCurveListener:
                 if not tokens:
                     continue
                 
-                print(f"[MARKET_CAP] Updating {len(tokens)} tokens...", flush=True)
+                print(f"\n[MARKET_CAP] Starting update cycle for {len(tokens)} tokens...", flush=True)
+                updated_count = 0
+                stopped_count = 0
+                failed_count = 0
                 
                 for token_mint in tokens:
                     try:
@@ -324,26 +327,35 @@ class PumpFunCurveListener:
                         response = requests.get(url, timeout=10)
                         
                         if response.status_code != 200:
+                            failed_count += 1
                             continue
                         
                         data = response.json()
                         pairs = data.get("pairs", [])
                         
                         if not pairs:
+                            failed_count += 1
                             continue
                         
                         market_cap = pairs[0].get("marketCap")
                         
                         if market_cap is None:
+                            failed_count += 1
                             continue
                         
                         # Update database
-                        await self._update_market_cap_in_db(token_mint, market_cap)
+                        stopped = await self._update_market_cap_in_db(token_mint, market_cap)
+                        updated_count += 1
+                        if stopped:
+                            stopped_count += 1
                         
                         # Rate limit
                         await asyncio.sleep(0.2)
                     except Exception as e:
+                        failed_count += 1
                         print(f"[MARKET_CAP_ERROR] {token_mint}: {e}", flush=True)
+                
+                print(f"[MARKET_CAP] ✓ Cycle complete: {updated_count} updated, {stopped_count} stopped, {failed_count} failed\n", flush=True)
                         
             except Exception as e:
                 print(f"[MARKET_CAP_BG] Error in background task: {e}", flush=True)
@@ -372,7 +384,7 @@ class PumpFunCurveListener:
             return []
 
     async def _update_market_cap_in_db(self, token_mint: str, current_cap: float):
-        """Update market cap in database"""
+        """Update market cap in database. Returns True if stopped tracking."""
         async with self.db_lock:
             try:
                 conn = sqlite3.connect(DB_PATH, timeout=60)
@@ -403,9 +415,14 @@ class PumpFunCurveListener:
                 conn.close()
                 
                 if should_stop:
-                    print(f"[MARKET_CAP] ⏹ Stopped tracking {token_mint} (MC: ${current_cap:,.0f})", flush=True)
+                    print(f"[MARKET_CAP] ⏹ Stopped tracking {token_mint[:16]}... (MC: ${current_cap:,.0f})", flush=True)
+                    return True
+                else:
+                    print(f"[MARKET_CAP] ✓ {token_mint[:16]}... → ${current_cap:,.0f} (Peak: ${highest_cap:,.0f})", flush=True)
+                    return False
             except Exception as e:
                 print(f"[DB_ERROR] Failed to update market cap for {token_mint}: {e}", flush=True)
+                return False
 
     async def handle_migration(self, signature: str, logs: list):
         """Process detected migration"""

@@ -283,8 +283,9 @@ class PumpFunCurveListener:
         Extract on-chain price and calculate market cap from migration transaction.
         
         Price = Token Amount / SOL Amount (in SOL/token)
-        Market Cap = Price × 1,000,000,000 (1B total supply)
+        Market Cap = Price × Total Supply
         
+        For Pump.Fun tokens: 1M tokens with 6 decimals
         Returns: (price, market_cap) or None
         """
         try:
@@ -314,9 +315,10 @@ class PumpFunCurveListener:
                     token_amount = 0
                     sol_amount = 0
                     
-                    # Calculate token and SOL changes
+                    # Calculate token and SOL changes from post-balances
                     for balance in post_balances:
                         if balance.get("mint") == token_mint:
+                            # uiTokenAmount already accounts for decimals
                             token_amount = float(balance.get("uiTokenAmount", {}).get("amount", 0) or 0)
                         elif balance.get("mint") == "So11111111111111111111111111111111111111112":
                             # Wrapped SOL
@@ -331,10 +333,11 @@ class PumpFunCurveListener:
                     # Calculate price and market cap
                     if token_amount > 0 and sol_amount > 0:
                         price = sol_amount / token_amount  # SOL per token
-                        total_supply = 1_000_000_000  # 1B tokens
+                        # Pump.Fun tokens: 1M total supply with 6 decimals
+                        total_supply = 1_000_000  # 1M tokens
                         market_cap = price * total_supply  # Market cap in SOL
                         
-                        print(f"[PRICE] 💰 Price: {price:.10f} SOL/token | MC: ${market_cap:,.0f}", flush=True)
+                        print(f"[PRICE] 💰 Price: {price:.10f} SOL/token | MC: ${market_cap:,.2f} SOL", flush=True)
                         return (price, market_cap)
                     
                     return None

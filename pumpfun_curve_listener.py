@@ -367,12 +367,21 @@ class PumpFunCurveListener:
         ]
 
         current_endpoint_idx = 0
+        reconnect_delay = 5
 
         while True:
             try:
                 endpoint, name = endpoints[current_endpoint_idx]
-                async with websockets.connect(endpoint, ping_interval=30, ping_timeout=10) as ws:
+                # Improved WebSocket settings for stability
+                async with websockets.connect(
+                    endpoint,
+                    ping_interval=20,      # Send ping every 20s
+                    ping_timeout=5,        # Wait 5s for pong
+                    close_timeout=10,      # Wait 10s for close frame
+                    max_size=10 * 1024 * 1024  # 10MB max message size
+                ) as ws:
                     self.websocket_connected = True
+                    reconnect_delay = 5  # Reset delay on successful connection
                     print(f"[WEBSOCKET] ✓ Connected to PumpSwap program via {name}", flush=True)
 
                     # Subscribe to PumpSwap program logs
@@ -407,7 +416,7 @@ class PumpFunCurveListener:
                     # Now listen for actual migration events
                     while True:
                         try:
-                            msg = await asyncio.wait_for(ws.recv(), timeout=30)
+                            msg = await asyncio.wait_for(ws.recv(), timeout=60)
                             data = json.loads(msg)
 
                             # Process only subscription result (actual events, not responses)
@@ -432,10 +441,17 @@ class PumpFunCurveListener:
                         except asyncio.TimeoutError:
                             # Keepalive timeout - continue listening
                             continue
+                        except json.JSONDecodeError:
+                            # Invalid JSON, skip
+                            continue
                         except Exception as e:
-                            # Suppress keepalive ping timeout spam
-                            if "keepalive" not in str(e).lower():
+                            # Suppress keepalive ping timeout spam and close frame warnings
+                            error_msg = str(e).lower()
+                            if "keepalive" not in error_msg and "close frame" not in error_msg:
                                 print(f"[WEBSOCKET] ⚠ Error processing message: {e}", flush=True)
+                            # Reconnect on serious errors
+                            if "close frame" in error_msg or "connection closed" in error_msg:
+                                break
                             continue
 
             except Exception as e:
@@ -446,13 +462,17 @@ class PumpFunCurveListener:
                 if "401" in str(e) or "unauthorized" in error_str:
                     print(f"[WEBSOCKET] ⚠ Auth error (401) - falling back to public RPC", flush=True)
                     current_endpoint_idx = 1  # Switch to public Solana
+                    reconnect_delay = 5
                 elif "connection" in error_str or "refused" in error_str:
-                    print(f"[WEBSOCKET] ⚠ Connection refused, retrying in 5s...", flush=True)
-                else:
+                    print(f"[WEBSOCKET] ⚠ Connection refused, retrying in {reconnect_delay}s...", flush=True)
+                elif "close frame" not in error_str:
+                    # Don't log close frame messages as errors
                     print(f"[WEBSOCKET] ⚠ {name} connection error: {e}", flush=True)
-                    print(f"[WEBSOCKET] Retrying in 5s...", flush=True)
+                    print(f"[WEBSOCKET] Retrying in {reconnect_delay}s...", flush=True)
 
-                await asyncio.sleep(5)
+                await asyncio.sleep(reconnect_delay)
+                # Exponential backoff with cap at 30s
+                reconnect_delay = min(reconnect_delay * 1.5, 30)
 
     # --- Main listener ---
     

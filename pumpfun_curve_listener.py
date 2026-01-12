@@ -14,6 +14,7 @@ import sqlite3
 import time
 import websockets
 import aiohttp
+import requests
 from typing import Set, Optional, List
 from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
 from dotenv import load_dotenv
@@ -302,6 +303,110 @@ class PumpFunCurveListener:
         except Exception as e:
             print(f"[ANALYZER] ⚠ Analysis failed for {mint}: {e}", flush=True)
 
+    async def update_market_caps_background(self):
+        """Background task: Update market caps for all tokens every 3 minutes"""
+        import time as time_module
+        await asyncio.sleep(5)  # Wait 5s before starting
+        
+        while True:
+            try:
+                await asyncio.sleep(180)  # Update every 3 minutes
+                tokens = self._get_tokens_needing_mc_update()
+                
+                if not tokens:
+                    continue
+                
+                print(f"[MARKET_CAP] Updating {len(tokens)} tokens...", flush=True)
+                
+                for token_mint in tokens:
+                    try:
+                        url = f"https://api.dexscreener.com/latest/dex/tokens/{token_mint}"
+                        response = requests.get(url, timeout=10)
+                        
+                        if response.status_code != 200:
+                            continue
+                        
+                        data = response.json()
+                        pairs = data.get("pairs", [])
+                        
+                        if not pairs:
+                            continue
+                        
+                        market_cap = pairs[0].get("marketCap")
+                        
+                        if market_cap is None:
+                            continue
+                        
+                        # Update database
+                        await self._update_market_cap_in_db(token_mint, market_cap)
+                        
+                        # Rate limit
+                        await asyncio.sleep(0.2)
+                    except Exception as e:
+                        print(f"[MARKET_CAP_ERROR] {token_mint}: {e}", flush=True)
+                        
+            except Exception as e:
+                print(f"[MARKET_CAP_BG] Error in background task: {e}", flush=True)
+                await asyncio.sleep(60)
+
+    def _get_tokens_needing_mc_update(self) -> List[str]:
+        """Get tokens that need market cap updates (prioritize newer)"""
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=60)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            # Get top 50 newest tokens not marked as stopped
+            cursor.execute("""
+                SELECT mint FROM token_analysis
+                WHERE market_cap_stopped_tracking = 0 OR market_cap_stopped_tracking IS NULL
+                ORDER BY analyzed_at DESC
+                LIMIT 50
+            """)
+            
+            tokens = [row[0] for row in cursor.fetchall()]
+            conn.close()
+            return tokens
+        except Exception as e:
+            print(f"[DB_ERROR] Failed to fetch tokens: {e}", flush=True)
+            return []
+
+    async def _update_market_cap_in_db(self, token_mint: str, current_cap: float):
+        """Update market cap in database"""
+        async with self.db_lock:
+            try:
+                conn = sqlite3.connect(DB_PATH, timeout=60)
+                cursor = conn.cursor()
+                
+                # Get current highest value
+                cursor.execute(
+                    "SELECT market_cap_highest FROM token_analysis WHERE mint = ?",
+                    (token_mint,)
+                )
+                row = cursor.fetchone()
+                highest_cap = row[0] if row else None
+                
+                # Update highest if this is higher
+                if highest_cap is None or current_cap > highest_cap:
+                    highest_cap = current_cap
+                
+                # Check if should stop tracking (below 30k)
+                should_stop = 1 if current_cap < 30000 else 0
+                
+                cursor.execute("""
+                    UPDATE token_analysis
+                    SET market_cap_current = ?, market_cap_highest = ?, market_cap_stopped_tracking = ?
+                    WHERE mint = ?
+                """, (current_cap, highest_cap, should_stop, token_mint))
+                
+                conn.commit()
+                conn.close()
+                
+                if should_stop:
+                    print(f"[MARKET_CAP] ⏹ Stopped tracking {token_mint} (MC: ${current_cap:,.0f})", flush=True)
+            except Exception as e:
+                print(f"[DB_ERROR] Failed to update market cap for {token_mint}: {e}", flush=True)
+
     async def handle_migration(self, signature: str, logs: list):
         """Process detected migration"""
         try:
@@ -462,7 +567,10 @@ class PumpFunCurveListener:
     
 
     async def listen(self):
-        """Main entry point - start WebSocket listener"""
+        """Main entry point - start WebSocket listener with market cap background updater"""
+        # Start market cap updater in background
+        asyncio.create_task(self.update_market_caps_background())
+        # Start WebSocket listener
         await self.listen_websocket()
 
 

@@ -309,16 +309,29 @@ class PumpFunCurveListener:
     async def _extract_price_from_transaction(self, signature: str, token_mint: str) -> Optional[tuple]:
         """
         Extract on-chain price from migration transaction (primary source).
-        Falls back to DexScreener if blockchain extraction fails.
+        Verifies against DexScreener for accuracy.
         
         Returns: (price, market_cap, source) or None
         Where source is "onchain" or "dexscreener"
         """
         try:
             # Try blockchain first
-            price, market_cap = await self._extract_onchain_price(signature, token_mint)
-            if price is not None:
-                return (price, market_cap, "onchain")
+            onchain_price, onchain_market_cap = await self._extract_onchain_price(signature, token_mint)
+            if onchain_price is not None:
+                # Verify against DexScreener
+                dex_result = await self._fetch_dexscreener_price(token_mint)
+                if dex_result is not None:
+                    dex_price, dex_market_cap = dex_result
+                    # Calculate price difference percentage
+                    price_diff_pct = abs(onchain_price - dex_price) / dex_price * 100 if dex_price > 0 else 0
+                    mc_diff_pct = abs(onchain_market_cap - dex_market_cap) / dex_market_cap * 100 if dex_market_cap > 0 else 0
+                    
+                    # Log comparison
+                    match_status = "✓ MATCH" if price_diff_pct < 5 else f"⚠ {price_diff_pct:.1f}% diff"
+                    print(f"[VERIFY] {match_status} | Onchain: ${onchain_price:.10f} | DexScreener: ${dex_price:.10f}", flush=True)
+                    print(f"[VERIFY] Market Cap diff: {mc_diff_pct:.1f}% (Onchain: ${onchain_market_cap:,.0f} | DexSc: ${dex_market_cap:,.0f})", flush=True)
+                
+                return (onchain_price, onchain_market_cap, "onchain")
             
             # Fall back to DexScreener
             print(f"[PRICE] ⚠ Onchain extraction failed, falling back to DexScreener for {token_mint[:16]}...", flush=True)

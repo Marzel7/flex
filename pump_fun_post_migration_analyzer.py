@@ -89,40 +89,42 @@ class PostMigrationAnalyzer:
         return all_sigs[:limit]
 
     # --- Async Transaction Fetching ---
-    async def fetch_transactions_async(self, sigs: List[str], batch_size: int = BATCH_SIZE):
-        """Fetch transactions asynchronously in batches with connection pool optimization"""
-        # Create session with optimized connector for connection pooling
-        connector = aiohttp.TCPConnector(
-            limit=batch_size,  # Max concurrent connections
-            limit_per_host=batch_size,  # Max per host (QuickNode)
-            ttl_dns_cache=None
-        )
+    async def fetch_transactions_async(self, sigs: List[str]):
+        """Fetch transactions asynchronously with semaphore-based concurrency (proven working method)"""
+        # Use semaphore like the pre-migration analyzer (this approach was working)
+        sem = asyncio.Semaphore(BATCH_SIZE)
         
-        async with aiohttp.ClientSession(connector=connector) as session:
+        async with aiohttp.ClientSession() as session:
             successful = 0
             failed = 0
             
-            for i in range(0, len(sigs), batch_size):
-                batch = sigs[i:i+batch_size]
-                tasks = [self.fetch_tx_with_retry(session, sig) for sig in batch]
-                
-                results = await asyncio.gather(*tasks, return_exceptions=True)
-
-                for tx in results:
-                    if isinstance(tx, Exception) or not tx:
+            tasks = []
+            for sig in sigs:
+                task = self._fetch_tx_semaphore(session, sig, sem)
+                tasks.append(task)
+            
+            # Process results as they complete
+            for idx, future in enumerate(asyncio.as_completed(tasks), 1):
+                try:
+                    tx = await future
+                    if tx:
+                        self._parse_curve_tx(tx)
+                        self.transactions_fetched += 1
+                        successful += 1
+                    else:
                         failed += 1
-                        continue
-                    self._parse_curve_tx(tx)
-                    self.transactions_fetched += 1
-                    successful += 1
-
-                progress = min(i + batch_size, len(sigs))
-                success_rate = (successful / progress * 100) if progress > 0 else 0
-                print(f"[ASYNC] Progress: {progress}/{len(sigs)} txs | Success: {successful}/{progress} ({success_rate:.1f}%) | Failed: {failed}", flush=True)
+                except Exception as e:
+                    failed += 1
                 
-                # Delay between batches to respect rate limits
-                if i + batch_size < len(sigs):
-                    await asyncio.sleep(BATCH_DELAY)
+                # Progress update every batch
+                if idx % BATCH_SIZE == 0 or idx == len(sigs):
+                    success_rate = (successful / idx * 100) if idx > 0 else 0
+                    print(f"[ASYNC] Progress: {idx}/{len(sigs)} txs | Success: {successful}/{idx} ({success_rate:.1f}%) | Failed: {failed}", flush=True)
+
+    async def _fetch_tx_semaphore(self, session: aiohttp.ClientSession, sig: str, sem: asyncio.Semaphore):
+        """Fetch a single transaction with semaphore to limit concurrency"""
+        async with sem:
+            return await self.fetch_tx_with_retry(session, sig)
 
     async def fetch_tx_with_retry(self, session: aiohttp.ClientSession, sig: str):
         """Fetch transaction with exponential backoff retry"""

@@ -386,14 +386,18 @@ class PumpFunCurveListener:
                     await asyncio.sleep(5)
                     continue
                 
-                print(f"[PRICE_UPDATE] Fetching live prices for {len(tokens)} tokens...", flush=True)
+                print(f"\n[PRICE_UPDATE] Starting price cycle for {len(tokens)} tokens...", flush=True)
+                updated_count = 0
+                failed_count = 0
                 
-                for token_mint in tokens:
+                for i, token_mint in enumerate(tokens, 1):
                     try:
                         # Get the migration transaction for this token to extract price
                         tx_signature = await self._get_migration_tx_for_token(token_mint)
                         
                         if not tx_signature:
+                            print(f"[PRICE_UPDATE] [{i}/{len(tokens)}] {token_mint[:16]}... - No migration tx found", flush=True)
+                            failed_count += 1
                             continue
                         
                         # Extract on-chain price from transaction
@@ -401,11 +405,19 @@ class PumpFunCurveListener:
                         
                         if price is not None:
                             await self._update_price_in_db(token_mint, price)
+                            updated_count += 1
+                            print(f"[PRICE_UPDATE] [{i}/{len(tokens)}] {token_mint[:16]}... ✓ {price:.10f} SOL/token", flush=True)
+                        else:
+                            failed_count += 1
+                            print(f"[PRICE_UPDATE] [{i}/{len(tokens)}] {token_mint[:16]}... - Failed to extract price", flush=True)
                         
                         # Rate limit
                         await asyncio.sleep(0.1)
                     except Exception as e:
-                        print(f"[PRICE_ERROR] {token_mint[:16]}...: {e}", flush=True)
+                        failed_count += 1
+                        print(f"[PRICE_ERROR] [{i}/{len(tokens)}] {token_mint[:16]}...: {e}", flush=True)
+                
+                print(f"[PRICE_UPDATE] ✓ Cycle complete: {updated_count} updated, {failed_count} failed\n", flush=True)
                 
                 # Loop back immediately for continuous live updates
                 await asyncio.sleep(1)
@@ -469,6 +481,7 @@ class PumpFunCurveListener:
                 row = cursor.fetchone()
                 
                 price_highest = row[1] if row and row[1] else current_price
+                old_price = row[0] if row else None
                 
                 # Update highest if this is higher
                 if current_price > price_highest:
@@ -482,6 +495,14 @@ class PumpFunCurveListener:
                 
                 conn.commit()
                 conn.close()
+                
+                # Log price changes
+                if old_price is None:
+                    print(f"[PRICE_DB] 📊 Initial price recorded: {token_mint[:16]}... = {current_price:.10f} SOL", flush=True)
+                else:
+                    change_pct = ((current_price - old_price) / old_price * 100) if old_price > 0 else 0
+                    arrow = "📈" if change_pct > 0 else "📉" if change_pct < 0 else "→"
+                    print(f"[PRICE_DB] {arrow} Price update: {token_mint[:16]}... = {current_price:.10f} SOL ({change_pct:+.1f}%)", flush=True)
                 
             except Exception as e:
                 print(f"[DB_ERROR] Failed to update price for {token_mint}: {e}", flush=True)

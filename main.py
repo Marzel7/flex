@@ -500,7 +500,6 @@ HTML_TEMPLATE = """
                             <th>Risk Score</th>
                             <th>Market Cap</th>
                             <th>Highest MC</th>
-                            <th>Transactions</th>
                             <th>Events</th>
                             <th>Coverage</th>
                             <th>Analyzed</th>
@@ -521,9 +520,6 @@ HTML_TEMPLATE = """
                                 </td>
                                 <td>
                                     ${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '—'}
-                                </td>
-                                <td>
-                                    ${token.total_txs}
                                 </td>
                                 <td>
                                     ${token.total_events}

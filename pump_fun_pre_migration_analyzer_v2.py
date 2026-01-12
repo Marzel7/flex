@@ -26,9 +26,9 @@ load_dotenv()
 BATCH_SIZE = 100  # Async batch size (increased from 50 for better throughput)
 MAX_SIGNATURES = 40000
 MAX_MINUTES = 30
-RPC_TIMEOUT = 20
-MAX_RETRIES = 3  # Retry failed requests up to 3 times
-RETRY_DELAYS = [0.5, 1.0, 2.0]  # Exponential backoff: 0.5s, 1s, 2s
+RPC_TIMEOUT = 30  # Increased from 20s to handle Helius latency (typically 1-2s per request)
+MAX_RETRIES = 5  # Increased from 3 for more aggressive retry (helps with rate limiting)
+RETRY_DELAYS = [0.5, 1.0, 2.0, 3.0, 5.0]  # Exponential backoff: 0.5s, 1s, 2s, 3s, 5s
 
 
 class PumpFunPreMigrationAnalyzerV2:

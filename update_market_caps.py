@@ -89,16 +89,29 @@ def update_market_cap_for_token(token_mint: str) -> tuple:
 
 
 def get_tokens_to_update() -> list:
-    """Get list of tokens that need market cap updates (not stopped)"""
+    """Get list of tokens prioritizing newer tokens for market cap updates"""
     try:
         conn = sqlite3.connect(DB_PATH, timeout=60)
         cursor = conn.cursor()
 
+        # Prioritize newer tokens: fetch top 50 newest + top 50 oldest (for diversity)
         cursor.execute("""
-            SELECT mint FROM token_analysis
-            WHERE market_cap_stopped_tracking = 0 OR market_cap_stopped_tracking IS NULL
+            SELECT mint FROM (
+                -- Top 50 newest tokens (highest priority)
+                SELECT mint, analyzed_at FROM token_analysis
+                WHERE market_cap_stopped_tracking = 0 OR market_cap_stopped_tracking IS NULL
+                ORDER BY analyzed_at DESC
+                LIMIT 50
+
+                UNION ALL
+
+                -- Plus up to 50 older tokens (for maintaining data)
+                SELECT mint, analyzed_at FROM token_analysis
+                WHERE market_cap_stopped_tracking = 0 OR market_cap_stopped_tracking IS NULL
+                ORDER BY analyzed_at ASC
+                LIMIT 50
+            )
             ORDER BY analyzed_at DESC
-            LIMIT 100
         """)
 
         tokens = [row[0] for row in cursor.fetchall()]

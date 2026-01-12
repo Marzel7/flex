@@ -444,13 +444,13 @@ class CompleteWorkflowTest:
             print(f"[POST-MIGRATION] 🔄 Re-analyzing {token_mint[:20]}... at migration time", flush=True)
 
             # Use same analyzer as pre-migration
-            from pump_fun_pre_migration_analyzer import PumpFunPreMigrationAnalyzer
+            from pump_fun_pre_migration_analyzer_v2 import PumpFunPreMigrationAnalyzerV2
 
             helius_key = os.getenv('HELIUS_API_KEY')
             rpc_url = f"https://mainnet.helius-rpc.com/?api-key={helius_key}" if helius_key else "https://api.mainnet-beta.solana.com"
 
-            analyzer = PumpFunPreMigrationAnalyzer(token_mint, rpc_url=rpc_url)
-            analyzer.fetch_curve_activity(limit=100000)  # Fetch all available transactions (paginated)
+            analyzer = PumpFunPreMigrationAnalyzerV2(token_mint, rpc_url=rpc_url)
+            await analyzer.fetch_curve_activity_async()  # Async fetch with batching
             summary = analyzer.summary()
 
             # Extract all post-migration metrics and scores

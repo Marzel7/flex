@@ -1,109 +1,129 @@
-# Coverage Improvement Summary
+# Analysis Coverage Improvements
 
 ## Problem
-Transaction fetch coverage was only 6-12% due to RPC rate limiting on individual `getTransaction` calls.
+Analysis Coverage was showing only **6.0%**, meaning only ~6% of available transactions were being successfully fetched and analyzed.
 
 ## Root Cause
-- **Individual RPC calls are expensive**: ~200-500ms per call
-- **Public RPC rate limits**: ~40 requests/second
-- **Timeout failures silently drop transactions**: No retry logic
-- **Sequential processing**: Not fully utilizing parallelization
+The analyzer was being too aggressive with RPC requests:
+- **BATCH_SIZE=10**: 10 concurrent requests hitting rate limits (15 req/sec limit)
+- **RPC_TIMEOUT=30**: Too short for slow RPC responses and indexing delays
+- **MAX_RETRIES=7**: Not enough attempts to recover from rate limiting
+- **Limited backoff**: Only delayed up to 15 seconds
 
-## Solution: Phase 1 - Retry Logic + Larger Batches
+## Solution
+Optimized the analyzer for **conservative, rate-limit-aware operation**:
 
-### Changes Made
-1. **Increased batch size**: 50 → 100 concurrent requests
-2. **Added exponential backoff retry**: 3 retries with 0.5s, 1s, 2s delays
-3. **Retry on all failures**: Transient timeouts and rate limit errors
+### Configuration Changes
 
-### Configuration
+#### Before
 ```python
-BATCH_SIZE = 100           # Async batch size (was 50)
-MAX_RETRIES = 3            # Retry failed requests up to 3 times
-RETRY_DELAYS = [0.5, 1.0, 2.0]  # Exponential backoff delays
+BATCH_SIZE = 10              # Too many concurrent requests
+RPC_TIMEOUT = 30             # Too aggressive
+MAX_RETRIES = 7              # Not enough attempts
+RETRY_DELAYS = [0.5, 1.0, 2.0, 3.0, 5.0, 10.0, 15.0]  # Max 15s
 ```
 
-### Implementation
+#### After
 ```python
-async def fetch_tx_with_retry(session, sig, retry_count=0):
-    """Fetch single transaction with exponential backoff retry"""
-    try:
-        async with session.post(self.rpc_url, json=payload, timeout=RPC_TIMEOUT) as resp:
-            result = await resp.json()
-            return result.get("result")
-    except Exception as e:
-        if retry_count < MAX_RETRIES:
-            delay = RETRY_DELAYS[retry_count]
-            await asyncio.sleep(delay)
-            return await fetch_tx_with_retry(session, sig, retry_count + 1)
-        return None
+BATCH_SIZE = 3               # Conservative batch size (safe for 15 req/sec)
+RPC_TIMEOUT = 60             # Allows slow responses to complete
+MAX_RETRIES = 10             # More attempts for better recovery
+RETRY_DELAYS = [1.0, 2.0, 3.0, 5.0, 8.0, 13.0, 20.0, 30.0, 45.0, 60.0]  # Up to 60s
+BATCH_DELAY = 0.5            # NEW: Pause between batches
 ```
 
-## Results
+### Key Improvements
 
-### Test Case: 8XzSqqNevScuiqJwDuKMgmDLCMsJPuay2GtKM2fupump
+1. **Batch Size Reduction (10 → 3)**
+   - Reduces concurrent requests by 66%
+   - Prevents hitting rate limits with initial requests
+   - Leaves room for retries without overwhelming the endpoint
+
+2. **Timeout Increase (30s → 60s)**
+   - Accounts for RPC indexing delays on newly-confirmed transactions
+   - Reduces false timeouts during high-load periods
+   - Allows slower responses to complete
+
+3. **Enhanced Retry Logic (7 → 10 attempts)**
+   - More attempts to recover from transient failures
+   - Longer backoff strategy (up to 60s vs 15s)
+   - Better handles sustained rate limiting
+
+4. **Batch Delay (New: 0.5s)**
+   - Spreads requests over time
+   - Gives RPC endpoint time to process
+   - Prevents batch requests from overwhelming the connection
+
+5. **Better Error Handling**
+   - Recognizes more RPC error codes
+   - Distinguishes between transient and permanent errors
+   - Shows detailed retry messages with timing
+
+## Expected Improvements
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Coverage | 6% | 80-95% |
+| Concurrent Requests | 10 | 3 |
+| Max Timeout | 30s | 60s |
+| Max Retries | 7 | 10 |
+| Max Backoff Delay | 15s | 60s |
+
+## How to Verify
+
+1. **Run the listener:**
+   ```bash
+   bash run_listener.sh
+   ```
+
+2. **Watch for new migrations:**
+   Look for `[WEBSOCKET] 🚨 Migration detected` messages
+
+3. **Check progress logs:**
+   Look for `[ASYNC] Progress:` messages showing success rates
+
+4. **Verify coverage:**
+   Should see much higher than 6% when analysis completes
+
+## Log Examples
+
+**Good progress:**
 ```
-Before:
-  - Transactions fetched: 57 / 879 (6.5%)
-  - Risk score: 15% (LOW RISK)
-  
-After:
-  - Transactions fetched: 116 / 879 (13.2%)  ✅ 2x improvement
-  - Risk score: 40% (MEDIUM RISK)             ✅ Better detection
-```
-
-### Impact
-- **100% coverage improvement** on this token
-- **Better risk detection** - now correctly identifies medium-risk token
-- **More accurate metrics** - larger transaction sample provides better statistics
-- **Faster processing** - 100 parallel requests > 50 parallel requests
-
-## Expected Coverage Improvements
-
-| Provider | Coverage | Time | Notes |
-|----------|----------|------|-------|
-| Public RPC (before) | 6-12% | ~30s | High timeouts, rate limited |
-| Public RPC (after) | 15-25% | ~30s | Retry logic recovers failures |
-| Helius API (Phase 2) | 60-80% | ~15s | Batch API, better limits |
-| Premium RPC (Phase 3) | 80-100% | ~20s | Archival RPC provider |
-
-## Next Steps: Phase 2 - Helius Batch API
-
-For 60-80% coverage improvement, implement:
-1. Use Helius `getTransaction` API for transaction fetching
-2. Helius supports batch requests (100 txs per call)
-3. Better rate limits and faster responses
-4. Auto-fallback to RPC + retry for non-Helius users
-
-Expected impact:
-- 4-6x coverage improvement (60-80%)
-- 3-5x faster (Helius ~100ms vs RPC ~500ms)
-- More reliable (fewer timeouts)
-
-## Monitoring Coverage
-
-```bash
-# Check coverage for a token
-python3 check_risk_score.py
-
-# Output shows:
-# Coverage: 13.2%
-# Transactions: 116/879
-```
-
-## Configuration
-
-To enable/adjust retry behavior:
-
-```python
-# In pump_fun_pre_migration_analyzer_v2.py
-
-BATCH_SIZE = 100           # Increase to 150-200 for more parallelization
-MAX_RETRIES = 3            # Increase to 5 for more persistence
-RETRY_DELAYS = [0.5, 1.0, 2.0]  # Adjust for your network
+[ASYNC] Progress: 3/1000 txs | Success: 3/3 (100.0%) | Failed: 0
+[ASYNC] Progress: 6/1000 txs | Success: 6/6 (100.0%) | Failed: 0
+[ASYNC] Progress: 9/1000 txs | Success: 8/9 (88.9%) | Failed: 1
 ```
 
----
+**Retry messages:**
+```
+[FETCH_TX] 📝 Retrying XYZ... (RPC error -32008: ..., attempt 1/10, waiting 1.0s)
+[FETCH_TX] 📝 Transaction not indexed yet for XYZ... (attempt 2/10, waiting 2.0s)
+[FETCH_TX] ✓ Successfully fetched after retries
+```
 
-**Commit**: 5538531  
-**Feature**: Improve transaction fetch coverage with larger batch size and retry logic
+## Technical Details
+
+### Rate Limiting Strategy
+- QuickNode free tier: 15 requests/second
+- Batch size 3 + 0.5s delay = safe operational window
+- Conservative approach prevents rate limit violations
+
+### Backoff Strategy
+- Fibonacci-like delays: 1, 2, 3, 5, 8, 13, 20, 30, 45, 60 seconds
+- Each retry gets longer backoff
+- Final delay of 60s gives time for RPC to recover
+
+### Error Recovery
+- **Transient errors** (429, 5xx): Retried with backoff
+- **Indexing delays**: Retried multiple times
+- **Timeouts**: Treated as transient, retried
+- **Permanent errors**: Logged and skipped
+
+## Files Modified
+
+- `pump_fun_post_migration_analyzer.py`: Configuration and retry logic
+- `test_analyzer_coverage.py`: NEW test script
+
+## Commit
+
+`dc5670b` - "Fix: Improve analysis coverage by optimizing RPC request handling and rate limiting"

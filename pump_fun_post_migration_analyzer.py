@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuration - Optimized for QuickNode free tier (balanced approach)
-BATCH_SIZE = 10  # Balanced concurrency (10 concurrent requests is safe + fast)
+BATCH_SIZE = 15  # Balanced concurrency (10 concurrent requests is safe + fast)
 MAX_SIGNATURES = 1000000  # Fetch entire transaction history
 RPC_TIMEOUT = 60  # Increased timeout to handle slow RPC responses
 MAX_RETRIES = 10  # More retries to handle rate limit recovery
@@ -40,7 +40,9 @@ class PostMigrationAnalyzer:
 
         self.token_name = None
         self.token_symbol = None
-        
+        self.market_cap_current = None
+        self.market_cap_highest = None
+
         print(f"[ANALYZER_INIT] Token: {token_mint}", flush=True)
         print(f"[ANALYZER_INIT] RPC: {rpc_url[:80]}{'...' if len(rpc_url) > 80 else ''}", flush=True)
 
@@ -127,7 +129,7 @@ class PostMigrationAnalyzer:
             return await self.fetch_tx_with_retry(session, sig)
 
     async def fetch_tx_with_retry(self, session: aiohttp.ClientSession, sig: str):
-        """Fetch transaction with exponential backoff retry"""
+        """Fetch transaction with exponential backoff retry (log-throttled)"""
         for attempt in range(MAX_RETRIES):
             try:
                 payload = {
@@ -137,73 +139,87 @@ class PostMigrationAnalyzer:
                     "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
                 }
 
-                async with session.post(self.rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=RPC_TIMEOUT)) as resp:
-                    # Check HTTP status first
+                async with session.post(
+                    self.rpc_url,
+                    json=payload,
+                    timeout=aiohttp.ClientTimeout(total=RPC_TIMEOUT)
+                ) as resp:
+
+                    # --- HTTP-level errors ---
                     if resp.status != 200:
-                        if resp.status == 429 or resp.status >= 500:
+                        if resp.status in (429,) or resp.status >= 500:
                             if attempt < MAX_RETRIES - 1:
-                                print(f"[FETCH_TX] 📝 HTTP {resp.status} for {sig[:12]}..., retrying (attempt {attempt + 1}/{MAX_RETRIES})", flush=True)
-                                await asyncio.sleep(RETRY_DELAYS[attempt])
+                                if attempt == 0 or (attempt + 1) % LOG_RETRY_EVERY == 0:
+                                    print(
+                                        f"[FETCH_TX] HTTP {resp.status} for {sig[:12]}... "
+                                        f"(retry {attempt + 1}/{MAX_RETRIES})",
+                                        flush=True
+                                    )
+                                delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)]
+                                await asyncio.sleep(delay)
                                 continue
-                        print(f"[FETCH_TX] ⚠ HTTP {resp.status} for {sig[:12]}...", flush=True)
                         return None
-                    
+
                     data = await resp.json()
 
+                    # --- RPC-level errors ---
                     if "error" in data:
                         error_code = data["error"].get("code", -1)
-                        error_msg = data["error"].get("message", "unknown error")
-                        
-                        # Retry on rate limit or server errors
-                        if error_code in [-32008, -32000, -32003, -32009]:  # Various server/rate limit errors
-                            if attempt < MAX_RETRIES - 1:
-                                delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS)-1)]
-                                print(f"[FETCH_TX] 📝 Retrying {sig[:12]}... (RPC error {error_code}: {error_msg}, attempt {attempt + 1}/{MAX_RETRIES}, waiting {delay}s)", flush=True)
-                                await asyncio.sleep(delay)
-                                continue
-                        
-                        # Transaction not indexed yet
-                        if error_code == -32602:  # Invalid params / not found
-                            if "not found" in error_msg.lower() and attempt < MAX_RETRIES - 1:
-                                delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS)-1)]
-                                print(f"[FETCH_TX] 📝 Transaction not indexed yet for {sig[:12]}... (attempt {attempt + 1}/{MAX_RETRIES}, waiting {delay}s)", flush=True)
-                                await asyncio.sleep(delay)
-                                continue
-                        
-                        print(f"[FETCH_TX] ⚠ RPC error for {sig[:12]}... (code {error_code}: {error_msg})", flush=True)
+                        error_msg = data["error"].get("message", "unknown")
+
+                        retryable = error_code in {-32008, -32000, -32003, -32009}
+
+                        if retryable and attempt < MAX_RETRIES - 1:
+                            if attempt == 0 or (attempt + 1) % LOG_RETRY_EVERY == 0:
+                                print(
+                                    f"[FETCH_TX] RPC {error_code} for {sig[:12]}... "
+                                    f"(retry {attempt + 1}/{MAX_RETRIES})",
+                                    flush=True
+                                )
+                            delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)]
+                            await asyncio.sleep(delay)
+                            continue
+
                         return None
 
                     result = data.get("result")
                     if not result:
-                        # Transaction not indexed yet, retry with backoff
                         if attempt < MAX_RETRIES - 1:
-                            delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS)-1)]
-                            print(f"[FETCH_TX] 📝 No result for {sig[:12]}..., retrying (attempt {attempt + 1}/{MAX_RETRIES}, waiting {delay}s)", flush=True)
+                            if attempt == 0 or (attempt + 1) % LOG_RETRY_EVERY == 0:
+                                print(
+                                    f"[FETCH_TX] No result for {sig[:12]}... "
+                                    f"(retry {attempt + 1}/{MAX_RETRIES})",
+                                    flush=True
+                                )
+                            delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)]
                             await asyncio.sleep(delay)
                             continue
-                        print(f"[FETCH_TX] ⚠ Transaction not found after {MAX_RETRIES} retries: {sig[:12]}...", flush=True)
                         return None
-                    
+
                     return result
-                    
+
             except asyncio.TimeoutError:
                 if attempt < MAX_RETRIES - 1:
-                    delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS)-1)]
-                    print(f"[FETCH_TX] ⏱ Timeout for {sig[:12]}..., retrying (attempt {attempt + 1}/{MAX_RETRIES}, waiting {delay}s)", flush=True)
-                    await asyncio.sleep(delay)
-                    continue
-                print(f"[FETCH_TX] ⚠ Timeout after {MAX_RETRIES} retries: {sig[:12]}...", flush=True)
-                return None
-            except Exception as e:
-                print(f"[FETCH_TX] ⚠ Exception for {sig[:12]}...: {type(e).__name__}: {str(e)}", flush=True)
-                if attempt < MAX_RETRIES - 1:
-                    delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS)-1)]
+                    if attempt == 0 or (attempt + 1) % LOG_RETRY_EVERY == 0:
+                        print(
+                            f"[FETCH_TX] Timeout for {sig[:12]}... "
+                            f"(retry {attempt + 1}/{MAX_RETRIES})",
+                            flush=True
+                        )
+                    delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)]
                     await asyncio.sleep(delay)
                     continue
                 return None
 
-        print(f"[FETCH_TX] ⚠ Max retries exceeded for {sig[:12]}...", flush=True)
+            except Exception:
+                if attempt < MAX_RETRIES - 1:
+                    delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)]
+                    await asyncio.sleep(delay)
+                    continue
+                return None
+
         return None
+
 
     def _parse_curve_tx(self, tx):
         """Parse transaction to detect buy/sell events"""
@@ -340,6 +356,51 @@ class PostMigrationAnalyzer:
         creator_txs = sum(1 for e in self.events if e["wallet"] == creator_wallet)
         return creator_txs / len(self.events)
 
+    def fetch_market_cap_dexscreener(self) -> float:
+        """Fetch current market cap from DexScreener"""
+        try:
+            # DexScreener API endpoint for Solana tokens
+            url = f"https://api.dexscreener.com/latest/dex/tokens/{self.token_mint}"
+            res = requests.get(url, timeout=10)
+            
+            if res.status_code != 200:
+                return None
+            
+            data = res.json()
+            pairs = data.get("pairs", [])
+            
+            if not pairs:
+                return None
+            
+            # Find the pair with highest liquidity (primary pair)
+            pair = pairs[0]
+            market_cap = pair.get("marketCap")
+            
+            if market_cap is not None:
+                print(f"[MARKET_CAP] Current: ${market_cap:,.0f}", flush=True)
+                
+                # Update current market cap
+                self.market_cap_current = market_cap
+                
+                # Update highest market cap
+                if self.market_cap_highest is None or market_cap > self.market_cap_highest:
+                    self.market_cap_highest = market_cap
+                    print(f"[MARKET_CAP] New highest: ${self.market_cap_highest:,.0f}", flush=True)
+                
+                return market_cap
+            
+            return None
+            
+        except Exception as e:
+            print(f"[MARKET_CAP] ⚠ Error fetching from DexScreener: {e}", flush=True)
+            return None
+    
+    def should_stop_tracking_market_cap(self, market_cap: float) -> bool:
+        """Check if market cap has fallen below 30k threshold"""
+        if market_cap is None:
+            return False
+        return market_cap < 30000
+
     def compute_rug_score(self):
         """
         Continuous rug probability score (0–1)
@@ -412,5 +473,7 @@ class PostMigrationAnalyzer:
             "buy_size_variance": self.buy_size_variance(),
             "sell_volume_concentration": self.sell_volume_concentration(),
             "creator_activity_ratio": self.creator_activity_ratio(),
+            "market_cap_current": self.market_cap_current,
+            "market_cap_highest": self.market_cap_highest,
             "coverage": (self.transactions_fetched / self.signatures_requested * 100) if self.signatures_requested > 0 else 0
         }

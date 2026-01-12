@@ -99,8 +99,9 @@ class PumpFunCurveListener:
                         post_migration_sell_suppression_ratio, post_migration_mint_velocity_sec,
                         post_migration_buy_size_variance, post_migration_sell_volume_concentration,
                         post_migration_creator_activity_ratio,
-                        rug_probability, risk_level, post_migration_coverage
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        rug_probability, risk_level, post_migration_coverage,
+                        market_cap_current, market_cap_highest
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     mint,
                     time.time(),
@@ -114,7 +115,9 @@ class PumpFunCurveListener:
                     analysis.get("creator_activity_ratio", 0),
                     analysis.get("rug_probability", 0),
                     analysis.get("risk_level", ""),
-                    analysis.get("coverage", 0)
+                    analysis.get("coverage", 0),
+                    analysis.get("market_cap_current"),
+                    analysis.get("market_cap_highest")
                 ))
 
                 conn.commit()
@@ -284,6 +287,10 @@ class PumpFunCurveListener:
             print(f"[ANALYZER] 🔍 Analyzing post-migration {mint}", flush=True)
             analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
             await analyzer.fetch_curve_activity_async()
+
+            # Fetch initial market cap
+            market_cap = analyzer.fetch_market_cap_dexscreener()
+
             summary = analyzer.summary()
             self.analyzed_tokens[mint] = summary
             risk_level = summary.get("risk_level", "🟢 LOW RISK")

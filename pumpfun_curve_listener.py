@@ -60,7 +60,7 @@ class PumpFunCurveListener:
         conn.execute("PRAGMA journal_mode=WAL")
         cursor = conn.cursor()
 
-        # Post-migration token analysis with live on-chain price tracking
+        # Post-migration token analysis with live on-chain price and market cap tracking
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS token_analysis (
                 mint TEXT PRIMARY KEY,
@@ -88,6 +88,8 @@ class PumpFunCurveListener:
                 migration_tx TEXT,
                 price_current REAL,
                 price_highest REAL,
+                market_cap_current REAL,
+                market_cap_highest REAL,
                 price_updated_at TIMESTAMP,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -276,12 +278,14 @@ class PumpFunCurveListener:
         
         return None
 
-    async def _extract_price_from_transaction(self, signature: str, token_mint: str) -> Optional[float]:
+    async def _extract_price_from_transaction(self, signature: str, token_mint: str) -> Optional[tuple]:
         """
-        Extract on-chain price from migration transaction post-token-balances.
+        Extract on-chain price and calculate market cap from migration transaction.
         
-        Price = Token Amount / SOL Amount
-        Uses the token balance change divided by SOL balance change.
+        Price = Token Amount / SOL Amount (in SOL/token)
+        Market Cap = Price × 1,000,000,000 (1B total supply)
+        
+        Returns: (price, market_cap) or None
         """
         try:
             payload = {
@@ -324,11 +328,14 @@ class PumpFunCurveListener:
                         pre_native_balance = meta.get("preBalances", [0])[0]
                         sol_amount = (post_native_balance - pre_native_balance) / 1e9  # Convert lamports to SOL
                     
-                    # Calculate price
+                    # Calculate price and market cap
                     if token_amount > 0 and sol_amount > 0:
                         price = sol_amount / token_amount  # SOL per token
-                        print(f"[PRICE] 💰 Extracted on-chain price for {token_mint[:16]}...: {price:.10f} SOL/token", flush=True)
-                        return price
+                        total_supply = 1_000_000_000  # 1B tokens
+                        market_cap = price * total_supply  # Market cap in SOL
+                        
+                        print(f"[PRICE] 💰 Price: {price:.10f} SOL/token | MC: ${market_cap:,.0f}", flush=True)
+                        return (price, market_cap)
                     
                     return None
                     
@@ -375,7 +382,7 @@ class PumpFunCurveListener:
             print(f"[ANALYZER] ⚠ Analysis failed for {mint}: {e}", flush=True)
 
     async def update_live_prices_background(self):
-        """Background task: Update live on-chain prices continuously"""
+        """Background task: Update live on-chain prices and market caps continuously"""
         await asyncio.sleep(2)  # Wait 2s before starting
         
         while True:
@@ -400,13 +407,14 @@ class PumpFunCurveListener:
                             failed_count += 1
                             continue
                         
-                        # Extract on-chain price from transaction
-                        price = await self._extract_price_from_transaction(tx_signature, token_mint)
+                        # Extract on-chain price and market cap from transaction
+                        result = await self._extract_price_from_transaction(tx_signature, token_mint)
                         
-                        if price is not None:
-                            await self._update_price_in_db(token_mint, price)
+                        if result is not None:
+                            price, market_cap = result
+                            await self._update_price_in_db(token_mint, price, market_cap)
                             updated_count += 1
-                            print(f"[PRICE_UPDATE] [{i}/{len(tokens)}] {token_mint[:16]}... ✓ {price:.10f} SOL/token", flush=True)
+                            print(f"[PRICE_UPDATE] [{i}/{len(tokens)}] {token_mint[:16]}... ✓ {price:.10f} SOL | MC: ${market_cap:,.0f}", flush=True)
                         else:
                             failed_count += 1
                             print(f"[PRICE_UPDATE] [{i}/{len(tokens)}] {token_mint[:16]}... - Failed to extract price", flush=True)
@@ -466,8 +474,8 @@ class PumpFunCurveListener:
             print(f"[DB_ERROR] Failed to get tx for {token_mint}: {e}", flush=True)
             return None
 
-    async def _update_price_in_db(self, token_mint: str, current_price: float):
-        """Update live on-chain price in database"""
+    async def _update_price_in_db(self, token_mint: str, current_price: float, current_market_cap: float):
+        """Update live on-chain price and market cap in database"""
         async with self.db_lock:
             try:
                 conn = sqlite3.connect(DB_PATH, timeout=60)
@@ -475,34 +483,41 @@ class PumpFunCurveListener:
                 
                 # Get previous values
                 cursor.execute(
-                    "SELECT price_current, price_highest FROM token_analysis WHERE mint = ?",
+                    "SELECT price_current, price_highest, market_cap_current, market_cap_highest FROM token_analysis WHERE mint = ?",
                     (token_mint,)
                 )
                 row = cursor.fetchone()
                 
                 price_highest = row[1] if row and row[1] else current_price
+                market_cap_highest = row[3] if row and row[3] else current_market_cap
                 old_price = row[0] if row else None
+                old_market_cap = row[2] if row else None
                 
                 # Update highest if this is higher
                 if current_price > price_highest:
                     price_highest = current_price
+                if current_market_cap > market_cap_highest:
+                    market_cap_highest = current_market_cap
                 
                 cursor.execute("""
                     UPDATE token_analysis
-                    SET price_current = ?, price_highest = ?, price_updated_at = datetime('now')
+                    SET price_current = ?, price_highest = ?, 
+                        market_cap_current = ?, market_cap_highest = ?,
+                        price_updated_at = datetime('now')
                     WHERE mint = ?
-                """, (current_price, price_highest, token_mint))
+                """, (current_price, price_highest, current_market_cap, market_cap_highest, token_mint))
                 
                 conn.commit()
                 conn.close()
                 
-                # Log price changes
+                # Log price and market cap changes
                 if old_price is None:
-                    print(f"[PRICE_DB] 📊 Initial price recorded: {token_mint[:16]}... = {current_price:.10f} SOL", flush=True)
+                    print(f"[PRICE_DB] 📊 Initial: {token_mint[:16]}... = {current_price:.10f} SOL | MC: ${current_market_cap:,.0f}", flush=True)
                 else:
-                    change_pct = ((current_price - old_price) / old_price * 100) if old_price > 0 else 0
-                    arrow = "📈" if change_pct > 0 else "📉" if change_pct < 0 else "→"
-                    print(f"[PRICE_DB] {arrow} Price update: {token_mint[:16]}... = {current_price:.10f} SOL ({change_pct:+.1f}%)", flush=True)
+                    price_change = ((current_price - old_price) / old_price * 100) if old_price > 0 else 0
+                    mc_change = ((current_market_cap - old_market_cap) / old_market_cap * 100) if old_market_cap > 0 else 0
+                    arrow = "📈" if price_change > 0 else "📉" if price_change < 0 else "→"
+                    print(f"[PRICE_DB] {arrow} {token_mint[:16]}... | Price: {price_change:+.1f}% | MC: {mc_change:+.1f}%", flush=True)
                 
             except Exception as e:
                 print(f"[DB_ERROR] Failed to update price for {token_mint}: {e}", flush=True)

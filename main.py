@@ -45,7 +45,9 @@ def get_migrated_tokens() -> List[Dict]:
                 risk_level,
                 post_migration_coverage,
                 price_current,
-                price_highest
+                price_highest,
+                market_cap_current,
+                market_cap_highest
             FROM token_analysis
             ORDER BY analyzed_at DESC
         """)
@@ -61,7 +63,9 @@ def get_migrated_tokens() -> List[Dict]:
                 'total_events': row['events_parsed'] if row['events_parsed'] else 0,
                 'coverage': row['post_migration_coverage'] if row['post_migration_coverage'] else 0,
                 'price_current': row['price_current'] if row['price_current'] else None,
-                'price_highest': row['price_highest'] if row['price_highest'] else None
+                'price_highest': row['price_highest'] if row['price_highest'] else None,
+                'market_cap_current': row['market_cap_current'] if row['market_cap_current'] else None,
+                'market_cap_highest': row['market_cap_highest'] if row['market_cap_highest'] else None
             })
 
         conn.close()
@@ -498,8 +502,8 @@ HTML_TEMPLATE = """
                             <th>Token Mint</th>
                             <th>Risk Level</th>
                             <th>Risk Score</th>
-                            <th>Price (SOL)</th>
-                            <th>Peak Price</th>
+                            <th>Market Cap</th>
+                            <th>Peak MC</th>
                             <th>Events</th>
                             <th>Coverage</th>
                             <th>Analyzed</th>
@@ -516,10 +520,10 @@ HTML_TEMPLATE = """
                                     ${token.rug_probability !== null && token.rug_probability !== undefined ? (token.rug_probability * 100).toFixed(1) + '%' : '—'}
                                 </td>
                                 <td>
-                                    ${token.price_current ? token.price_current.toFixed(10) : '—'}
+                                    ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '—'}
                                 </td>
                                 <td>
-                                    ${token.price_highest ? token.price_highest.toFixed(10) : '—'}
+                                    ${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '—'}
                                 </td>
                                 <td>
                                     ${token.total_events}
@@ -661,23 +665,23 @@ HTML_TEMPLATE = """
                 `;
 
                 // Add market cap metrics
-                let priceCurrent = '—';
-                let priceHighest = '—';
-                if (data.price && data.price.current) {
-                    priceCurrent = data.price.current.toFixed(10);
+                let marketCapCurrent = '—';
+                let marketCapHighest = '—';
+                if (data.market_cap && data.market_cap.current) {
+                    marketCapCurrent = '$' + formatMarketCap(data.market_cap.current);
                 }
-                if (data.price && data.price.highest) {
-                    priceHighest = data.price.highest.toFixed(10);
+                if (data.market_cap && data.market_cap.highest) {
+                    marketCapHighest = '$' + formatMarketCap(data.market_cap.highest);
                 }
 
                 metricsHTML += `
                     <div class="metric">
-                        <label>Current Price (SOL)</label>
-                        <span>${priceCurrent}</span>
+                        <label>Market Cap</label>
+                        <span>${marketCapCurrent}</span>
                     </div>
                     <div class="metric">
-                        <label>Peak Price (SOL)</label>
-                        <span>${priceHighest}</span>
+                        <label>Peak MC</label>
+                        <span>${marketCapHighest}</span>
                     </div>
                 `;
 
@@ -776,7 +780,9 @@ def api_token_metrics(token_mint: str):
                 risk_level,
                 post_migration_coverage as coverage,
                 price_current,
-                price_highest
+                price_highest,
+                market_cap_current,
+                market_cap_highest
             FROM token_analysis
             WHERE mint = ?
         """, (token_mint,))
@@ -808,6 +814,10 @@ def api_token_metrics(token_mint: str):
             'price': {
                 'current': row['price_current'] if row['price_current'] else 0,
                 'highest': row['price_highest'] if row['price_highest'] else 0
+            },
+            'market_cap': {
+                'current': row['market_cap_current'] if row['market_cap_current'] else 0,
+                'highest': row['market_cap_highest'] if row['market_cap_highest'] else 0
             },
             'coverage': row['coverage'] if row['coverage'] else 0
         })

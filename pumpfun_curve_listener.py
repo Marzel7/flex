@@ -400,8 +400,65 @@ class PumpFunCurveListener:
                 await asyncio.sleep(5)
 
     # --- Main listener ---
+    async def backfill_recent_migrations(self):
+        """Scan recent PumpSwap transactions to catch any missed migrations"""
+        print(f"\n[BACKFILL] Scanning recent PumpSwap transactions...", flush=True)
+
+        try:
+            import aiohttp
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getSignaturesForAddress",
+                "params": [
+                    PUMPSWAP_PROGRAM,
+                    {"limit": 100}  # Check last 100 transactions
+                ]
+            }
+
+            async with aiohttp.ClientSession() as session:
+                async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                    if resp.status == 200:
+                        data = await resp.json()
+                        signatures = [sig_info.get('signature') for sig_info in data.get('result', [])]
+
+                        print(f"[BACKFILL] Found {len(signatures)} recent transactions", flush=True)
+
+                        # Check each signature for migrations
+                        for sig in signatures:
+                            if sig and sig not in self.detected_migrations:
+                                # Fetch full transaction
+                                tx_payload = {
+                                    "jsonrpc": "2.0",
+                                    "id": 1,
+                                    "method": "getTransaction",
+                                    "params": [sig, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
+                                }
+
+                                try:
+                                    async with session.post(RPC_HTTP, json=tx_payload, timeout=aiohttp.ClientTimeout(total=5)) as tx_resp:
+                                        if tx_resp.status == 200:
+                                            tx_data = await tx_resp.json()
+                                            if "result" in tx_data and tx_data["result"]:
+                                                tx = tx_data["result"]
+                                                meta = tx.get("meta", {})
+                                                logs = meta.get("logMessages", [])
+
+                                                if self._is_migration_transaction(logs):
+                                                    await self.handle_migration(sig, logs)
+                                except Exception as e:
+                                    continue
+
+                        print(f"[BACKFILL] ✅ Backfill complete", flush=True)
+        except Exception as e:
+            print(f"[BACKFILL] ⚠ Error during backfill: {e}", flush=True)
+
     async def listen(self):
         """Main entry point - start WebSocket listener"""
+        # First, backfill recent migrations
+        await self.backfill_recent_migrations()
+
+        # Then start listening for new ones
         await self.listen_websocket()
 
 

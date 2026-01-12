@@ -3,11 +3,10 @@
 Pump.Fun → PumpSwap Migration Tracking UI
 
 Displays tokens that have migrated from Pump.Fun to PumpSwap with:
-- Risk scores (pre-migration analysis)
-- Detection prices and times
-- Migration prices
+- Post-migration risk scores
+- Token analysis metrics
+- Detection times
 - Current live prices
-- Time to migration
 """
 
 import sqlite3
@@ -635,28 +634,6 @@ HTML_TEMPLATE = """
 
                 metricsGrid.innerHTML = '';
 
-                // Show notice if using post-migration data without pre-migration data
-                if (data.metrics_source === 'post-migration' && !data.has_premigration_data) {
-                    metricsGrid.innerHTML = `
-                        <div style="grid-column: 1 / -1; padding: 15px; background: rgba(234, 179, 8, 0.1); border-left: 3px solid #eab308; border-radius: 8px; margin-bottom: 15px;">
-                            <p style="color: #eab308; margin: 0; font-size: 13px;">
-                                ⚠️ <strong>No pre-migration data</strong> - Using post-migration analysis only
-                            </p>
-                        </div>
-                    `;
-                }
-
-                // Show notice if using post-migration data when both exist (most recent)
-                if (data.metrics_source === 'post-migration' && data.has_premigration_data) {
-                    metricsGrid.innerHTML = `
-                        <div style="grid-column: 1 / -1; padding: 15px; background: rgba(100, 200, 255, 0.1); border-left: 3px solid #64c8ff; border-radius: 8px; margin-bottom: 15px;">
-                            <p style="color: #64c8ff; margin: 0; font-size: 13px;">
-                                ℹ️ <strong>Showing post-migration analysis</strong> (most recent metrics)
-                            </p>
-                        </div>
-                    `;
-                }
-
                 // Build HTML string first, then set it once
                 let metricsHTML = metricsGrid.innerHTML;
                 Object.keys(metricLabels).forEach(key => {
@@ -669,29 +646,16 @@ HTML_TEMPLATE = """
                     `;
                 });
 
-                // Add coverage metrics
-                let preCoverage = '—';
-                let postCoverage = '—';
-
-                // Handle both nested object and flat coverage formats
+                // Add coverage metric
+                let coverage = '—';
                 if (data.coverage !== null && data.coverage !== undefined) {
-                    if (typeof data.coverage === 'object') {
-                        preCoverage = data.coverage.pre_migration !== null ? (data.coverage.pre_migration).toFixed(1) : '—';
-                        postCoverage = data.coverage.post_migration !== null ? (data.coverage.post_migration).toFixed(1) : '—';
-                    } else {
-                        // Flat coverage value (post-migration only)
-                        postCoverage = data.coverage.toFixed(1);
-                    }
+                    coverage = data.coverage.toFixed(1);
                 }
 
                 metricsHTML += `
                     <div class="metric">
-                        <label>Pre-Migration Coverage</label>
-                        <span>${preCoverage}%</span>
-                    </div>
-                    <div class="metric">
-                        <label>Post-Migration Coverage</label>
-                        <span>${postCoverage}%</span>
+                        <label>Analysis Coverage</label>
+                        <span>${coverage}%</span>
                     </div>
                 `;
 
@@ -700,28 +664,13 @@ HTML_TEMPLATE = """
                 // Populate risk section
                 const riskSection = document.getElementById('riskSection');
                 const risk = data.risk;
-                const preRug = risk.pre_rug_probability !== null ? (risk.pre_rug_probability * 100).toFixed(1) : '—';
-                const postRug = risk.post_rug_probability !== null ? (risk.post_rug_probability * 100).toFixed(1) : '—';
-                const ammRug = risk.amm_rug_probability !== null ? (risk.amm_rug_probability * 100).toFixed(1) : '—';
+                const rugProbability = (risk.rug_probability * 100).toFixed(1);
 
                 riskSection.innerHTML = `
                     <p>
-                        <label>Pre-Migration Rug Probability:</label>
-                        <span class="risk-value">${preRug}%</span>
-                        <span style="color: #a0a0a0; margin-left: 10px;">${risk.pre_risk_level || '—'}</span>
-                    </p>
-                    <p>
-                        <label>AMM Pool Rug Probability:</label>
-                        <span class="risk-value">${ammRug}%</span>
-                        <span style="color: #a0a0a0; margin-left: 10px;">${risk.amm_risk_level || '—'}</span>
-                    </p>
-                    <p>
-                        <label>Post-Migration Rug Probability:</label>
-                        <span class="risk-value">${postRug}%</span>
-                        <span style="color: #a0a0a0; margin-left: 10px;">${risk.post_risk_level || '—'}</span>
-                    </p>
-                    <p style="margin-top: 15px; color: #a0a0a0; font-size: 12px;">
-                        ${data.has_premigration_data ? '✅ Pre-migration data available' : '⚠️ No pre-migration data (detected at migration time)'}
+                        <label>Rug Probability:</label>
+                        <span class="risk-value">${rugProbability}%</span>
+                        <span style="color: #a0a0a0; margin-left: 10px;">${risk.risk_level || '—'}</span>
                     </p>
                 `;
 
@@ -834,7 +783,7 @@ def api_token_metrics(token_mint: str):
         if not row:
             return jsonify({'error': 'Token not found'}), 404
 
-        # Format response compatible with UI expectations (pre/post migration comparison)
+        # Format response for post-migration analysis only
         response = jsonify({
             'mint': row['mint'],
             'total_txs': row['total_txs'],
@@ -849,20 +798,9 @@ def api_token_metrics(token_mint: str):
             },
             'risk': {
                 'rug_probability': row['rug_probability'] if row['rug_probability'] else 0,
-                'risk_level': row['risk_level'],
-                # For UI compatibility (showing post-migration data)
-                'pre_rug_probability': None,
-                'pre_risk_level': None,
-                'post_rug_probability': row['rug_probability'] if row['rug_probability'] else 0,
-                'post_risk_level': row['risk_level'],
-                'amm_rug_probability': None,
-                'amm_risk_level': None
+                'risk_level': row['risk_level']
             },
-            # For UI compatibility (flat coverage for post-migration only)
-            'coverage': row['coverage'],
-            # UI expects nested coverage object for pre/post comparison
-            'metrics_source': 'post-migration',
-            'has_premigration_data': False
+            'coverage': row['coverage']
         })
         return response
     except Exception as e:

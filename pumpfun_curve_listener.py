@@ -45,6 +45,8 @@ class PumpFunCurveListener:
         self.analyzed_tokens = {}
         self.db_lock = asyncio.Lock()
         self.websocket_connected = False
+        self.websocket_msg_count = 0  # Track message receipt
+        self.websocket_migration_count = 0  # Track migrations detected
         self._ensure_db()
         print(f"[INIT] Pump.Fun → PumpSwap Migration Listener ready", flush=True)
         print(f"[INIT] Monitoring PumpSwap program: {PUMPSWAP_PROGRAM}", flush=True)
@@ -257,10 +259,8 @@ class PumpFunCurveListener:
             # Look for "mint:" patterns followed by base58 addresses
             matches = re.findall(r'mint[:\s]+([1-9A-HJ-NP-Z]{32,})', logs_text, re.IGNORECASE)
             if matches:
-                # Return the first match that looks like a valid Pump.Fun token (contains "pump")
-                for match in matches:
-                    if len(match) >= 32 and "pump" in match.lower():
-                        return match
+                # Return the first valid match (don't filter by "pump" - not all pump.fun tokens contain "pump")
+                return matches[0] if matches else None
             return None
         except Exception as e:
             print(f"[MINT] ⚠ Error extracting mint from logs: {e}", flush=True)
@@ -338,7 +338,7 @@ class PumpFunCurveListener:
                 endpoint, name = endpoints[current_endpoint_idx]
                 async with websockets.connect(endpoint, ping_interval=30, ping_timeout=10) as ws:
                     self.websocket_connected = True
-                    print(f"[WEBSOCKET] ✓ Connected to PumpSwap program", flush=True)
+                    print(f"[WEBSOCKET] ✓ Connected to PumpSwap program via {name}", flush=True)
 
                     # Subscribe to PumpSwap program logs
                     subscribe_msg = {
@@ -353,6 +353,7 @@ class PumpFunCurveListener:
                     await ws.send(json.dumps(subscribe_msg))
                     print(f"[WEBSOCKET] Subscribed to PumpSwap migrations\n", flush=True)
 
+                    message_counter = 0
                     while True:
                         try:
                             msg = await asyncio.wait_for(ws.recv(), timeout=30)
@@ -360,6 +361,8 @@ class PumpFunCurveListener:
 
                             # Process subscription response
                             if 'params' in data and 'result' in data['params']:
+                                message_counter += 1
+                                self.websocket_msg_count += 1
                                 result = data['params']['result']
                                 value = result.get('value', {})
                                 logs = value.get('logs', [])
@@ -372,6 +375,8 @@ class PumpFunCurveListener:
 
                                 # Check if this is a migration
                                 if self._is_migration_transaction(logs):
+                                    self.websocket_migration_count += 1
+                                    print(f"[WEBSOCKET] 🚨 Migration #{self.websocket_migration_count} detected: {signature[:16]}...", flush=True)
                                     asyncio.create_task(self.handle_migration(signature, logs))
 
                         except asyncio.TimeoutError:

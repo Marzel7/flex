@@ -351,17 +351,32 @@ class PumpFunCurveListener:
                         ]
                     }
                     await ws.send(json.dumps(subscribe_msg))
-                    print(f"[WEBSOCKET] Subscribed to PumpSwap migrations\n", flush=True)
+                    print(f"[WEBSOCKET] Subscribed to PumpSwap migrations", flush=True)
 
-                    message_counter = 0
+                    # Wait for subscription confirmation before processing events
+                    subscription_id = None
+                    while subscription_id is None:
+                        try:
+                            msg = await asyncio.wait_for(ws.recv(), timeout=10)
+                            data = json.loads(msg)
+                            
+                            # Check for subscription response
+                            if "result" in data:
+                                subscription_id = data.get("result")
+                                print(f"[WEBSOCKET] ✓ Subscription confirmed (ID: {subscription_id})\n", flush=True)
+                                break
+                        except asyncio.TimeoutError:
+                            print(f"[WEBSOCKET] ⚠ No subscription confirmation after 10s", flush=True)
+                            break
+                    
+                    # Now listen for actual migration events
                     while True:
                         try:
                             msg = await asyncio.wait_for(ws.recv(), timeout=30)
                             data = json.loads(msg)
 
-                            # Process subscription response
+                            # Process only subscription result (actual events, not responses)
                             if 'params' in data and 'result' in data['params']:
-                                message_counter += 1
                                 self.websocket_msg_count += 1
                                 result = data['params']['result']
                                 value = result.get('value', {})

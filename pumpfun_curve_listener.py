@@ -60,22 +60,35 @@ class PumpFunCurveListener:
         conn.execute("PRAGMA journal_mode=WAL")
         cursor = conn.cursor()
 
-        # Post-migration token analysis (simplified)
+        # Post-migration token analysis with live on-chain price tracking
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS token_analysis (
                 mint TEXT PRIMARY KEY,
                 analyzed_at REAL,
                 total_txs INTEGER,
                 total_events INTEGER,
+                events_parsed INTEGER,
                 mint_concentration REAL,
                 unique_minters_ratio REAL,
                 sell_suppression_ratio REAL,
                 mint_velocity_sec REAL,
                 buy_size_variance REAL,
                 sell_volume_concentration REAL,
+                creator_activity_ratio REAL,
+                post_migration_mint_concentration REAL,
+                post_migration_unique_minters_ratio REAL,
+                post_migration_sell_suppression_ratio REAL,
+                post_migration_mint_velocity_sec REAL,
+                post_migration_buy_size_variance REAL,
+                post_migration_sell_volume_concentration REAL,
+                post_migration_creator_activity_ratio REAL,
+                post_migration_coverage REAL,
                 rug_probability REAL,
                 risk_level TEXT,
-                coverage REAL,
+                migration_tx TEXT,
+                price_current REAL,
+                price_highest REAL,
+                price_updated_at TIMESTAMP,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
@@ -83,7 +96,7 @@ class PumpFunCurveListener:
         conn.commit()
         conn.close()
 
-    async def _store_analysis(self, mint: str, analysis: dict):
+    async def _store_analysis(self, mint: str, analysis: dict, signature: str = None):
         """Store post-migration analysis results"""
         async with self.db_lock:
             try:
@@ -92,7 +105,7 @@ class PumpFunCurveListener:
                 conn.execute("PRAGMA busy_timeout=60000")
                 cursor = conn.cursor()
 
-                # Store post-migration analysis in post_migration_* columns
+                # Store post-migration analysis with live price tracking
                 cursor.execute("""
                     INSERT OR REPLACE INTO token_analysis (
                         mint, analyzed_at, events_parsed,
@@ -101,8 +114,8 @@ class PumpFunCurveListener:
                         post_migration_buy_size_variance, post_migration_sell_volume_concentration,
                         post_migration_creator_activity_ratio,
                         rug_probability, risk_level, post_migration_coverage,
-                        market_cap_current, market_cap_highest
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        migration_tx, price_current, price_highest
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     mint,
                     time.time(),
@@ -117,8 +130,9 @@ class PumpFunCurveListener:
                     analysis.get("rug_probability", 0),
                     analysis.get("risk_level", ""),
                     analysis.get("coverage", 0),
-                    analysis.get("market_cap_current"),
-                    analysis.get("market_cap_highest")
+                    signature,
+                    None,  # price_current will be updated by background task
+                    None   # price_highest will be updated by background task
                 ))
 
                 conn.commit()
@@ -262,6 +276,66 @@ class PumpFunCurveListener:
         
         return None
 
+    async def _extract_price_from_transaction(self, signature: str, token_mint: str) -> Optional[float]:
+        """
+        Extract on-chain price from migration transaction post-token-balances.
+        
+        Price = Token Amount / SOL Amount
+        Uses the token balance change divided by SOL balance change.
+        """
+        try:
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getTransaction",
+                "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
+            }
+
+            async with aiohttp.ClientSession() as session:
+                async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                    if resp.status != 200:
+                        return None
+
+                    data = await resp.json()
+                    if "result" not in data or not data["result"]:
+                        return None
+
+                    tx_data = data["result"]
+                    meta = tx_data.get("meta", {})
+                    
+                    # Get pre and post balances
+                    pre_balances = meta.get("preTokenBalances", [])
+                    post_balances = meta.get("postTokenBalances", [])
+                    
+                    token_amount = 0
+                    sol_amount = 0
+                    
+                    # Calculate token and SOL changes
+                    for balance in post_balances:
+                        if balance.get("mint") == token_mint:
+                            token_amount = float(balance.get("uiTokenAmount", {}).get("amount", 0) or 0)
+                        elif balance.get("mint") == "So11111111111111111111111111111111111111112":
+                            # Wrapped SOL
+                            sol_amount = float(balance.get("uiTokenAmount", {}).get("amount", 0) or 0)
+                    
+                    # If no wrapped SOL found in post-balances, try native SOL from account balances
+                    if sol_amount == 0:
+                        post_native_balance = meta.get("postBalances", [0])[0]
+                        pre_native_balance = meta.get("preBalances", [0])[0]
+                        sol_amount = (post_native_balance - pre_native_balance) / 1e9  # Convert lamports to SOL
+                    
+                    # Calculate price
+                    if token_amount > 0 and sol_amount > 0:
+                        price = sol_amount / token_amount  # SOL per token
+                        print(f"[PRICE] 💰 Extracted on-chain price for {token_mint[:16]}...: {price:.10f} SOL/token", flush=True)
+                        return price
+                    
+                    return None
+                    
+        except Exception as e:
+            print(f"[PRICE_ERROR] Failed to extract price for {token_mint[:16]}...: {e}", flush=True)
+            return None
+
     def _extract_mint_from_logs(self, logs: list) -> Optional[str]:
         """
         Fallback: Extract token mint address from transaction logs.
@@ -280,7 +354,7 @@ class PumpFunCurveListener:
             return None
 
     # --- Analyzer ---
-    async def analyze_post_migration(self, mint: str):
+    async def analyze_post_migration(self, mint: str, signature: str = None):
         """Analyze token's post-migration activity on PumpSwap"""
         if mint in self.analyzed_tokens:
             return
@@ -289,79 +363,67 @@ class PumpFunCurveListener:
             analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
             await analyzer.fetch_curve_activity_async()
 
-            # Fetch initial market cap
-            market_cap = analyzer.fetch_market_cap_dexscreener()
-
             summary = analyzer.summary()
             self.analyzed_tokens[mint] = summary
             risk_level = summary.get("risk_level", "🟢 LOW RISK")
             score = summary.get("rug_probability", 0.0)
             print(f"[ANALYZER] {risk_level} | Score: {score:.2%} | {mint}", flush=True)
 
-            # Store analysis results
-            await self._store_analysis(mint, summary)
+            # Store analysis results (will be updated with live price in background)
+            await self._store_analysis(mint, summary, signature)
         except Exception as e:
             print(f"[ANALYZER] ⚠ Analysis failed for {mint}: {e}", flush=True)
 
-    async def update_market_caps_background(self):
-        """Background task: Update market caps continuously for live prices"""
+    async def update_live_prices_background(self):
+        """Background task: Update live on-chain prices continuously"""
         await asyncio.sleep(2)  # Wait 2s before starting
         
         while True:
             try:
-                tokens = self._get_tokens_needing_mc_update()
+                tokens = self._get_tokens_needing_price_update()
                 
                 if not tokens:
                     await asyncio.sleep(5)
                     continue
                 
-                print(f"[MARKET_CAP] Updating {len(tokens)} tokens live...", flush=True)
+                print(f"[PRICE_UPDATE] Fetching live prices for {len(tokens)} tokens...", flush=True)
                 
                 for token_mint in tokens:
                     try:
-                        url = f"https://api.dexscreener.com/latest/dex/tokens/{token_mint}"
-                        response = requests.get(url, timeout=5)
+                        # Get the migration transaction for this token to extract price
+                        tx_signature = await self._get_migration_tx_for_token(token_mint)
                         
-                        if response.status_code != 200:
+                        if not tx_signature:
                             continue
                         
-                        data = response.json()
-                        pairs = data.get("pairs", [])
+                        # Extract on-chain price from transaction
+                        price = await self._extract_price_from_transaction(tx_signature, token_mint)
                         
-                        if not pairs:
-                            continue
+                        if price is not None:
+                            await self._update_price_in_db(token_mint, price)
                         
-                        market_cap = pairs[0].get("marketCap")
-                        
-                        if market_cap is None:
-                            continue
-                        
-                        # Update database
-                        await self._update_market_cap_in_db(token_mint, market_cap)
-                        
-                        # Fast rate limit for live updates
+                        # Rate limit
                         await asyncio.sleep(0.1)
                     except Exception as e:
-                        print(f"[MARKET_CAP_ERROR] {token_mint[:16]}...: {e}", flush=True)
+                        print(f"[PRICE_ERROR] {token_mint[:16]}...: {e}", flush=True)
                 
                 # Loop back immediately for continuous live updates
                 await asyncio.sleep(1)
                         
             except Exception as e:
-                print(f"[MARKET_CAP_BG] Error in background task: {e}", flush=True)
+                print(f"[PRICE_BG] Error in background task: {e}", flush=True)
                 await asyncio.sleep(5)
 
-    def _get_tokens_needing_mc_update(self) -> List[str]:
-        """Get tokens that need market cap updates (prioritize newer)"""
+    def _get_tokens_needing_price_update(self) -> List[str]:
+        """Get tokens that need live price updates (prioritize newer)"""
         try:
             conn = sqlite3.connect(DB_PATH, timeout=60)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             
-            # Get top 50 newest tokens not marked as stopped
+            # Get top 50 newest tokens (all active tokens)
             cursor.execute("""
                 SELECT mint FROM token_analysis
-                WHERE market_cap_stopped_tracking = 0 OR market_cap_stopped_tracking IS NULL
                 ORDER BY analyzed_at DESC
                 LIMIT 50
             """)
@@ -373,45 +435,56 @@ class PumpFunCurveListener:
             print(f"[DB_ERROR] Failed to fetch tokens: {e}", flush=True)
             return []
 
-    async def _update_market_cap_in_db(self, token_mint: str, current_cap: float):
-        """Update market cap in database. Returns True if stopped tracking."""
+    async def _get_migration_tx_for_token(self, token_mint: str) -> Optional[str]:
+        """Get the migration transaction signature for a token"""
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=60)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            cursor.execute(
+                "SELECT migration_tx FROM token_analysis WHERE mint = ?",
+                (token_mint,)
+            )
+            row = cursor.fetchone()
+            conn.close()
+            
+            return row[0] if row and row[0] else None
+        except Exception as e:
+            print(f"[DB_ERROR] Failed to get tx for {token_mint}: {e}", flush=True)
+            return None
+
+    async def _update_price_in_db(self, token_mint: str, current_price: float):
+        """Update live on-chain price in database"""
         async with self.db_lock:
             try:
                 conn = sqlite3.connect(DB_PATH, timeout=60)
                 cursor = conn.cursor()
                 
-                # Get current highest value
+                # Get previous values
                 cursor.execute(
-                    "SELECT market_cap_highest FROM token_analysis WHERE mint = ?",
+                    "SELECT price_current, price_highest FROM token_analysis WHERE mint = ?",
                     (token_mint,)
                 )
                 row = cursor.fetchone()
-                highest_cap = row[0] if row else None
+                
+                price_highest = row[1] if row and row[1] else current_price
                 
                 # Update highest if this is higher
-                if highest_cap is None or current_cap > highest_cap:
-                    highest_cap = current_cap
-                
-                # Check if should stop tracking (below 30k)
-                should_stop = 1 if current_cap < 30000 else 0
+                if current_price > price_highest:
+                    price_highest = current_price
                 
                 cursor.execute("""
                     UPDATE token_analysis
-                    SET market_cap_current = ?, market_cap_highest = ?, market_cap_stopped_tracking = ?
+                    SET price_current = ?, price_highest = ?, price_updated_at = datetime('now')
                     WHERE mint = ?
-                """, (current_cap, highest_cap, should_stop, token_mint))
+                """, (current_price, price_highest, token_mint))
                 
                 conn.commit()
                 conn.close()
                 
-                if should_stop:
-                    print(f"[MARKET_CAP] ⏹ Stopped tracking {token_mint[:16]}... (MC: ${current_cap:,.0f})", flush=True)
-                    return True
-                
-                return False
             except Exception as e:
-                print(f"[DB_ERROR] Failed to update market cap for {token_mint}: {e}", flush=True)
-                return False
+                print(f"[DB_ERROR] Failed to update price for {token_mint}: {e}", flush=True)
 
     async def handle_migration(self, signature: str, logs: list):
         """Process detected migration"""
@@ -442,8 +515,8 @@ class PumpFunCurveListener:
             print(f"[EVENT] 🚀 MIGRATION DETECTED: {mint}", flush=True)
             print(f"[EVENT] Migration signature: {signature[:16]}...", flush=True)
 
-            # Analyze post-migration token asynchronously
-            asyncio.create_task(self.analyze_post_migration(mint))
+            # Analyze post-migration token asynchronously with signature for live price tracking
+            asyncio.create_task(self.analyze_post_migration(mint, signature))
 
         except Exception as e:
             print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)
@@ -573,9 +646,9 @@ class PumpFunCurveListener:
     
 
     async def listen(self):
-        """Main entry point - start WebSocket listener with market cap background updater"""
-        # Start market cap updater in background
-        asyncio.create_task(self.update_market_caps_background())
+        """Main entry point - start WebSocket listener with live price updater"""
+        # Start live price updater in background
+        asyncio.create_task(self.update_live_prices_background())
         # Start WebSocket listener
         await self.listen_websocket()
 

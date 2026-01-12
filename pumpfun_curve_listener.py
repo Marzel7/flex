@@ -209,10 +209,12 @@ class PumpFunCurveListener:
             async with aiohttp.ClientSession() as session:
                 async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
                     if resp.status != 200:
+                        print(f"[MINT] ⚠ RPC error {resp.status} fetching {signature[:16]}...", flush=True)
                         return None
 
                     data = await resp.json()
                     if "result" not in data or not data["result"]:
+                        print(f"[MINT] ⚠ Transaction not found or indexing delay: {signature[:16]}...", flush=True)
                         return None
 
                     tx_data = data["result"]
@@ -243,10 +245,14 @@ class PumpFunCurveListener:
                         if len(account) in (43, 44) and account not in system_programs:
                             return account
 
+                    print(f"[MINT] ⚠ No valid mint found in {signature[:16]}...", flush=True)
                     return None
 
-        except Exception:
-            # Silently fail - signature might not be indexed yet or have no token balances
+        except asyncio.TimeoutError:
+            print(f"[MINT] ⚠ Timeout fetching transaction {signature[:16]}...", flush=True)
+            return None
+        except Exception as e:
+            print(f"[MINT] ⚠ Error fetching {signature[:16]}...: {e}", flush=True)
             return None
 
     def _extract_mint_from_logs(self, logs: list) -> Optional[str]:
@@ -297,12 +303,13 @@ class PumpFunCurveListener:
 
             # Extract mint from transaction (more reliable than logs)
             mint = await self._fetch_mint_from_transaction(signature)
-
-            # Fallback to log extraction if transaction fetch fails
+            
             if not mint:
+                print(f"[MIGRATION] ⚠ Failed to extract mint from postTokenBalances, trying logs fallback", flush=True)
                 mint = self._extract_mint_from_logs(logs)
-
+            
             if not mint:
+                print(f"[MIGRATION] ⚠ Could not extract mint from {signature[:16]}... - SKIPPED", flush=True)
                 return  # Silent skip - not a pump.fun token migration
 
             # Skip if already analyzed
@@ -319,6 +326,8 @@ class PumpFunCurveListener:
 
         except Exception as e:
             print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)
+            import traceback
+            traceback.print_exc()
 
     # --- WebSocket Listener ---
     async def listen_websocket(self):

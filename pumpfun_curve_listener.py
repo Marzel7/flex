@@ -115,13 +115,14 @@ class PumpFunCurveListener:
                         analysis.get("coverage", 0)
                     ))
                 except sqlite3.OperationalError:
-                    # Fall back to old schema
+                    # Fall back to post-migration schema (new columns)
                     cursor.execute("""
                         INSERT OR REPLACE INTO token_analysis (
                             mint, analyzed_at, events_parsed,
-                            mint_concentration, unique_minters_ratio, sell_suppression_ratio,
-                            mint_velocity_sec, buy_size_variance, sell_volume_concentration,
-                            rug_probability, risk_level, pre_migration_coverage
+                            post_migration_mint_concentration, post_migration_unique_minters_ratio,
+                            post_migration_sell_suppression_ratio, post_migration_mint_velocity_sec,
+                            post_migration_buy_size_variance, post_migration_sell_volume_concentration,
+                            rug_probability, risk_level, post_migration_coverage
                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """, (
                         mint,

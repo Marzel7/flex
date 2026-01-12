@@ -23,7 +23,11 @@ load_dotenv()
 # === Config ===
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
 RPC_URL = os.getenv("RPC_URL", "")
+
+# WebSocket: Try Helius first, fall back to public Solana
 HELIUS_RPC_WS = f"wss://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "wss://api.mainnet-beta.solana.com/"
+
+# HTTP: Use QuickNode if available, otherwise Helius, then public
 RPC_HTTP = RPC_URL if RPC_URL else (f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com")
 
 PUMPFUN_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
@@ -321,9 +325,18 @@ class PumpFunCurveListener:
         """Listen to PumpSwap program via WebSocket for live migration events"""
         print(f"\n[WEBSOCKET] Connecting to PumpSwap program...", flush=True)
 
+        # Try Helius first, fall back to public Solana
+        endpoints = [
+            (HELIUS_RPC_WS, "Helius"),
+            ("wss://api.mainnet-beta.solana.com/", "Public Solana")
+        ]
+
+        current_endpoint_idx = 0
+
         while True:
             try:
-                async with websockets.connect(HELIUS_RPC_WS, ping_interval=30, ping_timeout=10) as ws:
+                endpoint, name = endpoints[current_endpoint_idx]
+                async with websockets.connect(endpoint, ping_interval=30, ping_timeout=10) as ws:
                     self.websocket_connected = True
                     print(f"[WEBSOCKET] ✓ Connected to PumpSwap program", flush=True)
 
@@ -372,7 +385,18 @@ class PumpFunCurveListener:
 
             except Exception as e:
                 self.websocket_connected = False
-                print(f"[WEBSOCKET] ⚠ Connection error, reconnecting in 5s...", flush=True)
+                error_str = str(e).lower()
+
+                # Check for specific auth issues
+                if "401" in str(e) or "unauthorized" in error_str:
+                    print(f"[WEBSOCKET] ⚠ Auth error (401) - falling back to public RPC", flush=True)
+                    current_endpoint_idx = 1  # Switch to public Solana
+                elif "connection" in error_str or "refused" in error_str:
+                    print(f"[WEBSOCKET] ⚠ Connection refused, retrying in 5s...", flush=True)
+                else:
+                    print(f"[WEBSOCKET] ⚠ {name} connection error: {e}", flush=True)
+                    print(f"[WEBSOCKET] Retrying in 5s...", flush=True)
+
                 await asyncio.sleep(5)
 
     # --- Main listener ---

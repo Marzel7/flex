@@ -43,7 +43,8 @@ def get_migrated_tokens() -> List[Dict]:
                 events_parsed,
                 rug_probability,
                 risk_level,
-                post_migration_coverage
+                post_migration_coverage,
+                market_cap_highest
             FROM token_analysis
             ORDER BY analyzed_at DESC
         """)
@@ -57,7 +58,8 @@ def get_migrated_tokens() -> List[Dict]:
                 'risk_level': row['risk_level'],
                 'total_txs': 0,  # Not used in new schema
                 'total_events': row['events_parsed'] if row['events_parsed'] else 0,
-                'coverage': row['post_migration_coverage'] if row['post_migration_coverage'] else 0
+                'coverage': row['post_migration_coverage'] if row['post_migration_coverage'] else 0,
+                'market_cap_highest': row['market_cap_highest'] if row['market_cap_highest'] else None
             })
 
         conn.close()
@@ -494,6 +496,7 @@ HTML_TEMPLATE = """
                             <th>Token Mint</th>
                             <th>Risk Level</th>
                             <th>Risk Score</th>
+                            <th>Peak MC</th>
                             <th>Events</th>
                             <th>Coverage</th>
                             <th>Analyzed</th>
@@ -508,6 +511,9 @@ HTML_TEMPLATE = """
                                 </td>
                                 <td>
                                     ${token.rug_probability !== null && token.rug_probability !== undefined ? (token.rug_probability * 100).toFixed(1) + '%' : '—'}
+                                </td>
+                                <td>
+                                    ${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '—'}
                                 </td>
                                 <td>
                                     ${token.total_events}

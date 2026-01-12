@@ -197,63 +197,87 @@ class PumpFunCurveListener:
         2. Fall back to accountKeys if postTokenBalances missing
         3. Filter out system programs
         4. Accept 43 or 44 char addresses (Pump.Fun token length variance)
+        
+        Includes retry logic for newly-confirmed transactions that may have indexing delays.
         """
-        try:
-            payload = {
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "getTransaction",
-                "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
-            }
+        max_retries = 5
+        retry_delays = [0.5, 1.0, 2.0, 3.0, 5.0]  # Exponential backoff for indexing delay
+        
+        for attempt in range(max_retries):
+            try:
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getTransaction",
+                    "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
+                }
 
-            async with aiohttp.ClientSession() as session:
-                async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                    if resp.status != 200:
-                        print(f"[MINT] ⚠ RPC error {resp.status} fetching {signature[:16]}...", flush=True)
+                async with aiohttp.ClientSession() as session:
+                    async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                        if resp.status != 200:
+                            if attempt < max_retries - 1:
+                                await asyncio.sleep(retry_delays[attempt])
+                                continue
+                            print(f"[MINT] ⚠ RPC error {resp.status} fetching {signature[:16]}...", flush=True)
+                            return None
+
+                        data = await resp.json()
+                        if "result" not in data or not data["result"]:
+                            # Transaction not indexed yet, retry with backoff
+                            if attempt < max_retries - 1:
+                                print(f"[MINT] 📝 Transaction indexing delay, retry {attempt + 1}/{max_retries}...", flush=True)
+                                await asyncio.sleep(retry_delays[attempt])
+                                continue
+                            print(f"[MINT] ⚠ Transaction not found after retries: {signature[:16]}...", flush=True)
+                            return None
+
+                        tx_data = data["result"]
+                        meta = tx_data.get("meta", {})
+
+                        # Strategy 1: Try postTokenBalances first
+                        post_balances = meta.get("postTokenBalances", [])
+                        for balance in post_balances:
+                            mint = balance.get("mint", "")
+                            # Accept valid token mints (43-44 chars), exclude SOL
+                            if mint and len(mint) in (43, 44) and mint != "So11111111111111111111111111111111111111112":
+                                return mint
+
+                        # Strategy 2: Fall back to accountKeys
+                        message = tx_data.get("transaction", {}).get("message", {})
+                        accounts = message.get("accountKeys", [])
+
+                        system_programs = {
+                            "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # Pump.Fun
+                            "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap
+                            "11111111111111111111111111111111",               # System program
+                            "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",  # ATA program
+                            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # Token program
+                            "So11111111111111111111111111111111111111112",   # Wrapped SOL
+                        }
+
+                        for account in accounts[:10]:
+                            if len(account) in (43, 44) and account not in system_programs:
+                                return account
+
+                        print(f"[MINT] ⚠ No valid mint found in {signature[:16]}...", flush=True)
                         return None
 
-                    data = await resp.json()
-                    if "result" not in data or not data["result"]:
-                        print(f"[MINT] ⚠ Transaction not found or indexing delay: {signature[:16]}...", flush=True)
-                        return None
-
-                    tx_data = data["result"]
-                    meta = tx_data.get("meta", {})
-
-                    # Strategy 1: Try postTokenBalances first
-                    post_balances = meta.get("postTokenBalances", [])
-                    for balance in post_balances:
-                        mint = balance.get("mint", "")
-                        # Accept valid token mints (43-44 chars), exclude SOL
-                        if mint and len(mint) in (43, 44) and mint != "So11111111111111111111111111111111111111112":
-                            return mint
-
-                    # Strategy 2: Fall back to accountKeys
-                    message = tx_data.get("transaction", {}).get("message", {})
-                    accounts = message.get("accountKeys", [])
-
-                    system_programs = {
-                        "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # Pump.Fun
-                        "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap
-                        "11111111111111111111111111111111",               # System program
-                        "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",  # ATA program
-                        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # Token program
-                        "So11111111111111111111111111111111111111112",   # Wrapped SOL
-                    }
-
-                    for account in accounts[:10]:
-                        if len(account) in (43, 44) and account not in system_programs:
-                            return account
-
-                    print(f"[MINT] ⚠ No valid mint found in {signature[:16]}...", flush=True)
-                    return None
-
-        except asyncio.TimeoutError:
-            print(f"[MINT] ⚠ Timeout fetching transaction {signature[:16]}...", flush=True)
-            return None
-        except Exception as e:
-            print(f"[MINT] ⚠ Error fetching {signature[:16]}...: {e}", flush=True)
-            return None
+            except asyncio.TimeoutError:
+                if attempt < max_retries - 1:
+                    print(f"[MINT] ⏱️  Timeout, retrying {attempt + 1}/{max_retries}...", flush=True)
+                    await asyncio.sleep(retry_delays[attempt])
+                    continue
+                print(f"[MINT] ⚠ Timeout after retries: {signature[:16]}...", flush=True)
+                return None
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    print(f"[MINT] ⚠ Error on attempt {attempt + 1}, retrying: {e}", flush=True)
+                    await asyncio.sleep(retry_delays[attempt])
+                    continue
+                print(f"[MINT] ⚠ Error fetching {signature[:16]}...: {e}", flush=True)
+                return None
+        
+        return None
 
     def _extract_mint_from_logs(self, logs: list) -> Optional[str]:
         """

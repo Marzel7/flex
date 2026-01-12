@@ -208,8 +208,8 @@ class PumpFunPreMigrationAnalyzer:
 
         return all_sigs
 
-    def _get_tx(self, sig):
-        """Fetch full transaction data"""
+    def _get_tx(self, sig, retry=0, max_retries=2):
+        """Fetch full transaction data with retry logic"""
         payload = {
             "jsonrpc": "2.0",
             "id": 1,
@@ -217,9 +217,22 @@ class PumpFunPreMigrationAnalyzer:
             "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
         }
         try:
-            res = requests.post(self.rpc_url, json=payload, timeout=10).json()
-            return res.get("result")
-        except Exception:
+            res = requests.post(self.rpc_url, json=payload, timeout=15).json()
+            result = res.get("result")
+            if result is None:
+                # RPC returned error or null
+                error = res.get("error", {})
+                if error and retry < max_retries:
+                    wait_time = 0.5 * (2 ** retry)
+                    time.sleep(wait_time)
+                    return self._get_tx(sig, retry=retry + 1, max_retries=max_retries)
+            return result
+        except Exception as e:
+            # Retry up to max_retries times with exponential backoff
+            if retry < max_retries:
+                wait_time = 0.5 * (2 ** retry)  # 0.5s, 1s, 2s
+                time.sleep(wait_time)
+                return self._get_tx(sig, retry=retry + 1, max_retries=max_retries)
             return None
 
     def _parse_curve_tx(self, tx):

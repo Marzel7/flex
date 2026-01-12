@@ -2,12 +2,10 @@
 """
 Pump.fun Pre-Migration Analyzer V2 (ASYNC STREAMING)
 
-Optimized for:
-- Mint-anchored queries (not bonding curve PDA)
-- Async aiohttp fetching (fully non-blocking)
-- Batched signature streaming
-- Streaming parse: transactions discarded after processing
-- 100x faster than V1 (40k+ transactions in minutes)
+- Mint-anchored queries
+- Async aiohttp fetching
+- Global concurrency limiter (NO RPC hammering)
+- Batched streaming parser
 """
 
 import asyncio
@@ -17,25 +15,25 @@ import os
 import requests
 from collections import defaultdict, Counter
 from statistics import variance
-from typing import Optional, List
+from typing import List
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Configuration
-BATCH_SIZE = 100  # Async batch size (increased from 50 for better throughput)
+# =============================
+# CONFIG
+# =============================
+BATCH_SIZE = 100
 MAX_SIGNATURES = 40000
-MAX_MINUTES = 30
-RPC_TIMEOUT = 30  # Increased from 20s to handle Helius latency (typically 1-2s per request)
-MAX_RETRIES = 5  # Increased from 3 for more aggressive retry (helps with rate limiting)
-RETRY_DELAYS = [0.5, 1.0, 2.0, 3.0, 5.0]  # Exponential backoff: 0.5s, 1s, 2s, 3s, 5s
+RPC_TIMEOUT = 30
+
+MAX_RETRIES = 5
+RETRY_DELAYS = [0.5, 1.0, 2.0, 3.0, 5.0]
+
+MAX_CONCURRENT_RPC = 15  # 🔒 HARD SAFETY CAP
 
 
 class PumpFunPreMigrationAnalyzerV2:
-    """
-    Optimized analyzer using mint-anchored async queries.
-    Queries token mint directly for all activity.
-    """
 
     def __init__(self, token_mint: str, rpc_url="https://api.mainnet-beta.solana.com"):
         self.token_mint = token_mint
@@ -45,37 +43,34 @@ class PumpFunPreMigrationAnalyzerV2:
         self.transactions_fetched = 0
         self.signatures_requested = 0
 
-        self.token_name = None
-        self.token_symbol = None
+        self.semaphore = asyncio.Semaphore(MAX_CONCURRENT_RPC)
 
     # ==========================================================
-    # SIGNATURE FETCHING (MINT-ANCHORED)
+    # SIGNATURE FETCHING
     # ==========================================================
     def fetch_signatures(self, limit=40000) -> List[str]:
-        """Fetch signatures via Helius first, fallback to RPC"""
         sigs = self._get_signatures_helius(limit)
         if not sigs:
-            print(f"[FETCH] Helius unavailable, falling back to RPC", flush=True)
             sigs = self._get_signatures_rpc(limit)
-        else:
-            print(f"[FETCH] ✅ Helius API succeeded", flush=True)
 
         self.signatures_requested = len(sigs)
         return sigs
 
     def _get_signatures_helius(self, limit) -> List[str]:
-        """Fetch from Helius API"""
         helius_api_key = os.getenv("HELIUS_API_KEY")
         if not helius_api_key:
             return []
 
-        print(f"[FETCH] 🚀 Using Helius API", flush=True)
         all_sigs = []
         page_token = None
 
         while len(all_sigs) < limit:
             url = f"https://api.helius.xyz/v0/addresses/{self.token_mint}/transactions"
-            params = {"api-key": helius_api_key, "limit": 1000, "type": "all"}
+            params = {
+                "api-key": helius_api_key,
+                "limit": 1000,
+                "type": "all",
+            }
             if page_token:
                 params["page-token"] = page_token
 
@@ -85,26 +80,24 @@ class PumpFunPreMigrationAnalyzerV2:
                 if not txs:
                     break
 
-                sigs = [tx.get("signature") for tx in txs if tx.get("signature")]
+                sigs = [tx["signature"] for tx in txs if tx.get("signature")]
                 all_sigs.extend(sigs)
 
                 page_token = res.get("page-token")
                 if not page_token:
                     break
 
-            except Exception as e:
-                print(f"[FETCH] Helius error: {e}", flush=True)
+            except Exception:
                 break
 
         return all_sigs[:limit]
 
     def _get_signatures_rpc(self, limit) -> List[str]:
-        """Fetch from RPC via getSignaturesForAddress"""
         all_sigs = []
         before = None
 
         while len(all_sigs) < limit:
-            params = {"limit": min(limit - len(all_sigs), 1000)}
+            params = {"limit": min(1000, limit - len(all_sigs))}
             if before:
                 params["before"] = before
 
@@ -121,283 +114,138 @@ class PumpFunPreMigrationAnalyzerV2:
                 if not sigs:
                     break
 
-                sig_list = [x["signature"] for x in sigs if x.get("err") is None]
-                all_sigs.extend(sig_list)
+                valid = [x["signature"] for x in sigs if x.get("err") is None]
+                all_sigs.extend(valid)
 
-                if len(sig_list) < 1000:
+                if len(valid) < 1000:
                     break
 
-                before = sig_list[-1]
+                before = valid[-1]
 
-            except Exception as e:
-                print(f"[FETCH] RPC error: {e}", flush=True)
+            except Exception:
                 break
 
         return all_sigs[:limit]
 
     # ==========================================================
-    # ASYNC TRANSACTION FETCHING
+    # ASYNC TRANSACTION FETCHING (RATE LIMITED)
     # ==========================================================
-    async def fetch_transactions_async(self, signatures: List[str], batch_size: int = BATCH_SIZE):
-        """Fetch transactions in parallel using aiohttp with retry logic"""
+    async def fetch_transactions_async(self, signatures: List[str]):
 
-        async def fetch_tx_with_retry(session, sig, retry_count=0):
-            """Fetch single transaction with exponential backoff retry"""
-            payload = {
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "getTransaction",
-                "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
-            }
-            try:
-                async with session.post(self.rpc_url, json=payload, timeout=RPC_TIMEOUT) as resp:
-                    result = await resp.json()
-                    return result.get("result")
-            except Exception as e:
-                # Retry with exponential backoff
-                if retry_count < MAX_RETRIES:
-                    delay = RETRY_DELAYS[retry_count]
-                    await asyncio.sleep(delay)
-                    return await fetch_tx_with_retry(session, sig, retry_count + 1)
-                return None
+        async def fetch_tx(session, sig, retry=0):
+            async with self.semaphore:
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getTransaction",
+                    "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+                }
 
-        # Process in batches
+                try:
+                    async with session.post(self.rpc_url, json=payload, timeout=RPC_TIMEOUT) as resp:
+                        if resp.status == 429:
+                            raise aiohttp.ClientResponseError(
+                                resp.request_info, resp.history, status=429
+                            )
+
+                        data = await resp.json()
+                        return data.get("result")
+
+                except Exception:
+                    if retry < MAX_RETRIES:
+                        await asyncio.sleep(RETRY_DELAYS[retry])
+                        return await fetch_tx(session, sig, retry + 1)
+                    return None
+
         async with aiohttp.ClientSession() as session:
-            for i in range(0, len(signatures), batch_size):
-                batch = signatures[i:i + batch_size]
-                tasks = [fetch_tx_with_retry(session, sig) for sig in batch]
+            for i in range(0, len(signatures), BATCH_SIZE):
+                batch = signatures[i:i + BATCH_SIZE]
+                tasks = [fetch_tx(session, sig) for sig in batch]
                 results = await asyncio.gather(*tasks)
 
                 for tx in results:
                     if tx and tx.get("meta"):
                         self.transactions_fetched += 1
-                        self._parse_curve_tx(tx)
+                        self._parse_tx(tx)
 
-                progress = min(i + batch_size, len(signatures))
-                print(f"[ASYNC] Processed {progress}/{len(signatures)} txs", flush=True)
+                print(
+                    f"[ASYNC] {min(i+BATCH_SIZE,len(signatures))}/{len(signatures)} "
+                    f"| txs {self.transactions_fetched}",
+                    flush=True
+                )
 
-    # ==========================================================
-    # MAIN ANALYSIS
-    # ==========================================================
     async def fetch_curve_activity_async(self):
-        """Async version: fetch signatures, then fetch transactions async"""
-        print(f"[STREAM] Starting pre-migration analysis for {self.token_mint[:16]}...", flush=True)
-
-        # Fetch signatures
-        sigs = self.fetch_signatures(limit=MAX_SIGNATURES)
-        print(f"[STREAM] Fetched {len(sigs)} signatures, starting async fetch...", flush=True)
-
+        sigs = self.fetch_signatures(MAX_SIGNATURES)
         if not sigs:
-            print(f"[STREAM] ⚠ No signatures found", flush=True)
             return
-
-        # Fetch transactions async
-        await self.fetch_transactions_async(sigs, batch_size=BATCH_SIZE)
-
-        print(f"[STREAM] ✅ Analysis complete: {len(self.events)} events from {self.transactions_fetched} txs", flush=True)
+        await self.fetch_transactions_async(sigs)
 
     def fetch_curve_activity(self):
-        """Sync wrapper - detects if in async context"""
-        try:
-            # Check if already in event loop
-            loop = asyncio.get_running_loop()
-            # Can't use asyncio.run(), just run signatures fetch (sync part)
-            print(f"[STREAM] Starting pre-migration analysis for {self.token_mint[:16]}...", flush=True)
-            sigs = self.fetch_signatures(limit=MAX_SIGNATURES)
-            print(f"[STREAM] Fetched {len(sigs)} signatures (async fetch skipped - already in event loop)", flush=True)
-            if sigs:
-                # Create task to fetch async without blocking
-                asyncio.create_task(self.fetch_transactions_async(sigs, batch_size=BATCH_SIZE))
-        except RuntimeError:
-            # No event loop - use async.run()
-            asyncio.run(self.fetch_curve_activity_async())
+        asyncio.run(self.fetch_curve_activity_async())
 
     # ==========================================================
-    # TRANSACTION PARSER
+    # TX PARSER
     # ==========================================================
-    def _parse_curve_tx(self, tx):
-        """Parse token balance changes to detect buys/sells"""
-        try:
-            meta = tx.get("meta")
-            if not meta:
-                return
+    def _parse_tx(self, tx):
+        meta = tx.get("meta")
+        if not meta:
+            return
 
-            ts = tx.get("blockTime", int(time.time()))
+        ts = tx.get("blockTime", int(time.time()))
+        pre = meta.get("preTokenBalances", [])
+        post = meta.get("postTokenBalances", [])
 
-            pre_balances = meta.get("preTokenBalances", [])
-            post_balances = meta.get("postTokenBalances", [])
+        for a, b in zip(pre, post):
+            if a.get("mint") != self.token_mint:
+                continue
 
-            # Simple zip approach - assumes same order
-            for pre, post in zip(pre_balances, post_balances):
-                if pre.get("mint") != self.token_mint:
-                    continue
+            delta = int(b["uiTokenAmount"]["amount"]) - int(a["uiTokenAmount"]["amount"])
+            if delta == 0:
+                continue
 
-                pre_amount = int(pre.get("uiTokenAmount", {}).get("amount", 0))
-                post_amount = int(post.get("uiTokenAmount", {}).get("amount", 0))
-                delta = post_amount - pre_amount
-
-                if delta == 0:
-                    continue
-
-                wallet = post.get("owner")
-                if not wallet:
-                    continue
-
-                self.events.append({
-                    "wallet": wallet,
-                    "type": "buy" if delta > 0 else "sell",
-                    "amount": abs(delta),
-                    "ts": ts
-                })
-        except Exception as e:
-            pass
+            self.events.append({
+                "wallet": b.get("owner"),
+                "type": "buy" if delta > 0 else "sell",
+                "amount": abs(delta),
+                "ts": ts
+            })
 
     # ==========================================================
     # METRICS
     # ==========================================================
     def mint_concentration(self):
-        """% of transactions from top 5 wallets"""
         buys = [e for e in self.events if e["type"] == "buy"]
         if not buys:
             return 0.0
-
-        wallet_counts = Counter(e["wallet"] for e in buys)
-        total = sum(wallet_counts.values())
-        top5_sum = sum(v for _, v in wallet_counts.most_common(5))
-        return top5_sum / total if total else 0.0
+        c = Counter(e["wallet"] for e in buys)
+        top5 = sum(v for _, v in c.most_common(5))
+        return top5 / len(buys)
 
     def unique_minters_ratio(self):
-        """Ratio of unique wallets to total buys"""
         buys = [e for e in self.events if e["type"] == "buy"]
-        if not buys:
-            return 0.0
-
-        unique = len(set(e["wallet"] for e in buys))
-        return unique / len(buys)
-
-    def sell_suppression_ratio(self):
-        """% of sells vs total events"""
-        if not self.events:
-            return 0.0
-
-        sells = sum(1 for e in self.events if e["type"] == "sell")
-        return sells / len(self.events)
+        return len(set(e["wallet"] for e in buys)) / len(buys) if buys else 0.0
 
     def mint_velocity(self):
-        """Average time between buys (seconds)"""
-        buys = [e for e in self.events if e["type"] == "buy"]
+        buys = sorted(e["ts"] for e in self.events if e["type"] == "buy")
         if len(buys) < 2:
             return 0.0
-
-        timestamps = sorted(e["ts"] for e in buys)
-        intervals = [timestamps[i + 1] - timestamps[i] for i in range(len(timestamps) - 1)]
-        return sum(intervals) / len(intervals) if intervals else 0.0
+        intervals = [buys[i+1] - buys[i] for i in range(len(buys)-1)]
+        return sum(intervals) / len(intervals)
 
     def buy_size_variance(self):
-        """Variance in buy amounts (normalized)"""
-        buys = [e for e in self.events if e["type"] == "buy"]
+        buys = [e["amount"] for e in self.events if e["type"] == "buy"]
         if len(buys) < 3:
             return 0.0
-
-        try:
-            amounts = [e["amount"] for e in buys]
-            # Normalize by dividing by mean to handle large token amounts
-            mean_amount = sum(amounts) / len(amounts)
-            if mean_amount == 0:
-                return 0.0
-            normalized = [a / mean_amount for a in amounts]
-            return variance(normalized)
-        except:
-            return 0.0
+        mean = sum(buys) / len(buys)
+        return variance([b / mean for b in buys])
 
     def sell_volume_concentration(self):
-        """% of sell volume from top 3 sellers"""
-        sells = [e for e in self.events if e["type"] == "sell"]
+        sells = defaultdict(int)
+        for e in self.events:
+            if e["type"] == "sell":
+                sells[e["wallet"]] += e["amount"]
         if not sells:
             return 0.0
-
-        wallet_volumes = defaultdict(int)
-        for e in sells:
-            wallet_volumes[e["wallet"]] += e["amount"]
-
-        total = sum(wallet_volumes.values())
-        top3_sum = sum(v for _, v in sorted(wallet_volumes.items(), key=lambda x: x[1], reverse=True)[:3])
-        return top3_sum / total if total else 0.0
-
-    def creator_activity_ratio(self):
-        """Placeholder"""
-        return 0.0
-
-    # ==========================================================
-    # SCORING
-    # ==========================================================
-    def compute_rug_score(self):
-        """Calculate rug probability (0-1)"""
-        score = 0.0
-
-        mint_conc = self.mint_concentration()
-        if mint_conc > 0.7:
-            score += 0.25
-        elif mint_conc > 0.5:
-            score += 0.15
-
-        unique_ratio = self.unique_minters_ratio()
-        if unique_ratio < 0.15:
-            score += 0.20
-        elif unique_ratio < 0.25:
-            score += 0.10
-
-        sell_ratio = self.sell_suppression_ratio()
-        if sell_ratio < 0.05:
-            score += 0.20
-        elif sell_ratio < 0.10:
-            score += 0.10
-
-        velocity = self.mint_velocity()
-        if velocity < 5:
-            score += 0.15
-        elif velocity < 10:
-            score += 0.08
-
-        var = self.buy_size_variance()
-        if var < 1e6:
-            score += 0.15
-        elif var < 1e7:
-            score += 0.08
-
-        sell_conc = self.sell_volume_concentration()
-        if sell_conc > 0.5:
-            score += 0.05
-
-        return round(min(score, 1.0), 3)
-
-    def summary(self):
-        """Return analysis as dictionary"""
-        coverage = round((self.transactions_fetched / self.signatures_requested * 100) if self.signatures_requested > 0 else 0, 1)
-
-        score = self.compute_rug_score()
-        if score >= 0.7:
-            risk_level = "🔴 HIGH RISK"
-        elif score >= 0.4:
-            risk_level = "🟡 MEDIUM RISK"
-        else:
-            risk_level = "🟢 LOW RISK"
-
-        return {
-            "token_mint": self.token_mint,
-            "token_name": self.token_name,
-            "token_symbol": self.token_symbol,
-            "events_parsed": len(self.events),
-            "signatures_requested": self.signatures_requested,
-            "transactions_fetched": self.transactions_fetched,
-            "pre_migration_coverage": coverage,
-            "mint_concentration": round(self.mint_concentration(), 3),
-            "unique_minters_ratio": round(self.unique_minters_ratio(), 3),
-            "sell_suppression_ratio": round(self.sell_suppression_ratio(), 3),
-            "mint_velocity_sec": round(self.mint_velocity(), 2),
-            "buy_size_variance": round(self.buy_size_variance(), 0),
-            "sell_volume_concentration": round(self.sell_volume_concentration(), 3),
-            "rug_probability": self.compute_rug_score(),
-            "risk_level": risk_level,
-            "creator_activity_ratio": round(self.creator_activity_ratio(), 3),
-        }
+        total = sum(sells.values())
+        top3 = sum(v for _, v in sorted(sells.items(), key=lambda x: x[1], reverse=True)[:3])
+        return top3 / total

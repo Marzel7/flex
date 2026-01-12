@@ -341,44 +341,50 @@ class PostMigrationAnalyzer:
         return creator_txs / len(self.events)
 
     def compute_rug_score(self):
-        """Calculate rug probability (0-1)"""
+        """
+        Continuous rug probability score (0–1)
+        Preserves original max weights but scales by severity
+        """
         score = 0.0
 
+        # 1. Mint concentration (max 0.25)
         mint_conc = self.mint_concentration()
-        if mint_conc > 0.7:
-            score += 0.25
-        elif mint_conc > 0.5:
-            score += 0.15
+        if mint_conc > 0.5:
+            # scale from 50% → 80%
+            score += min(0.25, ((mint_conc - 0.5) / 0.3) * 0.25)
 
+        # 2. Unique minters ratio (max 0.20)
         unique_ratio = self.unique_minters_ratio()
-        if unique_ratio < 0.15:
-            score += 0.20
-        elif unique_ratio < 0.25:
-            score += 0.10
+        if unique_ratio < 0.25:
+            # scale from 25% → 10%
+            score += min(0.20, ((0.25 - unique_ratio) / 0.15) * 0.20)
 
+        # 3. Sell suppression (max 0.20)
         sell_ratio = self.sell_suppression_ratio()
-        if sell_ratio < 0.05:
-            score += 0.20
-        elif sell_ratio < 0.10:
-            score += 0.10
+        if sell_ratio < 0.10:
+            # scale from 10% → 0%
+            score += min(0.20, ((0.10 - sell_ratio) / 0.10) * 0.20)
 
+        # 4. Mint velocity (max 0.15)
         velocity = self.mint_velocity()
-        if velocity < 5:
-            score += 0.15
-        elif velocity < 10:
-            score += 0.08
+        if velocity < 10:
+            # scale from 10s → 2s
+            score += min(0.15, ((10 - velocity) / 8) * 0.15)
 
+        # 5. Buy size variance (max 0.15)
         var = self.buy_size_variance()
-        if var < 1e6:
-            score += 0.15
-        elif var < 1e7:
-            score += 0.08
+        if var < 1e7:
+            # lower variance = more suspicious
+            score += min(0.15, ((1e7 - var) / 1e7) * 0.15)
 
+        # 6. Sell volume concentration (max 0.05)
         sell_conc = self.sell_volume_concentration()
-        if sell_conc > 0.5:
-            score += 0.05
+        if sell_conc > 0.3:
+            # scale from 30% → 70%
+            score += min(0.05, ((sell_conc - 0.3) / 0.4) * 0.05)
 
         return round(min(score, 1.0), 3)
+
 
     def get_risk_level(self, score: float) -> str:
         """Determine risk level from score"""

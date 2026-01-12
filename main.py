@@ -637,7 +637,7 @@ HTML_TEMPLATE = """
                 // Build HTML string first, then set it once
                 let metricsHTML = metricsGrid.innerHTML;
                 Object.keys(metricLabels).forEach(key => {
-                    const value = metrics[key] !== null && metrics[key] > 0 ? metrics[key].toFixed(4) : '—';
+                    const value = metrics[key] !== null && metrics[key] !== undefined ? metrics[key].toFixed(4) : '—';
                     metricsHTML += `
                         <div class="metric">
                             <label>${metricLabels[key]}</label>

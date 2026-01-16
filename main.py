@@ -629,9 +629,9 @@ HTML_TEMPLATE = """
         // Abort controller for price loading - allows canceling requests when modal opens
         let priceLoadController = new AbortController();
 
-        // Load tokens immediately and then every 5 seconds
+        // Load tokens immediately and then every 10 seconds
         loadTokens();
-        setInterval(loadTokens, 5000);
+        setInterval(loadTokens, 10000);
 
         // Metrics Modal Functions
         async function showTokenMetrics(mint) {

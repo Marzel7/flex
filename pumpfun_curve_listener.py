@@ -285,15 +285,13 @@ class PumpFunCurveListener:
         """
         Extract the PumpSwap pool address from a migration transaction.
         
-        When Pump.Fun → PumpSwap migration occurs:
-        1. The pool PDA is the FIRST account in the transaction (accountKeys[0])
-        2. This is the new pool that was just created and initialized
-        3. All writable accounts in a Solana transaction come first
+        The pool is the account that is OWNED BY the PumpSwap program.
         
-        This approach works because:
-        - Pool is created/writable → appears first in accountKeys
-        - Not a system program → valid Solana address
-        - Deterministic and reliable for all migrations
+        Strategy:
+        1. Fetch the transaction
+        2. Look through all accounts in innerInstructions
+        3. Find accounts that are used by the PumpSwap program
+        4. Return the first writable PDA (index 0 of PumpSwap instruction accounts)
         
         Returns: The pool address (string) or None if extraction fails
         """
@@ -321,22 +319,38 @@ class PumpFunCurveListener:
                     if not account_keys:
                         return None
                     
-                    # The pool is the first writable account
-                    pool_address = account_keys[0]
+                    meta = tx_data.get("meta", {})
+                    inner_instructions = meta.get("innerInstructions", [])
                     
-                    # Validate it's not a known system program
-                    system_programs = {
-                        "ComputeBudget111111111111111111111111111111",
-                        "11111111111111111111111111111111",
-                        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-                        "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",
-                        "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
-                        "SysvarRent111111111111111111111111111111111",
-                    }
+                    PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
                     
-                    if pool_address not in system_programs:
-                        print(f"[POOL] ✅ Extracted pool address from migration transaction: {pool_address[:16]}...", flush=True)
-                        return pool_address
+                    # Find PumpSwap program index in accountKeys
+                    pumpswap_idx = -1
+                    for i, acc in enumerate(account_keys):
+                        if acc == PUMPSWAP_PROGRAM:
+                            pumpswap_idx = i
+                            break
+                    
+                    if pumpswap_idx < 0:
+                        return None
+                    
+                    # Search innerInstructions for PumpSwap calls using programIdIndex
+                    for ix_group in inner_instructions:
+                        instructions = ix_group.get("instructions", [])
+                        for ix in instructions:
+                            program_id_idx = ix.get("programIdIndex")
+                            
+                            # Check if this instruction is calling PumpSwap
+                            if program_id_idx == pumpswap_idx:
+                                # This is a PumpSwap instruction
+                                accounts = ix.get("accounts", [])
+                                if accounts and len(accounts) > 0:
+                                    # The first account in a PumpSwap instruction is typically the pool
+                                    pool_idx = accounts[0]
+                                    if isinstance(pool_idx, int) and pool_idx < len(account_keys):
+                                        pool_address = account_keys[pool_idx]
+                                        print(f"[POOL] ✅ Extracted pool from PumpSwap instruction: {pool_address[:16]}...", flush=True)
+                                        return pool_address
                     
                     return None
 

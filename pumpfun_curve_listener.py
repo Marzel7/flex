@@ -857,9 +857,9 @@ class PumpFunCurveListener:
                         print(f"[PRICE_ERROR] [{i}/{len(tokens)}] {token_mint}: {e}", flush=True)
                 
                 print(f"[PRICE_UPDATE] ✓ Cycle complete: {updated_count} updated, {failed_count} failed\n", flush=True)
-                
-                # Loop back immediately for continuous live updates
-                await asyncio.sleep(1)
+
+                # Loop back after 10 seconds for live updates
+                await asyncio.sleep(10)
                         
             except Exception as e:
                 print(f"[PRICE_BG] Error in background task: {e}", flush=True)

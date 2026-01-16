@@ -302,8 +302,9 @@ class PumpFunCurveListener:
             
             if pool_address:
                 # Try to get price from pool balances
-                price, market_cap = await self._get_price_from_pool_account(pool_address, token_mint)
-                if price is not None:
+                result = await self._get_price_from_pool_account(pool_address, token_mint)
+                if result is not None:
+                    price, market_cap = result
                     return (price, market_cap, "onchain")
             
             # Fall back to DexScreener
@@ -363,15 +364,15 @@ class PumpFunCurveListener:
         Returns: (price_usd, market_cap_usd) or None
         """
         try:
-            # Get pool account info
-            payload = {
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "getAccountInfo",
-                "params": [pool_address, {"encoding": "jsonParsed"}]
-            }
-
             async with aiohttp.ClientSession() as session:
+                # Get pool account info
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getAccountInfo",
+                    "params": [pool_address, {"encoding": "jsonParsed"}]
+                }
+
                 async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
                     if resp.status != 200:
                         return None
@@ -388,7 +389,6 @@ class PumpFunCurveListener:
                     
                     sol_balance = lamports / 1e9  # Convert to SOL
                     
-                    # Now get token balance for this mint in this pool
                     # Query token accounts owned by this pool
                     payload2 = {
                         "jsonrpc": "2.0",
@@ -402,17 +402,26 @@ class PumpFunCurveListener:
                             return None
 
                         data2 = await resp2.json()
-                        if "result" not in data2 or "value" not in data2["result"]:
+                        if "result" not in data2:
+                            return None
+                        
+                        if "value" not in data2["result"]:
                             return None
 
                         accounts = data2["result"]["value"]
                         if not accounts:
                             return None
                         
-                        # Get the first (largest) token account
-                        token_account = accounts[0]
-                        parsed = token_account.get("account", {}).get("data", {}).get("parsed", {})
-                        token_balance = float(parsed.get("info", {}).get("tokenAmount", {}).get("uiAmount", 0))
+                        try:
+                            # Get the first (largest) token account
+                            token_account = accounts[0]
+                            account_data = token_account.get("account", {})
+                            parsed = account_data.get("data", {}).get("parsed", {})
+                            token_info = parsed.get("info", {})
+                            token_amount_info = token_info.get("tokenAmount", {})
+                            token_balance = float(token_amount_info.get("uiAmount", 0))
+                        except (KeyError, ValueError, TypeError):
+                            return None
                         
                         if token_balance == 0 or sol_balance == 0:
                             return None

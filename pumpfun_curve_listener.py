@@ -107,6 +107,11 @@ class PumpFunCurveListener:
                 conn.execute("PRAGMA busy_timeout=60000")
                 cursor = conn.cursor()
 
+                # Extract pool address from migration transaction
+                pool_address = None
+                if signature:
+                    pool_address = await self._extract_pool_address_from_tx(signature, mint)
+
                 # Store post-migration analysis with live price tracking
                 cursor.execute("""
                     INSERT OR REPLACE INTO token_analysis (
@@ -116,8 +121,8 @@ class PumpFunCurveListener:
                         post_migration_buy_size_variance, post_migration_sell_volume_concentration,
                         post_migration_creator_activity_ratio,
                         rug_probability, risk_level, post_migration_coverage,
-                        migration_tx, price_current, price_highest
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        migration_tx, price_current, price_highest, pool_address
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     mint,
                     time.time(),
@@ -134,12 +139,13 @@ class PumpFunCurveListener:
                     analysis.get("coverage", 0),
                     signature,
                     None,  # price_current will be updated by background task
-                    None   # price_highest will be updated by background task
+                    None,  # price_highest will be updated by background task
+                    pool_address  # Store pool address for on-chain price queries
                 ))
 
                 conn.commit()
                 conn.close()
-                print(f"[DB] ✅ Stored post-migration analysis for {mint}", flush=True)
+                print(f"[DB] ✅ Stored post-migration analysis for {mint} (pool: {pool_address[:16] if pool_address else 'unknown'})", flush=True)
             except Exception as e:
                 print(f"[DB] ❌ Failed to store analysis for {mint}: {e}", flush=True)
 
@@ -280,20 +286,28 @@ class PumpFunCurveListener:
 
     async def _extract_price_from_transaction(self, signature: str, token_mint: str) -> Optional[tuple]:
         """
-        Extract price using reliable DexScreener API.
+        Extract on-chain price from pool vault balances.
         
-        Strategy: Use DexScreener as primary source for verified, market-based pricing.
-        - DexScreener aggregates prices from multiple DEXes
-        - Prices are verified by actual market trades
-        - More reliable than trying to parse individual transaction data
-        
-        On-chain extraction would require knowing the pool account address,
-        which is not readily available during price updates. Future enhancement:
-        store pool address when detecting migrations, then use vault balances directly.
+        Strategy:
+        1. Extract pool address from migration transaction accounts
+        2. Query pool account balances (token and SOL)
+        3. Calculate price = SOL balance / Token balance
+        4. Convert to USD using SOL/USD price
         
         Returns: (price_usd, market_cap_usd, source) or None
         """
         try:
+            # Extract pool address from migration transaction
+            pool_address = await self._extract_pool_address_from_tx(signature, token_mint)
+            
+            if pool_address:
+                # Try to get price from pool balances
+                price, market_cap = await self._get_price_from_pool_account(pool_address, token_mint)
+                if price is not None:
+                    return (price, market_cap, "onchain")
+            
+            # Fall back to DexScreener
+            print(f"[PRICE] ⚠ Onchain extraction failed, falling back to DexScreener for {token_mint}", flush=True)
             result = await self._fetch_dexscreener_price(token_mint)
             if result is not None:
                 price, market_cap = result
@@ -302,7 +316,118 @@ class PumpFunCurveListener:
             return None
                     
         except Exception as e:
-            print(f"[PRICE_ERROR] Failed to fetch price for {token_mint[:16]}...: {e}", flush=True)
+            print(f"[PRICE_ERROR] Failed to extract price for {token_mint}: {e}", flush=True)
+            return None
+
+    async def _extract_pool_address_from_tx(self, signature: str, token_mint: str) -> Optional[str]:
+        """Extract pool account address from migration transaction"""
+        try:
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getTransaction",
+                "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
+            }
+
+            async with aiohttp.ClientSession() as session:
+                async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                    if resp.status != 200:
+                        return None
+
+                    data = await resp.json()
+                    if "result" not in data or not data["result"]:
+                        return None
+
+                    tx_data = data["result"]
+                    message = tx_data.get("transaction", {}).get("message", {})
+                    accounts = message.get("accountKeys", [])
+                    
+                    # Pool account is usually after token mint, filter for 44-char addresses (Pump.Fun pool format)
+                    for i, account in enumerate(accounts):
+                        if len(account) == 44 and account != token_mint:
+                            # Skip known programs
+                            if account not in ("pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA", 
+                                             "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+                                             "11111111111111111111111111111111",
+                                             "So11111111111111111111111111111111111111112"):
+                                return account
+                    
+                    return None
+        except Exception as e:
+            return None
+
+    async def _get_price_from_pool_account(self, pool_address: str, token_mint: str) -> Optional[tuple]:
+        """
+        Get price by querying pool account's token and SOL balances.
+        
+        Returns: (price_usd, market_cap_usd) or None
+        """
+        try:
+            # Get pool account info
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getAccountInfo",
+                "params": [pool_address, {"encoding": "jsonParsed"}]
+            }
+
+            async with aiohttp.ClientSession() as session:
+                async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                    if resp.status != 200:
+                        return None
+
+                    data = await resp.json()
+                    if "result" not in data or not data["result"]:
+                        return None
+
+                    account = data["result"]
+                    lamports = account.get("lamports", 0)
+                    
+                    if lamports == 0:
+                        return None
+                    
+                    sol_balance = lamports / 1e9  # Convert to SOL
+                    
+                    # Now get token balance for this mint in this pool
+                    # Query token accounts owned by this pool
+                    payload2 = {
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "getTokenAccountsByOwner",
+                        "params": [pool_address, {"mint": token_mint}, {"encoding": "jsonParsed"}]
+                    }
+                    
+                    async with session.post(RPC_HTTP, json=payload2, timeout=aiohttp.ClientTimeout(total=10)) as resp2:
+                        if resp2.status != 200:
+                            return None
+
+                        data2 = await resp2.json()
+                        if "result" not in data2 or "value" not in data2["result"]:
+                            return None
+
+                        accounts = data2["result"]["value"]
+                        if not accounts:
+                            return None
+                        
+                        # Get the first (largest) token account
+                        token_account = accounts[0]
+                        parsed = token_account.get("account", {}).get("data", {}).get("parsed", {})
+                        token_balance = float(parsed.get("info", {}).get("tokenAmount", {}).get("uiAmount", 0))
+                        
+                        if token_balance == 0 or sol_balance == 0:
+                            return None
+                        
+                        # Calculate price
+                        price_sol = sol_balance / token_balance
+                        sol_usd = await self._get_sol_price_usd()
+                        price_usd = price_sol * sol_usd
+                        total_supply = 1_000_000
+                        market_cap_usd = price_usd * total_supply
+                        
+                        print(f"[PRICE] ✅ Onchain {token_mint}: ${price_usd:.10f}/token | MC: ${market_cap_usd:,.0f} (SOL: {sol_balance:.4f}, Tokens: {token_balance:.0f})", flush=True)
+                        return (price_usd, market_cap_usd)
+                        
+        except Exception as e:
             return None
 
     async def _extract_onchain_pool_price(self, token_mint: str) -> Optional[tuple]:

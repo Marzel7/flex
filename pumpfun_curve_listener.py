@@ -632,7 +632,7 @@ class PumpFunCurveListener:
                         price_sol = sol_balance / token_balance
                         sol_usd = await self._get_sol_price_usd()
                         price_usd = price_sol * sol_usd
-                        total_supply = 1_000_000
+                        total_supply = 1_000_000_000  # Pump.Fun tokens have 1B supply
                         market_cap_usd = price_usd * total_supply
                         
                         print(f"[PRICE] ✅ Onchain {token_mint}: ${price_usd:.10f}/token | MC: ${market_cap_usd:,.0f} (pool: {pool_address[:16]}..., SOL: {sol_balance:.4f}, Tokens: {token_balance:.0f})", flush=True)

@@ -285,7 +285,7 @@ class PumpFunCurveListener:
         return None
 
     async def _get_pool_address(self, token_mint: str, signature: str) -> Optional[str]:
-        """Get pool address from database or extract from transaction"""
+        """Get pool address from database or extract from blockchain"""
         try:
             # Try to get from database first
             conn = sqlite3.connect(DB_PATH, timeout=60)
@@ -297,8 +297,8 @@ class PumpFunCurveListener:
             if row and row[0]:
                 return row[0]
             
-            # If not in database, extract from transaction
-            pool_address = await self._extract_pool_address_from_tx(signature, token_mint)
+            # If not in database, find pool by querying largest token accounts
+            pool_address = await self._find_pool_account(token_mint)
             if pool_address:
                 # Update database with pool address
                 try:
@@ -330,11 +330,16 @@ class PumpFunCurveListener:
             pool_address = await self._get_pool_address(token_mint, signature)
             
             if pool_address:
+                print(f"[PRICE] 🔍 Trying on-chain with pool {pool_address[:16]}... for {token_mint}", flush=True)
                 # Try to get price from pool balances
                 result = await self._get_price_from_pool_account(pool_address, token_mint)
                 if result is not None:
                     price, market_cap = result
                     return (price, market_cap, "onchain")
+                else:
+                    print(f"[PRICE] ⚠ Pool query failed for {pool_address[:16]}... (token: {token_mint})", flush=True)
+            else:
+                print(f"[PRICE] ⚠ No pool address found for {token_mint}, trying DexScreener", flush=True)
             
             # Fall back to DexScreener (more reliable and always available)
             result = await self._fetch_dexscreener_price(token_mint)
@@ -348,10 +353,10 @@ class PumpFunCurveListener:
             print(f"[PRICE_ERROR] Failed to extract price for {token_mint}: {e}", flush=True)
             return None
 
-    async def _extract_pool_address_from_tx(self, signature: str, token_mint: str) -> Optional[str]:
+    async def _find_pool_account(self, token_mint: str) -> Optional[str]:
         """
-        Extract pool account address by finding token accounts for this mint.
-        The pool account is the one that holds the token and also has SOL balance.
+        Find the pool account that holds this token.
+        Query token accounts for this mint and find the one whose owner has SOL.
         """
         try:
             # Query all token accounts for this mint
@@ -376,45 +381,55 @@ class PumpFunCurveListener:
                     if not accounts:
                         return None
                     
-                    # Check the smallest account (active pool, not reserves)
-                    # Sort by balance and take the smallest
+                    # Sort by balance and check smallest accounts first (active pools, not reserves)
                     sorted_accounts = sorted(accounts, key=lambda x: float(x.get("uiAmount", 0)))
                     
-                    for account_info in sorted_accounts[:3]:  # Check top 3 smallest
-                        pool_addr = account_info.get("address")
+                    # Check each account to see if its owner has SOL
+                    for i, account_info in enumerate(sorted_accounts):
+                        token_account = account_info.get("address")
                         
-                        if not pool_addr:
+                        if not token_account:
                             continue
                         
-                        # Check if this account's owner has SOL
+                        # Get the owner of this token account
                         acct_payload = {
                             "jsonrpc": "2.0",
                             "id": 1,
                             "method": "getAccountInfo",
-                            "params": [pool_addr, {"encoding": "jsonParsed"}]
+                            "params": [token_account, {"encoding": "jsonParsed"}]
                         }
                         
-                        async with session.post(RPC_HTTP, json=acct_payload, timeout=aiohttp.ClientTimeout(total=10)) as acct_resp:
-                            if acct_resp.status == 200:
+                        try:
+                            async with session.post(RPC_HTTP, json=acct_payload, timeout=aiohttp.ClientTimeout(total=5)) as acct_resp:
+                                if acct_resp.status != 200:
+                                    continue
+
                                 acct_data = await acct_resp.json()
-                                if "result" in acct_data and acct_data["result"]:
-                                    owner = acct_data["result"].get("owner")
-                                    
-                                    if owner:
-                                        # Check if owner has SOL
-                                        balance_payload = {
-                                            "jsonrpc": "2.0",
-                                            "id": 1,
-                                            "method": "getBalance",
-                                            "params": [owner]
-                                        }
-                                        
-                                        async with session.post(RPC_HTTP, json=balance_payload, timeout=aiohttp.ClientTimeout(total=10)) as balance_resp:
-                                            if balance_resp.status == 200:
-                                                balance_data = await balance_resp.json()
-                                                if "result" in balance_data and balance_data["result"] > 0:
-                                                    # Found it! This owner has both token and SOL
-                                                    return owner
+                                if "result" not in acct_data or not acct_data["result"]:
+                                    continue
+
+                                owner = acct_data["result"].get("owner")
+                                
+                                if not owner:
+                                    continue
+                                
+                                # Check if this owner has SOL balance
+                                balance_payload = {
+                                    "jsonrpc": "2.0",
+                                    "id": 1,
+                                    "method": "getBalance",
+                                    "params": [owner]
+                                }
+                                
+                                async with session.post(RPC_HTTP, json=balance_payload, timeout=aiohttp.ClientTimeout(total=5)) as balance_resp:
+                                    if balance_resp.status == 200:
+                                        balance_data = await balance_resp.json()
+                                        if "result" in balance_data and balance_data["result"] > 0:
+                                            # Found the pool! Return the owner address
+                                            print(f"[POOL] Found pool {owner[:16]}... with token account {token_account[:16]}...", flush=True)
+                                            return owner
+                        except:
+                            continue
                     
                     return None
         except Exception as e:

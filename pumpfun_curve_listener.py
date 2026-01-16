@@ -91,6 +91,7 @@ class PumpFunCurveListener:
                 market_cap_current REAL,
                 market_cap_highest REAL,
                 price_updated_at TIMESTAMP,
+                pool_address TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
@@ -98,7 +99,7 @@ class PumpFunCurveListener:
         conn.commit()
         conn.close()
 
-    async def _store_analysis(self, mint: str, analysis: dict, signature: str = None):
+    async def _store_analysis(self, mint: str, analysis: dict, signature: str = None, pool_address: str = None):
         """Store post-migration analysis results"""
         async with self.db_lock:
             try:
@@ -107,9 +108,8 @@ class PumpFunCurveListener:
                 conn.execute("PRAGMA busy_timeout=60000")
                 cursor = conn.cursor()
 
-                # Extract pool address by finding it on blockchain
-                pool_address = None
-                if signature:
+                # If pool_address not provided, try to find it on blockchain
+                if not pool_address and signature:
                     pool_address = await self._find_pool_account(mint)
 
                 # Store post-migration analysis with live price tracking
@@ -145,7 +145,8 @@ class PumpFunCurveListener:
 
                 conn.commit()
                 conn.close()
-                print(f"[DB] ✅ Stored analysis {mint} | Pool: {pool_address[:16] if pool_address else 'extracting at price-time'}", flush=True)
+                pool_info = f"Pool: {pool_address[:16]}" if pool_address else "Pool: extracting at price-time"
+                print(f"[DB] ✅ Stored analysis {mint} | {pool_info}", flush=True)
             except Exception as e:
                 print(f"[DB] ❌ Failed to store analysis for {mint}: {e}", flush=True)
 
@@ -284,6 +285,71 @@ class PumpFunCurveListener:
         
         return None
 
+    async def _extract_pool_from_migration_tx(self, signature: str) -> Optional[str]:
+        """
+        Extract the PumpSwap pool address from a migration transaction.
+        
+        During a Pump.Fun → PumpSwap migration:
+        - The pool PDA is created as the first writable account in the transaction
+        - It appears at index 0 in accountKeys
+        - This is the bonding curve that was initialized on Pump.Fun, now being migrated
+        
+        This is the most reliable extraction method because:
+        1. Account[0] is the pool being created/initialized
+        2. All migrations follow this pattern
+        3. No need to parse complex instruction sequences
+        
+        Returns the pool address or None if extraction fails
+        """
+        try:
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getTransaction",
+                "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
+            }
+
+            async with aiohttp.ClientSession() as session:
+                async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                    if resp.status != 200:
+                        return None
+
+                    data = await resp.json()
+                    if "result" not in data or not data["result"]:
+                        return None
+
+                    tx_data = data["result"]
+                    
+                    # Get account keys
+                    message = tx_data.get("transaction", {}).get("message", {})
+                    account_keys = message.get("accountKeys", [])
+                    
+                    if not account_keys or len(account_keys) < 1:
+                        return None
+                    
+                    # The pool is the first account (the writable PDA being created)
+                    potential_pool = account_keys[0]
+                    
+                    # Validate it's not a known system program
+                    system_programs = {
+                        "ComputeBudget111111111111111111111111111111",
+                        "11111111111111111111111111111111",
+                        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                        "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",
+                        "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+                        "SysvarRent111111111111111111111111111111111",
+                    }
+                    
+                    if potential_pool not in system_programs:
+                        print(f"[POOL_EXTRACT] Extracted pool: {potential_pool[:16]}...", flush=True)
+                        return potential_pool
+                    
+                    return None
+
+        except Exception as e:
+            print(f"[POOL_EXTRACT_ERROR] Failed to extract pool: {e}", flush=True)
+            return None
+
     async def _get_pool_address(self, token_mint: str, signature: str) -> Optional[str]:
         """Get pool address from database or extract from blockchain"""
         try:
@@ -356,83 +422,104 @@ class PumpFunCurveListener:
     async def _find_pool_account(self, token_mint: str) -> Optional[str]:
         """
         Find the pool account that holds this token.
-        Query token accounts for this mint and find the one whose owner has SOL.
+        The smallest token account is typically the active pool/bonding curve.
         """
         try:
             # Query all token accounts for this mint
             payload = {
                 "jsonrpc": "2.0",
                 "id": 1,
-                "method": "getTokenLargestAccounts",
+                "method": "getTokenAccountsByMint",
                 "params": [token_mint]
             }
 
             async with aiohttp.ClientSession() as session:
+                # First try to find accounts via getTokenAccountsByMint (if available)
+                # Fallback to getTokenLargestAccounts
+                accounts = None
+                
                 async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                    if resp.status != 200:
-                        return None
-
-                    data = await resp.json()
-                    if "result" not in data or "value" not in data["result"]:
-                        return None
-
-                    accounts = data["result"]["value"]
+                    if resp.status == 200:
+                        data = await resp.json()
+                        if "result" in data and "value" in data["result"]:
+                            accounts = data["result"]["value"]
+                            print(f"[POOL] Found {len(accounts)} accounts via getTokenAccountsByMint", flush=True)
+                
+                # Fallback to getTokenLargestAccounts
+                if not accounts:
+                    payload = {
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "getTokenLargestAccounts",
+                        "params": [token_mint]
+                    }
                     
-                    if not accounts:
-                        return None
-                    
-                    # Sort by balance and check smallest accounts first (active pools, not reserves)
-                    sorted_accounts = sorted(accounts, key=lambda x: float(x.get("uiAmount", 0)))
-                    
-                    # Check each account to see if its owner has SOL
-                    for i, account_info in enumerate(sorted_accounts):
-                        token_account = account_info.get("address")
-                        
-                        if not token_account:
-                            continue
-                        
-                        # Get the owner of this token account
-                        acct_payload = {
-                            "jsonrpc": "2.0",
-                            "id": 1,
-                            "method": "getAccountInfo",
-                            "params": [token_account, {"encoding": "jsonParsed"}]
-                        }
-                        
-                        try:
-                            async with session.post(RPC_HTTP, json=acct_payload, timeout=aiohttp.ClientTimeout(total=5)) as acct_resp:
-                                if acct_resp.status != 200:
-                                    continue
+                    async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                        if resp.status != 200:
+                            return None
 
-                                acct_data = await acct_resp.json()
-                                if "result" not in acct_data or not acct_data["result"]:
-                                    continue
+                        data = await resp.json()
+                        if "result" not in data or "value" not in data["result"]:
+                            return None
 
-                                owner = acct_data["result"].get("owner")
-                                
-                                if not owner:
-                                    continue
-                                
-                                # Check if this owner has SOL balance
-                                balance_payload = {
-                                    "jsonrpc": "2.0",
-                                    "id": 1,
-                                    "method": "getBalance",
-                                    "params": [owner]
-                                }
-                                
-                                async with session.post(RPC_HTTP, json=balance_payload, timeout=aiohttp.ClientTimeout(total=5)) as balance_resp:
-                                    if balance_resp.status == 200:
-                                        balance_data = await balance_resp.json()
-                                        if "result" in balance_data and balance_data["result"] > 0:
-                                            # Found the pool! Return the owner address
-                                            print(f"[POOL] Found pool {owner[:16]}... with token account {token_account[:16]}...", flush=True)
-                                            return owner
-                        except:
-                            continue
-                    
+                        accounts = data["result"]["value"]
+                
+                if not accounts:
                     return None
+                
+                print(f"[POOL] Checking {len(accounts)} token accounts to find pool...", flush=True)
+                
+                # Sort by balance - smallest account is usually the active pool
+                sorted_accounts = sorted(accounts, key=lambda x: float(x.get("uiAmount", 0)))
+                
+                # Check the smallest few accounts (they're most likely to be pools)
+                for account_info in sorted_accounts[:5]:
+                    token_account_addr = account_info.get("address")
+                    balance = float(account_info.get("uiAmount", 0))
+                    
+                    if not token_account_addr:
+                        continue
+                    
+                    print(f"[POOL]   Checking {token_account_addr[:16]}... (balance: {balance:.0f})", flush=True)
+                    
+                    # Get account info with jsonParsed to extract the owner
+                    acct_payload = {
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "getAccountInfo",
+                        "params": [token_account_addr, {"encoding": "jsonParsed"}]
+                    }
+                    
+                    try:
+                        async with session.post(RPC_HTTP, json=acct_payload, timeout=aiohttp.ClientTimeout(total=5)) as acct_resp:
+                            if acct_resp.status == 200:
+                                acct_data = await acct_resp.json()
+                                if "result" in acct_data and acct_data["result"]:
+                                    account = acct_data["result"]
+                                    value = account.get("value", {})
+                                    
+                                    # For jsonParsed encoding, owner is in value.data.parsed.info.owner
+                                    if "data" in value and isinstance(value["data"], dict):
+                                        parsed = value["data"].get("parsed", {})
+                                        info = parsed.get("info", {})
+                                        owner = info.get("owner")
+                                        
+                                        if owner:
+                                            print(f"[POOL]     Owner: {owner[:16]}...", flush=True)
+                                            return owner
+                    except:
+                        pass
+                
+                # If we can't get owner via parsing, use the smallest account address as pool
+                # (This is a fallback - smallest account is usually the pool)
+                smallest_account = sorted_accounts[0].get("address")
+                if smallest_account:
+                    print(f"[POOL] Using smallest account as pool: {smallest_account[:16]}...", flush=True)
+                    return smallest_account
+                
+                return None
         except Exception as e:
+            print(f"[POOL_ERROR] Failed to find pool: {e}", flush=True)
             return None
 
     async def _get_price_from_pool_account(self, pool_address: str, token_mint: str) -> Optional[tuple]:
@@ -648,7 +735,7 @@ class PumpFunCurveListener:
             return None
 
     # --- Analyzer ---
-    async def analyze_post_migration(self, mint: str, signature: str = None):
+    async def analyze_post_migration(self, mint: str, signature: str = None, pool_address: str = None):
         """Analyze token's post-migration activity on PumpSwap"""
         if mint in self.analyzed_tokens:
             return
@@ -664,7 +751,8 @@ class PumpFunCurveListener:
             print(f"[ANALYZER] {risk_level} | Score: {score:.2%} | {mint}", flush=True)
 
             # Store analysis results (will be updated with live price in background)
-            await self._store_analysis(mint, summary, signature)
+            # Pass pool_address so it can be saved immediately
+            await self._store_analysis(mint, summary, signature, pool_address)
         except Exception as e:
             print(f"[ANALYZER] ⚠ Analysis failed for {mint}: {e}", flush=True)
 
@@ -846,8 +934,16 @@ class PumpFunCurveListener:
             print(f"[EVENT] 🚀 MIGRATION DETECTED: {mint}", flush=True)
             print(f"[EVENT] Migration signature: {signature[:16]}...", flush=True)
 
+            # Extract pool address from migration transaction
+            pool_address = await self._extract_pool_from_migration_tx(signature)
+            if pool_address:
+                print(f"[EVENT] Pool address extracted: {pool_address[:16]}...", flush=True)
+            else:
+                print(f"[EVENT] ⚠ Could not extract pool from transaction, will discover later", flush=True)
+
             # Analyze post-migration token asynchronously with signature for live price tracking
-            asyncio.create_task(self.analyze_post_migration(mint, signature))
+            # Pass pool_address if available so it can be saved immediately
+            asyncio.create_task(self.analyze_post_migration(mint, signature, pool_address))
 
         except Exception as e:
             print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)

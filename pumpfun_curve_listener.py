@@ -108,10 +108,6 @@ class PumpFunCurveListener:
                 conn.execute("PRAGMA busy_timeout=60000")
                 cursor = conn.cursor()
 
-                # If pool_address not provided, try to find it on blockchain
-                if not pool_address and signature:
-                    pool_address = await self._find_pool_account(mint)
-
                 # Store post-migration analysis with live price tracking
                 cursor.execute("""
                     INSERT OR REPLACE INTO token_analysis (
@@ -140,12 +136,12 @@ class PumpFunCurveListener:
                     signature,
                     None,  # price_current will be updated by background task
                     None,  # price_highest will be updated by background task
-                    pool_address  # Store pool address for on-chain price queries
+                    pool_address  # Extracted pool address from migration transaction
                 ))
 
                 conn.commit()
                 conn.close()
-                pool_info = f"Pool: {pool_address[:16]}" if pool_address else "Pool: extracting at price-time"
+                pool_info = f"Pool: {pool_address[:16]}" if pool_address else "Pool: will discover at price-time"
                 print(f"[DB] ✅ Stored analysis {mint} | {pool_info}", flush=True)
             except Exception as e:
                 print(f"[DB] ❌ Failed to store analysis for {mint}: {e}", flush=True)
@@ -289,17 +285,17 @@ class PumpFunCurveListener:
         """
         Extract the PumpSwap pool address from a migration transaction.
         
-        During a Pump.Fun → PumpSwap migration:
-        - The pool PDA is created as the first writable account in the transaction
-        - It appears at index 0 in accountKeys
-        - This is the bonding curve that was initialized on Pump.Fun, now being migrated
+        When Pump.Fun → PumpSwap migration occurs:
+        1. The pool PDA is the FIRST account in the transaction (accountKeys[0])
+        2. This is the new pool that was just created and initialized
+        3. All writable accounts in a Solana transaction come first
         
-        This is the most reliable extraction method because:
-        1. Account[0] is the pool being created/initialized
-        2. All migrations follow this pattern
-        3. No need to parse complex instruction sequences
+        This approach works because:
+        - Pool is created/writable → appears first in accountKeys
+        - Not a system program → valid Solana address
+        - Deterministic and reliable for all migrations
         
-        Returns the pool address or None if extraction fails
+        Returns: The pool address (string) or None if extraction fails
         """
         try:
             payload = {
@@ -319,16 +315,14 @@ class PumpFunCurveListener:
                         return None
 
                     tx_data = data["result"]
-                    
-                    # Get account keys
                     message = tx_data.get("transaction", {}).get("message", {})
                     account_keys = message.get("accountKeys", [])
                     
-                    if not account_keys or len(account_keys) < 1:
+                    if not account_keys:
                         return None
                     
-                    # The pool is the first account (the writable PDA being created)
-                    potential_pool = account_keys[0]
+                    # The pool is the first writable account
+                    pool_address = account_keys[0]
                     
                     # Validate it's not a known system program
                     system_programs = {
@@ -340,14 +334,14 @@ class PumpFunCurveListener:
                         "SysvarRent111111111111111111111111111111111",
                     }
                     
-                    if potential_pool not in system_programs:
-                        print(f"[POOL_EXTRACT] Extracted pool: {potential_pool[:16]}...", flush=True)
-                        return potential_pool
+                    if pool_address not in system_programs:
+                        print(f"[POOL] ✅ Extracted pool address from migration transaction: {pool_address[:16]}...", flush=True)
+                        return pool_address
                     
                     return None
 
         except Exception as e:
-            print(f"[POOL_EXTRACT_ERROR] Failed to extract pool: {e}", flush=True)
+            print(f"[POOL_ERROR] Failed to extract pool address: {e}", flush=True)
             return None
 
     async def _get_pool_address(self, token_mint: str, signature: str) -> Optional[str]:
@@ -751,7 +745,7 @@ class PumpFunCurveListener:
             print(f"[ANALYZER] {risk_level} | Score: {score:.2%} | {mint}", flush=True)
 
             # Store analysis results (will be updated with live price in background)
-            # Pass pool_address so it can be saved immediately
+            # Pass pool_address if available
             await self._store_analysis(mint, summary, signature, pool_address)
         except Exception as e:
             print(f"[ANALYZER] ⚠ Analysis failed for {mint}: {e}", flush=True)
@@ -934,14 +928,12 @@ class PumpFunCurveListener:
             print(f"[EVENT] 🚀 MIGRATION DETECTED: {mint}", flush=True)
             print(f"[EVENT] Migration signature: {signature[:16]}...", flush=True)
 
-            # Extract pool address from migration transaction
+            # Extract pool address from migration transaction for on-chain price queries
             pool_address = await self._extract_pool_from_migration_tx(signature)
             if pool_address:
-                print(f"[EVENT] Pool address extracted: {pool_address[:16]}...", flush=True)
-            else:
-                print(f"[EVENT] ⚠ Could not extract pool from transaction, will discover later", flush=True)
+                print(f"[EVENT] ✅ Pool extracted from transaction: {pool_address[:16]}...", flush=True)
 
-            # Analyze post-migration token asynchronously with signature for live price tracking
+            # Analyze post-migration token asynchronously
             # Pass pool_address if available so it can be saved immediately
             asyncio.create_task(self.analyze_post_migration(mint, signature, pool_address))
 

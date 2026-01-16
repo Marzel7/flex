@@ -284,12 +284,42 @@ class PumpFunCurveListener:
         
         return None
 
+    async def _get_pool_address(self, token_mint: str, signature: str) -> Optional[str]:
+        """Get pool address from database or extract from transaction"""
+        try:
+            # Try to get from database first
+            conn = sqlite3.connect(DB_PATH, timeout=60)
+            cursor = conn.cursor()
+            cursor.execute("SELECT pool_address FROM token_analysis WHERE mint = ?", (token_mint,))
+            row = cursor.fetchone()
+            conn.close()
+            
+            if row and row[0]:
+                return row[0]
+            
+            # If not in database, extract from transaction
+            pool_address = await self._extract_pool_address_from_tx(signature, token_mint)
+            if pool_address:
+                # Update database with pool address
+                try:
+                    conn = sqlite3.connect(DB_PATH, timeout=60)
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE token_analysis SET pool_address = ? WHERE mint = ?", (pool_address, token_mint))
+                    conn.commit()
+                    conn.close()
+                except:
+                    pass
+            
+            return pool_address
+        except Exception as e:
+            return None
+
     async def _extract_price_from_transaction(self, signature: str, token_mint: str) -> Optional[tuple]:
         """
         Extract on-chain price from pool vault balances.
         
         Strategy:
-        1. Extract pool address from migration transaction accounts
+        1. Get pool address (from DB or extract from transaction)
         2. Query pool account balances (token and SOL)
         3. Calculate price = SOL balance / Token balance
         4. Convert to USD using SOL/USD price
@@ -297,8 +327,8 @@ class PumpFunCurveListener:
         Returns: (price_usd, market_cap_usd, source) or None
         """
         try:
-            # Extract pool address from migration transaction
-            pool_address = await self._extract_pool_address_from_tx(signature, token_mint)
+            # Get or extract pool address
+            pool_address = await self._get_pool_address(token_mint, signature)
             
             if pool_address:
                 # Try to get price from pool balances

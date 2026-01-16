@@ -107,10 +107,10 @@ class PumpFunCurveListener:
                 conn.execute("PRAGMA busy_timeout=60000")
                 cursor = conn.cursor()
 
-                # Extract pool address from migration transaction
+                # Extract pool address by finding it on blockchain
                 pool_address = None
                 if signature:
-                    pool_address = await self._extract_pool_address_from_tx(signature, mint)
+                    pool_address = await self._find_pool_account(mint)
 
                 # Store post-migration analysis with live price tracking
                 cursor.execute("""
@@ -145,7 +145,7 @@ class PumpFunCurveListener:
 
                 conn.commit()
                 conn.close()
-                print(f"[DB] ✅ Stored post-migration analysis for {mint} (pool: {pool_address[:16] if pool_address else 'unknown'})", flush=True)
+                print(f"[DB] ✅ Stored analysis {mint} | Pool: {pool_address[:16] if pool_address else 'extracting at price-time'}", flush=True)
             except Exception as e:
                 print(f"[DB] ❌ Failed to store analysis for {mint}: {e}", flush=True)
 

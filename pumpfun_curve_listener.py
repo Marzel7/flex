@@ -534,110 +534,126 @@ class PumpFunCurveListener:
     async def _get_price_from_pool_account(self, pool_address: str, token_mint: str) -> Optional[tuple]:
         """
         Get price by querying pool account's token and SOL balances.
-        
-        For PumpSwap pools with multiple token accounts, use the one with the LARGEST
-        token balance (the active bonding curve), not the first one (which is often a vault).
-        
+
+        PumpSwap pools store liquidity in WSOL (wrapped SOL) token accounts, not native lamports.
+        We query for both WSOL and the token mint, then calculate price from the balance ratio.
+
         Returns: (price_usd, market_cap_usd) or None
         """
         try:
             async with aiohttp.ClientSession() as session:
-                # Get pool account info
-                payload = {
+                # Query WSOL (wrapped SOL) token accounts owned by this pool
+                # WSOL mint: So11111111111111111111111111111111111111112
+                wsol_mint = "So11111111111111111111111111111111111111112"
+
+                payload_wsol = {
                     "jsonrpc": "2.0",
                     "id": 1,
-                    "method": "getAccountInfo",
-                    "params": [pool_address, {"encoding": "jsonParsed"}]
+                    "method": "getTokenAccountsByOwner",
+                    "params": [pool_address, {"mint": wsol_mint}, {"encoding": "jsonParsed"}]
                 }
 
-                async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                    if resp.status != 200:
-                        return None
+                sol_balance = 0
+                async with session.post(RPC_HTTP, json=payload_wsol, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                    if resp.status == 200:
+                        data = await resp.json()
+                        if "result" in data and "value" in data["result"]:
+                            accounts = data["result"]["value"]
+                            if accounts:
+                                # Get WSOL balance from first (should only be one)
+                                wsol_info = accounts[0].get("account", {}).get("data", {}).get("parsed", {}).get("info", {})
+                                sol_balance = float(wsol_info.get("tokenAmount", {}).get("uiAmount", 0))
 
-                    data = await resp.json()
-                    if "result" not in data or not data["result"]:
-                        return None
-
-                    # Response structure: {"result": {"context": {...}, "value": {...}}}
-                    account_result = data["result"]
-                    account_value = account_result.get("value", {})
-                    
-                    if not account_value:
-                        return None
-                    
-                    lamports = account_value.get("lamports", 0)
-                    
-                    if lamports == 0:
-                        return None
-                    
-                    sol_balance = lamports / 1e9  # Convert to SOL
-                    
-                    # Query token accounts owned by this pool
-                    payload2 = {
+                # If no WSOL, fall back to pool account lamports
+                if sol_balance == 0:
+                    payload = {
                         "jsonrpc": "2.0",
                         "id": 1,
-                        "method": "getTokenAccountsByOwner",
-                        "params": [pool_address, {"mint": token_mint}, {"encoding": "jsonParsed"}]
+                        "method": "getAccountInfo",
+                        "params": [pool_address, {"encoding": "jsonParsed"}]
                     }
-                    
-                    async with session.post(RPC_HTTP, json=payload2, timeout=aiohttp.ClientTimeout(total=10)) as resp2:
-                        if resp2.status != 200:
+
+                    async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                        if resp.status != 200:
                             return None
 
-                        data2 = await resp2.json()
-                        if "result" not in data2:
-                            return None
-                        
-                        if "value" not in data2["result"]:
+                        data = await resp.json()
+                        if "result" not in data or not data["result"]:
                             return None
 
-                        accounts = data2["result"]["value"]
-                        if not accounts:
-                            # No token accounts for this mint in this pool - wrong pool address
+                        account_value = data["result"].get("value", {})
+                        if not account_value:
                             return None
-                        
-                        try:
-                            # Find the account with the LARGEST token balance
-                            # (PumpSwap pools have multiple token accounts - vault + active curve)
-                            max_balance_account = None
-                            max_balance = 0
-                            
-                            for token_account in accounts:
-                                account_data = token_account.get("account", {})
-                                parsed = account_data.get("data", {}).get("parsed", {})
-                                token_info = parsed.get("info", {})
-                                token_amount_info = token_info.get("tokenAmount", {})
-                                balance = float(token_amount_info.get("uiAmount", 0))
-                                
-                                if balance > max_balance:
-                                    max_balance = balance
-                                    max_balance_account = token_account
-                            
-                            if not max_balance_account:
-                                return None
-                            
-                            account_data = max_balance_account.get("account", {})
+
+                        lamports = account_value.get("lamports", 0)
+                        sol_balance = lamports / 1e9
+
+                if sol_balance == 0:
+                    return None
+
+                # Query token accounts owned by this pool
+                payload2 = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getTokenAccountsByOwner",
+                    "params": [pool_address, {"mint": token_mint}, {"encoding": "jsonParsed"}]
+                }
+
+                async with session.post(RPC_HTTP, json=payload2, timeout=aiohttp.ClientTimeout(total=10)) as resp2:
+                    if resp2.status != 200:
+                        return None
+
+                    data2 = await resp2.json()
+                    if "result" not in data2 or "value" not in data2["result"]:
+                        return None
+
+                    accounts = data2["result"]["value"]
+                    if not accounts:
+                        # No token accounts for this mint in this pool - wrong pool address
+                        return None
+
+                    try:
+                        # Find the account with the LARGEST token balance
+                        # (PumpSwap pools may have multiple token accounts)
+                        max_balance_account = None
+                        max_balance = 0
+
+                        for token_account in accounts:
+                            account_data = token_account.get("account", {})
                             parsed = account_data.get("data", {}).get("parsed", {})
                             token_info = parsed.get("info", {})
                             token_amount_info = token_info.get("tokenAmount", {})
-                            token_balance = float(token_amount_info.get("uiAmount", 0))
-                            
-                        except (KeyError, ValueError, TypeError):
+                            balance = float(token_amount_info.get("uiAmount", 0))
+
+                            if balance > max_balance:
+                                max_balance = balance
+                                max_balance_account = token_account
+
+                        if not max_balance_account:
                             return None
-                        
-                        if token_balance == 0 or sol_balance == 0:
-                            return None
-                        
-                        # Calculate price
-                        price_sol = sol_balance / token_balance
-                        sol_usd = await self._get_sol_price_usd()
-                        price_usd = price_sol * sol_usd
-                        total_supply = 1_000_000_000  # Pump.Fun tokens have 1B supply
-                        market_cap_usd = price_usd * total_supply
-                        
-                        print(f"[PRICE] ✅ Onchain {token_mint}: ${price_usd:.10f}/token | MC: ${market_cap_usd:,.0f} (pool: {pool_address[:16]}..., SOL: {sol_balance:.4f}, Tokens: {token_balance:.0f})", flush=True)
-                        return (price_usd, market_cap_usd)
-                        
+
+                        account_data = max_balance_account.get("account", {})
+                        parsed = account_data.get("data", {}).get("parsed", {})
+                        token_info = parsed.get("info", {})
+                        token_amount_info = token_info.get("tokenAmount", {})
+                        token_balance = float(token_amount_info.get("uiAmount", 0))
+
+                    except (KeyError, ValueError, TypeError):
+                        return None
+
+                    if token_balance == 0 or sol_balance == 0:
+                        return None
+
+                    # Calculate price
+                    price_sol = sol_balance / token_balance
+                    sol_usd = await self._get_sol_price_usd()
+                    price_usd = price_sol * sol_usd
+                    total_supply = 1_000_000_000  # Pump.Fun tokens have 1B supply
+                    market_cap_usd = price_usd * total_supply
+
+                    print(f"[PRICE] ✅ Onchain {token_mint}: ${price_usd:.10f}/token | MC: ${market_cap_usd:,.0f} (pool: {pool_address[:16]}..., SOL: {sol_balance:.4f}, Tokens: {token_balance:.0f})", flush=True)
+                    return (price_usd, market_cap_usd)
+
         except Exception as e:
             print(f"[PRICE_ERROR] Exception in on-chain extraction: {e}", flush=True)
             return None

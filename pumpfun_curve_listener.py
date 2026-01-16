@@ -55,6 +55,30 @@ class PumpFunCurveListener:
         print(f"[INIT] WebSocket: {HELIUS_RPC_WS[:60]}...", flush=True)
         print(f"[INIT] HTTP RPC: {RPC_HTTP[:60]}...", flush=True)
 
+    async def _post_rpc_with_fallback(self, payload: dict, timeout: int = 10) -> Optional[dict]:
+        """
+        Post to RPC with fallback from QuickNode to Helius on 429.
+        
+        Returns: JSON response data or None if both fail
+        """
+        try:
+            async with aiohttp.ClientSession() as session:
+                # Try primary RPC first (QuickNode)
+                async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=timeout)) as resp:
+                    if resp.status == 429:
+                        # Switch to Helius on rate limit
+                        helius_url = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
+                        async with session.post(helius_url, json=payload, timeout=aiohttp.ClientTimeout(total=timeout)) as helius_resp:
+                            if helius_resp.status != 200:
+                                return None
+                            return await helius_resp.json()
+                    elif resp.status != 200:
+                        return None
+                    return await resp.json()
+        except Exception as e:
+            print(f"[RPC_ERROR] {e}", flush=True)
+            return None
+
     # --- Database ---
     def _ensure_db(self):
         conn = sqlite3.connect(DB_PATH)
@@ -204,6 +228,7 @@ class PumpFunCurveListener:
         4. Accept 43 or 44 char addresses (Pump.Fun token length variance)
         
         Includes retry logic for newly-confirmed transactions that may have indexing delays.
+        Falls back to Helius if QuickNode returns 429.
         """
         max_retries = 5
         retry_delays = [0.5, 1.0, 2.0, 3.0, 5.0]  # Exponential backoff for indexing delay
@@ -218,23 +243,31 @@ class PumpFunCurveListener:
                 }
 
                 async with aiohttp.ClientSession() as session:
-                    async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                        if resp.status != 200:
-                            # Handle rate limits (429) with longer backoff
-                            if resp.status == 429:
-                                backoff = retry_delays[attempt] * 3  # Triple backoff for rate limits
-                                if attempt < max_retries - 1:
-                                    print(f"[MINT] ⏸️  Rate limited (429), retry {attempt + 1}/{max_retries} after {backoff}s...", flush=True)
-                                    await asyncio.sleep(backoff)
-                                    continue
-
+                    # Try primary RPC first (QuickNode)
+                    rpc_url = RPC_HTTP
+                    async with session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                        # If QuickNode is rate limited, switch to Helius
+                        if resp.status == 429:
+                            helius_url = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
+                            print(f"[MINT] 🔄 QuickNode 429, falling back to Helius", flush=True)
+                            async with session.post(helius_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as helius_resp:
+                                if helius_resp.status != 200:
+                                    if attempt < max_retries - 1:
+                                        await asyncio.sleep(retry_delays[attempt])
+                                        continue
+                                    print(f"[MINT] ⚠ RPC error {helius_resp.status} fetching {signature[:16]}...", flush=True)
+                                    return None
+                                data = await helius_resp.json()
+                                # Fall through to process response
+                        elif resp.status != 200:
                             if attempt < max_retries - 1:
                                 await asyncio.sleep(retry_delays[attempt])
                                 continue
                             print(f"[MINT] ⚠ RPC error {resp.status} fetching {signature[:16]}...", flush=True)
                             return None
+                        else:
+                            data = await resp.json()
 
-                        data = await resp.json()
                         if "result" not in data or not data["result"]:
                             # Transaction not indexed yet, retry with backoff
                             if attempt < max_retries - 1:
@@ -305,6 +338,7 @@ class PumpFunCurveListener:
         4. Return the first writable PDA (index 0 of PumpSwap instruction accounts)
 
         Returns: The pool address (string) or None if extraction fails
+        Falls back to Helius if QuickNode returns 429.
         """
         max_retries = 3
         retry_delays = [1.0, 3.0, 5.0]
@@ -319,22 +353,29 @@ class PumpFunCurveListener:
                 }
 
                 async with aiohttp.ClientSession() as session:
-                    async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                        if resp.status != 200:
-                            # Handle rate limits (429) with longer backoff
-                            if resp.status == 429:
-                                backoff = retry_delays[attempt] * 2
-                                if attempt < max_retries - 1:
-                                    print(f"[POOL] ⏸️  Rate limited (429), retry {attempt + 1}/{max_retries} after {backoff}s...", flush=True)
-                                    await asyncio.sleep(backoff)
-                                    continue
-
+                    # Try primary RPC first (QuickNode)
+                    rpc_url = RPC_HTTP
+                    async with session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                        # If QuickNode is rate limited, switch to Helius
+                        if resp.status == 429:
+                            helius_url = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
+                            print(f"[POOL] 🔄 QuickNode 429, falling back to Helius", flush=True)
+                            async with session.post(helius_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as helius_resp:
+                                if helius_resp.status != 200:
+                                    if attempt < max_retries - 1:
+                                        await asyncio.sleep(retry_delays[attempt])
+                                        continue
+                                    return None
+                                data = await helius_resp.json()
+                                # Fall through to process response
+                        elif resp.status != 200:
                             if attempt < max_retries - 1:
                                 await asyncio.sleep(retry_delays[attempt])
                                 continue
                             return None
+                        else:
+                            data = await resp.json()
 
-                    data = await resp.json()
                     if "result" not in data or not data["result"]:
                         return None
 
@@ -437,16 +478,11 @@ class PumpFunCurveListener:
             pool_address = await self._get_pool_address(token_mint, signature)
             
             if pool_address:
-                print(f"[PRICE] 🔍 Trying on-chain with pool {pool_address[:16]}... for {token_mint}", flush=True)
                 # Try to get price from pool balances
                 result = await self._get_price_from_pool_account(pool_address, token_mint)
                 if result is not None:
                     price, market_cap = result
                     return (price, market_cap, "onchain")
-                else:
-                    print(f"[PRICE] ⚠ Pool query failed for {pool_address[:16]}... (token: {token_mint})", flush=True)
-            else:
-                print(f"[PRICE] ⚠ No pool address found for {token_mint}, trying DexScreener", flush=True)
             
             # Fall back to DexScreener (more reliable and always available)
             result = await self._fetch_dexscreener_price(token_mint)
@@ -573,118 +609,107 @@ class PumpFunCurveListener:
         Returns: (price_usd, market_cap_usd) or None
         """
         try:
-            async with aiohttp.ClientSession() as session:
-                # Query WSOL (wrapped SOL) token accounts owned by this pool
-                # WSOL mint: So11111111111111111111111111111111111111112
-                wsol_mint = "So11111111111111111111111111111111111111112"
+            # Query WSOL (wrapped SOL) token accounts owned by this pool
+            # WSOL mint: So11111111111111111111111111111111111111112
+            wsol_mint = "So11111111111111111111111111111111111111112"
 
-                payload_wsol = {
+            payload_wsol = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getTokenAccountsByOwner",
+                "params": [pool_address, {"mint": wsol_mint}, {"encoding": "jsonParsed"}]
+            }
+
+            data = await self._post_rpc_with_fallback(payload_wsol)
+            
+            sol_balance = 0
+            if data and "result" in data and "value" in data["result"]:
+                accounts = data["result"]["value"]
+                if accounts:
+                    # Get WSOL balance from first (should only be one)
+                    wsol_info = accounts[0].get("account", {}).get("data", {}).get("parsed", {}).get("info", {})
+                    sol_balance = float(wsol_info.get("tokenAmount", {}).get("uiAmount", 0))
+
+            # If no WSOL, fall back to pool account lamports
+            if sol_balance == 0:
+                payload = {
                     "jsonrpc": "2.0",
                     "id": 1,
-                    "method": "getTokenAccountsByOwner",
-                    "params": [pool_address, {"mint": wsol_mint}, {"encoding": "jsonParsed"}]
+                    "method": "getAccountInfo",
+                    "params": [pool_address, {"encoding": "jsonParsed"}]
                 }
 
-                sol_balance = 0
-                async with session.post(RPC_HTTP, json=payload_wsol, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                    if resp.status == 200:
-                        data = await resp.json()
-                        if "result" in data and "value" in data["result"]:
-                            accounts = data["result"]["value"]
-                            if accounts:
-                                # Get WSOL balance from first (should only be one)
-                                wsol_info = accounts[0].get("account", {}).get("data", {}).get("parsed", {}).get("info", {})
-                                sol_balance = float(wsol_info.get("tokenAmount", {}).get("uiAmount", 0))
-
-                # If no WSOL, fall back to pool account lamports
-                if sol_balance == 0:
-                    payload = {
-                        "jsonrpc": "2.0",
-                        "id": 1,
-                        "method": "getAccountInfo",
-                        "params": [pool_address, {"encoding": "jsonParsed"}]
-                    }
-
-                    async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                        if resp.status != 200:
-                            return None
-
-                        data = await resp.json()
-                        if "result" not in data or not data["result"]:
-                            return None
-
-                        account_value = data["result"].get("value", {})
-                        if not account_value:
-                            return None
-
-                        lamports = account_value.get("lamports", 0)
-                        sol_balance = lamports / 1e9
-
-                if sol_balance == 0:
+                data = await self._post_rpc_with_fallback(payload)
+                if not data or "result" not in data or not data["result"]:
                     return None
 
-                # Query token accounts owned by this pool
-                payload2 = {
-                    "jsonrpc": "2.0",
-                    "id": 1,
-                    "method": "getTokenAccountsByOwner",
-                    "params": [pool_address, {"mint": token_mint}, {"encoding": "jsonParsed"}]
-                }
+                account_value = data["result"].get("value", {})
+                if not account_value:
+                    return None
 
-                async with session.post(RPC_HTTP, json=payload2, timeout=aiohttp.ClientTimeout(total=10)) as resp2:
-                    if resp2.status != 200:
-                        return None
+                lamports = account_value.get("lamports", 0)
+                sol_balance = lamports / 1e9
 
-                    data2 = await resp2.json()
-                    if "result" not in data2 or "value" not in data2["result"]:
-                        return None
+            if sol_balance == 0:
+                return None
 
-                    accounts = data2["result"]["value"]
-                    if not accounts:
-                        # No token accounts for this mint in this pool - wrong pool address
-                        return None
+            # Query token accounts owned by this pool
+            payload2 = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getTokenAccountsByOwner",
+                "params": [pool_address, {"mint": token_mint}, {"encoding": "jsonParsed"}]
+            }
 
-                    try:
-                        # Find the account with the LARGEST token balance
-                        # (PumpSwap pools may have multiple token accounts)
-                        max_balance_account = None
-                        max_balance = 0
+            data2 = await self._post_rpc_with_fallback(payload2)
+            if not data2 or "result" not in data2 or "value" not in data2["result"]:
+                return None
 
-                        for token_account in accounts:
-                            account_data = token_account.get("account", {})
-                            parsed = account_data.get("data", {}).get("parsed", {})
-                            token_info = parsed.get("info", {})
-                            token_amount_info = token_info.get("tokenAmount", {})
-                            balance = float(token_amount_info.get("uiAmount", 0))
+            accounts = data2["result"]["value"]
+            if not accounts:
+                # No token accounts for this mint in this pool - wrong pool address
+                return None
 
-                            if balance > max_balance:
-                                max_balance = balance
-                                max_balance_account = token_account
+            try:
+                # Find the account with the LARGEST token balance
+                # (PumpSwap pools may have multiple token accounts)
+                max_balance_account = None
+                max_balance = 0
 
-                        if not max_balance_account:
-                            return None
+                for token_account in accounts:
+                    account_data = token_account.get("account", {})
+                    parsed = account_data.get("data", {}).get("parsed", {})
+                    token_info = parsed.get("info", {})
+                    token_amount_info = token_info.get("tokenAmount", {})
+                    balance = float(token_amount_info.get("uiAmount", 0))
 
-                        account_data = max_balance_account.get("account", {})
-                        parsed = account_data.get("data", {}).get("parsed", {})
-                        token_info = parsed.get("info", {})
-                        token_amount_info = token_info.get("tokenAmount", {})
-                        token_balance = float(token_amount_info.get("uiAmount", 0))
+                    if balance > max_balance:
+                        max_balance = balance
+                        max_balance_account = token_account
 
-                    except (KeyError, ValueError, TypeError):
-                        return None
+                if not max_balance_account:
+                    return None
 
-                    if token_balance == 0 or sol_balance == 0:
-                        return None
+                account_data = max_balance_account.get("account", {})
+                parsed = account_data.get("data", {}).get("parsed", {})
+                token_info = parsed.get("info", {})
+                token_amount_info = token_info.get("tokenAmount", {})
+                token_balance = float(token_amount_info.get("uiAmount", 0))
 
-                    # Calculate price
-                    price_sol = sol_balance / token_balance
-                    sol_usd = await self._get_sol_price_usd()
-                    price_usd = price_sol * sol_usd
-                    total_supply = 1_000_000_000  # Pump.Fun tokens have 1B supply
-                    market_cap_usd = price_usd * total_supply
+            except (KeyError, ValueError, TypeError):
+                return None
 
-                    print(f"[PRICE] ✅ Onchain {token_mint}: ${price_usd:.10f}/token | MC: ${market_cap_usd:,.0f} (pool: {pool_address[:16]}..., SOL: {sol_balance:.4f}, Tokens: {token_balance:.0f})", flush=True)
-                    return (price_usd, market_cap_usd)
+            if token_balance == 0 or sol_balance == 0:
+                return None
+
+            # Calculate price
+            price_sol = sol_balance / token_balance
+            sol_usd = await self._get_sol_price_usd()
+            price_usd = price_sol * sol_usd
+            total_supply = 1_000_000_000  # Pump.Fun tokens have 1B supply
+            market_cap_usd = price_usd * total_supply
+
+            return (price_usd, market_cap_usd)
 
         except Exception as e:
             print(f"[PRICE_ERROR] Exception in on-chain extraction: {e}", flush=True)
@@ -793,8 +818,6 @@ class PumpFunCurveListener:
                         market_cap_usd = float(market_cap_usd)
                     except (ValueError, TypeError):
                         return None
-                    
-                    print(f"[PRICE] 📊 DexScreener {token_mint}: ${price_usd:.10f}/token | MC: ${market_cap_usd:,.0f}", flush=True)
                     
                     return (price_usd, market_cap_usd)
                     
@@ -948,9 +971,6 @@ class PumpFunCurveListener:
                 price_highest = row[1] if row and row[1] else current_price
                 market_cap_highest = row[3] if row and row[3] else current_market_cap
                 market_cap_highest_at = row[4] if row else None
-                old_price = row[0] if row else None
-                old_market_cap = row[2] if row else None
-                old_source = row[5] if row else None
 
                 # Update highest if this is higher
                 if current_price > price_highest:
@@ -970,17 +990,6 @@ class PumpFunCurveListener:
                 
                 conn.commit()
                 conn.close()
-                
-                # Log with source indicator
-                source_icon = "✅" if source == "onchain" else "📊"
-                if old_price is None:
-                    print(f"[PRICE_DB] {source_icon} [{source.upper()}] Initial: {token_mint} = ${current_price:.10f}/token | MC: ${current_market_cap:,.0f}", flush=True)
-                else:
-                    price_change = ((current_price - old_price) / old_price * 100) if old_price > 0 else 0
-                    mc_change = ((current_market_cap - old_market_cap) / old_market_cap * 100) if old_market_cap > 0 else 0
-                    arrow = "📈" if price_change > 0 else "📉" if price_change < 0 else "→"
-                    source_change = "" if source == old_source else f" (switched from {old_source})"
-                    print(f"[PRICE_DB] {source_icon} {arrow} [{source.upper()}] {token_mint} | Price: {price_change:+.1f}% | MC: {mc_change:+.1f}%{source_change}", flush=True)
                 
             except Exception as e:
                 print(f"[DB_ERROR] Failed to update price for {token_mint}: {e}", flush=True)

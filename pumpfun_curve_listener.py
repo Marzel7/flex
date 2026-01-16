@@ -853,40 +853,32 @@ class PumpFunCurveListener:
                     await asyncio.sleep(5)
                     continue
                 
-                print(f"\n[PRICE_UPDATE] Starting price cycle for {len(tokens)} tokens...", flush=True)
                 updated_count = 0
                 failed_count = 0
-                
-                for i, token_mint in enumerate(tokens, 1):
+
+                for token_mint in tokens:
                     try:
                         # Get the migration transaction for this token to extract price
                         tx_signature = await self._get_migration_tx_for_token(token_mint)
-                        
+
                         if not tx_signature:
-                            print(f"[PRICE_UPDATE] [{i}/{len(tokens)}] {token_mint} - No migration tx found", flush=True)
                             failed_count += 1
                             continue
-                        
-                        # Extract price from DexScreener
+
+                        # Extract price from DexScreener or on-chain
                         result = await self._extract_price_from_transaction(tx_signature, token_mint)
-                        
+
                         if result is not None:
                             price, market_cap, source = result  # Unpack the source
                             await self._update_price_in_db(token_mint, price, market_cap, source)  # Pass source
                             updated_count += 1
-                            source_icon = "✅" if source == "onchain" else "📊"
-                            print(f"[PRICE_UPDATE] [{i}/{len(tokens)}] {source_icon} {token_mint} | ${price:.10f}/token | MC: ${market_cap:,.0f}", flush=True)
                         else:
                             failed_count += 1
-                            print(f"[PRICE_UPDATE] [{i}/{len(tokens)}] {token_mint} - Failed to extract price", flush=True)
-                        
+
                         # Rate limit
                         await asyncio.sleep(0.1)
                     except Exception as e:
                         failed_count += 1
-                        print(f"[PRICE_ERROR] [{i}/{len(tokens)}] {token_mint}: {e}", flush=True)
-                
-                print(f"[PRICE_UPDATE] ✓ Cycle complete: {updated_count} updated, {failed_count} failed\n", flush=True)
 
                 # Loop back after 10 seconds for live updates
                 await asyncio.sleep(10)

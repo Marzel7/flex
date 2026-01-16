@@ -207,7 +207,7 @@ class PumpFunCurveListener:
         """
         max_retries = 5
         retry_delays = [0.5, 1.0, 2.0, 3.0, 5.0]  # Exponential backoff for indexing delay
-        
+
         for attempt in range(max_retries):
             try:
                 payload = {
@@ -220,6 +220,14 @@ class PumpFunCurveListener:
                 async with aiohttp.ClientSession() as session:
                     async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
                         if resp.status != 200:
+                            # Handle rate limits (429) with longer backoff
+                            if resp.status == 429:
+                                backoff = retry_delays[attempt] * 3  # Triple backoff for rate limits
+                                if attempt < max_retries - 1:
+                                    print(f"[MINT] ⏸️  Rate limited (429), retry {attempt + 1}/{max_retries} after {backoff}s...", flush=True)
+                                    await asyncio.sleep(backoff)
+                                    continue
+
                             if attempt < max_retries - 1:
                                 await asyncio.sleep(retry_delays[attempt])
                                 continue
@@ -287,29 +295,44 @@ class PumpFunCurveListener:
     async def _extract_pool_from_migration_tx(self, signature: str) -> Optional[str]:
         """
         Extract the PumpSwap pool address from a migration transaction.
-        
+
         The pool is the account that is OWNED BY the PumpSwap program.
-        
+
         Strategy:
         1. Fetch the transaction
         2. Look through all accounts in innerInstructions
         3. Find accounts that are used by the PumpSwap program
         4. Return the first writable PDA (index 0 of PumpSwap instruction accounts)
-        
+
         Returns: The pool address (string) or None if extraction fails
         """
-        try:
-            payload = {
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "getTransaction",
-                "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
-            }
+        max_retries = 3
+        retry_delays = [1.0, 3.0, 5.0]
 
-            async with aiohttp.ClientSession() as session:
-                async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                    if resp.status != 200:
-                        return None
+        for attempt in range(max_retries):
+            try:
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getTransaction",
+                    "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
+                }
+
+                async with aiohttp.ClientSession() as session:
+                    async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                        if resp.status != 200:
+                            # Handle rate limits (429) with longer backoff
+                            if resp.status == 429:
+                                backoff = retry_delays[attempt] * 2
+                                if attempt < max_retries - 1:
+                                    print(f"[POOL] ⏸️  Rate limited (429), retry {attempt + 1}/{max_retries} after {backoff}s...", flush=True)
+                                    await asyncio.sleep(backoff)
+                                    continue
+
+                            if attempt < max_retries - 1:
+                                await asyncio.sleep(retry_delays[attempt])
+                                continue
+                            return None
 
                     data = await resp.json()
                     if "result" not in data or not data["result"]:
@@ -354,12 +377,19 @@ class PumpFunCurveListener:
                                         pool_address = account_keys[pool_idx]
                                         print(f"[POOL] ✅ Extracted pool from PumpSwap instruction: {pool_address[:16]}...", flush=True)
                                         return pool_address
-                    
+
+
                     return None
 
-        except Exception as e:
-            print(f"[POOL_ERROR] Failed to extract pool address: {e}", flush=True)
-            return None
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    print(f"[POOL] ⚠ Error extracting pool (attempt {attempt + 1}/{max_retries}): {e}", flush=True)
+                    await asyncio.sleep(retry_delays[attempt])
+                else:
+                    print(f"[POOL_ERROR] Failed to extract pool address after {max_retries} attempts: {e}", flush=True)
+                    return None
+
+        return None
 
     async def _get_pool_address(self, token_mint: str, signature: str) -> Optional[str]:
         """Get pool address from database or extract from blockchain"""

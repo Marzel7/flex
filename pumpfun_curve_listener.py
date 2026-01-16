@@ -409,12 +409,12 @@ class PumpFunCurveListener:
                     except (ValueError, TypeError):
                         return None
                     
-                    print(f"[PRICE] 📊 DexScreener for {token_mint[:16]}...: ${price_usd:.10f}/token | MC: ${market_cap_usd:,.0f}", flush=True)
+                    print(f"[PRICE] 📊 DexScreener {token_mint}: ${price_usd:.10f}/token | MC: ${market_cap_usd:,.0f}", flush=True)
                     
                     return (price_usd, market_cap_usd)
                     
         except Exception as e:
-            print(f"[PRICE_ERROR] DexScreener fetch failed for {token_mint[:16]}...: {e}", flush=True)
+            print(f"[PRICE_ERROR] DexScreener fetch failed {token_mint}: {e}", flush=True)
             return None
 
     def _extract_mint_from_logs(self, logs: list) -> Optional[str]:
@@ -456,7 +456,7 @@ class PumpFunCurveListener:
             print(f"[ANALYZER] ⚠ Analysis failed for {mint}: {e}", flush=True)
 
     async def update_live_prices_background(self):
-        """Background task: Update live on-chain prices and market caps continuously"""
+        """Background task: Update live prices and market caps continuously"""
         await asyncio.sleep(2)  # Wait 2s before starting
         
         while True:
@@ -477,11 +477,11 @@ class PumpFunCurveListener:
                         tx_signature = await self._get_migration_tx_for_token(token_mint)
                         
                         if not tx_signature:
-                            print(f"[PRICE_UPDATE] [{i}/{len(tokens)}] {token_mint[:16]}... - No migration tx found", flush=True)
+                            print(f"[PRICE_UPDATE] [{i}/{len(tokens)}] {token_mint} - No migration tx found", flush=True)
                             failed_count += 1
                             continue
                         
-                        # Extract on-chain price and market cap from transaction
+                        # Extract price from DexScreener
                         result = await self._extract_price_from_transaction(tx_signature, token_mint)
                         
                         if result is not None:
@@ -489,16 +489,16 @@ class PumpFunCurveListener:
                             await self._update_price_in_db(token_mint, price, market_cap, source)  # Pass source
                             updated_count += 1
                             source_icon = "✅" if source == "onchain" else "📊"
-                            print(f"[PRICE_UPDATE] [{i}/{len(tokens)}] {token_mint[:16]}... {source_icon} ${price:.10f}/token | MC: ${market_cap:,.0f}", flush=True)
+                            print(f"[PRICE_UPDATE] [{i}/{len(tokens)}] {source_icon} {token_mint} | ${price:.10f}/token | MC: ${market_cap:,.0f}", flush=True)
                         else:
                             failed_count += 1
-                            print(f"[PRICE_UPDATE] [{i}/{len(tokens)}] {token_mint[:16]}... - Failed to extract price", flush=True)
+                            print(f"[PRICE_UPDATE] [{i}/{len(tokens)}] {token_mint} - Failed to extract price", flush=True)
                         
                         # Rate limit
                         await asyncio.sleep(0.1)
                     except Exception as e:
                         failed_count += 1
-                        print(f"[PRICE_ERROR] [{i}/{len(tokens)}] {token_mint[:16]}...: {e}", flush=True)
+                        print(f"[PRICE_ERROR] [{i}/{len(tokens)}] {token_mint}: {e}", flush=True)
                 
                 print(f"[PRICE_UPDATE] ✓ Cycle complete: {updated_count} updated, {failed_count} failed\n", flush=True)
                 
@@ -593,13 +593,13 @@ class PumpFunCurveListener:
                 # Log with source indicator
                 source_icon = "✅" if source == "onchain" else "📊"
                 if old_price is None:
-                    print(f"[PRICE_DB] {source_icon} [{source.upper()}] Initial: {token_mint[:16]}... = ${current_price:.10f}/token | MC: ${current_market_cap:,.0f}", flush=True)
+                    print(f"[PRICE_DB] {source_icon} [{source.upper()}] Initial: {token_mint} = ${current_price:.10f}/token | MC: ${current_market_cap:,.0f}", flush=True)
                 else:
                     price_change = ((current_price - old_price) / old_price * 100) if old_price > 0 else 0
                     mc_change = ((current_market_cap - old_market_cap) / old_market_cap * 100) if old_market_cap > 0 else 0
                     arrow = "📈" if price_change > 0 else "📉" if price_change < 0 else "→"
                     source_change = "" if source == old_source else f" (switched from {old_source})"
-                    print(f"[PRICE_DB] {source_icon} {arrow} [{source.upper()}] {token_mint[:16]}... | Price: {price_change:+.1f}% | MC: {mc_change:+.1f}%{source_change}", flush=True)
+                    print(f"[PRICE_DB] {source_icon} {arrow} [{source.upper()}] {token_mint} | Price: {price_change:+.1f}% | MC: {mc_change:+.1f}%{source_change}", flush=True)
                 
             except Exception as e:
                 print(f"[DB_ERROR] Failed to update price for {token_mint}: {e}", flush=True)

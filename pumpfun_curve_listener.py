@@ -15,6 +15,7 @@ import time
 import websockets
 import aiohttp
 import requests
+from datetime import datetime
 from typing import Set, Optional, List
 from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
 from dotenv import load_dotenv
@@ -90,6 +91,7 @@ class PumpFunCurveListener:
                 price_highest REAL,
                 market_cap_current REAL,
                 market_cap_highest REAL,
+                market_cap_highest_at TIMESTAMP,
                 price_updated_at TIMESTAMP,
                 price_source TEXT,
                 pool_address TEXT,
@@ -916,30 +918,33 @@ class PumpFunCurveListener:
                 
                 # Get previous values
                 cursor.execute(
-                    "SELECT price_current, price_highest, market_cap_current, market_cap_highest, price_source FROM token_analysis WHERE mint = ?",
+                    "SELECT price_current, price_highest, market_cap_current, market_cap_highest, market_cap_highest_at, price_source FROM token_analysis WHERE mint = ?",
                     (token_mint,)
                 )
                 row = cursor.fetchone()
-                
+
                 price_highest = row[1] if row and row[1] else current_price
                 market_cap_highest = row[3] if row and row[3] else current_market_cap
+                market_cap_highest_at = row[4] if row else None
                 old_price = row[0] if row else None
                 old_market_cap = row[2] if row else None
-                old_source = row[4] if row else None
-                
+                old_source = row[5] if row else None
+
                 # Update highest if this is higher
                 if current_price > price_highest:
                     price_highest = current_price
                 if current_market_cap > market_cap_highest:
                     market_cap_highest = current_market_cap
-                
+                    market_cap_highest_at = datetime.now().isoformat(sep=' ')  # Store timestamp when peak is reached
+
                 cursor.execute("""
                     UPDATE token_analysis
-                    SET price_current = ?, price_highest = ?, 
+                    SET price_current = ?, price_highest = ?,
                         market_cap_current = ?, market_cap_highest = ?,
+                        market_cap_highest_at = ?,
                         price_source = ?, price_updated_at = datetime('now')
                     WHERE mint = ?
-                """, (current_price, price_highest, current_market_cap, market_cap_highest, source, token_mint))
+                """, (current_price, price_highest, current_market_cap, market_cap_highest, market_cap_highest_at, source, token_mint))
                 
                 conn.commit()
                 conn.close()

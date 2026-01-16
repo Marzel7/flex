@@ -40,6 +40,7 @@ def get_migrated_tokens() -> List[Dict]:
             SELECT
                 mint,
                 analyzed_at,
+                created_at,
                 events_parsed,
                 rug_probability,
                 risk_level,
@@ -47,7 +48,8 @@ def get_migrated_tokens() -> List[Dict]:
                 price_current,
                 price_highest,
                 market_cap_current,
-                market_cap_highest
+                market_cap_highest,
+                market_cap_highest_at
             FROM token_analysis
             ORDER BY analyzed_at DESC
         """)
@@ -57,6 +59,7 @@ def get_migrated_tokens() -> List[Dict]:
             tokens.append({
                 'mint': row['mint'],
                 'analyzed_at': row['analyzed_at'],
+                'created_at': row['created_at'],
                 'rug_probability': row['rug_probability'] if row['rug_probability'] else 0,
                 'risk_level': row['risk_level'],
                 'total_txs': 0,  # Not used in new schema
@@ -65,7 +68,8 @@ def get_migrated_tokens() -> List[Dict]:
                 'price_current': row['price_current'] if row['price_current'] else None,
                 'price_highest': row['price_highest'] if row['price_highest'] else None,
                 'market_cap_current': row['market_cap_current'] if row['market_cap_current'] else None,
-                'market_cap_highest': row['market_cap_highest'] if row['market_cap_highest'] else None
+                'market_cap_highest': row['market_cap_highest'] if row['market_cap_highest'] else None,
+                'market_cap_highest_at': row['market_cap_highest_at'] if row['market_cap_highest_at'] else None
             })
 
         conn.close()
@@ -504,6 +508,7 @@ HTML_TEMPLATE = """
                             <th>Risk Score</th>
                             <th>Market Cap</th>
                             <th>Peak MC</th>
+                            <th>Peak Timing</th>
                             <th>Events</th>
                             <th>Coverage</th>
                             <th>Analyzed</th>
@@ -524,6 +529,9 @@ HTML_TEMPLATE = """
                                 </td>
                                 <td>
                                     ${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '—'}
+                                </td>
+                                <td>
+                                    ${token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : '—'}
                                 </td>
                                 <td>
                                     ${token.total_events}
@@ -598,6 +606,24 @@ HTML_TEMPLATE = """
                 return (value / 1000).toFixed(1) + 'K';
             }
             return value.toFixed(0);
+        }
+
+        function getTimeToPeak(migrationTime, peakTime) {
+            if (!migrationTime || !peakTime) return '—';
+            try {
+                const migration = new Date(migrationTime);
+                const peak = new Date(peakTime);
+                const diffSeconds = (peak - migration) / 1000;
+
+                if (diffSeconds < 0) return '—';
+                if (diffSeconds < 60) return `${Math.floor(diffSeconds)}s`;
+                if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)}m`;
+                const hours = diffSeconds / 3600;
+                if (hours < 24) return `${hours.toFixed(1)}h`;
+                return `${(hours / 24).toFixed(1)}d`;
+            } catch (e) {
+                return '—';
+            }
         }
 
         // Abort controller for price loading - allows canceling requests when modal opens

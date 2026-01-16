@@ -535,6 +535,9 @@ class PumpFunCurveListener:
         """
         Get price by querying pool account's token and SOL balances.
         
+        For PumpSwap pools with multiple token accounts, use the one with the LARGEST
+        token balance (the active bonding curve), not the first one (which is often a vault).
+        
         Returns: (price_usd, market_cap_usd) or None
         """
         try:
@@ -594,13 +597,31 @@ class PumpFunCurveListener:
                             return None
                         
                         try:
-                            # Get the first (largest) token account
-                            token_account = accounts[0]
-                            account_data = token_account.get("account", {})
+                            # Find the account with the LARGEST token balance
+                            # (PumpSwap pools have multiple token accounts - vault + active curve)
+                            max_balance_account = None
+                            max_balance = 0
+                            
+                            for token_account in accounts:
+                                account_data = token_account.get("account", {})
+                                parsed = account_data.get("data", {}).get("parsed", {})
+                                token_info = parsed.get("info", {})
+                                token_amount_info = token_info.get("tokenAmount", {})
+                                balance = float(token_amount_info.get("uiAmount", 0))
+                                
+                                if balance > max_balance:
+                                    max_balance = balance
+                                    max_balance_account = token_account
+                            
+                            if not max_balance_account:
+                                return None
+                            
+                            account_data = max_balance_account.get("account", {})
                             parsed = account_data.get("data", {}).get("parsed", {})
                             token_info = parsed.get("info", {})
                             token_amount_info = token_info.get("tokenAmount", {})
                             token_balance = float(token_amount_info.get("uiAmount", 0))
+                            
                         except (KeyError, ValueError, TypeError):
                             return None
                         

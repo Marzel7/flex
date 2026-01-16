@@ -555,8 +555,14 @@ class PumpFunCurveListener:
                     if "result" not in data or not data["result"]:
                         return None
 
-                    account = data["result"]
-                    lamports = account.get("lamports", 0)
+                    # Response structure: {"result": {"context": {...}, "value": {...}}}
+                    account_result = data["result"]
+                    account_value = account_result.get("value", {})
+                    
+                    if not account_value:
+                        return None
+                    
+                    lamports = account_value.get("lamports", 0)
                     
                     if lamports == 0:
                         return None
@@ -612,6 +618,7 @@ class PumpFunCurveListener:
                         return (price_usd, market_cap_usd)
                         
         except Exception as e:
+            print(f"[PRICE_ERROR] Exception in on-chain extraction: {e}", flush=True)
             return None
 
     async def _extract_onchain_pool_price(self, token_mint: str) -> Optional[tuple]:

@@ -280,22 +280,20 @@ class PumpFunCurveListener:
 
     async def _extract_price_from_transaction(self, signature: str, token_mint: str) -> Optional[tuple]:
         """
-        Extract on-chain price from token pool vault balances.
-        Strategy: Query all token accounts, find pool account with both token and SOL,
-        select smallest balances (active curve, not reserves).
+        Extract price using reliable DexScreener API.
         
-        Falls back to DexScreener if on-chain extraction fails.
+        Strategy: Use DexScreener as primary source for verified, market-based pricing.
+        - DexScreener aggregates prices from multiple DEXes
+        - Prices are verified by actual market trades
+        - More reliable than trying to parse individual transaction data
+        
+        On-chain extraction would require knowing the pool account address,
+        which is not readily available during price updates. Future enhancement:
+        store pool address when detecting migrations, then use vault balances directly.
         
         Returns: (price_usd, market_cap_usd, source) or None
         """
         try:
-            # Try to extract price from on-chain pool vault
-            price, market_cap = await self._extract_onchain_pool_price(token_mint)
-            if price is not None:
-                return (price, market_cap, "onchain")
-            
-            # Fall back to DexScreener
-            print(f"[PRICE] ⚠ Onchain pool extraction failed, falling back to DexScreener for {token_mint[:16]}...", flush=True)
             result = await self._fetch_dexscreener_price(token_mint)
             if result is not None:
                 price, market_cap = result
@@ -304,117 +302,26 @@ class PumpFunCurveListener:
             return None
                     
         except Exception as e:
-            print(f"[PRICE_ERROR] Failed to extract price for {token_mint[:16]}...: {e}", flush=True)
+            print(f"[PRICE_ERROR] Failed to fetch price for {token_mint[:16]}...: {e}", flush=True)
             return None
 
     async def _extract_onchain_pool_price(self, token_mint: str) -> Optional[tuple]:
         """
         Extract price from on-chain pool account balances.
-        Queries all token accounts associated with this mint, finds the pool account
-        (which has both token and SOL), and calculates price from vault balances.
         
-        Returns: (price_usd, market_cap_usd) or None
+        NOTE: The proper implementation would require:
+        1. Finding the actual pool account address for this token
+        2. Querying that specific account's vault balances
+        3. Calculating price from token/SOL ratio
+        
+        Since we don't have the pool address readily available during price updates,
+        and extracting it reliably from transactions is complex, we rely on DexScreener
+        which has verified, real-time pricing. The fallback mechanism ensures pricing
+        always works.
+        
+        Returns: None (signals to use DexScreener fallback)
         """
-        try:
-            # Get all token accounts for this mint
-            payload = {
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "getTokenLargestAccounts",
-                "params": [token_mint]
-            }
-            
-            async with aiohttp.ClientSession() as session:
-                async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                    if resp.status != 200:
-                        return None
-                    
-                    data = await resp.json()
-                    if "result" not in data:
-                        return None
-                    
-                    result = data["result"]
-                    value = result.get("value", [])
-                    
-                    if not value:
-                        return None
-                    
-                    # Sort by size and take smallest active accounts
-                    # (skip reserves which have huge balances)
-                    sorted_accounts = sorted(value, key=lambda x: float(x.get("uiAmount", 0)))
-                    
-                    # Try the smallest accounts first (active bonding curve, not reserves)
-                    for account in sorted_accounts[:5]:  # Check top 5 smallest
-                        token_balance = account.get("uiAmount", 0)
-                        account_addr = account.get("address")
-                        
-                        if not account_addr or not token_balance or token_balance == 0:
-                            continue
-                        
-                        # Check if this account owner has SOL as well (pool account)
-                        acct_info_payload = {
-                            "jsonrpc": "2.0",
-                            "id": 1,
-                            "method": "getAccountInfo",
-                            "params": [account_addr, {"encoding": "jsonParsed"}]
-                        }
-                        
-                        async with session.post(RPC_HTTP, json=acct_info_payload, timeout=aiohttp.ClientTimeout(total=10)) as info_resp:
-                            if info_resp.status != 200:
-                                continue
-                            
-                            info_data = await info_resp.json()
-                            if "result" not in info_data or not info_data["result"]:
-                                continue
-                            
-                            account_info = info_data["result"]
-                            owner = account_info.get("owner")
-                            
-                            if not owner:
-                                continue
-                            
-                            # Query the owner account for SOL balance
-                            balance_payload = {
-                                "jsonrpc": "2.0",
-                                "id": 1,
-                                "method": "getBalance",
-                                "params": [owner]
-                            }
-                            
-                            async with session.post(RPC_HTTP, json=balance_payload, timeout=aiohttp.ClientTimeout(total=10)) as balance_resp:
-                                if balance_resp.status != 200:
-                                    continue
-                                
-                                balance_data = await balance_resp.json()
-                                if "result" not in balance_data:
-                                    continue
-                                
-                                sol_lamports = balance_data["result"]
-                                if sol_lamports == 0:
-                                    continue
-                                
-                                sol_balance = sol_lamports / 1e9  # Convert to SOL
-                                
-                                # Calculate price: SOL amount / Token amount
-                                if token_balance > 0 and sol_balance > 0:
-                                    price_sol = sol_balance / token_balance
-                                    
-                                    # Get SOL/USD price
-                                    sol_usd = await self._get_sol_price_usd()
-                                    
-                                    # Convert to USD
-                                    price_usd = price_sol * sol_usd
-                                    total_supply = 1_000_000
-                                    market_cap_usd = price_usd * total_supply
-                                    
-                                    print(f"[PRICE] ✅ Onchain price for {token_mint[:16]}...: ${price_usd:.10f}/token | MC: ${market_cap_usd:,.2f}", flush=True)
-                                    return (price_usd, market_cap_usd)
-                    
-                    return None
-                    
-        except Exception as e:
-            print(f"[PRICE_ERROR] Onchain extraction failed for {token_mint[:16]}...: {e}", flush=True)
-            return None
+        return None
 
     async def _get_pool_price_from_vault(self, token_mint: str) -> Optional[tuple]:
         """

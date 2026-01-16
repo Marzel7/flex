@@ -25,12 +25,18 @@ load_dotenv()
 # === Config ===
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
 RPC_URL = os.getenv("RPC_URL", "")
+RPC_URL_2 = os.getenv("RPC_URL_2", "")
 
 # WebSocket: Try Helius first, fall back to public Solana
 HELIUS_RPC_WS = f"wss://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "wss://api.mainnet-beta.solana.com/"
 
 # HTTP: Use QuickNode if available, otherwise Helius, then public
 RPC_HTTP = RPC_URL if RPC_URL else (f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com")
+
+# RPC failover chain: Primary QuickNode -> Secondary QuickNode -> Helius -> Public
+RPC_URLS = [url for url in [RPC_URL, RPC_URL_2] if url]  # QuickNodes
+RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com")  # Helius fallback
+RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
 
 PUMPFUN_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
 PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
@@ -57,24 +63,36 @@ class PumpFunCurveListener:
 
     async def _post_rpc_with_fallback(self, payload: dict, timeout: int = 10) -> Optional[dict]:
         """
-        Post to RPC with fallback from QuickNode to Helius on 429.
+        Post to RPC with automatic failover chain.
         
-        Returns: JSON response data or None if both fail
+        Tries: Primary QuickNode -> Secondary QuickNode -> Helius -> Public Solana
+        Returns: JSON response data or None if all fail
         """
         try:
             async with aiohttp.ClientSession() as session:
-                # Try primary RPC first (QuickNode)
-                async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=timeout)) as resp:
-                    if resp.status == 429:
-                        # Switch to Helius on rate limit
-                        helius_url = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
-                        async with session.post(helius_url, json=payload, timeout=aiohttp.ClientTimeout(total=timeout)) as helius_resp:
-                            if helius_resp.status != 200:
-                                return None
-                            return await helius_resp.json()
-                    elif resp.status != 200:
-                        return None
-                    return await resp.json()
+                for i, rpc_url in enumerate(RPC_URLS):
+                    try:
+                        async with session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=timeout)) as resp:
+                            if resp.status == 200:
+                                return await resp.json()
+                            elif resp.status == 429:
+                                # Rate limited, try next in chain
+                                if i < len(RPC_URLS) - 1:
+                                    print(f"[RPC] 🔄 {rpc_url[:40]}... (429), trying next...", flush=True)
+                                    continue
+                            else:
+                                # Other error, try next
+                                if i < len(RPC_URLS) - 1:
+                                    continue
+                    except asyncio.TimeoutError:
+                        if i < len(RPC_URLS) - 1:
+                            continue
+                    except Exception as e:
+                        if i < len(RPC_URLS) - 1:
+                            continue
+                
+                # All RPC endpoints failed
+                return None
         except Exception as e:
             print(f"[RPC_ERROR] {e}", flush=True)
             return None
@@ -228,7 +246,7 @@ class PumpFunCurveListener:
         4. Accept 43 or 44 char addresses (Pump.Fun token length variance)
         
         Includes retry logic for newly-confirmed transactions that may have indexing delays.
-        Falls back to Helius if QuickNode returns 429.
+        Uses RPC failover chain: Primary QuickNode -> Secondary QuickNode -> Helius -> Public.
         """
         max_retries = 5
         retry_delays = [0.5, 1.0, 2.0, 3.0, 5.0]  # Exponential backoff for indexing delay
@@ -242,71 +260,47 @@ class PumpFunCurveListener:
                     "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
                 }
 
-                async with aiohttp.ClientSession() as session:
-                    # Try primary RPC first (QuickNode)
-                    rpc_url = RPC_HTTP
-                    async with session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                        # If QuickNode is rate limited, switch to Helius
-                        if resp.status == 429:
-                            helius_url = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
-                            print(f"[MINT] 🔄 QuickNode 429, falling back to Helius", flush=True)
-                            async with session.post(helius_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as helius_resp:
-                                if helius_resp.status != 200:
-                                    if attempt < max_retries - 1:
-                                        await asyncio.sleep(retry_delays[attempt])
-                                        continue
-                                    print(f"[MINT] ⚠ RPC error {helius_resp.status} fetching {signature[:16]}...", flush=True)
-                                    return None
-                                data = await helius_resp.json()
-                                # Fall through to process response
-                        elif resp.status != 200:
-                            if attempt < max_retries - 1:
-                                await asyncio.sleep(retry_delays[attempt])
-                                continue
-                            print(f"[MINT] ⚠ RPC error {resp.status} fetching {signature[:16]}...", flush=True)
-                            return None
-                        else:
-                            data = await resp.json()
+                data = await self._post_rpc_with_fallback(payload)
 
-                        if "result" not in data or not data["result"]:
-                            # Transaction not indexed yet, retry with backoff
-                            if attempt < max_retries - 1:
-                                print(f"[MINT] 📝 Transaction indexing delay, retry {attempt + 1}/{max_retries}...", flush=True)
-                                await asyncio.sleep(retry_delays[attempt])
-                                continue
-                            print(f"[MINT] ⚠ Transaction not found after retries: {signature[:16]}...", flush=True)
-                            return None
+                if not data or "result" not in data or not data["result"]:
+                    # Transaction not indexed yet, retry with backoff
+                    if attempt < max_retries - 1:
+                        print(f"[MINT] 📝 Transaction indexing delay, retry {attempt + 1}/{max_retries}...", flush=True)
+                        await asyncio.sleep(retry_delays[attempt])
+                        continue
+                    print(f"[MINT] ⚠ Transaction not found after retries: {signature[:16]}...", flush=True)
+                    return None
 
-                        tx_data = data["result"]
-                        meta = tx_data.get("meta", {})
+                tx_data = data["result"]
+                meta = tx_data.get("meta", {})
 
-                        # Strategy 1: Try postTokenBalances first
-                        post_balances = meta.get("postTokenBalances", [])
-                        for balance in post_balances:
-                            mint = balance.get("mint", "")
-                            # Accept valid token mints (43-44 chars), exclude SOL
-                            if mint and len(mint) in (43, 44) and mint != "So11111111111111111111111111111111111111112":
-                                return mint
+                # Strategy 1: Try postTokenBalances first
+                post_balances = meta.get("postTokenBalances", [])
+                for balance in post_balances:
+                    mint = balance.get("mint", "")
+                    # Accept valid token mints (43-44 chars), exclude SOL
+                    if mint and len(mint) in (43, 44) and mint != "So11111111111111111111111111111111111111112":
+                        return mint
 
-                        # Strategy 2: Fall back to accountKeys
-                        message = tx_data.get("transaction", {}).get("message", {})
-                        accounts = message.get("accountKeys", [])
+                # Strategy 2: Fall back to accountKeys
+                message = tx_data.get("transaction", {}).get("message", {})
+                accounts = message.get("accountKeys", [])
 
-                        system_programs = {
-                            "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # Pump.Fun
-                            "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap
-                            "11111111111111111111111111111111",               # System program
-                            "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",  # ATA program
-                            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # Token program
-                            "So11111111111111111111111111111111111111112",   # Wrapped SOL
-                        }
+                system_programs = {
+                    "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # Pump.Fun
+                    "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap
+                    "11111111111111111111111111111111",               # System program
+                    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",  # ATA program
+                    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # Token program
+                    "So11111111111111111111111111111111111111112",   # Wrapped SOL
+                }
 
-                        for account in accounts[:10]:
-                            if len(account) in (43, 44) and account not in system_programs:
-                                return account
+                for account in accounts[:10]:
+                    if len(account) in (43, 44) and account not in system_programs:
+                        return account
 
-                        print(f"[MINT] ⚠ No valid mint found in {signature[:16]}...", flush=True)
-                        return None
+                print(f"[MINT] ⚠ No valid mint found in {signature[:16]}...", flush=True)
+                return None
 
             except asyncio.TimeoutError:
                 if attempt < max_retries - 1:
@@ -338,7 +332,7 @@ class PumpFunCurveListener:
         4. Return the first writable PDA (index 0 of PumpSwap instruction accounts)
 
         Returns: The pool address (string) or None if extraction fails
-        Falls back to Helius if QuickNode returns 429.
+        Uses RPC failover chain: Primary QuickNode -> Secondary QuickNode -> Helius -> Public.
         """
         max_retries = 3
         retry_delays = [1.0, 3.0, 5.0]
@@ -352,75 +346,53 @@ class PumpFunCurveListener:
                     "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
                 }
 
-                async with aiohttp.ClientSession() as session:
-                    # Try primary RPC first (QuickNode)
-                    rpc_url = RPC_HTTP
-                    async with session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                        # If QuickNode is rate limited, switch to Helius
-                        if resp.status == 429:
-                            helius_url = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
-                            print(f"[POOL] 🔄 QuickNode 429, falling back to Helius", flush=True)
-                            async with session.post(helius_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as helius_resp:
-                                if helius_resp.status != 200:
-                                    if attempt < max_retries - 1:
-                                        await asyncio.sleep(retry_delays[attempt])
-                                        continue
-                                    return None
-                                data = await helius_resp.json()
-                                # Fall through to process response
-                        elif resp.status != 200:
-                            if attempt < max_retries - 1:
-                                await asyncio.sleep(retry_delays[attempt])
-                                continue
-                            return None
-                        else:
-                            data = await resp.json()
+                data = await self._post_rpc_with_fallback(payload)
 
-                    if "result" not in data or not data["result"]:
-                        return None
-
-                    tx_data = data["result"]
-                    message = tx_data.get("transaction", {}).get("message", {})
-                    account_keys = message.get("accountKeys", [])
-                    
-                    if not account_keys:
-                        return None
-                    
-                    meta = tx_data.get("meta", {})
-                    inner_instructions = meta.get("innerInstructions", [])
-                    
-                    PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
-                    
-                    # Find PumpSwap program index in accountKeys
-                    pumpswap_idx = -1
-                    for i, acc in enumerate(account_keys):
-                        if acc == PUMPSWAP_PROGRAM:
-                            pumpswap_idx = i
-                            break
-                    
-                    if pumpswap_idx < 0:
-                        return None
-                    
-                    # Search innerInstructions for PumpSwap calls using programIdIndex
-                    for ix_group in inner_instructions:
-                        instructions = ix_group.get("instructions", [])
-                        for ix in instructions:
-                            program_id_idx = ix.get("programIdIndex")
-                            
-                            # Check if this instruction is calling PumpSwap
-                            if program_id_idx == pumpswap_idx:
-                                # This is a PumpSwap instruction
-                                accounts = ix.get("accounts", [])
-                                if accounts and len(accounts) > 0:
-                                    # The first account in a PumpSwap instruction is typically the pool
-                                    pool_idx = accounts[0]
-                                    if isinstance(pool_idx, int) and pool_idx < len(account_keys):
-                                        pool_address = account_keys[pool_idx]
-                                        print(f"[POOL] ✅ Extracted pool from PumpSwap instruction: {pool_address[:16]}...", flush=True)
-                                        return pool_address
-
-
+                if not data or "result" not in data or not data["result"]:
                     return None
+
+                tx_data = data["result"]
+                message = tx_data.get("transaction", {}).get("message", {})
+                account_keys = message.get("accountKeys", [])
+                
+                if not account_keys:
+                    return None
+                
+                meta = tx_data.get("meta", {})
+                inner_instructions = meta.get("innerInstructions", [])
+                
+                PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+                
+                # Find PumpSwap program index in accountKeys
+                pumpswap_idx = -1
+                for i, acc in enumerate(account_keys):
+                    if acc == PUMPSWAP_PROGRAM:
+                        pumpswap_idx = i
+                        break
+                
+                if pumpswap_idx < 0:
+                    return None
+                
+                # Search innerInstructions for PumpSwap calls using programIdIndex
+                for ix_group in inner_instructions:
+                    instructions = ix_group.get("instructions", [])
+                    for ix in instructions:
+                        program_id_idx = ix.get("programIdIndex")
+                        
+                        # Check if this instruction is calling PumpSwap
+                        if program_id_idx == pumpswap_idx:
+                            # This is a PumpSwap instruction
+                            accounts = ix.get("accounts", [])
+                            if accounts and len(accounts) > 0:
+                                # The first account in a PumpSwap instruction is typically the pool
+                                pool_idx = accounts[0]
+                                if isinstance(pool_idx, int) and pool_idx < len(account_keys):
+                                    pool_address = account_keys[pool_idx]
+                                    print(f"[POOL] ✅ Extracted pool from PumpSwap instruction: {pool_address[:16]}...", flush=True)
+                                    return pool_address
+
+
+                return None
 
             except Exception as e:
                 if attempt < max_retries - 1:

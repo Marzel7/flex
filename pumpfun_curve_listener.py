@@ -91,6 +91,7 @@ class PumpFunCurveListener:
                 market_cap_current REAL,
                 market_cap_highest REAL,
                 price_updated_at TIMESTAMP,
+                price_source TEXT,
                 pool_address TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )

@@ -320,9 +320,8 @@ class PumpFunCurveListener:
         
         Strategy:
         1. Get pool address (from DB or extract from transaction)
-        2. Query pool account balances (token and SOL)
-        3. Calculate price = SOL balance / Token balance
-        4. Convert to USD using SOL/USD price
+        2. Try to query pool account balances (token and SOL)
+        3. If fails, use DexScreener (more reliable)
         
         Returns: (price_usd, market_cap_usd, source) or None
         """
@@ -337,8 +336,7 @@ class PumpFunCurveListener:
                     price, market_cap = result
                     return (price, market_cap, "onchain")
             
-            # Fall back to DexScreener
-            print(f"[PRICE] ⚠ Onchain extraction failed, falling back to DexScreener for {token_mint}", flush=True)
+            # Fall back to DexScreener (more reliable and always available)
             result = await self._fetch_dexscreener_price(token_mint)
             if result is not None:
                 price, market_cap = result
@@ -351,13 +349,17 @@ class PumpFunCurveListener:
             return None
 
     async def _extract_pool_address_from_tx(self, signature: str, token_mint: str) -> Optional[str]:
-        """Extract pool account address from migration transaction"""
+        """
+        Extract pool account address by finding token accounts for this mint.
+        The pool account is the one that holds the token and also has SOL balance.
+        """
         try:
+            # Query all token accounts for this mint
             payload = {
                 "jsonrpc": "2.0",
                 "id": 1,
-                "method": "getTransaction",
-                "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
+                "method": "getTokenLargestAccounts",
+                "params": [token_mint]
             }
 
             async with aiohttp.ClientSession() as session:
@@ -366,22 +368,53 @@ class PumpFunCurveListener:
                         return None
 
                     data = await resp.json()
-                    if "result" not in data or not data["result"]:
+                    if "result" not in data or "value" not in data["result"]:
                         return None
 
-                    tx_data = data["result"]
-                    message = tx_data.get("transaction", {}).get("message", {})
-                    accounts = message.get("accountKeys", [])
+                    accounts = data["result"]["value"]
                     
-                    # Pool account is usually after token mint, filter for 44-char addresses (Pump.Fun pool format)
-                    for i, account in enumerate(accounts):
-                        if len(account) == 44 and account != token_mint:
-                            # Skip known programs
-                            if account not in ("pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA", 
-                                             "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
-                                             "11111111111111111111111111111111",
-                                             "So11111111111111111111111111111111111111112"):
-                                return account
+                    if not accounts:
+                        return None
+                    
+                    # Check the smallest account (active pool, not reserves)
+                    # Sort by balance and take the smallest
+                    sorted_accounts = sorted(accounts, key=lambda x: float(x.get("uiAmount", 0)))
+                    
+                    for account_info in sorted_accounts[:3]:  # Check top 3 smallest
+                        pool_addr = account_info.get("address")
+                        
+                        if not pool_addr:
+                            continue
+                        
+                        # Check if this account's owner has SOL
+                        acct_payload = {
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": "getAccountInfo",
+                            "params": [pool_addr, {"encoding": "jsonParsed"}]
+                        }
+                        
+                        async with session.post(RPC_HTTP, json=acct_payload, timeout=aiohttp.ClientTimeout(total=10)) as acct_resp:
+                            if acct_resp.status == 200:
+                                acct_data = await acct_resp.json()
+                                if "result" in acct_data and acct_data["result"]:
+                                    owner = acct_data["result"].get("owner")
+                                    
+                                    if owner:
+                                        # Check if owner has SOL
+                                        balance_payload = {
+                                            "jsonrpc": "2.0",
+                                            "id": 1,
+                                            "method": "getBalance",
+                                            "params": [owner]
+                                        }
+                                        
+                                        async with session.post(RPC_HTTP, json=balance_payload, timeout=aiohttp.ClientTimeout(total=10)) as balance_resp:
+                                            if balance_resp.status == 200:
+                                                balance_data = await balance_resp.json()
+                                                if "result" in balance_data and balance_data["result"] > 0:
+                                                    # Found it! This owner has both token and SOL
+                                                    return owner
                     
                     return None
         except Exception as e:
@@ -440,6 +473,7 @@ class PumpFunCurveListener:
 
                         accounts = data2["result"]["value"]
                         if not accounts:
+                            # No token accounts for this mint in this pool - wrong pool address
                             return None
                         
                         try:
@@ -463,7 +497,7 @@ class PumpFunCurveListener:
                         total_supply = 1_000_000
                         market_cap_usd = price_usd * total_supply
                         
-                        print(f"[PRICE] ✅ Onchain {token_mint}: ${price_usd:.10f}/token | MC: ${market_cap_usd:,.0f} (SOL: {sol_balance:.4f}, Tokens: {token_balance:.0f})", flush=True)
+                        print(f"[PRICE] ✅ Onchain {token_mint}: ${price_usd:.10f}/token | MC: ${market_cap_usd:,.0f} (pool: {pool_address[:16]}..., SOL: {sol_balance:.4f}, Tokens: {token_balance:.0f})", flush=True)
                         return (price_usd, market_cap_usd)
                         
         except Exception as e:

@@ -179,94 +179,75 @@ class PostMigrationAnalyzer:
             return await self.fetch_tx_with_retry(session, sig)
 
     async def fetch_tx_with_retry(self, session: aiohttp.ClientSession, sig: str):
-        """Fetch transaction with exponential backoff retry (log-throttled)"""
+        """Fetch transaction with RPC failover chain and exponential backoff"""
         for attempt in range(MAX_RETRIES):
-            try:
-                payload = {
-                    "jsonrpc": "2.0",
-                    "id": 1,
-                    "method": "getTransaction",
-                    "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
-                }
+            # Try each RPC endpoint in the failover chain
+            for rpc_url in RPC_URLS:
+                try:
+                    payload = {
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "getTransaction",
+                        "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+                    }
 
-                async with session.post(
-                    self.rpc_url,
-                    json=payload,
-                    timeout=aiohttp.ClientTimeout(total=RPC_TIMEOUT)
-                ) as resp:
+                    async with session.post(
+                        rpc_url,
+                        json=payload,
+                        timeout=aiohttp.ClientTimeout(total=RPC_TIMEOUT)
+                    ) as resp:
 
-                    # --- HTTP-level errors ---
-                    if resp.status != 200:
-                        if resp.status in (429,) or resp.status >= 500:
-                            if attempt < MAX_RETRIES - 1:
-                                if attempt == 0 or (attempt + 1) % LOG_RETRY_EVERY == 0:
-                                    print(
-                                        f"[FETCH_TX] HTTP {resp.status} for {sig[:12]}... "
-                                        f"(retry {attempt + 1}/{MAX_RETRIES})",
-                                        flush=True
-                                    )
-                                delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)]
-                                await asyncio.sleep(delay)
+                        # --- HTTP-level errors ---
+                        if resp.status != 200:
+                            if resp.status == 429:
+                                # Rate limited, try next RPC endpoint
                                 continue
-                        return None
+                            elif resp.status >= 500:
+                                # Server error, try next RPC endpoint
+                                continue
+                            else:
+                                # Other error (4xx), don't retry this endpoint
+                                return None
 
-                    data = await resp.json()
+                        data = await resp.json()
 
-                    # --- RPC-level errors ---
-                    if "error" in data:
-                        error_code = data["error"].get("code", -1)
-                        error_msg = data["error"].get("message", "unknown")
+                        # --- RPC-level errors ---
+                        if "error" in data:
+                            error_code = data["error"].get("code", -1)
+                            error_msg = data["error"].get("message", "unknown")
 
-                        retryable = error_code in {-32008, -32000, -32003, -32009}
+                            retryable = error_code in {-32008, -32000, -32003, -32009}
 
-                        if retryable and attempt < MAX_RETRIES - 1:
-                            if attempt == 0 or (attempt + 1) % LOG_RETRY_EVERY == 0:
-                                print(
-                                    f"[FETCH_TX] RPC {error_code} for {sig[:12]}... "
-                                    f"(retry {attempt + 1}/{MAX_RETRIES})",
-                                    flush=True
-                                )
-                            delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)]
-                            await asyncio.sleep(delay)
-                            continue
+                            if retryable:
+                                # Try next RPC endpoint
+                                continue
+                            # Non-retryable error
+                            return None
 
-                        return None
+                        result = data.get("result")
+                        if result:
+                            return result
 
-                    result = data.get("result")
-                    if not result:
-                        if attempt < MAX_RETRIES - 1:
-                            if attempt == 0 or (attempt + 1) % LOG_RETRY_EVERY == 0:
-                                print(
-                                    f"[FETCH_TX] No result for {sig[:12]}... "
-                                    f"(retry {attempt + 1}/{MAX_RETRIES})",
-                                    flush=True
-                                )
-                            delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)]
-                            await asyncio.sleep(delay)
-                            continue
-                        return None
+                        # No result, try next RPC endpoint
+                        continue
 
-                    return result
-
-            except asyncio.TimeoutError:
-                if attempt < MAX_RETRIES - 1:
-                    if attempt == 0 or (attempt + 1) % LOG_RETRY_EVERY == 0:
-                        print(
-                            f"[FETCH_TX] Timeout for {sig[:12]}... "
-                            f"(retry {attempt + 1}/{MAX_RETRIES})",
-                            flush=True
-                        )
-                    delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)]
-                    await asyncio.sleep(delay)
+                except asyncio.TimeoutError:
+                    # Timeout on this RPC, try next
                     continue
-                return None
-
-            except Exception:
-                if attempt < MAX_RETRIES - 1:
-                    delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)]
-                    await asyncio.sleep(delay)
+                except Exception:
+                    # Error on this RPC, try next
                     continue
-                return None
+
+            # All RPC endpoints failed, log and retry with backoff
+            if attempt < MAX_RETRIES - 1:
+                if attempt == 0 or (attempt + 1) % 3 == 0:
+                    print(
+                        f"[FETCH_TX] All RPC endpoints failed for {sig[:12]}... "
+                        f"(retry {attempt + 1}/{MAX_RETRIES})",
+                        flush=True
+                    )
+                delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)]
+                await asyncio.sleep(delay)
 
         return None
 

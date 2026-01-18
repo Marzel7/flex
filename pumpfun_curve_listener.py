@@ -76,9 +76,8 @@ class PumpFunCurveListener:
                             if resp.status == 200:
                                 return await resp.json()
                             elif resp.status == 429:
-                                # Rate limited, try next in chain
+                                # Rate limited, try next in chain (silently)
                                 if i < len(RPC_URLS) - 1:
-                                    print(f"[RPC] 🔄 {rpc_url[:40]}... (429), trying next...", flush=True)
                                     continue
                             else:
                                 # Other error, try next

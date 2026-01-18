@@ -195,6 +195,29 @@ HTML_TEMPLATE = """
             font-weight: 600;
         }
 
+        .tokens-table th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            transition: background-color 0.2s;
+        }
+
+        .tokens-table th.sortable:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .tokens-table th.sorted-asc::after {
+            content: ' ↑';
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .tokens-table th.sorted-desc::after {
+            content: ' ↓';
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
         .tokens-table td {
             padding: 15px;
             border-bottom: 1px solid rgba(0, 212, 255, 0.1);
@@ -474,6 +497,9 @@ HTML_TEMPLATE = """
                     return;
                 }
 
+                // Store tokens for sorting
+                window.currentTokens = data.tokens;
+
                 // Update stats
                 updateStats(data);
 
@@ -498,24 +524,50 @@ HTML_TEMPLATE = """
             document.getElementById('low-risk').textContent = lowRisk;
         }
 
+        let sortConfig = {
+            column: 'market_cap_highest',
+            direction: 'desc'
+        };
+
         function buildTable(tokens) {
+            // Sort tokens based on current sort config
+            const sortedTokens = [...tokens].sort((a, b) => {
+                const aVal = a[sortConfig.column];
+                const bVal = b[sortConfig.column];
+
+                // Handle null/undefined values
+                if (aVal == null && bVal == null) return 0;
+                if (aVal == null) return sortConfig.direction === 'asc' ? 1 : -1;
+                if (bVal == null) return sortConfig.direction === 'asc' ? -1 : 1;
+
+                // Numeric comparison
+                if (typeof aVal === 'number' && typeof bVal === 'number') {
+                    return sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
+                }
+
+                // String comparison
+                return sortConfig.direction === 'asc'
+                    ? String(aVal).localeCompare(String(bVal))
+                    : String(bVal).localeCompare(String(aVal));
+            });
+
             const html = `
                 <table class="tokens-table">
                     <thead>
                         <tr>
-                            <th>Token Mint</th>
-                            <th>Risk Level</th>
-                            <th>Risk Score</th>
-                            <th>Market Cap</th>
-                            <th>Peak MC</th>
-                            <th>Peak Timing</th>
-                            <th>Events</th>
-                            <th>Coverage</th>
-                            <th>Analyzed</th>
+                            <th onclick="sortBy('mint')" class="sortable ${sortConfig.column === 'mint' ? 'sorted-' + sortConfig.direction : ''}">Token Mint</th>
+                            <th onclick="sortBy('risk_level')" class="sortable ${sortConfig.column === 'risk_level' ? 'sorted-' + sortConfig.direction : ''}">Risk Level</th>
+                            <th onclick="sortBy('rug_probability')" class="sortable ${sortConfig.column === 'rug_probability' ? 'sorted-' + sortConfig.direction : ''}">Risk Score</th>
+                            <th onclick="sortBy('market_cap_current')" class="sortable ${sortConfig.column === 'market_cap_current' ? 'sorted-' + sortConfig.direction : ''}">Market Cap</th>
+                            <th onclick="sortBy('market_cap_highest')" class="sortable ${sortConfig.column === 'market_cap_highest' ? 'sorted-' + sortConfig.direction : ''}">Peak MC</th>
+                            <th onclick="sortBy('market_cap_highest_at')" class="sortable ${sortConfig.column === 'market_cap_highest_at' ? 'sorted-' + sortConfig.direction : ''}">Peak Timing</th>
+                            <th onclick="sortBy('total_events')" class="sortable ${sortConfig.column === 'total_events' ? 'sorted-' + sortConfig.direction : ''}">Events</th>
+                            <th onclick="sortBy('coverage')" class="sortable ${sortConfig.column === 'coverage' ? 'sorted-' + sortConfig.direction : ''}">Coverage</th>
+                            <th onclick="sortBy('analyzed_at')" class="sortable ${sortConfig.column === 'analyzed_at' ? 'sorted-' + sortConfig.direction : ''}">Analyzed</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${tokens.map(token => `
+                        ${sortedTokens.map(token => `
                             <tr>
                                 <td class="mint"><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="Click for metrics">${token.mint}</a></td>
                                 <td>
@@ -576,6 +628,19 @@ HTML_TEMPLATE = """
                     console.error(`Error loading price for ${mint}:`, error);
                 }
             }
+        }
+
+        function sortBy(column) {
+            // If clicking same column, toggle direction
+            if (sortConfig.column === column) {
+                sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortConfig.column = column;
+                sortConfig.direction = 'desc';  // Default to descending for new column
+            }
+            // Rebuild table with current tokens
+            const tokens = window.currentTokens || [];
+            buildTable(tokens);
         }
 
         function getRiskClass(riskLevel) {

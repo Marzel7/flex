@@ -49,7 +49,8 @@ def get_migrated_tokens() -> List[Dict]:
                 price_highest,
                 market_cap_current,
                 market_cap_highest,
-                market_cap_highest_at
+                market_cap_highest_at,
+                rug_indicator
             FROM token_analysis
             ORDER BY analyzed_at DESC
         """)
@@ -69,7 +70,8 @@ def get_migrated_tokens() -> List[Dict]:
                 'price_highest': row['price_highest'] if row['price_highest'] else None,
                 'market_cap_current': row['market_cap_current'] if row['market_cap_current'] else None,
                 'market_cap_highest': row['market_cap_highest'] if row['market_cap_highest'] else None,
-                'market_cap_highest_at': row['market_cap_highest_at'] if row['market_cap_highest_at'] else None
+                'market_cap_highest_at': row['market_cap_highest_at'] if row['market_cap_highest_at'] else None,
+                'rug_indicator': row['rug_indicator']
             })
 
         conn.close()
@@ -259,6 +261,27 @@ HTML_TEMPLATE = """
         .risk-high {
             background: rgba(239, 68, 68, 0.2);
             color: #ef4444;
+        }
+
+        .rug-badge {
+            display: inline-block;
+            background: rgba(239, 68, 68, 0.25);
+            color: #ff6b6b;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+        }
+
+        .safe-badge {
+            display: inline-block;
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
         }
 
         .price-positive {
@@ -556,6 +579,7 @@ HTML_TEMPLATE = """
                     <thead>
                         <tr>
                             <th onclick="sortBy('mint')" class="sortable ${sortConfig.column === 'mint' ? 'sorted-' + sortConfig.direction : ''}">Token Mint</th>
+                            <th onclick="sortBy('rug_indicator')" class="sortable ${sortConfig.column === 'rug_indicator' ? 'sorted-' + sortConfig.direction : ''}">Rug Flag</th>
                             <th onclick="sortBy('risk_level')" class="sortable ${sortConfig.column === 'risk_level' ? 'sorted-' + sortConfig.direction : ''}">Risk Level</th>
                             <th onclick="sortBy('rug_probability')" class="sortable ${sortConfig.column === 'rug_probability' ? 'sorted-' + sortConfig.direction : ''}">Risk Score</th>
                             <th onclick="sortBy('market_cap_current')" class="sortable ${sortConfig.column === 'market_cap_current' ? 'sorted-' + sortConfig.direction : ''}">Market Cap</th>
@@ -570,6 +594,9 @@ HTML_TEMPLATE = """
                         ${sortedTokens.map(token => `
                             <tr>
                                 <td class="mint"><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="Click for metrics">${token.mint}</a></td>
+                                <td>
+                                    ${token.rug_indicator === 'quick_peak_low_mc' ? '<span class="rug-badge">⚠️ QUICK PEAK</span>' : '<span class="safe-badge">✓ Safe</span>'}
+                                </td>
                                 <td>
                                     <span class="risk-score ${getRiskClass(token.risk_level)}">${token.risk_level}</span>
                                 </td>

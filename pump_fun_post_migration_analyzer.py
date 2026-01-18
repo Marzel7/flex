@@ -10,7 +10,7 @@ import asyncio
 import aiohttp
 import requests
 import time
-from typing import Dict, List
+from typing import Dict, List, Optional
 from collections import Counter, defaultdict
 from statistics import variance
 import os
@@ -19,12 +19,23 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuration - Optimized for QuickNode free tier (balanced approach)
-BATCH_SIZE = 15  # Balanced concurrency (10 concurrent requests is safe + fast)
+BATCH_SIZE = 15
+# Balanced concurrency (10 concurrent requests is safe + fast)
 MAX_SIGNATURES = 1000000  # Fetch entire transaction history
 RPC_TIMEOUT = 60  # Increased timeout to handle slow RPC responses
 MAX_RETRIES = 10  # More retries to handle rate limit recovery
 RETRY_DELAYS = [0.5, 1.0, 2.0, 3.0, 5.0, 10.0, 15.0, 20.0, 30.0, 60.0]  # Extended backoff
 BATCH_DELAY = 0.2  # Small delay between batches to prevent burst overload
+
+# RPC failover chain - same as pumpfun_curve_listener
+HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
+RPC_URL = os.getenv("RPC_URL", "")
+RPC_URL_2 = os.getenv("RPC_URL_2", "")
+
+# HTTP: Use QuickNode if available, otherwise Helius, then public
+RPC_URLS = [url for url in [RPC_URL, RPC_URL_2] if url]  # QuickNodes
+RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com")  # Helius fallback
+RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
 
 
 class PostMigrationAnalyzer:
@@ -46,9 +57,44 @@ class PostMigrationAnalyzer:
         print(f"[ANALYZER_INIT] Token: {token_mint}", flush=True)
         print(f"[ANALYZER_INIT] RPC: {rpc_url[:80]}{'...' if len(rpc_url) > 80 else ''}", flush=True)
 
-    # --- Signature Fetching ---
-    def fetch_signatures(self, limit=MAX_SIGNATURES) -> List[str]:
-        """Fetch signatures for token mint"""
+    # --- Signature Fetching with RPC Fallback ---
+    async def _post_rpc_with_fallback(self, payload: dict, timeout: int = 10) -> Optional[dict]:
+        """
+        Post to RPC with automatic failover chain.
+
+        Tries: Primary QuickNode -> Secondary QuickNode -> Helius -> Public Solana
+        Returns: JSON response data or None if all fail
+        """
+        try:
+            async with aiohttp.ClientSession() as session:
+                for i, rpc_url in enumerate(RPC_URLS):
+                    try:
+                        async with session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=timeout)) as resp:
+                            if resp.status == 200:
+                                return await resp.json()
+                            elif resp.status == 429:
+                                # Rate limited, try next in chain (silently)
+                                if i < len(RPC_URLS) - 1:
+                                    continue
+                            else:
+                                # Other error, try next
+                                if i < len(RPC_URLS) - 1:
+                                    continue
+                    except asyncio.TimeoutError:
+                        if i < len(RPC_URLS) - 1:
+                            continue
+                    except Exception as e:
+                        if i < len(RPC_URLS) - 1:
+                            continue
+
+                # All RPC endpoints failed
+                return None
+        except Exception as e:
+            print(f"[RPC_ERROR] {e}", flush=True)
+            return None
+
+    async def fetch_signatures(self, limit=MAX_SIGNATURES) -> List[str]:
+        """Fetch signatures for token mint with RPC fallback chain"""
         all_sigs = []
         before = None
         pages_fetched = 0
@@ -66,9 +112,13 @@ class PostMigrationAnalyzer:
             }
 
             try:
-                res = requests.post(self.rpc_url, json=payload, timeout=10).json()
+                res = await self._post_rpc_with_fallback(payload, timeout=10)
+                if res is None:
+                    print(f"[SIG_FETCH] ✗ All RPC endpoints failed after {pages_fetched} pages", flush=True)
+                    break
+
                 sigs = res.get("result", [])
-                
+
                 if not sigs:
                     print(f"[SIG_FETCH] ✓ Reached end of transaction history after {pages_fetched} pages", flush=True)
                     break
@@ -261,7 +311,7 @@ class PostMigrationAnalyzer:
         """Main async entry point"""
         print(f"[STREAM] Starting post-migration analysis for {self.token_mint[:16]}...", flush=True)
 
-        sigs = self.fetch_signatures(limit=MAX_SIGNATURES)
+        sigs = await self.fetch_signatures(limit=MAX_SIGNATURES)
         print(f"[STREAM] Fetched {len(sigs)} signatures, starting async fetch...", flush=True)
 
         if not sigs:

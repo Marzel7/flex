@@ -41,7 +41,7 @@ except ImportError:
 
 def get_creator_info(creator_address):
     """Get creator info from database"""
-    db_path = Path(__file__).parent / 'pumpswap_tokens.db'
+    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
 
     if not db_path.exists():
         print(f"❌ Database not found: {db_path}")
@@ -338,7 +338,7 @@ def analyze_sol_transfers(transactions, creator_address):
 
 def get_creator_tokens(creator_address):
     """Get all tokens created by this creator from database"""
-    db_path = Path(__file__).parent / 'pumpswap_tokens.db'
+    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
 
     if not db_path.exists():
         return []
@@ -379,7 +379,7 @@ def store_creator_wallet_data(creator_address, wallet_stats, sol_transfers):
         wallet_stats: Dict with account_age_days, first_tx_timestamp, total_txs, etc.
         sol_transfers: Dict with 'sol_in' and 'sol_out' lists containing transfer details
     """
-    db_path = Path(__file__).parent / 'pumpswap_tokens.db'
+    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
 
     if not db_path.exists():
         return False
@@ -1163,7 +1163,7 @@ def get_funding_account_token_history(funding_account):
         - launch_date: When the token was created
         - days_ago: How many days ago the token launched
     """
-    db_path = Path(__file__).parent / 'pumpswap_tokens.db'
+    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
 
     if not db_path.exists():
         return []
@@ -1302,7 +1302,7 @@ def get_treasury_funding_sources(treasury_address):
         - sol_amount: Total SOL transferred
         - is_treasury: Whether source is also a treasury account
     """
-    db_path = Path(__file__).parent / 'pumpswap_tokens.db'
+    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
 
     if not db_path.exists():
         return []
@@ -1370,7 +1370,7 @@ def analyze_creator_with_funding_reuse(creator_address):
     - overall_risk: Risk level (LOW, MEDIUM, HIGH, CRITICAL)
     - coordination_pattern: Type of pattern detected
     """
-    db_path = Path(__file__).parent / 'pumpswap_tokens.db'
+    db_path = Path(__file__).parent.parent / 'pumpswap_tokens.db'
 
     if not db_path.exists():
         return None

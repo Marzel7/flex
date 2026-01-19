@@ -18,6 +18,7 @@ import requests
 from datetime import datetime
 from typing import Set, Optional, List
 from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
+from realtime_creator_funding_extractor import extract_funding_for_new_token
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -136,9 +137,79 @@ class PumpFunCurveListener:
                 price_updated_at TIMESTAMP,
                 price_source TEXT,
                 pool_address TEXT,
+                creator_address TEXT,
+                creator_reputation TEXT,
+                token_creator TEXT,
+                earliest_tx_creator TEXT,
+                creator_is_blocked INTEGER DEFAULT 0,
+                network_risk INTEGER DEFAULT 0,
+                connected_malicious_count INTEGER,
+                rug_indicator TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+
+        # Creator network tracking - stores SOL transfer destinations
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS creator_sol_transfers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                creator_address TEXT NOT NULL,
+                destination_address TEXT NOT NULL,
+                total_amount REAL DEFAULT 0,
+                transfer_count INTEGER DEFAULT 0,
+                first_detected_at TIMESTAMP,
+                last_detected_at TIMESTAMP,
+                is_pool_address INTEGER DEFAULT 0,
+                UNIQUE(creator_address, destination_address)
+            )
+        """)
+
+        # Creator networks - identifies groups of creators sharing destinations
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS creator_networks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                creator_address TEXT NOT NULL,
+                connected_creators TEXT NOT NULL,  -- JSON array of connected creator addresses
+                shared_destinations TEXT NOT NULL,  -- JSON array of shared destination addresses
+                network_size INTEGER,  -- Number of creators in network
+                network_risk_level TEXT,  -- CRITICAL, HIGH, MEDIUM, LOW based on connected ruggers
+                detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(creator_address)
+            )
+        """)
+
+        # Add columns if they don't exist (for backward compatibility)
+        try:
+            cursor.execute("PRAGMA table_info(token_analysis)")
+            columns = [col[1] for col in cursor.fetchall()]
+            
+            if "creator_is_blocked" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN creator_is_blocked INTEGER DEFAULT 0")
+                print("[DB] ✅ Added creator_is_blocked column to token_analysis", flush=True)
+            
+            if "network_risk" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN network_risk INTEGER DEFAULT 0")
+                print("[DB] ✅ Added network_risk column to token_analysis", flush=True)
+            
+            if "connected_malicious_count" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN connected_malicious_count INTEGER")
+                print("[DB] ✅ Added connected_malicious_count column to token_analysis", flush=True)
+        except Exception as e:
+            pass  # Columns likely already exist
+
+        # Add network columns to creator_blocklist if they don't exist
+        try:
+            cursor.execute("PRAGMA table_info(creator_blocklist)")
+            columns = [col[1] for col in cursor.fetchall()]
+            if "connected_to_malicious" not in columns:
+                cursor.execute("ALTER TABLE creator_blocklist ADD COLUMN connected_to_malicious INTEGER DEFAULT 0")
+                print("[DB] ✅ Added connected_to_malicious column to creator_blocklist", flush=True)
+            if "network_members" not in columns:
+                cursor.execute("ALTER TABLE creator_blocklist ADD COLUMN network_members TEXT")
+                print("[DB] ✅ Added network_members column to creator_blocklist", flush=True)
+        except Exception as e:
+            pass  # Columns likely already exist
 
         conn.commit()
         conn.close()
@@ -161,8 +232,8 @@ class PumpFunCurveListener:
                         post_migration_buy_size_variance, post_migration_sell_volume_concentration,
                         post_migration_creator_activity_ratio,
                         rug_probability, risk_level, post_migration_coverage,
-                        migration_tx, price_current, price_highest, pool_address
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        migration_tx, price_current, price_highest, pool_address, token_creator, earliest_tx_creator, creator_is_blocked, network_risk, connected_malicious_count
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     mint,
                     time.time(),
@@ -180,7 +251,12 @@ class PumpFunCurveListener:
                     signature,
                     None,  # price_current will be updated by background task
                     None,  # price_highest will be updated by background task
-                    pool_address  # Extracted pool address from migration transaction
+                    pool_address,  # Extracted pool address from migration transaction
+                    analysis.get("token_creator"),  # Creator from Metaplex metadata
+                    analysis.get("earliest_tx_creator"),  # Creator from earliest transaction
+                    analysis.get("creator_is_blocked", 0),  # Is creator in blocklist?
+                    analysis.get("network_risk", 0),  # Is creator connected to malicious creators?
+                    analysis.get("connected_malicious_count")  # Count of connected malicious creators
                 ))
 
                 conn.commit()
@@ -823,11 +899,74 @@ class PumpFunCurveListener:
             analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
             await analyzer.fetch_curve_activity_async()
 
-            summary = analyzer.summary()
+            summary = await analyzer.get_summary_async()
+
+            # Extract creator from earliest transaction
+            earliest_creator = await analyzer.get_creator_from_earliest_tx()
+            creator_is_blocked = 0
+            network_risk = None
+
+            if earliest_creator:
+                summary["earliest_tx_creator"] = earliest_creator
+                print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator[:8]}...", flush=True)
+
+                # Extract pre-migration funding in real-time (non-blocking)
+                try:
+                    # Get created_at timestamp from analyzer
+                    created_at = summary.get("created_at", datetime.now().isoformat())
+                    # Run funding extraction asynchronously
+                    asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at))
+                except Exception as e:
+                    print(f"[FUNDING] ⚠ Could not extract funding data: {e}", flush=True)
+
+                # Check if creator is in blocklist
+                try:
+                    conn = sqlite3.connect(DB_PATH, timeout=60)
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT rug_count, reputation, connected_to_malicious, network_members FROM creator_blocklist WHERE creator_address = ?", (earliest_creator,))
+                    blocklist_row = cursor.fetchone()
+                    conn.close()
+
+                    if blocklist_row:
+                        rug_count, reputation, connected_to_malicious, network_members_json = blocklist_row
+                        creator_is_blocked = 1
+                        summary["creator_is_blocked"] = 1
+                        summary["creator_reputation"] = reputation
+
+                        if rug_count >= 2:
+                            print(f"[BLOCKLIST] 🚨 MALICIOUS CREATOR DETECTED: {earliest_creator[:8]}... | {rug_count} rugs", flush=True)
+                        else:
+                            print(f"[BLOCKLIST] 📝 SUSPICIOUS CREATOR: {earliest_creator[:8]}... | on watch list", flush=True)
+
+                        # Check if connected to other malicious creators
+                        if connected_to_malicious:
+                            try:
+                                network_members = json.loads(network_members_json) if network_members_json else []
+                                network_risk = len(network_members)
+                                summary["network_risk"] = 1
+                                summary["connected_malicious_count"] = len(network_members)
+                                print(f"[NETWORK] 🔗 NETWORK RISK: Creator is connected to {len(network_members)} malicious creator(s)", flush=True)
+                            except:
+                                pass
+
+                except Exception as e:
+                    print(f"[BLOCKLIST_CHECK] Error checking creator: {e}", flush=True)
+
             self.analyzed_tokens[mint] = summary
             risk_level = summary.get("risk_level", "🟢 LOW RISK")
             score = summary.get("rug_probability", 0.0)
-            print(f"[ANALYZER] {risk_level} | Score: {score:.2%} | {mint}", flush=True)
+
+            # Add creator risk indicator if blocked
+            if creator_is_blocked:
+                if network_risk:
+                    risk_indicator = f"🔗 NETWORK RISK ({network_risk} connected)"
+                elif summary.get("creator_reputation") == "MALICIOUS":
+                    risk_indicator = "🚨 MALICIOUS CREATOR"
+                else:
+                    risk_indicator = "📝 SUSPICIOUS CREATOR"
+                print(f"[ANALYZER] {risk_indicator} | {risk_level} | Score: {score:.2%} | {mint}", flush=True)
+            else:
+                print(f"[ANALYZER] {risk_level} | Score: {score:.2%} | {mint}", flush=True)
 
             # Store analysis results (will be updated with live price in background)
             # Pass pool_address if available
@@ -921,9 +1060,73 @@ class PumpFunCurveListener:
             print(f"[DB_ERROR] Failed to get tx for {token_mint}: {e}", flush=True)
             return None
 
+    async def _add_rug_creator_to_blocklist(self, token_mint: str, earliest_tx_creator: str = None):
+        """
+        When a rug is detected, add the creator to the block list in the database.
+        This allows future tokens from the same creator to be skipped.
+        """
+        if not earliest_tx_creator:
+            return
+
+        async with self.db_lock:
+            try:
+                conn = sqlite3.connect(DB_PATH, timeout=60)
+                cursor = conn.cursor()
+
+                # Check if creator already in blocklist
+                cursor.execute("SELECT rug_count, rugged_tokens FROM creator_blocklist WHERE creator_address = ?", (earliest_tx_creator,))
+                row = cursor.fetchone()
+
+                if row:
+                    # Update existing entry
+                    rug_count, rugged_tokens_json = row
+                    rug_count += 1
+
+                    # Parse existing tokens and add new one
+                    try:
+                        rugged_tokens = json.loads(rugged_tokens_json) if rugged_tokens_json else []
+                    except:
+                        rugged_tokens = []
+
+                    if token_mint not in rugged_tokens:
+                        rugged_tokens.append(token_mint)
+
+                    # Determine reputation
+                    reputation = "MALICIOUS" if rug_count >= 2 else "SUSPICIOUS"
+
+                    cursor.execute(
+                        """UPDATE creator_blocklist
+                           SET rug_count = ?, rugged_tokens = ?, reputation = ?, last_rug_detected_at = datetime('now'), updated_at = datetime('now')
+                           WHERE creator_address = ?""",
+                        (rug_count, json.dumps(rugged_tokens), reputation, earliest_tx_creator)
+                    )
+                else:
+                    # Insert new entry
+                    cursor.execute(
+                        """INSERT INTO creator_blocklist (creator_address, rug_count, rugged_tokens, reputation, first_rug_detected_at, last_rug_detected_at)
+                           VALUES (?, 1, ?, 'SUSPICIOUS', datetime('now'), datetime('now'))""",
+                        (earliest_tx_creator, json.dumps([token_mint]))
+                    )
+                    rug_count = 1
+
+                conn.commit()
+                conn.close()
+
+                # Log
+                if rug_count >= 2:
+                    print(f"[BLOCKLIST] 🚨 SERIAL RUGGER: {earliest_tx_creator[:8]}... | {rug_count} rugs detected", flush=True)
+                else:
+                    print(f"[BLOCKLIST] 📝 Added to watch list: {earliest_tx_creator[:8]}... | {rug_count} rug", flush=True)
+
+            except Exception as e:
+                print(f"[BLOCKLIST_ERROR] Failed to update rug creator block list: {e}", flush=True)
+
     async def _update_price_in_db(self, token_mint: str, current_price: float, current_market_cap: float, source: str = "onchain"):
         """
         Update live price, market cap, and price source in database.
+        
+        Also automatically detects and flags rug pulls:
+        - If time to peak < 30 minutes AND peak market cap < $100k → flag as 'quick_peak_low_mc'
         
         Note: Prices and market caps are stored in USD for consistency with DexScreener.
         """
@@ -932,9 +1135,9 @@ class PumpFunCurveListener:
                 conn = sqlite3.connect(DB_PATH, timeout=60)
                 cursor = conn.cursor()
                 
-                # Get previous values
+                # Get previous values and creation time
                 cursor.execute(
-                    "SELECT price_current, price_highest, market_cap_current, market_cap_highest, market_cap_highest_at, price_source FROM token_analysis WHERE mint = ?",
+                    "SELECT price_current, price_highest, market_cap_current, market_cap_highest, market_cap_highest_at, price_source, created_at, rug_indicator FROM token_analysis WHERE mint = ?",
                     (token_mint,)
                 )
                 row = cursor.fetchone()
@@ -942,22 +1145,71 @@ class PumpFunCurveListener:
                 price_highest = row[1] if row and row[1] else current_price
                 market_cap_highest = row[3] if row and row[3] else current_market_cap
                 market_cap_highest_at = row[4] if row else None
+                created_at = row[6] if row else None
+                current_rug_indicator = row[7] if row else None
 
+                # Track if this is a new peak
+                is_new_peak = False
+                
                 # Update highest if this is higher
                 if current_price > price_highest:
                     price_highest = current_price
                 if current_market_cap > market_cap_highest:
                     market_cap_highest = current_market_cap
                     market_cap_highest_at = datetime.now().isoformat(sep=' ')  # Store timestamp when peak is reached
+                    is_new_peak = True
+
+                # Auto-detect rug pulls based on timing
+                rug_indicator = current_rug_indicator
+                if is_new_peak and created_at and market_cap_highest is not None:
+                    try:
+                        # Parse created_at timestamp
+                        if isinstance(created_at, str):
+                            created_dt = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                        else:
+                            created_dt = created_at
+                        
+                        # Parse peak timestamp
+                        if isinstance(market_cap_highest_at, str):
+                            peak_dt = datetime.fromisoformat(market_cap_highest_at.replace('Z', '+00:00'))
+                        else:
+                            peak_dt = market_cap_highest_at
+                        
+                        # Calculate time to peak in minutes
+                        time_to_peak_minutes = (peak_dt - created_dt).total_seconds() / 60
+                        
+                        # RUG DETECTION LOGIC:
+                        # Peak in < 30 minutes AND peak market cap < $100k = classic rug pattern
+                        if time_to_peak_minutes < 30 and market_cap_highest < 100000:
+                            rug_indicator = 'quick_peak_low_mc'
+                            print(f"[RUG] 🚨 DETECTED: {token_mint[:8]}... | Time to peak: {time_to_peak_minutes:.1f} min | Peak MC: ${market_cap_highest:,.0f}", flush=True)
+
+                            # Get creator and add to block list
+                            cursor.execute("SELECT earliest_tx_creator FROM token_analysis WHERE mint = ?", (token_mint,))
+                            creator_row = cursor.fetchone()
+                            if creator_row and creator_row[0]:
+                                # Call async method to add to blocklist (fire and forget)
+                                asyncio.create_task(self._add_rug_creator_to_blocklist(token_mint, creator_row[0]))
+                        elif time_to_peak_minutes < 30:
+                            # Peaked fast but market cap was substantial - not a rug, just volatile
+                            rug_indicator = None
+                            print(f"[PEAK] ⚡ Fast peak but legit size: {token_mint[:8]}... | Time: {time_to_peak_minutes:.1f} min | MC: ${market_cap_highest:,.0f}", flush=True)
+                        else:
+                            # Normal progression
+                            rug_indicator = None
+                            
+                    except Exception as e:
+                        print(f"[RUG_CHECK] ⚠ Could not analyze rug pattern for {token_mint}: {e}", flush=True)
 
                 cursor.execute("""
                     UPDATE token_analysis
                     SET price_current = ?, price_highest = ?,
                         market_cap_current = ?, market_cap_highest = ?,
                         market_cap_highest_at = ?,
+                        rug_indicator = ?,
                         price_source = ?, price_updated_at = datetime('now')
                     WHERE mint = ?
-                """, (current_price, price_highest, current_market_cap, market_cap_highest, market_cap_highest_at, source, token_mint))
+                """, (current_price, price_highest, current_market_cap, market_cap_highest, market_cap_highest_at, rug_indicator, source, token_mint))
                 
                 conn.commit()
                 conn.close()

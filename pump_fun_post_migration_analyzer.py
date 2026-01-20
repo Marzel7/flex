@@ -486,8 +486,178 @@ class PostMigrationAnalyzer:
             return "MEDIUM"
         else:
             return "LOW"
+    async def get_token_creator_from_das(self) -> Optional[str]:
+        """
+        Fetch token creator from Helius DAS API.
+        
+        The Metaplex metadata stores creator information in the creators array.
+        This method fetches it from the DAS API which indexes all SPL token metadata.
+        
+        Returns:
+            Creator wallet address, or None if not found
+        """
+        if not HELIUS_API_KEY:
+            return None
+        
+        try:
+            das_url = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
+            
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getAsset",
+                "params": {"id": self.token_mint}
+            }
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.post(das_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                    if resp.status == 200:
+                        data = await resp.json()
+                        if "result" in data and data["result"]:
+                            result = data["result"]
+                            # Get first creator from creators array
+                            if "creators" in result and result["creators"]:
+                                creator = result["creators"][0]
+                                creator_address = creator.get("address")
+                                if creator_address:
+                                    return creator_address
+                    return None
+        except Exception as e:
+            # Silently fail - DAS API not critical for analysis
+            return None
+
+    async def get_creator_from_earliest_tx(self) -> Optional[str]:
+        """
+        Extract the creator from the earliest Pump.fun transaction.
+        
+        Strategy:
+        1. Fetch all signatures (oldest to newest)
+        2. Get the earliest signature (first transaction)
+        3. Parse that transaction to find the creator signer
+        4. Creator = first non-program signer
+        
+        Returns:
+            Creator wallet address or None if not found
+        """
+        try:
+            # Fetch all signatures - fetch_signatures already handles RPC failover
+            sigs = await self.fetch_signatures(limit=1000)
+            
+            if not sigs:
+                print(f"[CREATOR] No signatures found for {self.token_mint}", flush=True)
+                return None
+            
+            # Get the EARLIEST signature (oldest = last in list after pagination)
+            # Note: getSignaturesForAddress returns newest first, so we take the last
+            earliest_sig = sigs[-1] if sigs else None
+            
+            if not earliest_sig:
+                print(f"[CREATOR] Could not determine earliest signature", flush=True)
+                return None
+            
+            print(f"[CREATOR] Fetching earliest transaction: {earliest_sig[:20]}...", flush=True)
+            
+            # Fetch that transaction
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getTransaction",
+                "params": [earliest_sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+            }
+            
+            tx_data = await self._post_rpc_with_fallback(payload, timeout=10)
+            
+            if not tx_data or "result" not in tx_data or not tx_data["result"]:
+                print(f"[CREATOR] Transaction not found or failed to parse", flush=True)
+                return None
+            
+            tx = tx_data["result"]
+
+            # Extract signers from transaction
+            message = tx.get("transaction", {}).get("message", {})
+            account_keys = message.get("accountKeys", [])
+
+            if not account_keys:
+                print(f"[CREATOR] No accountKeys found in transaction", flush=True)
+                return None
+
+            # When using jsonParsed encoding, accountKeys is a list of objects with 'pubkey' and 'signer' fields
+            # Extract signers from the accounts marked with signer=True
+            KNOWN_PROGRAMS = {
+                "11111111111111111111111111111111",  # System Program
+                "TokenkegQfeZyiNwAJsyFbPtrKbVs73Cw6Xj2Yg5MNg",  # Token Program
+                "39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg",  # Pump.Fun (migration processor)
+                "6EF8rrecthR5DkNCG6aB2SUHbBmXoxopY6kfMDBM4mA",  # PumpSwap
+            }
+
+            # Extract actual signers from accounts
+            signers = []
+            for acct in account_keys:
+                if isinstance(acct, dict):
+                    # jsonParsed format: {"pubkey": "...", "signer": true, ...}
+                    if acct.get("signer", False):
+                        signers.append(acct.get("pubkey"))
+                else:
+                    # Fallback: assume first account is signer if not in dict format
+                    signers.append(str(acct))
+
+            if not signers:
+                print(f"[CREATOR] No signers found in transaction (0 accounts marked as signer)", flush=True)
+                return None
+
+            print(f"[CREATOR] Found {len(signers)} signers in transaction", flush=True)
+
+            # First signer is the fee payer (creator)
+            # Skip if it's a known program
+            creator = None
+            for signer in signers:
+                if signer not in KNOWN_PROGRAMS:
+                    creator = signer
+                    print(f"[CREATOR] ✓ Found creator: {creator}", flush=True)
+                    return creator
+
+            # If all signers are known programs, use the first one
+            if signers:
+                creator = signers[0]
+                print(f"[CREATOR] ⚠ All signers are known programs, using first: {creator}", flush=True)
+                return creator
+
+            print(f"[CREATOR] No valid signers found", flush=True)
+            return None
+            
+        except Exception as e:
+            print(f"[CREATOR] Error extracting creator: {type(e).__name__}: {str(e)}", flush=True)
+            return None
+
+    async def get_summary_async(self) -> Dict:
+        """Get complete analysis summary with async creator lookup"""
+        score = self.compute_rug_score()
+        creator = await self.get_token_creator_from_das()
+
+        return {
+            "mint": self.token_mint,
+            "total_txs": self.transactions_fetched,
+            "total_events": len(self.events),
+            "rug_probability": score,
+            "risk_level": self.get_risk_level(score),
+            "mint_concentration": self.mint_concentration(),
+            "unique_minters_ratio": self.unique_minters_ratio(),
+            "sell_suppression_ratio": self.sell_suppression_ratio(),
+            "mint_velocity_sec": self.mint_velocity(),
+            "buy_size_variance": self.buy_size_variance(),
+            "sell_volume_concentration": self.sell_volume_concentration(),
+            "creator_activity_ratio": self.creator_activity_ratio(),
+            "market_cap_current": self.market_cap_current,
+            "market_cap_highest": self.market_cap_highest,
+            "coverage": (self.transactions_fetched / self.signatures_requested * 100) if self.signatures_requested > 0 else 0,
+            "token_creator": creator  # NEW: Token creator from Metaplex metadata
+        }
+    
     def summary(self) -> Dict:
-        """Get complete analysis summary"""
+        """Get complete analysis summary (sync version - doesn't include creator)
+        
+        Note: Use get_summary_async() to include token creator from DAS API
+        """
         score = self.compute_rug_score()
 
         return {

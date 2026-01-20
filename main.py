@@ -50,7 +50,14 @@ def get_migrated_tokens() -> List[Dict]:
                 market_cap_current,
                 market_cap_highest,
                 market_cap_highest_at,
-                rug_indicator
+                rug_indicator,
+                creator_address,
+                creator_reputation,
+                token_creator,
+                earliest_tx_creator,
+                creator_is_blocked,
+                network_risk,
+                connected_malicious_count
             FROM token_analysis
             ORDER BY analyzed_at DESC
         """)
@@ -71,7 +78,14 @@ def get_migrated_tokens() -> List[Dict]:
                 'market_cap_current': row['market_cap_current'] if row['market_cap_current'] else None,
                 'market_cap_highest': row['market_cap_highest'] if row['market_cap_highest'] else None,
                 'market_cap_highest_at': row['market_cap_highest_at'] if row['market_cap_highest_at'] else None,
-                'rug_indicator': row['rug_indicator']
+                'rug_indicator': row['rug_indicator'],
+                'creator_address': row['creator_address'] if row['creator_address'] else None,
+                'creator_reputation': row['creator_reputation'] if row['creator_reputation'] else None,
+                'token_creator': row['token_creator'] if row['token_creator'] else None,
+                'earliest_tx_creator': row['earliest_tx_creator'] if row['earliest_tx_creator'] else None,
+                'creator_is_blocked': bool(row['creator_is_blocked']) if row['creator_is_blocked'] else False,
+                'network_risk': bool(row['network_risk']) if row['network_risk'] else False,
+                'connected_malicious_count': row['connected_malicious_count'] if row['connected_malicious_count'] else 0
             })
 
         conn.close()
@@ -282,6 +296,71 @@ HTML_TEMPLATE = """
             border-radius: 4px;
             font-size: 11px;
             font-weight: 600;
+        }
+
+        .creator-pump_fun_official {
+            display: inline-block;
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+        }
+
+        .creator-malicious {
+            display: inline-block;
+            background: rgba(239, 68, 68, 0.25);
+            color: #ff6b6b;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+        }
+
+        .creator-unknown {
+            display: inline-block;
+            background: rgba(156, 163, 175, 0.15);
+            color: #9ca3af;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .creator-blocked {
+            display: inline-block;
+            background: rgba(239, 68, 68, 0.3);
+            color: #dc2626;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid rgba(239, 68, 68, 0.7);
+            animation: pulse 2s infinite;
+        }
+
+        .network-risk {
+            display: inline-block;
+            background: rgba(249, 115, 22, 0.3);
+            color: #ea580c;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid rgba(249, 115, 22, 0.7);
+            margin-right: 4px;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
         }
 
         .price-positive {
@@ -513,6 +592,7 @@ HTML_TEMPLATE = """
             try {
                 const response = await fetch('/api/migrated-tokens');
                 const data = await response.json();
+                console.log('Loaded tokens:', data.tokens?.length || 0, 'tokens');
 
                 if (!data.tokens || data.tokens.length === 0) {
                     document.getElementById('tokens-container').innerHTML =
@@ -588,6 +668,7 @@ HTML_TEMPLATE = """
                             <th onclick="sortBy('total_events')" class="sortable ${sortConfig.column === 'total_events' ? 'sorted-' + sortConfig.direction : ''}">Events</th>
                             <th onclick="sortBy('coverage')" class="sortable ${sortConfig.column === 'coverage' ? 'sorted-' + sortConfig.direction : ''}">Coverage</th>
                             <th onclick="sortBy('analyzed_at')" class="sortable ${sortConfig.column === 'analyzed_at' ? 'sorted-' + sortConfig.direction : ''}">Analyzed</th>
+                            <th onclick="sortBy('creator_reputation')" class="sortable ${sortConfig.column === 'creator_reputation' ? 'sorted-' + sortConfig.direction : ''}">Creator</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -595,7 +676,7 @@ HTML_TEMPLATE = """
                             <tr>
                                 <td class="mint"><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="Click for metrics">${token.mint}</a></td>
                                 <td>
-                                    ${token.rug_indicator === 'quick_peak_low_mc' ? '<span class="rug-badge">⚠️ QUICK PEAK</span>' : '<span class="safe-badge">✓ Safe</span>'}
+                                    ${token.rug_indicator === 'quick_peak_low_mc' ? '<span class="rug-badge">🚨 RUG</span>' : '<span class="safe-badge">✓ Safe</span>'}
                                 </td>
                                 <td>
                                     <span class="risk-score ${getRiskClass(token.risk_level)}">${token.risk_level}</span>
@@ -620,6 +701,9 @@ HTML_TEMPLATE = """
                                 </td>
                                 <td>
                                     ${formatDate(token.analyzed_at)}
+                                </td>
+                                <td>
+                                    ${token.network_risk ? '<span class="network-risk" title="🔗 Connected to ' + token.connected_malicious_count + ' malicious creator(s)">🔗 NETWORK (' + token.connected_malicious_count + ')</span> ' : ''}${token.creator_is_blocked ? '<span class="creator-blocked" title="⚠️ Known malicious actor">🚨 BLOCKED</span> ' : ''}${token.creator_reputation ? '<span class="creator-' + token.creator_reputation.toLowerCase() + '" title="Creator: ' + (token.token_creator || 'unknown') + '">' + token.creator_reputation + '</span>' : ''}
                                 </td>
                             </tr>
                         `).join('')}

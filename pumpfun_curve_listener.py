@@ -19,6 +19,7 @@ from datetime import datetime
 from typing import Set, Optional, List
 from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
 from realtime_creator_funding_extractor import extract_funding_for_new_token
+from realtime_wallet_clustering_extractor import trigger_wallet_clustering
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -938,6 +939,9 @@ class PumpFunCurveListener:
 
                     # Run funding extraction asynchronously
                     asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at))
+
+                    # Trigger wallet clustering analysis asynchronously
+                    asyncio.create_task(trigger_wallet_clustering(earliest_creator))
                 except Exception as e:
                     print(f"[FUNDING] ⚠ Could not extract funding data: {e}", flush=True)
 

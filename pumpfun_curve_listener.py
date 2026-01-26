@@ -954,15 +954,17 @@ class PumpFunCurveListener:
 
                     # Run funding extraction asynchronously (if enabled)
                     if get_migration_setting('token_history_check', True):
+                        print(f"[SETTINGS] Token history check ✅ ON - extracting pre-migration funding", flush=True)
                         asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at))
                     else:
-                        print(f"[SETTINGS] Token history check DISABLED, skipping funding extraction", flush=True)
+                        print(f"[SETTINGS] Token history check ❌ OFF - skipping funding extraction", flush=True)
 
                     # Trigger wallet clustering analysis asynchronously (if enabled)
                     if get_migration_setting('creator_clustering', True):
+                        print(f"[SETTINGS] Creator clustering ✅ ON - analyzing wallet network", flush=True)
                         asyncio.create_task(trigger_wallet_clustering(earliest_creator))
                     else:
-                        print(f"[SETTINGS] Creator clustering DISABLED, skipping wallet analysis", flush=True)
+                        print(f"[SETTINGS] Creator clustering ❌ OFF - skipping wallet analysis", flush=True)
                 except Exception as e:
                     print(f"[FUNDING] ⚠ Could not extract funding data: {e}", flush=True)
 

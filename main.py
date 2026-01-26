@@ -686,7 +686,7 @@ HTML_TEMPLATE = """
                 <span class="status-indicator active" id="tokenHistoryStatus"></span>
             </div>
             <div class="control-group">
-                <span class="control-label">Creator Clustering</span>
+                <span class="control-label">Creator Analysis</span>
                 <div class="toggle-switch active" id="clusteringToggle" onclick="toggleClustering()">
                     <div class="toggle-slider"></div>
                 </div>
@@ -1023,6 +1023,7 @@ HTML_TEMPLATE = """
         let clusteringEnabled = true;
 
         function toggleTokenHistory() {
+            console.clear();
             tokenHistoryEnabled = !tokenHistoryEnabled;
             const toggle = document.getElementById('tokenHistoryToggle');
             const status = document.getElementById('tokenHistoryStatus');
@@ -1030,7 +1031,8 @@ HTML_TEMPLATE = """
             status.classList.toggle('active');
 
             const state = tokenHistoryEnabled ? 'ENABLED' : 'DISABLED';
-            console.log(`🔧 [TOGGLE] Token History Check: ${state}`);
+            console.log('🔧 [TOGGLE] Token History Check: ' + state);
+            console.log('State: ' + state + ' | Value: ' + tokenHistoryEnabled);
 
             // Send to backend to enable/disable
             fetch('/api/migration-settings', {
@@ -1041,11 +1043,13 @@ HTML_TEMPLATE = """
                     creator_clustering: clusteringEnabled
                 })
             }).then(resp => resp.json()).then(data => {
-                console.log(`✅ [SETTINGS] Updated - Token History: ${state}`);
+                console.log('✅ [SETTINGS] Updated - Token History: ' + state);
+                console.log('Response:', data);
             }).catch(e => console.error('❌ Error updating settings:', e));
         }
 
         function toggleClustering() {
+            console.clear();
             clusteringEnabled = !clusteringEnabled;
             const toggle = document.getElementById('clusteringToggle');
             const status = document.getElementById('clusteringStatus');
@@ -1053,7 +1057,8 @@ HTML_TEMPLATE = """
             status.classList.toggle('active');
 
             const state = clusteringEnabled ? 'ENABLED' : 'DISABLED';
-            console.log(`🔧 [TOGGLE] Creator Clustering: ${state}`);
+            console.log('🔧 [TOGGLE] Creator Analysis: ' + state);
+            console.log('State: ' + state + ' | Value: ' + clusteringEnabled);
 
             // Send to backend to enable/disable
             fetch('/api/migration-settings', {
@@ -1064,7 +1069,8 @@ HTML_TEMPLATE = """
                     creator_clustering: clusteringEnabled
                 })
             }).then(resp => resp.json()).then(data => {
-                console.log(`✅ [SETTINGS] Updated - Creator Clustering: ${state}`);
+                console.log('✅ [SETTINGS] Updated - Creator Analysis: ' + state);
+                console.log('Response:', data);
             }).catch(e => console.error('❌ Error updating settings:', e));
         }
 
@@ -1093,8 +1099,9 @@ HTML_TEMPLATE = """
                 }
 
                 const historyState = tokenHistoryEnabled ? '✅ ON' : '❌ OFF';
-                const clusteringState = clusteringEnabled ? '✅ ON' : '❌ OFF';
-                console.log(`📋 [SETTINGS LOADED] Token History: ${historyState} | Creator Clustering: ${clusteringState}`);
+                const analysisState = clusteringEnabled ? '✅ ON' : '❌ OFF';
+                console.log('📋 [SETTINGS LOADED] Token History: ' + historyState + ' | Creator Analysis: ' + analysisState);
+                console.log('Full settings:', settings);
             } catch (e) {
                 console.error('❌ Error loading settings:', e);
             }
@@ -1511,18 +1518,34 @@ def api_migration_settings():
         data = request.json or {}
         old_settings = migration_settings.copy()
 
+        # Track which settings changed
+        changes = []
+
         if 'token_history_check' in data:
-            migration_settings['token_history_check'] = bool(data['token_history_check'])
+            old_val = old_settings.get('token_history_check', True)
+            new_val = bool(data['token_history_check'])
+            migration_settings['token_history_check'] = new_val
+            if old_val != new_val:
+                changes.append(f"Token History: {('✅ ON' if old_val else '❌ OFF')} → {('✅ ON' if new_val else '❌ OFF')}")
+
         if 'creator_clustering' in data:
-            migration_settings['creator_clustering'] = bool(data['creator_clustering'])
+            old_val = old_settings.get('creator_clustering', True)
+            new_val = bool(data['creator_clustering'])
+            migration_settings['creator_clustering'] = new_val
+            if old_val != new_val:
+                changes.append(f"Creator Analysis: {('✅ ON' if old_val else '❌ OFF')} → {('✅ ON' if new_val else '❌ OFF')}")
 
         # Persist to file
         save_migration_settings(migration_settings)
 
         # Log detailed state changes
+        if changes:
+            for change in changes:
+                print(f"[SETTINGS] TOGGLED - {change}", flush=True)
+
         history_state = '✅ ON' if migration_settings['token_history_check'] else '❌ OFF'
-        clustering_state = '✅ ON' if migration_settings['creator_clustering'] else '❌ OFF'
-        print(f"[SETTINGS] Updated - Token History: {history_state} | Creator Clustering: {clustering_state}", flush=True)
+        analysis_state = '✅ ON' if migration_settings['creator_clustering'] else '❌ OFF'
+        print(f"[SETTINGS] Current State - Token History: {history_state} | Creator Analysis: {analysis_state}", flush=True)
 
         return jsonify({
             'status': 'updated',
@@ -1531,8 +1554,8 @@ def api_migration_settings():
 
     # GET - return current settings
     history_state = '✅ ON' if migration_settings['token_history_check'] else '❌ OFF'
-    clustering_state = '✅ ON' if migration_settings['creator_clustering'] else '❌ OFF'
-    print(f"[SETTINGS] Retrieved - Token History: {history_state} | Creator Clustering: {clustering_state}", flush=True)
+    analysis_state = '✅ ON' if migration_settings['creator_clustering'] else '❌ OFF'
+    print(f"[SETTINGS] Retrieved - Token History: {history_state} | Creator Analysis: {analysis_state}", flush=True)
     return jsonify(migration_settings)
 
 

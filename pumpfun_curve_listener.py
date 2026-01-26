@@ -1304,9 +1304,13 @@ class PumpFunCurveListener:
             if pool_address:
                 print(f"[EVENT] ✅ Pool extracted from transaction: {pool_address}", flush=True)
 
-            # Analyze post-migration token asynchronously
-            # Pass pool_address if available so it can be saved immediately
-            asyncio.create_task(self.analyze_post_migration(mint, signature, pool_address))
+            # Analyze post-migration token asynchronously (if Creator Analysis is enabled)
+            # Note: Analyzer is grouped with Creator Clustering under "Creator Analysis"
+            if get_migration_setting('creator_clustering', True):
+                print(f"[SETTINGS] Creator analysis ✅ ON - analyzing token risk", flush=True)
+                asyncio.create_task(self.analyze_post_migration(mint, signature, pool_address))
+            else:
+                print(f"[SETTINGS] Creator analysis ❌ OFF - skipping risk analysis", flush=True)
 
         except Exception as e:
             print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)

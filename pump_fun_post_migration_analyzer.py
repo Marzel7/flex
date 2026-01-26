@@ -526,37 +526,168 @@ class PostMigrationAnalyzer:
             # Silently fail - DAS API not critical for analysis
             return None
 
+    def _extract_fee_payer_from_tx(self, tx: dict) -> Optional[str]:
+        """
+        Extract fee payer (first account / accounts[0]) from transaction.
+
+        Handles both string and dict accountKeys formats.
+        Safely handles missing "message" field (can be None in some responses).
+        Note: Fee payer is a heuristic for "creator", not guaranteed truth.
+        """
+        try:
+            # Safely handle missing or None "message" field
+            msg = ((tx.get("transaction") or {}).get("message") or {})
+            keys = msg.get("accountKeys") or []
+            if not keys:
+                return None
+
+            first = keys[0]
+            if isinstance(first, str):
+                return first
+            if isinstance(first, dict):
+                return first.get("pubkey")
+
+            return None
+        except Exception:
+            return None
+
+    async def _get_earliest_signature(self, session: aiohttp.ClientSession, rpc_url: str) -> Optional[str]:
+        """
+        Fetch the earliest SUCCESSFUL signature for this token mint via pagination.
+
+        Solana RPC returns signatures newest → oldest by default.
+        Must paginate (using 'before' parameter) to reach the oldest signature.
+
+        Filters out failed signatures (where err != None) to avoid decoding errors.
+        Stops early when less than 1000 results are returned (end of history).
+        """
+        before = None
+        last_sig = None
+        pages = 0
+        max_pages = 50  # Bump limit for busy mints
+
+        try:
+            while pages < max_pages:
+                pages += 1
+                config = {"limit": 1000}
+                if before:
+                    config["before"] = before
+
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getSignaturesForAddress",
+                    "params": [self.token_mint, config],
+                }
+
+                async with session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                    data = await resp.json()
+
+                # Check for RPC error response
+                if "error" in data:
+                    raise RuntimeError(f"RPC error: {data['error']}")
+
+                sigs = data.get("result") or []
+                if not sigs:
+                    # Empty page = reached the end
+                    return last_sig
+
+                # Filter to only successful signatures (err == None)
+                ok_sigs = [s for s in sigs if s.get("err") is None]
+                if ok_sigs:
+                    last_sig = ok_sigs[-1]["signature"]
+
+                # Paginate using the last returned sig (even if errored) to continue forward
+                before = sigs[-1]["signature"]
+
+                # Early exit: if we got fewer than 1000 results, we've reached the end
+                if len(sigs) < 1000:
+                    print(f"[CREATOR] Pagination page {pages}: fetched {len(sigs)} sigs (< 1000, reached end), oldest ok: {last_sig[:8] if last_sig else 'N/A'}...", flush=True)
+                    return last_sig
+
+                print(f"[CREATOR] Pagination page {pages}: fetched {len(sigs)} sigs, oldest ok so far: {last_sig[:8] if last_sig else 'N/A'}...", flush=True)
+
+            print(f"[CREATOR] ⚠ Reached max pages ({max_pages}), using oldest found: {last_sig[:8] if last_sig else 'N/A'}...", flush=True)
+            return last_sig
+
+        except Exception as e:
+            print(f"[CREATOR] ⚠ Error fetching earliest signature: {e}", flush=True)
+            return None
+
     async def get_creator_from_earliest_tx(self) -> Optional[str]:
         """
-        Extract the creator from the earliest Pump.fun transaction.
-        
+        Extract creator (fee payer) from earliest transaction on the token mint.
+
         Strategy:
-        1. Fetch all signatures (oldest to newest)
-        2. Get the earliest signature (first transaction)
-        3. Parse that transaction to find the creator signer
-        4. Creator = first non-program signer
-        
-        Returns:
-            Creator wallet address or None if not found
+        1. Try FluxRPC: Paginate to find truly earliest signature, extract fee payer
+        2. Fallback: Use stored signers extraction from cached transaction
+
+        Note: Fee payer is a strong heuristic but not guaranteed creator.
+        Relayers and launch services may be the fee payer instead.
         """
+        import os
+
+        try:
+            # Get FluxRPC URL from environment or use default
+            flux_rpc = os.getenv("FLUX_RPC_URL", "").strip()
+            if not flux_rpc:
+                flux_rpc = "https://eu.fluxrpc.com?key=ca1a8797-c505-4c44-9918-5f832c89e91d"
+
+            async with aiohttp.ClientSession() as session:
+                # Tier 1: Paginate to find truly earliest signature
+                print(f"[CREATOR] 🔍 Fetching earliest signature via pagination...", flush=True)
+                earliest_sig = await self._get_earliest_signature(session, flux_rpc)
+
+                if earliest_sig:
+                    print(f"[CREATOR] Found earliest signature: {earliest_sig[:8]}...", flush=True)
+
+                    # Fetch the transaction with jsonParsed encoding
+                    tx_payload = {
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "getTransaction",
+                        "params": [earliest_sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+                    }
+
+                    try:
+                        async with session.post(flux_rpc, json=tx_payload, timeout=aiohttp.ClientTimeout(total=30)) as tx_resp:
+                            tx_data = await tx_resp.json()
+
+                            # Check for RPC error
+                            if "error" in tx_data:
+                                print(f"[CREATOR] RPC error fetching tx {earliest_sig[:8]}...: {tx_data['error']}", flush=True)
+                            else:
+                                tx = tx_data.get("result")
+                                if tx:
+                                    creator = self._extract_fee_payer_from_tx(tx)
+                                    if creator:
+                                        print(f"[CREATOR] ✅ Extracted from FluxRPC earliest tx: {creator[:8]}...", flush=True)
+                                        return creator
+                    except Exception as tx_err:
+                        print(f"[CREATOR] Error fetching transaction {earliest_sig[:8]}...: {tx_err}", flush=True)
+
+        except Exception as flux_err:
+            print(f"[CREATOR] FluxRPC error: {flux_err}", flush=True)
+
+        # Tier 2: Fallback - use the existing signers extraction method
         try:
             # Fetch all signatures - fetch_signatures already handles RPC failover
             sigs = await self.fetch_signatures(limit=1000)
-            
+
             if not sigs:
                 print(f"[CREATOR] No signatures found for {self.token_mint}", flush=True)
                 return None
-            
+
             # Get the EARLIEST signature (oldest = last in list after pagination)
             # Note: getSignaturesForAddress returns newest first, so we take the last
             earliest_sig = sigs[-1] if sigs else None
-            
+
             if not earliest_sig:
                 print(f"[CREATOR] Could not determine earliest signature", flush=True)
                 return None
-            
-            print(f"[CREATOR] Fetching earliest transaction: {earliest_sig[:20]}...", flush=True)
-            
+
+            print(f"[CREATOR] Fallback: Fetching earliest transaction: {earliest_sig[:20]}...", flush=True)
+
             # Fetch that transaction
             payload = {
                 "jsonrpc": "2.0",
@@ -564,13 +695,13 @@ class PostMigrationAnalyzer:
                 "method": "getTransaction",
                 "params": [earliest_sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
             }
-            
+
             tx_data = await self._post_rpc_with_fallback(payload, timeout=10)
-            
+
             if not tx_data or "result" not in tx_data or not tx_data["result"]:
                 print(f"[CREATOR] Transaction not found or failed to parse", flush=True)
                 return None
-            
+
             tx = tx_data["result"]
 
             # Extract signers from transaction
@@ -624,7 +755,7 @@ class PostMigrationAnalyzer:
 
             print(f"[CREATOR] No valid signers found", flush=True)
             return None
-            
+
         except Exception as e:
             print(f"[CREATOR] Error extracting creator: {type(e).__name__}: {str(e)}", flush=True)
             return None

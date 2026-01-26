@@ -649,8 +649,11 @@ HTML_TEMPLATE = """
                 const response = await fetch('/api/migrated-tokens');
                 const data = await response.json();
                 console.log('Loaded tokens:', data.tokens?.length || 0, 'tokens');
+                console.log('Token data keys:', Object.keys(data));
+                console.log('First token:', data.tokens?.[0]);
 
                 if (!data.tokens || data.tokens.length === 0) {
+                    console.error('No tokens in response!');
                     document.getElementById('tokens-container').innerHTML =
                         '<div class="no-data">No migrations recorded yet. Monitoring Pump.Fun...</div>';
                     return;
@@ -666,7 +669,7 @@ HTML_TEMPLATE = """
                         const creatorResp = await fetch('/api/creators-batch', {
                             method: 'POST',
                             headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({creators: creators})
+                            body: JSON.stringify({"creators": creators})
                         });
                         creatorData = await creatorResp.json();
                     } catch (e) {

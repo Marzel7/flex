@@ -1428,11 +1428,41 @@ def api_creators_batch():
         return jsonify({})
 
 
-# Migration settings (stored in memory for this session)
-migration_settings = {
-    'token_history_check': True,
-    'creator_clustering': True
-}
+# Migration settings (stored in file for persistence)
+SETTINGS_FILE = "migration_settings.json"
+
+def load_migration_settings():
+    """Load migration settings from file"""
+    import os
+    if os.path.exists(SETTINGS_FILE):
+        try:
+            with open(SETTINGS_FILE) as f:
+                return json.load(f)
+        except:
+            pass
+    # Default settings
+    return {
+        'token_history_check': True,
+        'creator_clustering': True
+    }
+
+def save_migration_settings(settings):
+    """Save migration settings to file"""
+    try:
+        with open(SETTINGS_FILE, 'w') as f:
+            json.dump(settings, f)
+    except Exception as e:
+        print(f"[SETTINGS] Error saving settings: {e}")
+
+migration_settings = load_migration_settings()
+
+
+def get_migration_setting(key: str, default=True) -> bool:
+    """Get a migration setting value (for use by listener)"""
+    global migration_settings
+    # Reload from file to get latest changes
+    migration_settings = load_migration_settings()
+    return migration_settings.get(key, default)
 
 
 @app.route('/api/migration-settings', methods=['POST', 'GET'])
@@ -1446,6 +1476,9 @@ def api_migration_settings():
             migration_settings['token_history_check'] = bool(data['token_history_check'])
         if 'creator_clustering' in data:
             migration_settings['creator_clustering'] = bool(data['creator_clustering'])
+
+        # Persist to file
+        save_migration_settings(migration_settings)
 
         status_text = []
         if migration_settings['token_history_check']:

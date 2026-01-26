@@ -22,6 +22,21 @@ from realtime_creator_funding_extractor import extract_funding_for_new_token
 from realtime_wallet_clustering_extractor import trigger_wallet_clustering
 from dotenv import load_dotenv
 
+# Import settings checker (will be imported dynamically when needed)
+def get_migration_setting(key: str, default=True) -> bool:
+    """Get a migration setting from file (default implementation)"""
+    try:
+        import json
+        import os
+        settings_file = "migration_settings.json"
+        if os.path.exists(settings_file):
+            with open(settings_file) as f:
+                settings = json.load(f)
+                return settings.get(key, default)
+    except:
+        pass
+    return default
+
 load_dotenv()
 
 # === Config ===
@@ -937,11 +952,17 @@ class PumpFunCurveListener:
                     # Fall back to current time if we couldn't get actual migration time
                     created_at = migration_timestamp or datetime.utcnow().isoformat() + "Z"
 
-                    # Run funding extraction asynchronously
-                    asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at))
+                    # Run funding extraction asynchronously (if enabled)
+                    if get_migration_setting('token_history_check', True):
+                        asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at))
+                    else:
+                        print(f"[SETTINGS] Token history check DISABLED, skipping funding extraction", flush=True)
 
-                    # Trigger wallet clustering analysis asynchronously
-                    asyncio.create_task(trigger_wallet_clustering(earliest_creator))
+                    # Trigger wallet clustering analysis asynchronously (if enabled)
+                    if get_migration_setting('creator_clustering', True):
+                        asyncio.create_task(trigger_wallet_clustering(earliest_creator))
+                    else:
+                        print(f"[SETTINGS] Creator clustering DISABLED, skipping wallet analysis", flush=True)
                 except Exception as e:
                     print(f"[FUNDING] ⚠ Could not extract funding data: {e}", flush=True)
 

@@ -20,8 +20,11 @@ from typing import Optional, Dict, List, Set, Tuple
 from datetime import datetime
 
 DB_PATH = "pumpswap_tokens.db"
-HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "80ff2d2d-14d1-4b05-bfcd-26769047e331"
-HELIUS_URL = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
+
+# FluxRPC endpoint for wallet clustering (same as creator extraction)
+FLUX_RPC_URL = os.getenv("FLUX_RPC_URL", "").strip()
+if not FLUX_RPC_URL:
+    FLUX_RPC_URL = "https://eu.fluxrpc.com?key=ca1a8797-c505-4c44-9918-5f832c89e91d"
 
 
 class RealtimeWalletClusteringExtractor:
@@ -42,21 +45,24 @@ class RealtimeWalletClusteringExtractor:
             await self.session.close()
 
     async def _post_rpc(self, payload: dict, timeout: int = 15) -> Optional[dict]:
-        """Post to RPC"""
+        """Post to FluxRPC endpoint"""
         try:
             async with self.session.post(
-                HELIUS_URL,
+                FLUX_RPC_URL,
                 json=payload,
                 timeout=aiohttp.ClientTimeout(total=timeout),
             ) as resp:
                 if resp.status == 200:
-                    return await resp.json()
+                    data = await resp.json()
+                    # Check for RPC error in response body
+                    if "error" not in data:
+                        return data
         except:
             pass
         return None
 
     async def get_transaction(self, signature: str) -> Optional[Dict]:
-        """Get transaction details"""
+        """Get transaction details from FluxRPC"""
         payload = {
             "jsonrpc": "2.0",
             "id": 1,
@@ -74,7 +80,7 @@ class RealtimeWalletClusteringExtractor:
     async def get_signatures_for_address(
         self, address: str, limit: int = 100, before: str = None
     ) -> List[Dict]:
-        """Get recent signatures for an address"""
+        """Get recent signatures for an address from FluxRPC"""
         payload = {
             "jsonrpc": "2.0",
             "id": 1,
@@ -87,7 +93,7 @@ class RealtimeWalletClusteringExtractor:
                 }
             ]
         }
-        result = await self._post_rpc(payload)
+        result = await self._post_rpc(payload, timeout=15)
         if result and "result" in result:
             return result.get("result", [])
         return []

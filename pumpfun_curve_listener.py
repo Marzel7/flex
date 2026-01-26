@@ -945,8 +945,12 @@ class PumpFunCurveListener:
                 try:
                     conn = sqlite3.connect(DB_PATH, timeout=60)
                     cursor = conn.cursor()
-                    cursor.execute("SELECT rug_count, reputation, connected_to_malicious, network_members FROM creator_blocklist WHERE creator_address = ?", (earliest_creator,))
-                    blocklist_row = cursor.fetchone()
+                    try:
+                        cursor.execute("SELECT rug_count, reputation, connected_to_malicious, network_members FROM creator_blocklist WHERE creator_address = ?", (earliest_creator,))
+                        blocklist_row = cursor.fetchone()
+                    except sqlite3.OperationalError:
+                        # creator_blocklist table doesn't exist yet
+                        blocklist_row = None
                     conn.close()
 
                     if blocklist_row:

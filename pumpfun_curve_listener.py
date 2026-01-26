@@ -139,7 +139,6 @@ class PumpFunCurveListener:
                 pool_address TEXT,
                 creator_address TEXT,
                 creator_reputation TEXT,
-                token_creator TEXT,
                 earliest_tx_creator TEXT,
                 creator_is_blocked INTEGER DEFAULT 0,
                 network_risk INTEGER DEFAULT 0,
@@ -232,8 +231,8 @@ class PumpFunCurveListener:
                         post_migration_buy_size_variance, post_migration_sell_volume_concentration,
                         post_migration_creator_activity_ratio,
                         rug_probability, risk_level, post_migration_coverage,
-                        migration_tx, price_current, price_highest, pool_address, token_creator, earliest_tx_creator, creator_is_blocked, network_risk, connected_malicious_count
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        migration_tx, price_current, price_highest, pool_address, earliest_tx_creator, creator_is_blocked, network_risk, connected_malicious_count
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     mint,
                     time.time(),
@@ -252,7 +251,6 @@ class PumpFunCurveListener:
                     None,  # price_current will be updated by background task
                     None,  # price_highest will be updated by background task
                     pool_address,  # Extracted pool address from migration transaction
-                    analysis.get("token_creator"),  # Creator from Metaplex metadata
                     analysis.get("earliest_tx_creator"),  # Creator from earliest transaction
                     analysis.get("creator_is_blocked", 0),  # Is creator in blocklist?
                     analysis.get("network_risk", 0),  # Is creator connected to malicious creators?

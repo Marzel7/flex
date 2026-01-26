@@ -778,18 +778,18 @@ HTML_TEMPLATE = """
                             if (creatorData.network_size > 10) {
                                 const hop0 = creatorData.cluster_hops?.hop0 || 0;
                                 const hop1 = creatorData.cluster_hops?.hop1 || 0;
-                                tags.push(\`<span class="creator-tag tag-network" title="Wallet cluster: \${hop0} hop-0, \${hop1} hop-1">\${creatorData.network_size} wallets</span>\`);
+                                tags.push(`<span class="creator-tag tag-network" title="Wallet cluster: ${hop0} hop-0, ${hop1} hop-1">${creatorData.network_size} wallets</span>`);
                             }
 
                             // Funding tag (show if > 10 SOL)
                             if (creatorData.inbound_sol > 10) {
                                 const sources = creatorData.inbound_sources || 0;
-                                tags.push(\`<span class="creator-tag tag-funding" title="Pre-launch funding">\${creatorData.inbound_sol.toFixed(1)} SOL from \${sources} source\${sources > 1 ? 's' : ''}</span>\`);
+                                tags.push(`<span class="creator-tag tag-funding" title="Pre-launch funding">${creatorData.inbound_sol.toFixed(1)} SOL from ${sources} source${sources > 1 ? 's' : ''}</span>`);
                             }
 
                             // Repeat launcher tag (show if > 1 token)
                             if (creatorData.token_count > 1) {
-                                tags.push(\`<span class="creator-tag tag-repeat" title="Repeat launcher">\${creatorData.token_count} tokens</span>\`);
+                                tags.push(`<span class="creator-tag tag-repeat" title="Repeat launcher">${creatorData.token_count} tokens</span>`);
                             }
 
                             // Blocked tag
@@ -800,40 +800,40 @@ HTML_TEMPLATE = """
                             const creatorShort = token.creator ? token.creator.substring(0, 8) + '...' : 'N/A';
                             const creatorTitle = token.creator || 'Unknown';
 
-                            return \`
+                            return `
                                 <tr>
-                                    <td class="mint"><a href="#" onclick="showTokenMetrics('\${token.mint}'); return false;" class="mint-link" title="Click for metrics">\${token.mint}</a></td>
-                                    <td class="creator-address" title="\${creatorTitle}">\${creatorShort}</td>
-                                    <td class="creator-tags">\${tags.join(' ')}</td>
+                                    <td class="mint"><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="Click for metrics">${token.mint}</a></td>
+                                    <td class="creator-address" title="${creatorTitle}">${creatorShort}</td>
+                                    <td class="creator-tags">${tags.join(' ')}</td>
                                     <td>
-                                        \${token.rug_indicator === 'quick_peak_low_mc' ? '<span class="rug-badge">🚨 RUG</span>' : '<span class="safe-badge">✓ Safe</span>'}
+                                        ${token.rug_indicator === 'quick_peak_low_mc' ? '<span class="rug-badge">🚨 RUG</span>' : '<span class="safe-badge">✓ Safe</span>'}
                                     </td>
                                     <td>
-                                        <span class="risk-score \${getRiskClass(token.risk_level)}">\${token.risk_level}</span>
+                                        <span class="risk-score ${getRiskClass(token.risk_level)}">${token.risk_level}</span>
                                     </td>
                                     <td>
-                                        \${token.rug_probability !== null && token.rug_probability !== undefined ? (token.rug_probability * 100).toFixed(1) + '%' : '—'}
+                                        ${token.rug_probability !== null && token.rug_probability !== undefined ? (token.rug_probability * 100).toFixed(1) + '%' : '—'}
                                     </td>
                                     <td>
-                                        \${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '—'}
+                                        ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '—'}
                                     </td>
                                     <td>
-                                        \${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '—'}
+                                        ${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '—'}
                                     </td>
                                     <td>
-                                        \${token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : '—'}
+                                        ${token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : '—'}
                                     </td>
                                     <td>
-                                        \${token.total_events}
+                                        ${token.total_events}
                                     </td>
                                     <td>
-                                        \${token.coverage ? token.coverage.toFixed(1) + '%' : '—'}
+                                        ${token.coverage ? token.coverage.toFixed(1) + '%' : '—'}
                                     </td>
                                     <td>
-                                        \${formatDate(token.analyzed_at)}
+                                        ${formatDate(token.analyzed_at)}
                                     </td>
                                 </tr>
-                            \`;
+                            `;
                         }).join('')}
                     </tbody>
                 </table>

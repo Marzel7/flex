@@ -1064,7 +1064,38 @@ HTML_TEMPLATE = """
             }).catch(e => console.error('Error updating settings:', e));
         }
 
+        // Initialize settings from backend on page load
+        async function initializeSettings() {
+            try {
+                const resp = await fetch('/api/migration-settings');
+                const settings = await resp.json();
+
+                tokenHistoryEnabled = settings.token_history_check;
+                clusteringEnabled = settings.creator_clustering;
+
+                // Update toggle switch states
+                const tokenHistoryToggle = document.getElementById('tokenHistoryToggle');
+                const tokenHistoryStatus = document.getElementById('tokenHistoryStatus');
+                const clusteringToggle = document.getElementById('clusteringToggle');
+                const clusteringStatus = document.getElementById('clusteringStatus');
+
+                if (!tokenHistoryEnabled) {
+                    tokenHistoryToggle.classList.remove('active');
+                    tokenHistoryStatus.classList.remove('active');
+                }
+                if (!clusteringEnabled) {
+                    clusteringToggle.classList.remove('active');
+                    clusteringStatus.classList.remove('active');
+                }
+
+                console.log('Settings loaded:', settings);
+            } catch (e) {
+                console.error('Error loading settings:', e);
+            }
+        }
+
         // Load tokens immediately and then every 10 seconds
+        initializeSettings();
         loadTokens();
         setInterval(loadTokens, 10000);
 

@@ -319,12 +319,12 @@ class PumpFunCurveListener:
         2. Fall back to accountKeys if postTokenBalances missing
         3. Filter out system programs
         4. Accept 43 or 44 char addresses (Pump.Fun token length variance)
-        
+
         Includes retry logic for newly-confirmed transactions that may have indexing delays.
         Uses RPC failover chain: Primary QuickNode -> Secondary QuickNode -> Helius -> Public.
         """
-        max_retries = 5
-        retry_delays = [0.5, 1.0, 2.0, 3.0, 5.0]  # Exponential backoff for indexing delay
+        max_retries = 12
+        retry_delays = [0.5, 1.0, 2.0, 3.0, 5.0, 8.0, 10.0, 15.0, 20.0, 30.0, 45.0, 60.0]  # Extended backoff for slow indexing
 
         for attempt in range(max_retries):
             try:

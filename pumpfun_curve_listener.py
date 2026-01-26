@@ -912,8 +912,32 @@ class PumpFunCurveListener:
 
                 # Extract pre-migration funding in real-time (non-blocking)
                 try:
-                    # Get created_at timestamp from analyzer
-                    created_at = summary.get("created_at", datetime.now().isoformat())
+                    # Get migration timestamp from the signature (block time)
+                    migration_timestamp = None
+                    if signature:
+                        try:
+                            # Fetch migration transaction to get block time
+                            import aiohttp
+                            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30)) as session:
+                                payload = {
+                                    "jsonrpc": "2.0",
+                                    "id": 1,
+                                    "method": "getTransaction",
+                                    "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
+                                }
+                                async with session.post(RPC_HTTP, json=payload) as resp:
+                                    tx_data = await resp.json()
+                                    if tx_data.get("result"):
+                                        block_time = tx_data["result"].get("blockTime")
+                                        if block_time:
+                                            migration_timestamp = datetime.utcfromtimestamp(block_time).isoformat() + "Z"
+                                            print(f"[FUNDING] Migration timestamp from tx: {migration_timestamp}", flush=True)
+                        except Exception as ts_err:
+                            print(f"[FUNDING] ⚠ Could not get migration timestamp: {ts_err}", flush=True)
+
+                    # Fall back to current time if we couldn't get actual migration time
+                    created_at = migration_timestamp or datetime.utcnow().isoformat() + "Z"
+
                     # Run funding extraction asynchronously
                     asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at))
                 except Exception as e:

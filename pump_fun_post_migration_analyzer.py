@@ -238,12 +238,13 @@ class PostMigrationAnalyzer:
                     # Error on this RPC, try next
                     continue
 
-            # All RPC endpoints failed, log and retry with backoff
+            # All RPC endpoints failed, retry with backoff
             if attempt < MAX_RETRIES - 1:
-                if attempt == 0 or (attempt + 1) % 3 == 0:
+                # Only log every 5 retries to reduce noise
+                if (attempt + 1) % 5 == 0:
                     print(
-                        f"[FETCH_TX] All RPC endpoints failed for {sig[:12]}... "
-                        f"(retry {attempt + 1}/{MAX_RETRIES})",
+                        f"[FETCH_TX] Retrying transaction {sig[:12]}... "
+                        f"(attempt {attempt + 1}/{MAX_RETRIES})",
                         flush=True
                     )
                 delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)]
@@ -602,12 +603,8 @@ class PostMigrationAnalyzer:
 
                 # Early exit: if we got fewer than 1000 results, we've reached the end
                 if len(sigs) < 1000:
-                    print(f"[CREATOR] Pagination page {pages}: fetched {len(sigs)} sigs (< 1000, reached end), oldest ok: {last_sig[:8] if last_sig else 'N/A'}...", flush=True)
                     return last_sig
 
-                print(f"[CREATOR] Pagination page {pages}: fetched {len(sigs)} sigs, oldest ok so far: {last_sig[:8] if last_sig else 'N/A'}...", flush=True)
-
-            print(f"[CREATOR] ⚠ Reached max pages ({max_pages}), using oldest found: {last_sig[:8] if last_sig else 'N/A'}...", flush=True)
             return last_sig
 
         except Exception as e:
@@ -635,12 +632,9 @@ class PostMigrationAnalyzer:
 
             async with aiohttp.ClientSession() as session:
                 # Tier 1: Paginate to find truly earliest signature
-                print(f"[CREATOR] 🔍 Fetching earliest signature via pagination...", flush=True)
                 earliest_sig = await self._get_earliest_signature(session, flux_rpc)
 
                 if earliest_sig:
-                    print(f"[CREATOR] Found earliest signature: {earliest_sig[:8]}...", flush=True)
-
                     # Fetch the transaction with jsonParsed encoding
                     tx_payload = {
                         "jsonrpc": "2.0",
@@ -654,17 +648,16 @@ class PostMigrationAnalyzer:
                             tx_data = await tx_resp.json()
 
                             # Check for RPC error
-                            if "error" in tx_data:
-                                print(f"[CREATOR] RPC error fetching tx {earliest_sig[:8]}...: {tx_data['error']}", flush=True)
-                            else:
+                            if "error" not in tx_data:
                                 tx = tx_data.get("result")
                                 if tx:
                                     creator = self._extract_fee_payer_from_tx(tx)
                                     if creator:
-                                        print(f"[CREATOR] ✅ Extracted from FluxRPC earliest tx: {creator[:8]}...", flush=True)
+                                        print(f"[CREATOR] ✅ Earliest signature: {earliest_sig}", flush=True)
+                                        print(f"[CREATOR] ✅ Creator: {creator}", flush=True)
                                         return creator
-                    except Exception as tx_err:
-                        print(f"[CREATOR] Error fetching transaction {earliest_sig[:8]}...: {tx_err}", flush=True)
+                    except Exception:
+                        pass
 
         except Exception as flux_err:
             print(f"[CREATOR] FluxRPC error: {flux_err}", flush=True)

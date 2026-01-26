@@ -573,6 +573,74 @@ HTML_TEMPLATE = """
             text-decoration: none;
             opacity: 0.8;
         }
+
+        .controls-panel {
+            background: rgba(0, 20, 40, 0.8);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .control-label {
+            color: #a0a0a0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            background-color: #404050;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .toggle-switch.active {
+            background-color: #00d4ff;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: left 0.3s;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            left: 28px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ff4444;
+            margin-left: 8px;
+        }
+
+        .status-indicator.active {
+            background-color: #00ff00;
+        }
     </style>
 </head>
 <body>
@@ -606,6 +674,23 @@ HTML_TEMPLATE = """
             <div class="stat-card">
                 <div class="stat-label">Repeat Launchers</div>
                 <div class="stat-value" id="repeat-launchers">0</div>
+            </div>
+        </div>
+
+        <div class="controls-panel">
+            <div class="control-group">
+                <span class="control-label">Token History Check</span>
+                <div class="toggle-switch active" id="tokenHistoryToggle" onclick="toggleTokenHistory()">
+                    <div class="toggle-slider"></div>
+                </div>
+                <span class="status-indicator active" id="tokenHistoryStatus"></span>
+            </div>
+            <div class="control-group">
+                <span class="control-label">Creator Clustering</span>
+                <div class="toggle-switch active" id="clusteringToggle" onclick="toggleClustering()">
+                    <div class="toggle-slider"></div>
+                </div>
+                <span class="status-indicator active" id="clusteringStatus"></span>
             </div>
         </div>
 
@@ -932,6 +1017,52 @@ HTML_TEMPLATE = """
 
         // Abort controller for price loading - allows canceling requests when modal opens
         let priceLoadController = new AbortController();
+
+        // Migration feature toggles
+        let tokenHistoryEnabled = true;
+        let clusteringEnabled = true;
+
+        function toggleTokenHistory() {
+            tokenHistoryEnabled = !tokenHistoryEnabled;
+            const toggle = document.getElementById('tokenHistoryToggle');
+            const status = document.getElementById('tokenHistoryStatus');
+            toggle.classList.toggle('active');
+            status.classList.toggle('active');
+
+            const state = tokenHistoryEnabled ? 'ENABLED' : 'DISABLED';
+            console.log(`Token History Check: ${state}`);
+
+            // Send to backend to enable/disable
+            fetch('/api/migration-settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    token_history_check: tokenHistoryEnabled,
+                    creator_clustering: clusteringEnabled
+                })
+            }).catch(e => console.error('Error updating settings:', e));
+        }
+
+        function toggleClustering() {
+            clusteringEnabled = !clusteringEnabled;
+            const toggle = document.getElementById('clusteringToggle');
+            const status = document.getElementById('clusteringStatus');
+            toggle.classList.toggle('active');
+            status.classList.toggle('active');
+
+            const state = clusteringEnabled ? 'ENABLED' : 'DISABLED';
+            console.log(`Creator Clustering: ${state}`);
+
+            // Send to backend to enable/disable
+            fetch('/api/migration-settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    token_history_check: tokenHistoryEnabled,
+                    creator_clustering: clusteringEnabled
+                })
+            }).catch(e => console.error('Error updating settings:', e));
+        }
 
         // Load tokens immediately and then every 10 seconds
         loadTokens();
@@ -1295,6 +1426,42 @@ def api_creators_batch():
     except Exception as e:
         print(f"[API] Error in creators-batch: {e}")
         return jsonify({})
+
+
+# Migration settings (stored in memory for this session)
+migration_settings = {
+    'token_history_check': True,
+    'creator_clustering': True
+}
+
+
+@app.route('/api/migration-settings', methods=['POST', 'GET'])
+def api_migration_settings():
+    """Get or update migration feature settings"""
+    global migration_settings
+
+    if request.method == 'POST':
+        data = request.json or {}
+        if 'token_history_check' in data:
+            migration_settings['token_history_check'] = bool(data['token_history_check'])
+        if 'creator_clustering' in data:
+            migration_settings['creator_clustering'] = bool(data['creator_clustering'])
+
+        status_text = []
+        if migration_settings['token_history_check']:
+            status_text.append('Token History ✓')
+        if migration_settings['creator_clustering']:
+            status_text.append('Clustering ✓')
+
+        print(f"[SETTINGS] Migration features: {', '.join(status_text) if status_text else 'All disabled'}")
+
+        return jsonify({
+            'status': 'updated',
+            'settings': migration_settings
+        })
+
+    # GET - return current settings
+    return jsonify(migration_settings)
 
 
 # =========================================================================

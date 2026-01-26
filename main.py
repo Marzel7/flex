@@ -1040,7 +1040,7 @@ HTML_TEMPLATE = """
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     token_history_check: tokenHistoryEnabled,
-                    creator_clustering: clusteringEnabled
+                    creator_history_check: clusteringEnabled
                 })
             }).then(resp => resp.json()).then(data => {
                 console.log('✅ [SETTINGS] Updated - Token History: ' + state);
@@ -1066,7 +1066,7 @@ HTML_TEMPLATE = """
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     token_history_check: tokenHistoryEnabled,
-                    creator_clustering: clusteringEnabled
+                    creator_history_check: clusteringEnabled
                 })
             }).then(resp => resp.json()).then(data => {
                 console.log('✅ [SETTINGS] Updated - Creator Analysis: ' + state);
@@ -1081,7 +1081,7 @@ HTML_TEMPLATE = """
                 const settings = await resp.json();
 
                 tokenHistoryEnabled = settings.token_history_check;
-                clusteringEnabled = settings.creator_clustering;
+                clusteringEnabled = settings.creator_history_check;
 
                 // Update toggle switch states
                 const tokenHistoryToggle = document.getElementById('tokenHistoryToggle');
@@ -1487,7 +1487,7 @@ def load_migration_settings():
     # Default settings
     return {
         'token_history_check': True,
-        'creator_clustering': True
+        'creator_history_check': True
     }
 
 def save_migration_settings(settings):
@@ -1528,10 +1528,10 @@ def api_migration_settings():
             if old_val != new_val:
                 changes.append(f"Token History: {('✅ ON' if old_val else '❌ OFF')} → {('✅ ON' if new_val else '❌ OFF')}")
 
-        if 'creator_clustering' in data:
-            old_val = old_settings.get('creator_clustering', True)
-            new_val = bool(data['creator_clustering'])
-            migration_settings['creator_clustering'] = new_val
+        if 'creator_history_check' in data:
+            old_val = old_settings.get('creator_history_check', True)
+            new_val = bool(data['creator_history_check'])
+            migration_settings['creator_history_check'] = new_val
             if old_val != new_val:
                 changes.append(f"Creator Analysis: {('✅ ON' if old_val else '❌ OFF')} → {('✅ ON' if new_val else '❌ OFF')}")
 
@@ -1544,7 +1544,7 @@ def api_migration_settings():
                 print(f"[SETTINGS] TOGGLED - {change}", flush=True)
 
         history_state = '✅ ON' if migration_settings['token_history_check'] else '❌ OFF'
-        analysis_state = '✅ ON' if migration_settings['creator_clustering'] else '❌ OFF'
+        analysis_state = '✅ ON' if migration_settings['creator_history_check'] else '❌ OFF'
         print(f"[SETTINGS] Current State - Token History: {history_state} | Creator Analysis: {analysis_state}", flush=True)
 
         return jsonify({
@@ -1554,7 +1554,7 @@ def api_migration_settings():
 
     # GET - return current settings
     history_state = '✅ ON' if migration_settings['token_history_check'] else '❌ OFF'
-    analysis_state = '✅ ON' if migration_settings['creator_clustering'] else '❌ OFF'
+    analysis_state = '✅ ON' if migration_settings['creator_history_check'] else '❌ OFF'
     print(f"[SETTINGS] Retrieved - Token History: {history_state} | Creator Analysis: {analysis_state}", flush=True)
     return jsonify(migration_settings)
 

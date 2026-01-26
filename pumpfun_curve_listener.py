@@ -960,11 +960,11 @@ class PumpFunCurveListener:
                         print(f"[SETTINGS] Token history check ❌ OFF - skipping funding extraction", flush=True)
 
                     # Trigger wallet clustering analysis asynchronously (if enabled)
-                    if get_migration_setting('creator_clustering', True):
-                        print(f"[SETTINGS] Creator analysis ✅ ON - analyzing creator network", flush=True)
+                    if get_migration_setting('creator_history_check', True):
+                        print(f"[SETTINGS] Creator history ✅ ON - analyzing creator network", flush=True)
                         asyncio.create_task(trigger_wallet_clustering(earliest_creator))
                     else:
-                        print(f"[SETTINGS] Creator analysis ❌ OFF - skipping creator network analysis", flush=True)
+                        print(f"[SETTINGS] Creator history ❌ OFF - skipping creator network analysis", flush=True)
                 except Exception as e:
                     print(f"[FUNDING] ⚠ Could not extract funding data: {e}", flush=True)
 
@@ -1304,13 +1304,13 @@ class PumpFunCurveListener:
             if pool_address:
                 print(f"[EVENT] ✅ Pool extracted from transaction: {pool_address}", flush=True)
 
-            # Analyze token (includes pre-migration creator behavior) asynchronously (if Creator Analysis is enabled)
+            # Analyze token history (includes creator behavior from all token transactions) asynchronously (if enabled)
             # Note: Analyzer fetches all token signatures (before and after migration) to analyze creator behavior
-            if get_migration_setting('creator_clustering', True):
-                print(f"[SETTINGS] Creator analysis ✅ ON - analyzing creator behavior (pre and post-migration)", flush=True)
+            if get_migration_setting('token_history_check', True):
+                print(f"[SETTINGS] Token history ✅ ON - analyzing creator behavior from token history", flush=True)
                 asyncio.create_task(self.analyze_post_migration(mint, signature, pool_address))
             else:
-                print(f"[SETTINGS] Creator analysis ❌ OFF - skipping creator behavior analysis", flush=True)
+                print(f"[SETTINGS] Token history ❌ OFF - skipping token history analysis", flush=True)
 
         except Exception as e:
             print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)

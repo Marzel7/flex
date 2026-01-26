@@ -341,7 +341,7 @@ class PumpFunCurveListener:
                         print(f"[MINT] 📝 Transaction indexing delay, retry {attempt + 1}/{max_retries}...", flush=True)
                         await asyncio.sleep(retry_delays[attempt])
                         continue
-                    print(f"[MINT] ⚠ Transaction not found after retries: {signature[:16]}...", flush=True)
+                    print(f"[MINT] ⚠ Transaction not found after retries: {signature}", flush=True)
                     return None
 
                 tx_data = data["result"]
@@ -372,7 +372,7 @@ class PumpFunCurveListener:
                     if len(account) in (43, 44) and account not in system_programs:
                         return account
 
-                print(f"[MINT] ⚠ No valid mint found in {signature[:16]}...", flush=True)
+                print(f"[MINT] ⚠ No valid mint found in {signature}", flush=True)
                 return None
 
             except asyncio.TimeoutError:
@@ -380,14 +380,14 @@ class PumpFunCurveListener:
                     print(f"[MINT] ⏱️  Timeout, retrying {attempt + 1}/{max_retries}...", flush=True)
                     await asyncio.sleep(retry_delays[attempt])
                     continue
-                print(f"[MINT] ⚠ Timeout after retries: {signature[:16]}...", flush=True)
+                print(f"[MINT] ⚠ Timeout after retries: {signature}", flush=True)
                 return None
             except Exception as e:
                 if attempt < max_retries - 1:
                     print(f"[MINT] ⚠ Error on attempt {attempt + 1}, retrying: {e}", flush=True)
                     await asyncio.sleep(retry_delays[attempt])
                     continue
-                print(f"[MINT] ⚠ Error fetching {signature[:16]}...: {e}", flush=True)
+                print(f"[MINT] ⚠ Error fetching {signature}: {e}", flush=True)
                 return None
         
         return None
@@ -461,7 +461,7 @@ class PumpFunCurveListener:
                                 pool_idx = accounts[0]
                                 if isinstance(pool_idx, int) and pool_idx < len(account_keys):
                                     pool_address = account_keys[pool_idx]
-                                    print(f"[POOL] ✅ Extracted pool from PumpSwap instruction: {pool_address[:16]}...", flush=True)
+                                    print(f"[POOL] ✅ Extracted pool from PumpSwap instruction: {pool_address}", flush=True)
                                     return pool_address
 
 
@@ -602,7 +602,7 @@ class PumpFunCurveListener:
                     if not token_account_addr:
                         continue
                     
-                    print(f"[POOL]   Checking {token_account_addr[:16]}... (balance: {balance:.0f})", flush=True)
+                    print(f"[POOL]   Checking {token_account_addr} (balance: {balance:.0f})", flush=True)
                     
                     # Get account info with jsonParsed to extract the owner
                     acct_payload = {
@@ -627,7 +627,7 @@ class PumpFunCurveListener:
                                         owner = info.get("owner")
                                         
                                         if owner:
-                                            print(f"[POOL]     Owner: {owner[:16]}...", flush=True)
+                                            print(f"[POOL]     Owner: {owner}", flush=True)
                                             return owner
                     except:
                         pass
@@ -636,7 +636,7 @@ class PumpFunCurveListener:
                 # (This is a fallback - smallest account is usually the pool)
                 smallest_account = sorted_accounts[0].get("address")
                 if smallest_account:
-                    print(f"[POOL] Using smallest account as pool: {smallest_account[:16]}...", flush=True)
+                    print(f"[POOL] Using smallest account as pool: {smallest_account}", flush=True)
                     return smallest_account
                 
                 return None
@@ -906,7 +906,7 @@ class PumpFunCurveListener:
 
             if earliest_creator:
                 summary["earliest_tx_creator"] = earliest_creator
-                print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator[:8]}...", flush=True)
+                print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator}", flush=True)
 
                 # Extract pre-migration funding in real-time (non-blocking)
                 try:
@@ -960,9 +960,9 @@ class PumpFunCurveListener:
                         summary["creator_reputation"] = reputation
 
                         if rug_count >= 2:
-                            print(f"[BLOCKLIST] 🚨 MALICIOUS CREATOR DETECTED: {earliest_creator[:8]}... | {rug_count} rugs", flush=True)
+                            print(f"[BLOCKLIST] 🚨 MALICIOUS CREATOR DETECTED: {earliest_creator} | {rug_count} rugs", flush=True)
                         else:
-                            print(f"[BLOCKLIST] 📝 SUSPICIOUS CREATOR: {earliest_creator[:8]}... | on watch list", flush=True)
+                            print(f"[BLOCKLIST] 📝 SUSPICIOUS CREATOR: {earliest_creator} | on watch list", flush=True)
 
                         # Check if connected to other malicious creators
                         if connected_to_malicious:
@@ -1140,9 +1140,9 @@ class PumpFunCurveListener:
 
                 # Log
                 if rug_count >= 2:
-                    print(f"[BLOCKLIST] 🚨 SERIAL RUGGER: {earliest_tx_creator[:8]}... | {rug_count} rugs detected", flush=True)
+                    print(f"[BLOCKLIST] 🚨 SERIAL RUGGER: {earliest_tx_creator} | {rug_count} rugs detected", flush=True)
                 else:
-                    print(f"[BLOCKLIST] 📝 Added to watch list: {earliest_tx_creator[:8]}... | {rug_count} rug", flush=True)
+                    print(f"[BLOCKLIST] 📝 Added to watch list: {earliest_tx_creator} | {rug_count} rug", flush=True)
 
             except Exception as e:
                 print(f"[BLOCKLIST_ERROR] Failed to update rug creator block list: {e}", flush=True)
@@ -1208,7 +1208,7 @@ class PumpFunCurveListener:
                         # Peak in < 30 minutes AND peak market cap < $100k = classic rug pattern
                         if time_to_peak_minutes < 30 and market_cap_highest < 100000:
                             rug_indicator = 'quick_peak_low_mc'
-                            print(f"[RUG] 🚨 DETECTED: {token_mint[:8]}... | Time to peak: {time_to_peak_minutes:.1f} min | Peak MC: ${market_cap_highest:,.0f}", flush=True)
+                            print(f"[RUG] 🚨 DETECTED: {token_mint} | Time to peak: {time_to_peak_minutes:.1f} min | Peak MC: ${market_cap_highest:,.0f}", flush=True)
 
                             # Get creator and add to block list
                             cursor.execute("SELECT earliest_tx_creator FROM token_analysis WHERE mint = ?", (token_mint,))
@@ -1219,7 +1219,7 @@ class PumpFunCurveListener:
                         elif time_to_peak_minutes < 30:
                             # Peaked fast but market cap was substantial - not a rug, just volatile
                             rug_indicator = None
-                            print(f"[PEAK] ⚡ Fast peak but legit size: {token_mint[:8]}... | Time: {time_to_peak_minutes:.1f} min | MC: ${market_cap_highest:,.0f}", flush=True)
+                            print(f"[PEAK] ⚡ Fast peak but legit size: {token_mint} | Time: {time_to_peak_minutes:.1f} min | MC: ${market_cap_highest:,.0f}", flush=True)
                         else:
                             # Normal progression
                             rug_indicator = None
@@ -1260,7 +1260,7 @@ class PumpFunCurveListener:
                 mint = self._extract_mint_from_logs(logs)
             
             if not mint:
-                print(f"[MIGRATION] ⚠ Could not extract mint from {signature[:16]}... - SKIPPED", flush=True)
+                print(f"[MIGRATION] ⚠ Could not extract mint from {signature} - SKIPPED", flush=True)
                 return  # Silent skip - not a pump.fun token migration
 
             # Skip if already analyzed
@@ -1270,12 +1270,12 @@ class PumpFunCurveListener:
 
             self.seen_mints.add(mint)
             print(f"[EVENT] 🚀 MIGRATION DETECTED: {mint}", flush=True)
-            print(f"[EVENT] Migration signature: {signature[:16]}...", flush=True)
+            print(f"[EVENT] Migration signature: {signature}", flush=True)
 
             # Extract pool address from migration transaction for on-chain price queries
             pool_address = await self._extract_pool_from_migration_tx(signature)
             if pool_address:
-                print(f"[EVENT] ✅ Pool extracted from transaction: {pool_address[:16]}...", flush=True)
+                print(f"[EVENT] ✅ Pool extracted from transaction: {pool_address}", flush=True)
 
             # Analyze post-migration token asynchronously
             # Pass pool_address if available so it can be saved immediately
@@ -1366,7 +1366,7 @@ class PumpFunCurveListener:
                                 # Check if this is a migration
                                 if self._is_migration_transaction(logs):
                                     self.websocket_migration_count += 1
-                                    print(f"[WEBSOCKET] 🚨 Migration #{self.websocket_migration_count} detected: {signature[:16]}...", flush=True)
+                                    print(f"[WEBSOCKET] 🚨 Migration #{self.websocket_migration_count} detected: {signature}", flush=True)
                                     asyncio.create_task(self.handle_migration(signature, logs))
 
                         except asyncio.TimeoutError:

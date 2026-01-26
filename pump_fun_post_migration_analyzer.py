@@ -291,7 +291,7 @@ class PostMigrationAnalyzer:
 
     async def fetch_curve_activity_async(self):
         """Main async entry point"""
-        print(f"[STREAM] Starting post-migration analysis for {self.token_mint[:16]}...", flush=True)
+        print(f"[STREAM] Starting post-migration analysis for {self.token_mint}", flush=True)
 
         sigs = await self.fetch_signatures(limit=MAX_SIGNATURES)
         print(f"[STREAM] Fetched {len(sigs)} signatures, starting async fetch...", flush=True)
@@ -679,7 +679,7 @@ class PostMigrationAnalyzer:
                 print(f"[CREATOR] Could not determine earliest signature", flush=True)
                 return None
 
-            print(f"[CREATOR] Fallback: Fetching earliest transaction: {earliest_sig[:20]}...", flush=True)
+            print(f"[CREATOR] Fallback: Fetching earliest transaction: {earliest_sig}", flush=True)
 
             # Fetch that transaction
             payload = {

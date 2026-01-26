@@ -13,7 +13,7 @@ import sqlite3
 import json
 import requests
 from datetime import datetime
-from flask import Flask, jsonify, render_template_string
+from flask import Flask, jsonify, render_template_string, request
 from typing import Dict, List, Optional
 import os
 import time
@@ -53,7 +53,6 @@ def get_migrated_tokens() -> List[Dict]:
                 rug_indicator,
                 creator_address,
                 creator_reputation,
-                token_creator,
                 earliest_tx_creator,
                 creator_is_blocked,
                 network_risk,
@@ -81,8 +80,7 @@ def get_migrated_tokens() -> List[Dict]:
                 'rug_indicator': row['rug_indicator'],
                 'creator_address': row['creator_address'] if row['creator_address'] else None,
                 'creator_reputation': row['creator_reputation'] if row['creator_reputation'] else None,
-                'token_creator': row['token_creator'] if row['token_creator'] else None,
-                'earliest_tx_creator': row['earliest_tx_creator'] if row['earliest_tx_creator'] else None,
+                'creator': row['earliest_tx_creator'] if row['earliest_tx_creator'] else None,
                 'creator_is_blocked': bool(row['creator_is_blocked']) if row['creator_is_blocked'] else False,
                 'network_risk': bool(row['network_risk']) if row['network_risk'] else False,
                 'connected_malicious_count': row['connected_malicious_count'] if row['connected_malicious_count'] else 0
@@ -401,6 +399,60 @@ HTML_TEMPLATE = """
             text-align: center;
         }
 
+        /* Creator address column */
+        .creator-address {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        /* Creator tags container */
+        .creator-tags {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            max-width: 320px;
+        }
+
+        /* Base creator tag styling */
+        .creator-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* Network size tag (purple) */
+        .tag-network {
+            background: rgba(139, 92, 246, 0.2);
+            color: #a78bfa;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        /* Funding tag (blue) */
+        .tag-funding {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        /* Repeat launcher tag (orange) */
+        .tag-repeat {
+            background: rgba(249, 115, 22, 0.2);
+            color: #fb923c;
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+
+        /* Blocked tag (red) */
+        .tag-blocked {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            font-weight: 700;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -551,6 +603,14 @@ HTML_TEMPLATE = """
                 <div class="stat-label">Low Risk</div>
                 <div class="stat-value" id="low-risk">0</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-label">Unique Creators</div>
+                <div class="stat-value" id="unique-creators">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Repeat Launchers</div>
+                <div class="stat-value" id="repeat-launchers">0</div>
+            </div>
         </div>
 
         <div id="tokens-container">
@@ -600,14 +660,38 @@ HTML_TEMPLATE = """
                     return;
                 }
 
+                // Extract unique creator addresses
+                const creators = [...new Set(data.tokens.map(t => t.creator).filter(c => c))];
+
+                // Fetch all creator data in one batch call
+                let creatorData = {};
+                if (creators.length > 0) {
+                    try {
+                        const creatorResp = await fetch('/api/creators-batch', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({creators: creators})
+                        });
+                        creatorData = await creatorResp.json();
+                    } catch (e) {
+                        console.error('Error loading creator data:', e);
+                    }
+                }
+
+                // Enrich tokens with creator data
+                const enrichedTokens = data.tokens.map(token => ({
+                    ...token,
+                    creatorData: creatorData[token.creator] || {}
+                }));
+
                 // Store tokens for sorting
-                window.currentTokens = data.tokens;
+                window.currentTokens = enrichedTokens;
 
                 // Update stats
-                updateStats(data);
+                updateStats({tokens: enrichedTokens});
 
                 // Build table
-                buildTable(data.tokens);
+                buildTable(enrichedTokens);
             } catch (error) {
                 console.error('Error loading tokens:', error);
                 document.getElementById('tokens-container').innerHTML =
@@ -621,10 +705,24 @@ HTML_TEMPLATE = """
             const mediumRisk = tokens.filter(t => t.risk_level?.includes('MEDIUM')).length;
             const lowRisk = tokens.filter(t => t.risk_level?.includes('LOW')).length;
 
+            // Calculate unique creators
+            const uniqueCreators = new Set(tokens.map(t => t.creator).filter(c => c)).size;
+
+            // Calculate repeat launchers
+            const creatorTokenCounts = {};
+            tokens.forEach(token => {
+                if (token.creator) {
+                    creatorTokenCounts[token.creator] = (creatorTokenCounts[token.creator] || 0) + 1;
+                }
+            });
+            const repeatLaunchers = Object.values(creatorTokenCounts).filter(count => count > 1).length;
+
             document.getElementById('total-migrations').textContent = tokens.length;
             document.getElementById('with-analysis').textContent = tokens.length;
             document.getElementById('high-risk').textContent = highRisk;
             document.getElementById('low-risk').textContent = lowRisk;
+            document.getElementById('unique-creators').textContent = uniqueCreators;
+            document.getElementById('repeat-launchers').textContent = repeatLaunchers;
         }
 
         let sortConfig = {
@@ -659,6 +757,8 @@ HTML_TEMPLATE = """
                     <thead>
                         <tr>
                             <th onclick="sortBy('mint')" class="sortable ${sortConfig.column === 'mint' ? 'sorted-' + sortConfig.direction : ''}">Token Mint</th>
+                            <th>Creator</th>
+                            <th>Creator Tags</th>
                             <th onclick="sortBy('rug_indicator')" class="sortable ${sortConfig.column === 'rug_indicator' ? 'sorted-' + sortConfig.direction : ''}">Rug Flag</th>
                             <th onclick="sortBy('risk_level')" class="sortable ${sortConfig.column === 'risk_level' ? 'sorted-' + sortConfig.direction : ''}">Risk Level</th>
                             <th onclick="sortBy('rug_probability')" class="sortable ${sortConfig.column === 'rug_probability' ? 'sorted-' + sortConfig.direction : ''}">Risk Score</th>
@@ -668,45 +768,74 @@ HTML_TEMPLATE = """
                             <th onclick="sortBy('total_events')" class="sortable ${sortConfig.column === 'total_events' ? 'sorted-' + sortConfig.direction : ''}">Events</th>
                             <th onclick="sortBy('coverage')" class="sortable ${sortConfig.column === 'coverage' ? 'sorted-' + sortConfig.direction : ''}">Coverage</th>
                             <th onclick="sortBy('analyzed_at')" class="sortable ${sortConfig.column === 'analyzed_at' ? 'sorted-' + sortConfig.direction : ''}">Analyzed</th>
-                            <th onclick="sortBy('creator_reputation')" class="sortable ${sortConfig.column === 'creator_reputation' ? 'sorted-' + sortConfig.direction : ''}">Creator</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${sortedTokens.map(token => `
-                            <tr>
-                                <td class="mint"><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="Click for metrics">${token.mint}</a></td>
-                                <td>
-                                    ${token.rug_indicator === 'quick_peak_low_mc' ? '<span class="rug-badge">🚨 RUG</span>' : '<span class="safe-badge">✓ Safe</span>'}
-                                </td>
-                                <td>
-                                    <span class="risk-score ${getRiskClass(token.risk_level)}">${token.risk_level}</span>
-                                </td>
-                                <td>
-                                    ${token.rug_probability !== null && token.rug_probability !== undefined ? (token.rug_probability * 100).toFixed(1) + '%' : '—'}
-                                </td>
-                                <td>
-                                    ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '—'}
-                                </td>
-                                <td>
-                                    ${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '—'}
-                                </td>
-                                <td>
-                                    ${token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : '—'}
-                                </td>
-                                <td>
-                                    ${token.total_events}
-                                </td>
-                                <td>
-                                    ${token.coverage ? token.coverage.toFixed(1) + '%' : '—'}
-                                </td>
-                                <td>
-                                    ${formatDate(token.analyzed_at)}
-                                </td>
-                                <td>
-                                    ${token.network_risk ? '<span class="network-risk" title="🔗 Connected to ' + token.connected_malicious_count + ' malicious creator(s)">🔗 NETWORK (' + token.connected_malicious_count + ')</span> ' : ''}${token.creator_is_blocked ? '<span class="creator-blocked" title="⚠️ Known malicious actor">🚨 BLOCKED</span> ' : ''}${token.creator_reputation ? '<span class="creator-' + token.creator_reputation.toLowerCase() + '" title="Creator: ' + (token.token_creator || 'unknown') + '">' + token.creator_reputation + '</span>' : ''}
-                                </td>
-                            </tr>
-                        `).join('')}
+                        ${sortedTokens.map(token => {
+                            const creatorData = token.creatorData || {};
+                            const tags = [];
+
+                            // Network size tag (show if > 10 wallets)
+                            if (creatorData.network_size > 10) {
+                                const hop0 = creatorData.cluster_hops?.hop0 || 0;
+                                const hop1 = creatorData.cluster_hops?.hop1 || 0;
+                                tags.push(\`<span class="creator-tag tag-network" title="Wallet cluster: \${hop0} hop-0, \${hop1} hop-1">\${creatorData.network_size} wallets</span>\`);
+                            }
+
+                            // Funding tag (show if > 10 SOL)
+                            if (creatorData.inbound_sol > 10) {
+                                const sources = creatorData.inbound_sources || 0;
+                                tags.push(\`<span class="creator-tag tag-funding" title="Pre-launch funding">\${creatorData.inbound_sol.toFixed(1)} SOL from \${sources} source\${sources > 1 ? 's' : ''}</span>\`);
+                            }
+
+                            // Repeat launcher tag (show if > 1 token)
+                            if (creatorData.token_count > 1) {
+                                tags.push(\`<span class="creator-tag tag-repeat" title="Repeat launcher">\${creatorData.token_count} tokens</span>\`);
+                            }
+
+                            // Blocked tag
+                            if (creatorData.is_blocked || token.creator_is_blocked) {
+                                tags.push('<span class="creator-tag tag-blocked" title="On blocklist">BLOCKED</span>');
+                            }
+
+                            const creatorShort = token.creator ? token.creator.substring(0, 8) + '...' : 'N/A';
+                            const creatorTitle = token.creator || 'Unknown';
+
+                            return \`
+                                <tr>
+                                    <td class="mint"><a href="#" onclick="showTokenMetrics('\${token.mint}'); return false;" class="mint-link" title="Click for metrics">\${token.mint}</a></td>
+                                    <td class="creator-address" title="\${creatorTitle}">\${creatorShort}</td>
+                                    <td class="creator-tags">\${tags.join(' ')}</td>
+                                    <td>
+                                        \${token.rug_indicator === 'quick_peak_low_mc' ? '<span class="rug-badge">🚨 RUG</span>' : '<span class="safe-badge">✓ Safe</span>'}
+                                    </td>
+                                    <td>
+                                        <span class="risk-score \${getRiskClass(token.risk_level)}">\${token.risk_level}</span>
+                                    </td>
+                                    <td>
+                                        \${token.rug_probability !== null && token.rug_probability !== undefined ? (token.rug_probability * 100).toFixed(1) + '%' : '—'}
+                                    </td>
+                                    <td>
+                                        \${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '—'}
+                                    </td>
+                                    <td>
+                                        \${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '—'}
+                                    </td>
+                                    <td>
+                                        \${token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : '—'}
+                                    </td>
+                                    <td>
+                                        \${token.total_events}
+                                    </td>
+                                    <td>
+                                        \${token.coverage ? token.coverage.toFixed(1) + '%' : '—'}
+                                    </td>
+                                    <td>
+                                        \${formatDate(token.analyzed_at)}
+                                    </td>
+                                </tr>
+                            \`;
+                        }).join('')}
                     </tbody>
                 </table>
             `;
@@ -1072,6 +1201,96 @@ def api_creator_cluster(creator_address: str):
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/creators-batch', methods=['POST'])
+def api_creators_batch():
+    """Get creator enrichment data for multiple creators in one batch call"""
+    creator_addresses = request.json.get('creators', []) if request.json else []
+    if not creator_addresses:
+        return jsonify({})
+
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Token counts per creator
+        placeholders = ','.join('?' * len(creator_addresses))
+        cursor.execute(f"""
+            SELECT earliest_tx_creator, COUNT(*) as token_count
+            FROM token_analysis
+            WHERE earliest_tx_creator IN ({placeholders})
+            GROUP BY earliest_tx_creator
+        """, creator_addresses)
+        token_counts = {row['earliest_tx_creator']: row['token_count'] for row in cursor.fetchall()}
+
+        # Funding data per creator (INBOUND only)
+        cursor.execute(f"""
+            SELECT
+                creator_address,
+                COUNT(*) as sources,
+                SUM(amount_sol) as total_sol
+            FROM creator_sol_flows
+            WHERE creator_address IN ({placeholders}) AND flow_type = 'INBOUND'
+            GROUP BY creator_address
+        """, creator_addresses)
+        funding_data = {}
+        for row in cursor.fetchall():
+            funding_data[row['creator_address']] = {
+                'sources': row['sources'],
+                'sol': row['total_sol'] if row['total_sol'] else 0
+            }
+
+        # Wallet cluster size per creator
+        cursor.execute(f"""
+            SELECT
+                root_creator,
+                COUNT(*) as total_wallets,
+                SUM(CASE WHEN hop = 0 THEN 1 ELSE 0 END) as hop0,
+                SUM(CASE WHEN hop = 1 THEN 1 ELSE 0 END) as hop1
+            FROM wallet_cluster_nodes
+            WHERE root_creator IN ({placeholders})
+            GROUP BY root_creator
+        """, creator_addresses)
+        cluster_data = {}
+        for row in cursor.fetchall():
+            cluster_data[row['root_creator']] = {
+                'size': row['total_wallets'],
+                'hop0': row['hop0'],
+                'hop1': row['hop1']
+            }
+
+        # Blocklist status
+        cursor.execute(f"""
+            SELECT DISTINCT earliest_tx_creator, creator_is_blocked
+            FROM token_analysis
+            WHERE earliest_tx_creator IN ({placeholders})
+        """, creator_addresses)
+        blocked_data = {row['earliest_tx_creator']: bool(row['creator_is_blocked']) for row in cursor.fetchall()}
+
+        conn.close()
+
+        # Build response
+        result = {}
+        for creator in creator_addresses:
+            result[creator] = {
+                'token_count': token_counts.get(creator, 0),
+                'inbound_sources': funding_data.get(creator, {}).get('sources', 0),
+                'inbound_sol': funding_data.get(creator, {}).get('sol', 0),
+                'network_size': cluster_data.get(creator, {}).get('size', 0),
+                'cluster_hops': {
+                    'hop0': cluster_data.get(creator, {}).get('hop0', 0),
+                    'hop1': cluster_data.get(creator, {}).get('hop1', 0)
+                },
+                'is_blocked': blocked_data.get(creator, False)
+            }
+
+        return jsonify(result)
+    except Exception as e:
+        print(f"[API] Error in creators-batch: {e}")
+        return jsonify({})
 
 
 # =========================================================================

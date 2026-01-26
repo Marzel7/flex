@@ -1028,6 +1028,52 @@ def api_token_metrics(token_mint: str):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/creator-cluster/<creator_address>')
+def api_creator_cluster(creator_address: str):
+    """Get wallet cluster data for a creator"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get cluster size and hop breakdown
+        cursor.execute("""
+            SELECT
+                COUNT(*) as total_wallets,
+                SUM(CASE WHEN hop = 0 THEN 1 ELSE 0 END) as hop0_count,
+                SUM(CASE WHEN hop = 1 THEN 1 ELSE 0 END) as hop1_count,
+                SUM(CASE WHEN hop = 2 THEN 1 ELSE 0 END) as hop2_count,
+                AVG(confidence) as avg_confidence
+            FROM wallet_cluster_nodes
+            WHERE root_creator = ?
+        """, (creator_address,))
+
+        cluster_row = cursor.fetchone()
+
+        # Get token count for this creator
+        cursor.execute("""
+            SELECT COUNT(*) as token_count
+            FROM token_analysis
+            WHERE earliest_tx_creator = ?
+        """, (creator_address,))
+
+        token_row = cursor.fetchone()
+        conn.close()
+
+        return jsonify({
+            'creator': creator_address,
+            'cluster_size': cluster_row['total_wallets'] if cluster_row and cluster_row['total_wallets'] else 0,
+            'hop0': cluster_row['hop0_count'] if cluster_row and cluster_row['hop0_count'] else 0,
+            'hop1': cluster_row['hop1_count'] if cluster_row and cluster_row['hop1_count'] else 0,
+            'hop2': cluster_row['hop2_count'] if cluster_row and cluster_row['hop2_count'] else 0,
+            'token_count': token_row['token_count'] if token_row else 0,
+            'avg_confidence': round(cluster_row['avg_confidence'], 2) if cluster_row and cluster_row['avg_confidence'] else 0
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 # =========================================================================
 # MAIN
 # =========================================================================

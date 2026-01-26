@@ -1072,7 +1072,12 @@ def index():
 def api_migrated_tokens():
     """Get all migrated tokens with analysis data"""
     tokens = get_migrated_tokens()
-    return jsonify({'tokens': tokens})
+    response = jsonify({'tokens': tokens})
+    # Disable caching to ensure fresh data
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 
 @app.route('/api/token-price/<token_mint>')

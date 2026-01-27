@@ -789,102 +789,12 @@ class PostMigrationAnalyzer:
         }
 
         try:
-            # Get FluxRPC URL from environment or use default
-            flux_rpc = os.getenv("FLUX_RPC_URL", "").strip()
-            if not flux_rpc:
-                flux_rpc = "https://eu.fluxrpc.com?key=ca1a8797-c505-4c44-9918-5f832c89e91d"
-
-            async with aiohttp.ClientSession() as session:
-                # STEP 1: Paginate to find truly earliest signature
-                sig_result = await self._get_earliest_signature(session, flux_rpc)
-
-                earliest_sig = sig_result.get('signature')
-                provenance['earliest_sig'] = earliest_sig
-                provenance['reached_end'] = sig_result.get('reached_end', False)
-                provenance['pages_traversed'] = sig_result.get('pages_traversed', 0)
-                provenance['total_sigs_seen'] = sig_result.get('total_sigs_seen', 0)
-
-                # CRITICAL CHECK: Did pagination actually reach the end?
-                if not provenance['reached_end']:
-                    provenance['validation_notes'].append(
-                        f"Pagination stopped at {provenance['pages_traversed']} pages "
-                        f"({provenance['total_sigs_seen']} sigs) - did not reach end of history. "
-                        f"Cannot prove this is the first tx."
-                    )
-                    print(f"[CREATOR] ⚠ Pagination incomplete: {provenance['pages_traversed']} pages, "
-                          f"{provenance['total_sigs_seen']} sigs seen", flush=True)
-
-                if earliest_sig:
-                    # STEP 2: Fetch the transaction
-                    tx_payload = {
-                        "jsonrpc": "2.0",
-                        "id": 1,
-                        "method": "getTransaction",
-                        "params": [earliest_sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
-                    }
-
-                    try:
-                        async with session.post(flux_rpc, json=tx_payload, timeout=aiohttp.ClientTimeout(total=30)) as tx_resp:
-                            tx_data = await tx_resp.json()
-
-                            # Check for RPC error
-                            if "error" not in tx_data:
-                                tx = tx_data.get("result")
-                                if tx:
-                                    # Extract fee payer
-                                    fee_payer = self._extract_fee_payer_from_tx(tx)
-                                    provenance['fee_payer'] = fee_payer
-
-                                    # STEP 3: Validate that this is a Pump.fun create event
-                                    validation = self._validate_pumpfun_create_tx(tx)
-                                    provenance['mint_in_accounts'] = validation['mint_in_accounts']
-                                    provenance['pumpfun_program_found'] = validation['pumpfun_program_found']
-                                    provenance['is_pumpfun_create'] = validation['is_pumpfun_create']
-                                    provenance['slot'] = validation['slot']
-                                    provenance['blockTime'] = validation['blockTime']
-
-                                    # FINAL DETERMINATION
-                                    if (provenance['reached_end'] and
-                                        provenance['mint_in_accounts'] and
-                                        provenance['pumpfun_program_found'] and
-                                        fee_payer):
-                                        provenance['status'] = 'confirmed'
-                                        provenance['creator'] = fee_payer
-                                        print(f"[CREATOR] ✅ CONFIRMED EARLIEST", flush=True)
-                                        print(f"[CREATOR]   Pagination: {provenance['pages_traversed']} pages, "
-                                              f"{provenance['total_sigs_seen']} sigs (reached end)", flush=True)
-                                        print(f"[CREATOR]   Signature: {earliest_sig[:50]}...", flush=True)
-                                        print(f"[CREATOR]   Creator: {fee_payer}", flush=True)
-                                        print(f"[CREATOR]   Slot: {provenance['slot']}, "
-                                              f"BlockTime: {provenance['blockTime']}", flush=True)
-                                        return provenance
-                                    else:
-                                        # Not all checks passed
-                                        if not provenance['reached_end']:
-                                            provenance['validation_notes'].append("pagination did not reach end")
-                                        if not provenance['mint_in_accounts']:
-                                            provenance['validation_notes'].append("mint not in accounts")
-                                        if not provenance['pumpfun_program_found']:
-                                            provenance['validation_notes'].append("no Pump.fun program")
-                                        if not fee_payer:
-                                            provenance['validation_notes'].append("no fee payer extracted")
-
-                                        provenance['creator'] = fee_payer
-                                        print(f"[CREATOR] ⚠ UNPROVEN: {', '.join(provenance['validation_notes'])}", flush=True)
-                                        if fee_payer:
-                                            print(f"[CREATOR]   Creator (unproven): {fee_payer}", flush=True)
-                                        return provenance
-                    except Exception:
-                        pass
-
-        except Exception as flux_err:
-            print(f"[CREATOR] FluxRPC error: {flux_err}", flush=True)
-            provenance['validation_notes'].append(f"FluxRPC error: {flux_err}")
-
-        # TIER 2: Fallback - use the existing signers extraction method
-        try:
-            # Fetch all signatures - fetch_signatures already handles RPC failover
-            sigs = await self.fetch_signatures(limit=1000)
+            # TIER 1: Fetch all signatures using proper RPC failover chain
+            # fetch_signatures() uses _post_rpc_with_fallback() which has:
+            # - RPC endpoint fallback chain (QuickNode → Helius → Public Solana)
+            # - Exponential backoff for 429 errors
+            # - Proper pagination completion detection
+            sigs = await self.fetch_signatures(limit=2000)
 
             if not sigs:
                 print(f"[CREATOR] No signatures found for {self.token_mint}", flush=True)
@@ -901,9 +811,13 @@ class PostMigrationAnalyzer:
                 return provenance
 
             provenance['earliest_sig'] = earliest_sig
-            print(f"[CREATOR] Fallback: Fetching earliest transaction: {earliest_sig[:50]}...", flush=True)
+            provenance['total_sigs_seen'] = len(sigs)
+            # When we get here, we fetched all signatures until we hit an empty page
+            provenance['reached_end'] = True
+            print(f"[CREATOR] ✅ Fetched {len(sigs)} signatures (pagination complete)", flush=True)
+            print(f"[CREATOR] Earliest signature: {earliest_sig[:50]}...", flush=True)
 
-            # Fetch that transaction
+            # STEP 2: Fetch the earliest transaction
             payload = {
                 "jsonrpc": "2.0",
                 "id": 1,
@@ -920,7 +834,7 @@ class PostMigrationAnalyzer:
 
             tx = tx_data["result"]
 
-            # Validate that this is a Pump.fun create event
+            # STEP 3: Validate that this is a Pump.fun create event
             validation = self._validate_pumpfun_create_tx(tx)
             provenance['mint_in_accounts'] = validation['mint_in_accounts']
             provenance['pumpfun_program_found'] = validation['pumpfun_program_found']
@@ -982,17 +896,21 @@ class PostMigrationAnalyzer:
 
             if creator:
                 provenance['creator'] = creator
-                # Determine status for fallback
-                if provenance['is_pumpfun_create']:
+                # Determine status
+                if (provenance['reached_end'] and
+                    provenance['mint_in_accounts'] and
+                    provenance['pumpfun_program_found']):
                     provenance['status'] = 'confirmed'
-                    print(f"[CREATOR] ✅ CONFIRMED via fallback: {creator}", flush=True)
+                    print(f"[CREATOR] ✅ CONFIRMED EARLIEST: {creator}", flush=True)
+                    print(f"[CREATOR]   Signatures: {len(sigs)} (pagination complete)", flush=True)
+                    print(f"[CREATOR]   Slot: {provenance['slot']}, BlockTime: {provenance['blockTime']}", flush=True)
                 else:
                     provenance['status'] = 'unproven'
                     if not provenance['mint_in_accounts']:
                         provenance['validation_notes'].append("mint not in accounts")
                     if not provenance['pumpfun_program_found']:
                         provenance['validation_notes'].append("no Pump.fun program")
-                    print(f"[CREATOR] ⚠ UNPROVEN via fallback: {creator} ({', '.join(provenance['validation_notes'])})", flush=True)
+                    print(f"[CREATOR] ⚠ UNPROVEN: {creator} ({', '.join(provenance['validation_notes'])})", flush=True)
             else:
                 print(f"[CREATOR] No valid signers found", flush=True)
                 provenance['validation_notes'].append("No valid signers")

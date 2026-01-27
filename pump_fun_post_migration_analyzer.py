@@ -33,9 +33,9 @@ RPC_URL = os.getenv("RPC_URL", "")
 RPC_URL_2 = os.getenv("RPC_URL_2", "")
 FLUX_RPC_URL = "https://eu.fluxrpc.com?key=65c5a3de-6232-4300-a9c6-198646d467c4"
 
-# HTTP: Use QuickNode if available, then FluxRPC, otherwise Helius, then public
+# HTTP: Use QuickNode if available, then Helius, then public
+# NOTE: FluxRPC excluded - it only returns recent ~5min of data, unsuitable for signature history
 RPC_URLS = [url for url in [RPC_URL, RPC_URL_2] if url]  # QuickNodes
-RPC_URLS.append(FLUX_RPC_URL)  # FluxRPC fallback (reliable for pool fetching)
 RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com")  # Helius fallback
 RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
 

@@ -38,6 +38,58 @@ def get_migration_setting(key: str, default=True) -> bool:
         pass
     return default
 
+
+def check_if_cex_funding(cex_address: str) -> dict:
+    """Check if a wallet address is a known CEX wallet
+    
+    Returns dict with:
+    - is_cex: bool
+    - exchange_name: str or None
+    - wallet_type: str or None
+    - confidence_level: int (0-100)
+    - flag: str (e.g. "🏛️ Kraken Hot Wallet") or None
+    """
+    try:
+        import sqlite3
+        conn = sqlite3.connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT exchange_name, wallet_type, confidence_level
+            FROM cex_wallets
+            WHERE cex_address = ? AND is_active = 1
+        """, (cex_address,))
+        
+        row = cursor.fetchone()
+        conn.close()
+        
+        if row:
+            return {
+                'is_cex': True,
+                'exchange_name': row['exchange_name'],
+                'wallet_type': row['wallet_type'],
+                'confidence_level': row['confidence_level'],
+                'flag': f"🏛️ {row['exchange_name']} {row['wallet_type']}"
+            }
+        else:
+            return {
+                'is_cex': False,
+                'exchange_name': None,
+                'wallet_type': None,
+                'confidence_level': 0,
+                'flag': None
+            }
+    except Exception as e:
+        print(f"[ERROR] Failed to check CEX wallet: {e}")
+        return {
+            'is_cex': False,
+            'exchange_name': None,
+            'wallet_type': None,
+            'confidence_level': 0,
+            'flag': None
+        }
+
 load_dotenv()
 
 # === Config ===

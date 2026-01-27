@@ -1571,6 +1571,100 @@ def api_migration_settings():
     return jsonify(migration_settings)
 
 
+@app.route('/api/cex-wallets', methods=['GET', 'POST', 'DELETE'])
+def api_cex_wallets():
+    """Manage CEX wallet mappings
+    
+    GET: List all known CEX wallets
+    POST: Add a new CEX wallet
+    DELETE: Remove a CEX wallet
+    """
+    try:
+        if request.method == 'GET':
+            conn = sqlite3.connect(DB_PATH, timeout=30)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            # Get all active CEX wallets
+            cursor.execute("""
+                SELECT cex_address, exchange_name, wallet_type, confidence_level, discovered_date, discovery_source, notes
+                FROM cex_wallets
+                WHERE is_active = 1
+                ORDER BY exchange_name, wallet_type
+            """)
+            
+            wallets = []
+            for row in cursor.fetchall():
+                wallets.append({
+                    'address': row['cex_address'],
+                    'exchange': row['exchange_name'],
+                    'type': row['wallet_type'],
+                    'confidence': row['confidence_level'],
+                    'discovered': row['discovered_date'],
+                    'source': row['discovery_source'],
+                    'notes': row['notes']
+                })
+            
+            conn.close()
+            return jsonify({'wallets': wallets, 'total': len(wallets)})
+        
+        elif request.method == 'POST':
+            data = request.json or {}
+            
+            # Validate required fields
+            required = ['address', 'exchange', 'type']
+            if not all(data.get(field) for field in required):
+                return jsonify({'error': f'Missing required fields: {required}'}), 400
+            
+            conn = sqlite3.connect(DB_PATH, timeout=30)
+            cursor = conn.cursor()
+            
+            try:
+                cursor.execute("""
+                    INSERT OR REPLACE INTO cex_wallets
+                    (cex_address, exchange_name, wallet_type, confidence_level, discovery_source, notes, is_active)
+                    VALUES (?, ?, ?, ?, ?, ?, 1)
+                """, (
+                    data['address'],
+                    data['exchange'],
+                    data['type'],
+                    data.get('confidence', 95),
+                    data.get('source', 'Manual'),
+                    data.get('notes', '')
+                ))
+                conn.commit()
+                print(f"[CEX] ✅ Added {data['exchange']} wallet: {data['address'][:16]}...", flush=True)
+                return jsonify({'status': 'added', 'address': data['address']}), 201
+            finally:
+                conn.close()
+        
+        elif request.method == 'DELETE':
+            data = request.json or {}
+            address = data.get('address')
+            
+            if not address:
+                return jsonify({'error': 'Missing address parameter'}), 400
+            
+            conn = sqlite3.connect(DB_PATH, timeout=30)
+            cursor = conn.cursor()
+            
+            try:
+                cursor.execute("UPDATE cex_wallets SET is_active = 0 WHERE cex_address = ?", (address,))
+                conn.commit()
+                
+                if cursor.rowcount > 0:
+                    print(f"[CEX] ✅ Deactivated wallet: {address[:16]}...", flush=True)
+                    return jsonify({'status': 'deleted', 'address': address})
+                else:
+                    return jsonify({'error': 'Wallet not found'}), 404
+            finally:
+                conn.close()
+    
+    except Exception as e:
+        print(f"[CEX_API] Error: {e}", flush=True)
+        return jsonify({'error': str(e)}), 500
+
+
 # =========================================================================
 # MAIN
 # =========================================================================

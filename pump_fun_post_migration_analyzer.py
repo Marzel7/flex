@@ -90,10 +90,19 @@ async def _rpc_post(session: aiohttp.ClientSession, url: str, payload: dict, tim
     return None
 
 
-# Pump.fun program IDs
+# Pump.fun Program IDs (instruction.programId / resolved programIdIndex)
+# Source: Solscan Pump.fun documentation
+PUMPFUN_AMM_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"  # Swap/AMM program
+PUMPFUN_BONDING_CURVE_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"  # Bonding curve program
+
 PUMPFUN_PROGRAM_IDS = {
-    "39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg",  # Pump.fun processor
+    PUMPFUN_AMM_PROGRAM,
+    PUMPFUN_BONDING_CURVE_PROGRAM,
 }
+
+# Pump.fun Accounts (addresses in accountKeys, not instruction programIds)
+# Source: Solscan - this is the migration/graduation account, not a program
+PUMPFUN_MIGRATION_ACCOUNT = "39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg"
 
 SYSTEM_PROGRAM = "11111111111111111111111111111111"
 TOKEN_PROGRAM = "TokenkegQfeZyiNwAJsyFbPtrKbVs73Cw6Xj2Yg5MNg"
@@ -105,6 +114,11 @@ class PostMigrationAnalyzer:
     """Analyzes token activity on PumpSwap (post-migration)"""
 
     def __init__(self, token_mint: str, rpc_url: str = "https://api.mainnet-beta.solana.com"):
+        # IMPROVEMENT: Strip "pump" suffix if copied from URL/slug
+        # Examples: "62eNTADfQDdDygSAHeqqipaHHKvcWc4Cob1xqaYjpump" → "62eNTADfQDdDygSAHeqqipaHHKvcWc4Cob1xqaYj"
+        if token_mint.endswith("pump"):
+            token_mint = token_mint[:-4]
+
         self.token_mint = token_mint
         self.rpc_url = rpc_url
 

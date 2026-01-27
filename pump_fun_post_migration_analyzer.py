@@ -39,6 +39,54 @@ RPC_URLS = [url for url in [RPC_URL, RPC_URL_2] if url]  # QuickNodes
 RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com")  # Helius fallback
 RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
 
+# History RPC: Full history only (no FluxRPC which caches recent only)
+HISTORY_RPC_URLS = [url for url in [RPC_URL, RPC_URL_2] if url]  # QuickNodes (full history)
+HISTORY_RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com")
+HISTORY_RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
+
+
+# Helper functions for cache-limited RPC detection
+def _looks_cache_limited(sigs: List[Dict]) -> bool:
+    """
+    Detect providers that only return a tiny recent cache (FluxRPC-like).
+    Heuristics:
+      - small window
+      - missing blockTime
+      - narrow slot range
+    """
+    if not sigs:
+        return False
+
+    if len(sigs) >= 1000:
+        return False
+
+    slots = [s.get("slot") for s in sigs if isinstance(s.get("slot"), int)]
+    if not slots:
+        return False
+
+    slot_span = max(slots) - min(slots)
+    null_bt = sum(1 for s in sigs if s.get("blockTime") is None)
+
+    # If slot span is tiny (< 2000 slots ~ few seconds) and most are missing blockTime,
+    # this looks like a cache-limited RPC
+    if slot_span < 2000 and (null_bt / max(1, len(sigs))) > 0.7:
+        return True
+
+    return False
+
+
+async def _rpc_post(session: aiohttp.ClientSession, url: str, payload: dict, timeout_s: int = 30) -> Optional[dict]:
+    """Post to single RPC URL and return response"""
+    try:
+        async with session.post(url, json=payload, timeout=aiohttp.ClientTimeout(total=timeout_s)) as resp:
+            if resp.status == 200:
+                data = await resp.json()
+                if "error" not in data:
+                    return data
+    except Exception:
+        pass
+    return None
+
 
 class PostMigrationAnalyzer:
     """Analyzes token activity on PumpSwap (post-migration)"""
@@ -740,6 +788,72 @@ class PostMigrationAnalyzer:
                 "total_sigs_seen": total_sigs_seen
             }
 
+    async def get_true_earliest_signature(self, max_pages: int = 500, page_limit: int = 1000) -> tuple:
+        """
+        Find the true earliest signature using full-history RPC chain.
+        
+        Returns: (earliest_sig, proven, rpc_used)
+          - earliest_sig: The signature (None if not found)
+          - proven: True only if we reached end-of-history (not cache-limited)
+          - rpc_used: Which RPC endpoint succeeded
+        """
+        if not HISTORY_RPC_URLS:
+            return None, False, "none"
+
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=40)) as session:
+            for rpc_url in HISTORY_RPC_URLS:
+                before = None
+                last_sig = None
+                pages = 0
+                first_page_sigs = []
+
+                try:
+                    while pages < max_pages:
+                        pages += 1
+                        cfg = {"limit": page_limit}
+                        if before:
+                            cfg["before"] = before
+
+                        payload = {
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": "getSignaturesForAddress",
+                            "params": [self.token_mint, cfg],
+                        }
+
+                        data = await _rpc_post(session, rpc_url, payload, timeout_s=30)
+                        if data is None:
+                            break
+
+                        sigs = data.get("result") or []
+
+                        if pages == 1:
+                            first_page_sigs = sigs
+
+                        if not sigs:
+                            # Check if this looks like cache-limited RPC
+                            if _looks_cache_limited(first_page_sigs):
+                                print(f"[CREATOR] ⚠ Cache-limited RPC {rpc_url[:40]}... (not proven)", flush=True)
+                                return last_sig, False, rpc_url
+                            # True end of history
+                            print(f"[CREATOR] ✅ Reached true end of history from {rpc_url[:40]}...", flush=True)
+                            return last_sig, True, rpc_url
+
+                        last_sig = sigs[-1]["signature"]
+                        before = last_sig
+
+                        print(f"[CREATOR] Page {pages}: {len(sigs)} sigs from {rpc_url[:40]}...", flush=True)
+
+                    # Hit max_pages safety limit
+                    print(f"[CREATOR] ⚠ Hit max_pages limit ({max_pages}) on {rpc_url[:40]}...", flush=True)
+                    return last_sig, False, rpc_url
+
+                except Exception as e:
+                    print(f"[CREATOR] RPC error on {rpc_url[:40]}...: {e}", flush=True)
+                    continue
+
+        return None, False, "none"
+
     async def get_creator_from_earliest_tx(self) -> Optional[dict]:
         """
         Extract creator (fee payer) from earliest transaction on the token mint.
@@ -748,13 +862,14 @@ class PostMigrationAnalyzer:
         CRITICAL: Only claims "confirmed" if pagination naturally reached the end,
         proving this is the TRUE earliest transaction, not just "oldest found so far".
 
+        Uses full-history RPC (not FluxRPC cache) to find true earliest.
+
         Provenance object includes:
         {
             'creator': 'address or None',
             'earliest_sig': signature hash,
             'reached_end': True ONLY if pagination completed to actual end,
-            'pages_traversed': number of RPC pagination calls,
-            'total_sigs_seen': total signatures encountered,
+            'rpc_used': which RPC endpoint found the signature,
             'mint_in_accounts': mint appears in tx account keys,
             'pumpfun_program_found': at least one Pump.fun program in tx,
             'is_pumpfun_create': both above are True,
@@ -766,18 +881,16 @@ class PostMigrationAnalyzer:
         }
 
         PROOF OF EARLIEST:
-        - reached_end=True: pagination naturally completed (got empty page or <1000 results)
-        - reached_end=False: hit max_pages limit, cannot prove this is truly the earliest
+        - reached_end=True: pagination naturally completed (got empty page, not cache-limited)
+        - reached_end=False: hit max_pages limit or RPC is cache-limited
         """
-        import os
 
         # Initialize provenance tracking object
         provenance = {
             'creator': None,
             'earliest_sig': None,
             'reached_end': False,
-            'pages_traversed': 0,
-            'total_sigs_seen': 0,
+            'rpc_used': None,
             'mint_in_accounts': False,
             'pumpfun_program_found': False,
             'is_pumpfun_create': False,
@@ -789,35 +902,24 @@ class PostMigrationAnalyzer:
         }
 
         try:
-            # TIER 1: Fetch all signatures using proper RPC failover chain
-            # fetch_signatures() uses _post_rpc_with_fallback() which has:
-            # - RPC endpoint fallback chain (QuickNode → Helius → Public Solana)
-            # - Exponential backoff for 429 errors
-            # - Proper pagination completion detection
-            sigs = await self.fetch_signatures(limit=2000)
+            # Step 1: Find the true earliest signature using full-history RPC
+            # (avoids FluxRPC cache which only returns recent ~5min of data)
+            earliest_sig, reached_end, rpc_used = await self.get_true_earliest_signature()
 
-            if not sigs:
+            if not earliest_sig:
                 print(f"[CREATOR] No signatures found for {self.token_mint}", flush=True)
                 provenance['validation_notes'].append("No signatures found")
                 return provenance
 
-            # Get the EARLIEST signature (oldest = last in list after pagination)
-            # Note: getSignaturesForAddress returns newest first, so we take the last
-            earliest_sig = sigs[-1] if sigs else None
-
-            if not earliest_sig:
-                print(f"[CREATOR] Could not determine earliest signature", flush=True)
-                provenance['validation_notes'].append("Could not determine earliest signature")
-                return provenance
-
             provenance['earliest_sig'] = earliest_sig
-            provenance['total_sigs_seen'] = len(sigs)
-            # When we get here, we fetched all signatures until we hit an empty page
-            provenance['reached_end'] = True
-            print(f"[CREATOR] ✅ Fetched {len(sigs)} signatures (pagination complete)", flush=True)
-            print(f"[CREATOR] Earliest signature: {earliest_sig[:50]}...", flush=True)
+            provenance['reached_end'] = reached_end
+            provenance['rpc_used'] = rpc_used
 
-            # STEP 2: Fetch the earliest transaction
+            if not reached_end:
+                provenance['validation_notes'].append("Pagination did not reach true end (cache-limited or max_pages)")
+                print(f"[CREATOR] ⚠ Not proven earliest: {provenance['validation_notes']}", flush=True)
+
+            # Step 2: Fetch the earliest transaction
             payload = {
                 "jsonrpc": "2.0",
                 "id": 1,
@@ -834,7 +936,7 @@ class PostMigrationAnalyzer:
 
             tx = tx_data["result"]
 
-            # STEP 3: Validate that this is a Pump.fun create event
+            # Step 3: Validate that this is a Pump.fun create event
             validation = self._validate_pumpfun_create_tx(tx)
             provenance['mint_in_accounts'] = validation['mint_in_accounts']
             provenance['pumpfun_program_found'] = validation['pumpfun_program_found']
@@ -852,7 +954,6 @@ class PostMigrationAnalyzer:
                 return provenance
 
             # When using jsonParsed encoding, accountKeys is a list of objects with 'pubkey' and 'signer' fields
-            # Extract signers from the accounts marked with signer=True
             KNOWN_PROGRAMS = {
                 "11111111111111111111111111111111",  # System Program
                 "TokenkegQfeZyiNwAJsyFbPtrKbVs73Cw6Xj2Yg5MNg",  # Token Program
@@ -902,8 +1003,9 @@ class PostMigrationAnalyzer:
                     provenance['pumpfun_program_found']):
                     provenance['status'] = 'confirmed'
                     print(f"[CREATOR] ✅ CONFIRMED EARLIEST: {creator}", flush=True)
-                    print(f"[CREATOR]   Signatures: {len(sigs)} (pagination complete)", flush=True)
+                    print(f"[CREATOR]   Reached end: {provenance['reached_end']}", flush=True)
                     print(f"[CREATOR]   Slot: {provenance['slot']}, BlockTime: {provenance['blockTime']}", flush=True)
+                    print(f"[CREATOR]   RPC: {rpc_used[:40]}...", flush=True)
                 else:
                     provenance['status'] = 'unproven'
                     if not provenance['mint_in_accounts']:

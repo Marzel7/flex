@@ -1344,6 +1344,24 @@ class PumpFunCurveListener:
         except Exception as e:
             print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
 
+    def _update_token_entry_with_creator(self, mint: str, creator: str, created_at: str):
+        """Update minimal token entry with creator and creation date"""
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=30)
+            cursor = conn.cursor()
+
+            cursor.execute("""
+                UPDATE token_analysis
+                SET earliest_tx_creator = ?, created_at = ?
+                WHERE mint = ?
+            """, (creator, created_at, mint))
+
+            conn.commit()
+            conn.close()
+            print(f"[DB] ✅ Updated token entry with creator: {creator[:8]}... | Created: {created_at}", flush=True)
+        except Exception as e:
+            print(f"[DB_ERROR] Failed to update token entry with creator: {e}", flush=True)
+
     async def handle_migration(self, signature: str, logs: list):
         """Process detected migration"""
         try:
@@ -1381,6 +1399,41 @@ class PumpFunCurveListener:
             if pool_address:
                 print(f"[EVENT] ✅ Pool extracted from transaction: {pool_address}", flush=True)
 
+            # Extract earliest creator and creation date (always, regardless of analysis toggles)
+            # This ensures creator and date are always visible in the UI
+            earliest_creator = None
+            created_at = None
+            try:
+                from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
+                analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
+                earliest_creator = await analyzer.get_creator_from_earliest_tx()
+
+                # Get migration block time to determine creation date
+                if signature:
+                    try:
+                        payload = {
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": "getTransaction",
+                            "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
+                        }
+                        tx_data = await self._post_rpc_with_fallback(payload, timeout=10)
+                        if tx_data and tx_data.get("result"):
+                            block_time = tx_data["result"].get("blockTime")
+                            if block_time:
+                                created_at = datetime.utcfromtimestamp(block_time).isoformat() + "Z"
+                    except Exception as ts_err:
+                        pass  # Fall back to current time if we can't get block time
+
+                created_at = created_at or (datetime.utcnow().isoformat() + "Z")
+
+                if earliest_creator:
+                    print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator}", flush=True)
+                    # Update minimal entry with creator and date
+                    self._update_token_entry_with_creator(mint, earliest_creator, created_at)
+            except Exception as creator_err:
+                print(f"[CREATOR] ⚠ Could not extract creator: {creator_err}", flush=True)
+
             # Analyze token history (includes creator behavior from all token transactions) asynchronously (if enabled)
             # Note: Analyzer fetches all token signatures (before and after migration) to analyze creator behavior
             if get_migration_setting('token_history_check', True):
@@ -1392,16 +1445,9 @@ class PumpFunCurveListener:
             # Trigger wallet clustering analysis independently of token history check (if enabled)
             if get_migration_setting('creator_history_check', True):
                 print(f"[SETTINGS] Creator history ✅ ON - analyzing creator network", flush=True)
-                # We need the earliest creator, so extract it from the migration transaction
-                try:
-                    from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
-                    analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
-                    earliest_creator = await analyzer.get_creator_from_earliest_tx()
-                    if earliest_creator:
-                        asyncio.create_task(trigger_wallet_clustering(earliest_creator))
-                        print(f"[SETTINGS] Clustering task created for {earliest_creator[:8]}...", flush=True)
-                except Exception as cluster_err:
-                    print(f"[SETTINGS] ⚠ Error in clustering trigger: {cluster_err}", flush=True)
+                if earliest_creator:
+                    asyncio.create_task(trigger_wallet_clustering(earliest_creator))
+                    print(f"[SETTINGS] Clustering task created for {earliest_creator[:8]}...", flush=True)
             else:
                 print(f"[SETTINGS] Creator history ❌ OFF - skipping creator network analysis", flush=True)
 

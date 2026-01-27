@@ -731,8 +731,19 @@ class PumpFunCurveListener:
                 max_balance = 0
 
                 for token_account in accounts:
+                    if not isinstance(token_account, dict):
+                        continue
+
                     account_data = token_account.get("account", {})
-                    parsed = account_data.get("data", {}).get("parsed", {})
+                    if not isinstance(account_data, dict):
+                        continue
+
+                    parsed = account_data.get("data", {})
+                    if isinstance(parsed, dict):
+                        parsed = parsed.get("parsed", {})
+                    elif not isinstance(parsed, dict):
+                        continue
+
                     token_info = parsed.get("info", {})
                     token_amount_info = token_info.get("tokenAmount", {})
                     balance = float(token_amount_info.get("uiAmount", 0))

@@ -995,12 +995,14 @@ class PumpFunCurveListener:
                     created_at = migration_timestamp or datetime.utcnow().isoformat() + "Z"
 
                     # Run funding extraction asynchronously (if enabled)
+                    print(f"[SETTINGS] About to check token history setting...", flush=True)
                     if get_migration_setting('token_history_check', True):
                         print(f"[SETTINGS] Token history check ✅ ON - extracting pre-migration funding", flush=True)
                         asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at))
                     else:
                         print(f"[SETTINGS] Token history check ❌ OFF - skipping funding extraction", flush=True)
 
+                    print(f"[SETTINGS] Token history check complete, about to check creator history...", flush=True)
                     # Trigger wallet clustering analysis asynchronously (if enabled)
                     try:
                         creator_history_enabled = get_migration_setting('creator_history_check', True)

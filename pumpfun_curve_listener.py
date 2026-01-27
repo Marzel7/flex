@@ -685,9 +685,17 @@ class PumpFunCurveListener:
                         # Get WSOL balance from first (should only be one)
                         first_account = accounts[0]
                         if isinstance(first_account, dict):
-                            wsol_info = first_account.get("account", {}).get("data", {}).get("parsed", {}).get("info", {})
-                            if isinstance(wsol_info, dict):
-                                sol_balance = float(wsol_info.get("tokenAmount", {}).get("uiAmount", 0))
+                            account_obj = first_account.get("account", {})
+                            if isinstance(account_obj, dict):
+                                data_obj = account_obj.get("data", {})
+                                if isinstance(data_obj, dict):
+                                    parsed = data_obj.get("parsed", {})
+                                    if isinstance(parsed, dict):
+                                        wsol_info = parsed.get("info", {})
+                                        if isinstance(wsol_info, dict):
+                                            token_amount_info = wsol_info.get("tokenAmount", {})
+                                            if isinstance(token_amount_info, dict):
+                                                sol_balance = float(token_amount_info.get("uiAmount", 0))
 
             # If no WSOL, fall back to pool account lamports
             if sol_balance == 0:
@@ -757,8 +765,14 @@ class PumpFunCurveListener:
                     elif not isinstance(parsed, dict):
                         continue
 
+                    if not isinstance(parsed, dict):
+                        continue
                     token_info = parsed.get("info", {})
+                    if not isinstance(token_info, dict):
+                        continue
                     token_amount_info = token_info.get("tokenAmount", {})
+                    if not isinstance(token_amount_info, dict):
+                        continue
                     balance = float(token_amount_info.get("uiAmount", 0))
 
                     if balance > max_balance:
@@ -769,9 +783,20 @@ class PumpFunCurveListener:
                     return None
 
                 account_data = max_balance_account.get("account", {})
-                parsed = account_data.get("data", {}).get("parsed", {})
+                if not isinstance(account_data, dict):
+                    return None
+                data_obj = account_data.get("data", {})
+                if not isinstance(data_obj, dict):
+                    return None
+                parsed = data_obj.get("parsed", {})
+                if not isinstance(parsed, dict):
+                    return None
                 token_info = parsed.get("info", {})
+                if not isinstance(token_info, dict):
+                    return None
                 token_amount_info = token_info.get("tokenAmount", {})
+                if not isinstance(token_amount_info, dict):
+                    return None
                 token_balance = float(token_amount_info.get("uiAmount", 0))
 
             except (KeyError, ValueError, TypeError):

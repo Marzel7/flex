@@ -1341,10 +1341,32 @@ class PostMigrationAnalyzer:
             return provenance
 
     async def get_summary_async(self) -> Dict:
-        """Get complete analysis summary with async creator lookup"""
+        """
+        Get complete analysis summary with dual creator lookup methods.
+        
+        Uses two approaches to identify creator:
+        1. get_token_creator_from_das() - Metaplex metadata (quick but unreliable for Pump.fun)
+        2. get_creator_from_earliest_tx() - Pump.fun CREATE signer (strong but slower)
+        
+        Returns provenance data showing which creator method was successful and confidence level.
+        """
         score = self.compute_rug_score()
-        creator = await self.get_token_creator_from_das()
-
+        
+        # Try the strong method first (Pump.fun creation signer heuristic)
+        provenance = await self.get_creator_from_earliest_tx()
+        pumpfun_creator = provenance.get('creator')
+        pumpfun_creator_status = provenance.get('status')
+        bonding_curve_pda = provenance.get('bonding_curve_pda')
+        earliest_sig = provenance.get('earliest_sig')
+        
+        # Fallback to metadata if strong method didn't work
+        metadata_creator = None
+        if not pumpfun_creator:
+            metadata_creator = await self.get_token_creator_from_das()
+        
+        # Final creator: prefer Pump.fun (stronger) over metadata
+        final_creator = pumpfun_creator or metadata_creator
+        
         return {
             "mint": self.token_mint,
             "total_txs": self.transactions_fetched,
@@ -1361,7 +1383,20 @@ class PostMigrationAnalyzer:
             "market_cap_current": self.market_cap_current,
             "market_cap_highest": self.market_cap_highest,
             "coverage": (self.transactions_fetched / self.signatures_requested * 100) if self.signatures_requested > 0 else 0,
-            "token_creator": creator  # NEW: Token creator from Metaplex metadata
+            # Creator data with full provenance
+            "creator": final_creator,
+            "creator_provenance": {
+                "pumpfun_creator": pumpfun_creator,
+                "pumpfun_status": pumpfun_creator_status,
+                "metadata_creator": metadata_creator,
+                "bonding_curve_pda": bonding_curve_pda,
+                "earliest_sig": earliest_sig,
+                "validation_notes": provenance.get('validation_notes', []),
+                "reached_end": provenance.get('reached_end'),
+                "mint_in_accounts": provenance.get('mint_in_accounts'),
+                "pumpfun_program_found": provenance.get('pumpfun_program_found'),
+                "is_pumpfun_create": provenance.get('is_pumpfun_create')
+            }
         }
     
     def summary(self) -> Dict:

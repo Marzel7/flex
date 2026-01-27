@@ -39,10 +39,12 @@ RPC_URLS = [url for url in [RPC_URL, RPC_URL_2] if url]  # QuickNodes
 RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com")  # Helius fallback
 RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
 
-# History RPC: Full history only (no FluxRPC which caches recent only)
-HISTORY_RPC_URLS = [url for url in [RPC_URL, RPC_URL_2] if url]  # QuickNodes (full history)
-HISTORY_RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com")
-HISTORY_RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
+# History RPC: Full history only (no FluxRPC which caches recent only, no QuickNode which can be unreliable)
+# Use Helius (if available) and public Solana for reliable full-history pagination
+HISTORY_RPC_URLS = []
+if HELIUS_API_KEY:
+    HISTORY_RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}")
+HISTORY_RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public Solana (full history)
 
 
 # Helper functions for cache-limited RPC detection
@@ -788,7 +790,7 @@ class PostMigrationAnalyzer:
                 "total_sigs_seen": total_sigs_seen
             }
 
-    async def get_true_earliest_signature(self, max_pages: int = 500, page_limit: int = 1000) -> tuple:
+    async def get_true_earliest_signature(self, max_pages: int = 1000, page_limit: int = 1000) -> tuple:
         """
         Find the true earliest signature using full-history RPC chain.
         

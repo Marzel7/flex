@@ -953,18 +953,24 @@ class PostMigrationAnalyzer:
         Returns full provenance object proving this is the first Pump.fun create.
 
         CRITICAL: Queries the bonding curve PDA (the true Pump.fun creation anchor)
-        instead of the token mint. This ensures we find the actual creation event,
-        not just trading activity on the mint account.
+        instead of the token mint. This is the ONLY authoritative source.
 
-        For POST-MIGRATION tokens: Even after migration to PumpSwap/Raydium, the bonding
-        curve's transaction history is immutable on-chain. We query it to find the original
-        creation. If the RPC doesn't have bonding curve history, we fall back to token mint.
+        Why bonding curve only (no fallback):
+        - Bonding curve PDA is created once at token launch
+        - It's the true anchor for the creation event
+        - Immutable transaction history on-chain
+        - Token mint has post-launch trading activity (wrong anchor)
+        
+        If bonding curve has 0 signatures:
+        - RPC doesn't have bonding curve history (data limitation)
+        - NOT a reason to query token mint instead
+        - Must mark as 'unproven' (cannot determine creator reliably)
 
         Process:
         1. Derive bonding curve PDA from token mint
-        2. Query bonding curve PDA's transaction history
-        3. If no signatures found, fall back to token mint (post-migration safety net)
-        4. Get earliest transaction and extract fee payer (creator)
+        2. Query bonding curve PDA's transaction history (ONLY source)
+        3. If no signatures: mark as 'unproven', return with no creator
+        4. Extract fee payer (creator) from earliest bonding curve transaction
         5. Validate that it's a Pump.fun create event
 
         Provenance object includes:
@@ -980,8 +986,8 @@ class PostMigrationAnalyzer:
             'blockTime': UNIX timestamp from block,
             'fee_payer': extracted fee payer account,
             'bonding_curve_pda': the PDA we derived,
-            'query_source': 'bonding_curve_pda' or 'token_mint' (which source provided earliest sig),
-            'status': 'confirmed' (all checks pass) or 'unproven' (some checks failed),
+            'query_source': 'bonding_curve_pda' (only source),
+            'status': 'confirmed' (all checks pass) or 'unproven' (no bonding curve history),
             'validation_notes': human-readable explanation
         }
         """
@@ -999,7 +1005,7 @@ class PostMigrationAnalyzer:
             'blockTime': None,
             'fee_payer': None,
             'bonding_curve_pda': None,
-            'query_source': None,
+            'query_source': 'bonding_curve_pda',  # Always query bonding curve (only authoritative source)
             'status': 'unproven',
             'validation_notes': []
         }
@@ -1015,48 +1021,32 @@ class PostMigrationAnalyzer:
             except Exception as e:
                 print(f"[CREATOR] Failed to derive bonding curve PDA: {e}", flush=True)
                 provenance['validation_notes'].append(f"PDA derivation failed: {str(e)}")
+                return provenance
 
-            # Step 2: Try to find earliest signature from bonding curve PDA first
-            earliest_sig = None
-            reached_end = False
-            rpc_used = None
-            query_source = None
-
-            if bonding_curve_pda:
-                print(f"[CREATOR] Querying bonding curve PDA for earliest signature...", flush=True)
-                earliest_sig, reached_end, rpc_used = await self.get_true_earliest_signature(
-                    bonding_curve_pda=bonding_curve_pda
-                )
-                if earliest_sig:
-                    query_source = "bonding_curve_pda"
-                    print(f"[CREATOR] ✓ Found signature on bonding curve PDA", flush=True)
-
-            # Step 3: Fallback to token mint if bonding curve has no signatures
-            # (common for post-migration tokens when RPC doesn't have full bonding curve history)
-            if not earliest_sig:
-                print(f"[CREATOR] No signatures on bonding curve, falling back to token mint...", flush=True)
-                earliest_sig, reached_end, rpc_used = await self.get_true_earliest_signature(
-                    bonding_curve_pda=None  # Query token mint instead
-                )
-                if earliest_sig:
-                    query_source = "token_mint"
-                    print(f"[CREATOR] ✓ Found signature on token mint (fallback)", flush=True)
+            # Step 2: Query bonding curve PDA for earliest signature (ONLY source)
+            # No fallback to token mint - bonding curve is the authoritative source
+            print(f"[CREATOR] Querying bonding curve PDA for earliest signature...", flush=True)
+            earliest_sig, reached_end, rpc_used = await self.get_true_earliest_signature(
+                bonding_curve_pda=bonding_curve_pda
+            )
 
             if not earliest_sig:
-                print(f"[CREATOR] No signatures found from any source", flush=True)
-                provenance['validation_notes'].append("No signatures found")
+                print(f"[CREATOR] ⚠️ RPC has no bonding curve history - cannot determine creator reliably", flush=True)
+                provenance['reached_end'] = reached_end
+                provenance['rpc_used'] = rpc_used
+                provenance['validation_notes'].append("No bonding curve history available in RPC")
+                provenance['status'] = 'unproven'
                 return provenance
 
             provenance['earliest_sig'] = earliest_sig
             provenance['reached_end'] = reached_end
             provenance['rpc_used'] = rpc_used
-            provenance['query_source'] = query_source
 
             if not reached_end:
                 provenance['validation_notes'].append("Pagination stopped (cache-limited RPC)")
                 print(f"[CREATOR] ⚠ Cache-limited RPC or max_pages hit", flush=True)
 
-            # Step 4: Fetch the earliest transaction
+            # Step 3: Fetch the earliest transaction
             payload = {
                 "jsonrpc": "2.0",
                 "id": 1,
@@ -1073,7 +1063,7 @@ class PostMigrationAnalyzer:
 
             tx = tx_data["result"]
 
-            # Step 5: Validate that this is a Pump.fun create event
+            # Step 4: Validate that this is a Pump.fun create event
             validation = self._validate_pumpfun_create_tx(tx)
             provenance['mint_in_accounts'] = validation['mint_in_accounts']
             provenance['pumpfun_program_found'] = validation['pumpfun_program_found']
@@ -1140,12 +1130,14 @@ class PostMigrationAnalyzer:
                     provenance['pumpfun_program_found']):
                     provenance['status'] = 'confirmed'
                     print(f"[CREATOR] ✅ CONFIRMED EARLIEST: {creator}", flush=True)
-                    print(f"[CREATOR]   Source: {query_source}", flush=True)
+                    print(f"[CREATOR]   Source: bonding_curve_pda", flush=True)
                     print(f"[CREATOR]   Reached end: {provenance['reached_end']}", flush=True)
                     print(f"[CREATOR]   Slot: {provenance['slot']}, BlockTime: {provenance['blockTime']}", flush=True)
                     print(f"[CREATOR]   RPC: {rpc_used[:40]}...", flush=True)
                 else:
                     provenance['status'] = 'unproven'
+                    if not provenance['reached_end']:
+                        provenance['validation_notes'].append("pagination incomplete")
                     if not provenance['mint_in_accounts']:
                         provenance['validation_notes'].append("mint not in accounts")
                     if not provenance['pumpfun_program_found']:

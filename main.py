@@ -395,11 +395,22 @@ HTML_TEMPLATE = """
             text-align: center;
         }
 
-        /* Creator address column */
-        .creator-address {
+        /* Mint cell with embedded creator */
+        .mint-with-creator {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: flex-start;
+        }
+
+        /* Creator address embedded under mint */
+        .creator-address-embedded {
             font-family: 'Courier New', monospace;
-            font-size: 11px;
-            color: #9ca3af;
+            font-size: 10px;
+            color: #6b7280;
+            word-break: break-all;
+            max-width: 250px;
+            line-height: 1.3;
         }
 
         /* Creator tags container */
@@ -841,7 +852,6 @@ HTML_TEMPLATE = """
                     <thead>
                         <tr>
                             <th onclick="sortBy('mint')" class="sortable ${sortConfig.column === 'mint' ? 'sorted-' + sortConfig.direction : ''}">Token Mint</th>
-                            <th>Creator</th>
                             <th>Creator Tags</th>
                             <th onclick="sortBy('rug_indicator')" class="sortable ${sortConfig.column === 'rug_indicator' ? 'sorted-' + sortConfig.direction : ''}">Rug Flag</th>
                             <th onclick="sortBy('risk_level')" class="sortable ${sortConfig.column === 'risk_level' ? 'sorted-' + sortConfig.direction : ''}">Risk Level</th>
@@ -887,8 +897,10 @@ HTML_TEMPLATE = """
 
                             return `
                                 <tr>
-                                    <td class="mint"><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="Click for metrics">${token.mint}</a></td>
-                                    <td class="creator-address" title="${creatorTitle}">${creatorShort}</td>
+                                    <td class="mint-with-creator">
+                                        <a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="Click for metrics">${token.mint}</a>
+                                        <div class="creator-address-embedded" title="${creatorTitle}">${creatorTitle}</div>
+                                    </td>
                                     <td class="creator-tags">${tags.join(' ')}</td>
                                     <td>
                                         ${token.rug_indicator === 'quick_peak_low_mc' ? '<span class="rug-badge">🚨 RUG</span>' : '<span class="safe-badge">✓ Safe</span>'}

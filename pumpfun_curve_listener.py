@@ -1326,16 +1326,11 @@ class PumpFunCurveListener:
             conn = sqlite3.connect(DB_PATH, timeout=30)
             cursor = conn.cursor()
 
-            # Check if token already exists
-            cursor.execute("SELECT mint FROM token_analysis WHERE mint = ?", (mint,))
-            if cursor.fetchone():
-                conn.close()
-                return
-
-            # Create minimal entry with migration detection timestamp
-            now = datetime.utcnow().isoformat() + "Z"
+            # Create minimal entry with migration detection timestamp using INSERT OR REPLACE
+            # This prevents duplicates if entry already exists
+            now = time.time()
             cursor.execute("""
-                INSERT INTO token_analysis (
+                INSERT OR REPLACE INTO token_analysis (
                     mint, created_at, analyzed_at,
                     rug_probability, risk_level, post_migration_coverage,
                     rug_indicator, events_parsed

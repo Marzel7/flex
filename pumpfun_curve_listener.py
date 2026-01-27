@@ -1002,9 +1002,12 @@ class PumpFunCurveListener:
                         print(f"[SETTINGS] Token history check ❌ OFF - skipping funding extraction", flush=True)
 
                     # Trigger wallet clustering analysis asynchronously (if enabled)
-                    if get_migration_setting('creator_history_check', True):
+                    creator_history_enabled = get_migration_setting('creator_history_check', True)
+                    print(f"[SETTINGS] Creator history setting: {creator_history_enabled}", flush=True)
+                    if creator_history_enabled:
                         print(f"[SETTINGS] Creator history ✅ ON - analyzing creator network", flush=True)
-                        asyncio.create_task(trigger_wallet_clustering(earliest_creator))
+                        task = asyncio.create_task(trigger_wallet_clustering(earliest_creator))
+                        print(f"[SETTINGS] Clustering task created for {earliest_creator[:8]}...", flush=True)
                     else:
                         print(f"[SETTINGS] Creator history ❌ OFF - skipping creator network analysis", flush=True)
                 except Exception as e:

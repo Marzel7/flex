@@ -1012,12 +1012,12 @@ class PostMigrationAnalyzer:
 
         try:
             # Step 1: Derive bonding curve PDA from token mint
-            print(f"[CREATOR] Deriving bonding curve PDA for {self.token_mint[:20]}...", flush=True)
+            print(f"[CREATOR] Deriving bonding curve PDA for {self.token_mint}", flush=True)
             bonding_curve_pda = None
             try:
                 bonding_curve_pda = derive_bonding_curve_pda(self.token_mint)
                 provenance['bonding_curve_pda'] = bonding_curve_pda
-                print(f"[CREATOR] Bonding Curve PDA: {bonding_curve_pda[:20]}...", flush=True)
+                print(f"[CREATOR] Bonding Curve PDA: {bonding_curve_pda}", flush=True)
             except Exception as e:
                 print(f"[CREATOR] Failed to derive bonding curve PDA: {e}", flush=True)
                 provenance['validation_notes'].append(f"PDA derivation failed: {str(e)}")
@@ -1133,7 +1133,9 @@ class PostMigrationAnalyzer:
                     print(f"[CREATOR]   Source: bonding_curve_pda", flush=True)
                     print(f"[CREATOR]   Reached end: {provenance['reached_end']}", flush=True)
                     print(f"[CREATOR]   Slot: {provenance['slot']}, BlockTime: {provenance['blockTime']}", flush=True)
-                    print(f"[CREATOR]   RPC: {rpc_used[:40]}...", flush=True)
+                    print(f"[CREATOR]   RPC: {rpc_used}", flush=True)
+                    print(f"[CREATOR]   Bonding Curve PDA: {bonding_curve_pda}", flush=True)
+                    print(f"[CREATOR]   Earliest Signature: {earliest_sig}", flush=True)
                 else:
                     provenance['status'] = 'unproven'
                     if not provenance['reached_end']:

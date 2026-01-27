@@ -43,6 +43,7 @@ load_dotenv()
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
 RPC_URL = os.getenv("RPC_URL", "")
 RPC_URL_2 = os.getenv("RPC_URL_2", "")
+FLUX_RPC_URL = "https://eu.fluxrpc.com?key=65c5a3de-6232-4300-a9c6-198646d467c4"
 
 # WebSocket: Try Helius first, fall back to public Solana
 HELIUS_RPC_WS = f"wss://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "wss://api.mainnet-beta.solana.com/"
@@ -50,8 +51,9 @@ HELIUS_RPC_WS = f"wss://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HEL
 # HTTP: Use QuickNode if available, otherwise Helius, then public
 RPC_HTTP = RPC_URL if RPC_URL else (f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com")
 
-# RPC failover chain: Primary QuickNode -> Secondary QuickNode -> Helius -> Public
+# RPC failover chain: Primary QuickNode -> Secondary QuickNode -> FluxRPC -> Helius -> Public
 RPC_URLS = [url for url in [RPC_URL, RPC_URL_2] if url]  # QuickNodes
+RPC_URLS.append(FLUX_RPC_URL)  # FluxRPC fallback (reliable for pool fetching)
 RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com")  # Helius fallback
 RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
 

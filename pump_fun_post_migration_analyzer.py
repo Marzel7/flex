@@ -639,26 +639,29 @@ class PostMigrationAnalyzer:
 
     async def _get_earliest_signature(self, session: aiohttp.ClientSession, rpc_url: str) -> dict:
         """
-        Fetch the earliest SUCCESSFUL signature for this token mint via pagination.
+        Paginate through ALL signatures to find the truly earliest one.
 
-        Solana RPC returns signatures newest → oldest by default.
-        Must paginate (using 'before' parameter) to reach the oldest signature.
+        Returns ONLY when pagination naturally ends (empty page), not when hitting max_pages.
+        This ensures we can prove the signature is the TRUE oldest, not just "oldest we found so far".
 
-        Filters out failed signatures (where err != None) to avoid decoding errors.
-        Stops early when less than 1000 results are returned (end of history).
+        Returns dict:
+        {
+            'signature': earliest_sig or None,
+            'reached_end': True only if pagination naturally completed (got empty page),
+            'pages_traversed': number of pages fetched,
+            'total_sigs_seen': total signatures across all pages
+        }
 
-        Returns dict with:
-        - signature: earliest signature found (or None)
-        - reached_end: True if pagination completed (len(sigs) < 1000)
-        - pages_traversed: number of API pages fetched
-        - total_sigs_seen: total signatures encountered (including failed)
+        CRITICAL: reached_end must be True to claim "this is the first transaction ever"
         """
+        import os
+
         before = None
         last_sig = None
         pages = 0
-        max_pages = 50  # Bump limit for busy mints
         total_sigs_seen = 0
         reached_end = False
+        max_pages = int(os.getenv("CREATOR_MAX_PAGES", "200"))  # Can be overridden via env
 
         try:
             while pages < max_pages:
@@ -674,47 +677,56 @@ class PostMigrationAnalyzer:
                     "params": [self.token_mint, config],
                 }
 
-                async with session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=30)) as resp:
-                    data = await resp.json()
+                try:
+                    async with session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                        data = await resp.json()
 
-                # Check for RPC error response
-                if "error" in data:
-                    raise RuntimeError(f"RPC error: {data['error']}")
+                    # Check for RPC error response
+                    if "error" in data:
+                        raise RuntimeError(f"RPC error: {data['error']}")
 
-                sigs = data.get("result") or []
-                if not sigs:
-                    # Empty page = reached the end
-                    reached_end = True
-                    return {
-                        "signature": last_sig,
-                        "reached_end": reached_end,
-                        "pages_traversed": pages,
-                        "total_sigs_seen": total_sigs_seen
-                    }
+                    sigs = data.get("result") or []
 
-                total_sigs_seen += len(sigs)
+                    # CRITICAL CHECK: Empty result = we've reached the actual end of history
+                    if not sigs:
+                        reached_end = True
+                        return {
+                            "signature": last_sig,
+                            "reached_end": reached_end,
+                            "pages_traversed": pages,
+                            "total_sigs_seen": total_sigs_seen
+                        }
 
-                # Filter to only successful signatures (err == None)
-                ok_sigs = [s for s in sigs if s.get("err") is None]
-                if ok_sigs:
-                    last_sig = ok_sigs[-1]["signature"]
+                    total_sigs_seen += len(sigs)
 
-                # Paginate using the last returned sig (even if errored) to continue forward
-                before = sigs[-1]["signature"]
+                    # Get the last signature (oldest in this page)
+                    last_sig = sigs[-1]["signature"]
 
-                # Early exit: if we got fewer than 1000 results, we've reached the end
-                if len(sigs) < 1000:
-                    reached_end = True
-                    return {
-                        "signature": last_sig,
-                        "reached_end": reached_end,
-                        "pages_traversed": pages,
-                        "total_sigs_seen": total_sigs_seen
-                    }
+                    # Paginate using the last returned sig
+                    before = last_sig
 
+                    # If we got fewer than 1000, we've reached the actual end
+                    if len(sigs) < 1000:
+                        reached_end = True
+                        return {
+                            "signature": last_sig,
+                            "reached_end": reached_end,
+                            "pages_traversed": pages,
+                            "total_sigs_seen": total_sigs_seen
+                        }
+
+                except asyncio.TimeoutError:
+                    print(f"[CREATOR] ⚠ RPC timeout on page {pages}", flush=True)
+                    raise
+                except Exception as e:
+                    print(f"[CREATOR] ⚠ Error on page {pages}: {e}", flush=True)
+                    raise
+
+            # If we exit the loop, we hit max_pages without reaching the end
+            print(f"[CREATOR] ⚠ Hit max_pages={max_pages} without reaching end of history", flush=True)
             return {
                 "signature": last_sig,
-                "reached_end": reached_end,
+                "reached_end": False,  # CRITICAL: False because we didn't naturally reach the end
                 "pages_traversed": pages,
                 "total_sigs_seen": total_sigs_seen
             }
@@ -733,11 +745,14 @@ class PostMigrationAnalyzer:
         Extract creator (fee payer) from earliest transaction on the token mint.
         Returns full provenance object proving this is the first Pump.fun create.
 
+        CRITICAL: Only claims "confirmed" if pagination naturally reached the end,
+        proving this is the TRUE earliest transaction, not just "oldest found so far".
+
         Provenance object includes:
         {
             'creator': 'address or None',
             'earliest_sig': signature hash,
-            'reached_end': True if pagination completed to earliest,
+            'reached_end': True ONLY if pagination completed to actual end,
             'pages_traversed': number of RPC pagination calls,
             'total_sigs_seen': total signatures encountered,
             'mint_in_accounts': mint appears in tx account keys,
@@ -750,12 +765,9 @@ class PostMigrationAnalyzer:
             'validation_notes': human-readable explanation
         }
 
-        Strategy:
-        1. Try FluxRPC: Paginate to find truly earliest signature, extract fee payer
-        2. Fallback: Use stored signers extraction from cached transaction
-
-        Note: Fee payer is a strong heuristic but not guaranteed creator.
-        Relayers and launch services may be the fee payer instead.
+        PROOF OF EARLIEST:
+        - reached_end=True: pagination naturally completed (got empty page or <1000 results)
+        - reached_end=False: hit max_pages limit, cannot prove this is truly the earliest
         """
         import os
 
@@ -783,7 +795,7 @@ class PostMigrationAnalyzer:
                 flux_rpc = "https://eu.fluxrpc.com?key=ca1a8797-c505-4c44-9918-5f832c89e91d"
 
             async with aiohttp.ClientSession() as session:
-                # Tier 1: Paginate to find truly earliest signature
+                # STEP 1: Paginate to find truly earliest signature
                 sig_result = await self._get_earliest_signature(session, flux_rpc)
 
                 earliest_sig = sig_result.get('signature')
@@ -792,11 +804,18 @@ class PostMigrationAnalyzer:
                 provenance['pages_traversed'] = sig_result.get('pages_traversed', 0)
                 provenance['total_sigs_seen'] = sig_result.get('total_sigs_seen', 0)
 
+                # CRITICAL CHECK: Did pagination actually reach the end?
                 if not provenance['reached_end']:
-                    provenance['validation_notes'].append("⚠ Pagination did not reach end (reached max_pages)")
+                    provenance['validation_notes'].append(
+                        f"Pagination stopped at {provenance['pages_traversed']} pages "
+                        f"({provenance['total_sigs_seen']} sigs) - did not reach end of history. "
+                        f"Cannot prove this is the first tx."
+                    )
+                    print(f"[CREATOR] ⚠ Pagination incomplete: {provenance['pages_traversed']} pages, "
+                          f"{provenance['total_sigs_seen']} sigs seen", flush=True)
 
                 if earliest_sig:
-                    # Fetch the transaction with jsonParsed encoding
+                    # STEP 2: Fetch the transaction
                     tx_payload = {
                         "jsonrpc": "2.0",
                         "id": 1,
@@ -816,7 +835,7 @@ class PostMigrationAnalyzer:
                                     fee_payer = self._extract_fee_payer_from_tx(tx)
                                     provenance['fee_payer'] = fee_payer
 
-                                    # Validate that this is a Pump.fun create event
+                                    # STEP 3: Validate that this is a Pump.fun create event
                                     validation = self._validate_pumpfun_create_tx(tx)
                                     provenance['mint_in_accounts'] = validation['mint_in_accounts']
                                     provenance['pumpfun_program_found'] = validation['pumpfun_program_found']
@@ -824,21 +843,25 @@ class PostMigrationAnalyzer:
                                     provenance['slot'] = validation['slot']
                                     provenance['blockTime'] = validation['blockTime']
 
-                                    # Determine final status
+                                    # FINAL DETERMINATION
                                     if (provenance['reached_end'] and
                                         provenance['mint_in_accounts'] and
                                         provenance['pumpfun_program_found'] and
                                         fee_payer):
                                         provenance['status'] = 'confirmed'
                                         provenance['creator'] = fee_payer
-                                        print(f"[CREATOR] ✅ CONFIRMED Earliest: {earliest_sig[:16]}...", flush=True)
-                                        print(f"[CREATOR] ✅ Creator: {fee_payer}", flush=True)
-                                        print(f"[CREATOR] ✅ Slot: {provenance['slot']}, Block time: {provenance['blockTime']}", flush=True)
+                                        print(f"[CREATOR] ✅ CONFIRMED EARLIEST", flush=True)
+                                        print(f"[CREATOR]   Pagination: {provenance['pages_traversed']} pages, "
+                                              f"{provenance['total_sigs_seen']} sigs (reached end)", flush=True)
+                                        print(f"[CREATOR]   Signature: {earliest_sig[:50]}...", flush=True)
+                                        print(f"[CREATOR]   Creator: {fee_payer}", flush=True)
+                                        print(f"[CREATOR]   Slot: {provenance['slot']}, "
+                                              f"BlockTime: {provenance['blockTime']}", flush=True)
                                         return provenance
                                     else:
                                         # Not all checks passed
                                         if not provenance['reached_end']:
-                                            provenance['validation_notes'].append("pagination incomplete")
+                                            provenance['validation_notes'].append("pagination did not reach end")
                                         if not provenance['mint_in_accounts']:
                                             provenance['validation_notes'].append("mint not in accounts")
                                         if not provenance['pumpfun_program_found']:
@@ -847,9 +870,9 @@ class PostMigrationAnalyzer:
                                             provenance['validation_notes'].append("no fee payer extracted")
 
                                         provenance['creator'] = fee_payer
-                                        print(f"[CREATOR] ⚠ UNPROVEN Earliest: {earliest_sig[:16]}... ({', '.join(provenance['validation_notes'])})", flush=True)
+                                        print(f"[CREATOR] ⚠ UNPROVEN: {', '.join(provenance['validation_notes'])}", flush=True)
                                         if fee_payer:
-                                            print(f"[CREATOR] ⚠ Creator (unproven): {fee_payer}", flush=True)
+                                            print(f"[CREATOR]   Creator (unproven): {fee_payer}", flush=True)
                                         return provenance
                     except Exception:
                         pass
@@ -858,7 +881,7 @@ class PostMigrationAnalyzer:
             print(f"[CREATOR] FluxRPC error: {flux_err}", flush=True)
             provenance['validation_notes'].append(f"FluxRPC error: {flux_err}")
 
-        # Tier 2: Fallback - use the existing signers extraction method
+        # TIER 2: Fallback - use the existing signers extraction method
         try:
             # Fetch all signatures - fetch_signatures already handles RPC failover
             sigs = await self.fetch_signatures(limit=1000)
@@ -878,7 +901,7 @@ class PostMigrationAnalyzer:
                 return provenance
 
             provenance['earliest_sig'] = earliest_sig
-            print(f"[CREATOR] Fallback: Fetching earliest transaction: {earliest_sig[:16]}...", flush=True)
+            print(f"[CREATOR] Fallback: Fetching earliest transaction: {earliest_sig[:50]}...", flush=True)
 
             # Fetch that transaction
             payload = {

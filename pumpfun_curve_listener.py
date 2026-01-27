@@ -1328,14 +1328,15 @@ class PumpFunCurveListener:
 
             # Create minimal entry with migration detection timestamp using INSERT OR REPLACE
             # This prevents duplicates if entry already exists
+            # Use NULL for analysis fields so UI shows blank until analysis completes
             now = time.time()
             cursor.execute("""
                 INSERT OR REPLACE INTO token_analysis (
                     mint, created_at, analyzed_at,
                     rug_probability, risk_level, post_migration_coverage,
                     rug_indicator, events_parsed
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, (mint, now, now, 0.0, "UNKNOWN", 0.0, None, 0))
+                ) VALUES (?, ?, ?, NULL, NULL, NULL, NULL, NULL)
+            """, (mint, now, now))
 
             conn.commit()
             conn.close()

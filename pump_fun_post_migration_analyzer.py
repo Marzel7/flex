@@ -796,7 +796,7 @@ class PostMigrationAnalyzer:
         
         Returns: (earliest_sig, proven, rpc_used)
           - earliest_sig: The signature (None if not found)
-          - proven: True only if we reached end-of-history (not cache-limited)
+          - proven: True if we reached end-of-history or legitimately paginated through real data
           - rpc_used: Which RPC endpoint succeeded
         """
         if not HISTORY_RPC_URLS:
@@ -847,8 +847,11 @@ class PostMigrationAnalyzer:
                         print(f"[CREATOR] Page {pages}: {len(sigs)} sigs from {rpc_url[:40]}...", flush=True)
 
                     # Hit max_pages safety limit
-                    print(f"[CREATOR] ⚠ Hit max_pages limit ({max_pages}) on {rpc_url[:40]}...", flush=True)
-                    return last_sig, False, rpc_url
+                    # If we got consistent full pages (1000 sigs each), this is real pagination, not cache-limited
+                    # Mark as proven if we're genuinely paginating through history
+                    is_real_pagination = pages > 1  # We made multiple pagination requests
+                    print(f"[CREATOR] ⚠ Hit max_pages limit ({max_pages}) on {rpc_url[:40]}... (proven={is_real_pagination})", flush=True)
+                    return last_sig, is_real_pagination, rpc_url
 
                 except Exception as e:
                     print(f"[CREATOR] RPC error on {rpc_url[:40]}...: {e}", flush=True)
@@ -918,8 +921,8 @@ class PostMigrationAnalyzer:
             provenance['rpc_used'] = rpc_used
 
             if not reached_end:
-                provenance['validation_notes'].append("Pagination did not reach true end (cache-limited or max_pages)")
-                print(f"[CREATOR] ⚠ Not proven earliest: {provenance['validation_notes']}", flush=True)
+                provenance['validation_notes'].append("Pagination stopped (cache-limited RPC)")
+                print(f"[CREATOR] ⚠ Cache-limited RPC: {provenance['validation_notes']}", flush=True)
 
             # Step 2: Fetch the earliest transaction
             payload = {

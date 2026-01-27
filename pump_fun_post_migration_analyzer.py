@@ -671,6 +671,14 @@ class PostMigrationAnalyzer:
 
             for instr in all_instructions:
                 program_id = instr.get("programId")
+                
+                # CRITICAL FIX: Handle programIdIndex form (common in getTransaction responses)
+                # When program is given as index into message.accountKeys, resolve it
+                if not program_id and "programIdIndex" in instr:
+                    idx = instr.get("programIdIndex")
+                    if isinstance(idx, int) and 0 <= idx < len(account_pubkeys):
+                        program_id = account_pubkeys[idx]
+                
                 if program_id:
                     result['program_ids'].append(program_id)
                     if program_id in PUMPFUN_PROGRAM_IDS:
@@ -906,13 +914,14 @@ class PostMigrationAnalyzer:
         earliest_create_tx = None
         pages_checked = 0
         proven_end = False
-        
+        oldest_txs_checked = 0
+
         try:
             async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=40)) as session:
                 rpc_url = "https://api.mainnet-beta.solana.com"
                 before = None
                 max_pages = 1000
-                
+
                 while pages_checked < max_pages:
                     pages_checked += 1
                     payload = {
@@ -921,26 +930,26 @@ class PostMigrationAnalyzer:
                         "method": "getSignaturesForAddress",
                         "params": [self.token_mint, {"limit": 1000, **({"before": before} if before else {})}]
                     }
-                    
+
                     try:
                         data = await _rpc_post(session, rpc_url, payload, timeout_s=30)
                         if data is None:
                             break
-                        
+
                         sigs = data.get("result") or []
-                        
+
                         if not sigs:
                             # Empty result = reached true end of history
                             print(f"[CREATOR] ✅ Reached true end of mint history after {pages_checked} pages", flush=True)
                             proven_end = True
                             break
-                        
+
                         # Check each signature in this page (oldest to newest, reverse order)
                         for sig_item in reversed(sigs):
                             sig = sig_item.get("signature")
                             if not sig:
                                 continue
-                            
+
                             # Fetch and validate this transaction
                             tx_payload = {
                                 "jsonrpc": "2.0",
@@ -948,16 +957,22 @@ class PostMigrationAnalyzer:
                                 "method": "getTransaction",
                                 "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
                             }
-                            
+
                             tx_data = await self._post_rpc_with_fallback(tx_payload, timeout=10)
                             if not tx_data or "result" not in tx_data or not tx_data["result"]:
                                 continue
-                            
+
                             tx = tx_data["result"]
-                            
+
                             # Validate this is a Pump.fun CREATE transaction
                             validation = self._validate_pumpfun_create_tx(tx)
-                            
+
+                            # Log the oldest few transactions' program IDs for debugging
+                            if oldest_txs_checked < 5:
+                                oldest_txs_checked += 1
+                                prog_ids_str = ", ".join(validation.get('program_ids', [])[:3])
+                                print(f"[CREATOR] Oldest tx #{oldest_txs_checked}: {sig[:16]}... | Programs: [{prog_ids_str}]", flush=True)
+
                             if validation['is_pumpfun_create']:
                                 # Found a valid Pump.fun create!
                                 print(f"[CREATOR] ✅ Found Pump.fun CREATE tx: {sig[:20]}...", flush=True)

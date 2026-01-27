@@ -1010,14 +1010,30 @@ class PumpFunCurveListener:
 
             summary = await analyzer.get_summary_async()
 
-            # Extract creator from earliest transaction
-            earliest_creator = await analyzer.get_creator_from_earliest_tx()
+            # Extract creator from earliest transaction with provenance validation
+            provenance = await analyzer.get_creator_from_earliest_tx()
+            earliest_creator = None
             creator_is_blocked = 0
             network_risk = None
 
+            if provenance:
+                earliest_creator = provenance.get('creator')
+                # Store provenance data in summary for auditing
+                summary["creator_provenance"] = {
+                    'status': provenance.get('status'),
+                    'earliest_sig': provenance.get('earliest_sig'),
+                    'reached_end': provenance.get('reached_end'),
+                    'pages_traversed': provenance.get('pages_traversed'),
+                    'is_pumpfun_create': provenance.get('is_pumpfun_create'),
+                    'slot': provenance.get('slot'),
+                    'blockTime': provenance.get('blockTime'),
+                    'validation_notes': provenance.get('validation_notes', [])
+                }
+
             if earliest_creator:
                 summary["earliest_tx_creator"] = earliest_creator
-                print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator}", flush=True)
+                provenance_status = provenance.get('status', 'unknown') if provenance else 'unknown'
+                print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status})", flush=True)
 
                 # Check if creator is in blocklist
                 try:
@@ -1418,10 +1434,17 @@ class PumpFunCurveListener:
             try:
                 from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
                 analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
-                earliest_creator = await analyzer.get_creator_from_earliest_tx()
+                provenance = await analyzer.get_creator_from_earliest_tx()
+                earliest_creator = provenance.get('creator') if provenance else None
 
-                # Get migration block time to determine creation date
-                if signature:
+                # Prefer on-chain blockTime from provenance over migration tx blockTime
+                if provenance and provenance.get('blockTime'):
+                    block_time = provenance.get('blockTime')
+                    created_at = datetime.utcfromtimestamp(block_time).isoformat() + "Z"
+                    print(f"[CREATOR] 🕐 Using on-chain time from earliest tx: {created_at}", flush=True)
+
+                # Fallback: Get migration block time if provenance doesn't have blockTime
+                if not created_at and signature:
                     try:
                         payload = {
                             "jsonrpc": "2.0",
@@ -1440,7 +1463,8 @@ class PumpFunCurveListener:
                 created_at = created_at or (datetime.utcnow().isoformat() + "Z")
 
                 if earliest_creator:
-                    print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator}", flush=True)
+                    provenance_status = provenance.get('status', 'unknown') if provenance else 'unknown'
+                    print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status})", flush=True)
                     # Update minimal entry with creator and date
                     self._update_token_entry_with_creator(mint, earliest_creator, created_at)
             except Exception as creator_err:

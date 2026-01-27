@@ -554,7 +554,90 @@ class PostMigrationAnalyzer:
         except Exception:
             return None
 
-    async def _get_earliest_signature(self, session: aiohttp.ClientSession, rpc_url: str) -> Optional[str]:
+    def _validate_pumpfun_create_tx(self, tx: dict) -> dict:
+        """
+        Validate that a transaction is actually a Pump.fun CREATE event.
+
+        Returns dict:
+        {
+            'is_pumpfun_create': True/False,
+            'mint_in_accounts': True/False,
+            'pumpfun_program_found': True/False,
+            'program_ids': [list of found program IDs],
+            'slot': transaction slot (for on-chain timestamp),
+            'blockTime': UNIX timestamp from block
+        }
+        """
+        result = {
+            'is_pumpfun_create': False,
+            'mint_in_accounts': False,
+            'pumpfun_program_found': False,
+            'program_ids': [],
+            'slot': None,
+            'blockTime': None
+        }
+
+        try:
+            # Known Pump.fun program IDs
+            PUMPFUN_PROGRAMS = {
+                "39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg",  # Pump.fun (migration processor)
+                "6EF8rrecthR5DkNCG6aB2SUHbBmXoxopY6kfMDBM4mA",  # PumpSwap
+                "11111111111111111111111111111111",  # System Program (used for create)
+                "TokenkegQfeZyiNwAJsyFbPtrKbVs73Cw6Xj2Yg5MNg",  # Token Program
+            }
+
+            # Get transaction metadata
+            result['slot'] = tx.get('slot')
+            result['blockTime'] = tx.get('blockTime')
+
+            # Check if mint appears in account keys
+            message = (tx.get("transaction") or {}).get("message") or {}
+            account_keys = message.get("accountKeys") or []
+
+            # account_keys can be list of strings or list of dicts
+            account_pubkeys = []
+            for acct in account_keys:
+                if isinstance(acct, str):
+                    account_pubkeys.append(acct)
+                elif isinstance(acct, dict):
+                    pubkey = acct.get("pubkey")
+                    if pubkey:
+                        account_pubkeys.append(pubkey)
+
+            # Check if our mint is in the accounts
+            if self.token_mint in account_pubkeys:
+                result['mint_in_accounts'] = True
+
+            # Check instructions for Pump.fun programs
+            instructions = message.get("instructions") or []
+            inner_instructions = tx.get("meta", {}).get("innerInstructions") or []
+
+            all_instructions = list(instructions)
+            for inner in inner_instructions:
+                all_instructions.extend(inner.get("instructions") or [])
+
+            for instr in all_instructions:
+                program_id = instr.get("programId")
+                if program_id:
+                    result['program_ids'].append(program_id)
+                    if program_id in PUMPFUN_PROGRAMS:
+                        result['pumpfun_program_found'] = True
+
+            # A valid Pump.fun create needs:
+            # 1. mint in accounts (it's being created)
+            # 2. at least one Pump.fun program invoked
+            result['is_pumpfun_create'] = (
+                result['mint_in_accounts'] and
+                result['pumpfun_program_found']
+            )
+
+            return result
+
+        except Exception as e:
+            print(f"[CREATOR] ⚠ Error validating Pump.fun create: {e}", flush=True)
+            return result
+
+    async def _get_earliest_signature(self, session: aiohttp.ClientSession, rpc_url: str) -> dict:
         """
         Fetch the earliest SUCCESSFUL signature for this token mint via pagination.
 
@@ -563,11 +646,19 @@ class PostMigrationAnalyzer:
 
         Filters out failed signatures (where err != None) to avoid decoding errors.
         Stops early when less than 1000 results are returned (end of history).
+
+        Returns dict with:
+        - signature: earliest signature found (or None)
+        - reached_end: True if pagination completed (len(sigs) < 1000)
+        - pages_traversed: number of API pages fetched
+        - total_sigs_seen: total signatures encountered (including failed)
         """
         before = None
         last_sig = None
         pages = 0
         max_pages = 50  # Bump limit for busy mints
+        total_sigs_seen = 0
+        reached_end = False
 
         try:
             while pages < max_pages:
@@ -593,7 +684,15 @@ class PostMigrationAnalyzer:
                 sigs = data.get("result") or []
                 if not sigs:
                     # Empty page = reached the end
-                    return last_sig
+                    reached_end = True
+                    return {
+                        "signature": last_sig,
+                        "reached_end": reached_end,
+                        "pages_traversed": pages,
+                        "total_sigs_seen": total_sigs_seen
+                    }
+
+                total_sigs_seen += len(sigs)
 
                 # Filter to only successful signatures (err == None)
                 ok_sigs = [s for s in sigs if s.get("err") is None]
@@ -605,17 +704,51 @@ class PostMigrationAnalyzer:
 
                 # Early exit: if we got fewer than 1000 results, we've reached the end
                 if len(sigs) < 1000:
-                    return last_sig
+                    reached_end = True
+                    return {
+                        "signature": last_sig,
+                        "reached_end": reached_end,
+                        "pages_traversed": pages,
+                        "total_sigs_seen": total_sigs_seen
+                    }
 
-            return last_sig
+            return {
+                "signature": last_sig,
+                "reached_end": reached_end,
+                "pages_traversed": pages,
+                "total_sigs_seen": total_sigs_seen
+            }
 
         except Exception as e:
             print(f"[CREATOR] ⚠ Error fetching earliest signature: {e}", flush=True)
-            return None
+            return {
+                "signature": None,
+                "reached_end": False,
+                "pages_traversed": pages,
+                "total_sigs_seen": total_sigs_seen
+            }
 
-    async def get_creator_from_earliest_tx(self) -> Optional[str]:
+    async def get_creator_from_earliest_tx(self) -> Optional[dict]:
         """
         Extract creator (fee payer) from earliest transaction on the token mint.
+        Returns full provenance object proving this is the first Pump.fun create.
+
+        Provenance object includes:
+        {
+            'creator': 'address or None',
+            'earliest_sig': signature hash,
+            'reached_end': True if pagination completed to earliest,
+            'pages_traversed': number of RPC pagination calls,
+            'total_sigs_seen': total signatures encountered,
+            'mint_in_accounts': mint appears in tx account keys,
+            'pumpfun_program_found': at least one Pump.fun program in tx,
+            'is_pumpfun_create': both above are True,
+            'slot': Solana slot number (for on-chain time),
+            'blockTime': UNIX timestamp from block,
+            'fee_payer': extracted fee payer account,
+            'status': 'confirmed' (all checks pass) or 'unproven' (some checks failed),
+            'validation_notes': human-readable explanation
+        }
 
         Strategy:
         1. Try FluxRPC: Paginate to find truly earliest signature, extract fee payer
@@ -626,6 +759,23 @@ class PostMigrationAnalyzer:
         """
         import os
 
+        # Initialize provenance tracking object
+        provenance = {
+            'creator': None,
+            'earliest_sig': None,
+            'reached_end': False,
+            'pages_traversed': 0,
+            'total_sigs_seen': 0,
+            'mint_in_accounts': False,
+            'pumpfun_program_found': False,
+            'is_pumpfun_create': False,
+            'slot': None,
+            'blockTime': None,
+            'fee_payer': None,
+            'status': 'unproven',
+            'validation_notes': []
+        }
+
         try:
             # Get FluxRPC URL from environment or use default
             flux_rpc = os.getenv("FLUX_RPC_URL", "").strip()
@@ -634,7 +784,16 @@ class PostMigrationAnalyzer:
 
             async with aiohttp.ClientSession() as session:
                 # Tier 1: Paginate to find truly earliest signature
-                earliest_sig = await self._get_earliest_signature(session, flux_rpc)
+                sig_result = await self._get_earliest_signature(session, flux_rpc)
+
+                earliest_sig = sig_result.get('signature')
+                provenance['earliest_sig'] = earliest_sig
+                provenance['reached_end'] = sig_result.get('reached_end', False)
+                provenance['pages_traversed'] = sig_result.get('pages_traversed', 0)
+                provenance['total_sigs_seen'] = sig_result.get('total_sigs_seen', 0)
+
+                if not provenance['reached_end']:
+                    provenance['validation_notes'].append("⚠ Pagination did not reach end (reached max_pages)")
 
                 if earliest_sig:
                     # Fetch the transaction with jsonParsed encoding
@@ -653,16 +812,51 @@ class PostMigrationAnalyzer:
                             if "error" not in tx_data:
                                 tx = tx_data.get("result")
                                 if tx:
-                                    creator = self._extract_fee_payer_from_tx(tx)
-                                    if creator:
-                                        print(f"[CREATOR] ✅ Earliest signature: {earliest_sig}", flush=True)
-                                        print(f"[CREATOR] ✅ Creator: {creator}", flush=True)
-                                        return creator
+                                    # Extract fee payer
+                                    fee_payer = self._extract_fee_payer_from_tx(tx)
+                                    provenance['fee_payer'] = fee_payer
+
+                                    # Validate that this is a Pump.fun create event
+                                    validation = self._validate_pumpfun_create_tx(tx)
+                                    provenance['mint_in_accounts'] = validation['mint_in_accounts']
+                                    provenance['pumpfun_program_found'] = validation['pumpfun_program_found']
+                                    provenance['is_pumpfun_create'] = validation['is_pumpfun_create']
+                                    provenance['slot'] = validation['slot']
+                                    provenance['blockTime'] = validation['blockTime']
+
+                                    # Determine final status
+                                    if (provenance['reached_end'] and
+                                        provenance['mint_in_accounts'] and
+                                        provenance['pumpfun_program_found'] and
+                                        fee_payer):
+                                        provenance['status'] = 'confirmed'
+                                        provenance['creator'] = fee_payer
+                                        print(f"[CREATOR] ✅ CONFIRMED Earliest: {earliest_sig[:16]}...", flush=True)
+                                        print(f"[CREATOR] ✅ Creator: {fee_payer}", flush=True)
+                                        print(f"[CREATOR] ✅ Slot: {provenance['slot']}, Block time: {provenance['blockTime']}", flush=True)
+                                        return provenance
+                                    else:
+                                        # Not all checks passed
+                                        if not provenance['reached_end']:
+                                            provenance['validation_notes'].append("pagination incomplete")
+                                        if not provenance['mint_in_accounts']:
+                                            provenance['validation_notes'].append("mint not in accounts")
+                                        if not provenance['pumpfun_program_found']:
+                                            provenance['validation_notes'].append("no Pump.fun program")
+                                        if not fee_payer:
+                                            provenance['validation_notes'].append("no fee payer extracted")
+
+                                        provenance['creator'] = fee_payer
+                                        print(f"[CREATOR] ⚠ UNPROVEN Earliest: {earliest_sig[:16]}... ({', '.join(provenance['validation_notes'])})", flush=True)
+                                        if fee_payer:
+                                            print(f"[CREATOR] ⚠ Creator (unproven): {fee_payer}", flush=True)
+                                        return provenance
                     except Exception:
                         pass
 
         except Exception as flux_err:
             print(f"[CREATOR] FluxRPC error: {flux_err}", flush=True)
+            provenance['validation_notes'].append(f"FluxRPC error: {flux_err}")
 
         # Tier 2: Fallback - use the existing signers extraction method
         try:
@@ -671,7 +865,8 @@ class PostMigrationAnalyzer:
 
             if not sigs:
                 print(f"[CREATOR] No signatures found for {self.token_mint}", flush=True)
-                return None
+                provenance['validation_notes'].append("No signatures found")
+                return provenance
 
             # Get the EARLIEST signature (oldest = last in list after pagination)
             # Note: getSignaturesForAddress returns newest first, so we take the last
@@ -679,9 +874,11 @@ class PostMigrationAnalyzer:
 
             if not earliest_sig:
                 print(f"[CREATOR] Could not determine earliest signature", flush=True)
-                return None
+                provenance['validation_notes'].append("Could not determine earliest signature")
+                return provenance
 
-            print(f"[CREATOR] Fallback: Fetching earliest transaction: {earliest_sig}", flush=True)
+            provenance['earliest_sig'] = earliest_sig
+            print(f"[CREATOR] Fallback: Fetching earliest transaction: {earliest_sig[:16]}...", flush=True)
 
             # Fetch that transaction
             payload = {
@@ -695,9 +892,18 @@ class PostMigrationAnalyzer:
 
             if not tx_data or "result" not in tx_data or not tx_data["result"]:
                 print(f"[CREATOR] Transaction not found or failed to parse", flush=True)
-                return None
+                provenance['validation_notes'].append("Transaction fetch failed")
+                return provenance
 
             tx = tx_data["result"]
+
+            # Validate that this is a Pump.fun create event
+            validation = self._validate_pumpfun_create_tx(tx)
+            provenance['mint_in_accounts'] = validation['mint_in_accounts']
+            provenance['pumpfun_program_found'] = validation['pumpfun_program_found']
+            provenance['is_pumpfun_create'] = validation['is_pumpfun_create']
+            provenance['slot'] = validation['slot']
+            provenance['blockTime'] = validation['blockTime']
 
             # Extract signers from transaction
             message = tx.get("transaction", {}).get("message", {})
@@ -705,14 +911,15 @@ class PostMigrationAnalyzer:
 
             if not account_keys:
                 print(f"[CREATOR] No accountKeys found in transaction", flush=True)
-                return None
+                provenance['validation_notes'].append("No account keys")
+                return provenance
 
             # When using jsonParsed encoding, accountKeys is a list of objects with 'pubkey' and 'signer' fields
             # Extract signers from the accounts marked with signer=True
             KNOWN_PROGRAMS = {
                 "11111111111111111111111111111111",  # System Program
                 "TokenkegQfeZyiNwAJsyFbPtrKbVs73Cw6Xj2Yg5MNg",  # Token Program
-                "39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg",  # Pump.Fun (migration processor)
+                "39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg",  # Pump.fun (migration processor)
                 "6EF8rrecthR5DkNCG6aB2SUHbBmXoxopY6kfMDBM4mA",  # PumpSwap
             }
 
@@ -729,7 +936,8 @@ class PostMigrationAnalyzer:
 
             if not signers:
                 print(f"[CREATOR] No signers found in transaction (0 accounts marked as signer)", flush=True)
-                return None
+                provenance['validation_notes'].append("No signers found")
+                return provenance
 
             print(f"[CREATOR] Found {len(signers)} signers in transaction", flush=True)
 
@@ -739,21 +947,39 @@ class PostMigrationAnalyzer:
             for signer in signers:
                 if signer not in KNOWN_PROGRAMS:
                     creator = signer
+                    provenance['fee_payer'] = creator
                     print(f"[CREATOR] ✓ Found creator: {creator}", flush=True)
-                    return creator
+                    break
 
             # If all signers are known programs, use the first one
-            if signers:
+            if not creator and signers:
                 creator = signers[0]
+                provenance['fee_payer'] = creator
                 print(f"[CREATOR] ⚠ All signers are known programs, using first: {creator}", flush=True)
-                return creator
 
-            print(f"[CREATOR] No valid signers found", flush=True)
-            return None
+            if creator:
+                provenance['creator'] = creator
+                # Determine status for fallback
+                if provenance['is_pumpfun_create']:
+                    provenance['status'] = 'confirmed'
+                    print(f"[CREATOR] ✅ CONFIRMED via fallback: {creator}", flush=True)
+                else:
+                    provenance['status'] = 'unproven'
+                    if not provenance['mint_in_accounts']:
+                        provenance['validation_notes'].append("mint not in accounts")
+                    if not provenance['pumpfun_program_found']:
+                        provenance['validation_notes'].append("no Pump.fun program")
+                    print(f"[CREATOR] ⚠ UNPROVEN via fallback: {creator} ({', '.join(provenance['validation_notes'])})", flush=True)
+            else:
+                print(f"[CREATOR] No valid signers found", flush=True)
+                provenance['validation_notes'].append("No valid signers")
+
+            return provenance
 
         except Exception as e:
             print(f"[CREATOR] Error extracting creator: {type(e).__name__}: {str(e)}", flush=True)
-            return None
+            provenance['validation_notes'].append(f"Exception: {str(e)}")
+            return provenance
 
     async def get_summary_async(self) -> Dict:
         """Get complete analysis summary with async creator lookup"""

@@ -186,16 +186,35 @@ class RealTimeCreatorFundingExtractor:
         return transfers
 
     def _save_funder(self, creator: str, funder: str, amount_sol: float):
-        """Save funder relationship to database"""
+        """Save funder relationship to database, checking for CEX wallets"""
         try:
             conn = sqlite3.connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
 
+            # Check if funder is a known CEX wallet
+            cex_exchange = None
+            cex_type = None
+            try:
+                cursor.execute("""
+                    SELECT exchange_name, wallet_type
+                    FROM cex_wallets
+                    WHERE cex_address = ? AND is_active = 1
+                    LIMIT 1
+                """, (funder,))
+                cex_row = cursor.fetchone()
+                if cex_row:
+                    exchange, wallet_type = cex_row
+                    cex_exchange = exchange
+                    cex_type = wallet_type
+                    print(f"[FUNDING] 🏛️ CEX FUNDER DETECTED: {exchange} {wallet_type} → {creator[:16]}... ({amount_sol:.2f} SOL)", flush=True)
+            except:
+                pass
+
             cursor.execute("""
                 INSERT OR REPLACE INTO creator_funders
-                (creator_address, funder_address, amount_sol, first_detected_at)
-                VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-            """, (creator, funder, amount_sol))
+                (creator_address, funder_address, amount_sol, first_detected_at, is_cex, cex_exchange, cex_type)
+                VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?)
+            """, (creator, funder, amount_sol, 1 if cex_exchange else 0, cex_exchange, cex_type))
 
             conn.commit()
             conn.close()

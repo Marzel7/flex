@@ -192,10 +192,32 @@ class RealtimeWalletClusteringExtractor:
     def _save_cluster_node(
         self, root_creator: str, wallet: str, hop: int, confidence: float, tags: str = ""
     ):
-        """Save wallet cluster node to database"""
+        """Save wallet cluster node to database, checking for CEX wallets"""
         try:
             conn = sqlite3.connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
+
+            # Check if wallet is a known CEX wallet
+            cex_tag = None
+            try:
+                cursor.execute("""
+                    SELECT exchange_name, wallet_type
+                    FROM cex_wallets
+                    WHERE cex_address = ? AND is_active = 1
+                    LIMIT 1
+                """, (wallet,))
+                cex_row = cursor.fetchone()
+                if cex_row:
+                    exchange, wallet_type = cex_row
+                    cex_tag = f"🏛️ {exchange} {wallet_type}"
+                    print(f"[CLUSTERING] 🏛️ CEX WALLET IN NETWORK: {exchange} {wallet_type} connected to {root_creator[:16]}...", flush=True)
+                    # Append CEX tag to existing tags
+                    if tags:
+                        tags = tags + " | " + cex_tag
+                    else:
+                        tags = cex_tag
+            except:
+                pass
 
             cursor.execute("""
                 INSERT OR REPLACE INTO wallet_cluster_nodes

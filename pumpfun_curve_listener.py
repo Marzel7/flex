@@ -573,82 +573,73 @@ class PumpFunCurveListener:
                 "params": [token_mint]
             }
 
-            async with aiohttp.ClientSession() as session:
-                # First try to find accounts via getTokenAccountsByMint (if available)
-                # Fallback to getTokenLargestAccounts
-                accounts = None
-                
-                async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                    if resp.status == 200:
-                        data = await resp.json()
-                        if "result" in data and "value" in data["result"]:
-                            accounts = data["result"]["value"]
-                            print(f"[POOL] Found {len(accounts)} accounts via getTokenAccountsByMint", flush=True)
-                
-                # Fallback to getTokenLargestAccounts
-                if not accounts:
-                    payload = {
-                        "jsonrpc": "2.0",
-                        "id": 1,
-                        "method": "getTokenLargestAccounts",
-                        "params": [token_mint]
-                    }
-                    
-                    async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                        if resp.status != 200:
-                            return None
+            # Try to find accounts via getTokenAccountsByMint (if available)
+            # Use fallback chain for reliability
+            accounts = None
 
-                        data = await resp.json()
-                        if "result" not in data or "value" not in data["result"]:
-                            return None
+            data = await self._post_rpc_with_fallback(payload, timeout=10)
+            if data and "result" in data and "value" in data["result"]:
+                accounts = data["result"]["value"]
+                print(f"[POOL] Found {len(accounts)} accounts via getTokenAccountsByMint", flush=True)
 
-                        accounts = data["result"]["value"]
-                
-                if not accounts:
+            # Fallback to getTokenLargestAccounts
+            if not accounts:
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getTokenLargestAccounts",
+                    "params": [token_mint]
+                }
+
+                data = await self._post_rpc_with_fallback(payload, timeout=10)
+                if not data or "result" not in data or "value" not in data["result"]:
                     return None
+
+                accounts = data["result"]["value"]
                 
-                print(f"[POOL] Checking {len(accounts)} token accounts to find pool...", flush=True)
-                
-                # Sort by balance - smallest account is usually the active pool
-                sorted_accounts = sorted(accounts, key=lambda x: float(x.get("uiAmount", 0)))
-                
-                # Check the smallest few accounts (they're most likely to be pools)
-                for account_info in sorted_accounts[:5]:
-                    token_account_addr = account_info.get("address")
-                    balance = float(account_info.get("uiAmount", 0))
-                    
-                    if not token_account_addr:
-                        continue
-                    
-                    print(f"[POOL]   Checking {token_account_addr} (balance: {balance:.0f})", flush=True)
-                    
-                    # Get account info with jsonParsed to extract the owner
-                    acct_payload = {
-                        "jsonrpc": "2.0",
-                        "id": 1,
-                        "method": "getAccountInfo",
-                        "params": [token_account_addr, {"encoding": "jsonParsed"}]
-                    }
-                    
-                    try:
-                        async with session.post(RPC_HTTP, json=acct_payload, timeout=aiohttp.ClientTimeout(total=5)) as acct_resp:
-                            if acct_resp.status == 200:
-                                acct_data = await acct_resp.json()
-                                if "result" in acct_data and acct_data["result"]:
-                                    account = acct_data["result"]
-                                    value = account.get("value", {})
-                                    
-                                    # For jsonParsed encoding, owner is in value.data.parsed.info.owner
-                                    if "data" in value and isinstance(value["data"], dict):
-                                        parsed = value["data"].get("parsed", {})
-                                        info = parsed.get("info", {})
-                                        owner = info.get("owner")
-                                        
-                                        if owner:
-                                            print(f"[POOL]     Owner: {owner}", flush=True)
-                                            return owner
-                    except:
-                        pass
+            if not accounts:
+                return None
+
+            print(f"[POOL] Checking {len(accounts)} token accounts to find pool...", flush=True)
+
+            # Sort by balance - smallest account is usually the active pool
+            sorted_accounts = sorted(accounts, key=lambda x: float(x.get("uiAmount", 0)))
+
+            # Check the smallest few accounts (they're most likely to be pools)
+            for account_info in sorted_accounts[:5]:
+                token_account_addr = account_info.get("address")
+                balance = float(account_info.get("uiAmount", 0))
+
+                if not token_account_addr:
+                    continue
+
+                print(f"[POOL]   Checking {token_account_addr} (balance: {balance:.0f})", flush=True)
+
+                # Get account info with jsonParsed to extract the owner
+                acct_payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getAccountInfo",
+                    "params": [token_account_addr, {"encoding": "jsonParsed"}]
+                }
+
+                try:
+                    acct_data = await self._post_rpc_with_fallback(acct_payload, timeout=5)
+                    if acct_data and "result" in acct_data and acct_data["result"]:
+                        account = acct_data["result"]
+                        value = account.get("value", {})
+
+                        # For jsonParsed encoding, owner is in value.data.parsed.info.owner
+                        if "data" in value and isinstance(value["data"], dict):
+                            parsed = value["data"].get("parsed", {})
+                            info = parsed.get("info", {})
+                            owner = info.get("owner")
+
+                            if owner:
+                                print(f"[POOL]     Owner: {owner}", flush=True)
+                                return owner
+                except:
+                    pass
                 
                 # If we can't get owner via parsing, use the smallest account address as pool
                 # (This is a fallback - smallest account is usually the pool)

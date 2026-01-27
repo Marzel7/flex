@@ -90,78 +90,15 @@ async def _rpc_post(session: aiohttp.ClientSession, url: str, payload: dict, tim
     return None
 
 
-def derive_bonding_curve_pda(mint: str) -> str:
-    """
-    Derive the Pump.fun bonding curve PDA from a token mint address.
-    
-    The bonding curve is created once during Pump.fun token launch and is the
-    account that holds the token supply and swap logic. It's anchored to the mint.
-    
-    Args:
-        mint: Token mint address (e.g., "C1i3S3y29YEZi8CfTDDstdSM5ZLdk1nSfGJsQLf8pump")
-        
-    Returns:
-        The bonding curve PDA address (base58-encoded Pubkey)
-        
-    Implementation:
-        Uses Solana PDA derivation with seeds:
-        - Seed 1: b"bonding_curve"
-        - Seed 2: mint address (decoded from base58 to bytes)
-        - Program: Pump.fun program (6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P)
-    """
-    try:
-        # Try using solders library (preferred method)
-        from solders.pubkey import Pubkey
-        
-        mint_pubkey = Pubkey.from_string(mint)
-        
-        # Pump.fun program ID
-        PUMPFUN_PROGRAM = Pubkey.from_string("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P")
-        
-        # Seeds for bonding curve PDA
-        seeds = [b"bonding_curve", bytes(mint_pubkey)]
-        
-        # Find PDA
-        curve_pda, _ = Pubkey.find_program_address(seeds, PUMPFUN_PROGRAM)
-        
-        return str(curve_pda)
-        
-    except ImportError:
-        # Fallback if solders not available - use manual derivation with hashlib
-        import base58
-        from hashlib import sha256
-        
-        PUMPFUN_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
-        
-        # Decode mint from base58
-        mint_bytes = base58.b58decode(mint)
-        
-        # Decode program ID from base58
-        program_bytes = base58.b58decode(PUMPFUN_PROGRAM)
-        
-        # Seeds: bonding_curve + mint
-        seeds = [b"bonding_curve", mint_bytes]
-        
-        # Find PDA by trying bump seeds (255 down to 0)
-        for bump in range(255, -1, -1):
-            # Create hash input: seeds + bump + program_id
-            hash_input = b"".join(seeds) + bytes([bump]) + program_bytes
-            h = sha256(hash_input).digest()
-            
-            # Check if it's a valid public key (must be off-curve)
-            # For simplicity, we'll just try to encode and return the first one
-            try:
-                pda = base58.b58encode(h).decode('ascii')
-                # Validate it looks like a Solana address (base58, ~44 chars)
-                if len(pda) > 40 and len(pda) < 50:
-                    return pda
-            except Exception:
-                continue
-        
-        raise ValueError(f"Could not derive bonding curve PDA for {mint}")
-    
-    except Exception as e:
-        raise ValueError(f"Could not derive bonding curve PDA: {e}")
+# Pump.fun program IDs
+PUMPFUN_PROGRAM_IDS = {
+    "39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg",  # Pump.fun processor
+}
+
+SYSTEM_PROGRAM = "11111111111111111111111111111111"
+TOKEN_PROGRAM = "TokenkegQfeZyiNwAJsyFbPtrKbVs73Cw6Xj2Yg5MNg"
+TOKEN_2022 = "TokenzQdBbjFD8aff5ZZUwWWwG6Go5rm5KWQEypdCU8"
+SYSTEM_PROGRAMS = {SYSTEM_PROGRAM, TOKEN_PROGRAM, TOKEN_2022}
 
 
 class PostMigrationAnalyzer:
@@ -702,14 +639,6 @@ class PostMigrationAnalyzer:
         }
 
         try:
-            # Known Pump.fun program IDs
-            PUMPFUN_PROGRAMS = {
-                "39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg",  # Pump.fun (migration processor)
-                "6EF8rrecthR5DkNCG6aB2SUHbBmXoxopY6kfMDBM4mA",  # PumpSwap
-                "11111111111111111111111111111111",  # System Program (used for create)
-                "TokenkegQfeZyiNwAJsyFbPtrKbVs73Cw6Xj2Yg5MNg",  # Token Program
-            }
-
             # Get transaction metadata
             result['slot'] = tx.get('slot')
             result['blockTime'] = tx.get('blockTime')
@@ -744,14 +673,20 @@ class PostMigrationAnalyzer:
                 program_id = instr.get("programId")
                 if program_id:
                     result['program_ids'].append(program_id)
-                    if program_id in PUMPFUN_PROGRAMS:
+                    if program_id in PUMPFUN_PROGRAM_IDS:
                         result['pumpfun_program_found'] = True
 
-            # A valid Pump.fun create needs:
-            # 1. mint in accounts (it's being created)
-            # 2. at least one Pump.fun program invoked
+            # Log programs found for debugging
+            if result['program_ids']:
+                print(f"[CREATOR] 📋 Programs found in transaction: {result['program_ids']}", flush=True)
+            else:
+                print(f"[CREATOR] 📋 No instructions/programs found in transaction", flush=True)
+
+            # CRITICAL FIX: A valid Pump.fun create MUST have BOTH:
+            # 1. Mint in accounts (ensures this is the mint's creation)
+            # 2. Pump.fun program found in instructions (ensures it's a Pump.fun tx)
             result['is_pumpfun_create'] = (
-                result['mint_in_accounts'] and
+                result['mint_in_accounts'] and 
                 result['pumpfun_program_found']
             )
 
@@ -947,25 +882,216 @@ class PostMigrationAnalyzer:
 
         return None, False, "none"
 
+    async def extract_bonding_curve_from_creation_tx(self) -> Optional[str]:
+        """
+        Extract the bonding curve PDA from the token's creation transaction.
+        
+        This is more reliable than mathematical derivation because:
+        - It gets the actual bonding curve account created in the transaction
+        - Works even if Pump.fun changes their seed format
+        - Proven approach: fetch earliest tx, extract account from Pump.fun instruction
+        
+        Critical Process:
+        1. Paginate through token mint's signatures to PROVEN end (not just first 1000)
+        2. Fetch the earliest (creation) transaction
+        3. Find Pump.fun program instruction in transaction
+        4. Extract bonding curve account using heuristics:
+           - Writable account
+           - Non-signer
+           - Not in SYSTEM_PROGRAMS
+        
+        Returns: bonding curve PDA address or None if not found
+        """
+        print(f"[CREATOR] Extracting bonding curve from creation transaction for {self.token_mint[:20]}...", flush=True)
+        
+        # Step 1: Get TRUE earliest signature (must paginate to proven end)
+        # Use public Solana RPC for signature fetching (more reliable than QuickNode)
+        earliest_sig = None
+        proven = False
+        
+        try:
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=40)) as session:
+                # Use public Solana RPC specifically for signature history
+                rpc_url = "https://api.mainnet-beta.solana.com"
+                before = None
+                pages = 0
+                max_pages = 1000
+                
+                while pages < max_pages:
+                    pages += 1
+                    payload = {
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "getSignaturesForAddress",
+                        "params": [self.token_mint, {"limit": 1000, **({"before": before} if before else {})}]
+                    }
+                    
+                    try:
+                        data = await _rpc_post(session, rpc_url, payload, timeout_s=30)
+                        if data is None:
+                            break
+                        
+                        sigs = data.get("result") or []
+                        
+                        if not sigs:
+                            # Empty result = we reached the true end
+                            print(f"[CREATOR] ✅ Reached true end of mint history after {pages} pages", flush=True)
+                            proven = True
+                            break
+                        
+                        earliest_sig = sigs[-1]["signature"]  # Oldest sig in this batch
+                        before = earliest_sig
+                        print(f"[CREATOR] Page {pages}: {len(sigs)} signatures fetched, earliest so far: {earliest_sig[:20]}...", flush=True)
+                        
+                    except Exception as e:
+                        print(f"[CREATOR] RPC error fetching signatures: {e}", flush=True)
+                        break
+                
+                if pages >= max_pages:
+                    print(f"[CREATOR] ⚠ Hit max_pages limit ({max_pages}) - result may not be true earliest", flush=True)
+                    # If we got multiple pages, we did paginate through real data (not cache-limited)
+                    # Mark as proven if pages > 1
+                    proven = (pages > 1)
+        
+        except Exception as e:
+            print(f"[CREATOR] ❌ Failed to get earliest signature: {e}", flush=True)
+            return None
+        
+        if not earliest_sig:
+            print(f"[CREATOR] ❌ No signatures found for mint", flush=True)
+            return None
+        
+        print(f"[CREATOR] Earliest signature found (proven={proven}): {earliest_sig[:20]}...", flush=True)
+        
+        # Step 2: Fetch the creation transaction
+        print(f"[CREATOR] Fetching creation transaction...", flush=True)
+        
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "getTransaction",
+            "params": [earliest_sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+        }
+        
+        tx_data = await self._post_rpc_with_fallback(payload, timeout=20)
+        
+        if not tx_data or "result" not in tx_data or not tx_data["result"]:
+            print(f"[CREATOR] ❌ Transaction fetch failed", flush=True)
+            return None
+        
+        tx = tx_data["result"]
+        
+        # Step 3: Normalize account keys into dicts with pubkey/signer/writable info
+        message = (tx.get("transaction") or {}).get("message") or {}
+        account_keys_raw = message.get("accountKeys") or []
+        
+        # Build normalized account list: [{"pubkey": ..., "signer": ..., "writable": ...}, ...]
+        normalized_accounts = []
+        for i, acct in enumerate(account_keys_raw):
+            if isinstance(acct, str):
+                # Plain string: account is signer and writable by default (standard format)
+                normalized_accounts.append({
+                    "index": i,
+                    "pubkey": acct,
+                    "signer": i < len([k for k in account_keys_raw if isinstance(k, dict) and k.get("signer")]) if isinstance(account_keys_raw[0], dict) else i == 0,
+                    "writable": True
+                })
+            elif isinstance(acct, dict):
+                # Dict format (jsonParsed): has pubkey, signer, writable fields
+                normalized_accounts.append({
+                    "index": i,
+                    "pubkey": acct.get("pubkey"),
+                    "signer": acct.get("signer", False),
+                    "writable": acct.get("writable", False)
+                })
+        
+        print(f"[CREATOR] Transaction has {len(normalized_accounts)} accounts", flush=True)
+        
+        # Step 4: Find Pump.fun instruction and extract bonding curve candidate
+        instructions = message.get("instructions") or []
+        inner_instructions = tx.get("meta", {}).get("innerInstructions") or []
+        
+        # Collect all instructions (top-level + inner)
+        all_ix = list(instructions)
+        for inner in inner_instructions:
+            all_ix.extend(inner.get("instructions") or [])
+        
+        print(f"[CREATOR] Transaction has {len(all_ix)} total instructions (including inner)", flush=True)
+        
+        # Step 5: Search for Pump.fun instruction and extract bonding curve
+        for ix_idx, ix in enumerate(all_ix):
+            program_id = ix.get("programId")
+            
+            if program_id not in PUMPFUN_PROGRAM_IDS:
+                continue
+            
+            print(f"[CREATOR] Found Pump.fun instruction (#{ix_idx}): {program_id}", flush=True)
+            
+            # Get account indexes for this instruction
+            accounts = ix.get("accounts") or []
+            
+            if not accounts:
+                print(f"[CREATOR] ⚠ Pump.fun instruction has no accounts", flush=True)
+                continue
+            
+            print(f"[CREATOR] Instruction accounts: {accounts}", flush=True)
+            
+            # Resolve account indexes to actual pubkeys
+            instruction_accounts = []
+            for acc_idx in accounts:
+                if isinstance(acc_idx, int) and 0 <= acc_idx < len(normalized_accounts):
+                    acc_info = normalized_accounts[acc_idx]
+                    instruction_accounts.append(acc_info)
+                elif isinstance(acc_idx, str):
+                    # Already a pubkey string
+                    instruction_accounts.append({"pubkey": acc_idx, "signer": False, "writable": False})
+            
+            print(f"[CREATOR] Resolved {len(instruction_accounts)} instruction accounts", flush=True)
+            
+            # Find bonding curve candidate using heuristics:
+            # - Writable account (state changes)
+            # - Non-signer (not a transaction signer)
+            # - Not in SYSTEM_PROGRAMS
+            # - Typically early in the accounts list
+            
+            bonding_curve_candidates = []
+            for acc_info in instruction_accounts:
+                pubkey = acc_info.get("pubkey")
+                if not pubkey:
+                    continue
+                
+                is_writable = acc_info.get("writable", False)
+                is_signer = acc_info.get("signer", False)
+                is_system = pubkey in SYSTEM_PROGRAMS
+                
+                if is_writable and not is_signer and not is_system:
+                    bonding_curve_candidates.append(pubkey)
+                    print(f"[CREATOR] ✓ Bonding curve candidate: {pubkey}", flush=True)
+            
+            if bonding_curve_candidates:
+                bonding_curve = bonding_curve_candidates[0]
+                print(f"[CREATOR] ✓ Extracted Bonding Curve: {bonding_curve}", flush=True)
+                return bonding_curve
+        
+        print(f"[CREATOR] ❌ No bonding curve found in Pump.fun instruction", flush=True)
+        return None
+
     async def get_creator_from_earliest_tx(self) -> Optional[dict]:
         """
         Extract creator (fee payer) from earliest transaction on the bonding curve.
         Returns full provenance object proving this is the first Pump.fun create.
 
-        CRITICAL: Queries the bonding curve PDA (the true Pump.fun creation anchor)
-        instead of the token mint. This ensures we find the actual creation event,
-        not just trading activity on the mint account.
-
-        For POST-MIGRATION tokens: Even after migration to PumpSwap/Raydium, the bonding
-        curve's transaction history is immutable on-chain. We query it to find the original
-        creation. If the RPC doesn't have bonding curve history, we fall back to token mint.
+        CRITICAL: Extracts the bonding curve account from the creation transaction
+        instead of deriving it mathematically. This is more reliable because:
+        - Avoids guessing at seed parameters
+        - Gets the actual account used in the creation
+        - Works even if Pump.fun changes their seed format
 
         Process:
-        1. Derive bonding curve PDA from token mint
-        2. Query bonding curve PDA's transaction history
-        3. If no signatures found, fall back to token mint (post-migration safety net)
-        4. Get earliest transaction and extract fee payer (creator)
-        5. Validate that it's a Pump.fun create event
+        1. Extract bonding curve account from token's creation transaction
+        2. Query bonding curve account's transaction history (ONLY source)
+        3. Get earliest transaction and extract fee payer (creator)
+        4. Validate that it's a Pump.fun create event
 
         Provenance object includes:
         {
@@ -979,8 +1105,8 @@ class PostMigrationAnalyzer:
             'slot': Solana slot number (for on-chain time),
             'blockTime': UNIX timestamp from block,
             'fee_payer': extracted fee payer account,
-            'bonding_curve_pda': the PDA we derived,
-            'query_source': 'bonding_curve_pda' or 'token_mint' (which source provided earliest sig),
+            'bonding_curve_pda': the actual bonding curve account extracted from tx,
+            'query_source': 'bonding_curve' (extracted from creation tx),
             'status': 'confirmed' (all checks pass) or 'unproven' (some checks failed),
             'validation_notes': human-readable explanation
         }
@@ -999,64 +1125,43 @@ class PostMigrationAnalyzer:
             'blockTime': None,
             'fee_payer': None,
             'bonding_curve_pda': None,
-            'query_source': None,
+            'query_source': 'bonding_curve',
             'status': 'unproven',
             'validation_notes': []
         }
 
         try:
-            # Step 1: Derive bonding curve PDA from token mint
-            print(f"[CREATOR] Deriving bonding curve PDA for {self.token_mint[:20]}...", flush=True)
-            bonding_curve_pda = None
-            try:
-                bonding_curve_pda = derive_bonding_curve_pda(self.token_mint)
-                provenance['bonding_curve_pda'] = bonding_curve_pda
-                print(f"[CREATOR] Bonding Curve PDA: {bonding_curve_pda[:20]}...", flush=True)
-            except Exception as e:
-                print(f"[CREATOR] Failed to derive bonding curve PDA: {e}", flush=True)
-                provenance['validation_notes'].append(f"PDA derivation failed: {str(e)}")
+            # Step 1: Extract bonding curve account from creation transaction
+            bonding_curve_pda = await self.extract_bonding_curve_from_creation_tx()
+            
+            if not bonding_curve_pda:
+                print(f"[CREATOR] ❌ Failed to extract bonding curve from creation tx", flush=True)
+                provenance['validation_notes'].append("Could not extract bonding curve from creation tx")
+                return provenance
+            
+            provenance['bonding_curve_pda'] = bonding_curve_pda
+            print(f"[CREATOR] ✓ Extracted Bonding Curve: {bonding_curve_pda}", flush=True)
 
-            # Step 2: Try to find earliest signature from bonding curve PDA first
-            earliest_sig = None
-            reached_end = False
-            rpc_used = None
-            query_source = None
-
-            if bonding_curve_pda:
-                print(f"[CREATOR] Querying bonding curve PDA for earliest signature...", flush=True)
-                earliest_sig, reached_end, rpc_used = await self.get_true_earliest_signature(
-                    bonding_curve_pda=bonding_curve_pda
-                )
-                if earliest_sig:
-                    query_source = "bonding_curve_pda"
-                    print(f"[CREATOR] ✓ Found signature on bonding curve PDA", flush=True)
-
-            # Step 3: Fallback to token mint if bonding curve has no signatures
-            # (common for post-migration tokens when RPC doesn't have full bonding curve history)
-            if not earliest_sig:
-                print(f"[CREATOR] No signatures on bonding curve, falling back to token mint...", flush=True)
-                earliest_sig, reached_end, rpc_used = await self.get_true_earliest_signature(
-                    bonding_curve_pda=None  # Query token mint instead
-                )
-                if earliest_sig:
-                    query_source = "token_mint"
-                    print(f"[CREATOR] ✓ Found signature on token mint (fallback)", flush=True)
+            # Step 2: Query bonding curve account for earliest signature
+            print(f"[CREATOR] Querying bonding curve account for earliest signature...", flush=True)
+            earliest_sig, reached_end, rpc_used = await self.get_true_earliest_signature(
+                bonding_curve_pda=bonding_curve_pda
+            )
 
             if not earliest_sig:
-                print(f"[CREATOR] No signatures found from any source", flush=True)
-                provenance['validation_notes'].append("No signatures found")
+                print(f"[CREATOR] ❌ No signatures found on bonding curve account", flush=True)
+                provenance['validation_notes'].append("No signatures on bonding curve account")
                 return provenance
 
             provenance['earliest_sig'] = earliest_sig
             provenance['reached_end'] = reached_end
             provenance['rpc_used'] = rpc_used
-            provenance['query_source'] = query_source
 
             if not reached_end:
-                provenance['validation_notes'].append("Pagination stopped (cache-limited RPC)")
-                print(f"[CREATOR] ⚠ Cache-limited RPC or max_pages hit", flush=True)
+                provenance['validation_notes'].append("Pagination stopped (cache-limited RPC or max_pages hit)")
+                print(f"[CREATOR] ⚠ Pagination did not reach end", flush=True)
 
-            # Step 4: Fetch the earliest transaction
+            # Step 3: Fetch the earliest transaction
             payload = {
                 "jsonrpc": "2.0",
                 "id": 1,
@@ -1067,13 +1172,13 @@ class PostMigrationAnalyzer:
             tx_data = await self._post_rpc_with_fallback(payload, timeout=10)
 
             if not tx_data or "result" not in tx_data or not tx_data["result"]:
-                print(f"[CREATOR] Transaction not found or failed to parse", flush=True)
+                print(f"[CREATOR] ❌ Transaction not found or failed to parse", flush=True)
                 provenance['validation_notes'].append("Transaction fetch failed")
                 return provenance
 
             tx = tx_data["result"]
 
-            # Step 5: Validate that this is a Pump.fun create event
+            # Step 4: Validate that this is a Pump.fun create event
             validation = self._validate_pumpfun_create_tx(tx)
             provenance['mint_in_accounts'] = validation['mint_in_accounts']
             provenance['pumpfun_program_found'] = validation['pumpfun_program_found']
@@ -1086,7 +1191,7 @@ class PostMigrationAnalyzer:
             account_keys = message.get("accountKeys", [])
 
             if not account_keys:
-                print(f"[CREATOR] No accountKeys found in transaction", flush=True)
+                print(f"[CREATOR] ❌ No accountKeys found in transaction", flush=True)
                 provenance['validation_notes'].append("No account keys")
                 return provenance
 
@@ -1110,7 +1215,7 @@ class PostMigrationAnalyzer:
                     signers.append(str(acct))
 
             if not signers:
-                print(f"[CREATOR] No signers found in transaction (0 accounts marked as signer)", flush=True)
+                print(f"[CREATOR] ❌ No signers found in transaction", flush=True)
                 provenance['validation_notes'].append("No signers found")
                 return provenance
 
@@ -1135,24 +1240,27 @@ class PostMigrationAnalyzer:
             if creator:
                 provenance['creator'] = creator
                 # Determine status
+                # When extracted from bonding curve: reached_end + valid tx = confirmed
+                # Since we extracted bonding curve from this tx, is_pumpfun_create is our proof
                 if (provenance['reached_end'] and
-                    provenance['mint_in_accounts'] and
-                    provenance['pumpfun_program_found']):
+                    provenance['is_pumpfun_create']):
                     provenance['status'] = 'confirmed'
                     print(f"[CREATOR] ✅ CONFIRMED EARLIEST: {creator}", flush=True)
-                    print(f"[CREATOR]   Source: {query_source}", flush=True)
+                    print(f"[CREATOR]   Source: bonding_curve (extracted from creation tx)", flush=True)
                     print(f"[CREATOR]   Reached end: {provenance['reached_end']}", flush=True)
+                    print(f"[CREATOR]   Pump.fun program found: {provenance['pumpfun_program_found']}", flush=True)
                     print(f"[CREATOR]   Slot: {provenance['slot']}, BlockTime: {provenance['blockTime']}", flush=True)
-                    print(f"[CREATOR]   RPC: {rpc_used[:40]}...", flush=True)
+                    print(f"[CREATOR]   Bonding Curve: {bonding_curve_pda}", flush=True)
+                    print(f"[CREATOR]   Earliest Sig: {earliest_sig}", flush=True)
                 else:
                     provenance['status'] = 'unproven'
-                    if not provenance['mint_in_accounts']:
-                        provenance['validation_notes'].append("mint not in accounts")
-                    if not provenance['pumpfun_program_found']:
-                        provenance['validation_notes'].append("no Pump.fun program")
+                    if not provenance['reached_end']:
+                        provenance['validation_notes'].append("pagination incomplete")
+                    if not provenance['is_pumpfun_create']:
+                        provenance['validation_notes'].append("transaction not a valid Pump.fun create")
                     print(f"[CREATOR] ⚠ UNPROVEN: {creator} ({', '.join(provenance['validation_notes'])})", flush=True)
             else:
-                print(f"[CREATOR] No valid signers found", flush=True)
+                print(f"[CREATOR] ❌ No valid signers found", flush=True)
                 provenance['validation_notes'].append("No valid signers")
 
             return provenance

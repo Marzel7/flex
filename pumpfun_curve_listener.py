@@ -1323,6 +1323,34 @@ class PumpFunCurveListener:
             except Exception as e:
                 print(f"[DB_ERROR] Failed to update price for {token_mint}: {e}", flush=True)
 
+    def _create_minimal_token_entry(self, mint: str):
+        """Create a minimal token entry in database immediately when migration is detected"""
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=30)
+            cursor = conn.cursor()
+
+            # Check if token already exists
+            cursor.execute("SELECT mint FROM token_analysis WHERE mint = ?", (mint,))
+            if cursor.fetchone():
+                conn.close()
+                return
+
+            # Create minimal entry with migration detection timestamp
+            now = datetime.utcnow().isoformat() + "Z"
+            cursor.execute("""
+                INSERT INTO token_analysis (
+                    mint, created_at, analyzed_at,
+                    rug_probability, risk_level, post_migration_coverage,
+                    rug_indicator, events_parsed
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (mint, now, now, 0.0, "UNKNOWN", 0.0, None, 0))
+
+            conn.commit()
+            conn.close()
+            print(f"[DB] ✅ Created minimal token entry for {mint}", flush=True)
+        except Exception as e:
+            print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
+
     async def handle_migration(self, signature: str, logs: list):
         """Process detected migration"""
         try:
@@ -1334,11 +1362,11 @@ class PumpFunCurveListener:
 
             # Extract mint from transaction (more reliable than logs)
             mint = await self._fetch_mint_from_transaction(signature)
-            
+
             if not mint:
                 print(f"[MIGRATION] ⚠ Failed to extract mint from postTokenBalances, trying logs fallback", flush=True)
                 mint = self._extract_mint_from_logs(logs)
-            
+
             if not mint:
                 print(f"[MIGRATION] ⚠ Could not extract mint from {signature} - SKIPPED", flush=True)
                 return  # Silent skip - not a pump.fun token migration
@@ -1351,6 +1379,9 @@ class PumpFunCurveListener:
             self.seen_mints.add(mint)
             print(f"[EVENT] 🚀 MIGRATION DETECTED: {mint}", flush=True)
             print(f"[EVENT] Migration signature: {signature}", flush=True)
+
+            # Create minimal token entry immediately (so token appears in UI right away)
+            self._create_minimal_token_entry(mint)
 
             # Extract pool address from migration transaction for on-chain price queries
             pool_address = await self._extract_pool_from_migration_tx(signature)

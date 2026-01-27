@@ -1365,6 +1365,22 @@ class PumpFunCurveListener:
             else:
                 print(f"[SETTINGS] Token history ❌ OFF - skipping token history analysis", flush=True)
 
+            # Trigger wallet clustering analysis independently of token history check (if enabled)
+            if get_migration_setting('creator_history_check', True):
+                print(f"[SETTINGS] Creator history ✅ ON - analyzing creator network", flush=True)
+                # We need the earliest creator, so extract it from the migration transaction
+                try:
+                    from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
+                    analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
+                    earliest_creator = await analyzer.get_creator_from_earliest_tx()
+                    if earliest_creator:
+                        asyncio.create_task(trigger_wallet_clustering(earliest_creator))
+                        print(f"[SETTINGS] Clustering task created for {earliest_creator[:8]}...", flush=True)
+                except Exception as cluster_err:
+                    print(f"[SETTINGS] ⚠ Error in clustering trigger: {cluster_err}", flush=True)
+            else:
+                print(f"[SETTINGS] Creator history ❌ OFF - skipping creator network analysis", flush=True)
+
         except Exception as e:
             print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)
             import traceback

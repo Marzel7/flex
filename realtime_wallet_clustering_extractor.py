@@ -27,9 +27,6 @@ if not FLUX_RPC_URL:
     FLUX_RPC_URL = "https://eu.fluxrpc.com?key=ca1a8797-c505-4c44-9918-5f832c89e91d"
 
 
-class RealtimeWalletClusteringExtractor:
-    """Extract and build wallet clusters in real-time when new tokens launch"""
-
 # Privacy pool addresses - should NOT be included in CEX mapping
 # These are mixer/privacy protocols where deposits/withdrawals break identity linkage
 PRIVACY_POOL_SET: Set[str] = {
@@ -39,6 +36,10 @@ PRIVACY_POOL_SET: Set[str] = {
 # Wallet addresses to exclude from BFS clustering expansion
 # These are infrastructure accounts that don't represent actual wallets
 NON_CLUSTER_SET: Set[str] = PRIVACY_POOL_SET
+
+
+class RealtimeWalletClusteringExtractor:
+    """Extract and build wallet clusters in real-time when new tokens launch"""
 
     def __init__(self):
         self.processed_creators: Set[str] = set()

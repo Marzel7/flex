@@ -7,5 +7,8 @@ eval "$(conda shell.bash hook)"
 # Activate algotrader environment
 conda activate algotrader
 
+# Disable Python bytecode caching to ensure fresh code is always loaded
+export PYTHONDONTWRITEBYTECODE=1
+
 # Run the listener
-python pumpfun_curve_listener.py
+python -B pumpfun_curve_listener.py

@@ -675,16 +675,19 @@ class PumpFunCurveListener:
             }
 
             data = await self._post_rpc_with_fallback(payload_wsol)
-            
+
             sol_balance = 0
-            if data and "result" in data and "value" in data["result"]:
-                accounts = data["result"]["value"]
-                if accounts:
-                    # Get WSOL balance from first (should only be one)
-                    first_account = accounts[0]
-                    if isinstance(first_account, dict):
-                        wsol_info = first_account.get("account", {}).get("data", {}).get("parsed", {}).get("info", {})
-                        sol_balance = float(wsol_info.get("tokenAmount", {}).get("uiAmount", 0))
+            if data and "result" in data:
+                result_data = data["result"]
+                if isinstance(result_data, dict) and "value" in result_data:
+                    accounts = result_data["value"]
+                    if accounts and isinstance(accounts, list) and len(accounts) > 0:
+                        # Get WSOL balance from first (should only be one)
+                        first_account = accounts[0]
+                        if isinstance(first_account, dict):
+                            wsol_info = first_account.get("account", {}).get("data", {}).get("parsed", {}).get("info", {})
+                            if isinstance(wsol_info, dict):
+                                sol_balance = float(wsol_info.get("tokenAmount", {}).get("uiAmount", 0))
 
             # If no WSOL, fall back to pool account lamports
             if sol_balance == 0:
@@ -699,8 +702,12 @@ class PumpFunCurveListener:
                 if not data or "result" not in data or not data["result"]:
                     return None
 
-                account_value = data["result"].get("value", {})
-                if not account_value:
+                result_data = data["result"]
+                if not isinstance(result_data, dict):
+                    return None
+
+                account_value = result_data.get("value", {})
+                if not account_value or not isinstance(account_value, dict):
                     return None
 
                 lamports = account_value.get("lamports", 0)
@@ -718,11 +725,15 @@ class PumpFunCurveListener:
             }
 
             data2 = await self._post_rpc_with_fallback(payload2)
-            if not data2 or "result" not in data2 or "value" not in data2["result"]:
+            if not data2 or "result" not in data2:
                 return None
 
-            accounts = data2["result"]["value"]
-            if not accounts:
+            result_data2 = data2["result"]
+            if not isinstance(result_data2, dict) or "value" not in result_data2:
+                return None
+
+            accounts = result_data2["value"]
+            if not accounts or not isinstance(accounts, list):
                 # No token accounts for this mint in this pool - wrong pool address
                 return None
 

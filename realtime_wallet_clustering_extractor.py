@@ -30,6 +30,16 @@ if not FLUX_RPC_URL:
 class RealtimeWalletClusteringExtractor:
     """Extract and build wallet clusters in real-time when new tokens launch"""
 
+# Privacy pool addresses - should NOT be included in CEX mapping
+# These are mixer/privacy protocols where deposits/withdrawals break identity linkage
+PRIVACY_POOL_SET: Set[str] = {
+    "4AV2Qzp3N4c9RfzyEbNZs2wqWfW4EwKnnxFAZCndvfGh",  # Privacy Cash Pool
+}
+
+# Wallet addresses to exclude from BFS clustering expansion
+# These are infrastructure accounts that don't represent actual wallets
+NON_CLUSTER_SET: Set[str] = PRIVACY_POOL_SET
+
     def __init__(self):
         self.processed_creators: Set[str] = set()
         self.session = None
@@ -157,6 +167,11 @@ class RealtimeWalletClusteringExtractor:
                 ]:
                     continue
 
+                # Skip privacy pools from cluster expansion (but log for behavioral analysis)
+                if acc_str in PRIVACY_POOL_SET:
+                    print(f"[CLUSTERING] 🔒 Privacy pool interaction detected: {acc_str[:16]}... (not expanding)", flush=True)
+                    continue
+
                 balance_change = post_balances[idx] - pre_balances[idx]
 
                 # Check for SOL transfer relationship (opposite balance changes)
@@ -192,10 +207,19 @@ class RealtimeWalletClusteringExtractor:
     def _save_cluster_node(
         self, root_creator: str, wallet: str, hop: int, confidence: float, tags: str = ""
     ):
-        """Save wallet cluster node to database, checking for CEX wallets"""
+        """Save wallet cluster node to database, checking for CEX wallets and privacy pools"""
         try:
             conn = sqlite3.connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
+
+            # Check if wallet is a privacy pool (breaks identity linkage)
+            if wallet in PRIVACY_POOL_SET:
+                privacy_tag = "🔒 Privacy Pool"
+                print(f"[CLUSTERING] 🔒 PRIVACY POOL INTERACTION: {wallet[:16]}... connected to {root_creator[:16]}...", flush=True)
+                if tags:
+                    tags = tags + " | " + privacy_tag
+                else:
+                    tags = privacy_tag
 
             # Check if wallet is a known CEX wallet
             cex_tag = None

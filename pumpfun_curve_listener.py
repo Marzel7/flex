@@ -681,8 +681,10 @@ class PumpFunCurveListener:
                 accounts = data["result"]["value"]
                 if accounts:
                     # Get WSOL balance from first (should only be one)
-                    wsol_info = accounts[0].get("account", {}).get("data", {}).get("parsed", {}).get("info", {})
-                    sol_balance = float(wsol_info.get("tokenAmount", {}).get("uiAmount", 0))
+                    first_account = accounts[0]
+                    if isinstance(first_account, dict):
+                        wsol_info = first_account.get("account", {}).get("data", {}).get("parsed", {}).get("info", {})
+                        sol_balance = float(wsol_info.get("tokenAmount", {}).get("uiAmount", 0))
 
             # If no WSOL, fall back to pool account lamports
             if sol_balance == 0:

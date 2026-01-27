@@ -1399,6 +1399,17 @@ class PumpFunCurveListener:
             if pool_address:
                 print(f"[EVENT] ✅ Pool extracted from transaction: {pool_address}", flush=True)
 
+            # Trigger immediate price fetch (don't wait for background task)
+            # This ensures market cap appears quickly in UI regardless of analysis settings
+            try:
+                result = await self._extract_price_from_transaction(signature, mint)
+                if result is not None:
+                    price, market_cap, source = result
+                    await self._update_price_in_db(mint, price, market_cap, source)
+                    print(f"[PRICE] ✅ Initial price fetched: ${price:.2e} | Market Cap: ${market_cap:.2e} | Source: {source}", flush=True)
+            except Exception as price_err:
+                print(f"[PRICE] ⚠ Initial price fetch failed: {price_err}", flush=True)
+
             # Extract earliest creator and creation date (always, regardless of analysis toggles)
             # This ensures creator and date are always visible in the UI
             earliest_creator = None

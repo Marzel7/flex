@@ -1019,57 +1019,6 @@ class PumpFunCurveListener:
                 summary["earliest_tx_creator"] = earliest_creator
                 print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator}", flush=True)
 
-                # Extract pre-migration funding in real-time (non-blocking)
-                try:
-                    # Get migration timestamp from the signature (block time)
-                    migration_timestamp = None
-                    if signature:
-                        try:
-                            # Fetch migration transaction to get block time (uses RPC fallback chain)
-                            payload = {
-                                "jsonrpc": "2.0",
-                                "id": 1,
-                                "method": "getTransaction",
-                                "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
-                            }
-                            tx_data = await self._post_rpc_with_fallback(payload, timeout=10)
-                            if tx_data and tx_data.get("result"):
-                                block_time = tx_data["result"].get("blockTime")
-                                if block_time:
-                                    migration_timestamp = datetime.utcfromtimestamp(block_time).isoformat() + "Z"
-                                    print(f"[FUNDING] Migration timestamp from tx: {migration_timestamp}", flush=True)
-                        except Exception as ts_err:
-                            print(f"[FUNDING] ⚠ Could not get migration timestamp: {ts_err}", flush=True)
-
-                    # Fall back to current time if we couldn't get actual migration time
-                    created_at = migration_timestamp or datetime.utcnow().isoformat() + "Z"
-
-                    # Run funding extraction asynchronously (if enabled)
-                    sys.stdout.write(f"[SETTINGS] About to check token history setting...\n")
-                    sys.stdout.flush()
-                    if get_migration_setting('token_history_check', True):
-                        print(f"[SETTINGS] Token history check ✅ ON - extracting pre-migration funding", flush=True)
-                        asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at))
-                    else:
-                        print(f"[SETTINGS] Token history check ❌ OFF - skipping funding extraction", flush=True)
-
-                    sys.stdout.write(f"[SETTINGS] Token history check complete, about to check creator history...\n")
-                    sys.stdout.flush()
-                    # Trigger wallet clustering analysis asynchronously (if enabled)
-                    try:
-                        creator_history_enabled = get_migration_setting('creator_history_check', True)
-                        print(f"[SETTINGS] Creator history setting: {creator_history_enabled}", flush=True)
-                        if creator_history_enabled:
-                            print(f"[SETTINGS] Creator history ✅ ON - analyzing creator network", flush=True)
-                            asyncio.create_task(trigger_wallet_clustering(earliest_creator))
-                            print(f"[SETTINGS] Clustering task created for {earliest_creator[:8]}...", flush=True)
-                        else:
-                            print(f"[SETTINGS] Creator history ❌ OFF - skipping creator network analysis", flush=True)
-                    except Exception as cluster_err:
-                        print(f"[SETTINGS] ⚠ Error in clustering trigger: {cluster_err}", flush=True)
-                except Exception as e:
-                    print(f"[FUNDING] ⚠ Could not extract funding data: {e}", flush=True)
-
                 # Check if creator is in blocklist
                 try:
                     conn = sqlite3.connect(DB_PATH, timeout=60)
@@ -1505,14 +1454,19 @@ class PumpFunCurveListener:
             else:
                 print(f"[SETTINGS] Token history ❌ OFF - skipping token history analysis", flush=True)
 
-            # Trigger wallet clustering analysis independently of token history check (if enabled)
+            # Trigger creator analysis (clustering + funding extraction) independently (if enabled)
             if get_migration_setting('creator_history_check', True):
-                print(f"[SETTINGS] Creator history ✅ ON - analyzing creator network", flush=True)
+                print(f"[SETTINGS] Creator history ✅ ON - analyzing creator network and funding", flush=True)
                 if earliest_creator:
+                    # Trigger funding extraction asynchronously
+                    asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at))
+                    print(f"[SETTINGS] Funding extraction task created for {earliest_creator[:8]}...", flush=True)
+                    
+                    # Trigger wallet clustering asynchronously
                     asyncio.create_task(trigger_wallet_clustering(earliest_creator))
                     print(f"[SETTINGS] Clustering task created for {earliest_creator[:8]}...", flush=True)
             else:
-                print(f"[SETTINGS] Creator history ❌ OFF - skipping creator network analysis", flush=True)
+                print(f"[SETTINGS] Creator history ❌ OFF - skipping creator network and funding analysis", flush=True)
 
         except Exception as e:
             print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)

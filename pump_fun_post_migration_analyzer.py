@@ -918,7 +918,9 @@ class PostMigrationAnalyzer:
 
         try:
             async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=40)) as session:
-                rpc_url = "https://api.mainnet-beta.solana.com"
+                # Use best history RPC (Helius if available, else public)
+                # IMPROVEMENT: Don't hardcode public RPC - use HISTORY_RPC_URLS for better reliability
+                rpc_url = HISTORY_RPC_URLS[0] if HISTORY_RPC_URLS else "https://api.mainnet-beta.solana.com"
                 before = None
                 max_pages = 1000
 
@@ -970,7 +972,10 @@ class PostMigrationAnalyzer:
                             # Log the oldest few transactions' program IDs for debugging
                             if oldest_txs_checked < 5:
                                 oldest_txs_checked += 1
-                                prog_ids_str = ", ".join(validation.get('program_ids', [])[:3])
+                                # IMPROVEMENT: Show ALL program IDs, not just first 3
+                                # The Pump.fun program might not be in the first 3
+                                prog_ids = validation.get("program_ids", [])
+                                prog_ids_str = ", ".join(prog_ids)
                                 print(f"[CREATOR] Oldest tx #{oldest_txs_checked}: {sig[:16]}... | Programs: [{prog_ids_str}]", flush=True)
 
                             if validation['is_pumpfun_create']:
@@ -1099,26 +1104,53 @@ class PostMigrationAnalyzer:
                 # Step 4: Find bonding curve candidate
                 # For Pump.fun CREATE: bonding curve is typically:
                 # - A writable PDA (if we can determine writability)
-                # - Often one of the early accounts (not the last)
+                # - Often one of the early accounts (not the last, not first)
                 # - Not a signer (fee payer is signer, curve is not)
                 # - Not a system program
-                
+                # - NOT the mint (mint is a separate account)
+                # - NOT an Associated Token Account (ATA)
+
                 bonding_curve_candidates = []
                 for i, acc in enumerate(instruction_accounts):
                     pubkey = acc.get("pubkey")
-                    if not pubkey or pubkey in SYSTEM_PROGRAMS:
+                    if not pubkey:
                         continue
-                    
+
+                    # IMPROVED: Exclude the mint
+                    if pubkey == self.token_mint:
+                        print(f"[CREATOR] ⊘ Skip (is mint): {pubkey}", flush=True)
+                        continue
+
+                    # Exclude system programs (already checked but be explicit)
+                    if pubkey in SYSTEM_PROGRAMS:
+                        print(f"[CREATOR] ⊘ Skip (system program): {pubkey[:20]}...", flush=True)
+                        continue
+
+                    # IMPROVED: Basic ATA detection
+                    # ATAs are usually derived from owner + mint
+                    # They're associated accounts, typically not the bonding curve
+                    # For now, we'll be conservative and skip accounts that look like ATAs
+                    # (This is a heuristic - not perfect, but helps)
+                    is_likely_ata = (
+                        pubkey.startswith("ATA") or  # Some ATA implementations
+                        len(pubkey) == len(self.token_mint)  # Similar length to mint
+                    )
+                    if is_likely_ata:
+                        print(f"[CREATOR] ⊘ Skip (likely ATA): {pubkey[:20]}...", flush=True)
+                        continue
+
                     # For string-format accountKeys, we don't know signer/writable
                     # So we use position heuristics: writable accounts come before read-only
                     # and typically the bonding curve is not the last account
                     if i > 0 and i < len(instruction_accounts) - 2:
                         bonding_curve_candidates.append(pubkey)
                         print(f"[CREATOR] ✓ Bonding curve candidate (pos {i}): {pubkey}", flush=True)
-                
+
                 if bonding_curve_candidates:
                     # Return the first candidate (usually the one that makes sense)
-                    return bonding_curve_candidates[0]
+                    result = bonding_curve_candidates[0]
+                    print(f"[CREATOR] → Selected bonding curve: {result}", flush=True)
+                    return result
             
             print(f"[CREATOR] ❌ No Pump.fun instruction found in transaction", flush=True)
             return None

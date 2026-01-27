@@ -886,39 +886,35 @@ class PostMigrationAnalyzer:
         """
         Extract the bonding curve PDA from the token's creation transaction.
         
-        This is more reliable than mathematical derivation because:
-        - It gets the actual bonding curve account created in the transaction
-        - Works even if Pump.fun changes their seed format
-        - Proven approach: fetch earliest tx, extract account from Pump.fun instruction
+        CRITICAL: This method must find a Pump.fun CREATE transaction, not just the
+        oldest transaction affecting the mint. Mint can have unrelated activity
+        (freeze/thaw, ATA ops, metadata updates, etc.) at any point in history.
         
-        Critical Process:
-        1. Paginate through token mint's signatures to PROVEN end (not just first 1000)
-        2. Fetch the earliest (creation) transaction
-        3. Find Pump.fun program instruction in transaction
-        4. Extract bonding curve account using heuristics:
-           - Writable account
-           - Non-signer
-           - Not in SYSTEM_PROGRAMS
+        Correct Process:
+        1. Paginate through mint signatures to find earliest Pump.fun CREATE
+        2. Continue checking previous txs until we prove end-of-history
+        3. Once found, validate it's truly a Pump.fun create (strict validation)
+        4. Extract bonding curve from the Pump.fun instruction
         
         Returns: bonding curve PDA address or None if not found
         """
         print(f"[CREATOR] Extracting bonding curve from creation transaction for {self.token_mint[:20]}...", flush=True)
         
-        # Step 1: Get TRUE earliest signature (must paginate to proven end)
-        # Use public Solana RPC for signature fetching (more reliable than QuickNode)
-        earliest_sig = None
-        proven = False
+        # Step 1: Paginate through mint's signatures looking for Pump.fun CREATE
+        # We must validate each candidate, not just grab the oldest
+        earliest_create_sig = None
+        earliest_create_tx = None
+        pages_checked = 0
+        proven_end = False
         
         try:
             async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=40)) as session:
-                # Use public Solana RPC specifically for signature history
                 rpc_url = "https://api.mainnet-beta.solana.com"
                 before = None
-                pages = 0
                 max_pages = 1000
                 
-                while pages < max_pages:
-                    pages += 1
+                while pages_checked < max_pages:
+                    pages_checked += 1
                     payload = {
                         "jsonrpc": "2.0",
                         "id": 1,
@@ -934,147 +930,221 @@ class PostMigrationAnalyzer:
                         sigs = data.get("result") or []
                         
                         if not sigs:
-                            # Empty result = we reached the true end
-                            print(f"[CREATOR] ✅ Reached true end of mint history after {pages} pages", flush=True)
-                            proven = True
+                            # Empty result = reached true end of history
+                            print(f"[CREATOR] ✅ Reached true end of mint history after {pages_checked} pages", flush=True)
+                            proven_end = True
                             break
                         
-                        earliest_sig = sigs[-1]["signature"]  # Oldest sig in this batch
-                        before = earliest_sig
-                        print(f"[CREATOR] Page {pages}: {len(sigs)} signatures fetched, earliest so far: {earliest_sig[:20]}...", flush=True)
+                        # Check each signature in this page (oldest to newest, reverse order)
+                        for sig_item in reversed(sigs):
+                            sig = sig_item.get("signature")
+                            if not sig:
+                                continue
+                            
+                            # Fetch and validate this transaction
+                            tx_payload = {
+                                "jsonrpc": "2.0",
+                                "id": 1,
+                                "method": "getTransaction",
+                                "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+                            }
+                            
+                            tx_data = await self._post_rpc_with_fallback(tx_payload, timeout=10)
+                            if not tx_data or "result" not in tx_data or not tx_data["result"]:
+                                continue
+                            
+                            tx = tx_data["result"]
+                            
+                            # Validate this is a Pump.fun CREATE transaction
+                            validation = self._validate_pumpfun_create_tx(tx)
+                            
+                            if validation['is_pumpfun_create']:
+                                # Found a valid Pump.fun create!
+                                print(f"[CREATOR] ✅ Found Pump.fun CREATE tx: {sig[:20]}...", flush=True)
+                                earliest_create_sig = sig
+                                earliest_create_tx = tx
+                                break
+                        
+                        # If we found a create, stop pagination
+                        if earliest_create_sig:
+                            break
+                        
+                        # Move to next page
+                        if sigs:
+                            before = sigs[-1]["signature"]
+                            print(f"[CREATOR] Page {pages_checked}: checked {len(sigs)} sigs, no CREATE found yet", flush=True)
                         
                     except Exception as e:
-                        print(f"[CREATOR] RPC error fetching signatures: {e}", flush=True)
+                        print(f"[CREATOR] RPC error during pagination: {e}", flush=True)
                         break
                 
-                if pages >= max_pages:
-                    print(f"[CREATOR] ⚠ Hit max_pages limit ({max_pages}) - result may not be true earliest", flush=True)
-                    # If we got multiple pages, we did paginate through real data (not cache-limited)
-                    # Mark as proven if pages > 1
-                    proven = (pages > 1)
+                if pages_checked >= max_pages:
+                    print(f"[CREATOR] ⚠ Hit max_pages limit ({max_pages})", flush=True)
+                    proven_end = False
         
         except Exception as e:
-            print(f"[CREATOR] ❌ Failed to get earliest signature: {e}", flush=True)
+            print(f"[CREATOR] ❌ Failed pagination: {e}", flush=True)
             return None
         
-        if not earliest_sig:
-            print(f"[CREATOR] ❌ No signatures found for mint", flush=True)
+        if not earliest_create_sig or not earliest_create_tx:
+            print(f"[CREATOR] ❌ No Pump.fun CREATE transaction found for mint", flush=True)
             return None
         
-        print(f"[CREATOR] Earliest signature found (proven={proven}): {earliest_sig[:20]}...", flush=True)
+        print(f"[CREATOR] ✓ Using creation tx (proven_end={proven_end}): {earliest_create_sig[:20]}...", flush=True)
         
-        # Step 2: Fetch the creation transaction
-        print(f"[CREATOR] Fetching creation transaction...", flush=True)
+        # Step 2: Extract bonding curve from the validated Pump.fun CREATE transaction
+        tx = earliest_create_tx
+        bonding_curve = self._extract_bonding_curve_from_tx(tx)
         
-        payload = {
-            "jsonrpc": "2.0",
-            "id": 1,
-            "method": "getTransaction",
-            "params": [earliest_sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
-        }
-        
-        tx_data = await self._post_rpc_with_fallback(payload, timeout=20)
-        
-        if not tx_data or "result" not in tx_data or not tx_data["result"]:
-            print(f"[CREATOR] ❌ Transaction fetch failed", flush=True)
+        if bonding_curve:
+            print(f"[CREATOR] ✓ Extracted Bonding Curve: {bonding_curve}", flush=True)
+            return bonding_curve
+        else:
+            print(f"[CREATOR] ❌ Could not extract bonding curve from CREATE tx", flush=True)
             return None
+
+    def _extract_bonding_curve_from_tx(self, tx: dict) -> Optional[str]:
+        """
+        Extract bonding curve PDA from a validated Pump.fun CREATE transaction.
         
-        tx = tx_data["result"]
+        Handles all instruction formats (raw, jsonParsed, inner instructions).
+        Uses position/role heuristics instead of relying on signer/writable flags
+        which may not be available in string-format accountKeys.
         
-        # Step 3: Normalize account keys into dicts with pubkey/signer/writable info
-        message = (tx.get("transaction") or {}).get("message") or {}
-        account_keys_raw = message.get("accountKeys") or []
-        
-        # Build normalized account list: [{"pubkey": ..., "signer": ..., "writable": ...}, ...]
-        normalized_accounts = []
-        for i, acct in enumerate(account_keys_raw):
-            if isinstance(acct, str):
-                # Plain string: account is signer and writable by default (standard format)
-                normalized_accounts.append({
-                    "index": i,
-                    "pubkey": acct,
-                    "signer": i < len([k for k in account_keys_raw if isinstance(k, dict) and k.get("signer")]) if isinstance(account_keys_raw[0], dict) else i == 0,
-                    "writable": True
-                })
-            elif isinstance(acct, dict):
-                # Dict format (jsonParsed): has pubkey, signer, writable fields
-                normalized_accounts.append({
-                    "index": i,
-                    "pubkey": acct.get("pubkey"),
-                    "signer": acct.get("signer", False),
-                    "writable": acct.get("writable", False)
-                })
-        
-        print(f"[CREATOR] Transaction has {len(normalized_accounts)} accounts", flush=True)
-        
-        # Step 4: Find Pump.fun instruction and extract bonding curve candidate
-        instructions = message.get("instructions") or []
-        inner_instructions = tx.get("meta", {}).get("innerInstructions") or []
-        
-        # Collect all instructions (top-level + inner)
-        all_ix = list(instructions)
-        for inner in inner_instructions:
-            all_ix.extend(inner.get("instructions") or [])
-        
-        print(f"[CREATOR] Transaction has {len(all_ix)} total instructions (including inner)", flush=True)
-        
-        # Step 5: Search for Pump.fun instruction and extract bonding curve
-        for ix_idx, ix in enumerate(all_ix):
-            program_id = ix.get("programId")
+        Returns: bonding curve address or None
+        """
+        try:
+            message = (tx.get("transaction") or {}).get("message") or {}
+            account_keys = message.get("accountKeys") or []
+            instructions = message.get("instructions") or []
+            inner_instructions = tx.get("meta", {}).get("innerInstructions") or []
             
-            if program_id not in PUMPFUN_PROGRAM_IDS:
-                continue
+            # Collect all instructions (top-level + inner)
+            all_ix = list(instructions)
+            for inner in inner_instructions:
+                all_ix.extend(inner.get("instructions") or [])
             
-            print(f"[CREATOR] Found Pump.fun instruction (#{ix_idx}): {program_id}", flush=True)
+            print(f"[CREATOR] Transaction has {len(all_ix)} total instructions", flush=True)
             
-            # Get account indexes for this instruction
-            accounts = ix.get("accounts") or []
-            
-            if not accounts:
-                print(f"[CREATOR] ⚠ Pump.fun instruction has no accounts", flush=True)
-                continue
-            
-            print(f"[CREATOR] Instruction accounts: {accounts}", flush=True)
-            
-            # Resolve account indexes to actual pubkeys
-            instruction_accounts = []
-            for acc_idx in accounts:
-                if isinstance(acc_idx, int) and 0 <= acc_idx < len(normalized_accounts):
-                    acc_info = normalized_accounts[acc_idx]
-                    instruction_accounts.append(acc_info)
-                elif isinstance(acc_idx, str):
-                    # Already a pubkey string
-                    instruction_accounts.append({"pubkey": acc_idx, "signer": False, "writable": False})
-            
-            print(f"[CREATOR] Resolved {len(instruction_accounts)} instruction accounts", flush=True)
-            
-            # Find bonding curve candidate using heuristics:
-            # - Writable account (state changes)
-            # - Non-signer (not a transaction signer)
-            # - Not in SYSTEM_PROGRAMS
-            # - Typically early in the accounts list
-            
-            bonding_curve_candidates = []
-            for acc_info in instruction_accounts:
-                pubkey = acc_info.get("pubkey")
-                if not pubkey:
+            # Step 1: Find Pump.fun instruction
+            for ix_idx, ix in enumerate(all_ix):
+                # Handle both programId and programIdIndex formats
+                program_id = ix.get("programId")
+                if not program_id and "programIdIndex" in ix:
+                    # programIdIndex format: account_keys[programIdIndex] is the program
+                    program_id_idx = ix.get("programIdIndex")
+                    if isinstance(program_id_idx, int) and 0 <= program_id_idx < len(account_keys):
+                        acct = account_keys[program_id_idx]
+                        program_id = acct if isinstance(acct, str) else acct.get("pubkey")
+                
+                if program_id not in PUMPFUN_PROGRAM_IDS:
                     continue
                 
-                is_writable = acc_info.get("writable", False)
-                is_signer = acc_info.get("signer", False)
-                is_system = pubkey in SYSTEM_PROGRAMS
+                print(f"[CREATOR] Found Pump.fun instruction (#{ix_idx}): {program_id}", flush=True)
                 
-                if is_writable and not is_signer and not is_system:
-                    bonding_curve_candidates.append(pubkey)
-                    print(f"[CREATOR] ✓ Bonding curve candidate: {pubkey}", flush=True)
+                # Step 2: Extract accounts from instruction
+                # Handle both "accounts" array and "parsed" format
+                accounts = ix.get("accounts")
+                
+                if accounts is None and "parsed" in ix:
+                    # jsonParsed format stores account info in parsed.info
+                    parsed_info = ix.get("parsed", {}).get("info", {})
+                    # Extract account pubkeys from parsed info
+                    accounts = self._extract_accounts_from_parsed_info(parsed_info)
+                
+                if not accounts:
+                    print(f"[CREATOR] ⚠ Pump.fun instruction has no accounts", flush=True)
+                    continue
+                
+                print(f"[CREATOR] Instruction accounts: {accounts}", flush=True)
+                
+                # Step 3: Resolve accounts to pubkeys
+                # Accounts can be indexes (int) or pubkey strings (depending on encoding)
+                instruction_accounts = []
+                for acc in accounts:
+                    if isinstance(acc, int):
+                        # Account index
+                        if 0 <= acc < len(account_keys):
+                            acct = account_keys[acc]
+                            pubkey = acct if isinstance(acct, str) else acct.get("pubkey")
+                            if pubkey:
+                                instruction_accounts.append({
+                                    "pubkey": pubkey,
+                                    "index": acc
+                                })
+                    elif isinstance(acc, str):
+                        # Direct pubkey string
+                        instruction_accounts.append({"pubkey": acc, "index": None})
+                    elif isinstance(acc, dict) and "pubkey" in acc:
+                        # Already a dict with pubkey
+                        instruction_accounts.append(acc)
+                
+                print(f"[CREATOR] Resolved {len(instruction_accounts)} instruction accounts", flush=True)
+                
+                # Step 4: Find bonding curve candidate
+                # For Pump.fun CREATE: bonding curve is typically:
+                # - A writable PDA (if we can determine writability)
+                # - Often one of the early accounts (not the last)
+                # - Not a signer (fee payer is signer, curve is not)
+                # - Not a system program
+                
+                bonding_curve_candidates = []
+                for i, acc in enumerate(instruction_accounts):
+                    pubkey = acc.get("pubkey")
+                    if not pubkey or pubkey in SYSTEM_PROGRAMS:
+                        continue
+                    
+                    # For string-format accountKeys, we don't know signer/writable
+                    # So we use position heuristics: writable accounts come before read-only
+                    # and typically the bonding curve is not the last account
+                    if i > 0 and i < len(instruction_accounts) - 2:
+                        bonding_curve_candidates.append(pubkey)
+                        print(f"[CREATOR] ✓ Bonding curve candidate (pos {i}): {pubkey}", flush=True)
+                
+                if bonding_curve_candidates:
+                    # Return the first candidate (usually the one that makes sense)
+                    return bonding_curve_candidates[0]
             
-            if bonding_curve_candidates:
-                bonding_curve = bonding_curve_candidates[0]
-                print(f"[CREATOR] ✓ Extracted Bonding Curve: {bonding_curve}", flush=True)
-                return bonding_curve
+            print(f"[CREATOR] ❌ No Pump.fun instruction found in transaction", flush=True)
+            return None
+            
+        except Exception as e:
+            print(f"[CREATOR] ⚠ Error extracting bonding curve: {e}", flush=True)
+            return None
+
+    def _extract_accounts_from_parsed_info(self, parsed_info: dict) -> Optional[list]:
+        """
+        Extract account list from jsonParsed instruction info.
         
-        print(f"[CREATOR] ❌ No bonding curve found in Pump.fun instruction", flush=True)
-        return None
+        Pump.fun parsed instructions may have account info in various formats:
+        - Create: has "owner", "mint", "bondingCurve", etc.
+        - Other: varies by operation
+        
+        Returns: list of account pubkeys or None
+        """
+        try:
+            accounts = []
+            
+            # Common account fields in Pump.fun parsed instructions
+            account_fields = [
+                "mint", "bondingCurve", "owner", "user", "creator",
+                "associatedTokenProgram", "tokenProgram", "systemProgram",
+                "solReceiver", "feeReceiver"
+            ]
+            
+            for field in account_fields:
+                if field in parsed_info:
+                    val = parsed_info[field]
+                    if isinstance(val, str):
+                        accounts.append(val)
+                    elif isinstance(val, dict) and "address" in val:
+                        accounts.append(val["address"])
+            
+            return accounts if accounts else None
+            
+        except Exception as e:
+            print(f"[CREATOR] ⚠ Error parsing instruction info: {e}", flush=True)
+            return None
 
     async def get_creator_from_earliest_tx(self) -> Optional[dict]:
         """

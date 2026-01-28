@@ -1137,7 +1137,7 @@ class PostMigrationAnalyzer:
                 # - Not a signer (fee payer is signer, curve is not)
                 # - Not a system program
                 # - NOT the mint (mint is a separate account)
-                # - NOT an Associated Token Account (ATA)
+                # - NOT an Associated Token Account (ATA) - more precise check
 
                 bonding_curve_candidates = []
                 known_programs = SYSTEM_PROGRAMS | PUMPFUN_PROGRAM_IDS | {
@@ -1147,6 +1147,7 @@ class PostMigrationAnalyzer:
                     "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",  # Token-2022
                     "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # Token Program
                     "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4",  # Jupiter
+                    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",  # ATA Program
                 }
 
                 for i, acc in enumerate(instruction_accounts):
@@ -1154,7 +1155,7 @@ class PostMigrationAnalyzer:
                     if not pubkey:
                         continue
 
-                    # IMPROVED: Exclude the mint
+                    # Exclude the mint
                     if pubkey == self.token_mint:
                         print(f"[CREATOR] ⊘ Skip (is mint): {pubkey}", flush=True)
                         continue
@@ -1164,25 +1165,22 @@ class PostMigrationAnalyzer:
                         print(f"[CREATOR] ⊘ Skip (known program): {pubkey[:20]}...", flush=True)
                         continue
 
-                    # IMPROVED: Basic ATA detection
-                    # ATAs are usually derived from owner + mint
-                    # They're associated accounts, typically not the bonding curve
-                    # For now, we'll be conservative and skip accounts that look like ATAs
-                    # (This is a heuristic - not perfect, but helps)
-                    is_likely_ata = (
-                        pubkey.startswith("ATA") or  # Some ATA implementations
-                        len(pubkey) == len(self.token_mint)  # Similar length to mint
-                    )
-                    if is_likely_ata:
-                        print(f"[CREATOR] ⊘ Skip (likely ATA): {pubkey[:20]}...", flush=True)
+                    # IMPROVED ATA detection: Only skip if it explicitly looks like an ATA
+                    # Old heuristic was too broad (filtered out valid bonding curves)
+                    # New approach: Skip only if it starts with "ATA" prefix
+                    if pubkey.startswith("ATA"):
+                        print(f"[CREATOR] ⊘ Skip (ATA program address): {pubkey[:20]}...", flush=True)
                         continue
 
-                    # For string-format accountKeys, we don't know signer/writable
-                    # So we use position heuristics: writable accounts come before read-only
-                    # and typically the bonding curve is not the last account
-                    if i > 0 and i < len(instruction_accounts) - 2:
+                    # For the CREATE instruction specifically (Bonding Curve program),
+                    # the bonding curve is usually one of the middle accounts
+                    # Skip if it's position 0 (fee payer/signer) or last few (system/token programs)
+                    if 0 < i < len(instruction_accounts) - 1:
                         bonding_curve_candidates.append(pubkey)
                         print(f"[CREATOR] ✓ Bonding curve candidate (pos {i}): {pubkey}", flush=True)
+                    elif i > 0:  # Fallback: accept any non-first account
+                        bonding_curve_candidates.append(pubkey)
+                        print(f"[CREATOR] ✓ Bonding curve candidate (pos {i}, fallback): {pubkey}", flush=True)
 
                 if bonding_curve_candidates:
                     # Return the first candidate (usually the one that makes sense)

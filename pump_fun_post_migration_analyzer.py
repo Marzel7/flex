@@ -98,6 +98,10 @@ PUMPFUN_BONDING_CURVE_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"  #
 PUMPFUN_PROGRAM_IDS = {
     PUMPFUN_AMM_PROGRAM,
     PUMPFUN_BONDING_CURVE_PROGRAM,
+    "FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9",  # Candidate from real token analysis
+    "pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ",  # Fee program candidate
+    "CxvksNjwhdHDLr3qbCXNKVdeYACW8cs93vFqLqtgyFE5",  # Exchange program candidate
+    "BBRouter1cVunVXvkcqeKkZQcBK7ruan37PPm3xzWaXD",  # Router program candidate
 }
 
 # Pump.fun Accounts (addresses in accountKeys, not instruction programIds)
@@ -114,11 +118,9 @@ class PostMigrationAnalyzer:
     """Analyzes token activity on PumpSwap (post-migration)"""
 
     def __init__(self, token_mint: str, rpc_url: str = "https://api.mainnet-beta.solana.com"):
-        # IMPROVEMENT: Strip "pump" suffix if copied from URL/slug
-        # Examples: "62eNTADfQDdDygSAHeqqipaHHKvcWc4Cob1xqaYjpump" → "62eNTADfQDdDygSAHeqqipaHHKvcWc4Cob1xqaYj"
-        if token_mint.endswith("pump"):
-            token_mint = token_mint[:-4]
-
+        # NOTE: Do NOT strip "pump" suffix blindly - "pump" are valid base58 characters
+        # Only strip if it was clearly appended (e.g., "tokenaddresspump" but address is 44 chars)
+        # Pump.fun tokens often have "pump" in their natural base58 encoding (e.g., ...Lpump)
         self.token_mint = token_mint
         self.rpc_url = rpc_url
 
@@ -1125,6 +1127,14 @@ class PostMigrationAnalyzer:
                 # - NOT an Associated Token Account (ATA)
 
                 bonding_curve_candidates = []
+                known_programs = SYSTEM_PROGRAMS | PUMPFUN_PROGRAM_IDS | {
+                    "So11111111111111111111111111111111111111112",  # Wrapped SOL
+                    "EPjFWaLb3odcccccccccccccccccccccccccccccc",     # USDC
+                    "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenErt9",  # COPE
+                    "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",  # Token-2022
+                    "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4",  # Jupiter
+                }
+
                 for i, acc in enumerate(instruction_accounts):
                     pubkey = acc.get("pubkey")
                     if not pubkey:
@@ -1135,9 +1145,9 @@ class PostMigrationAnalyzer:
                         print(f"[CREATOR] ⊘ Skip (is mint): {pubkey}", flush=True)
                         continue
 
-                    # Exclude system programs (already checked but be explicit)
-                    if pubkey in SYSTEM_PROGRAMS:
-                        print(f"[CREATOR] ⊘ Skip (system program): {pubkey[:20]}...", flush=True)
+                    # Exclude known programs
+                    if pubkey in known_programs:
+                        print(f"[CREATOR] ⊘ Skip (known program): {pubkey[:20]}...", flush=True)
                         continue
 
                     # IMPROVED: Basic ATA detection
@@ -1484,3 +1494,17 @@ class PostMigrationAnalyzer:
             "market_cap_highest": self.market_cap_highest,
             "coverage": (self.transactions_fetched / self.signatures_requested * 100) if self.signatures_requested > 0 else 0
         }
+
+
+# Test runner for creator extraction
+async def main():
+    """Test creator extraction for specific token"""
+    mint = "62eNTADfQDdDygSAHeqqipaHHKvcWc4Cob1xqaYjpump"
+    a = PostMigrationAnalyzer(mint)
+    prov = await a.get_creator_from_earliest_tx()
+    print("\nCREATOR RESULT\n", prov)
+    return prov
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())

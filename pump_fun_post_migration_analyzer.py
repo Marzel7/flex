@@ -133,6 +133,9 @@ class PostMigrationAnalyzer:
         self.market_cap_current = None
         self.market_cap_highest = None
 
+        # Store CREATE transaction validation for use in provenance determination
+        self._create_tx_validation = None
+
         print(f"[ANALYZER_INIT] Token: {token_mint}", flush=True)
         print(f"[ANALYZER_INIT] RPC: {rpc_url[:80]}{'...' if len(rpc_url) > 80 else ''}", flush=True)
 
@@ -909,17 +912,17 @@ class PostMigrationAnalyzer:
     async def extract_bonding_curve_from_creation_tx(self) -> Optional[str]:
         """
         Extract the bonding curve PDA from the token's creation transaction.
-        
+
         CRITICAL: This method must find a Pump.fun CREATE transaction, not just the
         oldest transaction affecting the mint. Mint can have unrelated activity
         (freeze/thaw, ATA ops, metadata updates, etc.) at any point in history.
-        
+
         Correct Process:
         1. Paginate through mint signatures to find earliest Pump.fun CREATE
         2. Continue checking previous txs until we prove end-of-history
         3. Once found, validate it's truly a Pump.fun create (strict validation)
         4. Extract bonding curve from the Pump.fun instruction
-        
+
         Returns: bonding curve PDA address or None if not found
         """
         print(f"[CREATOR] Extracting bonding curve from creation transaction for {self.token_mint[:20]}...", flush=True)
@@ -928,6 +931,7 @@ class PostMigrationAnalyzer:
         # We must validate each candidate, not just grab the oldest
         earliest_create_sig = None
         earliest_create_tx = None
+        earliest_create_validation = None
         pages_checked = 0
         proven_end = False
         oldest_txs_checked = 0
@@ -994,11 +998,15 @@ class PostMigrationAnalyzer:
                                 prog_ids_str = ", ".join(prog_ids)
                                 print(f"[CREATOR] Oldest tx #{oldest_txs_checked}: {sig[:16]}... | Programs: [{prog_ids_str}]", flush=True)
 
+                            # Debug: log validation result for this transaction
+                            print(f"[CREATOR] TX Validation: mint_in_accounts={validation['mint_in_accounts']}, pumpfun_program_found={validation['pumpfun_program_found']}, is_pumpfun_create={validation['is_pumpfun_create']}", flush=True)
+
                             if validation['is_pumpfun_create']:
                                 # Found a valid Pump.fun create!
                                 print(f"[CREATOR] ✅ Found Pump.fun CREATE tx: {sig[:20]}...", flush=True)
                                 earliest_create_sig = sig
                                 earliest_create_tx = tx
+                                earliest_create_validation = validation
                                 break
                         
                         # If we found a create, stop pagination
@@ -1027,6 +1035,11 @@ class PostMigrationAnalyzer:
             return None
         
         print(f"[CREATOR] ✓ Using creation tx (proven_end={proven_end}): {earliest_create_sig[:20]}...", flush=True)
+        
+        # Store the CREATE transaction validation for use in get_creator_from_earliest_tx()
+        if earliest_create_validation:
+            self._create_tx_validation = earliest_create_validation
+            print(f"[CREATOR] ✓ Stored CREATE tx validation for provenance determination", flush=True)
         
         # Step 2: Extract bonding curve from the validated Pump.fun CREATE transaction
         tx = earliest_create_tx
@@ -1132,6 +1145,7 @@ class PostMigrationAnalyzer:
                     "EPjFWaLb3odcccccccccccccccccccccccccccccc",     # USDC
                     "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenErt9",  # COPE
                     "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",  # Token-2022
+                    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # Token Program
                     "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4",  # Jupiter
                 }
 
@@ -1319,8 +1333,18 @@ class PostMigrationAnalyzer:
 
             tx = tx_data["result"]
 
-            # Step 4: Validate that this is a Pump.fun create event
-            validation = self._validate_pumpfun_create_tx(tx)
+            # Step 4: Determine validation status
+            # IMPORTANT: If we have a stored CREATE tx validation, USE THAT instead of validating this tx
+            # The CREATE tx validation is definitive because it's from the actual creation transaction
+            # The earliest bonding curve tx might be a swap or other operation, not the CREATE itself
+            if self._create_tx_validation:
+                print(f"[CREATOR] ✓ Using stored CREATE tx validation (more reliable than earliest bc tx)", flush=True)
+                validation = self._create_tx_validation
+            else:
+                # Fallback: validate the earliest bonding curve transaction
+                print(f"[CREATOR] ⚠ No CREATE tx validation stored, validating earliest bc tx instead", flush=True)
+                validation = self._validate_pumpfun_create_tx(tx)
+            
             provenance['mint_in_accounts'] = validation['mint_in_accounts']
             provenance['pumpfun_program_found'] = validation['pumpfun_program_found']
             provenance['is_pumpfun_create'] = validation['is_pumpfun_create']
@@ -1381,8 +1405,8 @@ class PostMigrationAnalyzer:
             if creator:
                 provenance['creator'] = creator
                 # Determine status
-                # When extracted from bonding curve: reached_end + valid tx = confirmed
-                # Since we extracted bonding curve from this tx, is_pumpfun_create is our proof
+                # CRITICAL FIX: Use the stored CREATE tx validation for status determination
+                # If we have a valid CREATE tx validation + reached end of history, mark as confirmed
                 if (provenance['reached_end'] and
                     provenance['is_pumpfun_create']):
                     provenance['status'] = 'confirmed'

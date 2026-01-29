@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Real-time creator funding extractor.
-Hooks into token migration events to extract pre-migration funding immediately.
+Hooks into token migration events to extract creator funding immediately.
 
 When a new token is detected as migrated:
   1. Get creator address from transaction
@@ -223,7 +223,7 @@ class RealTimeCreatorFundingExtractor:
 
     async def extract_for_creator(self, creator: str, migration_timestamp_str: str) -> Dict:
         """
-        Extract pre-migration funding for a creator.
+        Extract funding activity for a creator.
         Called in real-time when token is detected.
         """
         if creator in self.processed_creators:
@@ -240,15 +240,15 @@ class RealTimeCreatorFundingExtractor:
 
             migration_timestamp = int(migration_dt.timestamp())
 
-            print(f"[REALTIME_FUNDING] 🔍 Extracting pre-migration funding for {creator[:16]}...", flush=True)
+            print(f"[REALTIME_FUNDING] 🔍 Extracting creator funding for {creator[:16]}...", flush=True)
             print(f"[REALTIME_FUNDING]    Migration timestamp: {migration_timestamp_str}", flush=True)
 
             # Get signatures before migration
             signatures = await self.get_signatures_until_time(creator, migration_timestamp)
-            print(f"[REALTIME_FUNDING]    Found {len(signatures)} pre-migration signatures", flush=True)
+            print(f"[REALTIME_FUNDING]    Found {len(signatures)} funding signatures", flush=True)
 
             if not signatures:
-                print(f"[REALTIME_FUNDING] ✓ No pre-migration activity", flush=True)
+                print(f"[REALTIME_FUNDING] ✓ No funding activity", flush=True)
                 return {"creator": creator, "signatures": 0, "funding_sources": []}
 
             # Analyze transactions

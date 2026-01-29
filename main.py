@@ -585,6 +585,60 @@ HTML_TEMPLATE = """
             opacity: 0.8;
         }
 
+        /* Network indicator badges */
+        .network-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-left: 5px;
+            font-weight: 600;
+        }
+
+        .network-badge.network-high {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            cursor: help;
+        }
+
+        .network-badge.network-medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            cursor: help;
+        }
+
+        .network-badge.network-low {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            cursor: help;
+        }
+
+        .shared-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-left: 5px;
+            background: rgba(139, 92, 246, 0.2);
+            color: #c4b5fd;
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            cursor: help;
+        }
+
+        /* Highlight rows with network connections */
+        .row-network-coordinator {
+            background: rgba(239, 68, 68, 0.05) !important;
+            border-left: 2px solid rgba(239, 68, 68, 0.3) !important;
+        }
+
+        .row-shared-recipient {
+            background: rgba(139, 92, 246, 0.05) !important;
+            border-left: 2px solid rgba(139, 92, 246, 0.3) !important;
+        }
+
         /* Creator stats grid */
         .creator-stats-grid {
             display: grid;
@@ -799,6 +853,33 @@ HTML_TEMPLATE = """
         .status-indicator.active {
             background-color: #00ff00;
         }
+
+        .action-button {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .action-button.danger {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .action-button.danger:hover {
+            background-color: rgba(239, 68, 68, 0.35);
+            border-color: rgba(239, 68, 68, 0.7);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+        }
+
+        .action-button.danger:active {
+            background-color: rgba(239, 68, 68, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -856,6 +937,13 @@ HTML_TEMPLATE = """
                     <div class="toggle-slider"></div>
                 </div>
                 <span class="status-indicator active" id="listenLaunchesStatus"></span>
+            </div>
+            <div class="control-group" style="border-left: 1px solid rgba(139, 92, 246, 0.3); margin-left: 12px; padding-left: 12px;">
+                <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(76, 175, 80, 0.2); color: #4ade80; border: 1px solid rgba(76, 175, 80, 0.5);">▶️ Polling ON</button>
+            </div>
+            <div class="control-group" style="border-left: 1px solid rgba(239, 68, 68, 0.3); margin-left: 12px; padding-left: 12px;">
+                <button class="action-button danger" onclick="emptyDatabase()" title="Clear all tokens, clustering, and address data">🗑️ Empty DB</button>
+                <button class="action-button danger" onclick="killFlask()" title="Stop Flask server on port 5002">⏹️ Kill Port 5002</button>
             </div>
         </div>
 
@@ -973,6 +1061,12 @@ HTML_TEMPLATE = """
                         <!-- Populated by JavaScript -->
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Cross-Creator Network -->
+            <h3 style="margin-top: 20px;">Cross-Creator Network Connections</h3>
+            <div id="crossReferencesContainer" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 6px; padding: 15px;">
+                <!-- Populated by JavaScript -->
             </div>
 
             <!-- Wallet Cluster -->
@@ -1180,9 +1274,8 @@ HTML_TEMPLATE = """
                                         <a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="Click for metrics">${token.mint}</a>
                                         <div class="creator-address-embedded">${creatorElement}</div>
                                     </td>
-                                    <td class="creator-tags">${tags.join(' ')}</td>
+                                    <td class="creator-tags"></td>
                                     <td>
-                                        ${token.rug_indicator === 'quick_peak_low_mc' ? '<span class="rug-badge">🚨 RUG</span>' : '<span class="safe-badge">✓ Safe</span>'}
                                     </td>
                                     <td>
                                         <span class="risk-score ${getRiskClass(token.risk_level)}">${token.risk_level}</span>
@@ -1397,6 +1490,88 @@ HTML_TEMPLATE = """
             }).catch(e => console.error('❌ Error updating listener settings:', e));
         }
 
+        function emptyDatabase() {
+            if (confirm('🚨 WARNING: This will permanently delete ALL tokens, clustering data, and address information. Are you sure?')) {
+                fetch('/api/empty-database', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                }).then(resp => resp.json()).then(data => {
+                    console.log('✅ Database cleared:', data);
+                    alert('✅ Database emptied successfully');
+                    location.reload();
+                }).catch(e => {
+                    console.error('❌ Error clearing database:', e);
+                    alert('❌ Error clearing database');
+                });
+            }
+        }
+
+        function killFlask() {
+            if (confirm('⏹️ WARNING: This will stop the Flask server on port 5002. Page will become unresponsive. Continue?')) {
+                fetch('/api/kill-server', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                }).then(resp => {
+                    console.log('✅ Kill signal sent to Flask');
+                    alert('⏹️ Flask server stopped');
+                }).catch(e => {
+                    console.error('Server stopped (expected)', e);
+                    alert('⏹️ Flask server stopped');
+                });
+            }
+        }
+
+        function togglePolling() {
+            const btn = document.getElementById('pollingToggleBtn');
+            const isEnabled = btn.textContent.includes('ON');
+
+            fetch('/api/polling-control', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({action: 'toggle'})
+            }).then(resp => resp.json()).then(data => {
+                if (data.polling_enabled) {
+                    btn.textContent = '▶️ Polling ON';
+                    btn.style.background = 'rgba(76, 175, 80, 0.2)';
+                    btn.style.color = '#4ade80';
+                    btn.style.borderColor = 'rgba(76, 175, 80, 0.5)';
+                    console.log('✅ Creator TX polling ENABLED');
+                } else {
+                    btn.textContent = '⏸️ Polling OFF';
+                    btn.style.background = 'rgba(239, 68, 68, 0.2)';
+                    btn.style.color = '#ef4444';
+                    btn.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                    console.log('✅ Creator TX polling DISABLED');
+                }
+            }).catch(e => {
+                console.error('❌ Error toggling polling:', e);
+                alert('❌ Error toggling polling');
+            });
+        }
+
+        // Check polling status on page load
+        async function checkPollingStatus() {
+            try {
+                const resp = await fetch('/api/polling-control');
+                const data = await resp.json();
+                const btn = document.getElementById('pollingToggleBtn');
+
+                if (data.polling_enabled) {
+                    btn.textContent = '▶️ Polling ON';
+                    btn.style.background = 'rgba(76, 175, 80, 0.2)';
+                    btn.style.color = '#4ade80';
+                    btn.style.borderColor = 'rgba(76, 175, 80, 0.5)';
+                } else {
+                    btn.textContent = '⏸️ Polling OFF';
+                    btn.style.background = 'rgba(239, 68, 68, 0.2)';
+                    btn.style.color = '#ef4444';
+                    btn.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                }
+            } catch (e) {
+                console.error('Error checking polling status:', e);
+            }
+        }
+
         // Initialize settings from backend on page load
         async function initializeSettings() {
             try {
@@ -1449,6 +1624,7 @@ HTML_TEMPLATE = """
 
         // Load tokens immediately and then every 10 seconds
         initializeSettings();
+        checkPollingStatus();
         loadTokens();
         setInterval(loadTokens, 10000);
 
@@ -1650,16 +1826,62 @@ HTML_TEMPLATE = """
                 const recipientsBody = document.getElementById('topRecipientsBody');
                 if (data.top_recipients && data.top_recipients.length > 0) {
                     recipientsBody.innerHTML = data.top_recipients.map(recipient => {
+                        // Check if this recipient is connected to other creators
+                        let networkIndicator = '';
+                        let networkTooltip = '';
+
+                        if (recipient.is_network_coordinator) {
+                            const info = recipient.coordinator_info;
+                            networkIndicator = `<span class="network-badge network-${info.confidence}" title="Network Coordinator">🔗</span>`;
+                            networkTooltip = `Linked to ${info.creator_count} creators | Confidence: ${info.confidence}`;
+                        } else if (recipient.shared_with_creators) {
+                            networkIndicator = `<span class="shared-badge" title="Shared with ${recipient.shared_creator_count} other creators">👥</span>`;
+                            networkTooltip = `Also linked to: ${recipient.shared_with_creators.slice(0, 2).map(c => c.substring(0, 8) + '...').join(', ')}${recipient.shared_with_creators.length > 2 ? ' +' + (recipient.shared_with_creators.length - 2) + ' more' : ''}`;
+                        }
+
                         return `
-                            <tr>
-                                <td title="${recipient.recipient_address}" style="font-family: monospace; font-size: 12px;">${recipient.recipient_address}</td>
+                            <tr class="${recipient.is_network_coordinator ? 'row-network-coordinator' : recipient.shared_with_creators ? 'row-shared-recipient' : ''}">
+                                <td title="${recipient.recipient_address}" style="font-family: monospace; font-size: 12px;">
+                                    ${recipient.recipient_address}
+                                    ${networkIndicator ? `<div style="margin-top: 3px; font-size: 10px; color: #a0a0a0;">${networkTooltip}</div>` : ''}
+                                </td>
                                 <td>${recipient.amount_sol.toFixed(2)} SOL</td>
-                                <td title="${recipient.notes || ''}">Wallet</td>
+                                <td>${networkIndicator || 'Wallet'}</td>
                             </tr>
                         `;
                     }).join('');
                 } else {
                     recipientsBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0a0a0;">No outgoing transfers</td></tr>';
+                }
+
+                // Populate cross-creator references
+                const crossRefsContainer = document.getElementById('crossReferencesContainer');
+                if (data.cross_references && data.cross_references.length > 0) {
+                    let crossRefsHTML = '';
+                    for (const crossRef of data.cross_references) {
+                        const creatorList = crossRef.other_creators
+                            .slice(0, 3)
+                            .map(c => `<span style="background: rgba(139, 92, 246, 0.2); padding: 2px 6px; border-radius: 3px; margin: 2px; display: inline-block; font-size: 10px; font-family: monospace;">${c.substring(0, 12)}...</span>`)
+                            .join('');
+                        const moreCreators = crossRef.other_creators.length > 3 ? `<span style="color: #a0a0a0; font-size: 10px;"> +${crossRef.other_creators.length - 3} more</span>` : '';
+
+                        crossRefsHTML += `
+                            <div style="margin-bottom: 12px; padding: 10px; background: rgba(139, 92, 246, 0.05); border-left: 3px solid rgba(139, 92, 246, 0.3); border-radius: 4px;">
+                                <div style="font-family: monospace; font-size: 11px; color: #00d4ff; word-break: break-all; margin-bottom: 5px;">
+                                    ${crossRef.recipient_address}
+                                </div>
+                                <div style="font-size: 11px; color: #c4b5fd;">
+                                    <strong>⚠️ Also linked to ${crossRef.creator_count} other creator${crossRef.creator_count > 1 ? 's' : ''}:</strong>
+                                </div>
+                                <div style="margin-top: 5px;">
+                                    ${creatorList} ${moreCreators}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    crossRefsContainer.innerHTML = crossRefsHTML;
+                } else {
+                    crossRefsContainer.innerHTML = '<p style="color: #a0a0a0; text-align: center; margin: 0;">No cross-creator connections detected ✓</p>';
                 }
 
                 // Populate cluster info
@@ -1922,7 +2144,8 @@ def api_creator_details(creator_address: str):
         """, (creator_address,))
         tokens = [dict(row) for row in cursor.fetchall()]
 
-        # 2. Get funding data (total inbound SOL, funder count, CEX funders)
+        # 2. Get funding data - MERGED from both sources (funders + outgoing transfers from tx_ledger)
+        # Pre-migration funders
         cursor.execute("""
             SELECT
                 COUNT(DISTINCT funder_address) as funder_count,
@@ -1931,11 +2154,32 @@ def api_creator_details(creator_address: str):
             FROM creator_funders
             WHERE creator_address = ?
         """, (creator_address,))
-        funding_row = cursor.fetchone()
+        funders_row = cursor.fetchone()
+        
+        # Post-migration outgoing transfers from tx_ledger
+        # Filter: only meaningful transfers (ABS(delta) >= 100000 lamports ~= 0.0001 SOL to exclude protocol fee dust)
+        cursor.execute("""
+            SELECT
+                COUNT(DISTINCT counterparty) as recipient_count,
+                SUM(ABS(delta_sol_lamports) / 1e9) as total_sol_out
+            FROM creator_tx_ledger
+            WHERE creator_pubkey = ? AND (delta_sol_lamports <= -100000 OR delta_sol_lamports >= 100000) AND counterparty IS NOT NULL
+        """, (creator_address,))
+        tx_ledger_row = cursor.fetchone()
+
+        # Combine both sources
+        funder_count = (funders_row['funder_count'] or 0) if funders_row else 0
+        funders_sol = (funders_row['total_sol'] or 0) if funders_row else 0
+        recipient_count = (tx_ledger_row['recipient_count'] or 0) if tx_ledger_row else 0
+        recipients_sol = (tx_ledger_row['total_sol_out'] or 0) if tx_ledger_row else 0
+        
         funding = {
-            'total_funders': funding_row['funder_count'] if funding_row else 0,
-            'total_sol': funding_row['total_sol'] if funding_row else 0,
-            'cex_funders': funding_row['cex_funder_count'] if funding_row else 0
+            'total_funders': funder_count,
+            'total_sol_in': funders_sol,
+            'total_recipients': recipient_count,
+            'total_sol_out': recipients_sol,
+            'total_accounts': funder_count + recipient_count,
+            'total_sol': funders_sol + recipients_sol
         }
 
         # 3. Get top funders (with CEX info)
@@ -1953,22 +2197,34 @@ def api_creator_details(creator_address: str):
         """, (creator_address,))
         top_funders = [dict(row) for row in cursor.fetchall()]
 
-        # 4. Get wallet cluster size (includes coordinated funders and recipients)
-        # Union query to get all unique wallets connected to creator
+        # 4. Get top recipients from tx_ledger (post-migration outgoing transfers)
+        # Filter: only meaningful transfers (ABS(delta) >= 100000 lamports ~= 0.0001 SOL to exclude protocol fee dust)
+        cursor.execute("""
+            SELECT
+                counterparty as recipient_address,
+                ABS(SUM(delta_sol_lamports) / 1e9) as amount_sol,
+                COUNT(*) as tx_count
+            FROM creator_tx_ledger
+            WHERE creator_pubkey = ? AND (delta_sol_lamports <= -100000 OR delta_sol_lamports >= 100000) AND counterparty IS NOT NULL
+            GROUP BY counterparty
+            ORDER BY amount_sol DESC
+            LIMIT 10
+        """, (creator_address,))
+        top_recipients = [dict(row) for row in cursor.fetchall()]
+
+        # 5. Get wallet cluster size (includes coordinated funders and recipients)
         cursor.execute("""
             SELECT COUNT(DISTINCT wallet_addr) as total_wallets,
                    SUM(CASE WHEN hop = 0 THEN 1 ELSE 0 END) as hop0_count,
                    SUM(CASE WHEN hop = 1 THEN 1 ELSE 0 END) as hop1_count,
                    SUM(CASE WHEN hop = 2 THEN 1 ELSE 0 END) as hop2_count
             FROM (
-                -- Cluster nodes
                 SELECT wallet as wallet_addr, hop FROM wallet_cluster_nodes WHERE root_creator = ?
                 UNION
-                -- Funders (hop 0 - direct connection)
                 SELECT funder_address as wallet_addr, 0 as hop FROM creator_funders WHERE creator_address = ?
                 UNION
-                -- Recipients (hop 0 - direct connection)
-                SELECT recipient_address as wallet_addr, 0 as hop FROM creator_outgoing_transfers WHERE creator_address = ?
+                SELECT DISTINCT counterparty as wallet_addr, 0 as hop FROM creator_tx_ledger
+                    WHERE creator_pubkey = ? AND (delta_sol_lamports <= -100000 OR delta_sol_lamports >= 100000) AND counterparty IS NOT NULL
             )
         """, (creator_address, creator_address, creator_address))
         cluster_row = cursor.fetchone()
@@ -1980,10 +2236,10 @@ def api_creator_details(creator_address: str):
             'hop2': cluster_row['hop2_count'] or 0
         }
 
-        # 5. Check blocklist status
+        # 6. Check blocklist status
         is_blocked = bool(tokens[0]['creator_is_blocked']) if tokens else False
 
-        # 6. Get creator tags
+        # 7. Get creator tags
         cursor.execute("""
             SELECT tag, description
             FROM creator_tags
@@ -1991,45 +2247,63 @@ def api_creator_details(creator_address: str):
         """, (creator_address,))
         tags = [{'tag': row[0], 'description': row[1]} for row in cursor.fetchall()]
 
-        # 7. Get outgoing transfers (post-migration)
-        cursor.execute("""
-            SELECT
-                COUNT(DISTINCT recipient_address) as recipient_count,
-                SUM(amount_sol) as total_sol_out,
-                SUM(CASE WHEN recipient_type LIKE 'cex_%' THEN 1 ELSE 0 END) as cex_recipient_count
-            FROM creator_outgoing_transfers
-            WHERE creator_address = ?
-        """, (creator_address,))
-        outgoing_row = cursor.fetchone()
-        outgoing = {
-            'total_recipients': outgoing_row['recipient_count'] if outgoing_row and outgoing_row['recipient_count'] else 0,
-            'total_sol_out': outgoing_row['total_sol_out'] if outgoing_row and outgoing_row['total_sol_out'] else 0,
-            'cex_recipients': outgoing_row['cex_recipient_count'] if outgoing_row and outgoing_row['cex_recipient_count'] else 0
-        }
+        # 8. Get cross-creator references (network detection)
+        cross_refs = []
+        try:
+            from unified_recipient_tracker import UnifiedRecipientTracker
+            tracker = UnifiedRecipientTracker()
+            shared = tracker.find_shared_recipients(creator_address)
+            for recipient, other_creators in shared.items():
+                if other_creators:
+                    cross_refs.append({
+                        'recipient_address': recipient,
+                        'other_creators': other_creators,
+                        'creator_count': len(other_creators),
+                        'connection_type': 'shared_recipient'
+                    })
+            cross_refs.sort(key=lambda x: x['creator_count'], reverse=True)
+        except Exception as e:
+            cross_refs = []
 
-        # 8. Get top recipients (where creator sent SOL)
-        cursor.execute("""
-            SELECT
-                recipient_address,
-                amount_sol,
-                recipient_type,
-                notes
-            FROM creator_outgoing_transfers
-            WHERE creator_address = ?
-            ORDER BY amount_sol DESC
-            LIMIT 5
-        """, (creator_address,))
-        top_recipients = [dict(row) for row in cursor.fetchall()]
+        # 9. Check if any recipients are network coordinators
+        coordinator_flags = {}
+        try:
+            from unified_recipient_tracker import UnifiedRecipientTracker
+            tracker = UnifiedRecipientTracker()
+            coordinators = tracker.get_network_coordinators(min_creators=2)
+            for coord in coordinators:
+                if coord.address in [r.get('recipient_address') for r in top_recipients]:
+                    coordinator_flags[coord.address] = {
+                        'creator_count': coord.creator_count,
+                        'confidence': coord.network_confidence,
+                        'suspicious_flags': coord.suspicious_flags
+                    }
+        except Exception as e:
+            coordinator_flags = {}
 
         conn.close()
+
+        # Enhance top_recipients with cross-reference info
+        for recipient in top_recipients:
+            recipient_addr = recipient.get('recipient_address')
+            if recipient_addr in coordinator_flags:
+                recipient['is_network_coordinator'] = True
+                recipient['coordinator_info'] = coordinator_flags[recipient_addr]
+            else:
+                recipient['is_network_coordinator'] = False
+            for cross_ref in cross_refs:
+                if cross_ref['recipient_address'] == recipient_addr:
+                    recipient['shared_with_creators'] = cross_ref['other_creators']
+                    recipient['shared_creator_count'] = cross_ref['creator_count']
+                    break
 
         return jsonify({
             'creator_address': creator_address,
             'tokens': tokens,
             'funding': funding,
             'top_funders': top_funders,
-            'outgoing': outgoing,
             'top_recipients': top_recipients,
+            'cross_references': cross_refs,
             'cluster': cluster,
             'is_blocked': is_blocked,
             'tags': tags
@@ -2517,6 +2791,314 @@ def api_listener_settings():
 
     except Exception as e:
         print(f"[LISTENER_API] Error: {e}", flush=True)
+        return jsonify({'error': str(e)}), 500
+
+
+# --- Unified Recipient Tracking Endpoints ---
+
+@app.route('/api/creator-recipients/<creator_address>')
+def api_creator_recipients(creator_address: str):
+    """Get all recipient links for a creator (unified tracking)"""
+    try:
+        from unified_recipient_tracker import UnifiedRecipientTracker
+
+        tracker = UnifiedRecipientTracker()
+        links = tracker.get_recipient_links_for_creator(creator_address)
+
+        recipients = []
+        for link in links:
+            recipients.append({
+                'recipient_address': link.recipient_address,
+                'total_sol_sent': link.total_sol_sent,
+                'transfer_count': link.transfer_count,
+                'confidence': link.confidence,
+                'source': link.source,
+                'is_cex': link.is_cex,
+                'cex_exchange': link.cex_exchange,
+                'is_suspicious': link.is_suspicious
+            })
+
+        return jsonify({
+            'creator_address': creator_address,
+            'recipients': recipients,
+            'total_recipients': len(recipients),
+            'total_sol_sent': sum(r['total_sol_sent'] for r in recipients)
+        })
+
+    except ImportError:
+        return jsonify({'error': 'Unified recipient tracker not available'}), 503
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/creator-cross-references/<creator_address>')
+def api_creator_cross_references(creator_address: str):
+    """Find other creators that share recipient addresses with this creator"""
+    try:
+        from unified_recipient_tracker import UnifiedRecipientTracker
+
+        tracker = UnifiedRecipientTracker()
+        shared = tracker.find_shared_recipients(creator_address)
+
+        shared_recipients = []
+        for recipient, other_creators in shared.items():
+            shared_recipients.append({
+                'recipient_address': recipient,
+                'other_creators': other_creators,
+                'creator_count': len(other_creators)
+            })
+
+        # Sort by creator count (most suspicious first)
+        shared_recipients.sort(key=lambda x: x['creator_count'], reverse=True)
+
+        return jsonify({
+            'creator_address': creator_address,
+            'shared_recipients': shared_recipients,
+            'total_shared': len(shared_recipients),
+            'cross_creator_links': sum(r['creator_count'] for r in shared_recipients)
+        })
+
+    except ImportError:
+        return jsonify({'error': 'Unified recipient tracker not available'}), 503
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/network-coordinators')
+def api_network_coordinators():
+    """Get network coordinators (addresses linked to multiple creators)"""
+    try:
+        from unified_recipient_tracker import UnifiedRecipientTracker
+
+        min_creators = request.args.get('min_creators', 2, type=int)
+
+        tracker = UnifiedRecipientTracker()
+        coordinators = tracker.get_network_coordinators(min_creators=min_creators)
+
+        result = []
+        for coord in coordinators:
+            result.append({
+                'address': coord.address,
+                'creator_count': coord.creator_count,
+                'creators_linked': coord.creators,
+                'total_sol_moved': coord.total_sol_moved,
+                'network_confidence': coord.network_confidence,
+                'is_cex': coord.is_cex,
+                'suspicious_flags': coord.suspicious_flags
+            })
+
+        return jsonify({
+            'coordinators': result,
+            'total_coordinators': len(result),
+            'min_creators_threshold': min_creators
+        })
+
+    except ImportError:
+        return jsonify({'error': 'Unified recipient tracker not available'}), 503
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/unified-merge-status')
+def api_unified_merge_status():
+    """Check unified recipient tracking status and run merge if needed"""
+    try:
+        from unified_recipient_tracker import UnifiedRecipientTracker
+
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        cursor = conn.cursor()
+
+        # Check if unified table has data
+        cursor.execute("SELECT COUNT(*) FROM creator_recipients_unified")
+        unified_count = cursor.fetchone()[0]
+
+        # Check source tables
+        cursor.execute("SELECT COUNT(*) FROM creator_outgoing_transfers")
+        outgoing_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM creator_tx_ledger")
+        ledger_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM network_coordinators")
+        coordinator_count = cursor.fetchone()[0]
+
+        conn.close()
+
+        status = {
+            'unified_recipients': unified_count,
+            'outgoing_transfers': outgoing_count,
+            'tx_ledger_entries': ledger_count,
+            'network_coordinators': coordinator_count,
+            'merge_needed': unified_count == 0 and outgoing_count > 0
+        }
+
+        # If merge needed and requested, run it
+        if status['merge_needed'] and request.args.get('run_merge') == 'true':
+            tracker = UnifiedRecipientTracker()
+            merge_results = tracker.run_full_merge_and_analysis()
+            status['merge_results'] = merge_results
+            status['merge_completed'] = True
+
+        return jsonify(status)
+
+    except ImportError:
+        return jsonify({'error': 'Unified recipient tracker not available'}), 503
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/empty-database', methods=['POST'])
+def api_empty_database():
+    """Empty all tokens, clustering, and creator tracking data"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        cursor = conn.cursor()
+
+        # Get counts before deletion
+        cursor.execute("SELECT COUNT(*) FROM token_analysis")
+        token_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM wallet_cluster_nodes")
+        cluster_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM creator_tx_ledger")
+        ledger_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM creator_watch")
+        watch_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM creator_state")
+        state_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM creator_funders")
+        funders_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM creator_outgoing_transfers")
+        outgoing_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM creator_recipients_unified")
+        unified_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM network_coordinators")
+        coordinator_count = cursor.fetchone()[0]
+
+        # Delete all data
+        cursor.execute("DELETE FROM token_analysis")
+        cursor.execute("DELETE FROM wallet_cluster_nodes")
+        cursor.execute("DELETE FROM clustering_alerts")
+        cursor.execute("DELETE FROM creator_tx_ledger")
+        cursor.execute("DELETE FROM creator_state")
+        cursor.execute("DELETE FROM creator_watch")
+        cursor.execute("DELETE FROM creator_funders")
+        cursor.execute("DELETE FROM creator_outgoing_transfers")
+        cursor.execute("DELETE FROM creator_recipients_unified")
+        cursor.execute("DELETE FROM network_coordinators")
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            'status': 'success',
+            'deleted': {
+                'tokens': token_count,
+                'cluster_nodes': cluster_count,
+                'clustering_alerts': cursor.rowcount,
+                'creator_watch': watch_count,
+                'creator_state': state_count,
+                'creator_tx_ledger': ledger_count,
+                'creator_funders': funders_count,
+                'creator_outgoing_transfers': outgoing_count,
+                'creator_recipients_unified': unified_count,
+                'network_coordinators': coordinator_count,
+                'total_items_deleted': token_count + cluster_count + watch_count + state_count + ledger_count + funders_count + outgoing_count + unified_count + coordinator_count
+            }
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
+@app.route('/api/polling-control', methods=['GET', 'POST'])
+def api_polling_control():
+    """Get or set creator TX polling status"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        cursor = conn.cursor()
+        
+        # Ensure settings table exists
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS polling_settings (
+                setting_name TEXT PRIMARY KEY,
+                setting_value TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        conn.commit()
+        
+        if request.method == 'GET':
+            # Get current polling status
+            cursor.execute("SELECT setting_value FROM polling_settings WHERE setting_name = 'polling_enabled'")
+            row = cursor.fetchone()
+            polling_enabled = row[0] == '1' if row else True
+            
+            conn.close()
+            return jsonify({
+                'status': 'enabled' if polling_enabled else 'paused',
+                'polling_enabled': polling_enabled
+            })
+        
+        elif request.method == 'POST':
+            data = request.get_json()
+            action = data.get('action')  # 'enable', 'disable', 'toggle'
+            
+            if action == 'toggle':
+                # Get current state
+                cursor.execute("SELECT setting_value FROM polling_settings WHERE setting_name = 'polling_enabled'")
+                row = cursor.fetchone()
+                current = row[0] == '1' if row else True
+                new_value = '0' if current else '1'
+            elif action == 'enable':
+                new_value = '1'
+            elif action == 'disable':
+                new_value = '0'
+            else:
+                conn.close()
+                return jsonify({'error': 'Invalid action'}), 400
+            
+            # Update setting
+            cursor.execute("""
+                INSERT OR REPLACE INTO polling_settings (setting_name, setting_value)
+                VALUES ('polling_enabled', ?)
+            """, (new_value,))
+            conn.commit()
+            conn.close()
+            
+            polling_enabled = new_value == '1'
+            return jsonify({
+                'status': 'success',
+                'polling_enabled': polling_enabled,
+                'action': action
+            })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/kill-server', methods=['POST'])
+def api_kill_server():
+    """Kill the Flask server"""
+    try:
+        # Return success response first
+        response = jsonify({'status': 'server_stopping'})
+
+        # Then shutdown the server
+        import os
+        import signal
+        os.kill(os.getpid(), signal.SIGTERM)
+
+        return response
+    except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 

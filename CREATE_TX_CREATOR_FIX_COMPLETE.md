@@ -200,10 +200,39 @@ Once tested in production, update existing tokens with correct creators:
 - ✅ Instance variables initialized correctly
 - ✅ CREATE tx fee payer extracted and stored
 - ✅ force_creator variable used in creator extraction
+- ✅ **Guardrail enforced**: Creator only assigned when `is_pumpfun_create=True`
+- ✅ **Guardrail enforced**: Fee payer extracted even if CREATE unconfirmed (for diagnostics)
 - ✅ Fallback logic preserved (backward compatible)
 - ✅ Logging shows correct extraction path
 - ✅ Test tokens validate correctly
 - ✅ Status marked as 'confirmed' when applicable
+
+---
+
+## Guardrail Implementation
+
+The code now has a critical safety check to prevent false creator attribution:
+
+```python
+# GUARDRAIL: Only use fee payer as "creator" if transaction is confirmed as CREATE
+# is_pumpfun_create = (mint_in_accounts AND pumpfun_program_found)
+if self._create_tx_creator and validation['is_pumpfun_create']:
+    print(f"[CREATOR] ✓ Creator = CREATE tx fee payer: {creator}", flush=True)
+    creator = self._create_tx_creator  # Assign as creator
+else:
+    creator = None  # Don't assign creator yet
+    # Still extract fee_payer for diagnostic/logging purposes
+```
+
+### What This Means
+
+1. **Fee payer is always extracted** (for diagnostics)
+2. **Creator is only assigned** when CREATE is confirmed
+3. **Status='confirmed'** only when both conditions met:
+   - `reached_end=True` (paginated to history end)
+   - `is_pumpfun_create=True` (mint in accounts AND program found)
+4. **Status='unproven'** if either condition fails
+5. **No creator attribution** for unconfirmed transactions
 
 ---
 
@@ -229,10 +258,22 @@ Transaction
 - **Always present** in every transaction
 - **Always a signer** for the transaction
 
+### Critical Guardrail: When to Call It "Creator"
+✅ **Creator** = fee payer of Pump.fun CREATE transaction (must be a signer at accountKeys[0])
+❌ **NOT creator** = fee payer of earliest bonding curve tx (could be bot/router/program)
+
+We ONLY assign it as "creator" when **CONFIRMED** as a CREATE event:
+1. Mint must appear in transaction accounts
+2. Pump.fun program must be present in instructions
+3. Both conditions must pass (AND logic)
+
+Otherwise we return `status='unproven'` and don't claim creator attribution.
+
 ### CREATE Transaction
 - Only happens **once per token**
 - Is the **source of truth** for the true creator
-- Cannot be spoofed (signed by creator's private key)
+- Cannot be spoofed (must be signed by creator's private key)
+- Validation: Requires both (mint_in_accounts AND pumpfun_program_found)
 
 ---
 

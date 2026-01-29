@@ -1254,24 +1254,29 @@ class PostMigrationAnalyzer:
 
     async def get_creator_from_earliest_tx(self) -> Optional[dict]:
         """
-        Extract creator (fee payer) from earliest transaction on the bonding curve.
+        Extract CREATOR = fee payer of the Pump.fun CREATE transaction.
         Returns full provenance object proving this is the first Pump.fun create.
 
-        CRITICAL: Extracts the bonding curve account from the creation transaction
-        instead of deriving it mathematically. This is more reliable because:
-        - Avoids guessing at seed parameters
-        - Gets the actual account used in the creation
-        - Works even if Pump.fun changes their seed format
+        CRITICAL GUARDRAIL:
+        ✅ Creator = fee payer of Pump.fun CREATE tx (usually accountKeys[0], must be a signer)
+        ❌ DON'T use earliest bonding curve tx fee payer for creator (that's just "who paid for earliest activity")
+
+        We only call it "creator" when CONFIRMED as CREATE event:
+        - mint must appear in transaction accounts
+        - Pump.fun program must be present
+        - Both conditions must pass (AND logic)
+        Otherwise, we return status='unproven' and don't claim creator attribution
 
         Process:
         1. Extract bonding curve account from token's creation transaction
-        2. Query bonding curve account's transaction history (ONLY source)
-        3. Get earliest transaction and extract fee payer (creator)
-        4. Validate that it's a Pump.fun create event
+        2. Query bonding curve account's transaction history
+        3. Get earliest transaction and validate it's a CREATE
+        4. Extract fee payer (first signer) ONLY if CREATE is confirmed
+        5. Return provenance with status reflecting validation confidence
 
         Provenance object includes:
         {
-            'creator': 'address or None',
+            'creator': 'address or None' (ONLY if is_pumpfun_create=True),
             'earliest_sig': signature hash,
             'reached_end': True ONLY if pagination completed to actual end,
             'rpc_used': which RPC endpoint found the signature,
@@ -1283,7 +1288,7 @@ class PostMigrationAnalyzer:
             'fee_payer': extracted fee payer account,
             'bonding_curve_pda': the actual bonding curve account extracted from tx,
             'query_source': 'bonding_curve' (extracted from creation tx),
-            'status': 'confirmed' (all checks pass) or 'unproven' (some checks failed),
+            'status': 'confirmed' (CREATE validated + reached end) or 'unproven' (some checks failed),
             'validation_notes': human-readable explanation
         }
         """
@@ -1354,10 +1359,9 @@ class PostMigrationAnalyzer:
 
             tx = tx_data["result"]
 
-            # Step 4: Determine validation status and creator
-            # IMPORTANT: If we have a stored CREATE tx validation, USE THAT instead of validating this tx
-            # The CREATE tx validation is definitive because it's from the actual creation transaction
-            # The earliest bonding curve tx might be a swap or other operation, not the CREATE itself
+            # Step 4: Validate that this is a Pump.fun CREATE transaction
+            # CRITICAL: Use the stored CREATE tx validation (definitive proof)
+            # The earliest bonding curve tx might be a swap/trade, not the CREATE
             if self._create_tx_validation:
                 print(f"[CREATOR] ✓ Using stored CREATE tx validation (more reliable than earliest bc tx)", flush=True)
                 validation = self._create_tx_validation
@@ -1366,11 +1370,11 @@ class PostMigrationAnalyzer:
                 print(f"[CREATOR] ⚠ No CREATE tx validation stored, validating earliest bc tx instead", flush=True)
                 validation = self._validate_pumpfun_create_tx(tx)
 
-            # IMPORTANT: Use the CREATE transaction's fee payer (true creator) if available
-            # This is more accurate than using the fee payer from the earliest bonding curve tx
-            if self._create_tx_creator:
-                print(f"[CREATOR] ✓ Using CREATE tx fee payer as creator (more reliable than earliest bc tx)", flush=True)
-                # We'll use this creator below instead of extracting from the current tx
+            # GUARDRAIL: Only use fee payer as "creator" if transaction is confirmed as CREATE
+            # is_pumpfun_create = (mint_in_accounts AND pumpfun_program_found)
+            # If either condition fails, we don't assign a creator yet
+            if self._create_tx_creator and validation['is_pumpfun_create']:
+                print(f"[CREATOR] ✓ Using CREATE tx fee payer (confirmed as Pump.fun CREATE)", flush=True)
                 force_creator = self._create_tx_creator
             else:
                 force_creator = None
@@ -1416,38 +1420,29 @@ class PostMigrationAnalyzer:
 
             print(f"[CREATOR] Found {len(signers)} signers in transaction", flush=True)
 
-            # Use the CREATE transaction's fee payer if available (more reliable)
+            # GUARDRAIL: Assign creator only if CREATE is confirmed
+            # If CREATE is not confirmed, fee_payer is just "who paid for activity" (could be bot/router)
             if force_creator:
+                # Use CREATE tx fee payer (confirmed as real creator)
                 creator = force_creator
                 provenance['fee_payer'] = creator
-                print(f"[CREATOR] ✓ Using CREATE tx fee payer: {creator}", flush=True)
+                print(f"[CREATOR] ✓ Creator = CREATE tx fee payer: {creator}", flush=True)
             else:
-                # Fallback: Extract from the earliest bonding curve transaction
-                # First signer is the fee payer (creator)
-                # Skip if it's a known program
+                # No confirmed CREATE yet - don't assign creator yet
                 creator = None
-                for signer in signers:
-                    if signer not in KNOWN_PROGRAMS:
-                        creator = signer
-                        provenance['fee_payer'] = creator
-                        print(f"[CREATOR] ✓ Found creator: {creator}", flush=True)
-                        break
-
-                # If all signers are known programs, use the first one
-                if not creator and signers:
-                    creator = signers[0]
-                    provenance['fee_payer'] = creator
-                    print(f"[CREATOR] ⚠ All signers are known programs, using first: {creator}", flush=True)
+                # Still extract fee_payer for diagnostic/logging purposes
+                if signers:
+                    first_signer = signers[0]
+                    provenance['fee_payer'] = first_signer
+                    print(f"[CREATOR] ⚠ Not assigning as creator (CREATE not confirmed), fee_payer: {first_signer}", flush=True)
 
             if creator:
                 provenance['creator'] = creator
-                # Determine status
-                # CRITICAL FIX: Use the stored CREATE tx validation for status determination
-                # If we have a valid CREATE tx validation + reached end of history, mark as confirmed
+                # Determine status - only "confirmed" if CREATE is valid AND we reached history end
                 if (provenance['reached_end'] and
                     provenance['is_pumpfun_create']):
                     provenance['status'] = 'confirmed'
-                    print(f"[CREATOR] ✅ CONFIRMED EARLIEST: {creator}", flush=True)
+                    print(f"[CREATOR] ✅ CONFIRMED CREATOR: {creator}", flush=True)
                     print(f"[CREATOR] ━━ 6 VALIDATION CRITERIA ━━", flush=True)
                     print(f"[CREATOR]   ✅ status = '{provenance['status']}'", flush=True)
                     print(f"[CREATOR]   ✅ reached_end = {provenance['reached_end']}", flush=True)
@@ -1456,7 +1451,7 @@ class PostMigrationAnalyzer:
                     print(f"[CREATOR]   ✅ mint_in_accounts = {provenance['mint_in_accounts']}", flush=True)
                     print(f"[CREATOR]   ✅ earliest_sig exists = {provenance['earliest_sig'] is not None}", flush=True)
                     print(f"[CREATOR] ━━ PROVENANCE DATA ━━", flush=True)
-                    print(f"[CREATOR]   Source: bonding_curve (extracted from creation tx)", flush=True)
+                    print(f"[CREATOR]   Source: CREATE tx fee payer (confirmed Pump.fun creation)", flush=True)
                     print(f"[CREATOR]   Slot: {provenance['slot']}, BlockTime: {provenance['blockTime']}", flush=True)
                     print(f"[CREATOR]   Bonding Curve: {provenance['bonding_curve_pda']}", flush=True)
                     print(f"[CREATOR]   Earliest Sig: {provenance['earliest_sig']}", flush=True)
@@ -1472,8 +1467,8 @@ class PostMigrationAnalyzer:
                     print(f"[CREATOR]   reached_end = {provenance['reached_end']}", flush=True)
                     print(f"[CREATOR]   is_pumpfun_create = {provenance['is_pumpfun_create']}", flush=True)
             else:
-                print(f"[CREATOR] ❌ No valid signers found", flush=True)
-                provenance['validation_notes'].append("No valid signers")
+                print(f"[CREATOR] ❌ No creator assigned (CREATE transaction not confirmed)", flush=True)
+                provenance['validation_notes'].append("No confirmed CREATE transaction")
 
             return provenance
 

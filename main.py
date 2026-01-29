@@ -616,6 +616,27 @@ HTML_TEMPLATE = """
             font-weight: bold;
         }
 
+        #creatorTagsContainer {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .creator-tag {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: help;
+        }
+
+        .tag-label {
+            color: #4ade80;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
         /* Tokens launched table */
         .tokens-launched-container {
             max-height: 300px;
@@ -896,11 +917,10 @@ HTML_TEMPLATE = """
                     <label>Network Size</label>
                     <span id="creatorNetworkSize">—</span>
                 </div>
-                <div class="stat-box">
-                    <label>Status</label>
-                    <span id="creatorBlocklistStatus">—</span>
-                </div>
             </div>
+
+            <!-- Creator Tags -->
+            <div id="creatorTagsContainer"></div>
 
             <!-- Tokens Launched -->
             <h3>Tokens Launched</h3>
@@ -1570,14 +1590,18 @@ HTML_TEMPLATE = """
 
                 document.getElementById('creatorNetworkSize').textContent = (data.cluster.total_wallets || 0) + ' wallets';
 
-                // Build status with tags
-                let statusText = data.is_blocked ? '🚫 BLOCKED' : '✅ Clean';
+                // Display creator tags
+                const tagsContainer = document.getElementById('creatorTagsContainer');
                 if (data.tags && data.tags.length > 0) {
-                    const tagTexts = data.tags.map(t => t.tag).join(', ');
-                    statusText += ' | ' + tagTexts;
+                    const tagsHTML = data.tags.map(t => `
+                        <div class="creator-tag" title="${t.description}">
+                            <span class="tag-label">${t.tag}</span>
+                        </div>
+                    `).join('');
+                    tagsContainer.innerHTML = tagsHTML;
+                } else {
+                    tagsContainer.innerHTML = '';
                 }
-                document.getElementById('creatorBlocklistStatus').textContent = statusText;
-                document.getElementById('creatorBlocklistStatus').style.color = data.is_blocked ? '#ef4444' : '#4ade80';
 
                 // Populate tokens launched table
                 const tokensBody = document.getElementById('tokensLaunchedBody');

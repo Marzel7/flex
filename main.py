@@ -2039,6 +2039,66 @@ def api_creator_details(creator_address: str):
         return jsonify({'error': str(e)}), 500
 
 
+# --- Creator SOL Watch Endpoints ---
+
+@app.route('/api/creator-sol-stats/<creator_address>')
+def api_creator_sol_stats(creator_address: str):
+    """Get SOL in/out summary for a creator"""
+    try:
+        from creator_watch_manager import CreatorWatchManager
+
+        # Create temporary manager instance to query stats
+        manager = CreatorWatchManager(
+            rpc_url=os.getenv("RPC_URL", ""),
+            rpc_url_2=os.getenv("RPC_URL_2", "")
+        )
+
+        stats = manager.get_creator_stats(creator_address)
+
+        if not stats:
+            return jsonify({'error': 'Creator not found in watch'}), 404
+
+        return jsonify(stats)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/creator-sol-ledger/<creator_address>')
+def api_creator_sol_ledger(creator_address: str):
+    """Get recent SOL transactions for a creator"""
+    try:
+        limit = request.args.get('limit', 50, type=int)
+
+        from creator_watch_manager import CreatorWatchManager
+
+        # Create temporary manager instance to query ledger
+        manager = CreatorWatchManager(
+            rpc_url=os.getenv("RPC_URL", ""),
+            rpc_url_2=os.getenv("RPC_URL_2", "")
+        )
+
+        ledger = manager.get_recent_ledger(creator_address, limit=limit)
+
+        return jsonify({
+            'creator_address': creator_address,
+            'transactions': [
+                {
+                    'signature': tx['signature'],
+                    'blockTime': tx['blockTime'],
+                    'delta_sol': tx['delta_sol_lamports'] / 1e9 if tx['delta_sol_lamports'] else 0,
+                    'fee_sol': tx['fee_lamports'] / 1e9 if tx['fee_lamports'] else 0,
+                    'type': tx['tx_type'],
+                    'counterparty': tx['counterparty']
+                }
+                for tx in ledger
+            ]
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/transaction/<signature>')
 def api_transaction(signature: str):
     """Fetch transaction details from Solana RPC"""

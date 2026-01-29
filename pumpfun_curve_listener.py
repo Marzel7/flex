@@ -21,6 +21,7 @@ from typing import Set, Optional, List
 from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
 from realtime_creator_funding_extractor import extract_funding_for_new_token
 from realtime_wallet_clustering_extractor import trigger_wallet_clustering
+from creator_watch_manager import CreatorWatchManager
 from dotenv import load_dotenv
 
 # Import settings checker (will be imported dynamically when needed)
@@ -143,6 +144,7 @@ class PumpFunCurveListener:
         self.websocket_connected = False
         self.websocket_msg_count = 0  # Track message receipt
         self.websocket_migration_count = 0  # Track migrations detected
+        self.creator_watch_manager = None  # Will be initialized in listen()
         self._ensure_db()
         print(f"[INIT] Pump.Fun → PumpSwap Migration Listener ready", flush=True)
         print(f"[INIT] Monitoring PumpSwap program: {PUMPSWAP_PROGRAM}", flush=True)
@@ -1485,6 +1487,12 @@ class PumpFunCurveListener:
                     print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status})", flush=True)
                     # Update minimal entry with creator, date, bonding curve, and CREATE tx signature
                     self._update_token_entry_with_creator(mint, earliest_creator, created_at, bonding_curve_pda, create_tx_signature)
+
+                    # Register creator with watch manager to track SOL in/out transfers
+                    if self.creator_watch_manager:
+                        # Get the slot from provenance if available
+                        slot = provenance.get('slot', 0) if provenance else 0
+                        self.creator_watch_manager.add_creator(earliest_creator, signature, slot, provenance_status)
             except Exception as creator_err:
                 print(f"[CREATOR] ⚠ Could not extract creator: {creator_err}", flush=True)
 
@@ -1644,8 +1652,20 @@ class PumpFunCurveListener:
 
     async def listen(self):
         """Main entry point - start WebSocket listener with live price updater"""
+        # Initialize creator watch manager
+        helius_http = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com"
+        self.creator_watch_manager = CreatorWatchManager(
+            rpc_url=RPC_HTTP,
+            rpc_url_2=RPC_URL_2,
+            helius_rpc=helius_http
+        )
+
+        # Start creator watch polling in background
+        asyncio.create_task(self.creator_watch_manager.run_polling_loop(poll_interval=30))
+
         # Start live price updater in background
         asyncio.create_task(self.update_live_prices_background())
+
         # Start WebSocket listener
         await self.listen_websocket()
 

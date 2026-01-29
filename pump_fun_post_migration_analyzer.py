@@ -137,6 +137,8 @@ class PostMigrationAnalyzer:
         self._create_tx_validation = None
         # Store CREATE transaction signature for persistence to database
         self._create_tx_signature = None
+        # Store CREATE transaction's fee payer (true creator) for accurate provenance
+        self._create_tx_creator = None
 
         print(f"[ANALYZER_INIT] Token: {token_mint}", flush=True)
         print(f"[ANALYZER_INIT] RPC: {rpc_url[:80]}{'...' if len(rpc_url) > 80 else ''}", flush=True)
@@ -1043,7 +1045,25 @@ class PostMigrationAnalyzer:
         if earliest_create_validation:
             self._create_tx_validation = earliest_create_validation
             print(f"[CREATOR] ✓ Stored CREATE tx signature and validation for persistence", flush=True)
-        
+
+        # Extract and store the CREATE transaction's fee payer (true creator)
+        message = earliest_create_tx.get("transaction", {}).get("message", {})
+        account_keys = message.get("accountKeys", [])
+
+        if account_keys:
+            # Fee payer is always the first signer in the transaction
+            first_key = account_keys[0]
+            if isinstance(first_key, dict):
+                # jsonParsed format
+                fee_payer = first_key.get("pubkey")
+            else:
+                # Plain string format
+                fee_payer = str(first_key)
+
+            if fee_payer:
+                self._create_tx_creator = fee_payer
+                print(f"[CREATOR] ✓ Extracted CREATE tx fee payer (creator): {fee_payer}", flush=True)
+
         # Step 2: Extract bonding curve from the validated Pump.fun CREATE transaction
         tx = earliest_create_tx
         bonding_curve = self._extract_bonding_curve_from_tx(tx)
@@ -1334,7 +1354,7 @@ class PostMigrationAnalyzer:
 
             tx = tx_data["result"]
 
-            # Step 4: Determine validation status
+            # Step 4: Determine validation status and creator
             # IMPORTANT: If we have a stored CREATE tx validation, USE THAT instead of validating this tx
             # The CREATE tx validation is definitive because it's from the actual creation transaction
             # The earliest bonding curve tx might be a swap or other operation, not the CREATE itself
@@ -1345,6 +1365,15 @@ class PostMigrationAnalyzer:
                 # Fallback: validate the earliest bonding curve transaction
                 print(f"[CREATOR] ⚠ No CREATE tx validation stored, validating earliest bc tx instead", flush=True)
                 validation = self._validate_pumpfun_create_tx(tx)
+
+            # IMPORTANT: Use the CREATE transaction's fee payer (true creator) if available
+            # This is more accurate than using the fee payer from the earliest bonding curve tx
+            if self._create_tx_creator:
+                print(f"[CREATOR] ✓ Using CREATE tx fee payer as creator (more reliable than earliest bc tx)", flush=True)
+                # We'll use this creator below instead of extracting from the current tx
+                force_creator = self._create_tx_creator
+            else:
+                force_creator = None
             
             provenance['mint_in_accounts'] = validation['mint_in_accounts']
             provenance['pumpfun_program_found'] = validation['pumpfun_program_found']
@@ -1387,21 +1416,28 @@ class PostMigrationAnalyzer:
 
             print(f"[CREATOR] Found {len(signers)} signers in transaction", flush=True)
 
-            # First signer is the fee payer (creator)
-            # Skip if it's a known program
-            creator = None
-            for signer in signers:
-                if signer not in KNOWN_PROGRAMS:
-                    creator = signer
-                    provenance['fee_payer'] = creator
-                    print(f"[CREATOR] ✓ Found creator: {creator}", flush=True)
-                    break
-
-            # If all signers are known programs, use the first one
-            if not creator and signers:
-                creator = signers[0]
+            # Use the CREATE transaction's fee payer if available (more reliable)
+            if force_creator:
+                creator = force_creator
                 provenance['fee_payer'] = creator
-                print(f"[CREATOR] ⚠ All signers are known programs, using first: {creator}", flush=True)
+                print(f"[CREATOR] ✓ Using CREATE tx fee payer: {creator}", flush=True)
+            else:
+                # Fallback: Extract from the earliest bonding curve transaction
+                # First signer is the fee payer (creator)
+                # Skip if it's a known program
+                creator = None
+                for signer in signers:
+                    if signer not in KNOWN_PROGRAMS:
+                        creator = signer
+                        provenance['fee_payer'] = creator
+                        print(f"[CREATOR] ✓ Found creator: {creator}", flush=True)
+                        break
+
+                # If all signers are known programs, use the first one
+                if not creator and signers:
+                    creator = signers[0]
+                    provenance['fee_payer'] = creator
+                    print(f"[CREATOR] ⚠ All signers are known programs, using first: {creator}", flush=True)
 
             if creator:
                 provenance['creator'] = creator

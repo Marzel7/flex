@@ -939,9 +939,9 @@ HTML_TEMPLATE = """
             </div>
 
             <!-- Top Recipients (Outgoing Transfers) -->
-            <h3>Recipients (SOL Sent Out)</h3>
+            <h3 style="margin-top: 20px;">Recipients (SOL Sent Out)</h3>
             <div class="top-recipients-container">
-                <table class="top-recipients-table">
+                <table class="top-funders-table">
                     <thead>
                         <tr>
                             <th>Recipient Address</th>
@@ -956,8 +956,8 @@ HTML_TEMPLATE = """
             </div>
 
             <!-- Wallet Cluster -->
-            <h3>Wallet Network</h3>
-            <div class="cluster-info" id="clusterInfo">
+            <h3 style="margin-top: 20px;">Wallet Network</h3>
+            <div class="cluster-info" id="clusterInfo" style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 6px; padding: 15px;">
                 <!-- Populated by JavaScript -->
             </div>
         </div>

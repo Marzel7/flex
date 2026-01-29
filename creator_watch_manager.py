@@ -88,21 +88,23 @@ class CreatorWatchManager:
                 signature TEXT NOT NULL UNIQUE,
                 slot INTEGER,
                 blockTime INTEGER,
-                delta_sol_lamports INTEGER,  -- Net SOL change (can be negative)
-                fee_lamports INTEGER,  -- Fee paid by this tx
+                delta_sol_lamports INTEGER,
+                fee_lamports INTEGER,
                 compute_units INTEGER,
                 compute_units_consumed INTEGER,
-                counterparty TEXT,  -- Optional: detected counterparty
-                tx_type TEXT,  -- 'transfer', 'swap', 'rent', 'unknown'
-                source TEXT,  -- 'websocket' or 'poll'
+                counterparty TEXT,
+                tx_type TEXT,
+                source TEXT,
                 is_confirmed INTEGER DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-                FOREIGN KEY(creator_pubkey) REFERENCES creator_watch(creator_pubkey),
-                INDEX idx_creator_ledger ON creator_pubkey,
-                INDEX idx_signature ON signature
+                FOREIGN KEY(creator_pubkey) REFERENCES creator_watch(creator_pubkey)
             )
         """)
+
+        # Create indexes separately (SQLite syntax)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_tx_ledger ON creator_tx_ledger(creator_pubkey)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_signature ON creator_tx_ledger(signature)")
 
         # Creator polling state (tracks where we left off)
         cursor.execute("""

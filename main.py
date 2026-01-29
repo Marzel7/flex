@@ -1930,40 +1930,30 @@ def api_creator_details(creator_address: str):
         top_funders = [dict(row) for row in cursor.fetchall()]
 
         # 4. Get wallet cluster size (includes coordinated funders and recipients)
+        # Union query to get all unique wallets connected to creator
         cursor.execute("""
-            SELECT
-                COUNT(*) as total_wallets,
-                SUM(CASE WHEN hop = 0 THEN 1 ELSE 0 END) as hop0_count,
-                SUM(CASE WHEN hop = 1 THEN 1 ELSE 0 END) as hop1_count,
-                SUM(CASE WHEN hop = 2 THEN 1 ELSE 0 END) as hop2_count
-            FROM wallet_cluster_nodes
-            WHERE root_creator = ?
-        """, (creator_address,))
+            SELECT COUNT(DISTINCT wallet_addr) as total_wallets,
+                   SUM(CASE WHEN hop = 0 THEN 1 ELSE 0 END) as hop0_count,
+                   SUM(CASE WHEN hop = 1 THEN 1 ELSE 0 END) as hop1_count,
+                   SUM(CASE WHEN hop = 2 THEN 1 ELSE 0 END) as hop2_count
+            FROM (
+                -- Cluster nodes
+                SELECT wallet as wallet_addr, hop FROM wallet_cluster_nodes WHERE root_creator = ?
+                UNION
+                -- Funders (hop 0 - direct connection)
+                SELECT funder_address as wallet_addr, 0 as hop FROM creator_funders WHERE creator_address = ?
+                UNION
+                -- Recipients (hop 0 - direct connection)
+                SELECT recipient_address as wallet_addr, 0 as hop FROM creator_outgoing_transfers WHERE creator_address = ?
+            )
+        """, (creator_address, creator_address, creator_address))
         cluster_row = cursor.fetchone()
 
-        # Start with cluster nodes, add funders and recipients
-        total_wallets = cluster_row['total_wallets'] if cluster_row else 0
-        hop0_count = cluster_row['hop0_count'] if cluster_row else 0
-        hop1_count = cluster_row['hop1_count'] if cluster_row else 0
-        hop2_count = cluster_row['hop2_count'] if cluster_row else 0
-
-        # Add funders as hop0 connections
-        cursor.execute("SELECT COUNT(DISTINCT funder_address) FROM creator_funders WHERE creator_address = ?", (creator_address,))
-        funder_count = cursor.fetchone()[0] or 0
-        hop0_count += funder_count
-        total_wallets += funder_count
-
-        # Add recipients as hop0 connections
-        cursor.execute("SELECT COUNT(DISTINCT recipient_address) FROM creator_outgoing_transfers WHERE creator_address = ?", (creator_address,))
-        recipient_count = cursor.fetchone()[0] or 0
-        hop0_count += recipient_count
-        total_wallets += recipient_count
-
         cluster = {
-            'total_wallets': total_wallets,
-            'hop0': hop0_count,
-            'hop1': hop1_count,
-            'hop2': hop2_count
+            'total_wallets': cluster_row['total_wallets'] or 0,
+            'hop0': cluster_row['hop0_count'] or 0,
+            'hop1': cluster_row['hop1_count'] or 0,
+            'hop2': cluster_row['hop2_count'] or 0
         }
 
         # 5. Check blocklist status

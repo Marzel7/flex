@@ -232,6 +232,40 @@ class RealTimeCreatorFundingExtractor:
         except:
             pass
 
+    def _save_outgoing_transfer(self, creator: str, recipient: str, amount_sol: float, sig: str = None, block_time: int = None):
+        """Save outgoing transfer from creator to recipient"""
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=60)
+            cursor = conn.cursor()
+
+            # Check if recipient is a known CEX wallet
+            recipient_type = None
+            try:
+                cursor.execute("""
+                    SELECT exchange_name, wallet_type
+                    FROM cex_wallets
+                    WHERE cex_address = ? AND is_active = 1
+                    LIMIT 1
+                """, (recipient,))
+                cex_row = cursor.fetchone()
+                if cex_row:
+                    exchange, wallet_type = cex_row
+                    recipient_type = f"cex_{exchange.lower()}"
+                    print(f"[FUNDING] 💸 OUTGOING TO CEX: {creator[:16]}... → {exchange} {wallet_type} ({amount_sol:.2f} SOL)", flush=True)
+            except:
+                pass
+
+            cursor.execute("""
+                INSERT OR REPLACE INTO creator_outgoing_transfers
+                (creator_address, recipient_address, amount_sol, transaction_signature, block_time, recipient_type, first_detected_at)
+                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            """, (creator, recipient, amount_sol, sig, block_time, recipient_type))
+
+            conn.commit()
+            conn.close()
+        except:
+            pass
+
     async def extract_incoming_transfers(self, creator: str) -> Dict:
         """
         Search for incoming SOL transfers to creator by scanning recent transactions.
@@ -259,14 +293,94 @@ class RealTimeCreatorFundingExtractor:
             print(f"[REALTIME_FUNDING]    ⚠ Error searching incoming: {e}", flush=True)
             return funders
 
+    async def extract_outgoing_transfers(self, creator: str, after_timestamp: int, limit: int = 100) -> Dict:
+        """
+        Search for outgoing transfers FROM creator AFTER a specific timestamp (post-migration).
+        Returns dict of recipient -> {amount: total_sol, count: tx_count}
+        """
+        print(f"[REALTIME_FUNDING]    🔍 Searching for OUTGOING transfers after migration...", flush=True)
+
+        recipients = {}
+        before = None
+        max_sigs = 0
+
+        try:
+            # Get all signatures for the creator
+            while max_sigs < limit:
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getSignaturesForAddress",
+                    "params": [
+                        creator,
+                        {
+                            "limit": 50,
+                            **({"before": before} if before else {})
+                        }
+                    ]
+                }
+
+                result = await self._post_rpc(payload)
+                if not result or "result" not in result:
+                    break
+
+                sigs = result.get("result", [])
+                if not sigs:
+                    break
+
+                for sig_info in sigs:
+                    sig = sig_info["signature"]
+                    block_time = sig_info.get("blockTime", 0)
+
+                    # We want signatures AFTER the migration time (post-migration)
+                    if block_time and block_time <= after_timestamp:
+                        # Before or at migration time, skip
+                        continue
+
+                    # This is post-migration, analyze it
+                    tx = await self.get_transaction(sig)
+                    if not tx:
+                        continue
+
+                    transfers = self.extract_sol_transfers(tx, creator)
+                    for transfer in transfers:
+                        if transfer["direction"] != "out":
+                            continue
+
+                        counterparty = transfer["counterparty"]
+                        amount = transfer["amount_sol"]
+
+                        if counterparty not in recipients:
+                            recipients[counterparty] = {"amount": 0, "count": 0}
+
+                        recipients[counterparty]["amount"] += amount
+                        recipients[counterparty]["count"] += 1
+
+                        # Save to database immediately
+                        self._save_outgoing_transfer(creator, counterparty, amount, sig, block_time)
+
+                    max_sigs += 1
+
+                if len(sigs) < 50:
+                    break
+
+                before = sigs[-1]["signature"]
+                await asyncio.sleep(0.05)
+
+            return recipients
+
+        except Exception as e:
+            print(f"[REALTIME_FUNDING]    ⚠ Error searching outgoing: {e}", flush=True)
+            return recipients
+
     async def extract_for_creator(self, creator: str, migration_timestamp_str: str) -> Dict:
         """
         Extract funding activity for a creator.
         Called in real-time when token is detected.
 
         Strategy:
-        1. Find outgoing transactions signed BY creator (using getSignaturesForAddress)
-        2. Find incoming transfers TO creator (new method - see extract_incoming_transfers)
+        1. Find PRE-MIGRATION funders (transactions signed BY creator before migration)
+        2. Find POST-MIGRATION outgoing transfers (creator sending SOL after migration)
         3. Combine both to get complete funding picture
         """
         if creator in self.processed_creators:
@@ -286,61 +400,72 @@ class RealTimeCreatorFundingExtractor:
             print(f"[REALTIME_FUNDING] 🔍 Extracting creator funding for {creator[:16]}...", flush=True)
             print(f"[REALTIME_FUNDING]    Migration timestamp: {migration_timestamp_str}", flush=True)
 
-            # Get signatures before migration (outgoing transactions)
+            # Get signatures before migration (pre-migration funders)
             signatures = await self.get_signatures_until_time(creator, migration_timestamp)
-            print(f"[REALTIME_FUNDING]    Found {len(signatures)} outgoing signatures", flush=True)
+            print(f"[REALTIME_FUNDING]    Found {len(signatures)} pre-migration signatures", flush=True)
 
-            if not signatures:
-                print(f"[REALTIME_FUNDING] ✓ No funding activity", flush=True)
-                return {"creator": creator, "signatures": 0, "funding_sources": []}
-
-            # Analyze transactions
+            # Analyze pre-migration transactions
             funders = {}  # funder -> {amount: total_sol, count: tx_count}
             sigs_checked = 0
 
-            for sig_idx, (sig, block_time) in enumerate(signatures):
-                tx = await self.get_transaction(sig)
-                if not tx:
-                    continue
-
-                sigs_checked += 1
-
-                # Extract transfers
-                transfers = self.extract_sol_transfers(tx, creator)
-                for transfer in transfers:
-                    if transfer["direction"] != "in":
+            if signatures:
+                for sig_idx, (sig, block_time) in enumerate(signatures):
+                    tx = await self.get_transaction(sig)
+                    if not tx:
                         continue
 
-                    counterparty = transfer["counterparty"]
-                    amount = transfer["amount_sol"]
+                    sigs_checked += 1
 
-                    if counterparty not in funders:
-                        funders[counterparty] = {"amount": 0, "count": 0}
+                    # Extract transfers
+                    transfers = self.extract_sol_transfers(tx, creator)
+                    for transfer in transfers:
+                        if transfer["direction"] != "in":
+                            continue
 
-                    funders[counterparty]["amount"] += amount
-                    funders[counterparty]["count"] += 1
+                        counterparty = transfer["counterparty"]
+                        amount = transfer["amount_sol"]
 
-                    # Save to database immediately
-                    self._save_funder(creator, counterparty, amount)
+                        if counterparty not in funders:
+                            funders[counterparty] = {"amount": 0, "count": 0}
 
-                await asyncio.sleep(0.01)
+                        funders[counterparty]["amount"] += amount
+                        funders[counterparty]["count"] += 1
 
-            # Summary
-            total_inbound = sum(f["amount"] for f in funders.values())
-            print(f"[REALTIME_FUNDING] ✅ Complete: {sigs_checked} txs analyzed, {len(funders)} funders, {total_inbound:.2f} SOL", flush=True)
+                        # Save to database immediately
+                        self._save_funder(creator, counterparty, amount)
 
-            # Show top funders
-            if funders:
-                sorted_funders = sorted(funders.items(), key=lambda x: x[1]["amount"], reverse=True)
-                for i, (funder, data) in enumerate(sorted_funders[:3], 1):
-                    print(f"[REALTIME_FUNDING]    Funder #{i}: {funder[:16]}... → {data['amount']:.2f} SOL", flush=True)
+                    await asyncio.sleep(0.01)
+
+                # Summary of funders
+                total_inbound = sum(f["amount"] for f in funders.values())
+                print(f"[REALTIME_FUNDING]    ✓ Pre-migration: {sigs_checked} txs analyzed, {len(funders)} funders, {total_inbound:.2f} SOL inbound", flush=True)
+
+                # Show top funders
+                if funders:
+                    sorted_funders = sorted(funders.items(), key=lambda x: x[1]["amount"], reverse=True)
+                    for i, (funder, data) in enumerate(sorted_funders[:3], 1):
+                        print(f"[REALTIME_FUNDING]    Funder #{i}: {funder[:16]}... → {data['amount']:.2f} SOL", flush=True)
+
+            # Also extract post-migration outgoing transfers
+            outgoing = await self.extract_outgoing_transfers(creator, migration_timestamp)
+            if outgoing:
+                total_outbound = sum(r["amount"] for r in outgoing.values())
+                print(f"[REALTIME_FUNDING]    ✓ Post-migration: {len(outgoing)} recipients, {total_outbound:.2f} SOL outbound", flush=True)
+                
+                # Show top recipients
+                if outgoing:
+                    sorted_recipients = sorted(outgoing.items(), key=lambda x: x[1]["amount"], reverse=True)
+                    for i, (recipient, data) in enumerate(sorted_recipients[:3], 1):
+                        print(f"[REALTIME_FUNDING]    Recipient #{i}: {recipient[:16]}... ← {data['amount']:.2f} SOL", flush=True)
 
             return {
                 "creator": creator,
                 "signatures_checked": sigs_checked,
                 "funding_sources": len(funders),
-                "total_inbound": total_inbound,
-                "funders": {k: v["amount"] for k, v in sorted(funders.items(), key=lambda x: x[1]["amount"], reverse=True)[:10]}
+                "total_inbound": sum(f["amount"] for f in funders.values()) if funders else 0,
+                "outgoing_transfers": len(outgoing),
+                "total_outbound": sum(r["amount"] for r in outgoing.values()) if outgoing else 0,
+                "funders": {k: v["amount"] for k, v in sorted(funders.items(), key=lambda x: x[1]["amount"], reverse=True)[:10]} if funders else {}
             }
 
         except Exception as e:

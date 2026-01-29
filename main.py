@@ -1876,6 +1876,36 @@ def api_creator_details(creator_address: str):
         """, (creator_address,))
         tags = [{'tag': row[0], 'description': row[1]} for row in cursor.fetchall()]
 
+        # 7. Get outgoing transfers (post-migration)
+        cursor.execute("""
+            SELECT
+                COUNT(DISTINCT recipient_address) as recipient_count,
+                SUM(amount_sol) as total_sol_out,
+                SUM(CASE WHEN recipient_type LIKE 'cex_%' THEN 1 ELSE 0 END) as cex_recipient_count
+            FROM creator_outgoing_transfers
+            WHERE creator_address = ?
+        """, (creator_address,))
+        outgoing_row = cursor.fetchone()
+        outgoing = {
+            'total_recipients': outgoing_row['recipient_count'] if outgoing_row and outgoing_row['recipient_count'] else 0,
+            'total_sol_out': outgoing_row['total_sol_out'] if outgoing_row and outgoing_row['total_sol_out'] else 0,
+            'cex_recipients': outgoing_row['cex_recipient_count'] if outgoing_row and outgoing_row['cex_recipient_count'] else 0
+        }
+
+        # 8. Get top recipients (where creator sent SOL)
+        cursor.execute("""
+            SELECT
+                recipient_address,
+                amount_sol,
+                recipient_type,
+                notes
+            FROM creator_outgoing_transfers
+            WHERE creator_address = ?
+            ORDER BY amount_sol DESC
+            LIMIT 5
+        """, (creator_address,))
+        top_recipients = [dict(row) for row in cursor.fetchall()]
+
         conn.close()
 
         return jsonify({
@@ -1883,6 +1913,8 @@ def api_creator_details(creator_address: str):
             'tokens': tokens,
             'funding': funding,
             'top_funders': top_funders,
+            'outgoing': outgoing,
+            'top_recipients': top_recipients,
             'cluster': cluster,
             'is_blocked': is_blocked,
             'tags': tags

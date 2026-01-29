@@ -1454,9 +1454,9 @@ HTML_TEMPLATE = """
 
                 // Populate creator stats
                 document.getElementById('creatorTotalTokens').textContent = data.tokens.length;
-                document.getElementById('creatorTotalFunding').textContent = data.funding.total_sol.toFixed(2) + ' SOL';
-                document.getElementById('creatorTotalFunders').textContent = data.funding.total_funders;
-                document.getElementById('creatorNetworkSize').textContent = data.cluster.total_wallets + ' wallets';
+                document.getElementById('creatorTotalFunding').textContent = (data.funding.total_sol !== null ? data.funding.total_sol.toFixed(2) : '0.00') + ' SOL';
+                document.getElementById('creatorTotalFunders').textContent = data.funding.total_funders || '0';
+                document.getElementById('creatorNetworkSize').textContent = (data.cluster.total_wallets || 0) + ' wallets';
                 document.getElementById('creatorBlocklistStatus').textContent = data.is_blocked ? '🚫 BLOCKED' : '✅ Clean';
                 document.getElementById('creatorBlocklistStatus').style.color = data.is_blocked ? '#ef4444' : '#4ade80';
 

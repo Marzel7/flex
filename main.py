@@ -1227,6 +1227,13 @@ HTML_TEMPLATE = """
             return date.toLocaleString('en-US', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
         }
 
+        function formatDateISO(isoString) {
+            if (!isoString) return '-';
+            const date = new Date(isoString);
+            if (isNaN(date.getTime())) return '-';
+            return date.toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' });
+        }
+
         function formatTime(seconds) {
             if (!seconds) return '-';
             const minutes = Math.floor(seconds / 60);
@@ -1521,7 +1528,7 @@ HTML_TEMPLATE = """
                         return `
                             <tr>
                                 <td><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="${token.mint}">${token.mint.substring(0, 16)}...</a></td>
-                                <td>${formatDate(token.created_at)}</td>
+                                <td>${formatDateISO(token.created_at)}</td>
                                 <td><span class="risk-score risk-${token.risk_level ? token.risk_level.toLowerCase() : 'medium'}">${token.risk_level || 'N/A'}</span></td>
                                 <td>${formatMarketCap(token.market_cap_current)}</td>
                                 <td>${createTxCell}</td>

@@ -135,6 +135,8 @@ class PostMigrationAnalyzer:
 
         # Store CREATE transaction validation for use in provenance determination
         self._create_tx_validation = None
+        # Store CREATE transaction signature for persistence to database
+        self._create_tx_signature = None
 
         print(f"[ANALYZER_INIT] Token: {token_mint}", flush=True)
         print(f"[ANALYZER_INIT] RPC: {rpc_url[:80]}{'...' if len(rpc_url) > 80 else ''}", flush=True)
@@ -1036,10 +1038,11 @@ class PostMigrationAnalyzer:
         
         print(f"[CREATOR] ✓ Using creation tx (proven_end={proven_end}): {earliest_create_sig[:20]}...", flush=True)
         
-        # Store the CREATE transaction validation for use in get_creator_from_earliest_tx()
+        # Store the CREATE transaction signature and validation for persistence and provenance
+        self._create_tx_signature = earliest_create_sig
         if earliest_create_validation:
             self._create_tx_validation = earliest_create_validation
-            print(f"[CREATOR] ✓ Stored CREATE tx validation for provenance determination", flush=True)
+            print(f"[CREATOR] ✓ Stored CREATE tx signature and validation for persistence", flush=True)
         
         # Step 2: Extract bonding curve from the validated Pump.fun CREATE transaction
         tx = earliest_create_tx

@@ -706,7 +706,7 @@ HTML_TEMPLATE = """
         .cluster-info p {
             margin: 5px 0;
             color: #e0e0e0;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         /* CEX badge */

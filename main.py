@@ -1626,12 +1626,11 @@ HTML_TEMPLATE = """
                 const recipientsBody = document.getElementById('topRecipientsBody');
                 if (data.top_recipients && data.top_recipients.length > 0) {
                     recipientsBody.innerHTML = data.top_recipients.map(recipient => {
-                        const typeLabel = recipient.recipient_type || 'Unknown';
                         return `
                             <tr>
                                 <td title="${recipient.recipient_address}" style="font-family: monospace; font-size: 12px;">${recipient.recipient_address}</td>
                                 <td>${recipient.amount_sol.toFixed(2)} SOL</td>
-                                <td title="${recipient.notes || ''}">${typeLabel}</td>
+                                <td title="${recipient.notes || ''}">Wallet</td>
                             </tr>
                         `;
                     }).join('');

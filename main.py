@@ -1487,9 +1487,23 @@ HTML_TEMPLATE = """
                 // Populate creator stats
                 document.getElementById('creatorTotalTokens').textContent = data.tokens.length;
                 document.getElementById('creatorTotalFunding').textContent = (data.funding.total_sol !== null ? data.funding.total_sol.toFixed(2) : '0.00') + ' SOL';
-                document.getElementById('creatorTotalFunders').textContent = data.funding.total_funders || '0';
+
+                // Show CEX funders if any
+                let fundersText = data.funding.total_funders || '0';
+                if (data.funding.cex_funders > 0) {
+                    fundersText = '🏦 ' + data.funding.cex_funders + ' CEX';
+                }
+                document.getElementById('creatorTotalFunders').textContent = fundersText;
+
                 document.getElementById('creatorNetworkSize').textContent = (data.cluster.total_wallets || 0) + ' wallets';
-                document.getElementById('creatorBlocklistStatus').textContent = data.is_blocked ? '🚫 BLOCKED' : '✅ Clean';
+
+                // Build status with tags
+                let statusText = data.is_blocked ? '🚫 BLOCKED' : '✅ Clean';
+                if (data.tags && data.tags.length > 0) {
+                    const tagTexts = data.tags.map(t => t.tag).join(', ');
+                    statusText += ' | ' + tagTexts;
+                }
+                document.getElementById('creatorBlocklistStatus').textContent = statusText;
                 document.getElementById('creatorBlocklistStatus').style.color = data.is_blocked ? '#ef4444' : '#4ade80';
 
                 // Populate tokens launched table
@@ -1847,6 +1861,14 @@ def api_creator_details(creator_address: str):
         # 5. Check blocklist status
         is_blocked = bool(tokens[0]['creator_is_blocked']) if tokens else False
 
+        # 6. Get creator tags
+        cursor.execute("""
+            SELECT tag, description
+            FROM creator_tags
+            WHERE creator_address = ?
+        """, (creator_address,))
+        tags = [{'tag': row[0], 'description': row[1]} for row in cursor.fetchall()]
+
         conn.close()
 
         return jsonify({
@@ -1855,7 +1877,8 @@ def api_creator_details(creator_address: str):
             'funding': funding,
             'top_funders': top_funders,
             'cluster': cluster,
-            'is_blocked': is_blocked
+            'is_blocked': is_blocked,
+            'tags': tags
         })
 
     except Exception as e:

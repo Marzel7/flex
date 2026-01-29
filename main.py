@@ -939,6 +939,38 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
+    <!-- Transaction Viewer Modal -->
+    <div id="txViewerModal" class="modal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <span class="close" onclick="closeTxViewer()">&times;</span>
+            <h2>Transaction Details - <span id="txViewerSig" style="font-family: monospace; font-size: 12px;"></span></h2>
+
+            <div style="margin-bottom: 20px;">
+                <a id="txSolscanLink" href="#" target="_blank" style="color: #00d4ff; text-decoration: none; margin-right: 15px;">
+                    🔗 View on Solscan
+                </a>
+                <button onclick="copyToClipboard(document.getElementById('txViewerSig').textContent)" style="background: rgba(0, 212, 255, 0.2); color: #00d4ff; border: 1px solid #00d4ff; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-family: monospace; font-size: 12px;">
+                    📋 Copy Signature
+                </button>
+            </div>
+
+            <h3>Account Keys (jsonParsed)</h3>
+            <div style="background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 6px; padding: 15px; overflow-x: auto;">
+                <pre id="txViewerAccountKeys" style="color: #e0e0e0; font-size: 11px; margin: 0; white-space: pre-wrap; word-wrap: break-word;"></pre>
+            </div>
+
+            <h3 style="margin-top: 20px;">Fee Payer (Creator)</h3>
+            <div style="background: rgba(34, 197, 94, 0.1); border: 2px solid rgba(34, 197, 94, 0.3); border-radius: 6px; padding: 15px; margin-bottom: 20px;">
+                <div style="font-family: monospace; font-size: 12px; color: #4ade80; word-break: break-all;">
+                    <span id="txViewerFeePayer">—</span>
+                </div>
+                <div style="color: #a0a0a0; font-size: 11px; margin-top: 8px;">
+                    ✓ Fee payer (always first signer at accountKeys[0]) = transaction creator
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         async function loadTokens() {
             try {
@@ -1466,7 +1498,8 @@ HTML_TEMPLATE = """
                     tokensBody.innerHTML = data.tokens.map(token => {
                         const createTxShort = token.create_tx_signature ? token.create_tx_signature.substring(0, 16) + '...' : 'N/A';
                         const createTxLink = token.create_tx_signature
-                            ? `<a href="https://solscan.io/tx/${token.create_tx_signature}" target="_blank" class="create-tx-link" title="${token.create_tx_signature}">${createTxShort}</a>`
+                            ? `<a href="https://solscan.io/tx/${token.create_tx_signature}" target="_blank" class="create-tx-link" title="${token.create_tx_signature}">${createTxShort}</a>
+                                <button onclick="viewTransaction('${token.create_tx_signature}'); return false;" style="margin-left: 8px; background: rgba(0, 212, 255, 0.2); color: #00d4ff; border: 1px solid #00d4ff; padding: 2px 8px; border-radius: 3px; cursor: pointer; font-size: 10px;">View</button>`
                             : 'N/A';
 
                         return `
@@ -1522,6 +1555,65 @@ HTML_TEMPLATE = """
             }
         }
 
+        async function viewTransaction(signature) {
+            // Fetch transaction details with jsonParsed encoding
+            const payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getTransaction",
+                "params": [signature, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+            };
+
+            try {
+                const response = await fetch('https://api.mainnet-beta.solana.com', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+
+                if (!data.result) {
+                    alert('Transaction not found');
+                    return;
+                }
+
+                const tx = data.result;
+                const message = tx.transaction.message;
+                const accountKeys = message.accountKeys || [];
+
+                // Display transaction details
+                document.getElementById('txViewerSig').textContent = signature;
+                document.getElementById('txSolscanLink').href = `https://solscan.io/tx/${signature}`;
+                document.getElementById('txViewerAccountKeys').textContent = JSON.stringify(accountKeys, null, 2);
+
+                // Extract and highlight fee payer (first signer)
+                let feePayer = '—';
+                if (accountKeys.length > 0) {
+                    const firstKey = accountKeys[0];
+                    feePayer = typeof firstKey === 'string' ? firstKey : (firstKey.pubkey || '—');
+                }
+                document.getElementById('txViewerFeePayer').textContent = feePayer;
+
+                // Show modal
+                document.getElementById('txViewerModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error fetching transaction:', error);
+                alert('Failed to fetch transaction details');
+            }
+        }
+
+        function closeTxViewer() {
+            document.getElementById('txViewerModal').style.display = 'none';
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+
         function closeCreatorDetails() {
             document.getElementById('creatorModal').style.display = 'none';
         }
@@ -1530,12 +1622,16 @@ HTML_TEMPLATE = """
         window.onclick = function(event) {
             const metricsModal = document.getElementById('metricsModal');
             const creatorModal = document.getElementById('creatorModal');
+            const txViewerModal = document.getElementById('txViewerModal');
 
             if (event.target === metricsModal) {
                 metricsModal.style.display = 'none';
             }
             if (event.target === creatorModal) {
                 creatorModal.style.display = 'none';
+            }
+            if (event.target === txViewerModal) {
+                txViewerModal.style.display = 'none';
             }
         }
 
@@ -1544,6 +1640,7 @@ HTML_TEMPLATE = """
             if (event.key === 'Escape') {
                 closeTokenMetrics();
                 closeCreatorDetails();
+                closeTxViewer();
             }
         });
     </script>

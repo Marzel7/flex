@@ -829,14 +829,12 @@ HTML_TEMPLATE = """
                 </div>
                 <span class="status-indicator active" id="clusteringStatus"></span>
             </div>
-            <div style="border-top: 1px solid rgba(0, 212, 255, 0.3); margin: 12px 0; padding-top: 12px;">
-                <div class="control-group">
-                    <span class="control-label">Token Launch</span>
-                    <div class="toggle-switch active" id="listenLaunchesToggle" onclick="toggleListenLaunches()">
-                        <div class="toggle-slider"></div>
-                    </div>
-                    <span class="status-indicator active" id="listenLaunchesStatus"></span>
+            <div class="control-group" style="border-left: 1px solid rgba(0, 212, 255, 0.3); margin-left: 12px; padding-left: 12px;">
+                <span class="control-label">Token Launch</span>
+                <div class="toggle-switch active" id="listenLaunchesToggle" onclick="toggleListenLaunches()">
+                    <div class="toggle-slider"></div>
                 </div>
+                <span class="status-indicator active" id="listenLaunchesStatus"></span>
             </div>
         </div>
 

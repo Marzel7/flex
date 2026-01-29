@@ -829,6 +829,29 @@ HTML_TEMPLATE = """
                 </div>
                 <span class="status-indicator active" id="clusteringStatus"></span>
             </div>
+            <div style="border-top: 1px solid rgba(0, 212, 255, 0.3); margin: 12px 0; padding-top: 12px;">
+                <div class="control-group">
+                    <span class="control-label">Listen to Launches</span>
+                    <div class="toggle-switch active" id="listenLaunchesToggle" onclick="toggleListenLaunches()">
+                        <div class="toggle-slider"></div>
+                    </div>
+                    <span class="status-indicator active" id="listenLaunchesStatus"></span>
+                </div>
+                <div class="control-group">
+                    <span class="control-label">Price Tracking</span>
+                    <div class="toggle-switch active" id="priceTrackingToggle" onclick="togglePriceTracking()">
+                        <div class="toggle-slider"></div>
+                    </div>
+                    <span class="status-indicator active" id="priceTrackingStatus"></span>
+                </div>
+                <div class="control-group">
+                    <span class="control-label">Auto Funding Extraction</span>
+                    <div class="toggle-switch active" id="autoFundingToggle" onclick="toggleAutoFunding()">
+                        <div class="toggle-slider"></div>
+                    </div>
+                    <span class="status-indicator active" id="autoFundingStatus"></span>
+                </div>
+            </div>
         </div>
 
         <div id="tokens-container">
@@ -1345,16 +1368,102 @@ HTML_TEMPLATE = """
             }).catch(e => console.error('❌ Error updating settings:', e));
         }
 
+        // Listener feature toggles
+        let listenLaunchesEnabled = true;
+        let priceTrackingEnabled = true;
+        let autoFundingEnabled = true;
+
+        function toggleListenLaunches() {
+            listenLaunchesEnabled = !listenLaunchesEnabled;
+            const toggle = document.getElementById('listenLaunchesToggle');
+            const status = document.getElementById('listenLaunchesStatus');
+            toggle.classList.toggle('active');
+            status.classList.toggle('active');
+
+            const state = listenLaunchesEnabled ? 'ENABLED' : 'DISABLED';
+            console.log('🚀 [LISTENER] Launch Listening: ' + state);
+
+            // Send to backend
+            fetch('/api/listener-settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    listen_to_launches: listenLaunchesEnabled,
+                    listen_to_price_updates: priceTrackingEnabled,
+                    auto_extract_funding: autoFundingEnabled
+                })
+            }).then(resp => resp.json()).then(data => {
+                console.log('✅ [LISTENER] Updated - Launches: ' + state);
+            }).catch(e => console.error('❌ Error updating listener settings:', e));
+        }
+
+        function togglePriceTracking() {
+            priceTrackingEnabled = !priceTrackingEnabled;
+            const toggle = document.getElementById('priceTrackingToggle');
+            const status = document.getElementById('priceTrackingStatus');
+            toggle.classList.toggle('active');
+            status.classList.toggle('active');
+
+            const state = priceTrackingEnabled ? 'ENABLED' : 'DISABLED';
+            console.log('📊 [LISTENER] Price Tracking: ' + state);
+
+            // Send to backend
+            fetch('/api/listener-settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    listen_to_launches: listenLaunchesEnabled,
+                    listen_to_price_updates: priceTrackingEnabled,
+                    auto_extract_funding: autoFundingEnabled
+                })
+            }).then(resp => resp.json()).then(data => {
+                console.log('✅ [LISTENER] Updated - Price Tracking: ' + state);
+            }).catch(e => console.error('❌ Error updating listener settings:', e));
+        }
+
+        function toggleAutoFunding() {
+            autoFundingEnabled = !autoFundingEnabled;
+            const toggle = document.getElementById('autoFundingToggle');
+            const status = document.getElementById('autoFundingStatus');
+            toggle.classList.toggle('active');
+            status.classList.toggle('active');
+
+            const state = autoFundingEnabled ? 'ENABLED' : 'DISABLED';
+            console.log('💰 [LISTENER] Auto Funding: ' + state);
+
+            // Send to backend
+            fetch('/api/listener-settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    listen_to_launches: listenLaunchesEnabled,
+                    listen_to_price_updates: priceTrackingEnabled,
+                    auto_extract_funding: autoFundingEnabled
+                })
+            }).then(resp => resp.json()).then(data => {
+                console.log('✅ [LISTENER] Updated - Auto Funding: ' + state);
+            }).catch(e => console.error('❌ Error updating listener settings:', e));
+        }
+
         // Initialize settings from backend on page load
         async function initializeSettings() {
             try {
-                const resp = await fetch('/api/migration-settings');
-                const settings = await resp.json();
+                // Load migration settings
+                const respMig = await fetch('/api/migration-settings');
+                const migSettings = await respMig.json();
 
-                tokenHistoryEnabled = settings.token_history_check;
-                clusteringEnabled = settings.creator_history_check;
+                tokenHistoryEnabled = migSettings.token_history_check;
+                clusteringEnabled = migSettings.creator_history_check;
 
-                // Update toggle switch states
+                // Load listener settings
+                const respListener = await fetch('/api/listener-settings');
+                const listenerSettings = await respListener.json();
+
+                listenLaunchesEnabled = listenerSettings.listen_to_launches;
+                priceTrackingEnabled = listenerSettings.listen_to_price_updates;
+                autoFundingEnabled = listenerSettings.auto_extract_funding;
+
+                // Update migration toggle switch states
                 const tokenHistoryToggle = document.getElementById('tokenHistoryToggle');
                 const tokenHistoryStatus = document.getElementById('tokenHistoryStatus');
                 const clusteringToggle = document.getElementById('clusteringToggle');
@@ -1369,10 +1478,34 @@ HTML_TEMPLATE = """
                     clusteringStatus.classList.remove('active');
                 }
 
+                // Update listener toggle switch states
+                const listenLaunchesToggle = document.getElementById('listenLaunchesToggle');
+                const listenLaunchesStatus = document.getElementById('listenLaunchesStatus');
+                const priceTrackingToggle = document.getElementById('priceTrackingToggle');
+                const priceTrackingStatus = document.getElementById('priceTrackingStatus');
+                const autoFundingToggle = document.getElementById('autoFundingToggle');
+                const autoFundingStatus = document.getElementById('autoFundingStatus');
+
+                if (!listenLaunchesEnabled) {
+                    listenLaunchesToggle.classList.remove('active');
+                    listenLaunchesStatus.classList.remove('active');
+                }
+                if (!priceTrackingEnabled) {
+                    priceTrackingToggle.classList.remove('active');
+                    priceTrackingStatus.classList.remove('active');
+                }
+                if (!autoFundingEnabled) {
+                    autoFundingToggle.classList.remove('active');
+                    autoFundingStatus.classList.remove('active');
+                }
+
                 const historyState = tokenHistoryEnabled ? '✅ ON' : '❌ OFF';
                 const analysisState = clusteringEnabled ? '✅ ON' : '❌ OFF';
-                console.log('📋 [SETTINGS LOADED] Token History: ' + historyState + ' | Creator Analysis: ' + analysisState);
-                console.log('Full settings:', settings);
+                const launchState = listenLaunchesEnabled ? '✅ ON' : '❌ OFF';
+                const priceState = priceTrackingEnabled ? '✅ ON' : '❌ OFF';
+                const fundingState = autoFundingEnabled ? '✅ ON' : '❌ OFF';
+                console.log('📋 [SETTINGS LOADED] Migration - Token History: ' + historyState + ' | Creator Analysis: ' + analysisState);
+                console.log('📋 [SETTINGS LOADED] Listener - Launches: ' + launchState + ' | Price Tracking: ' + priceState + ' | Auto Funding: ' + fundingState);
             } catch (e) {
                 console.error('❌ Error loading settings:', e);
             }
@@ -2321,6 +2454,65 @@ def api_cex_wallets():
     
     except Exception as e:
         print(f"[CEX_API] Error: {e}", flush=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/listener-settings', methods=['GET', 'POST'])
+def api_listener_settings():
+    """Get or update listener settings (launch listening, price tracking, etc.)"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        if request.method == 'POST':
+            data = request.json or {}
+            changes = []
+
+            # Update settings in database
+            for key, value in data.items():
+                if key in ['listen_to_launches', 'listen_to_price_updates', 'auto_extract_funding']:
+                    old_val = None
+                    try:
+                        cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", (key,))
+                        row = cursor.fetchone()
+                        if row:
+                            old_val = row['setting_value'] == 'true'
+                    except:
+                        pass
+
+                    new_val = 'true' if value else 'false'
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO listener_settings
+                        (setting_key, setting_value, last_updated)
+                        VALUES (?, ?, CURRENT_TIMESTAMP)
+                    """, (key, new_val))
+
+                    if old_val is not None and old_val != value:
+                        status = '✅ ON' if value else '❌ OFF'
+                        changes.append(f"{key}: {status}")
+
+            conn.commit()
+
+            if changes:
+                for change in changes:
+                    print(f"[LISTENER] TOGGLED - {change}", flush=True)
+
+            # Get current settings
+            cursor.execute("SELECT setting_key, setting_value FROM listener_settings")
+            settings = {row['setting_key']: row['setting_value'] == 'true' for row in cursor.fetchall()}
+
+            conn.close()
+            return jsonify({'status': 'updated', 'settings': settings})
+
+        else:  # GET
+            cursor.execute("SELECT setting_key, setting_value FROM listener_settings")
+            settings = {row['setting_key']: row['setting_value'] == 'true' for row in cursor.fetchall()}
+            conn.close()
+            return jsonify(settings)
+
+    except Exception as e:
+        print(f"[LISTENER_API] Error: {e}", flush=True)
         return jsonify({'error': str(e)}), 500
 
 

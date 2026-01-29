@@ -25,8 +25,24 @@ from dotenv import load_dotenv
 
 # Import settings checker (will be imported dynamically when needed)
 def get_migration_setting(key: str, default=True) -> bool:
-    """Get a migration setting from file (default implementation)"""
+    """Get a migration setting from file or database"""
     try:
+        # Try database first (listener_settings table)
+        import sqlite3
+        if key in ['listen_to_launches', 'listen_to_price_updates', 'auto_extract_funding']:
+            conn = sqlite3.connect('pumpswap_tokens.db', timeout=5)
+            cursor = conn.cursor()
+            try:
+                cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", (key,))
+                row = cursor.fetchone()
+                if row:
+                    conn.close()
+                    return row[0] == 'true'
+            except:
+                pass
+            conn.close()
+
+        # Fall back to migration_settings.json for migration-specific settings
         import json
         import os
         settings_file = "migration_settings.json"
@@ -1578,6 +1594,11 @@ class PumpFunCurveListener:
 
                                 # Check if this is a migration
                                 if self._is_migration_transaction(logs):
+                                    # Check if listening to launches is enabled
+                                    if not get_migration_setting('listen_to_launches', True):
+                                        print(f"[WEBSOCKET] ⏸ Migration detected but launch listening disabled: {signature}", flush=True)
+                                        continue
+
                                     self.websocket_migration_count += 1
                                     print(f"[WEBSOCKET] 🚨 Migration #{self.websocket_migration_count} detected: {signature}", flush=True)
                                     asyncio.create_task(self.handle_migration(signature, logs))

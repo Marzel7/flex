@@ -90,10 +90,14 @@ class RealTimeCreatorFundingExtractor:
                 sig = sig_info["signature"]
                 block_time = sig_info.get("blockTime", 0)
 
-                # Stop if we've gone past the target time
-                if block_time and block_time < until_timestamp:
-                    return signatures
+                # API returns signatures newest-to-oldest
+                # We want all signatures BEFORE the target time (for pre-migration funding)
+                # Skip anything at or after the target time
+                if block_time and block_time >= until_timestamp:
+                    # Still in the post-migration period, skip
+                    continue
 
+                # This signature is before target time, include it
                 signatures.append((sig, block_time))
 
             # If we got fewer than requested, we've reached the end

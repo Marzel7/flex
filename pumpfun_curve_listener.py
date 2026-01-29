@@ -1361,17 +1361,17 @@ class PumpFunCurveListener:
         except Exception as e:
             print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
 
-    def _update_token_entry_with_creator(self, mint: str, creator: str, created_at: str):
-        """Update minimal token entry with creator and creation date"""
+    def _update_token_entry_with_creator(self, mint: str, creator: str, created_at: str, bonding_curve_pda: str = None):
+        """Update minimal token entry with creator, creation date, and bonding curve"""
         try:
             conn = sqlite3.connect(DB_PATH, timeout=30)
             cursor = conn.cursor()
 
             cursor.execute("""
                 UPDATE token_analysis
-                SET earliest_tx_creator = ?, created_at = ?
+                SET earliest_tx_creator = ?, created_at = ?, bonding_curve_pda = ?
                 WHERE mint = ?
-            """, (creator, created_at, mint))
+            """, (creator, created_at, bonding_curve_pda, mint))
 
             conn.commit()
             conn.close()
@@ -1464,9 +1464,10 @@ class PumpFunCurveListener:
 
                 if earliest_creator:
                     provenance_status = provenance.get('status', 'unknown') if provenance else 'unknown'
+                    bonding_curve_pda = provenance.get('bonding_curve_pda') if provenance else None
                     print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status})", flush=True)
-                    # Update minimal entry with creator and date
-                    self._update_token_entry_with_creator(mint, earliest_creator, created_at)
+                    # Update minimal entry with creator, date, and bonding curve
+                    self._update_token_entry_with_creator(mint, earliest_creator, created_at, bonding_curve_pda)
             except Exception as creator_err:
                 print(f"[CREATOR] ⚠ Could not extract creator: {creator_err}", flush=True)
 

@@ -1007,7 +1007,7 @@ class PostMigrationAnalyzer:
 
                             if validation['is_pumpfun_create']:
                                 # Found a valid Pump.fun create!
-                                print(f"[CREATOR] ✅ Found Pump.fun CREATE tx: {sig[:20]}...", flush=True)
+                                print(f"[CREATOR] ✅ Found Pump.fun CREATE tx: {sig}", flush=True)
                                 earliest_create_sig = sig
                                 earliest_create_tx = tx
                                 earliest_create_validation = validation

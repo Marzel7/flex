@@ -585,6 +585,132 @@ HTML_TEMPLATE = """
             opacity: 0.8;
         }
 
+        /* Creator stats grid */
+        .creator-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #00d4ff;
+            text-align: center;
+        }
+
+        .stat-box label {
+            display: block;
+            color: #a0a0a0;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .stat-box span {
+            display: block;
+            color: #00d4ff;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Tokens launched table */
+        .tokens-launched-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .tokens-launched-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .tokens-launched-table th {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            text-align: left;
+            font-size: 12px;
+            color: #a0a0a0;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .tokens-launched-table td {
+            padding: 10px;
+            font-size: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .tokens-launched-table tr:hover {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        /* Top funders table */
+        .top-funders-container {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .top-funders-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .top-funders-table th {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            text-align: left;
+            font-size: 12px;
+            color: #a0a0a0;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .top-funders-table td {
+            padding: 10px;
+            font-size: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Cluster info */
+        .cluster-info {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .cluster-info p {
+            margin: 5px 0;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        /* CEX badge */
+        .cex-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        /* CREATE tx link */
+        .create-tx-link {
+            color: #00d4ff;
+            text-decoration: none;
+            font-family: monospace;
+        }
+
+        .create-tx-link:hover {
+            text-decoration: underline;
+        }
+
         .controls-panel {
             background: rgba(0, 20, 40, 0.8);
             border: 1px solid rgba(0, 212, 255, 0.3);
@@ -735,6 +861,80 @@ HTML_TEMPLATE = """
                 <a id="dextoolsLink" href="#" target="_blank" style="color: #00d4ff; margin-top: 10px; display: inline-block;">
                     → View on DexTools
                 </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Creator Details Modal -->
+    <div id="creatorModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCreatorDetails()">&times;</span>
+            <h2>Creator Details - <span id="modalCreator" style="font-family: monospace; font-size: 14px;"></span></h2>
+
+            <!-- Creator Stats Summary -->
+            <div class="creator-stats-grid">
+                <div class="stat-box">
+                    <label>Total Tokens</label>
+                    <span id="creatorTotalTokens">—</span>
+                </div>
+                <div class="stat-box">
+                    <label>Funding Received</label>
+                    <span id="creatorTotalFunding">—</span>
+                </div>
+                <div class="stat-box">
+                    <label>Funders</label>
+                    <span id="creatorTotalFunders">—</span>
+                </div>
+                <div class="stat-box">
+                    <label>Network Size</label>
+                    <span id="creatorNetworkSize">—</span>
+                </div>
+                <div class="stat-box">
+                    <label>Status</label>
+                    <span id="creatorBlocklistStatus">—</span>
+                </div>
+            </div>
+
+            <!-- Tokens Launched -->
+            <h3>Tokens Launched</h3>
+            <div class="tokens-launched-container">
+                <table class="tokens-launched-table">
+                    <thead>
+                        <tr>
+                            <th>Token Mint</th>
+                            <th>Created</th>
+                            <th>Risk</th>
+                            <th>Market Cap</th>
+                            <th>CREATE Tx</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tokensLaunchedBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Top Funders -->
+            <h3>Top Funders</h3>
+            <div class="top-funders-container">
+                <table class="top-funders-table">
+                    <thead>
+                        <tr>
+                            <th>Funder Address</th>
+                            <th>Amount (SOL)</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topFundersBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Wallet Cluster -->
+            <h3>Wallet Network</h3>
+            <div class="cluster-info" id="clusterInfo">
+                <!-- Populated by JavaScript -->
             </div>
         </div>
     </div>
@@ -894,12 +1094,15 @@ HTML_TEMPLATE = """
 
                             const creatorShort = token.creator ? token.creator.substring(0, 8) + '...' : 'N/A';
                             const creatorTitle = token.creator || 'Unknown';
+                            const creatorElement = token.creator
+                                ? `<a href="#" onclick="showCreatorDetails('${token.creator}'); return false;" class="mint-link creator-address-link" title="Click for creator details">${creatorTitle}</a>`
+                                : '<span style="color: #a0a0a0;">Unknown</span>';
 
                             return `
                                 <tr>
                                     <td class="mint-with-creator">
                                         <a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="Click for metrics">${token.mint}</a>
-                                        <div class="creator-address-embedded" title="${creatorTitle}">${creatorTitle}</div>
+                                        <div class="creator-address-embedded">${creatorElement}</div>
                                     </td>
                                     <td class="creator-tags">${tags.join(' ')}</td>
                                     <td>
@@ -1232,11 +1435,107 @@ HTML_TEMPLATE = """
             document.getElementById('metricsModal').style.display = 'none';
         }
 
+        async function showCreatorDetails(creatorAddress) {
+            // Cancel ongoing price fetches to free up bandwidth for modal
+            priceLoadController.abort();
+            priceLoadController = new AbortController();
+
+            const modal = document.getElementById('creatorModal');
+            document.getElementById('modalCreator').textContent = creatorAddress;
+
+            try {
+                const response = await fetch(`/api/creator-details/${creatorAddress}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    alert('Creator details not found');
+                    return;
+                }
+
+                // Populate creator stats
+                document.getElementById('creatorTotalTokens').textContent = data.tokens.length;
+                document.getElementById('creatorTotalFunding').textContent = data.funding.total_sol.toFixed(2) + ' SOL';
+                document.getElementById('creatorTotalFunders').textContent = data.funding.total_funders;
+                document.getElementById('creatorNetworkSize').textContent = data.cluster.total_wallets + ' wallets';
+                document.getElementById('creatorBlocklistStatus').textContent = data.is_blocked ? '🚫 BLOCKED' : '✅ Clean';
+                document.getElementById('creatorBlocklistStatus').style.color = data.is_blocked ? '#ef4444' : '#4ade80';
+
+                // Populate tokens launched table
+                const tokensBody = document.getElementById('tokensLaunchedBody');
+                if (data.tokens.length > 0) {
+                    tokensBody.innerHTML = data.tokens.map(token => {
+                        const createTxShort = token.create_tx_signature ? token.create_tx_signature.substring(0, 16) + '...' : 'N/A';
+                        const createTxLink = token.create_tx_signature
+                            ? `<a href="https://solscan.io/tx/${token.create_tx_signature}" target="_blank" class="create-tx-link" title="${token.create_tx_signature}">${createTxShort}</a>`
+                            : 'N/A';
+
+                        return `
+                            <tr>
+                                <td><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="${token.mint}">${token.mint.substring(0, 16)}...</a></td>
+                                <td>${formatDate(token.created_at)}</td>
+                                <td><span class="risk-score risk-${token.risk_level ? token.risk_level.toLowerCase() : 'medium'}">${token.risk_level || 'N/A'}</span></td>
+                                <td>${formatMarketCap(token.market_cap_current)}</td>
+                                <td>${createTxLink}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    tokensBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #a0a0a0;">No tokens launched yet</td></tr>';
+                }
+
+                // Populate top funders table
+                const fundersBody = document.getElementById('topFundersBody');
+                if (data.top_funders && data.top_funders.length > 0) {
+                    fundersBody.innerHTML = data.top_funders.map(funder => {
+                        const cexBadge = funder.is_cex ? `<span class="cex-badge">${funder.cex_exchange} ${funder.cex_type}</span>` : '';
+                        return `
+                            <tr>
+                                <td title="${funder.funder_address}">${funder.funder_address.substring(0, 16)}...${cexBadge}</td>
+                                <td>${funder.amount_sol.toFixed(2)} SOL</td>
+                                <td>${funder.is_cex ? 'CEX' : 'Wallet'}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    fundersBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0a0a0;">No funding data available</td></tr>';
+                }
+
+                // Populate cluster info
+                const clusterInfo = document.getElementById('clusterInfo');
+                if (data.cluster.total_wallets > 0) {
+                    clusterInfo.innerHTML = `
+                        <p><strong>Total Network Wallets:</strong> ${data.cluster.total_wallets}</p>
+                        <p><strong>Direct Connections (Hop 0):</strong> ${data.cluster.hop0}</p>
+                        <p><strong>Secondary Connections (Hop 1):</strong> ${data.cluster.hop1}</p>
+                        <p><strong>Tertiary Connections (Hop 2):</strong> ${data.cluster.hop2}</p>
+                    `;
+                } else {
+                    clusterInfo.innerHTML = '<p style="color: #a0a0a0;">No wallet network data available</p>';
+                }
+
+                // Show modal
+                modal.style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading creator details:', error);
+                alert('Failed to load creator details');
+            }
+        }
+
+        function closeCreatorDetails() {
+            document.getElementById('creatorModal').style.display = 'none';
+        }
+
         // Close modal when clicking outside
         window.onclick = function(event) {
-            const modal = document.getElementById('metricsModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
+            const metricsModal = document.getElementById('metricsModal');
+            const creatorModal = document.getElementById('creatorModal');
+
+            if (event.target === metricsModal) {
+                metricsModal.style.display = 'none';
+            }
+            if (event.target === creatorModal) {
+                creatorModal.style.display = 'none';
             }
         }
 
@@ -1244,6 +1543,7 @@ HTML_TEMPLATE = """
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 closeTokenMetrics();
+                closeCreatorDetails();
             }
         });
     </script>
@@ -1344,6 +1644,100 @@ def api_token_metrics(token_mint: str):
             'coverage': row['coverage'] if row['coverage'] else 0
         })
         return response
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/creator-details/<creator_address>')
+def api_creator_details(creator_address: str):
+    """Get detailed information about a creator"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # 1. Get all tokens launched by this creator
+        cursor.execute("""
+            SELECT
+                mint,
+                created_at,
+                bonding_curve_pda,
+                create_tx_signature,
+                rug_probability,
+                risk_level,
+                market_cap_current,
+                market_cap_highest,
+                creator_is_blocked
+            FROM token_analysis
+            WHERE earliest_tx_creator = ?
+            ORDER BY created_at DESC
+        """, (creator_address,))
+        tokens = [dict(row) for row in cursor.fetchall()]
+
+        # 2. Get funding data (total inbound SOL, funder count, CEX funders)
+        cursor.execute("""
+            SELECT
+                COUNT(DISTINCT funder_address) as funder_count,
+                SUM(amount_sol) as total_sol,
+                SUM(CASE WHEN is_cex = 1 THEN 1 ELSE 0 END) as cex_funder_count
+            FROM creator_funders
+            WHERE creator_address = ?
+        """, (creator_address,))
+        funding_row = cursor.fetchone()
+        funding = {
+            'total_funders': funding_row['funder_count'] if funding_row else 0,
+            'total_sol': funding_row['total_sol'] if funding_row else 0,
+            'cex_funders': funding_row['cex_funder_count'] if funding_row else 0
+        }
+
+        # 3. Get top funders (with CEX info)
+        cursor.execute("""
+            SELECT
+                funder_address,
+                amount_sol,
+                is_cex,
+                cex_exchange,
+                cex_type
+            FROM creator_funders
+            WHERE creator_address = ?
+            ORDER BY amount_sol DESC
+            LIMIT 5
+        """, (creator_address,))
+        top_funders = [dict(row) for row in cursor.fetchall()]
+
+        # 4. Get wallet cluster size
+        cursor.execute("""
+            SELECT
+                COUNT(*) as total_wallets,
+                SUM(CASE WHEN hop = 0 THEN 1 ELSE 0 END) as hop0_count,
+                SUM(CASE WHEN hop = 1 THEN 1 ELSE 0 END) as hop1_count,
+                SUM(CASE WHEN hop = 2 THEN 1 ELSE 0 END) as hop2_count
+            FROM wallet_cluster_nodes
+            WHERE root_creator = ?
+        """, (creator_address,))
+        cluster_row = cursor.fetchone()
+        cluster = {
+            'total_wallets': cluster_row['total_wallets'] if cluster_row else 0,
+            'hop0': cluster_row['hop0_count'] if cluster_row else 0,
+            'hop1': cluster_row['hop1_count'] if cluster_row else 0,
+            'hop2': cluster_row['hop2_count'] if cluster_row else 0
+        }
+
+        # 5. Check blocklist status
+        is_blocked = bool(tokens[0]['creator_is_blocked']) if tokens else False
+
+        conn.close()
+
+        return jsonify({
+            'creator_address': creator_address,
+            'tokens': tokens,
+            'funding': funding,
+            'top_funders': top_funders,
+            'cluster': cluster,
+            'is_blocked': is_blocked
+        })
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

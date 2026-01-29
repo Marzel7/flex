@@ -866,6 +866,11 @@ class PostMigrationAnalyzer:
                 try:
                     while pages < max_pages:
                         pages += 1
+
+                        # Rate limiting: Small delay between pages to avoid public RPC rate limits
+                        if pages > 1:
+                            await asyncio.sleep(0.1)
+
                         cfg = {"limit": page_limit}
                         if before:
                             cfg["before"] = before
@@ -950,6 +955,11 @@ class PostMigrationAnalyzer:
 
                 while pages_checked < max_pages:
                     pages_checked += 1
+
+                    # Rate limiting: Small delay between pages to avoid public RPC rate limits
+                    if pages_checked > 1:
+                        await asyncio.sleep(0.1)
+
                     payload = {
                         "jsonrpc": "2.0",
                         "id": 1,

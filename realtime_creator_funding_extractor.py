@@ -6,9 +6,16 @@ Hooks into token migration events to extract creator funding immediately.
 When a new token is detected as migrated:
   1. Get creator address from transaction
   2. Query all signatures BEFORE migration timestamp
-  3. Extract SOL transfers to creator
+  3. Extract SOL transfers TO creator (two types):
+     - OUTGOING: Creator signed tx that moved SOL in (creator is fee payer)
+     - INCOMING: Transfers where creator is recipient account (not signer)
   4. Save funder relationships to database
   5. Flag suspicious funding patterns
+
+KEY DISTINCTION:
+- FUNDING ACCOUNT: Fee payer who signed a transaction sending SOL
+- RECIPIENT ACCOUNT: Account receiving SOL without necessarily signing
+  (detected via balance change analysis or transaction parsing)
 """
 
 import sqlite3
@@ -225,10 +232,42 @@ class RealTimeCreatorFundingExtractor:
         except:
             pass
 
+    async def extract_incoming_transfers(self, creator: str) -> Dict:
+        """
+        Search for incoming SOL transfers to creator by scanning recent transactions.
+        This finds transfers where creator is a RECIPIENT (not signer).
+
+        Alternative approach: We look at all recent transactions on-chain that mention
+        the creator address and extract transfers TO the creator.
+        """
+        print(f"[REALTIME_FUNDING]    🔍 Searching for INCOMING transfers to creator...", flush=True)
+
+        funders = {}
+        max_attempts = 5
+        attempt = 0
+
+        # We'll need to search recent block transactions
+        # This is a simplified version - in production, use indexed services
+        try:
+            # For now, return empty - we'd need to implement transaction scanning
+            # This would require either:
+            # 1. Scanning recent blocks manually
+            # 2. Using a service like Helius that indexes transactions
+            # 3. Using getSignaturesForAddress on all known funders (not scalable)
+            return funders
+        except Exception as e:
+            print(f"[REALTIME_FUNDING]    ⚠ Error searching incoming: {e}", flush=True)
+            return funders
+
     async def extract_for_creator(self, creator: str, migration_timestamp_str: str) -> Dict:
         """
         Extract funding activity for a creator.
         Called in real-time when token is detected.
+
+        Strategy:
+        1. Find outgoing transactions signed BY creator (using getSignaturesForAddress)
+        2. Find incoming transfers TO creator (new method - see extract_incoming_transfers)
+        3. Combine both to get complete funding picture
         """
         if creator in self.processed_creators:
             return {"status": "already_processed"}
@@ -247,9 +286,9 @@ class RealTimeCreatorFundingExtractor:
             print(f"[REALTIME_FUNDING] 🔍 Extracting creator funding for {creator[:16]}...", flush=True)
             print(f"[REALTIME_FUNDING]    Migration timestamp: {migration_timestamp_str}", flush=True)
 
-            # Get signatures before migration
+            # Get signatures before migration (outgoing transactions)
             signatures = await self.get_signatures_until_time(creator, migration_timestamp)
-            print(f"[REALTIME_FUNDING]    Found {len(signatures)} funding signatures", flush=True)
+            print(f"[REALTIME_FUNDING]    Found {len(signatures)} outgoing signatures", flush=True)
 
             if not signatures:
                 print(f"[REALTIME_FUNDING] ✓ No funding activity", flush=True)

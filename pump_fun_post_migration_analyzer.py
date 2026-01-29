@@ -1409,12 +1409,18 @@ class PostMigrationAnalyzer:
                     provenance['is_pumpfun_create']):
                     provenance['status'] = 'confirmed'
                     print(f"[CREATOR] ✅ CONFIRMED EARLIEST: {creator}", flush=True)
+                    print(f"[CREATOR] ━━ 6 VALIDATION CRITERIA ━━", flush=True)
+                    print(f"[CREATOR]   ✅ status = '{provenance['status']}'", flush=True)
+                    print(f"[CREATOR]   ✅ reached_end = {provenance['reached_end']}", flush=True)
+                    print(f"[CREATOR]   ✅ is_pumpfun_create = {provenance['is_pumpfun_create']}", flush=True)
+                    print(f"[CREATOR]   ✅ pumpfun_program_found = {provenance['pumpfun_program_found']}", flush=True)
+                    print(f"[CREATOR]   ✅ mint_in_accounts = {provenance['mint_in_accounts']}", flush=True)
+                    print(f"[CREATOR]   ✅ earliest_sig exists = {provenance['earliest_sig'] is not None}", flush=True)
+                    print(f"[CREATOR] ━━ PROVENANCE DATA ━━", flush=True)
                     print(f"[CREATOR]   Source: bonding_curve (extracted from creation tx)", flush=True)
-                    print(f"[CREATOR]   Reached end: {provenance['reached_end']}", flush=True)
-                    print(f"[CREATOR]   Pump.fun program found: {provenance['pumpfun_program_found']}", flush=True)
                     print(f"[CREATOR]   Slot: {provenance['slot']}, BlockTime: {provenance['blockTime']}", flush=True)
-                    print(f"[CREATOR]   Bonding Curve: {bonding_curve_pda}", flush=True)
-                    print(f"[CREATOR]   Earliest Sig: {earliest_sig}", flush=True)
+                    print(f"[CREATOR]   Bonding Curve: {provenance['bonding_curve_pda']}", flush=True)
+                    print(f"[CREATOR]   Earliest Sig: {provenance['earliest_sig']}", flush=True)
                 else:
                     provenance['status'] = 'unproven'
                     if not provenance['reached_end']:
@@ -1422,6 +1428,10 @@ class PostMigrationAnalyzer:
                     if not provenance['is_pumpfun_create']:
                         provenance['validation_notes'].append("transaction not a valid Pump.fun create")
                     print(f"[CREATOR] ⚠ UNPROVEN: {creator} ({', '.join(provenance['validation_notes'])})", flush=True)
+                    print(f"[CREATOR] Criteria status:", flush=True)
+                    print(f"[CREATOR]   status = '{provenance['status']}'", flush=True)
+                    print(f"[CREATOR]   reached_end = {provenance['reached_end']}", flush=True)
+                    print(f"[CREATOR]   is_pumpfun_create = {provenance['is_pumpfun_create']}", flush=True)
             else:
                 print(f"[CREATOR] ❌ No valid signers found", flush=True)
                 provenance['validation_notes'].append("No valid signers")

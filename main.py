@@ -1497,9 +1497,11 @@ HTML_TEMPLATE = """
                 if (data.tokens.length > 0) {
                     tokensBody.innerHTML = data.tokens.map(token => {
                         const createTxShort = token.create_tx_signature ? token.create_tx_signature.substring(0, 16) + '...' : 'N/A';
-                        const createTxLink = token.create_tx_signature
+                        const createTxCell = token.create_tx_signature
                             ? `<a href="https://solscan.io/tx/${token.create_tx_signature}" target="_blank" class="create-tx-link" title="${token.create_tx_signature}">${createTxShort}</a>
-                                <button onclick="viewTransaction('${token.create_tx_signature}'); return false;" style="margin-left: 8px; background: rgba(0, 212, 255, 0.2); color: #00d4ff; border: 1px solid #00d4ff; padding: 2px 8px; border-radius: 3px; cursor: pointer; font-size: 10px;">View</button>`
+                                <div style="display: inline-block; margin-left: 8px;">
+                                    <button onclick="viewTransaction('${token.create_tx_signature}')" style="background: rgba(0, 212, 255, 0.2); color: #00d4ff; border: 1px solid #00d4ff; padding: 3px 10px; border-radius: 3px; cursor: pointer; font-size: 11px; font-family: monospace;">View Raw</button>
+                                </div>`
                             : 'N/A';
 
                         return `
@@ -1508,7 +1510,7 @@ HTML_TEMPLATE = """
                                 <td>${formatDate(token.created_at)}</td>
                                 <td><span class="risk-score risk-${token.risk_level ? token.risk_level.toLowerCase() : 'medium'}">${token.risk_level || 'N/A'}</span></td>
                                 <td>${formatMarketCap(token.market_cap_current)}</td>
-                                <td>${createTxLink}</td>
+                                <td>${createTxCell}</td>
                             </tr>
                         `;
                     }).join('');
@@ -1556,6 +1558,17 @@ HTML_TEMPLATE = """
         }
 
         async function viewTransaction(signature) {
+            // Validate signature
+            if (!signature) {
+                alert('No transaction signature provided');
+                return;
+            }
+
+            // Show loading state
+            document.getElementById('txViewerModal').style.display = 'block';
+            document.getElementById('txViewerAccountKeys').textContent = 'Loading transaction...';
+            document.getElementById('txViewerFeePayer').textContent = 'Fetching...';
+
             // Fetch transaction details with jsonParsed encoding
             const payload = {
                 "jsonrpc": "2.0",
@@ -1568,16 +1581,30 @@ HTML_TEMPLATE = """
                 const response = await fetch('https://api.mainnet-beta.solana.com', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    timeout: 30000
                 });
                 const data = await response.json();
 
+                // Check for RPC errors
+                if (data.error) {
+                    document.getElementById('txViewerAccountKeys').textContent = `Error: ${data.error.message || 'Unknown error'}`;
+                    return;
+                }
+
                 if (!data.result) {
-                    alert('Transaction not found');
+                    document.getElementById('txViewerAccountKeys').textContent = 'Transaction not found on blockchain';
                     return;
                 }
 
                 const tx = data.result;
+
+                // Safely access nested properties
+                if (!tx.transaction || !tx.transaction.message) {
+                    document.getElementById('txViewerAccountKeys').textContent = 'Invalid transaction format';
+                    return;
+                }
+
                 const message = tx.transaction.message;
                 const accountKeys = message.accountKeys || [];
 
@@ -1586,19 +1613,33 @@ HTML_TEMPLATE = """
                 document.getElementById('txSolscanLink').href = `https://solscan.io/tx/${signature}`;
                 document.getElementById('txViewerAccountKeys').textContent = JSON.stringify(accountKeys, null, 2);
 
-                // Extract and highlight fee payer (first signer)
+                // Extract and highlight fee payer (first account, must be signer)
                 let feePayer = '—';
+                let feePayerValid = false;
                 if (accountKeys.length > 0) {
                     const firstKey = accountKeys[0];
-                    feePayer = typeof firstKey === 'string' ? firstKey : (firstKey.pubkey || '—');
+                    if (typeof firstKey === 'string') {
+                        feePayer = firstKey;
+                        feePayerValid = true;
+                    } else if (firstKey.pubkey) {
+                        feePayer = firstKey.pubkey;
+                        feePayerValid = firstKey.signer === true;
+                    }
                 }
-                document.getElementById('txViewerFeePayer').textContent = feePayer;
 
-                // Show modal
-                document.getElementById('txViewerModal').style.display = 'block';
+                // Display fee payer with validation indicator
+                const feePayerElement = document.getElementById('txViewerFeePayer');
+                if (feePayerValid) {
+                    feePayerElement.textContent = feePayer;
+                    feePayerElement.parentElement.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+                } else {
+                    feePayerElement.textContent = feePayer;
+                    feePayerElement.parentElement.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                }
+
             } catch (error) {
                 console.error('Error fetching transaction:', error);
-                alert('Failed to fetch transaction details');
+                document.getElementById('txViewerAccountKeys').textContent = `Error: ${error.message || 'Failed to fetch transaction'}`;
             }
         }
 

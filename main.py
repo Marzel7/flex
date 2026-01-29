@@ -831,25 +831,11 @@ HTML_TEMPLATE = """
             </div>
             <div style="border-top: 1px solid rgba(0, 212, 255, 0.3); margin: 12px 0; padding-top: 12px;">
                 <div class="control-group">
-                    <span class="control-label">Listen to Launches</span>
+                    <span class="control-label">Token Launch</span>
                     <div class="toggle-switch active" id="listenLaunchesToggle" onclick="toggleListenLaunches()">
                         <div class="toggle-slider"></div>
                     </div>
                     <span class="status-indicator active" id="listenLaunchesStatus"></span>
-                </div>
-                <div class="control-group">
-                    <span class="control-label">Price Tracking</span>
-                    <div class="toggle-switch active" id="priceTrackingToggle" onclick="togglePriceTracking()">
-                        <div class="toggle-slider"></div>
-                    </div>
-                    <span class="status-indicator active" id="priceTrackingStatus"></span>
-                </div>
-                <div class="control-group">
-                    <span class="control-label">Auto Funding Extraction</span>
-                    <div class="toggle-switch active" id="autoFundingToggle" onclick="toggleAutoFunding()">
-                        <div class="toggle-slider"></div>
-                    </div>
-                    <span class="status-indicator active" id="autoFundingStatus"></span>
                 </div>
             </div>
         </div>
@@ -1370,8 +1356,6 @@ HTML_TEMPLATE = """
 
         // Listener feature toggles
         let listenLaunchesEnabled = true;
-        let priceTrackingEnabled = true;
-        let autoFundingEnabled = true;
 
         function toggleListenLaunches() {
             listenLaunchesEnabled = !listenLaunchesEnabled;
@@ -1381,67 +1365,17 @@ HTML_TEMPLATE = """
             status.classList.toggle('active');
 
             const state = listenLaunchesEnabled ? 'ENABLED' : 'DISABLED';
-            console.log('🚀 [LISTENER] Launch Listening: ' + state);
+            console.log('🚀 [LISTENER] Token Launch: ' + state);
 
             // Send to backend
             fetch('/api/listener-settings', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    listen_to_launches: listenLaunchesEnabled,
-                    listen_to_price_updates: priceTrackingEnabled,
-                    auto_extract_funding: autoFundingEnabled
+                    listen_to_launches: listenLaunchesEnabled
                 })
             }).then(resp => resp.json()).then(data => {
                 console.log('✅ [LISTENER] Updated - Launches: ' + state);
-            }).catch(e => console.error('❌ Error updating listener settings:', e));
-        }
-
-        function togglePriceTracking() {
-            priceTrackingEnabled = !priceTrackingEnabled;
-            const toggle = document.getElementById('priceTrackingToggle');
-            const status = document.getElementById('priceTrackingStatus');
-            toggle.classList.toggle('active');
-            status.classList.toggle('active');
-
-            const state = priceTrackingEnabled ? 'ENABLED' : 'DISABLED';
-            console.log('📊 [LISTENER] Price Tracking: ' + state);
-
-            // Send to backend
-            fetch('/api/listener-settings', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    listen_to_launches: listenLaunchesEnabled,
-                    listen_to_price_updates: priceTrackingEnabled,
-                    auto_extract_funding: autoFundingEnabled
-                })
-            }).then(resp => resp.json()).then(data => {
-                console.log('✅ [LISTENER] Updated - Price Tracking: ' + state);
-            }).catch(e => console.error('❌ Error updating listener settings:', e));
-        }
-
-        function toggleAutoFunding() {
-            autoFundingEnabled = !autoFundingEnabled;
-            const toggle = document.getElementById('autoFundingToggle');
-            const status = document.getElementById('autoFundingStatus');
-            toggle.classList.toggle('active');
-            status.classList.toggle('active');
-
-            const state = autoFundingEnabled ? 'ENABLED' : 'DISABLED';
-            console.log('💰 [LISTENER] Auto Funding: ' + state);
-
-            // Send to backend
-            fetch('/api/listener-settings', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    listen_to_launches: listenLaunchesEnabled,
-                    listen_to_price_updates: priceTrackingEnabled,
-                    auto_extract_funding: autoFundingEnabled
-                })
-            }).then(resp => resp.json()).then(data => {
-                console.log('✅ [LISTENER] Updated - Auto Funding: ' + state);
             }).catch(e => console.error('❌ Error updating listener settings:', e));
         }
 
@@ -1460,8 +1394,6 @@ HTML_TEMPLATE = """
                 const listenerSettings = await respListener.json();
 
                 listenLaunchesEnabled = listenerSettings.listen_to_launches;
-                priceTrackingEnabled = listenerSettings.listen_to_price_updates;
-                autoFundingEnabled = listenerSettings.auto_extract_funding;
 
                 // Update migration toggle switch states
                 const tokenHistoryToggle = document.getElementById('tokenHistoryToggle');
@@ -1481,31 +1413,17 @@ HTML_TEMPLATE = """
                 // Update listener toggle switch states
                 const listenLaunchesToggle = document.getElementById('listenLaunchesToggle');
                 const listenLaunchesStatus = document.getElementById('listenLaunchesStatus');
-                const priceTrackingToggle = document.getElementById('priceTrackingToggle');
-                const priceTrackingStatus = document.getElementById('priceTrackingStatus');
-                const autoFundingToggle = document.getElementById('autoFundingToggle');
-                const autoFundingStatus = document.getElementById('autoFundingStatus');
 
                 if (!listenLaunchesEnabled) {
                     listenLaunchesToggle.classList.remove('active');
                     listenLaunchesStatus.classList.remove('active');
                 }
-                if (!priceTrackingEnabled) {
-                    priceTrackingToggle.classList.remove('active');
-                    priceTrackingStatus.classList.remove('active');
-                }
-                if (!autoFundingEnabled) {
-                    autoFundingToggle.classList.remove('active');
-                    autoFundingStatus.classList.remove('active');
-                }
 
                 const historyState = tokenHistoryEnabled ? '✅ ON' : '❌ OFF';
                 const analysisState = clusteringEnabled ? '✅ ON' : '❌ OFF';
                 const launchState = listenLaunchesEnabled ? '✅ ON' : '❌ OFF';
-                const priceState = priceTrackingEnabled ? '✅ ON' : '❌ OFF';
-                const fundingState = autoFundingEnabled ? '✅ ON' : '❌ OFF';
                 console.log('📋 [SETTINGS LOADED] Migration - Token History: ' + historyState + ' | Creator Analysis: ' + analysisState);
-                console.log('📋 [SETTINGS LOADED] Listener - Launches: ' + launchState + ' | Price Tracking: ' + priceState + ' | Auto Funding: ' + fundingState);
+                console.log('📋 [SETTINGS LOADED] Listener - Token Launch: ' + launchState);
             } catch (e) {
                 console.error('❌ Error loading settings:', e);
             }
@@ -2459,7 +2377,7 @@ def api_cex_wallets():
 
 @app.route('/api/listener-settings', methods=['GET', 'POST'])
 def api_listener_settings():
-    """Get or update listener settings (launch listening, price tracking, etc.)"""
+    """Get or update listener settings (token launch listening)"""
     try:
         conn = sqlite3.connect(DB_PATH, timeout=30)
         conn.row_factory = sqlite3.Row
@@ -2467,49 +2385,45 @@ def api_listener_settings():
 
         if request.method == 'POST':
             data = request.json or {}
-            changes = []
 
-            # Update settings in database
-            for key, value in data.items():
-                if key in ['listen_to_launches', 'listen_to_price_updates', 'auto_extract_funding']:
-                    old_val = None
-                    try:
-                        cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", (key,))
-                        row = cursor.fetchone()
-                        if row:
-                            old_val = row['setting_value'] == 'true'
-                    except:
-                        pass
+            # Update listen_to_launches setting
+            if 'listen_to_launches' in data:
+                old_val = None
+                try:
+                    cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('listen_to_launches',))
+                    row = cursor.fetchone()
+                    if row:
+                        old_val = row['setting_value'] == 'true'
+                except:
+                    pass
 
-                    new_val = 'true' if value else 'false'
-                    cursor.execute("""
-                        INSERT OR REPLACE INTO listener_settings
-                        (setting_key, setting_value, last_updated)
-                        VALUES (?, ?, CURRENT_TIMESTAMP)
-                    """, (key, new_val))
+                new_val = 'true' if data['listen_to_launches'] else 'false'
+                cursor.execute("""
+                    INSERT OR REPLACE INTO listener_settings
+                    (setting_key, setting_value, last_updated)
+                    VALUES (?, ?, CURRENT_TIMESTAMP)
+                """, ('listen_to_launches', new_val))
 
-                    if old_val is not None and old_val != value:
-                        status = '✅ ON' if value else '❌ OFF'
-                        changes.append(f"{key}: {status}")
+                if old_val is not None and old_val != data['listen_to_launches']:
+                    status = '✅ ON' if data['listen_to_launches'] else '❌ OFF'
+                    print(f"[LISTENER] TOGGLED - Token Launch: {status}", flush=True)
 
             conn.commit()
 
-            if changes:
-                for change in changes:
-                    print(f"[LISTENER] TOGGLED - {change}", flush=True)
-
             # Get current settings
-            cursor.execute("SELECT setting_key, setting_value FROM listener_settings")
-            settings = {row['setting_key']: row['setting_value'] == 'true' for row in cursor.fetchall()}
+            cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('listen_to_launches',))
+            row = cursor.fetchone()
+            listen_launches = row['setting_value'] == 'true' if row else True
 
             conn.close()
-            return jsonify({'status': 'updated', 'settings': settings})
+            return jsonify({'status': 'updated', 'listen_to_launches': listen_launches})
 
         else:  # GET
-            cursor.execute("SELECT setting_key, setting_value FROM listener_settings")
-            settings = {row['setting_key']: row['setting_value'] == 'true' for row in cursor.fetchall()}
+            cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('listen_to_launches',))
+            row = cursor.fetchone()
+            listen_launches = row['setting_value'] == 'true' if row else True
             conn.close()
-            return jsonify(settings)
+            return jsonify({'listen_to_launches': listen_launches})
 
     except Exception as e:
         print(f"[LISTENER_API] Error: {e}", flush=True)

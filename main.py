@@ -1275,10 +1275,10 @@ HTML_TEMPLATE = """
                                         <div class="creator-address-embedded">${creatorElement}</div>
                                     </td>
                                     <td class="creator-tags"></td>
-                                    <td>
+                                    <td class="rug-flag">
                                     </td>
                                     <td>
-                                        <span class="risk-score ${getRiskClass(token.risk_level)}">${token.risk_level}</span>
+                                        <span class="risk-score ${getRiskClass(token.risk_level)}">${token.risk_level || '—'}</span>
                                     </td>
                                     <td>
                                         ${token.rug_probability !== null && token.rug_probability !== undefined ? (token.rug_probability * 100).toFixed(1) + '%' : '—'}

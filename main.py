@@ -1275,8 +1275,7 @@ HTML_TEMPLATE = """
                                         <div class="creator-address-embedded">${creatorElement}</div>
                                     </td>
                                     <td class="creator-tags"></td>
-                                    <td class="rug-flag">
-                                    </td>
+                                    <td class="rug-flag"></td>
                                     <td>
                                         <span class="risk-score ${getRiskClass(token.risk_level)}">${token.risk_level || '—'}</span>
                                     </td>

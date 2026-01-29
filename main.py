@@ -931,6 +931,23 @@ HTML_TEMPLATE = """
                 </table>
             </div>
 
+            <!-- Top Recipients (Outgoing Transfers) -->
+            <h3>Recipients (SOL Sent Out)</h3>
+            <div class="top-recipients-container">
+                <table class="top-recipients-table">
+                    <thead>
+                        <tr>
+                            <th>Recipient Address</th>
+                            <th>Amount (SOL)</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topRecipientsBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
             <!-- Wallet Cluster -->
             <h3>Wallet Network</h3>
             <div class="cluster-info" id="clusterInfo">
@@ -1543,10 +1560,10 @@ HTML_TEMPLATE = """
                 const fundersBody = document.getElementById('topFundersBody');
                 if (data.top_funders && data.top_funders.length > 0) {
                     fundersBody.innerHTML = data.top_funders.map(funder => {
-                        const cexBadge = funder.is_cex ? `<span class="cex-badge">${funder.cex_exchange} ${funder.cex_type}</span>` : '';
+                        const cexBadge = funder.is_cex ? `<span class="cex-badge">${funder.cex_exchange}</span>` : '';
                         return `
                             <tr>
-                                <td title="${funder.funder_address}">${funder.funder_address.substring(0, 16)}...${cexBadge}</td>
+                                <td title="${funder.funder_address}" style="font-family: monospace; font-size: 12px;">${funder.funder_address}${cexBadge}</td>
                                 <td>${funder.amount_sol.toFixed(2)} SOL</td>
                                 <td>${funder.is_cex ? 'CEX' : 'Wallet'}</td>
                             </tr>
@@ -1554,6 +1571,23 @@ HTML_TEMPLATE = """
                     }).join('');
                 } else {
                     fundersBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0a0a0;">No funding data available</td></tr>';
+                }
+
+                // Populate top recipients table (where creator sent SOL)
+                const recipientsBody = document.getElementById('topRecipientsBody');
+                if (data.top_recipients && data.top_recipients.length > 0) {
+                    recipientsBody.innerHTML = data.top_recipients.map(recipient => {
+                        const typeLabel = recipient.recipient_type || 'Unknown';
+                        return `
+                            <tr>
+                                <td title="${recipient.recipient_address}" style="font-family: monospace; font-size: 12px;">${recipient.recipient_address}</td>
+                                <td>${recipient.amount_sol.toFixed(2)} SOL</td>
+                                <td title="${recipient.notes || ''}">${typeLabel}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    recipientsBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0a0a0;">No outgoing transfers</td></tr>';
                 }
 
                 // Populate cluster info

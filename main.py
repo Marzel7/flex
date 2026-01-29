@@ -1569,44 +1569,26 @@ HTML_TEMPLATE = """
             document.getElementById('txViewerAccountKeys').textContent = 'Loading transaction...';
             document.getElementById('txViewerFeePayer').textContent = 'Fetching...';
 
-            // Fetch transaction details with jsonParsed encoding
-            const payload = {
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "getTransaction",
-                "params": [signature, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
-            };
-
             try {
-                const response = await fetch('https://api.mainnet-beta.solana.com', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload),
-                    timeout: 30000
+                // Use backend endpoint to avoid CORS issues
+                const response = await fetch(`/api/transaction/${signature}`, {
+                    method: 'GET',
+                    headers: {'Content-Type': 'application/json'}
                 });
                 const data = await response.json();
 
-                // Check for RPC errors
+                // Check for API errors
                 if (data.error) {
-                    document.getElementById('txViewerAccountKeys').textContent = `Error: ${data.error.message || 'Unknown error'}`;
+                    document.getElementById('txViewerAccountKeys').textContent = `Error: ${data.error}`;
                     return;
                 }
 
-                if (!data.result) {
-                    document.getElementById('txViewerAccountKeys').textContent = 'Transaction not found on blockchain';
+                if (!data.account_keys) {
+                    document.getElementById('txViewerAccountKeys').textContent = 'Transaction not found or no account keys';
                     return;
                 }
 
-                const tx = data.result;
-
-                // Safely access nested properties
-                if (!tx.transaction || !tx.transaction.message) {
-                    document.getElementById('txViewerAccountKeys').textContent = 'Invalid transaction format';
-                    return;
-                }
-
-                const message = tx.transaction.message;
-                const accountKeys = message.accountKeys || [];
+                const accountKeys = data.account_keys;
 
                 // Display transaction details
                 document.getElementById('txViewerSig').textContent = signature;
@@ -1875,6 +1857,55 @@ def api_creator_details(creator_address: str):
             'cluster': cluster,
             'is_blocked': is_blocked
         })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/transaction/<signature>')
+def api_transaction(signature: str):
+    """Fetch transaction details from Solana RPC"""
+    try:
+        import aiohttp
+        import asyncio
+
+        async def fetch_tx():
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getTransaction",
+                "params": [signature, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+            }
+
+            async with aiohttp.ClientSession() as session:
+                async with session.post("https://api.mainnet-beta.solana.com", json=payload, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                    data = await resp.json()
+                    return data
+
+        # Run async function
+        data = asyncio.run(fetch_tx())
+
+        # Check for RPC errors
+        if data.get("error"):
+            return jsonify({'error': f"RPC Error: {data['error'].get('message', 'Unknown error')}"}), 400
+
+        if not data.get("result"):
+            return jsonify({'error': 'Transaction not found'}), 404
+
+        tx = data["result"]
+
+        # Extract account keys
+        try:
+            message = tx.get("transaction", {}).get("message", {})
+            account_keys = message.get("accountKeys", [])
+
+            return jsonify({
+                'signature': signature,
+                'account_keys': account_keys,
+                'success': True
+            })
+        except Exception as e:
+            return jsonify({'error': f'Failed to parse transaction: {str(e)}'}), 400
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

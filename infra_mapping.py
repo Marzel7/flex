@@ -97,6 +97,16 @@ CEX_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["cex", "binance", "staking"],
     },
+
+    # Coinbase Hot Wallet
+    "5g7yNHyGLJ7fiQ9SN9mf47opDnMjc585kqXWt6d7aBWs": {
+        "name": "Coinbase Hot Wallet",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase hot wallet for SOL trading",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
 }
 
 # Risk-based categories for infrastructure

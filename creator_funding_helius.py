@@ -240,16 +240,27 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> None:
             if immediate and t.get("is_immediate_sender_intermediary"):
                 receivers_in_tx.add(immediate)
 
+    # Dust filtering - exclude spam/test transfers below threshold
+    # and addresses known to be dust/spam
+    DUST_THRESHOLD = 0.0001  # 0.0001 SOL = 100,000 lamports
+    DUST_ADDRESSES = {
+        "3XxhMgcsvzCcDi6UKvWoSqUxt8JuGN5CR73tRkkDNDs5",  # Known spam dust account
+    }
+
     # Group inbound transfers by counterparty (funders)
     # Track both the true originator and any intermediaries
     funders = {}  # key: funder_address, value: {amount, source_type}
-    
+
     for t in transfers:
         if t["direction"] == "in":
             counterparty = t["counterparty"]
             amount = lamports_to_sol(t["lamports"])
             source_type = t.get("source_type", "original_sender")
-            
+
+            # Skip dust transfers
+            if amount < DUST_THRESHOLD or counterparty in DUST_ADDRESSES:
+                continue
+
             # Save the traced counterparty with its source_type
             if counterparty not in funders:
                 funders[counterparty] = {
@@ -257,7 +268,7 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> None:
                     "source_type": source_type,
                 }
             funders[counterparty]["amount"] += amount
-            
+
             # Also save the immediate sender if it's different and it's an intermediary
             immediate = t.get("immediate_sender")
             if immediate and immediate != counterparty and t.get("is_immediate_sender_intermediary"):

@@ -31,7 +31,7 @@ from datetime import datetime
 
 DB_PATH = "pumpswap_tokens.db"
 LAMPORTS_PER_SOL = 1_000_000_000
-HELIUS_API_KEY = os.getenv("HELIUS_API_KEY") or "80ff2d2d-14d1-4b05-bfcd-26769047e331"
+HELIUS_API_KEY = os.getenv("HELIUS_API_KEY") or "84ec9a31-f8c2-4116-8e98-695a9377c5ed"
 
 def lamports_to_sol(x: int) -> float:
     return x / LAMPORTS_PER_SOL

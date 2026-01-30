@@ -63,13 +63,34 @@ async def fetch_page(
         return data
 
 def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
-    """Extract SOL transfers involving the watched address"""
+    """Extract SOL transfers involving the watched address, tracing back through intermediaries"""
     out = []
     sig = tx.get("signature")
     ts = tx.get("timestamp")
     slot = tx.get("slot")
     native = tx.get("nativeTransfers") or []
 
+    if not native:
+        return out
+
+    # Build a map of all transfers in this transaction to trace chains
+    # Key: to_address, Value: list of transfers TO that address
+    transfers_to = {}
+    for nt in native:
+        frm = nt.get("fromUserAccount")
+        to = nt.get("toUserAccount")
+        amt = nt.get("amount")
+        
+        if isinstance(frm, str) and isinstance(to, str) and isinstance(amt, int):
+            if to not in transfers_to:
+                transfers_to[to] = []
+            transfers_to[to].append({
+                "from": frm,
+                "to": to,
+                "amount": amt,
+            })
+
+    # Now process transfers involving watch_addr
     for nt in native:
         frm = nt.get("fromUserAccount")
         to = nt.get("toUserAccount")
@@ -78,11 +99,27 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
         if not isinstance(frm, str) or not isinstance(to, str) or not isinstance(amt, int):
             continue
 
+        # Only care about transfers where watch_addr is either sender or receiver
         if watch_addr != frm and watch_addr != to:
             continue
 
         direction = "in" if watch_addr == to else "out"
-        counterparty = frm if direction == "in" else to
+        
+        # For inbound transfers, try to trace back through intermediaries
+        # to find the original source
+        if direction == "in":
+            counterparty = frm
+            
+            # Check if 'frm' is likely an intermediary
+            # If 'frm' received SOL in this same transaction, trace back further
+            if frm in transfers_to and len(transfers_to[frm]) > 0:
+                # The sender of SOL to the intermediary in the same tx is likely
+                # the true source/originator
+                # Pick the sender of the largest amount
+                largest_incoming = max(transfers_to[frm], key=lambda x: x["amount"])
+                counterparty = largest_incoming["from"]
+        else:
+            counterparty = to
 
         out.append({
             "signature": sig,
@@ -94,6 +131,7 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
             "counterparty": counterparty,
             "lamports": amt,
         })
+    
     return out
 
 def save_transfers_to_db(creator: str, transfers: List[dict]) -> None:

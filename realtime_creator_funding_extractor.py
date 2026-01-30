@@ -425,9 +425,19 @@ class RealTimeCreatorFundingExtractor:
             # Analyze pre-migration transactions
             funders = {}  # funder -> {amount: total_sol, count: tx_count}
             sigs_checked = 0
+            max_sigs_to_check = 200  # Limit to most recent 200 pre-migration txs to avoid slow processing
 
             if signatures:
-                for sig_idx, (sig, block_time) in enumerate(signatures):
+                # Process most recent signatures first (highest indices = most recent = most relevant)
+                sigs_to_check = signatures[-max_sigs_to_check:] if len(signatures) > max_sigs_to_check else signatures
+                print(f"[REALTIME_FUNDING]    Processing {len(sigs_to_check)} of {len(signatures)} signatures (most recent {max_sigs_to_check})", flush=True)
+
+                for sig_idx, (sig, block_time) in enumerate(sigs_to_check):
+                    # Skip transactions that are too old (optimization - focus on recent funding)
+                    # Older transactions are less likely to be meaningful funding
+                    if block_time and block_time < migration_timestamp - 86400*7:  # Skip if > 7 days old
+                        continue
+
                     tx = await self.get_transaction(sig)
                     if not tx:
                         continue

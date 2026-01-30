@@ -412,6 +412,10 @@ HTML_TEMPLATE = """
             word-break: break-all;
             max-width: 250px;
             line-height: 1.3;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: nowrap;
         }
 
         /* Creator tags container */
@@ -464,9 +468,10 @@ HTML_TEMPLATE = """
         /* Creator infrastructure tags container */
         .creator-infra-tags {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             gap: 3px;
-            margin-top: 5px;
+            margin: 0;
+            align-items: center;
         }
 
         /* Small infrastructure tag for creator address display */

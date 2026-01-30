@@ -47,6 +47,24 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["system", "program"],
     },
+
+    # Trojan Trade (Trading Bot/Automation)
+    "BWgb8wR1FEGiu1jCDSKuHKf752W27b4iN6SvoNCiK4qp": {
+        "name": "Trojan Trade",
+        "category": "automation",
+        "description": "Trojan Trade bot automation account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "trading-bot"],
+    },
+
+    # Trojan Trade (Secondary Account)
+    "BJgbYMZgqm79gNrmm31tV3L8GQorw91XFm4m7evyfPjr": {
+        "name": "Trojan Trade",
+        "category": "automation",
+        "description": "Trojan Trade bot automation account (secondary)",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "trading-bot"],
+    },
 }
 
 # CEX account mappings (external exchanges - different characteristics)

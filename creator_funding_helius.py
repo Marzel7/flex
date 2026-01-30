@@ -63,7 +63,17 @@ async def fetch_page(
         return data
 
 def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
-    """Extract SOL transfers involving the watched address, tracing back through intermediaries"""
+    """Extract SOL transfers involving the watched address, tracing back through intermediaries
+    
+    LIMITATION: This function works with nativeTransfers data from Helius, which may not
+    show all intermediate relays in complex multi-hop transfer chains. For truly accurate
+    funder attribution of multi-hop transfers, the transaction's full account state changes
+    would be needed (requires full RPC transaction data with balance changes).
+    
+    This implementation traces one level: if creator receives from account A, and account A
+    received from account B in the same transaction, we attribute to account B. Beyond that,
+    we're limited by what Helius provides.
+    """
     out = []
     sig = tx.get("signature")
     ts = tx.get("timestamp")
@@ -129,11 +139,10 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
                 largest_incoming = max(transfers_to[frm], key=lambda x: x["amount"])
                 counterparty = largest_incoming["from"]
                 
-                # IMPORTANT: Only trace if the intermediate really received AND sent out
-                # This prevents false positives from complex SPL token swaps
-                # Check: does the intermediary also send (appear in transfers_from)?
+                # VALIDATION: Does the intermediary also send out?
+                # If not, it's not truly an intermediary, so don't trace
                 if frm not in transfers_from:
-                    # Intermediary didn't send anything, so 'frm' is not an intermediary
+                    # Sender didn't send anything, so 'frm' is not an intermediary
                     # Use the original sender
                     counterparty = frm
         else:

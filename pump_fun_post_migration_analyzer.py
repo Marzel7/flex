@@ -830,7 +830,7 @@ class PostMigrationAnalyzer:
                 "total_sigs_seen": total_sigs_seen
             }
 
-    async def get_true_earliest_signature(self, bonding_curve_pda: Optional[str] = None, max_pages: int = 1000, page_limit: int = 1000) -> tuple:
+    async def get_true_earliest_signature(self, bonding_curve_pda: Optional[str] = None, max_pages: int = 5000, page_limit: int = 1000) -> tuple:
         """
         Find the true earliest signature using full-history RPC chain.
         
@@ -946,7 +946,7 @@ class PostMigrationAnalyzer:
                 # IMPROVEMENT: Don't hardcode public RPC - use HISTORY_RPC_URLS for better reliability
                 rpc_url = HISTORY_RPC_URLS[0] if HISTORY_RPC_URLS else "https://api.mainnet-beta.solana.com"
                 before = None
-                max_pages = 1000
+                max_pages = 5000
 
                 while pages_checked < max_pages:
                     pages_checked += 1

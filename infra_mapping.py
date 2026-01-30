@@ -92,6 +92,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["infra", "automation", "helius", "tipping"],
     },
+
+    # OKX Router
+    "ARu4n5mFdZogZAravu7CcizaojWnS6oqka37gdLT5SZn": {
+        "name": "OKX Router",
+        "category": "automation",
+        "description": "OKX DEX router/aggregator account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "okx", "router"],
+    },
 }
 
 # CEX account mappings (external exchanges - different characteristics)

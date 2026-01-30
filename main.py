@@ -413,9 +413,8 @@ HTML_TEMPLATE = """
             max-width: 250px;
             line-height: 1.3;
             display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: nowrap;
+            flex-direction: column;
+            gap: 3px;
         }
 
         /* Creator tags container */
@@ -471,7 +470,6 @@ HTML_TEMPLATE = """
             flex-wrap: nowrap;
             gap: 3px;
             margin: 0;
-            align-items: center;
         }
 
         /* Small infrastructure tag for creator address display */

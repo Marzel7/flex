@@ -957,6 +957,8 @@ class PostMigrationAnalyzer:
         """
         FAST: Use Helius to parse the CREATE tx directly instead of paginating.
         
+        IMPORTANT: Validates that parsed tx is actually a Pump.fun CREATE before extracting.
+        
         If we already know the CREATE tx signature, use:
         Helius: POST /v0/transactions
         Body: {"transactions": ["sig"]}
@@ -992,14 +994,27 @@ class PostMigrationAnalyzer:
                     tx = data[0]
                     print(f"[CREATOR] ✅ Parsed CREATE tx via Helius in 1 API call", flush=True)
                     
-                    # Extract bonding curve using same logic as before
+                    # CRITICAL: Validate this is actually a Pump.fun CREATE transaction
+                    validation = self._validate_pumpfun_create_tx(tx)
+                    
+                    if not validation['is_pumpfun_create']:
+                        print(f"[CREATOR] ❌ Parsed tx failed Pump.fun validation:", flush=True)
+                        print(f"    mint_in_accounts={validation['mint_in_accounts']}", flush=True)
+                        print(f"    pumpfun_program_found={validation['pumpfun_program_found']}", flush=True)
+                        return None
+                    
+                    print(f"[CREATOR] ✓ Validated: Pump.fun CREATE transaction", flush=True)
+                    
+                    # Extract bonding curve from validated CREATE tx
                     bonding_curve = self._extract_bonding_curve_from_tx(tx)
                     if bonding_curve:
                         print(f"[CREATOR] ✓ Extracted Bonding Curve: {bonding_curve}", flush=True)
                         self._create_tx_signature = create_tx_sig
+                        if validation:
+                            self._create_tx_validation = validation
                         return bonding_curve
                     else:
-                        print(f"[CREATOR] ❌ Could not extract bonding curve from parsed CREATE tx", flush=True)
+                        print(f"[CREATOR] ❌ Could not extract bonding curve from validated CREATE tx", flush=True)
                         return None
         
         except Exception as e:

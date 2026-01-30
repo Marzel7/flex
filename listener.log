@@ -1,0 +1,37 @@
+[INIT] Pump.Fun → PumpSwap Migration Listener ready
+[INIT] Monitoring PumpSwap program: pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA
+[INIT] WebSocket: wss://api.mainnet-beta.solana.com/...
+[INIT] HTTP RPC: https://tiniest-broken-glade.solana-mainnet.quiknode.pro/294...
+
+[WEBSOCKET] Connecting to PumpSwap program...
+[CREATOR_WATCH] 🚀 Starting polling loop (interval: 30s)
+[WEBSOCKET] ✓ Connected to PumpSwap program via Helius
+[WEBSOCKET] Subscribed to PumpSwap migrations
+[WEBSOCKET] ✓ Subscription confirmed (ID: 273)
+
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 2117z3PTEqeeTGhhtejgvbC1rbxPuZoZ8vj7WAFosFqUcb1TxwoXTbeHCyNMS7eoJQmFHm5gyVoVaPEkCQdsQ74F
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 54sfv89wqXyDCvXCB2EWpZJoPpbRP6W5VPGHwufFyR1dyCRhKz4xTkFebmjPyeMz9TeYBoa3gHpU9apiSB2ViMiY
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 48YVqwvXRPuvptK3ABG4SzYrc6bQy6NKxBiCgSy3iKZhZ2RAq3f12J2Baq8VJuP6o1uBMYLKxyhri346ZFzNxx6Y
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: rFkZhRmxqkSJtNA2WiZPebmQ1nE2a6sPKS1WAF7MzqpEMZ2nfHT86HmLrwwRMUVfbuvS4vnxE1A3dbktVAiswbw
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 2KjAQVA8rzR3BujYo4YA7L7kpUEz3Lkt6XPj4eCQyPiCMxHX8MQ8rd3BKZ1HYy8s6muG6PVFq1MA3Y9C8tZPMKSR
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: izWLmsUAxxko8asJ6fMSgy7Ysi9p9fgvHTAuBrxLPbngpDyAE9Gg2oqgwMCSkfnDVjNxXZooQE8M86ukU6u3s1M
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 2D5TSf1vVmwqyR5khjjBpyAZdfPLBbaGUidpzioPhFr61g1jSZu5yqcT9BhTpbWrDrNx6e6SBXEAD5mFEjXMxuTv
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 4vPPgXrz3jsqtMUcWPMCCFAKRoshRXbaEux95xTMPguM9AM8qou5TeCKoFtKzK1ZxhGyWTimk2f2KSc3SKeJEVSo
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 4PzkoA6VgG11qiF7Rc7aaiLTTU6bcLVLVZEpxi2vf198xSAfREjspNJ9izH48yzWrh1Nb6yV3ecFKUQquytQ3Wdq
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 4Pi1BffsdtbRycDBeHpoAU88jS996XTSh2AsBaLQ67dgLZqfWBWn6hvT7xt4xKZ16TMYUPNUr6pU3tJT2za19Ltk
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 5zc4J3CrLi9Sjx9fJ6jg8A22y8b7fmyxS2Yp333ymEK6YahKX3DKPG6N7ue64DaK6tYgZAmNirngNt3fcoCjzzjH
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 5dT4WTar9D5DCRgCLbjzoZWhNpqHmwthoTudPGWZc6eabHt4U2LkUqD7DvPUGjqFQwcqa4raEb5ENWXgdfawrt48
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: oAdQGkQsSHsScTM8attQUoh8GwDNNmJX5ty9tqS2h6dsa7WEmk4wmj8hpiMKYP57PTRB76tzZdUtKsp3W28bZDn
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: Ympp34d4dcHCz2K1YatFgpy3ZgzyVMv6k8JD86VSyX3JFAd64V7gbK8x4Rc58QDKNvxueiiNFnRxK3JFEG16vAh
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 5CnTejy7u3sdXM547F3isLBDhK7Z79XKKYHqT9gJassYt1U8rB3fjXrVxhrZMqxp7mUaKzEbhP9rdSNjxhm82uvS
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 34iahQ9xYwzLpjWgEvFDb9bRF9ArHDNkV9ZcwUu5w4QdFpfP7NYpV5kAtS2XwoVKhrFtjzdYBYgQqrBHQky8A2bK
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 29N26BaAqTzLkBSuEDF7kr1WcYhkmJSSGD9PDHycfQvbrptGqFDCPEchMuALt2rbc5CmMuomxMXDqG9mPpvbPQdm
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 3rk6JvTTYt2fY2XDB7SYSqiNhtbiN6Y23gSGj4XVHSao2Ra5JxxaR1UhpxqzZiSnR2GLSH9kWdXT8y5m5bP6e3VH
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: UceSwCjCuKYtTMwzi39m7iWKLWPtMXPkYBDfcv6DNZGroWqB4M7bmkYTh4u8NRNnE5rhVxBRHGtmDEQXGkwx8oB
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: kgHUgNeJSeBEYk5RmW14PbacHvZJG7vcdHMCFm48S1VDqfiiy37zdTnnSWFjNj4VXQDxTWPPuFhCghUqf98Dn9T
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: UXyz9KyoRS7vTXJ27o4qLt1tqikUWZ1NBCPiBCdsDgq4Q4AERzzJKHGkFb21TGpM54KLat4i9kSxeEHz4i7nDEZ
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 5YxrGGQvT24hUH21bn1AZj18MLjLXCWbJt3kcH3KYHfbUvXSvzqYj4Aw9etAYLgg4axKG7QN8VWvXerAQ5AaeFqu
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 4DJiPXFSqVFWQ7j1VmVYkSGGyYvWfpX6ytGj6RZW89XCtg6cXbjSgfffgUbmPGsFa4fcbChpTCk3qBC7px9QHLAT
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 5WWqMAvtBzvpJye1MfRWq9HCzM7bdGRLTLvocWaKCJQaUaETpbSJ7ZquAXGMdA4cTRTSzJdojuy3ZhFzQ33Csjc
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 2jW4RsN5ar4ppicSWbYgNjSkSWZeTugtuez7EH1gyVzWfqTujcthVDc7PkzgnS982KBPUpHhyPaaMQpwz6ruuaMU
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: Jc2JyynfhiZYHaSsykoazuKcdQ9ruHaNnKexVkgBbyqokM3eQAkGjKvh5HyNwSwpaipQ7AYNEkMVGrp8E8wLKEU

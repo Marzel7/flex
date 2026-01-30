@@ -2046,9 +2046,8 @@ HTML_TEMPLATE = """
                             let sourceTypeBadge = '';
                             if (funder.source_type === 'intermediary') {
                                 sourceTypeBadge = '<span class="intermediary-badge" title="Relay/intermediary account">ℹ️ Relay</span>';
-                            } else if (funder.source_type === 'original_sender') {
-                                sourceTypeBadge = '<span class="original-sender-badge" title="True originator">✅ Original</span>';
                             }
+                            // Original sender: leave blank (no badge)
 
                             // Infrastructure tags
                             let infraTags = '';

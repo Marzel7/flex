@@ -78,15 +78,46 @@ def _looks_cache_limited(sigs: List[Dict]) -> bool:
 
 
 async def _rpc_post(session: aiohttp.ClientSession, url: str, payload: dict, timeout_s: int = 30) -> Optional[dict]:
-    """Post to single RPC URL and return response"""
-    try:
-        async with session.post(url, json=payload, timeout=aiohttp.ClientTimeout(total=timeout_s)) as resp:
-            if resp.status == 200:
-                data = await resp.json()
-                if "error" not in data:
-                    return data
-    except Exception:
-        pass
+    """Post to single RPC URL and return response, with 429 retry logic"""
+    retry_delay = 2.0  # Start with 2 second delay
+    max_retries = 5
+    
+    for attempt in range(max_retries):
+        try:
+            async with session.post(url, json=payload, timeout=aiohttp.ClientTimeout(total=timeout_s)) as resp:
+                if resp.status == 429:
+                    # Rate limited - retry with exponential backoff
+                    if attempt < max_retries - 1:
+                        print(f"⚠️  RPC rate limited (429), retrying in {retry_delay}s... (attempt {attempt+1}/{max_retries})", flush=True)
+                        await asyncio.sleep(retry_delay)
+                        retry_delay *= 2  # Double the delay for next retry
+                        continue
+                    else:
+                        # Max retries exceeded
+                        print(f"❌ RPC rate limited (429) after {max_retries} retries", flush=True)
+                        return None
+                
+                if resp.status == 200:
+                    data = await resp.json()
+                    if "error" not in data:
+                        return data
+                
+                # Other error status codes
+                return None
+                
+        except asyncio.TimeoutError:
+            if attempt < max_retries - 1:
+                print(f"⚠️  RPC timeout, retrying in {retry_delay}s... (attempt {attempt+1}/{max_retries})", flush=True)
+                await asyncio.sleep(retry_delay)
+                retry_delay *= 2
+                continue
+            else:
+                print(f"❌ RPC timeout after {max_retries} retries", flush=True)
+                return None
+        except Exception:
+            # Other exceptions - don't retry, just fail
+            return None
+    
     return None
 
 

@@ -269,9 +269,17 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> tuple:
     except sqlite3.OperationalError:
         pass  # Tables already exist
 
+    # Build set of addresses that received SOL (intermediaries)
+    receivers_in_tx = set()
+    for t in transfers:
+        if t["direction"] == "in":
+            immediate = t.get("immediate_sender")
+            if immediate and t.get("is_immediate_sender_intermediary"):
+                receivers_in_tx.add(immediate)
+
     # Group inbound transfers by counterparty (funders)
     # Track both the true originator and any intermediaries
-    funders = {}  # key: funder_address, value: {amount, source_type, immediate_sender, etc}
+    funders = {}  # key: funder_address, value: {amount, source_type}
     
     for t in transfers:
         if t["direction"] == "in":
@@ -279,6 +287,7 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> tuple:
             amount = t["amount_sol"]
             source_type = t.get("source_type", "original_sender")
             
+            # Save the traced counterparty with its source_type
             if counterparty not in funders:
                 funders[counterparty] = {
                     "amount": 0.0,
@@ -286,12 +295,9 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> tuple:
                 }
             funders[counterparty]["amount"] += amount
             
-            # If the immediate sender is different from the traced counterparty,
-            # also record it as an intermediary
+            # Also save the immediate sender if it's different and it's an intermediary
             immediate = t.get("immediate_sender")
-            is_intermediary = t.get("is_immediate_sender_intermediary", False)
-            
-            if is_intermediary and immediate and immediate != counterparty:
+            if immediate and immediate != counterparty and t.get("is_immediate_sender_intermediary"):
                 if immediate not in funders:
                     funders[immediate] = {
                         "amount": 0.0,

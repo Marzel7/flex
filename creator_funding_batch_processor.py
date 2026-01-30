@@ -32,9 +32,80 @@ from datetime import datetime
 DB_PATH = "pumpswap_tokens.db"
 LAMPORTS_PER_SOL = 1_000_000_000
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY") or "84ec9a31-f8c2-4116-8e98-695a9377c5ed"
+WSOL_MINT = "So11111111111111111111111111111111111111112"  # Wrapped SOL mint address
 
 def lamports_to_sol(x: int) -> float:
     return x / LAMPORTS_PER_SOL
+
+def is_token_account(address: str, tx: dict) -> bool:
+    """Check if an address is a token account by examining account info in the transaction"""
+    if not isinstance(tx.get("tokenTransfers"), list):
+        return False
+
+    for tt in tx.get("tokenTransfers", []):
+        if tt.get("source") == address or tt.get("destination") == address:
+            return True
+
+    post_token_balances = tx.get("postTokenBalances", [])
+    for ptb in post_token_balances:
+        if ptb.get("owner") == address:
+            return True
+
+    return False
+
+def collapse_wsol_transfers(tx: dict, watch_addr: str) -> List[dict]:
+    """Collapse WSOL wrap/unwrap transfers into single wallet-to-wallet transfers"""
+    native = tx.get("nativeTransfers", []) or []
+
+    collapsed = []
+    processed_indices = set()
+
+    for idx, nt in enumerate(native):
+        if idx in processed_indices:
+            continue
+
+        frm = nt.get("fromUserAccount")
+        to = nt.get("toUserAccount")
+        amt = nt.get("amount")
+
+        if not isinstance(frm, str) or not isinstance(to, str) or not isinstance(amt, int):
+            continue
+
+        # Check if transfer to a token account
+        if is_token_account(to, tx):
+            # Look for return transfer from token account
+            for other_idx, other_nt in enumerate(native):
+                if other_idx <= idx:
+                    continue
+
+                other_from = other_nt.get("fromUserAccount")
+                other_to = other_nt.get("toUserAccount")
+                other_amt = other_nt.get("amount")
+
+                # If same token account sends back SOL, collapse the transfers
+                if other_from == to and isinstance(other_to, str) and isinstance(other_amt, int):
+                    effective_amount = min(amt, other_amt)
+
+                    collapsed.append({
+                        "signature": tx.get("signature"),
+                        "timestamp": tx.get("timestamp"),
+                        "slot": tx.get("slot"),
+                        "direction": "in" if other_to == watch_addr else "out",
+                        "from": frm,
+                        "to": other_to,
+                        "counterparty": frm if other_to == watch_addr else other_to,
+                        "amount_sol": lamports_to_sol(effective_amount),
+                        "source_type": "original_sender",
+                        "immediate_sender": None,
+                        "is_immediate_sender_intermediary": False,
+                        "is_wsol_wrap": True,
+                    })
+
+                    processed_indices.add(idx)
+                    processed_indices.add(other_idx)
+                    break
+
+    return collapsed
 
 def helius_base_url() -> str:
     return "https://api-mainnet.helius-rpc.com/v0"
@@ -151,26 +222,38 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
     
     def find_true_source(account: str, max_depth: int = 10) -> tuple:
         """Recursively trace back to find the true originator of funds
-        
+
         Args:
             account: The account to trace back from
             max_depth: Maximum recursion depth to prevent infinite loops
-            
+
         Returns:
             Tuple of (true_originating_account, source_type)
             source_type is "original_sender" if account only sends, "intermediary" if it receives too
         """
+        SKIP_IN_TRACING = {
+            "3jYf1yHVQEkHNvacdz4wFRXcvFirF6nFjwLq9m8ML1ME",  # WSOL token account
+        }
+
         if max_depth == 0:
             # Depth limit reached, return current account
             source_type = "intermediary" if account in transfers_to else "original_sender"
             return account, source_type
-        
+
+        # Skip known plumbing accounts during tracing
+        if account in SKIP_IN_TRACING:
+            if account in transfers_to and len(transfers_to[account]) > 0:
+                largest_incoming = max(transfers_to[account], key=lambda x: x["amount"])
+                return find_true_source(largest_incoming["from"], max_depth - 1)
+            else:
+                return account, "original_sender"
+
         # If this account received SOL in the transaction
         if account in transfers_to and len(transfers_to[account]) > 0:
             # Find the largest incoming transfer
             largest_incoming = max(transfers_to[account], key=lambda x: x["amount"])
             sender = largest_incoming["from"]
-            
+
             # If the sender also appears to be just an intermediary (receives and sends),
             # trace back one more level
             if sender in transfers_to and len(transfers_to[sender]) > 0:
@@ -184,13 +267,22 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
             # It's either the true source or a final destination
             return account, "original_sender"
 
-    # Now process transfers involving watch_addr
+    # First, collapse WSOL wrap/unwrap patterns
+    wsol_collapsed = collapse_wsol_transfers(tx, watch_addr)
+    if wsol_collapsed:
+        out.extend(wsol_collapsed)
+
+    # Now process transfers involving watch_addr (excluding token accounts)
     for nt in native:
         frm = nt.get("fromUserAccount")
         to = nt.get("toUserAccount")
         amt = nt.get("amount")
 
         if not isinstance(frm, str) or not isinstance(to, str) or not isinstance(amt, int):
+            continue
+
+        # Skip if either party is a token account (already handled by WSOL collapse)
+        if is_token_account(frm, tx) or is_token_account(to, tx):
             continue
 
         # Only care about transfers where watch_addr is either sender or receiver
@@ -203,7 +295,7 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
         # Filter dust (< 0.001 SOL)
         if amount_sol < 0.001:
             continue
-        
+
         # For inbound transfers, trace back to find the true originator
         if direction == "in":
             counterparty, source_type = find_true_source(frm)
@@ -231,7 +323,7 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
             "immediate_sender": frm if direction == "in" else None,
             "is_immediate_sender_intermediary": immediate_sender_is_intermediary,
         })
-    
+
     return out
 
 def save_transfers_to_db(creator: str, transfers: List[dict]) -> tuple:
@@ -278,10 +370,11 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> tuple:
                 receivers_in_tx.add(immediate)
 
     # Dust filtering - exclude spam/test transfers below threshold
-    # and addresses known to be dust/spam
+    # and addresses known to be dust/spam or WSOL token accounts
     DUST_THRESHOLD = 0.0001  # 0.0001 SOL = 100,000 lamports
     DUST_ADDRESSES = {
         "3XxhMgcsvzCcDi6UKvWoSqUxt8JuGN5CR73tRkkDNDs5",  # Known spam dust account
+        "3jYf1yHVQEkHNvacdz4wFRXcvFirF6nFjwLq9m8ML1ME",  # WSOL token account (wrap/unwrap plumbing)
     }
 
     # Group inbound transfers by counterparty (funders)
@@ -307,14 +400,16 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> tuple:
             funders[counterparty]["amount"] += amount
 
             # Also save the immediate sender if it's different and it's an intermediary
+            # BUT skip if it's a known plumbing account
             immediate = t.get("immediate_sender")
             if immediate and immediate != counterparty and t.get("is_immediate_sender_intermediary"):
-                if immediate not in funders:
-                    funders[immediate] = {
-                        "amount": 0.0,
-                        "source_type": "intermediary",
-                    }
-                funders[immediate]["amount"] += amount
+                if immediate not in DUST_ADDRESSES:  # Skip plumbing accounts
+                    if immediate not in funders:
+                        funders[immediate] = {
+                            "amount": 0.0,
+                            "source_type": "intermediary",
+                        }
+                    funders[immediate]["amount"] += amount
 
     # Group outbound transfers by counterparty (receivers)
     receivers = defaultdict(lambda: {"amount": 0.0, "sig": None, "ts": None})

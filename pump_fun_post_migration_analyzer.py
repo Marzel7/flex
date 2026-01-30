@@ -945,26 +945,84 @@ class PostMigrationAnalyzer:
 
         return None, False, "none"
 
+    async def extract_bonding_curve_via_helius_parse(self, create_tx_sig: str) -> Optional[str]:
+        """
+        FAST: Use Helius to parse the CREATE tx directly instead of paginating.
+        
+        If we already know the CREATE tx signature, use:
+        Helius: POST /v0/transactions
+        Body: {"transactions": ["sig"]}
+        Response: Pre-parsed transaction with all data
+        
+        This is 1 API call instead of 5000 pagination requests!
+        
+        Args:
+            create_tx_sig: The CREATE transaction signature we already found
+            
+        Returns: bonding curve address or None
+        """
+        if not HELIUS_API_KEY or not create_tx_sig:
+            return None
+        
+        try:
+            url = f"https://api-mainnet.helius-rpc.com/v0/transactions?api-key={HELIUS_API_KEY}"
+            payload = {"transactions": [create_tx_sig]}
+            
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as session:
+                async with session.post(url, json=payload) as resp:
+                    if resp.status != 200:
+                        print(f"[CREATOR] ⚠ Helius parse returned {resp.status}", flush=True)
+                        return None
+                    
+                    data = await resp.json()
+                    
+                    # Helius returns a list of parsed transactions
+                    if not isinstance(data, list) or len(data) == 0:
+                        print(f"[CREATOR] ⚠ Helius parse returned empty", flush=True)
+                        return None
+                    
+                    tx = data[0]
+                    print(f"[CREATOR] ✅ Parsed CREATE tx via Helius in 1 API call", flush=True)
+                    
+                    # Extract bonding curve using same logic as before
+                    bonding_curve = self._extract_bonding_curve_from_tx(tx)
+                    if bonding_curve:
+                        print(f"[CREATOR] ✓ Extracted Bonding Curve: {bonding_curve}", flush=True)
+                        self._create_tx_signature = create_tx_sig
+                        return bonding_curve
+                    else:
+                        print(f"[CREATOR] ❌ Could not extract bonding curve from parsed CREATE tx", flush=True)
+                        return None
+        
+        except Exception as e:
+            print(f"[CREATOR] ⚠ Helius parse error: {e}", flush=True)
+            return None
+
     async def extract_bonding_curve_from_creation_tx(self) -> Optional[str]:
         """
         Extract the bonding curve PDA from the token's creation transaction.
 
-        CRITICAL: This method must find a Pump.fun CREATE transaction, not just the
-        oldest transaction affecting the mint. Mint can have unrelated activity
-        (freeze/thaw, ATA ops, metadata updates, etc.) at any point in history.
+        OPTIMIZATION: If we already have the CREATE tx signature, use Helius direct parse (1 API call)
+        FALLBACK: Otherwise paginate through mint signatures to find it (slow but reliable)
 
-        Correct Process:
-        1. Paginate through mint signatures to find earliest Pump.fun CREATE
-        2. Continue checking previous txs until we prove end-of-history
-        3. Once found, validate it's truly a Pump.fun create (strict validation)
-        4. Extract bonding curve from the Pump.fun instruction
-
-        Returns: bonding curve PDA address or None if not found
+        Returns: bonding curve PDA address or None
         """
         print(f"[CREATOR] Extracting bonding curve from creation transaction for {self.token_mint[:20]}...", flush=True)
         
-        # Step 1: Paginate through mint's signatures looking for Pump.fun CREATE
-        # We must validate each candidate, not just grab the oldest
+        # FAST PATH: If we already found the CREATE tx signature, use Helius to parse it directly
+        # This is 1 API call instead of 5000 pagination requests!
+        if self._create_tx_signature and HELIUS_API_KEY:
+            print(f"[CREATOR] 🚀 Fast path: Using Helius to parse CREATE tx directly", flush=True)
+            bonding_curve = await self.extract_bonding_curve_via_helius_parse(self._create_tx_signature)
+            if bonding_curve:
+                return bonding_curve
+            else:
+                print(f"[CREATOR] ⚠ Helius parse failed, falling back to pagination...", flush=True)
+        
+        # SLOW PATH: Paginate through mint signatures looking for Pump.fun CREATE
+        # This is the fallback when we don't have the CREATE tx signature yet
+        print(f"[CREATOR] Paginating through mint signatures to find CREATE tx...", flush=True)
+        
         earliest_create_sig = None
         earliest_create_tx = None
         earliest_create_validation = None
@@ -975,7 +1033,6 @@ class PostMigrationAnalyzer:
         try:
             async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=40)) as session:
                 # Use best history RPC (Helius if available, else public)
-                # IMPROVEMENT: Don't hardcode public RPC - use HISTORY_RPC_URLS for better reliability
                 rpc_url = HISTORY_RPC_URLS[0] if HISTORY_RPC_URLS else "https://api.mainnet-beta.solana.com"
                 before = None
                 max_pages = 5000
@@ -1033,8 +1090,6 @@ class PostMigrationAnalyzer:
                             # Log the oldest few transactions' program IDs for debugging
                             if oldest_txs_checked < 5:
                                 oldest_txs_checked += 1
-                                # IMPROVEMENT: Show ALL program IDs, not just first 3
-                                # The Pump.fun program might not be in the first 3
                                 prog_ids = validation.get("program_ids", [])
                                 prog_ids_str = ", ".join(prog_ids)
                                 print(f"[CREATOR] Oldest tx #{oldest_txs_checked}: {sig[:16]}... | Programs: [{prog_ids_str}]", flush=True)

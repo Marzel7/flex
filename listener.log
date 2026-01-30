@@ -35,3 +35,258 @@
 [WEBSOCKET] ⏸ Migration detected but launch listening disabled: 5WWqMAvtBzvpJye1MfRWq9HCzM7bdGRLTLvocWaKCJQaUaETpbSJ7ZquAXGMdA4cTRTSzJdojuy3ZhFzQ33Csjc
 [WEBSOCKET] ⏸ Migration detected but launch listening disabled: 2jW4RsN5ar4ppicSWbYgNjSkSWZeTugtuez7EH1gyVzWfqTujcthVDc7PkzgnS982KBPUpHhyPaaMQpwz6ruuaMU
 [WEBSOCKET] ⏸ Migration detected but launch listening disabled: Jc2JyynfhiZYHaSsykoazuKcdQ9ruHaNnKexVkgBbyqokM3eQAkGjKvh5HyNwSwpaipQ7AYNEkMVGrp8E8wLKEU
+[WEBSOCKET] 🚨 Migration #1 detected: 4CNwFgLgzgat73ujtnx8PbHUTAhswi2RGZcbqap8YXKCC2kKVf7e6pzUBwu5oo42tyxj4Abikv59BsTHZdF2JU8s
+[EVENT] 🚀 MIGRATION DETECTED: HgPu4NAVL5mEr9G7KbNKLWW2yC7Y3zWLG2ePawSrpump
+[EVENT] Migration signature: 4CNwFgLgzgat73ujtnx8PbHUTAhswi2RGZcbqap8YXKCC2kKVf7e6pzUBwu5oo42tyxj4Abikv59BsTHZdF2JU8s
+[DB] ✅ Created minimal token entry for HgPu4NAVL5mEr9G7KbNKLWW2yC7Y3zWLG2ePawSrpump
+[POOL] ✅ Extracted pool from PumpSwap instruction: Drik14cfH6fzLzGpWaPW2XGNgYFqcK7474eM1zSEamv
+[EVENT] ✅ Pool extracted from transaction: Drik14cfH6fzLzGpWaPW2XGNgYFqcK7474eM1zSEamv
+[POOL] Checking 20 token accounts to find pool...
+[POOL]   Checking CTFR6aWqs9vHNdpEJeEZU8Lee3KmHH4xLMC1dGBqgMLL (balance: 22738208)
+[POOL]     Owner: F7zz3iR7gAScL55QjZVsoFiEJDYyKshk5iiam6Cqxw1z
+[PRICE] ✅ Initial price fetched: $3.75e-05 | Market Cap: $3.75e+04 | Source: dexscreener
+[ANALYZER_INIT] Token: HgPu4NAVL5mEr9G7KbNKLWW2yC7Y3zWLG2ePawSrpump
+[ANALYZER_INIT] RPC: https://tiniest-broken-glade.solana-mainnet.quiknode.pro/2940af8488637243d9e900a...
+[CREATOR] Extracting bonding curve from creation transaction for HgPu4NAVL5mEr9G7KbNK...
+[CREATOR] 📋 Programs found in transaction: ['ComputeBudget111111111111111111111111111111', 'ComputeBudget111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '11111111111111111111111111111111', '11111111111111111111111111111111', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P']
+[CREATOR] Oldest tx #1: 22H27LYu4XbVanws... | Programs: [ComputeBudget111111111111111111111111111111, ComputeBudget111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111, 11111111111111111111111111111111, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P]
+[CREATOR] TX Validation: mint_in_accounts=True, pumpfun_program_found=True, is_pumpfun_create=True
+[CREATOR] ✅ Found Pump.fun CREATE tx: 22H27LYu4XbVanwsFu7fgAxF9A3gfpoFiGxccLoFkTbSJCuHTHRZev8Et5d6a5hhi7wY6i33k76fxYkaWBrn8cxe
+[CREATOR] ✓ Using creation tx (proven_end=False): 22H27LYu4XbVanwsFu7f...
+[CREATOR] ✓ Stored CREATE tx signature and validation for persistence
+[CREATOR] ✓ Extracted CREATE tx fee payer (creator): 5CjAESD1Vr51SwWgSAtdEBM4wZCfeZTxB7meJgow2BNP
+[CREATOR] Transaction has 8 total instructions
+[CREATOR] Found Pump.fun instruction (#2): 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P
+[CREATOR] Instruction accounts: ['4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf', 'CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM', 'HgPu4NAVL5mEr9G7KbNKLWW2yC7Y3zWLG2ePawSrpump', 'Ehh3V3Gn8PAkWPENyEcm3iCnmgR4YGQFzdeuLXkPPejv', '5X3yuSi62FtUHQ5Xar4kBtn6kWiWVnKgTSe68tFUHXv6', '7EZwWvMdcggb6YsbBAMXxWhmhzk8LjwV8eRuC64P3WrE', '5CjAESD1Vr51SwWgSAtdEBM4wZCfeZTxB7meJgow2BNP', '11111111111111111111111111111111', 'UwNVwm6HWMyCQ4Xs5bFsqouByK2rzGabakPdAiDY4Rj', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ']
+[CREATOR] Resolved 14 instruction accounts
+[CREATOR] ✓ Bonding curve candidate (pos 1): CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM
+[CREATOR] ⊘ Skip (is mint): HgPu4NAVL5mEr9G7KbNKLWW2yC7Y3zWLG2ePawSrpump
+[CREATOR] ✓ Bonding curve candidate (pos 3): Ehh3V3Gn8PAkWPENyEcm3iCnmgR4YGQFzdeuLXkPPejv
+[CREATOR] ✓ Bonding curve candidate (pos 4): 5X3yuSi62FtUHQ5Xar4kBtn6kWiWVnKgTSe68tFUHXv6
+[CREATOR] ✓ Bonding curve candidate (pos 5): 7EZwWvMdcggb6YsbBAMXxWhmhzk8LjwV8eRuC64P3WrE
+[CREATOR] ✓ Bonding curve candidate (pos 6): 5CjAESD1Vr51SwWgSAtdEBM4wZCfeZTxB7meJgow2BNP
+[CREATOR] ⊘ Skip (known program): 11111111111111111111...
+[CREATOR] ✓ Bonding curve candidate (pos 8): UwNVwm6HWMyCQ4Xs5bFsqouByK2rzGabakPdAiDY4Rj
+[CREATOR] ⊘ Skip (known program): TokenzQdBNbLqP5VEhdk...
+[CREATOR] ✓ Bonding curve candidate (pos 10): Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1
+[CREATOR] ⊘ Skip (known program): 6EF8rrecthR5Dkzon8Nw...
+[CREATOR] ✓ Bonding curve candidate (pos 12): 8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt
+[CREATOR] ⊘ Skip (known program): pfeeUxB6jkeY1Hxd7CsF...
+[CREATOR] → Selected bonding curve: CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM
+[CREATOR] ✓ Extracted Bonding Curve: CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM
+[CREATOR] ✓ Extracted Bonding Curve: CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM
+[CREATOR] Querying bonding curve account for earliest signature...
+[CREATOR] ⚠ Hit max_pages limit (1000) on bonding_curve_pda (https://api.mainnet-beta.solana.com...) (proven=False)
+[CREATOR] ❌ No signatures found on bonding curve account
+[SETTINGS] Token history ❌ OFF - skipping token history analysis
+[SETTINGS] Creator history ✅ ON - analyzing creator network and funding
+[WEBSOCKET] 🚨 Migration #2 detected: 4S36zZ3CMXpVYaKFMv8s34XNoB2pgBVz3We3X5jjMZ132N8fQ37Nd97XAiQb4z7paH3CTegid2r6sdsjbmmNxTJP
+[EVENT] 🚀 MIGRATION DETECTED: 2mK87EVtV364VrLv9DEPb6aAWeoPy4z39XyiMGLepump
+[EVENT] Migration signature: 4S36zZ3CMXpVYaKFMv8s34XNoB2pgBVz3We3X5jjMZ132N8fQ37Nd97XAiQb4z7paH3CTegid2r6sdsjbmmNxTJP
+[DB] ✅ Created minimal token entry for 2mK87EVtV364VrLv9DEPb6aAWeoPy4z39XyiMGLepump
+[POOL] ✅ Extracted pool from PumpSwap instruction: GXwRQeMLPxUQRdvFp4pDD6peTuZEh7vzjFfrt5Nc3AQh
+[EVENT] ✅ Pool extracted from transaction: GXwRQeMLPxUQRdvFp4pDD6peTuZEh7vzjFfrt5Nc3AQh
+[POOL] Checking 20 token accounts to find pool...
+[POOL]   Checking 5yiSAGntmjMS4mT8gEmr9yFwYnWz3144kVJ2oSLBQ2Xk (balance: 4067475)
+[POOL]     Owner: 4H8ygriLckLK3eMmVkoesAP8ExqiGhXBL1xVrWbpazNW
+[PRICE] ✅ Initial price fetched: $1.68e-05 | Market Cap: $1.68e+04 | Source: dexscreener
+[ANALYZER_INIT] Token: 2mK87EVtV364VrLv9DEPb6aAWeoPy4z39XyiMGLepump
+[ANALYZER_INIT] RPC: https://tiniest-broken-glade.solana-mainnet.quiknode.pro/2940af8488637243d9e900a...
+[CREATOR] Extracting bonding curve from creation transaction for 2mK87EVtV364VrLv9DEP...
+[CREATOR] 📋 Programs found in transaction: ['ComputeBudget111111111111111111111111111111', 'ComputeBudget111111111111111111111111111111', '11111111111111111111111111111111', 'proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', '11111111111111111111111111111111', 'proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u', 'proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', '11111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', '11111111111111111111111111111111', '11111111111111111111111111111111', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '11111111111111111111111111111111', 'proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u']
+[CREATOR] Oldest tx #1: 4UoNSBUP9jdV6EG9... | Programs: [ComputeBudget111111111111111111111111111111, ComputeBudget111111111111111111111111111111, 11111111111111111111111111111111, proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, 11111111111111111111111111111111, proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u, proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u, TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, 11111111111111111111111111111111, 11111111111111111111111111111111, TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111, proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u]
+[CREATOR] TX Validation: mint_in_accounts=True, pumpfun_program_found=True, is_pumpfun_create=True
+[CREATOR] ✅ Found Pump.fun CREATE tx: 4UoNSBUP9jdV6EG9CDmumNKoNwKkqErL3iJxvdKiYXFnD2eQLXYFGvdsArvn3jKFuVW5YTtMeRxtRzWQw2FCy9GE
+[CREATOR] ✓ Using creation tx (proven_end=False): 4UoNSBUP9jdV6EG9CDmu...
+[CREATOR] ✓ Stored CREATE tx signature and validation for persistence
+[CREATOR] ✓ Extracted CREATE tx fee payer (creator): ELAUTBZfC72X4AJakCb3q9hmQXBrzFzdcqtXYV28uiyP
+[CREATOR] Transaction has 32 total instructions
+[CREATOR] Found Pump.fun instruction (#20): 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P
+[CREATOR] Instruction accounts: ['4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf', 'GesfTA3X2arioaHp8bbKdjG9vJtskViWACZoYvxp4twS', '2mK87EVtV364VrLv9DEPb6aAWeoPy4z39XyiMGLepump', '7VxxuJLc7oVUzWvirSU88dpSyb7HgjmsFicxEnCRhdq9', 'DydDhrksBBnPe8h79ipmdSXdvQuy5CPP2a7dh8565x62', 'Btem71eC1YkPSoyJi64qKA9YvcGgqxgyJCS1oPA6wXSY', 'ARu4n5mFdZogZAravu7CcizaojWnS6oqka37gdLT5SZn', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '7Spji6LbzQzMtPptWXYKTHsxxThNGFFNV2hvsjYiiQ8Y', 'Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y', '2DYcto5GSM9wp8v75QNPTSjkPZwvJyGBeebyBQAvNn9Z', '8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ']
+[CREATOR] Resolved 16 instruction accounts
+[CREATOR] ✓ Bonding curve candidate (pos 1): GesfTA3X2arioaHp8bbKdjG9vJtskViWACZoYvxp4twS
+[CREATOR] ⊘ Skip (is mint): 2mK87EVtV364VrLv9DEPb6aAWeoPy4z39XyiMGLepump
+[CREATOR] ✓ Bonding curve candidate (pos 3): 7VxxuJLc7oVUzWvirSU88dpSyb7HgjmsFicxEnCRhdq9
+[CREATOR] ✓ Bonding curve candidate (pos 4): DydDhrksBBnPe8h79ipmdSXdvQuy5CPP2a7dh8565x62
+[CREATOR] ✓ Bonding curve candidate (pos 5): Btem71eC1YkPSoyJi64qKA9YvcGgqxgyJCS1oPA6wXSY
+[CREATOR] ✓ Bonding curve candidate (pos 6): ARu4n5mFdZogZAravu7CcizaojWnS6oqka37gdLT5SZn
+[CREATOR] ⊘ Skip (known program): 11111111111111111111...
+[CREATOR] ⊘ Skip (known program): TokenzQdBNbLqP5VEhdk...
+[CREATOR] ✓ Bonding curve candidate (pos 9): 7Spji6LbzQzMtPptWXYKTHsxxThNGFFNV2hvsjYiiQ8Y
+[CREATOR] ✓ Bonding curve candidate (pos 10): Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1
+[CREATOR] ⊘ Skip (known program): 6EF8rrecthR5Dkzon8Nw...
+[CREATOR] ✓ Bonding curve candidate (pos 12): Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y
+[CREATOR] ✓ Bonding curve candidate (pos 13): 2DYcto5GSM9wp8v75QNPTSjkPZwvJyGBeebyBQAvNn9Z
+[CREATOR] ✓ Bonding curve candidate (pos 14): 8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt
+[CREATOR] ⊘ Skip (known program): pfeeUxB6jkeY1Hxd7CsF...
+[CREATOR] → Selected bonding curve: GesfTA3X2arioaHp8bbKdjG9vJtskViWACZoYvxp4twS
+[CREATOR] ✓ Extracted Bonding Curve: GesfTA3X2arioaHp8bbKdjG9vJtskViWACZoYvxp4twS
+[CREATOR] ✓ Extracted Bonding Curve: GesfTA3X2arioaHp8bbKdjG9vJtskViWACZoYvxp4twS
+[CREATOR] Querying bonding curve account for earliest signature...
+[CREATOR] ⚠ Hit max_pages limit (1000) on bonding_curve_pda (https://api.mainnet-beta.solana.com...) (proven=False)
+[CREATOR] ❌ No signatures found on bonding curve account
+[SETTINGS] Token history ❌ OFF - skipping token history analysis
+[SETTINGS] Creator history ✅ ON - analyzing creator network and funding
+[WEBSOCKET] 🚨 Migration #3 detected: 5DLdMvdSJqjCDWuYqQ1mVogcmHUUUVme6sXxAY1Xzwmb28G8wpHaNrbYYmU8Aci99Tq48jXAYoZvRZnEc8af25zn
+[EVENT] 🚀 MIGRATION DETECTED: F75mPfzGdBpxAyCdKt9vC6xCus7DuwnpEhooFWEgpump
+[EVENT] Migration signature: 5DLdMvdSJqjCDWuYqQ1mVogcmHUUUVme6sXxAY1Xzwmb28G8wpHaNrbYYmU8Aci99Tq48jXAYoZvRZnEc8af25zn
+[DB] ✅ Created minimal token entry for F75mPfzGdBpxAyCdKt9vC6xCus7DuwnpEhooFWEgpump
+[POOL] ✅ Extracted pool from PumpSwap instruction: 3uUrbHwhNWNZ8vruB3fJJNJbJ5HCiShKxFeEBvZhCwf5
+[EVENT] ✅ Pool extracted from transaction: 3uUrbHwhNWNZ8vruB3fJJNJbJ5HCiShKxFeEBvZhCwf5
+[POOL] Checking 20 token accounts to find pool...
+[POOL]   Checking B4jCDL7BmKJppQpwCFK4nAzDgBFcTNY8w7coifz8YPTU (balance: 4579938)
+[POOL]     Owner: AZa1A5EdDePtA6At5LymHt3q3r1jcdzWRx2tLwT8gnwa
+[PRICE] ✅ Initial price fetched: $2.37e-05 | Market Cap: $2.37e+04 | Source: dexscreener
+[ANALYZER_INIT] Token: F75mPfzGdBpxAyCdKt9vC6xCus7DuwnpEhooFWEgpump
+[ANALYZER_INIT] RPC: https://tiniest-broken-glade.solana-mainnet.quiknode.pro/2940af8488637243d9e900a...
+[CREATOR] Extracting bonding curve from creation transaction for F75mPfzGdBpxAyCdKt9v...
+[CREATOR] 📋 Programs found in transaction: ['ComputeBudget111111111111111111111111111111', 'ComputeBudget111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '11111111111111111111111111111111', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P']
+[CREATOR] Oldest tx #1: DH2hvQsZiz4wspjd... | Programs: [ComputeBudget111111111111111111111111111111, ComputeBudget111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P]
+[CREATOR] TX Validation: mint_in_accounts=True, pumpfun_program_found=True, is_pumpfun_create=True
+[CREATOR] ✅ Found Pump.fun CREATE tx: DH2hvQsZiz4wspjdXv4LqQ7ssqeEUw3NMwArHMSTpGSqhdEqYjJH1im1rDBbGZrWxZtY1PsiGhpyixPVny8eBU6
+[CREATOR] ✓ Using creation tx (proven_end=False): DH2hvQsZiz4wspjdXv4L...
+[CREATOR] ✓ Stored CREATE tx signature and validation for persistence
+[CREATOR] ✓ Extracted CREATE tx fee payer (creator): 8Nfyp66EJpVGR5WDF7Jh3iPDKQSXVxmh3MbWWYsENs9
+[CREATOR] Transaction has 33 total instructions
+[CREATOR] Found Pump.fun instruction (#2): 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P
+[CREATOR] Instruction accounts: ['F75mPfzGdBpxAyCdKt9vC6xCus7DuwnpEhooFWEgpump', 'TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM', 'CgCLXFkTjF9Z4X2g6s5FQzWK3hXtkKnXj43y3WtHAkf4', 'GjFGrz6J7kTTr4pGZoVpUgyBKPqswD5sAdq2DEkecULv', '4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf', '8Nfyp66EJpVGR5WDF7Jh3iPDKQSXVxmh3MbWWYsENs9', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e', '13ec7XdrjF3h3YcqBTFDSReRcUFwbCnJaAQspM4j6DDJ', 'BwWK17cbHxwWBKZkUYvzxLcNQ1YVyaFezduWbtm2de6s', '7FvetDyGMkpwArZLKgDikZBW3aCpdAQcUkcbqPDaY1nV', 'Cnmz3vHcY98UKaNo5Mw4cerpULaEbx5qsyKu47fHBKjR', 'Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P']
+[CREATOR] Resolved 16 instruction accounts
+[CREATOR] ⊘ Skip (is mint): F75mPfzGdBpxAyCdKt9vC6xCus7DuwnpEhooFWEgpump
+[CREATOR] ✓ Bonding curve candidate (pos 1): TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
+[CREATOR] ✓ Bonding curve candidate (pos 2): CgCLXFkTjF9Z4X2g6s5FQzWK3hXtkKnXj43y3WtHAkf4
+[CREATOR] ✓ Bonding curve candidate (pos 3): GjFGrz6J7kTTr4pGZoVpUgyBKPqswD5sAdq2DEkecULv
+[CREATOR] ✓ Bonding curve candidate (pos 4): 4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf
+[CREATOR] ✓ Bonding curve candidate (pos 5): 8Nfyp66EJpVGR5WDF7Jh3iPDKQSXVxmh3MbWWYsENs9
+[CREATOR] ⊘ Skip (known program): 11111111111111111111...
+[CREATOR] ⊘ Skip (known program): TokenzQdBNbLqP5VEhdk...
+[CREATOR] ⊘ Skip (known program): ATokenGPvbdGVxr1b2hv...
+[CREATOR] ✓ Bonding curve candidate (pos 9): MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e
+[CREATOR] ✓ Bonding curve candidate (pos 10): 13ec7XdrjF3h3YcqBTFDSReRcUFwbCnJaAQspM4j6DDJ
+[CREATOR] ✓ Bonding curve candidate (pos 11): BwWK17cbHxwWBKZkUYvzxLcNQ1YVyaFezduWbtm2de6s
+[CREATOR] ✓ Bonding curve candidate (pos 12): 7FvetDyGMkpwArZLKgDikZBW3aCpdAQcUkcbqPDaY1nV
+[CREATOR] ✓ Bonding curve candidate (pos 13): Cnmz3vHcY98UKaNo5Mw4cerpULaEbx5qsyKu47fHBKjR
+[CREATOR] ✓ Bonding curve candidate (pos 14): Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1
+[CREATOR] ⊘ Skip (known program): 6EF8rrecthR5Dkzon8Nw...
+[CREATOR] → Selected bonding curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
+[CREATOR] ✓ Extracted Bonding Curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
+[CREATOR] ✓ Extracted Bonding Curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
+[CREATOR] Querying bonding curve account for earliest signature...
+[CREATOR] ⚠ Hit max_pages limit (1000) on bonding_curve_pda (https://api.mainnet-beta.solana.com...) (proven=False)
+[CREATOR] ❌ No signatures found on bonding curve account
+[SETTINGS] Token history ❌ OFF - skipping token history analysis
+[SETTINGS] Creator history ✅ ON - analyzing creator network and funding
+[WEBSOCKET] 🚨 Migration #4 detected: 2M4KyVgRpAxzDWw4sysiAD4wZdwxS6TSXtYzmwVXRxdQXXqrojhBkpErbEn2cFR68kfNtbQ7od1iXbw439eKTeM4
+[MIGRATION] ⏭️  Token FJAMvnjKUbk1ZaBguo7ksGycQCfv4RFbbZyRp1ARpump already analyzed - SKIPPED
+[WEBSOCKET] 🚨 Migration #5 detected: 4qGoHcceFcRxqjwps6NzqzJzEv3gvZ5YjaFuVkw9nKjiFBnXb3Homov8YjgkAcEpHMGSQTY4JuVMS84h3Jpb74qF
+[MIGRATION] ⏭️  Token G6CY27MAUvhBHmTC61wsaCgwWgfm9ZNQoygSHNeppump already analyzed - SKIPPED
+[WEBSOCKET] 🚨 Migration #6 detected: 3cujYRenLje8VqqvJjUo7zkLKWHWj7MQYB6eEUK544JVamo57UVe7BANiRVtgQD1h8sPJxz85mXSZ9E2iQMXwDUg
+[MIGRATION] ⏭️  Token 4WUeqBHEPJKcZNoH5i9mTjF3i5iMyeqXjJknvUb8pump already analyzed - SKIPPED
+[WEBSOCKET] 🚨 Migration #7 detected: 4AQMZxJm3AdjWwae8t8j3KnL7Nj9i5nUfJmQg7EFJ9acbQBkaabNgocsamGgULxyVusVttzPn3xYApkhWZud7W8u
+[EVENT] 🚀 MIGRATION DETECTED: G6m97LdXGvxZ9m8bFX6ozH2AMaUsnB5mf6sVw7Xppump
+[EVENT] Migration signature: 4AQMZxJm3AdjWwae8t8j3KnL7Nj9i5nUfJmQg7EFJ9acbQBkaabNgocsamGgULxyVusVttzPn3xYApkhWZud7W8u
+[DB] ✅ Created minimal token entry for G6m97LdXGvxZ9m8bFX6ozH2AMaUsnB5mf6sVw7Xppump
+[POOL] ✅ Extracted pool from PumpSwap instruction: AXQNGJLMc8Pne68ZroXu9LYJzbUeZ1Eiddi3FZdAVoWZ
+[EVENT] ✅ Pool extracted from transaction: AXQNGJLMc8Pne68ZroXu9LYJzbUeZ1Eiddi3FZdAVoWZ
+[POOL] Checking 20 token accounts to find pool...
+[POOL]   Checking 8tAofA116P53Zoq1iTUKsrzUMPG9Kz98AMQ5V5Tj18v (balance: 14731849)
+[POOL]     Owner: AvFrhM2phkuKxVs9tbyLKyTspN1ffTBz3akuKpJgsuT4
+[PRICE] ✅ Initial price fetched: $3.69e-05 | Market Cap: $3.69e+04 | Source: dexscreener
+[ANALYZER_INIT] Token: G6m97LdXGvxZ9m8bFX6ozH2AMaUsnB5mf6sVw7Xppump
+[ANALYZER_INIT] RPC: https://tiniest-broken-glade.solana-mainnet.quiknode.pro/2940af8488637243d9e900a...
+[CREATOR] Extracting bonding curve from creation transaction for G6m97LdXGvxZ9m8bFX6o...
+[CREATOR] 📋 Programs found in transaction: ['ComputeBudget111111111111111111111111111111', 'ComputeBudget111111111111111111111111111111', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'F5tfvbLog9VdGUPqBDTT8rgXvTTcq7e5UiGnupL1zvBq', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '11111111111111111111111111111111']
+[CREATOR] Oldest tx #1: 5WriXsgigcVnJsHw... | Programs: [ComputeBudget111111111111111111111111111111, ComputeBudget111111111111111111111111111111, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, F5tfvbLog9VdGUPqBDTT8rgXvTTcq7e5UiGnupL1zvBq, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111]
+[CREATOR] TX Validation: mint_in_accounts=True, pumpfun_program_found=True, is_pumpfun_create=True
+[CREATOR] ✅ Found Pump.fun CREATE tx: 5WriXsgigcVnJsHwDX6K1KQpEk8nKvwq7L97DPjLJHkEEdH7AyUHxb4MKFmtfVdHGmXutYfLYoVQAzum9BpC1GiS
+[CREATOR] ✓ Using creation tx (proven_end=False): 5WriXsgigcVnJsHwDX6K...
+[CREATOR] ✓ Stored CREATE tx signature and validation for persistence
+[CREATOR] ✓ Extracted CREATE tx fee payer (creator): GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva
+[CREATOR] Transaction has 19 total instructions
+[CREATOR] Found Pump.fun instruction (#3): FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9
+[CREATOR] Instruction accounts: ['GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva', 'GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva', '7oi1L8U9MRu5zDz5syFahsiLUric47LzvJBQX6r827ws', '11111111111111111111111111111111', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9', 'F5tfvbLog9VdGUPqBDTT8rgXvTTcq7e5UiGnupL1zvBq', '4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf', 'G5UZAVbAf46s7cKWoyKu8kYTip9DGTpbLZ2qa9Aq69dP', 'G6m97LdXGvxZ9m8bFX6ozH2AMaUsnB5mf6sVw7Xppump', '2X1fEGoY1oSPHmKU8Guqko38XYaDqwJfygMTwBNta1MZ', '58buoqvPe7pYuM2mPxokXFRGUaPRC5wWn7BtYDQQWdJr', '3PdntrDafThEeB3f7bvPy4RC5wjStvnosHSpzQfXq2ji', 'GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'CLCM5beFYSroY6Pvh4yy9GC6DZeTACyvfp5uSgVKaQF9', 'Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y', '58RyX8NfhLd6UFEwY2XF6vmDofC41p5mFVRcdkfYkmQP', '8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9', 'ECDrSz47nXihe5kyK4oWEePPsPi9qz6u5d6Fa2sDj3uM', '5EUorK1wAv6j5qdNargYE5XNJrgb4s2PJAjwqQxjQMSW', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9']
+[CREATOR] Resolved 28 instruction accounts
+[CREATOR] ✓ Bonding curve candidate (pos 1): GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva
+[CREATOR] ✓ Bonding curve candidate (pos 2): 7oi1L8U9MRu5zDz5syFahsiLUric47LzvJBQX6r827ws
+[CREATOR] ⊘ Skip (known program): 11111111111111111111...
+[CREATOR] ⊘ Skip (known program): FLASHX8DrLbgeR8FcfNV...
+[CREATOR] ✓ Bonding curve candidate (pos 5): F5tfvbLog9VdGUPqBDTT8rgXvTTcq7e5UiGnupL1zvBq
+[CREATOR] ✓ Bonding curve candidate (pos 6): 4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf
+[CREATOR] ✓ Bonding curve candidate (pos 7): G5UZAVbAf46s7cKWoyKu8kYTip9DGTpbLZ2qa9Aq69dP
+[CREATOR] ⊘ Skip (is mint): G6m97LdXGvxZ9m8bFX6ozH2AMaUsnB5mf6sVw7Xppump
+[CREATOR] ✓ Bonding curve candidate (pos 9): 2X1fEGoY1oSPHmKU8Guqko38XYaDqwJfygMTwBNta1MZ
+[CREATOR] ✓ Bonding curve candidate (pos 10): 58buoqvPe7pYuM2mPxokXFRGUaPRC5wWn7BtYDQQWdJr
+[CREATOR] ✓ Bonding curve candidate (pos 11): 3PdntrDafThEeB3f7bvPy4RC5wjStvnosHSpzQfXq2ji
+[CREATOR] ✓ Bonding curve candidate (pos 12): GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva
+[CREATOR] ⊘ Skip (known program): 11111111111111111111...
+[CREATOR] ⊘ Skip (known program): TokenzQdBNbLqP5VEhdk...
+[CREATOR] ✓ Bonding curve candidate (pos 15): CLCM5beFYSroY6Pvh4yy9GC6DZeTACyvfp5uSgVKaQF9
+[CREATOR] ✓ Bonding curve candidate (pos 16): Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1
+[CREATOR] ⊘ Skip (known program): 6EF8rrecthR5Dkzon8Nw...
+[CREATOR] ✓ Bonding curve candidate (pos 18): Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y
+[CREATOR] ✓ Bonding curve candidate (pos 19): 58RyX8NfhLd6UFEwY2XF6vmDofC41p5mFVRcdkfYkmQP
+[CREATOR] ✓ Bonding curve candidate (pos 20): 8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt
+[CREATOR] ⊘ Skip (known program): pfeeUxB6jkeY1Hxd7CsF...
+[CREATOR] ⊘ Skip (known program): FLASHX8DrLbgeR8FcfNV...
+[CREATOR] ✓ Bonding curve candidate (pos 23): ECDrSz47nXihe5kyK4oWEePPsPi9qz6u5d6Fa2sDj3uM
+[CREATOR] ✓ Bonding curve candidate (pos 24): 5EUorK1wAv6j5qdNargYE5XNJrgb4s2PJAjwqQxjQMSW
+[CREATOR] ⊘ Skip (known program): FLASHX8DrLbgeR8FcfNV...
+[CREATOR] ⊘ Skip (known program): FLASHX8DrLbgeR8FcfNV...
+[CREATOR] ⊘ Skip (known program): FLASHX8DrLbgeR8FcfNV...
+[CREATOR] → Selected bonding curve: GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva
+[CREATOR] ✓ Extracted Bonding Curve: GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva
+[CREATOR] ✓ Extracted Bonding Curve: GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva
+[CREATOR] Querying bonding curve account for earliest signature...
+[CREATOR] ⚠ Hit max_pages limit (1000) on bonding_curve_pda (https://api.mainnet-beta.solana.com...) (proven=False)
+[CREATOR] ❌ No signatures found on bonding curve account
+[SETTINGS] Token history ❌ OFF - skipping token history analysis
+[SETTINGS] Creator history ✅ ON - analyzing creator network and funding
+[WEBSOCKET] 🚨 Migration #8 detected: 3A3QgSW4dkPQqttfiXweZTxfnEf8qMhbEGYdU4Hi1XM6vT9x86HjynLAmActoUiDREekifpuV92gNk7QnEhTuGo8
+[MIGRATION] ⏭️  Token 2tQsubFdGU4YxeC639FFAfKnXHT1Tq1yTzWuiAKfpump already analyzed - SKIPPED
+[WEBSOCKET] 🚨 Migration #9 detected: VVtE6WffYjwkEmc987Yg6YUbgduAe1FwtZX21DuL7mE3eck1bQKo5dkPFGHMQgUTN8jGNCZkcrRr2Mh1y5CWEx8
+[EVENT] 🚀 MIGRATION DETECTED: 6PPSkncEe2hFgmaCmtYojESueKHmRd67pcQqXkhkpump
+[EVENT] Migration signature: VVtE6WffYjwkEmc987Yg6YUbgduAe1FwtZX21DuL7mE3eck1bQKo5dkPFGHMQgUTN8jGNCZkcrRr2Mh1y5CWEx8
+[DB] ✅ Created minimal token entry for 6PPSkncEe2hFgmaCmtYojESueKHmRd67pcQqXkhkpump
+[POOL] ✅ Extracted pool from PumpSwap instruction: 5AjA24D8AbmFbZ6yfCPcrF3sUT4f8gViVzaQiqwtRdeT
+[EVENT] ✅ Pool extracted from transaction: 5AjA24D8AbmFbZ6yfCPcrF3sUT4f8gViVzaQiqwtRdeT
+[POOL] Checking 20 token accounts to find pool...
+[POOL]   Checking 7TbZuXV3TchiG5S3W6NS7XoYZ6ZYWkxQBU7L9ThgV2JZ (balance: 20034460)
+[POOL]     Owner: BtMBMPkoNbnLF9Xn552guQq528KKXcsNBNNBre3oaQtr
+[PRICE] ✅ Initial price fetched: $1.86e-05 | Market Cap: $1.86e+04 | Source: dexscreener
+[ANALYZER_INIT] Token: 6PPSkncEe2hFgmaCmtYojESueKHmRd67pcQqXkhkpump
+[ANALYZER_INIT] RPC: https://tiniest-broken-glade.solana-mainnet.quiknode.pro/2940af8488637243d9e900a...
+[CREATOR] Extracting bonding curve from creation transaction for 6PPSkncEe2hFgmaCmtYo...
+[CREATOR] 📋 Programs found in transaction: ['ComputeBudget111111111111111111111111111111', 'ComputeBudget111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P']
+[CREATOR] Oldest tx #1: 24CEaUSxRj9JmWAM... | Programs: [ComputeBudget111111111111111111111111111111, ComputeBudget111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P]
+[CREATOR] TX Validation: mint_in_accounts=True, pumpfun_program_found=True, is_pumpfun_create=True
+[CREATOR] ✅ Found Pump.fun CREATE tx: 24CEaUSxRj9JmWAMgV3WdSDXRVDv65kmHQPewJFcxnJ4BaE58J7PNbonjNc6LxTMWbRSP9BuaJmNH4Vp77ky1aaG
+[CREATOR] ✓ Using creation tx (proven_end=False): 24CEaUSxRj9JmWAMgV3W...
+[CREATOR] ✓ Stored CREATE tx signature and validation for persistence
+[CREATOR] ✓ Extracted CREATE tx fee payer (creator): GpTXmkdvrTajqkzX1fBmC4BUjSboF9dHgfnqPqj8WAc4
+[CREATOR] Transaction has 32 total instructions
+[CREATOR] Found Pump.fun instruction (#4): 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P
+[CREATOR] Instruction accounts: ['6PPSkncEe2hFgmaCmtYojESueKHmRd67pcQqXkhkpump', 'TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM', '9224ubp37YpXKLemZGitr7iCbCdBFZkEU5M6Zj6pzd7V', 'EZUSYBwEqLamfxdX3Z7SC8xJDbfHvcCY4EkQmb9cvktM', '4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf', 'GpTXmkdvrTajqkzX1fBmC4BUjSboF9dHgfnqPqj8WAc4', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e', '13ec7XdrjF3h3YcqBTFDSReRcUFwbCnJaAQspM4j6DDJ', 'BwWK17cbHxwWBKZkUYvzxLcNQ1YVyaFezduWbtm2de6s', 'DLeaKPkH9TpKFp1dTzA5Y3PMXbMeYrZV7VJXspGGJB68', '2UncfBgnCaqNPYJHVt5o8n56ZATFBbNFvDmL8ZmZZevQ', 'Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P']
+[CREATOR] Resolved 16 instruction accounts
+[CREATOR] ⊘ Skip (is mint): 6PPSkncEe2hFgmaCmtYojESueKHmRd67pcQqXkhkpump
+[CREATOR] ✓ Bonding curve candidate (pos 1): TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
+[CREATOR] ✓ Bonding curve candidate (pos 2): 9224ubp37YpXKLemZGitr7iCbCdBFZkEU5M6Zj6pzd7V
+[CREATOR] ✓ Bonding curve candidate (pos 3): EZUSYBwEqLamfxdX3Z7SC8xJDbfHvcCY4EkQmb9cvktM
+[CREATOR] ✓ Bonding curve candidate (pos 4): 4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf
+[CREATOR] ✓ Bonding curve candidate (pos 5): GpTXmkdvrTajqkzX1fBmC4BUjSboF9dHgfnqPqj8WAc4
+[CREATOR] ⊘ Skip (known program): 11111111111111111111...
+[CREATOR] ⊘ Skip (known program): TokenzQdBNbLqP5VEhdk...
+[CREATOR] ⊘ Skip (known program): ATokenGPvbdGVxr1b2hv...
+[CREATOR] ✓ Bonding curve candidate (pos 9): MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e
+[CREATOR] ✓ Bonding curve candidate (pos 10): 13ec7XdrjF3h3YcqBTFDSReRcUFwbCnJaAQspM4j6DDJ
+[CREATOR] ✓ Bonding curve candidate (pos 11): BwWK17cbHxwWBKZkUYvzxLcNQ1YVyaFezduWbtm2de6s
+[CREATOR] ✓ Bonding curve candidate (pos 12): DLeaKPkH9TpKFp1dTzA5Y3PMXbMeYrZV7VJXspGGJB68
+[CREATOR] ✓ Bonding curve candidate (pos 13): 2UncfBgnCaqNPYJHVt5o8n56ZATFBbNFvDmL8ZmZZevQ
+[CREATOR] ✓ Bonding curve candidate (pos 14): Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1
+[CREATOR] ⊘ Skip (known program): 6EF8rrecthR5Dkzon8Nw...
+[CREATOR] → Selected bonding curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
+[CREATOR] ✓ Extracted Bonding Curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
+[CREATOR] ✓ Extracted Bonding Curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
+[CREATOR] Querying bonding curve account for earliest signature...
+[CREATOR] ⚠ Hit max_pages limit (1000) on bonding_curve_pda (https://api.mainnet-beta.solana.com...) (proven=False)
+[CREATOR] ❌ No signatures found on bonding curve account
+[SETTINGS] Token history ❌ OFF - skipping token history analysis
+[SETTINGS] Creator history ✅ ON - analyzing creator network and funding

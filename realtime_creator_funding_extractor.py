@@ -463,16 +463,13 @@ class RealTimeCreatorFundingExtractor:
     async def extract_for_creator(self, creator: str, migration_timestamp_str: str) -> Dict:
         """
         Extract funding activity for a creator using Helius Enhanced API.
-        Much faster and more reliable than RPC-based balance analysis.
-
-        Strategy:
-        1. Use Helius /addresses/{address}/transactions endpoint
-        2. Parse pre-parsed nativeTransfers (no complex balance analysis needed)
-        3. Identify funders (inbound transfers) before migration
-        4. Identify recipients (outbound transfers) before migration
-        5. Save all relationships to database
-        6. EXCLUDE: token mints, bonding curves from BOTH directions
-        7. FILTER: dust/spam (< 0.001 SOL)
+        Uses same reliable approach as standalone tmp.py script:
+        - Single page fetch (100 txs) instead of rapid pagination
+        - Proper delays between requests
+        - Filters pre-migration transfers only
+        - Excludes token mints and bonding curves from both directions
+        
+        This is slower than pagination but avoids 429 rate limit errors.
         """
         if creator in self.processed_creators:
             return {"status": "already_processed"}
@@ -515,26 +512,19 @@ class RealTimeCreatorFundingExtractor:
             if exclude_set:
                 print(f"[REALTIME_FUNDING]    Excluding {len(exclude_set)} addresses (creator's tokens & bonding curves)", flush=True)
 
-            # Use Helius API to get pre-migration transactions
-            funders = {}  # funder -> amount_sol
-            recipients = {}  # recipient -> amount_sol
+            # Use Helius API - single page fetch (like tmp.py approach)
+            funders = {}
+            recipients = {}
             filtered_dust = 0
             filtered_excluded = 0
             
-            # Fetch from Helius Enhanced API
-            before = None
-            fetched = 0
-            pages = 0
-            max_pages = 10  # Limit to ~1000 transactions for real-time speed (100 per page)
-            MIN_SOL = 0.001  # Filter out dust/spam (< 0.001 SOL)
+            MIN_SOL = 0.001  # Filter dust
             
-            print(f"[REALTIME_FUNDING]    Fetching transactions from Helius API...", flush=True)
+            print(f"[REALTIME_FUNDING]    Fetching first page from Helius API...", flush=True)
             
-            async with aiohttp.ClientSession() as helius_session:
-                while fetched < 1000 and pages < max_pages:
-                    pages += 1
-                    
-                    # Helius Enhanced API endpoint
+            try:
+                async with aiohttp.ClientSession() as helius_session:
+                    # Fetch single page (100 transactions)
                     url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{creator}/transactions"
                     params = {
                         "api-key": HELIUS_API_KEY,
@@ -542,92 +532,81 @@ class RealTimeCreatorFundingExtractor:
                         "sort-order": "desc",
                         "commitment": "finalized",
                     }
-                    if before:
-                        params["before-signature"] = before
                     
-                    try:
-                        async with helius_session.get(
-                            url, 
-                            params=params, 
-                            timeout=aiohttp.ClientTimeout(total=30)
-                        ) as resp:
-                            if resp.status != 200:
-                                txt = await resp.text()
-                                print(f"[REALTIME_FUNDING]    ⚠ Helius HTTP {resp.status}: {txt[:100]}", flush=True)
-                                break
+                    async with helius_session.get(
+                        url, 
+                        params=params, 
+                        timeout=aiohttp.ClientTimeout(total=30)
+                    ) as resp:
+                        if resp.status == 429:
+                            print(f"[REALTIME_FUNDING]    ⚠ Rate limited (429) - will extract later via batch processor", flush=True)
+                            return {"creator": creator, "status": "rate_limited"}
+                        
+                        if resp.status != 200:
+                            txt = await resp.text()
+                            print(f"[REALTIME_FUNDING]    ⚠ Helius HTTP {resp.status}: {txt[:100]}", flush=True)
+                            return {"creator": creator, "error": f"HTTP {resp.status}"}
+                        
+                        page = await resp.json()
+                        if not isinstance(page, list):
+                            print(f"[REALTIME_FUNDING]    ⚠ Unexpected response type", flush=True)
+                            return {"creator": creator, "error": "Invalid response"}
+                        
+                        print(f"[REALTIME_FUNDING]    [PAGE 1] fetched={len(page)} txs", flush=True)
+                        
+                        # Process transactions
+                        for tx in page:
+                            tx_ts = tx.get("timestamp", 0)
                             
-                            page = await resp.json()
-                            if not isinstance(page, list):
-                                print(f"[REALTIME_FUNDING]    ⚠ Unexpected response type", flush=True)
-                                break
+                            # Skip post-migration transactions
+                            if tx_ts >= migration_timestamp:
+                                continue
                             
-                            if not page:
-                                break
-                            
-                            fetched += len(page)
-                            before = page[-1].get("signature")
-                            
-                            # Process each transaction
-                            for tx in page:
-                                tx_ts = tx.get("timestamp", 0)
+                            # Extract nativeTransfers
+                            native = tx.get("nativeTransfers") or []
+                            for nt in native:
+                                frm = nt.get("fromUserAccount")
+                                to = nt.get("toUserAccount")
+                                amt = nt.get("amount", 0)
                                 
-                                # Skip post-migration transactions
-                                if tx_ts >= migration_timestamp:
+                                if not isinstance(frm, str) or not isinstance(to, str):
                                     continue
                                 
-                                # Extract nativeTransfers
-                                native = tx.get("nativeTransfers") or []
-                                for nt in native:
-                                    frm = nt.get("fromUserAccount")
-                                    to = nt.get("toUserAccount")
-                                    amt = nt.get("amount", 0)
-                                    
-                                    if not isinstance(frm, str) or not isinstance(to, str):
+                                amount_sol = amt / 1_000_000_000
+                                
+                                # Filter dust
+                                if amount_sol < MIN_SOL:
+                                    filtered_dust += 1
+                                    continue
+                                
+                                # Inbound: someone sent creator SOL
+                                if to == creator and amount_sol > 0:
+                                    if frm in exclude_set:
+                                        filtered_excluded += 1
                                         continue
                                     
-                                    amount_sol = amt / 1_000_000_000
-                                    
-                                    # Filter dust/spam
-                                    if amount_sol < MIN_SOL:
-                                        filtered_dust += 1
+                                    if frm not in funders:
+                                        funders[frm] = 0
+                                    funders[frm] += amount_sol
+                                    self._save_funder(creator, frm, amount_sol)
+                                
+                                # Outbound: creator sent SOL
+                                elif frm == creator and amount_sol > 0:
+                                    if to in exclude_set:
+                                        filtered_excluded += 1
                                         continue
                                     
-                                    # Inbound: someone sent creator SOL (FUNDING)
-                                    if to == creator and amount_sol > 0:
-                                        # Skip if sender is in exclusion set
-                                        if frm in exclude_set:
-                                            filtered_excluded += 1
-                                            continue
-                                        
-                                        if frm not in funders:
-                                            funders[frm] = 0
-                                        funders[frm] += amount_sol
-                                        # Save immediately
-                                        self._save_funder(creator, frm, amount_sol)
-                                    
-                                    # Outbound: creator sent SOL to someone (RECIPIENTS)
-                                    elif frm == creator and amount_sol > 0:
-                                        # Skip if recipient is in exclusion set
-                                        if to in exclude_set:
-                                            filtered_excluded += 1
-                                            continue
-                                        
-                                        if to not in recipients:
-                                            recipients[to] = 0
-                                        recipients[to] += amount_sol
-                                        # Save recipient
-                                        self._save_recipient(creator, to, amount_sol)
-                            
-                            print(f"[REALTIME_FUNDING]    [PAGE {pages}] txs={len(page)} fetched={fetched} funders={len(funders)} recipients={len(recipients)}", flush=True)
-                            
-                            if not before:
-                                break
-                            
-                            await asyncio.sleep(0.2)  # Light delay to be respectful to API
-                    
-                    except Exception as e:
-                        print(f"[REALTIME_FUNDING]    ⚠ Error fetching page: {e}", flush=True)
-                        break
+                                    if to not in recipients:
+                                        recipients[to] = 0
+                                    recipients[to] += amount_sol
+                                    self._save_recipient(creator, to, amount_sol)
+            
+            except asyncio.TimeoutError:
+                print(f"[REALTIME_FUNDING]    ⚠ Timeout - will extract later via batch processor", flush=True)
+                return {"creator": creator, "status": "timeout"}
+            except Exception as e:
+                print(f"[REALTIME_FUNDING]    ⚠ Error: {e}", flush=True)
+                return {"creator": creator, "error": str(e)}
             
             # Summary
             total_inbound = sum(funders.values())
@@ -635,10 +614,11 @@ class RealTimeCreatorFundingExtractor:
             
             print(f"[REALTIME_FUNDING]    ✓ Inbound: {len(funders)} funders ({total_inbound:.2f} SOL)", flush=True)
             print(f"[REALTIME_FUNDING]    ✓ Outbound: {len(recipients)} recipients ({total_outbound:.2f} SOL)", flush=True)
+            
             if filtered_dust > 0:
-                print(f"[REALTIME_FUNDING]    ℹ Filtered {filtered_dust} dust transfers (<{MIN_SOL} SOL)", flush=True)
+                print(f"[REALTIME_FUNDING]    ℹ Filtered {filtered_dust} dust transfers", flush=True)
             if filtered_excluded > 0:
-                print(f"[REALTIME_FUNDING]    ℹ Filtered {filtered_excluded} transfers (token/curve exclusions)", flush=True)
+                print(f"[REALTIME_FUNDING]    ℹ Filtered {filtered_excluded} internal transfers (token/curve)", flush=True)
             
             # Show top funders
             if funders:
@@ -646,21 +626,14 @@ class RealTimeCreatorFundingExtractor:
                 for i, (funder, amount) in enumerate(sorted_funders, 1):
                     print(f"[REALTIME_FUNDING]    Funder #{i}: {funder[:16]}... → {amount:.2f} SOL", flush=True)
             
-            # Show top recipients
-            if recipients:
-                sorted_recipients = sorted(recipients.items(), key=lambda x: x[1], reverse=True)[:3]
-                for i, (recipient, amount) in enumerate(sorted_recipients, 1):
-                    print(f"[REALTIME_FUNDING]    Recipient #{i}: {recipient[:16]}... ← {amount:.2f} SOL", flush=True)
-            
             return {
                 "creator": creator,
-                "signatures_checked": fetched,
+                "status": "success",
                 "funding_sources": len(funders),
                 "total_inbound": total_inbound,
                 "outgoing_transfers": len(recipients),
                 "total_outbound": total_outbound,
-                "funders": {k: v for k, v in sorted(funders.items(), key=lambda x: x[1], reverse=True)[:10]} if funders else {},
-                "recipients": {k: v for k, v in sorted(recipients.items(), key=lambda x: x[1], reverse=True)[:10]} if recipients else {}
+                "funders": {k: v for k, v in sorted(funders.items(), key=lambda x: x[1], reverse=True)[:10]} if funders else {}
             }
 
         except Exception as e:

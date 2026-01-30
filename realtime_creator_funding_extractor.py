@@ -28,6 +28,7 @@ from datetime import datetime
 DB_PATH = "pumpswap_tokens.db"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "80ff2d2d-14d1-4b05-bfcd-26769047e331"
 HELIUS_URL = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
+PUBLIC_RPC = "https://api.mainnet-beta.solana.com"
 
 
 class RealTimeCreatorFundingExtractor:
@@ -48,7 +49,8 @@ class RealTimeCreatorFundingExtractor:
             await self.session.close()
 
     async def _post_rpc(self, payload: dict, timeout: int = 15) -> Optional[dict]:
-        """Post to RPC"""
+        """Post to RPC - tries Helius first, falls back to public RPC"""
+        # Try Helius first
         try:
             async with self.session.post(
                 HELIUS_URL,
@@ -56,9 +58,25 @@ class RealTimeCreatorFundingExtractor:
                 timeout=aiohttp.ClientTimeout(total=timeout),
             ) as resp:
                 if resp.status == 200:
+                    result = await resp.json()
+                    # Check if Helius returned an error (rate limited, etc)
+                    if 'error' not in result:
+                        return result
+        except:
+            pass
+
+        # Fallback to public Solana RPC if Helius fails
+        try:
+            async with self.session.post(
+                PUBLIC_RPC,
+                json=payload,
+                timeout=aiohttp.ClientTimeout(total=timeout),
+            ) as resp:
+                if resp.status == 200:
                     return await resp.json()
         except:
             pass
+
         return None
 
     async def get_signatures_until_time(

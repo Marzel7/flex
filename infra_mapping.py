@@ -65,6 +65,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["infra", "automation", "trading-bot"],
     },
+
+    # Jitotip 6 (MEV/Fee Tipping Automation)
+    "ADuUkR4vqLUMWXxW9gh6D6L8pMSawimctcNZ5pGwDcEt": {
+        "name": "Jitotip 6",
+        "category": "automation",
+        "description": "Jitotip MEV/fee tipping automation account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "jito", "mev"],
+    },
 }
 
 # CEX account mappings (external exchanges - different characteristics)

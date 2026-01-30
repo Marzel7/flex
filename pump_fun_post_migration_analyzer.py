@@ -861,6 +861,9 @@ class PostMigrationAnalyzer:
         """
         Find the true earliest signature using full-history RPC chain.
         
+        OPTIMIZATION: If we already found the CREATE tx signature earlier,
+        skip pagination and return it immediately!
+        
         For Pump.fun tokens, queries the bonding curve PDA (if provided) to find the
         creation transaction. Otherwise falls back to token mint.
         
@@ -875,6 +878,11 @@ class PostMigrationAnalyzer:
           - proven: True if we reached end-of-history or legitimately paginated through real data
           - rpc_used: Which RPC endpoint succeeded
         """
+        # FAST PATH: If we already found the CREATE tx, return it immediately
+        if self._create_tx_signature:
+            print(f"[CREATOR] 🚀 Fast path: Already have CREATE tx signature, skipping pagination", flush=True)
+            return self._create_tx_signature, True, "cached"
+        
         if not HISTORY_RPC_URLS:
             return None, False, "none"
 

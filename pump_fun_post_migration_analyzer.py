@@ -29,18 +29,14 @@ BATCH_DELAY = 0.2  # Small delay between batches to prevent burst overload
 
 # RPC failover chain - same as pumpfun_curve_listener
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
-RPC_URL = os.getenv("RPC_URL", "")
-RPC_URL_2 = os.getenv("RPC_URL_2", "")
-FLUX_RPC_URL = "https://eu.fluxrpc.com?key=65c5a3de-6232-4300-a9c6-198646d467c4"
+# RPC Configuration: Use Helius for primary, Public Solana as fallback
+# QuickNode removed - causes rate limiting issues
+RPC_URLS = []
+if HELIUS_API_KEY:
+    RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}")
+RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public Solana fallback
 
-# HTTP: Use QuickNode if available, then Helius, then public
-# NOTE: FluxRPC excluded - it only returns recent ~5min of data, unsuitable for signature history
-RPC_URLS = [url for url in [RPC_URL, RPC_URL_2] if url]  # QuickNodes
-RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com")  # Helius fallback
-RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
-
-# History RPC: Full history only (no FluxRPC which caches recent only, no QuickNode which can be unreliable)
-# Use Helius (if available) and public Solana for reliable full-history pagination
+# History RPC: Use Helius (if available) and public Solana for reliable full-history pagination
 HISTORY_RPC_URLS = []
 if HELIUS_API_KEY:
     HISTORY_RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}")

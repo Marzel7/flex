@@ -1442,71 +1442,52 @@ HTML_TEMPLATE = """
 
                             // Get infrastructure tags for creator or funders
                             let infraTags = '';
-                            const infraTagsToShow = new Set();
-                            let categoryToShow = null;
-                            let descriptionToShow = '';
+                            let displayName = null;
+                            let displayCategory = null;
+                            let displayDescription = '';
 
-                            // Check if creator itself is infrastructure (non-CEX)
-                            if (token.creator && window.infraMapping && window.infraMapping.infrastructure && window.infraMapping.infrastructure[token.creator]) {
-                                const info = window.infraMapping.infrastructure[token.creator];
-                                categoryToShow = info.category;
-                                descriptionToShow = info.description;
-                                info.tags.forEach(tag => infraTagsToShow.add(tag));
-                            }
-
-                            // Check if creator is CEX
-                            if (token.creator && window.infraMapping && window.infraMapping.cex && window.infraMapping.cex[token.creator]) {
-                                const info = window.infraMapping.cex[token.creator];
-                                if (!categoryToShow) {
-                                    categoryToShow = info.category;
-                                    descriptionToShow = info.description;
+                            // Check if creator itself is infrastructure or CEX - show account name only
+                            if (token.creator && window.infraMapping) {
+                                if (window.infraMapping.infrastructure && window.infraMapping.infrastructure[token.creator]) {
+                                    const info = window.infraMapping.infrastructure[token.creator];
+                                    displayName = info.name;
+                                    displayCategory = info.category;
+                                    displayDescription = info.description;
                                 }
-                                info.tags.forEach(tag => infraTagsToShow.add(tag));
+                                if (!displayName && window.infraMapping.cex && window.infraMapping.cex[token.creator]) {
+                                    const info = window.infraMapping.cex[token.creator];
+                                    displayName = info.name;
+                                    displayCategory = info.category;
+                                    displayDescription = info.description;
+                                }
                             }
 
-                            // Check if any funders are infrastructure or CEX
-                            if (token.creatorData && token.creatorData.funders) {
-                                token.creatorData.funders.forEach(funder => {
-                                    // Check if funder is in infrastructure mapping (non-CEX)
+                            // Check if any funders are infrastructure or CEX - show account name only
+                            if (!displayName && token.creatorData && token.creatorData.funders) {
+                                for (let funder of token.creatorData.funders) {
+                                    // Check infrastructure funders first
                                     if (window.infraMapping && window.infraMapping.infrastructure && window.infraMapping.infrastructure[funder.address]) {
                                         const info = window.infraMapping.infrastructure[funder.address];
-                                        if (!categoryToShow) {
-                                            categoryToShow = info.category;
-                                            descriptionToShow = info.description;
-                                        }
-                                        info.tags.forEach(tag => infraTagsToShow.add(tag));
+                                        displayName = info.name;
+                                        displayCategory = info.category;
+                                        displayDescription = info.description;
+                                        break;
                                     }
-
-                                    // Check if funder is a CEX account
+                                    // Then check CEX funders
                                     if (window.infraMapping && window.infraMapping.cex && window.infraMapping.cex[funder.address]) {
                                         const info = window.infraMapping.cex[funder.address];
-                                        if (!categoryToShow) {
-                                            categoryToShow = info.category;
-                                            descriptionToShow = info.description;
-                                        }
-                                        info.tags.forEach(tag => infraTagsToShow.add(tag));
+                                        displayName = info.name;
+                                        displayCategory = info.category;
+                                        displayDescription = info.description;
+                                        break;
                                     }
-
-                                    // Also show CEX tag if funder is marked as CEX in database
-                                    if (funder.is_cex) {
-                                        if (!categoryToShow) {
-                                            categoryToShow = 'cex';
-                                            descriptionToShow = `${funder.cex_exchange} ${funder.cex_type}`;
-                                        }
-                                        infraTagsToShow.add('cex');
-                                        if (funder.cex_exchange) {
-                                            infraTagsToShow.add(funder.cex_exchange.toLowerCase());
-                                        }
-                                    }
-                                });
+                                }
                             }
 
-                            // Render tags if we have any
-                            if (categoryToShow || infraTagsToShow.size > 0) {
-                                const category = categoryToShow || 'cex';
+                            // Render simple account name badge if we found a match
+                            if (displayName && displayCategory) {
                                 infraTags = `<div class="creator-infra-tags">
-                                    ${categoryToShow ? `<span class="infra-tag infra-${categoryToShow}" title="${descriptionToShow}">${categoryToShow.toUpperCase()}</span>` : ''}
-                                    ${Array.from(infraTagsToShow).map(tag => `<span class="tag tag-${tag}">${tag}</span>`).join('')}
+                                    <span class="infra-tag infra-${displayCategory}" title="${displayDescription}">${displayName}</span>
                                 </div>`;
                             }
 

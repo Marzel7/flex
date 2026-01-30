@@ -23,6 +23,13 @@ import time
 
 DB_PATH = "pumpswap_tokens.db"
 
+# Import unified recipient tracker if available
+try:
+    from unified_recipient_tracker import UnifiedRecipientTracker
+    HAS_UNIFIED_TRACKER = True
+except ImportError:
+    HAS_UNIFIED_TRACKER = False
+
 class CreatorWatchManager:
     """Manages continuous monitoring of creator SOL activity"""
 
@@ -46,6 +53,9 @@ class CreatorWatchManager:
 
         # Track which creators we're watching
         self.watching_creators = {}  # creator_pubkey -> {'watching': bool, 'last_poll': time}
+        
+        # Polling control flag
+        self.polling_enabled = True  # Toggle for UI control
 
         self._ensure_db()
 
@@ -139,12 +149,13 @@ class CreatorWatchManager:
                 VALUES (?, ?, ?, ?)
             """, (creator_pubkey, slot, create_sig, confidence))
 
-            # Initialize polling state
+            # Initialize polling state - do NOT set last_signature yet
+            # First poll will fetch most recent signatures without a "before" anchor
             cursor.execute("""
                 INSERT OR IGNORE INTO creator_state
                 (creator_pubkey, last_signature, last_slot)
-                VALUES (?, ?, ?)
-            """, (creator_pubkey, create_sig, slot))
+                VALUES (?, NULL, ?)
+            """, (creator_pubkey, slot))
 
             conn.commit()
             conn.close()
@@ -180,12 +191,14 @@ class CreatorWatchManager:
         endpoints = [self.rpc_url, self.rpc_url_2, self.helius_rpc]
         endpoints = [e for e in endpoints if e]  # Remove None values
 
-        for endpoint in endpoints:
+        for i, endpoint in enumerate(endpoints):
             result = await self._post_rpc(payload, endpoint)
             if result and "result" in result:
                 return result
+            # print(f"[RPC] Endpoint {i+1}/{len(endpoints)} failed ({endpoint[:30]}...)", flush=True)
             await asyncio.sleep(0.1)
 
+        # print(f"[RPC] All {len(endpoints)} endpoints failed", flush=True)
         return None
 
     async def get_signatures(self, creator: str, before: str = None, limit: int = 100) -> List[dict]:
@@ -226,30 +239,33 @@ class CreatorWatchManager:
             return result["result"]
         return None
 
-    def _compute_sol_delta(self, tx: dict, creator_pubkey: str) -> Tuple[int, Optional[str]]:
+    def _classify_sol_delta(self, tx: dict, creator_pubkey: str) -> Tuple[int, Optional[str], str]:
         """
-        Compute SOL balance change for creator in a transaction.
+        Classify SOL balance change by cause (funding vs trading vs noise).
 
-        Returns: (delta_lamports, counterparty_pubkey)
+        Returns: (delta_lamports, counterparty_pubkey, classification)
 
-        Algorithm:
-        1. Find creator's account index in message.accountKeys
-        2. delta = postBalances[i] - preBalances[i]
-        3. If fee payer (index 0), fee is already deducted from preBalance
-        4. For transfers: counterparty is usually the receiving account (but need heuristic)
+        Classifications:
+        - system_transfer: Direct System::Transfer instruction (REAL FUNDING - p2p SOL move)
+        - pump_fun_buy: Creator bought token (TRADING - skip for funding analysis)
+        - pump_fun_sell: Creator sold token (TRADING - skip for funding analysis)
+        - ata_rent: ATA account creation or closure (NOISE)
+        - fee_only: Transaction fee (NOISE)
+        - other: Unclassified SOL change (NOISE)
         """
         if not tx or "transaction" not in tx:
-            return 0, None
+            return 0, None, "unknown"
 
         try:
             tx_data = tx["transaction"]
             meta = tx.get("meta", {})
 
             if not meta or "preBalances" not in meta or "postBalances" not in meta:
-                return 0, None
+                return 0, None, "unknown"
 
             message = tx_data.get("message", {})
             account_keys = message.get("accountKeys", [])
+            instructions = message.get("instructions", [])
 
             # Find creator's account index
             creator_idx = None
@@ -260,33 +276,133 @@ class CreatorWatchManager:
                     break
 
             if creator_idx is None:
-                return 0, None
+                return 0, None, "unknown"
 
             pre_bal = meta["preBalances"][creator_idx]
             post_bal = meta["postBalances"][creator_idx]
             delta = post_bal - pre_bal
 
-            # Heuristic for counterparty: if creator received SOL (delta > 0),
-            # counterparty is likely the account that sent it (account 0 often, or look at instructions)
+            # Analyze instructions to classify the delta
+            classification = "other"
             counterparty = None
-            if delta > 0 and len(account_keys) > 1:
-                # Creator received SOL - likely from account 0 or another early account
-                counterparty = account_keys[0].get("pubkey") if isinstance(account_keys[0], dict) else str(account_keys[0])
-            elif delta < 0 and len(account_keys) > 1:
-                # Creator sent SOL - look for likely recipient in account keys
-                # (simple heuristic: first writable account after creator)
-                for idx in range(creator_idx + 1, len(account_keys)):
-                    key = account_keys[idx]
-                    key_pubkey = key.get("pubkey") if isinstance(key, dict) else str(key)
-                    if key_pubkey != "11111111111111111111111111111111":  # Skip system program
-                        counterparty = key_pubkey
-                        break
 
-            return delta, counterparty
+            # Check if we have parsed instructions
+            has_parsed_data = any("parsed" in instr for instr in instructions)
+
+            if has_parsed_data:
+                # Path 1: PARSED instruction analysis (most accurate)
+                pump_fun_program = "6EF8rQNwhYf2qk5FVwW3mWBwyAEifzs74MHLsAXe8Qwp"
+                has_pump_buy = False
+                has_pump_sell = False
+
+                for instr in instructions:
+                    program_id = instr.get("programId", "")
+
+                    # Pump.fun buy/sell detection
+                    if program_id == pump_fun_program:
+                        parsed = instr.get("parsed", {})
+                        instr_type = parsed.get("type", "")
+                        if instr_type == "buy":
+                            has_pump_buy = True
+                        elif instr_type == "sell":
+                            has_pump_sell = True
+
+                if has_pump_buy and delta < 0:
+                    classification = "pump_fun_buy"
+                elif has_pump_sell and delta > 0:
+                    classification = "pump_fun_sell"
+
+                # Check for System Program Transfer instructions (real p2p)
+                system_program = "11111111111111111111111111111111"
+                has_system_transfer = False
+                system_transfer_target = None
+
+                for instr in instructions:
+                    program_id = instr.get("programId", "")
+                    if program_id == system_program:
+                        parsed = instr.get("parsed", {})
+                        instr_type = parsed.get("type", "")
+                        if instr_type == "transfer":
+                            source = parsed.get("info", {}).get("source", "")
+                            destination = parsed.get("info", {}).get("destination", "")
+                            if source == creator_pubkey and delta < 0:
+                                has_system_transfer = True
+                                system_transfer_target = destination
+                            elif destination == creator_pubkey and delta > 0:
+                                has_system_transfer = True
+                                system_transfer_target = source
+
+                # PRIORITY: Check for System Program Transfer instructions FIRST
+                # Real funding is p2p SOL transfers, everything else is noise for our purposes
+                if has_system_transfer:
+                    classification = "system_transfer"
+                    counterparty = system_transfer_target
+                elif has_pump_buy and delta < 0:
+                    classification = "pump_fun_buy"
+                elif has_pump_sell and delta > 0:
+                    classification = "pump_fun_sell"
+                else:
+                    # Check for ATA (Associated Token Account) operations
+                    # Token program: TokenkegQfeZyiNwAJsyFbPVwwQQfg5bgDCSm2c1fNV
+                    token_program = "TokenkegQfeZyiNwAJsyFbPVwwQQfg5bgDCSm2c1fNV"
+
+                    for instr in instructions:
+                        program_id = instr.get("programId", "")
+                        if program_id == token_program:
+                            parsed = instr.get("parsed", {})
+                            instr_type = parsed.get("type", "")
+                            if instr_type in ["initializeMint", "createIdempotent", "closeAccount"]:
+                                classification = "ata_rent"
+                                break
+
+            else:
+                # Path 2: FALLBACK - Balance-based heuristic (when no parsed data available)
+                # This is less accurate but works when RPC doesn't return parsed instructions
+                
+                # Check for Pump.fun program presence (by looking at programId field in raw format)
+                pump_fun_program = "6EF8rQNwhYf2qk5FVwW3mWBwyAEifzs74MHLsAXe8Qwp"
+                has_pump_program = any(instr.get("programId") == pump_fun_program for instr in instructions)
+                
+                # If transaction involves Pump.fun and creator lost SOL, it's likely a buy
+                # If transaction involves Pump.fun and creator gained SOL, it's likely a sell
+                if has_pump_program:
+                    if delta < 0:
+                        classification = "pump_fun_buy"
+                    elif delta > 0:
+                        classification = "pump_fun_sell"
+                    else:
+                        classification = "pump_fun_buy"  # Default to buy if no delta
+                else:
+                    # No Pump.fun program, check if it's a meaningful SOL change (not just fee)
+                    fee = meta.get("fee", 0)
+                    
+                    # Small positive delta = probably just SOL received (funding)
+                    # Large negative delta = probably SOL sent (not funding)
+                    # Very small delta = probably just fees
+                    
+                    if abs(delta) < 5000:  # Less than 5000 lamports = negligible
+                        classification = "fee_only"
+                    elif delta > 5000:  # Received meaningful SOL
+                        classification = "system_transfer"
+                        # Without parsed data, counterparty is unknown
+                        counterparty = None
+                    else:
+                        classification = "other"
+
+            # Only system_transfer has a meaningful counterparty for funding analysis
+            if classification != "system_transfer":
+                counterparty = None
+
+            return delta, counterparty, classification
 
         except Exception as e:
-            print(f"[CREATOR_WATCH] ⚠️ Error computing SOL delta: {e}", flush=True)
-            return 0, None
+            print(f"[CREATOR_WATCH] ⚠️ Error classifying SOL delta: {e}", flush=True)
+            return 0, None, "error"
+
+    def _compute_sol_delta(self, tx: dict, creator_pubkey: str) -> Tuple[int, Optional[str]]:
+        """Backward compatible wrapper - returns only delta and counterparty"""
+        delta, counterparty, _ = self._classify_sol_delta(tx, creator_pubkey)
+        return delta, counterparty
 
     async def process_signature(self, creator_pubkey: str, sig_info: dict) -> bool:
         """
@@ -314,18 +430,21 @@ class CreatorWatchManager:
         if not tx:
             return False
 
-        # Compute SOL delta
-        delta_lamports, counterparty = self._compute_sol_delta(tx, creator_pubkey)
+        # Classify SOL delta by cause (not just amount)
+        delta_lamports, counterparty, classification = self._classify_sol_delta(tx, creator_pubkey)
 
-        # Determine tx type
-        tx_type = "unknown"
-        if delta_lamports != 0:
-            tx_type = "transfer" if abs(delta_lamports) > 5000 else "rent"
+        # Only track REAL FUNDING (system transfers)
+        # Skip everything else: pump_fun trades, ata_rent, fees, other
+        if classification != "system_transfer":
+            return False
 
-        # Extract fee
+        # Extract fee and compute units
         meta = tx.get("meta", {})
         fee_lamports = meta.get("fee", 0)
         compute_units = meta.get("computeUnitsConsumed", 0)
+
+        # Use classification as tx_type
+        tx_type = classification
 
         # Save to ledger
         try:
@@ -370,7 +489,10 @@ class CreatorWatchManager:
         sigs = await self.get_signatures(creator_pubkey, before=last_sig, limit=limit)
 
         if not sigs:
+            print(f"[CREATOR_WATCH]    {creator_pubkey[:16]}... → No new signatures found (last_sig={last_sig[:16] if last_sig else 'None'})", flush=True)
             return 0
+
+        print(f"[CREATOR_WATCH]    {creator_pubkey[:16]}... → Found {len(sigs)} signatures", flush=True)
 
         # Process each signature
         processed = 0
@@ -394,15 +516,34 @@ class CreatorWatchManager:
             conn.commit()
             conn.close()
 
+        print(f"[CREATOR_WATCH]    {creator_pubkey[:16]}... → Processed {processed}/{len(sigs)} signatures", flush=True)
+
         return processed
 
     async def poll_all_creators(self):
         """Poll all watched creators for new signatures"""
-        conn = sqlite3.connect(DB_PATH, timeout=5)
-        cursor = conn.cursor()
-        cursor.execute("SELECT creator_pubkey FROM creator_watch WHERE monitored = 1")
-        creators = [row[0] for row in cursor.fetchall()]
-        conn.close()
+        # Check if polling is enabled via database flag (for UI control)
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=5)
+            cursor = conn.cursor()
+            
+            # Check database flag
+            cursor.execute("SELECT setting_value FROM polling_settings WHERE setting_name = 'polling_enabled'")
+            row = cursor.fetchone()
+            db_polling_enabled = row[0] == '1' if row else True
+            
+            # Also check in-memory flag
+            if not self.polling_enabled or not db_polling_enabled:
+                conn.close()
+                return
+            
+            # Get creators
+            cursor.execute("SELECT creator_pubkey FROM creator_watch WHERE monitored = 1")
+            creators = [row[0] for row in cursor.fetchall()]
+            conn.close()
+        except Exception as e:
+            print(f"[CREATOR_WATCH] ⚠️ Error checking polling status: {e}", flush=True)
+            return
 
         if not creators:
             return
@@ -422,17 +563,47 @@ class CreatorWatchManager:
         Main polling loop - runs continuously.
 
         Polls all creators every poll_interval seconds.
+        Respects the polling_enabled flag for UI control.
         """
         await self.ensure_session()
         print(f"[CREATOR_WATCH] 🚀 Starting polling loop (interval: {poll_interval}s)", flush=True)
 
         while True:
             try:
-                await self.poll_all_creators()
+                if self.polling_enabled:
+                    await self.poll_all_creators()
+                else:
+                    print(f"[CREATOR_WATCH] ⏸️  Polling paused", flush=True)
                 await asyncio.sleep(poll_interval)
             except Exception as e:
                 print(f"[CREATOR_WATCH] ⚠️ Polling error: {e}", flush=True)
                 await asyncio.sleep(30)
+
+    def pause_polling(self):
+        """Pause creator TX polling"""
+        self.polling_enabled = False
+        print(f"[CREATOR_WATCH] ⏸️  Polling PAUSED", flush=True)
+        return {"status": "paused"}
+
+    def resume_polling(self):
+        """Resume creator TX polling"""
+        self.polling_enabled = True
+        print(f"[CREATOR_WATCH] ▶️  Polling RESUMED", flush=True)
+        return {"status": "resumed"}
+
+    def toggle_polling(self):
+        """Toggle polling on/off"""
+        if self.polling_enabled:
+            return self.pause_polling()
+        else:
+            return self.resume_polling()
+
+    def get_polling_status(self):
+        """Get current polling status"""
+        return {
+            "status": "enabled" if self.polling_enabled else "paused",
+            "polling_enabled": self.polling_enabled
+        }
 
     # --- Query Methods (for UI/API) ---
 
@@ -515,6 +686,100 @@ class CreatorWatchManager:
         except Exception as e:
             print(f"[CREATOR_WATCH] ⚠️ Error getting ledger: {e}", flush=True)
             return []
+
+    def check_address_cross_references(self, address: str, creator_pubkey: str) -> Dict:
+        """
+        Cross-reference check: when an address appears as counterparty for a creator,
+        check if it's also linked to other creators (network detection).
+
+        Returns dict with cross-reference findings.
+        """
+        if not HAS_UNIFIED_TRACKER:
+            return {'status': 'unified_tracker_unavailable'}
+
+        try:
+            tracker = UnifiedRecipientTracker()
+
+            # Find other creators linked to this address
+            other_creators = tracker.find_shared_recipients(creator_pubkey)
+
+            if address in other_creators and other_creators[address]:
+                print(f"[CROSS_REF] ⚠️ Address {address[:16]}... linked to {len(other_creators[address])} other creators!", flush=True)
+
+                # Log the cross-reference
+                for other_creator in other_creators[address]:
+                    tracker.log_cross_reference(
+                        address, creator_pubkey, other_creator,
+                        context="cross_creator_recipient"
+                    )
+
+                return {
+                    'status': 'cross_reference_detected',
+                    'address': address,
+                    'creator': creator_pubkey,
+                    'other_creators': other_creators[address],
+                    'count': len(other_creators[address])
+                }
+
+            return {'status': 'no_cross_reference', 'address': address}
+
+        except Exception as e:
+            print(f"[CROSS_REF] Error checking cross-references: {e}", flush=True)
+            return {'status': 'error', 'error': str(e)}
+
+    def update_unified_recipient_tracking(self, creator_pubkey: str) -> Dict:
+        """
+        Update unified recipient tracking for a creator's recent transactions.
+        Merges new tx_ledger entries into creator_recipients_unified.
+
+        Returns stats on what was merged.
+        """
+        if not HAS_UNIFIED_TRACKER:
+            return {'status': 'unified_tracker_unavailable'}
+
+        try:
+            tracker = UnifiedRecipientTracker()
+
+            # Get recent outgoing transfers from this creator in tx_ledger
+            conn = sqlite3.connect(DB_PATH, timeout=5)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+
+            cursor.execute("""
+                SELECT counterparty, ABS(SUM(delta_sol_lamports)) as total_sol,
+                       COUNT(*) as transfer_count, MAX(blockTime) as last_time
+                FROM creator_tx_ledger
+                WHERE creator_pubkey = ? AND delta_sol_lamports < 0
+                  AND counterparty IS NOT NULL
+                GROUP BY counterparty
+            """, (creator_pubkey,))
+
+            rows = cursor.fetchall()
+            conn.close()
+
+            stats = {
+                'status': 'updated',
+                'creator': creator_pubkey,
+                'recipients_updated': 0,
+                'cross_references_detected': 0
+            }
+
+            for row in rows:
+                recipient = row['counterparty']
+                amount = row['total_sol'] / 1e9
+
+                # Check for cross-references
+                cross_ref = self.check_address_cross_references(recipient, creator_pubkey)
+                if cross_ref.get('status') == 'cross_reference_detected':
+                    stats['cross_references_detected'] += 1
+
+                stats['recipients_updated'] += 1
+
+            return stats
+
+        except Exception as e:
+            print(f"[UNIFIED] Error updating recipient tracking: {e}", flush=True)
+            return {'status': 'error', 'error': str(e)}
 
 
 # Convenience function for use in listener

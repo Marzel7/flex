@@ -69,6 +69,10 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
     transfer chains. It traces backwards through the nativeTransfers array to identify the
     ultimate source of funds.
     
+    Returns transfers with source_type classification:
+    - "original_sender": Account that only sends (true originator)
+    - "intermediary": Account that both receives and sends
+    
     Algorithm:
     1. For each transfer to the creator, identify the immediate sender
     2. Check if that sender received SOL in the same transaction
@@ -113,7 +117,7 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
                 "amount": amt,
             })
     
-    def find_true_source(account: str, max_depth: int = 10) -> str:
+    def find_true_source(account: str, max_depth: int = 10) -> tuple:
         """Recursively trace back to find the true originator of funds
         
         Args:
@@ -121,11 +125,13 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
             max_depth: Maximum recursion depth to prevent infinite loops
             
         Returns:
-            The true originating account
+            Tuple of (true_originating_account, source_type)
+            source_type is "original_sender" if account only sends, "intermediary" if it receives too
         """
         if max_depth == 0:
             # Depth limit reached, return current account
-            return account
+            source_type = "intermediary" if account in transfers_to else "original_sender"
+            return account, source_type
         
         # If this account received SOL in the transaction
         if account in transfers_to and len(transfers_to[account]) > 0:
@@ -140,11 +146,11 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
                 return find_true_source(sender, max_depth - 1)
             else:
                 # This sender is the true source (only sends, doesn't receive)
-                return sender
+                return sender, "original_sender"
         else:
             # This account doesn't appear in any receiving transfers
             # It's either the true source or a final destination
-            return account
+            return account, "original_sender"
 
     # Now process transfers involving watch_addr
     for nt in native:
@@ -163,9 +169,17 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
         
         # For inbound transfers, trace back to find the true originator
         if direction == "in":
-            counterparty = find_true_source(frm)
+            counterparty, source_type = find_true_source(frm)
+            # If the immediate sender is not the true source, mark it as intermediary
+            if counterparty != frm:
+                # We traced back and found a different account
+                immediate_sender_is_intermediary = True
+            else:
+                immediate_sender_is_intermediary = False
         else:
             counterparty = to
+            source_type = "recipient"
+            immediate_sender_is_intermediary = False
 
         out.append({
             "signature": sig,
@@ -176,6 +190,9 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
             "to": to,
             "counterparty": counterparty,
             "lamports": amt,
+            "source_type": source_type,
+            "immediate_sender": frm if direction == "in" else None,
+            "is_immediate_sender_intermediary": immediate_sender_is_intermediary,
         })
     
     return out
@@ -192,6 +209,7 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> None:
                 creator_address TEXT NOT NULL,
                 funder_address TEXT NOT NULL,
                 amount_sol REAL,
+                source_type TEXT,
                 first_detected_at TEXT,
                 is_cex INTEGER DEFAULT 0,
                 cex_exchange TEXT,
@@ -215,10 +233,34 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> None:
         pass  # Tables already exist
 
     # Group inbound transfers by counterparty (funders)
-    funders = defaultdict(float)
+    # Track both the true originator and any intermediaries
+    funders = {}  # key: funder_address, value: {amount, source_type, immediate_sender, etc}
+    
     for t in transfers:
         if t["direction"] == "in":
-            funders[t["counterparty"]] += lamports_to_sol(t["lamports"])
+            counterparty = t["counterparty"]
+            amount = lamports_to_sol(t["lamports"])
+            source_type = t.get("source_type", "original_sender")
+            
+            if counterparty not in funders:
+                funders[counterparty] = {
+                    "amount": 0.0,
+                    "source_type": source_type,
+                }
+            funders[counterparty]["amount"] += amount
+            
+            # If the immediate sender is different from the traced counterparty,
+            # also record it as an intermediary
+            immediate = t.get("immediate_sender")
+            is_intermediary = t.get("is_immediate_sender_intermediary", False)
+            
+            if is_intermediary and immediate and immediate != counterparty:
+                if immediate not in funders:
+                    funders[immediate] = {
+                        "amount": 0.0,
+                        "source_type": "intermediary",
+                    }
+                funders[immediate]["amount"] += amount
 
     # Group outbound transfers by counterparty (receivers)
     receivers = defaultdict(lambda: {"amount": 0.0, "sig": None, "ts": None})
@@ -229,15 +271,25 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> None:
                 receivers[t["counterparty"]]["sig"] = t["signature"]
                 receivers[t["counterparty"]]["ts"] = t["timestamp"]
 
-    # Save funders
+    # Save funders with source_type
     saved_funders = 0
-    for funder, amount in funders.items():
+    for funder, data in funders.items():
         try:
-            cursor.execute("""
-                INSERT OR REPLACE INTO creator_funders
-                (creator_address, funder_address, amount_sol, first_detected_at)
-                VALUES (?, ?, ?, datetime('now'))
-            """, (creator, funder, amount))
+            # Check if column exists (for backwards compatibility)
+            try:
+                cursor.execute("""
+                    INSERT OR REPLACE INTO creator_funders
+                    (creator_address, funder_address, amount_sol, source_type, first_detected_at)
+                    VALUES (?, ?, ?, ?, datetime('now'))
+                """, (creator, funder, data["amount"], data["source_type"]))
+            except sqlite3.OperationalError:
+                # source_type column doesn't exist yet, just save without it
+                cursor.execute("""
+                    INSERT OR REPLACE INTO creator_funders
+                    (creator_address, funder_address, amount_sol, first_detected_at)
+                    VALUES (?, ?, ?, datetime('now'))
+                """, (creator, funder, data["amount"]))
+            
             saved_funders += 1
         except Exception as e:
             print(f"⚠️  Error saving funder {funder}: {e}")

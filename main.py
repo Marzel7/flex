@@ -1827,28 +1827,34 @@ HTML_TEMPLATE = """
                     tokensBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #a0a0a0;">No tokens launched yet</td></tr>';
                 }
 
-                // Populate top funders table
+                // Populate top funders table (filter out amounts < 0.1 SOL)
                 const fundersBody = document.getElementById('topFundersBody');
                 if (data.top_funders && data.top_funders.length > 0) {
-                    fundersBody.innerHTML = data.top_funders.map(funder => {
-                        const cexBadge = funder.is_cex ? `<span class="cex-badge">${funder.cex_exchange}</span>` : '';
+                    const significantFunders = data.top_funders.filter(f => f.amount_sol >= 0.1);
 
-                        // Source type badge
-                        let sourceTypeBadge = '';
-                        if (funder.source_type === 'intermediary') {
-                            sourceTypeBadge = '<span class="intermediary-badge" title="Relay/intermediary account">ℹ️ Relay</span>';
-                        } else if (funder.source_type === 'original_sender') {
-                            sourceTypeBadge = '<span class="original-sender-badge" title="True originator">✅ Original</span>';
-                        }
+                    if (significantFunders.length > 0) {
+                        fundersBody.innerHTML = significantFunders.map(funder => {
+                            const cexBadge = funder.is_cex ? `<span class="cex-badge">${funder.cex_exchange}</span>` : '';
 
-                        return `
-                            <tr>
-                                <td title="${funder.funder_address}" style="font-family: monospace; font-size: 12px;">${funder.funder_address.substring(0, 16)}...${cexBadge}</td>
-                                <td>${funder.amount_sol.toFixed(2)} SOL</td>
-                                <td>${sourceTypeBadge || (funder.is_cex ? 'CEX' : 'Wallet')}</td>
-                            </tr>
-                        `;
-                    }).join('');
+                            // Source type badge
+                            let sourceTypeBadge = '';
+                            if (funder.source_type === 'intermediary') {
+                                sourceTypeBadge = '<span class="intermediary-badge" title="Relay/intermediary account">ℹ️ Relay</span>';
+                            } else if (funder.source_type === 'original_sender') {
+                                sourceTypeBadge = '<span class="original-sender-badge" title="True originator">✅ Original</span>';
+                            }
+
+                            return `
+                                <tr>
+                                    <td title="${funder.funder_address}" style="font-family: monospace; font-size: 12px;">${funder.funder_address.substring(0, 16)}...${cexBadge}</td>
+                                    <td>${funder.amount_sol.toFixed(2)} SOL</td>
+                                    <td>${sourceTypeBadge || (funder.is_cex ? 'CEX' : 'Wallet')}</td>
+                                </tr>
+                            `;
+                        }).join('');
+                    } else {
+                        fundersBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0a0a0;">No significant funding (< 0.1 SOL filtered)</td></tr>';
+                    }
                 } else {
                     fundersBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0a0a0;">No funding data available</td></tr>';
                 }

@@ -471,6 +471,8 @@ class RealTimeCreatorFundingExtractor:
         3. Identify funders (inbound transfers) before migration
         4. Identify recipients (outbound transfers) before migration
         5. Save all relationships to database
+        6. EXCLUDE: token mints, bonding curves from BOTH directions
+        7. FILTER: dust/spam (< 0.001 SOL)
         """
         if creator in self.processed_creators:
             return {"status": "already_processed"}
@@ -489,15 +491,42 @@ class RealTimeCreatorFundingExtractor:
             print(f"[REALTIME_FUNDING] 🔍 Extracting creator funding for {creator[:16]}...", flush=True)
             print(f"[REALTIME_FUNDING]    Migration timestamp: {migration_timestamp_str}", flush=True)
 
+            # Build exclusion set: token mints + bonding curves created by this creator
+            exclude_set = set()
+            
+            # Get all tokens launched by this creator to exclude them
+            conn = sqlite3.connect(DB_PATH, timeout=60)
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT mint, bonding_curve_pda
+                FROM token_analysis
+                WHERE earliest_tx_creator = ?
+            """, (creator,))
+            creator_tokens = cursor.fetchall()
+            
+            for mint, bonding_curve in creator_tokens:
+                if mint:
+                    exclude_set.add(mint)
+                if bonding_curve:
+                    exclude_set.add(bonding_curve)
+            
+            conn.close()
+            
+            if exclude_set:
+                print(f"[REALTIME_FUNDING]    Excluding {len(exclude_set)} addresses (creator's tokens & bonding curves)", flush=True)
+
             # Use Helius API to get pre-migration transactions
             funders = {}  # funder -> amount_sol
             recipients = {}  # recipient -> amount_sol
+            filtered_dust = 0
+            filtered_excluded = 0
             
             # Fetch from Helius Enhanced API
             before = None
             fetched = 0
             pages = 0
             max_pages = 10  # Limit to ~1000 transactions for real-time speed (100 per page)
+            MIN_SOL = 0.001  # Filter out dust/spam (< 0.001 SOL)
             
             print(f"[REALTIME_FUNDING]    Fetching transactions from Helius API...", flush=True)
             
@@ -558,23 +587,38 @@ class RealTimeCreatorFundingExtractor:
                                     
                                     amount_sol = amt / 1_000_000_000
                                     
-                                    # Inbound: someone sent creator SOL
+                                    # Filter dust/spam
+                                    if amount_sol < MIN_SOL:
+                                        filtered_dust += 1
+                                        continue
+                                    
+                                    # Inbound: someone sent creator SOL (FUNDING)
                                     if to == creator and amount_sol > 0:
+                                        # Skip if sender is in exclusion set
+                                        if frm in exclude_set:
+                                            filtered_excluded += 1
+                                            continue
+                                        
                                         if frm not in funders:
                                             funders[frm] = 0
                                         funders[frm] += amount_sol
                                         # Save immediately
                                         self._save_funder(creator, frm, amount_sol)
                                     
-                                    # Outbound: creator sent SOL to someone
+                                    # Outbound: creator sent SOL to someone (RECIPIENTS)
                                     elif frm == creator and amount_sol > 0:
+                                        # Skip if recipient is in exclusion set
+                                        if to in exclude_set:
+                                            filtered_excluded += 1
+                                            continue
+                                        
                                         if to not in recipients:
                                             recipients[to] = 0
                                         recipients[to] += amount_sol
                                         # Save recipient
                                         self._save_recipient(creator, to, amount_sol)
                             
-                            print(f"[REALTIME_FUNDING]    [PAGE {pages}] txs={len(page)} total_fetched={fetched} funders={len(funders)} recipients={len(recipients)}", flush=True)
+                            print(f"[REALTIME_FUNDING]    [PAGE {pages}] txs={len(page)} fetched={fetched} funders={len(funders)} recipients={len(recipients)}", flush=True)
                             
                             if not before:
                                 break
@@ -589,13 +633,24 @@ class RealTimeCreatorFundingExtractor:
             total_inbound = sum(funders.values())
             total_outbound = sum(recipients.values())
             
-            print(f"[REALTIME_FUNDING]    ✓ Pre-migration: {len(funders)} funders ({total_inbound:.2f} SOL), {len(recipients)} recipients ({total_outbound:.2f} SOL)", flush=True)
+            print(f"[REALTIME_FUNDING]    ✓ Inbound: {len(funders)} funders ({total_inbound:.2f} SOL)", flush=True)
+            print(f"[REALTIME_FUNDING]    ✓ Outbound: {len(recipients)} recipients ({total_outbound:.2f} SOL)", flush=True)
+            if filtered_dust > 0:
+                print(f"[REALTIME_FUNDING]    ℹ Filtered {filtered_dust} dust transfers (<{MIN_SOL} SOL)", flush=True)
+            if filtered_excluded > 0:
+                print(f"[REALTIME_FUNDING]    ℹ Filtered {filtered_excluded} transfers (token/curve exclusions)", flush=True)
             
             # Show top funders
             if funders:
                 sorted_funders = sorted(funders.items(), key=lambda x: x[1], reverse=True)[:3]
                 for i, (funder, amount) in enumerate(sorted_funders, 1):
                     print(f"[REALTIME_FUNDING]    Funder #{i}: {funder[:16]}... → {amount:.2f} SOL", flush=True)
+            
+            # Show top recipients
+            if recipients:
+                sorted_recipients = sorted(recipients.items(), key=lambda x: x[1], reverse=True)[:3]
+                for i, (recipient, amount) in enumerate(sorted_recipients, 1):
+                    print(f"[REALTIME_FUNDING]    Recipient #{i}: {recipient[:16]}... ← {amount:.2f} SOL", flush=True)
             
             return {
                 "creator": creator,
@@ -604,7 +659,8 @@ class RealTimeCreatorFundingExtractor:
                 "total_inbound": total_inbound,
                 "outgoing_transfers": len(recipients),
                 "total_outbound": total_outbound,
-                "funders": {k: v for k, v in sorted(funders.items(), key=lambda x: x[1], reverse=True)[:10]} if funders else {}
+                "funders": {k: v for k, v in sorted(funders.items(), key=lambda x: x[1], reverse=True)[:10]} if funders else {},
+                "recipients": {k: v for k, v in sorted(recipients.items(), key=lambda x: x[1], reverse=True)[:10]} if recipients else {}
             }
 
         except Exception as e:

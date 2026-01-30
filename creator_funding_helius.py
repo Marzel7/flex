@@ -299,7 +299,7 @@ def main():
 
     args = ap.parse_args()
 
-    api_key = args.api_key or os.getenv("HELIUS_API_KEY") or "80ff2d2d-14d1-4b05-bfcd-26769047e331"
+    api_key = args.api_key or os.getenv("HELIUS_API_KEY") or "84ec9a31-f8c2-4116-8e98-695a9377c5ed"
 
     asyncio.run(run(args.address, args.max_txs, args.page_size, args.exclude, api_key))
 

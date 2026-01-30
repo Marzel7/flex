@@ -26,7 +26,7 @@ from typing import Optional, Dict, List, Set
 from datetime import datetime
 
 DB_PATH = "pumpswap_tokens.db"
-HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "80ff2d2d-14d1-4b05-bfcd-26769047e331"
+HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "84ec9a31-f8c2-4116-8e98-695a9377c5ed"
 
 # Same RPC configuration as post_migration_analyzer for consistency
 # RPC Configuration: Use Helius + Public Solana only (QuickNode removed)

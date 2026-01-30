@@ -544,6 +544,9 @@ class RealTimeCreatorFundingExtractor:
                             params["before"] = before_signature
 
                         try:
+                            # Log the RPC call
+                            print(f"[REALTIME_FUNDING]    [PAGE {page_num}] RPC CALL #{page_num}...", flush=True)
+
                             async with helius_session.get(
                                 url,
                                 params=params,

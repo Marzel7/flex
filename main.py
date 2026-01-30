@@ -17,6 +17,7 @@ from flask import Flask, jsonify, render_template_string, request
 from typing import Dict, List, Optional
 import os
 import time
+from infra_mapping import highlight_infra_in_funding
 
 # Database
 DB_PATH = "pumpswap_tokens.db"
@@ -460,6 +461,70 @@ HTML_TEMPLATE = """
             font-weight: 700;
         }
 
+        /* Creator infrastructure tags container */
+        .creator-infra-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            margin-top: 5px;
+        }
+
+        /* Small infrastructure tag for creator address display */
+        .creator-infra-tags .infra-tag {
+            display: inline-block;
+            padding: 2px 5px;
+            border-radius: 2px;
+            font-size: 9px;
+            font-weight: 600;
+            border: 1px solid;
+        }
+
+        .creator-infra-tags .tag {
+            display: inline-block;
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-size: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #a0a0a0;
+        }
+
+        /* Category-specific colors for creator display */
+        .creator-infra-tags .infra-automation {
+            background: rgba(168, 85, 247, 0.2);
+            color: #d8b4fe;
+            border-color: rgba(168, 85, 247, 0.3);
+        }
+
+        .creator-infra-tags .infra-cex {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .creator-infra-tags .infra-system {
+            background: rgba(107, 114, 128, 0.2);
+            color: #d1d5db;
+            border-color: rgba(107, 114, 128, 0.3);
+        }
+
+        .creator-infra-tags .infra-validator {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .creator-infra-tags .infra-bridge {
+            background: rgba(249, 115, 22, 0.2);
+            color: #fb923c;
+            border-color: rgba(249, 115, 22, 0.3);
+        }
+
+        .creator-infra-tags .infra-relay {
+            background: rgba(249, 115, 22, 0.2);
+            color: #fb923c;
+            border-color: rgba(249, 115, 22, 0.3);
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -798,6 +863,78 @@ HTML_TEMPLATE = """
             white-space: nowrap;
         }
 
+        /* Infrastructure tags */
+        .infra-tag {
+            display: inline-block;
+            padding: 3px 7px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-right: 4px;
+            white-space: nowrap;
+        }
+
+        .infra-automation {
+            background: rgba(168, 85, 247, 0.2);
+            color: #d8b4fe;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .infra-cex {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .infra-system {
+            background: rgba(107, 114, 128, 0.2);
+            color: #d1d5db;
+            border: 1px solid rgba(107, 114, 128, 0.3);
+        }
+
+        .infra-validator {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .infra-bridge {
+            background: rgba(249, 115, 22, 0.2);
+            color: #fb923c;
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+
+        .infra-relay {
+            background: rgba(249, 115, 22, 0.2);
+            color: #fb923c;
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 5px;
+            border-radius: 2px;
+            font-size: 9px;
+            margin-right: 2px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #a0a0a0;
+        }
+
+        .tag-infra {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+        }
+
+        .tag-automation {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+        }
+
+        .tag-oracle {
+            background: rgba(34, 197, 94, 0.15);
+            color: #6ee7b7;
+        }
+
         /* CREATE tx link */
         .create-tx-link {
             color: #00d4ff;
@@ -1061,6 +1198,7 @@ HTML_TEMPLATE = """
                             <th>Funder Address</th>
                             <th>Amount (SOL)</th>
                             <th>Type</th>
+                            <th>Tags</th>
                         </tr>
                     </thead>
                     <tbody id="topFundersBody">
@@ -1164,6 +1302,17 @@ HTML_TEMPLATE = """
                     } catch (e) {
                         console.error('Error loading creator data:', e);
                     }
+                }
+
+                // Load infrastructure mapping
+                window.infraMapping = {};
+                try {
+                    const infraResp = await fetch('/api/infrastructure-mapping');
+                    if (infraResp.ok) {
+                        window.infraMapping = await infraResp.json();
+                    }
+                } catch (e) {
+                    console.log('Infrastructure mapping not available');
                 }
 
                 // Enrich tokens with creator data
@@ -1291,11 +1440,63 @@ HTML_TEMPLATE = """
                                 ? `<a href="#" onclick="showCreatorDetails('${token.creator}'); return false;" class="mint-link creator-address-link" title="Click for creator details">${creatorTitle}</a>`
                                 : '<span style="color: #a0a0a0;">Unknown</span>';
 
+                            // Get infrastructure tags for creator or funders
+                            let infraTags = '';
+                            const infraTagsToShow = new Set();
+                            let categoryToShow = null;
+                            let descriptionToShow = '';
+
+                            // Check if creator itself is infrastructure
+                            if (token.creator && window.infraMapping && window.infraMapping[token.creator]) {
+                                const info = window.infraMapping[token.creator];
+                                categoryToShow = info.category;
+                                descriptionToShow = info.description;
+                                info.tags.forEach(tag => infraTagsToShow.add(tag));
+                            }
+
+                            // Check if any funders are infrastructure (CEX or infra accounts)
+                            if (token.creatorData && token.creatorData.funders) {
+                                token.creatorData.funders.forEach(funder => {
+                                    // Check if funder is in infrastructure mapping
+                                    if (window.infraMapping && window.infraMapping[funder.address]) {
+                                        const info = window.infraMapping[funder.address];
+                                        if (!categoryToShow) {
+                                            categoryToShow = info.category;
+                                            descriptionToShow = info.description;
+                                        }
+                                        info.tags.forEach(tag => infraTagsToShow.add(tag));
+                                    }
+                                    // Also show CEX tag if funder is marked as CEX
+                                    if (funder.is_cex) {
+                                        if (!categoryToShow) {
+                                            categoryToShow = 'cex';
+                                            descriptionToShow = `${funder.cex_exchange} ${funder.cex_type}`;
+                                        }
+                                        infraTagsToShow.add('cex');
+                                        if (funder.cex_exchange) {
+                                            infraTagsToShow.add(funder.cex_exchange.toLowerCase());
+                                        }
+                                    }
+                                });
+                            }
+
+                            // Render tags if we have any
+                            if (categoryToShow || infraTagsToShow.size > 0) {
+                                const category = categoryToShow || 'cex';
+                                infraTags = `<div class="creator-infra-tags">
+                                    ${categoryToShow ? `<span class="infra-tag infra-${categoryToShow}" title="${descriptionToShow}">${categoryToShow.toUpperCase()}</span>` : ''}
+                                    ${Array.from(infraTagsToShow).map(tag => `<span class="tag tag-${tag}">${tag}</span>`).join('')}
+                                </div>`;
+                            }
+
                             return `
                                 <tr>
                                     <td class="mint-with-creator">
                                         <a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="Click for metrics">${token.mint}</a>
-                                        <div class="creator-address-embedded">${creatorElement}</div>
+                                        <div class="creator-address-embedded">
+                                            ${creatorElement}
+                                            ${infraTags}
+                                        </div>
                                     </td>
                                     <td class="creator-tags"></td>
                                     <td class="rug-flag"></td>
@@ -1844,19 +2045,29 @@ HTML_TEMPLATE = """
                                 sourceTypeBadge = '<span class="original-sender-badge" title="True originator">✅ Original</span>';
                             }
 
+                            // Infrastructure tags
+                            let infraTags = '';
+                            if (funder.is_infrastructure) {
+                                const tags = funder.tags || [];
+                                const categoryTag = `<span class="infra-tag infra-${funder.category}" title="${funder.description || ''}">${funder.category.toUpperCase()}</span>`;
+                                const otherTags = tags.map(tag => `<span class="tag tag-${tag}">${tag}</span>`).join('');
+                                infraTags = categoryTag + ' ' + otherTags;
+                            }
+
                             return `
                                 <tr>
                                     <td title="${funder.funder_address}" style="font-family: monospace; font-size: 12px;">${funder.funder_address.substring(0, 16)}...${cexBadge}</td>
                                     <td>${funder.amount_sol.toFixed(2)} SOL</td>
                                     <td>${sourceTypeBadge || (funder.is_cex ? 'CEX' : 'Wallet')}</td>
+                                    <td>${infraTags || '—'}</td>
                                 </tr>
                             `;
                         }).join('');
                     } else {
-                        fundersBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0a0a0;">No significant funding (< 0.1 SOL filtered)</td></tr>';
+                        fundersBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #a0a0a0;">No significant funding (< 0.1 SOL filtered)</td></tr>';
                     }
                 } else {
-                    fundersBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0a0a0;">No funding data available</td></tr>';
+                    fundersBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #a0a0a0;">No funding data available</td></tr>';
                 }
 
                 // Populate top recipients table (where creator sent SOL)
@@ -2235,6 +2446,9 @@ def api_creator_details(creator_address: str):
         """, (creator_address,))
         top_funders = [dict(row) for row in cursor.fetchall()]
 
+        # Add infrastructure highlighting to funders
+        top_funders = highlight_infra_in_funding(top_funders)
+
         # 4. Get top recipients from tx_ledger (post-migration outgoing transfers)
         # Filter: only meaningful transfers (ABS(delta) >= 100000 lamports ~= 0.0001 SOL to exclude protocol fee dust)
         cursor.execute("""
@@ -2249,6 +2463,16 @@ def api_creator_details(creator_address: str):
             LIMIT 10
         """, (creator_address,))
         top_recipients = [dict(row) for row in cursor.fetchall()]
+
+        # Add infrastructure highlighting to recipients (use recipient_address field)
+        for recipient in top_recipients:
+            recipient_info = highlight_infra_in_funding([{"funder_address": recipient["recipient_address"], "amount_sol": recipient["amount_sol"]}])[0]
+            recipient.update({
+                "is_infrastructure": recipient_info["is_infrastructure"],
+                "category": recipient_info["category"],
+                "tags": recipient_info["tags"],
+                "display_name": recipient_info["display_name"],
+            })
 
         # 5. Get wallet cluster size (includes coordinated funders and recipients)
         cursor.execute("""
@@ -2374,6 +2598,28 @@ def api_creator_sol_stats(creator_address: str):
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/infrastructure-mapping')
+def api_infrastructure_mapping():
+    """Get infrastructure account mapping for UI highlighting"""
+    try:
+        from infra_mapping import INFRASTRUCTURE_ACCOUNTS
+
+        # Convert to JSON-friendly format
+        mapping = {}
+        for address, info in INFRASTRUCTURE_ACCOUNTS.items():
+            mapping[address] = {
+                "name": info["name"],
+                "category": info["category"],
+                "description": info["description"],
+                "tags": info.get("tags", []),
+                "risk_level": info["risk_level"],
+            }
+
+        return jsonify(mapping)
+
+    except Exception as e:
+        return jsonify({}), 200  # Return empty dict if infra_mapping not available
 
 
 @app.route('/api/creator-sol-ledger/<creator_address>')
@@ -2573,6 +2819,32 @@ def api_creators_batch():
         """, creator_addresses)
         blocked_data = {row['earliest_tx_creator']: bool(row['creator_is_blocked']) for row in cursor.fetchall()}
 
+        # Top funders per creator (for infrastructure tagging)
+        cursor.execute(f"""
+            SELECT
+                creator_address,
+                funder_address,
+                amount_sol,
+                is_cex,
+                cex_exchange,
+                cex_type
+            FROM creator_funders
+            WHERE creator_address IN ({placeholders})
+            ORDER BY amount_sol DESC
+        """, creator_addresses)
+        funders_data = {}
+        for row in cursor.fetchall():
+            creator = row['creator_address']
+            if creator not in funders_data:
+                funders_data[creator] = []
+            funders_data[creator].append({
+                'address': row['funder_address'],
+                'amount_sol': row['amount_sol'],
+                'is_cex': bool(row['is_cex']),
+                'cex_exchange': row['cex_exchange'],
+                'cex_type': row['cex_type']
+            })
+
         conn.close()
 
         # Build response
@@ -2587,7 +2859,8 @@ def api_creators_batch():
                     'hop0': cluster_data.get(creator, {}).get('hop0', 0),
                     'hop1': cluster_data.get(creator, {}).get('hop1', 0)
                 },
-                'is_blocked': blocked_data.get(creator, False)
+                'is_blocked': blocked_data.get(creator, False),
+                'funders': funders_data.get(creator, [])
             }
 
         return jsonify(result)

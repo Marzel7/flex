@@ -512,98 +512,131 @@ class RealTimeCreatorFundingExtractor:
             if exclude_set:
                 print(f"[REALTIME_FUNDING]    Excluding {len(exclude_set)} addresses (creator's tokens & bonding curves)", flush=True)
 
-            # Use Helius API - single page fetch (like tmp.py approach)
+            # Use Helius Enhanced API - paginate through all transactions
             funders = {}
             recipients = {}
             filtered_dust = 0
             filtered_excluded = 0
-            
+
             MIN_SOL = 0.001  # Filter dust
-            
-            print(f"[REALTIME_FUNDING]    Fetching first page from Helius API...", flush=True)
-            
+
+            print(f"[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...", flush=True)
+
             try:
                 async with aiohttp.ClientSession() as helius_session:
-                    # Fetch single page (100 transactions)
                     url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{creator}/transactions"
-                    params = {
-                        "api-key": HELIUS_API_KEY,
-                        "limit": "100",
-                        "sort-order": "desc",
-                        "commitment": "finalized",
-                    }
-                    
-                    async with helius_session.get(
-                        url, 
-                        params=params, 
-                        timeout=aiohttp.ClientTimeout(total=30)
-                    ) as resp:
-                        if resp.status == 429:
-                            print(f"[REALTIME_FUNDING]    ⚠ Rate limited (429) - will extract later via batch processor", flush=True)
-                            return {"creator": creator, "status": "rate_limited"}
-                        
-                        if resp.status != 200:
-                            txt = await resp.text()
-                            print(f"[REALTIME_FUNDING]    ⚠ Helius HTTP {resp.status}: {txt[:100]}", flush=True)
-                            return {"creator": creator, "error": f"HTTP {resp.status}"}
-                        
-                        page = await resp.json()
-                        if not isinstance(page, list):
-                            print(f"[REALTIME_FUNDING]    ⚠ Unexpected response type", flush=True)
-                            return {"creator": creator, "error": "Invalid response"}
-                        
-                        print(f"[REALTIME_FUNDING]    [PAGE 1] fetched={len(page)} txs", flush=True)
-                        
-                        # Process transactions
-                        for tx in page:
-                            tx_ts = tx.get("timestamp", 0)
-                            
-                            # Skip post-migration transactions
-                            if tx_ts >= migration_timestamp:
-                                continue
-                            
-                            # Extract nativeTransfers
-                            native = tx.get("nativeTransfers") or []
-                            for nt in native:
-                                frm = nt.get("fromUserAccount")
-                                to = nt.get("toUserAccount")
-                                amt = nt.get("amount", 0)
-                                
-                                if not isinstance(frm, str) or not isinstance(to, str):
-                                    continue
-                                
-                                amount_sol = amt / 1_000_000_000
-                                
-                                # Filter dust
-                                if amount_sol < MIN_SOL:
-                                    filtered_dust += 1
-                                    continue
-                                
-                                # Inbound: someone sent creator SOL
-                                if to == creator and amount_sol > 0:
-                                    if frm in exclude_set:
-                                        filtered_excluded += 1
+
+                    page_num = 0
+                    before_signature = None
+                    total_fetched = 0
+                    found_pre_migration = False
+
+                    while True:
+                        page_num += 1
+                        params = {
+                            "api-key": HELIUS_API_KEY,
+                            "limit": "1000",  # Helius supports up to 1000 per page
+                            "sort-order": "desc",
+                            "commitment": "finalized",
+                        }
+
+                        if before_signature:
+                            params["before"] = before_signature
+
+                        try:
+                            async with helius_session.get(
+                                url,
+                                params=params,
+                                timeout=aiohttp.ClientTimeout(total=30)
+                            ) as resp:
+                                if resp.status == 429:
+                                    print(f"[REALTIME_FUNDING]    ⚠ Rate limited (429) on page {page_num}", flush=True)
+                                    break
+
+                                if resp.status != 200:
+                                    txt = await resp.text()
+                                    print(f"[REALTIME_FUNDING]    ⚠ Helius HTTP {resp.status} on page {page_num}", flush=True)
+                                    break
+
+                                page = await resp.json()
+                                if not isinstance(page, list) or len(page) == 0:
+                                    print(f"[REALTIME_FUNDING]    [PAGE {page_num}] No more transactions", flush=True)
+                                    break
+
+                                print(f"[REALTIME_FUNDING]    [PAGE {page_num}] fetched={len(page)} txs", flush=True)
+                                total_fetched += len(page)
+
+                                # Process transactions
+                                page_has_pre_migration = False
+                                for tx in page:
+                                    tx_ts = tx.get("timestamp", 0)
+
+                                    # Skip post-migration transactions
+                                    if tx_ts >= migration_timestamp:
                                         continue
-                                    
-                                    if frm not in funders:
-                                        funders[frm] = 0
-                                    funders[frm] += amount_sol
-                                    self._save_funder(creator, frm, amount_sol)
-                                
-                                # Outbound: creator sent SOL
-                                elif frm == creator and amount_sol > 0:
-                                    if to in exclude_set:
-                                        filtered_excluded += 1
-                                        continue
-                                    
-                                    if to not in recipients:
-                                        recipients[to] = 0
-                                    recipients[to] += amount_sol
-                                    self._save_recipient(creator, to, amount_sol)
-            
-            except asyncio.TimeoutError:
-                print(f"[REALTIME_FUNDING]    ⚠ Timeout - will extract later via batch processor", flush=True)
-                return {"creator": creator, "status": "timeout"}
+
+                                    page_has_pre_migration = True
+                                    found_pre_migration = True
+
+                                    # Extract nativeTransfers
+                                    native = tx.get("nativeTransfers") or []
+                                    for nt in native:
+                                        frm = nt.get("fromUserAccount")
+                                        to = nt.get("toUserAccount")
+                                        amt = nt.get("amount", 0)
+
+                                        if not isinstance(frm, str) or not isinstance(to, str):
+                                            continue
+
+                                        amount_sol = amt / 1_000_000_000
+
+                                        # Filter dust
+                                        if amount_sol < MIN_SOL:
+                                            filtered_dust += 1
+                                            continue
+
+                                        # Inbound: someone sent creator SOL
+                                        if to == creator and amount_sol > 0:
+                                            if frm in exclude_set:
+                                                filtered_excluded += 1
+                                                continue
+
+                                            if frm not in funders:
+                                                funders[frm] = 0
+                                            funders[frm] += amount_sol
+                                            self._save_funder(creator, frm, amount_sol)
+
+                                        # Outbound: creator sent SOL
+                                        elif frm == creator and amount_sol > 0:
+                                            if to in exclude_set:
+                                                filtered_excluded += 1
+                                                continue
+
+                                            if to not in recipients:
+                                                recipients[to] = 0
+                                            recipients[to] += amount_sol
+                                            self._save_recipient(creator, to, amount_sol)
+
+                                # Set up next page - always continue to find pre-migration txs
+                                if page:
+                                    before_signature = page[-1].get("signature")
+                                    if before_signature and (page_num < 10):  # Limit to 10 pages (10,000 txs) to avoid infinite loops
+                                        await asyncio.sleep(0.5)  # Rate limit delay
+                                    else:
+                                        print(f"[REALTIME_FUNDING]    Pagination complete", flush=True)
+                                        break
+                                else:
+                                    break
+
+                        except asyncio.TimeoutError:
+                            print(f"[REALTIME_FUNDING]    ⚠ Timeout on page {page_num}", flush=True)
+                            break
+                        except Exception as e:
+                            print(f"[REALTIME_FUNDING]    ⚠ Error on page {page_num}: {e}", flush=True)
+                            break
+
+                    print(f"[REALTIME_FUNDING]    Total transactions fetched: {total_fetched}", flush=True)
+
             except Exception as e:
                 print(f"[REALTIME_FUNDING]    ⚠ Error: {e}", flush=True)
                 return {"creator": creator, "error": str(e)}

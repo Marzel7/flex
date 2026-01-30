@@ -231,23 +231,10 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
             Tuple of (true_originating_account, source_type)
             source_type is "original_sender" if account only sends, "intermediary" if it receives too
         """
-        SKIP_IN_TRACING = {
-            "3jYf1yHVQEkHNvacdz4wFRXcvFirF6nFjwLq9m8ML1ME",  # WSOL token account
-            "GeuiPGMCpwDFQBCUqZ7h6NGyT6cpR5fULz9mnXeN3yRJ",  # WSOL ATA (zero balance change plumbing)
-        }
-
         if max_depth == 0:
             # Depth limit reached, return current account
             source_type = "intermediary" if account in transfers_to else "original_sender"
             return account, source_type
-
-        # Skip known plumbing accounts during tracing
-        if account in SKIP_IN_TRACING:
-            if account in transfers_to and len(transfers_to[account]) > 0:
-                largest_incoming = max(transfers_to[account], key=lambda x: x["amount"])
-                return find_true_source(largest_incoming["from"], max_depth - 1)
-            else:
-                return account, "original_sender"
 
         # If this account received SOL in the transaction
         if account in transfers_to and len(transfers_to[account]) > 0:
@@ -376,6 +363,7 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> tuple:
     DUST_ADDRESSES = {
         "3XxhMgcsvzCcDi6UKvWoSqUxt8JuGN5CR73tRkkDNDs5",  # Known spam dust account
         "3jYf1yHVQEkHNvacdz4wFRXcvFirF6nFjwLq9m8ML1ME",  # WSOL token account (wrap/unwrap plumbing)
+        "GeuiPGMCpwDFQBCUqZ7h6NGyT6cpR5fULz9mnXeN3yRJ",  # Creator-specific WSOL ATA (zero balance change)
     }
 
     # Group inbound transfers by counterparty (funders)

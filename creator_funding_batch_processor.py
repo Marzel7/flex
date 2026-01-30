@@ -53,6 +53,43 @@ def is_token_account(address: str, tx: dict) -> bool:
 
     return False
 
+def is_wsol_swap_output(tx: dict, to_account: str, amount_lamports: int) -> bool:
+    """
+    Detect if this native transfer is actually a WSOL token swap output.
+
+    Pattern: Token swap (e.g., fries → WSOL)
+    - There's a tokenTransfer with WSOL mint
+    - The WSOL amount matches the native transfer amount
+    - The destination is the same account
+
+    This happens because when someone swaps tokens for WSOL, Helius shows it as:
+    1. A tokenTransfer (token_amount → WSOL)
+    2. A nativeTransfer (SOL amount corresponding to WSOL)
+
+    We should exclude this as it's liquidating an existing position, not funding.
+    """
+    token_transfers = tx.get("tokenTransfers", []) or []
+
+    # Check if there's a WSOL tokenTransfer where this account is the destination
+    for tt in token_transfers:
+        if (tt.get("mint") == WSOL_MINT and
+            tt.get("destination") == to_account):
+            # Found a WSOL token transfer to this account
+            # Check if the amounts match
+            token_amount_str = tt.get("tokenAmount", {}).get("amount", "0")
+            token_decimals = int(tt.get("tokenAmount", {}).get("decimals", 0))
+
+            try:
+                token_amount_units = int(token_amount_str)
+                # WSOL has 8 decimals, so tokenAmount in smallest units == lamports
+                if token_amount_units == amount_lamports:
+                    # This is a WSOL swap output, not a funding transfer
+                    return True
+            except (ValueError, TypeError):
+                pass
+
+    return False
+
 def collapse_wsol_transfers(tx: dict, watch_addr: str) -> List[dict]:
     """Collapse WSOL wrap/unwrap transfers into single wallet-to-wallet transfers"""
     native = tx.get("nativeTransfers", []) or []
@@ -271,6 +308,10 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
 
         # Skip if either party is a token account (already handled by WSOL collapse)
         if is_token_account(frm, tx) or is_token_account(to, tx):
+            continue
+
+        # Skip if this is a WSOL swap output (not a funding transfer)
+        if watch_addr == to and is_wsol_swap_output(tx, to, amt):
             continue
 
         # Only care about transfers where watch_addr is either sender or receiver

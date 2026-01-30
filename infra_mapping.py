@@ -74,6 +74,24 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["infra", "automation", "jito", "mev"],
     },
+
+    # Helius Tipping Account 3
+    "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta": {
+        "name": "Helius Tipping Account 3",
+        "category": "automation",
+        "description": "Helius fee tipping/MEV automation account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "helius", "tipping"],
+    },
+
+    # Helius Tipping Account 8
+    "3KCKozbAaF75qEU33jtzozcJ29yJuaLJTy2jFdzUY8bT": {
+        "name": "Helius Tipping Account 8",
+        "category": "automation",
+        "description": "Helius fee tipping/MEV automation account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "helius", "tipping"],
+    },
 }
 
 # CEX account mappings (external exchanges - different characteristics)

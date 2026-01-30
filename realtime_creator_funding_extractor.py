@@ -183,7 +183,7 @@ class RealTimeCreatorFundingExtractor:
         return None
 
     def extract_sol_transfers(self, tx: Dict, creator: str) -> List[Dict]:
-        """Extract SOL transfers to creator with counterparty"""
+        """Extract SOL transfers to/from creator"""
         transfers = []
 
         try:
@@ -214,32 +214,41 @@ class RealTimeCreatorFundingExtractor:
                 if abs(balance_change) > 1000:
                     amount_sol = abs(balance_change) / 1e9
 
-                    # Find counterparty
+                    # Determine direction
+                    direction = "in" if balance_change > 0 else "out"
+
+                    # Try to find best counterparty (account with opposite balance change)
+                    # For multi-party transactions, just identify the largest opposite account
+                    best_counterparty = None
+                    best_match = float('inf')
+
                     for idx2, acc2 in enumerate(accounts):
                         if idx2 == creator_idx or idx2 >= len(pre_balances) or idx2 >= len(post_balances):
                             continue
 
                         balance_change2 = post_balances[idx2] - pre_balances[idx2]
 
-                        # Check if this account's balance change is roughly opposite
-                        if balance_change > 0 and balance_change2 < 0:
-                            if abs(balance_change + balance_change2) < 10000:
-                                acc_str = acc2.get("pubkey") if isinstance(acc2, dict) else str(acc2)
-                                transfers.append({
-                                    "direction": "in",
-                                    "counterparty": acc_str,
-                                    "amount_sol": amount_sol,
-                                })
-                                break
-                        elif balance_change < 0 and balance_change2 > 0:
-                            if abs(balance_change + balance_change2) < 10000:
-                                acc_str = acc2.get("pubkey") if isinstance(acc2, dict) else str(acc2)
-                                transfers.append({
-                                    "direction": "out",
-                                    "counterparty": acc_str,
-                                    "amount_sol": amount_sol,
-                                })
-                                break
+                        # Look for accounts with opposite direction
+                        if direction == "in" and balance_change2 < 0:
+                            # Best match is most negative (source of funds)
+                            if abs(balance_change2) < best_match:
+                                best_match = abs(balance_change2)
+                                best_counterparty = acc2.get("pubkey") if isinstance(acc2, dict) else str(acc2)
+                        elif direction == "out" and balance_change2 > 0:
+                            # Best match is most positive (destination of funds)
+                            if balance_change2 < best_match:
+                                best_match = balance_change2
+                                best_counterparty = acc2.get("pubkey") if isinstance(acc2, dict) else str(acc2)
+
+                    # Report the transfer with best counterparty found
+                    # (if no counterparty found, use system/fee account as placeholder)
+                    counterparty = best_counterparty or "SYSTEM"
+
+                    transfers.append({
+                        "direction": direction,
+                        "counterparty": counterparty,
+                        "amount_sol": amount_sol,
+                    })
 
         except Exception as e:
             pass

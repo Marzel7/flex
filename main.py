@@ -2321,9 +2321,9 @@ def api_creator_sol_stats(creator_address: str):
         from creator_watch_manager import CreatorWatchManager
 
         # Create temporary manager instance to query stats
+        helius_rpc = f"https://mainnet.helius-rpc.com/?api-key={os.getenv('HELIUS_API_KEY')}" if os.getenv("HELIUS_API_KEY") else "https://api.mainnet-beta.solana.com"
         manager = CreatorWatchManager(
-            rpc_url=os.getenv("RPC_URL", ""),
-            rpc_url_2=os.getenv("RPC_URL_2", "")
+            rpc_url=helius_rpc
         )
 
         stats = manager.get_creator_stats(creator_address)
@@ -2346,9 +2346,9 @@ def api_creator_sol_ledger(creator_address: str):
         from creator_watch_manager import CreatorWatchManager
 
         # Create temporary manager instance to query ledger
+        helius_rpc = f"https://mainnet.helius-rpc.com/?api-key={os.getenv('HELIUS_API_KEY')}" if os.getenv("HELIUS_API_KEY") else "https://api.mainnet-beta.solana.com"
         manager = CreatorWatchManager(
-            rpc_url=os.getenv("RPC_URL", ""),
-            rpc_url_2=os.getenv("RPC_URL_2", "")
+            rpc_url=helius_rpc
         )
 
         ledger = manager.get_recent_ledger(creator_address, limit=limit)

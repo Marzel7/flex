@@ -27,8 +27,17 @@ from datetime import datetime
 
 DB_PATH = "pumpswap_tokens.db"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "80ff2d2d-14d1-4b05-bfcd-26769047e331"
-HELIUS_URL = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
-PUBLIC_RPC = "https://api.mainnet-beta.solana.com"
+
+# Same RPC configuration as post_migration_analyzer for consistency
+RPC_URL = os.getenv("RPC_URL", "")
+RPC_URL_2 = os.getenv("RPC_URL_2", "")
+RPC_URLS = [url for url in [RPC_URL, RPC_URL_2] if url]  # QuickNodes if configured
+RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com")
+RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
+
+BATCH_SIZE = 10  # Limit concurrent requests to reduce rate limiting
+MAX_RETRIES = 5
+RPC_TIMEOUT = 30
 
 
 class RealTimeCreatorFundingExtractor:
@@ -48,68 +57,56 @@ class RealTimeCreatorFundingExtractor:
         if self.session:
             await self.session.close()
 
-    async def _post_rpc(self, payload: dict, timeout: int = 15, retry_count: int = 0) -> Optional[dict]:
-        """Post to RPC - tries Helius first, falls back to public RPC with retry logic"""
-        max_retries = 5
-        backoff_base = 1.0  # Start with 1 second backoff, more aggressive delays
+    async def _post_rpc(self, payload: dict) -> Optional[dict]:
+        """Post to RPC with failover chain - mirrors post_migration_analyzer approach"""
+        for attempt in range(MAX_RETRIES):
+            # Try each RPC endpoint in the failover chain
+            for rpc_url in RPC_URLS:
+                try:
+                    async with self.session.post(
+                        rpc_url,
+                        json=payload,
+                        timeout=aiohttp.ClientTimeout(total=RPC_TIMEOUT)
+                    ) as resp:
+                        # HTTP-level errors
+                        if resp.status != 200:
+                            if resp.status == 429:
+                                # Rate limited on this RPC, try next one
+                                continue
+                            elif resp.status >= 500:
+                                # Server error, try next RPC
+                                continue
+                            else:
+                                # Client error, don't retry
+                                return None
 
-        # Try Helius first
-        try:
-            async with self.session.post(
-                HELIUS_URL,
-                json=payload,
-                timeout=aiohttp.ClientTimeout(total=timeout),
-            ) as resp:
-                if resp.status == 200:
-                    result = await resp.json()
-                    # Check if Helius returned an error (rate limited, etc)
-                    if 'error' not in result:
-                        return result
-                    # Helius returned error, try public RPC instead
-        except Exception as e:
-            # Helius failed, will try public RPC
-            pass
+                        data = await resp.json()
 
-        # Fallback to public Solana RPC
-        try:
-            async with self.session.post(
-                PUBLIC_RPC,
-                json=payload,
-                timeout=aiohttp.ClientTimeout(total=timeout),
-            ) as resp:
-                result = await resp.json()
+                        # RPC-level errors
+                        if "error" in data:
+                            error_code = data["error"].get("code", -1)
+                            # Retryable RPC errors
+                            if error_code in {-32008, -32000, -32003, -32009}:
+                                continue
+                            else:
+                                return None
 
-                # Handle 429 rate limiting with exponential backoff
-                if resp.status == 429:
-                    if retry_count < max_retries:
-                        backoff = backoff_base * (2 ** retry_count)
-                        await asyncio.sleep(backoff)
-                        return await self._post_rpc(payload, timeout, retry_count + 1)
-                    # Max retries exceeded
-                    return None
+                        # Success
+                        if "result" in data:
+                            return data
 
-                # Check status
-                if resp.status == 200:
-                    # Verify we got actual result data
-                    if 'result' in result:
-                        return result
-                    elif 'error' in result:
-                        # RPC returned error in successful response
-                        return None
+                except asyncio.TimeoutError:
+                    # Timeout on this RPC, try next
+                    continue
+                except Exception as e:
+                    # Other errors, try next RPC
+                    continue
 
-                # Other HTTP errors
-                return None
+            # After trying all RPCs once, wait before next attempt
+            if attempt < MAX_RETRIES - 1:
+                await asyncio.sleep(0.5 * (2 ** attempt))
 
-        except asyncio.TimeoutError:
-            # Timeout - retry if we haven't exceeded max retries
-            if retry_count < max_retries:
-                backoff = backoff_base * (2 ** retry_count)
-                await asyncio.sleep(backoff)
-                return await self._post_rpc(payload, timeout, retry_count + 1)
-            return None
-        except Exception as e:
-            # Other exceptions - don't retry
-            return None
+        return None
 
     async def get_signatures_until_time(
         self, creator: str, until_timestamp: int, limit: int = 1000
@@ -167,7 +164,7 @@ class RealTimeCreatorFundingExtractor:
         return signatures
 
     async def get_transaction(self, signature: str) -> Optional[Dict]:
-        """Get transaction"""
+        """Get transaction with RPC failover"""
         payload = {
             "jsonrpc": "2.0",
             "id": 1,
@@ -177,19 +174,12 @@ class RealTimeCreatorFundingExtractor:
                 {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}
             ]
         }
-        result = await self._post_rpc(payload, timeout=20)
-        if result:
-            # Check if we got a result
-            if "result" in result:
-                tx = result.get("result")
-                # Sometimes RPC returns null for old transactions
-                if tx is None:
-                    return None
+        result = await self._post_rpc(payload)
+        if result and "result" in result:
+            tx = result.get("result")
+            # RPC may return null for old/pruned transactions
+            if tx is not None:
                 return tx
-            # Check if there's an error
-            if "error" in result:
-                # Silent fail on errors - transaction not found or other RPC errors
-                return None
         return None
 
     def extract_sol_transfers(self, tx: Dict, creator: str) -> List[Dict]:
@@ -467,17 +457,23 @@ class RealTimeCreatorFundingExtractor:
             # Analyze pre-migration transactions
             funders = {}  # funder -> {amount: total_sol, count: tx_count}
             sigs_checked = 0
-            max_sigs_to_check = 200  # Limit to most recent 200 pre-migration txs to avoid slow processing
+            max_sigs_to_check = 20  # Limit to most recent 20 pre-migration txs for fast real-time extraction
+            max_successful = 15  # Stop after successfully extracting 15 transactions
 
             if signatures:
                 # Process most recent signatures first (highest indices = most recent = most relevant)
                 sigs_to_check = signatures[-max_sigs_to_check:] if len(signatures) > max_sigs_to_check else signatures
-                print(f"[REALTIME_FUNDING]    Processing {len(sigs_to_check)} of {len(signatures)} signatures (most recent {max_sigs_to_check})", flush=True)
+                print(f"[REALTIME_FUNDING]    Processing up to {len(sigs_to_check)} of {len(signatures)} signatures (most recent {max_sigs_to_check})", flush=True)
 
                 for sig_idx, (sig, block_time) in enumerate(sigs_to_check):
-                    # Print progress every 10 transactions
-                    if sig_idx % 10 == 0:
-                        print(f"[REALTIME_FUNDING]    ⏳ Processed {sig_idx}/{len(sigs_to_check)} signatures...", flush=True)
+                    # Print progress every 5 transactions
+                    if sig_idx % 5 == 0:
+                        print(f"[REALTIME_FUNDING]    ⏳ Processed {sig_idx}/{len(sigs_to_check)} signatures... ({sigs_checked} successful)", flush=True)
+
+                    # Stop if we've successfully processed enough
+                    if sigs_checked >= max_successful:
+                        print(f"[REALTIME_FUNDING]    ✓ Reached {max_successful} successful extractions, moving on...", flush=True)
+                        break
 
                     tx = await self.get_transaction(sig)
                     if not tx:
@@ -503,7 +499,7 @@ class RealTimeCreatorFundingExtractor:
                         # Save to database immediately
                         self._save_funder(creator, counterparty, amount)
 
-                    await asyncio.sleep(0.1)  # Increased delay to reduce rate limiting
+                    await asyncio.sleep(0.05)  # Light delay to reduce rate limiting
 
                 # Summary of funders
                 total_inbound = sum(f["amount"] for f in funders.values())

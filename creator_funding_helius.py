@@ -349,6 +349,7 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> None:
     # Group inbound transfers by counterparty (funders)
     # Track both the true originator and any intermediaries
     funders = {}  # key: funder_address, value: {amount, source_type}
+    inbound_txs = []  # Transaction-level data for tracing
 
     for t in transfers:
         if t["direction"] == "in":
@@ -359,6 +360,17 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> None:
             # Skip dust transfers
             if amount < DUST_THRESHOLD or counterparty in DUST_ADDRESSES:
                 continue
+
+            # Record transaction-level data for tracing
+            inbound_txs.append({
+                "creator": creator,
+                "funder": counterparty,
+                "signature": t.get("signature"),
+                "amount": amount,
+                "timestamp": t.get("timestamp"),
+                "slot": t.get("slot"),
+                "source_type": source_type,
+            })
 
             # Save the traced counterparty with its source_type
             if counterparty not in funders:
@@ -412,6 +424,19 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> None:
         except Exception as e:
             print(f"⚠️  Error saving funder {funder}: {e}")
 
+    # Save transaction-level inbound transfers
+    saved_inbound_txs = 0
+    for tx in inbound_txs:
+        try:
+            cursor.execute("""
+                INSERT OR IGNORE INTO creator_inbound_transfers
+                (creator_address, funder_address, transaction_signature, amount_sol, timestamp, slot, direction, source_type)
+                VALUES (?, ?, ?, ?, ?, ?, 'in', ?)
+            """, (tx["creator"], tx["funder"], tx["signature"], tx["amount"], tx["timestamp"], tx["slot"], tx["source_type"]))
+            saved_inbound_txs += 1
+        except Exception as e:
+            print(f"⚠️  Error saving inbound transfer {tx['signature']}: {e}")
+
     # Save receivers
     saved_receivers = 0
     for receiver, data in receivers.items():
@@ -428,7 +453,7 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> None:
     conn.commit()
     conn.close()
 
-    print(f"✅ Saved {saved_funders} funders and {saved_receivers} receivers to database")
+    print(f"✅ Saved {saved_funders} funders, {saved_inbound_txs} inbound txs, and {saved_receivers} receivers to database")
 
 async def run(
     address: str,

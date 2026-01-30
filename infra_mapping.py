@@ -107,6 +107,16 @@ CEX_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["cex", "coinbase", "exchange"],
     },
+
+    # Bybit Wallet 10
+    "iGdFcQoyR2MwbXMHQskhmNsqddZ6rinsipHc4TNSdwu": {
+        "name": "Bybit Wallet 10",
+        "category": "cex",
+        "exchange": "Bybit",
+        "description": "Bybit exchange wallet",
+        "risk_level": "neutral",
+        "tags": ["cex", "bybit", "exchange"],
+    },
 }
 
 # Risk-based categories for infrastructure

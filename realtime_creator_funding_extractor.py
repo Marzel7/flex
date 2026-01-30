@@ -568,8 +568,14 @@ class RealTimeCreatorFundingExtractor:
 
                                 # Process transactions
                                 page_has_pre_migration = False
+                                earliest_tx_timestamp = None
+
                                 for tx in page:
                                     tx_ts = tx.get("timestamp", 0)
+
+                                    # Track earliest timestamp on this page
+                                    if earliest_tx_timestamp is None or tx_ts < earliest_tx_timestamp:
+                                        earliest_tx_timestamp = tx_ts
 
                                     # Skip post-migration transactions
                                     if tx_ts >= migration_timestamp:
@@ -617,13 +623,27 @@ class RealTimeCreatorFundingExtractor:
                                             recipients[to] += amount_sol
                                             self._save_recipient(creator, to, amount_sol)
 
-                                # Set up next page - always continue to find pre-migration txs
+                                # Set up next page - continue if we haven't reached token creation time yet
+                                # or if we found pre-migration txs on this page
+                                should_continue = False
                                 if page:
-                                    before_signature = page[-1].get("signature")
-                                    if before_signature and (page_num < 10):  # Limit to 10 pages (10,000 txs) to avoid infinite loops
-                                        await asyncio.sleep(0.5)  # Rate limit delay
+                                    # Continue if we found pre-migration txs
+                                    if page_has_pre_migration:
+                                        should_continue = True
+                                    # OR if the earliest tx on this page is still after migration (means older txs exist)
+                                    elif earliest_tx_timestamp and earliest_tx_timestamp > migration_timestamp:
+                                        should_continue = True
+                                        print(f"[REALTIME_FUNDING]    [PAGE {page_num}] All post-migration, but continuing to find older txs...", flush=True)
+
+                                    if should_continue and (page_num < 20):  # Increased limit to 20 pages (20,000 txs)
+                                        before_signature = page[-1].get("signature")
+                                        if before_signature:
+                                            await asyncio.sleep(0.5)  # Rate limit delay
+                                        else:
+                                            print(f"[REALTIME_FUNDING]    No more signatures available", flush=True)
+                                            break
                                     else:
-                                        print(f"[REALTIME_FUNDING]    Pagination complete", flush=True)
+                                        print(f"[REALTIME_FUNDING]    Pagination complete (reached page limit or end)", flush=True)
                                         break
                                 else:
                                     break

@@ -775,6 +775,29 @@ HTML_TEMPLATE = """
             margin-left: 5px;
         }
 
+        /* Source type badges */
+        .original-sender-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .intermediary-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
         /* CREATE tx link */
         .create-tx-link {
             color: #00d4ff;
@@ -1809,11 +1832,20 @@ HTML_TEMPLATE = """
                 if (data.top_funders && data.top_funders.length > 0) {
                     fundersBody.innerHTML = data.top_funders.map(funder => {
                         const cexBadge = funder.is_cex ? `<span class="cex-badge">${funder.cex_exchange}</span>` : '';
+
+                        // Source type badge
+                        let sourceTypeBadge = '';
+                        if (funder.source_type === 'intermediary') {
+                            sourceTypeBadge = '<span class="intermediary-badge" title="Relay/intermediary account">ℹ️ Relay</span>';
+                        } else if (funder.source_type === 'original_sender') {
+                            sourceTypeBadge = '<span class="original-sender-badge" title="True originator">✅ Original</span>';
+                        }
+
                         return `
                             <tr>
-                                <td title="${funder.funder_address}" style="font-family: monospace; font-size: 12px;">${funder.funder_address}${cexBadge}</td>
+                                <td title="${funder.funder_address}" style="font-family: monospace; font-size: 12px;">${funder.funder_address.substring(0, 16)}...${cexBadge}</td>
                                 <td>${funder.amount_sol.toFixed(2)} SOL</td>
-                                <td>${funder.is_cex ? 'CEX' : 'Wallet'}</td>
+                                <td>${sourceTypeBadge || (funder.is_cex ? 'CEX' : 'Wallet')}</td>
                             </tr>
                         `;
                     }).join('');
@@ -2181,14 +2213,15 @@ def api_creator_details(creator_address: str):
             'total_sol': funders_sol + recipients_sol
         }
 
-        # 3. Get top funders (with CEX info)
+        # 3. Get top funders (with CEX info and source_type classification)
         cursor.execute("""
             SELECT
                 funder_address,
                 amount_sol,
                 is_cex,
                 cex_exchange,
-                cex_type
+                cex_type,
+                COALESCE(source_type, 'original_sender') as source_type
             FROM creator_funders
             WHERE creator_address = ?
             ORDER BY amount_sol DESC

@@ -108,6 +108,8 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
     # Build a map of all transfers in this transaction to trace chains
     # Key: to_address, Value: list of transfers TO that address
     transfers_to = {}
+    transfers_from = {}
+    
     for nt in native:
         frm = nt.get("fromUserAccount")
         to = nt.get("toUserAccount")
@@ -117,6 +119,14 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
             if to not in transfers_to:
                 transfers_to[to] = []
             transfers_to[to].append({
+                "from": frm,
+                "to": to,
+                "amount": amt,
+            })
+            
+            if frm not in transfers_from:
+                transfers_from[frm] = []
+            transfers_from[frm].append({
                 "from": frm,
                 "to": to,
                 "amount": amt,
@@ -155,6 +165,14 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
                 # Pick the sender of the largest amount
                 largest_incoming = max(transfers_to[frm], key=lambda x: x["amount"])
                 counterparty = largest_incoming["from"]
+                
+                # IMPORTANT: Only trace if the intermediate really received AND sent out
+                # This prevents false positives from complex SPL token swaps
+                # Check: does the intermediary also send (appear in transfers_from)?
+                if frm not in transfers_from:
+                    # Intermediary didn't send anything, so 'frm' is not an intermediary
+                    # Use the original sender
+                    counterparty = frm
         else:
             counterparty = to
 

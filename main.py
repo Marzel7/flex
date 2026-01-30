@@ -1304,8 +1304,8 @@ HTML_TEMPLATE = """
                     }
                 }
 
-                // Load infrastructure mapping
-                window.infraMapping = {};
+                // Load infrastructure mapping (separate infrastructure and CEX)
+                window.infraMapping = { infrastructure: {}, cex: {} };
                 try {
                     const infraResp = await fetch('/api/infrastructure-mapping');
                     if (infraResp.ok) {
@@ -1446,27 +1446,48 @@ HTML_TEMPLATE = """
                             let categoryToShow = null;
                             let descriptionToShow = '';
 
-                            // Check if creator itself is infrastructure
-                            if (token.creator && window.infraMapping && window.infraMapping[token.creator]) {
-                                const info = window.infraMapping[token.creator];
+                            // Check if creator itself is infrastructure (non-CEX)
+                            if (token.creator && window.infraMapping && window.infraMapping.infrastructure && window.infraMapping.infrastructure[token.creator]) {
+                                const info = window.infraMapping.infrastructure[token.creator];
                                 categoryToShow = info.category;
                                 descriptionToShow = info.description;
                                 info.tags.forEach(tag => infraTagsToShow.add(tag));
                             }
 
-                            // Check if any funders are infrastructure (CEX or infra accounts)
+                            // Check if creator is CEX
+                            if (token.creator && window.infraMapping && window.infraMapping.cex && window.infraMapping.cex[token.creator]) {
+                                const info = window.infraMapping.cex[token.creator];
+                                if (!categoryToShow) {
+                                    categoryToShow = info.category;
+                                    descriptionToShow = info.description;
+                                }
+                                info.tags.forEach(tag => infraTagsToShow.add(tag));
+                            }
+
+                            // Check if any funders are infrastructure or CEX
                             if (token.creatorData && token.creatorData.funders) {
                                 token.creatorData.funders.forEach(funder => {
-                                    // Check if funder is in infrastructure mapping
-                                    if (window.infraMapping && window.infraMapping[funder.address]) {
-                                        const info = window.infraMapping[funder.address];
+                                    // Check if funder is in infrastructure mapping (non-CEX)
+                                    if (window.infraMapping && window.infraMapping.infrastructure && window.infraMapping.infrastructure[funder.address]) {
+                                        const info = window.infraMapping.infrastructure[funder.address];
                                         if (!categoryToShow) {
                                             categoryToShow = info.category;
                                             descriptionToShow = info.description;
                                         }
                                         info.tags.forEach(tag => infraTagsToShow.add(tag));
                                     }
-                                    // Also show CEX tag if funder is marked as CEX
+
+                                    // Check if funder is a CEX account
+                                    if (window.infraMapping && window.infraMapping.cex && window.infraMapping.cex[funder.address]) {
+                                        const info = window.infraMapping.cex[funder.address];
+                                        if (!categoryToShow) {
+                                            categoryToShow = info.category;
+                                            descriptionToShow = info.description;
+                                        }
+                                        info.tags.forEach(tag => infraTagsToShow.add(tag));
+                                    }
+
+                                    // Also show CEX tag if funder is marked as CEX in database
                                     if (funder.is_cex) {
                                         if (!categoryToShow) {
                                             categoryToShow = 'cex';
@@ -2601,16 +2622,31 @@ def api_creator_sol_stats(creator_address: str):
 
 @app.route('/api/infrastructure-mapping')
 def api_infrastructure_mapping():
-    """Get infrastructure account mapping for UI highlighting"""
+    """Get infrastructure account mapping for UI highlighting (infrastructure + CEX separate)"""
     try:
-        from infra_mapping import INFRASTRUCTURE_ACCOUNTS
+        from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
 
-        # Convert to JSON-friendly format
-        mapping = {}
+        mapping = {
+            "infrastructure": {},
+            "cex": {}
+        }
+
+        # Infrastructure accounts
         for address, info in INFRASTRUCTURE_ACCOUNTS.items():
-            mapping[address] = {
+            mapping["infrastructure"][address] = {
                 "name": info["name"],
                 "category": info["category"],
+                "description": info["description"],
+                "tags": info.get("tags", []),
+                "risk_level": info["risk_level"],
+            }
+
+        # CEX accounts
+        for address, info in CEX_ACCOUNTS.items():
+            mapping["cex"][address] = {
+                "name": info["name"],
+                "category": info["category"],
+                "exchange": info.get("exchange"),
                 "description": info["description"],
                 "tags": info.get("tags", []),
                 "risk_level": info["risk_level"],
@@ -2619,7 +2655,7 @@ def api_infrastructure_mapping():
         return jsonify(mapping)
 
     except Exception as e:
-        return jsonify({}), 200  # Return empty dict if infra_mapping not available
+        return jsonify({"infrastructure": {}, "cex": {}}), 200
 
 
 @app.route('/api/creator-sol-ledger/<creator_address>')

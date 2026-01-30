@@ -33,18 +33,16 @@ except ImportError:
 class CreatorWatchManager:
     """Manages continuous monitoring of creator SOL activity"""
 
-    def __init__(self, rpc_url: str, rpc_url_2: str = None, helius_rpc: str = None, session: aiohttp.ClientSession = None):
+    def __init__(self, rpc_url: str, helius_rpc: str = None, session: aiohttp.ClientSession = None):
         """
         Initialize the watch manager.
 
         Args:
-            rpc_url: Primary RPC endpoint (QuickNode)
-            rpc_url_2: Secondary RPC endpoint
+            rpc_url: Primary RPC endpoint (Helius or Public Solana)
             helius_rpc: Helius RPC endpoint
             session: Optional aiohttp session (creates own if not provided)
         """
         self.rpc_url = rpc_url
-        self.rpc_url_2 = rpc_url_2
         self.helius_rpc = helius_rpc
         self.session = session
         self._own_session = False
@@ -188,7 +186,7 @@ class CreatorWatchManager:
 
     async def _post_rpc_with_fallback(self, payload: dict) -> Optional[dict]:
         """Post RPC request with fallback chain"""
-        endpoints = [self.rpc_url, self.rpc_url_2, self.helius_rpc]
+        endpoints = [self.rpc_url, self.helius_rpc]
         endpoints = [e for e in endpoints if e]  # Remove None values
 
         for i, endpoint in enumerate(endpoints):
@@ -783,7 +781,7 @@ class CreatorWatchManager:
 
 
 # Convenience function for use in listener
-async def start_creator_watch(rpc_url: str, rpc_url_2: str = None, helius_rpc: str = None, session: aiohttp.ClientSession = None):
+async def start_creator_watch(rpc_url: str, helius_rpc: str = None, session: aiohttp.ClientSession = None):
     """Factory for starting creator watch manager"""
-    manager = CreatorWatchManager(rpc_url, rpc_url_2, helius_rpc, session)
+    manager = CreatorWatchManager(rpc_url, helius_rpc, session)
     return manager

@@ -29,10 +29,10 @@ DB_PATH = "pumpswap_tokens.db"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "80ff2d2d-14d1-4b05-bfcd-26769047e331"
 
 # Same RPC configuration as post_migration_analyzer for consistency
-RPC_URL = os.getenv("RPC_URL", "")
-RPC_URL_2 = os.getenv("RPC_URL_2", "")
-RPC_URLS = [url for url in [RPC_URL, RPC_URL_2] if url]  # QuickNodes if configured
-RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com")
+# RPC Configuration: Use Helius + Public Solana only (QuickNode removed)
+RPC_URLS = []
+if HELIUS_API_KEY:
+    RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}")
 RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
 
 BATCH_SIZE = 10  # Limit concurrent requests to reduce rate limiting

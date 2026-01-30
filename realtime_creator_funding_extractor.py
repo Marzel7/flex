@@ -50,8 +50,8 @@ class RealTimeCreatorFundingExtractor:
 
     async def _post_rpc(self, payload: dict, timeout: int = 15, retry_count: int = 0) -> Optional[dict]:
         """Post to RPC - tries Helius first, falls back to public RPC with retry logic"""
-        max_retries = 3
-        backoff_base = 0.5  # Start with 0.5 second backoff
+        max_retries = 5
+        backoff_base = 1.0  # Start with 1 second backoff, more aggressive delays
 
         # Try Helius first
         try:
@@ -425,7 +425,7 @@ class RealTimeCreatorFundingExtractor:
                     break
 
                 before = sigs[-1]["signature"]
-                await asyncio.sleep(0.05)
+                await asyncio.sleep(0.1)  # Increased delay to reduce rate limiting
 
             return recipients
 
@@ -475,10 +475,9 @@ class RealTimeCreatorFundingExtractor:
                 print(f"[REALTIME_FUNDING]    Processing {len(sigs_to_check)} of {len(signatures)} signatures (most recent {max_sigs_to_check})", flush=True)
 
                 for sig_idx, (sig, block_time) in enumerate(sigs_to_check):
-                    # Skip transactions that are too old (optimization - focus on recent funding)
-                    # Older transactions are less likely to be meaningful funding
-                    if block_time and block_time < migration_timestamp - 86400*7:  # Skip if > 7 days old
-                        continue
+                    # Print progress every 10 transactions
+                    if sig_idx % 10 == 0:
+                        print(f"[REALTIME_FUNDING]    ⏳ Processed {sig_idx}/{len(sigs_to_check)} signatures...", flush=True)
 
                     tx = await self.get_transaction(sig)
                     if not tx:
@@ -504,7 +503,7 @@ class RealTimeCreatorFundingExtractor:
                         # Save to database immediately
                         self._save_funder(creator, counterparty, amount)
 
-                    await asyncio.sleep(0.01)
+                    await asyncio.sleep(0.1)  # Increased delay to reduce rate limiting
 
                 # Summary of funders
                 total_inbound = sum(f["amount"] for f in funders.values())

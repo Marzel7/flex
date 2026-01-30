@@ -533,23 +533,19 @@ class RealTimeCreatorFundingExtractor:
 
                     while True:
                         page_num += 1
-                        params = {
-                            "api-key": HELIUS_API_KEY,
-                            "limit": "1000",  # Helius supports up to 1000 per page
-                            "sort-order": "desc",
-                            "commitment": "finalized",
-                        }
 
+                        # Build URL with query parameters directly
+                        # Note: Helius Enhanced API max limit is 100, not 1000
+                        query_url = f"{url}?api-key={HELIUS_API_KEY}&limit=100&sort-order=desc&commitment=finalized"
                         if before_signature:
-                            params["before"] = before_signature
+                            query_url += f"&before={before_signature}"
 
                         try:
                             # Log the RPC call
                             print(f"[REALTIME_FUNDING]    [PAGE {page_num}] RPC CALL #{page_num}...", flush=True)
 
                             async with helius_session.get(
-                                url,
-                                params=params,
+                                query_url,
                                 timeout=aiohttp.ClientTimeout(total=30)
                             ) as resp:
                                 if resp.status == 429:
@@ -638,7 +634,7 @@ class RealTimeCreatorFundingExtractor:
                                         should_continue = True
                                         print(f"[REALTIME_FUNDING]    [PAGE {page_num}] All post-migration, but continuing to find older txs...", flush=True)
 
-                                    if should_continue and (page_num < 20):  # Increased limit to 20 pages (20,000 txs)
+                                    if should_continue and (page_num < 100):  # Up to 100 pages (10,000 txs with limit=100)
                                         before_signature = page[-1].get("signature")
                                         if before_signature:
                                             await asyncio.sleep(0.5)  # Rate limit delay

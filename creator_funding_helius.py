@@ -65,14 +65,18 @@ async def fetch_page(
 def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
     """Extract SOL transfers involving the watched address, tracing back through intermediaries
     
-    LIMITATION: This function works with nativeTransfers data from Helius, which may not
-    show all intermediate relays in complex multi-hop transfer chains. For truly accurate
-    funder attribution of multi-hop transfers, the transaction's full account state changes
-    would be needed (requires full RPC transaction data with balance changes).
+    This function implements recursive backtracking to find the true originator in multi-hop
+    transfer chains. It traces backwards through the nativeTransfers array to identify the
+    ultimate source of funds.
     
-    This implementation traces one level: if creator receives from account A, and account A
-    received from account B in the same transaction, we attribute to account B. Beyond that,
-    we're limited by what Helius provides.
+    Algorithm:
+    1. For each transfer to the creator, identify the immediate sender
+    2. Check if that sender received SOL in the same transaction
+    3. If yes, recursively trace back to find the source of that incoming transfer
+    4. Continue until we find an account that only sends (doesn't receive)
+    
+    This handles complex relay chains like:
+    OriginalSender → Consolidator → Relay1 → Relay2 → Creator
     """
     out = []
     sig = tx.get("signature")
@@ -84,7 +88,6 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
         return out
 
     # Build a map of all transfers in this transaction to trace chains
-    # Key: to_address, Value: list of transfers TO that address
     transfers_to = {}
     transfers_from = {}
     
@@ -109,6 +112,39 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
                 "to": to,
                 "amount": amt,
             })
+    
+    def find_true_source(account: str, max_depth: int = 10) -> str:
+        """Recursively trace back to find the true originator of funds
+        
+        Args:
+            account: The account to trace back from
+            max_depth: Maximum recursion depth to prevent infinite loops
+            
+        Returns:
+            The true originating account
+        """
+        if max_depth == 0:
+            # Depth limit reached, return current account
+            return account
+        
+        # If this account received SOL in the transaction
+        if account in transfers_to and len(transfers_to[account]) > 0:
+            # Find the largest incoming transfer
+            largest_incoming = max(transfers_to[account], key=lambda x: x["amount"])
+            sender = largest_incoming["from"]
+            
+            # If the sender also appears to be just an intermediary (receives and sends),
+            # trace back one more level
+            if sender in transfers_to and len(transfers_to[sender]) > 0:
+                # Recursively trace back
+                return find_true_source(sender, max_depth - 1)
+            else:
+                # This sender is the true source (only sends, doesn't receive)
+                return sender
+        else:
+            # This account doesn't appear in any receiving transfers
+            # It's either the true source or a final destination
+            return account
 
     # Now process transfers involving watch_addr
     for nt in native:
@@ -125,26 +161,9 @@ def extract_native_transfers(tx: dict, watch_addr: str) -> List[dict]:
 
         direction = "in" if watch_addr == to else "out"
         
-        # For inbound transfers, try to trace back through intermediaries
-        # to find the original source
+        # For inbound transfers, trace back to find the true originator
         if direction == "in":
-            counterparty = frm
-            
-            # Check if 'frm' is likely an intermediary
-            # If 'frm' received SOL in this same transaction, trace back further
-            if frm in transfers_to and len(transfers_to[frm]) > 0:
-                # The sender of SOL to the intermediary in the same tx is likely
-                # the true source/originator
-                # Pick the sender of the largest amount
-                largest_incoming = max(transfers_to[frm], key=lambda x: x["amount"])
-                counterparty = largest_incoming["from"]
-                
-                # VALIDATION: Does the intermediary also send out?
-                # If not, it's not truly an intermediary, so don't trace
-                if frm not in transfers_from:
-                    # Sender didn't send anything, so 'frm' is not an intermediary
-                    # Use the original sender
-                    counterparty = frm
+            counterparty = find_true_source(frm)
         else:
             counterparty = to
 

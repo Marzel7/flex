@@ -376,7 +376,6 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> tuple:
     DUST_ADDRESSES = {
         "3XxhMgcsvzCcDi6UKvWoSqUxt8JuGN5CR73tRkkDNDs5",  # Known spam dust account
         "3jYf1yHVQEkHNvacdz4wFRXcvFirF6nFjwLq9m8ML1ME",  # WSOL token account (wrap/unwrap plumbing)
-        "GeuiPGMCpwDFQBCUqZ7h6NGyT6cpR5fULz9mnXeN3yRJ",  # WSOL ATA (zero balance change plumbing)
     }
 
     # Group inbound transfers by counterparty (funders)

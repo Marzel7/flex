@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
 """
-Infrastructure Mapping System
+Infrastructure & CEX Account Mapping System
 
-Maps known infrastructure accounts to their categories:
-- Exchanges (CEX)
-- Validators/Staking
-- Bridges
-- Relayers
-- Consolidators
-- Pools/Liquidity
+Two separate registries for distinct account types:
 
-Allows tagging and highlighting when these accounts appear in funding flows.
+INFRASTRUCTURE ACCOUNTS:
+- Axiom (automation/oracle programs)
+- Validators/Staking programs
+- System programs
+- Bridges, Relayers, Consolidators
+These are part of the Solana ecosystem itself.
+
+CEX ACCOUNTS:
+- Binance, Coinbase, etc.
+- External exchanges
+- Different risk/behavior profile than infrastructure
 """
 
 from typing import Dict, List, Optional, Tuple
 
-# Infrastructure account mappings
+# Infrastructure account mappings (ecosystem programs/tools)
 INFRASTRUCTURE_ACCOUNTS = {
     # Axiom (Monitoring/Automation Infrastructure)
     "AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk": {
@@ -24,15 +28,6 @@ INFRASTRUCTURE_ACCOUNTS = {
         "description": "Automation & monitoring infrastructure (Axiom program)",
         "risk_level": "neutral",
         "tags": ["infra", "automation", "oracle"],
-    },
-
-    # CEX Accounts - Binance
-    "8iBa3q2NqYqdTF5trYVyryy3XeeM6E3K26efsXhfVvcb": {
-        "name": "Binance 2",
-        "category": "cex",
-        "description": "Binance exchange wallet",
-        "risk_level": "neutral",
-        "tags": ["cex", "binance", "exchange"],
     },
 
     # Axiom automation account
@@ -44,16 +39,7 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "oracle"],
     },
 
-    # Generic CEX staking (if needed)
-    "BinanceStakedSol11111111111111111111111111": {
-        "name": "Binance Staking",
-        "category": "cex",
-        "description": "Binance staking program",
-        "risk_level": "neutral",
-        "tags": ["cex", "binance", "staking"],
-    },
-
-    # Consolidation/Relay Addresses (commonly used for internal transfers)
+    # System Program (Solana system)
     "11111111111111111111111111111111": {
         "name": "System Program",
         "category": "system",
@@ -63,10 +49,32 @@ INFRASTRUCTURE_ACCOUNTS = {
     },
 }
 
-# Risk-based categories
-CATEGORY_RISK_MAPPING = {
+# CEX account mappings (external exchanges - different characteristics)
+CEX_ACCOUNTS = {
+    # Binance
+    "8iBa3q2NqYqdTF5trYVyryy3XeeM6E3K26efsXhfVvcb": {
+        "name": "Binance 2",
+        "category": "cex",
+        "exchange": "Binance",
+        "description": "Binance exchange wallet",
+        "risk_level": "neutral",
+        "tags": ["cex", "binance", "exchange"],
+    },
+
+    # Binance Staking
+    "BinanceStakedSol11111111111111111111111111": {
+        "name": "Binance Staking",
+        "category": "cex",
+        "exchange": "Binance",
+        "description": "Binance staking program",
+        "risk_level": "neutral",
+        "tags": ["cex", "binance", "staking"],
+    },
+}
+
+# Risk-based categories for infrastructure
+INFRASTRUCTURE_RISK_MAPPING = {
     "automation": "neutral",      # Neutral infrastructure
-    "cex": "neutral",             # Neutral (institutional)
     "system": "neutral",          # Neutral (system)
     "validator": "low",           # Low risk
     "bridge": "medium",           # Medium risk (cross-chain)
@@ -75,28 +83,62 @@ CATEGORY_RISK_MAPPING = {
     "unknown": "unknown",         # Unknown
 }
 
+# Risk mapping for CEX
+CEX_RISK_MAPPING = {
+    "cex": "neutral",             # Neutral (institutional)
+    "unknown": "unknown",
+}
+
 def get_account_info(address: str) -> Optional[Dict]:
-    """Get infrastructure info for an account if it exists"""
+    """Get infrastructure info for an account (infrastructure only)"""
     return INFRASTRUCTURE_ACCOUNTS.get(address)
 
+def get_cex_info(address: str) -> Optional[Dict]:
+    """Get CEX info for an account (CEX only)"""
+    return CEX_ACCOUNTS.get(address)
+
 def is_infrastructure_account(address: str) -> bool:
-    """Check if account is known infrastructure"""
+    """Check if account is known infrastructure (not CEX)"""
     return address in INFRASTRUCTURE_ACCOUNTS
 
+def is_cex_account(address: str) -> bool:
+    """Check if account is a known CEX"""
+    return address in CEX_ACCOUNTS
+
+def is_known_account(address: str) -> bool:
+    """Check if account is either infrastructure or CEX"""
+    return address in INFRASTRUCTURE_ACCOUNTS or address in CEX_ACCOUNTS
+
 def get_category(address: str) -> str:
-    """Get category for an address"""
+    """Get category for an address (infra or cex)"""
     info = get_account_info(address)
-    return info["category"] if info else "unknown"
+    if info:
+        return info["category"]
+    cex_info = get_cex_info(address)
+    if cex_info:
+        return cex_info["category"]
+    return "unknown"
 
 def get_tags(address: str) -> List[str]:
-    """Get tags for an address"""
+    """Get tags for an address (infra or cex)"""
     info = get_account_info(address)
-    return info.get("tags", []) if info else []
+    if info:
+        return info.get("tags", [])
+    cex_info = get_cex_info(address)
+    if cex_info:
+        return cex_info.get("tags", [])
+    return []
 
 def get_risk_level(address: str) -> str:
     """Get risk level based on category"""
     category = get_category(address)
-    return CATEGORY_RISK_MAPPING.get(category, "unknown")
+    # Check infrastructure categories first
+    if category in INFRASTRUCTURE_RISK_MAPPING:
+        return INFRASTRUCTURE_RISK_MAPPING.get(category, "unknown")
+    # Then CEX categories
+    if category in CEX_RISK_MAPPING:
+        return CEX_RISK_MAPPING.get(category, "unknown")
+    return "unknown"
 
 def format_funder_with_tags(address: str, amount_sol: float) -> Dict:
     """
@@ -105,47 +147,66 @@ def format_funder_with_tags(address: str, amount_sol: float) -> Dict:
     Returns dict with:
     - address
     - amount_sol
-    - is_infrastructure: bool
-    - category: str (if infrastructure)
+    - is_infrastructure: bool (for infrastructure accounts)
+    - is_cex: bool (for CEX accounts)
+    - category: str (infrastructure or cex)
     - tags: list
     - display_name: str
+    - description: str
     - risk_level: str
     """
     info = get_account_info(address)
-
     if info:
         return {
             "address": address,
             "amount_sol": amount_sol,
             "is_infrastructure": True,
+            "is_cex": False,
             "category": info["category"],
             "tags": info.get("tags", []),
             "display_name": info["name"],
             "description": info["description"],
             "risk_level": info["risk_level"],
         }
-    else:
+
+    cex_info = get_cex_info(address)
+    if cex_info:
         return {
             "address": address,
             "amount_sol": amount_sol,
             "is_infrastructure": False,
-            "category": "unknown",
-            "tags": [],
-            "display_name": address[:16] + "...",
-            "description": None,
-            "risk_level": "unknown",
+            "is_cex": True,
+            "category": cex_info["category"],
+            "exchange": cex_info.get("exchange"),
+            "tags": cex_info.get("tags", []),
+            "display_name": cex_info["name"],
+            "description": cex_info["description"],
+            "risk_level": cex_info["risk_level"],
         }
+
+    # Unknown account
+    return {
+        "address": address,
+        "amount_sol": amount_sol,
+        "is_infrastructure": False,
+        "is_cex": False,
+        "category": "unknown",
+        "tags": [],
+        "display_name": address[:16] + "...",
+        "description": None,
+        "risk_level": "unknown",
+    }
 
 def add_infrastructure_account(address: str, name: str, category: str,
                                description: str = "", tags: List[str] = None,
                                risk_level: str = "neutral"):
     """
-    Add a new infrastructure account to the mapping
+    Add a new infrastructure account to the mapping (NOT CEX)
 
     Args:
         address: Account address
         name: Display name
-        category: Category (automation, cex, system, validator, bridge, etc.)
+        category: Category (automation, system, validator, bridge, relay, etc.)
         description: Human-readable description
         tags: List of tags for filtering/highlighting
         risk_level: neutral, low, medium, high, unknown
@@ -161,15 +222,71 @@ def add_infrastructure_account(address: str, name: str, category: str,
         "tags": tags,
     }
 
-def get_accounts_by_category(category: str) -> Dict[str, Dict]:
-    """Get all accounts in a specific category"""
-    return {addr: info for addr, info in INFRASTRUCTURE_ACCOUNTS.items()
-            if info["category"] == category}
+def add_cex_account(address: str, name: str, exchange: str,
+                   description: str = "", tags: List[str] = None,
+                   risk_level: str = "neutral"):
+    """
+    Add a new CEX account to the mapping
 
-def get_accounts_by_tag(tag: str) -> Dict[str, Dict]:
-    """Get all accounts with a specific tag"""
-    return {addr: info for addr, info in INFRASTRUCTURE_ACCOUNTS.items()
-            if tag in info.get("tags", [])}
+    Args:
+        address: Account address
+        name: Display name
+        exchange: Exchange name (Binance, Coinbase, etc.)
+        description: Human-readable description
+        tags: List of tags for filtering/highlighting
+        risk_level: neutral, low, medium, high, unknown
+    """
+    if tags is None:
+        tags = []
+
+    CEX_ACCOUNTS[address] = {
+        "name": name,
+        "category": "cex",
+        "exchange": exchange,
+        "description": description,
+        "risk_level": risk_level,
+        "tags": tags,
+    }
+
+def get_accounts_by_category(category: str, account_type: str = "all") -> Dict[str, Dict]:
+    """
+    Get all accounts in a specific category
+
+    Args:
+        category: The category to filter by
+        account_type: "infra", "cex", or "all"
+    """
+    result = {}
+
+    if account_type in ("infra", "all"):
+        result.update({addr: info for addr, info in INFRASTRUCTURE_ACCOUNTS.items()
+                      if info["category"] == category})
+
+    if account_type in ("cex", "all"):
+        result.update({addr: info for addr, info in CEX_ACCOUNTS.items()
+                      if info["category"] == category})
+
+    return result
+
+def get_accounts_by_tag(tag: str, account_type: str = "all") -> Dict[str, Dict]:
+    """
+    Get all accounts with a specific tag
+
+    Args:
+        tag: The tag to filter by
+        account_type: "infra", "cex", or "all"
+    """
+    result = {}
+
+    if account_type in ("infra", "all"):
+        result.update({addr: info for addr, info in INFRASTRUCTURE_ACCOUNTS.items()
+                      if tag in info.get("tags", [])})
+
+    if account_type in ("cex", "all"):
+        result.update({addr: info for addr, info in CEX_ACCOUNTS.items()
+                      if tag in info.get("tags", [])})
+
+    return result
 
 def highlight_infra_in_funding(funders: List[Dict]) -> List[Dict]:
     """

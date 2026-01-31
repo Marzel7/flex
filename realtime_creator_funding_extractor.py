@@ -739,8 +739,15 @@ class RealTimeCreatorFundingExtractor:
 
                                         # Outbound: creator sent SOL
                                         elif frm == creator and amount_sol > 0:
+                                            # Filter dust on outbound too
+                                            if amount_sol < MIN_SOL:
+                                                filtered_dust += 1
+                                                page_dust_filtered += 1
+                                                continue
+
                                             if to in exclude_set:
                                                 filtered_excluded += 1
+                                                page_excluded_filtered += 1
                                                 continue
 
                                             if to not in recipients:

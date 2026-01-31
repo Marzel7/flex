@@ -39,6 +39,12 @@ BATCH_SIZE = 10  # Limit concurrent requests to reduce rate limiting
 MAX_RETRIES = 5
 RPC_TIMEOUT = 30
 
+# Known dust/plumbing addresses to skip (saves processing time)
+DUST_ADDRESSES = {
+    "3XxhMgcsvzCcDi6UKvWoSqUxt8JuGN5CR73tRkkDNDs5",  # Known spam dust account
+    "3jYf1yHVQEkHNvacdz4wFRXcvFirF6nFjwLq9m8ML1ME",  # WSOL token account (wrap/unwrap plumbing)
+}
+
 
 class RealTimeCreatorFundingExtractor:
     """Extract creator funding in real-time when new tokens launch"""
@@ -631,6 +637,12 @@ class RealTimeCreatorFundingExtractor:
 
                                         # Inbound: someone sent creator SOL
                                         if to == creator and amount_sol > 0:
+                                            # Skip dust addresses (known plumbing accounts)
+                                            if frm in DUST_ADDRESSES:
+                                                filtered_dust += 1
+                                                page_dust_filtered += 1
+                                                continue
+
                                             if frm in exclude_set:
                                                 filtered_excluded += 1
                                                 page_excluded_filtered += 1

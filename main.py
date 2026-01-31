@@ -445,6 +445,8 @@ HTML_TEMPLATE = """
             font-size: 10px;
             font-weight: 600;
             white-space: nowrap;
+            border: 1px solid;
+            background: rgba(255, 255, 255, 0.05);
         }
 
         /* Network size tag (purple) */
@@ -1457,10 +1459,21 @@ HTML_TEMPLATE = """
                             let infraTagsHTML = '';
                             if (token.creator_infra_tags && token.creator_infra_tags.length > 0) {
                                 for (let infraTag of token.creator_infra_tags) {
-                                    const tagColor = infraTag.tag.includes('debridge') ? '#ff9500' :
-                                                   infraTag.tag.includes('meteora') ? '#00d4ff' :
-                                                   infraTag.tag.includes('axiom') ? '#9333ea' : '#4ade80';
-                                    infraTagsHTML += `<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor}; display: inline-block; margin-right: 5px;" title="${infraTag.description}">${infraTag.tag.replace('uses_', '')}</span>`;
+                                    let tagColor, bgColor;
+                                    if (infraTag.tag.includes('debridge')) {
+                                        tagColor = '#ff9500';
+                                        bgColor = 'rgba(255, 149, 0, 0.15)';
+                                    } else if (infraTag.tag.includes('meteora')) {
+                                        tagColor = '#00d4ff';
+                                        bgColor = 'rgba(0, 212, 255, 0.15)';
+                                    } else if (infraTag.tag.includes('axiom')) {
+                                        tagColor = '#9333ea';
+                                        bgColor = 'rgba(147, 51, 234, 0.15)';
+                                    } else {
+                                        tagColor = '#4ade80';
+                                        bgColor = 'rgba(74, 222, 128, 0.15)';
+                                    }
+                                    infraTagsHTML += `<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor}; background-color: ${bgColor}; display: inline-block; margin-right: 5px;" title="${infraTag.description}">${infraTag.tag.replace('uses_', '')}</span>`;
                                 }
                             }
 

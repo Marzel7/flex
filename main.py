@@ -2405,22 +2405,21 @@ def api_creator_details(creator_address: str):
         """, (creator_address,))
         funders_row = cursor.fetchone()
         
-        # Post-migration outgoing transfers from tx_ledger
-        # Filter: only meaningful transfers (ABS(delta) >= 100000 lamports ~= 0.0001 SOL to exclude protocol fee dust)
+        # Post-migration outgoing transfers from creator_receivers
         cursor.execute("""
             SELECT
-                COUNT(DISTINCT counterparty) as recipient_count,
-                SUM(ABS(delta_sol_lamports) / 1e9) as total_sol_out
-            FROM creator_tx_ledger
-            WHERE creator_pubkey = ? AND (delta_sol_lamports <= -100000 OR delta_sol_lamports >= 100000) AND counterparty IS NOT NULL
+                COUNT(DISTINCT recipient_address) as recipient_count,
+                SUM(amount_sol) as total_sol_out
+            FROM creator_receivers
+            WHERE creator_address = ?
         """, (creator_address,))
-        tx_ledger_row = cursor.fetchone()
+        recipients_row = cursor.fetchone()
 
         # Combine both sources
         funder_count = (funders_row['funder_count'] or 0) if funders_row else 0
         funders_sol = (funders_row['total_sol'] or 0) if funders_row else 0
-        recipient_count = (tx_ledger_row['recipient_count'] or 0) if tx_ledger_row else 0
-        recipients_sol = (tx_ledger_row['total_sol_out'] or 0) if tx_ledger_row else 0
+        recipient_count = (recipients_row['recipient_count'] or 0) if recipients_row else 0
+        recipients_sol = (recipients_row['total_sol_out'] or 0) if recipients_row else 0
         
         funding = {
             'total_funders': funder_count,
@@ -2450,16 +2449,15 @@ def api_creator_details(creator_address: str):
         # Add infrastructure highlighting to funders
         top_funders = highlight_infra_in_funding(top_funders)
 
-        # 4. Get top recipients from tx_ledger (post-migration outgoing transfers)
-        # Filter: only meaningful transfers (ABS(delta) >= 100000 lamports ~= 0.0001 SOL to exclude protocol fee dust)
+        # 4. Get top recipients from creator_receivers (post-migration outgoing transfers)
         cursor.execute("""
             SELECT
-                counterparty as recipient_address,
-                ABS(SUM(delta_sol_lamports) / 1e9) as amount_sol,
-                COUNT(*) as tx_count
-            FROM creator_tx_ledger
-            WHERE creator_pubkey = ? AND (delta_sol_lamports <= -100000 OR delta_sol_lamports >= 100000) AND counterparty IS NOT NULL
-            GROUP BY counterparty
+                recipient_address,
+                amount_sol,
+                receiver_type,
+                receiver_name
+            FROM creator_receivers
+            WHERE creator_address = ?
             ORDER BY amount_sol DESC
             LIMIT 10
         """, (creator_address,))
@@ -2486,8 +2484,8 @@ def api_creator_details(creator_address: str):
                 UNION
                 SELECT funder_address as wallet_addr, 0 as hop FROM creator_funders WHERE creator_address = ?
                 UNION
-                SELECT DISTINCT counterparty as wallet_addr, 0 as hop FROM creator_tx_ledger
-                    WHERE creator_pubkey = ? AND (delta_sol_lamports <= -100000 OR delta_sol_lamports >= 100000) AND counterparty IS NOT NULL
+                SELECT DISTINCT recipient_address as wallet_addr, 0 as hop FROM creator_receivers
+                    WHERE creator_address = ?
             )
         """, (creator_address, creator_address, creator_address))
         cluster_row = cursor.fetchone()

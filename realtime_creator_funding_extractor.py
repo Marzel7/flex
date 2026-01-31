@@ -1024,6 +1024,71 @@ class RealTimeCreatorFundingExtractor:
         except Exception as e:
             print(f"[REALTIME_FUNDING] ⚠ Error checking for Meteora program interaction: {e}", flush=True)
 
+    async def check_transfers_for_debridge(self, creator: str):
+        """Check if creator has inbound or outbound transfers to/from deBridge and tag if so"""
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=60)
+            cursor = conn.cursor()
+
+            # deBridge vault
+            debridge_account = "2snHHreXbpJ7UwZxPe37gnUNf7Wx7wv6UKDSR2JckKuS"
+
+            found_debridge = False
+            debridge_amount = 0
+            debridge_direction = None
+
+            # Check inbound (deBridge sending to creator)
+            cursor.execute("""
+                SELECT SUM(amount_sol) FROM creator_funders
+                WHERE creator_address = ? AND funder_address = ?
+            """, (creator, debridge_account))
+            
+            inbound_result = cursor.fetchone()
+            if inbound_result and inbound_result[0]:
+                found_debridge = True
+                debridge_amount = inbound_result[0]
+                debridge_direction = "inbound"
+                print(f"[REALTIME_FUNDING] 🎯 DEBRIDGE DETECTED (inbound): {creator[:16]}... received {debridge_amount:.6f} SOL from deBridge", flush=True)
+
+            # Check outbound (creator sending to deBridge)
+            if not found_debridge:
+                cursor.execute("""
+                    SELECT SUM(amount_sol) FROM creator_receivers
+                    WHERE creator_address = ? AND receiver_address = ?
+                """, (creator, debridge_account))
+                
+                outbound_result = cursor.fetchone()
+                if outbound_result and outbound_result[0]:
+                    found_debridge = True
+                    debridge_amount = outbound_result[0]
+                    debridge_direction = "outbound"
+                    print(f"[REALTIME_FUNDING] 🎯 DEBRIDGE DETECTED (outbound): {creator[:16]}... sent {debridge_amount:.6f} SOL to deBridge", flush=True)
+
+            # If deBridge found, tag the creator
+            if found_debridge:
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS creator_tags (
+                        creator_address TEXT PRIMARY KEY,
+                        tag TEXT,
+                        description TEXT,
+                        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                """)
+
+                cursor.execute("""
+                    INSERT OR REPLACE INTO creator_tags
+                    (creator_address, tag, description)
+                    VALUES (?, ?, ?)
+                """, (creator, "uses_debridge", f"Creator uses deBridge for {debridge_direction} transfers ({debridge_amount:.6f} SOL)"))
+
+                conn.commit()
+                print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_debridge'", flush=True)
+
+            conn.close()
+
+        except Exception as e:
+            print(f"[REALTIME_FUNDING] ⚠ Error checking transfers for deBridge: {e}", flush=True)
+
     async def process_new_token(self, creator: str, migration_timestamp_str: str):
         """
         Process a newly detected token.
@@ -1068,8 +1133,9 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
     if create_tx_signature:
         await extractor.check_create_tx_for_jitotip(creator, create_tx_signature)
 
-    # Check inbound/outbound transfers for Meteora usage
+    # Check inbound/outbound transfers for infrastructure usage
     await extractor.check_transfers_for_meteora(creator)
+    await extractor.check_transfers_for_debridge(creator)
 
     return result
 

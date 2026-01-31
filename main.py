@@ -62,6 +62,15 @@ def get_migrated_tokens() -> List[Dict]:
 
         tokens = []
         for row in cursor.fetchall():
+            # Get creator infrastructure tags if creator exists
+            creator_infra_tags = []
+            if row['earliest_tx_creator']:
+                cursor.execute("""
+                    SELECT tag, description FROM creator_tags
+                    WHERE creator_address = ?
+                """, (row['earliest_tx_creator'],))
+                creator_infra_tags = [{'tag': t[0], 'description': t[1]} for t in cursor.fetchall()]
+
             tokens.append({
                 'mint': row['mint'],
                 'analyzed_at': row['analyzed_at'],
@@ -80,7 +89,8 @@ def get_migrated_tokens() -> List[Dict]:
                 'creator': row['earliest_tx_creator'] if row['earliest_tx_creator'] else None,
                 'creator_is_blocked': bool(row['creator_is_blocked']) if row['creator_is_blocked'] else False,
                 'network_risk': bool(row['network_risk']) if row['network_risk'] else False,
-                'connected_malicious_count': row['connected_malicious_count'] if row['connected_malicious_count'] else 0
+                'connected_malicious_count': row['connected_malicious_count'] if row['connected_malicious_count'] else 0,
+                'creator_infra_tags': creator_infra_tags
             })
 
         conn.close()
@@ -1440,6 +1450,16 @@ HTML_TEMPLATE = """
                                 tags.push('<span class="creator-tag tag-blocked" title="On blocklist">BLOCKED</span>');
                             }
 
+                            // Creator infrastructure tags (deBridge, Meteora, Axiom, etc.)
+                            if (token.creator_infra_tags && token.creator_infra_tags.length > 0) {
+                                for (let infraTag of token.creator_infra_tags) {
+                                    const tagColor = infraTag.tag.includes('debridge') ? '#ff9500' :
+                                                   infraTag.tag.includes('meteora') ? '#00d4ff' :
+                                                   infraTag.tag.includes('axiom') ? '#9333ea' : '#4ade80';
+                                    tags.push(`<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor};" title="${infraTag.description}">${infraTag.tag.replace('uses_', '')}</span>`);
+                                }
+                            }
+
                             const creatorShort = token.creator ? token.creator.substring(0, 8) + '...' : 'N/A';
                             const creatorTitle = token.creator || 'Unknown';
                             const creatorElement = token.creator
@@ -1506,7 +1526,7 @@ HTML_TEMPLATE = """
                                             ${infraTags}
                                         </div>
                                     </td>
-                                    <td class="creator-tags"></td>
+                                    <td class="creator-tags">${tags.join('')}</td>
                                     <td class="rug-flag"></td>
                                     <td>
                                         <span class="risk-score ${getRiskClass(token.risk_level)}">${token.risk_level || '—'}</span>

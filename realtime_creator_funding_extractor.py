@@ -264,7 +264,7 @@ class RealTimeCreatorFundingExtractor:
     def _save_funder(self, creator: str, funder: str, amount_sol: float):
         """Save funder relationship to database, accumulating amounts from multiple transfers"""
         try:
-            from infra_mapping import is_infrastructure_account, is_cex_account
+            from infra_mapping import is_infrastructure_account, is_cex_account, get_account_info
 
             conn = sqlite3.connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
@@ -307,6 +307,22 @@ class RealTimeCreatorFundingExtractor:
             # Check if funder is infrastructure/automation account
             if not cex_exchange and is_infrastructure_account(funder):
                 is_classified = 1  # Mark as classified (infrastructure)
+                
+                # Special handling for deBridge
+                info = get_account_info(funder)
+                if info and "debridge" in str(info.get("tags", [])).lower():
+                    print(f"[FUNDING] 🌉 DEBRIDGE FUNDER DETECTED: {creator[:16]}... received {amount_sol:.6f} SOL from deBridge", flush=True)
+                    # Tag creator for deBridge usage
+                    try:
+                        cursor.execute("""
+                            INSERT OR REPLACE INTO creator_tags
+                            (creator_address, tag, description)
+                            VALUES (?, ?, ?)
+                        """, (creator, "uses_debridge", f"Creator receives transfers from deBridge ({new_total_amount:.6f} SOL total)"))
+                        conn.commit()
+                        print(f"[FUNDING] ✅ Tagged creator as 'uses_debridge'", flush=True)
+                    except Exception as tag_err:
+                        print(f"[FUNDING] ⚠ Could not tag deBridge usage: {tag_err}", flush=True)
 
             # Check if funder is CEX via infra_mapping
             if not cex_exchange and is_cex_account(funder):

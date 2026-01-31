@@ -942,7 +942,7 @@ class RealTimeCreatorFundingExtractor:
             print(f"[REALTIME_FUNDING] ⚠ Error checking CREATE tx for Jitotip: {e}", flush=True)
 
     async def check_transfers_for_meteora(self, creator: str):
-        """Check if creator has inbound or outbound transfers to/from Meteora and tag if so"""
+        """Check if creator has inbound/outbound transfers to/from Meteora and tag if so"""
         try:
             conn = sqlite3.connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
@@ -953,6 +953,7 @@ class RealTimeCreatorFundingExtractor:
             found_meteora = False
             meteora_amount = 0
             meteora_direction = None
+            meteora_source = None
 
             # Check inbound (Meteora sending to creator)
             cursor.execute("""
@@ -965,6 +966,7 @@ class RealTimeCreatorFundingExtractor:
                 found_meteora = True
                 meteora_amount = inbound_result[0]
                 meteora_direction = "inbound"
+                meteora_source = "direct_transfer"
                 print(f"[REALTIME_FUNDING] 🎯 METEORA DETECTED (inbound): {creator[:16]}... received {meteora_amount:.6f} SOL from Meteora", flush=True)
 
             # Check outbound (creator sending to Meteora)
@@ -979,6 +981,7 @@ class RealTimeCreatorFundingExtractor:
                     found_meteora = True
                     meteora_amount = outbound_result[0]
                     meteora_direction = "outbound"
+                    meteora_source = "direct_transfer"
                     print(f"[REALTIME_FUNDING] 🎯 METEORA DETECTED (outbound): {creator[:16]}... sent {meteora_amount:.6f} SOL to Meteora", flush=True)
 
             # If Meteora found, tag the creator
@@ -996,7 +999,7 @@ class RealTimeCreatorFundingExtractor:
                     INSERT OR REPLACE INTO creator_tags
                     (creator_address, tag, description)
                     VALUES (?, ?, ?)
-                """, (creator, "uses_meteora", f"Creator uses Meteora for {meteora_direction} transfers ({meteora_amount:.6f} SOL)"))
+                """, (creator, "uses_meteora", f"Creator uses Meteora for {meteora_direction} transfers ({meteora_amount:.6f} SOL) via {meteora_source}"))
 
                 conn.commit()
                 print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_meteora'", flush=True)
@@ -1005,6 +1008,21 @@ class RealTimeCreatorFundingExtractor:
 
         except Exception as e:
             print(f"[REALTIME_FUNDING] ⚠ Error checking transfers for Meteora: {e}", flush=True)
+
+    async def check_for_meteora_program_interaction(self, creator: str):
+        """Check if creator has interacted with Meteora program through transaction analysis
+        
+        This catches Meteora swaps/interactions that don't show as direct transfers.
+        Since we don't have transaction signatures stored, we'd need to parse from extraction logs.
+        For now, this method is a placeholder for future enhancement.
+        """
+        try:
+            # NOTE: Full implementation would require storing transaction signatures
+            # for all creator transfers and parsing them for Meteora program interactions.
+            # This is noted for future enhancement when we store tx signatures in creator_receivers.
+            pass
+        except Exception as e:
+            print(f"[REALTIME_FUNDING] ⚠ Error checking for Meteora program interaction: {e}", flush=True)
 
     async def process_new_token(self, creator: str, migration_timestamp_str: str):
         """

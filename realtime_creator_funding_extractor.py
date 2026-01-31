@@ -713,6 +713,33 @@ class RealTimeCreatorFundingExtractor:
                                         page_token_transfers_filtered += 1
                                         continue
 
+                                    # Check if deBridge is a signer in this transaction
+                                    # For cross-chain transfers, deBridge initiates but creator may not be direct signer
+                                    tx_accounts = tx.get("accountKeys", []) or []
+                                    debridge_account = "2snHHreXbpJ7UwZxPe37gnUNf7Wx7wv6UKDSR2JckKuS"
+
+                                    if debridge_account in tx_accounts:
+                                        # This transaction involves deBridge
+                                        # Count it as a transfer from deBridge to creator
+                                        # Note: We'll estimate a reasonable amount based on context
+                                        # or mark for manual review
+                                        print(f"[REALTIME_FUNDING] 🌉 DEBRIDGE TRANSACTION: {tx.get('signature', '')[:16]}...", flush=True)
+
+                                        # Mark creator for deBridge usage
+                                        try:
+                                            conn = sqlite3.connect(DB_PATH, timeout=60)
+                                            cursor = conn.cursor()
+                                            cursor.execute("""
+                                                INSERT OR REPLACE INTO creator_tags
+                                                (creator_address, tag, description)
+                                                VALUES (?, ?, ?)
+                                            """, (creator, "uses_debridge", f"Creator uses deBridge for cross-chain transfers (tx: {tx.get('signature', '')[:16]}...)"))
+                                            conn.commit()
+                                            conn.close()
+                                            print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_debridge'", flush=True)
+                                        except Exception as tag_err:
+                                            print(f"[REALTIME_FUNDING] ⚠ Could not tag deBridge: {tag_err}", flush=True)
+
                                     # Extract nativeTransfers
                                     native = tx.get("nativeTransfers") or []
                                     for nt in native:

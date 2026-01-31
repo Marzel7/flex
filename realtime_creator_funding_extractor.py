@@ -25,6 +25,7 @@ import os
 from typing import Optional, Dict, List, Set
 from datetime import datetime
 from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
+from dust_addresses import DUST_ADDRESSES
 
 DB_PATH = "pumpswap_tokens.db"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "84ec9a31-f8c2-4116-8e98-695a9377c5ed"
@@ -39,13 +40,6 @@ RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
 BATCH_SIZE = 10  # Limit concurrent requests to reduce rate limiting
 MAX_RETRIES = 5
 RPC_TIMEOUT = 30
-
-# Known dust/plumbing addresses to skip (saves processing time)
-DUST_ADDRESSES = {
-    "3XxhMgcsvzCcDi6UKvWoSqUxt8JuGN5CR73tRkkDNDs5",  # Known spam dust account
-    "3jYf1yHVQEkHNvacdz4wFRXcvFirF6nFjwLq9m8ML1ME",  # WSOL token account (wrap/unwrap plumbing)
-    "HT629WJGphX8XEbpcD62SMcbNSzEHDEkCVD5tzjwkYbb",  # Dust/plumbing account
-}
 
 # Pump.Fun program ID - used to filter out Pump.Fun token operations
 PUMPFUN_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"

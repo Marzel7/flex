@@ -1147,6 +1147,71 @@ class RealTimeCreatorFundingExtractor:
         except Exception as e:
             print(f"[REALTIME_FUNDING] ⚠ Error checking transfers for deBridge: {e}", flush=True)
 
+    async def check_transfers_for_axiom(self, creator: str):
+        """Check if creator has interactions with Axiom and tag if so"""
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=60)
+            cursor = conn.cursor()
+
+            # Axiom automation account
+            axiom_account = "AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk"
+
+            found_axiom = False
+            axiom_amount = 0
+            axiom_direction = None
+
+            # Check inbound (Axiom sending to creator)
+            cursor.execute("""
+                SELECT SUM(amount_sol) FROM creator_funders
+                WHERE creator_address = ? AND funder_address = ?
+            """, (creator, axiom_account))
+            
+            inbound_result = cursor.fetchone()
+            if inbound_result and inbound_result[0]:
+                found_axiom = True
+                axiom_amount = inbound_result[0]
+                axiom_direction = "inbound"
+                print(f"[REALTIME_FUNDING] 📊 AXIOM DETECTED (inbound): {creator[:16]}... received {axiom_amount:.6f} SOL from Axiom", flush=True)
+
+            # Check outbound (creator sending to Axiom)
+            if not found_axiom:
+                cursor.execute("""
+                    SELECT SUM(amount_sol) FROM creator_receivers
+                    WHERE creator_address = ? AND receiver_address = ?
+                """, (creator, axiom_account))
+                
+                outbound_result = cursor.fetchone()
+                if outbound_result and outbound_result[0]:
+                    found_axiom = True
+                    axiom_amount = outbound_result[0]
+                    axiom_direction = "outbound"
+                    print(f"[REALTIME_FUNDING] 📊 AXIOM DETECTED (outbound): {creator[:16]}... sent {axiom_amount:.6f} SOL to Axiom", flush=True)
+
+            # If Axiom found, tag the creator
+            if found_axiom:
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS creator_tags (
+                        creator_address TEXT PRIMARY KEY,
+                        tag TEXT,
+                        description TEXT,
+                        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                """)
+
+                cursor.execute("""
+                    INSERT OR REPLACE INTO creator_tags
+                    (creator_address, tag, description)
+                    VALUES (?, ?, ?)
+                """, (creator, "uses_axiom", f"Creator uses Axiom automation/oracle services ({axiom_direction} transfers, {axiom_amount:.6f} SOL)"))
+
+                conn.commit()
+                print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_axiom'", flush=True)
+
+            conn.close()
+
+        except Exception as e:
+            print(f"[REALTIME_FUNDING] ⚠ Error checking transfers for Axiom: {e}", flush=True)
+
     async def process_new_token(self, creator: str, migration_timestamp_str: str):
         """
         Process a newly detected token.
@@ -1194,6 +1259,7 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
     # Check inbound/outbound transfers for infrastructure usage
     await extractor.check_transfers_for_meteora(creator)
     await extractor.check_transfers_for_debridge(creator)
+    await extractor.check_transfers_for_axiom(creator)
 
     return result
 

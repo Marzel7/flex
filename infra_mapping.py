@@ -120,6 +120,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "meteora", "dlmm"],
     },
 
+    # Meteora DLMM Program (Direct Liquidity Market Maker)
+    "dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN": {
+        "name": "Meteora DLMM",
+        "category": "automation",
+        "description": "Meteora Direct Liquidity Market Maker (DLMM) program for concentrated liquidity",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "meteora", "dlmm", "liquidity"],
+    },
+
     # Jupiter Aggregator Authority 3
     "HU23r7UoZbqTUuh3vA7emAGztFtqwTeVips789vqxxBw": {
         "name": "Jupiter Aggregator Authority 3",

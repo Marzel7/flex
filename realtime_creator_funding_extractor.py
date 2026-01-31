@@ -1212,6 +1212,128 @@ class RealTimeCreatorFundingExtractor:
         except Exception as e:
             print(f"[REALTIME_FUNDING] ⚠ Error checking transfers for Axiom: {e}", flush=True)
 
+    async def check_transactions_for_meteora_programs(self, creator: str):
+        """
+        Check if creator's transactions call Meteora DLMM program directly.
+        This detects program-level interactions in inner instructions.
+        
+        Meteora programs to detect:
+        - dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN (DLMM)
+        """
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=60)
+            cursor = conn.cursor()
+
+            # Check if creator is already tagged with Meteora usage
+            cursor.execute("""
+                SELECT 1 FROM creator_tags
+                WHERE creator_address = ? AND tag = ?
+            """, (creator, "uses_meteora"))
+            
+            if cursor.fetchone() is not None:
+                print(f"[REALTIME_FUNDING]    ℹ Creator already tagged as 'uses_meteora', skipping detection", flush=True)
+                conn.close()
+                return
+
+            conn.close()
+
+            # Use Helius to get transactions and check for Meteora program calls
+            meteora_dlmm = "dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN"
+            
+            found_meteora = False
+            meteora_tx_count = 0
+            
+            print(f"[REALTIME_FUNDING]    🔍 Checking for Meteora DLMM program calls...", flush=True)
+
+            try:
+                async with aiohttp.ClientSession() as session:
+                    url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{creator}/transactions"
+                    query_url = f"{url}?api-key={HELIUS_API_KEY}&limit=50&sort-order=desc&commitment=finalized"
+
+                    # First get address transactions to find signatures
+                    async with session.get(query_url, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                        if resp.status == 200:
+                            address_txs = await resp.json()
+                            
+                            if isinstance(address_txs, list):
+                                # Now fetch full details for each transaction to check inner instructions
+                                signatures_to_check = [tx.get('signature') for tx in address_txs[:20] if tx.get('signature')]
+                                
+                                if signatures_to_check:
+                                    # Fetch full transaction details
+                                    tx_url = f"https://api.helius.xyz/v0/transactions?api-key={HELIUS_API_KEY}"
+                                    tx_payload = {
+                                        "transactions": signatures_to_check
+                                    }
+                                    
+                                    async with session.post(tx_url, json=tx_payload, timeout=aiohttp.ClientTimeout(total=30)) as tx_resp:
+                                        if tx_resp.status == 200:
+                                            full_txs = await tx_resp.json()
+                                            
+                                            if isinstance(full_txs, list):
+                                                for tx in full_txs:
+                                                    instructions = tx.get("instructions", []) or []
+                                                    
+                                                    for instr in instructions:
+                                                        # Check top-level program
+                                                        program_id = instr.get("programId")
+                                                        if program_id == meteora_dlmm:
+                                                            found_meteora = True
+                                                            meteora_tx_count += 1
+                                                            print(f"[REALTIME_FUNDING] 🔄 METEORA DLMM CALL DETECTED (top-level): {tx.get('signature', '')[:16]}...", flush=True)
+                                                            break
+                                                        
+                                                        # Check inner instructions
+                                                        inner_instrs = instr.get("innerInstructions", []) or []
+                                                        for inner_instr in inner_instrs:
+                                                            inner_prog = inner_instr.get("programId")
+                                                            if inner_prog == meteora_dlmm:
+                                                                found_meteora = True
+                                                                meteora_tx_count += 1
+                                                                print(f"[REALTIME_FUNDING] 🔄 METEORA DLMM CALL DETECTED (inner): {tx.get('signature', '')[:16]}...", flush=True)
+                                                                break
+                                                        
+                                                        if found_meteora:
+                                                            break
+                                                    
+                                                    if found_meteora and meteora_tx_count >= 1:
+                                                        # Found at least one Meteora interaction
+                                                        break
+
+            except Exception as e:
+                print(f"[REALTIME_FUNDING]    ⚠ Error checking Helius for Meteora programs: {e}", flush=True)
+
+            # If Meteora DLMM usage found, tag the creator
+            if found_meteora:
+                try:
+                    conn = sqlite3.connect(DB_PATH, timeout=60)
+                    cursor = conn.cursor()
+                    
+                    cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS creator_tags (
+                            creator_address TEXT,
+                            tag TEXT,
+                            description TEXT,
+                            added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            PRIMARY KEY (creator_address, tag)
+                        )
+                    """)
+
+                    cursor.execute("""
+                        INSERT OR IGNORE INTO creator_tags
+                        (creator_address, tag, description)
+                        VALUES (?, ?, ?)
+                    """, (creator, "uses_meteora", f"Creator uses Meteora DLMM program ({meteora_tx_count} transaction(s))"))
+
+                    conn.commit()
+                    conn.close()
+                    print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_meteora' (program-level detection)", flush=True)
+                except Exception as e:
+                    print(f"[REALTIME_FUNDING] ⚠ Error tagging Meteora: {e}", flush=True)
+
+        except Exception as e:
+            print(f"[REALTIME_FUNDING] ⚠ Error checking transactions for Meteora programs: {e}", flush=True)
+
     async def process_new_token(self, creator: str, migration_timestamp_str: str):
         """
         Process a newly detected token.
@@ -1260,6 +1382,9 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
     await extractor.check_transfers_for_meteora(creator)
     await extractor.check_transfers_for_debridge(creator)
     await extractor.check_transfers_for_axiom(creator)
+
+    # Check for program-level calls to Meteora DLMM
+    await extractor.check_transactions_for_meteora_programs(creator)
 
     return result
 

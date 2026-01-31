@@ -24,6 +24,7 @@ import aiohttp
 import os
 from typing import Optional, Dict, List, Set
 from datetime import datetime
+from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
 
 DB_PATH = "pumpswap_tokens.db"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "84ec9a31-f8c2-4116-8e98-695a9377c5ed"
@@ -45,6 +46,9 @@ DUST_ADDRESSES = {
     "3jYf1yHVQEkHNvacdz4wFRXcvFirF6nFjwLq9m8ML1ME",  # WSOL token account (wrap/unwrap plumbing)
 }
 
+# Pump.Fun program ID - used to filter out Pump.Fun token operations
+PUMPFUN_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+
 
 class RealTimeCreatorFundingExtractor:
     """Extract creator funding in real-time when new tokens launch"""
@@ -52,6 +56,7 @@ class RealTimeCreatorFundingExtractor:
     def __init__(self):
         self.processed_creators: Set[str] = set()
         self.session = None
+        self.seen_bonding_curves: Set[str] = set()  # Cache bonding curves to skip trading noise
 
     async def init_session(self):
         """Initialize aiohttp session"""
@@ -262,12 +267,25 @@ class RealTimeCreatorFundingExtractor:
         return transfers
 
     def _save_funder(self, creator: str, funder: str, amount_sol: float):
-        """Save funder relationship to database, checking for CEX/infrastructure wallets"""
+        """Save funder relationship to database, accumulating amounts from multiple transfers"""
         try:
             from infra_mapping import is_infrastructure_account, is_cex_account
 
             conn = sqlite3.connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
+
+            # First, check if this funder already exists for this creator
+            cursor.execute("""
+                SELECT amount_sol, is_classified, fully_analyzed
+                FROM creator_funders
+                WHERE creator_address = ? AND funder_address = ?
+                LIMIT 1
+            """, (creator, funder))
+            existing = cursor.fetchone()
+
+            # Get existing amount, or 0 if new
+            existing_amount = existing[0] if existing else 0
+            new_total_amount = existing_amount + amount_sol
 
             # Check if funder is a known CEX wallet
             cex_exchange = None
@@ -287,7 +305,7 @@ class RealTimeCreatorFundingExtractor:
                     cex_exchange = exchange
                     cex_type = wallet_type
                     is_classified = 1  # Mark as classified (already tagged)
-                    print(f"[FUNDING] 🏛️ CEX FUNDER DETECTED: {exchange} {wallet_type} → {creator[:16]}... ({amount_sol:.2f} SOL)", flush=True)
+                    print(f"[FUNDING] 🏛️ CEX FUNDER DETECTED: {exchange} {wallet_type} → {creator[:16]}... ({new_total_amount:.2f} SOL total)", flush=True)
             except:
                 pass
 
@@ -299,14 +317,14 @@ class RealTimeCreatorFundingExtractor:
             if not cex_exchange and is_cex_account(funder):
                 is_classified = 1  # Mark as classified (CEX in mapping)
 
-            # Mark as fully_analyzed if amount > 1 SOL
-            fully_analyzed = 1 if amount_sol > 1.0 else 0
+            # Mark as fully_analyzed if total amount > 1 SOL
+            fully_analyzed = 1 if new_total_amount > 1.0 else 0
 
             cursor.execute("""
                 INSERT OR REPLACE INTO creator_funders
                 (creator_address, funder_address, amount_sol, first_detected_at, is_cex, cex_exchange, cex_type, is_classified, fully_analyzed)
                 VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?)
-            """, (creator, funder, amount_sol, 1 if cex_exchange else 0, cex_exchange, cex_type, is_classified, fully_analyzed))
+            """, (creator, funder, new_total_amount, 1 if cex_exchange else 0, cex_exchange, cex_type, is_classified, fully_analyzed))
 
             conn.commit()
             conn.close()
@@ -319,22 +337,49 @@ class RealTimeCreatorFundingExtractor:
             conn = sqlite3.connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
 
+            # Check if recipient is INFRA or CEX account
+            is_infra = recipient in INFRASTRUCTURE_ACCOUNTS
+            is_cex = recipient in CEX_ACCOUNTS
+
+            # Get classification info if available
+            recipient_type = None
+            recipient_name = None
+            if is_infra:
+                recipient_type = "INFRA"
+                recipient_name = INFRASTRUCTURE_ACCOUNTS[recipient].get("name", "")
+            elif is_cex:
+                recipient_type = "CEX"
+                recipient_name = CEX_ACCOUNTS[recipient].get("name", "")
+
             # Create table if needed
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS creator_receivers (
                     creator_address TEXT NOT NULL,
                     receiver_address TEXT NOT NULL,
                     amount_sol REAL,
+                    receiver_type TEXT,
+                    receiver_name TEXT,
                     first_detected_at TEXT,
                     PRIMARY KEY (creator_address, receiver_address)
                 )
             """)
 
+            # Add new columns if they don't exist (for existing tables)
+            try:
+                cursor.execute("ALTER TABLE creator_receivers ADD COLUMN receiver_type TEXT")
+            except:
+                pass  # Column already exists
+
+            try:
+                cursor.execute("ALTER TABLE creator_receivers ADD COLUMN receiver_name TEXT")
+            except:
+                pass  # Column already exists
+
             cursor.execute("""
                 INSERT OR REPLACE INTO creator_receivers
-                (creator_address, receiver_address, amount_sol, first_detected_at)
-                VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-            """, (creator, recipient, amount_sol))
+                (creator_address, receiver_address, amount_sol, receiver_type, receiver_name, first_detected_at)
+                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            """, (creator, recipient, amount_sol, recipient_type, recipient_name))
 
             conn.commit()
             conn.close()
@@ -490,6 +535,7 @@ class RealTimeCreatorFundingExtractor:
         - Proper delays between requests
         - Filters pre-migration transfers only
         - Excludes token mints and bonding curves from both directions
+        - Skips transactions with ANY Pump.Fun token transfers (bonding curves, migrations)
         
         This is slower than pagination but avoids 429 rate limit errors.
         """
@@ -507,8 +553,12 @@ class RealTimeCreatorFundingExtractor:
 
             migration_timestamp = int(migration_dt.timestamp())
 
+            # Calculate 1 month cutoff (30 days back from migration)
+            one_month_cutoff = migration_timestamp - (30 * 24 * 60 * 60)
+
             print(f"[REALTIME_FUNDING] 🔍 Extracting creator funding for {creator[:16]}...", flush=True)
             print(f"[REALTIME_FUNDING]    Migration timestamp: {migration_timestamp_str}", flush=True)
+            print(f"[REALTIME_FUNDING]    Will fetch up to 1 month of history", flush=True)
 
             # Build exclusion set: token mints + bonding curves created by this creator
             exclude_set = set()
@@ -550,6 +600,7 @@ class RealTimeCreatorFundingExtractor:
             recipients = {}
             filtered_dust = 0
             filtered_excluded = 0
+            filtered_token_transfers = 0
 
             MIN_SOL = 0.001  # Filter dust
 
@@ -604,6 +655,7 @@ class RealTimeCreatorFundingExtractor:
                                 page_funders_found = 0
                                 page_dust_filtered = 0
                                 page_excluded_filtered = 0
+                                page_token_transfers_filtered = 0
 
                                 for tx in page:
                                     tx_ts = tx.get("timestamp", 0)
@@ -616,6 +668,37 @@ class RealTimeCreatorFundingExtractor:
                                     # (we want all funding sources, not just pre-migration)
                                     page_has_pre_migration = True
                                     found_pre_migration = True
+
+                                    # Extract token transfers and check cache
+                                    # These are likely Pump.Fun token transfers, swaps, migrations, etc.
+                                    # We only care about native SOL transfers for actual funding
+                                    token_transfers = tx.get("tokenTransfers") or []
+                                    skip_tx_for_token_ops = False
+
+                                    # Check if ANY token in this tx is already cached (skip entire tx)
+                                    for tt in token_transfers:
+                                        mint = tt.get("mint")
+                                        if mint:
+                                            if mint in self.seen_bonding_curves:
+                                                # Already seen this token, skip entire tx
+                                                skip_tx_for_token_ops = True
+                                                break
+                                            else:
+                                                # New token, cache it for future txs
+                                                self.seen_bonding_curves.add(mint)
+
+                                    # Also skip if transaction involves Pump.Fun program
+                                    # (swaps, bonding curve operations, migrations, etc.)
+                                    tx_programs = tx.get("programs") or []
+                                    if PUMPFUN_PROGRAM in tx_programs:
+                                        skip_tx_for_token_ops = True
+
+                                    # If we should skip this tx for token ops, do so now
+                                    # (but still process native transfers if no token ops detected)
+                                    if skip_tx_for_token_ops and token_transfers:
+                                        filtered_token_transfers += 1
+                                        page_token_transfers_filtered += 1
+                                        continue
 
                                     # Extract nativeTransfers
                                     native = tx.get("nativeTransfers") or []
@@ -666,7 +749,7 @@ class RealTimeCreatorFundingExtractor:
                                             self._save_recipient(creator, to, amount_sol)
 
                                 # Log page summary
-                                if page_funders_found > 0 or page_dust_filtered > 0 or page_excluded_filtered > 0:
+                                if page_funders_found > 0 or page_dust_filtered > 0 or page_excluded_filtered > 0 or page_token_transfers_filtered > 0:
                                     details = []
                                     if page_funders_found > 0:
                                         details.append(f"✓ {page_funders_found} new funders")
@@ -674,12 +757,23 @@ class RealTimeCreatorFundingExtractor:
                                         details.append(f"🚫 {page_dust_filtered} dust")
                                     if page_excluded_filtered > 0:
                                         details.append(f"🔄 {page_excluded_filtered} excluded")
+                                    if page_token_transfers_filtered > 0:
+                                        details.append(f"🪙 {page_token_transfers_filtered} token ops")
                                     print(f"[REALTIME_FUNDING]    [PAGE {page_num}] " + " | ".join(details), flush=True)
 
-                                # Set up next page - continue if we haven't reached token creation time yet
-                                # or if we found pre-migration txs on this page
+                                # Set up next page - continue if within 1-month cutoff AND under 100 pages
                                 should_continue = False
                                 if page:
+                                    # Check if we've reached the 1-month cutoff
+                                    if earliest_tx_timestamp and earliest_tx_timestamp < one_month_cutoff:
+                                        print(f"[REALTIME_FUNDING]    [PAGE {page_num}] Reached 1-month cutoff", flush=True)
+                                        break
+
+                                    # Check if we've reached 100 pages limit
+                                    if page_num >= 100:
+                                        print(f"[REALTIME_FUNDING]    [PAGE {page_num}] Reached 100 page limit", flush=True)
+                                        break
+
                                     # Continue if we found pre-migration txs
                                     if page_has_pre_migration:
                                         should_continue = True
@@ -688,7 +782,7 @@ class RealTimeCreatorFundingExtractor:
                                         should_continue = True
                                         print(f"[REALTIME_FUNDING]    [PAGE {page_num}] All post-migration, but continuing to find older txs...", flush=True)
 
-                                    if should_continue and (page_num < 100):  # Up to 100 pages (10,000 txs with limit=100)
+                                    if should_continue:
                                         before_signature = page[-1].get("signature")
                                         if before_signature:
                                             await asyncio.sleep(0.5)  # Rate limit delay
@@ -696,7 +790,7 @@ class RealTimeCreatorFundingExtractor:
                                             print(f"[REALTIME_FUNDING]    No more signatures available", flush=True)
                                             break
                                     else:
-                                        print(f"[REALTIME_FUNDING]    Pagination complete (reached page limit or end)", flush=True)
+                                        print(f"[REALTIME_FUNDING]    Pagination complete (reached end)", flush=True)
                                         break
                                 else:
                                     break
@@ -725,6 +819,8 @@ class RealTimeCreatorFundingExtractor:
                 print(f"[REALTIME_FUNDING]    ℹ Filtered {filtered_dust} dust transfers", flush=True)
             if filtered_excluded > 0:
                 print(f"[REALTIME_FUNDING]    ℹ Filtered {filtered_excluded} internal transfers (token/curve)", flush=True)
+            if filtered_token_transfers > 0:
+                print(f"[REALTIME_FUNDING]    ℹ Filtered {filtered_token_transfers} token operations (swaps, migrations)", flush=True)
             
             # Show top funders
             if funders:
@@ -745,6 +841,101 @@ class RealTimeCreatorFundingExtractor:
         except Exception as e:
             print(f"[REALTIME_FUNDING] ⚠ Error: {e}", flush=True)
             return {"creator": creator, "error": str(e)}
+
+    async def check_create_tx_for_jitotip(self, creator: str, create_tx_sig: str):
+        """Check if CREATE transaction uses Jitotip and tag creator if so"""
+        if not create_tx_sig:
+            return
+
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=60)
+            cursor = conn.cursor()
+
+            # Get list of Jitotip accounts from INFRASTRUCTURE_ACCOUNTS
+            jitotip_accounts = [addr for addr in INFRASTRUCTURE_ACCOUNTS.keys() if "jito" in INFRASTRUCTURE_ACCOUNTS[addr].get("name", "").lower()]
+
+            found_jitotip = False
+            jitotip_amount = 0
+
+            # Try Helius RPC first (more reliable), then fallback to public RPC
+            rpc_urls = [
+                f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}",  # Helius first
+                "https://api.mainnet-beta.solana.com"  # Public fallback
+            ]
+
+            for rpc_url in rpc_urls:
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": "1",
+                    "method": "getTransaction",
+                    "params": [create_tx_sig, {
+                        "encoding": "json",
+                        "maxSupportedTransactionVersion": 0
+                    }]
+                }
+
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+                            if resp.status == 200:
+                                result = await resp.json()
+
+                                if "result" in result and result["result"]:
+                                    tx = result["result"]
+
+                                    # Get account keys
+                                    message = tx.get("transaction", {}).get("message", {})
+                                    accounts = message.get('accountKeys', [])
+
+                                    # Check if any Jitotip account is in the transaction
+                                    for jito in jitotip_accounts:
+                                        if jito in accounts:
+                                            # Found Jitotip, check balance changes
+                                            jito_idx = accounts.index(jito)
+                                            meta = tx.get("meta", {})
+                                            post_balances = meta.get('postBalances', [])
+                                            pre_balances = meta.get('preBalances', [])
+
+                                            if jito_idx < len(post_balances) and jito_idx < len(pre_balances):
+                                                diff = post_balances[jito_idx] - pre_balances[jito_idx]
+                                                if diff > 0:  # Jitotip received SOL
+                                                    found_jitotip = True
+                                                    jitotip_amount = diff / 1e9
+                                                    rpc_name = "Helius" if "helius" in rpc_url else "Public RPC"
+                                                    print(f"[REALTIME_FUNDING] 🎯 JITOTIP DETECTED (via {rpc_name}) in CREATE tx: {creator[:16]}... sent {jitotip_amount:.9f} SOL to {INFRASTRUCTURE_ACCOUNTS[jito].get('name', 'Jitotip')}", flush=True)
+                                                    break
+
+                                    # If found, break out of RPC loop
+                                    if found_jitotip:
+                                        break
+                except Exception as rpc_err:
+                    # Try next RPC on error
+                    continue
+
+            # If Jitotip found, tag the creator
+            if found_jitotip:
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS creator_tags (
+                        creator_address TEXT PRIMARY KEY,
+                        tag TEXT,
+                        description TEXT,
+                        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                """)
+
+                cursor.execute("""
+                    INSERT OR REPLACE INTO creator_tags
+                    (creator_address, tag, description)
+                    VALUES (?, ?, ?)
+                """, (creator, "uses_jitotip", f"Creator uses Jitotip for MEV/fee tipping in CREATE transaction ({jitotip_amount:.6f} SOL)"))
+
+                conn.commit()
+                print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_jitotip'", flush=True)
+
+            conn.close()
+
+        except Exception as e:
+            print(f"[REALTIME_FUNDING] ⚠ Error checking CREATE tx for Jitotip: {e}", flush=True)
 
     async def process_new_token(self, creator: str, migration_timestamp_str: str):
         """
@@ -776,15 +967,21 @@ async def get_extractor() -> RealTimeCreatorFundingExtractor:
     return _extractor
 
 
-async def extract_funding_for_new_token(creator: str, migration_timestamp_str: str):
+async def extract_funding_for_new_token(creator: str, migration_timestamp_str: str, create_tx_signature: str = None):
     """
     Public function to extract funding when new token detected.
 
     Call from pumpfun_curve_listener.py in handle_migration():
-        await extract_funding_for_new_token(creator, migration_time)
+        await extract_funding_for_new_token(creator, migration_time, create_tx_sig)
     """
     extractor = await get_extractor()
-    return await extractor.process_new_token(creator, migration_timestamp_str)
+    result = await extractor.process_new_token(creator, migration_timestamp_str)
+
+    # Check CREATE tx for Jitotip usage (if signature provided)
+    if create_tx_signature:
+        await extractor.check_create_tx_for_jitotip(creator, create_tx_signature)
+
+    return result
 
 
 if __name__ == "__main__":

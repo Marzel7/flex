@@ -1505,8 +1505,9 @@ class PumpFunCurveListener:
             if get_migration_setting('creator_history_check', True):
                 print(f"[SETTINGS] Creator history ✅ ON - analyzing creator network and funding", flush=True)
                 if earliest_creator:
-                    # Trigger funding extraction asynchronously
-                    asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at))
+                    # Trigger funding extraction asynchronously (with CREATE tx signature for Jitotip detection)
+                    create_tx_sig = analyzer._create_tx_signature if hasattr(analyzer, '_create_tx_signature') else None
+                    asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at, create_tx_sig))
                     print(f"[SETTINGS] Funding extraction task created for {earliest_creator[:8]}...", flush=True)
                     
                     # Trigger wallet clustering asynchronously

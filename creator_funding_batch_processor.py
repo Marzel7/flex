@@ -28,6 +28,7 @@ import sqlite3
 from collections import defaultdict
 from typing import Dict, List, Optional, Set
 from datetime import datetime
+from dust_addresses import DUST_ADDRESSES
 
 DB_PATH = "pumpswap_tokens.db"
 LAMPORTS_PER_SOL = 1_000_000_000
@@ -401,11 +402,6 @@ def save_transfers_to_db(creator: str, transfers: List[dict]) -> tuple:
     # Dust filtering - exclude spam/test transfers below threshold
     # and addresses known to be dust/spam or WSOL token accounts
     DUST_THRESHOLD = 0.0001  # 0.0001 SOL = 100,000 lamports
-    DUST_ADDRESSES = {
-        "3XxhMgcsvzCcDi6UKvWoSqUxt8JuGN5CR73tRkkDNDs5",  # Known spam dust account
-        "3jYf1yHVQEkHNvacdz4wFRXcvFirF6nFjwLq9m8ML1ME",  # WSOL token account (wrap/unwrap plumbing)
-        "GeuiPGMCpwDFQBCUqZ7h6NGyT6cpR5fULz9mnXeN3yRJ",  # Creator-specific WSOL ATA (zero balance change)
-    }
 
     # Group inbound transfers by counterparty (funders)
     # Track both the true originator and any intermediaries

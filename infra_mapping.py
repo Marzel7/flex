@@ -66,6 +66,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "trading-bot"],
     },
 
+    # Jitotip 5 (MEV/Fee Tipping Automation)
+    "DfXygSm4jCyNCybVYYK6DwvWqjKee8pbDmJGcLWNDXjh": {
+        "name": "Jitotip 5",
+        "category": "automation",
+        "description": "Jitotip MEV/fee tipping automation account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "jito", "mev"],
+    },
+
     # Jitotip 6 (MEV/Fee Tipping Automation)
     "ADuUkR4vqLUMWXxW9gh6D6L8pMSawimctcNZ5pGwDcEt": {
         "name": "Jitotip 6",
@@ -109,6 +118,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "description": "Meteora DLMM pool authority/management account",
         "risk_level": "neutral",
         "tags": ["infra", "automation", "meteora", "dlmm"],
+    },
+
+    # Jupiter Aggregator Authority 3
+    "HU23r7UoZbqTUuh3vA7emAGztFtqwTeVips789vqxxBw": {
+        "name": "Jupiter Aggregator Authority 3",
+        "category": "automation",
+        "description": "Jupiter DEX aggregator authority account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "jupiter", "aggregator"],
     },
 }
 

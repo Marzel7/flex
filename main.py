@@ -1427,36 +1427,40 @@ HTML_TEMPLATE = """
                             const creatorData = token.creatorData || {};
                             const tags = [];
 
+                            // Tags for the "Creator Tags" column (non-infrastructure)
+                            const columnTags = [];
+
                             // Network size tag (show if > 10 wallets)
                             if (creatorData.network_size > 10) {
                                 const hop0 = creatorData.cluster_hops?.hop0 || 0;
                                 const hop1 = creatorData.cluster_hops?.hop1 || 0;
-                                tags.push(`<span class="creator-tag tag-network" title="Wallet cluster: ${hop0} hop-0, ${hop1} hop-1">${creatorData.network_size} wallets</span>`);
+                                columnTags.push(`<span class="creator-tag tag-network" title="Wallet cluster: ${hop0} hop-0, ${hop1} hop-1">${creatorData.network_size} wallets</span>`);
                             }
 
                             // Funding tag (show if > 10 SOL)
                             if (creatorData.inbound_sol > 10) {
                                 const sources = creatorData.inbound_sources || 0;
-                                tags.push(`<span class="creator-tag tag-funding" title="Pre-launch funding">${creatorData.inbound_sol.toFixed(1)} SOL from ${sources} source${sources > 1 ? 's' : ''}</span>`);
+                                columnTags.push(`<span class="creator-tag tag-funding" title="Pre-launch funding">${creatorData.inbound_sol.toFixed(1)} SOL from ${sources} source${sources > 1 ? 's' : ''}</span>`);
                             }
 
                             // Repeat launcher tag (show if > 1 token)
                             if (creatorData.token_count > 1) {
-                                tags.push(`<span class="creator-tag tag-repeat" title="Repeat launcher">${creatorData.token_count} tokens</span>`);
+                                columnTags.push(`<span class="creator-tag tag-repeat" title="Repeat launcher">${creatorData.token_count} tokens</span>`);
                             }
 
                             // Blocked tag
                             if (creatorData.is_blocked || token.creator_is_blocked) {
-                                tags.push('<span class="creator-tag tag-blocked" title="On blocklist">BLOCKED</span>');
+                                columnTags.push('<span class="creator-tag tag-blocked" title="On blocklist">BLOCKED</span>');
                             }
 
-                            // Creator infrastructure tags (deBridge, Meteora, Axiom, etc.)
+                            // Build infrastructure tags separately (for embedded display)
+                            let infraTagsHTML = '';
                             if (token.creator_infra_tags && token.creator_infra_tags.length > 0) {
                                 for (let infraTag of token.creator_infra_tags) {
                                     const tagColor = infraTag.tag.includes('debridge') ? '#ff9500' :
                                                    infraTag.tag.includes('meteora') ? '#00d4ff' :
                                                    infraTag.tag.includes('axiom') ? '#9333ea' : '#4ade80';
-                                    tags.push(`<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor};" title="${infraTag.description}">${infraTag.tag.replace('uses_', '')}</span>`);
+                                    infraTagsHTML += `<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor}; display: inline-block; margin-right: 5px;" title="${infraTag.description}">${infraTag.tag.replace('uses_', '')}</span>`;
                                 }
                             }
 
@@ -1517,6 +1521,11 @@ HTML_TEMPLATE = """
                                 </div>`;
                             }
 
+                            // Append creator infrastructure tags (deBridge, Meteora, Axiom) to infraTags
+                            if (infraTagsHTML) {
+                                infraTags += `<div style="margin-top: 5px;">${infraTagsHTML}</div>`;
+                            }
+
                             return `
                                 <tr>
                                     <td class="mint-with-creator">
@@ -1526,7 +1535,7 @@ HTML_TEMPLATE = """
                                             ${infraTags}
                                         </div>
                                     </td>
-                                    <td class="creator-tags">${tags.join('')}</td>
+                                    <td class="creator-tags">${columnTags.join('')}</td>
                                     <td class="rug-flag"></td>
                                     <td>
                                         <span class="risk-score ${getRiskClass(token.risk_level)}">${token.risk_level || '—'}</span>

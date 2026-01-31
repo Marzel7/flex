@@ -128,6 +128,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["infra", "automation", "jupiter", "aggregator"],
     },
+
+    # deBridge
+    "2snHHreXbpJ7UwZxPe37gnUNf7Wx7wv6UKDSR2JckKuS": {
+        "name": "deBridge",
+        "category": "bridge",
+        "description": "deBridge vault for cross-chain token transfers",
+        "risk_level": "medium",
+        "tags": ["infra", "bridge", "debridge"],
+    },
 }
 
 # CEX account mappings (external exchanges - different characteristics)

@@ -44,6 +44,7 @@ RPC_TIMEOUT = 30
 DUST_ADDRESSES = {
     "3XxhMgcsvzCcDi6UKvWoSqUxt8JuGN5CR73tRkkDNDs5",  # Known spam dust account
     "3jYf1yHVQEkHNvacdz4wFRXcvFirF6nFjwLq9m8ML1ME",  # WSOL token account (wrap/unwrap plumbing)
+    "HT629WJGphX8XEbpcD62SMcbNSzEHDEkCVD5tzjwkYbb",  # Dust/plumbing account
 }
 
 # Pump.Fun program ID - used to filter out Pump.Fun token operations

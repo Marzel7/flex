@@ -15,6 +15,8 @@ DUST_ADDRESSES = {
     "HLSHeeM2Q141C4PEYMeeKtWeP4uVQeYsk4fmVCMxhi2F",  # Dust/plumbing account
     "3hFaTuKqykxPJUAek94xb5Bq2f9Sa6CMFMyGYJ4pXd1u",  # Dust/plumbing account
     "DBHJYkbC2tJ1uwdKBW1UzW6zfLXk7baWa21bt4hbkcny",  # Dust/plumbing account
+    "8FhkMDysBTAQ6cY9nsD8anyiD9s84ortwYAcEpyE9635",  # Dust/plumbing account
+    "CVrarjyezhe1748dG43ao8M93RET49UbpEhX3Vqbp9AT",  # Dust/plumbing account
 }
 
 

@@ -1456,9 +1456,18 @@ HTML_TEMPLATE = """
                             }
 
                             // Build infrastructure tags separately (for embedded display)
+                            // Only show creator tags that aren't already displayed as funder infrastructure
                             let infraTagsHTML = '';
                             if (token.creator_infra_tags && token.creator_infra_tags.length > 0) {
+                                // Skip deBridge if it's already shown as a funder infrastructure badge
+                                const skipTags = displayName ? [displayName.toLowerCase()] : [];
+
                                 for (let infraTag of token.creator_infra_tags) {
+                                    // Skip if this tag is already displayed as funder infrastructure
+                                    if (infraTag.tag.includes('debridge') && skipTags.includes('debridge')) continue;
+                                    if (infraTag.tag.includes('meteora') && skipTags.includes('meteora')) continue;
+                                    if (infraTag.tag.includes('axiom') && skipTags.includes('axiom')) continue;
+
                                     let tagColor, bgColor;
                                     if (infraTag.tag.includes('debridge')) {
                                         tagColor = '#ff9500';

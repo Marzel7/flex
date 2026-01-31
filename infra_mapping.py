@@ -101,6 +101,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["infra", "automation", "okx", "router"],
     },
+
+    # Meteora Pool Authority
+    "HLnpSz9h2S4hiLQ43rnSD9XkcUThA7B8hQMKmDaiTLcC": {
+        "name": "Meteora Pool Authority",
+        "category": "automation",
+        "description": "Meteora DLMM pool authority/management account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "meteora", "dlmm"],
+    },
 }
 
 # CEX account mappings (external exchanges - different characteristics)

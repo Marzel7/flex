@@ -1455,35 +1455,6 @@ HTML_TEMPLATE = """
                                 columnTags.push('<span class="creator-tag tag-blocked" title="On blocklist">BLOCKED</span>');
                             }
 
-                            // Build infrastructure tags separately (for embedded display)
-                            let infraTagsHTML = '';
-                            if (token.creator_infra_tags && token.creator_infra_tags.length > 0) {
-                                // Skip displaying if the infrastructure service is already shown as a funder badge
-                                // (e.g., don't show "uses_debridge" tag if deBridge is already displayed as a funder)
-                                const skipIfFunder = displayName && displayName.toLowerCase().includes('debridge');
-
-                                for (let infraTag of token.creator_infra_tags) {
-                                    // Skip deBridge tag if deBridge is already shown as a funder
-                                    if (infraTag.tag.includes('debridge') && skipIfFunder) continue;
-
-                                    let tagColor, bgColor;
-                                    if (infraTag.tag.includes('debridge')) {
-                                        tagColor = '#ff9500';
-                                        bgColor = 'rgba(255, 149, 0, 0.15)';
-                                    } else if (infraTag.tag.includes('meteora')) {
-                                        tagColor = '#00d4ff';
-                                        bgColor = 'rgba(0, 212, 255, 0.15)';
-                                    } else if (infraTag.tag.includes('axiom')) {
-                                        tagColor = '#9333ea';
-                                        bgColor = 'rgba(147, 51, 234, 0.15)';
-                                    } else {
-                                        tagColor = '#4ade80';
-                                        bgColor = 'rgba(74, 222, 128, 0.15)';
-                                    }
-                                    infraTagsHTML += `<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor}; background-color: ${bgColor}; display: inline-block; margin-right: 5px;" title="${infraTag.description}">${infraTag.tag.replace('uses_', '')}</span>`;
-                                }
-                            }
-
                             const creatorShort = token.creator ? token.creator.substring(0, 8) + '...' : 'N/A';
                             const creatorTitle = token.creator || 'Unknown';
                             const creatorElement = token.creator
@@ -1541,7 +1512,36 @@ HTML_TEMPLATE = """
                                 </div>`;
                             }
 
-                            // Append creator infrastructure tags (deBridge, Meteora, Axiom) to infraTags
+                            // Build creator infrastructure tags (deBridge, Meteora, Axiom)
+                            let infraTagsHTML = '';
+                            if (token.creator_infra_tags && token.creator_infra_tags.length > 0) {
+                                // Skip displaying if the infrastructure service is already shown as a funder badge
+                                // (e.g., don't show "uses_debridge" tag if deBridge is already displayed as a funder)
+                                const skipIfFunder = displayName && displayName.toLowerCase().includes('debridge');
+
+                                for (let infraTag of token.creator_infra_tags) {
+                                    // Skip deBridge tag if deBridge is already shown as a funder
+                                    if (infraTag.tag.includes('debridge') && skipIfFunder) continue;
+
+                                    let tagColor, bgColor;
+                                    if (infraTag.tag.includes('debridge')) {
+                                        tagColor = '#ff9500';
+                                        bgColor = 'rgba(255, 149, 0, 0.15)';
+                                    } else if (infraTag.tag.includes('meteora')) {
+                                        tagColor = '#00d4ff';
+                                        bgColor = 'rgba(0, 212, 255, 0.15)';
+                                    } else if (infraTag.tag.includes('axiom')) {
+                                        tagColor = '#9333ea';
+                                        bgColor = 'rgba(147, 51, 234, 0.15)';
+                                    } else {
+                                        tagColor = '#4ade80';
+                                        bgColor = 'rgba(74, 222, 128, 0.15)';
+                                    }
+                                    infraTagsHTML += `<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor}; background-color: ${bgColor}; display: inline-block; margin-right: 5px;" title="${infraTag.description}">${infraTag.tag.replace('uses_', '')}</span>`;
+                                }
+                            }
+
+                            // Append creator infrastructure tags to infraTags
                             if (infraTagsHTML) {
                                 infraTags += `<div style="margin-top: 5px;">${infraTagsHTML}</div>`;
                             }

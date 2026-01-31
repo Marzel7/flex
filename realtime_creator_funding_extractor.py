@@ -595,6 +595,9 @@ class RealTimeCreatorFundingExtractor:
                                 # Process transactions
                                 page_has_pre_migration = False
                                 earliest_tx_timestamp = None
+                                page_funders_found = 0
+                                page_dust_filtered = 0
+                                page_excluded_filtered = 0
 
                                 for tx in page:
                                     tx_ts = tx.get("timestamp", 0)
@@ -623,16 +626,19 @@ class RealTimeCreatorFundingExtractor:
                                         # Filter dust
                                         if amount_sol < MIN_SOL:
                                             filtered_dust += 1
+                                            page_dust_filtered += 1
                                             continue
 
                                         # Inbound: someone sent creator SOL
                                         if to == creator and amount_sol > 0:
                                             if frm in exclude_set:
                                                 filtered_excluded += 1
+                                                page_excluded_filtered += 1
                                                 continue
 
                                             if frm not in funders:
                                                 funders[frm] = 0
+                                                page_funders_found += 1
                                             funders[frm] += amount_sol
                                             self._save_funder(creator, frm, amount_sol)
 
@@ -646,6 +652,17 @@ class RealTimeCreatorFundingExtractor:
                                                 recipients[to] = 0
                                             recipients[to] += amount_sol
                                             self._save_recipient(creator, to, amount_sol)
+
+                                # Log page summary
+                                if page_funders_found > 0 or page_dust_filtered > 0 or page_excluded_filtered > 0:
+                                    details = []
+                                    if page_funders_found > 0:
+                                        details.append(f"✓ {page_funders_found} new funders")
+                                    if page_dust_filtered > 0:
+                                        details.append(f"🚫 {page_dust_filtered} dust")
+                                    if page_excluded_filtered > 0:
+                                        details.append(f"🔄 {page_excluded_filtered} excluded")
+                                    print(f"[REALTIME_FUNDING]    [PAGE {page_num}] " + " | ".join(details), flush=True)
 
                                 # Set up next page - continue if we haven't reached token creation time yet
                                 # or if we found pre-migration txs on this page

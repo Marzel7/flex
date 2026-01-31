@@ -576,10 +576,8 @@ class RealTimeCreatorFundingExtractor:
                                     if earliest_tx_timestamp is None or tx_ts < earliest_tx_timestamp:
                                         earliest_tx_timestamp = tx_ts
 
-                                    # Skip post-migration transactions
-                                    if tx_ts >= migration_timestamp:
-                                        continue
-
+                                    # Capture ALL transfers regardless of pre/post migration
+                                    # (we want all funding sources, not just pre-migration)
                                     page_has_pre_migration = True
                                     found_pre_migration = True
 

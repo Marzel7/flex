@@ -256,14 +256,18 @@ class RealTimeCreatorFundingExtractor:
         return transfers
 
     def _save_funder(self, creator: str, funder: str, amount_sol: float):
-        """Save funder relationship to database, checking for CEX wallets"""
+        """Save funder relationship to database, checking for CEX/infrastructure wallets"""
         try:
+            from infra_mapping import is_infrastructure_account, is_cex_account
+
             conn = sqlite3.connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
 
             # Check if funder is a known CEX wallet
             cex_exchange = None
             cex_type = None
+            is_classified = 0
+
             try:
                 cursor.execute("""
                     SELECT exchange_name, wallet_type
@@ -276,15 +280,24 @@ class RealTimeCreatorFundingExtractor:
                     exchange, wallet_type = cex_row
                     cex_exchange = exchange
                     cex_type = wallet_type
+                    is_classified = 1  # Mark as classified (already tagged)
                     print(f"[FUNDING] 🏛️ CEX FUNDER DETECTED: {exchange} {wallet_type} → {creator[:16]}... ({amount_sol:.2f} SOL)", flush=True)
             except:
                 pass
 
+            # Check if funder is infrastructure/automation account
+            if not cex_exchange and is_infrastructure_account(funder):
+                is_classified = 1  # Mark as classified (infrastructure)
+
+            # Check if funder is CEX via infra_mapping
+            if not cex_exchange and is_cex_account(funder):
+                is_classified = 1  # Mark as classified (CEX in mapping)
+
             cursor.execute("""
                 INSERT OR REPLACE INTO creator_funders
-                (creator_address, funder_address, amount_sol, first_detected_at, is_cex, cex_exchange, cex_type)
-                VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?)
-            """, (creator, funder, amount_sol, 1 if cex_exchange else 0, cex_exchange, cex_type))
+                (creator_address, funder_address, amount_sol, first_detected_at, is_cex, cex_exchange, cex_type, is_classified)
+                VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)
+            """, (creator, funder, amount_sol, 1 if cex_exchange else 0, cex_exchange, cex_type, is_classified))
 
             conn.commit()
             conn.close()

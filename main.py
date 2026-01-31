@@ -2408,7 +2408,7 @@ def api_creator_details(creator_address: str):
         # Post-migration outgoing transfers from creator_receivers
         cursor.execute("""
             SELECT
-                COUNT(DISTINCT recipient_address) as recipient_count,
+                COUNT(DISTINCT receiver_address) as recipient_count,
                 SUM(amount_sol) as total_sol_out
             FROM creator_receivers
             WHERE creator_address = ?
@@ -2452,7 +2452,7 @@ def api_creator_details(creator_address: str):
         # 4. Get top recipients from creator_receivers (post-migration outgoing transfers)
         cursor.execute("""
             SELECT
-                recipient_address,
+                receiver_address as recipient_address,
                 amount_sol,
                 receiver_type,
                 receiver_name
@@ -2484,7 +2484,7 @@ def api_creator_details(creator_address: str):
                 UNION
                 SELECT funder_address as wallet_addr, 0 as hop FROM creator_funders WHERE creator_address = ?
                 UNION
-                SELECT DISTINCT recipient_address as wallet_addr, 0 as hop FROM creator_receivers
+                SELECT DISTINCT receiver_address as wallet_addr, 0 as hop FROM creator_receivers
                     WHERE creator_address = ?
             )
         """, (creator_address, creator_address, creator_address))

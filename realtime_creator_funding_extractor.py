@@ -941,6 +941,71 @@ class RealTimeCreatorFundingExtractor:
         except Exception as e:
             print(f"[REALTIME_FUNDING] ⚠ Error checking CREATE tx for Jitotip: {e}", flush=True)
 
+    async def check_transfers_for_meteora(self, creator: str):
+        """Check if creator has inbound or outbound transfers to/from Meteora and tag if so"""
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=60)
+            cursor = conn.cursor()
+
+            # Meteora Pool Authority
+            meteora_account = "HLnpSz9h2S4hiLQ43rnSD9XkcUThA7B8hQMKmDaiTLcC"
+
+            found_meteora = False
+            meteora_amount = 0
+            meteora_direction = None
+
+            # Check inbound (Meteora sending to creator)
+            cursor.execute("""
+                SELECT SUM(amount_sol) FROM creator_funders
+                WHERE creator_address = ? AND funder_address = ?
+            """, (creator, meteora_account))
+            
+            inbound_result = cursor.fetchone()
+            if inbound_result and inbound_result[0]:
+                found_meteora = True
+                meteora_amount = inbound_result[0]
+                meteora_direction = "inbound"
+                print(f"[REALTIME_FUNDING] 🎯 METEORA DETECTED (inbound): {creator[:16]}... received {meteora_amount:.6f} SOL from Meteora", flush=True)
+
+            # Check outbound (creator sending to Meteora)
+            if not found_meteora:
+                cursor.execute("""
+                    SELECT SUM(amount_sol) FROM creator_receivers
+                    WHERE creator_address = ? AND receiver_address = ?
+                """, (creator, meteora_account))
+                
+                outbound_result = cursor.fetchone()
+                if outbound_result and outbound_result[0]:
+                    found_meteora = True
+                    meteora_amount = outbound_result[0]
+                    meteora_direction = "outbound"
+                    print(f"[REALTIME_FUNDING] 🎯 METEORA DETECTED (outbound): {creator[:16]}... sent {meteora_amount:.6f} SOL to Meteora", flush=True)
+
+            # If Meteora found, tag the creator
+            if found_meteora:
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS creator_tags (
+                        creator_address TEXT PRIMARY KEY,
+                        tag TEXT,
+                        description TEXT,
+                        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                """)
+
+                cursor.execute("""
+                    INSERT OR REPLACE INTO creator_tags
+                    (creator_address, tag, description)
+                    VALUES (?, ?, ?)
+                """, (creator, "uses_meteora", f"Creator uses Meteora for {meteora_direction} transfers ({meteora_amount:.6f} SOL)"))
+
+                conn.commit()
+                print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_meteora'", flush=True)
+
+            conn.close()
+
+        except Exception as e:
+            print(f"[REALTIME_FUNDING] ⚠ Error checking transfers for Meteora: {e}", flush=True)
+
     async def process_new_token(self, creator: str, migration_timestamp_str: str):
         """
         Process a newly detected token.
@@ -984,6 +1049,9 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
     # Check CREATE tx for Jitotip usage (if signature provided)
     if create_tx_signature:
         await extractor.check_create_tx_for_jitotip(creator, create_tx_signature)
+
+    # Check inbound/outbound transfers for Meteora usage
+    await extractor.check_transfers_for_meteora(creator)
 
     return result
 

@@ -2058,10 +2058,15 @@ HTML_TEMPLATE = """
                                 infraTags = categoryTag + ' ' + otherTags;
                             }
 
+                            // Format amount: show more decimals for small amounts
+                            const amountStr = funder.amount_sol < 0.01
+                                ? funder.amount_sol.toFixed(6)
+                                : funder.amount_sol.toFixed(2);
+
                             return `
                                 <tr>
                                     <td title="${funder.funder_address}" style="font-family: monospace; font-size: 12px;">${funder.funder_address.substring(0, 16)}...${cexBadge}</td>
-                                    <td>${funder.amount_sol.toFixed(2)} SOL</td>
+                                    <td>${amountStr} SOL</td>
                                     <td>${sourceTypeBadge || (funder.is_cex ? 'CEX' : 'Wallet')}</td>
                                     <td>${infraTags || '—'}</td>
                                 </tr>
@@ -2088,13 +2093,18 @@ HTML_TEMPLATE = """
                             networkTooltip = `Also linked to: ${recipient.shared_with_creators.slice(0, 2).map(c => c.substring(0, 8) + '...').join(', ')}${recipient.shared_with_creators.length > 2 ? ' +' + (recipient.shared_with_creators.length - 2) + ' more' : ''}`;
                         }
 
+                        // Format amount: show more decimals for small amounts
+                        const recipientAmountStr = recipient.amount_sol < 0.01
+                            ? recipient.amount_sol.toFixed(6)
+                            : recipient.amount_sol.toFixed(2);
+
                         return `
                             <tr class="${recipient.is_network_coordinator ? 'row-network-coordinator' : recipient.shared_with_creators ? 'row-shared-recipient' : ''}">
                                 <td title="${recipient.recipient_address}" style="font-family: monospace; font-size: 12px;">
                                     ${recipient.recipient_address}
                                     ${networkIndicator ? `<div style="margin-top: 3px; font-size: 10px; color: #a0a0a0;">${networkTooltip}</div>` : ''}
                                 </td>
-                                <td>${recipient.amount_sol.toFixed(2)} SOL</td>
+                                <td>${recipientAmountStr} SOL</td>
                                 <td>${networkIndicator || 'Wallet'}</td>
                             </tr>
                         `;

@@ -603,6 +603,17 @@ class RealTimeCreatorFundingExtractor:
             for (funder,) in fully_analyzed:
                 exclude_set.add(funder)
 
+            # Check if creator is already tagged with deBridge usage
+            # If so, skip deBridge transaction detection in the loop
+            cursor.execute("""
+                SELECT 1 FROM creator_tags
+                WHERE creator_address = ? AND tag = ?
+            """, (creator, "uses_debridge"))
+            creator_uses_debridge = cursor.fetchone() is not None
+
+            if creator_uses_debridge:
+                print(f"[REALTIME_FUNDING]    ℹ Creator already tagged as 'uses_debridge', skipping detection", flush=True)
+
             conn.close()
             
             if exclude_set:
@@ -713,32 +724,36 @@ class RealTimeCreatorFundingExtractor:
                                         page_token_transfers_filtered += 1
                                         continue
 
-                                    # Check if deBridge is a signer in this transaction
+                                    # Check if deBridge is a signer in this transaction (ONLY if not already detected)
                                     # For cross-chain transfers, deBridge initiates but creator may not be direct signer
-                                    tx_accounts = tx.get("accountKeys", []) or []
-                                    debridge_account = "2snHHreXbpJ7UwZxPe37gnUNf7Wx7wv6UKDSR2JckKuS"
+                                    # Skip this check if creator is already known to use deBridge
+                                    if not creator_uses_debridge:
+                                        tx_accounts = tx.get("accountKeys", []) or []
+                                        debridge_account = "2snHHreXbpJ7UwZxPe37gnUNf7Wx7wv6UKDSR2JckKuS"
 
-                                    if debridge_account in tx_accounts:
-                                        # This transaction involves deBridge
-                                        # Count it as a transfer from deBridge to creator
-                                        # Note: We'll estimate a reasonable amount based on context
-                                        # or mark for manual review
-                                        print(f"[REALTIME_FUNDING] 🌉 DEBRIDGE TRANSACTION: {tx.get('signature', '')[:16]}...", flush=True)
+                                        if debridge_account in tx_accounts:
+                                            # This transaction involves deBridge
+                                            # Count it as a transfer from deBridge to creator
+                                            # Note: We'll estimate a reasonable amount based on context
+                                            # or mark for manual review
+                                            print(f"[REALTIME_FUNDING] 🌉 DEBRIDGE TRANSACTION: {tx.get('signature', '')[:16]}...", flush=True)
 
-                                        # Mark creator for deBridge usage
-                                        try:
-                                            conn = sqlite3.connect(DB_PATH, timeout=60)
-                                            cursor = conn.cursor()
-                                            cursor.execute("""
-                                                INSERT OR REPLACE INTO creator_tags
-                                                (creator_address, tag, description)
-                                                VALUES (?, ?, ?)
-                                            """, (creator, "uses_debridge", f"Creator uses deBridge for cross-chain transfers (tx: {tx.get('signature', '')[:16]}...)"))
-                                            conn.commit()
-                                            conn.close()
-                                            print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_debridge'", flush=True)
-                                        except Exception as tag_err:
-                                            print(f"[REALTIME_FUNDING] ⚠ Could not tag deBridge: {tag_err}", flush=True)
+                                            # Mark creator for deBridge usage
+                                            try:
+                                                conn = sqlite3.connect(DB_PATH, timeout=60)
+                                                cursor = conn.cursor()
+                                                cursor.execute("""
+                                                    INSERT OR REPLACE INTO creator_tags
+                                                    (creator_address, tag, description)
+                                                    VALUES (?, ?, ?)
+                                                """, (creator, "uses_debridge", f"Creator uses deBridge for cross-chain transfers (tx: {tx.get('signature', '')[:16]}...)"))
+                                                conn.commit()
+                                                conn.close()
+                                                print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_debridge'", flush=True)
+                                                # Update flag so we don't check again in this extraction run
+                                                creator_uses_debridge = True
+                                            except Exception as tag_err:
+                                                print(f"[REALTIME_FUNDING] ⚠ Could not tag deBridge: {tag_err}", flush=True)
 
                                     # Extract nativeTransfers
                                     native = tx.get("nativeTransfers") or []

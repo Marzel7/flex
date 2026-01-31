@@ -12,6 +12,8 @@ DUST_ADDRESSES = {
     "3jYf1yHVQEkHNvacdz4wFRXcvFirF6nFjwLq9m8ML1ME",  # WSOL token account (wrap/unwrap plumbing)
     "GeuiPGMCpwDFQBCUqZ7h6NGyT6cpR5fULz9mnXeN3yRJ",  # Creator-specific WSOL ATA (zero balance change)
     "HT629WJGphX8XEbpcD62SMcbNSzEHDEkCVD5tzjwkYbb",  # Dust/plumbing account
+    "HLSHeeM2Q141C4PEYMeeKtWeP4uVQeYsk4fmVCMxhi2F",  # Dust/plumbing account
+    "3hFaTuKqykxPJUAek94xb5Bq2f9Sa6CMFMyGYJ4pXd1u",  # Dust/plumbing account
 }
 
 

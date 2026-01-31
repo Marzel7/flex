@@ -293,11 +293,14 @@ class RealTimeCreatorFundingExtractor:
             if not cex_exchange and is_cex_account(funder):
                 is_classified = 1  # Mark as classified (CEX in mapping)
 
+            # Mark as fully_analyzed if amount > 1 SOL
+            fully_analyzed = 1 if amount_sol > 1.0 else 0
+
             cursor.execute("""
                 INSERT OR REPLACE INTO creator_funders
-                (creator_address, funder_address, amount_sol, first_detected_at, is_cex, cex_exchange, cex_type, is_classified)
-                VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)
-            """, (creator, funder, amount_sol, 1 if cex_exchange else 0, cex_exchange, cex_type, is_classified))
+                (creator_address, funder_address, amount_sol, first_detected_at, is_cex, cex_exchange, cex_type, is_classified, fully_analyzed)
+                VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?)
+            """, (creator, funder, amount_sol, 1 if cex_exchange else 0, cex_exchange, cex_type, is_classified, fully_analyzed))
 
             conn.commit()
             conn.close()
@@ -503,7 +506,7 @@ class RealTimeCreatorFundingExtractor:
 
             # Build exclusion set: token mints + bonding curves created by this creator
             exclude_set = set()
-            
+
             # Get all tokens launched by this creator to exclude them
             conn = sqlite3.connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
@@ -513,13 +516,24 @@ class RealTimeCreatorFundingExtractor:
                 WHERE earliest_tx_creator = ?
             """, (creator,))
             creator_tokens = cursor.fetchall()
-            
+
             for mint, bonding_curve in creator_tokens:
                 if mint:
                     exclude_set.add(mint)
                 if bonding_curve:
                     exclude_set.add(bonding_curve)
-            
+
+            # Also exclude fully analyzed funders (>1 SOL already logged)
+            # to avoid re-processing addresses we've already identified
+            cursor.execute("""
+                SELECT DISTINCT funder_address
+                FROM creator_funders
+                WHERE amount_sol > 1.0 AND fully_analyzed = 1
+            """)
+            fully_analyzed = cursor.fetchall()
+            for (funder,) in fully_analyzed:
+                exclude_set.add(funder)
+
             conn.close()
             
             if exclude_set:

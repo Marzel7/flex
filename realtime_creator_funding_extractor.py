@@ -534,9 +534,11 @@ class RealTimeCreatorFundingExtractor:
         
         This is slower than pagination but avoids 429 rate limit errors.
         """
+        # Check if already processed in this session
         if creator in self.processed_creators:
             return {"status": "already_processed"}
 
+        # Mark as processed to prevent duplicate API calls in same session
         self.processed_creators.add(creator)
 
         try:

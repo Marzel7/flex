@@ -928,6 +928,34 @@ HTML_TEMPLATE = """
             border: 1px solid rgba(249, 115, 22, 0.3);
         }
 
+        /* Domain tags (SNS domains) */
+        .domain-tag {
+            display: inline-block;
+            padding: 3px 7px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-right: 4px;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            white-space: nowrap;
+        }
+
+        /* Other address tags */
+        .address-tag {
+            display: inline-block;
+            padding: 3px 7px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-right: 4px;
+            background: rgba(139, 92, 246, 0.2);
+            color: #c4b5fd;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            white-space: nowrap;
+        }
+
         .tag {
             display: inline-block;
             padding: 2px 5px;
@@ -2022,7 +2050,10 @@ HTML_TEMPLATE = """
             priceLoadController = new AbortController();
 
             const modal = document.getElementById('creatorModal');
-            document.getElementById('modalCreator').textContent = creatorAddress;
+
+            // Display creator address with domain if available
+            let creatorDisplay = creatorAddress;
+            // Will be updated after API response
 
             try {
                 const response = await fetch(`/api/creator-details/${creatorAddress}`);
@@ -2032,6 +2063,14 @@ HTML_TEMPLATE = """
                     alert('Creator details not found');
                     return;
                 }
+
+                // Display creator address with domain tag
+                let creatorDisplay = creatorAddress;
+                if (data.creator_address_tags && data.creator_address_tags.domain) {
+                    const domains = data.creator_address_tags.domain;
+                    creatorDisplay = `${creatorAddress.substring(0, 14)}... <span class="domain-tag" style="font-size: 11px; margin-left: 8px;">🌐 ${domains[0]}</span>`;
+                }
+                document.getElementById('modalCreator').innerHTML = creatorDisplay;
 
                 // Populate creator stats
                 document.getElementById('creatorTotalTokens').textContent = data.tokens.length;
@@ -2107,6 +2146,24 @@ HTML_TEMPLATE = """
                                 infraTags = categoryTag + ' ' + otherTags;
                             }
 
+                            // Address tags (domains, etc.)
+                            let addressTagsHTML = '';
+                            if (funder.address_tags && funder.address_tags.domain) {
+                                funder.address_tags.domain.forEach(domain => {
+                                    addressTagsHTML += `<span class="domain-tag" title="SNS Domain">🌐 ${domain}</span>`;
+                                });
+                            }
+                            // Add other address tags
+                            if (funder.address_tags) {
+                                Object.keys(funder.address_tags).forEach(tagType => {
+                                    if (tagType !== 'domain') {
+                                        funder.address_tags[tagType].forEach(tagValue => {
+                                            addressTagsHTML += `<span class="address-tag" title="${tagType}">${tagValue}</span>`;
+                                        });
+                                    }
+                                });
+                            }
+
                             // Format amount: show more decimals for small amounts
                             const amountStr = funder.amount_sol < 0.01
                                 ? funder.amount_sol.toFixed(6)
@@ -2117,7 +2174,7 @@ HTML_TEMPLATE = """
                                     <td title="${funder.funder_address}" style="font-family: monospace; font-size: 12px;">${funder.funder_address.substring(0, 16)}...${cexBadge}</td>
                                     <td>${amountStr} SOL</td>
                                     <td>${sourceTypeBadge || (funder.is_cex ? 'CEX' : 'Wallet')}</td>
-                                    <td>${infraTags || '—'}</td>
+                                    <td>${infraTags ? infraTags + ' ' + addressTagsHTML : addressTagsHTML || '—'}</td>
                                 </tr>
                             `;
                         }).join('');
@@ -2331,10 +2388,11 @@ HTML_TEMPLATE = """
 
 def highlight_infra_in_funding(funders_list):
     """
-    Add infrastructure/CEX information to funders list.
-    Enrich each funder with is_infrastructure, category, tags, and display_name.
+    Add infrastructure/CEX/tag information to funders list.
+    Enrich each funder with is_infrastructure, category, tags, display_name, and address_tags.
     """
     from infra_mapping import get_account_info, get_cex_info
+    from address_tags import get_address_tags, get_domain_tag
     
     enriched_funders = []
     
@@ -2347,8 +2405,12 @@ def highlight_infra_in_funding(funders_list):
             funder_copy['category'] = None
             funder_copy['tags'] = []
             funder_copy['display_name'] = None
+            funder_copy['address_tags'] = {}
             enriched_funders.append(funder_copy)
             continue
+        
+        # Get address tags (domains, etc.)
+        address_tags = get_address_tags(funder_address)
         
         # Check infrastructure first
         infra_info = get_account_info(funder_address)
@@ -2357,6 +2419,7 @@ def highlight_infra_in_funding(funders_list):
             funder_copy['category'] = infra_info.get('category')
             funder_copy['tags'] = infra_info.get('tags', [])
             funder_copy['display_name'] = infra_info.get('name')
+            funder_copy['address_tags'] = address_tags
             enriched_funders.append(funder_copy)
             continue
         
@@ -2367,6 +2430,7 @@ def highlight_infra_in_funding(funders_list):
             funder_copy['category'] = cex_info.get('category')
             funder_copy['tags'] = cex_info.get('tags', [])
             funder_copy['display_name'] = cex_info.get('name')
+            funder_copy['address_tags'] = address_tags
             enriched_funders.append(funder_copy)
             continue
         
@@ -2375,6 +2439,7 @@ def highlight_infra_in_funding(funders_list):
         funder_copy['category'] = None
         funder_copy['tags'] = []
         funder_copy['display_name'] = None
+        funder_copy['address_tags'] = address_tags
         enriched_funders.append(funder_copy)
     
     return enriched_funders
@@ -2479,6 +2544,8 @@ def api_token_metrics(token_mint: str):
 def api_creator_details(creator_address: str):
     """Get detailed information about a creator"""
     try:
+        from address_tags import get_address_tags
+        
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
@@ -2580,6 +2647,7 @@ def api_creator_details(creator_address: str):
                 "category": recipient_info["category"],
                 "tags": recipient_info["tags"],
                 "display_name": recipient_info["display_name"],
+                "address_tags": recipient_info.get("address_tags", {}),
             })
 
         # 5. Get wallet cluster size (includes coordinated funders and recipients)
@@ -2609,7 +2677,7 @@ def api_creator_details(creator_address: str):
         # 6. Check blocklist status
         is_blocked = bool(tokens[0]['creator_is_blocked']) if tokens else False
 
-        # 7. Get creator tags
+        # 7. Get creator tags (from creator_tags table)
         cursor.execute("""
             SELECT tag, description
             FROM creator_tags
@@ -2617,7 +2685,10 @@ def api_creator_details(creator_address: str):
         """, (creator_address,))
         tags = [{'tag': row[0], 'description': row[1]} for row in cursor.fetchall()]
 
-        # 8. Get cross-creator references (network detection)
+        # 8. Get creator's address tags (domains, etc. from address_tags table)
+        creator_address_tags = get_address_tags(creator_address)
+
+        # 9. Get cross-creator references (network detection)
         cross_refs = []
         try:
             from unified_recipient_tracker import UnifiedRecipientTracker
@@ -2635,7 +2706,7 @@ def api_creator_details(creator_address: str):
         except Exception as e:
             cross_refs = []
 
-        # 9. Check if any recipients are network coordinators
+        # 10. Check if any recipients are network coordinators
         coordinator_flags = {}
         try:
             from unified_recipient_tracker import UnifiedRecipientTracker
@@ -2669,6 +2740,7 @@ def api_creator_details(creator_address: str):
 
         return jsonify({
             'creator_address': creator_address,
+            'creator_address_tags': creator_address_tags,
             'tokens': tokens,
             'funding': funding,
             'top_funders': top_funders,

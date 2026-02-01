@@ -236,6 +236,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["infra", "automation", "raydium", "authority"],
     },
+
+    # Stellium
+    "ste11JV3MLMM7x7EJUM2sXcJC1H7F4jBLnP9a9PG8PH": {
+        "name": "Stellium",
+        "category": "automation",
+        "description": "Stellium automation/aggregation service",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "stellium"],
+    },
 }
 
 # CEX account mappings (external exchanges - different characteristics)

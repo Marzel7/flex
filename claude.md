@@ -10,7 +10,7 @@
 - **Database**: SQLite (`pumpswap_tokens.db`)
 - **Main Files**: `pumpfun_curve_listener.py`, `main.py`, `pump_fun_post_migration_analyzer.py`
 - **Status**: ✅ Production Ready
-- **Current Focus**: Creator funding extraction + real-time integration
+- **Current Focus**: Domain system complete - Real-time domain capture for creators/funders
 
 ## Key Files & Their Purpose
 
@@ -27,6 +27,9 @@
 |------|---------|
 | `scripts/analyze_creator_patterns.py` | Network analysis for coordinated funders |
 | `utils/creator_blocklist_checker.py` | Checks if creator is on blocklist |
+| `address_tags.py` | NEW: Persistent address metadata and domain tagging system |
+| `domain_extraction.py` | NEW: Extract domain names from transaction metadata |
+| `domain_mapping.py` | NEW: Persistent domain registry with bidirectional lookups |
 
 ### Database
 | Table | Purpose |

@@ -21,6 +21,34 @@ DUST_ADDRESSES = {
 }
 
 
+# WSOL wrapping accounts that act as intermediaries (should be filtered)
+# These are often created per-transaction for SOL-to-WSOL conversions
+# The actual funder is typically one step before these accounts
+WSOL_INTERMEDIARY_PATTERNS = {
+    # Common WSOL mint and wrapper accounts
+    "So11111111111111111111111111111111111111112",  # Wrapped SOL token mint itself
+}
+
+
+def is_wsol_intermediary(address: str) -> bool:
+    """
+    Check if an address is a WSOL intermediary account that should be filtered.
+    These are temporary accounts used for SOL wrapping/unwrapping.
+    Returns True if this is likely a WSOL wrapper account.
+    """
+    # Check explicit list
+    if address in WSOL_INTERMEDIARY_PATTERNS:
+        return True
+
+    # Note: In practice, most WSOL ATAs are unique per user, so we'd need to:
+    # 1. Check if the address is a token account (has specific structure)
+    # 2. Verify its mint is the WSOL token mint
+    # This requires token account introspection which is outside this module's scope.
+    # For now, we rely on the explicit DUST_ADDRESSES set and transaction-level filtering.
+
+    return False
+
+
 def is_dust_address(address: str) -> bool:
     """Check if an address is a known dust/plumbing account"""
     return address in DUST_ADDRESSES

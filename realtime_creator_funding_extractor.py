@@ -170,6 +170,9 @@ class DomainResolver:
                 domain, ts = row
                 self.mem[a] = (domain, ts)
                 out[a] = domain
+                # Save cached domain as persistent tag if found
+                if domain:
+                    self._save_address_tag(a, domain)
             else:
                 still_missing.append(a)
 

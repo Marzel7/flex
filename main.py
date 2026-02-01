@@ -2329,6 +2329,56 @@ HTML_TEMPLATE = """
 """
 
 
+def highlight_infra_in_funding(funders_list):
+    """
+    Add infrastructure/CEX information to funders list.
+    Enrich each funder with is_infrastructure, category, tags, and display_name.
+    """
+    from infra_mapping import get_account_info, get_cex_info
+    
+    enriched_funders = []
+    
+    for funder in funders_list:
+        funder_copy = funder.copy()
+        funder_address = funder.get('funder_address')
+        
+        if not funder_address:
+            funder_copy['is_infrastructure'] = False
+            funder_copy['category'] = None
+            funder_copy['tags'] = []
+            funder_copy['display_name'] = None
+            enriched_funders.append(funder_copy)
+            continue
+        
+        # Check infrastructure first
+        infra_info = get_account_info(funder_address)
+        if infra_info:
+            funder_copy['is_infrastructure'] = True
+            funder_copy['category'] = infra_info.get('category')
+            funder_copy['tags'] = infra_info.get('tags', [])
+            funder_copy['display_name'] = infra_info.get('name')
+            enriched_funders.append(funder_copy)
+            continue
+        
+        # Check CEX
+        cex_info = get_cex_info(funder_address)
+        if cex_info:
+            funder_copy['is_infrastructure'] = False  # CEX is not infrastructure
+            funder_copy['category'] = cex_info.get('category')
+            funder_copy['tags'] = cex_info.get('tags', [])
+            funder_copy['display_name'] = cex_info.get('name')
+            enriched_funders.append(funder_copy)
+            continue
+        
+        # Neither infrastructure nor CEX
+        funder_copy['is_infrastructure'] = False
+        funder_copy['category'] = None
+        funder_copy['tags'] = []
+        funder_copy['display_name'] = None
+        enriched_funders.append(funder_copy)
+    
+    return enriched_funders
+
 @app.route('/')
 def index():
     """Serve the migration tracking dashboard"""

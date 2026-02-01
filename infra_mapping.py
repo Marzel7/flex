@@ -66,6 +66,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "trading-bot"],
     },
 
+    # Jitotip 2 (MEV/Fee Tipping Automation)
+    "HFqU5x63VTqvQss8hp11i4wVV8bD44PvwucfZ2bU7gRe": {
+        "name": "Jitotip 2",
+        "category": "automation",
+        "description": "Jitotip MEV/fee tipping automation account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "jito", "mev"],
+    },
+
     # Jitotip 5 (MEV/Fee Tipping Automation)
     "DfXygSm4jCyNCybVYYK6DwvWqjKee8pbDmJGcLWNDXjh": {
         "name": "Jitotip 5",
@@ -78,6 +87,15 @@ INFRASTRUCTURE_ACCOUNTS = {
     # Jitotip 6 (MEV/Fee Tipping Automation)
     "ADuUkR4vqLUMWXxW9gh6D6L8pMSawimctcNZ5pGwDcEt": {
         "name": "Jitotip 6",
+        "category": "automation",
+        "description": "Jitotip MEV/fee tipping automation account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "jito", "mev"],
+    },
+
+    # Jitotip 7 (MEV/Fee Tipping Automation)
+    "DttWaMuVvTiduZRnguLF7jNxTgiMBZ1hyAumKUiL2KRL": {
+        "name": "Jitotip 7",
         "category": "automation",
         "description": "Jitotip MEV/fee tipping automation account",
         "risk_level": "neutral",

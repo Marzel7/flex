@@ -218,6 +218,24 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["infra", "automation", "raydium", "launchpad"],
     },
+
+    # Raydium Vault Authority 2
+    "GpMZbSM2GgvTKHJirzeGfMFoaZ8UR2X7F4v8vHTvxFbL": {
+        "name": "Raydium Vault Authority 2",
+        "category": "automation",
+        "description": "Raydium vault authority account for liquidity pool management",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "raydium", "vault"],
+    },
+
+    # Raydium Authority V4
+    "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1": {
+        "name": "Raydium Authority V4",
+        "category": "automation",
+        "description": "Raydium Authority V4 for protocol operations and pool management",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "raydium", "authority"],
+    },
 }
 
 # CEX account mappings (external exchanges - different characteristics)

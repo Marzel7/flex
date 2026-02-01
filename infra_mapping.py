@@ -200,6 +200,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "medium",
         "tags": ["infra", "bridge", "debridge"],
     },
+
+    # Raydium Launchpad Authority
+    "WLHv2UAZm6z4KyaaELi5pjdbJh6RESMva1Rnn8pJVVh": {
+        "name": "Raydium Launchpad Authority",
+        "category": "automation",
+        "description": "Raydium launchpad authority account for AcceleRaytor pool management",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "raydium", "launchpad"],
+    },
 }
 
 # CEX account mappings (external exchanges - different characteristics)

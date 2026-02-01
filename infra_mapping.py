@@ -66,9 +66,36 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "trading-bot"],
     },
 
+    # Jitotip 1 (MEV/Fee Tipping Automation)
+    "96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5": {
+        "name": "Jitotip 1",
+        "category": "automation",
+        "description": "Jitotip MEV/fee tipping automation account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "jito", "mev"],
+    },
+
     # Jitotip 2 (MEV/Fee Tipping Automation)
     "HFqU5x63VTqvQss8hp11i4wVV8bD44PvwucfZ2bU7gRe": {
         "name": "Jitotip 2",
+        "category": "automation",
+        "description": "Jitotip MEV/fee tipping automation account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "jito", "mev"],
+    },
+
+    # Jitotip 3 (MEV/Fee Tipping Automation)
+    "Cw8CFyM9FkoMi7K7Crf6HNQqf4uEMzpKw6QNghXLvLkY": {
+        "name": "Jitotip 3",
+        "category": "automation",
+        "description": "Jitotip MEV/fee tipping automation account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "jito", "mev"],
+    },
+
+    # Jitotip 4 (MEV/Fee Tipping Automation)
+    "ADaUMid9yfUytqMBgopwjb2DTLSokTSzL1zt6iGPaS49": {
+        "name": "Jitotip 4",
         "category": "automation",
         "description": "Jitotip MEV/fee tipping automation account",
         "risk_level": "neutral",
@@ -96,6 +123,15 @@ INFRASTRUCTURE_ACCOUNTS = {
     # Jitotip 7 (MEV/Fee Tipping Automation)
     "DttWaMuVvTiduZRnguLF7jNxTgiMBZ1hyAumKUiL2KRL": {
         "name": "Jitotip 7",
+        "category": "automation",
+        "description": "Jitotip MEV/fee tipping automation account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "jito", "mev"],
+    },
+
+    # Jitotip 8 (MEV/Fee Tipping Automation)
+    "3AVi9Tg9Uo68tJfuvoKvqKNWKkC5wPdSSdeBnizKZ6jT": {
+        "name": "Jitotip 8",
         "category": "automation",
         "description": "Jitotip MEV/fee tipping automation account",
         "risk_level": "neutral",

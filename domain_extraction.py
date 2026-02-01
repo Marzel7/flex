@@ -16,6 +16,7 @@ import re
 import sqlite3
 from typing import Set, Optional, Tuple
 from address_tags import add_tag
+from domain_mapping import register_domain, link_domain_to_address
 
 DB_PATH = "pumpswap_tokens.db"
 
@@ -63,6 +64,7 @@ def extract_domains_from_text(text: Optional[str]) -> Set[str]:
 def extract_from_transaction_description(description: str, address: str) -> int:
     """
     Extract domains from a transaction description and tag the address.
+    Also creates tags for the domain names themselves for future reference.
     Returns count of domains extracted.
     """
     if not description:
@@ -76,7 +78,17 @@ def extract_from_transaction_description(description: str, address: str) -> int:
     # Tag the address with each extracted domain
     for domain in domains:
         try:
+            # 1. Tag the SOURCE address (creator/funder) with the domain reference
             add_tag(address, 'domain_referenced', domain, source='tx_extraction')
+
+            # 2. Register domain in persistent mapping
+            register_domain(domain, domain_type='mentioned',
+                          metadata={'source': 'transaction', 'first_address': address},
+                          source='tx_extraction')
+
+            # 3. Link this address to the domain in the mapping
+            link_domain_to_address(domain, address)
+
         except Exception as e:
             pass  # Non-critical
 

@@ -249,6 +249,10 @@ class RealTimeCreatorFundingExtractor:
             self.session = aiohttp.ClientSession()
         if not self.domain_resolver:
             self.domain_resolver = DomainResolver(DB_PATH, self.session)
+        
+        # Initialize domain registry
+        from domain_mapping import init_domain_registry
+        init_domain_registry()
 
     async def close_session(self):
         """Close aiohttp session"""

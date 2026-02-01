@@ -27,6 +27,7 @@ from typing import Optional, Dict, List, Set, Iterable, Tuple
 from datetime import datetime
 from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
 from dust_addresses import DUST_ADDRESSES
+from domain_extraction import extract_from_helius_transaction
 
 DB_PATH = "pumpswap_tokens.db"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "84ec9a31-f8c2-4116-8e98-695a9377c5ed"
@@ -884,6 +885,15 @@ class RealTimeCreatorFundingExtractor:
                                     # Track earliest timestamp on this page
                                     if earliest_tx_timestamp is None or tx_ts < earliest_tx_timestamp:
                                         earliest_tx_timestamp = tx_ts
+
+                                    # Extract domain names from transaction description
+                                    # (domains mentioned in memos, descriptions, etc.)
+                                    try:
+                                        domain_count = extract_from_helius_transaction(tx, creator)
+                                        if domain_count > 0:
+                                            print(f"[DOMAIN] 📝 Found {domain_count} domain(s) in tx {tx.get('signature', '')[:16]}...", flush=True)
+                                    except Exception as e:
+                                        pass  # Domain extraction is non-critical
 
                                     # Capture ALL transfers regardless of pre/post migration
                                     # (we want all funding sources, not just pre-migration)

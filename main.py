@@ -421,12 +421,12 @@ HTML_TEMPLATE = """
             color: #6b7280;
             word-break: break-all;
             max-width: 250px;
-            line-height: 1.3;
+            line-height: 1.4;
             display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: nowrap;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 3px;
+            flex-wrap: wrap;
         }
 
         /* Creator tags container */
@@ -480,11 +480,11 @@ HTML_TEMPLATE = """
 
         /* Creator infrastructure tags container */
         .creator-infra-tags {
-            display: inline-flex;
-            flex-wrap: nowrap;
-            gap: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
             margin: 0;
-            white-space: nowrap;
+            align-items: center;
         }
 
         /* Small infrastructure tag for creator address display */
@@ -1543,7 +1543,7 @@ HTML_TEMPLATE = """
 
                             // Append creator infrastructure tags to infraTags
                             if (infraTagsHTML) {
-                                infraTags += `<div style="margin-top: 5px;">${infraTagsHTML}</div>`;
+                                infraTags += `<div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 3px;">${infraTagsHTML}</div>`;
                             }
 
                             return `

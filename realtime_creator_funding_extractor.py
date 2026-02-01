@@ -28,6 +28,7 @@ from datetime import datetime
 from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
 from dust_addresses import DUST_ADDRESSES
 from domain_extraction import extract_from_helius_transaction
+from domain_mapping import register_domain, link_domain_to_address
 
 DB_PATH = "pumpswap_tokens.db"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "84ec9a31-f8c2-4116-8e98-695a9377c5ed"
@@ -120,23 +121,32 @@ class DomainResolver:
         return (int(time.time()) - updated_at) < DOMAIN_CACHE_TTL_SECS
 
     def _save_address_tag(self, address: str, domain: str):
-        """Save a discovered domain as a persistent address tag"""
+        """Save a discovered domain as a persistent address tag and register it"""
         if not domain:
             return
-        
+
         try:
             conn = sqlite3.connect(self.db_path, timeout=60)
             cur = conn.cursor()
-            
+
             # Save domain tag (tag_type='domain', tag_value=actual domain name)
             cur.execute("""
-                INSERT OR REPLACE INTO address_tags 
+                INSERT OR REPLACE INTO address_tags
                 (address, tag_type, tag_value, source, first_seen_at)
                 VALUES (?, 'domain', ?, 'sns_resolver', ?)
             """, (address, domain, int(time.time())))
-            
+
             conn.commit()
             conn.close()
+
+            # Register domain in persistent mapping
+            register_domain(domain, domain_type='owned',
+                          metadata={'owner': address, 'source': 'sns_resolution'},
+                          source='sns_resolver')
+
+            # Link address to domain in mapping
+            link_domain_to_address(domain, address)
+
         except Exception as e:
             pass  # Non-critical
 

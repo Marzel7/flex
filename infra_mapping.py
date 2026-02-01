@@ -66,6 +66,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "trading-bot"],
     },
 
+    # Trojan Fees (Fee Collection Account)
+    "9yMwSPk9mrXSN7yDHUuZurAh1sjbJsfpUqjZ7SvVtdco": {
+        "name": "Trojan Fees",
+        "category": "automation",
+        "description": "Trojan bot fee collection account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "trojan", "fees"],
+    },
+
     # Jitotip 1 (MEV/Fee Tipping Automation)
     "96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5": {
         "name": "Jitotip 1",

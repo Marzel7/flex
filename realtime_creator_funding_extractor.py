@@ -64,6 +64,8 @@ class DomainResolver:
         """Create address_domains table if it doesn't exist"""
         conn = sqlite3.connect(self.db_path, timeout=60)
         cur = conn.cursor()
+        
+        # Domains cache table (for resolution state tracking)
         cur.execute("""
             CREATE TABLE IF NOT EXISTS address_domains (
                 address TEXT PRIMARY KEY,
@@ -71,6 +73,22 @@ class DomainResolver:
                 updated_at INTEGER
             )
         """)
+        
+        # Address tags table (persistent tags like INFRA and CEX)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS address_tags (
+                address TEXT,
+                tag_type TEXT,
+                tag_value TEXT,
+                source TEXT,
+                first_seen_at INTEGER,
+                PRIMARY KEY (address, tag_type, tag_value)
+            )
+        """)
+        
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_address_tags_address ON address_tags(address)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_address_tags_type ON address_tags(tag_type)")
+        
         conn.commit()
         conn.close()
 
@@ -100,11 +118,33 @@ class DomainResolver:
         """Check if cached entry is still fresh"""
         return (int(time.time()) - updated_at) < DOMAIN_CACHE_TTL_SECS
 
+    def _save_address_tag(self, address: str, domain: str):
+        """Save a discovered domain as a persistent address tag"""
+        if not domain:
+            return
+        
+        try:
+            conn = sqlite3.connect(self.db_path, timeout=60)
+            cur = conn.cursor()
+            
+            # Save domain tag (tag_type='domain', tag_value=actual domain name)
+            cur.execute("""
+                INSERT OR REPLACE INTO address_tags 
+                (address, tag_type, tag_value, source, first_seen_at)
+                VALUES (?, 'domain', ?, 'sns_resolver', ?)
+            """, (address, domain, int(time.time())))
+            
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            pass  # Non-critical
+
     async def resolve_primary_domains(self, addresses: Iterable[str]) -> Dict[str, Optional[str]]:
         """
         Resolve primary SNS domains for addresses.
         Returns {address: 'name.sol' or None}.
         Uses SNS primary domains endpoint with batching and caching.
+        Saves discovered domains as persistent address tags.
         """
         now = int(time.time())
         addrs = [a for a in set(addresses) if isinstance(a, str) and len(a) > 20]
@@ -158,6 +198,10 @@ class DomainResolver:
                         self.mem[a] = (domain, now)
                         out[a] = domain
                         to_persist.append((a, domain, now))
+                        
+                        # Save domain as persistent tag if found
+                        if domain:
+                            self._save_address_tag(a, domain)
 
             except Exception as e:
                 # On error, mark as unknown but cache short-term
@@ -399,6 +443,7 @@ class RealTimeCreatorFundingExtractor:
         """Save funder relationship to database, accumulating amounts from multiple transfers"""
         try:
             from infra_mapping import is_infrastructure_account, is_cex_account, get_account_info
+            from address_tags import get_domain_tag
 
             conn = sqlite3.connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
@@ -474,7 +519,7 @@ class RealTimeCreatorFundingExtractor:
             conn.commit()
             conn.close()
 
-            # Resolve and cache domain name (non-blocking, don't await)
+            # Resolve and cache domain names (non-blocking)
             if self.domain_resolver:
                 try:
                     domains = await self.domain_resolver.resolve_primary_domains([funder, creator])

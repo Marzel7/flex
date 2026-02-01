@@ -22,13 +22,19 @@ import sqlite3
 import asyncio
 import aiohttp
 import os
-from typing import Optional, Dict, List, Set
+import time
+from typing import Optional, Dict, List, Set, Iterable, Tuple
 from datetime import datetime
 from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
 from dust_addresses import DUST_ADDRESSES
 
 DB_PATH = "pumpswap_tokens.db"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "84ec9a31-f8c2-4116-8e98-695a9377c5ed"
+
+# SNS Domain Resolver Configuration
+SNS_API_BASE = "https://sns-api.bonfida.com"
+SNS_PRIMARY_ENDPOINT = "/v2/user/fav-domains/"
+DOMAIN_CACHE_TTL_SECS = 7 * 24 * 60 * 60  # 7 days local TTL
 
 # Same RPC configuration as post_migration_analyzer for consistency
 # RPC Configuration: Use Helius + Public Solana only (QuickNode removed)
@@ -45,18 +51,146 @@ RPC_TIMEOUT = 30
 PUMPFUN_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
 
 
+class DomainResolver:
+    """Resolve Solana domain names (SNS) for addresses with caching"""
+
+    def __init__(self, db_path: str, session: aiohttp.ClientSession):
+        self.db_path = db_path
+        self.session = session
+        self.mem: Dict[str, Tuple[Optional[str], int]] = {}  # address -> (domain_or_none, updated_at)
+        self._ensure_table()
+
+    def _ensure_table(self):
+        """Create address_domains table if it doesn't exist"""
+        conn = sqlite3.connect(self.db_path, timeout=60)
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS address_domains (
+                address TEXT PRIMARY KEY,
+                primary_domain TEXT,
+                updated_at INTEGER
+            )
+        """)
+        conn.commit()
+        conn.close()
+
+    def _db_get(self, address: str) -> Optional[Tuple[Optional[str], int]]:
+        """Get domain from database cache"""
+        conn = sqlite3.connect(self.db_path, timeout=60)
+        cur = conn.cursor()
+        cur.execute("SELECT primary_domain, updated_at FROM address_domains WHERE address = ? LIMIT 1", (address,))
+        row = cur.fetchone()
+        conn.close()
+        if not row:
+            return None
+        return (row[0], row[1])
+
+    def _db_set_many(self, rows: List[Tuple[str, Optional[str], int]]):
+        """Save multiple domain lookups to database cache"""
+        conn = sqlite3.connect(self.db_path, timeout=60)
+        cur = conn.cursor()
+        cur.executemany("""
+            INSERT OR REPLACE INTO address_domains (address, primary_domain, updated_at)
+            VALUES (?, ?, ?)
+        """, rows)
+        conn.commit()
+        conn.close()
+
+    def _is_fresh(self, updated_at: int) -> bool:
+        """Check if cached entry is still fresh"""
+        return (int(time.time()) - updated_at) < DOMAIN_CACHE_TTL_SECS
+
+    async def resolve_primary_domains(self, addresses: Iterable[str]) -> Dict[str, Optional[str]]:
+        """
+        Resolve primary SNS domains for addresses.
+        Returns {address: 'name.sol' or None}.
+        Uses SNS primary domains endpoint with batching and caching.
+        """
+        now = int(time.time())
+        addrs = [a for a in set(addresses) if isinstance(a, str) and len(a) > 20]
+
+        if not addrs:
+            return {}
+
+        out: Dict[str, Optional[str]] = {}
+        missing: List[str] = []
+
+        # 1) Check memory cache
+        for a in addrs:
+            if a in self.mem and self._is_fresh(self.mem[a][1]):
+                out[a] = self.mem[a][0]
+            else:
+                missing.append(a)
+
+        # 2) Check database cache
+        still_missing: List[str] = []
+        for a in missing:
+            row = self._db_get(a)
+            if row and self._is_fresh(row[1]):
+                domain, ts = row
+                self.mem[a] = (domain, ts)
+                out[a] = domain
+            else:
+                still_missing.append(a)
+
+        # 3) Query SNS API in batches of 20
+        to_persist: List[Tuple[str, Optional[str], int]] = []
+        for i in range(0, len(still_missing), 20):
+            batch = still_missing[i:i+20]
+            joined = ",".join(batch)
+            url = f"{SNS_API_BASE}{SNS_PRIMARY_ENDPOINT}{joined}"
+
+            try:
+                async with self.session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                    if resp.status != 200:
+                        # Mark as unknown but cache locally
+                        for a in batch:
+                            self.mem[a] = (None, now)
+                            out[a] = None
+                            to_persist.append((a, None, now))
+                        continue
+
+                    data = await resp.json()
+                    # Response maps pubkey -> "domain" (without ".sol")
+                    for a in batch:
+                        name = data.get(a)
+                        domain = f"{name}.sol" if isinstance(name, str) and name else None
+                        self.mem[a] = (domain, now)
+                        out[a] = domain
+                        to_persist.append((a, domain, now))
+
+            except Exception as e:
+                # On error, mark as unknown but cache short-term
+                print(f"[DOMAIN_RESOLVER] ⚠ Error resolving batch: {e}", flush=True)
+                for a in batch:
+                    self.mem[a] = (None, now)
+                    out[a] = None
+                    to_persist.append((a, None, now))
+
+            # Gentle throttle between batches
+            await asyncio.sleep(0.05)
+
+        if to_persist:
+            self._db_set_many(to_persist)
+
+        return out
+
+
 class RealTimeCreatorFundingExtractor:
     """Extract creator funding in real-time when new tokens launch"""
 
     def __init__(self):
         self.processed_creators: Set[str] = set()
         self.session = None
+        self.domain_resolver: Optional[DomainResolver] = None
         self.seen_bonding_curves: Set[str] = set()  # Cache bonding curves to skip trading noise
 
     async def init_session(self):
-        """Initialize aiohttp session"""
+        """Initialize aiohttp session and domain resolver"""
         if not self.session:
             self.session = aiohttp.ClientSession()
+        if not self.domain_resolver:
+            self.domain_resolver = DomainResolver(DB_PATH, self.session)
 
     async def close_session(self):
         """Close aiohttp session"""
@@ -261,7 +395,7 @@ class RealTimeCreatorFundingExtractor:
 
         return transfers
 
-    def _save_funder(self, creator: str, funder: str, amount_sol: float):
+    async def _save_funder(self, creator: str, funder: str, amount_sol: float):
         """Save funder relationship to database, accumulating amounts from multiple transfers"""
         try:
             from infra_mapping import is_infrastructure_account, is_cex_account, get_account_info
@@ -307,7 +441,7 @@ class RealTimeCreatorFundingExtractor:
             # Check if funder is infrastructure/automation account
             if not cex_exchange and is_infrastructure_account(funder):
                 is_classified = 1  # Mark as classified (infrastructure)
-                
+
                 # Special handling for deBridge
                 info = get_account_info(funder)
                 if info and "debridge" in str(info.get("tags", [])).lower():
@@ -339,6 +473,21 @@ class RealTimeCreatorFundingExtractor:
 
             conn.commit()
             conn.close()
+
+            # Resolve and cache domain name (non-blocking, don't await)
+            if self.domain_resolver:
+                try:
+                    domains = await self.domain_resolver.resolve_primary_domains([funder, creator])
+                    funder_domain = domains.get(funder)
+                    creator_domain = domains.get(creator)
+
+                    if funder_domain:
+                        print(f"[DOMAIN] 🌐 Funder domain: {funder} → {funder_domain}", flush=True)
+                    if creator_domain:
+                        print(f"[DOMAIN] 🌐 Creator domain: {creator} → {creator_domain}", flush=True)
+                except Exception as domain_err:
+                    pass  # Domain resolution is non-critical
+
         except:
             pass
 
@@ -790,7 +939,7 @@ class RealTimeCreatorFundingExtractor:
                                                 funders[frm] = 0
                                                 page_funders_found += 1
                                             funders[frm] += amount_sol
-                                            self._save_funder(creator, frm, amount_sol)
+                                            await self._save_funder(creator, frm, amount_sol)
 
                                         # Outbound: creator sent SOL
                                         elif frm == creator and amount_sol > 0:

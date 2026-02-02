@@ -27,7 +27,7 @@ from typing import Optional, Dict, List, Set, Iterable, Tuple
 from datetime import datetime
 from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
 from dust_addresses import DUST_ADDRESSES
-from domain_extraction import extract_from_helius_transaction
+from domain_extraction import extract_from_helius_transaction_async
 from domain_mapping import register_domain, link_domain_to_address
 
 DB_PATH = "pumpswap_tokens.db"
@@ -912,11 +912,11 @@ class RealTimeCreatorFundingExtractor:
                                         earliest_tx_timestamp = tx_ts
 
                                     # Extract domain names from transaction description
-                                    # (domains mentioned in memos, descriptions, etc.)
+                                    # (both explicit .sol mentions and SNS domains for addresses in descriptions)
                                     try:
-                                        domain_count = extract_from_helius_transaction(tx, creator)
+                                        domain_count, domains_found = await extract_from_helius_transaction_async(tx, creator, self.domain_resolver)
                                         if domain_count > 0:
-                                            print(f"[DOMAIN] 📝 Found {domain_count} domain(s) in tx {tx.get('signature', '')[:16]}...", flush=True)
+                                            print(f"[DOMAIN] 📝 Found {domain_count} domain(s) in tx {tx.get('signature', '')[:16]}... {domains_found}", flush=True)
                                     except Exception as e:
                                         pass  # Domain extraction is non-critical
 

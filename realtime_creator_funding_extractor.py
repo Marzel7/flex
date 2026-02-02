@@ -620,24 +620,6 @@ class RealTimeCreatorFundingExtractor:
         except:
             pass
 
-    async def _resolve_domains_for_addresses(self, addresses: List[str]) -> Dict[str, Optional[str]]:
-        """
-        Resolve SNS domains for a list of addresses.
-        Batch-resolves up to 100 addresses at once.
-        Saves discovered domains to address_tags and domain_registry.
-        Returns dict of {address: domain or None}
-        """
-        if not addresses or not self.domain_resolver:
-            return {}
-
-        try:
-            # Batch resolve (domain_resolver handles batching of 20 per API call)
-            domains = await self.domain_resolver.resolve_primary_domains(addresses)
-            return domains
-        except Exception as e:
-            print(f"[DOMAIN] ⚠ Error resolving domains for {len(addresses)} addresses: {e}", flush=True)
-            return {}
-
     def _save_outgoing_transfer(self, creator: str, recipient: str, amount_sol: float, sig: str = None, block_time: int = None):
         """Save outgoing transfer from creator to recipient"""
         try:
@@ -921,7 +903,6 @@ class RealTimeCreatorFundingExtractor:
                                 page_dust_filtered = 0
                                 page_excluded_filtered = 0
                                 page_token_transfers_filtered = 0
-                                page_addresses_to_resolve = set()  # Collect addresses for batch domain resolution
 
                                 for tx in page:
                                     tx_ts = tx.get("timestamp", 0)
@@ -1018,12 +999,6 @@ class RealTimeCreatorFundingExtractor:
 
                                         amount_sol = amt / 1_000_000_000
 
-                                        # Collect addresses for batch domain resolution
-                                        if frm and len(frm) > 20:
-                                            page_addresses_to_resolve.add(frm)
-                                        if to and len(to) > 20:
-                                            page_addresses_to_resolve.add(to)
-
                                         # Filter dust
                                         if amount_sol < MIN_SOL:
                                             filtered_dust += 1
@@ -1066,19 +1041,6 @@ class RealTimeCreatorFundingExtractor:
                                                 recipients[to] = 0
                                             recipients[to] += amount_sol
                                             self._save_recipient(creator, to, amount_sol)
-
-                                # Batch resolve domains for all addresses in this page
-                                if page_addresses_to_resolve and self.domain_resolver:
-                                    try:
-                                        print(f"[DOMAIN] 🔍 Resolving domains for {len(page_addresses_to_resolve)} addresses from page...", flush=True)
-                                        domains = await self._resolve_domains_for_addresses(list(page_addresses_to_resolve))
-                                        domains_found = {addr: dom for addr, dom in domains.items() if dom}
-                                        if domains_found:
-                                            print(f"[DOMAIN] ✓ Found domains for {len(domains_found)} addresses", flush=True)
-                                            for addr, domain in list(domains_found.items())[:3]:  # Log first 3
-                                                print(f"[DOMAIN]   {addr[:16]}... → {domain}", flush=True)
-                                    except Exception as e:
-                                        print(f"[DOMAIN] ⚠ Error resolving domains: {e}", flush=True)
 
                                 # Log page summary
                                 if page_funders_found > 0 or page_dust_filtered > 0 or page_excluded_filtered > 0 or page_token_transfers_filtered > 0:

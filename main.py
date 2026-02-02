@@ -71,6 +71,26 @@ def get_migrated_tokens() -> List[Dict]:
                 """, (row['earliest_tx_creator'],))
                 creator_infra_tags = [{'tag': t[0], 'description': t[1]} for t in cursor.fetchall()]
 
+            # Get top funder for creator (to show CEX funding info)
+            top_funder = None
+            if row['earliest_tx_creator']:
+                cursor.execute("""
+                    SELECT funder_address, cex_exchange, cex_type, amount_sol, is_cex
+                    FROM creator_funders
+                    WHERE creator_address = ?
+                    ORDER BY amount_sol DESC
+                    LIMIT 1
+                """, (row['earliest_tx_creator'],))
+                funder_row = cursor.fetchone()
+                if funder_row:
+                    top_funder = {
+                        'address': funder_row[0],
+                        'cex_exchange': funder_row[1],
+                        'cex_type': funder_row[2],
+                        'amount_sol': funder_row[3],
+                        'is_cex': funder_row[4]
+                    }
+
             tokens.append({
                 'mint': row['mint'],
                 'analyzed_at': row['analyzed_at'],
@@ -90,7 +110,8 @@ def get_migrated_tokens() -> List[Dict]:
                 'creator_is_blocked': bool(row['creator_is_blocked']) if row['creator_is_blocked'] else False,
                 'network_risk': bool(row['network_risk']) if row['network_risk'] else False,
                 'connected_malicious_count': row['connected_malicious_count'] if row['connected_malicious_count'] else 0,
-                'creator_infra_tags': creator_infra_tags
+                'creator_infra_tags': creator_infra_tags,
+                'top_funder': top_funder
             })
 
         conn.close()
@@ -1397,10 +1418,9 @@ HTML_TEMPLATE = """
                     <table class="cex-funders-table">
                         <thead>
                             <tr>
-                                <th>Exchange</th>
+                                <th>CEX Funder</th>
                                 <th>Address</th>
                                 <th>Amount (SOL)</th>
-                                <th>Type</th>
                             </tr>
                         </thead>
                         <tbody id="cexFundersBody">
@@ -1410,22 +1430,23 @@ HTML_TEMPLATE = """
                 </div>
             </div>
 
-            <!-- Top Funders -->
-            <h3>All Funders</h3>
-            <div class="top-funders-container">
-                <table class="top-funders-table">
-                    <thead>
-                        <tr>
-                            <th>Funder Address</th>
-                            <th>Amount (SOL)</th>
-                            <th>Type</th>
-                            <th>Tags</th>
-                        </tr>
-                    </thead>
-                    <tbody id="topFundersBody">
-                        <!-- Populated by JavaScript -->
-                    </tbody>
-                </table>
+            <!-- Other Labeled Funders Section -->
+            <div id="otherFundersSection" style="display: none; margin-bottom: 20px;">
+                <h3 style="color: #00d4ff;">🏛️ Other Labeled Funders</h3>
+                <div class="cex-funders-container">
+                    <table class="cex-funders-table">
+                        <thead>
+                            <tr>
+                                <th>Funder Name</th>
+                                <th>Category</th>
+                                <th>Amount (SOL)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="otherFundersBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Top Recipients (Outgoing Transfers) -->
@@ -1660,15 +1681,13 @@ HTML_TEMPLATE = """
 
                             const creatorShort = token.creator ? token.creator.substring(0, 8) + '...' : 'N/A';
                             const creatorTitle = token.creator || 'Unknown';
-                            const creatorElement = token.creator
-                                ? `<a href="#" onclick="showCreatorDetails('${token.creator}'); return false;" class="mint-link creator-address-link" title="Click for creator details">${creatorTitle}</a>`
-                                : '<span style="color: #a0a0a0;">Unknown</span>';
 
                             // Get infrastructure tags for creator or funders
                             let infraTags = '';
                             let displayName = null;
                             let displayCategory = null;
                             let displayDescription = '';
+                            let creatorIsLabeled = false;
 
                             // Check if creator itself is infrastructure or CEX - show account name only
                             if (token.creator && window.infraMapping) {
@@ -1677,16 +1696,27 @@ HTML_TEMPLATE = """
                                     displayName = info.name;
                                     displayCategory = info.category;
                                     displayDescription = info.description;
+                                    creatorIsLabeled = true;
                                 }
                                 if (!displayName && window.infraMapping.cex && window.infraMapping.cex[token.creator]) {
                                     const info = window.infraMapping.cex[token.creator];
                                     displayName = info.name;
                                     displayCategory = info.category;
                                     displayDescription = info.description;
+                                    creatorIsLabeled = true;
                                 }
                             }
 
-                            // Check if any funders are infrastructure or CEX - show account name only
+                            // Check if top funder is a CEX (direct from token data)
+                            if (!displayName && token.top_funder && token.top_funder.is_cex) {
+                                // Use the CEX name from funder data
+                                const cexName = token.top_funder.cex_exchange || 'CEX';
+                                displayName = cexName;
+                                displayCategory = 'cex';
+                                displayDescription = `Funded by ${cexName} ${token.top_funder.cex_type || 'Wallet'}`;
+                            }
+
+                            // Check if any funders are infrastructure or CEX via mapping - show account name only
                             if (!displayName && token.creatorData && token.creatorData.funders) {
                                 for (let funder of token.creatorData.funders) {
                                     // Check infrastructure funders first
@@ -1715,14 +1745,42 @@ HTML_TEMPLATE = """
                                 </div>`;
                             }
 
-                            // Build creator infrastructure tags (deBridge, Meteora, Axiom)
+                            // Create creator element - show label if labeled, hide if has tags or labeled funder, show address otherwise
+                            let creatorElement;
+                            if (creatorIsLabeled && displayName) {
+                                // Creator itself is labeled (CEX/Infrastructure) - show label name with clickable link to details
+                                creatorElement = `<a href="#" onclick="showCreatorDetails('${token.creator}'); return false;" class="mint-link creator-address-link" title="Creator: ${creatorTitle}">${displayName}</a>`;
+                            } else if (token.creator_infra_tags && token.creator_infra_tags.length > 0) {
+                                // Creator has tags (uses_meteora, uses_debridge) but no direct label - hide address, show tags only
+                                creatorElement = '';  // Empty - tags will be shown below
+                            } else if (displayName) {
+                                // Labeled funder found (CEX or Infrastructure) but creator itself not labeled - hide address, show funder label only
+                                creatorElement = '';  // Funder label will be shown via infraTags instead
+                            } else {
+                                // No label, no tags, no labeled funder - show creator address so user can click to modal
+                                creatorElement = `<a href="#" onclick="showCreatorDetails('${token.creator}'); return false;" class="mint-link creator-address-link" title="Creator: ${creatorTitle}">${creatorShort}</a>`;
+                            }
+
+                            // Build creator infrastructure tags (deBridge, Meteora, Axiom) with deduplication
                             let infraTagsHTML = '';
                             if (token.creator_infra_tags && token.creator_infra_tags.length > 0) {
                                 // Skip displaying if the infrastructure service is already shown as a funder badge
                                 // (e.g., don't show "uses_debridge" tag if deBridge is already displayed as a funder)
                                 const skipIfFunder = displayName && displayName.toLowerCase().includes('debridge');
 
+                                // Deduplicate tags (in case of duplicates in the array)
+                                const seenTags = new Set();
+                                const uniqueInfraTags = [];
+
                                 for (let infraTag of token.creator_infra_tags) {
+                                    const tagName = infraTag.tag.toLowerCase();
+                                    if (!seenTags.has(tagName)) {
+                                        seenTags.add(tagName);
+                                        uniqueInfraTags.push(infraTag);
+                                    }
+                                }
+
+                                for (let infraTag of uniqueInfraTags) {
                                     // Skip deBridge tag if deBridge is already shown as a funder
                                     if (infraTag.tag.includes('debridge') && skipIfFunder) continue;
 
@@ -1736,6 +1794,9 @@ HTML_TEMPLATE = """
                                     } else if (infraTag.tag.includes('axiom')) {
                                         tagColor = '#9333ea';
                                         bgColor = 'rgba(147, 51, 234, 0.15)';
+                                    } else if (infraTag.tag.includes('jito')) {
+                                        tagColor = '#fbbf24';
+                                        bgColor = 'rgba(251, 191, 36, 0.15)';
                                     } else {
                                         tagColor = '#4ade80';
                                         bgColor = 'rgba(74, 222, 128, 0.15)';
@@ -2351,12 +2412,28 @@ HTML_TEMPLATE = """
 
                 document.getElementById('creatorNetworkSize').textContent = (data.cluster.total_wallets || 0) + ' wallets';
 
-                // Display creator tags
+                // Display creator tags (remove 'uses_' prefix for cleaner display, deduplicate)
                 const tagsContainer = document.getElementById('creatorTagsContainer');
                 if (data.tags && data.tags.length > 0) {
-                    const tagsHTML = data.tags.map(t => `
+                    // Deduplicate tags and strip 'uses_' prefix for display
+                    const seenTags = new Set();
+                    const uniqueTags = [];
+
+                    for (const t of data.tags) {
+                        const displayTag = t.tag.replace('uses_', '').toLowerCase();
+                        if (!seenTags.has(displayTag)) {
+                            seenTags.add(displayTag);
+                            uniqueTags.push({
+                                display: displayTag,
+                                original: t.tag,
+                                description: t.description
+                            });
+                        }
+                    }
+
+                    const tagsHTML = uniqueTags.map(t => `
                         <div class="creator-tag" title="${t.description}">
-                            <span class="tag-label">${t.tag}</span>
+                            <span class="tag-label">${t.display}</span>
                         </div>
                     `).join('');
                     tagsContainer.innerHTML = tagsHTML;
@@ -2403,12 +2480,14 @@ HTML_TEMPLATE = """
                         const amountStr = funder.amount_sol < 0.01
                             ? funder.amount_sol.toFixed(6)
                             : funder.amount_sol.toFixed(2);
+                        const exchangeName = funder.cex_exchange || 'Unknown';
+                        const walletType = funder.cex_type || 'Hot Wallet';
+                        const fullLabel = `${exchangeName} ${walletType}`;
                         return `
                             <tr>
-                                <td><span class="cex-exchange-name">${funder.cex_exchange || 'Unknown'}</span></td>
+                                <td><span class="cex-exchange-name">${fullLabel}</span></td>
                                 <td title="${funder.funder_address}" style="font-family: monospace;">${funder.funder_address.substring(0, 16)}...</td>
                                 <td>${amountStr} SOL</td>
-                                <td>${funder.cex_type || 'Hot Wallet'}</td>
                             </tr>
                         `;
                     }).join('');
@@ -2416,97 +2495,71 @@ HTML_TEMPLATE = """
                     cexSection.style.display = 'none';
                 }
 
-                // Populate top funders table (all funders)
-                const fundersBody = document.getElementById('topFundersBody');
-                if (data.top_funders && data.top_funders.length > 0) {
-                    fundersBody.innerHTML = data.top_funders.map(funder => {
-                            const cexBadge = funder.is_cex ? `<span class="cex-badge">${funder.cex_exchange}</span>` : '';
-
-                            // Source type badge
-                            let sourceTypeBadge = '';
-                            if (funder.source_type === 'intermediary') {
-                                sourceTypeBadge = '<span class="intermediary-badge" title="Relay/intermediary account">ℹ️ Relay</span>';
-                            }
-                            // Original sender: leave blank (no badge)
-
-                            // Infrastructure tags
-                            let infraTags = '';
-                            if (funder.is_infrastructure) {
-                                const tags = funder.tags || [];
-                                const categoryTag = `<span class="infra-tag infra-${funder.category}" title="${funder.description || ''}">${funder.category.toUpperCase()}</span>`;
-                                const otherTags = tags.map(tag => `<span class="tag tag-${tag}">${tag}</span>`).join('');
-                                infraTags = categoryTag + ' ' + otherTags;
-                            }
-
-                            // Address tags (domains, etc.)
-                            let addressTagsHTML = '';
-                            if (funder.address_tags && funder.address_tags.domain) {
-                                funder.address_tags.domain.forEach(domain => {
-                                    addressTagsHTML += `<span class="domain-tag" title="SNS Domain">🌐 ${domain}</span>`;
-                                });
-                            }
-                            // Add other address tags
-                            if (funder.address_tags) {
-                                Object.keys(funder.address_tags).forEach(tagType => {
-                                    if (tagType !== 'domain') {
-                                        funder.address_tags[tagType].forEach(tagValue => {
-                                            addressTagsHTML += `<span class="address-tag" title="${tagType}">${tagValue}</span>`;
-                                        });
-                                    }
-                                });
-                            }
-
-                            // Format amount: show more decimals for small amounts
-                            const amountStr = funder.amount_sol < 0.01
-                                ? funder.amount_sol.toFixed(6)
-                                : funder.amount_sol.toFixed(2);
-
-                            return `
-                                <tr>
-                                    <td title="${funder.funder_address}" style="font-family: monospace; font-size: 12px;">${funder.funder_address.substring(0, 16)}...${cexBadge}</td>
-                                    <td>${amountStr} SOL</td>
-                                    <td>${sourceTypeBadge || (funder.is_cex ? 'CEX' : 'Wallet')}</td>
-                                    <td>${infraTags ? infraTags + ' ' + addressTagsHTML : addressTagsHTML || '—'}</td>
-                                </tr>
-                            `;
-                        }).join('');
+                // Show/hide other labeled funders section
+                const otherSection = document.getElementById('otherFundersSection');
+                const labeledNonCexFunders = nonCexFunders.filter(f => f.display_name);
+                if (labeledNonCexFunders.length > 0) {
+                    otherSection.style.display = 'block';
+                    const otherBody = document.getElementById('otherFundersBody');
+                    otherBody.innerHTML = labeledNonCexFunders.map(funder => {
+                        const amountStr = funder.amount_sol < 0.01
+                            ? funder.amount_sol.toFixed(6)
+                            : funder.amount_sol.toFixed(2);
+                        return `
+                            <tr>
+                                <td><span style="color: #4ade80; font-weight: 600;">${funder.display_name}</span></td>
+                                <td>${funder.category || 'unknown'}</td>
+                                <td>${amountStr} SOL</td>
+                            </tr>
+                        `;
+                    }).join('');
                 } else {
-                    fundersBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #a0a0a0;">No funding data available</td></tr>';
+                    otherSection.style.display = 'none';
                 }
 
                 // Populate top recipients table (where creator sent SOL)
                 const recipientsBody = document.getElementById('topRecipientsBody');
                 if (data.top_recipients && data.top_recipients.length > 0) {
-                    recipientsBody.innerHTML = data.top_recipients.map(recipient => {
-                        // Check if this recipient is connected to other creators
-                        let networkIndicator = '';
-                        let networkTooltip = '';
+                    // Filter to only show recipients that have labels (is_infrastructure or has display_name)
+                    const labeledRecipients = data.top_recipients.filter(recipient => recipient.is_infrastructure || recipient.display_name);
 
-                        if (recipient.is_network_coordinator) {
-                            const info = recipient.coordinator_info;
-                            networkIndicator = `<span class="network-badge network-${info.confidence}" title="Network Coordinator">🔗</span>`;
-                            networkTooltip = `Linked to ${info.creator_count} creators | Confidence: ${info.confidence}`;
-                        } else if (recipient.shared_with_creators) {
-                            networkIndicator = `<span class="shared-badge" title="Shared with ${recipient.shared_creator_count} other creators">👥</span>`;
-                            networkTooltip = `Also linked to: ${recipient.shared_with_creators.slice(0, 2).map(c => c.substring(0, 8) + '...').join(', ')}${recipient.shared_with_creators.length > 2 ? ' +' + (recipient.shared_with_creators.length - 2) + ' more' : ''}`;
-                        }
+                    if (labeledRecipients.length > 0) {
+                        recipientsBody.innerHTML = labeledRecipients.map(recipient => {
+                            // Check if this recipient is connected to other creators
+                            let networkIndicator = '';
+                            let networkTooltip = '';
 
-                        // Format amount: show more decimals for small amounts
-                        const recipientAmountStr = recipient.amount_sol < 0.01
-                            ? recipient.amount_sol.toFixed(6)
-                            : recipient.amount_sol.toFixed(2);
+                            if (recipient.is_network_coordinator) {
+                                const info = recipient.coordinator_info;
+                                networkIndicator = `<span class="network-badge network-${info.confidence}" title="Network Coordinator">🔗</span>`;
+                                networkTooltip = `Linked to ${info.creator_count} creators | Confidence: ${info.confidence}`;
+                            } else if (recipient.shared_with_creators) {
+                                networkIndicator = `<span class="shared-badge" title="Shared with ${recipient.shared_creator_count} other creators">👥</span>`;
+                                networkTooltip = `Also linked to: ${recipient.shared_with_creators.slice(0, 2).map(c => c.substring(0, 8) + '...').join(', ')}${recipient.shared_with_creators.length > 2 ? ' +' + (recipient.shared_with_creators.length - 2) + ' more' : ''}`;
+                            }
 
-                        return `
-                            <tr class="${recipient.is_network_coordinator ? 'row-network-coordinator' : recipient.shared_with_creators ? 'row-shared-recipient' : ''}">
-                                <td title="${recipient.recipient_address}" style="font-family: monospace; font-size: 12px;">
-                                    ${recipient.recipient_address}
-                                    ${networkIndicator ? `<div style="margin-top: 3px; font-size: 10px; color: #a0a0a0;">${networkTooltip}</div>` : ''}
-                                </td>
-                                <td>${recipientAmountStr} SOL</td>
-                                <td>${networkIndicator || 'Wallet'}</td>
-                            </tr>
-                        `;
-                    }).join('');
+                            // Format amount: show more decimals for small amounts
+                            const recipientAmountStr = recipient.amount_sol < 0.01
+                                ? recipient.amount_sol.toFixed(6)
+                                : recipient.amount_sol.toFixed(2);
+
+                            // Display label name if available, otherwise use address
+                            const displayLabel = recipient.display_name || recipient.recipient_address.substring(0, 16) + '...';
+
+                            return `
+                                <tr class="${recipient.is_network_coordinator ? 'row-network-coordinator' : recipient.shared_with_creators ? 'row-shared-recipient' : ''}">
+                                    <td title="${recipient.recipient_address}" style="font-family: monospace; font-size: 12px;">
+                                        ${displayLabel}
+                                        ${networkIndicator ? `<div style="margin-top: 3px; font-size: 10px; color: #a0a0a0;">${networkTooltip}</div>` : ''}
+                                    </td>
+                                    <td>${recipientAmountStr} SOL</td>
+                                    <td>${networkIndicator || (recipient.is_infrastructure ? recipient.category : 'Wallet')}</td>
+                                </tr>
+                            `;
+                        }).join('');
+                    } else {
+                        recipientsBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0a0a0;">No labeled recipients</td></tr>';
+                    }
                 } else {
                     recipientsBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0a0a0;">No outgoing transfers</td></tr>';
                 }

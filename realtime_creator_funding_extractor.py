@@ -563,10 +563,20 @@ class RealTimeCreatorFundingExtractor:
                 except Exception as domain_err:
                     pass  # Domain resolution is non-critical
 
+            # Look up and tag funder with local database label if available (non-blocking)
+            try:
+                from solscan_address_tagger import tag_funder_if_labeled, format_address_with_label
+                label_info = tag_funder_if_labeled(funder)
+                if label_info and label_info.get("label_name"):
+                    formatted = format_address_with_label(funder, label_info)
+                    print(f"[LABEL] 🏷️ Funder labeled: {formatted}", flush=True)
+            except Exception as label_err:
+                pass  # Label lookup is non-critical
+
         except:
             pass
 
-    def _save_recipient(self, creator: str, recipient: str, amount_sol: float):
+    async def _save_recipient(self, creator: str, recipient: str, amount_sol: float):
         """Save recipient relationship to database (creator sent SOL to recipient)"""
         try:
             conn = sqlite3.connect(DB_PATH, timeout=60)
@@ -618,6 +628,17 @@ class RealTimeCreatorFundingExtractor:
 
             conn.commit()
             conn.close()
+
+            # Look up and tag recipient with local database label if available (non-blocking)
+            try:
+                from solscan_address_tagger import tag_recipient_if_labeled, format_address_with_label
+                label_info = tag_recipient_if_labeled(recipient)
+                if label_info and label_info.get("label_name"):
+                    formatted = format_address_with_label(recipient, label_info)
+                    print(f"[LABEL] 🏷️ Recipient labeled: {formatted}", flush=True)
+            except Exception:
+                pass  # Label lookup is non-critical
+
         except:
             pass
 
@@ -998,6 +1019,18 @@ class RealTimeCreatorFundingExtractor:
                                     except Exception as e:
                                         print(f"[DOMAIN] ⚠ Error during domain extraction: {e}", flush=True)
 
+                                    # Extract service names from transaction description and tag creator
+                                    try:
+                                        from solscan_address_tagger import extract_service_names_from_description, tag_creator_with_services
+                                        tx_description = tx.get("description", "")
+                                        services = extract_service_names_from_description(tx_description)
+                                        if services:
+                                            tags_added = tag_creator_with_services(creator, services)
+                                            if tags_added > 0:
+                                                print(f"[SERVICES] 🏷️ Tagged creator with {tags_added} service(s): {', '.join(sorted(services))}", flush=True)
+                                    except Exception:
+                                        pass  # Service tagging is non-critical
+
                                     # Capture ALL transfers regardless of pre/post migration
                                     # (we want all funding sources, not just pre-migration)
                                     page_has_pre_migration = True
@@ -1118,7 +1151,7 @@ class RealTimeCreatorFundingExtractor:
                                             if to not in recipients:
                                                 recipients[to] = 0
                                             recipients[to] += amount_sol
-                                            self._save_recipient(creator, to, amount_sol)
+                                            await self._save_recipient(creator, to, amount_sol)
 
                                 # Log page summary
                                 if page_funders_found > 0 or page_dust_filtered > 0 or page_excluded_filtered > 0 or page_token_transfers_filtered > 0:
@@ -1205,6 +1238,10 @@ class RealTimeCreatorFundingExtractor:
             if funders:
                 asyncio.create_task(self._run_automatic_cex_detection())
 
+            # Trigger BlockSec AML batching (caches new addresses for batch submission)
+            # Rate limited to 1 batch per 2.4 hours (10 calls/day = 24/10 hours between batches)
+            asyncio.create_task(self._try_blocksec_batch())
+
             return {
                 "creator": creator,
                 "status": "success",
@@ -1246,6 +1283,44 @@ class RealTimeCreatorFundingExtractor:
         
         except Exception as e:
             print(f"[AUTO-CEX] Error: {e}", flush=True)
+
+    async def _try_blocksec_batch(self):
+        """
+        Try to submit a batch to BlockSec AML API for address labeling.
+        
+        Addresses are cached for batching since we're limited to 10 calls/day.
+        This method:
+        1. Collects new funders/recipients that haven't been labeled yet
+        2. Checks if enough time has passed since last batch (2.4 hours)
+        3. Submits batch if ready, or queues for next scheduled batch
+        
+        Runs non-blocking to avoid delaying token processing.
+        """
+        try:
+            from blocksec_aml_batcher import BlockSecAMLBatcher, auto_batch_new_addresses
+            
+            # Just trigger the auto-batch function
+            # It will check rate limits internally and only submit if ready
+            result = await auto_batch_new_addresses()
+            
+            if result and result.get("success"):
+                print(f"[BLOCKSEC] Batch submitted: {result['count']} addresses", flush=True)
+            elif result and not result.get("success"):
+                # Check if it's rate limited or an actual error
+                if "Rate limited" in result.get("error", ""):
+                    # This is normal - just log at debug level
+                    batcher = BlockSecAMLBatcher()
+                    stats = batcher.get_batch_stats()
+                    if stats.get("next_batch_in_minutes"):
+                        print(f"[BLOCKSEC] Rate limited. Next batch in {stats['next_batch_in_minutes']} minutes", flush=True)
+                else:
+                    print(f"[BLOCKSEC] Batch warning: {result.get('error')}", flush=True)
+        
+        except ImportError:
+            # BlockSec module not available, skip silently
+            pass
+        except Exception as e:
+            print(f"[BLOCKSEC] Error during batch attempt: {e}", flush=True)
 
     async def check_create_tx_for_jitotip(self, creator: str, create_tx_sig: str):
         """Check if CREATE transaction uses Jitotip and tag creator if so"""

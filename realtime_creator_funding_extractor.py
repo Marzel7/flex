@@ -622,38 +622,115 @@ class RealTimeCreatorFundingExtractor:
             pass
 
     def _save_outgoing_transfer(self, creator: str, recipient: str, amount_sol: float, sig: str = None, block_time: int = None):
-        """Save outgoing transfer from creator to recipient"""
+        """Save outgoing transfer from creator to recipient
+
+        Checks against:
+        1. CEX_ACCOUNTS mapping (immediate)
+        2. cex_wallets table (manual + auto-detected)
+        3. address_classification table (auto-detected with confidence)
+        """
         try:
+            from infra_mapping import is_cex_account, CEX_ACCOUNTS
+
             conn = sqlite3.connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
 
             # Check if recipient is a known CEX wallet
             recipient_type = None
-            try:
-                cursor.execute("""
-                    SELECT exchange_name, wallet_type
-                    FROM cex_wallets
-                    WHERE cex_address = ? AND is_active = 1
-                    LIMIT 1
-                """, (recipient,))
-                cex_row = cursor.fetchone()
-                if cex_row:
-                    exchange, wallet_type = cex_row
-                    recipient_type = f"cex_{exchange.lower()}"
-                    print(f"[FUNDING] 💸 OUTGOING TO CEX: {creator[:16]}... → {exchange} {wallet_type} ({amount_sol:.2f} SOL)", flush=True)
-            except:
-                pass
+            exchange_name = None
+            wallet_type = None
+            is_cex = 0
+            classification_confidence = None
+
+            # Layer 1: Check CEX_ACCOUNTS mapping (immediate)
+            if is_cex_account(recipient):
+                cex_info = CEX_ACCOUNTS.get(recipient, {})
+                exchange_name = cex_info.get("exchange", "Unknown")
+                wallet_type = cex_info.get("name", "Exchange Wallet")
+                is_cex = 1
+                recipient_type = f"cex_{exchange_name.lower()}"
+                print(f"[FUNDING] 💸 OUTGOING TO CEX: {creator[:16]}... → {exchange_name} {wallet_type} ({amount_sol:.2f} SOL)", flush=True)
+
+            # Layer 2: Check cex_wallets table (manual + auto-detected)
+            else:
+                try:
+                    cursor.execute("""
+                        SELECT exchange_name, wallet_type
+                        FROM cex_wallets
+                        WHERE cex_address = ? AND is_active = 1
+                        LIMIT 1
+                    """, (recipient,))
+                    cex_row = cursor.fetchone()
+                    if cex_row:
+                        exchange_name, wallet_type = cex_row
+                        is_cex = 1
+                        recipient_type = f"cex_{exchange_name.lower()}"
+                        print(f"[FUNDING] 💸 OUTGOING TO CEX: {creator[:16]}... → {exchange_name} {wallet_type} ({amount_sol:.2f} SOL)", flush=True)
+                except Exception as e:
+                    pass
+
+            # Layer 3: Check address_classification (auto-detected with confidence)
+            if not is_cex:
+                try:
+                    cursor.execute("""
+                        SELECT classification, confidence_score, solscan_exchange_name
+                        FROM address_classification
+                        WHERE address = ?
+                        LIMIT 1
+                    """, (recipient,))
+                    class_row = cursor.fetchone()
+                    if class_row:
+                        classification, confidence, solscan_exch = class_row
+                        if classification == 'cex_confirmed':  # Only high confidence
+                            exchange_name = solscan_exch or "Detected CEX"
+                            wallet_type = "Auto-detected"
+                            is_cex = 1
+                            classification_confidence = confidence
+                            recipient_type = f"cex_autodetected_{exchange_name.lower()}"
+                            print(f"[FUNDING] 💸 OUTGOING TO CEX (AUTO-DETECTED): {creator[:16]}... → {exchange_name} (confidence: {confidence}) ({amount_sol:.2f} SOL)", flush=True)
+                except Exception as e:
+                    pass
 
             cursor.execute("""
                 INSERT OR REPLACE INTO creator_outgoing_transfers
-                (creator_address, recipient_address, amount_sol, transaction_signature, block_time, recipient_type, first_detected_at)
-                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-            """, (creator, recipient, amount_sol, sig, block_time, recipient_type))
+                (creator_address, recipient_address, amount_sol, transaction_signature, block_time,
+                 recipient_type, is_cex, cex_exchange, cex_type, classification_confidence, first_detected_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            """, (creator, recipient, amount_sol, sig, block_time, recipient_type, is_cex,
+                  exchange_name, wallet_type, classification_confidence))
 
             conn.commit()
             conn.close()
-        except:
-            pass
+        except Exception as e:
+            print(f"[FUNDING] ⚠ Error saving outgoing transfer: {e}", flush=True)
+
+    def get_creator_cex_outflows(self, creator: str) -> Dict:
+        """Get all SOL transfers from creator to CEX addresses"""
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=5)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+
+            cursor.execute("""
+                SELECT
+                    recipient_address,
+                    amount_sol,
+                    cex_exchange,
+                    cex_type,
+                    classification_confidence,
+                    transaction_signature,
+                    first_detected_at
+                FROM creator_outgoing_transfers
+                WHERE creator_address = ? AND is_cex = 1
+                ORDER BY amount_sol DESC
+            """, (creator,))
+
+            outflows = [dict(row) for row in cursor.fetchall()]
+            conn.close()
+            return outflows
+        except Exception as e:
+            print(f"[FUNDING] Error getting CEX outflows: {e}")
+            return []
 
     async def extract_incoming_transfers(self, creator: str) -> Dict:
         """

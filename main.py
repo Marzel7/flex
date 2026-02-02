@@ -1740,36 +1740,50 @@ HTML_TEMPLATE = """
                             }
 
                             // Check if any funders are infrastructure or CEX via mapping - show account name only
-                            if (!displayName && token.creatorData && token.creatorData.funders) {
+                            // NOTE: Only process if we have creatorData AND it has funders AND we haven't found a display name yet
+                            if (!displayName && token.creatorData && token.creatorData.funders && Array.isArray(token.creatorData.funders)) {
                                 for (let funder of token.creatorData.funders) {
+                                    // Ensure funder has required properties
+                                    if (!funder || !funder.address || typeof funder.address !== 'string') continue;
+
                                     // Skip if funder is the creator themselves
                                     if (funder.address === token.creator) continue;
 
                                     // Check infrastructure funders first
                                     if (window.infraMapping && window.infraMapping.infrastructure && window.infraMapping.infrastructure[funder.address]) {
                                         const info = window.infraMapping.infrastructure[funder.address];
-                                        displayName = info.name;
-                                        displayCategory = info.category;
-                                        displayDescription = info.description;
-                                        break;
+                                        // Only set if name is valid and not an address
+                                        if (info.name && info.name.length < 100 && !info.name.match(/^[1-9A-HJ-NP-Z]{30,}/)) {
+                                            displayName = info.name;
+                                            displayCategory = info.category;
+                                            displayDescription = info.description;
+                                            break;
+                                        }
                                     }
                                     // Then check CEX funders
-                                    if (window.infraMapping && window.infraMapping.cex && window.infraMapping.cex[funder.address]) {
+                                    if (!displayName && window.infraMapping && window.infraMapping.cex && window.infraMapping.cex[funder.address]) {
                                         const info = window.infraMapping.cex[funder.address];
-                                        displayName = info.name;
-                                        displayCategory = info.category;
-                                        displayDescription = info.description;
-                                        break;
+                                        // Only set if name is valid and not an address
+                                        if (info.name && info.name.length < 100 && !info.name.match(/^[1-9A-HJ-NP-Z]{30,}/)) {
+                                            displayName = info.name;
+                                            displayCategory = info.category;
+                                            displayDescription = info.description;
+                                            break;
+                                        }
                                     }
                                 }
                             }
 
                             // Render simple account name badge if we found a match
                             // IMPORTANT: Only show service names, NEVER show addresses in badges
-                            if (displayName && displayCategory && !displayName.includes('1111111111') && displayName.length < 50) {
+                            if (displayName && displayCategory && !displayName.includes('1111111111') && displayName.length < 50 && !displayName.match(/^[1-9A-HJ-NP-Z]{32,}$/)) {
+                                // Extra safeguard: prevent solana addresses (base58 44-char format) from being displayed
                                 infraTags = `<div class="creator-infra-tags">
                                     <span class="infra-tag infra-${displayCategory}" title="${displayDescription}">${displayName}</span>
                                 </div>`;
+                            } else {
+                                // No valid labeled service name found - keep infraTags empty
+                                infraTags = '';
                             }
 
                             // Create creator element - show label if labeled, hide if has tags or labeled funder, show address otherwise

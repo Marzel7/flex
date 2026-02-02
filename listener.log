@@ -1,292 +1,1604 @@
 [INIT] Pump.Fun → PumpSwap Migration Listener ready
 [INIT] Monitoring PumpSwap program: pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA
-[INIT] WebSocket: wss://api.mainnet-beta.solana.com/...
-[INIT] HTTP RPC: https://tiniest-broken-glade.solana-mainnet.quiknode.pro/294...
+[INIT] WebSocket: wss://mainnet.helius-rpc.com/?api-key=84ec9a31-f8c2-4116-8e9...
+[INIT] HTTP RPC: https://mainnet.helius-rpc.com/?api-key=84ec9a31-f8c2-4116-8...
 
 [WEBSOCKET] Connecting to PumpSwap program...
 [CREATOR_WATCH] 🚀 Starting polling loop (interval: 30s)
 [WEBSOCKET] ✓ Connected to PumpSwap program via Helius
 [WEBSOCKET] Subscribed to PumpSwap migrations
-[WEBSOCKET] ✓ Subscription confirmed (ID: 273)
+[WEBSOCKET] ✓ Subscription confirmed (ID: 69126275)
 
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 2117z3PTEqeeTGhhtejgvbC1rbxPuZoZ8vj7WAFosFqUcb1TxwoXTbeHCyNMS7eoJQmFHm5gyVoVaPEkCQdsQ74F
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 54sfv89wqXyDCvXCB2EWpZJoPpbRP6W5VPGHwufFyR1dyCRhKz4xTkFebmjPyeMz9TeYBoa3gHpU9apiSB2ViMiY
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 48YVqwvXRPuvptK3ABG4SzYrc6bQy6NKxBiCgSy3iKZhZ2RAq3f12J2Baq8VJuP6o1uBMYLKxyhri346ZFzNxx6Y
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: rFkZhRmxqkSJtNA2WiZPebmQ1nE2a6sPKS1WAF7MzqpEMZ2nfHT86HmLrwwRMUVfbuvS4vnxE1A3dbktVAiswbw
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 2KjAQVA8rzR3BujYo4YA7L7kpUEz3Lkt6XPj4eCQyPiCMxHX8MQ8rd3BKZ1HYy8s6muG6PVFq1MA3Y9C8tZPMKSR
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: izWLmsUAxxko8asJ6fMSgy7Ysi9p9fgvHTAuBrxLPbngpDyAE9Gg2oqgwMCSkfnDVjNxXZooQE8M86ukU6u3s1M
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 2D5TSf1vVmwqyR5khjjBpyAZdfPLBbaGUidpzioPhFr61g1jSZu5yqcT9BhTpbWrDrNx6e6SBXEAD5mFEjXMxuTv
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 4vPPgXrz3jsqtMUcWPMCCFAKRoshRXbaEux95xTMPguM9AM8qou5TeCKoFtKzK1ZxhGyWTimk2f2KSc3SKeJEVSo
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 4PzkoA6VgG11qiF7Rc7aaiLTTU6bcLVLVZEpxi2vf198xSAfREjspNJ9izH48yzWrh1Nb6yV3ecFKUQquytQ3Wdq
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 4Pi1BffsdtbRycDBeHpoAU88jS996XTSh2AsBaLQ67dgLZqfWBWn6hvT7xt4xKZ16TMYUPNUr6pU3tJT2za19Ltk
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 5zc4J3CrLi9Sjx9fJ6jg8A22y8b7fmyxS2Yp333ymEK6YahKX3DKPG6N7ue64DaK6tYgZAmNirngNt3fcoCjzzjH
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 5dT4WTar9D5DCRgCLbjzoZWhNpqHmwthoTudPGWZc6eabHt4U2LkUqD7DvPUGjqFQwcqa4raEb5ENWXgdfawrt48
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: oAdQGkQsSHsScTM8attQUoh8GwDNNmJX5ty9tqS2h6dsa7WEmk4wmj8hpiMKYP57PTRB76tzZdUtKsp3W28bZDn
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: Ympp34d4dcHCz2K1YatFgpy3ZgzyVMv6k8JD86VSyX3JFAd64V7gbK8x4Rc58QDKNvxueiiNFnRxK3JFEG16vAh
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 5CnTejy7u3sdXM547F3isLBDhK7Z79XKKYHqT9gJassYt1U8rB3fjXrVxhrZMqxp7mUaKzEbhP9rdSNjxhm82uvS
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 34iahQ9xYwzLpjWgEvFDb9bRF9ArHDNkV9ZcwUu5w4QdFpfP7NYpV5kAtS2XwoVKhrFtjzdYBYgQqrBHQky8A2bK
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 29N26BaAqTzLkBSuEDF7kr1WcYhkmJSSGD9PDHycfQvbrptGqFDCPEchMuALt2rbc5CmMuomxMXDqG9mPpvbPQdm
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 3rk6JvTTYt2fY2XDB7SYSqiNhtbiN6Y23gSGj4XVHSao2Ra5JxxaR1UhpxqzZiSnR2GLSH9kWdXT8y5m5bP6e3VH
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: UceSwCjCuKYtTMwzi39m7iWKLWPtMXPkYBDfcv6DNZGroWqB4M7bmkYTh4u8NRNnE5rhVxBRHGtmDEQXGkwx8oB
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: kgHUgNeJSeBEYk5RmW14PbacHvZJG7vcdHMCFm48S1VDqfiiy37zdTnnSWFjNj4VXQDxTWPPuFhCghUqf98Dn9T
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: UXyz9KyoRS7vTXJ27o4qLt1tqikUWZ1NBCPiBCdsDgq4Q4AERzzJKHGkFb21TGpM54KLat4i9kSxeEHz4i7nDEZ
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 5YxrGGQvT24hUH21bn1AZj18MLjLXCWbJt3kcH3KYHfbUvXSvzqYj4Aw9etAYLgg4axKG7QN8VWvXerAQ5AaeFqu
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 4DJiPXFSqVFWQ7j1VmVYkSGGyYvWfpX6ytGj6RZW89XCtg6cXbjSgfffgUbmPGsFa4fcbChpTCk3qBC7px9QHLAT
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 5WWqMAvtBzvpJye1MfRWq9HCzM7bdGRLTLvocWaKCJQaUaETpbSJ7ZquAXGMdA4cTRTSzJdojuy3ZhFzQ33Csjc
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 2jW4RsN5ar4ppicSWbYgNjSkSWZeTugtuez7EH1gyVzWfqTujcthVDc7PkzgnS982KBPUpHhyPaaMQpwz6ruuaMU
-[WEBSOCKET] ⏸ Migration detected but launch listening disabled: Jc2JyynfhiZYHaSsykoazuKcdQ9ruHaNnKexVkgBbyqokM3eQAkGjKvh5HyNwSwpaipQ7AYNEkMVGrp8E8wLKEU
-[WEBSOCKET] 🚨 Migration #1 detected: 4CNwFgLgzgat73ujtnx8PbHUTAhswi2RGZcbqap8YXKCC2kKVf7e6pzUBwu5oo42tyxj4Abikv59BsTHZdF2JU8s
-[EVENT] 🚀 MIGRATION DETECTED: HgPu4NAVL5mEr9G7KbNKLWW2yC7Y3zWLG2ePawSrpump
-[EVENT] Migration signature: 4CNwFgLgzgat73ujtnx8PbHUTAhswi2RGZcbqap8YXKCC2kKVf7e6pzUBwu5oo42tyxj4Abikv59BsTHZdF2JU8s
-[DB] ✅ Created minimal token entry for HgPu4NAVL5mEr9G7KbNKLWW2yC7Y3zWLG2ePawSrpump
-[POOL] ✅ Extracted pool from PumpSwap instruction: Drik14cfH6fzLzGpWaPW2XGNgYFqcK7474eM1zSEamv
-[EVENT] ✅ Pool extracted from transaction: Drik14cfH6fzLzGpWaPW2XGNgYFqcK7474eM1zSEamv
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 5Rb49haEkjSEhMX9eAkJAEHHZ3VscCg4CyviB7JS8rD924rRbjHneGxbxefEm8AHnHEpHGCqBcRBNiNG1ERDcZEP
+[WEBSOCKET] 🚨 Migration #1 detected: 46yQeVrNh5Qi3hUKeJ6VBpvFQCvsCQ8mhWycugfbfYt3NcSvRuxAunFezPnQSoXWUMc4chxsKVTVR25ufgPgC223
+[MINT] 📝 Transaction indexing delay, retry 1/12...
+[MINT] 📝 Transaction indexing delay, retry 2/12...
+[MINT] 📝 Transaction indexing delay, retry 3/12...
+[MINT] 📝 Transaction indexing delay, retry 4/12...
+[MINT] 📝 Transaction indexing delay, retry 5/12...
+[MIGRATION] ⏭️  Token 8orkKRZEF6VYhGFTgjH69Sp37YXYJz4DSdsziJWbpump already analyzed - SKIPPED
+[WEBSOCKET] 🚨 Migration #2 detected: 4KZBw6TnRpiNdZidt5J98SKKuvVnoLjkrYKYcJnb2gXaJe9E1A1NJ3fHZvcoWnHJpVBLmzA9rFtopwkMhcwGrgVb
+[MINT] 📝 Transaction indexing delay, retry 1/12...
+[MINT] 📝 Transaction indexing delay, retry 2/12...
+[MINT] 📝 Transaction indexing delay, retry 3/12...
+[MINT] 📝 Transaction indexing delay, retry 4/12...
+[MINT] 📝 Transaction indexing delay, retry 5/12...
+[EVENT] 🚀 MIGRATION DETECTED: 4TPr82zjSiifrwg1y8ym4HGU9vzw1nfi3Txi4gkYpump
+[EVENT] Migration signature: 4KZBw6TnRpiNdZidt5J98SKKuvVnoLjkrYKYcJnb2gXaJe9E1A1NJ3fHZvcoWnHJpVBLmzA9rFtopwkMhcwGrgVb
+[DB] ✅ Created minimal token entry for 4TPr82zjSiifrwg1y8ym4HGU9vzw1nfi3Txi4gkYpump
+[POOL] ✅ Extracted pool from PumpSwap instruction: kDKRP4tmULmS9NPpmJLmxo49n6AHKD2zZLkbkgTJZge
+[EVENT] ✅ Pool extracted from transaction: kDKRP4tmULmS9NPpmJLmxo49n6AHKD2zZLkbkgTJZge
 [POOL] Checking 20 token accounts to find pool...
-[POOL]   Checking CTFR6aWqs9vHNdpEJeEZU8Lee3KmHH4xLMC1dGBqgMLL (balance: 22738208)
-[POOL]     Owner: F7zz3iR7gAScL55QjZVsoFiEJDYyKshk5iiam6Cqxw1z
-[PRICE] ✅ Initial price fetched: $3.75e-05 | Market Cap: $3.75e+04 | Source: dexscreener
-[ANALYZER_INIT] Token: HgPu4NAVL5mEr9G7KbNKLWW2yC7Y3zWLG2ePawSrpump
-[ANALYZER_INIT] RPC: https://tiniest-broken-glade.solana-mainnet.quiknode.pro/2940af8488637243d9e900a...
-[CREATOR] Extracting bonding curve from creation transaction for HgPu4NAVL5mEr9G7KbNK...
-[CREATOR] 📋 Programs found in transaction: ['ComputeBudget111111111111111111111111111111', 'ComputeBudget111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '11111111111111111111111111111111', '11111111111111111111111111111111', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P']
-[CREATOR] Oldest tx #1: 22H27LYu4XbVanws... | Programs: [ComputeBudget111111111111111111111111111111, ComputeBudget111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111, 11111111111111111111111111111111, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P]
+[POOL]   Checking G3LkyeuBoWR6Reca2iUQGDfaqYsc4zmQqsj1YCTjKDvs (balance: 0)
+[POOL]     Owner: DrqgrYvWgqcXuEtinuRvUxkoPjhvLZLzr6rR16T3hj8R
+[ANALYZER_INIT] Token: 4TPr82zjSiifrwg1y8ym4HGU9vzw1nfi3Txi4gkYpump
+[ANALYZER_INIT] RPC: https://mainnet.helius-rpc.com/?api-key=84ec9a31-f8c2-4116-8e98-695a9377c5ed
+[CREATOR] Extracting bonding curve from creation transaction for 4TPr82zjSiifrwg1y8ym...
+[CREATOR] Paginating through mint signatures to find CREATE tx...
+[CREATOR] 📋 Programs found in transaction: ['ComputeBudget111111111111111111111111111111', 'ComputeBudget111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '11111111111111111111111111111111', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P']
+[CREATOR] Oldest tx #1: 2m4hAsDYQJjsNDZ4... | Programs: [ComputeBudget111111111111111111111111111111, ComputeBudget111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P]
 [CREATOR] TX Validation: mint_in_accounts=True, pumpfun_program_found=True, is_pumpfun_create=True
-[CREATOR] ✅ Found Pump.fun CREATE tx: 22H27LYu4XbVanwsFu7fgAxF9A3gfpoFiGxccLoFkTbSJCuHTHRZev8Et5d6a5hhi7wY6i33k76fxYkaWBrn8cxe
-[CREATOR] ✓ Using creation tx (proven_end=False): 22H27LYu4XbVanwsFu7f...
+[CREATOR] ✅ Found Pump.fun CREATE tx: 2m4hAsDYQJjsNDZ4XC66BqUA31hdgST43xpkjte1FHti2mFU7LJNxawYPVLXeDzkz33i14aYRhrEt39FiHXq4WKj
+[CREATOR] ✓ Using creation tx (proven_end=False): 2m4hAsDYQJjsNDZ4XC66...
 [CREATOR] ✓ Stored CREATE tx signature and validation for persistence
-[CREATOR] ✓ Extracted CREATE tx fee payer (creator): 5CjAESD1Vr51SwWgSAtdEBM4wZCfeZTxB7meJgow2BNP
-[CREATOR] Transaction has 8 total instructions
+[CREATOR] ✓ Extracted CREATE tx fee payer (creator): AkqQNSUyHXMPBhq7nc6ovYekvcdEnTY1NSd1n8KZXCAw
+[CREATOR] Transaction has 33 total instructions
 [CREATOR] Found Pump.fun instruction (#2): 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P
-[CREATOR] Instruction accounts: ['4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf', 'CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM', 'HgPu4NAVL5mEr9G7KbNKLWW2yC7Y3zWLG2ePawSrpump', 'Ehh3V3Gn8PAkWPENyEcm3iCnmgR4YGQFzdeuLXkPPejv', '5X3yuSi62FtUHQ5Xar4kBtn6kWiWVnKgTSe68tFUHXv6', '7EZwWvMdcggb6YsbBAMXxWhmhzk8LjwV8eRuC64P3WrE', '5CjAESD1Vr51SwWgSAtdEBM4wZCfeZTxB7meJgow2BNP', '11111111111111111111111111111111', 'UwNVwm6HWMyCQ4Xs5bFsqouByK2rzGabakPdAiDY4Rj', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ']
-[CREATOR] Resolved 14 instruction accounts
-[CREATOR] ✓ Bonding curve candidate (pos 1): CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM
-[CREATOR] ⊘ Skip (is mint): HgPu4NAVL5mEr9G7KbNKLWW2yC7Y3zWLG2ePawSrpump
-[CREATOR] ✓ Bonding curve candidate (pos 3): Ehh3V3Gn8PAkWPENyEcm3iCnmgR4YGQFzdeuLXkPPejv
-[CREATOR] ✓ Bonding curve candidate (pos 4): 5X3yuSi62FtUHQ5Xar4kBtn6kWiWVnKgTSe68tFUHXv6
-[CREATOR] ✓ Bonding curve candidate (pos 5): 7EZwWvMdcggb6YsbBAMXxWhmhzk8LjwV8eRuC64P3WrE
-[CREATOR] ✓ Bonding curve candidate (pos 6): 5CjAESD1Vr51SwWgSAtdEBM4wZCfeZTxB7meJgow2BNP
+[CREATOR] Instruction accounts: ['4TPr82zjSiifrwg1y8ym4HGU9vzw1nfi3Txi4gkYpump', 'TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM', 'DrqgrYvWgqcXuEtinuRvUxkoPjhvLZLzr6rR16T3hj8R', 'G3LkyeuBoWR6Reca2iUQGDfaqYsc4zmQqsj1YCTjKDvs', '4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf', 'AkqQNSUyHXMPBhq7nc6ovYekvcdEnTY1NSd1n8KZXCAw', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e', '13ec7XdrjF3h3YcqBTFDSReRcUFwbCnJaAQspM4j6DDJ', 'BwWK17cbHxwWBKZkUYvzxLcNQ1YVyaFezduWbtm2de6s', 'ALY2cXjqqRWQ1qJjTBsnnwrxuyWCd5c4q1MEN2W82G7f', 'H5LJZAyfCDXoy4VtnrztfZzeLbF5NgE53r3X6LvzvMbg', 'Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P']
+[CREATOR] Resolved 16 instruction accounts
+[CREATOR] ⊘ Skip (is mint): 4TPr82zjSiifrwg1y8ym4HGU9vzw1nfi3Txi4gkYpump
+[CREATOR] ✓ Bonding curve candidate (pos 1): TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
+[CREATOR] ✓ Bonding curve candidate (pos 2): DrqgrYvWgqcXuEtinuRvUxkoPjhvLZLzr6rR16T3hj8R
+[CREATOR] ✓ Bonding curve candidate (pos 3): G3LkyeuBoWR6Reca2iUQGDfaqYsc4zmQqsj1YCTjKDvs
+[CREATOR] ✓ Bonding curve candidate (pos 4): 4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf
+[CREATOR] ✓ Bonding curve candidate (pos 5): AkqQNSUyHXMPBhq7nc6ovYekvcdEnTY1NSd1n8KZXCAw
 [CREATOR] ⊘ Skip (known program): 11111111111111111111...
-[CREATOR] ✓ Bonding curve candidate (pos 8): UwNVwm6HWMyCQ4Xs5bFsqouByK2rzGabakPdAiDY4Rj
 [CREATOR] ⊘ Skip (known program): TokenzQdBNbLqP5VEhdk...
-[CREATOR] ✓ Bonding curve candidate (pos 10): Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1
+[CREATOR] ⊘ Skip (known program): ATokenGPvbdGVxr1b2hv...
+[CREATOR] ✓ Bonding curve candidate (pos 9): MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e
+[CREATOR] ✓ Bonding curve candidate (pos 10): 13ec7XdrjF3h3YcqBTFDSReRcUFwbCnJaAQspM4j6DDJ
+[CREATOR] ✓ Bonding curve candidate (pos 11): BwWK17cbHxwWBKZkUYvzxLcNQ1YVyaFezduWbtm2de6s
+[CREATOR] ✓ Bonding curve candidate (pos 12): ALY2cXjqqRWQ1qJjTBsnnwrxuyWCd5c4q1MEN2W82G7f
+[CREATOR] ✓ Bonding curve candidate (pos 13): H5LJZAyfCDXoy4VtnrztfZzeLbF5NgE53r3X6LvzvMbg
+[CREATOR] ✓ Bonding curve candidate (pos 14): Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1
 [CREATOR] ⊘ Skip (known program): 6EF8rrecthR5Dkzon8Nw...
-[CREATOR] ✓ Bonding curve candidate (pos 12): 8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt
-[CREATOR] ⊘ Skip (known program): pfeeUxB6jkeY1Hxd7CsF...
-[CREATOR] → Selected bonding curve: CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM
-[CREATOR] ✓ Extracted Bonding Curve: CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM
-[CREATOR] ✓ Extracted Bonding Curve: CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM
+[CREATOR] → Selected bonding curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
+[CREATOR] ✓ Extracted Bonding Curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
+[CREATOR] ✓ Extracted Bonding Curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
 [CREATOR] Querying bonding curve account for earliest signature...
-[CREATOR] ⚠ Hit max_pages limit (1000) on bonding_curve_pda (https://api.mainnet-beta.solana.com...) (proven=False)
-[CREATOR] ❌ No signatures found on bonding curve account
+[CREATOR] 🚀 Fast path: Already have CREATE tx signature, skipping pagination
+[CREATOR] ✓ Using stored CREATE tx validation (more reliable than earliest bc tx)
+[CREATOR] ✓ Using CREATE tx fee payer (confirmed as Pump.fun CREATE)
+[CREATOR] Found 2 signers in transaction
+[CREATOR] ✓ Creator = CREATE tx fee payer: AkqQNSUyHXMPBhq7nc6ovYekvcdEnTY1NSd1n8KZXCAw
+[CREATOR] ✅ CONFIRMED CREATOR: AkqQNSUyHXMPBhq7nc6ovYekvcdEnTY1NSd1n8KZXCAw
+[CREATOR] ━━ 6 VALIDATION CRITERIA ━━
+[CREATOR]   ✅ status = 'confirmed'
+[CREATOR]   ✅ reached_end = True
+[CREATOR]   ✅ is_pumpfun_create = True
+[CREATOR]   ✅ pumpfun_program_found = True
+[CREATOR]   ✅ mint_in_accounts = True
+[CREATOR]   ✅ earliest_sig exists = True
+[CREATOR] ━━ PROVENANCE DATA ━━
+[CREATOR]   Source: CREATE tx fee payer (confirmed Pump.fun creation)
+[CREATOR]   Slot: 397550233, BlockTime: 1770029321
+[CREATOR]   Bonding Curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
+[CREATOR]   Earliest Sig: 2m4hAsDYQJjsNDZ4XC66BqUA31hdgST43xpkjte1FHti2mFU7LJNxawYPVLXeDzkz33i14aYRhrEt39FiHXq4WKj
+[CREATOR] 🕐 Using on-chain time from earliest tx: 2026-02-02T10:48:41Z
+[CREATOR] ✅ Extracted from earliest tx: AkqQNSUyHXMPBhq7nc6ovYekvcdEnTY1NSd1n8KZXCAw (confirmed)
+[DB] ✅ Updated token entry with creator: AkqQNSUy... | Created: 2026-02-02T10:48:41Z | CREATE tx: 2m4hAsDYQJjsNDZ4XC66...
+[CREATOR_WATCH] 👁️ Now watching creator AkqQNSUyHXMPBhq7...
 [SETTINGS] Token history ❌ OFF - skipping token history analysis
 [SETTINGS] Creator history ✅ ON - analyzing creator network and funding
-[WEBSOCKET] 🚨 Migration #2 detected: 4S36zZ3CMXpVYaKFMv8s34XNoB2pgBVz3We3X5jjMZ132N8fQ37Nd97XAiQb4z7paH3CTegid2r6sdsjbmmNxTJP
-[EVENT] 🚀 MIGRATION DETECTED: 2mK87EVtV364VrLv9DEPb6aAWeoPy4z39XyiMGLepump
-[EVENT] Migration signature: 4S36zZ3CMXpVYaKFMv8s34XNoB2pgBVz3We3X5jjMZ132N8fQ37Nd97XAiQb4z7paH3CTegid2r6sdsjbmmNxTJP
-[DB] ✅ Created minimal token entry for 2mK87EVtV364VrLv9DEPb6aAWeoPy4z39XyiMGLepump
-[POOL] ✅ Extracted pool from PumpSwap instruction: GXwRQeMLPxUQRdvFp4pDD6peTuZEh7vzjFfrt5Nc3AQh
-[EVENT] ✅ Pool extracted from transaction: GXwRQeMLPxUQRdvFp4pDD6peTuZEh7vzjFfrt5Nc3AQh
+[SETTINGS] Funding extraction task created for AkqQNSUy...
+[SETTINGS] Clustering task created for AkqQNSUy...
+[REALTIME_FUNDING] 🔍 Extracting creator funding for AkqQNSUyHXMPBhq7...
+[REALTIME_FUNDING]    Migration timestamp: 2026-02-02T10:48:41Z
+[REALTIME_FUNDING]    Will fetch up to 1 month of history
+[REALTIME_FUNDING]    Excluding 4 addresses (creator's tokens & bonding curves)
+[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...
+[REALTIME_FUNDING]    [PAGE 1] RPC CALL #1...
+[CLUSTERING] 🔍 Building wallet cluster for AkqQNSUyHXMPBhq7nc6ovYekvcdEnTY1NSd1n8KZXCAw
+[CLUSTERING]    Found 4 recent signatures
+[REALTIME_FUNDING]    [PAGE 1] fetched=2 txs
+[FUNDING] 🏛️ CEX FUNDER DETECTED: MEXC Hot Wallet → AkqQNSUyHXMPBhq7... (8.67 SOL total)
+[CLUSTERING] ✅ Complete: 4 txs analyzed, 0 hop-1 wallets
+[DOMAIN] 🔍 Resolving domains for 10 addresses from page...
+[REALTIME_FUNDING]    [PAGE 1] ✓ 1 new funders | 🚫 3 dust | 🔄 2 excluded
+[REALTIME_FUNDING]    [PAGE 2] RPC CALL #2...
+[REALTIME_FUNDING]    [PAGE 2] No more transactions
+[REALTIME_FUNDING]    Total transactions fetched: 2
+[REALTIME_FUNDING]    ✓ Inbound: 1 funders (8.67 SOL)
+[REALTIME_FUNDING]    ✓ Outbound: 5 recipients (0.04 SOL)
+[REALTIME_FUNDING]    ℹ Filtered 3 dust transfers
+[REALTIME_FUNDING]    ℹ Filtered 2 internal transfers (token/curve)
+[REALTIME_FUNDING]    Funder #1: ASTyfSima4LLAdDg... → 8.67 SOL
+[REALTIME_FUNDING] 🎯 JITOTIP DETECTED (via Helius) in CREATE tx: AkqQNSUyHXMPBhq7... sent 0.006000000 SOL to Jitotip 5
+[REALTIME_FUNDING] ✅ Tagged creator as 'uses_jitotip'
+[REALTIME_FUNDING]    🔍 Checking for Meteora DLMM program calls...
+[WEBSOCKET] 🚨 Migration #3 detected: DMZbBXNULg9z4xhgrNgYqsZdtrAjYjVnwGy66TKDpQmui8r5m7RargeUCCeBNGKi1UjVM5qGBNDpcWj7sGR9nzm
+[MINT] 📝 Transaction indexing delay, retry 1/12...
+[MINT] 📝 Transaction indexing delay, retry 2/12...
+[MINT] 📝 Transaction indexing delay, retry 3/12...
+[MINT] 📝 Transaction indexing delay, retry 4/12...
+[MINT] 📝 Transaction indexing delay, retry 5/12...
+[EVENT] 🚀 MIGRATION DETECTED: 8Vr3UjuHr6GrqbNxTGAzMQNdhHA98g4BZsPPMeY4pump
+[EVENT] Migration signature: DMZbBXNULg9z4xhgrNgYqsZdtrAjYjVnwGy66TKDpQmui8r5m7RargeUCCeBNGKi1UjVM5qGBNDpcWj7sGR9nzm
+[DB] ✅ Created minimal token entry for 8Vr3UjuHr6GrqbNxTGAzMQNdhHA98g4BZsPPMeY4pump
+[POOL] ✅ Extracted pool from PumpSwap instruction: EGYxKF5pvcMcBmDTHyRqpfLzGg2WdBzmgty75qkZrbvA
+[EVENT] ✅ Pool extracted from transaction: EGYxKF5pvcMcBmDTHyRqpfLzGg2WdBzmgty75qkZrbvA
 [POOL] Checking 20 token accounts to find pool...
-[POOL]   Checking 5yiSAGntmjMS4mT8gEmr9yFwYnWz3144kVJ2oSLBQ2Xk (balance: 4067475)
-[POOL]     Owner: 4H8ygriLckLK3eMmVkoesAP8ExqiGhXBL1xVrWbpazNW
-[PRICE] ✅ Initial price fetched: $1.68e-05 | Market Cap: $1.68e+04 | Source: dexscreener
-[ANALYZER_INIT] Token: 2mK87EVtV364VrLv9DEPb6aAWeoPy4z39XyiMGLepump
-[ANALYZER_INIT] RPC: https://tiniest-broken-glade.solana-mainnet.quiknode.pro/2940af8488637243d9e900a...
-[CREATOR] Extracting bonding curve from creation transaction for 2mK87EVtV364VrLv9DEP...
-[CREATOR] 📋 Programs found in transaction: ['ComputeBudget111111111111111111111111111111', 'ComputeBudget111111111111111111111111111111', '11111111111111111111111111111111', 'proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', '11111111111111111111111111111111', 'proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u', 'proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', '11111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', '11111111111111111111111111111111', '11111111111111111111111111111111', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '11111111111111111111111111111111', 'proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u']
-[CREATOR] Oldest tx #1: 4UoNSBUP9jdV6EG9... | Programs: [ComputeBudget111111111111111111111111111111, ComputeBudget111111111111111111111111111111, 11111111111111111111111111111111, proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, 11111111111111111111111111111111, proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u, proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u, TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, 11111111111111111111111111111111, 11111111111111111111111111111111, TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111, proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u]
+[POOL]   Checking E3jzzWYTvRvXVtQ11rtesnfoKs7YGKBa66KEgnsP6KZ6 (balance: 10095506)
+[POOL]     Owner: sYH6kbYu9nMipHp45WztW5hh6cVhEQAF2nmNTtZZZT8
+[PRICE] ✅ Initial price fetched: $1.24e-12 | Market Cap: $1.24e-03 | Source: onchain
+[ANALYZER_INIT] Token: 8Vr3UjuHr6GrqbNxTGAzMQNdhHA98g4BZsPPMeY4pump
+[ANALYZER_INIT] RPC: https://mainnet.helius-rpc.com/?api-key=84ec9a31-f8c2-4116-8e98-695a9377c5ed
+[CREATOR] Extracting bonding curve from creation transaction for 8Vr3UjuHr6GrqbNxTGAz...
+[CREATOR] Paginating through mint signatures to find CREATE tx...
+[CREATOR] 📋 Programs found in transaction: ['ComputeBudget111111111111111111111111111111', 'ComputeBudget111111111111111111111111111111', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'GMgnVFR8Jb39LoXsEVzb3DvBy3ywCmdmJquHUy1Lrkqb', '11111111111111111111111111111111', '11111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P']
+[CREATOR] Oldest tx #1: 5hRCyCD2vtDNCeBQ... | Programs: [ComputeBudget111111111111111111111111111111, ComputeBudget111111111111111111111111111111, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, GMgnVFR8Jb39LoXsEVzb3DvBy3ywCmdmJquHUy1Lrkqb, 11111111111111111111111111111111, 11111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P]
 [CREATOR] TX Validation: mint_in_accounts=True, pumpfun_program_found=True, is_pumpfun_create=True
-[CREATOR] ✅ Found Pump.fun CREATE tx: 4UoNSBUP9jdV6EG9CDmumNKoNwKkqErL3iJxvdKiYXFnD2eQLXYFGvdsArvn3jKFuVW5YTtMeRxtRzWQw2FCy9GE
-[CREATOR] ✓ Using creation tx (proven_end=False): 4UoNSBUP9jdV6EG9CDmu...
+[CREATOR] ✅ Found Pump.fun CREATE tx: 5hRCyCD2vtDNCeBQQuTeExzYce2wKhKP2TjGsPGRTC2VzKKhtMpVxzPCgnMQc4CVPgA1GkXgAB6CEePkvxG8Acxu
+[CREATOR] ✓ Using creation tx (proven_end=False): 5hRCyCD2vtDNCeBQQuTe...
 [CREATOR] ✓ Stored CREATE tx signature and validation for persistence
-[CREATOR] ✓ Extracted CREATE tx fee payer (creator): ELAUTBZfC72X4AJakCb3q9hmQXBrzFzdcqtXYV28uiyP
-[CREATOR] Transaction has 32 total instructions
-[CREATOR] Found Pump.fun instruction (#20): 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P
-[CREATOR] Instruction accounts: ['4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf', 'GesfTA3X2arioaHp8bbKdjG9vJtskViWACZoYvxp4twS', '2mK87EVtV364VrLv9DEPb6aAWeoPy4z39XyiMGLepump', '7VxxuJLc7oVUzWvirSU88dpSyb7HgjmsFicxEnCRhdq9', 'DydDhrksBBnPe8h79ipmdSXdvQuy5CPP2a7dh8565x62', 'Btem71eC1YkPSoyJi64qKA9YvcGgqxgyJCS1oPA6wXSY', 'ARu4n5mFdZogZAravu7CcizaojWnS6oqka37gdLT5SZn', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '7Spji6LbzQzMtPptWXYKTHsxxThNGFFNV2hvsjYiiQ8Y', 'Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y', '2DYcto5GSM9wp8v75QNPTSjkPZwvJyGBeebyBQAvNn9Z', '8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ']
+[CREATOR] ✓ Extracted CREATE tx fee payer (creator): Hz2QZ6UTB5az77KBoewZxv2eGP8uTVCRwRUSPRM9kQvX
+[CREATOR] Transaction has 13 total instructions
+[CREATOR] Found Pump.fun instruction (#6): 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P
+[CREATOR] Instruction accounts: ['4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf', 'AVmoTthdrX6tKt4nDjco2D775W2YK3sDhxPcMmzUAmTY', '8Vr3UjuHr6GrqbNxTGAzMQNdhHA98g4BZsPPMeY4pump', 'EuBGKVpDEf8L1DdMFyqpkJg79aZFMpYYeLdhFChRajDD', 'ANFkx8NjzMg5jkY4PhKBFaaCh98jqSeaQTaPECf47YbU', 'EGNY5N4LCzL8gr1BuzCFWahQZBvz2XvMKP2rGtQbVSZw', 'Hz2QZ6UTB5az77KBoewZxv2eGP8uTVCRwRUSPRM9kQvX', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'GhXsMhkeMSTUTtLgHbv8b8yU9xg2h7RZ45nU6Hga9kZd', 'Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y', 'HB8M5ThHrFELq5tnfiHkuSJHV3UgMAprad24LRF8WFYR', '8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ']
 [CREATOR] Resolved 16 instruction accounts
-[CREATOR] ✓ Bonding curve candidate (pos 1): GesfTA3X2arioaHp8bbKdjG9vJtskViWACZoYvxp4twS
-[CREATOR] ⊘ Skip (is mint): 2mK87EVtV364VrLv9DEPb6aAWeoPy4z39XyiMGLepump
-[CREATOR] ✓ Bonding curve candidate (pos 3): 7VxxuJLc7oVUzWvirSU88dpSyb7HgjmsFicxEnCRhdq9
-[CREATOR] ✓ Bonding curve candidate (pos 4): DydDhrksBBnPe8h79ipmdSXdvQuy5CPP2a7dh8565x62
-[CREATOR] ✓ Bonding curve candidate (pos 5): Btem71eC1YkPSoyJi64qKA9YvcGgqxgyJCS1oPA6wXSY
-[CREATOR] ✓ Bonding curve candidate (pos 6): ARu4n5mFdZogZAravu7CcizaojWnS6oqka37gdLT5SZn
+[CREATOR] ✓ Bonding curve candidate (pos 1): AVmoTthdrX6tKt4nDjco2D775W2YK3sDhxPcMmzUAmTY
+[CREATOR] ⊘ Skip (is mint): 8Vr3UjuHr6GrqbNxTGAzMQNdhHA98g4BZsPPMeY4pump
+[CREATOR] ✓ Bonding curve candidate (pos 3): EuBGKVpDEf8L1DdMFyqpkJg79aZFMpYYeLdhFChRajDD
+[CREATOR] ✓ Bonding curve candidate (pos 4): ANFkx8NjzMg5jkY4PhKBFaaCh98jqSeaQTaPECf47YbU
+[CREATOR] ✓ Bonding curve candidate (pos 5): EGNY5N4LCzL8gr1BuzCFWahQZBvz2XvMKP2rGtQbVSZw
+[CREATOR] ✓ Bonding curve candidate (pos 6): Hz2QZ6UTB5az77KBoewZxv2eGP8uTVCRwRUSPRM9kQvX
 [CREATOR] ⊘ Skip (known program): 11111111111111111111...
 [CREATOR] ⊘ Skip (known program): TokenzQdBNbLqP5VEhdk...
-[CREATOR] ✓ Bonding curve candidate (pos 9): 7Spji6LbzQzMtPptWXYKTHsxxThNGFFNV2hvsjYiiQ8Y
+[CREATOR] ✓ Bonding curve candidate (pos 9): GhXsMhkeMSTUTtLgHbv8b8yU9xg2h7RZ45nU6Hga9kZd
 [CREATOR] ✓ Bonding curve candidate (pos 10): Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1
 [CREATOR] ⊘ Skip (known program): 6EF8rrecthR5Dkzon8Nw...
 [CREATOR] ✓ Bonding curve candidate (pos 12): Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y
-[CREATOR] ✓ Bonding curve candidate (pos 13): 2DYcto5GSM9wp8v75QNPTSjkPZwvJyGBeebyBQAvNn9Z
+[CREATOR] ✓ Bonding curve candidate (pos 13): HB8M5ThHrFELq5tnfiHkuSJHV3UgMAprad24LRF8WFYR
 [CREATOR] ✓ Bonding curve candidate (pos 14): 8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt
 [CREATOR] ⊘ Skip (known program): pfeeUxB6jkeY1Hxd7CsF...
-[CREATOR] → Selected bonding curve: GesfTA3X2arioaHp8bbKdjG9vJtskViWACZoYvxp4twS
-[CREATOR] ✓ Extracted Bonding Curve: GesfTA3X2arioaHp8bbKdjG9vJtskViWACZoYvxp4twS
-[CREATOR] ✓ Extracted Bonding Curve: GesfTA3X2arioaHp8bbKdjG9vJtskViWACZoYvxp4twS
+[CREATOR] → Selected bonding curve: AVmoTthdrX6tKt4nDjco2D775W2YK3sDhxPcMmzUAmTY
+[CREATOR] ✓ Extracted Bonding Curve: AVmoTthdrX6tKt4nDjco2D775W2YK3sDhxPcMmzUAmTY
+[CREATOR] ✓ Extracted Bonding Curve: AVmoTthdrX6tKt4nDjco2D775W2YK3sDhxPcMmzUAmTY
 [CREATOR] Querying bonding curve account for earliest signature...
-[CREATOR] ⚠ Hit max_pages limit (1000) on bonding_curve_pda (https://api.mainnet-beta.solana.com...) (proven=False)
-[CREATOR] ❌ No signatures found on bonding curve account
+[CREATOR] 🚀 Fast path: Already have CREATE tx signature, skipping pagination
+[CREATOR] ✓ Using stored CREATE tx validation (more reliable than earliest bc tx)
+[CREATOR] ✓ Using CREATE tx fee payer (confirmed as Pump.fun CREATE)
+[CREATOR] Found 1 signers in transaction
+[CREATOR] ✓ Creator = CREATE tx fee payer: Hz2QZ6UTB5az77KBoewZxv2eGP8uTVCRwRUSPRM9kQvX
+[CREATOR] ✅ CONFIRMED CREATOR: Hz2QZ6UTB5az77KBoewZxv2eGP8uTVCRwRUSPRM9kQvX
+[CREATOR] ━━ 6 VALIDATION CRITERIA ━━
+[CREATOR]   ✅ status = 'confirmed'
+[CREATOR]   ✅ reached_end = True
+[CREATOR]   ✅ is_pumpfun_create = True
+[CREATOR]   ✅ pumpfun_program_found = True
+[CREATOR]   ✅ mint_in_accounts = True
+[CREATOR]   ✅ earliest_sig exists = True
+[CREATOR] ━━ PROVENANCE DATA ━━
+[CREATOR]   Source: CREATE tx fee payer (confirmed Pump.fun creation)
+[CREATOR]   Slot: 397478851, BlockTime: 1770001004
+[CREATOR]   Bonding Curve: AVmoTthdrX6tKt4nDjco2D775W2YK3sDhxPcMmzUAmTY
+[CREATOR]   Earliest Sig: 5hRCyCD2vtDNCeBQQuTeExzYce2wKhKP2TjGsPGRTC2VzKKhtMpVxzPCgnMQc4CVPgA1GkXgAB6CEePkvxG8Acxu
+[CREATOR] 🕐 Using on-chain time from earliest tx: 2026-02-02T02:56:44Z
+[CREATOR] ✅ Extracted from earliest tx: Hz2QZ6UTB5az77KBoewZxv2eGP8uTVCRwRUSPRM9kQvX (confirmed)
+[DB] ✅ Updated token entry with creator: Hz2QZ6UT... | Created: 2026-02-02T02:56:44Z | CREATE tx: 5hRCyCD2vtDNCeBQQuTe...
+[CREATOR_WATCH] 👁️ Now watching creator Hz2QZ6UTB5az77KB...
 [SETTINGS] Token history ❌ OFF - skipping token history analysis
 [SETTINGS] Creator history ✅ ON - analyzing creator network and funding
-[WEBSOCKET] 🚨 Migration #3 detected: 5DLdMvdSJqjCDWuYqQ1mVogcmHUUUVme6sXxAY1Xzwmb28G8wpHaNrbYYmU8Aci99Tq48jXAYoZvRZnEc8af25zn
-[EVENT] 🚀 MIGRATION DETECTED: F75mPfzGdBpxAyCdKt9vC6xCus7DuwnpEhooFWEgpump
-[EVENT] Migration signature: 5DLdMvdSJqjCDWuYqQ1mVogcmHUUUVme6sXxAY1Xzwmb28G8wpHaNrbYYmU8Aci99Tq48jXAYoZvRZnEc8af25zn
-[DB] ✅ Created minimal token entry for F75mPfzGdBpxAyCdKt9vC6xCus7DuwnpEhooFWEgpump
-[POOL] ✅ Extracted pool from PumpSwap instruction: 3uUrbHwhNWNZ8vruB3fJJNJbJ5HCiShKxFeEBvZhCwf5
-[EVENT] ✅ Pool extracted from transaction: 3uUrbHwhNWNZ8vruB3fJJNJbJ5HCiShKxFeEBvZhCwf5
+[SETTINGS] Funding extraction task created for Hz2QZ6UT...
+[SETTINGS] Clustering task created for Hz2QZ6UT...
+[REALTIME_FUNDING] 🔍 Extracting creator funding for Hz2QZ6UTB5az77KB...
+[REALTIME_FUNDING]    Migration timestamp: 2026-02-02T02:56:44Z
+[REALTIME_FUNDING]    Will fetch up to 1 month of history
+[REALTIME_FUNDING]    Excluding 5 addresses (creator's tokens & bonding curves)
+[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...
+[REALTIME_FUNDING]    [PAGE 1] RPC CALL #1...
+[CLUSTERING] 🔍 Building wallet cluster for Hz2QZ6UTB5az77KBoewZxv2eGP8uTVCRwRUSPRM9kQvX
+[CLUSTERING]    Found 0 recent signatures
+[CLUSTERING] ✓ No recent activity
+[REALTIME_FUNDING]    [PAGE 1] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 136 addresses from page...
+[DOMAIN] ✓ Found domains for 25 addresses
+[DOMAIN]   2LXTbn3FVNzZ86oJ... → play👉crashout-dot-fun.sol
+[DOMAIN]   D8f3WkQu6dCF33cZ... → 0slot_dot_trade_tip20.sol
+[DOMAIN]   FCjUJZ1qozm1e8ro... → 0slot_dot_trade_tip5.sol
+[REALTIME_FUNDING]    [PAGE 1] ✓ 4 new funders | 🚫 365 dust | 🪙 49 token ops
+[REALTIME_FUNDING]    [PAGE 2] RPC CALL #2...
+[REALTIME_FUNDING]    [PAGE 2] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 123 addresses from page...
+[DOMAIN] ✓ Found domains for 17 addresses
+[DOMAIN]   4BjQeBGZmGNWeHfQ... → blockrazor41.sol
+[DOMAIN]   8FoxPbnucCZ3wuzh... → blockrazor48.sol
+[DOMAIN]   12pHu2j2DDShyCVF... → 0slot_dot_trade_tip92.sol
+[REALTIME_FUNDING]    [PAGE 2] ✓ 1 new funders | 🚫 344 dust | 🪙 62 token ops
+[REALTIME_FUNDING]    [PAGE 3] RPC CALL #3...
+[REALTIME_FUNDING]    [PAGE 3] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 74 addresses from page...
+[DOMAIN] ✓ Found domains for 16 addresses
+[DOMAIN]   4BjQeBGZmGNWeHfQ... → blockrazor41.sol
+[DOMAIN]   D8f3WkQu6dCF33cZ... → 0slot_dot_trade_tip20.sol
+[DOMAIN]   3L9UZWLAprLtB2xd... → blockrazor49.sol
+[REALTIME_FUNDING]    [PAGE 3] ✓ 1 new funders | 🚫 947 dust | 🪙 32 token ops
+[REALTIME_FUNDING]    [PAGE 4] RPC CALL #4...
+[REALTIME_FUNDING]    [PAGE 4] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 168 addresses from page...
+[DOMAIN] ✓ Found domains for 27 addresses
+[DOMAIN]   8zi6AG7oSKoswSEM... → blockrazor43.sol
+[DOMAIN]   6rYLG55Q9RpsPGvq... → 0slot_dot_trade_tip10.sol
+[DOMAIN]   2L2DgQ5ZXRYnv8K9... → blockrazor40.sol
+[REALTIME_FUNDING]    [PAGE 4] ✓ 2 new funders | 🚫 250 dust | 🪙 53 token ops
+[REALTIME_FUNDING]    [PAGE 5] RPC CALL #5...
+[REALTIME_FUNDING]    [PAGE 5] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 108 addresses from page...
+[DOMAIN] ✓ Found domains for 11 addresses
+[DOMAIN]   Eb2KpSC8uMt9Gmzy... → 0slot_dot_trade_tip3.sol
+[DOMAIN]   4BjQeBGZmGNWeHfQ... → blockrazor41.sol
+[DOMAIN]   GQgHdPuDNcss3BoK... → blockrazor47.sol
+[REALTIME_FUNDING]    [PAGE 5] 🚫 643 dust | 🪙 55 token ops
+[REALTIME_FUNDING]    [PAGE 6] RPC CALL #6...
+[REALTIME_FUNDING]    [PAGE 6] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 68 addresses from page...
+[DOMAIN] ✓ Found domains for 7 addresses
+[DOMAIN]   8GgU7tKJSA97G97k... → blockrazor45.sol
+[DOMAIN]   GP7xAXrntrZbC4rG... → Flip.gg | #1 Solana Casino🍀🎰🍀-20938.flipgg.sol
+[DOMAIN]   8FoxPbnucCZ3wuzh... → blockrazor48.sol
+[REALTIME_FUNDING]    [PAGE 6] 🚫 1512 dust | 🪙 14 token ops
+[REALTIME_FUNDING]    [PAGE 7] RPC CALL #7...
+[REALTIME_FUNDING]    [PAGE 7] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 21 addresses from page...
+[DOMAIN] ✓ Found domains for 2 addresses
+[DOMAIN]   51Yxq6a4gJXKcbYC... → Flip.gg: Trusted Since 2021🎰-20933.flipgg.sol
+[DOMAIN]   7RbpPV7GQH5kRyoT... → Flip.gg | #1 Solana Casino🍀🎰🍀-20932.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 7] 🚫 1862 dust | 🪙 2 token ops
+[REALTIME_FUNDING]    [PAGE 8] RPC CALL #8...
+[REALTIME_FUNDING]    [PAGE 8] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 23 addresses from page...
+[DOMAIN] ✓ Found domains for 3 addresses
+[DOMAIN]   6rYLG55Q9RpsPGvq... → 0slot_dot_trade_tip10.sol
+[DOMAIN]   51Yxq6a4gJXKcbYC... → Flip.gg: Trusted Since 2021🎰-20933.flipgg.sol
+[DOMAIN]   7RbpPV7GQH5kRyoT... → Flip.gg | #1 Solana Casino🍀🎰🍀-20932.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 8] 🚫 1863 dust
+[REALTIME_FUNDING]    [PAGE 9] RPC CALL #9...
+[REALTIME_FUNDING]    [PAGE 9] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 21 addresses from page...
+[DOMAIN] ✓ Found domains for 2 addresses
+[DOMAIN]   51Yxq6a4gJXKcbYC... → Flip.gg: Trusted Since 2021🎰-20933.flipgg.sol
+[DOMAIN]   7RbpPV7GQH5kRyoT... → Flip.gg | #1 Solana Casino🍀🎰🍀-20932.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 9] 🚫 1499 dust
+[REALTIME_FUNDING]    [PAGE 10] RPC CALL #10...
+[REALTIME_FUNDING]    [PAGE 10] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 101 addresses from page...
+[DOMAIN] ✓ Found domains for 15 addresses
+[DOMAIN]   D8f3WkQu6dCF33cZ... → 0slot_dot_trade_tip20.sol
+[DOMAIN]   8zi6AG7oSKoswSEM... → blockrazor43.sol
+[DOMAIN]   2L2DgQ5ZXRYnv8K9... → blockrazor40.sol
+[REALTIME_FUNDING]    [PAGE 10] ✓ 2 new funders | 🚫 394 dust | 🪙 39 token ops
+[REALTIME_FUNDING]    [PAGE 11] RPC CALL #11...
+[REALTIME_FUNDING]    [PAGE 11] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 153 addresses from page...
+[DOMAIN] ✓ Found domains for 18 addresses
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   8zi6AG7oSKoswSEM... → blockrazor43.sol
+[DOMAIN]   2L2DgQ5ZXRYnv8K9... → blockrazor40.sol
+[REALTIME_FUNDING]    [PAGE 11] ✓ 1 new funders | 🚫 484 dust | 🪙 51 token ops
+[REALTIME_FUNDING]    [PAGE 12] RPC CALL #12...
+[REALTIME_FUNDING]    [PAGE 12] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 89 addresses from page...
+[DOMAIN] ✓ Found domains for 17 addresses
+[DOMAIN]   CvTCWV4dq5Msw5ir... → Flip.gg | #1 Solana Casino🍀🎰🍀-20894.flipgg.sol
+[DOMAIN]   6jSfSR6kgipYubGz... → Flip.gg: Trusted Since 2021🎰-20895.flipgg.sol
+[DOMAIN]   FCjUJZ1qozm1e8ro... → 0slot_dot_trade_tip5.sol
+[REALTIME_FUNDING]    [PAGE 12] ✓ 1 new funders | 🚫 898 dust | 🪙 29 token ops
+[REALTIME_FUNDING]    [PAGE 13] RPC CALL #13...
+[REALTIME_FUNDING]    [PAGE 13] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 80 addresses from page...
+[DOMAIN] ✓ Found domains for 19 addresses
+[DOMAIN]   5QuV4TS5TJFWPu7Y... → 0slot_dot_trade_tip93.sol
+[DOMAIN]   8zi6AG7oSKoswSEM... → blockrazor43.sol
+[DOMAIN]   6rYLG55Q9RpsPGvq... → 0slot_dot_trade_tip10.sol
+[REALTIME_FUNDING]    [PAGE 13] ✓ 1 new funders | 🚫 197 dust | 🪙 50 token ops
+[REALTIME_FUNDING]    [PAGE 14] RPC CALL #14...
+[REALTIME_FUNDING]    [PAGE 14] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 149 addresses from page...
+[DOMAIN] ✓ Found domains for 17 addresses
+[DOMAIN]   D8f3WkQu6dCF33cZ... → 0slot_dot_trade_tip20.sol
+[DOMAIN]   8zi6AG7oSKoswSEM... → blockrazor43.sol
+[DOMAIN]   2L2DgQ5ZXRYnv8K9... → blockrazor40.sol
+[REALTIME_FUNDING]    [PAGE 14] ✓ 2 new funders | 🚫 251 dust | 🪙 64 token ops
+[REALTIME_FUNDING]    [PAGE 15] RPC CALL #15...
+[REALTIME_FUNDING]    [PAGE 15] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 36 addresses from page...
+[DOMAIN] ✓ Found domains for 12 addresses
+[DOMAIN]   4BjQeBGZmGNWeHfQ... → blockrazor41.sol
+[DOMAIN]   D8f3WkQu6dCF33cZ... → 0slot_dot_trade_tip20.sol
+[DOMAIN]   2WoQNgmc4SEXrR3r... → 0slot_dot_trade_tip99.sol
+[REALTIME_FUNDING]    [PAGE 15] 🚫 41 dust | 🪙 79 token ops
+[REALTIME_FUNDING]    [PAGE 16] RPC CALL #16...
+[REALTIME_FUNDING]    [PAGE 16] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 110 addresses from page...
+[DOMAIN] ✓ Found domains for 17 addresses
+[DOMAIN]   D8f3WkQu6dCF33cZ... → 0slot_dot_trade_tip20.sol
+[DOMAIN]   FCjUJZ1qozm1e8ro... → 0slot_dot_trade_tip5.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 16] ✓ 3 new funders | 🚫 160 dust | 🪙 61 token ops
+[REALTIME_FUNDING]    [PAGE 17] RPC CALL #17...
+[REALTIME_FUNDING]    [PAGE 17] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 75 addresses from page...
+[DOMAIN] ✓ Found domains for 15 addresses
+[DOMAIN]   4BjQeBGZmGNWeHfQ... → blockrazor41.sol
+[DOMAIN]   3L9UZWLAprLtB2xd... → blockrazor49.sol
+[DOMAIN]   GQgHdPuDNcss3BoK... → blockrazor47.sol
+[REALTIME_FUNDING]    [PAGE 17] ✓ 2 new funders | 🚫 119 dust | 🪙 65 token ops
+[REALTIME_FUNDING]    [PAGE 18] RPC CALL #18...
+[REALTIME_FUNDING]    [PAGE 18] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 78 addresses from page...
+[DOMAIN] ✓ Found domains for 20 addresses
+[DOMAIN]   D8f3WkQu6dCF33cZ... → 0slot_dot_trade_tip20.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   8zi6AG7oSKoswSEM... → blockrazor43.sol
+[REALTIME_FUNDING]    [PAGE 18] 🚫 128 dust | 🪙 59 token ops
+[REALTIME_FUNDING]    [PAGE 19] RPC CALL #19...
+[REALTIME_FUNDING]    [PAGE 19] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 33 addresses from page...
+[DOMAIN] ✓ Found domains for 19 addresses
+[DOMAIN]   4BjQeBGZmGNWeHfQ... → blockrazor41.sol
+[DOMAIN]   D8f3WkQu6dCF33cZ... → 0slot_dot_trade_tip20.sol
+[DOMAIN]   3L9UZWLAprLtB2xd... → blockrazor49.sol
+[REALTIME_FUNDING]    [PAGE 19] 🚫 76 dust | 🪙 63 token ops
+[REALTIME_FUNDING]    [PAGE 20] RPC CALL #20...
+[REALTIME_FUNDING]    [PAGE 20] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 89 addresses from page...
+[DOMAIN] ✓ Found domains for 22 addresses
+[DOMAIN]   8zi6AG7oSKoswSEM... → blockrazor43.sol
+[DOMAIN]   6rYLG55Q9RpsPGvq... → 0slot_dot_trade_tip10.sol
+[DOMAIN]   2L2DgQ5ZXRYnv8K9... → blockrazor40.sol
+[REALTIME_FUNDING]    [PAGE 20] 🚫 193 dust | 🪙 62 token ops
+[REALTIME_FUNDING]    [PAGE 21] RPC CALL #21...
+[REALTIME_FUNDING]    [PAGE 21] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 103 addresses from page...
+[DOMAIN] ✓ Found domains for 24 addresses
+[DOMAIN]   FCjUJZ1qozm1e8ro... → 0slot_dot_trade_tip5.sol
+[DOMAIN]   8zi6AG7oSKoswSEM... → blockrazor43.sol
+[DOMAIN]   2L2DgQ5ZXRYnv8K9... → blockrazor40.sol
+[REALTIME_FUNDING]    [PAGE 21] ✓ 1 new funders | 🚫 462 dust | 🪙 50 token ops
+[REALTIME_FUNDING]    [PAGE 22] RPC CALL #22...
+[REALTIME_FUNDING]    [PAGE 22] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 126 addresses from page...
+[DOMAIN] ✓ Found domains for 23 addresses
+[DOMAIN]   2LXTbn3FVNzZ86oJ... → play👉crashout-dot-fun.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   Eb2KpSC8uMt9Gmzy... → 0slot_dot_trade_tip3.sol
+[REALTIME_FUNDING]    [PAGE 22] 🚫 303 dust | 🪙 63 token ops
+[REALTIME_FUNDING]    [PAGE 23] RPC CALL #23...
+[REALTIME_FUNDING]    [PAGE 23] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 150 addresses from page...
+[DOMAIN] ✓ Found domains for 19 addresses
+[DOMAIN]   5QuV4TS5TJFWPu7Y... → 0slot_dot_trade_tip93.sol
+[DOMAIN]   8zi6AG7oSKoswSEM... → blockrazor43.sol
+[DOMAIN]   2L2DgQ5ZXRYnv8K9... → blockrazor40.sol
+[REALTIME_FUNDING]    [PAGE 23] ✓ 1 new funders | 🚫 314 dust | 🪙 58 token ops
+[REALTIME_FUNDING]    [PAGE 24] RPC CALL #24...
+[REALTIME_FUNDING]    [PAGE 24] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 104 addresses from page...
+[DOMAIN] ✓ Found domains for 20 addresses
+[DOMAIN]   D8f3WkQu6dCF33cZ... → 0slot_dot_trade_tip20.sol
+[DOMAIN]   FCjUJZ1qozm1e8ro... → 0slot_dot_trade_tip5.sol
+[DOMAIN]   8zi6AG7oSKoswSEM... → blockrazor43.sol
+[REALTIME_FUNDING]    [PAGE 24] ✓ 2 new funders | 🚫 529 dust | 🪙 49 token ops
+[REALTIME_FUNDING]    [PAGE 25] RPC CALL #25...
+[REALTIME_FUNDING]    [PAGE 25] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 55 addresses from page...
+[DOMAIN] ✓ Found domains for 15 addresses
+[DOMAIN]   4BjQeBGZmGNWeHfQ... → blockrazor41.sol
+[DOMAIN]   D8f3WkQu6dCF33cZ... → 0slot_dot_trade_tip20.sol
+[DOMAIN]   GQgHdPuDNcss3BoK... → blockrazor47.sol
+[REALTIME_FUNDING]    [PAGE 25] 🚫 85 dust | 🪙 71 token ops
+[REALTIME_FUNDING]    [PAGE 26] RPC CALL #26...
+[REALTIME_FUNDING]    [PAGE 26] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 69 addresses from page...
+[DOMAIN] ✓ Found domains for 17 addresses
+[DOMAIN]   D8f3WkQu6dCF33cZ... → 0slot_dot_trade_tip20.sol
+[DOMAIN]   GQgHdPuDNcss3BoK... → blockrazor47.sol
+[DOMAIN]   8GgU7tKJSA97G97k... → blockrazor45.sol
+[REALTIME_FUNDING]    [PAGE 26] ✓ 6 new funders | 🚫 123 dust | 🪙 67 token ops
+[REALTIME_FUNDING]    [PAGE 27] RPC CALL #27...
+[REALTIME_FUNDING]    [PAGE 27] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 88 addresses from page...
+[DOMAIN] ✓ Found domains for 23 addresses
+[DOMAIN]   FCjUJZ1qozm1e8ro... → 0slot_dot_trade_tip5.sol
+[DOMAIN]   8zi6AG7oSKoswSEM... → blockrazor43.sol
+[DOMAIN]   2L2DgQ5ZXRYnv8K9... → blockrazor40.sol
+[REALTIME_FUNDING]    [PAGE 27] 🚫 162 dust | 🪙 62 token ops
+[REALTIME_FUNDING]    [PAGE 28] RPC CALL #28...
+[REALTIME_FUNDING]    [PAGE 28] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 118 addresses from page...
+[DOMAIN] ✓ Found domains for 21 addresses
+[DOMAIN]   FCjUJZ1qozm1e8ro... → 0slot_dot_trade_tip5.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   8zi6AG7oSKoswSEM... → blockrazor43.sol
+[REALTIME_FUNDING]    [PAGE 28] ✓ 1 new funders | 🚫 686 dust | 🪙 47 token ops
+[REALTIME_FUNDING]    [PAGE 29] RPC CALL #29...
+[REALTIME_FUNDING]    [PAGE 29] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 100 addresses from page...
+[DOMAIN] ✓ Found domains for 19 addresses
+[DOMAIN]   D8f3WkQu6dCF33cZ... → 0slot_dot_trade_tip20.sol
+[DOMAIN]   6rYLG55Q9RpsPGvq... → 0slot_dot_trade_tip10.sol
+[DOMAIN]   4BjQeBGZmGNWeHfQ... → blockrazor41.sol
+[REALTIME_FUNDING]    [PAGE 29] ✓ 1 new funders | 🚫 684 dust | 🪙 45 token ops
+[REALTIME_FUNDING]    [PAGE 30] RPC CALL #30...
+[REALTIME_FUNDING]    [PAGE 30] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 184 addresses from page...
+[DOMAIN] ✓ Found domains for 29 addresses
+[DOMAIN]   8zi6AG7oSKoswSEM... → blockrazor43.sol
+[DOMAIN]   6rYLG55Q9RpsPGvq... → 0slot_dot_trade_tip10.sol
+[DOMAIN]   3L9UZWLAprLtB2xd... → blockrazor49.sol
+[REALTIME_FUNDING]    [PAGE 30] 🚫 414 dust | 🪙 59 token ops
+[REALTIME_FUNDING]    [PAGE 31] RPC CALL #31...
+[REALTIME_FUNDING]    [PAGE 31] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 231 addresses from page...
+[DOMAIN] ✓ Found domains for 27 addresses
+[DOMAIN]   2LXTbn3FVNzZ86oJ... → play👉crashout-dot-fun.sol
+[DOMAIN]   D8f3WkQu6dCF33cZ... → 0slot_dot_trade_tip20.sol
+[DOMAIN]   8zi6AG7oSKoswSEM... → blockrazor43.sol
+[REALTIME_FUNDING]    [PAGE 31] ✓ 1 new funders | 🚫 424 dust | 🪙 49 token ops
+[REALTIME_FUNDING]    [PAGE 32] RPC CALL #32...
+[REALTIME_FUNDING]    [PAGE 32] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 162 addresses from page...
+[DOMAIN] ✓ Found domains for 30 addresses
+[DOMAIN]   D8f3WkQu6dCF33cZ... → 0slot_dot_trade_tip20.sol
+[DOMAIN]   5QuV4TS5TJFWPu7Y... → 0slot_dot_trade_tip93.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 32] ✓ 4 new funders | 🚫 409 dust | 🪙 53 token ops
+[REALTIME_FUNDING]    [PAGE 33] RPC CALL #33...
+[REALTIME_FUNDING]    [PAGE 33] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 136 addresses from page...
+[DOMAIN] ✓ Found domains for 23 addresses
+[DOMAIN]   D8f3WkQu6dCF33cZ... → 0slot_dot_trade_tip20.sol
+[DOMAIN]   5QuV4TS5TJFWPu7Y... → 0slot_dot_trade_tip93.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 33] ✓ 3 new funders | 🚫 321 dust | 🪙 63 token ops
+[REALTIME_FUNDING]    [PAGE 33] Reached 1-month cutoff
+[REALTIME_FUNDING]    Total transactions fetched: 3300
+[REALTIME_FUNDING]    ✓ Inbound: 40 funders (7.90 SOL)
+[REALTIME_FUNDING]    ✓ Outbound: 170 recipients (3.02 SOL)
+[REALTIME_FUNDING]    ℹ Filtered 17142 dust transfers
+[REALTIME_FUNDING]    ℹ Filtered 1625 token operations (swaps, migrations)
+[REALTIME_FUNDING]    Funder #1: BW1PNxZ8jyaBRvZc... → 7.79 SOL
+[REALTIME_FUNDING]    Funder #2: BoyhqmVvHcvGS98A... → 0.03 SOL
+[REALTIME_FUNDING]    Funder #3: CDquyZjc633UWsgx... → 0.00 SOL
+[REALTIME_FUNDING]    🔍 Checking for Meteora DLMM program calls...
+[REALTIME_FUNDING] 🔄 METEORA DLMM CALL DETECTED (top-level): 2dtVMxpq2KEukzuH...
+[REALTIME_FUNDING] ✅ Tagged creator as 'uses_meteora' (program-level detection)
+[WEBSOCKET] 🚨 Migration #4 detected: 3JczpxqBTKXFTRVjwoejUAS5A5r4SAcz5yY5TsShVYWpKePgojkSYLijNzhQ27gPsbexNMKeB5oov4FARuZFQs7n
+[MINT] 📝 Transaction indexing delay, retry 1/12...
+[MINT] 📝 Transaction indexing delay, retry 2/12...
+[MINT] 📝 Transaction indexing delay, retry 3/12...
+[MINT] 📝 Transaction indexing delay, retry 4/12...
+[MINT] 📝 Transaction indexing delay, retry 5/12...
+[EVENT] 🚀 MIGRATION DETECTED: DdfbfQ1xE6xgND81i6WuisSXpPMhR7De54RdZm8Cpump
+[EVENT] Migration signature: 3JczpxqBTKXFTRVjwoejUAS5A5r4SAcz5yY5TsShVYWpKePgojkSYLijNzhQ27gPsbexNMKeB5oov4FARuZFQs7n
+[DB] ✅ Created minimal token entry for DdfbfQ1xE6xgND81i6WuisSXpPMhR7De54RdZm8Cpump
+[POOL] ✅ Extracted pool from PumpSwap instruction: 8TpiJSsNEFD87gAxj2xUTjRz4dU4x673ESzeodrVpxwA
+[EVENT] ✅ Pool extracted from transaction: 8TpiJSsNEFD87gAxj2xUTjRz4dU4x673ESzeodrVpxwA
 [POOL] Checking 20 token accounts to find pool...
-[POOL]   Checking B4jCDL7BmKJppQpwCFK4nAzDgBFcTNY8w7coifz8YPTU (balance: 4579938)
-[POOL]     Owner: AZa1A5EdDePtA6At5LymHt3q3r1jcdzWRx2tLwT8gnwa
-[PRICE] ✅ Initial price fetched: $2.37e-05 | Market Cap: $2.37e+04 | Source: dexscreener
-[ANALYZER_INIT] Token: F75mPfzGdBpxAyCdKt9vC6xCus7DuwnpEhooFWEgpump
-[ANALYZER_INIT] RPC: https://tiniest-broken-glade.solana-mainnet.quiknode.pro/2940af8488637243d9e900a...
-[CREATOR] Extracting bonding curve from creation transaction for F75mPfzGdBpxAyCdKt9v...
+[POOL]   Checking BSTrdyTLXpKj2qtXECAMFG2ZkiG8sAUracXJzspPeTJJ (balance: 9987087)
+[POOL]     Owner: HAhM753gmKr3EqEGhLPwjcpy85F6vhj5pb9LY2x9njJd
+[PRICE] ✅ Initial price fetched: $5.44e-10 | Market Cap: $5.44e-01 | Source: onchain
+[ANALYZER_INIT] Token: DdfbfQ1xE6xgND81i6WuisSXpPMhR7De54RdZm8Cpump
+[ANALYZER_INIT] RPC: https://mainnet.helius-rpc.com/?api-key=84ec9a31-f8c2-4116-8e98-695a9377c5ed
+[CREATOR] Extracting bonding curve from creation transaction for DdfbfQ1xE6xgND81i6Wu...
+[CREATOR] Paginating through mint signatures to find CREATE tx...
 [CREATOR] 📋 Programs found in transaction: ['ComputeBudget111111111111111111111111111111', 'ComputeBudget111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '11111111111111111111111111111111', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P']
-[CREATOR] Oldest tx #1: DH2hvQsZiz4wspjd... | Programs: [ComputeBudget111111111111111111111111111111, ComputeBudget111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P]
+[CREATOR] Oldest tx #1: 2bkjYwUeCGwbobwn... | Programs: [ComputeBudget111111111111111111111111111111, ComputeBudget111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P]
 [CREATOR] TX Validation: mint_in_accounts=True, pumpfun_program_found=True, is_pumpfun_create=True
-[CREATOR] ✅ Found Pump.fun CREATE tx: DH2hvQsZiz4wspjdXv4LqQ7ssqeEUw3NMwArHMSTpGSqhdEqYjJH1im1rDBbGZrWxZtY1PsiGhpyixPVny8eBU6
-[CREATOR] ✓ Using creation tx (proven_end=False): DH2hvQsZiz4wspjdXv4L...
+[CREATOR] ✅ Found Pump.fun CREATE tx: 2bkjYwUeCGwbobwnBNdujA7BMgNYfoGscXPEZ4HSeRb6Zhn5hmtRGkNHSonjnemCjzSTxkfDkWwN8cu8c5LttTSf
+[CREATOR] ✓ Using creation tx (proven_end=False): 2bkjYwUeCGwbobwnBNdu...
 [CREATOR] ✓ Stored CREATE tx signature and validation for persistence
-[CREATOR] ✓ Extracted CREATE tx fee payer (creator): 8Nfyp66EJpVGR5WDF7Jh3iPDKQSXVxmh3MbWWYsENs9
+[CREATOR] ✓ Extracted CREATE tx fee payer (creator): CNVKaBfquvGyB8u1qMsJAcTbkZ2YDwhRmacKxNQbYGpJ
 [CREATOR] Transaction has 33 total instructions
 [CREATOR] Found Pump.fun instruction (#2): 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P
-[CREATOR] Instruction accounts: ['F75mPfzGdBpxAyCdKt9vC6xCus7DuwnpEhooFWEgpump', 'TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM', 'CgCLXFkTjF9Z4X2g6s5FQzWK3hXtkKnXj43y3WtHAkf4', 'GjFGrz6J7kTTr4pGZoVpUgyBKPqswD5sAdq2DEkecULv', '4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf', '8Nfyp66EJpVGR5WDF7Jh3iPDKQSXVxmh3MbWWYsENs9', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e', '13ec7XdrjF3h3YcqBTFDSReRcUFwbCnJaAQspM4j6DDJ', 'BwWK17cbHxwWBKZkUYvzxLcNQ1YVyaFezduWbtm2de6s', '7FvetDyGMkpwArZLKgDikZBW3aCpdAQcUkcbqPDaY1nV', 'Cnmz3vHcY98UKaNo5Mw4cerpULaEbx5qsyKu47fHBKjR', 'Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P']
+[CREATOR] Instruction accounts: ['DdfbfQ1xE6xgND81i6WuisSXpPMhR7De54RdZm8Cpump', 'TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM', '7xozYzRjBLUbmCQnx4gXqBGrL89icoRsTGiyVCzErCLY', '4xnBkZe5RcXywWffh6XmJzTG7tmZGn55D7Nk19SHeMNC', '4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf', 'CNVKaBfquvGyB8u1qMsJAcTbkZ2YDwhRmacKxNQbYGpJ', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e', '13ec7XdrjF3h3YcqBTFDSReRcUFwbCnJaAQspM4j6DDJ', 'BwWK17cbHxwWBKZkUYvzxLcNQ1YVyaFezduWbtm2de6s', 'BLYpEPxbXCiAT32CKrQG72AmHNzTDLdZ9TKZNKgxHpGg', '6WLC6ynupJXJwZJM8CR9rGpzZMP6QGE6sdavjutCRaCY', 'Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P']
 [CREATOR] Resolved 16 instruction accounts
-[CREATOR] ⊘ Skip (is mint): F75mPfzGdBpxAyCdKt9vC6xCus7DuwnpEhooFWEgpump
+[CREATOR] ⊘ Skip (is mint): DdfbfQ1xE6xgND81i6WuisSXpPMhR7De54RdZm8Cpump
 [CREATOR] ✓ Bonding curve candidate (pos 1): TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
-[CREATOR] ✓ Bonding curve candidate (pos 2): CgCLXFkTjF9Z4X2g6s5FQzWK3hXtkKnXj43y3WtHAkf4
-[CREATOR] ✓ Bonding curve candidate (pos 3): GjFGrz6J7kTTr4pGZoVpUgyBKPqswD5sAdq2DEkecULv
+[CREATOR] ✓ Bonding curve candidate (pos 2): 7xozYzRjBLUbmCQnx4gXqBGrL89icoRsTGiyVCzErCLY
+[CREATOR] ✓ Bonding curve candidate (pos 3): 4xnBkZe5RcXywWffh6XmJzTG7tmZGn55D7Nk19SHeMNC
 [CREATOR] ✓ Bonding curve candidate (pos 4): 4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf
-[CREATOR] ✓ Bonding curve candidate (pos 5): 8Nfyp66EJpVGR5WDF7Jh3iPDKQSXVxmh3MbWWYsENs9
+[CREATOR] ✓ Bonding curve candidate (pos 5): CNVKaBfquvGyB8u1qMsJAcTbkZ2YDwhRmacKxNQbYGpJ
 [CREATOR] ⊘ Skip (known program): 11111111111111111111...
 [CREATOR] ⊘ Skip (known program): TokenzQdBNbLqP5VEhdk...
 [CREATOR] ⊘ Skip (known program): ATokenGPvbdGVxr1b2hv...
 [CREATOR] ✓ Bonding curve candidate (pos 9): MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e
 [CREATOR] ✓ Bonding curve candidate (pos 10): 13ec7XdrjF3h3YcqBTFDSReRcUFwbCnJaAQspM4j6DDJ
 [CREATOR] ✓ Bonding curve candidate (pos 11): BwWK17cbHxwWBKZkUYvzxLcNQ1YVyaFezduWbtm2de6s
-[CREATOR] ✓ Bonding curve candidate (pos 12): 7FvetDyGMkpwArZLKgDikZBW3aCpdAQcUkcbqPDaY1nV
-[CREATOR] ✓ Bonding curve candidate (pos 13): Cnmz3vHcY98UKaNo5Mw4cerpULaEbx5qsyKu47fHBKjR
+[CREATOR] ✓ Bonding curve candidate (pos 12): BLYpEPxbXCiAT32CKrQG72AmHNzTDLdZ9TKZNKgxHpGg
+[CREATOR] ✓ Bonding curve candidate (pos 13): 6WLC6ynupJXJwZJM8CR9rGpzZMP6QGE6sdavjutCRaCY
 [CREATOR] ✓ Bonding curve candidate (pos 14): Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1
 [CREATOR] ⊘ Skip (known program): 6EF8rrecthR5Dkzon8Nw...
 [CREATOR] → Selected bonding curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
 [CREATOR] ✓ Extracted Bonding Curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
 [CREATOR] ✓ Extracted Bonding Curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
 [CREATOR] Querying bonding curve account for earliest signature...
-[CREATOR] ⚠ Hit max_pages limit (1000) on bonding_curve_pda (https://api.mainnet-beta.solana.com...) (proven=False)
-[CREATOR] ❌ No signatures found on bonding curve account
+[CREATOR] 🚀 Fast path: Already have CREATE tx signature, skipping pagination
+[CREATOR] ✓ Using stored CREATE tx validation (more reliable than earliest bc tx)
+[CREATOR] ✓ Using CREATE tx fee payer (confirmed as Pump.fun CREATE)
+[CREATOR] Found 2 signers in transaction
+[CREATOR] ✓ Creator = CREATE tx fee payer: CNVKaBfquvGyB8u1qMsJAcTbkZ2YDwhRmacKxNQbYGpJ
+[CREATOR] ✅ CONFIRMED CREATOR: CNVKaBfquvGyB8u1qMsJAcTbkZ2YDwhRmacKxNQbYGpJ
+[CREATOR] ━━ 6 VALIDATION CRITERIA ━━
+[CREATOR]   ✅ status = 'confirmed'
+[CREATOR]   ✅ reached_end = True
+[CREATOR]   ✅ is_pumpfun_create = True
+[CREATOR]   ✅ pumpfun_program_found = True
+[CREATOR]   ✅ mint_in_accounts = True
+[CREATOR]   ✅ earliest_sig exists = True
+[CREATOR] ━━ PROVENANCE DATA ━━
+[CREATOR]   Source: CREATE tx fee payer (confirmed Pump.fun creation)
+[CREATOR]   Slot: 397550921, BlockTime: 1770029596
+[CREATOR]   Bonding Curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
+[CREATOR]   Earliest Sig: 2bkjYwUeCGwbobwnBNdujA7BMgNYfoGscXPEZ4HSeRb6Zhn5hmtRGkNHSonjnemCjzSTxkfDkWwN8cu8c5LttTSf
+[CREATOR] 🕐 Using on-chain time from earliest tx: 2026-02-02T10:53:16Z
+[CREATOR] ✅ Extracted from earliest tx: CNVKaBfquvGyB8u1qMsJAcTbkZ2YDwhRmacKxNQbYGpJ (confirmed)
+[DB] ✅ Updated token entry with creator: CNVKaBfq... | Created: 2026-02-02T10:53:16Z | CREATE tx: 2bkjYwUeCGwbobwnBNdu...
+[CREATOR_WATCH] 👁️ Now watching creator CNVKaBfquvGyB8u1...
 [SETTINGS] Token history ❌ OFF - skipping token history analysis
 [SETTINGS] Creator history ✅ ON - analyzing creator network and funding
-[WEBSOCKET] 🚨 Migration #4 detected: 2M4KyVgRpAxzDWw4sysiAD4wZdwxS6TSXtYzmwVXRxdQXXqrojhBkpErbEn2cFR68kfNtbQ7od1iXbw439eKTeM4
-[MIGRATION] ⏭️  Token FJAMvnjKUbk1ZaBguo7ksGycQCfv4RFbbZyRp1ARpump already analyzed - SKIPPED
-[WEBSOCKET] 🚨 Migration #5 detected: 4qGoHcceFcRxqjwps6NzqzJzEv3gvZ5YjaFuVkw9nKjiFBnXb3Homov8YjgkAcEpHMGSQTY4JuVMS84h3Jpb74qF
-[MIGRATION] ⏭️  Token G6CY27MAUvhBHmTC61wsaCgwWgfm9ZNQoygSHNeppump already analyzed - SKIPPED
-[WEBSOCKET] 🚨 Migration #6 detected: 3cujYRenLje8VqqvJjUo7zkLKWHWj7MQYB6eEUK544JVamo57UVe7BANiRVtgQD1h8sPJxz85mXSZ9E2iQMXwDUg
-[MIGRATION] ⏭️  Token 4WUeqBHEPJKcZNoH5i9mTjF3i5iMyeqXjJknvUb8pump already analyzed - SKIPPED
-[WEBSOCKET] 🚨 Migration #7 detected: 4AQMZxJm3AdjWwae8t8j3KnL7Nj9i5nUfJmQg7EFJ9acbQBkaabNgocsamGgULxyVusVttzPn3xYApkhWZud7W8u
-[EVENT] 🚀 MIGRATION DETECTED: G6m97LdXGvxZ9m8bFX6ozH2AMaUsnB5mf6sVw7Xppump
-[EVENT] Migration signature: 4AQMZxJm3AdjWwae8t8j3KnL7Nj9i5nUfJmQg7EFJ9acbQBkaabNgocsamGgULxyVusVttzPn3xYApkhWZud7W8u
-[DB] ✅ Created minimal token entry for G6m97LdXGvxZ9m8bFX6ozH2AMaUsnB5mf6sVw7Xppump
-[POOL] ✅ Extracted pool from PumpSwap instruction: AXQNGJLMc8Pne68ZroXu9LYJzbUeZ1Eiddi3FZdAVoWZ
-[EVENT] ✅ Pool extracted from transaction: AXQNGJLMc8Pne68ZroXu9LYJzbUeZ1Eiddi3FZdAVoWZ
+[SETTINGS] Funding extraction task created for CNVKaBfq...
+[SETTINGS] Clustering task created for CNVKaBfq...
+[REALTIME_FUNDING] 🔍 Extracting creator funding for CNVKaBfquvGyB8u1...
+[REALTIME_FUNDING]    Migration timestamp: 2026-02-02T10:53:16Z
+[REALTIME_FUNDING]    Will fetch up to 1 month of history
+[REALTIME_FUNDING]    Excluding 6 addresses (creator's tokens & bonding curves)
+[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...
+[REALTIME_FUNDING]    [PAGE 1] RPC CALL #1...
+[CLUSTERING] 🔍 Building wallet cluster for CNVKaBfquvGyB8u1qMsJAcTbkZ2YDwhRmacKxNQbYGpJ
+[REALTIME_FUNDING]    [PAGE 1] fetched=3 txs
+[DOMAIN] 🔍 Resolving domains for 2 addresses from page...
+[CLUSTERING]    Found 6 recent signatures
+[REALTIME_FUNDING]    [PAGE 1] 🔄 1 excluded | 🪙 1 token ops
+[CLUSTERING] ✅ Complete: 6 txs analyzed, 0 hop-1 wallets
+[REALTIME_FUNDING]    [PAGE 2] RPC CALL #2...
+[REALTIME_FUNDING]    [PAGE 2] No more transactions
+[REALTIME_FUNDING]    Total transactions fetched: 3
+[REALTIME_FUNDING]    ✓ Inbound: 0 funders (0.00 SOL)
+[REALTIME_FUNDING]    ✓ Outbound: 0 recipients (0.00 SOL)
+[REALTIME_FUNDING]    ℹ Filtered 1 internal transfers (token/curve)
+[REALTIME_FUNDING]    ℹ Filtered 1 token operations (swaps, migrations)
+[REALTIME_FUNDING] 🎯 JITOTIP DETECTED (via Helius) in CREATE tx: CNVKaBfquvGyB8u1... sent 0.006000000 SOL to Jitotip 5
+[REALTIME_FUNDING] ✅ Tagged creator as 'uses_jitotip'
+[REALTIME_FUNDING]    🔍 Checking for Meteora DLMM program calls...
+[WEBSOCKET] 🚨 Migration #5 detected: 53QtW6JHCM6iQhHzfmTmN6U5ck1ZgCPDBc7TgQ5TwxMuMnVgkAWHSsusbMKxarjLr1dUwHgEiJUxEK3fFghGF4HS
+[MINT] 📝 Transaction indexing delay, retry 1/12...
+[MINT] 📝 Transaction indexing delay, retry 2/12...
+[MINT] 📝 Transaction indexing delay, retry 3/12...
+[MINT] 📝 Transaction indexing delay, retry 4/12...
+[MINT] 📝 Transaction indexing delay, retry 5/12...
+[MIGRATION] ⏭️  Token 89yzLhPEV5jeW6kGaQVF8gNKRkDhrHdGcVCTCNDPpump already analyzed - SKIPPED
+[WEBSOCKET] ⏸ Migration detected but launch listening disabled: 34RyU99u3NB7Zh5FMEqcCXnbNFEDCgfVSGyeMe9GnwUyB5dYxe2Ar746BMnSdvGL5eSaUZ3HPWXav3Ym41tPBKUH
+[WEBSOCKET] 🚨 Migration #6 detected: 5t9Tvx2V1PhrYTUM8orTYa9EwYdyTjJd9Fat8LyiwY3iJ5PeS1mBecDnNyD1U3dMDXnbDJYKw2tgJVJFEatiHhte
+[MINT] 📝 Transaction indexing delay, retry 1/12...
+[MINT] 📝 Transaction indexing delay, retry 2/12...
+[MINT] 📝 Transaction indexing delay, retry 3/12...
+[MINT] 📝 Transaction indexing delay, retry 4/12...
+[MINT] 📝 Transaction indexing delay, retry 5/12...
+[EVENT] 🚀 MIGRATION DETECTED: DhyDHwwQzAWXJCWHZVXx8WmmbzBjEsRKR4vLbvsCpump
+[EVENT] Migration signature: 5t9Tvx2V1PhrYTUM8orTYa9EwYdyTjJd9Fat8LyiwY3iJ5PeS1mBecDnNyD1U3dMDXnbDJYKw2tgJVJFEatiHhte
+[DB] ✅ Created minimal token entry for DhyDHwwQzAWXJCWHZVXx8WmmbzBjEsRKR4vLbvsCpump
+[POOL] ✅ Extracted pool from PumpSwap instruction: 7GN6BchrYuPJ1VuPkpcCqWenUG8rQrMCnVwJuyk8z4pt
+[EVENT] ✅ Pool extracted from transaction: 7GN6BchrYuPJ1VuPkpcCqWenUG8rQrMCnVwJuyk8z4pt
 [POOL] Checking 20 token accounts to find pool...
-[POOL]   Checking 8tAofA116P53Zoq1iTUKsrzUMPG9Kz98AMQ5V5Tj18v (balance: 14731849)
-[POOL]     Owner: AvFrhM2phkuKxVs9tbyLKyTspN1ffTBz3akuKpJgsuT4
-[PRICE] ✅ Initial price fetched: $3.69e-05 | Market Cap: $3.69e+04 | Source: dexscreener
-[ANALYZER_INIT] Token: G6m97LdXGvxZ9m8bFX6ozH2AMaUsnB5mf6sVw7Xppump
-[ANALYZER_INIT] RPC: https://tiniest-broken-glade.solana-mainnet.quiknode.pro/2940af8488637243d9e900a...
-[CREATOR] Extracting bonding curve from creation transaction for G6m97LdXGvxZ9m8bFX6o...
-[CREATOR] 📋 Programs found in transaction: ['ComputeBudget111111111111111111111111111111', 'ComputeBudget111111111111111111111111111111', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'F5tfvbLog9VdGUPqBDTT8rgXvTTcq7e5UiGnupL1zvBq', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '11111111111111111111111111111111']
-[CREATOR] Oldest tx #1: 5WriXsgigcVnJsHw... | Programs: [ComputeBudget111111111111111111111111111111, ComputeBudget111111111111111111111111111111, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, F5tfvbLog9VdGUPqBDTT8rgXvTTcq7e5UiGnupL1zvBq, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111]
+[POOL]   Checking 9TR4VduHxv5bA6vr9JpTa9Pevanp7wGaBnJxnzX9JVw3 (balance: 10390747)
+[POOL]     Owner: EqiFgyNw6kgrmYstWyrP8VjKhka7XEmKTZzHSmwpr1Zb
+[PRICE] ✅ Initial price fetched: $3.39e-08 | Market Cap: $3.39e+01 | Source: onchain
+[ANALYZER_INIT] Token: DhyDHwwQzAWXJCWHZVXx8WmmbzBjEsRKR4vLbvsCpump
+[ANALYZER_INIT] RPC: https://mainnet.helius-rpc.com/?api-key=84ec9a31-f8c2-4116-8e98-695a9377c5ed
+[CREATOR] Extracting bonding curve from creation transaction for DhyDHwwQzAWXJCWHZVXx...
+[CREATOR] Paginating through mint signatures to find CREATE tx...
+[CREATOR] 📋 Programs found in transaction: ['ComputeBudget111111111111111111111111111111', 'ComputeBudget111111111111111111111111111111', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9', '11111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '11111111111111111111111111111111']
+[CREATOR] Oldest tx #1: Rtoipk2tGsQPWuwa... | Programs: [ComputeBudget111111111111111111111111111111, ComputeBudget111111111111111111111111111111, FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9, 11111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111]
 [CREATOR] TX Validation: mint_in_accounts=True, pumpfun_program_found=True, is_pumpfun_create=True
-[CREATOR] ✅ Found Pump.fun CREATE tx: 5WriXsgigcVnJsHwDX6K1KQpEk8nKvwq7L97DPjLJHkEEdH7AyUHxb4MKFmtfVdHGmXutYfLYoVQAzum9BpC1GiS
-[CREATOR] ✓ Using creation tx (proven_end=False): 5WriXsgigcVnJsHwDX6K...
+[CREATOR] ✅ Found Pump.fun CREATE tx: Rtoipk2tGsQPWuwaQUPAHpCby44CxAA66HpXGvmzw1cPBsD6zL9Xmhq4T1qDwoJGiBrpeJraz3K2T1wSbBtGgSY
+[CREATOR] ✓ Using creation tx (proven_end=False): Rtoipk2tGsQPWuwaQUPA...
 [CREATOR] ✓ Stored CREATE tx signature and validation for persistence
-[CREATOR] ✓ Extracted CREATE tx fee payer (creator): GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva
-[CREATOR] Transaction has 19 total instructions
-[CREATOR] Found Pump.fun instruction (#3): FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9
-[CREATOR] Instruction accounts: ['GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva', 'GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva', '7oi1L8U9MRu5zDz5syFahsiLUric47LzvJBQX6r827ws', '11111111111111111111111111111111', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9', 'F5tfvbLog9VdGUPqBDTT8rgXvTTcq7e5UiGnupL1zvBq', '4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf', 'G5UZAVbAf46s7cKWoyKu8kYTip9DGTpbLZ2qa9Aq69dP', 'G6m97LdXGvxZ9m8bFX6ozH2AMaUsnB5mf6sVw7Xppump', '2X1fEGoY1oSPHmKU8Guqko38XYaDqwJfygMTwBNta1MZ', '58buoqvPe7pYuM2mPxokXFRGUaPRC5wWn7BtYDQQWdJr', '3PdntrDafThEeB3f7bvPy4RC5wjStvnosHSpzQfXq2ji', 'GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'CLCM5beFYSroY6Pvh4yy9GC6DZeTACyvfp5uSgVKaQF9', 'Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y', '58RyX8NfhLd6UFEwY2XF6vmDofC41p5mFVRcdkfYkmQP', '8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9', 'ECDrSz47nXihe5kyK4oWEePPsPi9qz6u5d6Fa2sDj3uM', '5EUorK1wAv6j5qdNargYE5XNJrgb4s2PJAjwqQxjQMSW', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9']
-[CREATOR] Resolved 28 instruction accounts
-[CREATOR] ✓ Bonding curve candidate (pos 1): GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva
-[CREATOR] ✓ Bonding curve candidate (pos 2): 7oi1L8U9MRu5zDz5syFahsiLUric47LzvJBQX6r827ws
+[CREATOR] ✓ Extracted CREATE tx fee payer (creator): H3EMrUrTNTVpkk5pdkfj1yC32LZKo4WGikMSW2YosLTA
+[CREATOR] Transaction has 9 total instructions
+[CREATOR] Found Pump.fun instruction (#2): FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9
+[CREATOR] Instruction accounts: ['ABbgjgG6mQX1pH2NtsRLcarZKsniqBBBJyWtTa3XWZ9f', 'H3EMrUrTNTVpkk5pdkfj1yC32LZKo4WGikMSW2YosLTA', 'DKyUs1xXMDy8Z11zNsLnUg3dy9HZf6hYZidB6WodcaGy', '11111111111111111111111111111111', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf', '62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV', 'DhyDHwwQzAWXJCWHZVXx8WmmbzBjEsRKR4vLbvsCpump', 'BsG6mTtgbFvnLfdLafzT1mQbFdhqnr1NZhCZJqoGic4a', 'EaGwwoftjPg883KPGbcZTnLYA3jWLCQbBQgz8Eh9cpfU', 'ABbgjgG6mQX1pH2NtsRLcarZKsniqBBBJyWtTa3XWZ9f', 'H3EMrUrTNTVpkk5pdkfj1yC32LZKo4WGikMSW2YosLTA', '11111111111111111111111111111111', '6H6QeSxe74QLKd8NhWfo1vFLesUJcD5n835J7GXwNcGA', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9', '3Tu1Y9aNveLFN4WTAwnAwXL6tbUp5MMe3RxyybG4jTAS', 'Dy7FeWKwwFYQWr7DqvzbzYMvgd8Ybbp3mHAtGoD3fjZB', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9', 'FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9']
+[CREATOR] Resolved 26 instruction accounts
+[CREATOR] ✓ Bonding curve candidate (pos 1): H3EMrUrTNTVpkk5pdkfj1yC32LZKo4WGikMSW2YosLTA
+[CREATOR] ✓ Bonding curve candidate (pos 2): DKyUs1xXMDy8Z11zNsLnUg3dy9HZf6hYZidB6WodcaGy
 [CREATOR] ⊘ Skip (known program): 11111111111111111111...
 [CREATOR] ⊘ Skip (known program): FLASHX8DrLbgeR8FcfNV...
-[CREATOR] ✓ Bonding curve candidate (pos 5): F5tfvbLog9VdGUPqBDTT8rgXvTTcq7e5UiGnupL1zvBq
+[CREATOR] ⊘ Skip (known program): 6EF8rrecthR5Dkzon8Nw...
 [CREATOR] ✓ Bonding curve candidate (pos 6): 4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf
-[CREATOR] ✓ Bonding curve candidate (pos 7): G5UZAVbAf46s7cKWoyKu8kYTip9DGTpbLZ2qa9Aq69dP
-[CREATOR] ⊘ Skip (is mint): G6m97LdXGvxZ9m8bFX6ozH2AMaUsnB5mf6sVw7Xppump
-[CREATOR] ✓ Bonding curve candidate (pos 9): 2X1fEGoY1oSPHmKU8Guqko38XYaDqwJfygMTwBNta1MZ
-[CREATOR] ✓ Bonding curve candidate (pos 10): 58buoqvPe7pYuM2mPxokXFRGUaPRC5wWn7BtYDQQWdJr
-[CREATOR] ✓ Bonding curve candidate (pos 11): 3PdntrDafThEeB3f7bvPy4RC5wjStvnosHSpzQfXq2ji
-[CREATOR] ✓ Bonding curve candidate (pos 12): GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva
+[CREATOR] ✓ Bonding curve candidate (pos 7): 62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV
+[CREATOR] ⊘ Skip (is mint): DhyDHwwQzAWXJCWHZVXx8WmmbzBjEsRKR4vLbvsCpump
+[CREATOR] ✓ Bonding curve candidate (pos 9): BsG6mTtgbFvnLfdLafzT1mQbFdhqnr1NZhCZJqoGic4a
+[CREATOR] ✓ Bonding curve candidate (pos 10): EaGwwoftjPg883KPGbcZTnLYA3jWLCQbBQgz8Eh9cpfU
+[CREATOR] ✓ Bonding curve candidate (pos 11): ABbgjgG6mQX1pH2NtsRLcarZKsniqBBBJyWtTa3XWZ9f
+[CREATOR] ✓ Bonding curve candidate (pos 12): H3EMrUrTNTVpkk5pdkfj1yC32LZKo4WGikMSW2YosLTA
 [CREATOR] ⊘ Skip (known program): 11111111111111111111...
+[CREATOR] ✓ Bonding curve candidate (pos 14): 6H6QeSxe74QLKd8NhWfo1vFLesUJcD5n835J7GXwNcGA
 [CREATOR] ⊘ Skip (known program): TokenzQdBNbLqP5VEhdk...
-[CREATOR] ✓ Bonding curve candidate (pos 15): CLCM5beFYSroY6Pvh4yy9GC6DZeTACyvfp5uSgVKaQF9
 [CREATOR] ✓ Bonding curve candidate (pos 16): Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1
 [CREATOR] ⊘ Skip (known program): 6EF8rrecthR5Dkzon8Nw...
-[CREATOR] ✓ Bonding curve candidate (pos 18): Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y
-[CREATOR] ✓ Bonding curve candidate (pos 19): 58RyX8NfhLd6UFEwY2XF6vmDofC41p5mFVRcdkfYkmQP
-[CREATOR] ✓ Bonding curve candidate (pos 20): 8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt
+[CREATOR] ✓ Bonding curve candidate (pos 18): 8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt
 [CREATOR] ⊘ Skip (known program): pfeeUxB6jkeY1Hxd7CsF...
 [CREATOR] ⊘ Skip (known program): FLASHX8DrLbgeR8FcfNV...
-[CREATOR] ✓ Bonding curve candidate (pos 23): ECDrSz47nXihe5kyK4oWEePPsPi9qz6u5d6Fa2sDj3uM
-[CREATOR] ✓ Bonding curve candidate (pos 24): 5EUorK1wAv6j5qdNargYE5XNJrgb4s2PJAjwqQxjQMSW
+[CREATOR] ✓ Bonding curve candidate (pos 21): 3Tu1Y9aNveLFN4WTAwnAwXL6tbUp5MMe3RxyybG4jTAS
+[CREATOR] ✓ Bonding curve candidate (pos 22): Dy7FeWKwwFYQWr7DqvzbzYMvgd8Ybbp3mHAtGoD3fjZB
 [CREATOR] ⊘ Skip (known program): FLASHX8DrLbgeR8FcfNV...
 [CREATOR] ⊘ Skip (known program): FLASHX8DrLbgeR8FcfNV...
 [CREATOR] ⊘ Skip (known program): FLASHX8DrLbgeR8FcfNV...
-[CREATOR] → Selected bonding curve: GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva
-[CREATOR] ✓ Extracted Bonding Curve: GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva
-[CREATOR] ✓ Extracted Bonding Curve: GCFzfHPTnY7y4CFVckurgH8UQNFGLpWXLQsc1VjPqcva
+[CREATOR] → Selected bonding curve: H3EMrUrTNTVpkk5pdkfj1yC32LZKo4WGikMSW2YosLTA
+[CREATOR] ✓ Extracted Bonding Curve: H3EMrUrTNTVpkk5pdkfj1yC32LZKo4WGikMSW2YosLTA
+[CREATOR] ✓ Extracted Bonding Curve: H3EMrUrTNTVpkk5pdkfj1yC32LZKo4WGikMSW2YosLTA
 [CREATOR] Querying bonding curve account for earliest signature...
-[CREATOR] ⚠ Hit max_pages limit (1000) on bonding_curve_pda (https://api.mainnet-beta.solana.com...) (proven=False)
-[CREATOR] ❌ No signatures found on bonding curve account
+[CREATOR] 🚀 Fast path: Already have CREATE tx signature, skipping pagination
+[CREATOR] ✓ Using stored CREATE tx validation (more reliable than earliest bc tx)
+[CREATOR] ✓ Using CREATE tx fee payer (confirmed as Pump.fun CREATE)
+[CREATOR] Found 1 signers in transaction
+[CREATOR] ✓ Creator = CREATE tx fee payer: H3EMrUrTNTVpkk5pdkfj1yC32LZKo4WGikMSW2YosLTA
+[CREATOR] ✅ CONFIRMED CREATOR: H3EMrUrTNTVpkk5pdkfj1yC32LZKo4WGikMSW2YosLTA
+[CREATOR] ━━ 6 VALIDATION CRITERIA ━━
+[CREATOR]   ✅ status = 'confirmed'
+[CREATOR]   ✅ reached_end = True
+[CREATOR]   ✅ is_pumpfun_create = True
+[CREATOR]   ✅ pumpfun_program_found = True
+[CREATOR]   ✅ mint_in_accounts = True
+[CREATOR]   ✅ earliest_sig exists = True
+[CREATOR] ━━ PROVENANCE DATA ━━
+[CREATOR]   Source: CREATE tx fee payer (confirmed Pump.fun creation)
+[CREATOR]   Slot: 397554657, BlockTime: 1770031082
+[CREATOR]   Bonding Curve: H3EMrUrTNTVpkk5pdkfj1yC32LZKo4WGikMSW2YosLTA
+[CREATOR]   Earliest Sig: Rtoipk2tGsQPWuwaQUPAHpCby44CxAA66HpXGvmzw1cPBsD6zL9Xmhq4T1qDwoJGiBrpeJraz3K2T1wSbBtGgSY
+[CREATOR] 🕐 Using on-chain time from earliest tx: 2026-02-02T11:18:02Z
+[CREATOR] ✅ Extracted from earliest tx: H3EMrUrTNTVpkk5pdkfj1yC32LZKo4WGikMSW2YosLTA (confirmed)
+[DB] ✅ Updated token entry with creator: H3EMrUrT... | Created: 2026-02-02T11:18:02Z | CREATE tx: Rtoipk2tGsQPWuwaQUPA...
+[CREATOR_WATCH] 👁️ Now watching creator H3EMrUrTNTVpkk5p...
 [SETTINGS] Token history ❌ OFF - skipping token history analysis
 [SETTINGS] Creator history ✅ ON - analyzing creator network and funding
-[WEBSOCKET] 🚨 Migration #8 detected: 3A3QgSW4dkPQqttfiXweZTxfnEf8qMhbEGYdU4Hi1XM6vT9x86HjynLAmActoUiDREekifpuV92gNk7QnEhTuGo8
-[MIGRATION] ⏭️  Token 2tQsubFdGU4YxeC639FFAfKnXHT1Tq1yTzWuiAKfpump already analyzed - SKIPPED
-[WEBSOCKET] 🚨 Migration #9 detected: VVtE6WffYjwkEmc987Yg6YUbgduAe1FwtZX21DuL7mE3eck1bQKo5dkPFGHMQgUTN8jGNCZkcrRr2Mh1y5CWEx8
-[EVENT] 🚀 MIGRATION DETECTED: 6PPSkncEe2hFgmaCmtYojESueKHmRd67pcQqXkhkpump
-[EVENT] Migration signature: VVtE6WffYjwkEmc987Yg6YUbgduAe1FwtZX21DuL7mE3eck1bQKo5dkPFGHMQgUTN8jGNCZkcrRr2Mh1y5CWEx8
-[DB] ✅ Created minimal token entry for 6PPSkncEe2hFgmaCmtYojESueKHmRd67pcQqXkhkpump
-[POOL] ✅ Extracted pool from PumpSwap instruction: 5AjA24D8AbmFbZ6yfCPcrF3sUT4f8gViVzaQiqwtRdeT
-[EVENT] ✅ Pool extracted from transaction: 5AjA24D8AbmFbZ6yfCPcrF3sUT4f8gViVzaQiqwtRdeT
+[SETTINGS] Funding extraction task created for H3EMrUrT...
+[SETTINGS] Clustering task created for H3EMrUrT...
+[REALTIME_FUNDING] 🔍 Extracting creator funding for H3EMrUrTNTVpkk5p...
+[REALTIME_FUNDING]    Migration timestamp: 2026-02-02T11:18:02Z
+[REALTIME_FUNDING]    Will fetch up to 1 month of history
+[REALTIME_FUNDING]    Excluding 2 addresses (creator's tokens & bonding curves)
+[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...
+[REALTIME_FUNDING]    [PAGE 1] RPC CALL #1...
+[CLUSTERING] 🔍 Building wallet cluster for H3EMrUrTNTVpkk5pdkfj1yC32LZKo4WGikMSW2YosLTA
+[CLUSTERING]    Found 4 recent signatures
+[CLUSTERING] ✅ Complete: 4 txs analyzed, 0 hop-1 wallets
+[REALTIME_FUNDING]    [PAGE 1] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 90 addresses from page...
+[DOMAIN] ✓ Found domains for 12 addresses
+[DOMAIN]   2L2DgQ5ZXRYnv8K9... → blockrazor40.sol
+[DOMAIN]   4BjQeBGZmGNWeHfQ... → blockrazor41.sol
+[DOMAIN]   ForLDu55GfA2U1aT... → 0slot_dot_trade_tip82.sol
+[REALTIME_FUNDING]    [PAGE 1] 🚫 234 dust | 🪙 43 token ops
+[REALTIME_FUNDING]    [PAGE 2] RPC CALL #2...
+[REALTIME_FUNDING]    [PAGE 2] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 48 addresses from page...
+[DOMAIN] ✓ Found domains for 9 addresses
+[DOMAIN]   HWEoBxYs7ssKuudE... → bloxroute.sol
+[DOMAIN]   3L9UZWLAprLtB2xd... → blockrazor49.sol
+[DOMAIN]   95cfoy472fcQHaw4... → bloxroute1.sol
+[REALTIME_FUNDING]    [PAGE 2] 🚫 1085 dust | 🪙 19 token ops
+[REALTIME_FUNDING]    [PAGE 3] RPC CALL #3...
+[REALTIME_FUNDING]    [PAGE 3] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 23 addresses from page...
+[DOMAIN] ✓ Found domains for 3 addresses
+[DOMAIN]   FNRX4o8QpEE5KQL6... → Flip.gg | #1 Solana Casino🍀🎰🍀-21180.flipgg.sol
+[DOMAIN]   9rxM513XS4ruBbrG... → tradewiz_fastest.sol
+[DOMAIN]   DzmjmYqVHT9jigkJ... → Flip.gg: Trusted Since 2021🎰-21181.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 3] 🚫 1764 dust | 🪙 1 token ops
+[REALTIME_FUNDING]    [PAGE 4] RPC CALL #4...
+[REALTIME_FUNDING]    [PAGE 4] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 65 addresses from page...
+[DOMAIN] ✓ Found domains for 7 addresses
+[DOMAIN]   HWEoBxYs7ssKuudE... → bloxroute.sol
+[DOMAIN]   FNRX4o8QpEE5KQL6... → Flip.gg | #1 Solana Casino🍀🎰🍀-21180.flipgg.sol
+[DOMAIN]   95cfoy472fcQHaw4... → bloxroute1.sol
+[REALTIME_FUNDING]    [PAGE 4] 🚫 1041 dust | 🪙 28 token ops
+[REALTIME_FUNDING]    [PAGE 5] RPC CALL #5...
+[REALTIME_FUNDING]    [PAGE 5] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 153 addresses from page...
+[DOMAIN] ✓ Found domains for 21 addresses
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   9rxM513XS4ruBbrG... → tradewiz_fastest.sol
+[DOMAIN]   3Rz8uD83QsU8wKvZ... → 0slot_dot_trade_tip24.sol
+[REALTIME_FUNDING]    [PAGE 5] ✓ 5 new funders | 🚫 260 dust | 🪙 38 token ops
+[REALTIME_FUNDING]    [PAGE 6] RPC CALL #6...
+[REALTIME_FUNDING]    [PAGE 6] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 57 addresses from page...
+[DOMAIN] ✓ Found domains for 14 addresses
+[DOMAIN]   HWEoBxYs7ssKuudE... → bloxroute.sol
+[DOMAIN]   astraubkDw81n4Lu... → 6.astralane.sol
+[DOMAIN]   Gywj98ophM7GmkDd... → blockrazor2.sol
+[REALTIME_FUNDING]    [PAGE 6] 🚫 71 dust | 🪙 50 token ops
+[REALTIME_FUNDING]    [PAGE 7] RPC CALL #7...
+[REALTIME_FUNDING]    [PAGE 7] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 52 addresses from page...
+[DOMAIN] ✓ Found domains for 20 addresses
+[DOMAIN]   HWEoBxYs7ssKuudE... → bloxroute.sol
+[DOMAIN]   Gywj98ophM7GmkDd... → blockrazor2.sol
+[DOMAIN]   GQgHdPuDNcss3BoK... → blockrazor47.sol
+[REALTIME_FUNDING]    [PAGE 7] 🚫 54 dust | 🪙 53 token ops
+[REALTIME_FUNDING]    [PAGE 8] RPC CALL #8...
+[REALTIME_FUNDING]    [PAGE 8] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 40 addresses from page...
+[DOMAIN] ✓ Found domains for 21 addresses
+[DOMAIN]   HWEoBxYs7ssKuudE... → bloxroute.sol
+[DOMAIN]   295Avbam4qGShBYK... → blockrazor10.sol
+[DOMAIN]   3L9UZWLAprLtB2xd... → blockrazor49.sol
+[REALTIME_FUNDING]    [PAGE 8] 🚫 23 dust | 🪙 51 token ops
+[REALTIME_FUNDING]    [PAGE 9] RPC CALL #9...
+[REALTIME_FUNDING]    [PAGE 9] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 31 addresses from page...
+[DOMAIN] ✓ Found domains for 12 addresses
+[DOMAIN]   HWEoBxYs7ssKuudE... → bloxroute.sol
+[DOMAIN]   A9cWowVAiHe9pJfK... → blockrazor4.sol
+[DOMAIN]   FjmZZrFvhnqqb9Th... → blockrazor5.sol
+[REALTIME_FUNDING]    [PAGE 9] 🚫 26 dust | 🪙 50 token ops
+[REALTIME_FUNDING]    [PAGE 10] RPC CALL #10...
+[REALTIME_FUNDING]    [PAGE 10] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 38 addresses from page...
+[DOMAIN] ✓ Found domains for 18 addresses
+[DOMAIN]   HWEoBxYs7ssKuudE... → bloxroute.sol
+[DOMAIN]   D8f3WkQu6dCF33cZ... → 0slot_dot_trade_tip20.sol
+[DOMAIN]   Gywj98ophM7GmkDd... → blockrazor2.sol
+[REALTIME_FUNDING]    [PAGE 10] 🚫 22 dust | 🪙 53 token ops
+[REALTIME_FUNDING]    [PAGE 11] RPC CALL #11...
+[REALTIME_FUNDING]    [PAGE 11] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 97 addresses from page...
+[DOMAIN] ✓ Found domains for 9 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   DLbSsZsbE6K4km63... → Flip.gg: Trusted Since 2021🎰-20557.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 11] ✓ 3 new funders | 🚫 557 dust | 🪙 42 token ops
+[REALTIME_FUNDING]    [PAGE 12] RPC CALL #12...
+[REALTIME_FUNDING]    [PAGE 12] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 170 addresses from page...
+[DOMAIN] ✓ Found domains for 11 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   8zi6AG7oSKoswSEM... → blockrazor43.sol
+[REALTIME_FUNDING]    [PAGE 12] 🚫 289 dust | 🪙 66 token ops
+[REALTIME_FUNDING]    [PAGE 13] RPC CALL #13...
+[REALTIME_FUNDING]    [PAGE 13] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 100 addresses from page...
+[DOMAIN] ✓ Found domains for 4 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   EsSw5eTdnYLKsfaU... → Flip.gg | #1 Solana Casino🍀🎰🍀-20460.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 13] ✓ 18 new funders | 🚫 144 dust | 🪙 67 token ops
+[REALTIME_FUNDING]    [PAGE 14] RPC CALL #14...
+[REALTIME_FUNDING]    [PAGE 14] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 183 addresses from page...
+[DOMAIN] ✓ Found domains for 4 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   4BjQeBGZmGNWeHfQ... → blockrazor41.sol
+[REALTIME_FUNDING]    [PAGE 14] 🚫 248 dust | 🪙 72 token ops
+[REALTIME_FUNDING]    [PAGE 15] RPC CALL #15...
+[REALTIME_FUNDING]    [PAGE 15] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 27 addresses from page...
+[DOMAIN] ✓ Found domains for 2 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 15] ✓ 11 new funders | 🚫 5 dust | 🪙 86 token ops
+[REALTIME_FUNDING]    [PAGE 16] RPC CALL #16...
+[REALTIME_FUNDING]    [PAGE 16] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 12 addresses from page...
+[DOMAIN] ✓ Found domains for 2 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 16] 🚫 8 dust | 🪙 88 token ops
+[REALTIME_FUNDING]    [PAGE 17] RPC CALL #17...
+[REALTIME_FUNDING]    [PAGE 17] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 49 addresses from page...
+[DOMAIN] ✓ Found domains for 5 addresses
+[DOMAIN]   8GgU7tKJSA97G97k... → blockrazor45.sol
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   JDxQoXGFRwEojWzk... → blockrazor46.sol
+[REALTIME_FUNDING]    [PAGE 17] ✓ 14 new funders | 🚫 13 dust | 🪙 80 token ops
+[REALTIME_FUNDING]    [PAGE 18] RPC CALL #18...
+[REALTIME_FUNDING]    [PAGE 18] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 110 addresses from page...
+[DOMAIN] ✓ Found domains for 2 addresses
+[DOMAIN]   GQgHdPuDNcss3BoK... → blockrazor47.sol
+[DOMAIN]   G5nxEXuFMfV74DSn... → lebronraymonejamesjr.sol
+[REALTIME_FUNDING]    [PAGE 18] ✓ 15 new funders | 🚫 133 dust | 🪙 79 token ops
+[REALTIME_FUNDING]    [PAGE 19] RPC CALL #19...
+[REALTIME_FUNDING]    [PAGE 19] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 155 addresses from page...
+[DOMAIN] ✓ Found domains for 2 addresses
+[DOMAIN]   ForLDu55GfA2U1aT... → 0slot_dot_trade_tip82.sol
+[DOMAIN]   51A3rV3C47nE6BLm... → otaobayomi.sol
+[REALTIME_FUNDING]    [PAGE 19] ✓ 13 new funders | 🚫 193 dust | 🪙 73 token ops
+[REALTIME_FUNDING]    [PAGE 20] RPC CALL #20...
+[REALTIME_FUNDING]    [PAGE 20] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 108 addresses from page...
+[DOMAIN] ✓ Found domains for 4 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   51A3rV3C47nE6BLm... → otaobayomi.sol
+[REALTIME_FUNDING]    [PAGE 20] ✓ 2 new funders | 🚫 144 dust | 🪙 72 token ops
+[REALTIME_FUNDING]    [PAGE 21] RPC CALL #21...
+[REALTIME_FUNDING]    [PAGE 21] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 177 addresses from page...
+[DOMAIN] ✓ Found domains for 5 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   AumQWSLrWwDXRq1y... → 0slot_dot_trade_tip96.sol
+[REALTIME_FUNDING]    [PAGE 21] ✓ 9 new funders | 🚫 309 dust | 🪙 69 token ops
+[REALTIME_FUNDING]    [PAGE 22] RPC CALL #22...
+[REALTIME_FUNDING]    [PAGE 22] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 80 addresses from page...
+[DOMAIN] ✓ Found domains for 6 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   6rYLG55Q9RpsPGvq... → 0slot_dot_trade_tip10.sol
+[REALTIME_FUNDING]    [PAGE 22] 🚫 105 dust | 🪙 77 token ops
+[REALTIME_FUNDING]    [PAGE 23] RPC CALL #23...
+[REALTIME_FUNDING]    [PAGE 23] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 52 addresses from page...
+[DOMAIN] ✓ Found domains for 4 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   5gv9XkK53m4HiyHW... → Flip.gg | #1 Solana Casino🍀🎰🍀-9270.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 23] ✓ 11 new funders | 🚫 46 dust | 🪙 81 token ops
+[REALTIME_FUNDING]    [PAGE 24] RPC CALL #24...
+[REALTIME_FUNDING]    [PAGE 24] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 119 addresses from page...
+[DOMAIN] ✓ Found domains for 7 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   Fgej4SPuW282TdrQ... → solanarent.sol
+[REALTIME_FUNDING]    [PAGE 24] ✓ 23 new funders | 🚫 282 dust | 🪙 69 token ops
+[REALTIME_FUNDING]    [PAGE 25] RPC CALL #25...
+[REALTIME_FUNDING]    [PAGE 25] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 226 addresses from page...
+[DOMAIN] ✓ Found domains for 11 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   2EYJmCacEExNDjeV... → Flip.gg | #1 Solana Casino🍀🎰🍀-8914.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 25] 🚫 748 dust | 🪙 46 token ops
+[REALTIME_FUNDING]    [PAGE 26] RPC CALL #26...
+[REALTIME_FUNDING]    [PAGE 26] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 171 addresses from page...
+[DOMAIN] ✓ Found domains for 10 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   2ecSjw8hrv7Q3tEJ... → Flip.gg | #1 Solana Casino🍀🎰🍀-8866.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 26] 🚫 478 dust | 🪙 64 token ops
+[REALTIME_FUNDING]    [PAGE 27] RPC CALL #27...
+[REALTIME_FUNDING]    [PAGE 27] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 197 addresses from page...
+[DOMAIN] ✓ Found domains for 11 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   3gqqhyghHoWxRMUt... → Flip.gg | #1 Solana Casino🍀🎰🍀-8658.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 27] ✓ 21 new funders | 🚫 692 dust | 🪙 51 token ops
+[REALTIME_FUNDING]    [PAGE 28] RPC CALL #28...
+[REALTIME_FUNDING]    [PAGE 28] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 126 addresses from page...
+[DOMAIN] ✓ Found domains for 11 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   BZj28pqMspTQpgbS... → ironhearts.sol
+[REALTIME_FUNDING]    [PAGE 28] 🚫 738 dust | 🪙 40 token ops
+[REALTIME_FUNDING]    [PAGE 29] RPC CALL #29...
+[REALTIME_FUNDING]    [PAGE 29] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 119 addresses from page...
+[DOMAIN] ✓ Found domains for 13 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   GbLXReeELX2Gf1Lt... → Flip.gg: Trusted Since 2021🎰-8539.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 29] 🚫 978 dust | 🪙 40 token ops
+[REALTIME_FUNDING]    [PAGE 30] RPC CALL #30...
+[REALTIME_FUNDING]    [PAGE 30] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 117 addresses from page...
+[DOMAIN] ✓ Found domains for 10 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   4kyh7mejuwmLJZa7... → Flip.gg | #1 Solana Casino🍀🎰🍀-8416.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 30] 🚫 684 dust | 🪙 53 token ops
+[REALTIME_FUNDING]    [PAGE 31] RPC CALL #31...
+[REALTIME_FUNDING]    [PAGE 31] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 37 addresses from page...
+[DOMAIN] ✓ Found domains for 2 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 31] ✓ 8 new funders | 🚫 22 dust | 🪙 78 token ops
+[REALTIME_FUNDING]    [PAGE 32] RPC CALL #32...
+[REALTIME_FUNDING]    [PAGE 32] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 23 addresses from page...
+[DOMAIN] ✓ Found domains for 2 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 32] 🚫 18 dust | 🪙 88 token ops
+[REALTIME_FUNDING]    [PAGE 33] RPC CALL #33...
+[REALTIME_FUNDING]    [PAGE 33] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 58 addresses from page...
+[DOMAIN] ✓ Found domains for 6 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   AzpTi2RkpCcHb2Bd... → Get 3 Free Lootbox 👉 Flip.gg🎁-8287.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 33] ✓ 4 new funders | 🚫 333 dust | 🪙 60 token ops
+[REALTIME_FUNDING]    [PAGE 34] RPC CALL #34...
+[REALTIME_FUNDING]    [PAGE 34] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 59 addresses from page...
+[DOMAIN] ✓ Found domains for 6 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   BEaYT4Vbsxtv6gF1... → Get 3 Free Lootbox 👉 Flip.gg🎁-8267.flipgg.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 34] ✓ 1 new funders | 🚫 393 dust | 🪙 65 token ops
+[REALTIME_FUNDING]    [PAGE 35] RPC CALL #35...
+[REALTIME_FUNDING]    [PAGE 35] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 41 addresses from page...
+[DOMAIN] ✓ Found domains for 5 addresses
+[DOMAIN]   DggsS83MWeUHZdrV... → blockrazor24.sol
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 35] ✓ 8 new funders | 🚫 24 dust | 🪙 67 token ops
+[REALTIME_FUNDING]    [PAGE 36] RPC CALL #36...
+[REALTIME_FUNDING]    [PAGE 36] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 111 addresses from page...
+[DOMAIN] ✓ Found domains for 9 addresses
+[DOMAIN]   2LXTbn3FVNzZ86oJ... → play👉crashout-dot-fun.sol
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 36] 🚫 246 dust | 🪙 66 token ops
+[REALTIME_FUNDING]    [PAGE 37] RPC CALL #37...
+[REALTIME_FUNDING]    [PAGE 37] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 98 addresses from page...
+[DOMAIN] ✓ Found domains for 7 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   4itybr5yNZZZZUF7... → zupreme.sol
+[REALTIME_FUNDING]    [PAGE 37] 🚫 287 dust | 🪙 63 token ops
+[REALTIME_FUNDING]    [PAGE 38] RPC CALL #38...
+[REALTIME_FUNDING]    [PAGE 38] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 126 addresses from page...
+[DOMAIN] ✓ Found domains for 9 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   C27zz34TtmbuhQJw... → Get 3 Free Lootbox 👉 Flip.gg🎁-7597.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 38] ✓ 28 new funders | 🚫 385 dust | 🪙 63 token ops
+[REALTIME_FUNDING]    [PAGE 39] RPC CALL #39...
+[REALTIME_FUNDING]    [PAGE 39] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 69 addresses from page...
+[DOMAIN] ✓ Found domains for 10 addresses
+[DOMAIN]   C27zz34TtmbuhQJw... → Get 3 Free Lootbox 👉 Flip.gg🎁-7597.flipgg.sol
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 39] 🚫 540 dust | 🪙 57 token ops
+[REALTIME_FUNDING]    [PAGE 40] RPC CALL #40...
+[REALTIME_FUNDING]    [PAGE 40] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 120 addresses from page...
+[DOMAIN] ✓ Found domains for 10 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   89tHwFMMCFc1sDPd... → Get 3 Free Lootbox 👉 Flip.gg🎁-7493.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 40] 🚫 396 dust | 🪙 66 token ops
+[REALTIME_FUNDING]    [PAGE 41] RPC CALL #41...
+[REALTIME_FUNDING]    [PAGE 41] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 134 addresses from page...
+[DOMAIN] ✓ Found domains for 13 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   2sVAhGzjvWPxkeVk... → Flip.gg | #1 Solana Casino🍀🎰🍀-7426.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 41] ✓ 24 new funders | 🚫 450 dust | 🪙 55 token ops
+[REALTIME_FUNDING]    [PAGE 42] RPC CALL #42...
+[REALTIME_FUNDING]    [PAGE 42] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 7 addresses from page...
+[DOMAIN] ✓ Found domains for 2 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 42] 🚫 14 dust | 🪙 84 token ops
+[REALTIME_FUNDING]    [PAGE 43] RPC CALL #43...
+[REALTIME_FUNDING]    [PAGE 43] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 83 addresses from page...
+[DOMAIN] ✓ Found domains for 4 addresses
+[DOMAIN]   2LXTbn3FVNzZ86oJ... → play👉crashout-dot-fun.sol
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 43] ✓ 17 new funders | 🚫 104 dust | 🪙 81 token ops
+[REALTIME_FUNDING]    [PAGE 44] RPC CALL #44...
+[REALTIME_FUNDING]    [PAGE 44] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 69 addresses from page...
+[DOMAIN] ✓ Found domains for 3 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   9Ygnvkph4dU1qDq2... → nicoseeker.sol
+[REALTIME_FUNDING]    [PAGE 44] ✓ 12 new funders | 🚫 56 dust | 🪙 80 token ops
+[REALTIME_FUNDING]    [PAGE 45] RPC CALL #45...
+[REALTIME_FUNDING]    [PAGE 45] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 65 addresses from page...
+[DOMAIN] ✓ Found domains for 4 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   4uGaMcZo82PXBDb4... → Flip.gg | #1 Solana Casino🍀🎰🍀-6964.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 45] ✓ 2 new funders | 🚫 304 dust | 🪙 58 token ops
+[REALTIME_FUNDING]    [PAGE 46] RPC CALL #46...
+[REALTIME_FUNDING]    [PAGE 46] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 75 addresses from page...
+[DOMAIN] ✓ Found domains for 8 addresses
+[DOMAIN]   2LXTbn3FVNzZ86oJ... → play👉crashout-dot-fun.sol
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 46] 🚫 534 dust | 🪙 56 token ops
+[REALTIME_FUNDING]    [PAGE 47] RPC CALL #47...
+[REALTIME_FUNDING]    [PAGE 47] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 156 addresses from page...
+[DOMAIN] ✓ Found domains for 8 addresses
+[DOMAIN]   2LXTbn3FVNzZ86oJ... → play👉crashout-dot-fun.sol
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 47] ✓ 7 new funders | 🚫 243 dust | 🪙 62 token ops
+[REALTIME_FUNDING]    [PAGE 48] RPC CALL #48...
+[REALTIME_FUNDING]    [PAGE 48] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 171 addresses from page...
+[DOMAIN] ✓ Found domains for 12 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   94Zdi2ZkiCN84RPN... → Get 3 Free Lootbox 👉 Flip.gg🎁-6747.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 48] ✓ 7 new funders | 🚫 795 dust | 🪙 41 token ops
+[REALTIME_FUNDING]    [PAGE 49] RPC CALL #49...
+[REALTIME_FUNDING]    [PAGE 49] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 165 addresses from page...
+[DOMAIN] ✓ Found domains for 9 addresses
+[DOMAIN]   2LXTbn3FVNzZ86oJ... → play👉crashout-dot-fun.sol
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 49] 🚫 295 dust | 🪙 71 token ops
+[REALTIME_FUNDING]    [PAGE 50] RPC CALL #50...
+[REALTIME_FUNDING]    [PAGE 50] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 163 addresses from page...
+[DOMAIN] ✓ Found domains for 10 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   NBAdxcp9pFNW7X8o... → 🚀land-faster👉nextblock-io⚡.sol
+[REALTIME_FUNDING]    [PAGE 50] 🚫 456 dust | 🪙 54 token ops
+[REALTIME_FUNDING]    [PAGE 51] RPC CALL #51...
+[REALTIME_FUNDING]    [PAGE 51] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 97 addresses from page...
+[DOMAIN] ✓ Found domains for 5 addresses
+[DOMAIN]   2LXTbn3FVNzZ86oJ... → play👉crashout-dot-fun.sol
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 51] ✓ 6 new funders | 🚫 153 dust | 🪙 64 token ops
+[REALTIME_FUNDING]    [PAGE 52] RPC CALL #52...
+[REALTIME_FUNDING]    [PAGE 52] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 144 addresses from page...
+[DOMAIN] ✓ Found domains for 3 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   NBAdxcp9pFNW7X8o... → 🚀land-faster👉nextblock-io⚡.sol
+[REALTIME_FUNDING]    [PAGE 52] ✓ 11 new funders | 🚫 247 dust | 🪙 57 token ops
+[REALTIME_FUNDING]    [PAGE 53] RPC CALL #53...
+[REALTIME_FUNDING]    [PAGE 53] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 48 addresses from page...
+[DOMAIN] ✓ Found domains for 6 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   EWfWvkxeMnoJVrUx... → Flip.gg | #1 Solana Casino🍀🎰🍀-6184.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 53] 🚫 274 dust | 🪙 57 token ops
+[REALTIME_FUNDING]    [PAGE 54] RPC CALL #54...
+[REALTIME_FUNDING]    [PAGE 54] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 127 addresses from page...
+[DOMAIN] ✓ Found domains for 10 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   NBAdxcp9pFNW7X8o... → 🚀land-faster👉nextblock-io⚡.sol
+[REALTIME_FUNDING]    [PAGE 54] ✓ 5 new funders | 🚫 714 dust | 🪙 46 token ops
+[REALTIME_FUNDING]    [PAGE 55] RPC CALL #55...
+[REALTIME_FUNDING]    [PAGE 55] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 192 addresses from page...
+[DOMAIN] ✓ Found domains for 12 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   NBAdxcp9pFNW7X8o... → 🚀land-faster👉nextblock-io⚡.sol
+[REALTIME_FUNDING]    [PAGE 55] ✓ 16 new funders | 🚫 649 dust | 🪙 45 token ops
+[REALTIME_FUNDING]    [PAGE 56] RPC CALL #56...
+[REALTIME_FUNDING]    [PAGE 56] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 102 addresses from page...
+[DOMAIN] ✓ Found domains for 7 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   NBAdxcp9pFNW7X8o... → 🚀land-faster👉nextblock-io⚡.sol
+[REALTIME_FUNDING]    [PAGE 56] 🚫 230 dust | 🪙 66 token ops
+[REALTIME_FUNDING]    [PAGE 57] RPC CALL #57...
+[REALTIME_FUNDING]    [PAGE 57] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 105 addresses from page...
+[DOMAIN] ✓ Found domains for 4 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   NBAdxcp9pFNW7X8o... → 🚀land-faster👉nextblock-io⚡.sol
+[REALTIME_FUNDING]    [PAGE 57] ✓ 2 new funders | 🚫 202 dust | 🪙 57 token ops
+[REALTIME_FUNDING]    [PAGE 58] RPC CALL #58...
+[REALTIME_FUNDING]    [PAGE 58] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 124 addresses from page...
+[DOMAIN] ✓ Found domains for 9 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   ste11MWPjXCRfQry... → stellium1.sol
+[REALTIME_FUNDING]    [PAGE 58] ✓ 2 new funders | 🚫 266 dust | 🪙 58 token ops
+[REALTIME_FUNDING]    [PAGE 59] RPC CALL #59...
+[REALTIME_FUNDING]    [PAGE 59] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 167 addresses from page...
+[DOMAIN] ✓ Found domains for 14 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   NBAdxcp9pFNW7X8o... → 🚀land-faster👉nextblock-io⚡.sol
+[REALTIME_FUNDING]    [PAGE 59] ✓ 10 new funders | 🚫 516 dust | 🪙 49 token ops
+[REALTIME_FUNDING]    [PAGE 60] RPC CALL #60...
+[REALTIME_FUNDING]    [PAGE 60] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 106 addresses from page...
+[DOMAIN] ✓ Found domains for 11 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   CmUPm6S5bCnm9GKv... → Flip.gg high stakes.............................-5416.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 60] 🚫 357 dust | 🪙 62 token ops
+[REALTIME_FUNDING]    [PAGE 61] RPC CALL #61...
+[REALTIME_FUNDING]    [PAGE 61] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 132 addresses from page...
+[DOMAIN] ✓ Found domains for 13 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   4WEWjx8gp3eFRwLj... → Flip.gg reward available........................-5329.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 61] 🚫 735 dust | 🪙 44 token ops
+[REALTIME_FUNDING]    [PAGE 62] RPC CALL #62...
+[REALTIME_FUNDING]    [PAGE 62] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 164 addresses from page...
+[DOMAIN] ✓ Found domains for 13 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   BGZ5JiXZzuYkBcFE... → Flip.gg reward available........................-5151.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 62] ✓ 8 new funders | 🚫 473 dust | 🪙 51 token ops
+[REALTIME_FUNDING]    [PAGE 63] RPC CALL #63...
+[REALTIME_FUNDING]    [PAGE 63] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 125 addresses from page...
+[DOMAIN] ✓ Found domains for 14 addresses
+[DOMAIN]   58F4S6n15cw5KkR5... → Flip.gg high stakes.............................-5124.flipgg.sol
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 63] ✓ 4 new funders | 🚫 564 dust | 🪙 53 token ops
+[REALTIME_FUNDING]    [PAGE 64] RPC CALL #64...
+[REALTIME_FUNDING]    [PAGE 64] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 144 addresses from page...
+[DOMAIN] ✓ Found domains for 13 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   13cogTU3FPgdSHLd... → Flip.gg high stakes.............................-4938.flipgg.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[REALTIME_FUNDING]    [PAGE 64] ✓ 11 new funders | 🚫 654 dust | 🪙 48 token ops
+[REALTIME_FUNDING]    [PAGE 65] RPC CALL #65...
+[REALTIME_FUNDING]    [PAGE 65] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 167 addresses from page...
+[DOMAIN] ✓ Found domains for 12 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   8ukX62roDm27hVfW... → Flip.gg reward available.···············-4832.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 65] 🚫 265 dust | 🪙 46 token ops
+[REALTIME_FUNDING]    [PAGE 66] RPC CALL #66...
+[REALTIME_FUNDING]    [PAGE 66] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 152 addresses from page...
+[DOMAIN] ✓ Found domains for 13 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   6iaTRqngSTbhoj6N... → Flip.gg | #1 Solana Casino🍀🎰🍀-3924.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 66] ✓ 17 new funders | 🚫 357 dust | 🪙 56 token ops
+[REALTIME_FUNDING]    [PAGE 67] RPC CALL #67...
+[REALTIME_FUNDING]    [PAGE 67] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 105 addresses from page...
+[DOMAIN] ✓ Found domains for 12 addresses
+[DOMAIN]   ste11p5x8tJ53H1N... → stellium3.sol
+[DOMAIN]   Ey2JEr8hDkgN8qKJ... → 0slot_dot_trade_tip22.sol
+[DOMAIN]   ste11TMV68LMi1Bg... → stellium2.sol
+[REALTIME_FUNDING]    [PAGE 67] ✓ 1 new funders | 🚫 232 dust | 🪙 41 token ops
+[REALTIME_FUNDING]    [PAGE 67] Reached 1-month cutoff
+[REALTIME_FUNDING]    Total transactions fetched: 6700
+[REALTIME_FUNDING]    ✓ Inbound: 356 funders (14.76 SOL)
+[REALTIME_FUNDING]    ✓ Outbound: 190 recipients (51.02 SOL)
+[REALTIME_FUNDING]    ℹ Filtered 24157 dust transfers
+[REALTIME_FUNDING]    ℹ Filtered 3916 token operations (swaps, migrations)
+[REALTIME_FUNDING]    Funder #1: DoAsxPQgiyAxyaJN... → 7.48 SOL
+[REALTIME_FUNDING]    Funder #2: E9UAo43H8dEmqoiH... → 2.04 SOL
+[REALTIME_FUNDING]    Funder #3: 4aupb4sPGgQw966g... → 2.00 SOL
+[REALTIME_FUNDING]    🔍 Checking for Meteora DLMM program calls...
+[WEBSOCKET] 🚨 Migration #7 detected: 4CBxYaUA9ZaA6rqnE9eWnCe7Qyo1uFWcjrgmLqj9vM5VHqB6iktx9QPSK984UsRL6CEezQUv757Xys1qv5GKENJn
+[MINT] 📝 Transaction indexing delay, retry 1/12...
+[MINT] 📝 Transaction indexing delay, retry 2/12...
+[MINT] 📝 Transaction indexing delay, retry 3/12...
+[MINT] 📝 Transaction indexing delay, retry 4/12...
+[MINT] 📝 Transaction indexing delay, retry 5/12...
+[EVENT] 🚀 MIGRATION DETECTED: 4fZMMBZDYtXXPw2umtzJU2njioCK7qo3m1d6Uez3pump
+[EVENT] Migration signature: 4CBxYaUA9ZaA6rqnE9eWnCe7Qyo1uFWcjrgmLqj9vM5VHqB6iktx9QPSK984UsRL6CEezQUv757Xys1qv5GKENJn
+[DB] ✅ Created minimal token entry for 4fZMMBZDYtXXPw2umtzJU2njioCK7qo3m1d6Uez3pump
+[POOL] ✅ Extracted pool from PumpSwap instruction: 38s6QYCXHSRmxYiVmMzuqipcf5sYELYJGH4xtWjafgpT
+[EVENT] ✅ Pool extracted from transaction: 38s6QYCXHSRmxYiVmMzuqipcf5sYELYJGH4xtWjafgpT
 [POOL] Checking 20 token accounts to find pool...
-[POOL]   Checking 7TbZuXV3TchiG5S3W6NS7XoYZ6ZYWkxQBU7L9ThgV2JZ (balance: 20034460)
-[POOL]     Owner: BtMBMPkoNbnLF9Xn552guQq528KKXcsNBNNBre3oaQtr
-[PRICE] ✅ Initial price fetched: $1.86e-05 | Market Cap: $1.86e+04 | Source: dexscreener
-[ANALYZER_INIT] Token: 6PPSkncEe2hFgmaCmtYojESueKHmRd67pcQqXkhkpump
-[ANALYZER_INIT] RPC: https://tiniest-broken-glade.solana-mainnet.quiknode.pro/2940af8488637243d9e900a...
-[CREATOR] Extracting bonding curve from creation transaction for 6PPSkncEe2hFgmaCmtYo...
-[CREATOR] 📋 Programs found in transaction: ['ComputeBudget111111111111111111111111111111', 'ComputeBudget111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P']
-[CREATOR] Oldest tx #1: 24CEaUSxRj9JmWAM... | Programs: [ComputeBudget111111111111111111111111111111, ComputeBudget111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P]
+[POOL]   Checking 8F1rze5TeEHs7mYWoCj6mASjNGutuoRnNGoDdM72EU1w (balance: 10930093)
+[POOL]     Owner: KGqhAC8HJrSbRfTxLC3dBKr8S6jD5otHWXcqkN8LF9z
+[PRICE] ✅ Initial price fetched: $3.20e-08 | Market Cap: $3.20e+01 | Source: onchain
+[ANALYZER_INIT] Token: 4fZMMBZDYtXXPw2umtzJU2njioCK7qo3m1d6Uez3pump
+[ANALYZER_INIT] RPC: https://mainnet.helius-rpc.com/?api-key=84ec9a31-f8c2-4116-8e98-695a9377c5ed
+[CREATOR] Extracting bonding curve from creation transaction for 4fZMMBZDYtXXPw2umtzJ...
+[CREATOR] Paginating through mint signatures to find CREATE tx...
+[CREATOR] 📋 Programs found in transaction: ['ComputeBudget111111111111111111111111111111', 'ComputeBudget111111111111111111111111111111', '11111111111111111111111111111111', 'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', '11111111111111111111111111111111', '11111111111111111111111111111111', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '11111111111111111111111111111111', '11111111111111111111111111111111', '11111111111111111111111111111111', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA']
+[CREATOR] Oldest tx #1: zuhuBuY2PBgwzuqQ... | Programs: [ComputeBudget111111111111111111111111111111, ComputeBudget111111111111111111111111111111, 11111111111111111111111111111111, JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4, ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4, TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, 11111111111111111111111111111111, 11111111111111111111111111111111, TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb, 11111111111111111111111111111111, 11111111111111111111111111111111, 11111111111111111111111111111111, 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4, TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA]
 [CREATOR] TX Validation: mint_in_accounts=True, pumpfun_program_found=True, is_pumpfun_create=True
-[CREATOR] ✅ Found Pump.fun CREATE tx: 24CEaUSxRj9JmWAMgV3WdSDXRVDv65kmHQPewJFcxnJ4BaE58J7PNbonjNc6LxTMWbRSP9BuaJmNH4Vp77ky1aaG
-[CREATOR] ✓ Using creation tx (proven_end=False): 24CEaUSxRj9JmWAMgV3W...
+[CREATOR] ✅ Found Pump.fun CREATE tx: zuhuBuY2PBgwzuqQYksbFfsK1ge2nbpwfBwSeQMPTM2XeCAoQEDJgk6dbutHpvRdiMNiFVdgSd3J7Puzip6X6hZ
+[CREATOR] ✓ Using creation tx (proven_end=False): zuhuBuY2PBgwzuqQYksb...
 [CREATOR] ✓ Stored CREATE tx signature and validation for persistence
-[CREATOR] ✓ Extracted CREATE tx fee payer (creator): GpTXmkdvrTajqkzX1fBmC4BUjSboF9dHgfnqPqj8WAc4
-[CREATOR] Transaction has 32 total instructions
-[CREATOR] Found Pump.fun instruction (#4): 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P
-[CREATOR] Instruction accounts: ['6PPSkncEe2hFgmaCmtYojESueKHmRd67pcQqXkhkpump', 'TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM', '9224ubp37YpXKLemZGitr7iCbCdBFZkEU5M6Zj6pzd7V', 'EZUSYBwEqLamfxdX3Z7SC8xJDbfHvcCY4EkQmb9cvktM', '4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf', 'GpTXmkdvrTajqkzX1fBmC4BUjSboF9dHgfnqPqj8WAc4', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e', '13ec7XdrjF3h3YcqBTFDSReRcUFwbCnJaAQspM4j6DDJ', 'BwWK17cbHxwWBKZkUYvzxLcNQ1YVyaFezduWbtm2de6s', 'DLeaKPkH9TpKFp1dTzA5Y3PMXbMeYrZV7VJXspGGJB68', '2UncfBgnCaqNPYJHVt5o8n56ZATFBbNFvDmL8ZmZZevQ', 'Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P']
+[CREATOR] ✓ Extracted CREATE tx fee payer (creator): 2QFHDZs32ABXcH81BVJ9WVPr8zJJXx7STAnD9gLwmQis
+[CREATOR] Transaction has 27 total instructions
+[CREATOR] Found Pump.fun instruction (#18): 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P
+[CREATOR] Instruction accounts: ['4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf', '62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV', '4fZMMBZDYtXXPw2umtzJU2njioCK7qo3m1d6Uez3pump', 'NVCyjKhLbHGhXaWBiu1kmQwZGrHVcfE1wnKV2NUry5v', '7pgpmdmxFeqithvWHzB5S4dHfFEFyF4rni5znBozH7jT', 'F7M233rWh338fS5M1CRQPzR1UohxxcLNfq8Qhab8xDtG', '2QFHDZs32ABXcH81BVJ9WVPr8zJJXx7STAnD9gLwmQis', '11111111111111111111111111111111', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', '47NKTjetEN4GtyHDEBGArH1hJ7UcxfWmtCGuQwaN8U2W', 'Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1', '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', 'Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y', '9qqXxbDJn15nxuQRLvNZgM6SXsqGiCfzoBb2KiBd9dks', '8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt', 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ']
 [CREATOR] Resolved 16 instruction accounts
-[CREATOR] ⊘ Skip (is mint): 6PPSkncEe2hFgmaCmtYojESueKHmRd67pcQqXkhkpump
-[CREATOR] ✓ Bonding curve candidate (pos 1): TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
-[CREATOR] ✓ Bonding curve candidate (pos 2): 9224ubp37YpXKLemZGitr7iCbCdBFZkEU5M6Zj6pzd7V
-[CREATOR] ✓ Bonding curve candidate (pos 3): EZUSYBwEqLamfxdX3Z7SC8xJDbfHvcCY4EkQmb9cvktM
-[CREATOR] ✓ Bonding curve candidate (pos 4): 4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf
-[CREATOR] ✓ Bonding curve candidate (pos 5): GpTXmkdvrTajqkzX1fBmC4BUjSboF9dHgfnqPqj8WAc4
+[CREATOR] ✓ Bonding curve candidate (pos 1): 62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV
+[CREATOR] ⊘ Skip (is mint): 4fZMMBZDYtXXPw2umtzJU2njioCK7qo3m1d6Uez3pump
+[CREATOR] ✓ Bonding curve candidate (pos 3): NVCyjKhLbHGhXaWBiu1kmQwZGrHVcfE1wnKV2NUry5v
+[CREATOR] ✓ Bonding curve candidate (pos 4): 7pgpmdmxFeqithvWHzB5S4dHfFEFyF4rni5znBozH7jT
+[CREATOR] ✓ Bonding curve candidate (pos 5): F7M233rWh338fS5M1CRQPzR1UohxxcLNfq8Qhab8xDtG
+[CREATOR] ✓ Bonding curve candidate (pos 6): 2QFHDZs32ABXcH81BVJ9WVPr8zJJXx7STAnD9gLwmQis
 [CREATOR] ⊘ Skip (known program): 11111111111111111111...
 [CREATOR] ⊘ Skip (known program): TokenzQdBNbLqP5VEhdk...
-[CREATOR] ⊘ Skip (known program): ATokenGPvbdGVxr1b2hv...
-[CREATOR] ✓ Bonding curve candidate (pos 9): MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e
-[CREATOR] ✓ Bonding curve candidate (pos 10): 13ec7XdrjF3h3YcqBTFDSReRcUFwbCnJaAQspM4j6DDJ
-[CREATOR] ✓ Bonding curve candidate (pos 11): BwWK17cbHxwWBKZkUYvzxLcNQ1YVyaFezduWbtm2de6s
-[CREATOR] ✓ Bonding curve candidate (pos 12): DLeaKPkH9TpKFp1dTzA5Y3PMXbMeYrZV7VJXspGGJB68
-[CREATOR] ✓ Bonding curve candidate (pos 13): 2UncfBgnCaqNPYJHVt5o8n56ZATFBbNFvDmL8ZmZZevQ
-[CREATOR] ✓ Bonding curve candidate (pos 14): Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1
+[CREATOR] ✓ Bonding curve candidate (pos 9): 47NKTjetEN4GtyHDEBGArH1hJ7UcxfWmtCGuQwaN8U2W
+[CREATOR] ✓ Bonding curve candidate (pos 10): Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1
 [CREATOR] ⊘ Skip (known program): 6EF8rrecthR5Dkzon8Nw...
-[CREATOR] → Selected bonding curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
-[CREATOR] ✓ Extracted Bonding Curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
-[CREATOR] ✓ Extracted Bonding Curve: TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM
+[CREATOR] ✓ Bonding curve candidate (pos 12): Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y
+[CREATOR] ✓ Bonding curve candidate (pos 13): 9qqXxbDJn15nxuQRLvNZgM6SXsqGiCfzoBb2KiBd9dks
+[CREATOR] ✓ Bonding curve candidate (pos 14): 8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt
+[CREATOR] ⊘ Skip (known program): pfeeUxB6jkeY1Hxd7CsF...
+[CREATOR] → Selected bonding curve: 62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV
+[CREATOR] ✓ Extracted Bonding Curve: 62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV
+[CREATOR] ✓ Extracted Bonding Curve: 62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV
 [CREATOR] Querying bonding curve account for earliest signature...
-[CREATOR] ⚠ Hit max_pages limit (1000) on bonding_curve_pda (https://api.mainnet-beta.solana.com...) (proven=False)
-[CREATOR] ❌ No signatures found on bonding curve account
+[CREATOR] 🚀 Fast path: Already have CREATE tx signature, skipping pagination
+[CREATOR] ✓ Using stored CREATE tx validation (more reliable than earliest bc tx)
+[CREATOR] ✓ Using CREATE tx fee payer (confirmed as Pump.fun CREATE)
+[CREATOR] Found 1 signers in transaction
+[CREATOR] ✓ Creator = CREATE tx fee payer: 2QFHDZs32ABXcH81BVJ9WVPr8zJJXx7STAnD9gLwmQis
+[CREATOR] ✅ CONFIRMED CREATOR: 2QFHDZs32ABXcH81BVJ9WVPr8zJJXx7STAnD9gLwmQis
+[CREATOR] ━━ 6 VALIDATION CRITERIA ━━
+[CREATOR]   ✅ status = 'confirmed'
+[CREATOR]   ✅ reached_end = True
+[CREATOR]   ✅ is_pumpfun_create = True
+[CREATOR]   ✅ pumpfun_program_found = True
+[CREATOR]   ✅ mint_in_accounts = True
+[CREATOR]   ✅ earliest_sig exists = True
+[CREATOR] ━━ PROVENANCE DATA ━━
+[CREATOR]   Source: CREATE tx fee payer (confirmed Pump.fun creation)
+[CREATOR]   Slot: 397512641, BlockTime: 1770014418
+[CREATOR]   Bonding Curve: 62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV
+[CREATOR]   Earliest Sig: zuhuBuY2PBgwzuqQYksbFfsK1ge2nbpwfBwSeQMPTM2XeCAoQEDJgk6dbutHpvRdiMNiFVdgSd3J7Puzip6X6hZ
+[CREATOR] 🕐 Using on-chain time from earliest tx: 2026-02-02T06:40:18Z
+[CREATOR] ✅ Extracted from earliest tx: 2QFHDZs32ABXcH81BVJ9WVPr8zJJXx7STAnD9gLwmQis (confirmed)
+[DB] ✅ Updated token entry with creator: 2QFHDZs3... | Created: 2026-02-02T06:40:18Z | CREATE tx: zuhuBuY2PBgwzuqQYksb...
+[CREATOR_WATCH] 👁️ Now watching creator 2QFHDZs32ABXcH81...
 [SETTINGS] Token history ❌ OFF - skipping token history analysis
 [SETTINGS] Creator history ✅ ON - analyzing creator network and funding
+[SETTINGS] Funding extraction task created for 2QFHDZs3...
+[SETTINGS] Clustering task created for 2QFHDZs3...
+[REALTIME_FUNDING] 🔍 Extracting creator funding for 2QFHDZs32ABXcH81...
+[REALTIME_FUNDING]    Migration timestamp: 2026-02-02T06:40:18Z
+[REALTIME_FUNDING]    Will fetch up to 1 month of history
+[REALTIME_FUNDING]    Excluding 3 addresses (creator's tokens & bonding curves)
+[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...
+[REALTIME_FUNDING]    [PAGE 1] RPC CALL #1...
+[CLUSTERING] 🔍 Building wallet cluster for 2QFHDZs32ABXcH81BVJ9WVPr8zJJXx7STAnD9gLwmQis
+[CLUSTERING]    Found 2 recent signatures
+[CLUSTERING] ✅ Complete: 2 txs analyzed, 0 hop-1 wallets
+[REALTIME_FUNDING]    [PAGE 1] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 82 addresses from page...
+[DOMAIN] ✓ Found domains for 3 addresses
+[DOMAIN]   9BMBqoyZGJ6tWZUe... → Flip.gg: Trusted Since 2021🎰-21361.flipgg.sol
+[DOMAIN]   3rTki7LHMeoNdBX3... → Flip.gg | #1 Solana Casino🍀🎰🍀-21360.flipgg.sol
+[DOMAIN]   DK9XMev4aCMFbusU... → ⚡boostlegends-volumebot⚡.sol
+[REALTIME_FUNDING]    [PAGE 1] 🚫 285 dust | 🪙 69 token ops
+[REALTIME_FUNDING]    [PAGE 2] RPC CALL #2...
+[REALTIME_FUNDING]    [PAGE 2] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 179 addresses from page...
+[DOMAIN] ✓ Found domains for 10 addresses
+[DOMAIN]   2LXTbn3FVNzZ86oJ... → play👉crashout-dot-fun.sol
+[DOMAIN]   DK9XMev4aCMFbusU... → ⚡boostlegends-volumebot⚡.sol
+[DOMAIN]   BZExUNt92J3Y9AWS... → 🎰crashout-fun🕹️100x💵.sol
+[REALTIME_FUNDING]    [PAGE 2] 🚫 922 dust | 🪙 39 token ops
+[REALTIME_FUNDING]    [PAGE 3] RPC CALL #3...
+[REALTIME_FUNDING]    [PAGE 3] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 191 addresses from page...
+[DOMAIN] ✓ Found domains for 12 addresses
+[DOMAIN]   DK9XMev4aCMFbusU... → ⚡boostlegends-volumebot⚡.sol
+[DOMAIN]   Fgej4SPuW282TdrQ... → solanarent.sol
+[DOMAIN]   AWd1poTNmbsWZJqy... → tyny.sol
+[REALTIME_FUNDING]    [PAGE 3] 🚫 437 dust | 🪙 69 token ops
+[REALTIME_FUNDING]    [PAGE 4] RPC CALL #4...
+[REALTIME_FUNDING]    [PAGE 4] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 88 addresses from page...
+[DOMAIN] ✓ Found domains for 4 addresses
+[DOMAIN]   8iSXGjVh75NzyE9U... → Flip.gg: Trusted Since 2021🎰-21159.flipgg.sol
+[DOMAIN]   8KJzg2EKADhnHZVc... → Flip.gg | #1 Solana Casino🍀🎰🍀-21158.flipgg.sol
+[DOMAIN]   HQamp4LuXnAom4U4... → Flip.gg | #1 Solana Casino🍀🎰🍀-21132.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 4] 🚫 133 dust | 🪙 89 token ops
+[REALTIME_FUNDING]    [PAGE 5] RPC CALL #5...
+[REALTIME_FUNDING]    [PAGE 5] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 118 addresses from page...
+[DOMAIN] ✓ Found domains for 6 addresses
+[DOMAIN]   HLSHeeM2Q141C4PE... → 👉ciaotool-io👈.發幣土狗建池助您日進鬥金.sol
+[DOMAIN]   9mW5mzx18tqRRL9U... → Flip.gg | #1 Solana Casino🍀🎰🍀-21120.flipgg.sol
+[DOMAIN]   7nd3puKucUmgvnsd... → Flip.gg: Trusted Since 2021🎰-21121.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 5] 🚫 146 dust | 🪙 88 token ops
+[REALTIME_FUNDING]    [PAGE 6] RPC CALL #6...
+[REALTIME_FUNDING]    [PAGE 6] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 135 addresses from page...
+[DOMAIN] ✓ Found domains for 5 addresses
+[DOMAIN]   HfsXsYKqW8hN1Qyw... → moneyinternetmagic.sol
+[DOMAIN]   4U6QYcJp1wyEAJJC... → Flip.gg | #1 Solana Casino🍀🎰🍀-21082.flipgg.sol
+[DOMAIN]   6PxkuJJbuZfhQFwZ... → Flip.gg | #1 Solana Casino🍀🎰🍀-21094.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 6] 🚫 170 dust | 🪙 85 token ops
+[REALTIME_FUNDING]    [PAGE 7] RPC CALL #7...
+[REALTIME_FUNDING]    [PAGE 7] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 101 addresses from page...
+[DOMAIN] ✓ Found domains for 10 addresses
+[DOMAIN]   FQ4peW4wKUT2iHUN... → Flip.gg | #1 Solana Casino🍀🎰🍀-20996.flipgg.sol
+[DOMAIN]   6TejPxXxeLdJKpRc... → Flip.gg: Trusted Since 2021🎰-21057.flipgg.sol
+[DOMAIN]   Cj8fr2aaRBog74VB... → Flip.gg | #1 Solana Casino🍀🎰🍀-21026.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 7] ✓ 1 new funders | 🚫 258 dust | 🪙 79 token ops
+[REALTIME_FUNDING]    [PAGE 8] RPC CALL #8...
+[REALTIME_FUNDING]    [PAGE 8] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 165 addresses from page...
+[DOMAIN] ✓ Found domains for 3 addresses
+[DOMAIN]   HLSHeeM2Q141C4PE... → 👉ciaotool-io👈.發幣土狗建池助您日進鬥金.sol
+[DOMAIN]   7dpjax8deGeov1NK... → Flip.gg | #1 Solana Casino🍀🎰🍀-20984.flipgg.sol
+[DOMAIN]   DfER4Jpyc7oUZZFE... → Flip.gg: Trusted Since 2021🎰-20985.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 8] 🚫 198 dust | 🪙 79 token ops
+[REALTIME_FUNDING]    [PAGE 9] RPC CALL #9...
+[REALTIME_FUNDING]    [PAGE 9] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 95 addresses from page...
+[DOMAIN] ✓ Found domains for 4 addresses
+[DOMAIN]   HLSHeeM2Q141C4PE... → 👉ciaotool-io👈.發幣土狗建池助您日進鬥金.sol
+[DOMAIN]   BURNNeQ2zERsVhL6... → refundyoursol.sol
+[DOMAIN]   9v9HgQTBPYzhpsGs... → dexmojibot💯dex-trending.sol
+[REALTIME_FUNDING]    [PAGE 9] 🚫 107 dust | 🪙 82 token ops
+[REALTIME_FUNDING]    [PAGE 10] RPC CALL #10...
+[REALTIME_FUNDING]    [PAGE 10] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 202 addresses from page...
+[DOMAIN] ✓ Found domains for 12 addresses
+[DOMAIN]   2P89YaJu8iRBUrDt... → Flip.gg | #1 Solana Casino🍀🎰🍀-20602.flipgg.sol
+[DOMAIN]   Fgej4SPuW282TdrQ... → solanarent.sol
+[DOMAIN]   9hpLHyaQk3L6b372... → Flip.gg: Trusted Since 2021🎰-20603.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 10] 🚫 404 dust | 🪙 65 token ops
+[REALTIME_FUNDING]    [PAGE 11] RPC CALL #11...
+[REALTIME_FUNDING]    [PAGE 11] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 242 addresses from page...
+[DOMAIN] ✓ Found domains for 5 addresses
+[DOMAIN]   5YfNmF7qm246GfYp... → michae18_09.sol
+[DOMAIN]   GfTaCVzuWVi4MszZ... → Flip.gg | #1 Solana Casino🍀🎰🍀-20526.flipgg.sol
+[DOMAIN]   FTWiHsMW9PEmhySE... → Flip.gg: Trusted Since 2021🎰-20527.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 11] 🚫 361 dust | 🪙 79 token ops
+[REALTIME_FUNDING]    [PAGE 12] RPC CALL #12...
+[REALTIME_FUNDING]    [PAGE 12] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 165 addresses from page...
+[REALTIME_FUNDING]    [PAGE 12] 🚫 188 dust | 🪙 74 token ops
+[REALTIME_FUNDING]    [PAGE 13] RPC CALL #13...
+[REALTIME_FUNDING]    [PAGE 13] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 210 addresses from page...
+[DOMAIN] ✓ Found domains for 5 addresses
+[DOMAIN]   An4W9aaeuA6rTjY3... → Flip.gg: Trusted Since 2021🎰-20293.flipgg.sol
+[DOMAIN]   Dmd2z4FUkzZdp6hL... → Flip.gg: Trusted Since 2021🎰-20281.flipgg.sol
+[DOMAIN]   4HXQQeUTc996mH6U... → Flip.gg | #1 Solana Casino🍀🎰🍀-20292.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 13] ✓ 2 new funders | 🚫 267 dust | 🪙 78 token ops
+[REALTIME_FUNDING]    [PAGE 14] RPC CALL #14...
+[REALTIME_FUNDING]    [PAGE 14] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 97 addresses from page...
+[REALTIME_FUNDING]    [PAGE 14] ✓ 1 new funders | 🚫 145 dust | 🪙 89 token ops
+[REALTIME_FUNDING]    [PAGE 15] RPC CALL #15...
+[REALTIME_FUNDING]    [PAGE 15] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 21 addresses from page...
+[REALTIME_FUNDING]    [PAGE 15] 🚫 19 dust | 🪙 97 token ops
+[REALTIME_FUNDING]    [PAGE 16] RPC CALL #16...
+[REALTIME_FUNDING]    [PAGE 16] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 226 addresses from page...
+[DOMAIN] ✓ Found domains for 4 addresses
+[DOMAIN]   5gv9XkK53m4HiyHW... → Flip.gg | #1 Solana Casino🍀🎰🍀-9270.flipgg.sol
+[DOMAIN]   DjofaNCiw2ZgVCp8... → Flip.gg: Trusted Since 2021🎰-9271.flipgg.sol
+[DOMAIN]   2NWexeQdJq4FfSnn... → Flip.gg: Trusted Since 2021🎰-9259.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 16] 🚫 351 dust | 🪙 77 token ops
+[REALTIME_FUNDING]    [PAGE 17] RPC CALL #17...
+[REALTIME_FUNDING]    [PAGE 17] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 348 addresses from page...
+[DOMAIN] ✓ Found domains for 11 addresses
+[DOMAIN]   CRtK8GYPjFQg9CBR... → Flip.gg: Trusted Since 2021🎰-9007.flipgg.sol
+[DOMAIN]   DertLKvAuZkuhP1W... → Flip.gg: Trusted Since 2021🎰-9065.flipgg.sol
+[DOMAIN]   45ZPy6ggCwhZ1RNd... → nolalawman.sol
+[REALTIME_FUNDING]    [PAGE 17] 🚫 604 dust | 🪙 62 token ops
+[REALTIME_FUNDING]    [PAGE 18] RPC CALL #18...
+[REALTIME_FUNDING]    [PAGE 18] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 206 addresses from page...
+[DOMAIN] ✓ Found domains for 15 addresses
+[DOMAIN]   CRtK8GYPjFQg9CBR... → Flip.gg: Trusted Since 2021🎰-9007.flipgg.sol
+[DOMAIN]   GgKUW42Dfs2x8jn3... → Flip.gg: Trusted Since 2021🎰-8699.flipgg.sol
+[DOMAIN]   4nLBCG3EFPgUoaJs... → Flip.gg | #1 Solana Casino🍀🎰🍀-8716.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 18] 🚫 1118 dust | 🪙 38 token ops
+[REALTIME_FUNDING]    [PAGE 19] RPC CALL #19...
+[REALTIME_FUNDING]    [PAGE 19] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 189 addresses from page...
+[DOMAIN] ✓ Found domains for 13 addresses
+[DOMAIN]   7h9NUz8TQkbivUer... → Flip.gg | #1 Solana Casino🍀🎰🍀-8598.flipgg.sol
+[DOMAIN]   7FgSHQJS6KN5qCg2... → Flip.gg: Trusted Since 2021🎰-8551.flipgg.sol
+[DOMAIN]   2iY3YDvysfpkDf6u... → Flip.gg: Trusted Since 2021🎰-8599.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 19] ✓ 1 new funders | 🚫 928 dust | 🪙 31 token ops
+[REALTIME_FUNDING]    [PAGE 20] RPC CALL #20...
+[REALTIME_FUNDING]    [PAGE 20] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 152 addresses from page...
+[DOMAIN] ✓ Found domains for 8 addresses
+[DOMAIN]   4roP7ZYbmnVuao2Z... → Flip.gg: Trusted Since 2021🎰-8419.flipgg.sol
+[DOMAIN]   BGWpAdZpJDje9bQR... → Flip.gg | #1 Solana Casino🍀🎰🍀-8418.flipgg.sol
+[DOMAIN]   94GC8F3WssSGtzNh... → Flip.gg | #1 Solana Casino🍀🎰🍀-8472.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 20] 🚫 1019 dust | 🪙 36 token ops
+[REALTIME_FUNDING]    [PAGE 21] RPC CALL #21...
+[REALTIME_FUNDING]    [PAGE 21] fetched=100 txs
+[FUNDING] 🌉 DEBRIDGE FUNDER DETECTED: 2QFHDZs32ABXcH81... received 0.575500 SOL from deBridge
+[FUNDING] ✅ Tagged creator as 'uses_debridge'
+[DOMAIN] 🔍 Resolving domains for 168 addresses from page...
+[DOMAIN] ✓ Found domains for 7 addresses
+[DOMAIN]   ED6LJMpUC8FkzMYN... → Flip.gg | #1 Solana Casino🍀🎰🍀-8410.flipgg.sol
+[DOMAIN]   GDvqieRYYGjzz1fM... → Flip.gg | #1 Solana Casino🍀🎰🍀-8396.flipgg.sol
+[DOMAIN]   7GsPk1atRvVh4Fup... → Flip.gg: Trusted Since 2021🎰-8411.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 21] ✓ 1 new funders | 🚫 493 dust | 🪙 62 token ops
+[REALTIME_FUNDING]    [PAGE 22] RPC CALL #22...
+[REALTIME_FUNDING]    [PAGE 22] fetched=100 txs
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (0.24 SOL total)
+[DOMAIN] 🔍 Resolving domains for 222 addresses from page...
+[DOMAIN] ✓ Found domains for 12 addresses
+[DOMAIN]   8zi6AG7oSKoswSEM... → blockrazor43.sol
+[DOMAIN]   Fgej4SPuW282TdrQ... → solanarent.sol
+[DOMAIN]   5ePzfXwyxYYTX612... → Get 3 Free Lootbox 👉 Flip.gg🎁-8237.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 22] ✓ 1 new funders | 🚫 770 dust | 🪙 53 token ops
+[REALTIME_FUNDING]    [PAGE 23] RPC CALL #23...
+[REALTIME_FUNDING]    [PAGE 23] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 198 addresses from page...
+[DOMAIN] ✓ Found domains for 6 addresses
+[DOMAIN]   HLSHeeM2Q141C4PE... → 👉ciaotool-io👈.發幣土狗建池助您日進鬥金.sol
+[DOMAIN]   9FNz4MjPUmnJqTf6... → why.sol
+[DOMAIN]   FvGbALNBogcN9hSB... → Flip.gg | #1 Solana Casino🍀🎰🍀-8200.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 23] ✓ 1 new funders | 🚫 367 dust | 🪙 72 token ops
+[REALTIME_FUNDING]    [PAGE 24] RPC CALL #24...
+[REALTIME_FUNDING]    [PAGE 24] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 126 addresses from page...
+[DOMAIN] ✓ Found domains for 5 addresses
+[DOMAIN]   2LXTbn3FVNzZ86oJ... → play👉crashout-dot-fun.sol
+[DOMAIN]   2L2DgQ5ZXRYnv8K9... → blockrazor40.sol
+[DOMAIN]   BZExUNt92J3Y9AWS... → 🎰crashout-fun🕹️100x💵.sol
+[REALTIME_FUNDING]    [PAGE 24] 🚫 586 dust | 🪙 60 token ops
+[REALTIME_FUNDING]    [PAGE 25] RPC CALL #25...
+[REALTIME_FUNDING]    [PAGE 25] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 241 addresses from page...
+[DOMAIN] ✓ Found domains for 13 addresses
+[DOMAIN]   H4Xx4GwUZSGjZa2J... → Get 3 Free Lootbox 👉 Flip.gg🎁-7739.flipgg.sol
+[DOMAIN]   Cxdm44G4RWY43319... → Get 3 Free Lootbox 👉 Flip.gg🎁-7781.flipgg.sol
+[DOMAIN]   J8M4utdS2ck79y1U... → Flip.gg | #1 Solana Casino🍀🎰🍀-7702.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 25] ✓ 2 new funders | 🚫 985 dust | 🪙 36 token ops
+[REALTIME_FUNDING]    [PAGE 26] RPC CALL #26...
+[REALTIME_FUNDING]    [PAGE 26] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 266 addresses from page...
+[DOMAIN] ✓ Found domains for 13 addresses
+[DOMAIN]   4wWTK5tkUr3WpKV9... → 🤖pump-bot👉dogtools-dot-meme👈.sol
+[DOMAIN]   BURNNeQ2zERsVhL6... → refundyoursol.sol
+[DOMAIN]   3pbBuPTWehSxn9Xf... → Get 3 Free Lootbox 👉 Flip.gg🎁-7641.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 26] 🚫 738 dust | 🪙 52 token ops
+[REALTIME_FUNDING]    [PAGE 27] RPC CALL #27...
+[REALTIME_FUNDING]    [PAGE 27] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 277 addresses from page...
+[DOMAIN] ✓ Found domains for 11 addresses
+[DOMAIN]   HLSHeeM2Q141C4PE... → 👉ciaotool-io👈.發幣土狗建池助您日進鬥金.sol
+[DOMAIN]   ApDLsbnWYFocQAwA... → dildobandit.sol
+[DOMAIN]   3K2wuFG4v3HQiNrJ... → Flip.gg | #1 Solana Casino🍀🎰🍀-7416.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 27] 🚫 683 dust | 🪙 54 token ops
+[REALTIME_FUNDING]    [PAGE 28] RPC CALL #28...
+[REALTIME_FUNDING]    [PAGE 28] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 353 addresses from page...
+[DOMAIN] ✓ Found domains for 8 addresses
+[DOMAIN]   8mR3wB1nh4D6J9RU... → 0slot_dot_trade_tip17.sol
+[DOMAIN]   4wWTK5tkUr3WpKV9... → 🤖pump-bot👉dogtools-dot-meme👈.sol
+[DOMAIN]   HLSHeeM2Q141C4PE... → 👉ciaotool-io👈.發幣土狗建池助您日進鬥金.sol
+[REALTIME_FUNDING]    [PAGE 28] 🚫 769 dust | 🪙 52 token ops
+[REALTIME_FUNDING]    [PAGE 29] RPC CALL #29...
+[REALTIME_FUNDING]    [PAGE 29] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 278 addresses from page...
+[DOMAIN] ✓ Found domains for 10 addresses
+[DOMAIN]   HLSHeeM2Q141C4PE... → 👉ciaotool-io👈.發幣土狗建池助您日進鬥金.sol
+[DOMAIN]   4wWTK5tkUr3WpKV9... → 🤖pump-bot👉dogtools-dot-meme👈.sol
+[DOMAIN]   4svpwECN26fukAV3... → Flip.gg | #1 Solana Casino🍀🎰🍀-6944.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 29] 🚫 964 dust | 🪙 40 token ops
+[REALTIME_FUNDING]    [PAGE 30] RPC CALL #30...
+[REALTIME_FUNDING]    [PAGE 30] fetched=100 txs
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (0.37 SOL total)
+[DOMAIN] 🔍 Resolving domains for 310 addresses from page...
+[DOMAIN] ✓ Found domains for 11 addresses
+[DOMAIN]   4wWTK5tkUr3WpKV9... → 🤖pump-bot👉dogtools-dot-meme👈.sol
+[DOMAIN]   BZExUNt92J3Y9AWS... → 🎰crashout-fun🕹️100x💵.sol
+[DOMAIN]   2LXTbn3FVNzZ86oJ... → play👉crashout-dot-fun.sol
+[REALTIME_FUNDING]    [PAGE 30] 🚫 614 dust | 🪙 55 token ops
+[REALTIME_FUNDING]    [PAGE 31] RPC CALL #31...
+[REALTIME_FUNDING]    [PAGE 31] fetched=100 txs
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (0.49 SOL total)
+[DOMAIN] 🔍 Resolving domains for 169 addresses from page...
+[DOMAIN] ✓ Found domains for 11 addresses
+[DOMAIN]   26ht92Tdh8M6yBFd... → Get 3 Free Lootbox 👉 Flip.gg🎁-6713.flipgg.sol
+[DOMAIN]   AwQVpSJTTYJvJBwG... → Flip.gg | #1 Solana Casino🍀🎰🍀-6712.flipgg.sol
+[DOMAIN]   EtBJa8xjbmkSCRdC... → Get 3 Free Lootbox 👉 Flip.gg🎁-6663.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 31] 🚫 773 dust | 🪙 52 token ops
+[REALTIME_FUNDING]    [PAGE 32] RPC CALL #32...
+[REALTIME_FUNDING]    [PAGE 32] fetched=100 txs
+[DOMAIN] 🔍 Resolving domains for 212 addresses from page...
+[DOMAIN] ✓ Found domains for 12 addresses
+[DOMAIN]   gqv74eot3mZTLrCu... → Flip.gg | #1 Solana Casino🍀🎰🍀-6634.flipgg.sol
+[DOMAIN]   Cv91n3DC5dkviaX6... → Get 3 Free Lootbox 👉 Flip.gg🎁-6635.flipgg.sol
+[DOMAIN]   79W5Mv9tpA7TdLq1... → Flip.gg | #1 Solana Casino🍀🎰🍀-6550.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 32] 🚫 782 dust | 🪙 54 token ops
+[REALTIME_FUNDING]    [PAGE 33] RPC CALL #33...
+[REALTIME_FUNDING]    [PAGE 33] fetched=100 txs
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (0.62 SOL total)
+[DOMAIN] 🔍 Resolving domains for 220 addresses from page...
+[DOMAIN] ✓ Found domains for 9 addresses
+[DOMAIN]   2LXTbn3FVNzZ86oJ... → play👉crashout-dot-fun.sol
+[DOMAIN]   BZExUNt92J3Y9AWS... → 🎰crashout-fun🕹️100x💵.sol
+[DOMAIN]   8PUDRdf4y6dsKwBQ... → Flip.gg | #1 Solana Casino🍀🎰🍀-6188.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 33] 🚫 710 dust | 🪙 57 token ops
+[REALTIME_FUNDING]    [PAGE 34] RPC CALL #34...
+[REALTIME_FUNDING]    [PAGE 34] fetched=100 txs
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (0.84 SOL total)
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (1.06 SOL total)
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (1.28 SOL total)
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (1.54 SOL total)
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (1.88 SOL total)
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (2.11 SOL total)
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (2.33 SOL total)
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (2.56 SOL total)
+[DOMAIN] 🔍 Resolving domains for 324 addresses from page...
+[DOMAIN] ✓ Found domains for 19 addresses
+[DOMAIN]   4V5KXyE1dWQuRDWz... → Flip.gg | #1 Solana Casino🍀🎰🍀-6134.flipgg.sol
+[DOMAIN]   7idrwKShe2DDhPxW... → Get 3 Free Lootbox 👉 Flip.gg🎁-6135.flipgg.sol
+[DOMAIN]   H7QQ5UMvhcDopxZc... → Flip.gg reward available........................-5505.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 34] 🚫 605 dust | 🪙 54 token ops
+[REALTIME_FUNDING]    [PAGE 35] RPC CALL #35...
+[REALTIME_FUNDING]    [PAGE 35] fetched=100 txs
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (2.69 SOL total)
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (2.91 SOL total)
+[DOMAIN] 🔍 Resolving domains for 272 addresses from page...
+[DOMAIN] ✓ Found domains for 16 addresses
+[DOMAIN]   D7VGBey8uFY2MtVj... → auto.debuff.sol
+[DOMAIN]   8rgcVuKcNKXJZ3Hf... → Flip.gg reward available........................-5013.flipgg.sol
+[DOMAIN]   5a2Kuqw1bj2jwLLo... → Flip.gg high stakes.............................-5012.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 35] 🚫 1150 dust | 🪙 30 token ops
+[REALTIME_FUNDING]    [PAGE 36] RPC CALL #36...
+[REALTIME_FUNDING]    [PAGE 36] fetched=73 txs
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (3.14 SOL total)
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (4.02 SOL total)
+[FUNDING] 🏛️ CEX FUNDER DETECTED: Binance 2 exchange_wallet → 2QFHDZs32ABXcH81... (4.47 SOL total)
+[DOMAIN] 🔍 Resolving domains for 197 addresses from page...
+[DOMAIN] ✓ Found domains for 13 addresses
+[DOMAIN]   DvxSJw4GDi62vLUu... → Flip.gg reward available...........-4681.flipgg.sol
+[DOMAIN]   B9bceXVTWtEiGd3j... → Flip.gg VIP rewards.......................-4738.flipgg.sol
+[DOMAIN]   8y7PcRGprbLx27Jo... → Flip.gg VIP rewards.......................-4680.flipgg.sol
+[REALTIME_FUNDING]    [PAGE 36] 🚫 968 dust | 🪙 13 token ops
+[REALTIME_FUNDING]    [PAGE 37] RPC CALL #37...
+[REALTIME_FUNDING]    [PAGE 37] No more transactions
+[REALTIME_FUNDING]    Total transactions fetched: 3573
+[REALTIME_FUNDING]    ✓ Inbound: 10 funders (12.45 SOL)
+[REALTIME_FUNDING]    ✓ Outbound: 127 recipients (2.01 SOL)
+[REALTIME_FUNDING]    ℹ Filtered 20017 dust transfers
+[REALTIME_FUNDING]    ℹ Filtered 2201 token operations (swaps, migrations)
+[REALTIME_FUNDING]    Funder #1: 2nvBrX3EdKqhpqUM... → 5.99 SOL
+[REALTIME_FUNDING]    Funder #2: 5tzFkiKscXHK5ZXC... → 4.47 SOL
+[REALTIME_FUNDING]    Funder #3: yGgE1tLVkiZb1QaN... → 0.97 SOL
+[REALTIME_FUNDING] 🎯 DEBRIDGE DETECTED (inbound): 2QFHDZs32ABXcH81... received 0.575500 SOL from deBridge
+[REALTIME_FUNDING] ✅ Tagged creator as 'uses_debridge'
+[REALTIME_FUNDING]    🔍 Checking for Meteora DLMM program calls...

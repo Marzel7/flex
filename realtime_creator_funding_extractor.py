@@ -918,7 +918,7 @@ class RealTimeCreatorFundingExtractor:
                                         if domain_count > 0:
                                             print(f"[DOMAIN] 📝 Found {domain_count} domain(s) in tx {tx.get('signature', '')[:16]}... {domains_found}", flush=True)
                                     except Exception as e:
-                                        pass  # Domain extraction is non-critical
+                                        print(f"[DOMAIN] ⚠ Error during domain extraction: {e}", flush=True)
 
                                     # Capture ALL transfers regardless of pre/post migration
                                     # (we want all funding sources, not just pre-migration)

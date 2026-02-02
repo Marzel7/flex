@@ -452,15 +452,15 @@ HTML_TEMPLATE = """
 
         /* Creator address link - clickable text, not a badge */
         .creator-address-link {
-            display: inline;
+            display: inline !important;
             padding: 0 !important;
             background: none !important;
             border: none !important;
-            color: #00d4ff;
-            text-decoration: underline;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-size: 10px;
+            color: #00d4ff !important;
+            text-decoration: underline !important;
+            cursor: pointer !important;
+            font-family: 'Courier New', monospace !important;
+            font-size: 10px !important;
         }
 
         .creator-address-link:hover {
@@ -696,10 +696,15 @@ HTML_TEMPLATE = """
 
         .mint-link {
             cursor: pointer;
-            color: #00d4ff;
+            color: #00d4ff !important;
             text-decoration: none;
             border-bottom: 1px dotted #00d4ff;
             transition: all 0.2s;
+        }
+
+        .mint-link.creator-address-link {
+            text-decoration: underline !important;
+            border-bottom: none !important;
         }
 
         .mint-link:hover {

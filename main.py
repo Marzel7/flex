@@ -1135,6 +1135,55 @@ HTML_TEMPLATE = """
         .action-button.danger:active {
             background-color: rgba(239, 68, 68, 0.5);
         }
+
+        /* CEX View Styles */
+        .cex-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .cex-exchange-card {
+            background: rgba(34, 197, 94, 0.05);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-left: 3px solid #4ade80;
+            border-radius: 6px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .cex-exchange-card:hover {
+            background: rgba(34, 197, 94, 0.1);
+            border-left: 4px solid #4ade80;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.1);
+        }
+
+        .cex-exchange-card h4 {
+            color: #4ade80;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cex-exchange-card .stat {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 13px;
+            color: #e0e0e0;
+        }
+
+        .cex-exchange-card .stat-label {
+            color: #a0a0a0;
+        }
+
+        .cex-exchange-card .stat-value {
+            color: #00d4ff;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -1195,6 +1244,7 @@ HTML_TEMPLATE = """
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(139, 92, 246, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(76, 175, 80, 0.2); color: #4ade80; border: 1px solid rgba(76, 175, 80, 0.5);">▶️ Polling ON</button>
+                <button class="action-button" onclick="toggleCEXView()" title="View CEX funders and activity" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.5); margin-left: 8px;">🏛️ CEX View</button>
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(239, 68, 68, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button class="action-button danger" onclick="emptyDatabase()" title="Clear all tokens, clustering, and address data">🗑️ Empty DB</button>
@@ -1204,6 +1254,62 @@ HTML_TEMPLATE = """
 
         <div id="tokens-container">
             <div class="loading">Loading migrated tokens...</div>
+        </div>
+
+        <!-- CEX Funders View -->
+        <div id="cex-container" style="display: none;">
+            <div style="padding: 20px;">
+                <h2 style="color: #4ade80; margin-bottom: 20px;">🏛️ CEX Funders Activity</h2>
+
+                <!-- CEX Exchanges Summary -->
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #00d4ff; margin-bottom: 15px;">Exchanges Funding Creators</h3>
+                    <div id="cexExchangesContainer" class="cex-grid">
+                        <div class="loading">Loading CEX exchanges...</div>
+                    </div>
+                </div>
+
+                <!-- Top CEX Funder Wallets -->
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #00d4ff; margin-bottom: 15px;">Top CEX Wallet Funders</h3>
+                    <div id="topCexFundersContainer" style="overflow-x: auto;">
+                        <table class="tokens-table" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>CEX Address</th>
+                                    <th>Exchange</th>
+                                    <th>Wallet Type</th>
+                                    <th>Creators Funded</th>
+                                    <th>Total SOL</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topCexFundersBody">
+                                <tr><td colspan="5" style="text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CEX-Funded Creators -->
+                <div>
+                    <h3 style="color: #00d4ff; margin-bottom: 15px;">Creators Funded by CEX</h3>
+                    <div id="cexFundedCreatorsContainer" style="overflow-x: auto;">
+                        <table class="tokens-table" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>Creator Address</th>
+                                    <th>Exchanges Funding</th>
+                                    <th>Total CEX Funding (SOL)</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cexFundedCreatorsBody">
+                                <tr><td colspan="4" style="text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="refresh-info">Auto-refreshing every 5 seconds</div>
@@ -1946,6 +2052,97 @@ HTML_TEMPLATE = """
                 }
             } catch (e) {
                 console.error('Error checking polling status:', e);
+            }
+        }
+
+        // Toggle between token table and CEX view
+        function toggleCEXView() {
+            const tokensContainer = document.getElementById('tokens-container');
+            const cexContainer = document.getElementById('cex-container');
+
+            if (cexContainer.style.display === 'none') {
+                // Switch to CEX view
+                tokensContainer.style.display = 'none';
+                cexContainer.style.display = 'block';
+                loadCEXData();
+            } else {
+                // Switch back to token view
+                cexContainer.style.display = 'none';
+                tokensContainer.style.display = 'block';
+            }
+        }
+
+        // Load CEX data and populate the view
+        async function loadCEXData() {
+            try {
+                const response = await fetch('/api/cex-funders');
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('cexExchangesContainer').innerHTML = '<p style="color: #ef4444;">Error loading CEX data: ' + data.error + '</p>';
+                    return;
+                }
+
+                // Populate exchanges grid
+                const exchangesContainer = document.getElementById('cexExchangesContainer');
+                if (data.exchanges && data.exchanges.length > 0) {
+                    exchangesContainer.innerHTML = data.exchanges.map(ex => `
+                        <div class="cex-exchange-card">
+                            <h4>🏛️ ${ex.cex_exchange}</h4>
+                            <div class="stat">
+                                <span class="stat-label">Creators Funded:</span>
+                                <span class="stat-value">${ex.creator_count}</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Wallets:</span>
+                                <span class="stat-value">${ex.funder_count}</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Total SOL:</span>
+                                <span class="stat-value">${(ex.total_sol || 0).toFixed(2)}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    exchangesContainer.innerHTML = '<p style="color: #a0a0a0;">No CEX funders found</p>';
+                }
+
+                // Populate top CEX funders table
+                const cexFundersBody = document.getElementById('topCexFundersBody');
+                if (data.top_cex_funders && data.top_cex_funders.length > 0) {
+                    cexFundersBody.innerHTML = data.top_cex_funders.map(funder => `
+                        <tr>
+                            <td style="font-family: monospace; font-size: 12px;" title="${funder.funder_address}">${funder.funder_address.substring(0, 16)}...</td>
+                            <td><span class="cex-exchange-name">${funder.cex_exchange}</span></td>
+                            <td>${funder.cex_type || 'Hot Wallet'}</td>
+                            <td style="text-align: center; color: #00d4ff; font-weight: 600;">${funder.creators_funded}</td>
+                            <td style="text-align: right; color: #4ade80; font-weight: 600;">${(funder.total_sol || 0).toFixed(2)}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    cexFundersBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #a0a0a0;">No top CEX funders found</td></tr>';
+                }
+
+                // Populate CEX-funded creators table
+                const creatorsBody = document.getElementById('cexFundedCreatorsBody');
+                if (data.cex_funded_creators && data.cex_funded_creators.length > 0) {
+                    creatorsBody.innerHTML = data.cex_funded_creators.map(creator => `
+                        <tr>
+                            <td style="font-family: monospace; font-size: 12px;" title="${creator.creator_address}">${creator.creator_address.substring(0, 16)}...</td>
+                            <td style="text-align: center; color: #00d4ff; font-weight: 600;">${creator.exchanges_funding}</td>
+                            <td style="text-align: right; color: #4ade80; font-weight: 600;">${(creator.total_cex_funding || 0).toFixed(2)}</td>
+                            <td>
+                                <a href="#" onclick="showCreatorDetails('${creator.creator_address}'); toggleCEXView(); return false;" style="color: #00d4ff; text-decoration: none;">View Creator →</a>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    creatorsBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #a0a0a0;">No CEX-funded creators found</td></tr>';
+                }
+
+            } catch (error) {
+                console.error('Error loading CEX data:', error);
+                document.getElementById('cexExchangesContainer').innerHTML = '<p style="color: #ef4444;">Error loading CEX data</p>';
             }
         }
 
@@ -2844,6 +3041,73 @@ def api_creator_details(creator_address: str):
             'cluster': cluster,
             'is_blocked': is_blocked,
             'tags': tags
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/cex-funders')
+def api_cex_funders():
+    """Get all CEX funders and their activity"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get all CEX exchanges with statistics
+        cursor.execute("""
+            SELECT
+                cex_exchange,
+                COUNT(DISTINCT creator_address) as creator_count,
+                COUNT(DISTINCT funder_address) as funder_count,
+                SUM(amount_sol) as total_sol
+            FROM creator_funders
+            WHERE is_cex = 1
+            GROUP BY cex_exchange
+            ORDER BY total_sol DESC
+        """)
+        exchanges = [dict(row) for row in cursor.fetchall()]
+
+        # Get top CEX funders across all exchanges
+        cursor.execute("""
+            SELECT
+                funder_address,
+                cex_exchange,
+                cex_type,
+                COUNT(DISTINCT creator_address) as creators_funded,
+                SUM(amount_sol) as total_sol
+            FROM creator_funders
+            WHERE is_cex = 1
+            GROUP BY funder_address, cex_exchange
+            ORDER BY total_sol DESC
+            LIMIT 50
+        """)
+        top_cex_funders = [dict(row) for row in cursor.fetchall()]
+
+        # Get all creators funded by CEX
+        cursor.execute("""
+            SELECT
+                creator_address,
+                COUNT(DISTINCT cex_exchange) as exchanges_funding,
+                SUM(amount_sol) as total_cex_funding
+            FROM creator_funders
+            WHERE is_cex = 1
+            GROUP BY creator_address
+            ORDER BY total_cex_funding DESC
+            LIMIT 100
+        """)
+        cex_funded_creators = [dict(row) for row in cursor.fetchall()]
+
+        conn.close()
+
+        return jsonify({
+            'exchanges': exchanges,
+            'top_cex_funders': top_cex_funders,
+            'cex_funded_creators': cex_funded_creators,
+            'total_cex_funders': len(top_cex_funders),
+            'total_cex_funded_creators': len(cex_funded_creators)
         })
 
     except Exception as e:

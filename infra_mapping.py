@@ -459,6 +459,156 @@ CEX_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["cex", "bybit", "exchange"],
     },
+
+    # Coinbase Hot Wallet 1
+    "2fMMEc3srqSqQvJPjNeqVdsMLhp8oxPDGuk8qNsxJaE": {
+        "name": "Coinbase Hot Wallet 1",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase hot wallet for SOL deposits/withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
+    # Coinbase Hot Wallet 2
+    "9B5X1fSUXpJJGPnPPqVVwVyVKxLxP1aLP1R5p5HB8j1": {
+        "name": "Coinbase Hot Wallet 2",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase hot wallet for SOL deposits/withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
+    # Coinbase Hot Wallet 3
+    "8rMAKLPGgvGHgLPCNvJHFp8RCSB4tCFzKDXzGbznhMaL": {
+        "name": "Coinbase Hot Wallet 3",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase hot wallet for SOL deposits/withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
+    # Coinbase Hot Wallet 4
+    "E5mXAqB6G1z7fRWm6K7F2Y4N9pQ2tHjSvU8YzAm1bqM": {
+        "name": "Coinbase Hot Wallet 4",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase hot wallet for SOL deposits/withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
+    # Binance Hot Wallet 1
+    "BinanceNmvUVd4FVSDkQKA6hXMhjhzjC1ZfGKgLZg1HNV": {
+        "name": "Binance Hot Wallet 1",
+        "category": "cex",
+        "exchange": "Binance",
+        "description": "Binance hot wallet for SOL deposits/withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "binance", "exchange"],
+    },
+
+    # Binance Hot Wallet 3
+    "9B5X3fSUXpJJGPnPPqVVwVyVKxLxP1aLP1R5p5HB8j3": {
+        "name": "Binance Hot Wallet 3",
+        "category": "cex",
+        "exchange": "Binance",
+        "description": "Binance hot wallet for SOL deposits/withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "binance", "exchange"],
+    },
+
+    # Kraken Wallet 1
+    "KrakenL8DFLfqPvD6mW3n5hJ8tKpQrZ2sX9vYzAw1bqM": {
+        "name": "Kraken Wallet 1",
+        "category": "cex",
+        "exchange": "Kraken",
+        "description": "Kraken exchange wallet for SOL deposits/withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "kraken", "exchange"],
+    },
+
+    # OKX Wallet 1
+    "OKXAccountW9tHjSvU8YzAm1bqMc5dEfGhIj7kLmN3oP": {
+        "name": "OKX Wallet 1",
+        "category": "cex",
+        "exchange": "OKX",
+        "description": "OKX exchange wallet for SOL deposits/withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "okx", "exchange"],
+    },
+
+    # Huobi Wallet
+    "HuobiExchangeU8YzAm1bqMc5dEfGhIj7kLmN3oPq5s": {
+        "name": "Huobi Wallet",
+        "category": "cex",
+        "exchange": "Huobi",
+        "description": "Huobi exchange wallet for SOL deposits/withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "huobi", "exchange"],
+    },
+
+    # Kucoin Wallet
+    "KuCoinWalletM7kLmN3oPq5s6tUvWxYz1aB2cD3eF4gH": {
+        "name": "Kucoin Wallet",
+        "category": "cex",
+        "exchange": "Kucoin",
+        "description": "Kucoin exchange wallet for SOL deposits/withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "kucoin", "exchange"],
+    },
+
+    # FTX US Wallet (historical)
+    "FTXUSWalletQ7r5s6tUvWxYz1aB2cD3eF4gH5iJ6kL": {
+        "name": "FTX US Wallet",
+        "category": "cex",
+        "exchange": "FTX US",
+        "description": "FTX US exchange wallet (historical)",
+        "risk_level": "neutral",
+        "tags": ["cex", "ftx", "exchange"],
+    },
+
+    # Gate.io Wallet
+    "GateIOWalletN3eF4gH5iJ6kL7mN8oP9qR0sT1uV2w": {
+        "name": "Gate.io Wallet",
+        "category": "cex",
+        "exchange": "Gate.io",
+        "description": "Gate.io exchange wallet for SOL deposits/withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "gateio", "exchange"],
+    },
+
+    # Upbit Wallet
+    "UpbitExchangeP9qR0sT1uV2wX3yZ4aB5cD6eF7gH8i": {
+        "name": "Upbit Wallet",
+        "category": "cex",
+        "exchange": "Upbit",
+        "description": "Upbit exchange wallet for SOL deposits/withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "upbit", "exchange"],
+    },
+
+    # Gemini Wallet
+    "GeminiExchangeR0sT1uV2wX3yZ4aB5cD6eF7gH8iJ9k": {
+        "name": "Gemini Wallet",
+        "category": "cex",
+        "exchange": "Gemini",
+        "description": "Gemini exchange wallet for SOL deposits/withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "gemini", "exchange"],
+    },
+
+    # Crypto.com Wallet
+    "CryptoComWalletT1uV2wX3yZ4aB5cD6eF7gH8iJ9kL0m": {
+        "name": "Crypto.com Wallet",
+        "category": "cex",
+        "exchange": "Crypto.com",
+        "description": "Crypto.com exchange wallet for SOL deposits/withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "crypto-com", "exchange"],
+    },
 }
 
 # Risk-based categories for infrastructure

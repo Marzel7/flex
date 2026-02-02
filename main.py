@@ -450,6 +450,24 @@ HTML_TEMPLATE = """
             flex-wrap: wrap;
         }
 
+        /* Creator address link - clickable text, not a badge */
+        .creator-address-link {
+            display: inline;
+            padding: 0 !important;
+            background: none !important;
+            border: none !important;
+            color: #00d4ff;
+            text-decoration: underline;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+        }
+
+        .creator-address-link:hover {
+            color: #0099ff;
+            text-decoration-thickness: 2px;
+        }
+
         /* Creator tags container */
         .creator-tags {
             display: flex;
@@ -1719,6 +1737,9 @@ HTML_TEMPLATE = """
                             // Check if any funders are infrastructure or CEX via mapping - show account name only
                             if (!displayName && token.creatorData && token.creatorData.funders) {
                                 for (let funder of token.creatorData.funders) {
+                                    // Skip if funder is the creator themselves
+                                    if (funder.address === token.creator) continue;
+
                                     // Check infrastructure funders first
                                     if (window.infraMapping && window.infraMapping.infrastructure && window.infraMapping.infrastructure[funder.address]) {
                                         const info = window.infraMapping.infrastructure[funder.address];

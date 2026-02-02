@@ -1760,7 +1760,8 @@ HTML_TEMPLATE = """
                             }
 
                             // Render simple account name badge if we found a match
-                            if (displayName && displayCategory) {
+                            // IMPORTANT: Only show service names, NEVER show addresses in badges
+                            if (displayName && displayCategory && !displayName.includes('1111111111') && displayName.length < 50) {
                                 infraTags = `<div class="creator-infra-tags">
                                     <span class="infra-tag infra-${displayCategory}" title="${displayDescription}">${displayName}</span>
                                 </div>`;
@@ -3458,6 +3459,7 @@ def api_creators_batch():
                 cex_type
             FROM creator_funders
             WHERE creator_address IN ({placeholders})
+            AND funder_address != creator_address
             ORDER BY amount_sol DESC
         """, creator_addresses)
         funders_data = {}

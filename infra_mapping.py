@@ -245,6 +245,33 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["infra", "automation", "stellium"],
     },
+
+    # Photon Fee Vault
+    "AVUCZyuT35YSuj4RH7fwiyPu82Djn2Hfg7y2ND2XcnZH": {
+        "name": "Photon Fee Vault",
+        "category": "automation",
+        "description": "Photon protocol fee collection and vault management account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "photon", "dex-router"],
+    },
+
+    # Magic Eden
+    "MEisE1HzV7x91fWc9zjiS6gsim3SGfrEEUgSwoPP5Ch": {
+        "name": "Magic Eden",
+        "category": "automation",
+        "description": "Magic Eden NFT marketplace infrastructure account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "magic-eden", "nft"],
+    },
+
+    # Phantom Gas Station
+    "GAS1rLHZwXysDXtiqWLMSqVur9ZiUdkaok1uvnSure7": {
+        "name": "Phantom Gas Station",
+        "category": "automation",
+        "description": "Phantom wallet gas station/fee relay account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "phantom", "wallet"],
+    },
 }
 
 # CEX account mappings (external exchanges - different characteristics)

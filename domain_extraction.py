@@ -16,6 +16,15 @@ from typing import Set, Optional, Tuple, List
 from address_tags import add_tag
 from domain_mapping import register_domain, link_domain_to_address
 
+# Try to import label resolver; skip if not available
+try:
+    from address_label_resolver import is_infrastructure
+    HAS_LABEL_RESOLVER = True
+except ImportError:
+    HAS_LABEL_RESOLVER = False
+    def is_infrastructure(addr: str) -> bool:
+        return False
+
 DB_PATH = "pumpswap_tokens.db"
 
 # Regex pattern for Solana domain names (.sol TLD)
@@ -69,7 +78,7 @@ def extract_domains_from_text(text: Optional[str]) -> Set[str]:
 def extract_addresses_from_text(text: Optional[str]) -> Set[str]:
     """
     Extract Solana addresses from a text string.
-    Returns set of unique addresses found.
+    Returns set of unique addresses found (excluding infrastructure accounts).
     """
     if not text:
         return set()
@@ -81,7 +90,10 @@ def extract_addresses_from_text(text: Optional[str]) -> Set[str]:
         # Basic validation: Solana addresses are 32-44 base58 characters
         # Filter out common false positives (very short strings)
         if len(match) >= 32:
-            addresses.add(match)
+            # Skip infrastructure accounts (system programs, DEX routers, etc.)
+            # These don't own SNS domains and are noise in domain extraction
+            if not is_infrastructure(match):
+                addresses.add(match)
 
     return addresses
 
@@ -137,12 +149,12 @@ async def resolve_domains_for_addresses_async(addresses: Set[str], creator_addre
                     link_domain_to_address(domain, address)
 
                 except Exception as e:
-                    pass  # Non-critical
+                    print(f"[DOMAIN_EXTRACTION] ⚠ Error tagging domain {domain}: {e}", flush=True)
 
         return len(domains_found), domains_found
 
     except Exception as e:
-        # Silently fail if resolution fails
+        print(f"[DOMAIN_EXTRACTION] ⚠ Error resolving domains: {e}", flush=True)
         return 0, set()
 
 

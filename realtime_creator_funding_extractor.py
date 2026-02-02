@@ -29,6 +29,7 @@ from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
 from dust_addresses import DUST_ADDRESSES
 from domain_extraction import extract_from_helius_transaction_async
 from domain_mapping import register_domain, link_domain_to_address
+from automatic_cex_detection import classify_addresses_from_funding
 
 DB_PATH = "pumpswap_tokens.db"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "84ec9a31-f8c2-4116-8e98-695a9377c5ed"
@@ -1121,7 +1122,12 @@ class RealTimeCreatorFundingExtractor:
                 sorted_funders = sorted(funders.items(), key=lambda x: x[1], reverse=True)[:3]
                 for i, (funder, amount) in enumerate(sorted_funders, 1):
                     print(f"[REALTIME_FUNDING]    Funder #{i}: {funder[:16]}... → {amount:.2f} SOL", flush=True)
-            
+
+            # Trigger automatic CEX detection asynchronously (non-blocking)
+            # This will classify new funding addresses and potentially discover new CEX wallets
+            if funders:
+                asyncio.create_task(self._run_automatic_cex_detection())
+
             return {
                 "creator": creator,
                 "status": "success",
@@ -1135,6 +1141,34 @@ class RealTimeCreatorFundingExtractor:
         except Exception as e:
             print(f"[REALTIME_FUNDING] ⚠ Error: {e}", flush=True)
             return {"creator": creator, "error": str(e)}
+
+    async def _run_automatic_cex_detection(self):
+        """
+        Run automatic CEX detection on classified funding addresses.
+        
+        This is called after funding extraction completes to classify any new
+        addresses found in funding relationships. If high-confidence CEX wallets
+        are detected, they are automatically added to the cex_wallets table.
+        
+        Runs non-blocking to avoid delaying token processing.
+        """
+        try:
+            result = await classify_addresses_from_funding(max_addresses=200)
+            
+            if result.get("error"):
+                print(f"[AUTO-CEX] Error during classification: {result.get('error')}", flush=True)
+                return
+            
+            classified = result.get("classified", 0)
+            confirmed = result.get("confirmed", 0)
+            likely = result.get("likely", 0)
+            total = result.get("total_analyzed", 0)
+            
+            if classified > 0:
+                print(f"[AUTO-CEX] Classification complete: {classified} classified, {confirmed} confirmed, {likely} likely (from {total} addresses)", flush=True)
+        
+        except Exception as e:
+            print(f"[AUTO-CEX] Error: {e}", flush=True)
 
     async def check_create_tx_for_jitotip(self, creator: str, create_tx_sig: str):
         """Check if CREATE transaction uses Jitotip and tag creator if so"""

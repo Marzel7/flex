@@ -494,6 +494,82 @@ CEX_ACCOUNTS = {
         "tags": ["cex", "okx", "exchange"],
     },
 
+    # Coinbase Additional Wallets - Verified
+    "GJRs4FwHtemZ5ZE9x3FNvJ8TMwitKTh21yxdRPqn7npE": {
+        "name": "Coinbase Hot Wallet 2",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase hot wallet for SOL (verified on Solscan)",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
+    "H8sMJSCQxfKiFTCfDR3DUMLPwcRbM61LGFJ8N4dK3WjS": {
+        "name": "Coinbase Wallet 1",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase wallet for SOL (verified on Solscan)",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
+    "D89hHJT5Aqyx1trP6EnGY9jJUB3whgnq3aUvvCqedvzf": {
+        "name": "Coinbase Hot Wallet 3",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase hot wallet for SOL (verified on Solscan)",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
+    # Binance Additional Wallets - Verified
+    "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9": {
+        "name": "Binance Hot Wallet 2",
+        "category": "cex",
+        "exchange": "Binance",
+        "description": "Binance hot wallet for SOL (verified on Solscan)",
+        "risk_level": "neutral",
+        "tags": ["cex", "binance", "exchange"],
+    },
+
+    # Bybit Additional Wallets - Verified
+    "AC5RDfQFmDS1deWZos921JfqscXdByf8BKHs5ACWjtW2": {
+        "name": "Bybit Hot Wallet",
+        "category": "cex",
+        "exchange": "Bybit",
+        "description": "Bybit hot wallet for SOL (verified on Solscan)",
+        "risk_level": "neutral",
+        "tags": ["cex", "bybit", "exchange"],
+    },
+
+    # CEX.IO - Verified
+    "2QwUbEACJ3ppwfyH19QCSVvNrRzfuK5mNVNDsDMsZKMh": {
+        "name": "CEX.IO Wallet 1",
+        "category": "cex",
+        "exchange": "CEX.IO",
+        "description": "CEX.IO SOL wallet (verified on Solscan and CEX.IO official docs)",
+        "risk_level": "neutral",
+        "tags": ["cex", "cex-io", "exchange"],
+    },
+
+    "DUru5ZfCdCnjPFuY7NPniV3hhZqNJLgn2sBZJGaMc2Sj": {
+        "name": "CEX.IO Wallet 2",
+        "category": "cex",
+        "exchange": "CEX.IO",
+        "description": "CEX.IO SOL wallet (verified on Solscan and CEX.IO official docs)",
+        "risk_level": "neutral",
+        "tags": ["cex", "cex-io", "exchange"],
+    },
+
+    "CGRNicgpirZd3unSzn1Y34k7w31rQftTbaJwEuQu31XP": {
+        "name": "CEX.IO Wallet 3",
+        "category": "cex",
+        "exchange": "CEX.IO",
+        "description": "CEX.IO SOL wallet (verified on Solscan and CEX.IO official docs)",
+        "risk_level": "neutral",
+        "tags": ["cex", "cex-io", "exchange"],
+    },
+
     # Placeholder for future real addresses
     # To add new CEX addresses:
     # 1. Verify on Solscan with significant transaction history

@@ -272,6 +272,150 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["infra", "automation", "phantom", "wallet"],
     },
+
+    # Marinade Stake Pool
+    "minrVB5LV8KV7j2BEqMn7mB8yrnZHkLJjU1d2Kz7bfU": {
+        "name": "Marinade Liquid Staking",
+        "category": "automation",
+        "description": "Marinade liquid staking pool authority",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "marinade", "staking"],
+    },
+
+    # Lido for Solana
+    "24Uqj9JCLxUeoC3hGfh5W3khvQKt3MgvDA1BVqe2shQi": {
+        "name": "Lido Solana",
+        "category": "automation",
+        "description": "Lido liquid staking pool for Solana",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "lido", "staking"],
+    },
+
+    # Sanctum (Stake Pool Aggregator)
+    "SanctumMarinadeNonce11111111111111111111111": {
+        "name": "Sanctum Stake Pools",
+        "category": "automation",
+        "description": "Sanctum stake pool aggregator",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "sanctum", "staking"],
+    },
+
+    # Magic Eden Launchpad
+    "cmtDvXumGCr67meD1J7NbL6QwUszrSmc5PT42LNLm1": {
+        "name": "Magic Eden Launchpad",
+        "category": "automation",
+        "description": "Magic Eden NFT launchpad authority",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "magic-eden", "nft"],
+    },
+
+    # Blur NFT Marketplace
+    "3o9nQn7NLCf3YsKKrX9THxFLS7XqgCvzHq5s3J7NXkqh": {
+        "name": "Blur NFT",
+        "category": "automation",
+        "description": "Blur NFT marketplace account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "blur", "nft"],
+    },
+
+    # Serum DEX (V3)
+    "9xQeWvG816bUx9EPjHmaT23sSikJBXqB76mnwYYfrye": {
+        "name": "Serum DEX V3",
+        "category": "automation",
+        "description": "Serum decentralized exchange program",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "serum", "dex"],
+    },
+
+    # Mango Markets
+    "98gJ287xNYy46tUQun1PmCXW8mumoMMbcPZY92C1SyF": {
+        "name": "Mango Markets",
+        "category": "automation",
+        "description": "Mango Markets DEX and margin trading",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "mango", "dex"],
+    },
+
+    # OpenBook (Successor to Serum)
+    "srmqPvymJeFKQ4zGQed1GFppgkRHL9kaWKNrq3bsaS": {
+        "name": "OpenBook DEX",
+        "category": "automation",
+        "description": "OpenBook open-source order book DEX",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "openbook", "dex"],
+    },
+
+    # Pump.Fun (The protocol we're monitoring!)
+    "6EF8rrecthR5Dkp8LUZNcY7SmWMcYN7SyFeS6V6KontFg": {
+        "name": "Pump.Fun",
+        "category": "automation",
+        "description": "Pump.Fun token launch platform",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "pump-fun", "launchpad"],
+    },
+
+    # Solend (Lending Protocol)
+    "So1endDq2YkqvzLvDtqKp2eiXodus4CMVqKwRQW4gS8": {
+        "name": "Solend",
+        "category": "automation",
+        "description": "Solend lending and borrowing protocol",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "solend", "lending"],
+    },
+
+    # Francium (Yield Farming)
+    "FranciumFAqVTouSXr1ojHjNvnHq2vWVq2PdxCgc2KaR": {
+        "name": "Francium",
+        "category": "automation",
+        "description": "Francium yield farming and DEX",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "francium", "yield"],
+    },
+
+    # Orca Whirlpool Program (additional)
+    "whirLbMiicVdio4KfUqwx5LAsinJYQJScjfVeid3ZwP": {
+        "name": "Orca Whirlpool Program",
+        "category": "automation",
+        "description": "Orca whirlpool concentrated liquidity program",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "orca", "dex"],
+    },
+
+    # Splitter (Revenue Splitter)
+    "SPLITT2WQQARysrx4nmJgnaSQuKbDkAsMKtS7ACxZwi": {
+        "name": "Splitter",
+        "category": "automation",
+        "description": "Splitter protocol for splitting token streams",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "splitter"],
+    },
+
+    # Squads (Multisig Wallet)
+    "SMPLecvuGufa5ZbWdWscsrkSjotEim5d3BXXfHT2sJJ": {
+        "name": "Squads Multisig",
+        "category": "automation",
+        "description": "Squads multisig wallet infrastructure",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "squads", "wallet"],
+    },
+
+    # Drift Protocol (Perpetuals DEX)
+    "dRiftyHA39MWEi3m9aunc5MzRF1JYJjRTSRjrAYW5t": {
+        "name": "Drift Protocol",
+        "category": "automation",
+        "description": "Drift decentralized perpetuals exchange",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "drift", "perpetuals"],
+    },
+
+    # Magic Eden Creator Royalties
+    "cmtDvXumGCr67meD1J7NbL6QwUszrSmc5PT42LNLm1": {
+        "name": "ME Creator Royalties",
+        "category": "automation",
+        "description": "Magic Eden creator royalty collection",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "magic-eden", "royalties"],
+    },
 }
 
 # CEX account mappings (external exchanges - different characteristics)

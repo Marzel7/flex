@@ -858,6 +858,55 @@ HTML_TEMPLATE = """
             margin-left: 5px;
         }
 
+        /* CEX Funders Section */
+        .cex-funders-container {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(34, 197, 94, 0.05);
+            border-left: 3px solid #4ade80;
+            border-radius: 4px;
+        }
+
+        .cex-funders-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .cex-funders-table th {
+            background: rgba(34, 197, 94, 0.15);
+            padding: 10px;
+            text-align: left;
+            font-size: 12px;
+            color: #4ade80;
+            border-bottom: 2px solid rgba(34, 197, 94, 0.3);
+            font-weight: 600;
+        }
+
+        .cex-funders-table td {
+            padding: 10px;
+            font-size: 12px;
+            border-bottom: 1px solid rgba(34, 197, 94, 0.1);
+            color: #e0e0e0;
+        }
+
+        .cex-funders-table tr:hover {
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .cex-exchange-name {
+            color: #4ade80;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .cex-exchange-name::before {
+            content: '🏛️';
+            margin-right: 5px;
+        }
+
         /* Source type badges */
         .original-sender-badge {
             display: inline-block;
@@ -1235,8 +1284,28 @@ HTML_TEMPLATE = """
                 </table>
             </div>
 
+            <!-- CEX Funders Section -->
+            <div id="cexFundersSection" style="display: none; margin-bottom: 20px;">
+                <h3 style="color: #00d4ff;">🏛️ CEX Funders</h3>
+                <div class="cex-funders-container">
+                    <table class="cex-funders-table">
+                        <thead>
+                            <tr>
+                                <th>Exchange</th>
+                                <th>Address</th>
+                                <th>Amount (SOL)</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cexFundersBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Top Funders -->
-            <h3>Top Funders</h3>
+            <h3>All Funders</h3>
             <div class="top-funders-container">
                 <table class="top-funders-table">
                     <thead>
@@ -2079,7 +2148,7 @@ HTML_TEMPLATE = """
                 // Show CEX funders if any
                 let fundersText = data.funding.total_funders || '0';
                 if (data.funding.cex_funders > 0) {
-                    fundersText = '🏦 ' + data.funding.cex_funders + ' CEX';
+                    fundersText = '🏛️ ' + data.funding.cex_funders + ' CEX + ' + ((data.funding.total_funders || 0) - data.funding.cex_funders) + ' other';
                 }
                 document.getElementById('creatorTotalFunders').textContent = fundersText;
 
@@ -2124,7 +2193,33 @@ HTML_TEMPLATE = """
                     tokensBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #a0a0a0;">No tokens launched yet</td></tr>';
                 }
 
-                // Populate top funders table
+                // Separate CEX and non-CEX funders
+                const cexFunders = (data.top_funders || []).filter(f => f.is_cex);
+                const nonCexFunders = (data.top_funders || []).filter(f => !f.is_cex);
+
+                // Show/hide CEX funders section
+                const cexSection = document.getElementById('cexFundersSection');
+                if (cexFunders.length > 0) {
+                    cexSection.style.display = 'block';
+                    const cexBody = document.getElementById('cexFundersBody');
+                    cexBody.innerHTML = cexFunders.map(funder => {
+                        const amountStr = funder.amount_sol < 0.01
+                            ? funder.amount_sol.toFixed(6)
+                            : funder.amount_sol.toFixed(2);
+                        return `
+                            <tr>
+                                <td><span class="cex-exchange-name">${funder.cex_exchange || 'Unknown'}</span></td>
+                                <td title="${funder.funder_address}" style="font-family: monospace;">${funder.funder_address.substring(0, 16)}...</td>
+                                <td>${amountStr} SOL</td>
+                                <td>${funder.cex_type || 'Hot Wallet'}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    cexSection.style.display = 'none';
+                }
+
+                // Populate top funders table (all funders)
                 const fundersBody = document.getElementById('topFundersBody');
                 if (data.top_funders && data.top_funders.length > 0) {
                     fundersBody.innerHTML = data.top_funders.map(funder => {

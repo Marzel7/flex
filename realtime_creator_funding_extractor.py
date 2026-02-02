@@ -152,10 +152,16 @@ class DomainResolver:
 
     async def resolve_primary_domains(self, addresses: Iterable[str]) -> Dict[str, Optional[str]]:
         """
-        Resolve primary SNS domains for addresses.
+        Resolve primary SNS domains for addresses using Bonfida's improved endpoint.
         Returns {address: 'name.sol' or None}.
         Uses SNS primary domains endpoint with batching and caching.
         Saves discovered domains as persistent address tags.
+        
+        Endpoint: GET /v2/user/fav-domains/{pubkeys}
+        - Returns primary/favorite domains (what most explorers display)
+        - Includes subdomains
+        - More reliable than old endpoint
+        - Supports up to 20 addresses per request
         """
         now = int(time.time())
         addrs = [a for a in set(addresses) if isinstance(a, str) and len(a) > 20]
@@ -187,12 +193,12 @@ class DomainResolver:
             else:
                 still_missing.append(a)
 
-        # 3) Query SNS API in batches of 20
+        # 3) Query SNS API in batches of 20 using new v2/user/fav-domains endpoint
         to_persist: List[Tuple[str, Optional[str], int]] = []
         for i in range(0, len(still_missing), 20):
             batch = still_missing[i:i+20]
-            joined = ",".join(batch)
-            url = f"{SNS_API_BASE}{SNS_PRIMARY_ENDPOINT}{joined}"
+            pubkeys = ",".join(batch)
+            url = f"https://sns-api.bonfida.com/v2/user/fav-domains/{pubkeys}"
 
             try:
                 async with self.session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
@@ -205,10 +211,15 @@ class DomainResolver:
                         continue
 
                     data = await resp.json()
-                    # Response maps pubkey -> "domain" (without ".sol")
+                    # Response format: {pubkey: "domain"} (note: no .sol suffix in response)
+                    # We need to add .sol back
                     for a in batch:
-                        name = data.get(a)
-                        domain = f"{name}.sol" if isinstance(name, str) and name else None
+                        domain_name = data.get(a)
+                        if isinstance(domain_name, str) and domain_name:
+                            domain = f"{domain_name}.sol"  # Add .sol suffix
+                        else:
+                            domain = None
+                        
                         self.mem[a] = (domain, now)
                         out[a] = domain
                         to_persist.append((a, domain, now))

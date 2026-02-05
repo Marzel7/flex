@@ -463,6 +463,36 @@ CEX_ACCOUNTS = {
         "tags": ["cex", "coinbase", "exchange"],
     },
 
+    # Coinbase - Hot Wallet 1
+    "FpwQQhQQoEaVu3WU2qZMfF1hx48YyfwsLoRgXG83E99Q": {
+        "name": "Coinbase Hot Wallet 1",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
+    # Coinbase - Hot Wallet 2
+    "GJRs4FwHtemZ5ZE9x3FNvJ8TMwitKTh21yxdRPqn7npE": {
+        "name": "Coinbase Hot Wallet 2",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
+    # Coinbase - Wallet 2
+    "2AQdpHJ2JpcEgPiATUXjQxA8QmafFegfQwSLWSprPicm": {
+        "name": "Coinbase Wallet 2",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
     # Bybit - Verified
     "iGdFcQoyR2MwbXMHQskhmNsqddZ6rinsipHc4TNSdwu": {
         "name": "Bybit Wallet 10",

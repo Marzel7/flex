@@ -496,35 +496,36 @@ HTML_TEMPLATE = """
             font-size: 10px;
             font-weight: 600;
             white-space: nowrap;
-            border: 1px solid;
-            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            background: rgba(0, 212, 255, 0.15);
+            color: #00d4ff;
         }
 
-        /* Network size tag (purple) */
+        /* Network size tag (cyan) */
         .tag-network {
-            background: rgba(139, 92, 246, 0.2);
-            color: #a78bfa;
-            border: 1px solid rgba(139, 92, 246, 0.3);
+            background: rgba(0, 212, 255, 0.15);
+            color: #00d4ff;
+            border: 1px solid rgba(0, 212, 255, 0.3);
         }
 
-        /* Funding tag (blue) */
+        /* Funding tag (cyan) */
         .tag-funding {
-            background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
-            border: 1px solid rgba(59, 130, 246, 0.3);
+            background: rgba(0, 212, 255, 0.15);
+            color: #00d4ff;
+            border: 1px solid rgba(0, 212, 255, 0.3);
         }
 
-        /* Repeat launcher tag (orange) */
+        /* Repeat launcher tag (cyan) */
         .tag-repeat {
-            background: rgba(249, 115, 22, 0.2);
-            color: #fb923c;
-            border: 1px solid rgba(249, 115, 22, 0.3);
+            background: rgba(0, 212, 255, 0.15);
+            color: #00d4ff;
+            border: 1px solid rgba(0, 212, 255, 0.3);
         }
 
-        /* Blocked tag (red) */
+        /* Blocked tag (cyan) */
         .tag-blocked {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
+            background: rgba(0, 212, 255, 0.15);
+            color: #00d4ff;
             border: 1px solid rgba(239, 68, 68, 0.3);
             font-weight: 700;
         }
@@ -1754,16 +1755,10 @@ HTML_TEMPLATE = """
                                 }
                             }
 
-                            // Add funder labels to columnTags
+                            // Add funder labels to columnTags (all cyan)
                             for (let label of funderLabels) {
-                                let tagColor, bgColor;
-                                if (label.category === 'cex') {
-                                    tagColor = '#00d4ff';
-                                    bgColor = 'rgba(0, 212, 255, 0.15)';
-                                } else {
-                                    tagColor = '#4ade80';
-                                    bgColor = 'rgba(74, 222, 128, 0.15)';
-                                }
+                                const tagColor = '#00d4ff';
+                                const bgColor = 'rgba(0, 212, 255, 0.15)';
                                 columnTags.push(`<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor}; background-color: ${bgColor};" title="${label.description}">${label.name}</span>`);
                             }
 
@@ -1779,24 +1774,9 @@ HTML_TEMPLATE = """
                                     if (!seenServiceTags.has(tagName) && !serviceTag.tag.match(/^[1-9A-HJ-NP-Za-km-z]{30,}\.?$/)) {
                                         seenServiceTags.add(tagName);
 
-                                        // Determine tag color based on service
-                                        let tagColor, bgColor;
-                                        if (serviceTag.tag.includes('debridge')) {
-                                            tagColor = '#ff9500';
-                                            bgColor = 'rgba(255, 149, 0, 0.15)';
-                                        } else if (serviceTag.tag.includes('meteora')) {
-                                            tagColor = '#00d4ff';
-                                            bgColor = 'rgba(0, 212, 255, 0.15)';
-                                        } else if (serviceTag.tag.includes('axiom')) {
-                                            tagColor = '#9333ea';
-                                            bgColor = 'rgba(147, 51, 234, 0.15)';
-                                        } else if (serviceTag.tag.includes('jito')) {
-                                            tagColor = '#fbbf24';
-                                            bgColor = 'rgba(251, 191, 36, 0.15)';
-                                        } else {
-                                            tagColor = '#4ade80';
-                                            bgColor = 'rgba(74, 222, 128, 0.15)';
-                                        }
+                                        // All service tags use cyan color
+                                        const tagColor = '#00d4ff';
+                                        const bgColor = 'rgba(0, 212, 255, 0.15)';
 
                                         const cleanTagName = serviceTag.tag.replace('uses_', '');
                                         columnTags.push(`<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor}; background-color: ${bgColor};" title="${serviceTag.description}">${cleanTagName}</span>`);

@@ -32,6 +32,8 @@ app = Flask(__name__)
 def get_migrated_tokens() -> List[Dict]:
     """Get all analyzed post-migration tokens"""
     try:
+        from infra_mapping import CEX_ACCOUNTS
+        
         conn = sqlite3.connect(DB_PATH, timeout=30)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
@@ -83,12 +85,24 @@ def get_migrated_tokens() -> List[Dict]:
                 """, (row['earliest_tx_creator'],))
                 funder_row = cursor.fetchone()
                 if funder_row:
+                    funder_addr = funder_row[0]
+                    is_cex = bool(funder_row[4])
+                    cex_exchange = funder_row[1]
+                    cex_type = funder_row[2]
+                    
+                    # Check if funder is in live CEX_ACCOUNTS mapping
+                    if not is_cex and funder_addr in CEX_ACCOUNTS:
+                        is_cex = True
+                        cex_info = CEX_ACCOUNTS[funder_addr]
+                        cex_exchange = cex_info.get('exchange', cex_info.get('name', 'CEX'))
+                        cex_type = cex_info.get('category', 'Wallet')
+                    
                     top_funder = {
-                        'address': funder_row[0],
-                        'cex_exchange': funder_row[1],
-                        'cex_type': funder_row[2],
+                        'address': funder_addr,
+                        'cex_exchange': cex_exchange,
+                        'cex_type': cex_type,
                         'amount_sol': funder_row[3],
-                        'is_cex': funder_row[4]
+                        'is_cex': is_cex
                     }
 
             tokens.append({
@@ -3432,6 +3446,8 @@ def api_creators_batch():
         return jsonify({})
 
     try:
+        from infra_mapping import CEX_ACCOUNTS, INFRASTRUCTURE_ACCOUNTS
+        
         conn = sqlite3.connect(DB_PATH, timeout=30)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
@@ -3510,12 +3526,27 @@ def api_creators_batch():
             creator = row['creator_address']
             if creator not in funders_data:
                 funders_data[creator] = []
+            
+            funder_addr = row['funder_address']
+            
+            # Check if funder is in our known CEX or Infrastructure mappings
+            is_cex = bool(row['is_cex'])
+            cex_exchange = row['cex_exchange']
+            cex_type = row['cex_type']
+            
+            # Override with live mapping check if not already marked as CEX
+            if not is_cex and funder_addr in CEX_ACCOUNTS:
+                is_cex = True
+                cex_info = CEX_ACCOUNTS[funder_addr]
+                cex_exchange = cex_info.get('exchange', cex_info.get('name', 'CEX'))
+                cex_type = cex_info.get('category', 'Wallet')
+            
             funders_data[creator].append({
-                'address': row['funder_address'],
+                'address': funder_addr,
                 'amount_sol': row['amount_sol'],
-                'is_cex': bool(row['is_cex']),
-                'cex_exchange': row['cex_exchange'],
-                'cex_type': row['cex_type']
+                'is_cex': is_cex,
+                'cex_exchange': cex_exchange,
+                'cex_type': cex_type
             })
 
         conn.close()

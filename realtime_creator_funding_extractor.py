@@ -902,13 +902,19 @@ class RealTimeCreatorFundingExtractor:
             conn = sqlite3.connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT mint, bonding_curve_pda
+                SELECT mint, bonding_curve_pda, create_tx_signature
                 FROM token_analysis
                 WHERE earliest_tx_creator = ?
             """, (creator,))
             creator_tokens = cursor.fetchall()
 
-            for mint, bonding_curve in creator_tokens:
+            # Get CREATE tx signature(s) - if multiple tokens, just use the first one
+            # (we mainly want to avoid double-counting Jito tips on the CREATE tx)
+            create_tx_signature = None
+            for row in creator_tokens:
+                mint, bonding_curve, create_sig = row
+                if create_sig and not create_tx_signature:
+                    create_tx_signature = create_sig
                 if mint:
                     exclude_set.add(mint)
                 if bonding_curve:
@@ -945,7 +951,6 @@ class RealTimeCreatorFundingExtractor:
             filtered_dust = 0
             filtered_excluded = 0
             filtered_token_transfers = 0
-            create_tx_signature = None  # Will be populated when checking CREATE tx
 
             MIN_SOL = 0.001  # Filter dust
 

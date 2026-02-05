@@ -1950,7 +1950,7 @@ HTML_TEMPLATE = """
                                             ${infraTags}
                                         </div>
                                     </td>
-                                    <td class="creator-tags">${columnTags.join('')}</td>
+                                    <td class="creator-tags"><div style="display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">${columnTags.join('')}</div></td>
                                     <td class="rug-flag"></td>
                                     <td>
                                         <span class="risk-score ${getRiskClass(token.risk_level)}">${token.risk_level || '—'}</span>

@@ -67,12 +67,19 @@ def get_migrated_tokens() -> List[Dict]:
             # Get creator infrastructure tags if creator exists
             creator_infra_tags = []
             if row['earliest_tx_creator']:
+                # Deduplicate tags across sources
+                seen_tags = set()
+
                 # Get tags from creator_tags (domain tags, infrastructure markers)
                 cursor.execute("""
                     SELECT tag, description, amount_sol FROM creator_tags
                     WHERE creator_address = ?
                 """, (row['earliest_tx_creator'],))
-                creator_infra_tags = [{'tag': t[0], 'description': t[1], 'amount_sol': t[2]} for t in cursor.fetchall()]
+                for tag_row in cursor.fetchall():
+                    tag_name = tag_row[0]
+                    if tag_name not in seen_tags:
+                        seen_tags.add(tag_name)
+                        creator_infra_tags.append({'tag': tag_name, 'description': tag_row[1], 'amount_sol': tag_row[2]})
 
                 # Also get service tags from creator_service_history (uses_jitotip, uses_meteora, etc.)
                 cursor.execute("""
@@ -82,15 +89,17 @@ def get_migrated_tokens() -> List[Dict]:
                 service_tags = cursor.fetchall()
                 for service_tag_row in service_tags:
                     tag_name = service_tag_row[0]
-                    # Create description for service tags
-                    tag_desc = {
-                        'uses_jitotip': 'Uses Jito tips on CREATE transaction',
-                        'uses_jitotip_other': 'Uses Jito MEV tips on transactions',
-                        'uses_meteora': 'Uses Meteora DLMM liquidity',
-                        'uses_debridge': 'Uses deBridge cross-chain transfers',
-                        'uses_axiom': 'Uses Axiom for verification'
-                    }.get(tag_name, f'Uses {tag_name}')
-                    creator_infra_tags.append({'tag': tag_name, 'description': tag_desc, 'amount_sol': None})
+                    if tag_name not in seen_tags:  # Skip if already added from creator_tags
+                        seen_tags.add(tag_name)
+                        # Create description for service tags
+                        tag_desc = {
+                            'uses_jitotip': 'Uses Jito tips on CREATE transaction',
+                            'uses_jitotip_other': 'Uses Jito MEV tips on transactions',
+                            'uses_meteora': 'Uses Meteora DLMM liquidity',
+                            'uses_debridge': 'Uses deBridge cross-chain transfers',
+                            'uses_axiom': 'Uses Axiom for verification'
+                        }.get(tag_name, f'Uses {tag_name}')
+                        creator_infra_tags.append({'tag': tag_name, 'description': tag_desc, 'amount_sol': None})
 
             # Get top funder for creator (to show CEX funding info)
             top_funder = None

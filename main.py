@@ -1481,6 +1481,7 @@ HTML_TEMPLATE = """
                             <tr>
                                 <th>Token Mint</th>
                                 <th>Tip Amount (SOL)</th>
+                                <th>% of Cost</th>
                                 <th>Date</th>
                             </tr>
                         </thead>
@@ -2798,11 +2799,13 @@ HTML_TEMPLATE = """
                                 const mintDisplay = tip.mint ? tip.mint.substring(0, 16) + '...' : 'N/A';
                                 const mintTitle = tip.mint ? tip.mint : '';
                                 const dateStr = tip.created_at ? new Date(tip.created_at).toLocaleDateString() : 'N/A';
+                                const percentageStr = tip.tip_percentage ? tip.tip_percentage.toFixed(1) + '%' : 'N/A';
 
                                 return `
                                     <tr>
                                         <td title="${mintTitle}" style="font-family: monospace;">${mintDisplay}</td>
                                         <td>${tip.amount_sol ? tip.amount_sol.toFixed(6) : 'N/A'} SOL</td>
+                                        <td>${percentageStr}</td>
                                         <td>${dateStr}</td>
                                     </tr>
                                 `;

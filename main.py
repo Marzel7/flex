@@ -3803,7 +3803,7 @@ def api_creators_batch():
                 'cex_type': cex_type
             })
 
-        # Creator service tags
+        # Creator service tags from creator_tags table (domain/infrastructure tags)
         cursor.execute(f"""
             SELECT creator_address, tag, description, amount_sol
             FROM creator_tags
@@ -3819,6 +3819,37 @@ def api_creators_batch():
                 'description': row['description'],
                 'amount_sol': row['amount_sol']
             })
+
+        # Creator service tags from creator_service_history (uses_jitotip, uses_meteora, etc.)
+        cursor.execute(f"""
+            SELECT DISTINCT creator_address, tag, 'Service tag' as description, NULL as amount_sol
+            FROM creator_service_history
+            WHERE creator_address IN ({placeholders})
+        """, creator_addresses)
+        for row in cursor.fetchall():
+            creator = row['creator_address']
+            if creator not in tags_data:
+                tags_data[creator] = []
+
+            # Build description for service tags
+            tag_descriptions = {
+                'uses_jitotip': 'Uses Jito tips on CREATE transaction',
+                'uses_jitotip_other': 'Uses Jito MEV tips on transactions',
+                'uses_meteora': 'Uses Meteora DLMM liquidity',
+                'uses_debridge': 'Uses deBridge cross-chain transfers',
+                'uses_axiom': 'Uses Axiom for verification'
+            }
+
+            tag_name = row['tag']
+            description = tag_descriptions.get(tag_name, f'Uses {tag_name.replace("uses_", "")}')
+
+            # Check if this tag already exists (avoid duplicates)
+            if not any(t['tag'] == tag_name for t in tags_data[creator]):
+                tags_data[creator].append({
+                    'tag': tag_name,
+                    'description': description,
+                    'amount_sol': None
+                })
 
         conn.close()
 

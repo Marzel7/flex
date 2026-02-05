@@ -952,6 +952,28 @@ HTML_TEMPLATE = """
             background: rgba(34, 197, 94, 0.1);
         }
 
+        /* Multi-creator funders styling */
+        .multi-creator-container {
+            background: rgba(239, 68, 68, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .multi-creator-container .cex-funders-table th {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border-bottom: 2px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .multi-creator-container .cex-funders-table td {
+            border-bottom: 1px solid rgba(239, 68, 68, 0.1);
+        }
+
+        .multi-creator-container .cex-funders-table tr:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
         .cex-exchange-name {
             color: #4ade80;
             font-weight: 600;
@@ -1505,6 +1527,32 @@ HTML_TEMPLATE = """
                             </tr>
                         </thead>
                         <tbody id="cexFundersBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Multi-Creator Funders Section (Coordination Risk) -->
+            <div id="multiCreatorFundersSection" style="display: none; margin-bottom: 20px;">
+                <h3 style="color: #ef4444;">⚠️ Multi-Creator Funders (Coordination Risk)</h3>
+                <div class="multi-creator-container">
+                    <div id="multiCreatorRiskBanner" style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 15px; margin-bottom: 15px; border-radius: 4px;">
+                        <p style="color: #fca5a5; margin: 0; font-size: 13px;">
+                            <strong>⚠️ Alert:</strong> This funder is also funding other token creators. This could indicate coordinated activity.
+                        </p>
+                    </div>
+                    <table class="cex-funders-table" style="border-left: 4px solid #ef4444;">
+                        <thead>
+                            <tr>
+                                <th>Funder Address</th>
+                                <th>Creators Funded</th>
+                                <th>Total SOL Sent</th>
+                                <th>First Funding</th>
+                                <th>Last Funding</th>
+                            </tr>
+                        </thead>
+                        <tbody id="multiCreatorFundersBody">
                             <!-- Populated by JavaScript -->
                         </tbody>
                     </table>
@@ -2640,6 +2688,49 @@ HTML_TEMPLATE = """
                     }).join('');
                 } else {
                     cexSection.style.display = 'none';
+                }
+
+                // Check for multi-creator funders (coordination risk)
+                try {
+                    const multiCreatorResponse = await fetch('/api/multi-creator-funders');
+                    const multiCreatorData = await multiCreatorResponse.json();
+
+                    if (multiCreatorData.multi_creator_funders && multiCreatorData.multi_creator_funders.length > 0) {
+                        // Check if any of this creator's funders are in the multi-creator list
+                        const thisCreatorFunders = new Set(data.top_funders.map(f => f.funder_address));
+                        const matchingMultiCreatorFunders = multiCreatorData.multi_creator_funders.filter(mf =>
+                            thisCreatorFunders.has(mf.funder_address)
+                        );
+
+                        if (matchingMultiCreatorFunders.length > 0) {
+                            const multiSection = document.getElementById('multiCreatorFundersSection');
+                            multiSection.style.display = 'block';
+                            const multiBody = document.getElementById('multiCreatorFundersBody');
+
+                            multiBody.innerHTML = matchingMultiCreatorFunders.map(funder => {
+                                const firstFundingDate = funder.first_funding_at ? new Date(funder.first_funding_at).toLocaleDateString() : 'N/A';
+                                const lastFundingDate = funder.last_funding_at ? new Date(funder.last_funding_at).toLocaleDateString() : 'N/A';
+                                const totalSol = funder.total_sol_sent ? funder.total_sol_sent.toFixed(2) : '0.00';
+
+                                return `
+                                    <tr>
+                                        <td title="${funder.funder_address}" style="font-family: monospace;">${funder.funder_address.substring(0, 16)}...</td>
+                                        <td><strong>${funder.creator_count}</strong></td>
+                                        <td>${totalSol} SOL</td>
+                                        <td>${firstFundingDate}</td>
+                                        <td>${lastFundingDate}</td>
+                                    </tr>
+                                `;
+                            }).join('');
+                        } else {
+                            document.getElementById('multiCreatorFundersSection').style.display = 'none';
+                        }
+                    } else {
+                        document.getElementById('multiCreatorFundersSection').style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error loading multi-creator funders:', error);
+                    document.getElementById('multiCreatorFundersSection').style.display = 'none';
                 }
 
                 // Show/hide other labeled funders section

@@ -1040,6 +1040,7 @@ class RealTimeCreatorFundingExtractor:
                                             native_transfers = tx.get("nativeTransfers", []) or []
                                             fee = tx.get("fee", 0)
                                             network_fee_sol = fee / 1e9
+                                            tx_description = tx.get("description", "Unknown")  # Get Helius transaction type
 
                                             # Check for Jito tips via native transfers to Jito accounts
                                             for jito_addr in [
@@ -1062,10 +1063,10 @@ class RealTimeCreatorFundingExtractor:
                                                             try:
                                                                 cursor.execute("""
                                                                     INSERT OR IGNORE INTO creator_service_history
-                                                                    (creator_address, tag, amount_sol, tx_signature, network_fee_sol, tip_percentage, created_at)
-                                                                    VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                                                                """, (creator, "uses_jitotip_other", jitotip_amount, tx_sig, network_fee_sol, tip_percentage))
-                                                                print(f"[REALTIME_FUNDING]      ✅ Jito tip ({jitotip_amount:.6f} SOL, {tip_percentage:.1f}%) detected in tx {tx_sig[:20]}...", flush=True)
+                                                                    (creator_address, tag, amount_sol, tx_signature, network_fee_sol, tip_percentage, tx_type, created_at)
+                                                                    VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                                                                """, (creator, "uses_jitotip_other", jitotip_amount, tx_sig, network_fee_sol, tip_percentage, tx_description))
+                                                                print(f"[REALTIME_FUNDING]      ✅ Jito tip ({jitotip_amount:.6f} SOL, {tip_percentage:.1f}%) detected in {tx_description} tx {tx_sig[:20]}...", flush=True)
                                                             except Exception:
                                                                 pass
                                                         break

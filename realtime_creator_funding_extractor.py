@@ -920,13 +920,13 @@ class RealTimeCreatorFundingExtractor:
                 if bonding_curve:
                     exclude_set.add(bonding_curve)
 
-            # Also exclude fully analyzed funders (>1 SOL already logged)
-            # to avoid re-processing addresses we've already identified
+            # Exclude only funders already identified for THIS SPECIFIC CREATOR
+            # Don't exclude globally analyzed funders, as they may fund multiple creators
             cursor.execute("""
                 SELECT DISTINCT funder_address
                 FROM creator_funders
-                WHERE amount_sol > 1.0 AND fully_analyzed = 1
-            """)
+                WHERE creator_address = ? AND fully_analyzed = 1
+            """, (creator,))
             fully_analyzed = cursor.fetchall()
             for (funder,) in fully_analyzed:
                 exclude_set.add(funder)

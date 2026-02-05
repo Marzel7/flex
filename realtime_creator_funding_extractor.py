@@ -1064,6 +1064,7 @@ class RealTimeCreatorFundingExtractor:
                                                                     (creator_address, tag, amount_sol, tx_signature, network_fee_sol, tip_percentage, tx_type, created_at)
                                                                     VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
                                                                 """, (creator, "uses_jitotip_other", jitotip_amount, tx_sig, network_fee_sol, tip_percentage, tx_description))
+                                                                conn.commit()  # Persist Jito tip detection
                                                                 print(f"[REALTIME_FUNDING]      ✅ Jito tip ({jitotip_amount:.6f} SOL, {tip_percentage:.1f}%) detected in {tx_description} tx {tx_sig[:20]}...", flush=True)
                                                             except Exception:
                                                                 pass

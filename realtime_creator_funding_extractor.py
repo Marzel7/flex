@@ -1322,7 +1322,7 @@ class RealTimeCreatorFundingExtractor:
         except Exception as e:
             print(f"[BLOCKSEC] Error during batch attempt: {e}", flush=True)
 
-    async def check_create_tx_for_jitotip(self, creator: str, create_tx_sig: str):
+    async def check_create_tx_for_jitotip(self, creator: str, create_tx_sig: str, mint: str = None):
         """Check if CREATE transaction uses Jitotip and tag creator if so"""
         if not create_tx_sig:
             return
@@ -1432,7 +1432,7 @@ class RealTimeCreatorFundingExtractor:
                         INSERT OR IGNORE INTO creator_service_history
                         (creator_address, tag, amount_sol, tx_signature, mint)
                         VALUES (?, ?, ?, ?, ?)
-                    """, (creator, "uses_jitotip", jitotip_amount, create_tx_sig, None))
+                    """, (creator, "uses_jitotip", jitotip_amount, create_tx_sig, mint))
                 except Exception as hist_err:
                     pass  # Ignore duplicates
 
@@ -1836,19 +1836,19 @@ async def get_extractor() -> RealTimeCreatorFundingExtractor:
     return _extractor
 
 
-async def extract_funding_for_new_token(creator: str, migration_timestamp_str: str, create_tx_signature: str = None):
+async def extract_funding_for_new_token(creator: str, migration_timestamp_str: str, create_tx_signature: str = None, mint: str = None):
     """
     Public function to extract funding when new token detected.
 
     Call from pumpfun_curve_listener.py in handle_migration():
-        await extract_funding_for_new_token(creator, migration_time, create_tx_sig)
+        await extract_funding_for_new_token(creator, migration_time, create_tx_sig, mint)
     """
     extractor = await get_extractor()
     result = await extractor.process_new_token(creator, migration_timestamp_str)
 
     # Check CREATE tx for Jitotip usage (if signature provided)
     if create_tx_signature:
-        await extractor.check_create_tx_for_jitotip(creator, create_tx_signature)
+        await extractor.check_create_tx_for_jitotip(creator, create_tx_signature, mint)
 
     # Check inbound/outbound transfers for infrastructure usage
     await extractor.check_transfers_for_meteora(creator)

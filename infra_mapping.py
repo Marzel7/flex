@@ -523,19 +523,39 @@ CEX_ACCOUNTS = {
         "tags": ["cex", "coinbase", "exchange"],
     },
 
-    # Coinbase - Wallet 1
+    # Coinbase - Hot Wallet 1
     "H8sMJSCQxfKiFTCfDR3DUMLPwcRbM61LGFJ8N4dK3WjS": {
-        "name": "Coinbase Wallet 1",
+        "name": "Coinbase Hot Wallet 1",
         "category": "cex",
         "exchange": "Coinbase",
-        "description": "Coinbase wallet for SOL",
+        "description": "Coinbase hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
+    # Coinbase - Hot Wallet 3 (Updated)
+    "DQ5JWbJyWdJeyBxZuuyu36sUBud6L6wo3aN1QC1bRmsR": {
+        "name": "Coinbase Hot Wallet 3",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase hot wallet for SOL",
         "risk_level": "neutral",
         "tags": ["cex", "coinbase", "exchange"],
     },
 
     # Coinbase - Hot Wallet 4
-    "DPqsobysNf5iA9w7zrQM8HLzCKZEDMkZsWbiidsAt1xo": {
+    "4NyK1AdJBNbgaJ9EsKz3J4rfeHsuYdjkTPg3JaNdLeFw": {
         "name": "Coinbase Hot Wallet 4",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
+    # Coinbase - Hot Wallet 4 (Old)
+    "DPqsobysNf5iA9w7zrQM8HLzCKZEDMkZsWbiidsAt1xo": {
+        "name": "Coinbase Hot Wallet 4 (Old)",
         "category": "cex",
         "exchange": "Coinbase",
         "description": "Coinbase hot wallet for SOL",

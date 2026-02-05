@@ -3867,6 +3867,38 @@ def api_creators_batch():
                     'amount_sol': None
                 })
 
+        # Creator INFRA/CEX interactions (from creator_infra_interactions table)
+        try:
+            cursor.execute(f"""
+                SELECT creator_address, account_type, account_name
+                FROM creator_infra_interactions
+                WHERE creator_address IN ({placeholders})
+                GROUP BY creator_address, account_type, account_name
+            """, creator_addresses)
+
+            for row in cursor.fetchall():
+                creator = row['creator_address']
+                account_type = row['account_type']
+                account_name = row['account_name']
+
+                if creator not in tags_data:
+                    tags_data[creator] = []
+
+                # Create tag for INFRA/CEX interaction
+                tag_key = f"uses_{account_name.lower().replace(' ', '_').replace('-', '_')}"
+                description = f'Interacted with {account_name} ({account_type.upper()})'
+
+                # Check if this tag already exists
+                if not any(t['tag'] == tag_key for t in tags_data[creator]):
+                    tags_data[creator].append({
+                        'tag': tag_key,
+                        'description': description,
+                        'amount_sol': None
+                    })
+        except Exception as e:
+            # Table may not exist yet, that's OK
+            pass
+
         conn.close()
 
         # Build response

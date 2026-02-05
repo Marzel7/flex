@@ -273,6 +273,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "phantom", "wallet"],
     },
 
+    # Phantom Fees
+    "9yj3zvLS3fDMqi1F8zhkaWfq8TZpZWHe6cz1Sgt7djXf": {
+        "name": "Phantom Fees",
+        "category": "automation",
+        "description": "Phantom wallet fee collection account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "phantom", "wallet", "fees"],
+    },
+
     # Marinade Stake Pool
     "minrVB5LV8KV7j2BEqMn7mB8yrnZHkLJjU1d2Kz7bfU": {
         "name": "Marinade Liquid Staking",

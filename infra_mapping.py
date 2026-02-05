@@ -462,14 +462,14 @@ CEX_ACCOUNTS = {
         "tags": ["cex", "binance", "staking"],
     },
 
-    # Binance Hot Wallet
+    # Binance 2
     "AQBsPCjD4uSQAZGAtbvJr2P7cUuFPyW9Zya5wSRvxqpW": {
-        "name": "Binance Hot Wallet",
+        "name": "Binance 2",
         "category": "cex",
         "exchange": "Binance",
-        "description": "Binance exchange hot wallet for SOL trading and withdrawals",
+        "description": "Binance exchange wallet for SOL trading and withdrawals",
         "risk_level": "neutral",
-        "tags": ["cex", "binance", "exchange", "hot-wallet"],
+        "tags": ["cex", "binance", "exchange"],
     },
 
     # Coinbase - Verified

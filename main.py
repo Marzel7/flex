@@ -280,6 +280,15 @@ HTML_TEMPLATE = """
             font-size: 13px;
         }
 
+        /* Creator tags cell should be flex */
+        .tokens-table td.creator-tags {
+            display: flex !important;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
+            padding: 8px 15px;
+        }
+
         .tokens-table tbody tr:hover {
             background: rgba(0, 212, 255, 0.05);
         }
@@ -1941,7 +1950,7 @@ HTML_TEMPLATE = """
                                             ${infraTags}
                                         </div>
                                     </td>
-                                    <td><div class="creator-tags">${columnTags.join('')}</div></td>
+                                    <td class="creator-tags">${columnTags.join('')}</td>
                                     <td class="rug-flag"></td>
                                     <td>
                                         <span class="risk-score ${getRiskClass(token.risk_level)}">${token.risk_level || '—'}</span>

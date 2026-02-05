@@ -1791,8 +1791,10 @@ HTML_TEMPLATE = """
                                     // Skip deBridge tag if deBridge is already shown as a funder
                                     if (infraTag.tag.includes('debridge') && skipIfFunder) continue;
 
-                                    // SKIP if this looks like a Solana address (base58, 30+ chars or has periods from address parsing)
-                                    if (infraTag.tag.match(/^[1-9A-HJ-NP-Z]{30,}/) || infraTag.tag.match(/\.[1-9A-HJ-NP-Z]/)) {
+                                    // SKIP if this looks like a Solana address (base58 characters, 30+ chars, may have period at end)
+                                    // Solana base58 alphabet: [1-9A-HJ-NP-Za-km-z] (excludes 0, O, I, l)
+                                    // Examples: "BmxK7bhPsfq4p4FTrXkUSKG26JeW2bT32DqqmkHD8rtJ" or "BmxK7bhPsfq4p4FTrXkUSKG26JeW2bT32DqqmkHD8rtJ."
+                                    if (infraTag.tag.match(/^[1-9A-HJ-NP-Za-km-z]{30,}\.?$/)) {
                                         continue;  // Skip addresses, only show service names
                                     }
 

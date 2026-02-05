@@ -1791,6 +1791,11 @@ HTML_TEMPLATE = """
                                     // Skip deBridge tag if deBridge is already shown as a funder
                                     if (infraTag.tag.includes('debridge') && skipIfFunder) continue;
 
+                                    // SKIP if this looks like a Solana address (base58, 30+ chars or has periods from address parsing)
+                                    if (infraTag.tag.match(/^[1-9A-HJ-NP-Z]{30,}/) || infraTag.tag.match(/\.[1-9A-HJ-NP-Z]/)) {
+                                        continue;  // Skip addresses, only show service names
+                                    }
+
                                     let tagColor, bgColor;
                                     if (infraTag.tag.includes('debridge')) {
                                         tagColor = '#ff9500';

@@ -3947,6 +3947,67 @@ def api_creator_cross_references(creator_address: str):
         return jsonify({'error': str(e)}), 500
 
 
+
+@app.route('/api/creator-service-history/<creator_address>')
+def api_creator_service_history(creator_address: str):
+    """Get full history of service usage (jitotip, meteora, debridge, axiom) for a creator"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get all service history records for this creator
+        cursor.execute("""
+            SELECT 
+                tag,
+                amount_sol,
+                tx_signature,
+                mint,
+                created_at
+            FROM creator_service_history
+            WHERE creator_address = ?
+            ORDER BY created_at DESC
+        """, (creator_address,))
+        
+        history = [dict(row) for row in cursor.fetchall()]
+
+        # Calculate statistics per tag
+        cursor.execute("""
+            SELECT 
+                tag,
+                COUNT(*) as count,
+                SUM(amount_sol) as total,
+                AVG(amount_sol) as avg,
+                MIN(amount_sol) as min,
+                MAX(amount_sol) as max
+            FROM creator_service_history
+            WHERE creator_address = ?
+            GROUP BY tag
+        """, (creator_address,))
+        
+        stats = {}
+        for row in cursor.fetchall():
+            stats[row['tag']] = {
+                'count': row['count'],
+                'total_sol': row['total'],
+                'avg_sol': row['avg'],
+                'min_sol': row['min'],
+                'max_sol': row['max']
+            }
+
+        conn.close()
+
+        return jsonify({
+            'creator_address': creator_address,
+            'history': history,
+            'statistics': stats,
+            'total_records': len(history)
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/network-coordinators')
 def api_network_coordinators():
     """Get network coordinators (addresses linked to multiple creators)"""

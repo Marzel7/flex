@@ -1405,11 +1405,36 @@ class RealTimeCreatorFundingExtractor:
                     )
                 """)
 
+                # Create history table to track all tip amounts per transaction
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS creator_service_history (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        creator_address TEXT NOT NULL,
+                        tag TEXT NOT NULL,
+                        amount_sol REAL,
+                        tx_signature TEXT,
+                        mint TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE(creator_address, tag, tx_signature)
+                    )
+                """)
+
+                # 1. Save summary in creator_tags (for UI display - shows latest/highest)
                 cursor.execute("""
                     INSERT OR REPLACE INTO creator_tags
                     (creator_address, tag, description, amount_sol)
                     VALUES (?, ?, ?, ?)
                 """, (creator, "uses_jitotip", f"Creator uses Jitotip for MEV/fee tipping in CREATE transaction", jitotip_amount))
+
+                # 2. Save to history table (full audit trail of all tips)
+                try:
+                    cursor.execute("""
+                        INSERT OR IGNORE INTO creator_service_history
+                        (creator_address, tag, amount_sol, tx_signature, mint)
+                        VALUES (?, ?, ?, ?, ?)
+                    """, (creator, "uses_jitotip", jitotip_amount, create_tx_sig, None))
+                except Exception as hist_err:
+                    pass  # Ignore duplicates
 
                 conn.commit()
                 print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_jitotip' - Tip amount: {jitotip_amount:.6f} SOL", flush=True)
@@ -1466,21 +1491,48 @@ class RealTimeCreatorFundingExtractor:
             if found_meteora:
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS creator_tags (
-                        creator_address TEXT PRIMARY KEY,
-                        tag TEXT,
+                        creator_address TEXT NOT NULL,
+                        tag TEXT NOT NULL,
                         description TEXT,
-                        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        amount_sol REAL,
+                        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        PRIMARY KEY(creator_address, tag)
                     )
                 """)
 
+                # Create history table if not exists
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS creator_service_history (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        creator_address TEXT NOT NULL,
+                        tag TEXT NOT NULL,
+                        amount_sol REAL,
+                        tx_signature TEXT,
+                        mint TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE(creator_address, tag, tx_signature)
+                    )
+                """)
+
+                # Save summary in creator_tags
                 cursor.execute("""
                     INSERT OR REPLACE INTO creator_tags
                     (creator_address, tag, description, amount_sol)
                     VALUES (?, ?, ?, ?)
                 """, (creator, "uses_meteora", f"Creator uses Meteora for {meteora_direction} transfers via {meteora_source}", meteora_amount))
 
+                # Save to history table (each Meteora interaction)
+                try:
+                    cursor.execute("""
+                        INSERT OR IGNORE INTO creator_service_history
+                        (creator_address, tag, amount_sol, tx_signature)
+                        VALUES (?, ?, ?, ?)
+                    """, (creator, "uses_meteora", meteora_amount, None))
+                except Exception as hist_err:
+                    pass
+
                 conn.commit()
-                print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_meteora'", flush=True)
+                print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_meteora' - Amount: {meteora_amount:.6f} SOL", flush=True)
 
             conn.close()
 

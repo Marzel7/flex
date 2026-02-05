@@ -945,6 +945,7 @@ class RealTimeCreatorFundingExtractor:
             filtered_dust = 0
             filtered_excluded = 0
             filtered_token_transfers = 0
+            create_tx_signature = None  # Will be populated when checking CREATE tx
 
             MIN_SOL = 0.001  # Filter dust
 

@@ -1832,57 +1832,15 @@ HTML_TEMPLATE = """
                                 }
                             }
 
-                            // Check if creator is directly labeled first, otherwise look for labeled funders
-                            // Show ANY funder that has a CEX/Infrastructure label, not just the top funder
-                            let funderLabels = [];
-                            if (creatorData.funders && creatorData.funders.length > 0) {
-                                for (let funder of creatorData.funders) {
-                                    // Check if this funder is marked as CEX and has an exchange name
-                                    if (funder.is_cex && funder.cex_exchange) {
-                                        // Only add if not already in our list
-                                        const already = funderLabels.some(f => f.name === funder.cex_exchange);
-                                        if (!already) {
-                                            funderLabels.push({
-                                                name: funder.cex_exchange,
-                                                category: 'cex',
-                                                description: `Funded by ${funder.cex_exchange} ${funder.cex_type || 'Wallet'}`
-                                            });
-                                        }
-                                        // Only show first 2 CEX funders to avoid clutter
-                                        if (funderLabels.length >= 2) break;
-                                    }
-                                }
-                            }
+                            // infraTags is now only for showing creator as labeled (CEX/Infrastructure address)
+                            // Funder labels are displayed in Creator Tags column instead
+                            let infraTags = '';
 
-                            // Use first funder label if creator doesn't have direct label
-                            if (!displayName && funderLabels.length > 0) {
-                                const firstLabel = funderLabels[0];
-                                displayName = firstLabel.name;
-                                displayCategory = firstLabel.category;
-                                displayDescription = firstLabel.description;
-                            }
-
-                            // Render simple account name badge if we found a match
-                            // IMPORTANT: Only show service names, NEVER show addresses in badges
-                            let funderTagsHTML = '';
-                            if (funderLabels.length > 0) {
-                                for (let label of funderLabels) {
-                                    funderTagsHTML += `<span class="infra-tag infra-${label.category}" title="${label.description}">${label.name}</span>`;
-                                }
-                            }
-
+                            // Only show infraTags if creator itself is labeled as CEX/Infrastructure
                             if (displayName && displayCategory && !displayName.includes('1111111111') && displayName.length < 50 && !displayName.match(/^[1-9A-HJ-NP-Z]{32,}$/)) {
-                                // Extra safeguard: prevent solana addresses (base58 44-char format) from being displayed
                                 infraTags = `<div class="creator-infra-tags">
                                     <span class="infra-tag infra-${displayCategory}" title="${displayDescription}">${displayName}</span>
-                                    ${funderTagsHTML && funderTagsHTML !== `<span class="infra-tag infra-${displayCategory}" title="${displayDescription}">${displayName}</span>` ? funderTagsHTML : ''}
                                 </div>`;
-                            } else if (funderTagsHTML) {
-                                // No creator label but we have funder labels
-                                infraTags = `<div class="creator-infra-tags">${funderTagsHTML}</div>`;
-                            } else {
-                                // No valid labeled service name found - keep infraTags empty
-                                infraTags = '';
                             }
 
                             // Create creator element - ALWAYS show creator address (either label or address)

@@ -1504,6 +1504,7 @@ HTML_TEMPLATE = """
                                 <th>Token Mint</th>
                                 <th>Tip Amount (SOL)</th>
                                 <th>% of Cost</th>
+                                <th>Type</th>
                                 <th>Date</th>
                             </tr>
                         </thead>
@@ -2881,8 +2882,8 @@ HTML_TEMPLATE = """
                     const jitotipsBody = document.getElementById('jitotipsBody');
 
                     if (historyData.history && historyData.history.length > 0) {
-                        // Filter only jitotip records
-                        const jitotips = historyData.history.filter(h => h.tag === 'uses_jitotip');
+                        // Filter jitotip records (both CREATE and other txs)
+                        const jitotips = historyData.history.filter(h => h.tag === 'uses_jitotip' || h.tag === 'uses_jitotip_other');
 
                         if (jitotips.length > 0) {
                             jitotipsSection.style.display = 'block';
@@ -2892,11 +2893,17 @@ HTML_TEMPLATE = """
                                 const dateStr = tip.created_at ? new Date(tip.created_at).toLocaleDateString() : 'N/A';
                                 const percentageStr = tip.tip_percentage ? tip.tip_percentage.toFixed(1) + '%' : 'N/A';
 
+                                // Show type indicator (CREATE vs OTHER)
+                                const typeIndicator = tip.tag === 'uses_jitotip'
+                                    ? '<span style="color: #4ade80; font-weight: 600; font-size: 10px;">CREATE</span>'
+                                    : '<span style="color: #fbbf24; font-weight: 600; font-size: 10px;">OTHER</span>';
+
                                 return `
                                     <tr>
                                         <td title="${mintTitle}" style="font-family: monospace;">${mintDisplay}</td>
                                         <td>${tip.amount_sol ? tip.amount_sol.toFixed(6) : 'N/A'} SOL</td>
                                         <td>${percentageStr}</td>
+                                        <td>${typeIndicator}</td>
                                         <td>${dateStr}</td>
                                     </tr>
                                 `;

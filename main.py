@@ -1891,8 +1891,15 @@ HTML_TEMPLATE = """
                                         const tagColor = '#00d4ff';
                                         const bgColor = 'rgba(0, 212, 255, 0.15)';
 
-                                        const cleanTagName = serviceTag.tag.replace('uses_', '');
-                                        columnTags.push(`<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor}; background-color: ${bgColor};" title="${serviceTag.description}">${cleanTagName}</span>`);
+                                        // Custom display names for service tags
+                                        let displayName = serviceTag.tag.replace('uses_', '');
+                                        if (serviceTag.tag === 'uses_jitotip') {
+                                            displayName = 'JitoTip (CREATE)';
+                                        } else if (serviceTag.tag === 'uses_jitotip_other') {
+                                            displayName = 'JitoTip';
+                                        }
+
+                                        columnTags.push(`<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor}; background-color: ${bgColor};" title="${serviceTag.description}">${displayName}</span>`);
                                     }
                                 }
                             }

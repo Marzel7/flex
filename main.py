@@ -4254,11 +4254,13 @@ def api_creator_service_history(creator_address: str):
 
         # Get all service history records for this creator
         cursor.execute("""
-            SELECT 
+            SELECT
                 tag,
                 amount_sol,
                 tx_signature,
                 mint,
+                network_fee_sol,
+                tip_percentage,
                 created_at
             FROM creator_service_history
             WHERE creator_address = ?

@@ -2426,7 +2426,7 @@ HTML_TEMPLATE = """
 
                 document.getElementById('creatorNetworkSize').textContent = (data.cluster.total_wallets || 0) + ' wallets';
 
-                // Display creator tags (remove 'uses_' prefix for cleaner display, deduplicate)
+                // Display creator tags (remove 'uses_' prefix for cleaner display, deduplicate, filter addresses)
                 const tagsContainer = document.getElementById('creatorTagsContainer');
                 if (data.tags && data.tags.length > 0) {
                     // Deduplicate tags and strip 'uses_' prefix for display
@@ -2434,6 +2434,11 @@ HTML_TEMPLATE = """
                     const uniqueTags = [];
 
                     for (const t of data.tags) {
+                        // SKIP if this looks like a Solana address (base58 characters, 30+ chars, may have period at end)
+                        if (t.tag.match(/^[1-9A-HJ-NP-Za-km-z]{30,}\.?$/)) {
+                            continue;  // Skip addresses, only show service names
+                        }
+
                         const displayTag = t.tag.replace('uses_', '').toLowerCase();
                         if (!seenTags.has(displayTag)) {
                             seenTags.add(displayTag);

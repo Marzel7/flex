@@ -1039,6 +1039,60 @@ HTML_TEMPLATE = """
             background: rgba(0, 212, 255, 0.05);
         }
 
+        /* Funder stats grid (multi-creator funders modal) */
+        .funder-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* Funders table */
+        .funders-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .funders-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .funders-table th {
+            background: rgba(139, 92, 246, 0.15);
+            padding: 10px;
+            text-align: left;
+            font-size: 12px;
+            color: #a78bfa;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+            font-weight: 600;
+        }
+
+        .funders-table td {
+            padding: 10px;
+            font-size: 12px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+            color: #e0e0e0;
+        }
+
+        .funders-table tr:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .funders-table a {
+            color: #a78bfa;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .funders-table a:hover {
+            text-decoration: underline;
+        }
+
         /* Source type badges */
         .original-sender-badge {
             display: inline-block;
@@ -1377,6 +1431,7 @@ HTML_TEMPLATE = """
             <div class="control-group" style="border-left: 1px solid rgba(139, 92, 246, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(76, 175, 80, 0.2); color: #4ade80; border: 1px solid rgba(76, 175, 80, 0.5);">▶️ Polling ON</button>
                 <button class="action-button" onclick="toggleCEXView()" title="View CEX funders and activity" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.5); margin-left: 8px;">🏛️ CEX View</button>
+                <button class="action-button" onclick="showMultiCreatorFunders()" title="Analyze funders supporting multiple creators" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">🔗 Coordinated Funders</button>
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(239, 68, 68, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button class="action-button danger" onclick="emptyDatabase()" title="Clear all tokens, clustering, and address data">🗑️ Empty DB</button>
@@ -1653,6 +1708,69 @@ HTML_TEMPLATE = """
             <h3 style="margin-top: 20px;">Wallet Network</h3>
             <div class="cluster-info" id="clusterInfo" style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 6px; padding: 15px;">
                 <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Multi-Creator Funders Modal -->
+    <div id="multiCreatorFundersModal" class="modal">
+        <div class="modal-content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
+            <span class="close" onclick="closeMultiCreatorFunders()">&times;</span>
+            <h2>🔗 Coordinated Funder Analysis</h2>
+
+            <!-- Statistics Summary -->
+            <div class="funder-stats-grid" id="funderStatsGrid">
+                <div class="stat-box">
+                    <label>Total Funders</label>
+                    <span id="totalFundersCount">—</span>
+                </div>
+                <div class="stat-box">
+                    <label>Multi-Creator Funders</label>
+                    <span id="multiCreatorCount">—</span>
+                </div>
+                <div class="stat-box">
+                    <label>Single-Creator Only</label>
+                    <span id="singleCreatorCount">—</span>
+                </div>
+                <div class="stat-box">
+                    <label>Coordination Risk</label>
+                    <span id="coordinationRisk">—</span>
+                </div>
+            </div>
+
+            <!-- Multi-Creator Funders Table -->
+            <h3>Funders Funding Multiple Creators</h3>
+            <div class="funders-container">
+                <table class="funders-table">
+                    <thead>
+                        <tr>
+                            <th>Funder Address</th>
+                            <th>Creators Funded</th>
+                            <th>Total SOL</th>
+                            <th>Funding Records</th>
+                            <th>Activity Period</th>
+                        </tr>
+                    </thead>
+                    <tbody id="multiCreatorFundersBody">
+                        <tr><td colspan="5" style="text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Funder Details (Expandable) -->
+            <div id="funderDetailsContainer" style="margin-top: 30px; display: none;">
+                <h3>Funder Details</h3>
+                <div id="funderDetailsList">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Risk Assessment -->
+            <div style="margin-top: 30px; padding: 15px; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 6px;">
+                <h3 style="color: #ef4444; margin-top: 0;">⚠️ Risk Assessment</h3>
+                <p style="color: #e0e0e0; margin: 0;">
+                    Funders supporting multiple creators may indicate coordinated funding networks or bot operations. This is a strong signal of potential malicious activity.
+                </p>
             </div>
         </div>
     </div>
@@ -3045,6 +3163,75 @@ HTML_TEMPLATE = """
             });
         }
 
+        async function showMultiCreatorFunders() {
+            // Cancel ongoing price fetches to free up bandwidth for modal
+            priceLoadController.abort();
+            priceLoadController = new AbortController();
+
+            const modal = document.getElementById('multiCreatorFundersModal');
+
+            try {
+                const response = await fetch('/api/multi-creator-funders');
+                const data = await response.json();
+
+                if (data.error) {
+                    alert('Failed to load multi-creator funder analysis');
+                    return;
+                }
+
+                // Populate statistics
+                document.getElementById('totalFundersCount').textContent = data.statistics.total_funders;
+                document.getElementById('multiCreatorCount').textContent = data.statistics.funding_multiple_creators;
+                document.getElementById('singleCreatorCount').textContent = data.statistics.funding_single_creator;
+                document.getElementById('coordinationRisk').textContent = data.statistics.coordination_risk;
+
+                // Color code the risk level
+                const riskElement = document.getElementById('coordinationRisk');
+                if (data.statistics.coordination_risk === 'HIGH') {
+                    riskElement.style.color = '#ef4444';
+                } else {
+                    riskElement.style.color = '#4ade80';
+                }
+
+                // Populate funders table
+                const fundersBody = document.getElementById('multiCreatorFundersBody');
+                if (data.multi_creator_funders && data.multi_creator_funders.length > 0) {
+                    fundersBody.innerHTML = data.multi_creator_funders.map((funder, idx) => {
+                        const startDate = new Date(funder.first_funding_at).toLocaleDateString();
+                        const endDate = new Date(funder.last_funding_at).toLocaleDateString();
+                        const period = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
+
+                        return `
+                            <tr>
+                                <td style="font-family: monospace; font-size: 11px; max-width: 200px; word-break: break-all;">
+                                    <a href="#" onclick="showCreatorDetails('${funder.funder_address}'); return false;" title="${funder.funder_address}">
+                                        ${funder.funder_address.substring(0, 12)}...
+                                    </a>
+                                </td>
+                                <td><strong style="color: #ef4444;">${funder.creator_count}</strong></td>
+                                <td>${funder.total_sol_sent.toFixed(2)} SOL</td>
+                                <td>${funder.funding_record_count}</td>
+                                <td style="font-size: 11px;">${period}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    fundersBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #4ade80;">✅ No coordinated funders detected</td></tr>';
+                }
+
+                // Show modal
+                modal.style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading multi-creator funders:', error);
+                alert('Failed to load multi-creator funder analysis');
+            }
+        }
+
+        function closeMultiCreatorFunders() {
+            document.getElementById('multiCreatorFundersModal').style.display = 'none';
+        }
+
         function closeCreatorDetails() {
             document.getElementById('creatorModal').style.display = 'none';
         }
@@ -3054,12 +3241,16 @@ HTML_TEMPLATE = """
             const metricsModal = document.getElementById('metricsModal');
             const creatorModal = document.getElementById('creatorModal');
             const txViewerModal = document.getElementById('txViewerModal');
+            const multiCreatorFundersModal = document.getElementById('multiCreatorFundersModal');
 
             if (event.target === metricsModal) {
                 metricsModal.style.display = 'none';
             }
             if (event.target === creatorModal) {
                 creatorModal.style.display = 'none';
+            }
+            if (event.target === multiCreatorFundersModal) {
+                multiCreatorFundersModal.style.display = 'none';
             }
             if (event.target === txViewerModal) {
                 txViewerModal.style.display = 'none';
@@ -3071,6 +3262,7 @@ HTML_TEMPLATE = """
             if (event.key === 'Escape') {
                 closeTokenMetrics();
                 closeCreatorDetails();
+                closeMultiCreatorFunders();
                 closeTxViewer();
             }
         });

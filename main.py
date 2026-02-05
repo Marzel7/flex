@@ -1866,6 +1866,7 @@ HTML_TEMPLATE = """
                             }
 
                             // Build creator infrastructure tags (deBridge, Meteora, Axiom) with deduplication
+                            // NOTE: Service tags are now shown in the "Creator Tags" column, so skip them here to avoid duplication
                             let infraTagsHTML = '';
                             if (token.creator_infra_tags && token.creator_infra_tags.length > 0) {
                                 // Skip displaying if the infrastructure service is already shown as a funder badge
@@ -1893,6 +1894,12 @@ HTML_TEMPLATE = """
                                     // Examples: "BmxK7bhPsfq4p4FTrXkUSKG26JeW2bT32DqqmkHD8rtJ" or "BmxK7bhPsfq4p4FTrXkUSKG26JeW2bT32DqqmkHD8rtJ."
                                     if (infraTag.tag.match(/^[1-9A-HJ-NP-Za-km-z]{30,}\.?$/)) {
                                         continue;  // Skip addresses, only show service names
+                                    }
+
+                                    // SKIP service tags (uses_axiom, uses_jitotip, uses_meteora, uses_debridge)
+                                    // They are now displayed in the "Creator Tags" column to avoid duplication
+                                    if (infraTag.tag.match(/^uses_/)) {
+                                        continue;
                                     }
 
                                     let tagColor, bgColor;

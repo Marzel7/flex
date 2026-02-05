@@ -1733,6 +1733,40 @@ HTML_TEMPLATE = """
                                 columnTags.push('<span class="creator-tag tag-blocked" title="On blocklist">BLOCKED</span>');
                             }
 
+                            // CEX/Infrastructure funders - add to Creator Tags column
+                            let funderLabels = [];
+                            if (creatorData.funders && creatorData.funders.length > 0) {
+                                for (let funder of creatorData.funders) {
+                                    // Check if this funder is marked as CEX and has an exchange name
+                                    if (funder.is_cex && funder.cex_exchange) {
+                                        // Only add if not already in our list
+                                        const already = funderLabels.some(f => f.name === funder.cex_exchange);
+                                        if (!already) {
+                                            funderLabels.push({
+                                                name: funder.cex_exchange,
+                                                category: 'cex',
+                                                description: `Funded by ${funder.cex_exchange} ${funder.cex_type || 'Wallet'}`
+                                            });
+                                        }
+                                        // Only show first 2 CEX funders to avoid clutter
+                                        if (funderLabels.length >= 2) break;
+                                    }
+                                }
+                            }
+
+                            // Add funder labels to columnTags
+                            for (let label of funderLabels) {
+                                let tagColor, bgColor;
+                                if (label.category === 'cex') {
+                                    tagColor = '#00d4ff';
+                                    bgColor = 'rgba(0, 212, 255, 0.15)';
+                                } else {
+                                    tagColor = '#4ade80';
+                                    bgColor = 'rgba(74, 222, 128, 0.15)';
+                                }
+                                columnTags.push(`<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor}; background-color: ${bgColor};" title="${label.description}">${label.name}</span>`);
+                            }
+
                             // Service tags (uses_axiom, uses_jitotip, uses_meteora, uses_debridge, etc.)
                             // Use creatorData.tags if available (from batch API), otherwise fall back to token.creator_infra_tags
                             const serviceTags = (creatorData.tags && creatorData.tags.length > 0) ? creatorData.tags : (token.creator_infra_tags || []);

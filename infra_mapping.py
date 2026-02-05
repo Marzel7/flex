@@ -174,6 +174,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "okx", "router"],
     },
 
+    # OKX DEX Authority
+    "HV1KXxWFaSeriyFvXyx48FqG9BoFbfinB8njCJonqP7K": {
+        "name": "OKX DEX Authority",
+        "category": "automation",
+        "description": "OKX DEX liquidity and swap authority account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "okx", "dex", "authority"],
+    },
+
     # Meteora Pool Authority
     "HLnpSz9h2S4hiLQ43rnSD9XkcUThA7B8hQMKmDaiTLcC": {
         "name": "Meteora Pool Authority",

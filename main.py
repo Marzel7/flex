@@ -490,8 +490,9 @@ HTML_TEMPLATE = """
 
         /* Base creator tag styling */
         .creator-tag {
-            display: inline-flex;
+            display: flex;
             align-items: center;
+            justify-content: center;
             padding: 3px 8px;
             border-radius: 3px;
             font-size: 10px;

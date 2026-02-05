@@ -1381,8 +1381,17 @@ class RealTimeCreatorFundingExtractor:
                                                 if diff > 0:  # Jitotip received SOL
                                                     found_jitotip = True
                                                     jitotip_amount = diff / 1e9
+
+                                                    # Calculate total tx cost (network fee + jito tip)
+                                                    network_fee_lamports = tx.get("meta", {}).get("fee", 0)
+                                                    network_fee_sol = network_fee_lamports / 1e9
+                                                    total_cost_sol = network_fee_sol + jitotip_amount
+
+                                                    # Calculate tip as % of total cost
+                                                    tip_percentage = (jitotip_amount / total_cost_sol * 100) if total_cost_sol > 0 else 0
+
                                                     rpc_name = "Helius" if "helius" in rpc_url else "Public RPC"
-                                                    print(f"[REALTIME_FUNDING] 🎯 JITOTIP DETECTED (via {rpc_name}) in CREATE tx: {creator[:16]}... sent {jitotip_amount:.9f} SOL to {INFRASTRUCTURE_ACCOUNTS[jito].get('name', 'Jitotip')}", flush=True)
+                                                    print(f"[REALTIME_FUNDING] 🎯 JITOTIP DETECTED (via {rpc_name}) in CREATE tx: {creator[:16]}... sent {jitotip_amount:.9f} SOL ({tip_percentage:.1f}% of {total_cost_sol:.6f} SOL total cost) to {INFRASTRUCTURE_ACCOUNTS[jito].get('name', 'Jitotip')}", flush=True)
                                                     break
 
                                     # If found, break out of RPC loop
@@ -1430,14 +1439,14 @@ class RealTimeCreatorFundingExtractor:
                 try:
                     cursor.execute("""
                         INSERT OR IGNORE INTO creator_service_history
-                        (creator_address, tag, amount_sol, tx_signature, mint)
-                        VALUES (?, ?, ?, ?, ?)
-                    """, (creator, "uses_jitotip", jitotip_amount, create_tx_sig, mint))
+                        (creator_address, tag, amount_sol, tx_signature, mint, network_fee_sol, tip_percentage)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """, (creator, "uses_jitotip", jitotip_amount, create_tx_sig, mint, network_fee_sol, tip_percentage))
                 except Exception as hist_err:
                     pass  # Ignore duplicates
 
                 conn.commit()
-                print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_jitotip' - Tip amount: {jitotip_amount:.6f} SOL", flush=True)
+                print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_jitotip' - Tip amount: {jitotip_amount:.6f} SOL ({tip_percentage:.1f}% of tx cost)", flush=True)
 
             conn.close()
 

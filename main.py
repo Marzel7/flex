@@ -280,14 +280,6 @@ HTML_TEMPLATE = """
             font-size: 13px;
         }
 
-        /* Creator tags cell should be flex */
-        .tokens-table td.creator-tags {
-            display: flex !important;
-            flex-wrap: wrap;
-            gap: 5px;
-            align-items: center;
-            padding: 8px 15px;
-        }
 
         .tokens-table tbody tr:hover {
             background: rgba(0, 212, 255, 0.05);
@@ -491,14 +483,9 @@ HTML_TEMPLATE = """
             text-decoration-thickness: 2px;
         }
 
-        /* Creator tags container */
+        /* Creator tags container - styles handled by inline styles on wrapper div */
         .creator-tags {
-            display: flex !important;
-            gap: 5px;
-            flex-wrap: wrap;
-            max-width: 600px;
-            align-items: center;
-            flex-direction: row;
+            /* Table cell - flex styles applied via wrapper div */
         }
 
         /* Base creator tag styling */

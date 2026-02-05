@@ -2893,10 +2893,11 @@ HTML_TEMPLATE = """
                                 const dateStr = tip.created_at ? new Date(tip.created_at).toLocaleDateString() : 'N/A';
                                 const percentageStr = tip.tip_percentage ? tip.tip_percentage.toFixed(1) + '%' : 'N/A';
 
-                                // Show type indicator (CREATE vs OTHER)
-                                const typeIndicator = tip.tag === 'uses_jitotip'
-                                    ? '<span style="color: #4ade80; font-weight: 600; font-size: 10px;">CREATE</span>'
-                                    : '<span style="color: #fbbf24; font-weight: 600; font-size: 10px;">OTHER</span>';
+                                // Show actual transaction type with styling
+                                const txType = tip.tx_type || (tip.tag === 'uses_jitotip' ? 'Create' : 'Unknown');
+                                const isCreate = tip.tag === 'uses_jitotip' || txType.toLowerCase() === 'create';
+                                const typeColor = isCreate ? '#4ade80' : '#fbbf24';
+                                const typeIndicator = `<span style="color: ${typeColor}; font-weight: 600; font-size: 10px;">${txType}</span>`;
 
                                 return `
                                     <tr>
@@ -4177,12 +4178,45 @@ def api_creator_funding_history(creator_address: str):
 
         conn.close()
 
+        # Enrich transfers with infrastructure/CEX information
+        enriched_transfers = []
+        for transfer in all_transfers:
+            transfer_copy = transfer.copy()
+            address = transfer.get('address')
+
+            if address:
+                from infra_mapping import get_account_info, get_cex_info
+
+                # Check infrastructure first
+                infra_info = get_account_info(address)
+                if infra_info:
+                    transfer_copy['display_name'] = infra_info.get('name')
+                    transfer_copy['category'] = infra_info.get('category')
+                    transfer_copy['is_infrastructure'] = True
+                else:
+                    # Check CEX if not infrastructure
+                    cex_info = get_cex_info(address)
+                    if cex_info:
+                        transfer_copy['display_name'] = cex_info.get('name')
+                        transfer_copy['category'] = cex_info.get('category')
+                        transfer_copy['is_infrastructure'] = False
+                    else:
+                        transfer_copy['display_name'] = None
+                        transfer_copy['category'] = None
+                        transfer_copy['is_infrastructure'] = False
+            else:
+                transfer_copy['display_name'] = None
+                transfer_copy['category'] = None
+                transfer_copy['is_infrastructure'] = False
+
+            enriched_transfers.append(transfer_copy)
+
         return jsonify({
             'creator_address': creator_address,
-            'transfers': all_transfers,
+            'transfers': enriched_transfers,
             'incoming_count': len(incoming),
             'outgoing_count': len(outgoing),
-            'total_transfers': len(all_transfers),
+            'total_transfers': len(enriched_transfers),
             'total_incoming_sol': sum(t.get('amount_sol', 0) for t in incoming),
             'total_outgoing_sol': sum(t.get('amount_sol', 0) for t in outgoing)
         })
@@ -4261,6 +4295,7 @@ def api_creator_service_history(creator_address: str):
                 mint,
                 network_fee_sol,
                 tip_percentage,
+                tx_type,
                 created_at
             FROM creator_service_history
             WHERE creator_address = ?

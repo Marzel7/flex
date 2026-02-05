@@ -2892,12 +2892,19 @@ HTML_TEMPLATE = """
                                 const mintTitle = tip.mint ? tip.mint : '';
                                 const dateStr = tip.created_at ? new Date(tip.created_at).toLocaleDateString() : 'N/A';
                                 const percentageStr = tip.tip_percentage ? tip.tip_percentage.toFixed(1) + '%' : 'N/A';
+                                const txSig = tip.tx_signature || '';
 
-                                // Show actual transaction type with styling
+                                // Show actual transaction type with styling and Solscan link
                                 const txType = tip.tx_type || (tip.tag === 'uses_jitotip' ? 'Create' : 'Unknown');
                                 const isCreate = tip.tag === 'uses_jitotip' || txType.toLowerCase() === 'create';
                                 const typeColor = isCreate ? '#4ade80' : '#fbbf24';
-                                const typeIndicator = `<span style="color: ${typeColor}; font-weight: 600; font-size: 10px;">${txType}</span>`;
+
+                                let typeIndicator;
+                                if (txSig) {
+                                    typeIndicator = `<a href="https://solscan.io/tx/${txSig}" target="_blank" style="color: ${typeColor}; font-weight: 600; font-size: 10px; text-decoration: none; cursor: pointer;" title="View on Solscan: ${txSig}">${txType}</a>`;
+                                } else {
+                                    typeIndicator = `<span style="color: ${typeColor}; font-weight: 600; font-size: 10px;">${txType}</span>`;
+                                }
 
                                 return `
                                     <tr>

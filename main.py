@@ -487,7 +487,8 @@ HTML_TEMPLATE = """
             display: flex;
             gap: 5px;
             flex-wrap: wrap;
-            max-width: 320px;
+            max-width: 600px;
+            align-items: center;
         }
 
         /* Base creator tag styling */

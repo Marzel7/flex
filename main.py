@@ -964,6 +964,31 @@ HTML_TEMPLATE = """
             margin-right: 5px;
         }
 
+        /* Jito Tips Table */
+        .jitotips-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .jitotips-table th {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            text-align: left;
+            font-size: 12px;
+            color: #a0a0a0;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .jitotips-table td {
+            padding: 10px;
+            font-size: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .jitotips-table tr:hover {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
         /* Source type badges */
         .original-sender-badge {
             display: inline-block;
@@ -1445,6 +1470,25 @@ HTML_TEMPLATE = """
                         <!-- Populated by JavaScript -->
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Jito Tips History Section -->
+            <div id="jitotipsSection" style="display: none; margin-bottom: 20px;">
+                <h3 style="color: #00d4ff;">💸 Jito Tips History</h3>
+                <div class="jitotips-container">
+                    <table class="jitotips-table">
+                        <thead>
+                            <tr>
+                                <th>Token Mint</th>
+                                <th>Tip Amount (SOL)</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jitotipsBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- CEX Funders Section -->
@@ -2734,6 +2778,44 @@ HTML_TEMPLATE = """
                     `;
                 } else {
                     clusterInfo.innerHTML = '<p style="color: #a0a0a0;">No wallet network data available</p>';
+                }
+
+                // Fetch and populate Jito tips history
+                try {
+                    const historyResponse = await fetch(`/api/creator-service-history/${creatorAddress}`);
+                    const historyData = await historyResponse.json();
+
+                    const jitotipsSection = document.getElementById('jitotipsSection');
+                    const jitotipsBody = document.getElementById('jitotipsBody');
+
+                    if (historyData.history && historyData.history.length > 0) {
+                        // Filter only jitotip records
+                        const jitotips = historyData.history.filter(h => h.tag === 'uses_jitotip');
+
+                        if (jitotips.length > 0) {
+                            jitotipsSection.style.display = 'block';
+                            jitotipsBody.innerHTML = jitotips.map(tip => {
+                                const mintDisplay = tip.mint ? tip.mint.substring(0, 16) + '...' : 'N/A';
+                                const mintTitle = tip.mint ? tip.mint : '';
+                                const dateStr = tip.created_at ? new Date(tip.created_at).toLocaleDateString() : 'N/A';
+
+                                return `
+                                    <tr>
+                                        <td title="${mintTitle}" style="font-family: monospace;">${mintDisplay}</td>
+                                        <td>${tip.amount_sol ? tip.amount_sol.toFixed(6) : 'N/A'} SOL</td>
+                                        <td>${dateStr}</td>
+                                    </tr>
+                                `;
+                            }).join('');
+                        } else {
+                            jitotipsSection.style.display = 'none';
+                        }
+                    } else {
+                        jitotipsSection.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error loading Jito tips history:', error);
+                    document.getElementById('jitotipsSection').style.display = 'none';
                 }
 
                 // Show modal

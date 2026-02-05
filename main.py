@@ -1736,10 +1736,12 @@ HTML_TEMPLATE = """
                             }
 
                             // Service tags (uses_axiom, uses_jitotip, uses_meteora, uses_debridge, etc.)
-                            if (token.creator_infra_tags && token.creator_infra_tags.length > 0) {
+                            // Use creatorData.tags if available (from batch API), otherwise fall back to token.creator_infra_tags
+                            const serviceTags = (creatorData.tags && creatorData.tags.length > 0) ? creatorData.tags : (token.creator_infra_tags || []);
+                            if (serviceTags && serviceTags.length > 0) {
                                 // Deduplicate and filter out address-like tags
                                 const seenServiceTags = new Set();
-                                for (let serviceTag of token.creator_infra_tags) {
+                                for (let serviceTag of serviceTags) {
                                     const tagName = serviceTag.tag.toLowerCase();
                                     // Skip if already seen and skip address-like tags
                                     if (!seenServiceTags.has(tagName) && !serviceTag.tag.match(/^[1-9A-HJ-NP-Za-km-z]{30,}\.?$/)) {
@@ -3584,6 +3586,22 @@ def api_creators_batch():
                 'cex_type': cex_type
             })
 
+        # Creator service tags
+        cursor.execute(f"""
+            SELECT creator_address, tag, description
+            FROM creator_tags
+            WHERE creator_address IN ({placeholders})
+        """, creator_addresses)
+        tags_data = {}
+        for row in cursor.fetchall():
+            creator = row['creator_address']
+            if creator not in tags_data:
+                tags_data[creator] = []
+            tags_data[creator].append({
+                'tag': row['tag'],
+                'description': row['description']
+            })
+
         conn.close()
 
         # Build response
@@ -3599,7 +3617,8 @@ def api_creators_batch():
                     'hop1': cluster_data.get(creator, {}).get('hop1', 0)
                 },
                 'is_blocked': blocked_data.get(creator, False),
-                'funders': funders_data.get(creator, [])
+                'funders': funders_data.get(creator, []),
+                'tags': tags_data.get(creator, [])
             }
 
         return jsonify(result)

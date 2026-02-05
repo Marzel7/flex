@@ -1756,19 +1756,15 @@ HTML_TEMPLATE = """
                                 infraTags = '';
                             }
 
-                            // Create creator element - show label if labeled, hide if has tags or labeled funder, show address otherwise
+                            // Create creator element - ALWAYS show creator address (either label or address)
+                            // The creator address is essential for accessing the creator modal
                             let creatorElement;
-                            if (creatorIsLabeled && displayName) {
+                            if (creatorIsLabeled && displayName && !displayName.match(/^[1-9A-HJ-NP-Z]{32,}$/)) {
                                 // Creator itself is labeled (CEX/Infrastructure) - show label name with clickable link to details
                                 creatorElement = `<a href="#" onclick="showCreatorDetails('${token.creator}'); return false;" class="mint-link creator-address-link" title="Creator: ${creatorTitle}">${displayName}</a>`;
-                            } else if (token.creator_infra_tags && token.creator_infra_tags.length > 0) {
-                                // Creator has tags (uses_meteora, uses_debridge) but no direct label - hide address, show tags only
-                                creatorElement = '';  // Empty - tags will be shown below
-                            } else if (displayName) {
-                                // Labeled funder found (CEX or Infrastructure) but creator itself not labeled - hide address, show funder label only
-                                creatorElement = '';  // Funder label will be shown via infraTags instead
                             } else {
-                                // No label, no tags, no labeled funder - show creator address so user can click to modal
+                                // No direct label on creator - always show creator address so user can click to modal
+                                // This is required even if there are tags or labeled funders
                                 creatorElement = `<a href="#" onclick="showCreatorDetails('${token.creator}'); return false;" class="mint-link creator-address-link" title="Creator: ${creatorTitle}">${creatorShort}</a>`;
                             }
 

@@ -1472,6 +1472,25 @@ HTML_TEMPLATE = """
                 </div>
             </div>
 
+            <!-- All Funders Section -->
+            <div id="allFundersSection" style="margin-bottom: 20px;">
+                <h3 style="color: #00d4ff;">💰 All Funders</h3>
+                <div class="cex-funders-container">
+                    <table class="cex-funders-table">
+                        <thead>
+                            <tr>
+                                <th>Funder Address</th>
+                                <th>Amount (SOL)</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allFundersBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Top Recipients (Outgoing Transfers) -->
             <h3 style="margin-top: 20px;">Recipients (SOL Sent Out)</h3>
             <div class="top-recipients-container">
@@ -2534,6 +2553,33 @@ HTML_TEMPLATE = """
                     }).join('');
                 } else {
                     otherSection.style.display = 'none';
+                }
+
+                // Populate all funders table (complete list)
+                const allFundersBody = document.getElementById('allFundersBody');
+                if (data.top_funders && data.top_funders.length > 0) {
+                    allFundersBody.innerHTML = data.top_funders.map(funder => {
+                        const amountStr = funder.amount_sol < 0.01
+                            ? funder.amount_sol.toFixed(6)
+                            : funder.amount_sol.toFixed(2);
+
+                        let funderType = 'Wallet';
+                        if (funder.is_cex) {
+                            funderType = `${funder.cex_exchange || 'CEX'} (${funder.cex_type || 'Hot'})`;
+                        } else if (funder.display_name) {
+                            funderType = funder.display_name;
+                        }
+
+                        return `
+                            <tr>
+                                <td title="${funder.funder_address}" style="font-family: monospace; color: #00d4ff;">${funder.funder_address.substring(0, 16)}...</td>
+                                <td>${amountStr} SOL</td>
+                                <td>${funderType}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    allFundersBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0a0a0;">No funders found</td></tr>';
                 }
 
                 // Populate top recipients table (where creator sent SOL)

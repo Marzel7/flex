@@ -1869,6 +1869,16 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
     # Check for program-level calls to Meteora DLMM
     await extractor.check_transactions_for_meteora_programs(creator)
 
+    # Extract post-migration outgoing transfers (token sales to recipients/exchanges)
+    try:
+        from datetime import datetime
+        migration_dt = datetime.fromisoformat(migration_timestamp_str.replace('Z', '+00:00'))
+        migration_timestamp = int(migration_dt.timestamp())
+        await extractor.extract_outgoing_transfers(creator, migration_timestamp)
+        print(f"[REALTIME_FUNDING] ✅ Extracted outgoing transfers for {creator[:16]}...", flush=True)
+    except Exception as e:
+        print(f"[REALTIME_FUNDING] ⚠ Error extracting outgoing transfers: {e}", flush=True)
+
     return result
 
 

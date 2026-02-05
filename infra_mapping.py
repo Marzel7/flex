@@ -612,6 +612,16 @@ CEX_ACCOUNTS = {
         "tags": ["cex", "okx", "exchange"],
     },
 
+    # OKX Hot Wallet
+    "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV": {
+        "name": "OKX Hot Wallet",
+        "category": "cex",
+        "exchange": "OKX",
+        "description": "OKX exchange hot wallet for trading and withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "okx", "exchange", "hot-wallet"],
+    },
+
     # Placeholder for future real addresses
     # TO ADD NEW CEX ADDRESSES - STRICT VERIFICATION REQUIRED:
     # 1. Must check Solscan.io directly for confirmed transaction history

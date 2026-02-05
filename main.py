@@ -3189,6 +3189,8 @@ HTML_TEMPLATE = """
                 const riskElement = document.getElementById('coordinationRisk');
                 if (data.statistics.coordination_risk === 'HIGH') {
                     riskElement.style.color = '#ef4444';
+                } else if (data.statistics.coordination_risk === 'MEDIUM') {
+                    riskElement.style.color = '#f97316';
                 } else {
                     riskElement.style.color = '#4ade80';
                 }
@@ -3201,14 +3203,25 @@ HTML_TEMPLATE = """
                         const endDate = new Date(funder.last_funding_at).toLocaleDateString();
                         const period = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
 
+                        // Flag for infrastructure/CEX accounts
+                        let flag = '';
+                        let textColor = '#a78bfa';
+                        if (funder.is_infrastructure) {
+                            flag = ' 🔧 INFRA';
+                            textColor = '#60a5fa';
+                        } else if (funder.is_cex_account) {
+                            flag = ' 🏛️ CEX';
+                            textColor = '#4ade80';
+                        }
+
                         return `
-                            <tr>
-                                <td style="font-family: monospace; font-size: 11px; max-width: 200px; word-break: break-all;">
-                                    <a href="#" onclick="showCreatorDetails('${funder.funder_address}'); return false;" title="${funder.funder_address}">
-                                        ${funder.funder_address.substring(0, 12)}...
+                            <tr style="opacity: ${funder.is_infrastructure || funder.is_cex_account ? 0.7 : 1}">
+                                <td style="font-family: monospace; font-size: 11px; max-width: 200px; word-break: break-all; color: ${textColor};">
+                                    <a href="#" onclick="showCreatorDetails('${funder.funder_address}'); return false;" title="${funder.funder_address}" style="color: ${textColor};">
+                                        ${funder.funder_address.substring(0, 12)}...${flag}
                                     </a>
                                 </td>
-                                <td><strong style="color: #ef4444;">${funder.creator_count}</strong></td>
+                                <td><strong style="color: ${funder.is_infrastructure || funder.is_cex_account ? '#a0a0a0' : '#ef4444'};">${funder.creator_count}</strong></td>
                                 <td>${funder.total_sol_sent.toFixed(2)} SOL</td>
                                 <td>${funder.funding_record_count}</td>
                                 <td style="font-size: 11px;">${period}</td>
@@ -4518,7 +4531,7 @@ def api_creator_funding_history(creator_address: str):
 def api_multi_creator_funders():
     """Get funders that are funding multiple token creators (potential coordination risk)
 
-    Filters out known infrastructure accounts and CEX wallets to avoid false positives.
+    Shows all multi-creator funders with flags for infrastructure/CEX accounts.
     """
     try:
         from infra_mapping import get_account_info, get_cex_info
@@ -4546,25 +4559,39 @@ def api_multi_creator_funders():
 
         all_multi_funders = [dict(row) for row in cursor.fetchall()]
 
-        # Filter out infrastructure accounts and CEX wallets
+        # Classify and tag infrastructure/CEX accounts
         multi_funders = []
+        suspicious_multi_funders = []
+
         for funder in all_multi_funders:
             funder_address = funder['funder_address']
+            funder_data = dict(funder)
+            funder_data['is_infrastructure'] = False
+            funder_data['is_cex_account'] = False
+            funder_data['account_info'] = None
 
-            # Skip if already marked as CEX in database
+            # Check if already marked as CEX in database
             if funder['is_cex_flag']:
-                continue
+                funder_data['is_cex_account'] = True
 
-            # Skip if it's a known infrastructure account
-            if get_account_info(funder_address):
-                continue
+            # Check if it's a known infrastructure account
+            infra_info = get_account_info(funder_address)
+            if infra_info:
+                funder_data['is_infrastructure'] = True
+                funder_data['account_info'] = infra_info
 
-            # Skip if it's a known CEX wallet
-            if get_cex_info(funder_address):
-                continue
+            # Check if it's a known CEX wallet
+            cex_info = get_cex_info(funder_address)
+            if cex_info:
+                funder_data['is_cex_account'] = True
+                funder_data['account_info'] = cex_info
 
-            # This is a suspicious multi-creator funder (not infrastructure/CEX)
-            multi_funders.append(funder)
+            # Add to appropriate list
+            multi_funders.append(funder_data)
+
+            # Suspicious = neither infrastructure nor CEX
+            if not (funder_data['is_infrastructure'] or funder_data['is_cex_account']):
+                suspicious_multi_funders.append(funder_data)
 
         # Get statistics
         cursor.execute("""
@@ -4580,12 +4607,16 @@ def api_multi_creator_funders():
 
         return jsonify({
             'multi_creator_funders': multi_funders,
+            'suspicious_only': suspicious_multi_funders,
             'statistics': {
                 'total_funders': stats['total_funders'],
                 'funding_multiple_creators': len(multi_funders),
+                'suspicious_funders': len(suspicious_multi_funders),
+                'infra_funders': len([f for f in multi_funders if f['is_infrastructure']]),
+                'cex_funders': len([f for f in multi_funders if f['is_cex_account']]),
                 'funding_single_creator': stats['total_funders'] - len(multi_funders),
                 'percentage_multi_creator': (len(multi_funders) / stats['total_funders'] * 100) if stats['total_funders'] > 0 else 0,
-                'coordination_risk': 'HIGH' if len(multi_funders) > 0 else 'LOW'
+                'coordination_risk': 'HIGH' if len(suspicious_multi_funders) > 0 else 'MEDIUM' if len(multi_funders) > 0 else 'LOW'
             }
         })
 

@@ -4225,8 +4225,13 @@ def api_creator_funding_history(creator_address: str):
         return jsonify({'error': str(e)}), 500
 @app.route('/api/multi-creator-funders')
 def api_multi_creator_funders():
-    """Get funders that are funding multiple token creators (potential coordination risk)"""
+    """Get funders that are funding multiple token creators (potential coordination risk)
+
+    Filters out known infrastructure accounts and CEX wallets to avoid false positives.
+    """
     try:
+        from infra_mapping import get_account_info, get_cex_info
+
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
@@ -4240,14 +4245,35 @@ def api_multi_creator_funders():
                 COUNT(*) as funding_record_count,
                 SUM(amount_sol) as total_sol_sent,
                 MIN(first_detected_at) as first_funding_at,
-                MAX(first_detected_at) as last_funding_at
+                MAX(first_detected_at) as last_funding_at,
+                MAX(is_cex) as is_cex_flag
             FROM creator_funders
             GROUP BY funder_address
             HAVING COUNT(DISTINCT creator_address) > 1
             ORDER BY creator_count DESC, total_sol_sent DESC
         """)
 
-        multi_funders = [dict(row) for row in cursor.fetchall()]
+        all_multi_funders = [dict(row) for row in cursor.fetchall()]
+
+        # Filter out infrastructure accounts and CEX wallets
+        multi_funders = []
+        for funder in all_multi_funders:
+            funder_address = funder['funder_address']
+
+            # Skip if already marked as CEX in database
+            if funder['is_cex_flag']:
+                continue
+
+            # Skip if it's a known infrastructure account
+            if get_account_info(funder_address):
+                continue
+
+            # Skip if it's a known CEX wallet
+            if get_cex_info(funder_address):
+                continue
+
+            # This is a suspicious multi-creator funder (not infrastructure/CEX)
+            multi_funders.append(funder)
 
         # Get statistics
         cursor.execute("""

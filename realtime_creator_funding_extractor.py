@@ -1424,6 +1424,8 @@ class RealTimeCreatorFundingExtractor:
                         tx_signature TEXT,
                         mint TEXT,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        network_fee_sol REAL,
+                        tip_percentage REAL,
                         UNIQUE(creator_address, tag, tx_signature)
                     )
                 """)

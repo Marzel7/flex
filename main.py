@@ -484,16 +484,18 @@ HTML_TEMPLATE = """
 
         /* Creator tags container */
         .creator-tags {
-            display: flex;
+            display: flex !important;
             gap: 5px;
             flex-wrap: wrap;
             max-width: 600px;
             align-items: center;
+            flex-direction: row;
         }
 
         /* Base creator tag styling */
         .creator-tag {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
             padding: 3px 8px;
             border-radius: 3px;
             font-size: 10px;
@@ -501,6 +503,7 @@ HTML_TEMPLATE = """
             white-space: nowrap;
             border: 1px solid;
             background: rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
         }
 
         /* Network size tag (purple) */

@@ -493,6 +493,76 @@ CEX_ACCOUNTS = {
         "tags": ["cex", "coinbase", "exchange"],
     },
 
+    # Coinbase - Hot Wallet 3
+    "D89hHJT5Aqyx1trP6EnGY9jJUB3whgnq3aUvvCqedvzf": {
+        "name": "Coinbase Hot Wallet 3",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
+    # Coinbase - Wallet 1
+    "H8sMJSCQxfKiFTCfDR3DUMLPwcRbM61LGFJ8N4dK3WjS": {
+        "name": "Coinbase Wallet 1",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
+    # Coinbase - Hot Wallet 4
+    "DPqsobysNf5iA9w7zrQM8HLzCKZEDMkZsWbiidsAt1xo": {
+        "name": "Coinbase Hot Wallet 4",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
+    # Coinbase - Wallet 4
+    "9obNtb5GyUegcs3a1CbBkLuc5hEWynWfJC6gjz5uWQkE": {
+        "name": "Coinbase Wallet 4",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
+    # Coinbase - Wallet 5
+    "59L2oxymiQQ9Hvhh92nt8Y7nDYjsauFkdb3SybdnsG6h": {
+        "name": "Coinbase Wallet 5",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange"],
+    },
+
+    # Coinbase - Prime
+    "3vxheE5C46XzK4XftziRhwAf8QAfipD7HXXWj25mgkom": {
+        "name": "Coinbase Prime",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase Prime institutional custody account",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange", "institutional"],
+    },
+
+    # Coinbase - Cold Wallet 1
+    "CKy3KzEMSL1PQV6Wppggoqi2nGA7teE4L7JipEK89yqj": {
+        "name": "Coinbase Cold Wallet 1",
+        "category": "cex",
+        "exchange": "Coinbase",
+        "description": "Coinbase cold storage wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "coinbase", "exchange", "cold-storage"],
+    },
+
     # Bybit - Verified
     "iGdFcQoyR2MwbXMHQskhmNsqddZ6rinsipHc4TNSdwu": {
         "name": "Bybit Wallet 10",

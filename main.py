@@ -1834,7 +1834,6 @@ HTML_TEMPLATE = """
 
                             // infraTags is now only for showing creator as labeled (CEX/Infrastructure address)
                             // Funder labels are displayed in Creator Tags column instead
-                            let infraTags = '';
 
                             // Only show infraTags if creator itself is labeled as CEX/Infrastructure
                             if (displayName && displayCategory && !displayName.includes('1111111111') && displayName.length < 50 && !displayName.match(/^[1-9A-HJ-NP-Z]{32,}$/)) {

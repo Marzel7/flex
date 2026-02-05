@@ -2786,46 +2786,40 @@ HTML_TEMPLATE = """
                 // Populate top recipients table (where creator sent SOL)
                 const recipientsBody = document.getElementById('topRecipientsBody');
                 if (data.top_recipients && data.top_recipients.length > 0) {
-                    // Filter to only show recipients that have labels (is_infrastructure or has display_name)
-                    const labeledRecipients = data.top_recipients.filter(recipient => recipient.is_infrastructure || recipient.display_name);
+                    // Show ALL recipients (not just labeled ones)
+                    recipientsBody.innerHTML = data.top_recipients.map(recipient => {
+                        // Check if this recipient is connected to other creators
+                        let networkIndicator = '';
+                        let networkTooltip = '';
 
-                    if (labeledRecipients.length > 0) {
-                        recipientsBody.innerHTML = labeledRecipients.map(recipient => {
-                            // Check if this recipient is connected to other creators
-                            let networkIndicator = '';
-                            let networkTooltip = '';
+                        if (recipient.is_network_coordinator) {
+                            const info = recipient.coordinator_info;
+                            networkIndicator = `<span class="network-badge network-${info.confidence}" title="Network Coordinator">🔗</span>`;
+                            networkTooltip = `Linked to ${info.creator_count} creators | Confidence: ${info.confidence}`;
+                        } else if (recipient.shared_with_creators) {
+                            networkIndicator = `<span class="shared-badge" title="Shared with ${recipient.shared_creator_count} other creators">👥</span>`;
+                            networkTooltip = `Also linked to: ${recipient.shared_with_creators.slice(0, 2).map(c => c.substring(0, 8) + '...').join(', ')}${recipient.shared_with_creators.length > 2 ? ' +' + (recipient.shared_with_creators.length - 2) + ' more' : ''}`;
+                        }
 
-                            if (recipient.is_network_coordinator) {
-                                const info = recipient.coordinator_info;
-                                networkIndicator = `<span class="network-badge network-${info.confidence}" title="Network Coordinator">🔗</span>`;
-                                networkTooltip = `Linked to ${info.creator_count} creators | Confidence: ${info.confidence}`;
-                            } else if (recipient.shared_with_creators) {
-                                networkIndicator = `<span class="shared-badge" title="Shared with ${recipient.shared_creator_count} other creators">👥</span>`;
-                                networkTooltip = `Also linked to: ${recipient.shared_with_creators.slice(0, 2).map(c => c.substring(0, 8) + '...').join(', ')}${recipient.shared_with_creators.length > 2 ? ' +' + (recipient.shared_with_creators.length - 2) + ' more' : ''}`;
-                            }
+                        // Format amount: show more decimals for small amounts
+                        const recipientAmountStr = recipient.amount_sol < 0.01
+                            ? recipient.amount_sol.toFixed(6)
+                            : recipient.amount_sol.toFixed(2);
 
-                            // Format amount: show more decimals for small amounts
-                            const recipientAmountStr = recipient.amount_sol < 0.01
-                                ? recipient.amount_sol.toFixed(6)
-                                : recipient.amount_sol.toFixed(2);
+                        // Display label name if available, otherwise use address
+                        const displayLabel = recipient.display_name || recipient.recipient_address.substring(0, 16) + '...';
 
-                            // Display label name if available, otherwise use address
-                            const displayLabel = recipient.display_name || recipient.recipient_address.substring(0, 16) + '...';
-
-                            return `
-                                <tr class="${recipient.is_network_coordinator ? 'row-network-coordinator' : recipient.shared_with_creators ? 'row-shared-recipient' : ''}">
-                                    <td title="${recipient.recipient_address}" style="font-family: monospace; font-size: 12px;">
-                                        ${displayLabel}
-                                        ${networkIndicator ? `<div style="margin-top: 3px; font-size: 10px; color: #a0a0a0;">${networkTooltip}</div>` : ''}
-                                    </td>
-                                    <td>${recipientAmountStr} SOL</td>
-                                    <td>${networkIndicator || (recipient.is_infrastructure ? recipient.category : 'Wallet')}</td>
-                                </tr>
-                            `;
-                        }).join('');
-                    } else {
-                        recipientsBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0a0a0;">No labeled recipients</td></tr>';
-                    }
+                        return `
+                            <tr class="${recipient.is_network_coordinator ? 'row-network-coordinator' : recipient.shared_with_creators ? 'row-shared-recipient' : ''}">
+                                <td title="${recipient.recipient_address}" style="font-family: monospace; font-size: 12px;">
+                                    ${displayLabel}
+                                    ${networkIndicator ? `<div style="margin-top: 3px; font-size: 10px; color: #a0a0a0;">${networkTooltip}</div>` : ''}
+                                </td>
+                                <td>${recipientAmountStr} SOL</td>
+                                <td>${networkIndicator || (recipient.is_infrastructure ? recipient.category : 'Wallet')}</td>
+                            </tr>
+                        `;
+                    }).join('');
                 } else {
                     recipientsBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0a0a0;">No outgoing transfers</td></tr>';
                 }

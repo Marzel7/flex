@@ -463,7 +463,8 @@ CEX_ACCOUNTS = {
     },
 
     # Binance 2
-    "AQBsPCjD4uSQAZGAtbvJr2P7cUuFPyW9Zya5wSRvxqpW": {
+    # Binance 2 - Verified
+    "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9": {
         "name": "Binance 2",
         "category": "cex",
         "exchange": "Binance",

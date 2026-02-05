@@ -1636,7 +1636,7 @@ HTML_TEMPLATE = """
                                 <th>Last Funding</th>
                             </tr>
                         </thead>
-                        <tbody id="multiCreatorFundersBody">
+                        <tbody id="tokenMetricsMultiCreatorFundersBody">
                             <!-- Populated by JavaScript -->
                         </tbody>
                     </table>
@@ -1721,25 +1721,21 @@ HTML_TEMPLATE = """
             <!-- Statistics Summary -->
             <div class="funder-stats-grid" id="funderStatsGrid">
                 <div class="stat-box">
+                    <label>Suspicious Multi-Creator</label>
+                    <span id="suspiciousFundersCount">—</span>
+                </div>
+                <div class="stat-box">
+                    <label>Safe (INFRA/CEX)</label>
+                    <span id="safeFundersCount">—</span>
+                </div>
+                <div class="stat-box">
                     <label>Total Funders</label>
                     <span id="totalFundersCount">—</span>
                 </div>
-                <div class="stat-box">
-                    <label>Multi-Creator Funders</label>
-                    <span id="multiCreatorCount">—</span>
-                </div>
-                <div class="stat-box">
-                    <label>Single-Creator Only</label>
-                    <span id="singleCreatorCount">—</span>
-                </div>
-                <div class="stat-box">
-                    <label>Coordination Risk</label>
-                    <span id="coordinationRisk">—</span>
-                </div>
             </div>
 
-            <!-- Multi-Creator Funders Table -->
-            <h3>Funders Funding Multiple Creators</h3>
+            <!-- Suspicious Multi-Creator Funders Table -->
+            <h3>⚠️ Suspicious Multi-Creator Funders</h3>
             <div class="funders-container">
                 <table class="funders-table">
                     <thead>
@@ -1765,13 +1761,6 @@ HTML_TEMPLATE = """
                 </div>
             </div>
 
-            <!-- Risk Assessment -->
-            <div style="margin-top: 30px; padding: 15px; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 6px;">
-                <h3 style="color: #ef4444; margin-top: 0;">⚠️ Risk Assessment</h3>
-                <p style="color: #e0e0e0; margin: 0;">
-                    Funders supporting multiple creators may indicate coordinated funding networks or bot operations. This is a strong signal of potential malicious activity.
-                </p>
-            </div>
         </div>
     </div>
 
@@ -2859,7 +2848,7 @@ HTML_TEMPLATE = """
                         if (matchingMultiCreatorFunders.length > 0) {
                             const multiSection = document.getElementById('multiCreatorFundersSection');
                             multiSection.style.display = 'block';
-                            const multiBody = document.getElementById('multiCreatorFundersBody');
+                            const multiBody = document.getElementById('tokenMetricsMultiCreatorFundersBody');
 
                             multiBody.innerHTML = matchingMultiCreatorFunders.map(funder => {
                                 const firstFundingDate = funder.first_funding_at ? new Date(funder.first_funding_at).toLocaleDateString() : 'N/A';
@@ -3180,54 +3169,46 @@ HTML_TEMPLATE = """
                 }
 
                 // Populate statistics
+                const suspiciousCount = data.suspicious_only ? data.suspicious_only.length : 0;
+                const safeCount = data.statistics.funding_multiple_creators - suspiciousCount;
+
+                document.getElementById('suspiciousFundersCount').textContent = suspiciousCount;
+                document.getElementById('suspiciousFundersCount').style.color = suspiciousCount > 0 ? '#ef4444' : '#4ade80';
+
+                document.getElementById('safeFundersCount').textContent = safeCount;
+                document.getElementById('safeFundersCount').style.color = '#4ade80';
+
                 document.getElementById('totalFundersCount').textContent = data.statistics.total_funders;
-                document.getElementById('multiCreatorCount').textContent = data.statistics.funding_multiple_creators;
-                document.getElementById('singleCreatorCount').textContent = data.statistics.funding_single_creator;
-                document.getElementById('coordinationRisk').textContent = data.statistics.coordination_risk;
 
-                // Color code the risk level
-                const riskElement = document.getElementById('coordinationRisk');
-                if (data.statistics.coordination_risk === 'HIGH') {
-                    riskElement.style.color = '#ef4444';
-                } else if (data.statistics.coordination_risk === 'MEDIUM') {
-                    riskElement.style.color = '#f97316';
-                } else {
-                    riskElement.style.color = '#4ade80';
-                }
-
-                // Populate funders table
+                // Populate funders table - filter out INFRA/CEX accounts
                 const fundersBody = document.getElementById('multiCreatorFundersBody');
                 if (data.multi_creator_funders && data.multi_creator_funders.length > 0) {
-                    fundersBody.innerHTML = data.multi_creator_funders.map((funder, idx) => {
-                        const startDate = new Date(funder.first_funding_at).toLocaleDateString();
-                        const endDate = new Date(funder.last_funding_at).toLocaleDateString();
-                        const period = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
+                    // Filter out INFRA and CEX accounts - they are safe
+                    const suspiciousFunders = data.multi_creator_funders.filter(f => !f.is_infrastructure && !f.is_cex_account);
 
-                        // Flag for infrastructure/CEX accounts
-                        let flag = '';
-                        let textColor = '#a78bfa';
-                        if (funder.is_infrastructure) {
-                            flag = ' 🔧 INFRA';
-                            textColor = '#60a5fa';
-                        } else if (funder.is_cex_account) {
-                            flag = ' 🏛️ CEX';
-                            textColor = '#4ade80';
-                        }
+                    if (suspiciousFunders.length > 0) {
+                        fundersBody.innerHTML = suspiciousFunders.map((funder, idx) => {
+                            const startDate = new Date(funder.first_funding_at).toLocaleDateString();
+                            const endDate = new Date(funder.last_funding_at).toLocaleDateString();
+                            const period = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
 
-                        return `
-                            <tr style="opacity: ${funder.is_infrastructure || funder.is_cex_account ? 0.7 : 1}">
-                                <td style="font-family: monospace; font-size: 11px; max-width: 200px; word-break: break-all; color: ${textColor};">
-                                    <a href="#" onclick="showCreatorDetails('${funder.funder_address}'); return false;" title="${funder.funder_address}" style="color: ${textColor};">
-                                        ${funder.funder_address.substring(0, 12)}...${flag}
-                                    </a>
-                                </td>
-                                <td><strong style="color: ${funder.is_infrastructure || funder.is_cex_account ? '#a0a0a0' : '#ef4444'};">${funder.creator_count}</strong></td>
-                                <td>${funder.total_sol_sent.toFixed(2)} SOL</td>
-                                <td>${funder.funding_record_count}</td>
-                                <td style="font-size: 11px;">${period}</td>
-                            </tr>
-                        `;
-                    }).join('');
+                            return `
+                                <tr>
+                                    <td style="font-family: monospace; font-size: 11px; max-width: 200px; word-break: break-all; color: #ef4444;">
+                                        <a href="#" onclick="showCreatorDetails('${funder.funder_address}'); return false;" title="${funder.funder_address}" style="color: #ef4444;">
+                                            ${funder.funder_address.substring(0, 12)}...
+                                        </a>
+                                    </td>
+                                    <td><strong style="color: #ef4444;">${funder.creator_count}</strong></td>
+                                    <td>${funder.total_sol_sent.toFixed(2)} SOL</td>
+                                    <td>${funder.funding_record_count}</td>
+                                    <td style="font-size: 11px;">${period}</td>
+                                </tr>
+                            `;
+                        }).join('');
+                    } else {
+                        fundersBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #4ade80;">✅ All multi-creator funders are known INFRA/CEX accounts (safe)</td></tr>';
+                    }
                 } else {
                     fundersBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #4ade80;">✅ No coordinated funders detected</td></tr>';
                 }

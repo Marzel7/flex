@@ -525,11 +525,11 @@ class RealTimeCreatorFundingExtractor:
                     try:
                         cursor.execute("""
                             INSERT OR REPLACE INTO creator_tags
-                            (creator_address, tag, description)
-                            VALUES (?, ?, ?)
-                        """, (creator, "uses_debridge", f"Creator receives transfers from deBridge ({new_total_amount:.6f} SOL total)"))
+                            (creator_address, tag, description, amount_sol)
+                            VALUES (?, ?, ?, ?)
+                        """, (creator, "uses_debridge", f"Creator receives transfers from deBridge", new_total_amount))
                         conn.commit()
-                        print(f"[FUNDING] ✅ Tagged creator as 'uses_debridge'", flush=True)
+                        print(f"[FUNDING] ✅ Tagged creator as 'uses_debridge' - Total: {new_total_amount:.6f} SOL", flush=True)
                     except Exception as tag_err:
                         print(f"[FUNDING] ⚠ Could not tag deBridge usage: {tag_err}", flush=True)
 
@@ -1089,7 +1089,7 @@ class RealTimeCreatorFundingExtractor:
                                                     INSERT OR REPLACE INTO creator_tags
                                                     (creator_address, tag, description)
                                                     VALUES (?, ?, ?)
-                                                """, (creator, "uses_debridge", f"Creator uses deBridge for cross-chain transfers (tx: {tx.get('signature', '')[:16]}...)"))
+                                                """, (creator, "uses_debridge", f"Creator uses deBridge for cross-chain transfers"))
                                                 conn.commit()
                                                 conn.close()
                                                 print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_debridge'", flush=True)
@@ -1396,21 +1396,23 @@ class RealTimeCreatorFundingExtractor:
             if found_jitotip:
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS creator_tags (
-                        creator_address TEXT PRIMARY KEY,
-                        tag TEXT,
+                        creator_address TEXT NOT NULL,
+                        tag TEXT NOT NULL,
                         description TEXT,
-                        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        amount_sol REAL,
+                        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        PRIMARY KEY(creator_address, tag)
                     )
                 """)
 
                 cursor.execute("""
                     INSERT OR REPLACE INTO creator_tags
-                    (creator_address, tag, description)
-                    VALUES (?, ?, ?)
-                """, (creator, "uses_jitotip", f"Creator uses Jitotip for MEV/fee tipping in CREATE transaction ({jitotip_amount:.6f} SOL)"))
+                    (creator_address, tag, description, amount_sol)
+                    VALUES (?, ?, ?, ?)
+                """, (creator, "uses_jitotip", f"Creator uses Jitotip for MEV/fee tipping in CREATE transaction", jitotip_amount))
 
                 conn.commit()
-                print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_jitotip'", flush=True)
+                print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_jitotip' - Tip amount: {jitotip_amount:.6f} SOL", flush=True)
 
             conn.close()
 
@@ -1473,9 +1475,9 @@ class RealTimeCreatorFundingExtractor:
 
                 cursor.execute("""
                     INSERT OR REPLACE INTO creator_tags
-                    (creator_address, tag, description)
-                    VALUES (?, ?, ?)
-                """, (creator, "uses_meteora", f"Creator uses Meteora for {meteora_direction} transfers ({meteora_amount:.6f} SOL) via {meteora_source}"))
+                    (creator_address, tag, description, amount_sol)
+                    VALUES (?, ?, ?, ?)
+                """, (creator, "uses_meteora", f"Creator uses Meteora for {meteora_direction} transfers via {meteora_source}", meteora_amount))
 
                 conn.commit()
                 print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_meteora'", flush=True)
@@ -1553,9 +1555,9 @@ class RealTimeCreatorFundingExtractor:
 
                 cursor.execute("""
                     INSERT OR REPLACE INTO creator_tags
-                    (creator_address, tag, description)
-                    VALUES (?, ?, ?)
-                """, (creator, "uses_debridge", f"Creator uses deBridge for {debridge_direction} transfers ({debridge_amount:.6f} SOL)"))
+                    (creator_address, tag, description, amount_sol)
+                    VALUES (?, ?, ?, ?)
+                """, (creator, "uses_debridge", f"Creator uses deBridge for {debridge_direction} transfers", debridge_amount))
 
                 conn.commit()
                 print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_debridge'", flush=True)
@@ -1618,9 +1620,9 @@ class RealTimeCreatorFundingExtractor:
 
                 cursor.execute("""
                     INSERT OR REPLACE INTO creator_tags
-                    (creator_address, tag, description)
-                    VALUES (?, ?, ?)
-                """, (creator, "uses_axiom", f"Creator uses Axiom automation/oracle services ({axiom_direction} transfers, {axiom_amount:.6f} SOL)"))
+                    (creator_address, tag, description, amount_sol)
+                    VALUES (?, ?, ?, ?)
+                """, (creator, "uses_axiom", f"Creator uses Axiom automation/oracle services ({axiom_direction} transfers)", axiom_amount))
 
                 conn.commit()
                 print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_axiom'", flush=True)

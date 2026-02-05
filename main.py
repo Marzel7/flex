@@ -68,10 +68,10 @@ def get_migrated_tokens() -> List[Dict]:
             creator_infra_tags = []
             if row['earliest_tx_creator']:
                 cursor.execute("""
-                    SELECT tag, description FROM creator_tags
+                    SELECT tag, description, amount_sol FROM creator_tags
                     WHERE creator_address = ?
                 """, (row['earliest_tx_creator'],))
-                creator_infra_tags = [{'tag': t[0], 'description': t[1]} for t in cursor.fetchall()]
+                creator_infra_tags = [{'tag': t[0], 'description': t[1], 'amount_sol': t[2]} for t in cursor.fetchall()]
 
             # Get top funder for creator (to show CEX funding info)
             top_funder = None
@@ -1691,7 +1691,7 @@ HTML_TEMPLATE = """
                     <thead>
                         <tr>
                             <th onclick="sortBy('mint')" class="sortable ${sortConfig.column === 'mint' ? 'sorted-' + sortConfig.direction : ''}">Token Mint</th>
-                            <th>Creator Tags</th>
+                            <th></th>
                             <th onclick="sortBy('rug_indicator')" class="sortable ${sortConfig.column === 'rug_indicator' ? 'sorted-' + sortConfig.direction : ''}">Rug Flag</th>
                             <th onclick="sortBy('risk_level')" class="sortable ${sortConfig.column === 'risk_level' ? 'sorted-' + sortConfig.direction : ''}">Risk Level</th>
                             <th onclick="sortBy('rug_probability')" class="sortable ${sortConfig.column === 'rug_probability' ? 'sorted-' + sortConfig.direction : ''}">Risk Score</th>
@@ -2518,16 +2518,26 @@ HTML_TEMPLATE = """
                             uniqueTags.push({
                                 display: displayTag,
                                 original: t.tag,
-                                description: t.description
+                                description: t.description,
+                                amount_sol: t.amount_sol
                             });
                         }
                     }
 
-                    const tagsHTML = uniqueTags.map(t => `
-                        <div class="creator-tag" title="${t.description}">
-                            <span class="tag-label">${t.display}</span>
-                        </div>
-                    `).join('');
+                    const tagsHTML = uniqueTags.map(t => {
+                        // For jitotip, display amount prominently
+                        let tagContent = t.display;
+                        if (t.original === 'uses_jitotip' && t.amount_sol) {
+                            tagContent = `${t.display} (${t.amount_sol.toFixed(6)} SOL)`;
+                        } else if ((t.original === 'uses_meteora' || t.original === 'uses_axiom' || t.original === 'uses_debridge') && t.amount_sol) {
+                            tagContent = `${t.display} (${t.amount_sol.toFixed(4)} SOL)`;
+                        }
+                        return `
+                            <div class="creator-tag" title="${t.description}">
+                                <span class="tag-label">${tagContent}</span>
+                            </div>
+                        `;
+                    }).join('');
                     tagsContainer.innerHTML = tagsHTML;
                 } else {
                     tagsContainer.innerHTML = '';
@@ -3143,11 +3153,11 @@ def api_creator_details(creator_address: str):
 
         # 7. Get creator tags (from creator_tags table)
         cursor.execute("""
-            SELECT tag, description
+            SELECT tag, description, amount_sol
             FROM creator_tags
             WHERE creator_address = ?
         """, (creator_address,))
-        tags = [{'tag': row[0], 'description': row[1]} for row in cursor.fetchall()]
+        tags = [{'tag': row[0], 'description': row[1], 'amount_sol': row[2]} for row in cursor.fetchall()]
 
         # 8. Get creator's address tags (domains, etc. from address_tags table)
         creator_address_tags = get_address_tags(creator_address)
@@ -3591,7 +3601,7 @@ def api_creators_batch():
 
         # Creator service tags
         cursor.execute(f"""
-            SELECT creator_address, tag, description
+            SELECT creator_address, tag, description, amount_sol
             FROM creator_tags
             WHERE creator_address IN ({placeholders})
         """, creator_addresses)
@@ -3602,7 +3612,8 @@ def api_creators_batch():
                 tags_data[creator] = []
             tags_data[creator].append({
                 'tag': row['tag'],
-                'description': row['description']
+                'description': row['description'],
+                'amount_sol': row['amount_sol']
             })
 
         conn.close()

@@ -4029,6 +4029,67 @@ def api_creator_cross_references(creator_address: str):
     except ImportError:
         return jsonify({'error': 'Unified recipient tracker not available'}), 503
     except Exception as e:
+        return jsonify({'error': str(e)}), 500@app.route('/api/creator-funding-history/<creator_address>')
+def api_creator_funding_history(creator_address: str):
+    """Get unified funding history for a creator (both incoming and outgoing transfers)"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get incoming funders
+        cursor.execute("""
+            SELECT
+                creator_address,
+                funder_address as address,
+                amount_sol,
+                first_detected_at as timestamp,
+                'incoming' as direction,
+                is_cex,
+                cex_exchange
+            FROM creator_funders
+            WHERE creator_address = ?
+            ORDER BY first_detected_at DESC
+        """, (creator_address,))
+
+        incoming = [dict(row) for row in cursor.fetchall()]
+
+        # Get outgoing recipients
+        cursor.execute("""
+            SELECT
+                creator_address,
+                recipient_address as address,
+                SUM(amount_sol) as amount_sol,
+                MAX(block_time) as block_timestamp,
+                'outgoing' as direction,
+                is_cex,
+                cex_exchange
+            FROM creator_outgoing_transfers
+            WHERE creator_address = ?
+            GROUP BY recipient_address
+            ORDER BY MAX(block_time) DESC
+        """, (creator_address,))
+
+        outgoing = [dict(row) for row in cursor.fetchall()]
+
+        # Combine and sort by timestamp
+        all_transfers = incoming + outgoing
+        all_transfers.sort(key=lambda x: x.get('timestamp') or x.get('block_timestamp') or '9999-12-31', reverse=True)
+
+        conn.close()
+
+        return jsonify({
+            'creator_address': creator_address,
+            'transfers': all_transfers,
+            'incoming_count': len(incoming),
+            'outgoing_count': len(outgoing),
+            'total_transfers': len(all_transfers),
+            'total_incoming_sol': sum(t.get('amount_sol', 0) for t in incoming),
+            'total_outgoing_sol': sum(t.get('amount_sol', 0) for t in outgoing)
+        })
+
+    except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 

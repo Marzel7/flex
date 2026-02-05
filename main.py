@@ -1577,6 +1577,27 @@ HTML_TEMPLATE = """
                 </table>
             </div>
 
+            <!-- Tokens Funded Section -->
+            <div id="tokensFundedSection" style="display: none; margin-bottom: 20px;">
+                <h3 style="color: #00d4ff;">💰 Tokens Funded (As Funder)</h3>
+                <div class="tokens-funded-container">
+                    <table class="tokens-launched-table">
+                        <thead>
+                            <tr>
+                                <th>Token Mint</th>
+                                <th>Creator</th>
+                                <th>Funding Amount (SOL)</th>
+                                <th>Created</th>
+                                <th>Risk</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tokensFundedBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Jito Tips History Section -->
             <div id="jitotipsSection" style="display: none; margin-bottom: 20px;">
                 <h3 style="color: #00d4ff;">💸 Jito Tips History</h3>
@@ -2857,7 +2878,11 @@ HTML_TEMPLATE = """
 
                                 return `
                                     <tr>
-                                        <td title="${funder.funder_address}" style="font-family: monospace;">${funder.funder_address.substring(0, 16)}...</td>
+                                        <td title="${funder.funder_address}" style="font-family: monospace;">
+                                            <a href="https://solscan.io/address/${funder.funder_address}" target="_blank" style="color: #ef4444; text-decoration: none; cursor: pointer;">
+                                                ${funder.funder_address.substring(0, 16)}...
+                                            </a>
+                                        </td>
                                         <td><strong>${funder.creator_count}</strong></td>
                                         <td>${totalSol} SOL</td>
                                         <td>${firstFundingDate}</td>
@@ -2923,6 +2948,36 @@ HTML_TEMPLATE = """
                     }).join('');
                 } else {
                     allFundersBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0a0a0;">No funders found</td></tr>';
+                }
+
+                // Load tokens funded (if this address is a funder)
+                try {
+                    const fundedResponse = await fetch(`/api/funder-tokens/${creatorAddress}`);
+                    const fundedData = await fundedResponse.json();
+
+                    if (fundedData.tokens_funded && fundedData.tokens_funded.length > 0) {
+                        document.getElementById('tokensFundedSection').style.display = 'block';
+                        const fundedBody = document.getElementById('tokensFundedBody');
+
+                        fundedBody.innerHTML = fundedData.tokens_funded.map(token => {
+                            return `
+                                <tr>
+                                    <td><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="${token.mint}">${token.mint.substring(0, 16)}...</a></td>
+                                    <td style="font-family: monospace; font-size: 11px;">
+                                        <a href="#" onclick="showCreatorDetails('${token.creator_address}'); return false;" title="${token.creator_address}">${token.creator_address.substring(0, 16)}...</a>
+                                    </td>
+                                    <td>${token.funding_amount_sol.toFixed(2)} SOL</td>
+                                    <td>${formatDateISO(token.created_at)}</td>
+                                    <td><span class="risk-score risk-${token.risk_level ? token.risk_level.toLowerCase() : 'medium'}">${token.risk_level || 'N/A'}</span></td>
+                                </tr>
+                            `;
+                        }).join('');
+                    } else {
+                        document.getElementById('tokensFundedSection').style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error loading funded tokens:', error);
+                    document.getElementById('tokensFundedSection').style.display = 'none';
                 }
 
                 // Populate top recipients table (where creator sent SOL)
@@ -3194,9 +3249,9 @@ HTML_TEMPLATE = """
 
                             return `
                                 <tr>
-                                    <td style="font-family: monospace; font-size: 11px; max-width: 200px; word-break: break-all; color: #ef4444;">
-                                        <a href="#" onclick="showCreatorDetails('${funder.funder_address}'); return false;" title="${funder.funder_address}" style="color: #ef4444;">
-                                            ${funder.funder_address.substring(0, 12)}...
+                                    <td style="font-family: monospace; font-size: 12px; color: #ef4444;">
+                                        <a href="#" onclick="showCreatorDetails('${funder.funder_address}'); return false;" title="Click to view details" style="color: #ef4444; text-decoration: none;">
+                                            ${funder.funder_address}
                                         </a>
                                     </td>
                                     <td><strong style="color: #ef4444;">${funder.creator_count}</strong></td>
@@ -3629,6 +3684,52 @@ def api_creator_details(creator_address: str):
             'cluster': cluster,
             'is_blocked': is_blocked,
             'tags': tags
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/funder-tokens/<funder_address>')
+def api_funder_tokens(funder_address: str):
+    """Get tokens that a funder (account) has supported"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get all tokens where this address was a funder
+        cursor.execute("""
+            SELECT DISTINCT
+                ta.mint,
+                ta.earliest_tx_creator as creator_address,
+                ta.created_at,
+                ta.risk_level,
+                ta.market_cap_current,
+                cf.amount_sol
+            FROM creator_funders cf
+            JOIN token_analysis ta ON cf.creator_address = ta.earliest_tx_creator
+            WHERE cf.funder_address = ?
+            ORDER BY ta.created_at DESC
+        """, (funder_address,))
+
+        tokens = []
+        for row in cursor.fetchall():
+            tokens.append({
+                'mint': row['mint'],
+                'creator_address': row['creator_address'],
+                'created_at': row['created_at'],
+                'risk_level': row['risk_level'],
+                'market_cap_current': row['market_cap_current'],
+                'funding_amount_sol': row['amount_sol']
+            })
+
+        conn.close()
+        return jsonify({
+            'funder_address': funder_address,
+            'tokens_funded': tokens,
+            'total_tokens_funded': len(tokens)
         })
 
     except Exception as e:

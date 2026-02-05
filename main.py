@@ -1731,48 +1731,18 @@ HTML_TEMPLATE = """
                             }
 
                             // Check if top funder is a CEX (direct from token data)
-                            if (!displayName && token.top_funder && token.top_funder.is_cex) {
-                                // Use the CEX name from funder data
-                                const cexName = token.top_funder.cex_exchange || 'CEX';
+                            // ONLY use this for CEX information display, NOT for showing funder address
+                            if (!displayName && token.top_funder && token.top_funder.is_cex && token.top_funder.cex_exchange) {
+                                // Use the CEX name from funder data (e.g., "Binance", "Coinbase")
+                                const cexName = token.top_funder.cex_exchange;
                                 displayName = cexName;
                                 displayCategory = 'cex';
                                 displayDescription = `Funded by ${cexName} ${token.top_funder.cex_type || 'Wallet'}`;
                             }
 
-                            // Check if any funders are infrastructure or CEX via mapping - show account name only
-                            // NOTE: Only process if we have creatorData AND it has funders AND we haven't found a display name yet
-                            if (!displayName && token.creatorData && token.creatorData.funders && Array.isArray(token.creatorData.funders)) {
-                                for (let funder of token.creatorData.funders) {
-                                    // Ensure funder has required properties
-                                    if (!funder || !funder.address || typeof funder.address !== 'string') continue;
-
-                                    // Skip if funder is the creator themselves
-                                    if (funder.address === token.creator) continue;
-
-                                    // Check infrastructure funders first
-                                    if (window.infraMapping && window.infraMapping.infrastructure && window.infraMapping.infrastructure[funder.address]) {
-                                        const info = window.infraMapping.infrastructure[funder.address];
-                                        // Only set if name is valid and not an address
-                                        if (info.name && info.name.length < 100 && !info.name.match(/^[1-9A-HJ-NP-Z]{30,}/)) {
-                                            displayName = info.name;
-                                            displayCategory = info.category;
-                                            displayDescription = info.description;
-                                            break;
-                                        }
-                                    }
-                                    // Then check CEX funders
-                                    if (!displayName && window.infraMapping && window.infraMapping.cex && window.infraMapping.cex[funder.address]) {
-                                        const info = window.infraMapping.cex[funder.address];
-                                        // Only set if name is valid and not an address
-                                        if (info.name && info.name.length < 100 && !info.name.match(/^[1-9A-HJ-NP-Z]{30,}/)) {
-                                            displayName = info.name;
-                                            displayCategory = info.category;
-                                            displayDescription = info.description;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
+                            // NOTE: We intentionally do NOT iterate through creatorData.funders to display addresses
+                            // Funder addresses should NEVER be displayed in the table
+                            // Only the creator address should be shown (or creator label if labeled)
 
                             // Render simple account name badge if we found a match
                             // IMPORTANT: Only show service names, NEVER show addresses in badges

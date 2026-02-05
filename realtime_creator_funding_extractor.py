@@ -1322,6 +1322,119 @@ class RealTimeCreatorFundingExtractor:
         except Exception as e:
             print(f"[BLOCKSEC] Error during batch attempt: {e}", flush=True)
 
+    async def scan_all_creator_txs_for_jitotip(self, creator: str, exclude_create_tx: str = None, limit: int = 50):
+        """
+        Scan all creator transactions for Jito tips (excluding the CREATE tx for this token).
+        Saves separately from CREATE tx tips to distinguish between token launch costs vs other operations.
+        """
+        print(f"[REALTIME_FUNDING]    🔍 Scanning {limit} recent creator txs for Jito tips...", flush=True)
+
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=60)
+            cursor = conn.cursor()
+
+            jitotip_accounts = [addr for addr in INFRASTRUCTURE_ACCOUNTS.keys()
+                               if "jito" in INFRASTRUCTURE_ACCOUNTS[addr].get("name", "").lower()]
+
+            signatures = []
+            before = None
+            rpc_urls = [
+                f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}",
+                "https://api.mainnet-beta.solana.com"
+            ]
+
+            # Get creator signatures (limited)
+            for rpc_url in rpc_urls:
+                try:
+                    payload = {
+                        "jsonrpc": "2.0",
+                        "id": "1",
+                        "method": "getSignaturesForAddress",
+                        "params": [creator, {"limit": limit}]
+                    }
+
+                    async with aiohttp.ClientSession() as session:
+                        async with session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+                            if resp.status == 200:
+                                result = await resp.json()
+                                if "result" in result and result["result"]:
+                                    signatures = [sig["signature"] for sig in result["result"]]
+                                    break
+                except:
+                    continue
+
+            jitotip_count = 0
+            checked_count = 0
+
+            # Scan each transaction for Jito tips
+            for sig in signatures:
+                # Skip the CREATE tx for THIS token
+                if exclude_create_tx and sig == exclude_create_tx:
+                    print(f"[REALTIME_FUNDING]      ⏭️  Skipping CREATE tx: {sig[:20]}...", flush=True)
+                    continue
+
+                checked_count += 1
+
+                # Fetch transaction
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": "1",
+                    "method": "getTransaction",
+                    "params": [sig, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
+                }
+
+                for rpc_url in rpc_urls:
+                    try:
+                        async with aiohttp.ClientSession() as session:
+                            async with session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+                                if resp.status == 200:
+                                    result = await resp.json()
+                                    if "result" in result and result["result"]:
+                                        tx = result["result"]
+
+                                        message = tx.get("transaction", {}).get("message", {})
+                                        accounts = message.get('accountKeys', [])
+                                        meta = tx.get("meta", {})
+
+                                        # Check for Jito tips
+                                        for jito in jitotip_accounts:
+                                            if jito in accounts:
+                                                jito_idx = accounts.index(jito)
+                                                pre = meta.get('preBalances', [])[jito_idx] if jito_idx < len(meta.get('preBalances', [])) else 0
+                                                post = meta.get('postBalances', [])[jito_idx] if jito_idx < len(meta.get('postBalances', [])) else 0
+                                                diff = post - pre
+
+                                                if diff > 0:
+                                                    jitotip_count += 1
+                                                    jitotip_amount = diff / 1e9
+                                                    network_fee_sol = meta.get("fee", 0) / 1e9
+                                                    total_cost_sol = network_fee_sol + jitotip_amount
+                                                    tip_percentage = (jitotip_amount / total_cost_sol * 100) if total_cost_sol > 0 else 0
+
+                                                    print(f"[REALTIME_FUNDING]      ✅ Other Jitotip found: {jitotip_amount:.6f} SOL ({tip_percentage:.1f}%) in {sig[:20]}...", flush=True)
+
+                                                    # Save to history with tx_signature to track it separately from CREATE tx
+                                                    cursor.execute("""
+                                                        INSERT OR IGNORE INTO creator_service_history
+                                                        (creator_address, tag, amount_sol, tx_signature, network_fee_sol, tip_percentage, created_at)
+                                                        VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                                                    """, (creator, "uses_jitotip_other", jitotip_amount, sig, network_fee_sol, tip_percentage))
+
+                                                    conn.commit()
+                                        break
+                    except:
+                        continue
+
+            if jitotip_count > 0:
+                print(f"[REALTIME_FUNDING]    📊 Found {jitotip_count} Jito tips in {checked_count} other txs", flush=True)
+            else:
+                print(f"[REALTIME_FUNDING]    ✓ No Jito tips found in {checked_count} other creator txs", flush=True)
+
+            conn.close()
+
+        except Exception as e:
+            print(f"[REALTIME_FUNDING] ⚠ Error scanning creator txs for Jito: {e}", flush=True)
+
     async def check_create_tx_for_jitotip(self, creator: str, create_tx_sig: str, mint: str = None):
         """Check if CREATE transaction uses Jitotip and tag creator if so"""
         if not create_tx_sig:
@@ -1860,6 +1973,10 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
     # Check CREATE tx for Jitotip usage (if signature provided)
     if create_tx_signature:
         await extractor.check_create_tx_for_jitotip(creator, create_tx_signature, mint)
+
+    # Scan ALL creator transactions for Jito tips (excluding the CREATE tx for this token)
+    # This catches Jito tips on other operations (transfers, swaps, etc.)
+    await extractor.scan_all_creator_txs_for_jitotip(creator, exclude_create_tx=create_tx_signature, limit=50)
 
     # Check inbound/outbound transfers for infrastructure usage
     await extractor.check_transfers_for_meteora(creator)

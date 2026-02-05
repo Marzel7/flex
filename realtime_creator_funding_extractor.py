@@ -1054,7 +1054,7 @@ class RealTimeCreatorFundingExtractor:
                                                 '3AVi9Tg9Uo68tJfuvoKvqKNWKkC5wPdSSdeBnizKZ6jT',  # Jitotip 8
                                             ]:
                                                 for transfer in native_transfers:
-                                                    if transfer.get("toAddress") == jito_addr:
+                                                    if transfer.get("toUserAccount") == jito_addr:
                                                         jitotip_amount = transfer.get("amount", 0) / 1e9
                                                         if jitotip_amount > 0:
                                                             total_cost_sol = network_fee_sol + jitotip_amount

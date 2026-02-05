@@ -4091,6 +4091,57 @@ def api_creator_funding_history(creator_address: str):
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+@app.route('/api/multi-creator-funders')
+def api_multi_creator_funders():
+    """Get funders that are funding multiple token creators (potential coordination risk)"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get funders funding multiple creators
+        cursor.execute("""
+            SELECT
+                funder_address,
+                COUNT(DISTINCT creator_address) as creator_count,
+                COUNT(*) as funding_record_count,
+                SUM(amount_sol) as total_sol_sent,
+                MIN(first_detected_at) as first_funding_at,
+                MAX(first_detected_at) as last_funding_at
+            FROM creator_funders
+            GROUP BY funder_address
+            HAVING COUNT(DISTINCT creator_address) > 1
+            ORDER BY creator_count DESC, total_sol_sent DESC
+        """)
+
+        multi_funders = [dict(row) for row in cursor.fetchall()]
+
+        # Get statistics
+        cursor.execute("""
+            SELECT
+                COUNT(DISTINCT funder_address) as total_funders,
+                COUNT(DISTINCT CASE WHEN (SELECT COUNT(DISTINCT creator_address) FROM creator_funders cf2 WHERE cf2.funder_address = creator_funders.funder_address) > 1 THEN funder_address END) as multi_creator_funders
+            FROM creator_funders
+        """)
+
+        stats = dict(cursor.fetchone())
+
+        conn.close()
+
+        return jsonify({
+            'multi_creator_funders': multi_funders,
+            'statistics': {
+                'total_funders': stats['total_funders'],
+                'funding_multiple_creators': len(multi_funders),
+                'funding_single_creator': stats['total_funders'] - len(multi_funders),
+                'percentage_multi_creator': (len(multi_funders) / stats['total_funders'] * 100) if stats['total_funders'] > 0 else 0,
+                'coordination_risk': 'HIGH' if len(multi_funders) > 0 else 'LOW'
+            }
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 

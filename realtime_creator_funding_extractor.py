@@ -936,8 +936,6 @@ class RealTimeCreatorFundingExtractor:
             if creator_uses_debridge:
                 print(f"[REALTIME_FUNDING]    ℹ Creator already tagged as 'uses_debridge', skipping detection", flush=True)
 
-            conn.close()
-            
             if exclude_set:
                 print(f"[REALTIME_FUNDING]    Excluding {len(exclude_set)} addresses (creator's tokens & bonding curves)", flush=True)
 
@@ -1283,6 +1281,9 @@ class RealTimeCreatorFundingExtractor:
             # Trigger BlockSec AML batching (caches new addresses for batch submission)
             # Rate limited to 1 batch per 2.4 hours (10 calls/day = 24/10 hours between batches)
             asyncio.create_task(self._try_blocksec_batch())
+
+            # Close database connection after all processing
+            conn.close()
 
             return {
                 "creator": creator,

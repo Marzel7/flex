@@ -1735,6 +1735,41 @@ HTML_TEMPLATE = """
                                 columnTags.push('<span class="creator-tag tag-blocked" title="On blocklist">BLOCKED</span>');
                             }
 
+                            // Service tags (uses_axiom, uses_jitotip, uses_meteora, uses_debridge, etc.)
+                            if (token.creator_infra_tags && token.creator_infra_tags.length > 0) {
+                                // Deduplicate and filter out address-like tags
+                                const seenServiceTags = new Set();
+                                for (let serviceTag of token.creator_infra_tags) {
+                                    const tagName = serviceTag.tag.toLowerCase();
+                                    // Skip if already seen and skip address-like tags
+                                    if (!seenServiceTags.has(tagName) && !serviceTag.tag.match(/^[1-9A-HJ-NP-Za-km-z]{30,}\.?$/)) {
+                                        seenServiceTags.add(tagName);
+
+                                        // Determine tag color based on service
+                                        let tagColor, bgColor;
+                                        if (serviceTag.tag.includes('debridge')) {
+                                            tagColor = '#ff9500';
+                                            bgColor = 'rgba(255, 149, 0, 0.15)';
+                                        } else if (serviceTag.tag.includes('meteora')) {
+                                            tagColor = '#00d4ff';
+                                            bgColor = 'rgba(0, 212, 255, 0.15)';
+                                        } else if (serviceTag.tag.includes('axiom')) {
+                                            tagColor = '#9333ea';
+                                            bgColor = 'rgba(147, 51, 234, 0.15)';
+                                        } else if (serviceTag.tag.includes('jito')) {
+                                            tagColor = '#fbbf24';
+                                            bgColor = 'rgba(251, 191, 36, 0.15)';
+                                        } else {
+                                            tagColor = '#4ade80';
+                                            bgColor = 'rgba(74, 222, 128, 0.15)';
+                                        }
+
+                                        const cleanTagName = serviceTag.tag.replace('uses_', '');
+                                        columnTags.push(`<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor}; background-color: ${bgColor};" title="${serviceTag.description}">${cleanTagName}</span>`);
+                                    }
+                                }
+                            }
+
                             const creatorShort = token.creator ? token.creator.substring(0, 8) + '...' : 'N/A';
                             const creatorTitle = token.creator || 'Unknown';
 

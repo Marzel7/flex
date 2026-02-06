@@ -533,16 +533,6 @@ CEX_ACCOUNTS = {
         "tags": ["cex", "coinbase", "exchange"],
     },
 
-    # Coinbase - Hot Wallet 3 (Updated)
-    "DQ5JWbJyWdJeyBxZuuyu36sUBud6L6wo3aN1QC1bRmsR": {
-        "name": "Coinbase Hot Wallet 3",
-        "category": "cex",
-        "exchange": "Coinbase",
-        "description": "Coinbase hot wallet for SOL",
-        "risk_level": "neutral",
-        "tags": ["cex", "coinbase", "exchange"],
-    },
-
     # Coinbase - Hot Wallet 4
     "4NyK1AdJBNbgaJ9EsKz3J4rfeHsuYdjkTPg3JaNdLeFw": {
         "name": "Coinbase Hot Wallet 4",

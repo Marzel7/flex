@@ -1152,9 +1152,15 @@ class PostMigrationAnalyzer:
         if not earliest_create_sig or not earliest_create_tx:
             print(f"[CREATOR] ❌ No Pump.fun CREATE transaction found for mint", flush=True)
             return None
-        
+
+        # CRITICAL: Validate that this signature actually passed Pump.Fun CREATE validation
+        # This prevents invalid signatures (FLASHX, Maestro, etc.) from being stored
+        if not earliest_create_validation or not earliest_create_validation.get('is_pumpfun_create', False):
+            print(f"[CREATOR] ❌ Earliest CREATE tx failed validation check - rejecting signature", flush=True)
+            return None
+
         print(f"[CREATOR] ✓ Using creation tx (proven_end={proven_end}): {earliest_create_sig[:20]}...", flush=True)
-        
+
         # Store the CREATE transaction signature and validation for persistence and provenance
         self._create_tx_signature = earliest_create_sig
         if earliest_create_validation:

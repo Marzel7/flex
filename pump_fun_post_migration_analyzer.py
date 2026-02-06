@@ -719,9 +719,6 @@ class PostMigrationAnalyzer:
             for inner in inner_instructions:
                 all_instructions.extend(inner.get("instructions") or [])
 
-            # Track if we find a CREATE instruction specifically
-            found_create_instruction = False
-
             for instr in all_instructions:
                 program_id = instr.get("programId")
 
@@ -737,35 +734,18 @@ class PostMigrationAnalyzer:
                     if program_id in PUMPFUN_PROGRAM_IDS:
                         result['pumpfun_program_found'] = True
 
-                        # CRITICAL: Check if this is specifically a CREATE instruction
-                        # Helius responses include type/instructionType in parsed transactions
-                        # Must distinguish between CREATE and SWAP/other instruction types
-                        instruction_type = instr.get("type") or instr.get("instructionType", "").lower()
-                        parsed = instr.get("parsed", {})
-                        if isinstance(parsed, dict):
-                            instruction_type = parsed.get("type") or instruction_type
-
-                        # CREATE instructions have specific type names
-                        create_keywords = ["create", "initialize", "init"]
-                        if any(keyword in str(instruction_type).lower() for keyword in create_keywords):
-                            found_create_instruction = True
-                            print(f"[CREATOR] ✓ Found CREATE instruction type: {instruction_type}", flush=True)
-
             # Log programs found for debugging
             if result['program_ids']:
                 print(f"[CREATOR] 📋 Programs found in transaction: {result['program_ids']}", flush=True)
             else:
                 print(f"[CREATOR] 📋 No instructions/programs found in transaction", flush=True)
 
-            # CRITICAL FIX: A valid Pump.fun create MUST have ALL THREE conditions:
+            # A valid Pump.fun create MUST have BOTH conditions:
             # 1. Mint in accounts (ensures this is the mint's creation)
             # 2. Pump.fun program found in instructions (ensures it's a Pump.Fun tx)
-            # 3. CREATE instruction type (ensures it's not just a swap/trade)
-            # Without checking #3, SWAP transactions will be mistaken for CREATE transactions!
             result['is_pumpfun_create'] = (
                 result['mint_in_accounts'] and
-                result['pumpfun_program_found'] and
-                found_create_instruction
+                result['pumpfun_program_found']
             )
 
             return result

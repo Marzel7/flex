@@ -1480,9 +1480,17 @@ class PumpFunCurveListener:
                 if earliest_creator:
                     provenance_status = provenance.get('status', 'unknown') if provenance else 'unknown'
                     bonding_curve_pda = provenance.get('bonding_curve_pda') if provenance else None
-                    create_tx_signature = analyzer._create_tx_signature if hasattr(analyzer, '_create_tx_signature') else None
-                    print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status})", flush=True)
-                    # Update minimal entry with creator, date, bonding curve, and CREATE tx signature
+
+                    # CRITICAL: Only accept create_tx_signature if it's a validated Pump.Fun CREATE transaction
+                    is_pumpfun_create = provenance.get('is_pumpfun_create', False) if provenance else False
+                    create_tx_signature = analyzer._create_tx_signature if (hasattr(analyzer, '_create_tx_signature') and is_pumpfun_create) else None
+
+                    if create_tx_signature:
+                        print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status}) | CREATE tx validated: {create_tx_signature[:20]}...", flush=True)
+                    else:
+                        print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status}) | CREATE tx validation: {'FAILED' if analyzer._create_tx_signature else 'NOT_SET'}", flush=True)
+
+                    # Update minimal entry with creator, date, bonding curve, and CREATE tx signature (only if validated)
                     self._update_token_entry_with_creator(mint, earliest_creator, created_at, bonding_curve_pda, create_tx_signature)
 
                     # Register creator with watch manager to track SOL in/out transfers

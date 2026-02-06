@@ -653,6 +653,16 @@ CEX_ACCOUNTS = {
         "tags": ["cex", "kraken", "exchange"],
     },
 
+    # HitBTC - Hot Wallet
+    "DQ5JWbJyWdJeyBxZuuyu36sUBud6L6wo3aN1QC1bRmsR": {
+        "name": "HitBTC Hot Wallet",
+        "category": "cex",
+        "exchange": "HitBTC",
+        "description": "HitBTC exchange hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "hitbtc", "exchange"],
+    },
+
     # Placeholder for future real addresses
     # TO ADD NEW CEX ADDRESSES - STRICT VERIFICATION REQUIRED:
     # 1. Must check Solscan.io directly for confirmed transaction history

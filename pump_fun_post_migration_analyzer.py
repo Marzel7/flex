@@ -661,6 +661,57 @@ class PostMigrationAnalyzer:
         except Exception:
             return None
 
+    def _has_system_create_account_instruction(self, tx: dict) -> bool:
+        """
+        Check if transaction contains System Program account creation instruction.
+
+        This distinguishes CREATE transactions from SELL/SWAP:
+        - CREATE: Has System.createAccount or System.createAccountWithSeed (creates bonding curve)
+        - SELL: Has only System.transfer (Jito tip payment, not account creation)
+        - SWAP: Similar to SELL, no account creation
+
+        Returns True only if account creation instructions are found, not just transfer.
+        """
+        try:
+            message = (tx.get("transaction") or {}).get("message") or {}
+            instructions = message.get("instructions") or []
+            inner_instructions = tx.get("meta", {}).get("innerInstructions") or []
+
+            all_instructions = list(instructions)
+            for inner in inner_instructions:
+                all_instructions.extend(inner.get("instructions") or [])
+
+            system_program = "11111111111111111111111111111111"
+
+            # Account creation instruction types (not transfer)
+            create_types = {"createaccount", "createaccountwithseed", "allocate", "assign", "initializeaccount"}
+
+            for instr in all_instructions:
+                # Get program ID
+                program_id = instr.get("programId")
+                if not program_id and "programIdIndex" in instr:
+                    account_keys = message.get("accountKeys") or []
+                    idx = instr.get("programIdIndex")
+                    if isinstance(idx, int) and 0 <= idx < len(account_keys):
+                        acct = account_keys[idx]
+                        program_id = acct if isinstance(acct, str) else acct.get("pubkey")
+
+                if program_id != system_program:
+                    continue
+
+                # Check for account creation instruction type (jsonParsed format)
+                if "parsed" in instr:
+                    parsed_type = instr.get("parsed", {}).get("type", "").lower()
+                    if parsed_type in create_types:
+                        print(f"[CREATOR] ✓ Found System account creation instruction (type: {parsed_type})", flush=True)
+                        return True
+
+            return False
+
+        except Exception as e:
+            print(f"[CREATOR] ⚠ Error checking for account creation instruction: {e}", flush=True)
+            return False
+
     def _validate_pumpfun_create_tx(self, tx: dict) -> dict:
         """
         Validate that a transaction is actually a Pump.fun CREATE event.
@@ -736,12 +787,18 @@ class PostMigrationAnalyzer:
             else:
                 print(f"[CREATOR] 📋 No instructions/programs found in transaction", flush=True)
 
-            # A valid Pump.fun create MUST have BOTH conditions:
+            # A valid Pump.fun CREATE must have ALL THREE conditions:
             # 1. Mint in accounts (ensures this is the mint's creation)
             # 2. Pump.fun program found in instructions (ensures it's a Pump.Fun tx)
+            # 3. System account creation instruction found (ensures it's CREATE, not SELL/SWAP)
+            #
+            # This prevents false positives where SELL transactions have mint_in_accounts
+            # and pumpfun_program_found but only have System.transfer (Jito tip payment),
+            # not account creation. CREATE transactions must create the bonding curve account.
             result['is_pumpfun_create'] = (
                 result['mint_in_accounts'] and
-                result['pumpfun_program_found']
+                result['pumpfun_program_found'] and
+                self._has_system_create_account_instruction(tx)
             )
 
             return result
@@ -1203,6 +1260,7 @@ class PostMigrationAnalyzer:
         Returns: bonding curve address or None
         """
         try:
+            
             message = (tx.get("transaction") or {}).get("message") or {}
             account_keys = message.get("accountKeys") or []
             instructions = message.get("instructions") or []

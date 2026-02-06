@@ -643,6 +643,16 @@ CEX_ACCOUNTS = {
         "tags": ["cex", "okx", "exchange", "hot-wallet"],
     },
 
+    # Kraken - Hot Wallet
+    "6LY1JzAFVZsP2a2xKrtU6znQMQ5h4i7tocWdgrkZzkzF": {
+        "name": "Kraken Hot Wallet",
+        "category": "cex",
+        "exchange": "Kraken",
+        "description": "Kraken exchange hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "kraken", "exchange"],
+    },
+
     # Placeholder for future real addresses
     # TO ADD NEW CEX ADDRESSES - STRICT VERIFICATION REQUIRED:
     # 1. Must check Solscan.io directly for confirmed transaction history

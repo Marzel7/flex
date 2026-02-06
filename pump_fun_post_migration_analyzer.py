@@ -1102,8 +1102,9 @@ class PostMigrationAnalyzer:
           - proven: True if we reached end-of-history or legitimately paginated through real data
           - rpc_used: Which RPC endpoint succeeded
         """
-        # FAST PATH: If we already found the CREATE tx, return it immediately
-        if self._create_tx_signature:
+        # FAST PATH: If we already found the CREATE tx AND we're NOT querying bonding_curve_pda,
+        # return it immediately. Otherwise we need to query the actual account.
+        if bonding_curve_pda is None and self._create_tx_signature:
             print(f"[CREATOR] 🚀 Fast path: Already have CREATE tx signature, skipping pagination", flush=True)
             return self._create_tx_signature, True, "cached"
         
@@ -1430,7 +1431,7 @@ class PostMigrationAnalyzer:
         For a CREATE tx:
         1. There's a Pump.Fun instruction whose accounts include self.token_mint
         2. There's a top-level System.createAccount that creates an account (accounts[1])
-        3. That created account is the bonding curve
+        3. That created account's OWNER PROGRAM must be PUMPFUN_BONDING_CURVE_PROGRAM
         
         Returns: bonding curve address or None
         """
@@ -1495,6 +1496,7 @@ class PostMigrationAnalyzer:
                 # Step 4: Now find which System.createAccount created the bonding curve
                 # The created account should be the bonding curve PDA
                 # It's created by: System.createAccount at top-level where accounts[1] = new PDA
+                # AND the owner program must be PUMPFUN_BONDING_CURVE_PROGRAM
                 
                 for sys_ix in instructions:
                     # Resolve program ID for system instruction
@@ -1525,12 +1527,33 @@ class PostMigrationAnalyzer:
                     created_account = self._system_create_new_account_pubkey(message, sys_ix)
                     
                     if created_account:
-                        print(f"[CREATOR] ✓ Found System.createAccount creating: {created_account}", flush=True)
-                        # This is deterministically the bonding curve created by the CREATE instruction
-                        return created_account
+                        # CRITICAL FIX: Verify the owner program is PUMPFUN_BONDING_CURVE_PROGRAM
+                        owner_program = None
+                        
+                        # Try parsed format first
+                        if "parsed" in sys_ix:
+                            owner_program = sys_ix.get("parsed", {}).get("info", {}).get("owner")
+                        
+                        # Fall back to decoding compiled format
+                        if not owner_program:
+                            owner_program = self._decode_system_create_owner_program(sys_ix)
+                        
+                        if owner_program:
+                            print(f"[CREATOR] Found System.createAccount creating: {created_account} (owner={owner_program})", flush=True)
+                            
+                            # Verify owner is the bonding curve program
+                            if owner_program == PUMPFUN_BONDING_CURVE_PROGRAM:
+                                print(f"[CREATOR] ✓ Owner program matches PUMPFUN_BONDING_CURVE_PROGRAM!", flush=True)
+                                return created_account
+                            else:
+                                print(f"[CREATOR] ✗ Owner program {owner_program} != {PUMPFUN_BONDING_CURVE_PROGRAM}", flush=True)
+                                continue
+                        else:
+                            print(f"[CREATOR] ⚠ Could not extract owner program for {created_account}", flush=True)
+                            continue
                 
                 # If no System.createAccount found, fall back to heuristic selection
-                print(f"[CREATOR] ⚠ No System.createAccount found, falling back to heuristic", flush=True)
+                print(f"[CREATOR] ⚠ No System.createAccount with bonding curve owner found, falling back to heuristic", flush=True)
                 
                 known_programs = SYSTEM_PROGRAMS | PUMPFUN_PROGRAM_IDS | {
                     "So11111111111111111111111111111111111111112",  # Wrapped SOL
@@ -1752,7 +1775,8 @@ class PostMigrationAnalyzer:
         pumpfun_creator = provenance.get('creator')
         pumpfun_creator_status = provenance.get('status')
         bonding_curve_pda = provenance.get('bonding_curve_pda')
-        earliest_sig = provenance.get('earliest_sig')
+        create_sig = provenance.get('create_sig')
+        earliest_curve_sig = provenance.get('earliest_curve_sig')
         
         # Fallback to metadata if strong method didn't work
         metadata_creator = None
@@ -1785,7 +1809,8 @@ class PostMigrationAnalyzer:
                 "pumpfun_status": pumpfun_creator_status,
                 "metadata_creator": metadata_creator,
                 "bonding_curve_pda": bonding_curve_pda,
-                "earliest_sig": earliest_sig,
+                "create_sig": create_sig,
+                "earliest_curve_sig": earliest_curve_sig,
                 "validation_notes": provenance.get('validation_notes', []),
                 "reached_end": provenance.get('reached_end'),
                 "mint_in_accounts": provenance.get('mint_in_accounts'),

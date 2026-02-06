@@ -15,6 +15,8 @@ from collections import Counter, defaultdict
 from statistics import variance
 import os
 from dotenv import load_dotenv
+import base58
+import struct
 
 load_dotenv()
 
@@ -661,33 +663,102 @@ class PostMigrationAnalyzer:
         except Exception:
             return None
 
+    def _is_system_create_compiled(self, ix: dict) -> bool:
+        """
+        Detect SystemProgram CreateAccount / CreateAccountWithSeed from compiled instruction.
+
+        Compiled instruction has "data" as base58 string.
+        First 4 bytes (little-endian u32) is the instruction discriminator:
+        - 0 = CreateAccount
+        - 3 = CreateAccountWithSeed
+        """
+        data = ix.get("data")
+        if not data or not isinstance(data, str):
+            return False
+
+        try:
+            raw = base58.b58decode(data)
+            if len(raw) < 4:
+                return False
+            (tag,) = struct.unpack("<I", raw[:4])
+            # 0=createAccount, 3=createAccountWithSeed
+            return tag in (0, 3)
+        except Exception:
+            return False
+
+    def _decode_system_create_owner_program(self, ix: dict) -> Optional[str]:
+        """
+        Extract the owner program ID from a compiled System.createAccount instruction.
+
+        Instruction data layout (System.createAccount discriminator 0):
+        - Bytes 0-3:   Discriminator (u32 = 0)
+        - Bytes 4-11:  Lamports to transfer (u64)
+        - Bytes 12-19: Space for account (u64)
+        - Bytes 20-51: Owner program ID (32-byte Pubkey)
+
+        For createAccountWithSeed (discriminator 3):
+        - Bytes 0-3:   Discriminator (u32 = 3)
+        - Bytes 4-11:  Lamports (u64)
+        - Bytes 12-19: Space (u64)
+        - Bytes 20-51: Owner program ID (32-byte Pubkey)
+        - Bytes 52+:   Seed string (variable length)
+
+        The owner program at bytes 20-51 determines account type:
+        - PUMPFUN_BONDING_CURVE_PROGRAM (6EF8...) = Bonding curve account (CREATE)
+        - TOKEN_PROGRAM (Token...) = SPL token account (BUY/SELL with ATA)
+        """
+        data = ix.get("data")
+        if not data or not isinstance(data, str):
+            return None
+
+        try:
+            raw = base58.b58decode(data)
+
+            # Minimum length check: discriminator (4) + lamports (8) + space (8) + owner (32) = 52 bytes
+            if len(raw) < 52:
+                return None
+
+            # Extract owner program ID (bytes 20-51, which is 32 bytes for Pubkey)
+            owner_bytes = raw[20:52]
+
+            # Encode to base58 (standard Solana address format)
+            owner_program = base58.b58encode(owner_bytes).decode('ascii')
+
+            return owner_program
+
+        except Exception as e:
+            print(f"[CREATOR] ⚠ Error decoding owner program from System instruction: {e}", flush=True)
+            return None
+
     def _has_system_create_account_instruction(self, tx: dict) -> bool:
         """
-        Check if transaction contains System Program account creation instruction.
+        Check if transaction contains System Program account creation instruction AT TOP LEVEL
+        with PUMPFUN_BONDING_CURVE_PROGRAM as the owner.
 
-        This distinguishes CREATE transactions from SELL/SWAP:
-        - CREATE: Has System.createAccount or System.createAccountWithSeed (creates bonding curve)
-        - SELL: Has only System.transfer (Jito tip payment, not account creation)
-        - SWAP: Similar to SELL, no account creation
+        CRITICAL DISTINCTION:
+        - Top-level System.createAccount with owner=PUMPFUN_BONDING_CURVE_PROGRAM → CREATE (bonding curve)
+        - Top-level System.createAccount with owner=TOKEN_PROGRAM → BUY/SELL with ATA (false positive!)
+        - Inner System.createAccount → ATA creation (not bonding curve)
 
-        Returns True only if account creation instructions are found, not just transfer.
+        This is the key fix: Verify the OWNER PROGRAM in the instruction data, not just the existence
+        of a createAccount instruction. The bonding curve account is owned by Pump.Fun's bonding curve
+        program. User token accounts are owned by the SPL Token Program.
+
+        Handles BOTH parsed and compiled instruction formats:
+        - Parsed: Check "parsed.info.owner" field
+        - Compiled: Decode base58 "data" field to extract owner program bytes 20-51
+
+        Returns True only if TOP-LEVEL account creation with PUMPFUN_BONDING_CURVE_PROGRAM owner is found.
         """
         try:
             message = (tx.get("transaction") or {}).get("message") or {}
-            instructions = message.get("instructions") or []
-            inner_instructions = tx.get("meta", {}).get("innerInstructions") or []
-
-            all_instructions = list(instructions)
-            for inner in inner_instructions:
-                all_instructions.extend(inner.get("instructions") or [])
+            instructions = message.get("instructions") or []  # Only TOP LEVEL, not inner!
 
             system_program = "11111111111111111111111111111111"
+            create_types = {"createaccount", "createaccountwithseed"}
 
-            # Account creation instruction types (not transfer)
-            create_types = {"createaccount", "createaccountwithseed", "allocate", "assign", "initializeaccount"}
-
-            for instr in all_instructions:
-                # Get program ID
+            for instr in instructions:  # Only check top-level instructions
+                # Resolve program ID
                 program_id = instr.get("programId")
                 if not program_id and "programIdIndex" in instr:
                     account_keys = message.get("accountKeys") or []
@@ -699,12 +770,30 @@ class PostMigrationAnalyzer:
                 if program_id != system_program:
                     continue
 
-                # Check for account creation instruction type (jsonParsed format)
+                owner_program = None
+
+                # TRY 1: Check parsed format (sometimes available)
                 if "parsed" in instr:
                     parsed_type = instr.get("parsed", {}).get("type", "").lower()
                     if parsed_type in create_types:
-                        print(f"[CREATOR] ✓ Found System account creation instruction (type: {parsed_type})", flush=True)
+                        # Extract owner from parsed info
+                        owner_program = instr.get("parsed", {}).get("info", {}).get("owner")
+
+                        if owner_program == PUMPFUN_BONDING_CURVE_PROGRAM:
+                            print(f"[CREATOR] ✓ Found TOP-LEVEL System createAccount with Pump.Fun bonding curve owner (parsed)", flush=True)
+                            return True
+                        elif owner_program:
+                            print(f"[CREATOR] ✗ Found System createAccount but owner is {owner_program[:16]}..., not Pump.Fun bonding curve", flush=True)
+
+                # TRY 2: Decode compiled format (common)
+                if self._is_system_create_compiled(instr):
+                    owner_program = self._decode_system_create_owner_program(instr)
+
+                    if owner_program == PUMPFUN_BONDING_CURVE_PROGRAM:
+                        print(f"[CREATOR] ✓ Found TOP-LEVEL System createAccount with Pump.Fun bonding curve owner (compiled)", flush=True)
                         return True
+                    elif owner_program:
+                        print(f"[CREATOR] ✗ Found System createAccount but owner is {owner_program[:16]}..., not Pump.Fun bonding curve", flush=True)
 
             return False
 
@@ -787,7 +876,7 @@ class PostMigrationAnalyzer:
             else:
                 print(f"[CREATOR] 📋 No instructions/programs found in transaction", flush=True)
 
-            # A valid Pump.fun CREATE must have ALL THREE conditions:
+            # A valid Pump.fun CREATE must have ALL conditions:
             # 1. Mint in accounts (ensures this is the mint's creation)
             # 2. Pump.fun program found in instructions (ensures it's a Pump.Fun tx)
             # 3. System account creation instruction found (ensures it's CREATE, not SELL/SWAP)
@@ -795,10 +884,15 @@ class PostMigrationAnalyzer:
             # This prevents false positives where SELL transactions have mint_in_accounts
             # and pumpfun_program_found but only have System.transfer (Jito tip payment),
             # not account creation. CREATE transactions must create the bonding curve account.
+            has_system_create = self._has_system_create_account_instruction(tx)
+
+            # Additional: Check for Pump.Fun CREATE-specific behavior (optional but recommended)
+            # Real CREATEs often have specific instruction patterns like extend_account
+            # But this is optional - the 3 conditions above should be sufficient
             result['is_pumpfun_create'] = (
                 result['mint_in_accounts'] and
                 result['pumpfun_program_found'] and
-                self._has_system_create_account_instruction(tx)
+                has_system_create
             )
 
             return result

@@ -2827,6 +2827,7 @@ HTML_TEMPLATE = """
                 }
 
                 // Separate CEX and non-CEX funders
+                // Use enriched data from API: is_cex from infra_mapping lookup, not database flag
                 const cexFunders = (data.top_funders || []).filter(f => f.is_cex);
                 const nonCexFunders = (data.top_funders || []).filter(f => !f.is_cex);
 
@@ -2839,12 +2840,11 @@ HTML_TEMPLATE = """
                         const amountStr = funder.amount_sol < 0.01
                             ? funder.amount_sol.toFixed(6)
                             : funder.amount_sol.toFixed(2);
-                        const exchangeName = funder.cex_exchange || 'Unknown';
-                        const walletType = funder.cex_type || 'Hot Wallet';
-                        const fullLabel = `${exchangeName} ${walletType}`;
+                        // Use enriched display_name from infra_mapping, fall back to database fields
+                        const displayName = funder.display_name || `${funder.cex_exchange || 'Unknown'} ${funder.cex_type || 'Hot Wallet'}`;
                         return `
                             <tr>
-                                <td><span class="cex-exchange-name">${fullLabel}</span></td>
+                                <td><span class="cex-exchange-name">${displayName}</span></td>
                                 <td title="${funder.funder_address}" style="font-family: monospace;">${funder.funder_address.substring(0, 16)}...</td>
                                 <td>${amountStr} SOL</td>
                             </tr>

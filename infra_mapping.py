@@ -473,6 +473,16 @@ CEX_ACCOUNTS = {
         "tags": ["cex", "binance", "exchange"],
     },
 
+    # Binance Deposit - Verified
+    "21wG4F3ZR8gwGC47CkpD6ySBUgH9AABtYMBWFiYdTTgv": {
+        "name": "Binance Deposit",
+        "category": "cex",
+        "exchange": "Binance",
+        "description": "Binance exchange wallet for SOL deposits",
+        "risk_level": "neutral",
+        "tags": ["cex", "binance", "exchange", "deposit"],
+    },
+
     # Coinbase - Verified
     "5g7yNHyGLJ7fiQ9SN9mf47opDnMjc585kqXWt6d7aBWs": {
         "name": "Coinbase Hot Wallet",

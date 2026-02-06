@@ -2868,10 +2868,18 @@ HTML_TEMPLATE = """
 
                         if (matchingMultiCreatorFunders.length > 0) {
                             const multiSection = document.getElementById('multiCreatorFundersSection');
-                            multiSection.style.display = 'block';
+                            // Filter out INFRA and CEX accounts - only show suspicious multi-creator funders
+                            const suspiciousMatchers = matchingMultiCreatorFunders.filter(f => !f.is_infrastructure && !f.is_cex_account);
+
+                            if (suspiciousMatchers.length > 0) {
+                                multiSection.style.display = 'block';
+                            } else {
+                                multiSection.style.display = 'none';
+                            }
+
                             const multiBody = document.getElementById('tokenMetricsMultiCreatorFundersBody');
 
-                            multiBody.innerHTML = matchingMultiCreatorFunders.map(funder => {
+                            multiBody.innerHTML = suspiciousMatchers.map(funder => {
                                 const firstFundingDate = funder.first_funding_at ? new Date(funder.first_funding_at).toLocaleDateString() : 'N/A';
                                 const lastFundingDate = funder.last_funding_at ? new Date(funder.last_funding_at).toLocaleDateString() : 'N/A';
                                 const totalSol = funder.total_sol_sent ? funder.total_sol_sent.toFixed(2) : '0.00';

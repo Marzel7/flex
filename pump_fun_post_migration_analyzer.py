@@ -125,10 +125,6 @@ PUMPFUN_BONDING_CURVE_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"  #
 PUMPFUN_PROGRAM_IDS = {
     PUMPFUN_AMM_PROGRAM,
     PUMPFUN_BONDING_CURVE_PROGRAM,
-    "FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9",  # Candidate from real token analysis
-    "pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ",  # Fee program candidate
-    "CxvksNjwhdHDLr3qbCXNKVdeYACW8cs93vFqLqtgyFE5",  # Exchange program candidate
-    "BBRouter1cVunVXvkcqeKkZQcBK7ruan37PPm3xzWaXD",  # Router program candidate
 }
 
 # Pump.fun Accounts (addresses in accountKeys, not instruction programIds)

@@ -663,6 +663,56 @@ CEX_ACCOUNTS = {
         "tags": ["cex", "hitbtc", "exchange"],
     },
 
+    # Moonpay - Verified
+    "Cc3bpPzUvgAzdW9Nv7dUQ8cpap8Xa7ujJgLdpqGrTCu6": {
+        "name": "Moonpay",
+        "category": "cex",
+        "exchange": "Moonpay",
+        "description": "Moonpay crypto exchange wallet",
+        "risk_level": "neutral",
+        "tags": ["cex", "moonpay", "exchange"],
+    },
+
+    # KuCoin - Verified
+    "BmFdpraQhkiDQE6SnfG5omcA1VwzqfXrwtNYBwWTymy6": {
+        "name": "KuCoin 2",
+        "category": "cex",
+        "exchange": "KuCoin",
+        "description": "KuCoin exchange wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "kucoin", "exchange"],
+    },
+
+    # Fireblocks Custody - Verified
+    "2nvBrX3EdKqhpqUMAhCu3LcEDno1tkbn8A95aGAocUNQ": {
+        "name": "Fireblocks Custody",
+        "category": "cex",
+        "exchange": "Fireblocks",
+        "description": "Fireblocks institutional custody wallet",
+        "risk_level": "neutral",
+        "tags": ["cex", "fireblocks", "custody", "institutional"],
+    },
+
+    # Bidget Exchange - Verified
+    "A77HErqtfN1hLLpvZ9pCtu66FEtM8BveoaKbbMoZ4RiR": {
+        "name": "Bidget Exchange",
+        "category": "cex",
+        "exchange": "Bidget",
+        "description": "Bidget exchange wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "bidget", "exchange"],
+    },
+
+    # ChangeNow - Verified
+    "G2YxRa6wt1qePMwfJzdXZG62ej4qaTC7YURzuh2Lwd3t": {
+        "name": "ChangeNow",
+        "category": "cex",
+        "exchange": "ChangeNow",
+        "description": "ChangeNow crypto exchange wallet",
+        "risk_level": "neutral",
+        "tags": ["cex", "changenow", "exchange"],
+    },
+
     # Placeholder for future real addresses
     # TO ADD NEW CEX ADDRESSES - STRICT VERIFICATION REQUIRED:
     # 1. Must check Solscan.io directly for confirmed transaction history

@@ -897,6 +897,11 @@ class PostMigrationAnalyzer:
 
         But we only check inner instructions for the specific Pump.fun CREATE that contains the mint,
         to avoid false positives from unrelated nested creates.
+        
+        Handles multiple parent index key names for different RPC providers:
+        - "index" (Solana RPC, Helius)
+        - "parentIndex" (some RPC providers)
+        - "outerInstructionIndex" (alternate naming)
         """
         message, top = self._get_message_and_instructions(tx)
 
@@ -908,7 +913,9 @@ class PostMigrationAnalyzer:
         if create_outer_index is not None:
             inner_sets = (tx.get("meta") or {}).get("innerInstructions") or []
             for inner in inner_sets:
-                if inner.get("index") != create_outer_index:
+                # Handle multiple key names for parent index (Helius compatibility)
+                parent_idx = inner.get("index") or inner.get("parentIndex") or inner.get("outerInstructionIndex")
+                if parent_idx != create_outer_index:
                     continue
                 for ix in inner.get("instructions") or []:
                     yield ix, True
@@ -1053,7 +1060,7 @@ class PostMigrationAnalyzer:
 
         return found
 
-    def _has_system_create_account_instruction(self, tx: dict, expected_bonding_curve: Optional[str] = None) -> bool:
+    def _has_system_create_account_instruction(self, tx: dict, expected_bonding_curve: Optional[str] = None, create_outer_index: Optional[int] = None) -> bool:
         """
         Check if transaction contains System Program account creation instruction
         with PUMPFUN_BONDING_CURVE_PROGRAM as the owner.
@@ -1064,12 +1071,14 @@ class PostMigrationAnalyzer:
         Args:
             tx: Transaction to validate
             expected_bonding_curve: If provided, verify the created account IS this bonding curve
+            create_outer_index: If provided, also check nested instructions under this parent index
 
         Returns: True only if found account owned by bonding curve (and matches expected if provided)
         """
         try:
             # Use the new helper to find all bonding curve-owned accounts
-            found = self._find_system_create_accounts_owned_by_bonding_curve(tx)
+            # Pass create_outer_index to enable nested instruction scanning
+            found = self._find_system_create_accounts_owned_by_bonding_curve(tx, create_outer_index=create_outer_index)
             
             if not found:
                 print(f"[CREATOR] No System.createAccount owned by bonding curve found", flush=True)
@@ -1176,11 +1185,22 @@ class PostMigrationAnalyzer:
             else:
                 print(f"[CREATOR] 📋 No instructions/programs found in transaction", flush=True)
 
-            # DEBUG: Check inner instructions present
+            # DEBUG: Check inner instructions present (diagnostic for Helius schema issues)
             inner_sets = (tx.get("meta") or {}).get("innerInstructions") or []
             print(f"[CREATOR] innerInstruction sets: {len(inner_sets)}", flush=True)
             if inner_sets:
                 print(f"[CREATOR] inner[0] keys: {list(inner_sets[0].keys())}", flush=True)
+                # Diagnostic: Log the actual parent index key names present
+                parent_idx_keys = set()
+                for inner_set in inner_sets[:3]:  # Check first 3
+                    if "index" in inner_set:
+                        parent_idx_keys.add("index")
+                    if "parentIndex" in inner_set:
+                        parent_idx_keys.add("parentIndex")
+                    if "outerInstructionIndex" in inner_set:
+                        parent_idx_keys.add("outerInstructionIndex")
+                if parent_idx_keys:
+                    print(f"[CREATOR] Parent index key names found: {parent_idx_keys}", flush=True)
 
             # STEP 1: Find the CREATE instruction index (the one with mint in accounts)
             # This scopes our System.createAccount search to nested instructions under THIS specific instruction

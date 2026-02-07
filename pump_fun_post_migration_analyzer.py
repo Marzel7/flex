@@ -792,6 +792,35 @@ class PostMigrationAnalyzer:
             print(f"[CREATOR] ⚠ Error decoding owner program from System instruction: {e}", flush=True)
             return None
 
+    def _get_message_and_instructions(self, tx: dict) -> tuple[dict, list]:
+        """
+        Return (message, instructions) for both Solana getTransaction and Helius /v0/transactions schemas.
+        
+        This centralizes schema normalization to eliminate silent failures.
+        
+        message will be a dict with at least:
+        - accountKeys: list of account addresses/objects
+        - instructions: list of instructions (may be empty if none found)
+        
+        instructions will be a list (may be empty).
+        
+        Returns:
+            Tuple of (message dict, instructions list)
+        """
+        # Standard Solana RPC schema (getTransaction)
+        if "transaction" in tx:
+            msg = (tx.get("transaction") or {}).get("message") or {}
+            return msg, (msg.get("instructions") or [])
+
+        # Helius /v0/transactions parsed schema (most common alternative)
+        if "instructions" in tx:
+            account_keys = tx.get("accountKeys") or tx.get("accounts") or []
+            msg = {"accountKeys": account_keys, "instructions": tx.get("instructions") or []}
+            return msg, msg["instructions"]
+
+        # Unknown schema, return empty structures
+        return {}, []
+
     def _resolve_account_key(self, message: dict, idx: int) -> Optional[str]:
         """Resolve account key from accountKeys list using index."""
         keys = message.get("accountKeys") or []
@@ -859,39 +888,41 @@ class PostMigrationAnalyzer:
     def _find_system_create_accounts_owned_by_bonding_curve(self, tx: dict) -> list:
         """
         Find all System.createAccount instructions that create accounts owned by PUMPFUN_BONDING_CURVE_PROGRAM.
-        
+
         Returns: List of created account pubkeys, or empty list if none found
-        
+
         This is the core logic for both bonding curve extraction AND validation.
         By separating it, we remove the circular dependency between extraction and validation.
+
+        CRITICAL: Uses normalized schema (works with both Solana RPC and Helius /v0/transactions).
         """
         found = []
-        
+
         try:
-            message = (tx.get("transaction") or {}).get("message") or {}
-            instructions = message.get("instructions") or []
-            
+            # CRITICAL: Use normalized schema (works with both Solana RPC and Helius)
+            message, instructions = self._get_message_and_instructions(tx)
+
             system_program = "11111111111111111111111111111111"
             create_types = {"createaccount", "createaccountwithseed", "create"}
-            
+
             for instr in instructions:  # Only check top-level instructions
                 # Resolve program ID
                 program_id = instr.get("programId")
                 if not program_id and "programIdIndex" in instr:
                     program_id = self._resolve_account_key(message, instr.get("programIdIndex"))
-                
+
                 if program_id != system_program:
                     continue
-                
+
                 owner_program = None
-                
+
                 # TRY 1: Check parsed format
                 if "parsed" in instr:
                     parsed_type = instr.get("parsed", {}).get("type", "").lower()
                     if parsed_type in create_types:
                         # Extract owner from parsed info
                         owner_program = instr.get("parsed", {}).get("info", {}).get("owner")
-                        
+
                         if owner_program == PUMPFUN_BONDING_CURVE_PROGRAM:
                             created = self._system_create_new_account_pubkey(message, instr)
                             if created:
@@ -916,11 +947,11 @@ class PostMigrationAnalyzer:
                                 # No data to decode, can't determine owner
                                 print(f"[CREATOR] System.createAccount (parsed) has no owner and no data to decode, skipping", flush=True)
                             continue
-                
+
                 # TRY 2: Decode compiled format (if we haven't already found it via parsed)
                 if self._is_system_create_compiled(instr):
                     owner_program = self._decode_system_create_owner_program(instr)
-                    
+
                     if owner_program == PUMPFUN_BONDING_CURVE_PROGRAM:
                         created = self._system_create_new_account_pubkey(message, instr)
                         if created:
@@ -928,10 +959,10 @@ class PostMigrationAnalyzer:
                             print(f"[CREATOR] Found System.createAccount (compiled) owned by bonding curve: {created}", flush=True)
                     elif owner_program:
                         print(f"[CREATOR] Found System.createAccount (compiled) but owner is {owner_program[:16]}..., not bonding curve", flush=True)
-        
+
         except Exception as e:
             print(f"[CREATOR] Error finding system create accounts: {e}", flush=True)
-        
+
         return found
 
     def _has_system_create_account_instruction(self, tx: dict, expected_bonding_curve: Optional[str] = None) -> bool:
@@ -1010,8 +1041,9 @@ class PostMigrationAnalyzer:
             result['slot'] = tx.get('slot')
             result['blockTime'] = tx.get('blockTime')
 
-            # Check if mint appears in account keys
-            message = (tx.get("transaction") or {}).get("message") or {}
+            # CRITICAL: Use normalized schema (works with both Solana RPC and Helius)
+            message, instructions = self._get_message_and_instructions(tx)
+            
             account_keys = message.get("accountKeys") or []
 
             # account_keys can be list of strings or list of dicts
@@ -1029,7 +1061,6 @@ class PostMigrationAnalyzer:
                 result['mint_in_accounts'] = True
 
             # Check instructions for Pump.fun programs
-            instructions = message.get("instructions") or []
             inner_instructions = tx.get("meta", {}).get("innerInstructions") or []
 
             all_instructions = list(instructions)
@@ -1063,10 +1094,26 @@ class PostMigrationAnalyzer:
             if expected_bonding_curve:
                 result['bonding_curve'] = expected_bonding_curve
                 print(f"[CREATOR] ✓ Extracted expected bonding curve: {expected_bonding_curve}", flush=True)
-
-            # STEP 2: Verify System.createAccount creates this exact bonding curve
-            # This is the ultra-robust check that eliminates false positives
-            has_system_create = self._has_system_create_account_instruction(tx, expected_bonding_curve)
+            
+            # STEP 2: Verify System.createAccount creates bonding curve
+            # If extraction failed, try to find any System.createAccount that created a bonding-curve-owned account
+            found_bonding_curves = self._find_system_create_accounts_owned_by_bonding_curve(tx)
+            
+            if expected_bonding_curve:
+                # Verify the expected curve was actually created
+                has_system_create = expected_bonding_curve in found_bonding_curves
+            elif found_bonding_curves:
+                # If extraction failed but we found exactly one bonding curve account, use it
+                if len(found_bonding_curves) == 1:
+                    result['bonding_curve'] = found_bonding_curves[0]
+                    has_system_create = True
+                    print(f"[CREATOR] ✓ Found bonding curve via System.createAccount fallback: {found_bonding_curves[0]}", flush=True)
+                else:
+                    # Multiple bonding curves - ambiguous, don't use
+                    has_system_create = False
+                    print(f"[CREATOR] ⚠ Found {len(found_bonding_curves)} bonding curves, ambiguous", flush=True)
+            else:
+                has_system_create = False
 
             # FINAL VALIDATION: All three conditions must be TRUE
             # 1. Mint in accounts (ensures this is the mint's creation)
@@ -1190,19 +1237,19 @@ class PostMigrationAnalyzer:
     async def get_true_earliest_signature(self, bonding_curve_pda: Optional[str] = None, max_pages: int = 5000, page_limit: int = 1000) -> tuple:
         """
         Find the true earliest signature using full-history RPC chain.
-        
+
         OPTIMIZATION: If we already found the CREATE tx signature earlier,
         skip pagination and return it immediately!
-        
+
         For Pump.fun tokens, queries the bonding curve PDA (if provided) to find the
         creation transaction. Otherwise falls back to token mint.
-        
+
         Args:
             bonding_curve_pda: Optional bonding curve PDA address. If provided, queries this
                              instead of token_mint for more accurate creator extraction.
             max_pages: Maximum pagination pages to traverse
             page_limit: Signatures per page (usually 1000 from RPC)
-        
+
         Returns: (earliest_sig, proven, rpc_used)
           - earliest_sig: The signature (None if not found)
           - proven: True if we reached end-of-history or legitimately paginated through real data
@@ -1210,10 +1257,11 @@ class PostMigrationAnalyzer:
         """
         # FAST PATH: If we already found the CREATE tx AND we're NOT querying bonding_curve_pda,
         # return it immediately. Otherwise we need to query the actual account.
+        # NOTE: This is "known" (cached), NOT "proven" - we didn't reach end-of-history
         if bonding_curve_pda is None and self._create_tx_signature:
             print(f"[CREATOR] 🚀 Fast path: Already have CREATE tx signature, skipping pagination", flush=True)
-            return self._create_tx_signature, True, "cached"
-        
+            return self._create_tx_signature, False, "cached"
+
         if not HISTORY_RPC_URLS:
             return None, False, "none"
 
@@ -1272,11 +1320,10 @@ class PostMigrationAnalyzer:
                         print(f"[CREATOR] Page {pages}: {len(sigs)} sigs from {query_type} ({rpc_url[:40]}...)", flush=True)
 
                     # Hit max_pages safety limit
-                    # If we got consistent full pages (1000 sigs each), this is real pagination, not cache-limited
-                    # Mark as proven if we're genuinely paginating through history
-                    is_real_pagination = pages > 1  # We made multiple pagination requests
-                    print(f"[CREATOR] ⚠ Hit max_pages limit ({max_pages}) on {query_type} ({rpc_url[:40]}...) (proven={is_real_pagination})", flush=True)
-                    return last_sig, is_real_pagination, rpc_url
+                    # Only mark as proven if we got consistent full pages AND received empty page (reached end)
+                    # Multiple pages alone is NOT proof - could be incomplete history
+                    print(f"[CREATOR] ⚠ Hit max_pages limit ({max_pages}) on {query_type} ({rpc_url[:40]}...) (proven=False)", flush=True)
+                    return last_sig, False, rpc_url
 
                 except Exception as e:
                     print(f"[CREATOR] RPC error on {query_type} ({rpc_url[:40]}...): {e}", flush=True)
@@ -1530,63 +1577,51 @@ class PostMigrationAnalyzer:
     def _extract_bonding_curve_from_tx(self, tx: dict) -> Optional[str]:
         """
         Extract bonding curve PDA from a Pump.fun CREATE transaction.
-        
+
         CRITICAL FIX: Normalize Helius parsed schema
         - Helius returns different structure than Solana getTransaction
         - Must handle both tx["transaction"]["message"] (Solana) and top-level (Helius)
-        
+
         For a CREATE tx:
         1. There's a Pump.Fun instruction whose accounts include self.token_mint
         2. There's a System.createAccount that creates an account
         3. That created account's OWNER PROGRAM must be PUMPFUN_BONDING_CURVE_PROGRAM
-        
+
         Returns: bonding curve address or None
         """
         try:
-            # CRITICAL: Normalize transaction schema (Helius vs Solana RPC)
-            if "transaction" not in tx and "instructions" in tx:
-                # Helius parsed schema: top-level instructions + accounts
-                instructions = tx.get("instructions") or []
-                account_keys = tx.get("accountKeys") or tx.get("accounts") or []
-                message = {"accountKeys": account_keys, "instructions": instructions}
-                print(f"[CREATOR] Detected Helius parsed schema", flush=True)
-            else:
-                # Standard Solana RPC schema
-                message = (tx.get("transaction") or {}).get("message") or {}
-                account_keys = message.get("accountKeys") or []
-                instructions = message.get("instructions") or []
-            
+            # CRITICAL: Use normalized schema (works with both Solana RPC and Helius)
+            message, instructions = self._get_message_and_instructions(tx)
+            account_keys = message.get("accountKeys") or []
+
             inner_instructions = tx.get("meta", {}).get("innerInstructions") or []
-            
+
             print(f"[CREATOR] Transaction has {len(instructions)} top-level instructions", flush=True)
-            
+
             # Step 1: Find Pump.fun CREATE instruction (must include mint in accounts)
             for ix_idx, ix in enumerate(instructions):
                 # Resolve program ID
                 program_id = ix.get("programId")
                 if not program_id and "programIdIndex" in ix:
-                    program_id_idx = ix.get("programIdIndex")
-                    if isinstance(program_id_idx, int) and 0 <= program_id_idx < len(account_keys):
-                        acct = account_keys[program_id_idx]
-                        program_id = acct if isinstance(acct, str) else acct.get("pubkey")
-                
+                    program_id = self._resolve_account_key(message, ix.get("programIdIndex"))
+
                 if program_id not in PUMPFUN_PROGRAM_IDS:
                     continue
-                
+
                 print(f"[CREATOR] Found Pump.Fun instruction (#{ix_idx}): {program_id}", flush=True)
-                
+
                 # Step 2: Extract accounts from this instruction
                 accounts = ix.get("accounts")
-                
+
                 if accounts is None and "parsed" in ix:
                     # jsonParsed format
                     parsed_info = ix.get("parsed", {}).get("info", {})
                     accounts = self._extract_accounts_from_parsed_info(parsed_info)
-                
+
                 if not accounts:
                     print(f"[CREATOR] ⚠ This Pump.Fun instruction has no accounts", flush=True)
                     continue
-                
+
                 # Step 3: CRITICAL: Check if mint is in this instruction's accounts
                 # Only the CREATE instruction will have the mint
                 instruction_account_pubkeys = []
@@ -1602,27 +1637,27 @@ class PostMigrationAnalyzer:
                         instruction_account_pubkeys.append(acc)
                     elif isinstance(acc, dict) and "pubkey" in acc:
                         instruction_account_pubkeys.append(acc["pubkey"])
-                
+
                 # If mint is NOT in this instruction's accounts, this is not the CREATE
                 if self.token_mint not in instruction_account_pubkeys:
                     print(f"[CREATOR] ✗ Mint not in this Pump.Fun instruction's accounts - not CREATE", flush=True)
                     continue
-                
+
                 print(f"[CREATOR] ✓ Mint found in Pump.Fun instruction - this is the CREATE!", flush=True)
-                
+
                 # Step 4: Find System.createAccount accounts owned by bonding curve
                 # Use new helper to avoid circular dependency
                 bonding_curve_accounts = self._find_system_create_accounts_owned_by_bonding_curve(tx)
-                
+
                 if bonding_curve_accounts:
                     # Return the first one found (should be the bonding curve)
                     bonding_curve = bonding_curve_accounts[0]
                     print(f"[CREATOR] ✓ Using bonding curve from System.createAccount: {bonding_curve}", flush=True)
                     return bonding_curve
-                
+
                 # If no System.createAccount found, fall back to heuristic selection
                 print(f"[CREATOR] ⚠ No System.createAccount with bonding curve owner found, falling back to heuristic", flush=True)
-                
+
                 known_programs = SYSTEM_PROGRAMS | PUMPFUN_PROGRAM_IDS | {
                     "So11111111111111111111111111111111111111112",  # Wrapped SOL
                     "EPjFWaLb3odcccccccccccccccccccccccccccccc",     # USDC
@@ -1631,7 +1666,7 @@ class PostMigrationAnalyzer:
                     "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4",  # Jupiter
                     "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",  # ATA Program
                 }
-                
+
                 candidates = []
                 for i, pubkey in enumerate(instruction_account_pubkeys):
                     if pubkey == self.token_mint:
@@ -1642,14 +1677,14 @@ class PostMigrationAnalyzer:
                         continue
                     if 0 < i < len(instruction_account_pubkeys) - 1:
                         candidates.append(pubkey)
-                
+
                 if candidates:
                     print(f"[CREATOR] → Selected bonding curve (heuristic): {candidates[0]}", flush=True)
                     return candidates[0]
-            
+
             print(f"[CREATOR] ❌ No Pump.Fun instruction with mint found", flush=True)
             return None
-            
+
         except Exception as e:
             print(f"[CREATOR] ⚠ Error extracting bonding curve: {e}", flush=True)
             return None

@@ -792,6 +792,29 @@ class PostMigrationAnalyzer:
             print(f"[CREATOR] ⚠ Error decoding owner program from System instruction: {e}", flush=True)
             return None
 
+    def _normalize_account_keys(self, keys: list) -> list:
+        """
+        Normalize Helius account key objects to pubkey strings.
+        
+        Handles multiple Helius schema variations:
+        - Simple strings: ["pubkey1", "pubkey2", ...]
+        - Objects with pubkey: [{"pubkey": "...", "signer": bool, ...}, ...]
+        - Objects with account: [{"account": "...", ...}, ...]
+        - Objects with address: [{"address": "...", ...}, ...]
+        
+        Returns: List of pubkey strings, filtering out None/empty values
+        """
+        out = []
+        for k in keys or []:
+            if isinstance(k, str):
+                out.append(k)
+            elif isinstance(k, dict):
+                # Try various key names for pubkey
+                pubkey = k.get("pubkey") or k.get("account") or k.get("address")
+                if pubkey:
+                    out.append(pubkey)
+        return [x for x in out if x]
+
     def _get_message_and_instructions(self, tx: dict) -> tuple[dict, list]:
         """
         Return (message, instructions) for both Solana getTransaction and Helius /v0/transactions schemas.
@@ -804,6 +827,8 @@ class PostMigrationAnalyzer:
         
         instructions will be a list (may be empty).
         
+        FIX #3: Normalize Helius account keys (objects) to pubkey strings
+        
         Returns:
             Tuple of (message dict, instructions list)
         """
@@ -815,6 +840,8 @@ class PostMigrationAnalyzer:
         # Helius /v0/transactions parsed schema (most common alternative)
         if "instructions" in tx:
             account_keys = tx.get("accountKeys") or tx.get("accounts") or []
+            # FIX #3: Normalize account keys to handle Helius object format
+            account_keys = self._normalize_account_keys(account_keys)
             msg = {"accountKeys": account_keys, "instructions": tx.get("instructions") or []}
             return msg, msg["instructions"]
 
@@ -1125,10 +1152,10 @@ class PostMigrationAnalyzer:
 
         ULTRA-ROBUST VALIDATION:
         1. Mint must appear in transaction accounts
-        2. Pump.fun program must be referenced
-        3. System.createAccount must create the bonding curve (verified by:
+        2. System.createAccount must create the bonding curve (verified by:
            a. Owner = PUMPFUN_BONDING_CURVE_PROGRAM
            b. Created account = found via actual System.createAccount (not heuristic!)
+        3. Pump.fun program (optional, for monitoring)
 
         Returns dict:
         {
@@ -1161,15 +1188,17 @@ class PostMigrationAnalyzer:
             
             account_keys = message.get("accountKeys") or []
 
-            # account_keys can be list of strings or list of dicts
-            account_pubkeys = []
-            for acct in account_keys:
-                if isinstance(acct, str):
-                    account_pubkeys.append(acct)
-                elif isinstance(acct, dict):
-                    pubkey = acct.get("pubkey")
-                    if pubkey:
-                        account_pubkeys.append(pubkey)
+            # account_keys can be list of strings or list of dicts (already normalized by _get_message_and_instructions)
+            account_pubkeys = account_keys if isinstance(account_keys, list) and all(isinstance(k, str) for k in account_keys) else []
+            if not account_pubkeys and isinstance(account_keys, list):
+                # Fallback normalization in case not handled by _get_message_and_instructions
+                for acct in account_keys:
+                    if isinstance(acct, str):
+                        account_pubkeys.append(acct)
+                    elif isinstance(acct, dict):
+                        pubkey = acct.get("pubkey")
+                        if pubkey:
+                            account_pubkeys.append(pubkey)
 
             # Check if our mint is in the accounts
             if self.token_mint in account_pubkeys:
@@ -1182,9 +1211,20 @@ class PostMigrationAnalyzer:
                 inner_instructions = tx.get("innerInstructions")  # Helius-style fallback
             inner_instructions = inner_instructions or []
 
+            # FIX #2: Harden inner instruction expansion to handle different Helius schemas
+            # Solana RPC: [{"index": 3, "instructions": [...]}, ...]
+            # Helius: May use flat list, single instruction shape, or grouped format
             all_instructions = list(instructions)
             for inner in inner_instructions:
-                all_instructions.extend(inner.get("instructions") or [])
+                if isinstance(inner, dict) and "instructions" in inner:
+                    # Standard grouped format: {"index": x, "instructions": [...]}
+                    all_instructions.extend(inner.get("instructions") or [])
+                elif isinstance(inner, dict):
+                    # Single instruction shape (sometimes Helius flattens these)
+                    all_instructions.append(inner)
+                elif isinstance(inner, list):
+                    # Already flat list of instructions
+                    all_instructions.extend(inner)
 
             for instr in all_instructions:
                 program_id = instr.get("programId")
@@ -1208,19 +1248,22 @@ class PostMigrationAnalyzer:
                 print(f"[CREATOR] 📋 No instructions/programs found in transaction", flush=True)
 
             # DEBUG: Check inner instructions present (diagnostic for Helius schema issues)
-            inner_sets = (tx.get("meta") or {}).get("innerInstructions") or []
+            # FIX #1: Use already-normalized inner_instructions instead of re-fetching from tx
+            inner_sets = inner_instructions
             print(f"[CREATOR] innerInstruction sets: {len(inner_sets)}", flush=True)
             if inner_sets:
-                print(f"[CREATOR] inner[0] keys: {list(inner_sets[0].keys())}", flush=True)
+                if isinstance(inner_sets[0], dict):
+                    print(f"[CREATOR] inner[0] keys: {list(inner_sets[0].keys())}", flush=True)
                 # Diagnostic: Log the actual parent index key names present
                 parent_idx_keys = set()
                 for inner_set in inner_sets[:3]:  # Check first 3
-                    if "index" in inner_set:
-                        parent_idx_keys.add("index")
-                    if "parentIndex" in inner_set:
-                        parent_idx_keys.add("parentIndex")
-                    if "outerInstructionIndex" in inner_set:
-                        parent_idx_keys.add("outerInstructionIndex")
+                    if isinstance(inner_set, dict):
+                        if "index" in inner_set:
+                            parent_idx_keys.add("index")
+                        if "parentIndex" in inner_set:
+                            parent_idx_keys.add("parentIndex")
+                        if "outerInstructionIndex" in inner_set:
+                            parent_idx_keys.add("outerInstructionIndex")
                 if parent_idx_keys:
                     print(f"[CREATOR] Parent index key names found: {parent_idx_keys}", flush=True)
 
@@ -1253,15 +1296,23 @@ class PostMigrationAnalyzer:
                 print(f"[CREATOR] ⚠ No System.createAccount owned by bonding curve found", flush=True)
                 has_system_create = False
 
-            # FINAL VALIDATION: All three conditions must be TRUE
-            # 1. Mint in accounts (ensures this is the mint's creation)
-            # 2. Pump.fun program found (ensures it's a Pump.Fun tx)
-            # 3. System.createAccount creates bonding curve (ensures it's CREATE, not SELL/SWAP/other)
+            # FINAL VALIDATION: Core conditions must be TRUE
+            # FIX #4: Make program ID dependency optional
+            # The true signal is: mint + System.createAccount with bonding curve owner
+            # Program ID is nice-to-have but not required (may differ across Pump.fun variants)
             result['is_pumpfun_create'] = (
                 result['mint_in_accounts'] and
-                result['pumpfun_program_found'] and
                 has_system_create
             )
+
+            # Log if program ID wasn't found (for monitoring, but doesn't fail validation)
+            if not result['pumpfun_program_found']:
+                validation_notes = result.get('validation_notes', [])
+                if not validation_notes:
+                    validation_notes = []
+                    result['validation_notes'] = validation_notes
+                validation_notes.append("pumpfun program id not found; relying on system-create evidence")
+                print(f"[CREATOR] ⚠ Program ID not in PUMPFUN_PROGRAM_IDS; relying on mint + system-create", flush=True)
 
             return result
 
@@ -1831,29 +1882,33 @@ class PostMigrationAnalyzer:
         """
         Extract account list from jsonParsed instruction info.
         
+        FIX #5: Generic extraction of pubkey-like strings
+        
         Pump.fun parsed instructions may have account info in various formats:
-        - Create: has "owner", "mint", "bondingCurve", etc.
+        - Create: has "owner", "mint", "bondingCurve", "bondingCurveAssociatedAccount", etc.
         - Other: varies by operation
+        
+        Instead of checking specific field names, just collect all string values
+        that look like Solana pubkeys (32-60 character base58 strings).
+        
+        Also handles values that are dicts with pubkey/address/account fields.
         
         Returns: list of account pubkeys or None
         """
         try:
             accounts = []
             
-            # Common account fields in Pump.fun parsed instructions
-            account_fields = [
-                "mint", "bondingCurve", "owner", "user", "creator",
-                "associatedTokenProgram", "tokenProgram", "systemProgram",
-                "solReceiver", "feeReceiver"
-            ]
-            
-            for field in account_fields:
-                if field in parsed_info:
-                    val = parsed_info[field]
-                    if isinstance(val, str):
-                        accounts.append(val)
-                    elif isinstance(val, dict) and "address" in val:
-                        accounts.append(val["address"])
+            # Collect all string values that look like pubkeys
+            for v in (parsed_info or {}).values():
+                if isinstance(v, str) and 32 <= len(v) <= 60:
+                    # Looks like a pubkey
+                    accounts.append(v)
+                elif isinstance(v, dict):
+                    # Try various key names for pubkey in dict values
+                    for kk in ("pubkey", "address", "account"):
+                        vv = v.get(kk)
+                        if isinstance(vv, str):
+                            accounts.append(vv)
             
             return accounts if accounts else None
             

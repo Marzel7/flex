@@ -387,18 +387,33 @@ class PostMigrationAnalyzer:
             pre_balances = meta.get("preTokenBalances", [])
             post_balances = meta.get("postTokenBalances", [])
 
-            for pre, post in zip(pre_balances, post_balances):
+            # FIXED: Index by (accountIndex, mint, owner) tuple instead of relying on zip()
+            # zip() silently truncates if arrays differ in length and doesn't guarantee ordering
+            pre_by_key = {}
+            for pre in pre_balances:
                 if pre.get("mint") != self.token_mint:
                     continue
+                key = (pre.get("accountIndex"), pre.get("mint"), pre.get("owner"))
+                pre_by_key[key] = int(pre.get("uiTokenAmount", {}).get("amount", 0))
 
-                pre_amount = int(pre.get("uiTokenAmount", {}).get("amount", 0))
-                post_amount = int(post.get("uiTokenAmount", {}).get("amount", 0))
+            post_by_key = {}
+            for post in post_balances:
+                if post.get("mint") != self.token_mint:
+                    continue
+                key = (post.get("accountIndex"), post.get("mint"), post.get("owner"))
+                post_by_key[key] = int(post.get("uiTokenAmount", {}).get("amount", 0))
+
+            # Find all accounts where balance changed
+            all_keys = set(pre_by_key.keys()) | set(post_by_key.keys())
+            for key in all_keys:
+                account_idx, mint, wallet = key
+                pre_amount = pre_by_key.get(key, 0)
+                post_amount = post_by_key.get(key, 0)
                 delta = post_amount - pre_amount
 
                 if delta == 0:
                     continue
 
-                wallet = post.get("owner")
                 if not wallet:
                     continue
 
@@ -846,7 +861,7 @@ class PostMigrationAnalyzer:
             instructions = message.get("instructions") or []
 
             system_program = "11111111111111111111111111111111"
-            create_types = {"createaccount", "createaccountwithseed"}
+            create_types = {"createaccount", "createaccountwithseed", "create"}
 
             for instr in instructions:  # Only check top-level instructions
                 # Resolve program ID
@@ -878,6 +893,21 @@ class PostMigrationAnalyzer:
                             return True
                         elif owner_program:
                             print(f"[CREATOR] ✗ Found System createAccount but owner is {owner_program[:16]}..., not Pump.Fun bonding curve", flush=True)
+                        else:
+                            # Parsed type is createaccount but owner not in parsed.info
+                            # FIXED: Fall back to compiled format decoder
+                            owner_program = self._decode_system_create_owner_program(instr)
+                            if owner_program == PUMPFUN_BONDING_CURVE_PROGRAM:
+                                if expected_bonding_curve:
+                                    created = self._system_create_new_account_pubkey(message, instr)
+                                    if created != expected_bonding_curve:
+                                        print(f"[CREATOR] ✗ Owner is bonding curve program, but created account {created} != expected {expected_bonding_curve}", flush=True)
+                                        continue
+
+                                print(f"[CREATOR] ✓ Found TOP-LEVEL System createAccount with Pump.Fun bonding curve owner (parsed+compiled fallback)", flush=True)
+                                return True
+                            elif owner_program:
+                                print(f"[CREATOR] ✗ Found System createAccount but owner is {owner_program[:16]}..., not Pump.Fun bonding curve", flush=True)
 
                 # TRY 2: Decode compiled format (common)
                 if self._is_system_create_compiled(instr):
@@ -968,12 +998,12 @@ class PostMigrationAnalyzer:
             for instr in all_instructions:
                 program_id = instr.get("programId")
 
-                # CRITICAL FIX: Handle programIdIndex form (common in getTransaction responses)
-                # When program is given as index into message.accountKeys, resolve it
+                # FIXED: Use _resolve_account_key() for programIdIndex resolution
+                # This is safer and consistent with how other code handles account resolution
                 if not program_id and "programIdIndex" in instr:
                     idx = instr.get("programIdIndex")
-                    if isinstance(idx, int) and 0 <= idx < len(account_pubkeys):
-                        program_id = account_pubkeys[idx]
+                    if isinstance(idx, int):
+                        program_id = self._resolve_account_key(message, idx)
 
                 if program_id:
                     result['program_ids'].append(program_id)

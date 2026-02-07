@@ -902,6 +902,8 @@ class PostMigrationAnalyzer:
         - "index" (Solana RPC, Helius)
         - "parentIndex" (some RPC providers)
         - "outerInstructionIndex" (alternate naming)
+        
+        CRITICAL: Must handle index=0 correctly (use explicit None checks, not 'or')
         """
         message, top = self._get_message_and_instructions(tx)
 
@@ -911,10 +913,20 @@ class PostMigrationAnalyzer:
 
         # Inner only for the CREATE parent index (if specified)
         if create_outer_index is not None:
-            inner_sets = (tx.get("meta") or {}).get("innerInstructions") or []
+            inner_sets = (tx.get("meta") or {}).get("innerInstructions")
+            if inner_sets is None:
+                inner_sets = tx.get("innerInstructions")  # Helius-style fallback
+            inner_sets = inner_sets or []
+            
             for inner in inner_sets:
                 # Handle multiple key names for parent index (Helius compatibility)
-                parent_idx = inner.get("index") or inner.get("parentIndex") or inner.get("outerInstructionIndex")
+                # CRITICAL: Must use explicit None checks, not 'or', to handle index=0
+                parent_idx = inner.get("index")
+                if parent_idx is None:
+                    parent_idx = inner.get("parentIndex")
+                if parent_idx is None:
+                    parent_idx = inner.get("outerInstructionIndex")
+                
                 if parent_idx != create_outer_index:
                     continue
                 for ix in inner.get("instructions") or []:
@@ -1071,11 +1083,17 @@ class PostMigrationAnalyzer:
         Args:
             tx: Transaction to validate
             expected_bonding_curve: If provided, verify the created account IS this bonding curve
-            create_outer_index: If provided, also check nested instructions under this parent index
+            create_outer_index: If provided, also check nested instructions under this parent index.
+                              If None, will compute it automatically to be self-sufficient.
 
         Returns: True only if found account owned by bonding curve (and matches expected if provided)
         """
         try:
+            # CRITICAL: Compute create_outer_index if not provided
+            # This makes the method self-sufficient and prevents future regressions
+            if create_outer_index is None:
+                create_outer_index = self._find_pumpfun_create_outer_index(tx)
+            
             # Use the new helper to find all bonding curve-owned accounts
             # Pass create_outer_index to enable nested instruction scanning
             found = self._find_system_create_accounts_owned_by_bonding_curve(tx, create_outer_index=create_outer_index)
@@ -1158,7 +1176,11 @@ class PostMigrationAnalyzer:
                 result['mint_in_accounts'] = True
 
             # Check instructions for Pump.fun programs
-            inner_instructions = tx.get("meta", {}).get("innerInstructions") or []
+            # Handle both Solana RPC (meta.innerInstructions) and Helius-style (top-level)
+            inner_instructions = (tx.get("meta") or {}).get("innerInstructions")
+            if inner_instructions is None:
+                inner_instructions = tx.get("innerInstructions")  # Helius-style fallback
+            inner_instructions = inner_instructions or []
 
             all_instructions = list(instructions)
             for inner in inner_instructions:

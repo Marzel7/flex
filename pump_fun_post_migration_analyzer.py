@@ -771,21 +771,42 @@ class PostMigrationAnalyzer:
         """
         Extract which account was CREATED by this System.createAccount instruction.
 
-        In System.createAccount and createAccountWithSeed, the accounts array is:
-        - [0] = Funding account (payer)
-        - [1] = New account being created
+        CRITICAL FIX: Support both parsed and compiled instruction formats!
 
-        Returns the pubkey of the newly created account.
+        Parsed format (encoding=jsonParsed):
+        - instr["parsed"]["info"]["newAccount"] or similar key
+        - Different RPC versions use different key names (newAccount, newAccountPubkey, account, etc.)
+
+        Compiled format:
+        - instr["accounts"] is list of indices into message.accountKeys
+        - accounts[1] = new account being created (index or sometimes already a pubkey string)
+
+        Returns the pubkey of the newly created account, or None if not found.
         """
+        # TRY 1: Parsed system instruction format (most common with jsonParsed encoding)
+        parsed = instr.get("parsed")
+        if isinstance(parsed, dict):
+            info = parsed.get("info") or {}
+            # Try common account key names seen across different RPC versions
+            for key in ("newAccount", "newAccountPubkey", "account", "to"):
+                value = info.get(key)
+                if isinstance(value, str) and value:
+                    return value
+        
+        # TRY 2: Compiled format - accounts are indices into accountKeys
         accs = instr.get("accounts")
-        if not isinstance(accs, list) or len(accs) < 2:
-            return None
-
-        new_account_idx = accs[1]
-        if not isinstance(new_account_idx, int):
-            return None
-
-        return self._resolve_account_key(message, new_account_idx)
+        if isinstance(accs, list) and len(accs) >= 2:
+            new_account_idx = accs[1]
+            
+            # Case 2a: accounts[1] is an index (typical compiled format)
+            if isinstance(new_account_idx, int):
+                return self._resolve_account_key(message, new_account_idx)
+            
+            # Case 2b: accounts[1] is already a pubkey string (some RPC versions)
+            if isinstance(new_account_idx, str) and new_account_idx:
+                return new_account_idx
+        
+        return None
 
     def _has_system_create_account_instruction(self, tx: dict, expected_bonding_curve: Optional[str] = None) -> bool:
         """

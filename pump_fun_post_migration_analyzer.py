@@ -294,6 +294,10 @@ class PostMigrationAnalyzer:
                     if idx % BATCH_SIZE == 0 or idx == len(chunk):
                         success_rate = (successful / total_processed * 100) if total_processed > 0 else 0
                         print(f"[ASYNC] Progress: {total_processed}/{len(sigs)} txs | Success: {successful}/{total_processed} ({success_rate:.1f}%) | Failed: {failed}", flush=True)
+                
+                # Add delay between chunks to avoid RPC rate limiting
+                if chunk_end < len(sigs):
+                    await asyncio.sleep(BATCH_DELAY)
 
     async def _fetch_tx_semaphore(self, session: aiohttp.ClientSession, sig: str, sem: asyncio.Semaphore):
         """Fetch a single transaction with semaphore to limit concurrency"""
@@ -801,14 +805,17 @@ class PostMigrationAnalyzer:
         Extract which account was CREATED by this System.createAccount instruction.
 
         CRITICAL FIX: Support both parsed and compiled instruction formats!
+        CRITICAL FIX 2: Distinguish between payer and created account in parsed format
 
         Parsed format (encoding=jsonParsed):
-        - instr["parsed"]["info"]["newAccount"] or similar key
-        - Different RPC versions use different key names (newAccount, newAccountPubkey, account, etc.)
+        - instr["parsed"]["info"]["newAccount"] or "newAccountPubkey" = CREATED account ✅
+        - instr["parsed"]["info"]["account" or "to"] might be PAYER, not created ⚠️
+        - Must not confuse payer (source) with created account
 
         Compiled format:
         - instr["accounts"] is list of indices into message.accountKeys
-        - accounts[1] = new account being created (index or sometimes already a pubkey string)
+        - accounts[0] = payer/funding account
+        - accounts[1] = new account being created ✅
 
         Returns the pubkey of the newly created account, or None if not found.
         """
@@ -816,10 +823,21 @@ class PostMigrationAnalyzer:
         parsed = instr.get("parsed")
         if isinstance(parsed, dict):
             info = parsed.get("info") or {}
-            # Try common account key names seen across different RPC versions
-            for key in ("newAccount", "newAccountPubkey", "account", "to"):
+            
+            # Identify payer so we don't confuse it with created account
+            payer = info.get("source") or info.get("from")
+            
+            # Try definitive keys first (always the created account)
+            for key in ("newAccount", "newAccountPubkey"):
                 value = info.get(key)
                 if isinstance(value, str) and value:
+                    return value
+            
+            # For "account" and "to", only accept if it's NOT the payer
+            # (these can be ambiguous depending on RPC parser)
+            for key in ("account", "to"):
+                value = info.get(key)
+                if isinstance(value, str) and value and value != payer:
                     return value
         
         # TRY 2: Compiled format - accounts are indices into accountKeys
@@ -837,99 +855,122 @@ class PostMigrationAnalyzer:
         
         return None
 
-    def _has_system_create_account_instruction(self, tx: dict, expected_bonding_curve: Optional[str] = None) -> bool:
+
+    def _find_system_create_accounts_owned_by_bonding_curve(self, tx: dict) -> list:
         """
-        Check if transaction contains System Program account creation instruction AT TOP LEVEL
-        with PUMPFUN_BONDING_CURVE_PROGRAM as the owner.
-
-        ULTRA-ROBUST CHECK:
-        1. Find top-level System.createAccount instruction
-        2. Verify owner program = PUMPFUN_BONDING_CURVE_PROGRAM
-        3. If bonding curve is known, verify created account matches it
-
-        Without the bonding curve check, false positives are possible if Pump.Fun creates
-        other PDAs owned by the bonding curve program during later operations.
-
-        Args:
-            tx: Transaction to validate
-            expected_bonding_curve: If provided, verify the created account IS this bonding curve
-
-        Returns: True only if all conditions met
+        Find all System.createAccount instructions that create accounts owned by PUMPFUN_BONDING_CURVE_PROGRAM.
+        
+        Returns: List of created account pubkeys, or empty list if none found
+        
+        This is the core logic for both bonding curve extraction AND validation.
+        By separating it, we remove the circular dependency between extraction and validation.
         """
+        found = []
+        
         try:
             message = (tx.get("transaction") or {}).get("message") or {}
             instructions = message.get("instructions") or []
-
+            
             system_program = "11111111111111111111111111111111"
             create_types = {"createaccount", "createaccountwithseed", "create"}
-
+            
             for instr in instructions:  # Only check top-level instructions
                 # Resolve program ID
                 program_id = instr.get("programId")
                 if not program_id and "programIdIndex" in instr:
                     program_id = self._resolve_account_key(message, instr.get("programIdIndex"))
-
+                
                 if program_id != system_program:
                     continue
-
+                
                 owner_program = None
-
-                # TRY 1: Check parsed format (sometimes available)
+                
+                # TRY 1: Check parsed format
                 if "parsed" in instr:
                     parsed_type = instr.get("parsed", {}).get("type", "").lower()
                     if parsed_type in create_types:
                         # Extract owner from parsed info
                         owner_program = instr.get("parsed", {}).get("info", {}).get("owner")
-
+                        
                         if owner_program == PUMPFUN_BONDING_CURVE_PROGRAM:
-                            # If bonding curve is known, verify this creates it
-                            if expected_bonding_curve:
-                                created = self._system_create_new_account_pubkey(message, instr)
-                                if created != expected_bonding_curve:
-                                    print(f"[CREATOR] ✗ Owner is bonding curve program, but created account {created} != expected {expected_bonding_curve}", flush=True)
-                                    continue
-
-                            print(f"[CREATOR] ✓ Found TOP-LEVEL System createAccount with Pump.Fun bonding curve owner (parsed)", flush=True)
-                            return True
+                            created = self._system_create_new_account_pubkey(message, instr)
+                            if created:
+                                found.append(created)
+                                print(f"[CREATOR] Found System.createAccount (parsed) owned by bonding curve: {created}", flush=True)
+                            continue
                         elif owner_program:
-                            print(f"[CREATOR] ✗ Found System createAccount but owner is {owner_program[:16]}..., not Pump.Fun bonding curve", flush=True)
+                            # Wrong owner, skip
+                            print(f"[CREATOR] Found System.createAccount (parsed) but owner is {owner_program[:16]}..., not bonding curve", flush=True)
+                            continue
                         else:
-                            # Parsed type is createaccount but owner not in parsed.info
-                            # FIXED: Fall back to compiled format decoder
-                            owner_program = self._decode_system_create_owner_program(instr)
-                            if owner_program == PUMPFUN_BONDING_CURVE_PROGRAM:
-                                if expected_bonding_curve:
+                            # Parsed type is createaccount but no owner in parsed.info
+                            # Only try compiled fallback if there's actually data to decode
+                            if instr.get("data"):
+                                owner_program = self._decode_system_create_owner_program(instr)
+                                if owner_program == PUMPFUN_BONDING_CURVE_PROGRAM:
                                     created = self._system_create_new_account_pubkey(message, instr)
-                                    if created != expected_bonding_curve:
-                                        print(f"[CREATOR] ✗ Owner is bonding curve program, but created account {created} != expected {expected_bonding_curve}", flush=True)
-                                        continue
-
-                                print(f"[CREATOR] ✓ Found TOP-LEVEL System createAccount with Pump.Fun bonding curve owner (parsed+compiled fallback)", flush=True)
-                                return True
-                            elif owner_program:
-                                print(f"[CREATOR] ✗ Found System createAccount but owner is {owner_program[:16]}..., not Pump.Fun bonding curve", flush=True)
-
-                # TRY 2: Decode compiled format (common)
+                                    if created:
+                                        found.append(created)
+                                        print(f"[CREATOR] Found System.createAccount (parsed+compiled fallback) owned by bonding curve: {created}", flush=True)
+                            else:
+                                # No data to decode, can't determine owner
+                                print(f"[CREATOR] System.createAccount (parsed) has no owner and no data to decode, skipping", flush=True)
+                            continue
+                
+                # TRY 2: Decode compiled format (if we haven't already found it via parsed)
                 if self._is_system_create_compiled(instr):
                     owner_program = self._decode_system_create_owner_program(instr)
-
+                    
                     if owner_program == PUMPFUN_BONDING_CURVE_PROGRAM:
-                        # If bonding curve is known, verify this creates it
-                        if expected_bonding_curve:
-                            created = self._system_create_new_account_pubkey(message, instr)
-                            if created != expected_bonding_curve:
-                                print(f"[CREATOR] ✗ Owner is bonding curve program, but created account {created} != expected {expected_bonding_curve}", flush=True)
-                                continue
-
-                        print(f"[CREATOR] ✓ Found TOP-LEVEL System createAccount with Pump.Fun bonding curve owner (compiled)", flush=True)
-                        return True
+                        created = self._system_create_new_account_pubkey(message, instr)
+                        if created:
+                            found.append(created)
+                            print(f"[CREATOR] Found System.createAccount (compiled) owned by bonding curve: {created}", flush=True)
                     elif owner_program:
-                        print(f"[CREATOR] ✗ Found System createAccount but owner is {owner_program[:16]}..., not Pump.Fun bonding curve", flush=True)
-
-            return False
-
+                        print(f"[CREATOR] Found System.createAccount (compiled) but owner is {owner_program[:16]}..., not bonding curve", flush=True)
+        
         except Exception as e:
-            print(f"[CREATOR] ⚠ Error checking for account creation instruction: {e}", flush=True)
+            print(f"[CREATOR] Error finding system create accounts: {e}", flush=True)
+        
+        return found
+
+    def _has_system_create_account_instruction(self, tx: dict, expected_bonding_curve: Optional[str] = None) -> bool:
+        """
+        Check if transaction contains System Program account creation instruction
+        with PUMPFUN_BONDING_CURVE_PROGRAM as the owner.
+
+        Uses the new _find_system_create_accounts_owned_by_bonding_curve() helper
+        to remove circular dependency between extraction and validation.
+
+        Args:
+            tx: Transaction to validate
+            expected_bonding_curve: If provided, verify the created account IS this bonding curve
+
+        Returns: True only if found account owned by bonding curve (and matches expected if provided)
+        """
+        try:
+            # Use the new helper to find all bonding curve-owned accounts
+            found = self._find_system_create_accounts_owned_by_bonding_curve(tx)
+            
+            if not found:
+                print(f"[CREATOR] No System.createAccount owned by bonding curve found", flush=True)
+                return False
+            
+            # If we have an expected bonding curve, verify it's in the found list
+            if expected_bonding_curve:
+                if expected_bonding_curve in found:
+                    print(f"[CREATOR] ✓ Expected bonding curve {expected_bonding_curve} found in created accounts", flush=True)
+                    return True
+                else:
+                    print(f"[CREATOR] ✗ Expected bonding curve {expected_bonding_curve} NOT in created accounts: {found}", flush=True)
+                    return False
+            
+            # If no expected bonding curve, just need at least one
+            print(f"[CREATOR] ✓ Found {len(found)} System.createAccount(s) owned by bonding curve", flush=True)
+            return True
+        
+        except Exception as e:
+            print(f"[CREATOR] Error in system create check: {e}", flush=True)
             return False
 
     def _validate_pumpfun_create_tx(self, tx: dict) -> dict:
@@ -1490,27 +1531,37 @@ class PostMigrationAnalyzer:
         """
         Extract bonding curve PDA from a Pump.fun CREATE transaction.
         
-        CRITICAL FIX: Only extract from Pump.fun instructions that include the MINT in their accounts.
-        This ensures we're looking at the CREATE instruction, not some other Pump.Fun operation.
+        CRITICAL FIX: Normalize Helius parsed schema
+        - Helius returns different structure than Solana getTransaction
+        - Must handle both tx["transaction"]["message"] (Solana) and top-level (Helius)
         
         For a CREATE tx:
         1. There's a Pump.Fun instruction whose accounts include self.token_mint
-        2. There's a System.createAccount that creates an account (accounts[1])
-           - This can be top-level OR nested in inner instructions!
+        2. There's a System.createAccount that creates an account
         3. That created account's OWNER PROGRAM must be PUMPFUN_BONDING_CURVE_PROGRAM
         
         Returns: bonding curve address or None
         """
         try:
-            message = (tx.get("transaction") or {}).get("message") or {}
-            account_keys = message.get("accountKeys") or []
-            instructions = message.get("instructions") or []
+            # CRITICAL: Normalize transaction schema (Helius vs Solana RPC)
+            if "transaction" not in tx and "instructions" in tx:
+                # Helius parsed schema: top-level instructions + accounts
+                instructions = tx.get("instructions") or []
+                account_keys = tx.get("accountKeys") or tx.get("accounts") or []
+                message = {"accountKeys": account_keys, "instructions": instructions}
+                print(f"[CREATOR] Detected Helius parsed schema", flush=True)
+            else:
+                # Standard Solana RPC schema
+                message = (tx.get("transaction") or {}).get("message") or {}
+                account_keys = message.get("accountKeys") or []
+                instructions = message.get("instructions") or []
+            
             inner_instructions = tx.get("meta", {}).get("innerInstructions") or []
             
             print(f"[CREATOR] Transaction has {len(instructions)} top-level instructions", flush=True)
             
             # Step 1: Find Pump.fun CREATE instruction (must include mint in accounts)
-            for ix_idx, ix in enumerate(instructions):  # Only top-level!
+            for ix_idx, ix in enumerate(instructions):
                 # Resolve program ID
                 program_id = ix.get("programId")
                 if not program_id and "programIdIndex" in ix:
@@ -1559,81 +1610,15 @@ class PostMigrationAnalyzer:
                 
                 print(f"[CREATOR] ✓ Mint found in Pump.Fun instruction - this is the CREATE!", flush=True)
                 
-                # Step 4: Now find which System.createAccount created the bonding curve
-                # The created account should be the bonding curve PDA
-                # It's created by: System.createAccount (can be top-level OR nested in inner instructions)
-                # AND the owner program must be PUMPFUN_BONDING_CURVE_PROGRAM
+                # Step 4: Find System.createAccount accounts owned by bonding curve
+                # Use new helper to avoid circular dependency
+                bonding_curve_accounts = self._find_system_create_accounts_owned_by_bonding_curve(tx)
                 
-                # Collect all System.createAccount instructions (both top-level and nested)
-                all_system_creates = []
-                
-                # Check top-level instructions
-                for sys_ix in instructions:
-                    all_system_creates.append((sys_ix, "top-level"))
-                
-                # Check nested inner instructions for this instruction
-                for inner_group in inner_instructions:
-                    if inner_group.get("index") == ix_idx:
-                        # These are inner instructions from this Pump.Fun instruction
-                        for inner_ix in inner_group.get("instructions", []):
-                            all_system_creates.append((inner_ix, "nested"))
-                
-                print(f"[CREATOR] Checking {len(all_system_creates)} System instructions (top-level + nested)", flush=True)
-                
-                # Now check each System instruction
-                for sys_ix, location in all_system_creates:
-                    # Resolve program ID for system instruction
-                    sys_program_id = sys_ix.get("programId")
-                    if not sys_program_id and "programIdIndex" in sys_ix:
-                        sys_program_id_idx = sys_ix.get("programIdIndex")
-                        if isinstance(sys_program_id_idx, int) and 0 <= sys_program_id_idx < len(account_keys):
-                            acct = account_keys[sys_program_id_idx]
-                            sys_program_id = acct if isinstance(acct, str) else acct.get("pubkey")
-                    
-                    if sys_program_id != "11111111111111111111111111111111":
-                        continue
-                    
-                    # Check if this is a createAccount instruction
-                    if not self._is_system_create_compiled(sys_ix) and "parsed" not in sys_ix:
-                        continue
-                    
-                    parsed_type = None
-                    if "parsed" in sys_ix:
-                        parsed_type = sys_ix.get("parsed", {}).get("type", "").lower()
-                        if parsed_type not in {"createaccount", "createaccountwithseed"}:
-                            continue
-                    
-                    if not self._is_system_create_compiled(sys_ix) and not parsed_type:
-                        continue
-                    
-                    # Extract the created account (accounts[1])
-                    created_account = self._system_create_new_account_pubkey(message, sys_ix)
-                    
-                    if created_account:
-                        # CRITICAL FIX: Verify the owner program is PUMPFUN_BONDING_CURVE_PROGRAM
-                        owner_program = None
-                        
-                        # Try parsed format first
-                        if "parsed" in sys_ix:
-                            owner_program = sys_ix.get("parsed", {}).get("info", {}).get("owner")
-                        
-                        # Fall back to decoding compiled format
-                        if not owner_program:
-                            owner_program = self._decode_system_create_owner_program(sys_ix)
-                        
-                        if owner_program:
-                            print(f"[CREATOR] Found System.createAccount ({location}) creating: {created_account} (owner={owner_program})", flush=True)
-                            
-                            # Verify owner is the bonding curve program
-                            if owner_program == PUMPFUN_BONDING_CURVE_PROGRAM:
-                                print(f"[CREATOR] ✓ Owner program matches PUMPFUN_BONDING_CURVE_PROGRAM!", flush=True)
-                                return created_account
-                            else:
-                                print(f"[CREATOR] ✗ Owner program {owner_program} != {PUMPFUN_BONDING_CURVE_PROGRAM}", flush=True)
-                                continue
-                        else:
-                            print(f"[CREATOR] ⚠ Could not extract owner program for {created_account}", flush=True)
-                            continue
+                if bonding_curve_accounts:
+                    # Return the first one found (should be the bonding curve)
+                    bonding_curve = bonding_curve_accounts[0]
+                    print(f"[CREATOR] ✓ Using bonding curve from System.createAccount: {bonding_curve}", flush=True)
+                    return bonding_curve
                 
                 # If no System.createAccount found, fall back to heuristic selection
                 print(f"[CREATOR] ⚠ No System.createAccount with bonding curve owner found, falling back to heuristic", flush=True)

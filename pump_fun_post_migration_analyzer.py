@@ -1495,7 +1495,8 @@ class PostMigrationAnalyzer:
         
         For a CREATE tx:
         1. There's a Pump.Fun instruction whose accounts include self.token_mint
-        2. There's a top-level System.createAccount that creates an account (accounts[1])
+        2. There's a System.createAccount that creates an account (accounts[1])
+           - This can be top-level OR nested in inner instructions!
         3. That created account's OWNER PROGRAM must be PUMPFUN_BONDING_CURVE_PROGRAM
         
         Returns: bonding curve address or None
@@ -1560,10 +1561,27 @@ class PostMigrationAnalyzer:
                 
                 # Step 4: Now find which System.createAccount created the bonding curve
                 # The created account should be the bonding curve PDA
-                # It's created by: System.createAccount at top-level where accounts[1] = new PDA
+                # It's created by: System.createAccount (can be top-level OR nested in inner instructions)
                 # AND the owner program must be PUMPFUN_BONDING_CURVE_PROGRAM
                 
+                # Collect all System.createAccount instructions (both top-level and nested)
+                all_system_creates = []
+                
+                # Check top-level instructions
                 for sys_ix in instructions:
+                    all_system_creates.append((sys_ix, "top-level"))
+                
+                # Check nested inner instructions for this instruction
+                for inner_group in inner_instructions:
+                    if inner_group.get("index") == ix_idx:
+                        # These are inner instructions from this Pump.Fun instruction
+                        for inner_ix in inner_group.get("instructions", []):
+                            all_system_creates.append((inner_ix, "nested"))
+                
+                print(f"[CREATOR] Checking {len(all_system_creates)} System instructions (top-level + nested)", flush=True)
+                
+                # Now check each System instruction
+                for sys_ix, location in all_system_creates:
                     # Resolve program ID for system instruction
                     sys_program_id = sys_ix.get("programId")
                     if not sys_program_id and "programIdIndex" in sys_ix:
@@ -1604,7 +1622,7 @@ class PostMigrationAnalyzer:
                             owner_program = self._decode_system_create_owner_program(sys_ix)
                         
                         if owner_program:
-                            print(f"[CREATOR] Found System.createAccount creating: {created_account} (owner={owner_program})", flush=True)
+                            print(f"[CREATOR] Found System.createAccount ({location}) creating: {created_account} (owner={owner_program})", flush=True)
                             
                             # Verify owner is the bonding curve program
                             if owner_program == PUMPFUN_BONDING_CURVE_PROGRAM:

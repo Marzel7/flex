@@ -885,28 +885,59 @@ class PostMigrationAnalyzer:
         return None
 
 
-    def _find_system_create_accounts_owned_by_bonding_curve(self, tx: dict) -> list:
+    def _iter_relevant_instructions_for_create(self, tx: dict, create_outer_index: Optional[int] = None):
+        """
+        Yield (instr, is_inner) for:
+          - all top-level instructions
+          - inner instructions belonging to the CREATE outer instruction index (if provided)
+
+        This allows us to find System.createAccount that may be:
+        1. Top-level (direct call to System program)
+        2. Inner/CPI (called from Pump.fun program)
+
+        But we only check inner instructions for the specific Pump.fun CREATE that contains the mint,
+        to avoid false positives from unrelated nested creates.
+        """
+        message, top = self._get_message_and_instructions(tx)
+
+        # Top-level first
+        for ix in top:
+            yield ix, False
+
+        # Inner only for the CREATE parent index (if specified)
+        if create_outer_index is not None:
+            inner_sets = (tx.get("meta") or {}).get("innerInstructions") or []
+            for inner in inner_sets:
+                if inner.get("index") != create_outer_index:
+                    continue
+                for ix in inner.get("instructions") or []:
+                    yield ix, True
+
+    def _find_system_create_accounts_owned_by_bonding_curve(self, tx: dict, create_outer_index: Optional[int] = None) -> list:
         """
         Find all System.createAccount instructions that create accounts owned by PUMPFUN_BONDING_CURVE_PROGRAM.
+
+        Args:
+            tx: Transaction object
+            create_outer_index: If provided, also scan inner instructions belonging to this instruction index.
+                               This finds nested System.createAccount (CPI) calls from Pump.fun.
 
         Returns: List of created account pubkeys, or empty list if none found
 
         This is the core logic for both bonding curve extraction AND validation.
         By separating it, we remove the circular dependency between extraction and validation.
 
-        CRITICAL: Uses normalized schema (works with both Solana RPC and Helius /v0/transactions).
+        CRITICAL: Uses normalized schema and scans both top-level and nested instructions.
         """
         found = []
 
         try:
-            # CRITICAL: Use normalized schema (works with both Solana RPC and Helius)
-            message, instructions = self._get_message_and_instructions(tx)
-
             system_program = "11111111111111111111111111111111"
             create_types = {"createaccount", "createaccountwithseed", "create"}
 
-            for instr in instructions:  # Only check top-level instructions
+            for instr, is_inner in self._iter_relevant_instructions_for_create(tx, create_outer_index):
                 # Resolve program ID
+                message, _ = self._get_message_and_instructions(tx)
                 program_id = instr.get("programId")
                 if not program_id and "programIdIndex" in instr:
                     program_id = self._resolve_account_key(message, instr.get("programIdIndex"))
@@ -914,6 +945,7 @@ class PostMigrationAnalyzer:
                 if program_id != system_program:
                     continue
 
+                location = "nested" if is_inner else "top-level"
                 owner_program = None
 
                 # TRY 1: Check parsed format
@@ -927,11 +959,11 @@ class PostMigrationAnalyzer:
                             created = self._system_create_new_account_pubkey(message, instr)
                             if created:
                                 found.append(created)
-                                print(f"[CREATOR] Found System.createAccount (parsed) owned by bonding curve: {created}", flush=True)
+                                print(f"[CREATOR] Found System.createAccount ({location}, parsed) owned by bonding curve: {created}", flush=True)
                             continue
                         elif owner_program:
                             # Wrong owner, skip
-                            print(f"[CREATOR] Found System.createAccount (parsed) but owner is {owner_program[:16]}..., not bonding curve", flush=True)
+                            print(f"[CREATOR] Found System.createAccount ({location}, parsed) but owner is {owner_program[:16]}..., not bonding curve", flush=True)
                             continue
                         else:
                             # Parsed type is createaccount but no owner in parsed.info
@@ -942,10 +974,10 @@ class PostMigrationAnalyzer:
                                     created = self._system_create_new_account_pubkey(message, instr)
                                     if created:
                                         found.append(created)
-                                        print(f"[CREATOR] Found System.createAccount (parsed+compiled fallback) owned by bonding curve: {created}", flush=True)
+                                        print(f"[CREATOR] Found System.createAccount ({location}, parsed+compiled fallback) owned by bonding curve: {created}", flush=True)
                             else:
                                 # No data to decode, can't determine owner
-                                print(f"[CREATOR] System.createAccount (parsed) has no owner and no data to decode, skipping", flush=True)
+                                print(f"[CREATOR] System.createAccount ({location}, parsed) has no owner and no data to decode, skipping", flush=True)
                             continue
 
                 # TRY 2: Decode compiled format (if we haven't already found it via parsed)
@@ -956,9 +988,9 @@ class PostMigrationAnalyzer:
                         created = self._system_create_new_account_pubkey(message, instr)
                         if created:
                             found.append(created)
-                            print(f"[CREATOR] Found System.createAccount (compiled) owned by bonding curve: {created}", flush=True)
+                            print(f"[CREATOR] Found System.createAccount ({location}, compiled) owned by bonding curve: {created}", flush=True)
                     elif owner_program:
-                        print(f"[CREATOR] Found System.createAccount (compiled) but owner is {owner_program[:16]}..., not bonding curve", flush=True)
+                        print(f"[CREATOR] Found System.createAccount ({location}, compiled) but owner is {owner_program[:16]}..., not bonding curve", flush=True)
 
         except Exception as e:
             print(f"[CREATOR] Error finding system create accounts: {e}", flush=True)
@@ -1095,15 +1127,23 @@ class PostMigrationAnalyzer:
                 result['bonding_curve'] = expected_bonding_curve
                 print(f"[CREATOR] ✓ Extracted expected bonding curve: {expected_bonding_curve}", flush=True)
             
+            # DEBUG: Check inner instructions present
+            inner_sets = (tx.get("meta") or {}).get("innerInstructions") or []
+            print(f"[CREATOR] innerInstruction sets: {len(inner_sets)}", flush=True)
+            if inner_sets:
+                print(f"[CREATOR] inner[0] keys: {list(inner_sets[0].keys())}", flush=True)
+
             # STEP 2: Verify System.createAccount creates bonding curve
-            # If extraction failed, try to find any System.createAccount that created a bonding-curve-owned account
+            # Scan both top-level and nested (CPI) System.createAccount instructions
+            # Do NOT pass create_outer_index here - we want to check ALL nested creates for ambiguity detection
             found_bonding_curves = self._find_system_create_accounts_owned_by_bonding_curve(tx)
-            
+
             if expected_bonding_curve:
                 # Verify the expected curve was actually created
                 has_system_create = expected_bonding_curve in found_bonding_curves
             elif found_bonding_curves:
                 # If extraction failed but we found exactly one bonding curve account, use it
+                # This prevents heuristic from poisoning validation
                 if len(found_bonding_curves) == 1:
                     result['bonding_curve'] = found_bonding_curves[0]
                     has_system_create = True
@@ -1578,13 +1618,15 @@ class PostMigrationAnalyzer:
         """
         Extract bonding curve PDA from a Pump.fun CREATE transaction.
 
-        CRITICAL FIX: Normalize Helius parsed schema
-        - Helius returns different structure than Solana getTransaction
-        - Must handle both tx["transaction"]["message"] (Solana) and top-level (Helius)
+        CRITICAL FIXES:
+        1. Normalize Helius parsed schema (different from Solana RPC)
+        2. Scan BOTH top-level and nested System.createAccount instructions
+           (only nested under the mint-bearing Pump.fun CREATE instruction)
+        3. Prefer actual created accounts over heuristic selection
 
         For a CREATE tx:
         1. There's a Pump.Fun instruction whose accounts include self.token_mint
-        2. There's a System.createAccount that creates an account
+        2. There's a System.createAccount that creates an account (may be nested CPI)
         3. That created account's OWNER PROGRAM must be PUMPFUN_BONDING_CURVE_PROGRAM
 
         Returns: bonding curve address or None
@@ -1593,8 +1635,6 @@ class PostMigrationAnalyzer:
             # CRITICAL: Use normalized schema (works with both Solana RPC and Helius)
             message, instructions = self._get_message_and_instructions(tx)
             account_keys = message.get("accountKeys") or []
-
-            inner_instructions = tx.get("meta", {}).get("innerInstructions") or []
 
             print(f"[CREATOR] Transaction has {len(instructions)} top-level instructions", flush=True)
 
@@ -1645,9 +1685,9 @@ class PostMigrationAnalyzer:
 
                 print(f"[CREATOR] ✓ Mint found in Pump.Fun instruction - this is the CREATE!", flush=True)
 
-                # Step 4: Find System.createAccount accounts owned by bonding curve
-                # Use new helper to avoid circular dependency
-                bonding_curve_accounts = self._find_system_create_accounts_owned_by_bonding_curve(tx)
+                # Step 4: CRITICAL FIX - Scan System.createAccount in BOTH top-level AND nested
+                # We pass the CREATE instruction index so we only scan inner instructions for THIS instruction
+                bonding_curve_accounts = self._find_system_create_accounts_owned_by_bonding_curve(tx, create_outer_index=ix_idx)
 
                 if bonding_curve_accounts:
                     # Return the first one found (should be the bonding curve)

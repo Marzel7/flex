@@ -253,36 +253,47 @@ class PostMigrationAnalyzer:
 
     # --- Async Transaction Fetching ---
     async def fetch_transactions_async(self, sigs: List[str]):
-        """Fetch transactions asynchronously with semaphore-based concurrency (proven working method)"""
-        # Use semaphore like the pre-migration analyzer (this approach was working)
+        """Fetch transactions asynchronously with chunked task creation to avoid memory overhead"""
+        # Use semaphore for concurrency control
         sem = asyncio.Semaphore(BATCH_SIZE)
         
         async with aiohttp.ClientSession() as session:
             successful = 0
             failed = 0
+            total_processed = 0
             
-            tasks = []
-            for sig in sigs:
-                task = self._fetch_tx_semaphore(session, sig, sem)
-                tasks.append(task)
+            # Process signatures in chunks to avoid creating millions of coroutine objects at once
+            chunk_size = 5000
             
-            # Process results as they complete
-            for idx, future in enumerate(asyncio.as_completed(tasks), 1):
-                try:
-                    tx = await future
-                    if tx:
-                        self._parse_curve_tx(tx)
-                        self.transactions_fetched += 1
-                        successful += 1
-                    else:
-                        failed += 1
-                except Exception as e:
-                    failed += 1
+            for chunk_start in range(0, len(sigs), chunk_size):
+                chunk_end = min(chunk_start + chunk_size, len(sigs))
+                chunk = sigs[chunk_start:chunk_end]
                 
-                # Progress update every batch
-                if idx % BATCH_SIZE == 0 or idx == len(sigs):
-                    success_rate = (successful / idx * 100) if idx > 0 else 0
-                    print(f"[ASYNC] Progress: {idx}/{len(sigs)} txs | Success: {successful}/{idx} ({success_rate:.1f}%) | Failed: {failed}", flush=True)
+                # Create tasks only for this chunk
+                tasks = []
+                for sig in chunk:
+                    task = self._fetch_tx_semaphore(session, sig, sem)
+                    tasks.append(task)
+                
+                # Process results as they complete
+                for idx, future in enumerate(asyncio.as_completed(tasks), 1):
+                    try:
+                        tx = await future
+                        if tx:
+                            self._parse_curve_tx(tx)
+                            self.transactions_fetched += 1
+                            successful += 1
+                        else:
+                            failed += 1
+                    except Exception as e:
+                        failed += 1
+                    
+                    total_processed += 1
+                    
+                    # Progress update every batch
+                    if idx % BATCH_SIZE == 0 or idx == len(chunk):
+                        success_rate = (successful / total_processed * 100) if total_processed > 0 else 0
+                        print(f"[ASYNC] Progress: {total_processed}/{len(sigs)} txs | Success: {successful}/{total_processed} ({success_rate:.1f}%) | Failed: {failed}", flush=True)
 
     async def _fetch_tx_semaphore(self, session: aiohttp.ClientSession, sig: str, sem: asyncio.Semaphore):
         """Fetch a single transaction with semaphore to limit concurrency"""
@@ -576,10 +587,13 @@ class PostMigrationAnalyzer:
             score += min(0.15, ((10 - velocity) / 8) * 0.15)
 
         # 5. Buy size variance (max 0.15)
+        # FIXED: Changed threshold from 1e7 to 0.01
+        # Normalized variance values typically range 0.01-2, not millions
+        # Suspicious = very low variance (everyone buying similar amounts)
         var = self.buy_size_variance()
-        if var < 1e7:
-            # lower variance = more suspicious
-            score += min(0.15, ((1e7 - var) / 1e7) * 0.15)
+        if var < 0.01:
+            # lower variance = more suspicious (uniform buy sizes)
+            score += min(0.15, ((0.01 - var) / 0.01) * 0.15)
 
         # 6. Sell volume concentration (max 0.05)
         sell_conc = self.sell_volume_concentration()

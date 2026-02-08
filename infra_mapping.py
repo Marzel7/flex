@@ -165,6 +165,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "helius", "tipping"],
     },
 
+    # Bloxroute (MEV/Routing Infrastructure)
+    "95cfoy472fcQHaw4tPGBTKpn6ZQnfEPfBgDQx6gcRmRg": {
+        "name": "Bloxroute",
+        "category": "automation",
+        "description": "Bloxroute MEV routing & transaction optimization (bloxroute1.sol)",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "bloxroute", "mev", "routing"],
+    },
+
     # OKX Router
     "ARu4n5mFdZogZAravu7CcizaojWnS6oqka37gdLT5SZn": {
         "name": "OKX Router",

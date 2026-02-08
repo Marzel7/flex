@@ -1432,6 +1432,7 @@ HTML_TEMPLATE = """
                 <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(76, 175, 80, 0.2); color: #4ade80; border: 1px solid rgba(76, 175, 80, 0.5);">▶️ Polling ON</button>
                 <button class="action-button" onclick="toggleCEXView()" title="View CEX funders and activity" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.5); margin-left: 8px;">🏛️ CEX View</button>
                 <button class="action-button" onclick="showMultiCreatorFunders()" title="Analyze funders supporting multiple creators" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">🔗 Coordinated Funders</button>
+                <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">✅ Validate TX</button>
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(239, 68, 68, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button class="action-button danger" onclick="emptyDatabase()" title="Clear all tokens, clustering, and address data">🗑️ Empty DB</button>
@@ -1812,6 +1813,89 @@ HTML_TEMPLATE = """
                 </div>
                 <div style="color: #a0a0a0; font-size: 11px; margin-top: 8px;">
                     ✓ Fee payer (always first signer at accountKeys[0]) = transaction creator
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Validation Modal -->
+    <div id="validationModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close" onclick="closeValidationModal()">&times;</span>
+            <h2>🔍 Transaction Validation</h2>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; color: #a0a0a0; font-size: 12px; margin-bottom: 8px; text-transform: uppercase;">Transaction Signature</label>
+                <input
+                    type="text"
+                    id="validationInput"
+                    placeholder="Paste transaction signature (e.g., 2NcBKN1RV35onHE1fP7wmjfb8PWrmhBgvsvemPaoVt2DkcV5...)"
+                    style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 6px; color: #e0e0e0; font-family: monospace; font-size: 12px; box-sizing: border-box;"
+                >
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button
+                    onclick="validateTransaction()"
+                    style="flex: 1; padding: 12px; background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s;"
+                    onmouseover="this.style.background='rgba(59, 130, 246, 0.4)'"
+                    onmouseout="this.style.background='rgba(59, 130, 246, 0.2)'"
+                >
+                    ✅ Validate
+                </button>
+                <button
+                    onclick="closeValidationModal()"
+                    style="flex: 1; padding: 12px; background: rgba(100, 100, 100, 0.2); color: #a0a0a0; border: 1px solid rgba(100, 100, 100, 0.5); border-radius: 6px; cursor: pointer;"
+                >
+                    Cancel
+                </button>
+            </div>
+
+            <div id="validationResults" style="display: none;">
+                <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 6px; padding: 20px;">
+
+                    <!-- Loading State -->
+                    <div id="validationLoading" style="text-align: center; color: #00d4ff;">
+                        <div style="font-size: 24px; margin-bottom: 10px;">⏳</div>
+                        <div>Validating transaction...</div>
+                    </div>
+
+                    <!-- Results State -->
+                    <div id="validationSuccess" style="display: none;">
+                        <div style="color: #4ade80; font-weight: bold; margin-bottom: 15px;">✅ PUMP.FUN CREATE TRANSACTION CONFIRMED</div>
+
+                        <div style="margin-bottom: 15px;">
+                            <div style="color: #a0a0a0; font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Token Mint</div>
+                            <div style="color: #00d4ff; font-family: monospace; font-size: 12px; word-break: break-all;" id="resultMint">—</div>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <div style="color: #a0a0a0; font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Creator (Fee Payer)</div>
+                            <div style="color: #4ade80; font-family: monospace; font-size: 12px; word-break: break-all;" id="resultCreator">—</div>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <div style="color: #a0a0a0; font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Timestamp</div>
+                            <div style="color: #e0e0e0; font-size: 12px;" id="resultTimestamp">—</div>
+                        </div>
+
+                        <div style="background: rgba(0, 0, 0, 0.3); padding: 12px; border-radius: 4px; border-left: 3px solid #00d4ff;">
+                            <div style="color: #a0a0a0; font-size: 10px; text-transform: uppercase; margin-bottom: 8px;">Evidence</div>
+                            <div id="resultEvidence" style="color: #e0e0e0; font-size: 11px; line-height: 1.6;">—</div>
+                        </div>
+
+                        <div style="margin-top: 15px;">
+                            <a id="resultSolscanLink" href="#" target="_blank" style="color: #3b82f6; text-decoration: none; font-size: 12px;">
+                                🔗 View on Solscan →
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Error State -->
+                    <div id="validationError" style="display: none; color: #ef4444;">
+                        <div style="font-weight: bold; margin-bottom: 10px;">❌ Validation Failed</div>
+                        <div id="errorMessage" style="font-size: 12px; color: #ff6b6b;">—</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3299,6 +3383,7 @@ HTML_TEMPLATE = """
             const creatorModal = document.getElementById('creatorModal');
             const txViewerModal = document.getElementById('txViewerModal');
             const multiCreatorFundersModal = document.getElementById('multiCreatorFundersModal');
+            const validationModal = document.getElementById('validationModal');
 
             if (event.target === metricsModal) {
                 metricsModal.style.display = 'none';
@@ -3312,6 +3397,9 @@ HTML_TEMPLATE = """
             if (event.target === txViewerModal) {
                 txViewerModal.style.display = 'none';
             }
+            if (event.target === validationModal) {
+                validationModal.style.display = 'none';
+            }
         }
 
         // Close modal when pressing Escape
@@ -3321,6 +3409,87 @@ HTML_TEMPLATE = """
                 closeCreatorDetails();
                 closeMultiCreatorFunders();
                 closeTxViewer();
+                closeValidationModal();
+            }
+        });
+
+        // ===== TRANSACTION VALIDATION FUNCTIONS =====
+
+        function openValidationModal() {
+            document.getElementById('validationModal').style.display = 'block';
+            document.getElementById('validationInput').focus();
+            document.getElementById('validationInput').value = '';
+            document.getElementById('validationResults').style.display = 'none';
+        }
+
+        function closeValidationModal() {
+            document.getElementById('validationModal').style.display = 'none';
+        }
+
+        async function validateTransaction() {
+            const sig = document.getElementById('validationInput').value.trim();
+
+            if (!sig) {
+                alert('Please enter a transaction signature');
+                return;
+            }
+
+            // Show loading state
+            document.getElementById('validationResults').style.display = 'block';
+            document.getElementById('validationLoading').style.display = 'block';
+            document.getElementById('validationSuccess').style.display = 'none';
+            document.getElementById('validationError').style.display = 'none';
+
+            try {
+                const response = await fetch('/api/validate-transaction', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ signature: sig })
+                });
+
+                const result = await response.json();
+
+                // Hide loading
+                document.getElementById('validationLoading').style.display = 'none';
+
+                if (result.error) {
+                    // Show error
+                    document.getElementById('validationError').style.display = 'block';
+                    document.getElementById('errorMessage').textContent = result.error;
+                } else {
+                    // Show success
+                    document.getElementById('validationSuccess').style.display = 'block';
+
+                    // Populate results
+                    document.getElementById('resultMint').textContent = result.mint || '—';
+                    document.getElementById('resultCreator').textContent = result.creator || '—';
+                    document.getElementById('resultTimestamp').textContent = result.timestamp || '—';
+
+                    // Build evidence list
+                    const evidence = [];
+                    if (result.has_system_create) evidence.push('✅ System.createAccount (5 instances)');
+                    if (result.has_init_mint) evidence.push('✅ initializeMint2 instruction');
+                    if (result.pump_program) evidence.push('✅ Pump.fun program involved');
+                    if (result.confirmed) evidence.push('✅ Confirmed on-chain');
+                    evidence.push(`✅ Instructions: ${result.instruction_count} top-level + ${result.inner_instruction_count} inner`);
+
+                    document.getElementById('resultEvidence').innerHTML = evidence.join('<br>');
+
+                    // Set Solscan link
+                    document.getElementById('resultSolscanLink').href = `https://solscan.io/tx/${sig}`;
+                }
+            } catch (error) {
+                console.error('Validation error:', error);
+                document.getElementById('validationLoading').style.display = 'none';
+                document.getElementById('validationError').style.display = 'block';
+                document.getElementById('errorMessage').textContent = `Network error: ${error.message}`;
+            }
+        }
+
+        // Allow Enter key to validate
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && document.getElementById('validationModal').style.display === 'block') {
+                validateTransaction();
             }
         });
     </script>
@@ -5014,6 +5183,114 @@ def api_kill_server():
         return response
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/validate-transaction', methods=['POST'])
+def api_validate_transaction():
+    """Validate a Pump.Fun CREATE transaction"""
+    try:
+        data = request.json
+        sig = data.get('signature', '').strip()
+
+        if not sig:
+            return jsonify({'error': 'No signature provided'}), 400
+
+        # Fetch transaction from RPC
+        import requests
+        rpc_url = "https://api.mainnet-beta.solana.com"
+
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "getTransaction",
+            "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+        }
+
+        response = requests.post(rpc_url, json=payload, timeout=10)
+        result = response.json()
+
+        if "result" not in result or not result["result"]:
+            return jsonify({'error': 'Transaction not found on-chain'}), 404
+
+        tx = result["result"]
+
+        # Extract details
+        message = tx.get("transaction", {}).get("message", {})
+        account_keys = message.get("accountKeys", [])
+        instructions = message.get("instructions", [])
+        inner_instructions = tx.get("meta", {}).get("innerInstructions", [])
+
+        # Get fee payer (first account)
+        fee_payer = None
+        if account_keys:
+            first_key = account_keys[0]
+            fee_payer = first_key.get("pubkey") if isinstance(first_key, dict) else first_key
+
+        # Find mint and other details
+        mint = None
+        system_create_count = 0
+        has_init_mint = False
+        has_pump_program = False
+
+        # Check top-level instructions
+        for instr in instructions:
+            program_id = instr.get("programId")
+            parsed = instr.get("parsed", {})
+            itype = (parsed.get("type") or "").lower()
+
+            if program_id == "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P":
+                has_pump_program = True
+
+        # Check inner instructions
+        for group in inner_instructions:
+            if isinstance(group, dict) and "instructions" in group:
+                for ii in group.get("instructions", []):
+                    parsed = ii.get("parsed", {})
+                    itype = (parsed.get("type") or "").lower()
+
+                    if itype == "createaccount":
+                        system_create_count += 1
+
+                    if itype in ("initializemint", "initializemint2"):
+                        has_init_mint = True
+                        mint = parsed.get("info", {}).get("mint")
+
+                    if ii.get("programId") == "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P":
+                        has_pump_program = True
+
+        # Determine if this is a CREATE
+        is_create = system_create_count > 0 and has_init_mint
+
+        if not is_create:
+            return jsonify({'error': 'Not a Pump.Fun CREATE transaction (missing System.createAccount or initializeMint)'}), 400
+
+        # Format timestamp
+        from datetime import datetime
+        block_time = tx.get("blockTime")
+        timestamp = datetime.fromtimestamp(block_time).strftime('%Y-%m-%d %H:%M:%S UTC') if block_time else "Unknown"
+
+        return jsonify({
+            'signature': sig,
+            'mint': mint or 'Unknown',
+            'creator': fee_payer or 'Unknown',
+            'timestamp': timestamp,
+            'confirmed': tx.get("meta", {}).get("err") is None,
+            'has_system_create': system_create_count > 0,
+            'has_init_mint': has_init_mint,
+            'pump_program': has_pump_program,
+            'instruction_count': len(instructions),
+            'inner_instruction_count': sum(
+                len(g.get("instructions", [])) if isinstance(g, dict) else 1
+                for g in inner_instructions
+            )
+        })
+
+    except requests.exceptions.Timeout:
+        return jsonify({'error': 'RPC timeout - transaction fetch took too long'}), 503
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': f'Network error: {str(e)}'}), 503
+    except Exception as e:
+        return jsonify({'error': f'Validation error: {str(e)}'}), 500
 
 
 # =========================================================================

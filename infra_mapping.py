@@ -156,6 +156,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "jito", "mev"],
     },
 
+    # Jitotip 9 (MEV/Fee Tipping Automation)
+    "CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM": {
+        "name": "Jitotip 9",
+        "category": "automation",
+        "description": "Jitotip MEV/fee tipping automation account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "jito", "mev"],
+    },
+
     # Helius Tipping Account 3
     "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta": {
         "name": "Helius Tipping Account 3",

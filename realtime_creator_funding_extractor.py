@@ -1067,9 +1067,9 @@ class RealTimeCreatorFundingExtractor:
                                                             try:
                                                                 cursor.execute("""
                                                                     INSERT OR IGNORE INTO creator_service_history
-                                                                    (creator_address, tag, amount_sol, tx_signature, network_fee_sol, tip_percentage, tx_type, created_at)
-                                                                    VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                                                                """, (creator, "uses_jitotip_other", jitotip_amount, tx_sig, network_fee_sol, tip_percentage, tx_description))
+                                                                    (creator_address, tag, amount_sol, tx_signature, mint, network_fee_sol, tip_percentage, tx_type, created_at)
+                                                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                                                                """, (creator, "uses_jitotip_other", jitotip_amount, tx_sig, None, network_fee_sol, tip_percentage, tx_description))
                                                                 conn.commit()  # Persist Jito tip detection
                                                                 print(f"[REALTIME_FUNDING]      ✅ Jito tip ({jitotip_amount:.6f} SOL, {tip_percentage:.1f}%) detected in {tx_description} tx {tx_sig[:20]}...", flush=True)
                                                             except Exception:
@@ -1491,9 +1491,9 @@ class RealTimeCreatorFundingExtractor:
                 try:
                     cursor.execute("""
                         INSERT OR IGNORE INTO creator_service_history
-                        (creator_address, tag, amount_sol, tx_signature, mint, network_fee_sol, tip_percentage)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)
-                    """, (creator, "uses_jitotip", jitotip_amount, create_tx_sig, mint, network_fee_sol, tip_percentage))
+                        (creator_address, tag, amount_sol, tx_signature, mint, network_fee_sol, tip_percentage, tx_type)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (creator, "uses_jitotip", jitotip_amount, create_tx_sig, mint, network_fee_sol, tip_percentage, "Create"))
                 except Exception as hist_err:
                     pass  # Ignore duplicates
 

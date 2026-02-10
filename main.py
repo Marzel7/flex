@@ -2077,10 +2077,12 @@ HTML_TEMPLATE = """
                                         // Only add if not already in our list
                                         const already = funderLabels.some(f => f.name === funder.cex_exchange);
                                         if (!already) {
+                                            // cex_exchange now contains full display name (e.g., "Bybit Wallet 10")
+                                            // cex_type is now null/empty since name already has the type info
                                             funderLabels.push({
                                                 name: funder.cex_exchange,
                                                 category: 'cex',
-                                                description: `Funded by ${funder.cex_exchange} ${funder.cex_type || 'Wallet'}`
+                                                description: `Funded by ${funder.cex_exchange}`
                                             });
                                         }
                                         // Only show first 2 CEX funders to avoid clutter
@@ -2599,17 +2601,20 @@ HTML_TEMPLATE = """
                 // Populate top CEX funders table
                 const cexFundersBody = document.getElementById('topCexFundersBody');
                 if (data.top_cex_funders && data.top_cex_funders.length > 0) {
-                    cexFundersBody.innerHTML = data.top_cex_funders.map(funder => `
-                        <tr>
-                            <td style="font-family: monospace; font-size: 12px;" title="${funder.funder_address}">${funder.funder_address.substring(0, 16)}...</td>
-                            <td><span class="cex-exchange-name">${funder.cex_exchange}</span></td>
-                            <td>${funder.cex_type || 'Hot Wallet'}</td>
-                            <td style="text-align: center; color: #00d4ff; font-weight: 600;">${funder.creators_funded}</td>
-                            <td style="text-align: right; color: #4ade80; font-weight: 600;">${(funder.total_sol || 0).toFixed(2)}</td>
-                        </tr>
-                    `).join('');
+                    cexFundersBody.innerHTML = data.top_cex_funders.map(funder => {
+                        // Use enriched display_name from API, fallback to database fields
+                        const displayName = funder.display_name || `${funder.cex_exchange || 'Unknown'} ${funder.cex_type || 'Wallet'}`;
+                        return `
+                            <tr>
+                                <td style="font-family: monospace; font-size: 12px;" title="${funder.funder_address}">${funder.funder_address.substring(0, 16)}...</td>
+                                <td><span class="cex-exchange-name">${displayName}</span></td>
+                                <td>${funder.creators_funded}</td>
+                                <td style="text-align: right; color: #4ade80; font-weight: 600;">${(funder.total_sol || 0).toFixed(2)}</td>
+                            </tr>
+                        `;
+                    }).join('');
                 } else {
-                    cexFundersBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #a0a0a0;">No top CEX funders found</td></tr>';
+                    cexFundersBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #a0a0a0;">No top CEX funders found</td></tr>';
                 }
 
                 // Populate CEX-funded creators table
@@ -4272,9 +4277,10 @@ def api_creators_batch():
             if not is_cex and funder_addr in CEX_ACCOUNTS:
                 is_cex = True
                 cex_info = CEX_ACCOUNTS[funder_addr]
-                cex_exchange = cex_info.get('exchange', cex_info.get('name', 'CEX'))
-                cex_type = cex_info.get('category', 'Wallet')
-            
+                # Use 'name' field for display (e.g., "Bybit Wallet 10"), fallback to exchange
+                cex_exchange = cex_info.get('name', cex_info.get('exchange', 'CEX'))
+                cex_type = None  # Set to None since name field already includes type
+
             funders_data[creator].append({
                 'address': funder_addr,
                 'amount_sol': row['amount_sol'],

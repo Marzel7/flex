@@ -1033,84 +1033,72 @@ class PostMigrationAnalyzer:
         except Exception as e:
             print(f"[CREATOR] ⚠ Helius parse error: {e}", flush=True)
             return None
-
-    async def extract_bonding_curve_from_creation_tx(self) -> Optional[str]:
+    
+    def _is_fast_strict_create_candidate(self, sig_item: dict) -> bool:
         """
-        UPDATED:
-
-        1) If _create_tx_signature exists: parse via Helius /v0/transactions (1 call)
-        2) FAST: scan mint parsed txs via Helius Enhanced Transactions (no getTransaction spam)
-        3) Fallback: slow scan using getSignaturesForAddress + getTransaction until strict validation passes
+        Fast pre-filter before getTransaction():
+        - Skip errored txs
+        - Skip missing blockTime (often cache-limited / partial)
+        - Skip txs after migration (if migration_blocktime is set)
         """
-        print(f"[CREATOR] Extracting bonding curve from *strict* CREATE tx for {self.token_mint[:20]}...", flush=True)
+        if not isinstance(sig_item, dict):
+            return False
 
-        # ----------------------------------------------------
-        # FAST PATH #1: Already have CREATE sig -> parse it
-        # ----------------------------------------------------
+        # 1) Skip failed txs
+        if sig_item.get("err") is not None:
+            return False
+
+        # 2) Skip missing blockTime
+        bt = sig_item.get("blockTime")
+        if bt is None:
+            return False
+
+        # 3) Optional: skip anything after migration time
+        mig_bt = getattr(self, "migration_blocktime", None)
+        if isinstance(mig_bt, int) and bt > mig_bt:
+            return False
+
+        return True
+
+
+    async def _get_blocktime_for_signature(self, sig: str) -> Optional[int]:
+        """
+        Fetch blockTime for a signature (used to set migration_blocktime reliably).
+        """
+        if not sig:
+            return None
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "getTransaction",
+            "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}],
+        }
+        tx_data = await self._post_rpc_with_fallback(payload, timeout=15)
+        tx = (tx_data or {}).get("result") or {}
+        bt = tx.get("blockTime")
+        return bt if isinstance(bt, int) else None
+
+    async def extract_bonding_curve_from_creation_tx(self, migration_blocktime: Optional[int] = None) -> Optional[str]:
+        """
+        Find the true Pump.fun CREATE tx by scanning mint signature history from oldest to newest
+        until STRICT CREATE validation passes.
+
+        NEW:
+          - migration_blocktime filter: skip signatures with blockTime > migration_blocktime
+          - uses fast pre-filter before getTransaction()
+          - prints extra debug when bonding_curve == no
+        """
+        print(
+            f"[CREATOR] Extracting bonding curve from *strict* CREATE tx for {self.token_mint[:20]}..."
+            + (f" (filter<=migration_bt={migration_blocktime})" if migration_blocktime else ""),
+            flush=True,
+        )
+
+        # Fast path
         if self._create_tx_signature and HELIUS_API_KEY:
             bc = await self.extract_bonding_curve_via_helius_parse(self._create_tx_signature)
             if bc:
                 return bc
-
-        # ----------------------------------------------------
-        # FAST PATH #2: Helius Enhanced Transactions bulk scan
-        # ----------------------------------------------------
-        if HELIUS_API_KEY:
-            print("[CREATOR] 🚀 Fast scan via Helius Enhanced Transactions (mint address)", flush=True)
-
-            checked = 0
-            oldest_logged = 0
-
-            async for tx in self.helius_iter_parsed_txs_for_address(
-                self.token_mint,
-                limit=100,        # 100 parsed txs per request
-                max_pages=200,    # cap for real-time; bump if you truly need ancient history
-                oldest_first=True # we want oldest->newest to find CREATE early
-            ):
-                checked += 1
-                validation = self._validate_pumpfun_create_tx(tx)
-
-                if oldest_logged < 5:
-                    oldest_logged += 1
-                    sig = tx.get("signature") or ""
-                    print(
-                        f"[CREATOR] Oldest#{oldest_logged} {sig} "
-                        f"strict_create={validation.get('is_pumpfun_create')} "
-                        f"mint_create={validation.get('mint_create_found')} "
-                        f"mint_init={validation.get('mint_init_found')} "
-                        f"bonding_curve={'yes' if validation.get('bonding_curve') else 'no'}",
-                        flush=True,
-                    )
-
-                if validation.get("is_pumpfun_create"):
-                    sig = tx.get("signature")
-                    print(f"[CREATOR] ✅ Found STRICT Pump.fun CREATE via Helius bulk: {sig}", flush=True)
-
-                    # Store CREATE provenance
-                    self._create_tx_signature = sig
-                    self._create_tx_validation = validation
-
-                    # Fee payer (creator heuristic)
-                    fee_payer = None
-                    keys = tx.get("accountKeys") or tx.get("accounts") or []
-                    keys = self._normalize_account_keys(keys)
-                    if keys:
-                        fee_payer = keys[0]
-
-                    if fee_payer:
-                        self._create_tx_creator = fee_payer
-                        print(f"[CREATOR] ✓ CREATE fee payer (creator): {fee_payer}", flush=True)
-
-                    bc = validation.get("bonding_curve")
-                    print(f"[CREATOR] ✓ Bonding curve: {bc} (via helius_bulk; checked={checked})", flush=True)
-                    return bc
-
-            print(f"[CREATOR] ⚠ Helius bulk scan did not find strict CREATE (checked={checked})", flush=True)
-
-        # ----------------------------------------------------
-        # FALLBACK: Slow pagination (your original approach)
-        # ----------------------------------------------------
-        print("[CREATOR] 🐢 Fallback to RPC pagination (slow)", flush=True)
 
         earliest_create_sig = None
         earliest_create_tx = None
@@ -1118,6 +1106,24 @@ class PostMigrationAnalyzer:
         pages_checked = 0
         proven_end = False
         oldest_logged = 0
+
+        # Candidate budget per page to avoid 1000 getTransaction calls/page
+        CANDIDATE_BUDGET_PER_PAGE = 80
+
+        def _fast_candidate(sig_item: dict) -> bool:
+            if not isinstance(sig_item, dict):
+                return False
+            if sig_item.get("err") is not None:
+                return False
+
+            bt = sig_item.get("blockTime")
+            # If blockTime exists and migration_blocktime exists: enforce <= migration
+            if migration_blocktime is not None and isinstance(bt, int):
+                if bt > migration_blocktime:
+                    return False
+
+            # If bt is None, keep it (some providers omit blockTime). We'll filter later if we can.
+            return True
 
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=40)) as session:
             rpc_url = HISTORY_RPC_URLS[0] if HISTORY_RPC_URLS else "https://api.mainnet-beta.solana.com"
@@ -1146,11 +1152,52 @@ class PostMigrationAnalyzer:
                     proven_end = True
                     break
 
+                # Walk oldest->newest within the page
+                candidates = []
+                skipped_post_migration = 0
+                skipped_errored = 0
+
                 for sig_item in reversed(sigs):
+                    if not isinstance(sig_item, dict):
+                        continue
+
+                    if sig_item.get("err") is not None:
+                        skipped_errored += 1
+                        continue
+
+                    bt = sig_item.get("blockTime")
+                    if migration_blocktime is not None and isinstance(bt, int) and bt > migration_blocktime:
+                        skipped_post_migration += 1
+                        continue
+
+                    if _fast_candidate(sig_item):
+                        candidates.append(sig_item)
+
+                if not candidates:
+                    before = sigs[-1].get("signature")
+                    print(
+                        f"[CREATOR] Page {pages_checked}: candidates=0 "
+                        f"(skipped_post_migration={skipped_post_migration}, skipped_errored={skipped_errored})",
+                        flush=True,
+                    )
+                    continue
+
+                candidates_to_check = candidates[:CANDIDATE_BUDGET_PER_PAGE]
+                if len(candidates) > len(candidates_to_check):
+                    print(
+                        f"[CREATOR] Page {pages_checked}: prefilter candidates={len(candidates)} "
+                        f"(checking first {len(candidates_to_check)}), "
+                        f"skipped_post_migration={skipped_post_migration}, skipped_errored={skipped_errored}",
+                        flush=True,
+                    )
+
+                for sig_item in candidates_to_check:
                     sig = sig_item.get("signature")
                     if not sig:
                         continue
 
+                    # If blockTime is missing on the signature item but we have migration_blocktime,
+                    # do a cheap guard: skip if tx.blockTime ends up post-migration.
                     tx_payload = {
                         "jsonrpc": "2.0",
                         "id": 1,
@@ -1163,18 +1210,34 @@ class PostMigrationAnalyzer:
                     if not tx:
                         continue
 
+                    tx_bt = tx.get("blockTime")
+                    if migration_blocktime is not None and isinstance(tx_bt, int) and tx_bt > migration_blocktime:
+                        # hard skip: post-migration
+                        continue
+
                     validation = self._validate_pumpfun_create_tx(tx)
+
+                    # extra debug when bonding_curve=no
+                    if not validation.get("bonding_curve"):
+                        ctx_bt = tx_bt if isinstance(tx_bt, int) else sig_item.get("blockTime")
+                        print(
+                            f"[CREATOR][DEBUG] bonding_curve=no context: slot={tx.get('slot')} blockTime={ctx_bt} err={sig_item.get('err')}",
+                            flush=True,
+                        )
+                        notes = validation.get("validation_notes") or []
+                        if notes:
+                            print(f"[CREATOR][DEBUG] validation_notes={notes}", flush=True)
 
                     if oldest_logged < 5:
                         oldest_logged += 1
                         print(
-                            f"[CREATOR] Oldest#{oldest_logged} {sig} strict_create={validation.get('is_pumpfun_create')} "
-                            f"mint_create={validation.get('mint_create_found')} mint_init={validation.get('mint_init_found')} "
+                            f"[CREATOR] Oldest#{oldest_logged} {sig[:16]}... strict_create={validation['is_pumpfun_create']} "
+                            f"mint_create={validation['mint_create_found']} mint_init={validation['mint_init_found']} "
                             f"bonding_curve={'yes' if validation.get('bonding_curve') else 'no'}",
                             flush=True,
                         )
 
-                    if validation.get("is_pumpfun_create"):
+                    if validation["is_pumpfun_create"]:
                         print(f"[CREATOR] ✅ Found STRICT Pump.fun CREATE tx: {sig}", flush=True)
                         earliest_create_sig = sig
                         earliest_create_tx = tx
@@ -1185,7 +1248,11 @@ class PostMigrationAnalyzer:
                     break
 
                 before = sigs[-1].get("signature")
-                print(f"[CREATOR] Page {pages_checked}: checked {len(sigs)} sigs, no strict CREATE yet", flush=True)
+                print(
+                    f"[CREATOR] Page {pages_checked}: checked={len(candidates_to_check)}/{len(candidates)} candidates "
+                    f"(budget={CANDIDATE_BUDGET_PER_PAGE}), no strict CREATE yet",
+                    flush=True,
+                )
 
             if pages_checked >= max_pages:
                 proven_end = False
@@ -1195,9 +1262,11 @@ class PostMigrationAnalyzer:
             print(f"[CREATOR] ❌ No STRICT CREATE transaction found for mint", flush=True)
             return None
 
+        # store
         self._create_tx_signature = earliest_create_sig
         self._create_tx_validation = earliest_create_validation
 
+        # fee payer (creator heuristic) from CREATE tx
         msg = ((earliest_create_tx.get("transaction") or {}).get("message") or {})
         keys = msg.get("accountKeys") or []
         fee_payer = None
@@ -1211,6 +1280,8 @@ class PostMigrationAnalyzer:
         bc = earliest_create_validation.get("bonding_curve")
         print(f"[CREATOR] ✓ Bonding curve: {bc} (proven_end={proven_end})", flush=True)
         return bc
+
+
 
     async def get_true_earliest_signature(self, bonding_curve_pda: Optional[str] = None, max_pages: int = 5000, page_limit: int = 1000) -> tuple:
         """
@@ -1261,10 +1332,14 @@ class PostMigrationAnalyzer:
 
         return None, False, "none"
 
-    async def get_creator_from_earliest_tx(self) -> dict:
+    async def get_creator_from_earliest_tx(self, migration_signature: Optional[str] = None, migration_blocktime: Optional[int] = None) -> dict:
         """
         Creator = fee payer of the STRICT CREATE tx.
         Also tracks earliest bonding curve activity signature separately.
+
+        NEW:
+          - You can pass migration_signature OR migration_blocktime
+          - If migration_signature is provided, we fetch its blockTime once and use it to filter out post-migration txs.
         """
         provenance = {
             "creator": None,
@@ -1279,9 +1354,19 @@ class PostMigrationAnalyzer:
             "bonding_curve_pda": None,
             "status": "unproven",
             "validation_notes": [],
+            "migration_blocktime": None,
+            "migration_signature": migration_signature,
         }
 
-        bonding_curve_pda = await self.extract_bonding_curve_from_creation_tx()
+        # Resolve migration_blocktime if only signature is provided
+        if migration_blocktime is None and migration_signature:
+            migration_blocktime = await self._get_blocktime_for_signature(migration_signature)
+            if migration_blocktime:
+                print(f"[CREATOR] 🕐 Using migration blockTime={migration_blocktime} from sig={migration_signature[:16]}...", flush=True)
+
+        provenance["migration_blocktime"] = migration_blocktime
+
+        bonding_curve_pda = await self.extract_bonding_curve_from_creation_tx(migration_blocktime=migration_blocktime)
         if not bonding_curve_pda:
             provenance["validation_notes"].append("Could not extract bonding curve from strict CREATE tx")
             return provenance
@@ -1298,6 +1383,7 @@ class PostMigrationAnalyzer:
         provenance["blockTime"] = self._create_tx_validation.get("blockTime")
         provenance["validation_notes"].extend(self._create_tx_validation.get("validation_notes") or [])
 
+        # Provenance: earliest curve activity (NOT used for creator)
         earliest_curve_sig, reached_end, rpc_used = await self.get_true_earliest_signature(bonding_curve_pda=bonding_curve_pda)
         provenance["earliest_curve_sig"] = earliest_curve_sig
         provenance["reached_end"] = reached_end

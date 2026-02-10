@@ -6,19 +6,27 @@ Continuously monitors creators for incoming/outgoing SOL transfers after token l
 Maintains an append-only ledger of all SOL balance changes.
 
 Key Design:
-- Track every SOL in/out transaction for each creator
-- Poll getSignaturesForAddress every N seconds for new signatures
+- Track SOL in/out transactions for each creator
+- Poll getSignaturesForAddress for new signatures (NEW: uses `until` for forward polling)
 - Compute SOL deltas from preBalances/postBalances
 - Store in creator_tx_ledger (append-only, idempotent by signature)
-- Track state (last_signature, last_slot) for resumable polling
+- Track polling state (last_signature, last_slot)
+
+NEW (Backfill PRE-migration):
+- backfill_creator_pre_migration(): pages backwards (newest->older) and only processes
+  signatures with blockTime <= migration_blocktime, bounded by a lookback window.
+
+Efficiency upgrades (NO Enhanced Transactions):
+✅ Bulk "already processed?" check per page (single SQLite query in chunks)
+✅ getTransaction uses encoding="json" by default (smaller/faster than jsonParsed)
+✅ Optional bounded concurrency for backfill page processing
+✅ Polling uses `until` (newer-than anchor) instead of `before` (older-than pagination)
 """
 
 import asyncio
 import aiohttp
 import sqlite3
-import json
 from typing import Dict, List, Optional, Tuple
-from datetime import datetime, timedelta
 import time
 
 DB_PATH = "pumpswap_tokens.db"
@@ -30,51 +38,45 @@ try:
 except ImportError:
     HAS_UNIFIED_TRACKER = False
 
+
 class CreatorWatchManager:
     """Manages continuous monitoring of creator SOL activity"""
 
-    def __init__(self, rpc_url: str, helius_rpc: str = None, session: aiohttp.ClientSession = None):
-        """
-        Initialize the watch manager.
+    # Tune these
+    MIN_MEANINGFUL_LAMPORTS_DEFAULT = 50_000  # 0.00005 SOL (ignore fees/noise)
+    DEFAULT_BACKFILL_CONCURRENCY = 10         # backfill getTransaction parallelism
 
-        Args:
-            rpc_url: Primary RPC endpoint (Helius or Public Solana)
-            helius_rpc: Helius RPC endpoint
-            session: Optional aiohttp session (creates own if not provided)
-        """
+    def __init__(self, rpc_url: str, helius_rpc: str = None, session: aiohttp.ClientSession = None):
         self.rpc_url = rpc_url
         self.helius_rpc = helius_rpc
         self.session = session
         self._own_session = False
-        self.poll_interval = 5  # seconds between polls per creator
+
+        self.poll_interval = 5
         self.confirm_level = "confirmed"  # or "finalized"
 
-        # Track which creators we're watching
-        self.watching_creators = {}  # creator_pubkey -> {'watching': bool, 'last_poll': time}
-        
-        # Polling control flag
-        self.polling_enabled = True  # Toggle for UI control
+        self.watching_creators = {}
+        self.polling_enabled = True
 
         self._ensure_db()
 
     async def ensure_session(self):
-        """Ensure we have an aiohttp session"""
         if self.session is None:
             self.session = aiohttp.ClientSession()
             self._own_session = True
 
     async def close(self):
-        """Clean up resources"""
         if self._own_session and self.session:
             await self.session.close()
 
+    # -----------------------------
+    # DB
+    # -----------------------------
     def _ensure_db(self):
-        """Create database schema for creator tracking"""
         conn = sqlite3.connect(DB_PATH)
         conn.execute("PRAGMA journal_mode=WAL")
         cursor = conn.cursor()
 
-        # Master creator table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS creator_watch (
                 creator_pubkey TEXT PRIMARY KEY,
@@ -82,13 +84,12 @@ class CreatorWatchManager:
                 first_seen_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 create_sig TEXT UNIQUE,
                 confidence TEXT DEFAULT 'confirmed',
-                labels TEXT,  -- JSON array of tags (e.g. ["bot", "team"])
+                labels TEXT,
                 monitored INTEGER DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
 
-        # Append-only transaction ledger (one row = one SOL balance delta)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS creator_tx_ledger (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -105,16 +106,13 @@ class CreatorWatchManager:
                 source TEXT,
                 is_confirmed INTEGER DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
                 FOREIGN KEY(creator_pubkey) REFERENCES creator_watch(creator_pubkey)
             )
         """)
 
-        # Create indexes separately (SQLite syntax)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_tx_ledger ON creator_tx_ledger(creator_pubkey)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_signature ON creator_tx_ledger(signature)")
 
-        # Creator polling state (tracks where we left off)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS creator_state (
                 creator_pubkey TEXT PRIMARY KEY,
@@ -122,12 +120,11 @@ class CreatorWatchManager:
                 last_slot INTEGER,
                 last_processed_at TIMESTAMP,
                 total_signatures_processed INTEGER DEFAULT 0,
-                total_sol_in_lamports INTEGER DEFAULT 0,  -- Cumulative
+                total_sol_in_lamports INTEGER DEFAULT 0,
                 total_sol_out_lamports INTEGER DEFAULT 0,
                 last_24h_sol_in REAL DEFAULT 0,
                 last_24h_sol_out REAL DEFAULT 0,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
                 FOREIGN KEY(creator_pubkey) REFERENCES creator_watch(creator_pubkey)
             )
         """)
@@ -136,7 +133,6 @@ class CreatorWatchManager:
         conn.close()
 
     def add_creator(self, creator_pubkey: str, create_sig: str, slot: int, confidence: str = "confirmed"):
-        """Register a new creator to watch"""
         try:
             conn = sqlite3.connect(DB_PATH, timeout=5)
             cursor = conn.cursor()
@@ -147,8 +143,6 @@ class CreatorWatchManager:
                 VALUES (?, ?, ?, ?)
             """, (creator_pubkey, slot, create_sig, confidence))
 
-            # Initialize polling state - do NOT set last_signature yet
-            # First poll will fetch most recent signatures without a "before" anchor
             cursor.execute("""
                 INSERT OR IGNORE INTO creator_state
                 (creator_pubkey, last_signature, last_slot)
@@ -158,293 +152,277 @@ class CreatorWatchManager:
             conn.commit()
             conn.close()
 
-            self.watching_creators[creator_pubkey] = {
-                'watching': True,
-                'last_poll': 0  # Poll immediately
-            }
-
+            self.watching_creators[creator_pubkey] = {'watching': True, 'last_poll': 0}
             print(f"[CREATOR_WATCH] 👁️ Now watching creator {creator_pubkey[:16]}...", flush=True)
 
         except Exception as e:
             print(f"[CREATOR_WATCH] ⚠️ Error adding creator: {e}", flush=True)
 
+    # -----------------------------
+    # RPC
+    # -----------------------------
     async def _post_rpc(self, payload: dict, endpoint: str = None) -> Optional[dict]:
-        """Post RPC request with proper error handling"""
         if endpoint is None:
             endpoint = self.rpc_url
-
         try:
-            async with self.session.post(endpoint, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+            async with self.session.post(
+                endpoint, json=payload, timeout=aiohttp.ClientTimeout(total=15)
+            ) as resp:
                 if resp.status == 200:
                     return await resp.json()
-                elif resp.status == 429:
-                    # Rate limited
+                if resp.status == 429:
                     return None
-        except Exception as e:
-            pass
+        except Exception:
+            return None
         return None
 
     async def _post_rpc_with_fallback(self, payload: dict) -> Optional[dict]:
-        """Post RPC request with fallback chain"""
         endpoints = [self.rpc_url, self.helius_rpc]
-        endpoints = [e for e in endpoints if e]  # Remove None values
+        endpoints = [e for e in endpoints if e]
 
-        for i, endpoint in enumerate(endpoints):
-            result = await self._post_rpc(payload, endpoint)
-            if result and "result" in result:
-                return result
-            # print(f"[RPC] Endpoint {i+1}/{len(endpoints)} failed ({endpoint[:30]}...)", flush=True)
-            await asyncio.sleep(0.1)
-
-        # print(f"[RPC] All {len(endpoints)} endpoints failed", flush=True)
+        for endpoint in endpoints:
+            res = await self._post_rpc(payload, endpoint)
+            if res and "result" in res:
+                return res
+            await asyncio.sleep(0.05)
         return None
 
-    async def get_signatures(self, creator: str, before: str = None, limit: int = 100) -> List[dict]:
+    async def get_signatures(
+        self,
+        address: str,
+        before: str = None,
+        until: str = None,
+        limit: int = 1000
+    ) -> List[dict]:
         """
-        Get signatures for creator using getSignaturesForAddress
+        getSignaturesForAddress returns newest -> oldest.
 
-        Returns list of dicts: [{"signature": "...", "blockTime": ..., "slot": ...}, ...]
+        - `before`: paginate OLDER than this signature (walk backwards)
+        - `until`: return signatures NEWER than this signature (great for forward polling)
+
+        Solana supports up to 1000; some providers may clamp lower.
         """
+        cfg = {"limit": max(1, min(int(limit), 1000))}
+        if before:
+            cfg["before"] = before
+        if until:
+            cfg["until"] = until
+
         payload = {
             "jsonrpc": "2.0",
             "id": 1,
             "method": "getSignaturesForAddress",
-            "params": [
-                creator,
-                {
-                    "limit": min(limit, 50),  # API max is 50
-                    **({"before": before} if before else {})
-                }
-            ]
+            "params": [address, cfg]
         }
 
         result = await self._post_rpc_with_fallback(payload)
         if result and "result" in result:
-            return result["result"]
+            return result["result"] or []
         return []
 
-    async def get_transaction(self, signature: str, encoding: str = "jsonParsed") -> Optional[dict]:
-        """Get full transaction with account data"""
+    async def get_transaction(self, signature: str, encoding: str = "json") -> Optional[dict]:
+        """
+        Use encoding='json' by default (smaller/faster).
+        We only need meta.preBalances/postBalances + accountKeys for SOL delta.
+        """
         payload = {
             "jsonrpc": "2.0",
             "id": 1,
             "method": "getTransaction",
-            "params": [signature, {"encoding": encoding, "commitment": self.confirm_level}]
+            "params": [
+                signature,
+                {
+                    "encoding": encoding,
+                    "commitment": self.confirm_level,
+                    "maxSupportedTransactionVersion": 0,
+                }
+            ]
         }
-
         result = await self._post_rpc_with_fallback(payload)
         if result and "result" in result:
             return result["result"]
         return None
 
-    def _classify_sol_delta(self, tx: dict, creator_pubkey: str) -> Tuple[int, Optional[str], str]:
+    async def get_blocktime_for_signature(self, signature: str) -> Optional[int]:
+        tx = await self.get_transaction(signature, encoding="json")
+        if not tx:
+            return None
+        bt = tx.get("blockTime")
+        return bt if isinstance(bt, int) else None
+
+    # -----------------------------
+    # Ledger existence checks (FAST)
+    # -----------------------------
+    def _existing_signatures_in_ledger(self, sigs: List[str]) -> set:
         """
-        Classify SOL balance change by cause (funding vs trading vs noise).
+        Bulk check: returns set(signatures) that already exist in creator_tx_ledger.
+        This avoids 1 SQLite open/close per signature.
+        """
+        if not sigs:
+            return set()
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=5)
+            cursor = conn.cursor()
 
-        Returns: (delta_lamports, counterparty_pubkey, classification)
+            existing = set()
+            # SQLite variable limit often 999, so chunk safely
+            CHUNK = 900
+            for i in range(0, len(sigs), CHUNK):
+                chunk = sigs[i:i + CHUNK]
+                placeholders = ",".join("?" for _ in chunk)
+                cursor.execute(
+                    f"SELECT signature FROM creator_tx_ledger WHERE signature IN ({placeholders})",
+                    chunk
+                )
+                existing.update(r[0] for r in cursor.fetchall())
 
-        Classifications:
-        - system_transfer: Direct System::Transfer instruction (REAL FUNDING - p2p SOL move)
-        - pump_fun_buy: Creator bought token (TRADING - skip for funding analysis)
-        - pump_fun_sell: Creator sold token (TRADING - skip for funding analysis)
-        - ata_rent: ATA account creation or closure (NOISE)
-        - fee_only: Transaction fee (NOISE)
-        - other: Unclassified SOL change (NOISE)
+            conn.close()
+            return existing
+        except Exception:
+            return set()
+
+    # -----------------------------
+    # SOL delta computation/classification
+    # -----------------------------
+    def _classify_sol_delta_balance_only(
+        self,
+        tx: dict,
+        creator_pubkey: str,
+        min_meaningful_lamports: int
+    ) -> Tuple[int, Optional[str], str]:
+        """
+        Fast, RPC-encoding-agnostic classification based on pre/post SOL only.
+
+        - delta from preBalances/postBalances for creator index.
+        - classification:
+            - system_transfer_in  (delta > +threshold)
+            - system_transfer_out (delta < -threshold)
+            - noise               (abs(delta) <= threshold)
+
+        Counterparty is unknown with balance-only.
         """
         if not tx or "transaction" not in tx:
             return 0, None, "unknown"
 
-        try:
-            tx_data = tx["transaction"]
-            meta = tx.get("meta", {})
+        meta = tx.get("meta") or {}
+        pre = meta.get("preBalances") or []
+        post = meta.get("postBalances") or []
+        if not pre or not post:
+            return 0, None, "unknown"
 
-            if not meta or "preBalances" not in meta or "postBalances" not in meta:
-                return 0, None, "unknown"
+        message = (tx.get("transaction") or {}).get("message") or {}
+        account_keys = message.get("accountKeys") or []
 
-            message = tx_data.get("message", {})
-            account_keys = message.get("accountKeys", [])
-            instructions = message.get("instructions", [])
+        # accountKeys can be list[str] or list[dict] depending on encoding/provider
+        creator_idx = None
+        for idx, key in enumerate(account_keys):
+            k = key.get("pubkey") if isinstance(key, dict) else str(key)
+            if k == creator_pubkey:
+                creator_idx = idx
+                break
 
-            # Find creator's account index
-            creator_idx = None
-            for idx, key in enumerate(account_keys):
-                key_pubkey = key.get("pubkey") if isinstance(key, dict) else str(key)
-                if key_pubkey == creator_pubkey:
-                    creator_idx = idx
-                    break
+        if creator_idx is None or creator_idx >= len(pre) or creator_idx >= len(post):
+            return 0, None, "unknown"
 
-            if creator_idx is None:
-                return 0, None, "unknown"
+        delta = int(post[creator_idx]) - int(pre[creator_idx])
 
-            pre_bal = meta["preBalances"][creator_idx]
-            post_bal = meta["postBalances"][creator_idx]
-            delta = post_bal - pre_bal
+        if abs(delta) <= int(min_meaningful_lamports):
+            return delta, None, "noise"
 
-            # Analyze instructions to classify the delta
-            classification = "other"
-            counterparty = None
+        if delta > 0:
+            return delta, None, "system_transfer_in"
+        return delta, None, "system_transfer_out"
 
-            # Check if we have parsed instructions
-            has_parsed_data = any("parsed" in instr for instr in instructions)
-
-            if has_parsed_data:
-                # Path 1: PARSED instruction analysis (most accurate)
-                pump_fun_program = "6EF8rQNwhYf2qk5FVwW3mWBwyAEifzs74MHLsAXe8Qwp"
-                has_pump_buy = False
-                has_pump_sell = False
-
-                for instr in instructions:
-                    program_id = instr.get("programId", "")
-
-                    # Pump.fun buy/sell detection
-                    if program_id == pump_fun_program:
-                        parsed = instr.get("parsed", {})
-                        instr_type = parsed.get("type", "")
-                        if instr_type == "buy":
-                            has_pump_buy = True
-                        elif instr_type == "sell":
-                            has_pump_sell = True
-
-                if has_pump_buy and delta < 0:
-                    classification = "pump_fun_buy"
-                elif has_pump_sell and delta > 0:
-                    classification = "pump_fun_sell"
-
-                # Check for System Program Transfer instructions (real p2p)
-                system_program = "11111111111111111111111111111111"
-                has_system_transfer = False
-                system_transfer_target = None
-
-                for instr in instructions:
-                    program_id = instr.get("programId", "")
-                    if program_id == system_program:
-                        parsed = instr.get("parsed", {})
-                        instr_type = parsed.get("type", "")
-                        if instr_type == "transfer":
-                            source = parsed.get("info", {}).get("source", "")
-                            destination = parsed.get("info", {}).get("destination", "")
-                            if source == creator_pubkey and delta < 0:
-                                has_system_transfer = True
-                                system_transfer_target = destination
-                            elif destination == creator_pubkey and delta > 0:
-                                has_system_transfer = True
-                                system_transfer_target = source
-
-                # PRIORITY: Check for System Program Transfer instructions FIRST
-                # Real funding is p2p SOL transfers, everything else is noise for our purposes
-                if has_system_transfer:
-                    classification = "system_transfer"
-                    counterparty = system_transfer_target
-                elif has_pump_buy and delta < 0:
-                    classification = "pump_fun_buy"
-                elif has_pump_sell and delta > 0:
-                    classification = "pump_fun_sell"
-                else:
-                    # Check for ATA (Associated Token Account) operations
-                    # Token program: TokenkegQfeZyiNwAJsyFbPVwwQQfg5bgDCSm2c1fNV
-                    token_program = "TokenkegQfeZyiNwAJsyFbPVwwQQfg5bgDCSm2c1fNV"
-
-                    for instr in instructions:
-                        program_id = instr.get("programId", "")
-                        if program_id == token_program:
-                            parsed = instr.get("parsed", {})
-                            instr_type = parsed.get("type", "")
-                            if instr_type in ["initializeMint", "createIdempotent", "closeAccount"]:
-                                classification = "ata_rent"
-                                break
-
-            else:
-                # Path 2: FALLBACK - Balance-based heuristic (when no parsed data available)
-                # This is less accurate but works when RPC doesn't return parsed instructions
-                
-                # Check for Pump.fun program presence (by looking at programId field in raw format)
-                pump_fun_program = "6EF8rQNwhYf2qk5FVwW3mWBwyAEifzs74MHLsAXe8Qwp"
-                has_pump_program = any(instr.get("programId") == pump_fun_program for instr in instructions)
-                
-                # If transaction involves Pump.fun and creator lost SOL, it's likely a buy
-                # If transaction involves Pump.fun and creator gained SOL, it's likely a sell
-                if has_pump_program:
-                    if delta < 0:
-                        classification = "pump_fun_buy"
-                    elif delta > 0:
-                        classification = "pump_fun_sell"
-                    else:
-                        classification = "pump_fun_buy"  # Default to buy if no delta
-                else:
-                    # No Pump.fun program, check if it's a meaningful SOL change (not just fee)
-                    fee = meta.get("fee", 0)
-                    
-                    # Small positive delta = probably just SOL received (funding)
-                    # Large negative delta = probably SOL sent (not funding)
-                    # Very small delta = probably just fees
-                    
-                    if abs(delta) < 5000:  # Less than 5000 lamports = negligible
-                        classification = "fee_only"
-                    elif delta > 5000:  # Received meaningful SOL
-                        classification = "system_transfer"
-                        # Without parsed data, counterparty is unknown
-                        counterparty = None
-                    else:
-                        classification = "other"
-
-            # Only system_transfer has a meaningful counterparty for funding analysis
-            if classification != "system_transfer":
-                counterparty = None
-
-            return delta, counterparty, classification
-
-        except Exception as e:
-            print(f"[CREATOR_WATCH] ⚠️ Error classifying SOL delta: {e}", flush=True)
-            return 0, None, "error"
-
-    def _compute_sol_delta(self, tx: dict, creator_pubkey: str) -> Tuple[int, Optional[str]]:
-        """Backward compatible wrapper - returns only delta and counterparty"""
-        delta, counterparty, _ = self._classify_sol_delta(tx, creator_pubkey)
-        return delta, counterparty
-
-    async def process_signature(self, creator_pubkey: str, sig_info: dict) -> bool:
+    def _try_extract_system_transfer_counterparty(
+        self,
+        tx: dict,
+        creator_pubkey: str,
+        delta_lamports: int
+    ) -> Optional[str]:
         """
-        Process a single signature: fetch tx, compute delta, save to ledger.
-        Returns True if processed, False if already exists or error.
+        Best-effort counterparty extraction.
+        Only works if the RPC provided parsed SystemProgram transfer instructions.
+        If encoding='json' and provider doesn't include parsed, this will return None.
+
+        We keep this as optional: SOL delta tracking works without it.
         """
-        signature = sig_info["signature"]
-        block_time = sig_info.get("blockTime", 0)
-        slot = sig_info.get("slot", 0)
-
-        # Check if already in ledger (idempotent)
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=5)
-            cursor = conn.cursor()
-            cursor.execute("SELECT id FROM creator_tx_ledger WHERE signature = ? LIMIT 1", (signature,))
-            if cursor.fetchone():
-                conn.close()
-                return False  # Already processed
-            conn.close()
-        except:
-            pass
+            message = (tx.get("transaction") or {}).get("message") or {}
+            instructions = message.get("instructions") or []
+            if not instructions:
+                return None
 
-        # Fetch full transaction
-        tx = await self.get_transaction(signature)
+            system_program = "11111111111111111111111111111111"
+
+            for instr in instructions:
+                if instr.get("programId") != system_program:
+                    continue
+                parsed = instr.get("parsed")
+                if not isinstance(parsed, dict):
+                    continue
+                if (parsed.get("type") or "").lower() != "transfer":
+                    continue
+                info = parsed.get("info") or {}
+                src = info.get("source")
+                dst = info.get("destination")
+                if not src or not dst:
+                    continue
+
+                # If creator gained SOL, counterparty is the sender; else receiver.
+                if delta_lamports > 0 and dst == creator_pubkey:
+                    return src
+                if delta_lamports < 0 and src == creator_pubkey:
+                    return dst
+
+            return None
+        except Exception:
+            return None
+
+    # -----------------------------
+    # Ingest one signature
+    # -----------------------------
+    async def process_signature(
+        self,
+        creator_pubkey: str,
+        sig_info: dict,
+        source: str = "poll",
+        min_meaningful_lamports: int = None,
+        fetch_counterparty_if_possible: bool = False
+    ) -> bool:
+        """
+        Fetch tx, compute delta, insert into ledger if meaningful funding transfer.
+        Returns True if inserted, else False.
+        """
+        signature = sig_info.get("signature")
+        if not signature:
+            return False
+
+        if min_meaningful_lamports is None:
+            min_meaningful_lamports = self.MIN_MEANINGFUL_LAMPORTS_DEFAULT
+
+        block_time = int(sig_info.get("blockTime") or 0)
+        slot = int(sig_info.get("slot") or 0)
+
+        tx = await self.get_transaction(signature, encoding="json")
         if not tx:
             return False
 
-        # Classify SOL delta by cause (not just amount)
-        delta_lamports, counterparty, classification = self._classify_sol_delta(tx, creator_pubkey)
+        delta_lamports, _, cls = self._classify_sol_delta_balance_only(
+            tx, creator_pubkey, min_meaningful_lamports=min_meaningful_lamports
+        )
 
-        # Only track REAL FUNDING (system transfers)
-        # Skip everything else: pump_fun trades, ata_rent, fees, other
-        if classification != "system_transfer":
+        # Only track meaningful in/out (skip noise)
+        if cls == "noise" or cls == "unknown":
             return False
 
-        # Extract fee and compute units
-        meta = tx.get("meta", {})
-        fee_lamports = meta.get("fee", 0)
-        compute_units = meta.get("computeUnitsConsumed", 0)
+        counterparty = None
+        if fetch_counterparty_if_possible:
+            counterparty = self._try_extract_system_transfer_counterparty(tx, creator_pubkey, delta_lamports)
 
-        # Use classification as tx_type
-        tx_type = classification
+        meta = tx.get("meta") or {}
+        fee_lamports = int(meta.get("fee") or 0)
+        compute_units = int(meta.get("computeUnitsConsumed") or 0)
 
-        # Save to ledger
         try:
             conn = sqlite3.connect(DB_PATH, timeout=5)
             cursor = conn.cursor()
@@ -456,26 +434,197 @@ class CreatorWatchManager:
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 creator_pubkey, signature, slot, block_time,
-                delta_lamports, fee_lamports, compute_units,
-                counterparty, tx_type, "poll", 1
+                int(delta_lamports), int(fee_lamports), int(compute_units),
+                counterparty, cls, source, 1
             ))
 
             conn.commit()
             conn.close()
-
-            return True
+            return cursor.rowcount > 0
 
         except Exception as e:
             print(f"[CREATOR_WATCH] ⚠️ Error saving tx: {e}", flush=True)
             return False
 
-    async def poll_creator(self, creator_pubkey: str, limit: int = 100) -> int:
+    # -------------------------------------------------------------------------
+    # NEW: Backfill PRE-migration (backwards, bounded by migration_blocktime)
+    # -------------------------------------------------------------------------
+    async def backfill_creator_pre_migration(
+        self,
+        creator_pubkey: str,
+        migration_blocktime: Optional[int] = None,
+        migration_signature: Optional[str] = None,
+        lookback_days: int = 30,
+        page_limit: int = 1000,
+        max_pages: int = 200,
+        skip_missing_blocktime: bool = True,
+        per_page_concurrency: int = None,
+        min_meaningful_lamports: int = None,
+        fetch_counterparty_if_possible: bool = False,
+        per_tx_delay_s: float = 0.0,
+    ) -> Dict[str, int]:
         """
-        Poll creator for new signatures since last poll.
+        Walk backwards through creator history and ingest ONLY pre-migration funding transfers.
 
-        Returns number of new signatures processed.
+        Rules:
+          - Only process signatures where blockTime <= migration_blocktime
+          - Stop once blockTime < migration_blocktime - lookback_days*86400
+          - Uses 'before' pagination (newest -> older)
+
+        Efficiency:
+          - bulk "already in ledger" check per page
+          - optional bounded concurrency per page
         """
-        # Get state (last_signature for pagination)
+        await self.ensure_session()
+
+        if per_page_concurrency is None:
+            per_page_concurrency = self.DEFAULT_BACKFILL_CONCURRENCY
+        if min_meaningful_lamports is None:
+            min_meaningful_lamports = self.MIN_MEANINGFUL_LAMPORTS_DEFAULT
+
+        if migration_blocktime is None and migration_signature:
+            migration_blocktime = await self.get_blocktime_for_signature(migration_signature)
+            if migration_blocktime:
+                print(f"[BACKFILL] 🕐 migration_blocktime={migration_blocktime} from sig={migration_signature[:16]}...", flush=True)
+
+        if migration_blocktime is None:
+            raise ValueError("backfill_creator_pre_migration requires migration_blocktime or migration_signature")
+
+        cutoff_bt = int(migration_blocktime) - int(lookback_days) * 86400
+
+        stats = {
+            "pages": 0,
+            "sigs_seen": 0,
+            "sigs_skipped_post_migration": 0,
+            "sigs_skipped_missing_bt": 0,
+            "sigs_skipped_errored": 0,
+            "sigs_skipped_already": 0,
+            "tx_attempted": 0,
+            "funding_rows_inserted": 0,
+            "stopped_at_cutoff": 0,
+        }
+
+        before = None
+        reached_cutoff = False
+        started_pre_migration_region = False
+
+        print(
+            f"[BACKFILL] 🔎 Creator {creator_pubkey[:16]}... pre-migration backfill "
+            f"(migration_bt={migration_blocktime}, lookback_days={lookback_days}, cutoff_bt={cutoff_bt}, "
+            f"page_limit={page_limit}, concurrency={per_page_concurrency})",
+            flush=True,
+        )
+
+        sem = asyncio.Semaphore(max(1, int(per_page_concurrency)))
+
+        async def _proc_one(sig_info: dict) -> bool:
+            async with sem:
+                ok = await self.process_signature(
+                    creator_pubkey,
+                    sig_info,
+                    source="backfill_pre_migration",
+                    min_meaningful_lamports=min_meaningful_lamports,
+                    fetch_counterparty_if_possible=fetch_counterparty_if_possible,
+                )
+                if per_tx_delay_s:
+                    await asyncio.sleep(per_tx_delay_s)
+                return ok
+
+        for page in range(1, max_pages + 1):
+            stats["pages"] += 1
+
+            sigs = await self.get_signatures(creator_pubkey, before=before, limit=page_limit)
+            if not sigs:
+                break
+
+            stats["sigs_seen"] += len(sigs)
+
+            # Bulk existence check for this page
+            page_sig_list = [s.get("signature") for s in sigs if s.get("signature")]
+            existing = self._existing_signatures_in_ledger(page_sig_list)
+
+            # We iterate oldest->newest in this page so inserts are chronological
+            candidates: List[dict] = []
+
+            for sig_info in reversed(sigs):
+                sig = sig_info.get("signature")
+                if not sig:
+                    continue
+
+                if sig_info.get("err") is not None:
+                    stats["sigs_skipped_errored"] += 1
+                    continue
+
+                bt = sig_info.get("blockTime")
+
+                if bt is None:
+                    if skip_missing_blocktime:
+                        stats["sigs_skipped_missing_bt"] += 1
+                        continue
+                    # else allow through (costs getTransaction)
+                else:
+                    bt = int(bt)
+
+                    if bt > int(migration_blocktime):
+                        stats["sigs_skipped_post_migration"] += 1
+                        continue
+
+                    started_pre_migration_region = True
+
+                    if bt < cutoff_bt:
+                        reached_cutoff = True
+                        stats["stopped_at_cutoff"] = 1
+                        break
+
+                if sig in existing:
+                    stats["sigs_skipped_already"] += 1
+                    continue
+
+                candidates.append(sig_info)
+
+            if candidates:
+                stats["tx_attempted"] += len(candidates)
+
+                # Run bounded concurrency for this page
+                tasks = [asyncio.create_task(_proc_one(si)) for si in candidates]
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+                inserted = sum(1 for r in results if r is True)
+                stats["funding_rows_inserted"] += inserted
+
+            if reached_cutoff:
+                break
+
+            before = sigs[-1].get("signature")
+
+            if not started_pre_migration_region:
+                print(
+                    f"[BACKFILL] page={page}: still post-migration region, paging older... (before={before[:16]}...)",
+                    flush=True,
+                )
+            else:
+                print(
+                    f"[BACKFILL] page={page}: candidates={len(candidates)} inserted_total={stats['funding_rows_inserted']} "
+                    f"skipped_post_mig={stats['sigs_skipped_post_migration']} skipped_missing_bt={stats['sigs_skipped_missing_bt']} "
+                    f"skipped_already={stats['sigs_skipped_already']}",
+                    flush=True,
+                )
+
+            await asyncio.sleep(0.05)
+
+        print(f"[BACKFILL] ✅ Done for {creator_pubkey[:16]}... stats={stats}", flush=True)
+        return stats
+
+    # -------------------------------------------------------------------------
+    # Polling (forward)
+    # -------------------------------------------------------------------------
+    async def poll_creator(self, creator_pubkey: str, limit: int = 1000) -> int:
+        """
+        Poll creator for NEW signatures since last poll.
+
+        IMPORTANT:
+        - Use `until=last_sig` to get signatures NEWER than last_sig.
+        - This avoids walking backwards and reprocessing history.
+        """
         conn = sqlite3.connect(DB_PATH, timeout=5)
         cursor = conn.cursor()
         cursor.execute("SELECT last_signature, last_slot FROM creator_state WHERE creator_pubkey = ?", (creator_pubkey,))
@@ -483,26 +632,41 @@ class CreatorWatchManager:
         last_sig = row[0] if row else None
         conn.close()
 
-        # Get new signatures
-        sigs = await self.get_signatures(creator_pubkey, before=last_sig, limit=limit)
+        sigs = await self.get_signatures(creator_pubkey, until=last_sig, limit=limit)
 
         if not sigs:
-            print(f"[CREATOR_WATCH]    {creator_pubkey[:16]}... → No new signatures found (last_sig={last_sig[:16] if last_sig else 'None'})", flush=True)
             return 0
 
-        print(f"[CREATOR_WATCH]    {creator_pubkey[:16]}... → Found {len(sigs)} signatures", flush=True)
+        # sigs are newest->oldest; we want chronological processing
+        page_sig_list = [s.get("signature") for s in sigs if s.get("signature")]
+        existing = self._existing_signatures_in_ledger(page_sig_list)
 
-        # Process each signature
+        candidates = []
+        for sig_info in reversed(sigs):
+            sig = sig_info.get("signature")
+            if not sig or sig in existing:
+                continue
+            if sig_info.get("err") is not None:
+                continue
+            candidates.append(sig_info)
+
         processed = 0
-        for sig_info in sigs:
-            if await self.process_signature(creator_pubkey, sig_info):
+        for sig_info in candidates:
+            ok = await self.process_signature(
+                creator_pubkey,
+                sig_info,
+                source="poll",
+                min_meaningful_lamports=self.MIN_MEANINGFUL_LAMPORTS_DEFAULT,
+                fetch_counterparty_if_possible=False,  # keep poll lightweight; flip on if you really need it
+            )
+            if ok:
                 processed += 1
 
-        # Update state
-        if sigs:
-            latest_sig = sigs[0]["signature"]
-            latest_slot = sigs[0].get("slot", 0)
+        # Update state to newest signature in the response (sigs[0])
+        latest_sig = sigs[0].get("signature")
+        latest_slot = int(sigs[0].get("slot") or 0)
 
+        if latest_sig:
             conn = sqlite3.connect(DB_PATH, timeout=5)
             cursor = conn.cursor()
             cursor.execute("""
@@ -514,148 +678,83 @@ class CreatorWatchManager:
             conn.commit()
             conn.close()
 
-        print(f"[CREATOR_WATCH]    {creator_pubkey[:16]}... → Processed {processed}/{len(sigs)} signatures", flush=True)
-
         return processed
 
+    def _check_migration_setting(self, key: str, default: bool = True) -> bool:
+        """
+        Read migration settings from JSON file.
+        Returns the setting value or default if not found.
+        """
+        import json
+        import os
+        
+        settings_file = "migration_settings.json"
+        try:
+            if os.path.exists(settings_file):
+                with open(settings_file, 'r') as f:
+                    settings = json.load(f)
+                    return settings.get(key, default)
+        except Exception as e:
+            print(f"[CREATOR_WATCH] ⚠️ Error reading migration settings: {e}", flush=True)
+        
+        return default
+
     async def poll_all_creators(self):
-        """Poll all watched creators for new signatures"""
-        # Check if polling is enabled via database flag (for UI control)
         try:
             conn = sqlite3.connect(DB_PATH, timeout=5)
             cursor = conn.cursor()
-            
-            # Check database flag
-            cursor.execute("SELECT setting_value FROM polling_settings WHERE setting_name = 'polling_enabled'")
-            row = cursor.fetchone()
-            db_polling_enabled = row[0] == '1' if row else True
-            
-            # Also check in-memory flag
-            if not self.polling_enabled or not db_polling_enabled:
-                conn.close()
-                return
-            
-            # Get creators
             cursor.execute("SELECT creator_pubkey FROM creator_watch WHERE monitored = 1")
             creators = [row[0] for row in cursor.fetchall()]
             conn.close()
         except Exception as e:
-            print(f"[CREATOR_WATCH] ⚠️ Error checking polling status: {e}", flush=True)
+            print(f"[CREATOR_WATCH] ⚠️ Error loading creators: {e}", flush=True)
             return
 
         if not creators:
             return
 
-        print(f"[CREATOR_WATCH] 🔍 Polling {len(creators)} creators for new SOL transfers...", flush=True)
+        print(f"[CREATOR_WATCH] 🔍 Polling {len(creators)} creators...", flush=True)
 
         for creator_pubkey in creators:
             processed = await self.poll_creator(creator_pubkey)
-            if processed > 0:
-                print(f"[CREATOR_WATCH]    {creator_pubkey[:16]}... → {processed} new transactions", flush=True)
-
-            # Respect rate limits
+            if processed:
+                print(f"[CREATOR_WATCH]    {creator_pubkey[:16]}... → {processed} new funding txs", flush=True)
             await asyncio.sleep(0.2)
 
     async def run_polling_loop(self, poll_interval: int = 30):
-        """
-        Main polling loop - runs continuously.
-
-        Polls all creators every poll_interval seconds.
-        Respects the polling_enabled flag for UI control.
-        """
         await self.ensure_session()
         print(f"[CREATOR_WATCH] 🚀 Starting polling loop (interval: {poll_interval}s)", flush=True)
 
         while True:
             try:
-                if self.polling_enabled:
+                # Check migration settings each poll cycle
+                should_poll = self._check_migration_setting('creator_history_check', default=True)
+                
+                if should_poll and self.polling_enabled:
                     await self.poll_all_creators()
-                else:
-                    print(f"[CREATOR_WATCH] ⏸️  Polling paused", flush=True)
+                elif not should_poll:
+                    # Creator Analysis is disabled - skip polling this cycle
+                    pass
+                
                 await asyncio.sleep(poll_interval)
             except Exception as e:
                 print(f"[CREATOR_WATCH] ⚠️ Polling error: {e}", flush=True)
                 await asyncio.sleep(30)
 
     def pause_polling(self):
-        """Pause creator TX polling"""
         self.polling_enabled = False
         print(f"[CREATOR_WATCH] ⏸️  Polling PAUSED", flush=True)
         return {"status": "paused"}
 
     def resume_polling(self):
-        """Resume creator TX polling"""
         self.polling_enabled = True
         print(f"[CREATOR_WATCH] ▶️  Polling RESUMED", flush=True)
         return {"status": "resumed"}
 
-    def toggle_polling(self):
-        """Toggle polling on/off"""
-        if self.polling_enabled:
-            return self.pause_polling()
-        else:
-            return self.resume_polling()
-
-    def get_polling_status(self):
-        """Get current polling status"""
-        return {
-            "status": "enabled" if self.polling_enabled else "paused",
-            "polling_enabled": self.polling_enabled
-        }
-
-    # --- Query Methods (for UI/API) ---
-
-    def get_creator_stats(self, creator_pubkey: str) -> dict:
-        """Get summary stats for a creator"""
-        try:
-            conn = sqlite3.connect(DB_PATH, timeout=5)
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-
-            # Get state
-            cursor.execute("SELECT * FROM creator_state WHERE creator_pubkey = ?", (creator_pubkey,))
-            state_row = cursor.fetchone()
-
-            if not state_row:
-                conn.close()
-                return None
-
-            # Get recent ledger entries (last 24h)
-            cursor.execute("""
-                SELECT
-                    COUNT(*) as tx_count,
-                    SUM(delta_sol_lamports) as net_delta,
-                    SUM(CASE WHEN delta_sol_lamports > 0 THEN delta_sol_lamports ELSE 0 END) as total_in,
-                    SUM(CASE WHEN delta_sol_lamports < 0 THEN ABS(delta_sol_lamports) ELSE 0 END) as total_out,
-                    SUM(fee_lamports) as total_fees
-                FROM creator_tx_ledger
-                WHERE creator_pubkey = ? AND blockTime > (unixepoch() - 86400)
-            """, (creator_pubkey,))
-            ledger_row = cursor.fetchone()
-
-            conn.close()
-
-            return {
-                "creator_pubkey": creator_pubkey,
-                "total_sigs_processed": state_row["total_signatures_processed"] or 0,
-                "last_processed_at": state_row["last_processed_at"],
-                "cumulative_sol_in": (state_row["total_sol_in_lamports"] or 0) / 1e9,
-                "cumulative_sol_out": (state_row["total_sol_out_lamports"] or 0) / 1e9,
-                "last_24h": {
-                    "tx_count": ledger_row["tx_count"] or 0,
-                    "net_delta_sol": (ledger_row["net_delta"] or 0) / 1e9,
-                    "total_in_sol": (ledger_row["total_in"] or 0) / 1e9,
-                    "total_out_sol": (ledger_row["total_out"] or 0) / 1e9,
-                    "total_fees_sol": (ledger_row["total_fees"] or 0) / 1e9,
-                }
-            }
-
-        except Exception as e:
-            print(f"[CREATOR_WATCH] ⚠️ Error getting stats: {e}", flush=True)
-            return None
-
+    # -------------------------------------------------------------------------
+    # Query helpers
+    # -------------------------------------------------------------------------
     def get_recent_ledger(self, creator_pubkey: str, limit: int = 50) -> List[dict]:
-        """Get recent SOL transactions for creator"""
         try:
             conn = sqlite3.connect(DB_PATH, timeout=5)
             conn.row_factory = sqlite3.Row
@@ -678,38 +777,24 @@ class CreatorWatchManager:
 
             rows = cursor.fetchall()
             conn.close()
-
-            return [dict(row) for row in rows]
-
+            return [dict(r) for r in rows]
         except Exception as e:
             print(f"[CREATOR_WATCH] ⚠️ Error getting ledger: {e}", flush=True)
             return []
 
     def check_address_cross_references(self, address: str, creator_pubkey: str) -> Dict:
-        """
-        Cross-reference check: when an address appears as counterparty for a creator,
-        check if it's also linked to other creators (network detection).
-
-        Returns dict with cross-reference findings.
-        """
         if not HAS_UNIFIED_TRACKER:
             return {'status': 'unified_tracker_unavailable'}
 
         try:
             tracker = UnifiedRecipientTracker()
-
-            # Find other creators linked to this address
             other_creators = tracker.find_shared_recipients(creator_pubkey)
 
             if address in other_creators and other_creators[address]:
                 print(f"[CROSS_REF] ⚠️ Address {address[:16]}... linked to {len(other_creators[address])} other creators!", flush=True)
 
-                # Log the cross-reference
                 for other_creator in other_creators[address]:
-                    tracker.log_cross_reference(
-                        address, creator_pubkey, other_creator,
-                        context="cross_creator_recipient"
-                    )
+                    tracker.log_cross_reference(address, creator_pubkey, other_creator, context="cross_creator_recipient")
 
                 return {
                     'status': 'cross_reference_detected',
@@ -725,63 +810,8 @@ class CreatorWatchManager:
             print(f"[CROSS_REF] Error checking cross-references: {e}", flush=True)
             return {'status': 'error', 'error': str(e)}
 
-    def update_unified_recipient_tracking(self, creator_pubkey: str) -> Dict:
-        """
-        Update unified recipient tracking for a creator's recent transactions.
-        Merges new tx_ledger entries into creator_recipients_unified.
-
-        Returns stats on what was merged.
-        """
-        if not HAS_UNIFIED_TRACKER:
-            return {'status': 'unified_tracker_unavailable'}
-
-        try:
-            tracker = UnifiedRecipientTracker()
-
-            # Get recent outgoing transfers from this creator in tx_ledger
-            conn = sqlite3.connect(DB_PATH, timeout=5)
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-
-            cursor.execute("""
-                SELECT counterparty, ABS(SUM(delta_sol_lamports)) as total_sol,
-                       COUNT(*) as transfer_count, MAX(blockTime) as last_time
-                FROM creator_tx_ledger
-                WHERE creator_pubkey = ? AND delta_sol_lamports < 0
-                  AND counterparty IS NOT NULL
-                GROUP BY counterparty
-            """, (creator_pubkey,))
-
-            rows = cursor.fetchall()
-            conn.close()
-
-            stats = {
-                'status': 'updated',
-                'creator': creator_pubkey,
-                'recipients_updated': 0,
-                'cross_references_detected': 0
-            }
-
-            for row in rows:
-                recipient = row['counterparty']
-                amount = row['total_sol'] / 1e9
-
-                # Check for cross-references
-                cross_ref = self.check_address_cross_references(recipient, creator_pubkey)
-                if cross_ref.get('status') == 'cross_reference_detected':
-                    stats['cross_references_detected'] += 1
-
-                stats['recipients_updated'] += 1
-
-            return stats
-
-        except Exception as e:
-            print(f"[UNIFIED] Error updating recipient tracking: {e}", flush=True)
-            return {'status': 'error', 'error': str(e)}
-
 
 # Convenience function for use in listener
 async def start_creator_watch(rpc_url: str, helius_rpc: str = None, session: aiohttp.ClientSession = None):
-    """Factory for starting creator watch manager"""
     manager = CreatorWatchManager(rpc_url, helius_rpc, session)
     return manager

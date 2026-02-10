@@ -18,16 +18,17 @@ CREATOR / CREATE-TX FIXES INCLUDED:
         - Pumpfun program id presence is "nice-to-have" and no longer required
 ✅ Fix 5: Parsed-info account extraction is generic: collects pubkey-like strings from parsed.info
 
-Notes:
-- This script uses "fee payer of CREATE tx" as the creator heuristic.
-- It NEVER uses "earliest bonding curve activity" fee payer as creator.
+✅ NEW: FAST CREATE SEARCH (Helius Enhanced Transactions)
+        - Scans parsed txs for the mint via:
+          GET https://api.helius.xyz/v0/addresses/<address>/transactions
+        - This avoids 1000x getTransaction calls per page.
 """
 
 import asyncio
 import aiohttp
 import requests
 import time
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple, Any, AsyncGenerator
 from collections import Counter, defaultdict
 from statistics import variance
 import os
@@ -95,9 +96,8 @@ async def _rpc_post(session: aiohttp.ClientSession, url: str, payload: dict, tim
 
                 if resp.status == 200:
                     data = await resp.json()
-                    if "error" not in data:
-                        return data
-                    return data  # allow caller to inspect errors
+                    # allow caller to inspect RPC errors
+                    return data
 
                 return None
         except asyncio.TimeoutError:
@@ -158,6 +158,72 @@ class PostMigrationAnalyzer:
 
         print(f"[ANALYZER_INIT] Token: {token_mint}", flush=True)
         print(f"[ANALYZER_INIT] RPC: {rpc_url[:80]}{'...' if len(rpc_url) > 80 else ''}", flush=True)
+
+    # -----------------------------
+    # NEW: Helius bulk parsed tx iterator (FAST)
+    # -----------------------------
+    async def helius_iter_parsed_txs_for_address(
+        self,
+        address: str,
+        limit: int = 100,
+        max_pages: int = 200,
+        oldest_first: bool = True,
+    ) -> AsyncGenerator[Dict[str, Any], None]:
+        """
+        Iterate parsed txs for an address using Helius Enhanced Transactions API:
+
+          GET https://api.helius.xyz/v0/addresses/<ADDRESS>/transactions?api-key=...
+
+        Returns newest->oldest by default; we reverse for oldest_first.
+        """
+        if not HELIUS_API_KEY:
+            return
+
+        base = f"https://api.helius.xyz/v0/addresses/{address}/transactions?api-key={HELIUS_API_KEY}"
+        before = None
+        timeout = aiohttp.ClientTimeout(total=20)
+
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            for page in range(1, max_pages + 1):
+                url = f"{base}&limit={limit}"
+                if before:
+                    url += f"&before={before}"
+
+                try:
+                    async with session.get(url) as resp:
+                        if resp.status != 200:
+                            print(f"[HELIUS_ADDR_TX] ⚠ status={resp.status} page={page}", flush=True)
+                            return
+                        txs = await resp.json()
+
+                    if not isinstance(txs, list) or not txs:
+                        # natural end
+                        print(f"[HELIUS_ADDR_TX] ✅ End of history page={page}", flush=True)
+                        return
+
+                    if oldest_first:
+                        txs = list(reversed(txs))
+
+                    for tx in txs:
+                        yield tx
+
+                    # Cursor for next page must be the OLDEST signature in the *original* (newest->oldest) stream.
+                    # With oldest_first=True, we reversed, so txs[0] is oldest in this batch.
+                    cursor_tx = txs[0] if oldest_first else txs[-1]
+                    before = cursor_tx.get("signature")
+                    if not before:
+                        # try find any signature
+                        for t in reversed(txs):
+                            if t.get("signature"):
+                                before = t["signature"]
+                                break
+                    if not before:
+                        print("[HELIUS_ADDR_TX] ⚠ Missing signature cursor; stopping", flush=True)
+                        return
+
+                except Exception as e:
+                    print(f"[HELIUS_ADDR_TX] ⚠ error page={page}: {e}", flush=True)
+                    return
 
     # -----------------------------
     # RPC helpers
@@ -583,7 +649,7 @@ class PostMigrationAnalyzer:
                 return None
             (tag,) = struct.unpack("<I", raw[:4])
 
-            # tag 0: createAccount => owner at bytes 20..51 (after lamports u64 + space u64)
+            # tag 0: createAccount => owner at bytes 20..51
             if tag == 0:
                 if len(raw) < 4 + 8 + 8 + 32:
                     return None
@@ -693,10 +759,7 @@ class PostMigrationAnalyzer:
                 if not program_id and "programIdIndex" in ix:
                     program_id = self._resolve_account_key(message, ix.get("programIdIndex"))
 
-                # Note: We *prefer* Pump.fun program match, but we won't strictly require it later.
-                # Still, scoping to likely Pump instructions reduces false positives.
                 if program_id not in PUMPFUN_PROGRAM_IDS and program_id not in (PUMPFUN_AMM_PROGRAM, PUMPFUN_BONDING_CURVE_PROGRAM):
-                    # keep it tight: only scope to known pump programs
                     continue
 
                 accounts = ix.get("accounts")
@@ -759,10 +822,8 @@ class PostMigrationAnalyzer:
                 if ptype in create_types:
                     owner_program = ((p.get("info") or {}).get("owner"))
                 else:
-                    # not a create
                     continue
             else:
-                # compiled
                 if not self._is_system_create_compiled(instr):
                     continue
                 owner_program = self._decode_system_create_owner_program(instr)
@@ -778,11 +839,6 @@ class PostMigrationAnalyzer:
         Return a flat list of all instructions in tx:
         - top-level instructions
         - all inner instructions (any schema variant)
-        
-        This is safer for mint-init detection because:
-        1. Helius may represent inner instructions differently than Solana RPC
-        2. Mint init is unlikely in later txs, so false positives are minimal
-        3. We can find mint init even if scoping fails
         """
         message, top = self._get_message_and_instructions(tx)
 
@@ -793,7 +849,6 @@ class PostMigrationAnalyzer:
 
         out = list(top)
 
-        # Expand all inner instructions (handle all Helius format variations)
         for item in inner:
             if isinstance(item, dict) and "instructions" in item:
                 out.extend(item.get("instructions") or [])
@@ -807,17 +862,7 @@ class PostMigrationAnalyzer:
     def _find_token_initialize_mint(self, tx: dict) -> bool:
         """
         Detect initializeMint / initializeMint2 for self.token_mint across ALL instructions.
-        
-        FIX: Tolerant detection for Helius parsed txs
-        
-        Works with:
-        - Solana RPC jsonParsed (programId == TOKEN_PROGRAM or TOKEN_2022)
-        - Helius /v0/transactions (program == 'spl-token' / 'spl-token-2022', programId may be missing)
-        
-        Scans all instructions (top-level + all inner) to avoid missing mint init due to:
-        - Helius schema variations
-        - Different parent index key names
-        - Flat vs grouped inner instruction formats
+        Works with Solana RPC jsonParsed and Helius parsed tx schemas.
         """
         message, _ = self._get_message_and_instructions(tx)
         all_ix = self._flatten_all_instructions(tx)
@@ -831,17 +876,14 @@ class PostMigrationAnalyzer:
             if ptype not in ("initializemint", "initializemint2"):
                 continue
 
-            # Determine token program identity tolerantly (both Solana RPC and Helius formats)
             program_id = instr.get("programId")
             if not program_id and "programIdIndex" in instr:
                 idx = instr.get("programIdIndex")
                 if isinstance(idx, int):
                     program_id = self._resolve_account_key(message, idx)
 
-            # Helius uses "program" field with string names
             program_name = (instr.get("program") or "").lower()
 
-            # Accept both explicit program ID and Helius program name
             is_token_program = (
                 program_id in (TOKEN_PROGRAM, TOKEN_2022)
                 or program_name in ("spl-token", "spl-token-2022")
@@ -852,7 +894,6 @@ class PostMigrationAnalyzer:
             info = parsed.get("info") or {}
             mint = info.get("mint")
             if mint == self.token_mint:
-                # Debug: Log what we found
                 print(
                     f"[CREATOR] ✓ Found {ptype} for mint={mint} via program_id={program_id} program={program_name}",
                     flush=True,
@@ -864,16 +905,12 @@ class PostMigrationAnalyzer:
     def _validate_pumpfun_create_tx(self, tx: dict) -> dict:
         """
         STRICT validation:
-
-        Must have:
           A) bonding curve PDA created by System.createAccount where owner == PUMPFUN_BONDING_CURVE_PROGRAM
         AND
-          B) mint creation evidence in SAME tx (scoped to same parent):
+          B) mint creation evidence in SAME tx:
                - System.createAccount creates mint where created == token_mint AND owner == TOKEN_PROGRAM or TOKEN_2022
                  OR
                - token initializeMint/initializeMint2 for token_mint
-
-        Pumpfun program presence is recorded but NOT required.
         """
         result = {
             "is_pumpfun_create": False,
@@ -897,7 +934,6 @@ class PostMigrationAnalyzer:
         if self.token_mint in account_pubkeys:
             result["mint_in_accounts"] = True
 
-        # Expand inner instructions robustly for program ID detection
         inner_instructions = (tx.get("meta") or {}).get("innerInstructions")
         if inner_instructions is None:
             inner_instructions = tx.get("innerInstructions")
@@ -924,15 +960,12 @@ class PostMigrationAnalyzer:
                 if program_id in PUMPFUN_PROGRAM_IDS:
                     result["pumpfun_program_found"] = True
 
-        # Scope to the mint-bearing pump instruction index if possible
         create_outer_index = self._find_pumpfun_create_outer_index(tx)
         if create_outer_index is None:
             result["validation_notes"].append("could not scope create_outer_index; scanning top-level only")
 
-        # Find all System.createAccount under scope
         creates = self._find_system_create_accounts(tx, create_outer_index)
 
-        # A) bonding curve created
         bonding_curve_candidates = [
             c for c in creates if c.get("owner") == PUMPFUN_BONDING_CURVE_PROGRAM and isinstance(c.get("created"), str)
         ]
@@ -943,20 +976,17 @@ class PostMigrationAnalyzer:
 
         bonding_curve_ok = result["bonding_curve"] is not None
 
-        # B1) mint created by System.createAccount (created == mint and owner token program)
         for c in creates:
             if c.get("created") == self.token_mint and c.get("owner") in (TOKEN_PROGRAM, TOKEN_2022):
                 result["mint_create_found"] = True
                 break
 
-        # B2) initializeMint found (tolerant + all inner instructions)
         result["mint_init_found"] = self._find_token_initialize_mint(tx)
 
         mint_ok = result["mint_create_found"] or result["mint_init_found"]
         if not mint_ok:
             result["validation_notes"].append("mint not created/initialized in this tx (likely pool-init or swap)")
 
-        # Final
         result["is_pumpfun_create"] = bool(bonding_curve_ok and mint_ok)
 
         if not result["pumpfun_program_found"]:
@@ -1006,16 +1036,81 @@ class PostMigrationAnalyzer:
 
     async def extract_bonding_curve_from_creation_tx(self) -> Optional[str]:
         """
-        Find the true Pump.fun CREATE tx by scanning mint signature history from oldest to newest
-        until strict CREATE validation passes.
+        UPDATED:
+
+        1) If _create_tx_signature exists: parse via Helius /v0/transactions (1 call)
+        2) FAST: scan mint parsed txs via Helius Enhanced Transactions (no getTransaction spam)
+        3) Fallback: slow scan using getSignaturesForAddress + getTransaction until strict validation passes
         """
         print(f"[CREATOR] Extracting bonding curve from *strict* CREATE tx for {self.token_mint[:20]}...", flush=True)
 
-        # If we already have CREATE sig, try fast path
+        # ----------------------------------------------------
+        # FAST PATH #1: Already have CREATE sig -> parse it
+        # ----------------------------------------------------
         if self._create_tx_signature and HELIUS_API_KEY:
             bc = await self.extract_bonding_curve_via_helius_parse(self._create_tx_signature)
             if bc:
                 return bc
+
+        # ----------------------------------------------------
+        # FAST PATH #2: Helius Enhanced Transactions bulk scan
+        # ----------------------------------------------------
+        if HELIUS_API_KEY:
+            print("[CREATOR] 🚀 Fast scan via Helius Enhanced Transactions (mint address)", flush=True)
+
+            checked = 0
+            oldest_logged = 0
+
+            async for tx in self.helius_iter_parsed_txs_for_address(
+                self.token_mint,
+                limit=100,        # 100 parsed txs per request
+                max_pages=200,    # cap for real-time; bump if you truly need ancient history
+                oldest_first=True # we want oldest->newest to find CREATE early
+            ):
+                checked += 1
+                validation = self._validate_pumpfun_create_tx(tx)
+
+                if oldest_logged < 5:
+                    oldest_logged += 1
+                    sig = tx.get("signature") or ""
+                    print(
+                        f"[CREATOR] Oldest#{oldest_logged} {sig} "
+                        f"strict_create={validation.get('is_pumpfun_create')} "
+                        f"mint_create={validation.get('mint_create_found')} "
+                        f"mint_init={validation.get('mint_init_found')} "
+                        f"bonding_curve={'yes' if validation.get('bonding_curve') else 'no'}",
+                        flush=True,
+                    )
+
+                if validation.get("is_pumpfun_create"):
+                    sig = tx.get("signature")
+                    print(f"[CREATOR] ✅ Found STRICT Pump.fun CREATE via Helius bulk: {sig}", flush=True)
+
+                    # Store CREATE provenance
+                    self._create_tx_signature = sig
+                    self._create_tx_validation = validation
+
+                    # Fee payer (creator heuristic)
+                    fee_payer = None
+                    keys = tx.get("accountKeys") or tx.get("accounts") or []
+                    keys = self._normalize_account_keys(keys)
+                    if keys:
+                        fee_payer = keys[0]
+
+                    if fee_payer:
+                        self._create_tx_creator = fee_payer
+                        print(f"[CREATOR] ✓ CREATE fee payer (creator): {fee_payer}", flush=True)
+
+                    bc = validation.get("bonding_curve")
+                    print(f"[CREATOR] ✓ Bonding curve: {bc} (via helius_bulk; checked={checked})", flush=True)
+                    return bc
+
+            print(f"[CREATOR] ⚠ Helius bulk scan did not find strict CREATE (checked={checked})", flush=True)
+
+        # ----------------------------------------------------
+        # FALLBACK: Slow pagination (your original approach)
+        # ----------------------------------------------------
+        print("[CREATOR] 🐢 Fallback to RPC pagination (slow)", flush=True)
 
         earliest_create_sig = None
         earliest_create_tx = None
@@ -1051,7 +1146,6 @@ class PostMigrationAnalyzer:
                     proven_end = True
                     break
 
-                # walk oldest->newest within the page
                 for sig_item in reversed(sigs):
                     sig = sig_item.get("signature")
                     if not sig:
@@ -1074,13 +1168,13 @@ class PostMigrationAnalyzer:
                     if oldest_logged < 5:
                         oldest_logged += 1
                         print(
-                            f"[CREATOR] Oldest#{oldest_logged} {sig[:16]}... strict_create={validation['is_pumpfun_create']} "
-                            f"mint_create={validation['mint_create_found']} mint_init={validation['mint_init_found']} "
+                            f"[CREATOR] Oldest#{oldest_logged} {sig} strict_create={validation.get('is_pumpfun_create')} "
+                            f"mint_create={validation.get('mint_create_found')} mint_init={validation.get('mint_init_found')} "
                             f"bonding_curve={'yes' if validation.get('bonding_curve') else 'no'}",
                             flush=True,
                         )
 
-                    if validation["is_pumpfun_create"]:
+                    if validation.get("is_pumpfun_create"):
                         print(f"[CREATOR] ✅ Found STRICT Pump.fun CREATE tx: {sig}", flush=True)
                         earliest_create_sig = sig
                         earliest_create_tx = tx
@@ -1101,11 +1195,9 @@ class PostMigrationAnalyzer:
             print(f"[CREATOR] ❌ No STRICT CREATE transaction found for mint", flush=True)
             return None
 
-        # store
         self._create_tx_signature = earliest_create_sig
         self._create_tx_validation = earliest_create_validation
 
-        # fee payer (creator heuristic) from CREATE tx
         msg = ((earliest_create_tx.get("transaction") or {}).get("message") or {})
         keys = msg.get("accountKeys") or []
         fee_payer = None
@@ -1132,7 +1224,6 @@ class PostMigrationAnalyzer:
             return None, False, "none"
 
         query_account = bonding_curve_pda or self.token_mint
-        query_type = "bonding_curve_pda" if bonding_curve_pda else "token_mint"
 
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=40)) as session:
             for rpc_url in HISTORY_RPC_URLS:
@@ -1207,7 +1298,6 @@ class PostMigrationAnalyzer:
         provenance["blockTime"] = self._create_tx_validation.get("blockTime")
         provenance["validation_notes"].extend(self._create_tx_validation.get("validation_notes") or [])
 
-        # Provenance: earliest curve activity (NOT used for creator)
         earliest_curve_sig, reached_end, rpc_used = await self.get_true_earliest_signature(bonding_curve_pda=bonding_curve_pda)
         provenance["earliest_curve_sig"] = earliest_curve_sig
         provenance["reached_end"] = reached_end

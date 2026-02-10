@@ -21,6 +21,15 @@ from typing import Dict, List, Optional, Tuple
 
 # Infrastructure account mappings (ecosystem programs/tools)
 INFRASTRUCTURE_ACCOUNTS = {
+
+    # RapidLaunch (Token Launch Platform/Automation)
+    "rapidXMVLw5uBieKHDGvF9k4xSSDXyD2FC5wLTAajaJ": {
+        "name": "RapidLaunch",
+        "category": "automation",
+        "description": "RapidLaunch token launch platform & automation account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "rapidlaunch", "launch-platform"],
+    },
     # Axiom (Monitoring/Automation Infrastructure)
     "AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk": {
         "name": "Axiom",

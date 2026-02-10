@@ -156,13 +156,13 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "jito", "mev"],
     },
 
-    # Jitotip 9 (MEV/Fee Tipping Automation)
+    # Pump.fun Fee Account
     "CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM": {
-        "name": "Jitotip 9",
+        "name": "Pump.fun Fee Account",
         "category": "automation",
-        "description": "Jitotip MEV/fee tipping automation account",
+        "description": "Pump.fun platform fee collection account",
         "risk_level": "neutral",
-        "tags": ["infra", "automation", "jito", "mev"],
+        "tags": ["infra", "automation", "pumpfun", "fees"],
     },
 
     # Helius Tipping Account 3

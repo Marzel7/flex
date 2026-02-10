@@ -3999,7 +3999,7 @@ def api_creator_sol_stats(creator_address: str):
         from creator_watch_manager import CreatorWatchManager
 
         # Create temporary manager instance to query stats
-        helius_rpc = f"https://mainnet.helius-rpc.com/?api-key={os.getenv('HELIUS_API_KEY')}" if os.getenv("HELIUS_API_KEY") else "https://api.mainnet-beta.solana.com"
+        helius_rpc = "https://mainnet.helius-rpc.com/?api-key=a132b19d-9b44-4c71-8e6f-d320d9f351c6"
         manager = CreatorWatchManager(
             rpc_url=helius_rpc
         )
@@ -4061,7 +4061,7 @@ def api_creator_sol_ledger(creator_address: str):
         from creator_watch_manager import CreatorWatchManager
 
         # Create temporary manager instance to query ledger
-        helius_rpc = f"https://mainnet.helius-rpc.com/?api-key={os.getenv('HELIUS_API_KEY')}" if os.getenv("HELIUS_API_KEY") else "https://api.mainnet-beta.solana.com"
+        helius_rpc = "https://mainnet.helius-rpc.com/?api-key=a132b19d-9b44-4c71-8e6f-d320d9f351c6"
         manager = CreatorWatchManager(
             rpc_url=helius_rpc
         )

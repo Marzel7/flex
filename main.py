@@ -2073,16 +2073,16 @@ HTML_TEMPLATE = """
                             if (creatorData.funders && creatorData.funders.length > 0) {
                                 for (let funder of creatorData.funders) {
                                     // Check if this funder is marked as CEX and has an exchange name
-                                    if (funder.is_cex && funder.cex_exchange) {
+                                    if (funder.is_cex && (funder.display_name || funder.cex_exchange)) {
+                                        // Use enriched display_name if available, otherwise fallback to cex_exchange
+                                        const displayName = funder.display_name || funder.cex_exchange;
                                         // Only add if not already in our list
-                                        const already = funderLabels.some(f => f.name === funder.cex_exchange);
+                                        const already = funderLabels.some(f => f.name === displayName);
                                         if (!already) {
-                                            // cex_exchange now contains full display name (e.g., "Bybit Wallet 10")
-                                            // cex_type is now null/empty since name already has the type info
                                             funderLabels.push({
-                                                name: funder.cex_exchange,
+                                                name: displayName,
                                                 category: 'cex',
-                                                description: `Funded by ${funder.cex_exchange}`
+                                                description: `Funded by ${displayName}`
                                             });
                                         }
                                         // Only show first 2 CEX funders to avoid clutter
@@ -3030,7 +3030,12 @@ HTML_TEMPLATE = """
 
                         let funderType = 'Wallet';
                         if (funder.is_cex) {
-                            funderType = `${funder.cex_exchange || 'CEX'} (${funder.cex_type || 'Hot'})`;
+                            // Use display_name from enriched data if available, otherwise fallback
+                            if (funder.display_name) {
+                                funderType = funder.display_name;
+                            } else {
+                                funderType = `${funder.cex_exchange || 'CEX'} ${funder.cex_type ? `(${funder.cex_type})` : ''}`.trim();
+                            }
                         } else if (funder.display_name) {
                             funderType = funder.display_name;
                         }
@@ -4265,20 +4270,22 @@ def api_creators_batch():
             creator = row['creator_address']
             if creator not in funders_data:
                 funders_data[creator] = []
-            
+
             funder_addr = row['funder_address']
-            
+
             # Check if funder is in our known CEX or Infrastructure mappings
             is_cex = bool(row['is_cex'])
             cex_exchange = row['cex_exchange']
             cex_type = row['cex_type']
-            
-            # Override with live mapping check if not already marked as CEX
-            if not is_cex and funder_addr in CEX_ACCOUNTS:
+            display_name = None
+
+            # Check live mapping for enriched display names (both new and existing CEX entries)
+            if funder_addr in CEX_ACCOUNTS:
                 is_cex = True
                 cex_info = CEX_ACCOUNTS[funder_addr]
                 # Use 'name' field for display (e.g., "Bybit Wallet 10"), fallback to exchange
-                cex_exchange = cex_info.get('name', cex_info.get('exchange', 'CEX'))
+                display_name = cex_info.get('name')
+                cex_exchange = cex_info.get('exchange', cex_info.get('name', 'CEX'))
                 cex_type = None  # Set to None since name field already includes type
 
             funders_data[creator].append({
@@ -4286,7 +4293,8 @@ def api_creators_batch():
                 'amount_sol': row['amount_sol'],
                 'is_cex': is_cex,
                 'cex_exchange': cex_exchange,
-                'cex_type': cex_type
+                'cex_type': cex_type,
+                'display_name': display_name
             })
 
         # Creator service tags from creator_tags table (domain/infrastructure tags)

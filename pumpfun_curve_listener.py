@@ -1509,20 +1509,22 @@ class PumpFunCurveListener:
             else:
                 print(f"[SETTINGS] Token history ❌ OFF - skipping token history analysis", flush=True)
 
-            # Trigger creator analysis (clustering + funding extraction) independently (if enabled)
+            # Extract creator funding for NEW tokens (ALWAYS runs - independent of settings)
+            if earliest_creator:
+                # Trigger funding extraction asynchronously (with CREATE tx signature and mint for Jitotip detection)
+                create_tx_sig = analyzer._create_tx_signature if hasattr(analyzer, '_create_tx_signature') else None
+                asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at, create_tx_sig, mint))
+                print(f"[FUNDING] Extraction task created for new creator {earliest_creator[:8]}...", flush=True)
+
+            # Trigger creator polling (clustering + continuous monitoring) independently (if enabled)
             if get_migration_setting('creator_history_check', True):
-                print(f"[SETTINGS] Creator history ✅ ON - analyzing creator network and funding", flush=True)
+                print(f"[SETTINGS] Creator analysis ✅ ON - analyzing creator network", flush=True)
                 if earliest_creator:
-                    # Trigger funding extraction asynchronously (with CREATE tx signature and mint for Jitotip detection)
-                    create_tx_sig = analyzer._create_tx_signature if hasattr(analyzer, '_create_tx_signature') else None
-                    asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at, create_tx_sig, mint))
-                    print(f"[SETTINGS] Funding extraction task created for {earliest_creator[:8]}...", flush=True)
-                    
                     # Trigger wallet clustering asynchronously
                     asyncio.create_task(trigger_wallet_clustering(earliest_creator))
                     print(f"[SETTINGS] Clustering task created for {earliest_creator[:8]}...", flush=True)
             else:
-                print(f"[SETTINGS] Creator history ❌ OFF - skipping creator network and funding analysis", flush=True)
+                print(f"[SETTINGS] Creator analysis ❌ OFF - skipping creator network clustering", flush=True)
 
         except Exception as e:
             print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)

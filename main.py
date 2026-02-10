@@ -2853,9 +2853,15 @@ HTML_TEMPLATE = """
                     const uniqueTags = [];
 
                     for (const t of data.tags) {
-                        // SKIP if this looks like a Solana address (base58 characters, 30+ chars, may have period at end)
+                        // SKIP if this looks like a Solana address (base58 characters, 30+ chars, may have period)
+                        // Matches: standard addresses like "ABC123...", or "ABC123...." (with period for domain-like format)
                         if (t.tag.match(/^[1-9A-HJ-NP-Za-km-z]{30,}\.?$/)) {
                             continue;  // Skip addresses, only show service names
+                        }
+
+                        // Also skip if tag contains "interacted with" - these are auto-generated account tags
+                        if (t.description && t.description.toLowerCase().includes('interacted with')) {
+                            continue;
                         }
 
                         const displayTag = t.tag.replace('uses_', '').toLowerCase();

@@ -165,6 +165,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "pumpfun", "fees"],
     },
 
+    # Phantom Fees Account
+    "8psNvWTrdNTiVRNzAgsou9kETXNJm2SXZyaKuJraVRtf": {
+        "name": "Phantom Fees",
+        "category": "automation",
+        "description": "Phantom wallet fee collection account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "phantom", "fees"],
+    },
+
     # Helius Tipping Account 3
     "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta": {
         "name": "Helius Tipping Account 3",

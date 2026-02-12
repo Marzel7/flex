@@ -29,13 +29,13 @@ from infra_mapping import (
     get_suspicious_wallet_info,
 )
 
-RPC_URL = "https://api.mainnet-beta.solana.com"
+RPC_URL = "https://mainnet.helius-rpc.com/?api-key=3b2917b8-9bed-4e2e-8c05-a74adbc34bb8"
 LAMPORTS_PER_SOL = 1_000_000_000
 DB_PATH = "pumpswap_tokens.db"
 
 # Defaults for speed + spam filtering
 DEFAULT_SINCE_DAYS = 30
-DEFAULT_SIG_LIMIT = 100  # RPC-friendly batch size (1000 causes rate limit issues)
+DEFAULT_SIG_LIMIT = 100  # RPC-friendly batch size (Helius handles 100 well)
 DEFAULT_MIN_ABS_SOL = 0.001  # dust threshold (tune: 0.001–0.01)
 DEFAULT_INCLUDE_PROGRAM_SOL = True  # keep non-system-program SOL movements if above dust
 
@@ -439,11 +439,11 @@ def main():
     print(f"Total FEES: {total_fees:>12.4f} SOL (fees in kept txs)")
     print(f"Net:        {total_in - total_out:>12.4f} SOL")
 
-    # Top inflows
+    # All inflows
     if inflows:
-        print("\n📥 TOP INFLOWS (From):\n")
+        print("\n📥 ALL INFLOWS (From):\n")
         sorted_in = sorted(inflows, key=lambda r: r["deltaExclFeeSOL"], reverse=True)
-        for i, r in enumerate(sorted_in[:10], 1):
+        for i, r in enumerate(sorted_in, 1):
             counterparty = r.get("counterparty") or "Unknown"
             classification, _ = (
                 classify_address(counterparty) if counterparty != "Unknown" else ("❓ UNKNOWN", "unknown")
@@ -454,18 +454,14 @@ def main():
                 else ""
             )
             sys_flag = " (system)" if r.get("hasSystemTransfer") else ""
-            print(f"[{i:2}] {r['deltaExclFeeSOL']:>8.4f} SOL ← {counterparty}{sys_flag}")
-            print(f"      {classification}{time_str}")
+            print(f"[{i:3}] {r['deltaExclFeeSOL']:>8.4f} SOL ← {counterparty}{sys_flag}")
+            print(f"       {classification}{time_str}")
 
-        if len(sorted_in) > 10:
-            remaining = sum(r["deltaExclFeeSOL"] for r in sorted_in[10:])
-            print(f"     ... and {len(sorted_in) - 10} more ({remaining:.4f} SOL)")
-
-    # Top outflows
+    # All outflows
     if outflows:
-        print("\n📤 TOP OUTFLOWS (To):\n")
+        print("\n📤 ALL OUTFLOWS (To):\n")
         sorted_out = sorted(outflows, key=lambda r: r["deltaExclFeeSOL"])  # most negative first
-        for i, r in enumerate(sorted_out[:10], 1):
+        for i, r in enumerate(sorted_out, 1):
             counterparty = r.get("counterparty") or "Unknown"
             classification, _ = (
                 classify_address(counterparty) if counterparty != "Unknown" else ("❓ UNKNOWN", "unknown")
@@ -476,12 +472,8 @@ def main():
                 else ""
             )
             sys_flag = " (system)" if r.get("hasSystemTransfer") else ""
-            print(f"[{i:2}] {-r['deltaExclFeeSOL']:>8.4f} SOL → {counterparty}{sys_flag}")
-            print(f"      {classification}{time_str}")
-
-        if len(sorted_out) > 10:
-            remaining = sum(-r["deltaExclFeeSOL"] for r in sorted_out[10:])
-            print(f"     ... and {len(sorted_out) - 10} more ({remaining:.4f} SOL)")
+            print(f"[{i:3}] {-r['deltaExclFeeSOL']:>8.4f} SOL → {counterparty}{sys_flag}")
+            print(f"       {classification}{time_str}")
 
 
 if __name__ == "__main__":

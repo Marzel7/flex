@@ -3369,7 +3369,7 @@ HTML_TEMPLATE = """
                                             ${funder.funder_address}
                                         </a>
                                     </td>
-                                    <td style="color: #fbbf24; font-weight: 600;">${funderLabel}</td>
+                                    <td style="color: #fbbf24; font-weight: 600; font-size: 12px; white-space: nowrap;">${funderLabel}</td>
                                     <td><strong style="color: #ef4444;">${funder.creator_count}</strong></td>
                                     <td>${funder.total_sol_sent.toFixed(2)} SOL</td>
                                     <td>${funder.funding_record_count}</td>

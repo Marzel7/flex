@@ -759,6 +759,136 @@ CEX_ACCOUNTS = {
         "tags": ["cex", "changenow", "exchange"],
     },
 
+    # MEXC Hot Wallet
+    "ASTyfSima4LLAdDgoFGkgqoKowG1LZFDr9fAQrg7iaJZ": {
+        "name": "MEXC Hot Wallet",
+        "category": "cex",
+        "exchange": "MEXC",
+        "description": "MEXC exchange hot wallet for SOL trading and withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "mexc", "exchange"],
+    },
+
+    # HTX Hot Wallet (formerly Huobi)
+    "BY4StcU9Y2BpgH8quZzorg31EGE4L1rjomN8FNsCBEcx": {
+        "name": "HTX Hot Wallet",
+        "category": "cex",
+        "exchange": "HTX",
+        "description": "HTX exchange hot wallet for SOL (formerly Huobi)",
+        "risk_level": "neutral",
+        "tags": ["cex", "htx", "exchange"],
+    },
+
+    # Terminal (Padre) Program - Infrastructure
+    "term9YPb9mzAsABaqN71A4xdbxHmpBNZavpBiQKZzN3": {
+        "name": "Terminal (Padre) Program",
+        "category": "automation",
+        "exchange": "Terminal",
+        "description": "Terminal/Padre program for transaction processing",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "terminal", "padre"],
+    },
+
+    # Padre Fee Wallet 1
+    "J5XGHmzrRmnYWbmw45DbYkdZAU2bwERFZ11qCDXPvFB5": {
+        "name": "Padre Fee Wallet 1",
+        "category": "automation",
+        "exchange": "Padre",
+        "description": "Padre fee collection wallet 1",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "padre", "fees"],
+    },
+
+    # Padre Fee Wallet 2
+    "DoAsxPQgiyAxyaJNvpAAUb2ups6rbJRdYrCPyWxwRxBb": {
+        "name": "Padre Fee Wallet 2",
+        "category": "automation",
+        "exchange": "Padre",
+        "description": "Padre fee collection wallet 2",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "padre", "fees"],
+    },
+
+    # Robinhood Hot Wallet 1
+    "EMXJqHznGSnSzeMyigBGQNEFw4EeaNDbj1UwaFTpp3sg": {
+        "name": "Robinhood Hot Wallet 1",
+        "category": "cex",
+        "exchange": "Robinhood",
+        "description": "Robinhood exchange hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "robinhood", "exchange"],
+    },
+
+    # FixedFloat Exchange
+    "5ndLnEYqSFiA5yUFHo6LVZ1eWc6Rhh11K5CfJNkoHEPs": {
+        "name": "FixedFloat Exchange",
+        "category": "cex",
+        "exchange": "FixedFloat",
+        "description": "FixedFloat exchange wallet for SOL swaps",
+        "risk_level": "neutral",
+        "tags": ["cex", "fixedfloat", "exchange"],
+    },
+
+    # Bybit Hot Wallet
+    "AC5RDfQFmDS1deWZos921JfqscXdByf8BKHs5ACWjtW2": {
+        "name": "Bybit Hot Wallet",
+        "category": "cex",
+        "exchange": "Bybit",
+        "description": "Bybit exchange hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "bybit", "exchange"],
+    },
+
+    # Crypto.com Hot Wallet 2
+    "AobVSwdW9BbpMdJvTqeCN4hPAmh4rHm7vwLnQ5ATSyrS": {
+        "name": "Crypto.com Hot Wallet 2",
+        "category": "cex",
+        "exchange": "Crypto.com",
+        "description": "Crypto.com exchange hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "cryptocom", "exchange"],
+    },
+
+    # Stake.com Hot Wallet
+    "G9X7F4JzLzbSGMCndiBdWNi5YzZZakmtkdwq7xS3Q3FE": {
+        "name": "Stake.com Hot Wallet",
+        "category": "cex",
+        "exchange": "Stake.com",
+        "description": "Stake.com exchange hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "stakecom", "exchange"],
+    },
+
+    # Robinhood Hot Wallet 2
+    "4xLpwxgYuPwPvtQjE94RLS4WZ4aD8NJYYKr2AJk99Qdg": {
+        "name": "Robinhood Hot Wallet 2",
+        "category": "cex",
+        "exchange": "Robinhood",
+        "description": "Robinhood exchange hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "robinhood", "exchange"],
+    },
+
+    # Revolut Hot Wallet
+    "Biw4eeaiYYYq6xSqEd7GzdwsrrndxA8mqdxfAtG3PTUU": {
+        "name": "Revolut Hot Wallet",
+        "category": "cex",
+        "exchange": "Revolut",
+        "description": "Revolut exchange hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "revolut", "exchange"],
+    },
+
+    # Robinhood Hot Wallet 3
+    "5HQZd9ovzAF1TLnHRAq1zcSnXC9HAp3EwhoxMHvo8rxB": {
+        "name": "Robinhood Hot Wallet 3",
+        "category": "cex",
+        "exchange": "Robinhood",
+        "description": "Robinhood exchange hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "robinhood", "exchange"],
+    },
+
     # Placeholder for future real addresses
     # TO ADD NEW CEX ADDRESSES - STRICT VERIFICATION REQUIRED:
     # 1. Must check Solscan.io directly for confirmed transaction history

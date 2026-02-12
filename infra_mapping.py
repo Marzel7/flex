@@ -1031,6 +1031,33 @@ SUSPICIOUS_WALLET_TYPES = {
         "risk_level": "high",
         "tags": ["suspicious", "active_trading", "trading"],
     },
+
+    "GLdaJ4YFRJ4cLuAQ1KbQfLmnfus33nKPsjMNgCxvNsBj": {
+        "name": "Active Trading",
+        "category": "suspicious",
+        "wallet_type": "active_trading",
+        "description": "Active trading wallet - suspicious funding pattern",
+        "risk_level": "high",
+        "tags": ["suspicious", "active_trading", "trading"],
+    },
+
+    "J8AJAD5VkTMA1ycAJkDhT44jyxnZLhJjPWyPb51gV68n": {
+        "name": "Active Trading",
+        "category": "suspicious",
+        "wallet_type": "active_trading",
+        "description": "Active trading wallet - suspicious funding pattern",
+        "risk_level": "high",
+        "tags": ["suspicious", "active_trading", "trading"],
+    },
+
+    "RZa9cGkpk71NJ2A2KP19mMMGxYABRhqMmsxYHip1aPm": {
+        "name": "Active Trading",
+        "category": "suspicious",
+        "wallet_type": "active_trading",
+        "description": "Active trading wallet - suspicious funding pattern",
+        "risk_level": "high",
+        "tags": ["suspicious", "active_trading", "trading"],
+    },
 }
 
 # Risk-based categories for infrastructure

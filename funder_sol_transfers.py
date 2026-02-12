@@ -539,9 +539,26 @@ def main():
 
         return
 
-    # Single funder mode
-    funder = args.address
-    analyze_funder(funder, args)
+    # Single address mode - check if it's a creator with funders
+    address = args.address
+
+    # Check if this address is a creator with funders in the database
+    funders = get_creator_funders(address)
+
+    if funders:
+        # It's a creator - analyze all their funders
+        print(f"[AUTO-DETECT] {address} is a creator with {len(funders)} funders in database")
+        print(f"[AUTO-DETECT] Analyzing top 10 funders...\n")
+
+        for idx, (funder_addr, amount_sol) in enumerate(funders[:10], 1):
+            print(f"\n{'='*100}")
+            print(f"FUNDER #{idx}: {funder_addr} ({amount_sol:.4f} SOL)")
+            print(f"{'='*100}\n")
+
+            analyze_funder(funder_addr, args, creator_address=address)
+    else:
+        # It's a single funder - analyze directly
+        analyze_funder(address, args)
 
 
 if __name__ == "__main__":

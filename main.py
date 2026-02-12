@@ -4821,7 +4821,7 @@ def api_multi_creator_funders():
     Shows all multi-creator funders with flags for infrastructure/CEX accounts.
     """
     try:
-        from infra_mapping import get_account_info, get_cex_info
+        from infra_mapping import get_account_info, get_cex_info, get_pumpfun_creator_info
 
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
@@ -4872,6 +4872,11 @@ def api_multi_creator_funders():
             if cex_info:
                 funder_data['is_cex_account'] = True
                 funder_data['account_info'] = cex_info
+
+            # Check if it's a PumpFun token creator (don't exclude from suspicious)
+            pumpfun_info = get_pumpfun_creator_info(funder_address)
+            if pumpfun_info and not funder_data['account_info']:
+                funder_data['account_info'] = pumpfun_info
 
             # Add to appropriate list
             multi_funders.append(funder_data)

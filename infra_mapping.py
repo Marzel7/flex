@@ -928,6 +928,61 @@ CEX_ACCOUNTS = {
     # 5. Verify address naming matches exchange branding
 }
 
+# PumpFun Token Creator accounts
+# IMPORTANT: These are NOT excluded from suspicious analysis
+# They are tracked for identification purposes only
+PUMPFUN_TOKEN_CREATORS = {
+    # PumpFun Token Creator
+    "CfumDPwfYn6m3W6fyzCMhsYkS2Uxpeu1npxZPUasV5nX": {
+        "name": "PumpFun Token Creator",
+        "category": "platform",
+        "platform": "PumpFun",
+        "description": "PumpFun token creator/launcher account",
+        "risk_level": "unknown",
+        "tags": ["pumpfun", "creator", "launcher"],
+    },
+
+    # PumpFun Token Creator
+    "GwpcTgEagp7gjmdVs4jumvaHhDzrr9QdYVVYvzb6AZT": {
+        "name": "PumpFun Token Creator",
+        "category": "platform",
+        "platform": "PumpFun",
+        "description": "PumpFun token creator/launcher account",
+        "risk_level": "unknown",
+        "tags": ["pumpfun", "creator", "launcher"],
+    },
+
+    # PumpFun Token Creator
+    "DuGezKLZp8UL2aQMHthoUibEC7WSbpNiKFJLTtK1QHjx": {
+        "name": "PumpFun Token Creator",
+        "category": "platform",
+        "platform": "PumpFun",
+        "description": "PumpFun token creator/launcher account",
+        "risk_level": "unknown",
+        "tags": ["pumpfun", "creator", "launcher"],
+    },
+
+    # PumpFun Token Creator
+    "CTSvhyNscqSA6NRHDycxR3dsgn3ErMJzgsXpQyDrCbDi": {
+        "name": "PumpFun Token Creator",
+        "category": "platform",
+        "platform": "PumpFun",
+        "description": "PumpFun token creator/launcher account",
+        "risk_level": "unknown",
+        "tags": ["pumpfun", "creator", "launcher"],
+    },
+
+    # PumpFun Token Creator
+    "Fsss6uvqNeapk2zrouXeb8VXYyVUxLR2Yke7VfKxVujB": {
+        "name": "PumpFun Token Creator",
+        "category": "platform",
+        "platform": "PumpFun",
+        "description": "PumpFun token creator/launcher account",
+        "risk_level": "unknown",
+        "tags": ["pumpfun", "creator", "launcher"],
+    },
+}
+
 # Risk-based categories for infrastructure
 INFRASTRUCTURE_RISK_MAPPING = {
     "automation": "neutral",      # Neutral infrastructure
@@ -952,6 +1007,14 @@ def get_account_info(address: str) -> Optional[Dict]:
 def get_cex_info(address: str) -> Optional[Dict]:
     """Get CEX info for an account (CEX only)"""
     return CEX_ACCOUNTS.get(address)
+
+def get_pumpfun_creator_info(address: str) -> Optional[Dict]:
+    """Get PumpFun token creator info (NOT excluded from suspicious analysis)"""
+    return PUMPFUN_TOKEN_CREATORS.get(address)
+
+def is_pumpfun_token_creator(address: str) -> bool:
+    """Check if account is a known PumpFun token creator"""
+    return address in PUMPFUN_TOKEN_CREATORS
 
 def is_infrastructure_account(address: str) -> bool:
     """Check if account is known infrastructure (not CEX)"""

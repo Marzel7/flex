@@ -408,6 +408,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "pump-fun", "launchpad"],
     },
 
+    # Pump.Fun Migration Account
+    "39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg": {
+        "name": "Pump.Fun Migration",
+        "category": "automation",
+        "description": "Pump.Fun token migration and transition account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "pump-fun", "migration"],
+    },
+
     # Solend (Lending Protocol)
     "So1endDq2YkqvzLvDtqKp2eiXodus4CMVqKwRQW4gS8": {
         "name": "Solend",
@@ -919,6 +928,16 @@ CEX_ACCOUNTS = {
         "tags": ["cex", "robinhood", "exchange"],
     },
 
+    # BingX - Verified
+    "J1BDJEdvTmmcjeTMVTHLPaaNvuQ3mdxeuWEM1YyMksLy": {
+        "name": "BingX",
+        "category": "cex",
+        "exchange": "BingX",
+        "description": "BingX exchange wallet (verified on-chain)",
+        "risk_level": "neutral",
+        "tags": ["cex", "bingx", "exchange"],
+    },
+
     # Placeholder for future real addresses
     # TO ADD NEW CEX ADDRESSES - STRICT VERIFICATION REQUIRED:
     # 1. Must check Solscan.io directly for confirmed transaction history
@@ -1051,6 +1070,15 @@ SUSPICIOUS_WALLET_TYPES = {
     },
 
     "RZa9cGkpk71NJ2A2KP19mMMGxYABRhqMmsxYHip1aPm": {
+        "name": "Active Trading",
+        "category": "suspicious",
+        "wallet_type": "active_trading",
+        "description": "Active trading wallet - suspicious funding pattern",
+        "risk_level": "high",
+        "tags": ["suspicious", "active_trading", "trading"],
+    },
+
+    "GaYwwwSjjFe5iuvKCZHn9E4ypL9QmC4foJLRUw28cuTr": {
         "name": "Active Trading",
         "category": "suspicious",
         "wallet_type": "active_trading",

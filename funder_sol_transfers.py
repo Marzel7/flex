@@ -277,7 +277,7 @@ def main():
         sorted_in = sorted(inflows, key=lambda r: r["deltaSOL"], reverse=True)
         for i, r in enumerate(sorted_in[:10], 1):
             time_str = f"  | {time.strftime('%Y-%m-%d', time.localtime(r['blockTime']))}" if r["blockTime"] else ""
-            print(f"[{i:2}] {r['deltaSOL']:>8.4f} SOL | {r['signature'][:16]}...{time_str}")
+            print(f"[{i:2}] {r['deltaSOL']:>8.4f} SOL | {r['signature']}{time_str}")
 
         if len(sorted_in) > 10:
             remaining = sum(r["deltaSOL"] for r in sorted_in[10:])
@@ -289,7 +289,7 @@ def main():
         sorted_out = sorted(outflows, key=lambda r: r["deltaSOL"], reverse=True)
         for i, r in enumerate(sorted_out[:10], 1):
             time_str = f"  | {time.strftime('%Y-%m-%d', time.localtime(r['blockTime']))}" if r["blockTime"] else ""
-            print(f"[{i:2}] {-r['deltaSOL']:>8.4f} SOL | {r['signature'][:16]}...{time_str}")
+            print(f"[{i:2}] {-r['deltaSOL']:>8.4f} SOL | {r['signature']}{time_str}")
 
         if len(sorted_out) > 10:
             remaining = sum(-r["deltaSOL"] for r in sorted_out[10:])

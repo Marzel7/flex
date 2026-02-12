@@ -2080,6 +2080,11 @@ HTML_TEMPLATE = """
                                 columnTags.push('<span class="creator-tag tag-blocked" title="On blocklist">BLOCKED</span>');
                             }
 
+                            // Funding checked tag
+                            if (token.funding_checked) {
+                                columnTags.push('<span class="creator-tag tag-funding-checked" title="Creator funding accounts have been analyzed" style="border-color: #4ade80; color: #4ade80; background-color: rgba(74, 222, 128, 0.15);">✓ Funding Checked</span>');
+                            }
+
                             // CEX/Infrastructure funders - add to Creator Tags column
                             let funderLabels = [];
                             if (creatorData.funders && creatorData.funders.length > 0) {

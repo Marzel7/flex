@@ -479,6 +479,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["infra", "automation", "magic-eden", "royalties"],
     },
+
+    # Hyperunit Hot Wallet (Funding Intermediary)
+    "9SLPTL41SPsYkgdsMzdfJsxymEANKr5bYoBsQzJyKpKS": {
+        "name": "Hyperunit Hot Wallet",
+        "category": "automation",
+        "description": "Hyperunit funding intermediary/distribution account",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "hyperunit", "wallet"],
+    },
 }
 
 # CEX account mappings (external exchanges - ONLY verified real addresses)

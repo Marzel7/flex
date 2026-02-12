@@ -1441,6 +1441,7 @@ HTML_TEMPLATE = """
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(139, 92, 246, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(76, 175, 80, 0.2); color: #4ade80; border: 1px solid rgba(76, 175, 80, 0.5);">▶️ Polling ON</button>
+                <button class="action-button" onclick="toggleFundingNetworkView()" title="View suspicious funding coordination networks" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); margin-left: 8px;">🚨 Funding Network</button>
                 <button class="action-button" onclick="toggleCEXView()" title="View CEX funders and activity" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.5); margin-left: 8px;">🏛️ CEX View</button>
                 <button class="action-button" onclick="showMultiCreatorFunders()" title="Analyze funders supporting multiple creators" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">🔗 Coordinated Funders</button>
                 <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">✅ Validate TX</button>
@@ -1453,6 +1454,64 @@ HTML_TEMPLATE = """
 
         <div id="tokens-container">
             <div class="loading">Loading migrated tokens...</div>
+        </div>
+
+        <!-- Funding Network View - CRITICAL COORDINATION DETECTION -->
+        <div id="funding-network-container" style="display: none;">
+            <div style="padding: 20px;">
+                <h2 style="color: #ef4444; margin-bottom: 20px;">🚨 Funding Network - Suspicious Coordination</h2>
+                <p style="color: #fca5a5; margin-bottom: 20px; font-size: 14px;">
+                    ⚠️ <strong>CRITICAL:</strong> These unknown addresses coordinate funding across multiple creators/funders.
+                    This pattern indicates organized malicious behavior or bot networks.
+                </p>
+
+                <!-- Coordinated Address Network -->
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #ff6b6b; margin-bottom: 15px;">Unknown Addresses Funding Multiple Creators</h3>
+                    <div id="fundingNetworkContainer" style="overflow-x: auto;">
+                        <table class="tokens-table" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>Address</th>
+                                    <th>Creators Funded</th>
+                                    <th>Total SOL</th>
+                                    <th>Linked Funders</th>
+                                    <th>Risk Level</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fundingNetworkBody">
+                                <tr><td colspan="5" style="text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Shared Counterparties Between Funders -->
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #ff6b6b; margin-bottom: 15px;">Shared Funding Sources (Hub Coordination)</h3>
+                    <div id="sharedCounterpartiesContainer" style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #ef4444;">
+                        <div id="sharedCounterpartiesBody" style="color: #fca5a5; font-family: monospace; font-size: 12px;">
+                            <div class="loading">Analyzing coordination patterns...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #ef4444;">
+                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Suspicious Networks</div>
+                        <div id="suspiciousNetworkCount" style="font-size: 24px; font-weight: bold; color: #ef4444;">0</div>
+                    </div>
+                    <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #ef4444;">
+                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Hub Addresses</div>
+                        <div id="hubAddressCount" style="font-size: 24px; font-weight: bold; color: #ef4444;">0</div>
+                    </div>
+                    <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #ef4444;">
+                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total SOL Tracked</div>
+                        <div id="totalSolTracked" style="font-size: 24px; font-weight: bold; color: #ef4444;">0 SOL</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- CEX Funders View -->
@@ -2564,6 +2623,78 @@ HTML_TEMPLATE = """
         }
 
         // Toggle between token table and CEX view
+        function toggleFundingNetworkView() {
+            const tokensContainer = document.getElementById('tokens-container');
+            const fundingNetworkContainer = document.getElementById('funding-network-container');
+
+            if (fundingNetworkContainer.style.display === 'none') {
+                // Switch to Funding Network view
+                tokensContainer.style.display = 'none';
+                fundingNetworkContainer.style.display = 'block';
+                loadFundingNetworkData();
+            } else {
+                // Switch back to token view
+                fundingNetworkContainer.style.display = 'none';
+                tokensContainer.style.display = 'block';
+            }
+        }
+
+        // Load and display suspicious funding network coordination
+        async function loadFundingNetworkData() {
+            try {
+                const response = await fetch('/api/funding-network');
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('fundingNetworkBody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ef4444;">Error: ' + data.error + '</td></tr>';
+                    return;
+                }
+
+                // Update statistics
+                document.getElementById('suspiciousNetworkCount').textContent = (data.networks || []).length;
+                document.getElementById('hubAddressCount').textContent = (data.hub_addresses || []).length;
+                document.getElementById('totalSolTracked').textContent = ((data.total_sol || 0).toFixed(2)) + ' SOL';
+
+                // Populate shared counterparties
+                let counterpartiesHTML = '';
+                if (data.shared_counterparties && data.shared_counterparties.length > 0) {
+                    counterpartiesHTML += '<div style="margin-bottom: 15px;"><strong style="color: #ff6b6b;">🔗 ' + data.shared_counterparties.length + ' Shared Funding Sources:</strong></div>';
+                    for (let addr of data.shared_counterparties.slice(0, 10)) {
+                        counterpartiesHTML += '<div style="margin: 8px 0; padding: 8px; background: rgba(239, 68, 68, 0.05); border-radius: 4px;">';
+                        counterpartiesHTML += '<span style="font-family: monospace; color: #fca5a5;">' + addr + '</span>';
+                        counterpartiesHTML += '</div>';
+                    }
+                    if (data.shared_counterparties.length > 10) {
+                        counterpartiesHTML += '<div style="color: #fca5a5; margin-top: 10px;">... and ' + (data.shared_counterparties.length - 10) + ' more</div>';
+                    }
+                } else {
+                    counterpartiesHTML += '<div style="color: #a0a0a0;">No shared funding sources detected yet. Analyze more funders to build network.</div>';
+                }
+                document.getElementById('sharedCounterpartiesBody').innerHTML = counterpartiesHTML;
+
+                // Populate network table
+                let html = '';
+                if (data.networks && data.networks.length > 0) {
+                    for (let network of data.networks) {
+                        html += '<tr style="border-bottom: 1px solid rgba(239, 68, 68, 0.2);">';
+                        html += '<td style="color: #fca5a5; font-family: monospace; font-size: 12px;">' + network.address.substring(0, 20) + '...</td>';
+                        html += '<td style="color: #ff6b6b;"><strong>' + network.creator_count + '</strong></td>';
+                        html += '<td style="color: #fca5a5;">' + (network.total_sol || 0).toFixed(2) + ' SOL</td>';
+                        html += '<td style="color: #fca5a5;">' + (network.linked_funders || 0) + '</td>';
+                        html += '<td><span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 4px 8px; border-radius: 4px; font-size: 12px;">🚨 HIGH</span></td>';
+                        html += '</tr>';
+                    }
+                } else {
+                    html += '<tr><td colspan="5" style="text-align: center; color: #a0a0a0; padding: 20px;">No suspicious coordination networks detected. Analyze more funders.</td></tr>';
+                }
+                document.getElementById('fundingNetworkBody').innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading funding network data:', error);
+                document.getElementById('fundingNetworkBody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ef4444;">Failed to load data</td></tr>';
+            }
+        }
+
         function toggleCEXView() {
             const tokensContainer = document.getElementById('tokens-container');
             const cexContainer = document.getElementById('cex-container');
@@ -4014,6 +4145,72 @@ def api_cex_funders():
             'cex_funded_creators': cex_funded_creators,
             'total_cex_funders': len(top_cex_funders),
             'total_cex_funded_creators': len(cex_funded_creators)
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# --- Funding Network / Coordination Detection Endpoints ---
+
+@app.route('/api/funding-network')
+def api_funding_network():
+    """Get suspicious funding coordination networks"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Find shared inflow senders between analyzed funders (coordination hubs)
+        cursor.execute("""
+            SELECT sender_address, COUNT(DISTINCT funder_address) as funder_count,
+                   COUNT(*) as transaction_count, SUM(amount_sol) as total_sol
+            FROM funder_incoming_transfers
+            GROUP BY sender_address
+            HAVING funder_count >= 2
+            ORDER BY funder_count DESC, total_sol DESC
+            LIMIT 20
+        """)
+        shared_counterparties = [dict(row) for row in cursor.fetchall()]
+
+        # Get funder analysis statistics
+        cursor.execute("""
+            SELECT COUNT(DISTINCT funder_address) as analyzed_funders,
+                   COUNT(DISTINCT creator_address) as creators_with_funders,
+                   SUM(total_inflows) as total_inflows,
+                   SUM(total_outflows) as total_outflows
+            FROM creator_funders
+            WHERE last_analyzed IS NOT NULL
+        """)
+        stats_row = cursor.fetchone()
+        stats = dict(stats_row) if stats_row else {}
+
+        # Build networks from shared counterparties
+        networks = []
+        hub_addresses = set()
+
+        for counterparty in shared_counterparties:
+            if counterparty['funder_count'] >= 2:
+                networks.append({
+                    'address': counterparty['sender_address'],
+                    'creator_count': counterparty['funder_count'],
+                    'total_sol': counterparty['total_sol'],
+                    'transactions': counterparty['transaction_count'],
+                    'linked_funders': counterparty['funder_count']
+                })
+                if counterparty['funder_count'] >= 3:
+                    hub_addresses.add(counterparty['sender_address'])
+
+        conn.close()
+
+        return jsonify({
+            'networks': networks,
+            'shared_counterparties': [c['sender_address'] for c in shared_counterparties],
+            'hub_addresses': list(hub_addresses),
+            'total_sol': stats.get('total_inflows', 0) or 0,
+            'analyzed_funders': stats.get('analyzed_funders', 0),
+            'creators_with_funders': stats.get('creators_with_funders', 0)
         })
 
     except Exception as e:

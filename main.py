@@ -38,7 +38,7 @@ def get_migrated_tokens() -> List[Dict]:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
-        # Query post-migration analysis data
+        # Query post-migration analysis data - LIMIT to 25 most recent tokens for UI display
         cursor.execute("""
             SELECT
                 mint,
@@ -60,6 +60,7 @@ def get_migrated_tokens() -> List[Dict]:
                 connected_malicious_count
             FROM token_analysis
             ORDER BY analyzed_at DESC
+            LIMIT 25
         """)
 
         tokens = []
@@ -103,6 +104,7 @@ def get_migrated_tokens() -> List[Dict]:
 
             # Get top funder for creator (to show CEX funding info)
             top_funder = None
+            funding_checked = False
             if row['earliest_tx_creator']:
                 cursor.execute("""
                     SELECT funder_address, cex_exchange, cex_type, amount_sol, is_cex
@@ -117,14 +119,14 @@ def get_migrated_tokens() -> List[Dict]:
                     is_cex = bool(funder_row[4])
                     cex_exchange = funder_row[1]
                     cex_type = funder_row[2]
-                    
+
                     # Check if funder is in live CEX_ACCOUNTS mapping
                     if not is_cex and funder_addr in CEX_ACCOUNTS:
                         is_cex = True
                         cex_info = CEX_ACCOUNTS[funder_addr]
                         cex_exchange = cex_info.get('exchange', cex_info.get('name', 'CEX'))
                         cex_type = cex_info.get('category', 'Wallet')
-                    
+
                     top_funder = {
                         'address': funder_addr,
                         'cex_exchange': cex_exchange,
@@ -132,6 +134,14 @@ def get_migrated_tokens() -> List[Dict]:
                         'amount_sol': funder_row[3],
                         'is_cex': is_cex
                     }
+
+                # Check if funding has been analyzed (has last_analyzed timestamps)
+                cursor.execute("""
+                    SELECT COUNT(*) as analyzed_count FROM creator_funders
+                    WHERE creator_address = ? AND last_analyzed IS NOT NULL
+                """, (row['earliest_tx_creator'],))
+                analyzed_result = cursor.fetchone()
+                funding_checked = analyzed_result[0] > 0 if analyzed_result else False
 
             tokens.append({
                 'mint': row['mint'],
@@ -153,7 +163,8 @@ def get_migrated_tokens() -> List[Dict]:
                 'network_risk': bool(row['network_risk']) if row['network_risk'] else False,
                 'connected_malicious_count': row['connected_malicious_count'] if row['connected_malicious_count'] else 0,
                 'creator_infra_tags': creator_infra_tags,
-                'top_funder': top_funder
+                'top_funder': top_funder,
+                'funding_checked': funding_checked
             })
 
         conn.close()

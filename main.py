@@ -1763,6 +1763,7 @@ HTML_TEMPLATE = """
                     <thead>
                         <tr>
                             <th>Funder Address</th>
+                            <th>Funder Name</th>
                             <th>Creators Funded</th>
                             <th>Total SOL</th>
                             <th>Funding Records</th>
@@ -3355,6 +3356,12 @@ HTML_TEMPLATE = """
                             const endDate = new Date(funder.last_funding_at).toLocaleDateString();
                             const period = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
 
+                            // Get funder label - check if account_info has a name
+                            let funderLabel = 'Unknown Funder';
+                            if (funder.account_info && funder.account_info.name) {
+                                funderLabel = funder.account_info.name;
+                            }
+
                             return `
                                 <tr>
                                     <td style="font-family: monospace; font-size: 12px; color: #ef4444;">
@@ -3362,6 +3369,7 @@ HTML_TEMPLATE = """
                                             ${funder.funder_address}
                                         </a>
                                     </td>
+                                    <td style="color: #fbbf24; font-weight: 600;">${funderLabel}</td>
                                     <td><strong style="color: #ef4444;">${funder.creator_count}</strong></td>
                                     <td>${funder.total_sol_sent.toFixed(2)} SOL</td>
                                     <td>${funder.funding_record_count}</td>

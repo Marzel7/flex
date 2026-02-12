@@ -15,11 +15,11 @@ import math
 import random
 import sqlite3
 import sys
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 import requests
 
 sys.path.insert(0, '/Users/kevinkeaveney/Dev/claude/flex')
-from infra_mapping import get_cex_info, get_account_info
+from infra_mapping import get_cex_info, get_account_info, get_pumpfun_creator_info, get_suspicious_wallet_info
 
 RPC_URL = "https://api.mainnet-beta.solana.com"
 LAMPORTS_PER_SOL = 1_000_000_000
@@ -224,17 +224,25 @@ def get_creator_funders(creator_address: str) -> list:
         return []
 
 
-def classify_address(address: str) -> str:
-    """Classify address type"""
+def classify_address(address: str) -> Tuple[str, str]:
+    """Classify address type and return (label, classification)"""
     cex_info = get_cex_info(address)
     if cex_info:
-        return f"✅ CEX: {cex_info.get('name')}"
+        return (f"✅ CEX: {cex_info.get('name')}", "cex")
 
     infra_info = get_account_info(address)
     if infra_info:
-        return f"✅ INFRA: {infra_info.get('name')}"
+        return (f"✅ INFRA: {infra_info.get('name')}", "infra")
 
-    return "❓ UNKNOWN"
+    pumpfun_info = get_pumpfun_creator_info(address)
+    if pumpfun_info:
+        return (f"🎯 PUMPFUN: {pumpfun_info.get('name')}", "pumpfun")
+
+    suspicious_info = get_suspicious_wallet_info(address)
+    if suspicious_info:
+        return (f"⚠️ SUSPICIOUS: {suspicious_info.get('name')}", "suspicious")
+
+    return ("❓ UNKNOWN", "unknown")
 
 
 def main():
@@ -254,7 +262,7 @@ def main():
     print(f"[FUNDER] {funder}\n")
 
     # Classify funder
-    funder_type = classify_address(funder)
+    funder_type, _ = classify_address(funder)
     print(f"Type: {funder_type}\n")
 
     # Get all SOL movements
@@ -288,8 +296,10 @@ def main():
         sorted_in = sorted(inflows, key=lambda r: r["deltaSOL"], reverse=True)
         for i, r in enumerate(sorted_in[:10], 1):
             counterparty = r.get("counterparty", "Unknown")
+            classification, _ = classify_address(counterparty) if counterparty != "Unknown" else ("❓ UNKNOWN", "unknown")
             time_str = f"  | {time.strftime('%Y-%m-%d', time.localtime(r['blockTime']))}" if r["blockTime"] else ""
-            print(f"[{i:2}] {r['deltaSOL']:>8.4f} SOL ← {counterparty}{time_str}")
+            print(f"[{i:2}] {r['deltaSOL']:>8.4f} SOL ← {counterparty}")
+            print(f"      {classification}{time_str}")
 
         if len(sorted_in) > 10:
             remaining = sum(r["deltaSOL"] for r in sorted_in[10:])
@@ -301,8 +311,10 @@ def main():
         sorted_out = sorted(outflows, key=lambda r: r["deltaSOL"], reverse=True)
         for i, r in enumerate(sorted_out[:10], 1):
             counterparty = r.get("counterparty", "Unknown")
+            classification, _ = classify_address(counterparty) if counterparty != "Unknown" else ("❓ UNKNOWN", "unknown")
             time_str = f"  | {time.strftime('%Y-%m-%d', time.localtime(r['blockTime']))}" if r["blockTime"] else ""
-            print(f"[{i:2}] {-r['deltaSOL']:>8.4f} SOL → {counterparty}{time_str}")
+            print(f"[{i:2}] {-r['deltaSOL']:>8.4f} SOL → {counterparty}")
+            print(f"      {classification}{time_str}")
 
         if len(sorted_out) > 10:
             remaining = sum(-r["deltaSOL"] for r in sorted_out[10:])

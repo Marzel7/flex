@@ -3357,7 +3357,7 @@ HTML_TEMPLATE = """
                             const period = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
 
                             // Get funder label - check if account_info has a name
-                            let funderLabel = 'Unknown Funder';
+                            let funderLabel = '';
                             if (funder.account_info && funder.account_info.name) {
                                 funderLabel = funder.account_info.name;
                             }

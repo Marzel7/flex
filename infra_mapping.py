@@ -983,6 +983,56 @@ PUMPFUN_TOKEN_CREATORS = {
     },
 }
 
+# Suspicious wallet types (NOT excluded from suspicious analysis)
+SUSPICIOUS_WALLET_TYPES = {
+    # Unknown Ops Wallets
+    "8mowmVCEewZ9W2cEaQyQeQEeSxhGr1hvRviLwozwNtBt": {
+        "name": "Unknown Ops",
+        "category": "suspicious",
+        "wallet_type": "unknown_ops",
+        "description": "Unknown operations wallet - suspicious funding pattern",
+        "risk_level": "high",
+        "tags": ["suspicious", "unknown_ops", "operations"],
+    },
+
+    "76iXe9yKFDjGv3HicUVVy8AYxHLC71L1wYa12zaZzHHp": {
+        "name": "Unknown Ops",
+        "category": "suspicious",
+        "wallet_type": "unknown_ops",
+        "description": "Unknown operations wallet - suspicious funding pattern",
+        "risk_level": "high",
+        "tags": ["suspicious", "unknown_ops", "operations"],
+    },
+
+    "8d9FNC7AgKLTCPKNd3MMkLLXZYLmiYFYR3vfXMBNJVNx": {
+        "name": "Unknown Ops",
+        "category": "suspicious",
+        "wallet_type": "unknown_ops",
+        "description": "Unknown operations wallet - suspicious funding pattern",
+        "risk_level": "high",
+        "tags": ["suspicious", "unknown_ops", "operations"],
+    },
+
+    # Active Trading Wallets
+    "AaZkwhkiDStDcgrU37XAj9fpNLrD8Erz5PNkdm4k5hjy": {
+        "name": "Active Trading",
+        "category": "suspicious",
+        "wallet_type": "active_trading",
+        "description": "Active trading wallet - suspicious funding pattern",
+        "risk_level": "high",
+        "tags": ["suspicious", "active_trading", "trading"],
+    },
+
+    "69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk": {
+        "name": "Active Trading",
+        "category": "suspicious",
+        "wallet_type": "active_trading",
+        "description": "Active trading wallet - suspicious funding pattern",
+        "risk_level": "high",
+        "tags": ["suspicious", "active_trading", "trading"],
+    },
+}
+
 # Risk-based categories for infrastructure
 INFRASTRUCTURE_RISK_MAPPING = {
     "automation": "neutral",      # Neutral infrastructure
@@ -1015,6 +1065,14 @@ def get_pumpfun_creator_info(address: str) -> Optional[Dict]:
 def is_pumpfun_token_creator(address: str) -> bool:
     """Check if account is a known PumpFun token creator"""
     return address in PUMPFUN_TOKEN_CREATORS
+
+def get_suspicious_wallet_info(address: str) -> Optional[Dict]:
+    """Get suspicious wallet type info (NOT excluded from suspicious analysis)"""
+    return SUSPICIOUS_WALLET_TYPES.get(address)
+
+def is_suspicious_wallet_type(address: str) -> bool:
+    """Check if account is a known suspicious wallet type"""
+    return address in SUSPICIOUS_WALLET_TYPES
 
 def is_infrastructure_account(address: str) -> bool:
     """Check if account is known infrastructure (not CEX)"""

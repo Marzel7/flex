@@ -84,6 +84,11 @@ def main():
         default=20,
         help="Limit funders to analyze (default 20)",
     )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="Analyze ALL funders (overrides --limit)",
+    )
     args = parser.parse_args()
 
     creator = args.creator
@@ -98,12 +103,18 @@ def main():
         return
 
     print(f"[DB] ✅ Found {len(funders)} total funders\n")
-    print(f"[ANALYSIS] Top {min(args.limit, len(funders))} funders by amount:\n")
+
+    # Determine how many funders to analyze
+    analyze_count = len(funders) if args.all else min(args.limit, len(funders))
+    if args.all:
+        print(f"[ANALYSIS] Analyzing ALL {len(funders)} funders:\n")
+    else:
+        print(f"[ANALYSIS] Top {analyze_count} funders by amount:\n")
 
     repeat_funder_count = 0
     total_other_creators_funded = 0
 
-    for i, (funder_address, amount_to_creator) in enumerate(funders[: args.limit], 1):
+    for i, (funder_address, amount_to_creator) in enumerate(funders[:analyze_count], 1):
         # Get all creators this funder supports
         all_creators = get_funder_activities(funder_address)
 
@@ -173,13 +184,17 @@ def main():
     print(f"\n{'='*80}")
     print(f"SUMMARY")
     print(f"{'='*80}")
-    print(f"Total funders analyzed: {min(args.limit, len(funders))}")
+    print(f"Total funders analyzed: {analyze_count} / {len(funders)}")
     print(f"Repeat funders (fund 2+ creators): {repeat_funder_count}")
     print(f"Other creators funded by these repeats: {total_other_creators_funded}")
 
     if repeat_funder_count > 0:
-        print(f"\n⚠️  NETWORK DETECTED: {repeat_funder_count} funders are part of larger network!")
+        percentage = (repeat_funder_count / analyze_count) * 100
+        print(f"\n🔗 NETWORK DETECTED: {repeat_funder_count} funders ({percentage:.1f}%) are part of larger network!")
         print(f"    This indicates coordinated funding or operational wallets.")
+
+    if args.all:
+        print(f"\n✅ Analysis complete: ALL {len(funders)} funders analyzed")
 
 
 if __name__ == "__main__":

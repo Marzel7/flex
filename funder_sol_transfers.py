@@ -95,8 +95,8 @@ def get_tx(signature: str, session: requests.Session):
     return result, err
 
 
-def compute_sol_delta_for_address(tx: Dict[str, Any], address: str) -> Optional[Tuple[float, float]]:
-    """Compute (delta_sol, fee_sol) for address in transaction"""
+def compute_sol_delta_for_address(tx: Dict[str, Any], address: str) -> Optional[Tuple[float, float, Optional[str]]]:
+    """Compute (delta_sol, fee_sol, counterparty) for address in transaction"""
     meta = tx.get("meta")
     trx = tx.get("transaction")
     if not meta or not trx:
@@ -130,7 +130,17 @@ def compute_sol_delta_for_address(tx: Dict[str, Any], address: str) -> Optional[
     fee_lamports = meta.get("fee", 0)
     fee_sol = fee_lamports / LAMPORTS_PER_SOL
 
-    return delta_sol, fee_sol
+    # Find counterparty (other account with balance change)
+    counterparty = None
+    max_other_delta = 0
+    for idx, key in enumerate(keys):
+        if idx != i and idx < len(pre) and idx < len(post):
+            other_delta = abs(post[idx] - pre[idx])
+            if other_delta > max_other_delta and other_delta > 0:
+                max_other_delta = other_delta
+                counterparty = key
+
+    return delta_sol, fee_sol, counterparty
 
 
 def fetch_all_sol_in_out(address: str, rps_delay: float = 0.15, max_txs: Optional[int] = None):
@@ -159,7 +169,7 @@ def fetch_all_sol_in_out(address: str, rps_delay: float = 0.15, max_txs: Optiona
                 if delta is None:
                     continue
 
-                delta_sol, fee_sol = delta
+                delta_sol, fee_sol, counterparty = delta
                 if math.isclose(delta_sol, 0.0, abs_tol=1e-12):
                     continue
 
@@ -172,6 +182,7 @@ def fetch_all_sol_in_out(address: str, rps_delay: float = 0.15, max_txs: Optiona
                     "deltaSOL": delta_sol,
                     "feeSOL": fee_sol,
                     "direction": direction,
+                    "counterparty": counterparty,
                 })
 
                 seen += 1
@@ -273,11 +284,12 @@ def main():
 
     # Show inflows
     if inflows:
-        print(f"\n📥 TOP INFLOWS (Received):\n")
+        print(f"\n📥 TOP INFLOWS (From):\n")
         sorted_in = sorted(inflows, key=lambda r: r["deltaSOL"], reverse=True)
         for i, r in enumerate(sorted_in[:10], 1):
+            counterparty = r.get("counterparty", "Unknown")
             time_str = f"  | {time.strftime('%Y-%m-%d', time.localtime(r['blockTime']))}" if r["blockTime"] else ""
-            print(f"[{i:2}] {r['deltaSOL']:>8.4f} SOL | {r['signature']}{time_str}")
+            print(f"[{i:2}] {r['deltaSOL']:>8.4f} SOL ← {counterparty}{time_str}")
 
         if len(sorted_in) > 10:
             remaining = sum(r["deltaSOL"] for r in sorted_in[10:])
@@ -285,11 +297,12 @@ def main():
 
     # Show outflows
     if outflows:
-        print(f"\n📤 TOP OUTFLOWS (Sent):\n")
+        print(f"\n📤 TOP OUTFLOWS (To):\n")
         sorted_out = sorted(outflows, key=lambda r: r["deltaSOL"], reverse=True)
         for i, r in enumerate(sorted_out[:10], 1):
+            counterparty = r.get("counterparty", "Unknown")
             time_str = f"  | {time.strftime('%Y-%m-%d', time.localtime(r['blockTime']))}" if r["blockTime"] else ""
-            print(f"[{i:2}] {-r['deltaSOL']:>8.4f} SOL | {r['signature']}{time_str}")
+            print(f"[{i:2}] {-r['deltaSOL']:>8.4f} SOL → {counterparty}{time_str}")
 
         if len(sorted_out) > 10:
             remaining = sum(-r["deltaSOL"] for r in sorted_out[10:])

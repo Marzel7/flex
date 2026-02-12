@@ -16,6 +16,10 @@ import asyncio
 import aiohttp
 from typing import Dict, List, Optional, Tuple
 import json
+import sys
+sys.path.insert(0, '/Users/kevinkeaveney/Dev/claude/flex')
+
+from infra_mapping import get_account_info, get_cex_info, get_pumpfun_creator_info, get_suspicious_wallet_info
 
 DB_PATH = "pumpswap_tokens.db"
 SOLANA_RPC = "https://api.mainnet-beta.solana.com"
@@ -314,7 +318,26 @@ async def main():
     funder_results = {}
     try:
         for i, (funder_address, db_amount) in enumerate(funders[:20], 1):  # Limit to first 20
-            print(f"\n[{i}/{min(20, len(funders))}] Funder: {funder_address[:12]}... ({db_amount:.2f} SOL to this creator)")
+            # Check for known accounts
+            account_type = ""
+            cex_info = get_cex_info(funder_address)
+            if cex_info:
+                account_type = f"✅ CEX: {cex_info.get('name', 'CEX')}"
+            else:
+                infra_info = get_account_info(funder_address)
+                if infra_info:
+                    account_type = f"✅ INFRA: {infra_info.get('name', 'Infra')}"
+                else:
+                    pumpfun_info = get_pumpfun_creator_info(funder_address)
+                    if pumpfun_info:
+                        account_type = f"🎯 PUMPFUN: {pumpfun_info.get('name', 'Creator')}"
+                    else:
+                        suspicious_info = get_suspicious_wallet_info(funder_address)
+                        if suspicious_info:
+                            account_type = f"⚠️  SUSPICIOUS: {suspicious_info.get('name', 'Suspicious')}"
+
+            type_str = f" [{account_type}]" if account_type else ""
+            print(f"\n[{i}/{min(20, len(funders))}] Funder: {funder_address[:12]}... ({db_amount:.2f} SOL to this creator){type_str}")
 
             # Analyze funder's SOL transfers
             result = await analyzer.analyze_funder(funder_address, limit_transactions=args.limit)

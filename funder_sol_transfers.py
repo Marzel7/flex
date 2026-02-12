@@ -29,7 +29,7 @@ from infra_mapping import (
     get_suspicious_wallet_info,
 )
 
-RPC_URL = "https://mainnet.helius-rpc.com/?api-key=3b2917b8-9bed-4e2e-8c05-a74adbc34bb8"
+RPC_URL = "https://api.mainnet-beta.solana.com"
 LAMPORTS_PER_SOL = 1_000_000_000
 DB_PATH = "pumpswap_tokens.db"
 

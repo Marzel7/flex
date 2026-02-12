@@ -4162,17 +4162,30 @@ def api_funding_network():
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
 
-        # Find shared inflow senders between analyzed funders (coordination hubs)
+        # REAL coordination indicator: Same sender funding multiple different creators
+        # This query finds senders that appear in funder_incoming_transfers AND 
+        # those funders in turn funded multiple creators
         cursor.execute("""
-            SELECT sender_address, COUNT(DISTINCT funder_address) as funder_count,
-                   COUNT(*) as transaction_count, SUM(amount_sol) as total_sol
-            FROM funder_incoming_transfers
+            SELECT sender_address,
+                   COUNT(DISTINCT creator_address) as creator_count,
+                   COUNT(DISTINCT funder_address) as funder_count,
+                   COUNT(*) as transaction_count,
+                   SUM(amount_sol) as total_sol
+            FROM (
+                SELECT fit.sender_address,
+                       cf.creator_address,
+                       fit.funder_address,
+                       fit.amount_sol
+                FROM funder_incoming_transfers fit
+                JOIN creator_funders cf ON fit.funder_address = cf.funder_address
+                GROUP BY fit.sender_address, cf.creator_address, fit.funder_address
+            )
             GROUP BY sender_address
-            HAVING funder_count >= 2
-            ORDER BY funder_count DESC, total_sol DESC
-            LIMIT 20
+            HAVING creator_count >= 2
+            ORDER BY creator_count DESC, funder_count DESC
         """)
-        shared_counterparties = [dict(row) for row in cursor.fetchall()]
+        
+        true_coordinators = [dict(row) for row in cursor.fetchall()]
 
         # Get funder analysis statistics
         cursor.execute("""
@@ -4186,31 +4199,34 @@ def api_funding_network():
         stats_row = cursor.fetchone()
         stats = dict(stats_row) if stats_row else {}
 
-        # Build networks from shared counterparties
+        # Build networks - only true coordinators
         networks = []
         hub_addresses = set()
 
-        for counterparty in shared_counterparties:
-            if counterparty['funder_count'] >= 2:
-                networks.append({
-                    'address': counterparty['sender_address'],
-                    'creator_count': counterparty['funder_count'],
-                    'total_sol': counterparty['total_sol'],
-                    'transactions': counterparty['transaction_count'],
-                    'linked_funders': counterparty['funder_count']
-                })
-                if counterparty['funder_count'] >= 3:
-                    hub_addresses.add(counterparty['sender_address'])
+        for coordinator in true_coordinators:
+            networks.append({
+                'address': coordinator['sender_address'],
+                'creator_count': coordinator['creator_count'],
+                'total_sol': coordinator['total_sol'] or 0,
+                'transactions': coordinator['transaction_count'],
+                'funder_count': coordinator['funder_count'],
+                'risk_type': 'multi_creator' if coordinator['creator_count'] >= 3 else 'dual_creator'
+            })
+            
+            # Hub = coordinates 3+ creators
+            if coordinator['creator_count'] >= 3:
+                hub_addresses.add(coordinator['sender_address'])
 
         conn.close()
 
         return jsonify({
             'networks': networks,
-            'shared_counterparties': [c['sender_address'] for c in shared_counterparties],
             'hub_addresses': list(hub_addresses),
             'total_sol': stats.get('total_inflows', 0) or 0,
             'analyzed_funders': stats.get('analyzed_funders', 0),
-            'creators_with_funders': stats.get('creators_with_funders', 0)
+            'creators_with_funders': stats.get('creators_with_funders', 0),
+            'coordination_found': len(true_coordinators) > 0,
+            'suspicious_coordinator_count': len(networks)
         })
 
     except Exception as e:

@@ -889,6 +889,36 @@ CEX_ACCOUNTS = {
         "tags": ["cex", "robinhood", "exchange"],
     },
 
+    # Robinhood Hot Wallet 4
+    "DwdrYTtTWHfnfJBiN2RH6EgPbquDQLjZTfTwpykPEq1g": {
+        "name": "Robinhood Hot Wallet 4",
+        "category": "cex",
+        "exchange": "Robinhood",
+        "description": "Robinhood exchange hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "robinhood", "exchange"],
+    },
+
+    # Robinhood Hot Wallet 5
+    "HjuvLWkeoRVuiDCVjZeWrj3cYzG2KV9CExqEJqJQJqJA": {
+        "name": "Robinhood Hot Wallet 5",
+        "category": "cex",
+        "exchange": "Robinhood",
+        "description": "Robinhood exchange hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "robinhood", "exchange"],
+    },
+
+    # Robinhood Hot Wallet 6
+    "GrwuVxpLsTPcvASi3HGLtwsQpzYCyxQgu4DQ9tpmVAW8": {
+        "name": "Robinhood Hot Wallet 6",
+        "category": "cex",
+        "exchange": "Robinhood",
+        "description": "Robinhood exchange hot wallet for SOL",
+        "risk_level": "neutral",
+        "tags": ["cex", "robinhood", "exchange"],
+    },
+
     # Placeholder for future real addresses
     # TO ADD NEW CEX ADDRESSES - STRICT VERIFICATION REQUIRED:
     # 1. Must check Solscan.io directly for confirmed transaction history

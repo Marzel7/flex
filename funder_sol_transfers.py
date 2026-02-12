@@ -19,6 +19,7 @@ import random
 import sqlite3
 import sys
 from typing import Any, Dict, List, Optional, Tuple, Union
+from datetime import datetime
 import requests
 
 sys.path.insert(0, "/Users/kevinkeaveney/Dev/claude/flex")
@@ -35,8 +36,8 @@ DB_PATH = "pumpswap_tokens.db"
 
 # Defaults for speed + spam filtering
 DEFAULT_SINCE_DAYS = 30
-DEFAULT_SIG_LIMIT = 100  # RPC-friendly batch size (Helius handles 100 well)
-DEFAULT_MIN_ABS_SOL = 0.001  # dust threshold (tune: 0.001–0.01)
+DEFAULT_SIG_LIMIT = 1000  # RPC-friendly batch size (Helius handles 100 well)
+DEFAULT_MIN_ABS_SOL = 0.01  # dust threshold (tune: 0.001–0.01)
 DEFAULT_INCLUDE_PROGRAM_SOL = True  # keep non-system-program SOL movements if above dust
 
 
@@ -357,58 +358,19 @@ def get_creator_funders(creator_address: str) -> list:
         return []
 
 
-def classify_address(address: str) -> Tuple[str, str]:
-    """Classify address type and return (label, classification)."""
-    cex_info = get_cex_info(address)
-    if cex_info:
-        return (f"✅ CEX: {cex_info.get('name')}", "cex")
-
-    infra_info = get_account_info(address)
-    if infra_info:
-        return (f"✅ INFRA: {infra_info.get('name')}", "infra")
-
-    pumpfun_info = get_pumpfun_creator_info(address)
-    if pumpfun_info:
-        return (f"🎯 PUMPFUN: {pumpfun_info.get('name')}", "pumpfun")
-
-    suspicious_info = get_suspicious_wallet_info(address)
-    if suspicious_info:
-        return (f"⚠️ SUSPICIOUS: {suspicious_info.get('name')}", "suspicious")
-
-    return ("❓ UNKNOWN", "unknown")
-
-
-def main():
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Get SOL IN/OUT history for an address using free RPC (fast + last 30d + spam filtering)"
-    )
-    parser.add_argument("funder", type=str, help="Funder address to analyze")
-    parser.add_argument("--delay", type=float, default=0.15, help="Delay between getTransaction calls (default 0.15s)")
-    parser.add_argument("--max-txs", type=int, default=None, help="Max kept transactions (default: all kept)")
-    parser.add_argument("--since-days", type=int, default=30, help="Only scan last N days (default 30)")
-    parser.add_argument("--min-sol", type=float, default=DEFAULT_MIN_ABS_SOL, help="Dust filter threshold in SOL (default 0.001)")
-    parser.add_argument(
-        "--only-system-transfers",
-        action="store_true",
-        help="Only keep explicit System Program transfers involving the address",
-    )
-    args = parser.parse_args()
-
-    funder = args.funder
-
+def analyze_funder(funder_address: str, args, creator_address: str = None) -> Dict:
+    """Analyze a single funder's SOL in/out history and optionally save to DB."""
     print(f"[ANALYSIS] Funder SOL IN/OUT History")
-    print(f"[FUNDER] {funder}\n")
+    print(f"[FUNDER] {funder_address}\n")
 
-    funder_type, _ = classify_address(funder)
+    funder_type, _ = classify_address(funder_address)
     print(f"Type: {funder_type}\n")
 
     include_program_sol = not args.only_system_transfers
 
     print("[RPC] Fetching transaction history (paginated, cutoff + spam filters)...")
     rows = fetch_all_sol_in_out(
-        funder,
+        funder_address,
         rps_delay=args.delay,
         max_txs=args.max_txs,
         since_days=args.since_days,
@@ -419,12 +381,12 @@ def main():
 
     if not rows:
         print("[RPC] ℹ️  No (non-spam) SOL movements detected for this address in the selected window.")
-        return
+        return {}
 
     inflows = [r for r in rows if r["direction"] == "IN"]
     outflows = [r for r in rows if r["direction"] == "OUT"]
 
-    # Use deltaExclFeeSOL for “actual movement” direction/magnitude
+    # Use deltaExclFeeSOL for "actual movement" direction/magnitude
     total_in = sum(r["deltaExclFeeSOL"] for r in inflows)
     total_out = sum(-r["deltaExclFeeSOL"] for r in outflows)
     total_fees = sum(r["feeSOL"] for r in rows)
@@ -474,6 +436,108 @@ def main():
             sys_flag = " (system)" if r.get("hasSystemTransfer") else ""
             print(f"[{i:3}] {-r['deltaExclFeeSOL']:>8.4f} SOL → {counterparty}{sys_flag}")
             print(f"       {classification}{time_str}")
+
+    # If creator address provided, save funding info to DB
+    if creator_address:
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=5)
+            cursor = conn.cursor()
+
+            # Update or insert funder funding summary in creator_funders table
+            cursor.execute("""
+                UPDATE creator_funders
+                SET total_inflows = ?, total_outflows = ?, net_change = ?, last_analyzed = ?
+                WHERE creator_address = ? AND funder_address = ?
+            """, (total_in, total_out, total_in - total_out, datetime.now().isoformat(), creator_address, funder_address))
+
+            if cursor.rowcount == 0:
+                # If no update, insert new record
+                cursor.execute("""
+                    INSERT INTO creator_funders (creator_address, funder_address, amount_sol, total_inflows, total_outflows, net_change, first_detected_at, last_analyzed)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """, (creator_address, funder_address, 0, total_in, total_out, total_in - total_out, datetime.now().isoformat(), datetime.now().isoformat()))
+
+            conn.commit()
+            conn.close()
+            print(f"\n[DB] ✓ Updated funding info for {funder_address}")
+        except Exception as e:
+            print(f"\n[DB] Error saving funding info: {e}")
+
+    return {
+        "funder": funder_address,
+        "total_in": total_in,
+        "total_out": total_out,
+        "net": total_in - total_out,
+        "inflow_count": len(inflows),
+        "outflow_count": len(outflows),
+    }
+
+
+def classify_address(address: str) -> Tuple[str, str]:
+    """Classify address type and return (label, classification)."""
+    cex_info = get_cex_info(address)
+    if cex_info:
+        return (f"✅ CEX: {cex_info.get('name')}", "cex")
+
+    infra_info = get_account_info(address)
+    if infra_info:
+        return (f"✅ INFRA: {infra_info.get('name')}", "infra")
+
+    pumpfun_info = get_pumpfun_creator_info(address)
+    if pumpfun_info:
+        return (f"🎯 PUMPFUN: {pumpfun_info.get('name')}", "pumpfun")
+
+    suspicious_info = get_suspicious_wallet_info(address)
+    if suspicious_info:
+        return (f"⚠️ SUSPICIOUS: {suspicious_info.get('name')}", "suspicious")
+
+    return ("❓ UNKNOWN", "unknown")
+
+
+def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Get SOL IN/OUT history for an address or analyze creator's top 10 funders"
+    )
+    parser.add_argument("address", type=str, help="Funder address or creator address to analyze")
+    parser.add_argument("--creator", action="store_true", help="Treat address as creator and analyze top 10 funders")
+    parser.add_argument("--delay", type=float, default=0.15, help="Delay between getTransaction calls (default 0.15s)")
+    parser.add_argument("--max-txs", type=int, default=None, help="Max kept transactions (default: all kept)")
+    parser.add_argument("--since-days", type=int, default=30, help="Only scan last N days (default 30)")
+    parser.add_argument("--min-sol", type=float, default=DEFAULT_MIN_ABS_SOL, help="Dust filter threshold in SOL (default 0.001)")
+    parser.add_argument(
+        "--only-system-transfers",
+        action="store_true",
+        help="Only keep explicit System Program transfers involving the address",
+    )
+    args = parser.parse_args()
+
+    # If creator mode, get top 10 funders and analyze each
+    if args.creator:
+        creator = args.address
+        print(f"[CREATOR ANALYSIS] {creator}\n")
+        funders = get_creator_funders(creator)
+
+        if not funders:
+            print(f"[DB] No funders found for creator: {creator}")
+            return
+
+        print(f"[DB] Found {len(funders)} total funders. Analyzing top 10...\n")
+
+        # Analyze top 10 funders
+        for idx, (funder_addr, amount_sol) in enumerate(funders[:10], 1):
+            print(f"\n{'='*100}")
+            print(f"FUNDER #{idx}: {funder_addr} ({amount_sol:.4f} SOL)")
+            print(f"{'='*100}\n")
+
+            analyze_funder(funder_addr, args, creator_address=creator)
+
+        return
+
+    # Single funder mode
+    funder = args.address
+    analyze_funder(funder, args)
 
 
 if __name__ == "__main__":

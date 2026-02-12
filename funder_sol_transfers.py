@@ -558,10 +558,21 @@ def main():
 
         print(f"[DB] Found {len(funders)} total funders. Analyzing top 10...\n")
 
-        # Analyze top 10 funders
-        for idx, (funder_addr, amount_sol) in enumerate(funders[:10], 1):
+        # Analyze top 10 funders (skip CEX/INFRA as they're known safe)
+        analyzed = 0
+        for funder_addr, amount_sol in funders:
+            if analyzed >= 10:
+                break
+
+            # Check if funder is CEX or INFRA - skip if so
+            classification, class_type = classify_address(funder_addr)
+            if class_type in ["cex", "infra"]:
+                print(f"⏭️  SKIP: {funder_addr} ({amount_sol:.4f} SOL) - {classification} (known safe)")
+                continue
+
+            analyzed += 1
             print(f"\n{'='*100}")
-            print(f"FUNDER #{idx}: {funder_addr} ({amount_sol:.4f} SOL)")
+            print(f"FUNDER #{analyzed}: {funder_addr} ({amount_sol:.4f} SOL)")
             print(f"{'='*100}\n")
 
             analyze_funder(funder_addr, args, creator_address=creator)
@@ -577,11 +588,22 @@ def main():
     if funders:
         # It's a creator - analyze all their funders
         print(f"[AUTO-DETECT] {address} is a creator with {len(funders)} funders in database")
-        print(f"[AUTO-DETECT] Analyzing top 10 funders...\n")
+        print(f"[AUTO-DETECT] Analyzing top 10 funders (skipping CEX/INFRA)...\n")
 
-        for idx, (funder_addr, amount_sol) in enumerate(funders[:10], 1):
+        analyzed = 0
+        for funder_addr, amount_sol in funders:
+            if analyzed >= 10:
+                break
+
+            # Check if funder is CEX or INFRA - skip if so
+            classification, class_type = classify_address(funder_addr)
+            if class_type in ["cex", "infra"]:
+                print(f"⏭️  SKIP: {funder_addr} ({amount_sol:.4f} SOL) - {classification} (known safe)")
+                continue
+
+            analyzed += 1
             print(f"\n{'='*100}")
-            print(f"FUNDER #{idx}: {funder_addr} ({amount_sol:.4f} SOL)")
+            print(f"FUNDER #{analyzed}: {funder_addr} ({amount_sol:.4f} SOL)")
             print(f"{'='*100}\n")
 
             analyze_funder(funder_addr, args, creator_address=address)

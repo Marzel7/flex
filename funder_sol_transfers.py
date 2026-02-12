@@ -441,31 +441,60 @@ def analyze_funder(funder_address: str, args, creator_address: str = None) -> Di
             print(f"[{i:3}] {-r['deltaExclFeeSOL']:>8.4f} SOL → {counterparty}{sys_flag}")
             print(f"       {classification}{time_str}")
 
-    # If creator address provided, save funding info to DB
-    if creator_address:
+    # Save counterparty addresses and funding summary to DB
+    if creator_address or True:  # Always save if we have data
         try:
             conn = sqlite3.connect(DB_PATH, timeout=5)
             cursor = conn.cursor()
 
-            # Update or insert funder funding summary in creator_funders table
-            cursor.execute("""
-                UPDATE creator_funders
-                SET total_inflows = ?, total_outflows = ?, net_change = ?, last_analyzed = ?
-                WHERE creator_address = ? AND funder_address = ?
-            """, (total_in, total_out, total_in - total_out, datetime.now().isoformat(), creator_address, funder_address))
+            # Save inflows (counterparty senders)
+            for r in inflows:
+                counterparty = r.get("counterparty") or "Unknown"
+                if counterparty != "Unknown":
+                    classification, _ = classify_address(counterparty)
+                    sender_type = classification.split(":")[0].strip("✅❓⚠️🎯").strip()
 
-            if cursor.rowcount == 0:
-                # If no update, insert new record
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO funder_incoming_transfers
+                        (funder_address, sender_address, amount_sol, transaction_signature, block_time, sender_type, first_detected_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """, (funder_address, counterparty, r["deltaExclFeeSOL"],
+                          r.get("signature", ""), r.get("blockTime"), sender_type, datetime.now().isoformat()))
+
+            # Save outflows (counterparty recipients)
+            for r in outflows:
+                counterparty = r.get("counterparty") or "Unknown"
+                if counterparty != "Unknown":
+                    classification, _ = classify_address(counterparty)
+                    recipient_type = classification.split(":")[0].strip("✅❓⚠️🎯").strip()
+
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO funder_outgoing_transfers
+                        (funder_address, recipient_address, amount_sol, transaction_signature, block_time, recipient_type, first_detected_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """, (funder_address, counterparty, r["deltaExclFeeSOL"],
+                          r.get("signature", ""), r.get("blockTime"), recipient_type, datetime.now().isoformat()))
+
+            # If creator address provided, also update funder funding summary
+            if creator_address:
                 cursor.execute("""
-                    INSERT INTO creator_funders (creator_address, funder_address, amount_sol, total_inflows, total_outflows, net_change, first_detected_at, last_analyzed)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """, (creator_address, funder_address, 0, total_in, total_out, total_in - total_out, datetime.now().isoformat(), datetime.now().isoformat()))
+                    UPDATE creator_funders
+                    SET total_inflows = ?, total_outflows = ?, net_change = ?, last_analyzed = ?
+                    WHERE creator_address = ? AND funder_address = ?
+                """, (total_in, total_out, total_in - total_out, datetime.now().isoformat(), creator_address, funder_address))
+
+                if cursor.rowcount == 0:
+                    # If no update, insert new record
+                    cursor.execute("""
+                        INSERT INTO creator_funders (creator_address, funder_address, amount_sol, total_inflows, total_outflows, net_change, first_detected_at, last_analyzed)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (creator_address, funder_address, 0, total_in, total_out, total_in - total_out, datetime.now().isoformat(), datetime.now().isoformat()))
 
             conn.commit()
             conn.close()
-            print(f"\n[DB] ✓ Updated funding info for {funder_address}")
+            print(f"\n[DB] ✓ Saved {len(inflows)} inflows + {len(outflows)} outflows for {funder_address}")
         except Exception as e:
-            print(f"\n[DB] Error saving funding info: {e}")
+            print(f"\n[DB] Error saving transfers: {e}")
 
     return {
         "funder": funder_address,

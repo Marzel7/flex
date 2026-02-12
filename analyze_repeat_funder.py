@@ -10,6 +10,10 @@ For a given funder address:
 """
 
 import sqlite3
+import sys
+sys.path.insert(0, '/Users/kevinkeaveney/Dev/claude/flex')
+
+from infra_mapping import get_account_info, get_cex_info, get_pumpfun_creator_info, get_suspicious_wallet_info
 
 DB_PATH = "pumpswap_tokens.db"
 
@@ -127,13 +131,32 @@ def main():
         for funder_addr, funder_amount in creator_funders[:5]:
             creator_count = get_funder_creator_count(funder_addr)
 
+            # Check for known accounts
+            account_type = ""
+            cex_info = get_cex_info(funder_addr)
+            if cex_info:
+                account_type = f"[✅ CEX: {cex_info.get('name', 'CEX')}]"
+            else:
+                infra_info = get_account_info(funder_addr)
+                if infra_info:
+                    account_type = f"[✅ INFRA: {infra_info.get('name', 'Infra')}]"
+                else:
+                    pumpfun_info = get_pumpfun_creator_info(funder_addr)
+                    if pumpfun_info:
+                        account_type = f"[🎯 PUMPFUN: {pumpfun_info.get('name', 'Creator')}]"
+                    else:
+                        suspicious_info = get_suspicious_wallet_info(funder_addr)
+                        if suspicious_info:
+                            account_type = f"[⚠️  SUSPICIOUS: {suspicious_info.get('name', 'Suspicious')}]"
+
             if creator_count > 1:
                 print(
-                    f"         🔗 {funder_addr[:12]}... ({funder_amount:.3f} SOL) - funds {creator_count} creators!"
+                    f"         🔗 {funder_addr[:12]}... ({funder_amount:.3f} SOL) - funds {creator_count} creators! {account_type}"
                 )
                 repeat_funders_in_network.add(funder_addr)
             else:
-                print(f"            {funder_addr[:12]}... ({funder_amount:.3f} SOL) - single creator")
+                label = f"single creator{' ' + account_type if account_type else ''}"
+                print(f"            {funder_addr[:12]}... ({funder_amount:.3f} SOL) - {label}")
 
         if len(creator_funders) > 5:
             print(f"            ... and {len(creator_funders) - 5} more funders")

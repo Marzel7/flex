@@ -12,6 +12,10 @@ Uses database queries (instant) instead of RPC (slow/limited).
 """
 
 import sqlite3
+import sys
+sys.path.insert(0, '/Users/kevinkeaveney/Dev/claude/flex')
+
+from infra_mapping import get_account_info, get_cex_info, get_pumpfun_creator_info, get_suspicious_wallet_info
 
 DB_PATH = "pumpswap_tokens.db"
 
@@ -103,6 +107,30 @@ def main():
         # Get all creators this funder supports
         all_creators = get_funder_activities(funder_address)
 
+        # Check for known accounts
+        account_info = None
+        account_type = ""
+
+        cex_info = get_cex_info(funder_address)
+        if cex_info:
+            account_info = cex_info
+            account_type = f"✅ CEX: {cex_info.get('name', 'CEX')}"
+        else:
+            infra_info = get_account_info(funder_address)
+            if infra_info:
+                account_info = infra_info
+                account_type = f"✅ INFRA: {infra_info.get('name', 'Infrastructure')}"
+            else:
+                pumpfun_info = get_pumpfun_creator_info(funder_address)
+                if pumpfun_info:
+                    account_info = pumpfun_info
+                    account_type = f"🎯 PUMPFUN: {pumpfun_info.get('name', 'Creator')}"
+                else:
+                    suspicious_info = get_suspicious_wallet_info(funder_address)
+                    if suspicious_info:
+                        account_info = suspicious_info
+                        account_type = f"⚠️  SUSPICIOUS: {suspicious_info.get('name', 'Suspicious')}"
+
         # Check if funds multiple creators
         is_repeat_funder = len(all_creators) > 1
         other_creators_count = len(all_creators) - 1
@@ -112,10 +140,16 @@ def main():
             repeat_funder_count += 1
             total_other_creators_funded += other_creators_count
 
-        print(
-            f"[{i:2}] {status} {funder_address[:12]}... | {amount_to_creator:8.3f} SOL | "
-            f"Funds {len(all_creators)} creators"
-        )
+        if account_type:
+            print(
+                f"[{i:2}] {status} {funder_address[:12]}... | {amount_to_creator:8.3f} SOL | "
+                f"Funds {len(all_creators)} creators | {account_type}"
+            )
+        else:
+            print(
+                f"[{i:2}] {status} {funder_address[:12]}... | {amount_to_creator:8.3f} SOL | "
+                f"Funds {len(all_creators)} creators"
+            )
 
         # Show other creators if this is a repeat funder
         if is_repeat_funder and other_creators_count > 0:

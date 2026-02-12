@@ -360,8 +360,12 @@ def get_creator_funders(creator_address: str) -> list:
 
 def analyze_funder(funder_address: str, args, creator_address: str = None) -> Dict:
     """Analyze a single funder's SOL in/out history and optionally save to DB."""
-    print(f"[ANALYSIS] Funder SOL IN/OUT History")
-    print(f"[FUNDER] {funder_address}\n")
+    # Determine if this is the creator or a funder
+    is_creator = (funder_address == creator_address) if creator_address else False
+    role = "CREATOR" if is_creator else "FUNDER"
+
+    print(f"[ANALYSIS] SOL IN/OUT History - {role}")
+    print(f"[{role}] {funder_address}\n")
 
     funder_type, _ = classify_address(funder_address)
     print(f"Type: {funder_type}\n")

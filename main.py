@@ -3896,7 +3896,15 @@ HTML_TEMPLATE = """
                         const unknownCount = senderCount - knownCount;
                         let senderSummary = `← ${senderCount} senders → ${totalToCreator} SOL`;
                         if (knownCount > 0) {
-                            senderSummary += ` <span style="color: #ef4444;">(${knownCount} identified ⚠️)</span>`;
+                            // Count risky vs trusted identified accounts
+                            const riskyCount = tier.senders.filter(s => s.risk_level === 'high').length;
+                            if (riskyCount > 0) {
+                                senderSummary += ` <span style="color: #ef4444;">(${riskyCount} risky ⚠️)</span>`;
+                            }
+                            const trustedCount = tier.senders.filter(s => s.risk_level === 'neutral' || s.risk_level === 'low').length;
+                            if (trustedCount > 0) {
+                                senderSummary += ` <span style="color: #4ade80;">(${trustedCount} trusted ✓)</span>`;
+                            }
                         }
                         networkHTML += `<div style="color: #fbbf24; margin-left: 20px; margin-bottom: 6px;">${senderSummary}</div>`;
 
@@ -3911,21 +3919,27 @@ HTML_TEMPLATE = """
                             const sendersToShow = knownSenders.concat(unknownSenders).slice(0, displayCount);
 
                             sendersToShow.forEach((sender) => {
-                                const isKnown = sender.is_known || false;
                                 const label = sender.label;
-                                const senderType = sender.sender_type || 'unknown';
+                                const riskLevel = sender.risk_level || 'unknown';
 
-                                // Colors: RED for known/identified (suspicious coordination), YELLOW for unknown
+                                // Color code by risk level
                                 let senderColor = '#fbbf24';  // unknown (yellow) - neutral
-                                if (isKnown) {
-                                    // RED for known accounts (CEX, INFRA, etc.) - indicates potential coordination
-                                    senderColor = '#ef4444';  // known/identified (red) - suspicious
+                                let badge = '';
+
+                                if (riskLevel === 'high') {
+                                    senderColor = '#ef4444';  // RED - suspicious (CEX hot wallets, risky accounts)
+                                    badge = ' ⚠️';  // Warning emoji
+                                } else if (riskLevel === 'neutral' || riskLevel === 'low') {
+                                    senderColor = '#4ade80';  // GREEN - trusted infrastructure (Axiom, safe accounts)
+                                    badge = ' ✓';  // Checkmark for trusted
+                                } else if (riskLevel === 'medium') {
+                                    senderColor = '#fbbf24';  // YELLOW - moderate risk
+                                    badge = '';
                                 }
 
                                 const senderAmount = sender.amount_to_funder.toFixed(2);
                                 const labelText = label ? ` [${label}]` : '';
-                                const knownBadge = isKnown ? ' ⚠️' : '';  // Warning emoji for suspicious known accounts
-                                networkHTML += `<div style="color: ${senderColor}; margin-left: 40px; font-size: 11px; font-family: monospace; word-break: break-all;">• ${sender.sender_address}${labelText}${knownBadge} → ${senderAmount} SOL</div>`;
+                                networkHTML += `<div style="color: ${senderColor}; margin-left: 40px; font-size: 11px; font-family: monospace; word-break: break-all;">• ${sender.sender_address}${labelText}${badge} → ${senderAmount} SOL</div>`;
                             });
 
                             // Show remaining count if there are more
@@ -4882,25 +4896,29 @@ def api_funding_network_3tier(creator_address: str):
                     'amount_to_funder': s['amount_to_funder'],
                     'sender_type': s['sender_type'],
                     'is_known': False,
-                    'label': None
+                    'label': None,
+                    'risk_level': 'unknown'  # NEW: track risk level
                 }
 
                 # Check if it's a CEX account
                 if s['is_cex']:
                     sender_info['is_known'] = True
                     sender_info['label'] = s['cex_exchange'] or 'CEX'
+                    sender_info['risk_level'] = 'high'  # CEX hot wallets are risky
                 else:
                     # Check infrastructure mapping
                     infra_info = get_account_info(sender_addr)
                     if infra_info:
                         sender_info['is_known'] = True
                         sender_info['label'] = infra_info.get('name', 'Infrastructure')
+                        sender_info['risk_level'] = infra_info.get('risk_level', 'neutral')  # NEW: get actual risk level
                     else:
                         # Check CEX info
                         cex_info = get_cex_info(sender_addr)
                         if cex_info:
                             sender_info['is_known'] = True
                             sender_info['label'] = cex_info.get('name', 'CEX')
+                            sender_info['risk_level'] = cex_info.get('risk_level', 'high')
 
                 enriched_senders.append(sender_info)
 

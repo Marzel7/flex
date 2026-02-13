@@ -1633,7 +1633,7 @@ HTML_TEMPLATE = """
             <!-- Analysis Buttons -->
             <div style="margin: 20px 0; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                 <button onclick="showFundingNetwork3Tier(document.getElementById('modalCreator').textContent.split(' ')[0])" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">View Funding Patterns</button>
-                <button onclick="showCoordinatedFunderAnalysis(document.getElementById('modalCreator').textContent.split(' ')[0])" style="background: rgba(249, 115, 22, 0.2); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.5); padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">Coordinated Network</button>
+                <button onclick="window.location.href = '/coordinated-funder-analysis/' + document.getElementById('modalCreator').textContent.split(' ')[0]" style="background: rgba(249, 115, 22, 0.2); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.5); padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">Coordinated Network</button>
             </div>
 
             <!-- Creator Tags -->
@@ -4344,6 +4344,257 @@ def highlight_infra_in_funding(funders_list):
 def index():
     """Serve the migration tracking dashboard"""
     return render_template_string(HTML_TEMPLATE)
+
+
+@app.route('/coordinated-funder-analysis/<creator_address>')
+def coordinated_funder_analysis_view(creator_address: str):
+    """Serve a full webview for coordinated funder analysis results"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get coordinated funder analysis data
+        cursor.execute("""
+            SELECT
+                creator_address,
+                connected_creators,
+                shared_destinations,
+                network_size,
+                network_risk_level,
+                detected_at,
+                updated_at
+            FROM creator_networks
+            WHERE creator_address = ?
+        """, (creator_address,))
+
+        result = cursor.fetchone()
+
+        if not result:
+            conn.close()
+            return f"""
+            <html>
+                <head>
+                    <title>Coordinated Funder Analysis</title>
+                    <style>
+                        body {{ background: #0a0e27; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }}
+                        .container {{ max-width: 1200px; margin: 0 auto; }}
+                        h1 {{ color: #00d4ff; margin-bottom: 30px; }}
+                        .not-analyzed {{ background: rgba(0, 0, 0, 0.3); padding: 30px; border-radius: 8px; text-align: center; border-left: 3px solid #fbbf24; }}
+                        .back-link {{ margin-bottom: 20px; }}
+                        .back-link a {{ color: #00d4ff; text-decoration: none; }}
+                        .back-link a:hover {{ text-decoration: underline; }}
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="back-link"><a href="/">← Back to Dashboard</a></div>
+                        <h1>Coordinated Funder Analysis</h1>
+                        <div class="not-analyzed">
+                            <h2 style="color: #fbbf24;">Not Yet Analyzed</h2>
+                            <p>Coordinated funder analysis has not been performed for this creator yet.</p>
+                            <p style="color: #a0a0a0; font-size: 14px;">Run the coordinated funder analysis script to generate results.</p>
+                        </div>
+                    </div>
+                </body>
+            </html>
+            """
+
+        # Parse JSON data
+        import json
+        connected_creators = json.loads(result['connected_creators']) if result['connected_creators'] else []
+        shared_destinations = json.loads(result['shared_destinations']) if result['shared_destinations'] else []
+
+        # Get details about connected creators
+        connected_creator_details = []
+        for cc_addr in connected_creators[:20]:
+            cursor.execute("""
+                SELECT
+                    earliest_tx_creator,
+                    risk_level,
+                    rug_probability,
+                    market_cap_highest,
+                    created_at
+                FROM token_analysis
+                WHERE earliest_tx_creator = ?
+                LIMIT 1
+            """, (cc_addr,))
+
+            cc_info = cursor.fetchone()
+            if cc_info:
+                connected_creator_details.append({
+                    'address': cc_addr,
+                    'risk_level': cc_info['risk_level'],
+                    'rug_probability': cc_info['rug_probability'],
+                    'market_cap': cc_info['market_cap_highest']
+                })
+
+        conn.close()
+
+        # Determine risk color
+        risk_colors = {
+            'CRITICAL': '#ef4444',
+            'HIGH': '#fbbf24',
+            'MEDIUM': '#f97316',
+            'LOW': '#4ade80'
+        }
+        risk_color = risk_colors.get(result['network_risk_level'], '#a0a0a0')
+
+        # Build connected creators HTML
+        connected_html = ''
+        for i, cc in enumerate(connected_creator_details[:20], 1):
+            risk_color_cc = risk_colors.get(cc['risk_level'], '#a0a0a0')
+            connected_html += f"""
+            <div style="padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 13px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-family: monospace; color: {risk_color_cc};">{i}. {cc['address']}</div>
+                    <div style="display: flex; gap: 20px; color: #a0a0a0;">
+                        <span style="color: {risk_color_cc};">{cc['risk_level']}</span>
+                        <span>{(cc['rug_probability'] * 100):.0f}% rug</span>
+                    </div>
+                </div>
+            </div>
+            """
+
+        # Build shared destinations HTML
+        destinations_html = ''
+        for i, dest in enumerate(shared_destinations[:30], 1):
+            destinations_html += f"""
+            <div style="padding: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-family: monospace; font-size: 12px; color: #fbbf24;">
+                {i}. {dest}
+            </div>
+            """
+
+        html = f"""
+        <html>
+            <head>
+                <title>Coordinated Funder Analysis - {creator_address[:16]}...</title>
+                <style>
+                    body {{
+                        background: #0a0e27;
+                        color: #e0e0e0;
+                        font-family: 'Segoe UI', sans-serif;
+                        margin: 0;
+                        padding: 20px;
+                    }}
+                    .container {{
+                        max-width: 1400px;
+                        margin: 0 auto;
+                    }}
+                    h1 {{
+                        color: #00d4ff;
+                        margin-bottom: 10px;
+                    }}
+                    .creator-addr {{
+                        font-family: monospace;
+                        font-size: 12px;
+                        color: #a0a0a0;
+                        margin-bottom: 30px;
+                    }}
+                    .back-link {{
+                        margin-bottom: 20px;
+                    }}
+                    .back-link a {{
+                        color: #00d4ff;
+                        text-decoration: none;
+                    }}
+                    .back-link a:hover {{
+                        text-decoration: underline;
+                    }}
+                    .stats-grid {{
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                        gap: 15px;
+                        margin-bottom: 30px;
+                    }}
+                    .stat-box {{
+                        background: rgba(0, 0, 0, 0.3);
+                        padding: 20px;
+                        border-radius: 8px;
+                        border-left: 3px solid {risk_color};
+                    }}
+                    .stat-label {{
+                        color: #a0a0a0;
+                        font-size: 11px;
+                        text-transform: uppercase;
+                        margin-bottom: 10px;
+                    }}
+                    .stat-value {{
+                        font-size: 24px;
+                        font-weight: bold;
+                        color: {risk_color};
+                    }}
+                    .section {{
+                        background: rgba(0, 0, 0, 0.2);
+                        border-radius: 8px;
+                        margin-bottom: 30px;
+                        overflow: hidden;
+                    }}
+                    .section-title {{
+                        background: rgba(0, 0, 0, 0.4);
+                        padding: 15px;
+                        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+                        font-weight: 600;
+                        color: #00d4ff;
+                    }}
+                    .section-content {{
+                        max-height: 600px;
+                        overflow-y: auto;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="back-link"><a href="/">← Back to Dashboard</a></div>
+                    <h1>Coordinated Funder Analysis</h1>
+                    <div class="creator-addr">Creator: {creator_address}</div>
+
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">Network Risk Level</div>
+                            <div class="stat-value">{result['network_risk_level']}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Network Size</div>
+                            <div class="stat-value">{result['network_size']}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Connected Creators</div>
+                            <div class="stat-value">{len(connected_creators)}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Shared Destinations</div>
+                            <div class="stat-value">{len(shared_destinations)}</div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">Connected Creators ({len(connected_creator_details)} shown)</div>
+                        <div class="section-content">
+                            {connected_html if connected_html else '<div style="padding: 20px; color: #a0a0a0;">No connected creators found</div>'}
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">Shared Destination Wallets ({len(shared_destinations)} total)</div>
+                        <div class="section-content">
+                            {destinations_html if destinations_html else '<div style="padding: 20px; color: #a0a0a0;">No shared destinations found</div>'}
+                        </div>
+                    </div>
+
+                    <div style="color: #a0a0a0; font-size: 12px; margin-top: 30px;">
+                        <p>Analysis performed: {result['detected_at']}</p>
+                        <p>Last updated: {result['updated_at']}</p>
+                    </div>
+                </div>
+            </body>
+        </html>
+        """
+        return html
+
+    except Exception as e:
+        return f"<html><body style='background: #0a0e27; color: #e0e0e0;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
 
 
 @app.route('/api/migrated-tokens')

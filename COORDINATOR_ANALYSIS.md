@@ -19,134 +19,58 @@ The coordinators send **dust amounts** (0.0000 SOL) to multiple funders to:
 2. Signal to other coordinated actors which funders to use
 3. Obscure the coordination trail by fragmenting the connection
 
+## ⚠️ CORRECTION: Spam Filtering Applied
+
+**Previous Finding:** 4 coordinators identified
+**After Spam Filtering:** 1 coordinator remains (HLSHeeM2Q)
+
+Removed 3 addresses that sent sub-10 lamport amounts (network artifacts):
+- po27vzv7... (9 lamports) - REMOVED
+- pohJj8FS... (5 lamports) - REMOVED
+- GUZv3UAzUA... (2 lamports) - REMOVED
+
+These are below intentional signal threshold and represent routing errors, not deliberate coordination.
+
+---
+
 ## Identified Coordinators
 
-### 1. `po27vzv7pSZYsroDopmGVVBVAqxg4GcyZXxmCkoejFB` ⚠️ HIGH RISK
-
-**Network Reach:**
-- Funding Funder Count: 3
-- Creators Reached: 4
-- Total SOL Sent: 0.000000009 (dust)
-- Confidence: **HIGH**
-
-**Funding Path:**
-```
-Coordinator
-├─→ 4khTDC81icSpJbew... (Hyperunit router)
-│   └─→ 58Hx4stSpAVZKa1... (2.00 SOL)
-│
-├─→ 9SLPTL41SPsYkgds... (Hyperunit Hot Wallet) ⭐ PRIMARY
-│   ├─→ HYWo71Wk9PNDe5sB... (1,924.11 SOL) - 565 funders total
-│   └─→ VKdxpr9eWF1YdL3W... (89.98 SOL)
-│
-└─→ 9s4gzvCoG5eQv1GA... (Hyperunit Aggregator)
-    └─→ ELcnvdHEWTrLa4fn... (5.34 SOL)
-```
-
-**Pattern:** Uses Hyperunit's multiple wallets to distribute to 4 creators. Primary concentration on HYWo71Wk9 (1,924 SOL). The dust signals to other funders which funder wallets to use.
-
-**Flags:**
-- dust_transfers (coordination signal)
-- high_funder_fanout (3 intermediaries)
-- high_creator_reach (4 target creators)
-
----
-
-### 2. `pohJj8FSmifd5V2kpgbzekrnnwZ89LmDg7kEFEu5vuW` ⚠️ HIGH RISK
-
-**Network Reach:**
-- Funding Funder Count: 3
-- Creators Reached: 3
-- Total SOL Sent: 0.000000005 (dust)
-- Confidence: **HIGH**
-
-**Funding Path:**
-```
-Coordinator
-├─→ HWPgjY8hzRY6uaLn...
-│   └─→ 39MjnPdBEdG5pPY...
-│
-├─→ 4khTDC81icSpJbew... (Hyperunit router)
-│   └─→ 58Hx4stSpAVZKa1... (shared with po27vzv7)
-│
-└─→ 9s4gzvCoG5eQv1GA... (Hyperunit Aggregator)
-    └─→ ELcnvdHEWTrLa4fn... (shared with po27vzv7)
-```
-
-**Pattern:** Overlaps with po27vzv7 on funders (4khTDC81..., 9s4gzvCoG5...) and creators (58Hx4st..., ELcnvdHEWTrLa4...). Two dust coordinators using the same infrastructure = organized network.
-
-**Flags:**
-- dust_transfers (coordination signal)
-- high_funder_fanout (3 intermediaries)
-- high_creator_reach (3 targets)
-- **OVERLAP WITH po27vzv7** ← Indicates centralized coordination
-
----
-
-### 3. `HLSHeeM2Q141C4PEYMeeKtWeP4uVQeYsk4fmVCMxhi2F` ⚠️ MEDIUM RISK
+### 1. `HLSHeeM2Q141C4PEYMeeKtWeP4uVQeYsk4fmVCMxhi2F` ⚠️ MEDIUM RISK (Real Coordinator)
 
 **Network Reach:**
 - Funding Funder Count: 2
 - Creators Reached: 2
-- Total SOL Sent: 0.0000002 (dust)
+- Total SOL Sent: 0.0000002 (200 lamports - intentional signal)
 - Confidence: **MEDIUM**
 
 **Funding Path:**
 ```
-Coordinator
-├─→ HWPgjY8hzRY6uaLn...
-│   └─→ 39MjnPdBEdG5pPY... (shared with pohJj8FS)
+HLSHeeM2Q (200 lamport signal)
+├─→ HWPgjY8hzRY6uaLn874dGJrzPS2YHE8cpDC4yRAUM83D (hub router)
+│   └─→ 39MjnPdBEdG5pPYYvjif3BsApB7SyHuu2bzEU5JZEtYM
 │
-└─→ 2rJb7HxUmwKyKB9T...
-    └─→ 9uozXAAPCpsfm6Cw...
+└─→ 2rJb7HxUmwKyKB9TNm9NpSBMoc8cij6ekotCJgfnSLAG
+    └─→ 9uozXAAPCpsfm6CweB4jcK2sPFCe4n1Wq2vPKF9tYJv4
 ```
 
-**Pattern:** Uses same funder (HWPgjY8...) as pohJj8FS, reaching same creator (39MjnPdBEdG5). Evidence of coordinated dust-sender network.
+**Pattern:** Deliberately routes through 2 different funders to reach 2 different creators. Uses HWPgjY8 (known hub router) as one path. The 200 lamport dust transfer is an intentional coordination signal.
 
 **Flags:**
-- dust_transfers (coordination signal)
+- dust_transfers (intentional signal, >100 lamports)
+- multi_path_funding (reaches 2 creators via different funders)
 
 ---
 
-### 4. `GUZv3UAzUA4hMuxxnmZwaUiufoVDJFgrGPGLTh6XFQZv` ⚠️ MEDIUM RISK
+## Coordinator Profile
 
-**Network Reach:**
-- Funding Funder Count: 2
-- Creators Reached: 2
-- Total SOL Sent: 0.000000002 (dust)
-- Confidence: **MEDIUM**
+**HLSHeeM2Q** is the only confirmed cross-funder coordinator after spam filtering.
 
-**Funding Path:**
-```
-Coordinator
-├─→ 4khTDC81icSpJbew... (shared with po27vzv7, pohJj8FS)
-│   └─→ 58Hx4stSpAVZKa1... (shared)
-│
-└─→ H9vjQD9Mw71PtHa6...
-    └─→ 3XeZQFJgDJDtgJvz...
-```
-
-**Pattern:** Reuses Hyperunit router (4khTDC81...) and same creator (58Hx4st...) as both po27vzv7 and pohJj8FS. Strong evidence of centralized coordination.
-
-**Flags:**
-- dust_transfers (coordination signal)
-
----
-
-## Network Overlap Matrix
-
-```
-                      4khTDC81  9s4gzvCo  HWPgjY8  Other
-po27vzv7                 ✓          ✓
-pohJj8FS                 ✓          ✓         ✓
-HLSHeeM2Q                          ✓
-GUZv3UAzUA               ✓
-```
-
-**Shared Creators:**
-- 58Hx4stSpAVZKa1: Used by po27vzv7, pohJj8FS, GUZv3UAzUA
-- ELcnvdHEWTrLa4f: Used by po27vzv7, pohJj8FS
-- 39MjnPdBEdG5pPY: Used by pohJj8FS, HLSHeeM2Q
+**Key Characteristics:**
+- Minimum intentional signal (200 lamports)
+- Multi-path funding strategy (2 funders → 2 creators)
+- Uses hub router infrastructure (HWPgjY8)
+- Targets 2 distinct creators
+- Medium confidence (deliberate but smaller operation)
 
 ## Risk Assessment
 
@@ -199,19 +123,21 @@ Master Coordinator Ring (4 addresses)
 ### Detection Logic
 1. Find senders funding 2+ funders
 2. Count unique creators reached through each funder
-3. Flag if reaches 2+ creators through different funder paths
-4. Assign confidence based on:
-   - High: 3+ funders → 3+ creators
-   - Medium: 2 funders → 2 creators
+3. **Filter spam:** Exclude transfers below 100 lamports (1e-7 SOL)
+4. Flag if reaches 2+ creators through different funder paths
+5. Assign confidence based on:
+   - Medium: 2+ funders → 2+ creators (with intentional dust signal)
    - Low: CEX/INFRA accounts
+
+Note: Original HIGH confidence coordinators were network artifacts below spam threshold.
 
 ## Next Steps
 
-1. **Tag all 4 coordinators** in address_tags table with "cross_funder_coordinator"
-2. **Flag all 49 funders** with "coord_network_member"
-3. **Monitor token launches** from these creators
-4. **Track dust amounts** - detect new coordination signals
-5. **Risk score integration** - lower token rug threshold if created by coord-funded creator
+1. **Monitor HLSHeeM2Q** - confirmed cross-funder coordinator with intentional dust signal
+2. **Investigate HWPgjY8 hub router** - likely central node in funding network
+3. **Track dust signals** - watch for new >100 lamport transfers to shared funders
+4. **Monitor target creators** (39MjnPdBEdG5, 9uozXAAPCpsfm6Cw) for token launches
+5. **Risk score integration** - flag tokens from HLSHeeM2Q-funded creators with moderate penalty
 
 ## Files Updated
 

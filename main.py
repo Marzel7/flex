@@ -6826,10 +6826,10 @@ def coordinated_funders_view():
                                     const riskColor = token.risk_level === 'HIGH' ? '#ef4444' : token.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
                                     html += `
                                         <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                                            <td style="padding: 10px; font-family: monospace; font-size: 11px; color: #4ade80;">
-                                                <a href="https://solscan.io/token/${{token.mint}}" target="_blank" style="color: #4ade80; text-decoration: none;" title="${{token.mint}}">${{token.mint.substring(0, 12)}}...</a>
+                                            <td style="padding: 10px; font-family: monospace; font-size: 11px; color: #4ade80; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                <a href="https://solscan.io/token/${{token.mint}}" target="_blank" style="color: #4ade80; text-decoration: none;" title="${{token.mint}}">${{token.mint}}</a>
                                             </td>
-                                            <td style="padding: 10px; font-family: monospace; font-size: 11px; color: #a0a0a0;" title="${{token.creator_address}}">${{token.creator_address.substring(0, 12)}}...</td>
+                                            <td style="padding: 10px; font-family: monospace; font-size: 11px; color: #a0a0a0; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{token.creator_address}}">${{token.creator_address}}</td>
                                             <td style="padding: 10px; color: #4ade80; font-weight: bold;">${{token.total_funding_sol.toFixed(2)}}</td>
                                             <td style="padding: 10px; color: ${{riskColor}}; font-weight: bold;">${{token.risk_level || 'N/A'}}</td>
                                             <td style="padding: 10px; color: #f59e0b;">${{(token.rug_probability * 100).toFixed(1)}}%</td>

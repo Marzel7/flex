@@ -1441,14 +1441,14 @@ HTML_TEMPLATE = """
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(139, 92, 246, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(76, 175, 80, 0.2); color: #4ade80; border: 1px solid rgba(76, 175, 80, 0.5);">▶️ Polling ON</button>
-                <button class="action-button" onclick="promptFundingNetwork3Tier()" title="View 3-tier funding chain (Sender → Funder → Creator) for a creator" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); margin-left: 8px;">📊 3-Tier Network</button>
-                <button class="action-button" onclick="toggleCEXView()" title="View CEX funders and activity" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.5); margin-left: 8px;">🏛️ CEX View</button>
-                <button class="action-button" onclick="showMultiCreatorFunders()" title="Analyze funders supporting multiple creators" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">🔗 Coordinated Funders</button>
-                <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">✅ Validate TX</button>
+                <button class="action-button" onclick="promptFundingNetwork3Tier()" title="View 3-tier funding chain (Sender → Funder → Creator) for a creator" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); margin-left: 8px;">3-Tier Network</button>
+                <button class="action-button" onclick="toggleCEXView()" title="View CEX funders and activity" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.5); margin-left: 8px;">CEX View</button>
+                <button class="action-button" onclick="showMultiCreatorFunders()" title="Analyze funders supporting multiple creators" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">Coordinated Funders</button>
+                <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Validate TX</button>
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(239, 68, 68, 0.3); margin-left: 12px; padding-left: 12px;">
-                <button class="action-button danger" onclick="emptyDatabase()" title="Clear all tokens, clustering, and address data">🗑️ Empty DB</button>
-                <button class="action-button danger" onclick="killFlask()" title="Stop Flask server on port 5002">⏹️ Kill Port 5002</button>
+                <button class="action-button danger" onclick="emptyDatabase()" title="Clear all tokens, clustering, and address data">Empty DB</button>
+                <button class="action-button danger" onclick="killFlask()" title="Stop Flask server on port 5002">Kill Port 5002</button>
             </div>
         </div>
 

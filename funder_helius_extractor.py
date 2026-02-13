@@ -26,10 +26,13 @@ import requests
 sys.path.insert(0, '/Users/kevinkeaveney/Dev/claude/flex')
 
 from infra_mapping import get_account_info, get_cex_info
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Try to load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv not required, env vars can be set directly
 
 DB_PATH = "pumpswap_tokens.db"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()

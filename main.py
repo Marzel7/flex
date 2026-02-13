@@ -3783,8 +3783,8 @@ HTML_TEMPLATE = """
                         funderTypeLabel = ' [INFRA]';
                     }
 
-                    networkHTML += `<div style="color: ${funderColor}; margin-bottom: 12px;">`;
-                    networkHTML += `Funder: ${funderAddr.substring(0, 20)}...${funderTypeLabel}</div>`;
+                    networkHTML += `<div style="color: ${funderColor}; margin-bottom: 12px; font-family: monospace; font-size: 11px; word-break: break-all;">`;
+                    networkHTML += `Funder: ${funderAddr}${funderTypeLabel}</div>`;
 
                     if (senderCount > 0) {
                         networkHTML += `<div style="color: #fbbf24; margin-left: 20px; margin-bottom: 6px;">← ${senderCount} senders → ${totalToCreator} SOL</div>`;
@@ -3795,7 +3795,7 @@ HTML_TEMPLATE = """
                                 const senderType = sender.sender_type || 'unknown';
                                 const senderColor = senderType === 'cex' ? '#ef4444' : senderType === 'infra' ? '#f97316' : '#fbbf24';
                                 const senderAmount = sender.amount_to_funder.toFixed(2);
-                                networkHTML += `<div style="color: ${senderColor}; margin-left: 40px; font-size: 11px;">• ${sender.sender_address.substring(0, 16)}... → ${senderAmount} SOL</div>`;
+                                networkHTML += `<div style="color: ${senderColor}; margin-left: 40px; font-size: 11px; font-family: monospace; word-break: break-all;">• ${sender.sender_address} → ${senderAmount} SOL</div>`;
                             });
                         } else if (tier.senders.length > 5) {
                             networkHTML += `<div style="color: #a0a0a0; margin-left: 40px; font-size: 11px;">... and ${tier.senders.length - 5} more senders</div>`;

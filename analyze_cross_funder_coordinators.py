@@ -18,18 +18,21 @@ def get_db_connection():
     conn.execute("PRAGMA query_only = ON")
     return conn
 
-def analyze_cross_funder_coordinators():
+def analyze_cross_funder_coordinators(min_total_sol=0.001):
     """
     Analyze senders that fund multiple funders (cross-funder coordinators).
 
     These represent multi-layer coordination patterns:
     - Single sender → Multiple intermediary funders → Multiple creators
     - Can indicate sophisticated pump & dump operations
+
+    Args:
+        min_total_sol: Minimum total SOL to avoid pure spam (default 0.001 = 1 milliSOL)
     """
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Find all senders that fund 2+ funders
+    # Find all senders that fund 2+ funders (filter out pure spam dust)
     cursor.execute("""
         SELECT
             sender_address,
@@ -38,9 +41,9 @@ def analyze_cross_funder_coordinators():
             SUM(amount_sol) as total_sol_sent
         FROM funder_incoming_transfers
         GROUP BY sender_address
-        HAVING funder_count >= 2
+        HAVING funder_count >= 2 AND SUM(amount_sol) >= ?
         ORDER BY funder_count DESC, total_sol_sent DESC
-    """)
+    """, (min_total_sol,))
 
     cross_funder_senders = cursor.fetchall()
     print(f"\n{'='*80}")
@@ -192,7 +195,9 @@ def insert_coordinators_to_db(coordinators: List[Dict]):
 
 def main():
     print("\nAnalyzing cross-funder coordination patterns...")
-    coordinators = analyze_cross_funder_coordinators()
+    # Filter out pure spam dust (exclude amounts < 1e-6 SOL which are routing errors)
+    # Keep amounts >= 1e-7 which are intentional dust signals
+    coordinators = analyze_cross_funder_coordinators(min_total_sol=1e-8)
 
     if coordinators:
         print("\nInserting into database...")

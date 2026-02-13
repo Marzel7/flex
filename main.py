@@ -12,6 +12,7 @@ Displays tokens that have migrated from Pump.Fun to PumpSwap with:
 import sqlite3
 import json
 import requests
+import threading
 from datetime import datetime
 from flask import Flask, jsonify, render_template_string, request
 from typing import Dict, List, Optional
@@ -24,6 +25,9 @@ DB_PATH = "pumpswap_tokens.db"
 
 # Flask app
 app = Flask(__name__)
+
+# Analysis result cache for background operations
+app.funder_analysis_cache = {}
 
 # =========================================================================
 # DATABASE QUERIES
@@ -3594,6 +3598,9 @@ HTML_TEMPLATE = """
                                     <td>${funder.total_sol_sent.toFixed(2)} SOL</td>
                                     <td>${funder.funding_record_count}</td>
                                     <td style="font-size: 11px;">${period}</td>
+                                    <td>
+                                        <button onclick="analyzeFunderTransfers('${funder.funder_address}')" style="padding: 4px 8px; font-size: 11px; background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.5); border-radius: 3px; cursor: pointer; white-space: nowrap;">Analyze</button>
+                                    </td>
                                 </tr>
                             `;
                         }).join('');
@@ -3615,6 +3622,66 @@ HTML_TEMPLATE = """
 
         function closeMultiCreatorFunders() {
             document.getElementById('multiCreatorFundersModal').style.display = 'none';
+        }
+
+        // Analyze funder transfers in background and show status
+        async function analyzeFunderTransfers(funderAddress) {
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Analyzing...';
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+
+            try {
+                const response = await fetch('/api/analyze-funder-transfers', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({funder_address: funderAddress})
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'queued') {
+                    btn.textContent = 'Queued ✓';
+                    btn.style.background = 'rgba(245, 158, 11, 0.2)';
+                    btn.style.color = '#fbbf24';
+                    btn.style.borderColor = 'rgba(245, 158, 11, 0.5)';
+
+                    // Show notification
+                    console.log(`✅ Funder analysis queued for: ${funderAddress}`);
+                    alert(`✅ Analysis started for funder\n\nAddress: ${funderAddress.substring(0, 16)}...\n\nResults will update in the background.`);
+
+                    // Reset button after delay
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                        btn.style.background = 'rgba(34, 197, 94, 0.2)';
+                        btn.style.color = '#4ade80';
+                        btn.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+                    }, 3000);
+                } else if (data.status === 'completed') {
+                    btn.textContent = `Done: ${data.result.incoming_found} IN / ${data.result.outgoing_found} OUT`;
+                    btn.style.background = 'rgba(34, 197, 94, 0.3)';
+                    btn.style.color = '#4ade80';
+                    btn.style.borderColor = 'rgba(34, 197, 94, 0.7)';
+
+                    // Show results
+                    const msg = `✅ Analysis Complete\n\nIncoming: ${data.result.incoming_found}\nOutgoing: ${data.result.outgoing_found}\nTotal SOL: ${data.result.total_sol.toFixed(4)}`;
+                    alert(msg);
+                } else {
+                    alert(`❌ Error: ${data.error || 'Unknown error'}`);
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                }
+            } catch (error) {
+                console.error('Error analyzing funder:', error);
+                alert(`❌ Error analyzing funder: ${error.message}`);
+                btn.textContent = originalText;
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
         }
 
         function closeCreatorDetails() {
@@ -5484,6 +5551,68 @@ def api_multi_creator_funders():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
+@app.route('/api/analyze-funder-transfers', methods=['POST'])
+def api_analyze_funder_transfers():
+    """Trigger funder transfer analysis (incoming/outgoing) for a funder address"""
+    try:
+        data = request.get_json()
+        funder_address = data.get('funder_address')
+
+        if not funder_address:
+            return jsonify({'error': 'No funder address provided'}), 400
+
+        # Import here to avoid circular imports
+        from funder_incoming_extractor import extract_for_creator
+        import asyncio
+        import threading
+
+        # Run extraction in background thread
+        def run_extraction():
+            try:
+                # For a funder, we need to find creators it funds, then extract
+                # But we can also just extract transfers directly from funder perspective
+                conn = sqlite3.connect(DB_PATH, timeout=5)
+                cursor = conn.cursor()
+
+                # Find creators this funder funds
+                cursor.execute("""
+                    SELECT DISTINCT creator_address FROM creator_funders
+                    WHERE funder_address = ?
+                """, (funder_address,))
+                creators = cursor.fetchall()
+                conn.close()
+
+                if creators:
+                    # Use first creator as anchor point for extraction
+                    creator = creators[0][0]
+                    result = extract_for_creator(creator)
+
+                    # Store result in memory/cache for quick retrieval
+                    app.funder_analysis_cache = app.funder_analysis_cache or {}
+                    app.funder_analysis_cache[funder_address] = {
+                        'status': 'completed',
+                        'result': result,
+                        'timestamp': datetime.now().isoformat()
+                    }
+                    print(f"[FUNDER_ANALYSIS] Completed for {funder_address}: {result}")
+                else:
+                    print(f"[FUNDER_ANALYSIS] No creators found for funder {funder_address}")
+            except Exception as e:
+                print(f"[FUNDER_ANALYSIS] Error analyzing {funder_address}: {e}")
+
+        # Start background thread
+        thread = threading.Thread(target=run_extraction, daemon=True)
+        thread.start()
+
+        return jsonify({
+            'status': 'queued',
+            'funder_address': funder_address,
+            'message': 'Analysis queued in background'
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/creator-service-history/<creator_address>')

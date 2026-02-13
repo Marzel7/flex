@@ -1444,6 +1444,7 @@ HTML_TEMPLATE = """
                 <button class="action-button" onclick="toggleCEXView()" title="View CEX funders and activity" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.5); margin-left: 8px;">CEX View</button>
                 <button class="action-button" onclick="showMultiCreatorFunders()" title="Analyze funders supporting multiple creators" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">Coordinated Funders</button>
                 <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Validate TX</button>
+                <button id="funderExtractionBtn" class="action-button" onclick="toggleFunderExtraction()" title="Toggle funder transfer extraction (incoming/outgoing)" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); margin-left: 8px;">Funder Extraction OFF</button>
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(239, 68, 68, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button class="action-button danger" onclick="emptyDatabase()" title="Clear all tokens, clustering, and address data">Empty DB</button>
@@ -2641,6 +2642,58 @@ HTML_TEMPLATE = """
             }
         }
 
+        // Toggle funder transfer extraction (incoming/outgoing)
+        function toggleFunderExtraction() {
+            const btn = document.getElementById('funderExtractionBtn');
+            const isEnabled = btn.textContent.includes('ON');
+
+            fetch('/api/funder-extraction-control', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({action: 'toggle'})
+            }).then(resp => resp.json()).then(data => {
+                if (data.extraction_enabled) {
+                    btn.textContent = 'Funder Extraction ON';
+                    btn.style.background = 'rgba(34, 197, 94, 0.2)';
+                    btn.style.color = '#4ade80';
+                    btn.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+                    console.log('✅ Funder transfer extraction ENABLED');
+                } else {
+                    btn.textContent = 'Funder Extraction OFF';
+                    btn.style.background = 'rgba(245, 158, 11, 0.2)';
+                    btn.style.color = '#fbbf24';
+                    btn.style.borderColor = 'rgba(245, 158, 11, 0.5)';
+                    console.log('✅ Funder transfer extraction DISABLED');
+                }
+            }).catch(e => {
+                console.error('❌ Error toggling funder extraction:', e);
+                alert('❌ Error toggling funder extraction');
+            });
+        }
+
+        // Check funder extraction status on page load
+        async function checkFunderExtractionStatus() {
+            try {
+                const resp = await fetch('/api/funder-extraction-control');
+                const data = await resp.json();
+                const btn = document.getElementById('funderExtractionBtn');
+
+                if (data.extraction_enabled) {
+                    btn.textContent = 'Funder Extraction ON';
+                    btn.style.background = 'rgba(34, 197, 94, 0.2)';
+                    btn.style.color = '#4ade80';
+                    btn.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+                } else {
+                    btn.textContent = 'Funder Extraction OFF';
+                    btn.style.background = 'rgba(245, 158, 11, 0.2)';
+                    btn.style.color = '#fbbf24';
+                    btn.style.borderColor = 'rgba(245, 158, 11, 0.5)';
+                }
+            } catch (e) {
+                console.error('Error checking funder extraction status:', e);
+            }
+        }
+
         // Toggle between token table and CEX view
         function toggleFundingNetworkView() {
             const tokensContainer = document.getElementById('tokens-container');
@@ -2860,6 +2913,7 @@ HTML_TEMPLATE = """
         // Load tokens immediately and then every 10 seconds
         initializeSettings();
         checkPollingStatus();
+        checkFunderExtractionStatus();
         loadTokens();
         setInterval(loadTokens, 10000);
 
@@ -5677,6 +5731,72 @@ def api_polling_control():
                 'action': action
             })
     
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/funder-extraction-control', methods=['GET', 'POST'])
+def api_funder_extraction_control():
+    """Get or set funder transfer extraction status"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        cursor = conn.cursor()
+
+        # Ensure settings table exists
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS polling_settings (
+                setting_name TEXT PRIMARY KEY,
+                setting_value TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        conn.commit()
+
+        if request.method == 'GET':
+            # Get current funder extraction status
+            cursor.execute("SELECT setting_value FROM polling_settings WHERE setting_name = 'funder_extraction_enabled'")
+            row = cursor.fetchone()
+            extraction_enabled = row[0] == '1' if row else False
+
+            conn.close()
+            return jsonify({
+                'status': 'enabled' if extraction_enabled else 'disabled',
+                'extraction_enabled': extraction_enabled
+            })
+
+        elif request.method == 'POST':
+            data = request.get_json()
+            action = data.get('action')  # 'enable', 'disable', 'toggle'
+
+            if action == 'toggle':
+                # Get current state
+                cursor.execute("SELECT setting_value FROM polling_settings WHERE setting_name = 'funder_extraction_enabled'")
+                row = cursor.fetchone()
+                current = row[0] == '1' if row else False
+                new_value = '0' if current else '1'
+            elif action == 'enable':
+                new_value = '1'
+            elif action == 'disable':
+                new_value = '0'
+            else:
+                conn.close()
+                return jsonify({'error': 'Invalid action'}), 400
+
+            # Update setting
+            cursor.execute("""
+                INSERT OR REPLACE INTO polling_settings (setting_name, setting_value)
+                VALUES ('funder_extraction_enabled', ?)
+            """, (new_value,))
+            conn.commit()
+            conn.close()
+
+            extraction_enabled = new_value == '1'
+            return jsonify({
+                'status': 'success',
+                'extraction_enabled': extraction_enabled,
+                'action': action
+            })
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

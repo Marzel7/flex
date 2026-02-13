@@ -3674,9 +3674,9 @@ HTML_TEMPLATE = """
                             if (statusData.status === 'completed') {
                                 clearInterval(pollInterval);
 
-                                // Show results
-                                const incoming = statusData.result.incoming_found || 0;
-                                const outgoing = statusData.result.outgoing_found || 0;
+                                // Show results (handle both naming conventions)
+                                const incoming = statusData.result.incoming_found || statusData.result.incoming_count || 0;
+                                const outgoing = statusData.result.outgoing_found || statusData.result.outgoing_count || 0;
                                 const totalSol = (statusData.result.total_sol || 0).toFixed(2);
 
                                 btn.textContent = `Done: ${incoming} IN / ${outgoing} OUT`;
@@ -3701,13 +3701,15 @@ HTML_TEMPLATE = """
                         }
                     }, 1000);  // Poll every 1 second
                 } else if (data.status === 'completed') {
-                    btn.textContent = `Done: ${data.result.incoming_found} IN / ${data.result.outgoing_found} OUT`;
+                    const incoming = data.result.incoming_found || data.result.incoming_count || 0;
+                    const outgoing = data.result.outgoing_found || data.result.outgoing_count || 0;
+                    btn.textContent = `Done: ${incoming} IN / ${outgoing} OUT`;
                     btn.style.background = 'rgba(34, 197, 94, 0.3)';
                     btn.style.color = '#4ade80';
                     btn.style.borderColor = 'rgba(34, 197, 94, 0.7)';
 
                     // Show results
-                    const msg = `✅ Analysis Complete\n\nIncoming: ${data.result.incoming_found}\nOutgoing: ${data.result.outgoing_found}\nTotal SOL: ${data.result.total_sol.toFixed(4)}`;
+                    const msg = `✅ Analysis Complete\n\nIncoming: ${incoming}\nOutgoing: ${outgoing}\nTotal SOL: ${(data.result.total_sol || 0).toFixed(4)}`;
                     alert(msg);
                 } else {
                     alert(`❌ Error: ${data.error || 'Unknown error'}`);
@@ -5595,54 +5597,53 @@ def api_multi_creator_funders():
 @app.route('/api/analyze-funder-transfers', methods=['POST'])
 def api_analyze_funder_transfers():
     """Trigger funder transfer analysis (incoming/outgoing) for a funder address"""
+    import sys
+    import traceback
+
+    print(f"\n[ANALYZE_ENDPOINT] Received analyze request", flush=True, file=sys.stderr)
     try:
         data = request.get_json()
         funder_address = data.get('funder_address')
+        print(f"[ANALYZE_ENDPOINT] Funder address: {funder_address}", flush=True, file=sys.stderr)
 
         if not funder_address:
             return jsonify({'error': 'No funder address provided'}), 400
 
         # Import here to avoid circular imports
-        from funder_incoming_extractor import extract_for_creator
-        import asyncio
+        from funder_helius_extractor import extract_transfers_for_funder
         import threading
 
         # Run extraction in background thread
         def run_extraction():
+            import sys
             try:
-                # For a funder, we need to find creators it funds, then extract
-                # But we can also just extract transfers directly from funder perspective
-                conn = sqlite3.connect(DB_PATH, timeout=5)
-                cursor = conn.cursor()
+                print(f"[FUNDER_ANALYSIS] Starting analysis for {funder_address}", flush=True)
+                sys.stdout.flush()
 
-                # Find creators this funder funds
-                cursor.execute("""
-                    SELECT DISTINCT creator_address FROM creator_funders
-                    WHERE funder_address = ?
-                """, (funder_address,))
-                creators = cursor.fetchall()
-                conn.close()
+                # Extract transfers directly for this funder using Helius
+                # This is much faster than extracting for all creators
+                print(f"[FUNDER_ANALYSIS] Extracting transfers for funder {funder_address}...", flush=True)
+                sys.stdout.flush()
 
-                if creators:
-                    # Use first creator as anchor point for extraction
-                    creator = creators[0][0]
-                    result = extract_for_creator(creator)
+                result = extract_transfers_for_funder(funder_address)
 
-                    # Store result in memory/cache for quick retrieval
-                    app.funder_analysis_cache = app.funder_analysis_cache or {}
-                    app.funder_analysis_cache[funder_address] = {
-                        'status': 'completed',
-                        'result': result,
-                        'timestamp': datetime.now().isoformat()
-                    }
-                    print(f"[FUNDER_ANALYSIS] Completed for {funder_address}: {result}")
-                else:
-                    print(f"[FUNDER_ANALYSIS] No creators found for funder {funder_address}")
+                # Store result in memory/cache for quick retrieval
+                app.funder_analysis_cache = app.funder_analysis_cache or {}
+                app.funder_analysis_cache[funder_address] = {
+                    'status': 'completed',
+                    'result': result,
+                    'timestamp': datetime.now().isoformat()
+                }
+                print(f"[FUNDER_ANALYSIS] Completed for {funder_address}: {result}", flush=True)
+                sys.stdout.flush()
             except Exception as e:
-                print(f"[FUNDER_ANALYSIS] Error analyzing {funder_address}: {e}")
+                import traceback
+                print(f"[FUNDER_ANALYSIS] Error analyzing {funder_address}: {e}", flush=True)
+                print(traceback.format_exc(), flush=True)
+                sys.stdout.flush()
 
-        # Start background thread
-        thread = threading.Thread(target=run_extraction, daemon=True)
+        # Start background thread (non-daemon so it completes)
+        thread = threading.Thread(target=run_extraction, daemon=False)
         thread.start()
 
         return jsonify({

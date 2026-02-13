@@ -2,11 +2,13 @@
 """
 Extract and save funder transfers (both incoming and outgoing) to database.
 
+Uses Helius API for fast, efficient transaction history. Falls back to Solana RPC if needed.
+
 For each funder for a creator:
-1. Get recent transaction signatures via Solana RPC
+1. Get recent transactions via Helius or Solana RPC
 2. Parse SOL transfers where funder is involved (both IN and OUT)
-3. For INCOMING: Identify sender addresses (funder's balance increased)
-4. For OUTGOING: Identify recipient addresses (funder's balance decreased)
+3. For INCOMING: Identify sender addresses (funder received SOL)
+4. For OUTGOING: Identify recipient addresses (funder sent SOL)
 5. Classify senders/recipients (CEX, INFRA, unknown)
 6. Save to funder_incoming_transfers table (incoming)
 7. Save to funder_outgoing_transfers table (outgoing)
@@ -18,14 +20,23 @@ import aiohttp
 from typing import Dict, List, Tuple, Optional
 import sys
 import time
+import os
 sys.path.insert(0, '/Users/kevinkeaveney/Dev/claude/flex')
 
 from infra_mapping import get_account_info, get_cex_info
 import requests
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 DB_PATH = "pumpswap_tokens.db"
 SOLANA_RPC = "https://api.mainnet-beta.solana.com"
-RPC_RATE_LIMIT_DELAY = 1  # 1 second delay between RPC calls to avoid rate limiting
+HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()
+RPC_RATE_LIMIT_DELAY = 2  # 2 second delay between RPC calls to avoid rate limiting
+MAX_RETRIES = 3  # Retry failed requests up to 3 times
+LAMPORTS_PER_SOL = 1_000_000_000
+USE_HELIUS = bool(HELIUS_API_KEY)  # Use Helius if API key is available
 
 
 def get_creator_funders(creator_address: str) -> list:
@@ -135,67 +146,118 @@ def save_funder_outgoing_transfer(funder_address: str, recipient_address: str, a
         return False
 
 
-def get_transactions_for_address(address: str, limit: int = 100) -> List[Dict]:
-    """Get recent transactions for an address via RPC"""
+def get_transactions_helius(address: str, limit: int = 1000) -> Optional[List[Dict]]:
+    """Get transactions for an address via Helius API"""
+    if not HELIUS_API_KEY:
+        return None
+
     try:
-        time.sleep(RPC_RATE_LIMIT_DELAY)  # Rate limiting
-
-        payload = {
-            "jsonrpc": "2.0",
-            "id": 1,
-            "method": "getSignaturesForAddress",
-            "params": [address, {"limit": limit}]
-        }
-
-        response = requests.post(SOLANA_RPC, json=payload, timeout=10)
+        url = f"https://api.helius.xyz/v0/addresses/{address}/transactions?api-key={HELIUS_API_KEY}"
+        print(f"[HELIUS] Fetching transactions for {address[:16]}...")
+        response = requests.get(url, timeout=15)
         data = response.json()
 
-        if 'error' in data:
-            print(f"[RPC] Error: {data['error']}")
-            return []
-
-        if 'result' not in data or not data['result']:
-            return []
-
-        return data['result']
+        if isinstance(data, list):
+            print(f"[HELIUS] Retrieved {len(data)} transactions")
+            return data
+        else:
+            print(f"[HELIUS] Error: {data}")
+            return None
 
     except Exception as e:
-        print(f"[RPC] Error getting signatures: {e}")
-        return []
+        print(f"[HELIUS] Error: {e}")
+        return None
+
+
+def get_transactions_for_address(address: str, limit: int = 100) -> List[Dict]:
+    """Get recent transactions for an address via RPC with retry logic"""
+    for attempt in range(MAX_RETRIES):
+        try:
+            time.sleep(RPC_RATE_LIMIT_DELAY)  # Rate limiting
+
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getSignaturesForAddress",
+                "params": [address, {"limit": limit}]
+            }
+
+            response = requests.post(SOLANA_RPC, json=payload, timeout=10)
+            data = response.json()
+
+            if 'error' in data:
+                error_msg = data['error'].get('message', str(data['error']))
+                if '429' in str(data['error']) or 'rate' in error_msg.lower():
+                    print(f"[RPC] Rate limited (attempt {attempt + 1}/{MAX_RETRIES}): {error_msg}")
+                    if attempt < MAX_RETRIES - 1:
+                        time.sleep(5)  # Wait longer before retry
+                        continue
+                    return []
+                else:
+                    print(f"[RPC] Error: {data['error']}")
+                    return []
+
+            if 'result' not in data or not data['result']:
+                return []
+
+            return data['result']
+
+        except Exception as e:
+            print(f"[RPC] Error getting signatures (attempt {attempt + 1}/{MAX_RETRIES}): {e}")
+            if attempt < MAX_RETRIES - 1:
+                time.sleep(5)  # Wait longer before retry
+            else:
+                return []
+
+    return []
 
 
 def parse_transaction(tx_sig: str) -> Optional[Dict]:
-    """Parse a transaction to find SOL transfers"""
-    try:
-        time.sleep(RPC_RATE_LIMIT_DELAY)  # Rate limiting
+    """Parse a transaction to find SOL transfers with retry logic"""
+    for attempt in range(MAX_RETRIES):
+        try:
+            time.sleep(RPC_RATE_LIMIT_DELAY)  # Rate limiting
 
-        payload = {
-            "jsonrpc": "2.0",
-            "id": 1,
-            "method": "getTransaction",
-            "params": [tx_sig, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
-        }
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getTransaction",
+                "params": [tx_sig, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
+            }
 
-        response = requests.post(SOLANA_RPC, json=payload, timeout=10)
-        data = response.json()
+            response = requests.post(SOLANA_RPC, json=payload, timeout=10)
+            data = response.json()
 
-        if 'error' in data or 'result' not in data or data['result'] is None:
-            return None
+            if 'error' in data:
+                error_msg = str(data['error']).lower()
+                if '429' in str(data['error']) or 'rate' in error_msg:
+                    if attempt < MAX_RETRIES - 1:
+                        time.sleep(5)  # Wait longer before retry
+                        continue
+                return None
 
-        tx = data['result']
+            if 'result' not in data or data['result'] is None:
+                return None
 
-        return {
-            'signature': tx_sig,
-            'accounts': tx['transaction']['message']['accountKeys'],
-            'pre_balances': tx['meta']['preBalances'],
-            'post_balances': tx['meta']['postBalances'],
-            'block_time': tx['blockTime'],
-            'err': tx['meta']['err']
-        }
+            tx = data['result']
 
-    except Exception as e:
-        print(f"[RPC] Error parsing transaction {tx_sig[:16]}...: {e}")
-        return None
+            return {
+                'signature': tx_sig,
+                'accounts': tx['transaction']['message']['accountKeys'],
+                'pre_balances': tx['meta']['preBalances'],
+                'post_balances': tx['meta']['postBalances'],
+                'block_time': tx['blockTime'],
+                'err': tx['meta']['err']
+            }
+
+        except Exception as e:
+            print(f"[RPC] Error parsing transaction {tx_sig[:16]}... (attempt {attempt + 1}/{MAX_RETRIES}): {e}")
+            if attempt < MAX_RETRIES - 1:
+                time.sleep(5)  # Wait longer before retry
+            else:
+                return None
+
+    return None
 
 
 def extract_transfers_for_funder(funder_address: str) -> Dict:
@@ -205,124 +267,197 @@ def extract_transfers_for_funder(funder_address: str) -> Dict:
     incoming_transfers = []
     outgoing_transfers = []
 
-    # Get recent transactions for this funder (increased limit)
-    sigs = get_transactions_for_address(funder_address, limit=1000)
-    print(f"[RPC] Found {len(sigs)} transactions for funder")
+    # Try Helius first (much faster), fall back to Solana RPC
+    txs = None
+    if USE_HELIUS:
+        helius_txs = get_transactions_helius(funder_address, limit=1000)
+        if helius_txs:
+            # Convert Helius format to our format for processing
+            txs = helius_txs
+            is_helius = True
+        else:
+            print(f"[RPC] Helius failed, falling back to Solana RPC")
+            is_helius = False
+    else:
+        is_helius = False
 
-    if not sigs:
-        return {'incoming_count': 0, 'outgoing_count': 0, 'total_sol': 0}
+    if not txs:
+        # Fall back to standard RPC
+        sigs = get_transactions_for_address(funder_address, limit=200)
+        print(f"[RPC] Found {len(sigs)} transactions for funder")
+        if not sigs:
+            return {'incoming_count': 0, 'outgoing_count': 0, 'total_sol': 0}
+        txs = sigs
+        is_helius = False
 
     # Parse each transaction
-    for i, sig_info in enumerate(sigs):
-        sig = sig_info['signature']
-
-        # Parse transaction
-        tx = parse_transaction(sig)
-        if not tx:
-            continue
-
-        # Skip if transaction failed
-        if tx['err'] is not None:
-            continue
-
-        accounts = tx['accounts']
-        pre_balances = tx['pre_balances']
-        post_balances = tx['post_balances']
-        block_time = tx['block_time']
-
-        # Find funder in accounts
-        funder_idx = None
+    for i, tx_data in enumerate(txs):
         try:
-            funder_idx = accounts.index(funder_address)
-        except ValueError:
+            if is_helius:
+                # Parse Helius format
+                tx_sig = tx_data.get('signature', '')
+                timestamp = tx_data.get('timestamp')
+
+                # Skip failed transactions
+                if tx_data.get('type') == 'FAILED':
+                    continue
+
+                # Get native transfers from Helius enriched data
+                native_transfers = tx_data.get('nativeTransfers', [])
+
+                if not native_transfers:
+                    continue
+
+                # Check each native transfer
+                for transfer in native_transfers:
+                    from_addr = transfer.get('fromUserAccount', '')
+                    to_addr = transfer.get('toUserAccount', '')
+                    amount_lamports = transfer.get('amount', 0)
+                    amount_sol = amount_lamports / LAMPORTS_PER_SOL
+
+                    # Filter dust
+                    if amount_sol < 0.001:
+                        continue
+
+                    # INCOMING: Funder is receiving
+                    if to_addr == funder_address and from_addr:
+                        if amount_sol > 0:
+                            incoming_transfers.append({
+                                'sender': from_addr,
+                                'funder': funder_address,
+                                'amount_sol': amount_sol,
+                                'tx_sig': tx_sig,
+                                'block_time': timestamp
+                            })
+                            print(f"[INCOMING] {from_addr[:16]}... → {funder_address[:16]}... | {amount_sol:.4f} SOL")
+
+                    # OUTGOING: Funder is sending
+                    elif from_addr == funder_address and to_addr:
+                        if amount_sol > 0:
+                            outgoing_transfers.append({
+                                'funder': funder_address,
+                                'recipient': to_addr,
+                                'amount_sol': amount_sol,
+                                'tx_sig': tx_sig,
+                                'block_time': timestamp
+                            })
+                            print(f"[OUTGOING] {funder_address[:16]}... → {to_addr[:16]}... | {amount_sol:.4f} SOL")
+            else:
+                # Parse RPC format
+                sig_info = tx_data
+                sig = sig_info['signature']
+
+                # Parse transaction
+                tx = parse_transaction(sig)
+                if not tx:
+                    continue
+
+                # Skip if transaction failed
+                if tx['err'] is not None:
+                    continue
+
+                accounts = tx['accounts']
+                pre_balances = tx['pre_balances']
+                post_balances = tx['post_balances']
+                block_time = tx['block_time']
+
+                # Find funder in accounts
+                funder_idx = None
+                try:
+                    funder_idx = accounts.index(funder_address)
+                except ValueError:
+                    continue
+
+                pre_balance = pre_balances[funder_idx]
+                post_balance = post_balances[funder_idx]
+                balance_change = post_balance - pre_balance
+
+                # INCOMING: Funder's balance increased
+                if balance_change > 0:
+                    amount_lamports = balance_change
+                    amount_sol = amount_lamports / 1e9
+
+                    # Only save transfers > 0.001 SOL (filter dust)
+                    if amount_sol > 0.001:
+                        # Find sender (account that decreased by similar amount)
+                        sender = None
+                        best_match = None
+                        best_diff = float('inf')
+
+                        for j, (pre, post) in enumerate(zip(pre_balances, post_balances)):
+                            if j == funder_idx:
+                                continue
+
+                            if pre > post:
+                                # This account lost SOL
+                                lost_amount = (pre - post) / 1e9
+
+                                # Find the account that lost approximately the right amount
+                                diff = abs(lost_amount - amount_sol)
+                                if diff < best_diff:
+                                    best_diff = diff
+                                    best_match = (j, accounts[j], lost_amount)
+
+                        # Use best match if it's close enough (within 5%)
+                        if best_match and best_diff < amount_sol * 0.05:
+                            sender = best_match[1]
+
+                        if sender:
+                            incoming_transfers.append({
+                                'sender': sender,
+                                'funder': funder_address,
+                                'amount_sol': amount_sol,
+                                'tx_sig': sig,
+                                'block_time': block_time
+                            })
+                            print(f"[INCOMING] {sender[:16]}... → {funder_address[:16]}... | {amount_sol:.4f} SOL")
+
+                # OUTGOING: Funder's balance decreased
+                elif balance_change < 0:
+                    amount_lamports = abs(balance_change)
+                    amount_sol = amount_lamports / 1e9
+
+                    # Only save transfers > 0.001 SOL (filter dust)
+                    if amount_sol > 0.001:
+                        # Find recipient (account that increased by similar amount)
+                        recipient = None
+                        best_match = None
+                        best_diff = float('inf')
+
+                        for j, (pre, post) in enumerate(zip(pre_balances, post_balances)):
+                            if j == funder_idx:
+                                continue
+
+                            if post > pre:
+                                # This account gained SOL
+                                gained_amount = (post - pre) / 1e9
+
+                                # Find the account that gained approximately the right amount
+                                diff = abs(gained_amount - amount_sol)
+                                if diff < best_diff:
+                                    best_diff = diff
+                                    best_match = (j, accounts[j], gained_amount)
+
+                        # Use best match if it's close enough (within 5%)
+                        if best_match and best_diff < amount_sol * 0.05:
+                            recipient = best_match[1]
+
+                        if recipient:
+                            outgoing_transfers.append({
+                                'funder': funder_address,
+                                'recipient': recipient,
+                                'amount_sol': amount_sol,
+                                'tx_sig': sig,
+                                'block_time': block_time
+                            })
+                            print(f"[OUTGOING] {funder_address[:16]}... → {recipient[:16]}... | {amount_sol:.4f} SOL")
+
+        except Exception as e:
+            print(f"[PARSE] Error processing transaction: {e}")
             continue
-
-        pre_balance = pre_balances[funder_idx]
-        post_balance = post_balances[funder_idx]
-        balance_change = post_balance - pre_balance
-
-        # INCOMING: Funder's balance increased
-        if balance_change > 0:
-            amount_lamports = balance_change
-            amount_sol = amount_lamports / 1e9
-
-            # Only save transfers > 0.001 SOL (filter dust)
-            if amount_sol > 0.001:
-                # Find sender (account that decreased by similar amount)
-                sender = None
-                best_match = None
-                best_diff = float('inf')
-
-                for j, (pre, post) in enumerate(zip(pre_balances, post_balances)):
-                    if j == funder_idx:
-                        continue
-
-                    if pre > post:
-                        # This account lost SOL
-                        lost_amount = (pre - post) / 1e9
-
-                        # Find the account that lost approximately the right amount
-                        diff = abs(lost_amount - amount_sol)
-                        if diff < best_diff:
-                            best_diff = diff
-                            best_match = (j, accounts[j], lost_amount)
-
-                # Use best match if it's close enough (within 5%)
-                if best_match and best_diff < amount_sol * 0.05:
-                    sender = best_match[1]
-
-                if sender:
-                    incoming_transfers.append({
-                        'sender': sender,
-                        'funder': funder_address,
-                        'amount_sol': amount_sol,
-                        'tx_sig': sig,
-                        'block_time': block_time
-                    })
-                    print(f"[INCOMING] {sender[:16]}... → {funder_address[:16]}... | {amount_sol:.4f} SOL")
-
-        # OUTGOING: Funder's balance decreased
-        elif balance_change < 0:
-            amount_lamports = abs(balance_change)
-            amount_sol = amount_lamports / 1e9
-
-            # Only save transfers > 0.001 SOL (filter dust)
-            if amount_sol > 0.001:
-                # Find recipient (account that increased by similar amount)
-                recipient = None
-                best_match = None
-                best_diff = float('inf')
-
-                for j, (pre, post) in enumerate(zip(pre_balances, post_balances)):
-                    if j == funder_idx:
-                        continue
-
-                    if post > pre:
-                        # This account gained SOL
-                        gained_amount = (post - pre) / 1e9
-
-                        # Find the account that gained approximately the right amount
-                        diff = abs(gained_amount - amount_sol)
-                        if diff < best_diff:
-                            best_diff = diff
-                            best_match = (j, accounts[j], gained_amount)
-
-                # Use best match if it's close enough (within 5%)
-                if best_match and best_diff < amount_sol * 0.05:
-                    recipient = best_match[1]
-
-                if recipient:
-                    outgoing_transfers.append({
-                        'funder': funder_address,
-                        'recipient': recipient,
-                        'amount_sol': amount_sol,
-                        'tx_sig': sig,
-                        'block_time': block_time
-                    })
-                    print(f"[OUTGOING] {funder_address[:16]}... → {recipient[:16]}... | {amount_sol:.4f} SOL")
 
         if (i + 1) % 100 == 0:
-            print(f"[PROGRESS] Processed {i + 1}/{len(sigs)} transactions")
+            print(f"[PROGRESS] Processed {i + 1}/{len(txs)} transactions")
 
     # Save all incoming transfers to database
     incoming_saved = 0

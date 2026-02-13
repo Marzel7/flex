@@ -2042,6 +2042,70 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
+    <!-- Funder Transfer Details Modal -->
+    <div id="funderDetailsModal" class="modal">
+        <div class="modal-content" style="max-width: 1000px;">
+            <span class="close" onclick="closeFunderDetails()">&times;</span>
+            <h2>Funder: <span id="fdFunderAddr" style="font-family: monospace; font-size: 14px;">—</span></h2>
+
+            <!-- Summary Stats -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px;">
+                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #fbbf24;">
+                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 5px;">CREATORS FUNDED</div>
+                    <div id="fdCreatorCount" style="color: #fbbf24; font-size: 18px; font-weight: bold;">—</div>
+                </div>
+                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #4ade80;">
+                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 5px;">INCOMING SOL</div>
+                    <div id="fdIncomingTotal" style="color: #4ade80; font-size: 18px; font-weight: bold;">—</div>
+                </div>
+                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #ef4444;">
+                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 5px;">OUTGOING SOL</div>
+                    <div id="fdOutgoingTotal" style="color: #ef4444; font-size: 18px; font-weight: bold;">—</div>
+                </div>
+                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #f97316;">
+                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 5px;">NET FLOW</div>
+                    <div id="fdNetFlow" style="color: #f97316; font-size: 18px; font-weight: bold;">—</div>
+                </div>
+            </div>
+
+            <!-- Incoming Transfers -->
+            <h3 style="color: #e0e0e0; margin-top: 20px;">Incoming Transfers (Senders)</h3>
+            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 0; max-height: 350px; overflow-y: auto;">
+                <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                    <thead style="position: sticky; top: 0; background: rgba(0, 0, 0, 0.4);">
+                        <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
+                            <th style="padding: 10px; text-align: left; color: #a0a0a0;">Sender Address</th>
+                            <th style="padding: 10px; text-align: right; color: #a0a0a0;">SOL</th>
+                            <th style="padding: 10px; text-align: center; color: #a0a0a0;">Txs</th>
+                            <th style="padding: 10px; text-align: left; color: #a0a0a0;">Classification</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fdIncomingBody">
+                        <tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Outgoing Transfers -->
+            <h3 style="color: #e0e0e0; margin-top: 20px;">Outgoing Transfers (Recipients)</h3>
+            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 0; max-height: 350px; overflow-y: auto;">
+                <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                    <thead style="position: sticky; top: 0; background: rgba(0, 0, 0, 0.4);">
+                        <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
+                            <th style="padding: 10px; text-align: left; color: #a0a0a0;">Recipient Address</th>
+                            <th style="padding: 10px; text-align: right; color: #a0a0a0;">SOL</th>
+                            <th style="padding: 10px; text-align: center; color: #a0a0a0;">Txs</th>
+                            <th style="padding: 10px; text-align: left; color: #a0a0a0;">Classification</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fdOutgoingBody">
+                        <tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <script>
         async function loadTokens() {
             try {
@@ -3633,18 +3697,16 @@ HTML_TEMPLATE = """
                             }
 
                             return `
-                                <tr>
+                                <tr style="cursor: pointer;" onclick="showFunderDetails('${funder.funder_address}')" title="Click to view funder details">
                                     <td style="font-family: monospace; font-size: 12px; color: #ef4444;">
-                                        <a href="#" onclick="showCreatorDetails('${funder.funder_address}'); return false;" title="Click to view details" style="color: #ef4444; text-decoration: none;">
-                                            ${funder.funder_address}
-                                        </a>
+                                        ${funder.funder_address}
                                     </td>
                                     <td style="color: #fbbf24; font-weight: 600; font-size: 12px; white-space: nowrap;">${funderLabel}</td>
                                     <td><strong style="color: #ef4444;">${funder.creator_count}</strong></td>
                                     <td>${funder.total_sol_sent.toFixed(2)} SOL</td>
                                     <td>${funder.funding_record_count}</td>
                                     <td style="font-size: 11px;">${period}</td>
-                                    <td>
+                                    <td onclick="event.stopPropagation();">
                                         <button onclick="analyzeFunderTransfers('${funder.funder_address}')" style="padding: 4px 8px; font-size: 11px; background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.5); border-radius: 3px; cursor: pointer; white-space: nowrap;">Analyze</button>
                                     </td>
                                 </tr>
@@ -3785,6 +3847,7 @@ HTML_TEMPLATE = """
             const validationModal = document.getElementById('validationModal');
             const fundingNetwork3TierModal = document.getElementById('fundingNetwork3TierModal');
             const coordinatedFunderAnalysisModal = document.getElementById('coordinatedFunderAnalysisModal');
+            const funderDetailsModal = document.getElementById('funderDetailsModal');
 
             if (event.target === metricsModal) {
                 metricsModal.style.display = 'none';
@@ -3807,6 +3870,9 @@ HTML_TEMPLATE = """
             if (event.target === coordinatedFunderAnalysisModal) {
                 coordinatedFunderAnalysisModal.style.display = 'none';
             }
+            if (event.target === funderDetailsModal) {
+                funderDetailsModal.style.display = 'none';
+            }
         }
 
         // Close modal when pressing Escape
@@ -3819,6 +3885,7 @@ HTML_TEMPLATE = """
                 closeTxViewer();
                 closeValidationModal();
                 closeFundingNetwork3Tier();
+                closeFunderDetails();
             }
         });
 
@@ -4068,6 +4135,79 @@ HTML_TEMPLATE = """
 
         function closeCoordinatedFunderAnalysis() {
             document.getElementById('coordinatedFunderAnalysisModal').style.display = 'none';
+        }
+
+        async function showFunderDetails(funderAddress) {
+            const modal = document.getElementById('funderDetailsModal');
+            document.getElementById('fdFunderAddr').textContent = funderAddress;
+
+            try {
+                const response = await fetch(`/api/funder-transfer-details/${funderAddress}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    alert('Error loading funder details: ' + data.error);
+                    return;
+                }
+
+                // Update summary stats
+                document.getElementById('fdCreatorCount').textContent = data.creators_funded;
+                document.getElementById('fdIncomingTotal').textContent = data.incoming_transfers.total_sol.toFixed(2) + ' SOL';
+                document.getElementById('fdOutgoingTotal').textContent = data.outgoing_transfers.total_sol.toFixed(2) + ' SOL';
+                document.getElementById('fdNetFlow').textContent = data.net_flow.toFixed(2) + ' SOL';
+
+                // Display incoming transfers
+                let incomingHTML = '';
+                if (data.incoming_transfers.senders && data.incoming_transfers.senders.length > 0) {
+                    data.incoming_transfers.senders.forEach((sender) => {
+                        const label = sender.label ? `[${sender.label}]` : `[${sender.category || 'Unknown'}]`;
+                        const labelColor = sender.is_known ? '#4ade80' : '#fbbf24';
+                        const badge = sender.is_known ? ' ✓' : '';
+                        incomingHTML += `
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                <td style="padding: 10px; color: #e0e0e0; font-family: monospace; font-size: 11px; word-break: break-all;">${sender.address.substring(0, 16)}...</td>
+                                <td style="padding: 10px; text-align: right; color: #4ade80;">${sender.amount_sol.toFixed(2)}</td>
+                                <td style="padding: 10px; text-align: center; color: #a0a0a0;">${sender.transaction_count}</td>
+                                <td style="padding: 10px; color: ${labelColor};">${label}${badge}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    incomingHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">No incoming transfers recorded</td></tr>';
+                }
+                document.getElementById('fdIncomingBody').innerHTML = incomingHTML;
+
+                // Display outgoing transfers
+                let outgoingHTML = '';
+                if (data.outgoing_transfers.recipients && data.outgoing_transfers.recipients.length > 0) {
+                    data.outgoing_transfers.recipients.forEach((recipient) => {
+                        const label = recipient.label ? `[${recipient.label}]` : `[${recipient.category || 'Unknown'}]`;
+                        const labelColor = recipient.is_known ? '#4ade80' : '#fbbf24';
+                        const badge = recipient.is_known ? ' ✓' : '';
+                        outgoingHTML += `
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                <td style="padding: 10px; color: #e0e0e0; font-family: monospace; font-size: 11px; word-break: break-all;">${recipient.address.substring(0, 16)}...</td>
+                                <td style="padding: 10px; text-align: right; color: #ef4444;">${recipient.amount_sol.toFixed(2)}</td>
+                                <td style="padding: 10px; text-align: center; color: #a0a0a0;">${recipient.transaction_count}</td>
+                                <td style="padding: 10px; color: ${labelColor};">${label}${badge}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    outgoingHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">No outgoing transfers recorded</td></tr>';
+                }
+                document.getElementById('fdOutgoingBody').innerHTML = outgoingHTML;
+
+                modal.style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading funder details:', error);
+                alert('Failed to load funder details');
+            }
+        }
+
+        function closeFunderDetails() {
+            document.getElementById('funderDetailsModal').style.display = 'none';
         }
 
         async function validateTransaction() {
@@ -6177,6 +6317,142 @@ def api_funder_senders(funder_address: str):
             'known_senders': len(known_senders),
             'unknown_senders': len(unknown_senders),
             'senders': all_senders
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/funder-transfer-details/<funder_address>')
+def api_funder_transfer_details(funder_address: str):
+    """Get complete funder transfer details (IN and OUT) with summaries"""
+    try:
+        from infra_mapping import get_account_info, get_cex_info
+
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get funder info from creator_funders
+        cursor.execute("""
+            SELECT DISTINCT funder_address, COUNT(DISTINCT creator_address) as creator_count
+            FROM creator_funders
+            WHERE funder_address = ?
+            GROUP BY funder_address
+        """, (funder_address,))
+        funder_info = cursor.fetchone()
+
+        # Get incoming transfers (who funded this funder)
+        cursor.execute("""
+            SELECT
+                sender_address,
+                SUM(amount_sol) as total_amount,
+                COUNT(*) as transaction_count,
+                sender_type,
+                is_cex,
+                cex_exchange,
+                cex_type,
+                MIN(block_time) as first_transfer,
+                MAX(block_time) as last_transfer
+            FROM funder_incoming_transfers
+            WHERE funder_address = ?
+            GROUP BY sender_address
+            ORDER BY total_amount DESC
+        """, (funder_address,))
+        incoming_transfers = [dict(row) for row in cursor.fetchall()]
+
+        # Get outgoing transfers (where this funder sent SOL)
+        cursor.execute("""
+            SELECT
+                recipient_address,
+                SUM(amount_sol) as total_amount,
+                COUNT(*) as transaction_count,
+                recipient_type,
+                is_cex,
+                cex_exchange,
+                cex_type,
+                MIN(block_time) as first_transfer,
+                MAX(block_time) as last_transfer
+            FROM funder_outgoing_transfers
+            WHERE funder_address = ?
+            GROUP BY recipient_address
+            ORDER BY total_amount DESC
+        """, (funder_address,))
+        outgoing_transfers = [dict(row) for row in cursor.fetchall()]
+
+        conn.close()
+
+        # Enrich incoming transfers with classification
+        incoming_enriched = []
+        total_incoming = 0
+        for t in incoming_transfers:
+            total_incoming += t['total_amount']
+            addr = t['sender_address']
+            classification = {'is_known': False, 'label': None, 'category': None}
+
+            if t['is_cex']:
+                classification = {'is_known': True, 'label': t['cex_exchange'], 'category': 'CEX'}
+            else:
+                infra = get_account_info(addr)
+                if infra:
+                    classification = {'is_known': True, 'label': infra.get('name'), 'category': 'Infrastructure'}
+                else:
+                    cex = get_cex_info(addr)
+                    if cex:
+                        classification = {'is_known': True, 'label': cex.get('name'), 'category': 'CEX'}
+
+            incoming_enriched.append({
+                'address': addr,
+                'amount_sol': t['total_amount'],
+                'transaction_count': t['transaction_count'],
+                'type': t['sender_type'],
+                **classification
+            })
+
+        # Enrich outgoing transfers with classification
+        outgoing_enriched = []
+        total_outgoing = 0
+        for t in outgoing_transfers:
+            total_outgoing += t['total_amount']
+            addr = t['recipient_address']
+            classification = {'is_known': False, 'label': None, 'category': None}
+
+            if t['is_cex']:
+                classification = {'is_known': True, 'label': t['cex_exchange'], 'category': 'CEX'}
+            else:
+                infra = get_account_info(addr)
+                if infra:
+                    classification = {'is_known': True, 'label': infra.get('name'), 'category': 'Infrastructure'}
+                else:
+                    cex = get_cex_info(addr)
+                    if cex:
+                        classification = {'is_known': True, 'label': cex.get('name'), 'category': 'CEX'}
+
+            outgoing_enriched.append({
+                'address': addr,
+                'amount_sol': t['total_amount'],
+                'transaction_count': t['transaction_count'],
+                'type': t['recipient_type'],
+                **classification
+            })
+
+        return jsonify({
+            'funder_address': funder_address,
+            'creators_funded': funder_info['creator_count'] if funder_info else 0,
+            'incoming_transfers': {
+                'total_senders': len(incoming_enriched),
+                'total_sol': total_incoming,
+                'known_senders': sum(1 for t in incoming_enriched if t['is_known']),
+                'senders': incoming_enriched[:50]  # Limit to 50
+            },
+            'outgoing_transfers': {
+                'total_recipients': len(outgoing_enriched),
+                'total_sol': total_outgoing,
+                'known_recipients': sum(1 for t in outgoing_enriched if t['is_known']),
+                'recipients': outgoing_enriched[:50]  # Limit to 50
+            },
+            'net_flow': total_incoming - total_outgoing
         })
 
     except Exception as e:

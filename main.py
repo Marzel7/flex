@@ -7206,6 +7206,9 @@ def api_duplicate_senders():
             result = cursor.fetchone()
             sender['related_token_count'] = result['token_count'] if result else 0
 
+        # Sort by related token count (descending), then by funder count
+        senders.sort(key=lambda x: (-x['related_token_count'], -x['funder_count']))
+
         conn.close()
 
         return jsonify({

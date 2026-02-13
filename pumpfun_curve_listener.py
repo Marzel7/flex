@@ -82,9 +82,14 @@ async def extract_funder_transfers_async(creator_address: str):
     try:
         loop = asyncio.get_event_loop()
         result = await loop.run_in_executor(None, extract_funder_transfers, creator_address)
-        print(f"[FUNDER_EXTRACTION] Completed for {creator_address[:8]}...: {result}", flush=True)
+        if result.get('status') == 'complete':
+            print(f"[FUNDER_EXTRACTION] ✅ Funding complete for {creator_address[:8]}...: IN={result.get('incoming_found', 0)}, OUT={result.get('outgoing_found', 0)}, SOL={result.get('total_sol', 0):.4f}", flush=True)
+        else:
+            print(f"[FUNDER_EXTRACTION] Completed for {creator_address[:8]}...: {result}", flush=True)
     except Exception as e:
         print(f"[FUNDER_EXTRACTION] Error extracting transfers for {creator_address[:8]}...: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
 
 
 def check_if_cex_funding(cex_address: str) -> dict:
@@ -1548,9 +1553,15 @@ class PumpFunCurveListener:
                 print(f"[FUNDING] Extraction task created for new creator {earliest_creator[:8]}...", flush=True)
 
                 # Also extract funder incoming/outgoing transfers if toggle is ON
-                if is_funder_extraction_enabled():
+                toggle_enabled = is_funder_extraction_enabled()
+                print(f"[FUNDER_EXTRACTION] DEBUG: Checking toggle... toggle_enabled={toggle_enabled}", flush=True)
+                if toggle_enabled:
                     print(f"[FUNDER_EXTRACTION] Toggle enabled - extracting funder transfers for {earliest_creator[:8]}...", flush=True)
-                    asyncio.create_task(extract_funder_transfers_async(earliest_creator))
+                    try:
+                        asyncio.create_task(extract_funder_transfers_async(earliest_creator))
+                        print(f"[FUNDER_EXTRACTION] Task successfully created for {earliest_creator[:8]}...", flush=True)
+                    except Exception as e:
+                        print(f"[FUNDER_EXTRACTION] ERROR creating task: {e}", flush=True)
                 else:
                     print(f"[FUNDER_EXTRACTION] Toggle disabled - skipping funder transfer extraction", flush=True)
 

@@ -3680,7 +3680,7 @@ HTML_TEMPLATE = """
                             networkHTML += `<div style="color: #a0a0a0; margin-left: 40px; font-size: 11px;">... and ${tier.senders.length - 5} more senders</div>`;
                         }
                     } else {
-                        networkHTML += `<div style="color: #a0a0a0; margin-left: 20px; margin-bottom: 6px;">→ ${totalToCreator} SOL (sender data pending)</div>`;
+                        networkHTML += `<div style="color: #a0a0a0; margin-left: 20px; margin-bottom: 6px;">→ ${totalToCreator} SOL (no tracked sources)</div>`;
                     }
 
                     networkHTML += `</div>`;

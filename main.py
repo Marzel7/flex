@@ -6766,7 +6766,7 @@ def coordinated_funders_view():
 
                                     html += `
                                         <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); ${{rowHighlight}}">
-                                            <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #fbbf24;">${{sender.sender_address.substring(0, 20)}}...</td>
+                                            <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #fbbf24; word-break: break-all;">${{sender.sender_address}}</td>
                                             <td style="padding: 12px; color: #ef4444; font-weight: bold;">${{sender.funder_count}}</td>
                                             <td style="padding: 12px; color: #a0a0a0;">${{sender.transfer_count}}</td>
                                             <td style="padding: 12px; color: #4ade80;">${{sender.total_sol.toFixed(2)}}</td>

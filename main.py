@@ -3845,7 +3845,7 @@ HTML_TEMPLATE = """
                         const unknownCount = senderCount - knownCount;
                         let senderSummary = `← ${senderCount} senders → ${totalToCreator} SOL`;
                         if (knownCount > 0) {
-                            senderSummary += ` <span style="color: #4ade80;">(${knownCount} known)</span>`;
+                            senderSummary += ` <span style="color: #ef4444;">(${knownCount} identified ⚠️)</span>`;
                         }
                         networkHTML += `<div style="color: #fbbf24; margin-left: 20px; margin-bottom: 6px;">${senderSummary}</div>`;
 
@@ -3864,19 +3864,16 @@ HTML_TEMPLATE = """
                                 const label = sender.label;
                                 const senderType = sender.sender_type || 'unknown';
 
-                                // Colors: green for known, based on type for unknown
-                                let senderColor = '#fbbf24';  // unknown (yellow)
+                                // Colors: RED for known/identified (suspicious coordination), YELLOW for unknown
+                                let senderColor = '#fbbf24';  // unknown (yellow) - neutral
                                 if (isKnown) {
-                                    senderColor = '#4ade80';  // known (green)
-                                } else if (senderType === 'cex') {
-                                    senderColor = '#ef4444';  // CEX (red)
-                                } else if (senderType === 'infra') {
-                                    senderColor = '#f97316';  // INFRA (orange)
+                                    // RED for known accounts (CEX, INFRA, etc.) - indicates potential coordination
+                                    senderColor = '#ef4444';  // known/identified (red) - suspicious
                                 }
 
                                 const senderAmount = sender.amount_to_funder.toFixed(2);
                                 const labelText = label ? ` [${label}]` : '';
-                                const knownBadge = isKnown ? ' ✓' : '';
+                                const knownBadge = isKnown ? ' ⚠️' : '';  // Warning emoji for suspicious known accounts
                                 networkHTML += `<div style="color: ${senderColor}; margin-left: 40px; font-size: 11px; font-family: monospace; word-break: break-all;">• ${sender.sender_address}${labelText}${knownBadge} → ${senderAmount} SOL</div>`;
                             });
 

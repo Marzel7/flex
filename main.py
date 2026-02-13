@@ -5498,41 +5498,6 @@ def api_creator_service_history(creator_address: str):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/network-coordinators')
-def api_network_coordinators():
-    """Get network coordinators (addresses linked to multiple creators)"""
-    try:
-        from unified_recipient_tracker import UnifiedRecipientTracker
-
-        min_creators = request.args.get('min_creators', 2, type=int)
-
-        tracker = UnifiedRecipientTracker()
-        coordinators = tracker.get_network_coordinators(min_creators=min_creators)
-
-        result = []
-        for coord in coordinators:
-            result.append({
-                'address': coord.address,
-                'creator_count': coord.creator_count,
-                'creators_linked': coord.creators,
-                'total_sol_moved': coord.total_sol_moved,
-                'network_confidence': coord.network_confidence,
-                'is_cex': coord.is_cex,
-                'suspicious_flags': coord.suspicious_flags
-            })
-
-        return jsonify({
-            'coordinators': result,
-            'total_coordinators': len(result),
-            'min_creators_threshold': min_creators
-        })
-
-    except ImportError:
-        return jsonify({'error': 'Unified recipient tracker not available'}), 503
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
 @app.route('/api/unified-merge-status')
 def api_unified_merge_status():
     """Check unified recipient tracking status and run merge if needed"""

@@ -4295,6 +4295,67 @@ def api_infrastructure_mapping():
         return jsonify({"infrastructure": {}, "cex": {}}), 200
 
 
+@app.route('/api/network-coordinators')
+def api_network_coordinators():
+    """Get all identified cross-funder coordinators"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get all coordinators ordered by confidence and creator reach
+        cursor.execute("""
+            SELECT
+                coordinator_address,
+                creator_count,
+                creators_linked,
+                total_sol_moved,
+                network_confidence,
+                is_cex,
+                cex_exchange,
+                suspicious_flags,
+                detection_timestamp,
+                last_updated
+            FROM network_coordinators
+            ORDER BY
+                CASE WHEN network_confidence = 'high' THEN 1
+                     WHEN network_confidence = 'medium' THEN 2
+                     ELSE 3 END,
+                creator_count DESC
+        """)
+
+        coordinators = []
+        for row in cursor.fetchall():
+            creators = json.loads(row['creators_linked']) if row['creators_linked'] else []
+            flags = json.loads(row['suspicious_flags']) if row['suspicious_flags'] else []
+
+            coordinators.append({
+                'address': row['coordinator_address'],
+                'creator_count': row['creator_count'],
+                'creators': creators,
+                'total_sol': row['total_sol_moved'],
+                'confidence': row['network_confidence'],
+                'is_cex': bool(row['is_cex']),
+                'cex_exchange': row['cex_exchange'],
+                'flags': flags,
+                'detected_at': row['detection_timestamp'],
+                'updated_at': row['last_updated']
+            })
+
+        conn.close()
+
+        return jsonify({
+            'total': len(coordinators),
+            'high_confidence': sum(1 for c in coordinators if c['confidence'] == 'high'),
+            'medium_confidence': sum(1 for c in coordinators if c['confidence'] == 'medium'),
+            'coordinators': coordinators
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/creator-sol-ledger/<creator_address>')
 def api_creator_sol_ledger(creator_address: str):
     """Get recent SOL transactions for a creator"""

@@ -1441,7 +1441,6 @@ HTML_TEMPLATE = """
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(139, 92, 246, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(76, 175, 80, 0.2); color: #4ade80; border: 1px solid rgba(76, 175, 80, 0.5);">▶️ Polling ON</button>
-                <button class="action-button" onclick="promptFundingNetwork3Tier()" title="View 3-tier funding chain (Sender → Funder → Creator) for a creator" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); margin-left: 8px;">3-Tier Network</button>
                 <button class="action-button" onclick="toggleCEXView()" title="View CEX funders and activity" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.5); margin-left: 8px;">CEX View</button>
                 <button class="action-button" onclick="showMultiCreatorFunders()" title="Analyze funders supporting multiple creators" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">Coordinated Funders</button>
                 <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Validate TX</button>
@@ -1979,70 +1978,14 @@ HTML_TEMPLATE = """
 
     <!-- 3-Tier Funding Network Modal -->
     <div id="fundingNetwork3TierModal" class="modal">
-        <div class="modal-content" style="max-width: 900px;">
+        <div class="modal-content" style="max-width: 800px;">
             <span class="close" onclick="closeFundingNetwork3Tier()">&times;</span>
-            <h2>📊 Funding Network</h2>
-            <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 20px; word-break: break-all;">
-                <label style="color: #a0a0a0; font-size: 10px; text-transform: uppercase; display: block; margin-bottom: 5px;">Creator Address:</label>
-                <span id="fn3tCreatorDisplay" style="font-family: monospace; font-size: 11px; color: #00d4ff;">—</span>
-            </div>
-
-            <!-- Creator Info -->
-            <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
-                    <div>
-                        <label style="color: #a0a0a0; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 5px;">Risk Level</label>
-                        <span id="fn3tRiskLevel" style="color: #00d4ff; font-weight: bold;">—</span>
-                    </div>
-                    <div>
-                        <label style="color: #a0a0a0; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 5px;">Rug Probability</label>
-                        <span id="fn3tRugProb" style="color: #00d4ff; font-weight: bold;">—</span>
-                    </div>
-                    <div>
-                        <label style="color: #a0a0a0; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 5px;">Market Cap (High)</label>
-                        <span id="fn3tMC" style="color: #00d4ff; font-weight: bold;">—</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Network Summary -->
-            <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-                <div style="color: #a0a0a0; font-size: 11px; text-transform: uppercase; margin-bottom: 10px;">Network Structure</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <div style="font-size: 32px; font-weight: bold; color: #4ade80;" id="fn3tFunderCount">0</div>
-                        <div style="color: #a0a0a0; font-size: 12px; margin-top: 5px;">Funders</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 32px; font-weight: bold; color: #fbbf24;" id="fn3tSenderCount">0</div>
-                        <div style="color: #a0a0a0; font-size: 12px; margin-top: 5px;">Senders</div>
-                    </div>
-                </div>
-            </div>
+            <h2>Funding Patterns</h2>
 
             <!-- 3-Tier Network Visualization -->
-            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-                <div style="color: #a0a0a0; font-size: 11px; text-transform: uppercase; margin-bottom: 15px;">🔗 Sender → Funder → Creator</div>
-                <div id="fn3tNetworkBody" style="font-family: monospace; font-size: 11px; line-height: 1.8; color: #e0e0e0; max-height: 400px; overflow-y: auto;">
+            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 15px;">
+                <div id="fn3tNetworkBody" style="font-family: monospace; font-size: 12px; line-height: 2; color: #e0e0e0; max-height: 500px; overflow-y: auto;">
                     <div style="color: #a0a0a0;">Loading network...</div>
-                </div>
-            </div>
-
-            <!-- Legend & Relationship Explanation -->
-            <div style="background: rgba(0, 0, 0, 0.3); border-left: 3px solid #fbbf24; padding: 15px; border-radius: 4px; font-size: 11px;">
-                <div style="color: #a0a0a0; margin-bottom: 12px;"><strong>FUNDING CHAIN:</strong></div>
-                <div style="color: #e0e0e0; margin-bottom: 8px; line-height: 1.6;">
-                    <div style="margin-bottom: 6px;">
-                        <span style="color: #fbbf24;">🟡 SENDER</span> → Sends SOL to →
-                        <span style="color: #4ade80;">🟢 FUNDER</span> → Routes SOL to →
-                        <span style="color: #00d4ff;">🔵 CREATOR</span>
-                    </div>
-                    <div style="color: #a0a0a0; font-size: 10px; margin-top: 8px;">
-                        • Senders can be wallets, exchanges (CEX), or infrastructure (INFRA)<br>
-                        • Funders are intermediary accounts that receive and distribute funds<br>
-                        • Multiple senders funding same funder = coordination signal<br>
-                        • Multiple funders to same creator = obfuscation tactic
-                    </div>
                 </div>
             </div>
         </div>
@@ -3688,7 +3631,6 @@ HTML_TEMPLATE = """
 
         async function showFundingNetwork3Tier(creatorAddress) {
             const modal = document.getElementById('fundingNetwork3TierModal');
-            document.getElementById('fn3tCreatorDisplay').textContent = creatorAddress;
 
             try {
                 const response = await fetch(`/api/funding-network-3tier/${creatorAddress}`);
@@ -3698,17 +3640,6 @@ HTML_TEMPLATE = """
                     document.getElementById('fn3tNetworkBody').innerHTML = '<div style="color: #ef4444;">Error loading network</div>';
                     return;
                 }
-
-                // Populate creator info
-                if (data.creator_info) {
-                    document.getElementById('fn3tRiskLevel').textContent = data.creator_info.risk_level || '—';
-                    document.getElementById('fn3tRugProb').textContent = (data.creator_info.rug_probability * 100).toFixed(1) + '%';
-                    document.getElementById('fn3tMC').textContent = '$' + (data.creator_info.market_cap_highest || 0).toLocaleString();
-                }
-
-                // Populate network stats
-                document.getElementById('fn3tFunderCount').textContent = data.total_funders;
-                document.getElementById('fn3tSenderCount').textContent = data.total_senders;
 
                 // Build 3-tier network visualization with relationship arrows
                 let networkHTML = '<div style="font-family: monospace; font-size: 11px; line-height: 1.9;">';

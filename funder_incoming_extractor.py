@@ -25,10 +25,13 @@ sys.path.insert(0, '/Users/kevinkeaveney/Dev/claude/flex')
 
 from infra_mapping import get_account_info, get_cex_info
 import requests
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Try to load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv not required, env vars can be set directly
 
 DB_PATH = "pumpswap_tokens.db"
 SOLANA_RPC = "https://api.mainnet-beta.solana.com"

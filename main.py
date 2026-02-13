@@ -6748,13 +6748,14 @@ def coordinated_funders_view():
                                                     <th>Funders Sent To</th>
                                                     <th>Total Transfers</th>
                                                     <th>Total SOL</th>
+                                                    <th>Related Tokens</th>
                                                     <th>Period</th>
                                                 </tr>
                                             </thead>
                                             <tbody>`;
 
                             if (data.senders.length === 0) {{
-                                html += '<tr><td colspan="5" style="padding: 20px; text-align: center; color: #a0a0a0;">No duplicate senders found</td></tr>';
+                                html += '<tr><td colspan="6" style="padding: 20px; text-align: center; color: #a0a0a0;">No duplicate senders found</td></tr>';
                             }} else {{
                                 data.senders.forEach(sender => {{
                                     const firstDate = new Date(sender.first_seen * 1000).toISOString().substring(0, 10);
@@ -6768,6 +6769,7 @@ def coordinated_funders_view():
                                             <td style="padding: 12px; color: #ef4444; font-weight: bold;">${{sender.funder_count}}</td>
                                             <td style="padding: 12px; color: #a0a0a0;">${{sender.transfer_count}}</td>
                                             <td style="padding: 12px; color: #4ade80;">${{sender.total_sol.toFixed(2)}}</td>
+                                            <td style="padding: 12px; color: #a0a0a0; font-weight: bold;">${{sender.related_token_count || 0}}</td>
                                             <td style="padding: 12px; font-size: 11px; color: #a0a0a0;">${{period}}</td>
                                         </tr>`;
                                 }});
@@ -7187,6 +7189,22 @@ def api_duplicate_senders():
 
         # Filter out CEX and INFRA accounts
         senders = [s for s in all_senders if s['sender_type'] and s['sender_type'].upper() not in ('CEX', 'INFRA')]
+
+        # For each sender, count related tokens
+        for sender in senders:
+            cursor.execute("""
+                SELECT COUNT(DISTINCT ta.mint) as token_count
+                FROM creator_funders cf
+                JOIN token_analysis ta ON cf.creator_address = ta.earliest_tx_creator
+                WHERE cf.funder_address IN (
+                    SELECT DISTINCT funder_address
+                    FROM funder_incoming_transfers
+                    WHERE sender_address = ?
+                )
+            """, (sender['sender_address'],))
+
+            result = cursor.fetchone()
+            sender['related_token_count'] = result['token_count'] if result else 0
 
         conn.close()
 

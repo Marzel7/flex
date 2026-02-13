@@ -1976,7 +1976,11 @@ HTML_TEMPLATE = """
     <div id="fundingNetwork3TierModal" class="modal">
         <div class="modal-content" style="max-width: 900px;">
             <span class="close" onclick="closeFundingNetwork3Tier()">&times;</span>
-            <h2>📊 Funding Network - <span id="fn3tCreatorDisplay" style="font-family: monospace; font-size: 14px;">—</span></h2>
+            <h2>📊 Funding Network</h2>
+            <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 20px; word-break: break-all;">
+                <label style="color: #a0a0a0; font-size: 10px; text-transform: uppercase; display: block; margin-bottom: 5px;">Creator Address:</label>
+                <span id="fn3tCreatorDisplay" style="font-family: monospace; font-size: 11px; color: #00d4ff;">—</span>
+            </div>
 
             <!-- Creator Info -->
             <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
@@ -2019,12 +2023,22 @@ HTML_TEMPLATE = """
                 </div>
             </div>
 
-            <!-- Legend -->
-            <div style="background: rgba(0, 0, 0, 0.3); border-left: 3px solid #fbbf24; padding: 15px; border-radius: 4px; font-size: 12px;">
-                <div style="color: #a0a0a0; margin-bottom: 8px;"><strong>Legend:</strong></div>
-                <div style="color: #e0e0e0; margin-bottom: 5px;">🟡 <span style="color: #fbbf24;">Sender</span> = Account sending SOL to funder</div>
-                <div style="color: #e0e0e0; margin-bottom: 5px;">🟢 <span style="color: #4ade80;">Funder</span> = Intermediary account</div>
-                <div style="color: #e0e0e0;">🔵 <span style="color: #00d4ff;">Creator</span> = Token creator receiving funds</div>
+            <!-- Legend & Relationship Explanation -->
+            <div style="background: rgba(0, 0, 0, 0.3); border-left: 3px solid #fbbf24; padding: 15px; border-radius: 4px; font-size: 11px;">
+                <div style="color: #a0a0a0; margin-bottom: 12px;"><strong>FUNDING CHAIN:</strong></div>
+                <div style="color: #e0e0e0; margin-bottom: 8px; line-height: 1.6;">
+                    <div style="margin-bottom: 6px;">
+                        <span style="color: #fbbf24;">🟡 SENDER</span> → Sends SOL to →
+                        <span style="color: #4ade80;">🟢 FUNDER</span> → Routes SOL to →
+                        <span style="color: #00d4ff;">🔵 CREATOR</span>
+                    </div>
+                    <div style="color: #a0a0a0; font-size: 10px; margin-top: 8px;">
+                        • Senders can be wallets, exchanges (CEX), or infrastructure (INFRA)<br>
+                        • Funders are intermediary accounts that receive and distribute funds<br>
+                        • Multiple senders funding same funder = coordination signal<br>
+                        • Multiple funders to same creator = obfuscation tactic
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -3662,7 +3676,7 @@ HTML_TEMPLATE = """
         // 3-Tier Funding Network Functions
         async function showFundingNetwork3Tier(creatorAddress) {
             const modal = document.getElementById('fundingNetwork3TierModal');
-            document.getElementById('fn3tCreatorDisplay').textContent = creatorAddress.substring(0, 16) + '...';
+            document.getElementById('fn3tCreatorDisplay').textContent = creatorAddress;
 
             try {
                 const response = await fetch(`/api/funding-network-3tier/${creatorAddress}`);
@@ -3684,40 +3698,58 @@ HTML_TEMPLATE = """
                 document.getElementById('fn3tFunderCount').textContent = data.total_funders;
                 document.getElementById('fn3tSenderCount').textContent = data.total_senders;
 
-                // Build 3-tier network visualization
-                let networkHTML = '';
+                // Build 3-tier network visualization with relationship arrows
+                let networkHTML = '<div style="font-family: monospace; font-size: 11px; line-height: 1.9;">';
 
                 data.network_tiers.forEach((tier, tierIdx) => {
-                    // Funder section
-                    networkHTML += `<div style="margin-bottom: 20px;">`;
-                    networkHTML += `<div style="color: #4ade80; font-weight: bold; margin-bottom: 8px;">`;
-                    networkHTML += `🟢 Funder #${tierIdx + 1}: ${tier.funder_address.substring(0, 20)}...</div>`;
-                    networkHTML += `<div style="margin-left: 20px; padding-left: 15px; border-left: 2px solid #4ade80;">`;
+                    const funderAddr = tier.funder_address;
+                    const totalToCreator = tier.total_to_creator.toFixed(4);
+
+                    networkHTML += `<div style="margin-bottom: 25px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 6px; border-left: 3px solid #4ade80;">`;
+
+                    // Funder header with full address
+                    networkHTML += `<div style="color: #4ade80; font-weight: bold; margin-bottom: 10px; word-break: break-all;">`;
+                    networkHTML += `🟢 FUNDER</div>`;
+                    networkHTML += `<div style="color: #00d4ff; margin-bottom: 8px; word-break: break-all; font-size: 10px;">`;
+                    networkHTML += `${funderAddr}</div>`;
+
+                    // Arrow down to senders
+                    networkHTML += `<div style="color: #fbbf24; margin: 8px 0; text-align: center;">↓ Receives from ${tier.senders.length} sender(s)</div>`;
 
                     // Senders for this funder
                     if (tier.senders.length > 0) {
                         tier.senders.forEach((sender, senderIdx) => {
                             const senderType = sender.sender_type || 'unknown';
-                            const senderColor = senderType === 'cex' ? '#ef4444' : '#fbbf24';
-                            const senderLabel = senderType === 'cex' ? '(CEX)' : senderType === 'infra' ? '(INFRA)' : '';
+                            const senderColor = senderType === 'cex' ? '#ef4444' : senderType === 'infra' ? '#f97316' : '#fbbf24';
+                            const senderLabel = senderType === 'cex' ? ' [CEX]' : senderType === 'infra' ? ' [INFRA]' : ' [Wallet]';
+                            const senderAmount = sender.amount_to_funder.toFixed(4);
 
-                            networkHTML += `<div style="margin-bottom: 12px;">`;
-                            networkHTML += `<div style="color: ${senderColor};">`;
-                            networkHTML += `🟡 Sender: ${sender.sender_address.substring(0, 16)}... ${senderLabel}</div>`;
-                            networkHTML += `<div style="color: #a0a0a0; font-size: 10px; margin-top: 3px;">`;
-                            networkHTML += `Amount: ${sender.amount_to_funder.toFixed(4)} SOL</div>`;
+                            networkHTML += `<div style="margin-bottom: 8px; padding: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; border-left: 2px solid ${senderColor};">`;
+                            networkHTML += `<div style="color: ${senderColor}; font-weight: bold; margin-bottom: 4px;">`;
+                            networkHTML += `🟡 SENDER${senderLabel}</div>`;
+                            networkHTML += `<div style="color: #00d4ff; word-break: break-all; font-size: 10px; margin-bottom: 4px;">`;
+                            networkHTML += `${sender.sender_address}</div>`;
+                            networkHTML += `<div style="color: #fbbf24; font-size: 10px;">`;
+                            networkHTML += `→ ${senderAmount} SOL to Funder</div>`;
                             networkHTML += `</div>`;
                         });
                     } else {
-                        networkHTML += `<div style="color: #a0a0a0; font-size: 10px;">No senders tracked</div>`;
+                        networkHTML += `<div style="color: #a0a0a0; font-size: 10px; padding: 8px;">No tracked senders</div>`;
                     }
 
-                    networkHTML += `</div>`;
-                    networkHTML += `<div style="color: #a0a0a0; font-size: 10px; margin-top: 8px;">`;
-                    networkHTML += `↓ Total to creator: ${tier.total_to_creator.toFixed(4)} SOL</div>`;
+                    // Arrow down to creator
+                    networkHTML += `<div style="color: #4ade80; margin: 8px 0; text-align: center; font-weight: bold;">↓</div>`;
+                    networkHTML += `<div style="color: #00d4ff; padding: 8px; background: rgba(0,212,255,0.1); border-radius: 4px; border-left: 2px solid #00d4ff;">`;
+                    networkHTML += `🔵 CREATOR</div>`;
+                    networkHTML += `<div style="color: #00d4ff; word-break: break-all; font-size: 10px; margin-bottom: 8px;">`;
+                    networkHTML += `${creatorAddress}</div>`;
+                    networkHTML += `<div style="color: #4ade80; font-size: 10px; font-weight: bold;">`;
+                    networkHTML += `← ${totalToCreator} SOL received from this Funder</div>`;
+
                     networkHTML += `</div>`;
                 });
 
+                networkHTML += '</div>';
                 document.getElementById('fn3tNetworkBody').innerHTML = networkHTML;
                 modal.style.display = 'block';
 

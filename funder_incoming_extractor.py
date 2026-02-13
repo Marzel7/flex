@@ -17,6 +17,7 @@ import asyncio
 import aiohttp
 from typing import Dict, List, Tuple, Optional
 import sys
+import time
 sys.path.insert(0, '/Users/kevinkeaveney/Dev/claude/flex')
 
 from infra_mapping import get_account_info, get_cex_info
@@ -24,6 +25,7 @@ import requests
 
 DB_PATH = "pumpswap_tokens.db"
 SOLANA_RPC = "https://api.mainnet-beta.solana.com"
+RPC_RATE_LIMIT_DELAY = 1  # 1 second delay between RPC calls to avoid rate limiting
 
 
 def get_creator_funders(creator_address: str) -> list:
@@ -136,6 +138,8 @@ def save_funder_outgoing_transfer(funder_address: str, recipient_address: str, a
 def get_transactions_for_address(address: str, limit: int = 100) -> List[Dict]:
     """Get recent transactions for an address via RPC"""
     try:
+        time.sleep(RPC_RATE_LIMIT_DELAY)  # Rate limiting
+
         payload = {
             "jsonrpc": "2.0",
             "id": 1,
@@ -163,6 +167,8 @@ def get_transactions_for_address(address: str, limit: int = 100) -> List[Dict]:
 def parse_transaction(tx_sig: str) -> Optional[Dict]:
     """Parse a transaction to find SOL transfers"""
     try:
+        time.sleep(RPC_RATE_LIMIT_DELAY)  # Rate limiting
+
         payload = {
             "jsonrpc": "2.0",
             "id": 1,

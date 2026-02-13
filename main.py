@@ -1972,6 +1972,63 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
+    <!-- 3-Tier Funding Network Modal -->
+    <div id="fundingNetwork3TierModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <span class="close" onclick="closeFundingNetwork3Tier()">&times;</span>
+            <h2>📊 Funding Network - <span id="fn3tCreatorDisplay" style="font-family: monospace; font-size: 14px;">—</span></h2>
+
+            <!-- Creator Info -->
+            <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label style="color: #a0a0a0; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 5px;">Risk Level</label>
+                        <span id="fn3tRiskLevel" style="color: #00d4ff; font-weight: bold;">—</span>
+                    </div>
+                    <div>
+                        <label style="color: #a0a0a0; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 5px;">Rug Probability</label>
+                        <span id="fn3tRugProb" style="color: #00d4ff; font-weight: bold;">—</span>
+                    </div>
+                    <div>
+                        <label style="color: #a0a0a0; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 5px;">Market Cap (High)</label>
+                        <span id="fn3tMC" style="color: #00d4ff; font-weight: bold;">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Network Summary -->
+            <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                <div style="color: #a0a0a0; font-size: 11px; text-transform: uppercase; margin-bottom: 10px;">Network Structure</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <div style="font-size: 32px; font-weight: bold; color: #4ade80;" id="fn3tFunderCount">0</div>
+                        <div style="color: #a0a0a0; font-size: 12px; margin-top: 5px;">Funders</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 32px; font-weight: bold; color: #fbbf24;" id="fn3tSenderCount">0</div>
+                        <div style="color: #a0a0a0; font-size: 12px; margin-top: 5px;">Senders</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3-Tier Network Visualization -->
+            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                <div style="color: #a0a0a0; font-size: 11px; text-transform: uppercase; margin-bottom: 15px;">🔗 Sender → Funder → Creator</div>
+                <div id="fn3tNetworkBody" style="font-family: monospace; font-size: 11px; line-height: 1.8; color: #e0e0e0; max-height: 400px; overflow-y: auto;">
+                    <div style="color: #a0a0a0;">Loading network...</div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div style="background: rgba(0, 0, 0, 0.3); border-left: 3px solid #fbbf24; padding: 15px; border-radius: 4px; font-size: 12px;">
+                <div style="color: #a0a0a0; margin-bottom: 8px;"><strong>Legend:</strong></div>
+                <div style="color: #e0e0e0; margin-bottom: 5px;">🟡 <span style="color: #fbbf24;">Sender</span> = Account sending SOL to funder</div>
+                <div style="color: #e0e0e0; margin-bottom: 5px;">🟢 <span style="color: #4ade80;">Funder</span> = Intermediary account</div>
+                <div style="color: #e0e0e0;">🔵 <span style="color: #00d4ff;">Creator</span> = Token creator receiving funds</div>
+            </div>
+        </div>
+    </div>
+
     <script>
         async function loadTokens() {
             try {
@@ -3555,6 +3612,7 @@ HTML_TEMPLATE = """
             const txViewerModal = document.getElementById('txViewerModal');
             const multiCreatorFundersModal = document.getElementById('multiCreatorFundersModal');
             const validationModal = document.getElementById('validationModal');
+            const fundingNetwork3TierModal = document.getElementById('fundingNetwork3TierModal');
 
             if (event.target === metricsModal) {
                 metricsModal.style.display = 'none';
@@ -3571,6 +3629,9 @@ HTML_TEMPLATE = """
             if (event.target === validationModal) {
                 validationModal.style.display = 'none';
             }
+            if (event.target === fundingNetwork3TierModal) {
+                fundingNetwork3TierModal.style.display = 'none';
+            }
         }
 
         // Close modal when pressing Escape
@@ -3581,6 +3642,7 @@ HTML_TEMPLATE = """
                 closeMultiCreatorFunders();
                 closeTxViewer();
                 closeValidationModal();
+                closeFundingNetwork3Tier();
             }
         });
 
@@ -3595,6 +3657,78 @@ HTML_TEMPLATE = """
 
         function closeValidationModal() {
             document.getElementById('validationModal').style.display = 'none';
+        }
+
+        // 3-Tier Funding Network Functions
+        async function showFundingNetwork3Tier(creatorAddress) {
+            const modal = document.getElementById('fundingNetwork3TierModal');
+            document.getElementById('fn3tCreatorDisplay').textContent = creatorAddress.substring(0, 16) + '...';
+
+            try {
+                const response = await fetch(`/api/funding-network-3tier/${creatorAddress}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('fn3tNetworkBody').innerHTML = '<div style="color: #ef4444;">Error loading network</div>';
+                    return;
+                }
+
+                // Populate creator info
+                if (data.creator_info) {
+                    document.getElementById('fn3tRiskLevel').textContent = data.creator_info.risk_level || '—';
+                    document.getElementById('fn3tRugProb').textContent = (data.creator_info.rug_probability * 100).toFixed(1) + '%';
+                    document.getElementById('fn3tMC').textContent = '$' + (data.creator_info.market_cap_highest || 0).toLocaleString();
+                }
+
+                // Populate network stats
+                document.getElementById('fn3tFunderCount').textContent = data.total_funders;
+                document.getElementById('fn3tSenderCount').textContent = data.total_senders;
+
+                // Build 3-tier network visualization
+                let networkHTML = '';
+
+                data.network_tiers.forEach((tier, tierIdx) => {
+                    // Funder section
+                    networkHTML += `<div style="margin-bottom: 20px;">`;
+                    networkHTML += `<div style="color: #4ade80; font-weight: bold; margin-bottom: 8px;">`;
+                    networkHTML += `🟢 Funder #${tierIdx + 1}: ${tier.funder_address.substring(0, 20)}...</div>`;
+                    networkHTML += `<div style="margin-left: 20px; padding-left: 15px; border-left: 2px solid #4ade80;">`;
+
+                    // Senders for this funder
+                    if (tier.senders.length > 0) {
+                        tier.senders.forEach((sender, senderIdx) => {
+                            const senderType = sender.sender_type || 'unknown';
+                            const senderColor = senderType === 'cex' ? '#ef4444' : '#fbbf24';
+                            const senderLabel = senderType === 'cex' ? '(CEX)' : senderType === 'infra' ? '(INFRA)' : '';
+
+                            networkHTML += `<div style="margin-bottom: 12px;">`;
+                            networkHTML += `<div style="color: ${senderColor};">`;
+                            networkHTML += `🟡 Sender: ${sender.sender_address.substring(0, 16)}... ${senderLabel}</div>`;
+                            networkHTML += `<div style="color: #a0a0a0; font-size: 10px; margin-top: 3px;">`;
+                            networkHTML += `Amount: ${sender.amount_to_funder.toFixed(4)} SOL</div>`;
+                            networkHTML += `</div>`;
+                        });
+                    } else {
+                        networkHTML += `<div style="color: #a0a0a0; font-size: 10px;">No senders tracked</div>`;
+                    }
+
+                    networkHTML += `</div>`;
+                    networkHTML += `<div style="color: #a0a0a0; font-size: 10px; margin-top: 8px;">`;
+                    networkHTML += `↓ Total to creator: ${tier.total_to_creator.toFixed(4)} SOL</div>`;
+                    networkHTML += `</div>`;
+                });
+
+                document.getElementById('fn3tNetworkBody').innerHTML = networkHTML;
+                modal.style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading 3-tier network:', error);
+                document.getElementById('fn3tNetworkBody').innerHTML = '<div style="color: #ef4444;">Error loading network data</div>';
+            }
+        }
+
+        function closeFundingNetwork3Tier() {
+            document.getElementById('fundingNetwork3TierModal').style.display = 'none';
         }
 
         async function validateTransaction() {
@@ -4350,6 +4484,95 @@ def api_network_coordinators():
             'high_confidence': sum(1 for c in coordinators if c['confidence'] == 'high'),
             'medium_confidence': sum(1 for c in coordinators if c['confidence'] == 'medium'),
             'coordinators': coordinators
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/funding-network-3tier/<creator_address>')
+def api_funding_network_3tier(creator_address: str):
+    """Get 3-tier funding network (Sender → Funder → Creator) for a specific creator"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Step 1: Find all funders funding this creator
+        cursor.execute("""
+            SELECT DISTINCT funder_address, SUM(amount_sol) as total_to_creator
+            FROM creator_funders
+            WHERE creator_address = ?
+            GROUP BY funder_address
+            ORDER BY total_to_creator DESC
+        """, (creator_address,))
+
+        funders = cursor.fetchall()
+
+        # Step 2: For each funder, find all senders funding them
+        network_3tier = []
+
+        for funder_row in funders:
+            funder_addr = funder_row['funder_address']
+            funder_total = funder_row['total_to_creator']
+
+            # Get senders for this funder
+            cursor.execute("""
+                SELECT
+                    sender_address,
+                    SUM(amount_sol) as amount_to_funder,
+                    sender_type
+                FROM funder_incoming_transfers
+                WHERE funder_address = ?
+                GROUP BY sender_address, sender_type
+                ORDER BY amount_to_funder DESC
+            """, (funder_addr,))
+
+            senders = cursor.fetchall()
+
+            funder_info = {
+                'funder_address': funder_addr,
+                'total_to_creator': funder_total,
+                'senders': [
+                    {
+                        'sender_address': s['sender_address'],
+                        'amount_to_funder': s['amount_to_funder'],
+                        'sender_type': s['sender_type']
+                    }
+                    for s in senders
+                ]
+            }
+            network_3tier.append(funder_info)
+
+        # Step 3: Get creator info
+        cursor.execute("""
+            SELECT
+                earliest_tx_creator,
+                risk_level,
+                rug_probability,
+                market_cap_highest,
+                created_at
+            FROM token_analysis
+            WHERE earliest_tx_creator = ?
+            LIMIT 1
+        """, (creator_address,))
+
+        creator_info = cursor.fetchone()
+
+        conn.close()
+
+        return jsonify({
+            'creator_address': creator_address,
+            'creator_info': {
+                'risk_level': creator_info['risk_level'] if creator_info else 'UNKNOWN',
+                'rug_probability': creator_info['rug_probability'] if creator_info else 0,
+                'market_cap_highest': creator_info['market_cap_highest'] if creator_info else 0,
+                'created_at': creator_info['created_at'] if creator_info else None
+            } if creator_info else None,
+            'total_funders': len(funders),
+            'total_senders': sum(len(f['senders']) for f in network_3tier),
+            'network_tiers': network_3tier
         })
 
     except Exception as e:

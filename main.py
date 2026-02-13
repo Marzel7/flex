@@ -1626,6 +1626,11 @@ HTML_TEMPLATE = """
                 </div>
             </div>
 
+            <!-- View Funding Patterns Button -->
+            <div style="margin: 20px 0; text-align: center;">
+                <button onclick="showFundingNetwork3Tier(document.getElementById('modalCreator').textContent.split(' ')[0])" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">View Funding Patterns</button>
+            </div>
+
             <!-- Creator Tags -->
             <div id="creatorTagsContainer"></div>
 

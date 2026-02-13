@@ -3641,75 +3641,40 @@ HTML_TEMPLATE = """
                     return;
                 }
 
-                // Build 3-tier network visualization with relationship arrows
-                let networkHTML = '<div style="font-family: monospace; font-size: 11px; line-height: 1.9;">';
+                // Build 3-tier network visualization - concise version
+                let networkHTML = '<div style="font-family: monospace; font-size: 12px; line-height: 2.2;">';
 
                 data.network_tiers.forEach((tier, tierIdx) => {
                     const funderAddr = tier.funder_address;
                     const funderType = tier.funder_type || 'unknown';
                     const funderLabel = tier.funder_label;
-                    const totalToCreator = tier.total_to_creator.toFixed(4);
+                    const totalToCreator = tier.total_to_creator.toFixed(2);
                     const senderCount = tier.sender_count || tier.senders.length;
 
                     // Funder type styling
                     let funderColor = '#4ade80';  // Default green for regular
-                    let funderTypeLabel = '[Unknown]';
+                    let funderTypeLabel = '';
                     if (funderType === 'cex') {
                         funderColor = '#ef4444';  // Red for CEX
-                        funderTypeLabel = '[CEX: ' + (funderLabel || 'Exchange') + ']';
+                        funderTypeLabel = ' [CEX]';
                     } else if (funderType === 'infra') {
                         funderColor = '#f97316';  // Orange for INFRA
-                        funderTypeLabel = '[INFRA: ' + (funderLabel || 'Infrastructure') + ']';
-                    } else {
-                        funderTypeLabel = '[Regular Wallet]';
+                        funderTypeLabel = ' [INFRA]';
                     }
 
-                    networkHTML += `<div style="margin-bottom: 25px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 6px;">`;
+                    networkHTML += `<div style="color: ${funderColor}; margin-bottom: 12px;">`;
+                    networkHTML += `Funder: ${funderAddr.substring(0, 20)}...${funderTypeLabel}</div>`;
+                    networkHTML += `<div style="color: #fbbf24; margin-left: 20px; margin-bottom: 6px;">← ${senderCount} senders → ${totalToCreator} SOL</div>`;
 
-                    // Funder header with type label
-                    networkHTML += `<div style="color: ${funderColor}; font-weight: bold; margin-bottom: 4px;">`;
-                    networkHTML += `🟢 FUNDER ${funderTypeLabel}</div>`;
-                    networkHTML += `<div style="color: #00d4ff; margin-bottom: 8px; word-break: break-all; font-size: 10px;">`;
-                    networkHTML += `${funderAddr}</div>`;
-                    networkHTML += `<div style="color: #a0a0a0; font-size: 9px; margin-bottom: 8px;">`;
-                    networkHTML += `Role: Receives SOL from ${senderCount} sender(s), distributes to Creator</div>`;
-
-                    // Arrow down to senders
-                    networkHTML += `<div style="color: #fbbf24; margin: 8px 0; text-align: center; font-weight: bold;">↓ Inbound from ${senderCount} sender(s)</div>`;
-
-                    // Senders for this funder
-                    if (tier.senders.length > 0) {
-                        tier.senders.forEach((sender, senderIdx) => {
+                    // Show senders if not too many
+                    if (tier.senders.length > 0 && tier.senders.length <= 5) {
+                        tier.senders.forEach((sender) => {
                             const senderType = sender.sender_type || 'unknown';
                             const senderColor = senderType === 'cex' ? '#ef4444' : senderType === 'infra' ? '#f97316' : '#fbbf24';
-                            const senderTypeLabel = senderType === 'cex' ? '[CEX]' : senderType === 'infra' ? '[INFRA]' : '[Wallet]';
-                            const senderAmount = sender.amount_to_funder.toFixed(4);
-
-                            networkHTML += `<div style="margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 4px;">`;
-                            networkHTML += `<div style="color: ${senderColor}; font-weight: bold; margin-bottom: 4px;">`;
-                            networkHTML += `🟡 SENDER ${senderTypeLabel}</div>`;
-                            networkHTML += `<div style="color: #00d4ff; word-break: break-all; font-size: 10px; margin-bottom: 5px;">`;
-                            networkHTML += `${sender.sender_address}</div>`;
-                            networkHTML += `<div style="color: #a0a0a0; font-size: 9px; margin-bottom: 4px;">`;
-                            networkHTML += `Role: Source of funds, sends to Funder</div>`;
-                            networkHTML += `<div style="color: #fbbf24; font-size: 10px; font-weight: bold;">`;
-                            networkHTML += `→ ${senderAmount} SOL → Funder</div>`;
-                            networkHTML += `</div>`;
+                            const senderAmount = sender.amount_to_funder.toFixed(2);
+                            networkHTML += `<div style="color: ${senderColor}; margin-left: 40px; font-size: 11px;">• ${sender.sender_address.substring(0, 16)}... → ${senderAmount} SOL</div>`;
                         });
-                    } else {
-                        networkHTML += `<div style="color: #a0a0a0; font-size: 10px; padding: 8px;">No tracked senders</div>`;
                     }
-
-                    // Arrow down to creator
-                    networkHTML += `<div style="color: #4ade80; margin: 8px 0; text-align: center; font-weight: bold;">↓ Funds</div>`;
-                    networkHTML += `<div style="color: #00d4ff; padding: 10px; background: rgba(0,212,255,0.1); border-radius: 4px;">`;
-                    networkHTML += `<div style="color: #00d4ff; font-weight: bold; margin-bottom: 4px;">🔵 CREATOR</div>`;
-                    networkHTML += `<div style="color: #00d4ff; word-break: break-all; font-size: 10px; margin-bottom: 6px;">`;
-                    networkHTML += `${creatorAddress}</div>`;
-                    networkHTML += `<div style="color: #a0a0a0; font-size: 9px; margin-bottom: 6px;">`;
-                    networkHTML += `Role: Token creator, receives funds from Funders</div>`;
-                    networkHTML += `<div style="color: #4ade80; font-size: 10px; font-weight: bold;">`;
-                    networkHTML += `← ${totalToCreator} SOL from this Funder</div>`;
 
                     networkHTML += `</div>`;
                 });

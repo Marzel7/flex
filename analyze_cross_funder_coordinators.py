@@ -195,9 +195,9 @@ def insert_coordinators_to_db(coordinators: List[Dict]):
 
 def main():
     print("\nAnalyzing cross-funder coordination patterns...")
-    # Filter out pure spam dust (exclude amounts < 1e-6 SOL which are routing errors)
-    # Keep amounts >= 1e-7 which are intentional dust signals
-    coordinators = analyze_cross_funder_coordinators(min_total_sol=1e-8)
+    # Filter out pure spam dust - minimum intentional signal would be at least 0.001 SOL (1 milliSOL)
+    # Current dataset: all multi-funder senders are <1e-7 SOL (sub-100 lamport spam)
+    coordinators = analyze_cross_funder_coordinators(min_total_sol=0.001)
 
     if coordinators:
         print("\nInserting into database...")

@@ -139,13 +139,13 @@ def get_migrated_tokens() -> List[Dict]:
                         'is_cex': is_cex
                     }
 
-                # Check if funding has been analyzed (has last_analyzed timestamps)
+                # Check if funding has been extracted (has funder records)
                 cursor.execute("""
-                    SELECT COUNT(*) as analyzed_count FROM creator_funders
-                    WHERE creator_address = ? AND last_analyzed IS NOT NULL
+                    SELECT COUNT(*) as funding_count FROM creator_funders
+                    WHERE creator_address = ?
                 """, (row['earliest_tx_creator'],))
-                analyzed_result = cursor.fetchone()
-                funding_checked = analyzed_result[0] > 0 if analyzed_result else False
+                funding_result = cursor.fetchone()
+                funding_checked = funding_result[0] > 0 if funding_result else False
 
             tokens.append({
                 'mint': row['mint'],

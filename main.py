@@ -3664,7 +3664,7 @@ HTML_TEMPLATE = """
                         funderTypeLabel = '[Regular Wallet]';
                     }
 
-                    networkHTML += `<div style="margin-bottom: 25px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 6px; border-left: 3px solid ${funderColor};">`;
+                    networkHTML += `<div style="margin-bottom: 25px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 6px;">`;
 
                     // Funder header with type label
                     networkHTML += `<div style="color: ${funderColor}; font-weight: bold; margin-bottom: 4px;">`;
@@ -3685,7 +3685,7 @@ HTML_TEMPLATE = """
                             const senderTypeLabel = senderType === 'cex' ? '[CEX]' : senderType === 'infra' ? '[INFRA]' : '[Wallet]';
                             const senderAmount = sender.amount_to_funder.toFixed(4);
 
-                            networkHTML += `<div style="margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 4px; border-left: 2px solid ${senderColor};">`;
+                            networkHTML += `<div style="margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 4px;">`;
                             networkHTML += `<div style="color: ${senderColor}; font-weight: bold; margin-bottom: 4px;">`;
                             networkHTML += `🟡 SENDER ${senderTypeLabel}</div>`;
                             networkHTML += `<div style="color: #00d4ff; word-break: break-all; font-size: 10px; margin-bottom: 5px;">`;
@@ -3702,7 +3702,7 @@ HTML_TEMPLATE = """
 
                     // Arrow down to creator
                     networkHTML += `<div style="color: #4ade80; margin: 8px 0; text-align: center; font-weight: bold;">↓ Funds</div>`;
-                    networkHTML += `<div style="color: #00d4ff; padding: 10px; background: rgba(0,212,255,0.1); border-radius: 4px; border-left: 2px solid #00d4ff;">`;
+                    networkHTML += `<div style="color: #00d4ff; padding: 10px; background: rgba(0,212,255,0.1); border-radius: 4px;">`;
                     networkHTML += `<div style="color: #00d4ff; font-weight: bold; margin-bottom: 4px;">🔵 CREATOR</div>`;
                     networkHTML += `<div style="color: #00d4ff; word-break: break-all; font-size: 10px; margin-bottom: 6px;">`;
                     networkHTML += `${creatorAddress}</div>`;

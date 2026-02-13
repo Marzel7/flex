@@ -7325,9 +7325,7 @@ def api_sender_tokens(sender_address: str):
                 ta.created_at,
                 ta.risk_level,
                 ROUND(ta.rug_probability, 3) as rug_probability,
-                cf.creator_address,
-                SUM(cf.amount_sol) as total_funding_sol,
-                COUNT(DISTINCT cf.funder_address) as num_funders
+                ta.earliest_tx_creator
             FROM creator_funders cf
             JOIN token_analysis ta ON cf.creator_address = ta.earliest_tx_creator
             WHERE cf.funder_address IN (
@@ -7335,17 +7333,46 @@ def api_sender_tokens(sender_address: str):
                 FROM funder_incoming_transfers
                 WHERE sender_address = ?
             )
-            GROUP BY ta.mint
-            ORDER BY total_funding_sol DESC
+            ORDER BY ta.created_at DESC
         """, (sender_address,))
 
-        tokens = [dict(row) for row in cursor.fetchall()]
+        # Calculate funding for each token from the sender's funder network
+        tokens_list = []
+        for token_row in cursor.fetchall():
+            token_mint = token_row['mint']
+            creator_addr = token_row['earliest_tx_creator']
+
+            # Get total funding for this token from this creator's funders that came from the sender
+            cursor.execute("""
+                SELECT
+                    SUM(cf.amount_sol) as total_funding_sol,
+                    COUNT(DISTINCT cf.funder_address) as num_funders
+                FROM creator_funders cf
+                WHERE cf.creator_address = ? AND cf.funder_address IN (
+                    SELECT DISTINCT funder_address
+                    FROM funder_incoming_transfers
+                    WHERE sender_address = ?
+                )
+            """, (creator_addr, sender_address))
+
+            funding_row = cursor.fetchone()
+
+            tokens_list.append({
+                'mint': token_row['mint'],
+                'created_at': token_row['created_at'],
+                'risk_level': token_row['risk_level'],
+                'rug_probability': token_row['rug_probability'],
+                'creator_address': creator_addr,
+                'total_funding_sol': funding_row['total_funding_sol'] if funding_row else 0,
+                'num_funders': funding_row['num_funders'] if funding_row else 0
+            })
+
         conn.close()
 
         return jsonify({
             'sender_address': sender_address,
-            'tokens': tokens,
-            'total_tokens': len(tokens)
+            'tokens': tokens_list,
+            'total_tokens': len(tokens_list)
         })
 
     except Exception as e:

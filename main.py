@@ -6765,7 +6765,9 @@ def coordinated_funders_view():
 
                                     html += `
                                         <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); ${{rowHighlight}}">
-                                            <td style="padding: 12px; font-family: monospace; font-size: 11px; color: #fbbf24; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{sender.sender_address}}">${{sender.sender_address}}</td>
+                                            <td style="padding: 12px; font-family: monospace; font-size: 11px; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                <a href="#" onclick="showSenderTokens('${{sender.sender_address}}'); return false;" style="color: #fbbf24; text-decoration: none; cursor: pointer;" title="${{sender.sender_address}}">${{sender.sender_address}}</a>
+                                            </td>
                                             <td style="padding: 12px; color: #ef4444; font-weight: bold;">${{sender.funder_count}}</td>
                                             <td style="padding: 12px; color: #a0a0a0;">${{sender.transfer_count}}</td>
                                             <td style="padding: 12px; color: #4ade80;">${{sender.total_sol.toFixed(2)}}</td>
@@ -6787,7 +6789,94 @@ def coordinated_funders_view():
                             statusEl.textContent = '❌ Error: ' + e.message;
                         }}
                     }}
+
+                    async function showSenderTokens(senderAddress) {{
+                        const modal = document.getElementById('senderTokensModal');
+                        if (!modal) return;
+
+                        document.getElementById('modalSenderAddress').textContent = senderAddress;
+                        const statusEl = document.getElementById('senderTokensStatus');
+                        statusEl.textContent = '⟲ Loading tokens...';
+
+                        try {{
+                            const response = await fetch(`/api/sender-tokens/${{senderAddress}}`);
+                            const data = await response.json();
+
+                            if (data.error) {{
+                                statusEl.textContent = '❌ Error: ' + data.error;
+                                return;
+                            }}
+
+                            let html = `<table style="width: 100%; border-collapse: collapse;">
+                                <thead style="background: rgba(0, 0, 0, 0.3);">
+                                    <tr>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Token Mint</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Creator</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Funding (SOL)</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Risk</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Rug %</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+                            if (data.tokens.length === 0) {{
+                                html += '<tr><td colspan="5" style="padding: 20px; text-align: center; color: #a0a0a0;">No tokens found</td></tr>';
+                            }} else {{
+                                data.tokens.forEach(token => {{
+                                    const riskColor = token.risk_level === 'HIGH' ? '#ef4444' : token.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
+                                    html += `
+                                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                            <td style="padding: 10px; font-family: monospace; font-size: 11px; color: #4ade80;">
+                                                <a href="https://solscan.io/token/${{token.mint}}" target="_blank" style="color: #4ade80; text-decoration: none;" title="${{token.mint}}">${{token.mint.substring(0, 12)}}...</a>
+                                            </td>
+                                            <td style="padding: 10px; font-family: monospace; font-size: 11px; color: #a0a0a0;" title="${{token.creator_address}}">${{token.creator_address.substring(0, 12)}}...</td>
+                                            <td style="padding: 10px; color: #4ade80; font-weight: bold;">${{token.total_funding_sol.toFixed(2)}}</td>
+                                            <td style="padding: 10px; color: ${{riskColor}}; font-weight: bold;">${{token.risk_level || 'N/A'}}</td>
+                                            <td style="padding: 10px; color: #f59e0b;">${{(token.rug_probability * 100).toFixed(1)}}%</td>
+                                        </tr>`;
+                                }});
+                            }}
+
+                            html += '</tbody></table>';
+
+                            const tokensContainer = document.getElementById('senderTokensContainer');
+                            tokensContainer.innerHTML = html;
+                            statusEl.textContent = `✅ Showing ${{data.total_tokens}} tokens`;
+                            modal.style.display = 'block';
+
+                        }} catch(error) {{
+                            console.error('Error loading sender tokens:', error);
+                            statusEl.textContent = '❌ Failed to load tokens';
+                        }}
+                    }}
+
+                    function closeSenderTokens() {{
+                        const modal = document.getElementById('senderTokensModal');
+                        if (modal) modal.style.display = 'none';
+                    }}
+
+                    window.onclick = function(event) {{
+                        const modal = document.getElementById('senderTokensModal');
+                        if (event.target === modal) {{
+                            modal.style.display = 'none';
+                        }}
+                    }}
                     </script>
+
+                    <!-- Sender Tokens Modal -->
+                    <div id="senderTokensModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7);">
+                        <div style="background: #0a0e27; margin: 10% auto; padding: 20px; border: 1px solid #00d4ff; width: 90%; max-width: 1200px; max-height: 80vh; overflow-y: auto; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h2 style="color: #00d4ff; margin: 0;">Tokens Funded by Sender</h2>
+                                <span style="cursor: pointer; font-size: 28px; color: #a0a0a0;" onclick="closeSenderTokens()">&times;</span>
+                            </div>
+                            <p style="color: #a0a0a0; font-size: 12px; word-break: break-all; margin-bottom: 15px;"><strong>Sender:</strong> <span id="modalSenderAddress" style="font-family: monospace;"></span></p>
+                            <div style="background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 4px; margin-bottom: 15px; color: #a0a0a0;">
+                                <span id="senderTokensStatus">Loading...</span>
+                            </div>
+                            <div id="senderTokensContainer" style="overflow-x: auto;"></div>
+                        </div>
+                    </div>
                 </div>
             </body>
         </html>
@@ -7214,6 +7303,49 @@ def api_duplicate_senders():
         return jsonify({
             'senders': senders,
             'total_duplicate_senders': len(senders)
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/sender-tokens/<sender_address>')
+def api_sender_tokens(sender_address: str):
+    """Get all tokens funded by accounts that received from this sender"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get all tokens funded by funders that received from this sender
+        cursor.execute("""
+            SELECT DISTINCT
+                ta.mint,
+                ta.created_at,
+                ta.risk_level,
+                ROUND(ta.rug_probability, 3) as rug_probability,
+                cf.creator_address,
+                SUM(cf.amount_sol) as total_funding_sol,
+                COUNT(DISTINCT cf.funder_address) as num_funders
+            FROM creator_funders cf
+            JOIN token_analysis ta ON cf.creator_address = ta.earliest_tx_creator
+            WHERE cf.funder_address IN (
+                SELECT DISTINCT funder_address
+                FROM funder_incoming_transfers
+                WHERE sender_address = ?
+            )
+            GROUP BY ta.mint
+            ORDER BY total_funding_sol DESC
+        """, (sender_address,))
+
+        tokens = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        return jsonify({
+            'sender_address': sender_address,
+            'tokens': tokens,
+            'total_tokens': len(tokens)
         })
 
     except Exception as e:

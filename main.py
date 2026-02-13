@@ -3675,7 +3675,7 @@ HTML_TEMPLATE = """
 
         // 3-Tier Funding Network Functions
         function promptFundingNetwork3Tier() {
-            const creatorAddress = prompt('Enter creator address to view funding network:\n\nExample: HYWo71Wk9PNDe5sBaRKazPnVyGnQDiwgXCFKvgAQ1ENp');
+            const creatorAddress = prompt('Enter creator address to view funding network: ' + String.fromCharCode(10) + String.fromCharCode(10) + 'Example: HYWo71Wk9PNDe5sBaRKazPnVyGnQDiwgXCFKvgAQ1ENp');
             if (creatorAddress && creatorAddress.trim().length > 0) {
                 showFundingNetwork3Tier(creatorAddress.trim());
             }

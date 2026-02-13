@@ -567,18 +567,35 @@ def extract_for_creator(creator_address: str) -> Dict:
         total_incoming += result['incoming_count']
         total_outgoing += result['outgoing_count']
 
+    # Mark extraction as complete by updating last_analyzed timestamp for all funders
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE creator_funders
+            SET last_analyzed = CURRENT_TIMESTAMP
+            WHERE creator_address = ?
+        """, (creator_address,))
+        conn.commit()
+        conn.close()
+        print(f"[DB] Marked extraction complete for all funders of {creator_address[:16]}...")
+    except Exception as e:
+        print(f"[DB] Error marking completion: {e}")
+
     print(f"\n{'='*80}")
     print(f"[COMPLETE] Extraction complete for {creator_address}")
     print(f"  Total incoming transfers: {total_incoming}")
     print(f"  Total outgoing transfers: {total_outgoing}")
     print(f"  Total SOL traced: {total_sol:.4f}")
+    print(f"  ✅ Funding Complete")
     print(f"{'='*80}\n")
 
     return {
         'creator': creator_address,
         'incoming_found': total_incoming,
         'outgoing_found': total_outgoing,
-        'total_sol': total_sol
+        'total_sol': total_sol,
+        'status': 'complete'
     }
 
 

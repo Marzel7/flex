@@ -3796,12 +3796,24 @@ HTML_TEMPLATE = """
             const modal = document.getElementById('fundingNetwork3TierModal');
 
             try {
+                // Check extraction status first
+                const statusResponse = await fetch(`/api/creator-funder-extraction-status/${creatorAddress}`);
+                const statusData = await statusResponse.json();
+
                 const response = await fetch(`/api/funding-network-3tier/${creatorAddress}`);
                 const data = await response.json();
 
                 if (data.error) {
                     document.getElementById('fn3tNetworkBody').innerHTML = '<div style="color: #ef4444;">Error loading network</div>';
                     return;
+                }
+
+                // Add extraction status indicator
+                let statusIndicator = '';
+                if (statusData.is_complete) {
+                    statusIndicator = '<div style="color: #4ade80; font-weight: bold; margin-bottom: 15px; font-size: 13px;">✅ Funding complete</div>';
+                } else if (statusData.status === 'pending') {
+                    statusIndicator = '<div style="color: #fbbf24; font-weight: bold; margin-bottom: 15px; font-size: 13px;">⏳ Extraction in progress...</div>';
                 }
 
                 // Build 3-tier network visualization - concise version
@@ -3884,7 +3896,8 @@ HTML_TEMPLATE = """
                     }
                 }
 
-                document.getElementById('fn3tNetworkBody').innerHTML = networkHTML;
+                // Prepend status indicator to the network HTML
+                document.getElementById('fn3tNetworkBody').innerHTML = statusIndicator + networkHTML;
                 modal.style.display = 'block';
 
             } catch (error) {
@@ -4791,6 +4804,52 @@ def api_funding_network_3tier(creator_address: str):
             'total_funders': len(funders),
             'total_senders': sum(len(f['senders']) for f in network_3tier),
             'network_tiers': network_3tier
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/creator-funder-extraction-status/<creator_address>')
+def api_creator_funder_extraction_status(creator_address: str):
+    """Check if funder extraction is complete for a creator"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Check if any funders for this creator have been analyzed
+        cursor.execute("""
+            SELECT
+                COUNT(*) as total_funders,
+                SUM(CASE WHEN last_analyzed IS NOT NULL THEN 1 ELSE 0 END) as analyzed_funders,
+                MAX(last_analyzed) as last_analyzed_at
+            FROM creator_funders
+            WHERE creator_address = ?
+        """, (creator_address,))
+
+        result = cursor.fetchone()
+        conn.close()
+
+        if result['total_funders'] == 0:
+            return jsonify({
+                'creator_address': creator_address,
+                'is_complete': False,
+                'status': 'no_funders',
+                'message': 'No funders found for this creator'
+            })
+
+        # Extraction is complete if all funders have been analyzed
+        is_complete = result['analyzed_funders'] == result['total_funders'] and result['analyzed_funders'] > 0
+
+        return jsonify({
+            'creator_address': creator_address,
+            'is_complete': is_complete,
+            'status': 'complete' if is_complete else 'pending',
+            'analyzed_funders': result['analyzed_funders'],
+            'total_funders': result['total_funders'],
+            'last_analyzed_at': result['last_analyzed_at']
         })
 
     except Exception as e:

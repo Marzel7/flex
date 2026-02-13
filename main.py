@@ -3849,9 +3849,17 @@ HTML_TEMPLATE = """
                         }
                         networkHTML += `<div style="color: #fbbf24; margin-left: 20px; margin-bottom: 6px;">${senderSummary}</div>`;
 
-                        // Show senders if not too many
-                        if (tier.senders.length > 0 && tier.senders.length <= 5) {
-                            tier.senders.forEach((sender) => {
+                        // Always show known senders (prioritized), then unknowns up to 5 total
+                        if (tier.senders.length > 0) {
+                            // Separate known and unknown senders
+                            const knownSenders = tier.senders.filter(s => s.is_known);
+                            const unknownSenders = tier.senders.filter(s => !s.is_known);
+
+                            // Show all known senders first, then unknown senders up to fill remaining space
+                            const displayCount = Math.min(5, tier.senders.length);
+                            const sendersToShow = knownSenders.concat(unknownSenders).slice(0, displayCount);
+
+                            sendersToShow.forEach((sender) => {
                                 const isKnown = sender.is_known || false;
                                 const label = sender.label;
                                 const senderType = sender.sender_type || 'unknown';
@@ -3868,12 +3876,14 @@ HTML_TEMPLATE = """
 
                                 const senderAmount = sender.amount_to_funder.toFixed(2);
                                 const labelText = label ? ` [${label}]` : '';
-                                networkHTML += `<div style="color: ${senderColor}; margin-left: 40px; font-size: 11px; font-family: monospace; word-break: break-all;">• ${sender.sender_address}${labelText} → ${senderAmount} SOL</div>`;
+                                const knownBadge = isKnown ? ' ✓' : '';
+                                networkHTML += `<div style="color: ${senderColor}; margin-left: 40px; font-size: 11px; font-family: monospace; word-break: break-all;">• ${sender.sender_address}${labelText}${knownBadge} → ${senderAmount} SOL</div>`;
                             });
-                        } else if (tier.senders.length > 5) {
-                            const knownShown = Math.min(5, knownCount);
-                            const unknownShown = 5 - knownShown;
-                            networkHTML += `<div style="color: #a0a0a0; margin-left: 40px; font-size: 11px;">... and ${tier.senders.length - 5} more senders</div>`;
+
+                            // Show remaining count if there are more
+                            if (tier.senders.length > displayCount) {
+                                networkHTML += `<div style="color: #a0a0a0; margin-left: 40px; font-size: 11px;">... and ${tier.senders.length - displayCount} more senders</div>`;
+                            }
                         }
                     } else {
                         networkHTML += `<div style="color: #a0a0a0; margin-left: 20px; margin-bottom: 6px;">→ ${totalToCreator} SOL (no tracked sources)</div>`;

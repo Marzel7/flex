@@ -5596,18 +5596,75 @@ def api_multi_creator_funders():
 
 @app.route('/api/analyze-funder-transfers', methods=['POST'])
 def api_analyze_funder_transfers():
-    """Trigger funder transfer analysis (incoming/outgoing) for a funder address"""
-    import sys
-    import traceback
+    """Trigger funder transfer analysis (incoming/outgoing) for a funder address.
 
-    print(f"\n[ANALYZE_ENDPOINT] Received analyze request", flush=True, file=sys.stderr)
+    First checks if data already exists in database, returns immediately if found.
+    Only extracts from Helius if no data exists.
+    """
+    import sys
+
     try:
         data = request.get_json()
         funder_address = data.get('funder_address')
-        print(f"[ANALYZE_ENDPOINT] Funder address: {funder_address}", flush=True, file=sys.stderr)
 
         if not funder_address:
             return jsonify({'error': 'No funder address provided'}), 400
+
+        # Check if we already have data for this funder in the database
+        print(f"[ANALYZE] Checking database for {funder_address[:16]}...", flush=True)
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=5)
+            conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA query_only = ON")
+            cursor = conn.cursor()
+
+            # Count existing transfers
+            cursor.execute("SELECT COUNT(*) as count FROM funder_incoming_transfers WHERE funder_address = ?", (funder_address,))
+            incoming_count = cursor.fetchone()['count']
+
+            cursor.execute("SELECT COUNT(*) as count FROM funder_outgoing_transfers WHERE funder_address = ?", (funder_address,))
+            outgoing_count = cursor.fetchone()['count']
+
+            # Get total SOL
+            cursor.execute("SELECT SUM(amount_sol) as total FROM funder_incoming_transfers WHERE funder_address = ?", (funder_address,))
+            incoming_total = cursor.fetchone()['total'] or 0.0
+
+            cursor.execute("SELECT SUM(amount_sol) as total FROM funder_outgoing_transfers WHERE funder_address = ?", (funder_address,))
+            outgoing_total = cursor.fetchone()['total'] or 0.0
+
+            conn.close()
+
+            # If we have data, return it immediately from cache
+            if incoming_count > 0 or outgoing_count > 0:
+                print(f"[ANALYZE] ✅ Found in DB: {incoming_count} IN, {outgoing_count} OUT", flush=True)
+                result = {
+                    'funder': funder_address,
+                    'incoming_count': incoming_count,
+                    'outgoing_count': outgoing_count,
+                    'total_sol': incoming_total + outgoing_total,
+                    'source': 'database_cache'
+                }
+
+                # Store in memory cache for quick retrieval
+                app.funder_analysis_cache = app.funder_analysis_cache or {}
+                app.funder_analysis_cache[funder_address] = {
+                    'status': 'completed',
+                    'result': result,
+                    'timestamp': datetime.now().isoformat()
+                }
+
+                return jsonify({
+                    'status': 'completed',
+                    'funder_address': funder_address,
+                    'result': result,
+                    'message': 'Results from database cache (no re-analysis needed)'
+                })
+        except Exception as e:
+            print(f"[ANALYZE] Database check error (will extract): {e}", flush=True)
+            # Continue with extraction if database check fails
+
+        # No data found, need to extract
+        print(f"[ANALYZE] No data in DB, will extract from Helius", flush=True)
 
         # Import here to avoid circular imports
         from funder_helius_extractor import extract_transfers_for_funder
@@ -5615,15 +5672,8 @@ def api_analyze_funder_transfers():
 
         # Run extraction in background thread
         def run_extraction():
-            import sys
             try:
-                print(f"[FUNDER_ANALYSIS] Starting analysis for {funder_address}", flush=True)
-                sys.stdout.flush()
-
-                # Extract transfers directly for this funder using Helius
-                # This is much faster than extracting for all creators
-                print(f"[FUNDER_ANALYSIS] Extracting transfers for funder {funder_address}...", flush=True)
-                sys.stdout.flush()
+                print(f"[FUNDER_ANALYSIS] Starting extraction for {funder_address[:16]}...", flush=True)
 
                 result = extract_transfers_for_funder(funder_address)
 
@@ -5634,13 +5684,11 @@ def api_analyze_funder_transfers():
                     'result': result,
                     'timestamp': datetime.now().isoformat()
                 }
-                print(f"[FUNDER_ANALYSIS] Completed for {funder_address}: {result}", flush=True)
-                sys.stdout.flush()
+                print(f"[FUNDER_ANALYSIS] ✅ Completed: {result.get('incoming_count', 0)} IN, {result.get('outgoing_count', 0)} OUT", flush=True)
             except Exception as e:
                 import traceback
-                print(f"[FUNDER_ANALYSIS] Error analyzing {funder_address}: {e}", flush=True)
+                print(f"[FUNDER_ANALYSIS] ❌ Error: {e}", flush=True)
                 print(traceback.format_exc(), flush=True)
-                sys.stdout.flush()
 
         # Start background thread (non-daemon so it completes)
         thread = threading.Thread(target=run_extraction, daemon=False)
@@ -5649,7 +5697,7 @@ def api_analyze_funder_transfers():
         return jsonify({
             'status': 'queued',
             'funder_address': funder_address,
-            'message': 'Analysis queued in background'
+            'message': 'Analysis queued (extracting from Helius)'
         })
 
     except Exception as e:

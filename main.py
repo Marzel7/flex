@@ -3647,19 +3647,59 @@ HTML_TEMPLATE = """
                     btn.style.color = '#fbbf24';
                     btn.style.borderColor = 'rgba(245, 158, 11, 0.5)';
 
-                    // Show notification
-                    console.log(`✅ Funder analysis queued for: ${funderAddress}`);
-                    alert(`✅ Analysis started for funder\n\nAddress: ${funderAddress.substring(0, 16)}...\n\nResults will update in the background.`);
+                    console.log(`✅ Analysis queued for: ${funderAddress}`);
 
-                    // Reset button after delay
-                    setTimeout(() => {
-                        btn.textContent = originalText;
-                        btn.disabled = false;
-                        btn.style.opacity = '1';
-                        btn.style.background = 'rgba(34, 197, 94, 0.2)';
-                        btn.style.color = '#4ade80';
-                        btn.style.borderColor = 'rgba(34, 197, 94, 0.5)';
-                    }, 3000);
+                    // Poll for results
+                    let pollCount = 0;
+                    const pollInterval = setInterval(async () => {
+                        pollCount++;
+
+                        // Stop polling after 30 seconds
+                        if (pollCount > 30) {
+                            clearInterval(pollInterval);
+                            btn.textContent = originalText;
+                            btn.disabled = false;
+                            btn.style.opacity = '1';
+                            btn.style.background = 'rgba(34, 197, 94, 0.2)';
+                            btn.style.color = '#4ade80';
+                            btn.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+                            alert('⏱️ Analysis timed out. Try again later.');
+                            return;
+                        }
+
+                        try {
+                            const statusResponse = await fetch(`/api/funder-analysis-status/${funderAddress}`);
+                            const statusData = await statusResponse.json();
+
+                            if (statusData.status === 'completed') {
+                                clearInterval(pollInterval);
+
+                                // Show results
+                                const incoming = statusData.result.incoming_found || 0;
+                                const outgoing = statusData.result.outgoing_found || 0;
+                                const totalSol = (statusData.result.total_sol || 0).toFixed(2);
+
+                                btn.textContent = `Done: ${incoming} IN / ${outgoing} OUT`;
+                                btn.style.background = 'rgba(34, 197, 94, 0.3)';
+                                btn.style.color = '#4ade80';
+                                btn.style.borderColor = 'rgba(34, 197, 94, 0.7)';
+
+                                alert(`✅ Analysis Complete\n\nIncoming: ${incoming}\nOutgoing: ${outgoing}\nTotal SOL: ${totalSol}`);
+
+                                // Reset button after delay
+                                setTimeout(() => {
+                                    btn.textContent = originalText;
+                                    btn.disabled = false;
+                                    btn.style.opacity = '1';
+                                    btn.style.background = 'rgba(34, 197, 94, 0.2)';
+                                    btn.style.color = '#4ade80';
+                                    btn.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+                                }, 3000);
+                            }
+                        } catch (e) {
+                            console.error('Error checking analysis status:', e);
+                        }
+                    }, 1000);  // Poll every 1 second
                 } else if (data.status === 'completed') {
                     btn.textContent = `Done: ${data.result.incoming_found} IN / ${data.result.outgoing_found} OUT`;
                     btn.style.background = 'rgba(34, 197, 94, 0.3)';
@@ -5611,6 +5651,19 @@ def api_analyze_funder_transfers():
             'message': 'Analysis queued in background'
         })
 
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/funder-analysis-status/<funder_address>', methods=['GET'])
+def api_funder_analysis_status(funder_address):
+    """Check status of funder analysis"""
+    try:
+        if funder_address in app.funder_analysis_cache:
+            cache_entry = app.funder_analysis_cache[funder_address]
+            return jsonify(cache_entry)
+        else:
+            return jsonify({'status': 'pending', 'funder_address': funder_address})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

@@ -264,8 +264,52 @@ def parse_transaction(tx_sig: str) -> Optional[Dict]:
 
 
 def extract_transfers_for_funder(funder_address: str) -> Dict:
-    """Extract incoming and outgoing SOL transfers for a funder address"""
+    """Extract incoming and outgoing SOL transfers for a funder address
+
+    Checks database first - if data already exists, returns cached results.
+    Only extracts from Helius/RPC if no data found.
+    """
     print(f"\n[EXTRACT] Analyzing funder: {funder_address}")
+
+    # OPTIMIZATION: Check if we already have extraction data for this funder
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        cursor = conn.cursor()
+
+        # Count existing transfers
+        cursor.execute("SELECT COUNT(*) FROM funder_incoming_transfers WHERE funder_address = ?", (funder_address,))
+        incoming_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM funder_outgoing_transfers WHERE funder_address = ?", (funder_address,))
+        outgoing_count = cursor.fetchone()[0]
+
+        # If we have data, return it instead of re-extracting
+        if incoming_count > 0 or outgoing_count > 0:
+            # Get total SOL
+            cursor.execute("SELECT SUM(amount_sol) FROM funder_incoming_transfers WHERE funder_address = ?", (funder_address,))
+            incoming_total = (cursor.fetchone()[0] or 0)
+
+            cursor.execute("SELECT SUM(amount_sol) FROM funder_outgoing_transfers WHERE funder_address = ?", (funder_address,))
+            outgoing_total = (cursor.fetchone()[0] or 0)
+
+            conn.close()
+
+            result = {
+                'incoming_count': incoming_count,
+                'outgoing_count': outgoing_count,
+                'total_sol': incoming_total + outgoing_total,
+                'source': 'database_cache'
+            }
+            print(f"[EXTRACT] ✅ Using cached data from DB: {incoming_count} IN, {outgoing_count} OUT")
+            return result
+
+        conn.close()
+    except Exception as e:
+        print(f"[EXTRACT] Database check error (will extract): {e}")
+        # Continue with extraction if check fails
+
+    # No cached data found - need to extract from blockchain
+    print(f"[EXTRACT] No cache found - extracting from blockchain")
 
     incoming_transfers = []
     outgoing_transfers = []

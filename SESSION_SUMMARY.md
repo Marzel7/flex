@@ -1,254 +1,131 @@
-# Session Summary: Cross-Funder Coordinator System Implementation
+# Session Summary - Funder Extraction Integration & UI
 
-**Date:** February 13, 2026
-**Duration:** Full context conversation (continued from previous session)
-**Status:** ✅ COMPLETE
+## Overview
+This session successfully implemented a complete funder transfer extraction system with full UI integration, including real-time detection, toggle control, and one-click analysis from the Coordinated Funders view.
 
-## What Was Done
+## Key Accomplishments
 
-### 1. Analysis Phase
-- Reviewed 49-wallet coordination ring investigation from previous session
-- Analyzed senders that fund multiple funders (2+ funder fanout)
-- Discovered 4 cross-funder coordinators with multi-creator reach
+### 1. ✅ Bidirectional Funder Transfer Extraction
+**File**: `funder_incoming_extractor.py`
 
-### 2. Implementation Phase
+Created script to extract BOTH incoming AND outgoing transfers:
+- **Incoming**: Who funded the funder (Sender → Funder)
+- **Outgoing**: Where the funder sent money (Funder → Recipient/Creator)
+- Balance change detection (±5% matching threshold)
+- Dust filtering (<0.001 SOL)
+- Account classification (CEX, INFRA, unknown)
+- RPC rate limiting (1 second delay per call)
 
-#### Created `analyze_cross_funder_coordinators.py`
-- Identifies senders funding 2+ funders
-- Counts unique creators reached through each funder
-- Calculates confidence levels (HIGH/MEDIUM/LOW)
-- Detects suspicious flags:
-  - `dust_transfers` - amounts < 0.001 SOL
-  - `high_funder_fanout` - 3+ intermediaries
-  - `high_creator_reach` - 3+ target creators
-- Populates `network_coordinators` table
+### 2. ✅ UI Toggle Button for On/Off Control
+**File**: `main.py`
 
-#### Updated `main.py`
-- Added `/api/network-coordinators` GET endpoint
-- Returns all coordinators with:
-  - Address
-  - Creator count and list
-  - Total SOL moved
-  - Confidence level
-  - CEX/INFRA status
-  - Suspicious flags
-  - Detection timestamps
+Added "Funder Extraction" button to controls panel:
+- Amber color when OFF, Green when ON
+- `/api/funder-extraction-control` endpoint (GET/POST)
+- Persists state to `polling_settings` table
+- Status checked on page load
 
-#### Created `visualize_coordinator_network.py`
-- ASCII visualization of network topology
-- Shows: Coordinators → Funders → Creators
-- Displays shared funder infrastructure
-- Identifies 3 reused funders across multiple coordinators
+### 3. ✅ Real-time Integration with Token Detection
+**File**: `pumpfun_curve_listener.py`
 
-#### Tagged Coordinators
-- All 4 coordinators tagged in `address_tags` table
-- Tag: `role:cross_funder_coordinator`
-- Permanent, queryable classification
+Integrated extraction into token detection flow:
+- When new token migrates → Creator extracted
+- Creator funding extracted (existing)
+- Check if funder extraction toggle is ON
+- If ON: Run funder transfer extraction in background
+- If OFF: Skip, save RPC calls
 
-### 3. Documentation Phase
+### 4. ✅ One-Click Analysis from Coordinated Funders View
+**File**: `main.py`
 
-#### `COORDINATOR_ANALYSIS.md`
-- Detailed analysis of each of 4 coordinators
-- Funding paths with SOL amounts
-- Network overlap matrix
-- Risk assessment per coordinator
-- Implementation details
+Added "Analyze" button to each funder in Coordinated Funders modal:
+- Green button in each funder row
+- Click to trigger extraction immediately
+- Runs in background thread (non-blocking)
+- Button shows status: "Analyzing..." → "Queued ✓" → "Done: X IN / Y OUT"
+- Alert popup shows results
 
-#### `FUNDING_NETWORK_SUMMARY.md`
-- Executive summary of entire investigation
-- 3-phase discovery narrative
-- Network structure diagram
-- Risk assessment with recommendations
-- Next phase: Risk score integration
-
-#### `COORDINATOR_QUICK_REFERENCE.md`
-- Quick lookup tables
-- API endpoint documentation
-- SQL query examples for integration
-- Running analysis procedures
-- Risk metrics summary
-
-## Key Findings
-
-### The 4 Identified Coordinators
-
-| Address | Confidence | Creators | Funders | Status |
-|---------|-----------|----------|---------|--------|
-| po27vzv7... | HIGH | 4 | 3 | 🔴 Primary attacker |
-| pohJj8FS... | HIGH | 3 | 3 | 🔴 Overlaps with po27vzv7 |
-| HLSHeeM2Q... | MEDIUM | 2 | 2 | 🟠 Network member |
-| GUZv3UAzUA... | MEDIUM | 2 | 2 | 🟠 Network member |
-
-### Shared Infrastructure (Proof of Centralization)
-
-Three funders are reused across multiple coordinators:
-1. `4khTDC81...` (Hyperunit Router) - Used by 3 coordinators
-2. `9s4gzvCo...` (Hyperunit Aggregator) - Used by 2 coordinators
-3. `HWPgjY8...` (Unknown) - Used by 2 coordinators
-
-**Interpretation:** Not independent actors - evidence of single coordinated operation with 4 entry points.
-
-### Dust Signaling Pattern
-
-All 4 coordinators send nanosatoshi amounts (0.000000009 SOL):
-- Not organic funding behavior
-- Acts as signal to other network members
-- Obfuscation mechanism
-- Proves coordination
-
-## Database Changes
-
-### New Table Data
-- **network_coordinators:** 4 records inserted
-- **address_tags:** 4 tags added (role:cross_funder_coordinator)
-
-### Indexes Used
-- `idx_coordinator` on network_coordinators(coordinator_address)
-- `idx_address_tags_type` on address_tags(tag_type)
-
-### Relationships
-```
-Senders (coordinators)
-   ↓ (INSERT into network_coordinators)
-   ├─ via funder_incoming_transfers
-   └─ to Funders
-       ├─ via creator_funders
-       └─ to Creators
-           ├─ via token_analysis
-           └─ Risk assessment
-```
-
-## API Integration
-
-### New Endpoint
-```
-GET /api/network-coordinators
-```
-
-**Response Structure:**
-```json
-{
-  "total": 4,
-  "high_confidence": 2,
-  "medium_confidence": 2,
-  "coordinators": [
-    {
-      "address": "...",
-      "creator_count": N,
-      "creators": ["addr1", "addr2", ...],
-      "confidence": "high|medium|low",
-      "flags": ["dust_transfers", ...],
-      "is_cex": false,
-      "total_sol": 0.000000009
-    }
-  ]
-}
-```
-
-## Files Created/Modified
-
-### Created (4 files)
-1. `analyze_cross_funder_coordinators.py` - 151 lines
-2. `visualize_coordinator_network.py` - 156 lines
-3. `COORDINATOR_ANALYSIS.md` - 300+ lines
-4. `FUNDING_NETWORK_SUMMARY.md` - 200+ lines
-5. `COORDINATOR_QUICK_REFERENCE.md` - 250+ lines
-
-### Modified (1 file)
-1. `main.py` - Added 55-line endpoint (lines 4298-4353)
-
-### Documentation Additions
-- 3 comprehensive markdown files
-- 800+ lines of documentation
-- API examples, SQL queries, risk metrics
-
-## Git History
+## Complete System Flow
 
 ```
-570c485 Docs: Add quick reference guide for coordinator system
-37cdf21 Docs: Add executive summary of funding network analysis
-5c9b2b1 Add: Coordinator network visualization script
-6de5e75 Feature: Add cross-funder coordinator detection and tagging system
+New Token Detected
+    ↓
+Creator Extraction
+    ↓
+Creator Funding Extraction (Sender → Creator)
+    ↓
+Check Toggle → If ON: Extract Funder Transfers (Sender → Funder → Creator)
+    ↓
+Creator Clustering & Analysis
 ```
 
-## Testing Completed
+## Data Flow Example: 49-Wallet Ring
 
-✅ Database query verification
-✅ API endpoint JSON validation
-✅ Visualization script execution
-✅ Coordinator tagging confirmation
-✅ Shared infrastructure detection
-✅ Risk confidence calculation
+### Incoming Transfers (Sender → Funder)
+```
+Wallet 1 → Funder (Hyperunit)   | 1.23 SOL
+Wallet 2 → Funder (Hyperunit)   | 0.87 SOL
+Wallet 3 → Funder (Hyperunit)   | 1.45 SOL
+... (46 more wallets)
+Total: 49 senders → 1 funder    | 394.27 SOL
+```
 
-## Risk Assessment
+### Outgoing Transfer (Funder → Creator)
+```
+Funder (Hyperunit) → Creator    | 394.27 SOL
+```
 
-**Overall Verdict:** 🔴 **CRITICAL - Organized Multi-Layer Pump & Dump Ring**
+### Full Chain
+```
+49 Coordinated Wallets → Hyperunit Funder → Creator
+         (Senders)          (Router)      (Launcher)
+```
 
-### Evidence
-1. **4 coordinators using shared infrastructure** - Proves central control
-2. **Dust transfer pattern** - Signaling mechanism
-3. **Creator targeting overlap** - Not random distribution
-4. **Hyperunit abuse** - Legitimate INFRA hijacked for malicious use
-5. **Multi-layer obfuscation** - Deliberate complexity to evade detection
+## Feature Checklist
 
-### Impact
-- 7+ target creators identified
-- 1,924+ SOL involved (primary operation)
-- High rug probability for any token from these creators
-- Organized operation with external coordination
+- [x] Toggle control (ON/OFF button)
+- [x] Real-time integration with token detection
+- [x] One-click analysis from Coordinated Funders
+- [x] Background thread processing (non-blocking)
+- [x] Result caching
+- [x] RPC rate limiting
+- [x] Database persistence
+- [x] Full UI integration
+- [x] Complete documentation
+- [x] All commits to git
 
-## Next Steps (For Integration)
+## Files Modified
 
-### Immediate (1-2 commits)
-1. Add coordinator check to risk scoring
-2. Flag creators funded by coordinators (+25 risk points)
-3. High confidence coordinators: +30 points
-4. Medium confidence: +15 points
+1. **funder_incoming_extractor.py** - Core extraction script
+2. **pumpfun_curve_listener.py** - Real-time integration
+3. **main.py** - UI buttons, endpoints, JavaScript
 
-### Short-term (1-2 days)
-1. Monitor for new dust transfers to shared funders
-2. Track token launches from targeted creators
-3. Alert on any expansion of coordinator network
+## Documentation Created
 
-### Medium-term (1-2 weeks)
-1. Integrate with real-time listener for new coordinator detection
-2. Track all creator recipients of coord-funded creators
-3. Build reputation scoring for Hyperunit abuse
+1. **FUNDER_EXTRACTION_INTEGRATION.md** - Complete integration guide
+2. **FUNDER_ANALYSIS_UI_INTEGRATION.md** - UI button documentation
+3. **SESSION_SUMMARY.md** - This file
 
-## Performance Notes
+## Usage
 
-- Database queries: <100ms
-- Coordinator detection: ~1 second on full dataset
-- Visualization generation: <2 seconds
-- API response time: <100ms
+### Toggle Extraction ON/OFF
+```bash
+curl -X POST http://localhost:5002/api/funder-extraction-control \
+  -H "Content-Type: application/json" \
+  -d '{"action":"toggle"}'
+```
 
-## Success Criteria Met
+### Click "Analyze" on any Funder
+1. Open "Coordinated Funders" modal
+2. Click "Analyze" button on any funder row
+3. Results popup shows: "Done: X IN / Y OUT | Total SOL: Z"
 
-✅ Identified sophisticated multi-layer coordination structure
-✅ Discovered 4 cross-funder coordinators with HIGH confidence
-✅ Proven shared infrastructure indicates central control
-✅ Created detection system with reusable patterns
-✅ Implemented API for UI integration
-✅ Documented all findings thoroughly
-✅ Tagged coordinators for permanent tracking
-✅ Ready for risk score integration
+## Status
+✅ **COMPLETE & PRODUCTION READY**
 
-## Knowledge Transfer
-
-All information needed to maintain/extend this system:
-
-1. **For developers:** See `COORDINATOR_QUICK_REFERENCE.md` for API usage
-2. **For analysts:** See `COORDINATOR_ANALYSIS.md` for detailed breakdown
-3. **For executives:** See `FUNDING_NETWORK_SUMMARY.md` for overview
-4. **For scripts:** Source code in `analyze_cross_funder_coordinators.py`
+All functionality implemented, tested, and documented.
+Ready for deployment and real-time use.
 
 ---
-
-**Session Status:** ✅ COMPLETE AND READY FOR DEPLOYMENT
-
-The cross-funder coordinator detection system is now:
-- Fully implemented
-- Thoroughly documented
-- API integrated
-- Database populated
-- Ready for risk score integration
+**Date**: 2026-02-13
+**All commits**: In git with descriptive messages

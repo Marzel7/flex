@@ -3687,6 +3687,19 @@ HTML_TEMPLATE = """
                 });
 
                 networkHTML += '</div>';
+
+                // If no funders with senders were found, show helpful message
+                if (networkHTML === '<div style="font-family: monospace; font-size: 12px; line-height: 2.2;"></div>') {
+                    if (data.total_funders > 0) {
+                        networkHTML = `<div style="color: #fbbf24; padding: 20px; text-align: center;">
+                            This creator has ${data.total_funders} funder(s) but no tracked pre-migration senders.<br>
+                            <span style="color: #a0a0a0; font-size: 11px;">Funding source data extraction pending.</span>
+                        </div>`;
+                    } else {
+                        networkHTML = '<div style="color: #a0a0a0; padding: 20px; text-align: center;">No funding data available for this creator.</div>';
+                    }
+                }
+
                 document.getElementById('fn3tNetworkBody').innerHTML = networkHTML;
                 modal.style.display = 'block';
 

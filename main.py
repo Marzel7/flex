@@ -1630,9 +1630,10 @@ HTML_TEMPLATE = """
                 </div>
             </div>
 
-            <!-- View Funding Patterns Button -->
-            <div style="margin: 20px 0; text-align: center;">
+            <!-- Analysis Buttons -->
+            <div style="margin: 20px 0; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                 <button onclick="showFundingNetwork3Tier(document.getElementById('modalCreator').textContent.split(' ')[0])" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">View Funding Patterns</button>
+                <button onclick="showCoordinatedFunderAnalysis(document.getElementById('modalCreator').textContent.split(' ')[0])" style="background: rgba(249, 115, 22, 0.2); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.5); padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">Coordinated Network</button>
             </div>
 
             <!-- Creator Tags -->
@@ -1992,6 +1993,51 @@ HTML_TEMPLATE = """
                 <div id="fn3tNetworkBody" style="font-family: monospace; font-size: 12px; line-height: 2; color: #e0e0e0; max-height: 500px; overflow-y: auto;">
                     <div style="color: #a0a0a0;">Loading network...</div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coordinated Funder Analysis Modal -->
+    <div id="coordinatedFunderAnalysisModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <span class="close" onclick="closeCoordinatedFunderAnalysis()">&times;</span>
+            <h2>Coordinated Funder Analysis</h2>
+
+            <!-- Network Risk Summary -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #ef4444;">
+                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 5px;">NETWORK RISK</div>
+                    <div id="cfaRiskLevel" style="color: #ef4444; font-size: 18px; font-weight: bold;">—</div>
+                </div>
+                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #fbbf24;">
+                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 5px;">CONNECTED CREATORS</div>
+                    <div id="cfaConnectedCount" style="color: #fbbf24; font-size: 18px; font-weight: bold;">—</div>
+                </div>
+                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #f97316;">
+                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 5px;">SHARED DESTINATIONS</div>
+                    <div id="cfaSharedDests" style="color: #f97316; font-size: 18px; font-weight: bold;">—</div>
+                </div>
+            </div>
+
+            <!-- Connected Creators List -->
+            <h3 style="color: #e0e0e0; margin-top: 20px;">Connected Creators</h3>
+            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 15px; max-height: 300px; overflow-y: auto;">
+                <div id="cfaConnectedCreators" style="font-family: monospace; font-size: 12px; line-height: 1.8; color: #e0e0e0;">
+                    <div style="color: #a0a0a0;">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Shared Destinations List -->
+            <h3 style="color: #e0e0e0; margin-top: 20px;">Shared Destinations</h3>
+            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 15px; max-height: 300px; overflow-y: auto;">
+                <div id="cfaSharedDestinations" style="font-family: monospace; font-size: 12px; line-height: 1.8; color: #e0e0e0;">
+                    <div style="color: #a0a0a0;">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Analysis Timestamp -->
+            <div style="color: #a0a0a0; font-size: 10px; margin-top: 15px;">
+                <div>Analyzed: <span id="cfaDetectedAt">—</span></div>
             </div>
         </div>
     </div>
@@ -3738,6 +3784,7 @@ HTML_TEMPLATE = """
             const multiCreatorFundersModal = document.getElementById('multiCreatorFundersModal');
             const validationModal = document.getElementById('validationModal');
             const fundingNetwork3TierModal = document.getElementById('fundingNetwork3TierModal');
+            const coordinatedFunderAnalysisModal = document.getElementById('coordinatedFunderAnalysisModal');
 
             if (event.target === metricsModal) {
                 metricsModal.style.display = 'none';
@@ -3757,6 +3804,9 @@ HTML_TEMPLATE = """
             if (event.target === fundingNetwork3TierModal) {
                 fundingNetwork3TierModal.style.display = 'none';
             }
+            if (event.target === coordinatedFunderAnalysisModal) {
+                coordinatedFunderAnalysisModal.style.display = 'none';
+            }
         }
 
         // Close modal when pressing Escape
@@ -3765,6 +3815,7 @@ HTML_TEMPLATE = """
                 closeTokenMetrics();
                 closeCreatorDetails();
                 closeMultiCreatorFunders();
+                closeCoordinatedFunderAnalysis();
                 closeTxViewer();
                 closeValidationModal();
                 closeFundingNetwork3Tier();
@@ -3915,6 +3966,94 @@ HTML_TEMPLATE = """
 
         function closeFundingNetwork3Tier() {
             document.getElementById('fundingNetwork3TierModal').style.display = 'none';
+        }
+
+        async function showCoordinatedFunderAnalysis(creatorAddress) {
+            const modal = document.getElementById('coordinatedFunderAnalysisModal');
+
+            try {
+                const response = await fetch(`/api/coordinated-funder-analysis/${creatorAddress}`);
+                const data = await response.json();
+
+                if (response.status === 404) {
+                    document.getElementById('cfaConnectedCreators').innerHTML =
+                        '<div style="color: #fbbf24; text-align: center; padding: 20px;">Not yet analyzed. Run Coordinated Funder Analysis first.</div>';
+                    document.getElementById('cfaSharedDestinations').innerHTML = '';
+                    document.getElementById('cfaRiskLevel').textContent = 'PENDING';
+                    document.getElementById('cfaRiskLevel').style.color = '#fbbf24';
+                    document.getElementById('cfaConnectedCount').textContent = '0';
+                    document.getElementById('cfaSharedDests').textContent = '0';
+                    modal.style.display = 'block';
+                    return;
+                }
+
+                if (data.error) {
+                    alert('Error loading analysis: ' + data.error);
+                    return;
+                }
+
+                // Display risk level with color coding
+                let riskColor = '#4ade80';  // LOW - green
+                if (data.network_risk_level === 'HIGH') riskColor = '#fbbf24';  // orange
+                if (data.network_risk_level === 'CRITICAL') riskColor = '#ef4444';  // red
+
+                document.getElementById('cfaRiskLevel').textContent = data.network_risk_level || 'UNKNOWN';
+                document.getElementById('cfaRiskLevel').style.color = riskColor;
+                document.getElementById('cfaConnectedCount').textContent = data.connected_creators_count || 0;
+                document.getElementById('cfaSharedDests').textContent = data.shared_destinations_count || 0;
+
+                // Display connected creators
+                let creatorsList = '';
+                if (data.connected_creators && data.connected_creators.length > 0) {
+                    data.connected_creators.forEach((cc, idx) => {
+                        const riskStyle = cc.risk_level === 'CRITICAL' ? 'color: #ef4444;' :
+                                         cc.risk_level === 'HIGH' ? 'color: #fbbf24;' :
+                                         'color: #4ade80;';
+                        creatorsList += `
+                            <div style="margin-bottom: 8px; ${riskStyle}">
+                                ${idx + 1}. ${cc.creator_address.substring(0, 16)}...
+                                <span style="font-size: 10px; color: #a0a0a0;">
+                                    [${cc.risk_level}] Rug: ${(cc.rug_probability * 100).toFixed(0)}%
+                                </span>
+                            </div>
+                        `;
+                    });
+                    if (data.connected_creators_count > 10) {
+                        creatorsList += `<div style="color: #a0a0a0; font-size: 11px;">... and ${data.connected_creators_count - 10} more</div>`;
+                    }
+                } else {
+                    creatorsList = '<div style="color: #a0a0a0;">No connected creators found</div>';
+                }
+                document.getElementById('cfaConnectedCreators').innerHTML = creatorsList;
+
+                // Display shared destinations
+                let destsList = '';
+                if (data.shared_destinations && data.shared_destinations.length > 0) {
+                    data.shared_destinations.slice(0, 20).forEach((dest, idx) => {
+                        destsList += `<div style="margin-bottom: 6px; color: #fbbf24; font-size: 11px;">${idx + 1}. ${dest}</div>`;
+                    });
+                    if (data.shared_destinations_count > 20) {
+                        destsList += `<div style="color: #a0a0a0; font-size: 11px;">... and ${data.shared_destinations_count - 20} more</div>`;
+                    }
+                } else {
+                    destsList = '<div style="color: #a0a0a0;">No shared destinations found</div>';
+                }
+                document.getElementById('cfaSharedDestinations').innerHTML = destsList;
+
+                // Display timestamp
+                const detectedDate = new Date(data.detected_at).toLocaleString();
+                document.getElementById('cfaDetectedAt').textContent = detectedDate;
+
+                modal.style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading coordinated funder analysis:', error);
+                alert('Failed to load analysis');
+            }
+        }
+
+        function closeCoordinatedFunderAnalysis() {
+            document.getElementById('coordinatedFunderAnalysisModal').style.display = 'none';
         }
 
         async function validateTransaction() {
@@ -4857,6 +4996,88 @@ def api_creator_funder_extraction_status(creator_address: str):
             'analyzed_funders': result['analyzed_funders'],
             'total_funders': result['total_funders'],
             'last_analyzed_at': result['last_analyzed_at']
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/coordinated-funder-analysis/<creator_address>')
+def api_coordinated_funder_analysis(creator_address: str):
+    """Get coordinated funder analysis results for a creator"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Check creator_networks table for coordinated funding results
+        cursor.execute("""
+            SELECT
+                creator_address,
+                connected_creators,
+                shared_destinations,
+                network_size,
+                network_risk_level,
+                detected_at,
+                updated_at
+            FROM creator_networks
+            WHERE creator_address = ?
+        """, (creator_address,))
+
+        result = cursor.fetchone()
+
+        if not result:
+            conn.close()
+            return jsonify({
+                'creator_address': creator_address,
+                'status': 'not_analyzed',
+                'message': 'Coordinated funder analysis not yet performed for this creator'
+            }), 404
+
+        # Parse JSON arrays
+        import json
+        connected_creators = json.loads(result['connected_creators']) if result['connected_creators'] else []
+        shared_destinations = json.loads(result['shared_destinations']) if result['shared_destinations'] else []
+
+        # Get more details about connected creators
+        connected_creator_details = []
+        for cc_addr in connected_creators[:10]:  # Limit to 10 for performance
+            cursor.execute("""
+                SELECT
+                    earliest_tx_creator,
+                    risk_level,
+                    rug_probability,
+                    market_cap_highest,
+                    created_at
+                FROM token_analysis
+                WHERE earliest_tx_creator = ?
+                LIMIT 1
+            """, (cc_addr,))
+
+            cc_info = cursor.fetchone()
+            if cc_info:
+                connected_creator_details.append({
+                    'creator_address': cc_addr,
+                    'risk_level': cc_info['risk_level'],
+                    'rug_probability': cc_info['rug_probability'],
+                    'market_cap_highest': cc_info['market_cap_highest'],
+                    'created_at': cc_info['created_at']
+                })
+
+        conn.close()
+
+        return jsonify({
+            'creator_address': creator_address,
+            'status': 'analyzed',
+            'network_size': result['network_size'],
+            'network_risk_level': result['network_risk_level'],
+            'connected_creators_count': len(connected_creators),
+            'shared_destinations_count': len(shared_destinations),
+            'connected_creators': connected_creator_details,
+            'shared_destinations': shared_destinations[:20],  # Limit to 20
+            'detected_at': result['detected_at'],
+            'updated_at': result['updated_at']
         })
 
     except Exception as e:

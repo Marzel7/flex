@@ -1441,7 +1441,7 @@ HTML_TEMPLATE = """
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(139, 92, 246, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(76, 175, 80, 0.2); color: #4ade80; border: 1px solid rgba(76, 175, 80, 0.5);">▶️ Polling ON</button>
-                <button class="action-button" onclick="toggleFundingNetworkView()" title="View suspicious funding coordination networks" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); margin-left: 8px;">🚨 Funding Network</button>
+                <button class="action-button" onclick="promptFundingNetwork3Tier()" title="View 3-tier funding chain (Sender → Funder → Creator) for a creator" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); margin-left: 8px;">📊 3-Tier Network</button>
                 <button class="action-button" onclick="toggleCEXView()" title="View CEX funders and activity" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.5); margin-left: 8px;">🏛️ CEX View</button>
                 <button class="action-button" onclick="showMultiCreatorFunders()" title="Analyze funders supporting multiple creators" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">🔗 Coordinated Funders</button>
                 <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">✅ Validate TX</button>
@@ -3674,6 +3674,13 @@ HTML_TEMPLATE = """
         }
 
         // 3-Tier Funding Network Functions
+        function promptFundingNetwork3Tier() {
+            const creatorAddress = prompt('Enter creator address to view funding network:\n\nExample: HYWo71Wk9PNDe5sBaRKazPnVyGnQDiwgXCFKvgAQ1ENp');
+            if (creatorAddress && creatorAddress.trim().length > 0) {
+                showFundingNetwork3Tier(creatorAddress.trim());
+            }
+        }
+
         async function showFundingNetwork3Tier(creatorAddress) {
             const modal = document.getElementById('fundingNetwork3TierModal');
             document.getElementById('fn3tCreatorDisplay').textContent = creatorAddress;

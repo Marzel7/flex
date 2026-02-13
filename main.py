@@ -3703,34 +3703,54 @@ HTML_TEMPLATE = """
 
                 data.network_tiers.forEach((tier, tierIdx) => {
                     const funderAddr = tier.funder_address;
+                    const funderType = tier.funder_type || 'unknown';
+                    const funderLabel = tier.funder_label;
                     const totalToCreator = tier.total_to_creator.toFixed(4);
+                    const senderCount = tier.sender_count || tier.senders.length;
 
-                    networkHTML += `<div style="margin-bottom: 25px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 6px; border-left: 3px solid #4ade80;">`;
+                    // Funder type styling
+                    let funderColor = '#4ade80';  // Default green for regular
+                    let funderTypeLabel = '[Unknown]';
+                    if (funderType === 'cex') {
+                        funderColor = '#ef4444';  // Red for CEX
+                        funderTypeLabel = '[CEX: ' + (funderLabel || 'Exchange') + ']';
+                    } else if (funderType === 'infra') {
+                        funderColor = '#f97316';  // Orange for INFRA
+                        funderTypeLabel = '[INFRA: ' + (funderLabel || 'Infrastructure') + ']';
+                    } else {
+                        funderTypeLabel = '[Regular Wallet]';
+                    }
 
-                    // Funder header with full address
-                    networkHTML += `<div style="color: #4ade80; font-weight: bold; margin-bottom: 10px; word-break: break-all;">`;
-                    networkHTML += `🟢 FUNDER</div>`;
+                    networkHTML += `<div style="margin-bottom: 25px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 6px; border-left: 3px solid ${funderColor};">`;
+
+                    // Funder header with type label
+                    networkHTML += `<div style="color: ${funderColor}; font-weight: bold; margin-bottom: 4px;">`;
+                    networkHTML += `🟢 FUNDER ${funderTypeLabel}</div>`;
                     networkHTML += `<div style="color: #00d4ff; margin-bottom: 8px; word-break: break-all; font-size: 10px;">`;
                     networkHTML += `${funderAddr}</div>`;
+                    networkHTML += `<div style="color: #a0a0a0; font-size: 9px; margin-bottom: 8px;">`;
+                    networkHTML += `Role: Receives SOL from ${senderCount} sender(s), distributes to Creator</div>`;
 
                     // Arrow down to senders
-                    networkHTML += `<div style="color: #fbbf24; margin: 8px 0; text-align: center;">↓ Receives from ${tier.senders.length} sender(s)</div>`;
+                    networkHTML += `<div style="color: #fbbf24; margin: 8px 0; text-align: center; font-weight: bold;">↓ Inbound from ${senderCount} sender(s)</div>`;
 
                     // Senders for this funder
                     if (tier.senders.length > 0) {
                         tier.senders.forEach((sender, senderIdx) => {
                             const senderType = sender.sender_type || 'unknown';
                             const senderColor = senderType === 'cex' ? '#ef4444' : senderType === 'infra' ? '#f97316' : '#fbbf24';
-                            const senderLabel = senderType === 'cex' ? ' [CEX]' : senderType === 'infra' ? ' [INFRA]' : ' [Wallet]';
+                            const senderTypeLabel = senderType === 'cex' ? '[CEX]' : senderType === 'infra' ? '[INFRA]' : '[Wallet]';
                             const senderAmount = sender.amount_to_funder.toFixed(4);
 
-                            networkHTML += `<div style="margin-bottom: 8px; padding: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; border-left: 2px solid ${senderColor};">`;
+                            networkHTML += `<div style="margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 4px; border-left: 2px solid ${senderColor};">`;
                             networkHTML += `<div style="color: ${senderColor}; font-weight: bold; margin-bottom: 4px;">`;
-                            networkHTML += `🟡 SENDER${senderLabel}</div>`;
-                            networkHTML += `<div style="color: #00d4ff; word-break: break-all; font-size: 10px; margin-bottom: 4px;">`;
+                            networkHTML += `🟡 SENDER ${senderTypeLabel}</div>`;
+                            networkHTML += `<div style="color: #00d4ff; word-break: break-all; font-size: 10px; margin-bottom: 5px;">`;
                             networkHTML += `${sender.sender_address}</div>`;
-                            networkHTML += `<div style="color: #fbbf24; font-size: 10px;">`;
-                            networkHTML += `→ ${senderAmount} SOL to Funder</div>`;
+                            networkHTML += `<div style="color: #a0a0a0; font-size: 9px; margin-bottom: 4px;">`;
+                            networkHTML += `Role: Source of funds, sends to Funder</div>`;
+                            networkHTML += `<div style="color: #fbbf24; font-size: 10px; font-weight: bold;">`;
+                            networkHTML += `→ ${senderAmount} SOL → Funder</div>`;
                             networkHTML += `</div>`;
                         });
                     } else {
@@ -3738,13 +3758,15 @@ HTML_TEMPLATE = """
                     }
 
                     // Arrow down to creator
-                    networkHTML += `<div style="color: #4ade80; margin: 8px 0; text-align: center; font-weight: bold;">↓</div>`;
-                    networkHTML += `<div style="color: #00d4ff; padding: 8px; background: rgba(0,212,255,0.1); border-radius: 4px; border-left: 2px solid #00d4ff;">`;
-                    networkHTML += `🔵 CREATOR</div>`;
-                    networkHTML += `<div style="color: #00d4ff; word-break: break-all; font-size: 10px; margin-bottom: 8px;">`;
+                    networkHTML += `<div style="color: #4ade80; margin: 8px 0; text-align: center; font-weight: bold;">↓ Funds</div>`;
+                    networkHTML += `<div style="color: #00d4ff; padding: 10px; background: rgba(0,212,255,0.1); border-radius: 4px; border-left: 2px solid #00d4ff;">`;
+                    networkHTML += `<div style="color: #00d4ff; font-weight: bold; margin-bottom: 4px;">🔵 CREATOR</div>`;
+                    networkHTML += `<div style="color: #00d4ff; word-break: break-all; font-size: 10px; margin-bottom: 6px;">`;
                     networkHTML += `${creatorAddress}</div>`;
+                    networkHTML += `<div style="color: #a0a0a0; font-size: 9px; margin-bottom: 6px;">`;
+                    networkHTML += `Role: Token creator, receives funds from Funders</div>`;
                     networkHTML += `<div style="color: #4ade80; font-size: 10px; font-weight: bold;">`;
-                    networkHTML += `← ${totalToCreator} SOL received from this Funder</div>`;
+                    networkHTML += `← ${totalToCreator} SOL from this Funder</div>`;
 
                     networkHTML += `</div>`;
                 });
@@ -4549,6 +4571,18 @@ def api_funding_network_3tier(creator_address: str):
             funder_addr = funder_row['funder_address']
             funder_total = funder_row['total_to_creator']
 
+            # Check funder type (CEX or INFRA)
+            funder_type = 'unknown'
+            funder_label = None
+            try:
+                from infra_mapping import get_cex_info
+                cex_info = get_cex_info(funder_addr)
+                if cex_info:
+                    funder_type = 'cex'
+                    funder_label = cex_info.get('name', 'Unknown CEX')
+            except:
+                pass
+
             # Get senders for this funder
             cursor.execute("""
                 SELECT
@@ -4565,7 +4599,10 @@ def api_funding_network_3tier(creator_address: str):
 
             funder_info = {
                 'funder_address': funder_addr,
+                'funder_type': funder_type,
+                'funder_label': funder_label,
                 'total_to_creator': funder_total,
+                'sender_count': len(senders),
                 'senders': [
                     {
                         'sender_address': s['sender_address'],

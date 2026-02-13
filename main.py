@@ -1441,7 +1441,7 @@ HTML_TEMPLATE = """
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(139, 92, 246, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(76, 175, 80, 0.2); color: #4ade80; border: 1px solid rgba(76, 175, 80, 0.5);">▶️ Polling ON</button>
-                <button class="action-button" onclick="promptFundingNetwork3Tier()" title="View 3-tier funding chain (Sender → Funder → Creator) for a creator" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); margin-left: 8px;">3-Tier Network</button>
+                <button class="action-button" onclick="alert('Click on a creator address in the table to view its 3-tier funding network')" title="Click on a creator address in the token table to view funding network" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); margin-left: 8px;">3-Tier Network</button>
                 <button class="action-button" onclick="toggleCEXView()" title="View CEX funders and activity" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.5); margin-left: 8px;">CEX View</button>
                 <button class="action-button" onclick="showMultiCreatorFunders()" title="Analyze funders supporting multiple creators" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">Coordinated Funders</button>
                 <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Validate TX</button>
@@ -2317,11 +2317,11 @@ HTML_TEMPLATE = """
                             let creatorElement;
                             if (creatorIsLabeled && displayName && !displayName.match(/^[1-9A-HJ-NP-Z]{32,}$/)) {
                                 // Creator itself is labeled (CEX/Infrastructure) - show label name with clickable link to details
-                                creatorElement = `<a href="#" onclick="showCreatorDetails('${token.creator}'); return false;" class="mint-link creator-address-link" title="Creator: ${creatorTitle}">${displayName}</a>`;
+                                creatorElement = `<a href="#" onclick="showFundingNetwork3Tier('${token.creator}'); return false;" class="mint-link creator-address-link" title="Creator: ${creatorTitle}">${displayName}</a>`;
                             } else {
                                 // No direct label on creator - always show creator address so user can click to modal
                                 // This is required even if there are tags or labeled funders
-                                creatorElement = `<a href="#" onclick="showCreatorDetails('${token.creator}'); return false;" class="mint-link creator-address-link" title="Creator: ${creatorTitle}">${creatorShort}</a>`;
+                                creatorElement = `<a href="#" onclick="showFundingNetwork3Tier('${token.creator}'); return false;" class="mint-link creator-address-link" title="Creator: ${creatorTitle}">${creatorShort}</a>`;
                             }
 
                             // Build creator infrastructure tags (deBridge, Meteora, Axiom) with deduplication
@@ -2845,7 +2845,7 @@ HTML_TEMPLATE = """
                             <td style="text-align: center; color: #00d4ff; font-weight: 600;">${creator.exchanges_funding}</td>
                             <td style="text-align: right; color: #4ade80; font-weight: 600;">${(creator.total_cex_funding || 0).toFixed(2)}</td>
                             <td>
-                                <a href="#" onclick="showCreatorDetails('${creator.creator_address}'); toggleCEXView(); return false;" style="color: #00d4ff; text-decoration: none;">View Creator →</a>
+                                <a href="#" onclick="showFundingNetwork3Tier('${creator.creator_address}'); toggleCEXView(); return false;" style="color: #00d4ff; text-decoration: none;">View Creator →</a>
                             </td>
                         </tr>
                     `).join('');
@@ -3291,7 +3291,7 @@ HTML_TEMPLATE = """
                                 <tr>
                                     <td><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="${token.mint}">${token.mint.substring(0, 16)}...</a></td>
                                     <td style="font-family: monospace; font-size: 11px;">
-                                        <a href="#" onclick="showCreatorDetails('${token.creator_address}'); return false;" title="${token.creator_address}">${token.creator_address.substring(0, 16)}...</a>
+                                        <a href="#" onclick="showFundingNetwork3Tier('${token.creator_address}'); return false;" title="${token.creator_address}">${token.creator_address.substring(0, 16)}...</a>
                                     </td>
                                     <td>${token.funding_amount_sol.toFixed(2)} SOL</td>
                                     <td>${formatDateISO(token.created_at)}</td>
@@ -3583,7 +3583,7 @@ HTML_TEMPLATE = """
                             return `
                                 <tr>
                                     <td style="font-family: monospace; font-size: 12px; color: #ef4444;">
-                                        <a href="#" onclick="showCreatorDetails('${funder.funder_address}'); return false;" title="Click to view details" style="color: #ef4444; text-decoration: none;">
+                                        <a href="#" onclick="showFundingNetwork3Tier('${funder.funder_address}'); return false;" title="Click to view details" style="color: #ef4444; text-decoration: none;">
                                             ${funder.funder_address}
                                         </a>
                                     </td>
@@ -3674,13 +3674,6 @@ HTML_TEMPLATE = """
         }
 
         // 3-Tier Funding Network Functions
-        function promptFundingNetwork3Tier() {
-            const creatorAddress = prompt('Enter creator address to view funding network: ' + String.fromCharCode(10) + String.fromCharCode(10) + 'Example: HYWo71Wk9PNDe5sBaRKazPnVyGnQDiwgXCFKvgAQ1ENp');
-            if (creatorAddress && creatorAddress.trim().length > 0) {
-                showFundingNetwork3Tier(creatorAddress.trim());
-            }
-        }
-
         async function showFundingNetwork3Tier(creatorAddress) {
             const modal = document.getElementById('fundingNetwork3TierModal');
             document.getElementById('fn3tCreatorDisplay').textContent = creatorAddress;

@@ -22,6 +22,7 @@ from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
 from realtime_creator_funding_extractor import extract_funding_for_new_token
 from realtime_wallet_clustering_extractor import trigger_wallet_clustering
 from creator_watch_manager import CreatorWatchManager
+from funder_incoming_extractor import extract_for_creator as extract_funder_transfers
 from dotenv import load_dotenv
 
 # Import settings checker (will be imported dynamically when needed)
@@ -54,6 +55,36 @@ def get_migration_setting(key: str, default=True) -> bool:
     except:
         pass
     return default
+
+
+def is_funder_extraction_enabled() -> bool:
+    """Check if funder transfer extraction is enabled via UI toggle"""
+    try:
+        import sqlite3
+        conn = sqlite3.connect('pumpswap_tokens.db', timeout=5)
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT setting_value FROM polling_settings WHERE setting_name = 'funder_extraction_enabled'")
+            row = cursor.fetchone()
+            if row:
+                conn.close()
+                return row[0] == '1'
+        except:
+            pass
+        conn.close()
+    except:
+        pass
+    return False
+
+
+async def extract_funder_transfers_async(creator_address: str):
+    """Async wrapper for funder transfer extraction"""
+    try:
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(None, extract_funder_transfers, creator_address)
+        print(f"[FUNDER_EXTRACTION] Completed for {creator_address[:8]}...: {result}", flush=True)
+    except Exception as e:
+        print(f"[FUNDER_EXTRACTION] Error extracting transfers for {creator_address[:8]}...: {e}", flush=True)
 
 
 def check_if_cex_funding(cex_address: str) -> dict:
@@ -1515,6 +1546,13 @@ class PumpFunCurveListener:
                 create_tx_sig = analyzer._create_tx_signature if hasattr(analyzer, '_create_tx_signature') else None
                 asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at, create_tx_sig, mint))
                 print(f"[FUNDING] Extraction task created for new creator {earliest_creator[:8]}...", flush=True)
+
+                # Also extract funder incoming/outgoing transfers if toggle is ON
+                if is_funder_extraction_enabled():
+                    print(f"[FUNDER_EXTRACTION] Toggle enabled - extracting funder transfers for {earliest_creator[:8]}...", flush=True)
+                    asyncio.create_task(extract_funder_transfers_async(earliest_creator))
+                else:
+                    print(f"[FUNDER_EXTRACTION] Toggle disabled - skipping funder transfer extraction", flush=True)
 
             # Trigger creator polling (clustering + continuous monitoring) independently (if enabled)
             if get_migration_setting('creator_history_check', True):

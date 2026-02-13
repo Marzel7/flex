@@ -6748,20 +6748,18 @@ def coordinated_funders_view():
                                                     <th>Funders Sent To</th>
                                                     <th>Total Transfers</th>
                                                     <th>Total SOL</th>
-                                                    <th>Sender Types</th>
                                                     <th>Period</th>
                                                 </tr>
                                             </thead>
                                             <tbody>`;
 
                             if (data.senders.length === 0) {{
-                                html += '<tr><td colspan="6" style="padding: 20px; text-align: center; color: #a0a0a0;">No duplicate senders found</td></tr>';
+                                html += '<tr><td colspan="5" style="padding: 20px; text-align: center; color: #a0a0a0;">No duplicate senders found</td></tr>';
                             }} else {{
                                 data.senders.forEach(sender => {{
                                     const firstDate = new Date(sender.first_seen * 1000).toISOString().substring(0, 10);
                                     const lastDate = new Date(sender.last_seen * 1000).toISOString().substring(0, 10);
                                     const period = firstDate === lastDate ? firstDate : firstDate + ' - ' + lastDate;
-                                    const senderTypes = sender.sender_types || 'unknown';
                                     const rowHighlight = sender.funder_count > 10 ? 'background: rgba(251, 191, 36, 0.1);' : '';
 
                                     html += `
@@ -6770,7 +6768,6 @@ def coordinated_funders_view():
                                             <td style="padding: 12px; color: #ef4444; font-weight: bold;">${{sender.funder_count}}</td>
                                             <td style="padding: 12px; color: #a0a0a0;">${{sender.transfer_count}}</td>
                                             <td style="padding: 12px; color: #4ade80;">${{sender.total_sol.toFixed(2)}}</td>
-                                            <td style="padding: 12px; font-size: 11px; color: #a0a0a0;">${{senderTypes}}</td>
                                             <td style="padding: 12px; font-size: 11px; color: #a0a0a0;">${{period}}</td>
                                         </tr>`;
                                 }});
@@ -7169,7 +7166,7 @@ def api_duplicate_senders():
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
 
-        # Get senders sending to multiple funders
+        # Get senders sending to multiple funders (excluding CEX/INFRA accounts)
         cursor.execute("""
             SELECT
                 sender_address,
@@ -7178,7 +7175,7 @@ def api_duplicate_senders():
                 SUM(amount_sol) as total_sol,
                 MIN(block_time) as first_seen,
                 MAX(block_time) as last_seen,
-                GROUP_CONCAT(sender_type, ',') as sender_types
+                MAX(sender_type) as sender_type
             FROM funder_incoming_transfers
             WHERE sender_address IS NOT NULL
             GROUP BY sender_address
@@ -7186,7 +7183,11 @@ def api_duplicate_senders():
             ORDER BY funder_count DESC, total_sol DESC
         """)
 
-        senders = [dict(row) for row in cursor.fetchall()]
+        all_senders = [dict(row) for row in cursor.fetchall()]
+
+        # Filter out CEX and INFRA accounts
+        senders = [s for s in all_senders if s['sender_type'] and s['sender_type'].upper() not in ('CEX', 'INFRA')]
+
         conn.close()
 
         return jsonify({

@@ -3829,17 +3829,38 @@ HTML_TEMPLATE = """
                     networkHTML += `Funder: ${funderAddr}${funderTypeLabel}</div>`;
 
                     if (senderCount > 0) {
-                        networkHTML += `<div style="color: #fbbf24; margin-left: 20px; margin-bottom: 6px;">← ${senderCount} senders → ${totalToCreator} SOL</div>`;
+                        const knownCount = tier.known_sender_count || 0;
+                        const unknownCount = senderCount - knownCount;
+                        let senderSummary = `← ${senderCount} senders → ${totalToCreator} SOL`;
+                        if (knownCount > 0) {
+                            senderSummary += ` <span style="color: #4ade80;">(${knownCount} known)</span>`;
+                        }
+                        networkHTML += `<div style="color: #fbbf24; margin-left: 20px; margin-bottom: 6px;">${senderSummary}</div>`;
 
                         // Show senders if not too many
                         if (tier.senders.length > 0 && tier.senders.length <= 5) {
                             tier.senders.forEach((sender) => {
+                                const isKnown = sender.is_known || false;
+                                const label = sender.label;
                                 const senderType = sender.sender_type || 'unknown';
-                                const senderColor = senderType === 'cex' ? '#ef4444' : senderType === 'infra' ? '#f97316' : '#fbbf24';
+
+                                // Colors: green for known, based on type for unknown
+                                let senderColor = '#fbbf24';  // unknown (yellow)
+                                if (isKnown) {
+                                    senderColor = '#4ade80';  // known (green)
+                                } else if (senderType === 'cex') {
+                                    senderColor = '#ef4444';  // CEX (red)
+                                } else if (senderType === 'infra') {
+                                    senderColor = '#f97316';  // INFRA (orange)
+                                }
+
                                 const senderAmount = sender.amount_to_funder.toFixed(2);
-                                networkHTML += `<div style="color: ${senderColor}; margin-left: 40px; font-size: 11px; font-family: monospace; word-break: break-all;">• ${sender.sender_address} → ${senderAmount} SOL</div>`;
+                                const labelText = label ? ` [${label}]` : '';
+                                networkHTML += `<div style="color: ${senderColor}; margin-left: 40px; font-size: 11px; font-family: monospace; word-break: break-all;">• ${sender.sender_address}${labelText} → ${senderAmount} SOL</div>`;
                             });
                         } else if (tier.senders.length > 5) {
+                            const knownShown = Math.min(5, knownCount);
+                            const unknownShown = 5 - knownShown;
                             networkHTML += `<div style="color: #a0a0a0; margin-left: 40px; font-size: 11px;">... and ${tier.senders.length - 5} more senders</div>`;
                         }
                     } else {
@@ -4679,7 +4700,10 @@ def api_funding_network_3tier(creator_address: str):
                 SELECT
                     sender_address,
                     SUM(amount_sol) as amount_to_funder,
-                    sender_type
+                    sender_type,
+                    is_cex,
+                    cex_exchange,
+                    cex_type
                 FROM funder_incoming_transfers
                 WHERE funder_address = ?
                 GROUP BY sender_address, sender_type
@@ -4688,20 +4712,54 @@ def api_funding_network_3tier(creator_address: str):
 
             senders = cursor.fetchall()
 
+            # Enrich senders with labels and sort known accounts first
+            from infra_mapping import get_account_info, get_cex_info
+
+            enriched_senders = []
+            for s in senders:
+                sender_addr = s['sender_address']
+                sender_info = {
+                    'sender_address': sender_addr,
+                    'amount_to_funder': s['amount_to_funder'],
+                    'sender_type': s['sender_type'],
+                    'is_known': False,
+                    'label': None
+                }
+
+                # Check if it's a CEX account
+                if s['is_cex']:
+                    sender_info['is_known'] = True
+                    sender_info['label'] = s['cex_exchange'] or 'CEX'
+                else:
+                    # Check infrastructure mapping
+                    infra_info = get_account_info(sender_addr)
+                    if infra_info:
+                        sender_info['is_known'] = True
+                        sender_info['label'] = infra_info.get('name', 'Infrastructure')
+                    else:
+                        # Check CEX info
+                        cex_info = get_cex_info(sender_addr)
+                        if cex_info:
+                            sender_info['is_known'] = True
+                            sender_info['label'] = cex_info.get('name', 'CEX')
+
+                enriched_senders.append(sender_info)
+
+            # Sort: known accounts first (by amount), then unknown (by amount)
+            known_senders = sorted([s for s in enriched_senders if s['is_known']],
+                                 key=lambda x: x['amount_to_funder'], reverse=True)
+            unknown_senders = sorted([s for s in enriched_senders if not s['is_known']],
+                                    key=lambda x: x['amount_to_funder'], reverse=True)
+            sorted_senders = known_senders + unknown_senders
+
             funder_info = {
                 'funder_address': funder_addr,
                 'funder_type': funder_type,
                 'funder_label': funder_label,
                 'total_to_creator': funder_total,
-                'sender_count': len(senders),
-                'senders': [
-                    {
-                        'sender_address': s['sender_address'],
-                        'amount_to_funder': s['amount_to_funder'],
-                        'sender_type': s['sender_type']
-                    }
-                    for s in senders
-                ]
+                'sender_count': len(sorted_senders),
+                'known_sender_count': len(known_senders),
+                'senders': sorted_senders
             }
             network_3tier.append(funder_info)
 
@@ -5713,6 +5771,109 @@ def api_funder_analysis_status(funder_address):
             return jsonify(cache_entry)
         else:
             return jsonify({'status': 'pending', 'funder_address': funder_address})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/funder-senders/<funder_address>', methods=['GET'])
+def api_funder_senders(funder_address: str):
+    """Get all senders (incoming transfers) to a funder with classification (known/unknown)
+
+    Prioritizes known accounts (infrastructure, CEX, blocklisted) first.
+    """
+    try:
+        from infra_mapping import get_account_info, get_cex_info
+
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get all incoming transfers for this funder
+        cursor.execute("""
+            SELECT DISTINCT
+                sender_address,
+                SUM(amount_sol) as total_sol,
+                sender_type,
+                is_cex,
+                cex_exchange,
+                cex_type
+            FROM funder_incoming_transfers
+            WHERE funder_address = ?
+            GROUP BY sender_address
+            ORDER BY total_sol DESC
+        """, (funder_address,))
+
+        senders = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        # Classify senders as known/unknown
+        known_senders = []
+        unknown_senders = []
+
+        for sender in senders:
+            sender_addr = sender['sender_address']
+            classification = {
+                'address': sender_addr,
+                'amount_sol': sender['total_sol'],
+                'type': sender['sender_type'],
+                'is_known': False,
+                'label': None,
+                'category': None
+            }
+
+            # Check if already marked as CEX in database
+            if sender['is_cex']:
+                classification['is_known'] = True
+                classification['category'] = 'CEX'
+                classification['label'] = sender['cex_exchange']
+
+            # Check if infrastructure account
+            if not classification['is_known']:
+                infra_info = get_account_info(sender_addr)
+                if infra_info:
+                    classification['is_known'] = True
+                    classification['category'] = 'Infrastructure'
+                    classification['label'] = infra_info.get('name', 'Unknown INFRA')
+
+            # Check if CEX wallet
+            if not classification['is_known']:
+                cex_info = get_cex_info(sender_addr)
+                if cex_info:
+                    classification['is_known'] = True
+                    classification['category'] = 'CEX'
+                    classification['label'] = cex_info.get('name', 'Unknown CEX')
+
+            # Check in address_tags for any other known classification
+            if not classification['is_known']:
+                try:
+                    conn2 = sqlite3.connect(DB_PATH, timeout=5)
+                    cursor2 = conn2.cursor()
+                    cursor2.execute("SELECT tag_type FROM address_tags WHERE address = ? LIMIT 1", (sender_addr,))
+                    tag_result = cursor2.fetchone()
+                    if tag_result:
+                        classification['is_known'] = True
+                        classification['category'] = tag_result[0]
+                    conn2.close()
+                except:
+                    pass
+
+            if classification['is_known']:
+                known_senders.append(classification)
+            else:
+                unknown_senders.append(classification)
+
+        # Return known senders first, then unknown
+        all_senders = known_senders + unknown_senders
+
+        return jsonify({
+            'funder_address': funder_address,
+            'total_senders': len(all_senders),
+            'known_senders': len(known_senders),
+            'unknown_senders': len(unknown_senders),
+            'senders': all_senders
+        })
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

@@ -3651,6 +3651,11 @@ HTML_TEMPLATE = """
                     const totalToCreator = tier.total_to_creator.toFixed(2);
                     const senderCount = tier.sender_count || tier.senders.length;
 
+                    // Only show funders that have tracked senders
+                    if (senderCount === 0) {
+                        return;  // Skip funders with no sender data
+                    }
+
                     // Funder type styling
                     let funderColor = '#4ade80';  // Default green for regular
                     let funderTypeLabel = '';
@@ -3674,6 +3679,8 @@ HTML_TEMPLATE = """
                             const senderAmount = sender.amount_to_funder.toFixed(2);
                             networkHTML += `<div style="color: ${senderColor}; margin-left: 40px; font-size: 11px;">• ${sender.sender_address.substring(0, 16)}... → ${senderAmount} SOL</div>`;
                         });
+                    } else if (tier.senders.length > 5) {
+                        networkHTML += `<div style="color: #a0a0a0; margin-left: 40px; font-size: 11px;">... and ${tier.senders.length - 5} more senders</div>`;
                     }
 
                     networkHTML += `</div>`;

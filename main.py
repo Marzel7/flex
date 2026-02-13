@@ -1446,7 +1446,7 @@ HTML_TEMPLATE = """
             <div class="control-group" style="border-left: 1px solid rgba(139, 92, 246, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(76, 175, 80, 0.2); color: #4ade80; border: 1px solid rgba(76, 175, 80, 0.5);">▶️ Polling ON</button>
                 <button class="action-button" onclick="toggleCEXView()" title="View CEX funders and activity" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.5); margin-left: 8px;">CEX View</button>
-                <button class="action-button" onclick="showMultiCreatorFunders()" title="Analyze funders supporting multiple creators" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">Coordinated Funders</button>
+                <button class="action-button" onclick="window.location.href = '/coordinated-funders'" title="Analyze funders supporting multiple creators" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">Coordinated Funders</button>
                 <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Validate TX</button>
                 <button id="funderExtractionBtn" class="action-button" onclick="toggleFunderExtraction()" title="Toggle funder transfer extraction (incoming/outgoing)" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); margin-left: 8px;">Funder Extraction OFF</button>
             </div>
@@ -2275,7 +2275,7 @@ HTML_TEMPLATE = """
 
                             // Funding checked tag
                             if (token.funding_checked) {
-                                columnTags.push('<span class="creator-tag tag-funding-checked" title="Creator funding accounts have been analyzed" style="border-color: #4ade80; color: #4ade80; background-color: rgba(74, 222, 128, 0.15);">✓ Funding Checked</span>');
+                                columnTags.push('<span class="creator-tag tag-funding-checked" title="Creator funding accounts have been analyzed" style="border-color: #4ade80; color: #4ade80; background-color: rgba(74, 222, 128, 0.15);">Funding</span>');
                             }
 
                             // CEX/Infrastructure funders - add to Creator Tags column
@@ -6342,6 +6342,918 @@ def api_multi_creator_funders():
                 'percentage_multi_creator': (len(multi_funders) / stats['total_funders'] * 100) if stats['total_funders'] > 0 else 0,
                 'coordination_risk': 'HIGH' if len(suspicious_multi_funders) > 0 else 'MEDIUM' if len(multi_funders) > 0 else 'LOW'
             }
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/coordinated-funders')
+def coordinated_funders_view():
+    """Serve a full webview for coordinated funders analysis"""
+    try:
+        from infra_mapping import get_account_info, get_cex_info, get_pumpfun_creator_info, get_suspicious_wallet_info
+
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get funders funding multiple creators
+        cursor.execute("""
+            SELECT
+                funder_address,
+                COUNT(DISTINCT creator_address) as creator_count,
+                COUNT(*) as funding_record_count,
+                SUM(amount_sol) as total_sol_sent,
+                MIN(first_detected_at) as first_funding_at,
+                MAX(first_detected_at) as last_funding_at,
+                MAX(is_cex) as is_cex_flag
+            FROM creator_funders
+            GROUP BY funder_address
+            HAVING COUNT(DISTINCT creator_address) > 1
+            ORDER BY creator_count DESC, total_sol_sent DESC
+        """)
+
+        all_multi_funders = [dict(row) for row in cursor.fetchall()]
+
+        # Check which funders have been analyzed (have incoming/outgoing transfer data)
+        cursor.execute("""
+            SELECT DISTINCT funder_address FROM funder_incoming_transfers
+            UNION
+            SELECT DISTINCT funder_address FROM funder_outgoing_transfers
+        """)
+        analyzed_funders = set(row[0] for row in cursor.fetchall())
+
+        # Mark analysis status for each funder
+        for funder in all_multi_funders:
+            funder['is_analyzed'] = funder['funder_address'] in analyzed_funders
+
+        # Classify and tag infrastructure/CEX accounts
+        suspicious_funders = []
+        safe_funders = []
+
+        for funder in all_multi_funders:
+            funder_address = funder['funder_address']
+            funder_data = dict(funder)
+            funder_data['is_infrastructure'] = False
+            funder_data['is_cex_account'] = False
+            funder_data['account_name'] = None
+
+            # Check if already marked as CEX in database
+            if funder['is_cex_flag']:
+                funder_data['is_cex_account'] = True
+
+            # Check if it's a known infrastructure account
+            infra_info = get_account_info(funder_address)
+            if infra_info:
+                funder_data['is_infrastructure'] = True
+                funder_data['account_name'] = infra_info.get('name')
+
+            # Check if it's a known CEX wallet
+            cex_info = get_cex_info(funder_address)
+            if cex_info:
+                funder_data['is_cex_account'] = True
+                funder_data['account_name'] = cex_info.get('name')
+
+            # Classify as suspicious or safe
+            if funder_data['is_infrastructure'] or funder_data['is_cex_account']:
+                safe_funders.append(funder_data)
+            else:
+                suspicious_funders.append(funder_data)
+
+        # Get statistics
+        cursor.execute("""
+            SELECT
+                COUNT(DISTINCT funder_address) as total_funders,
+                COUNT(DISTINCT CASE WHEN (SELECT COUNT(DISTINCT creator_address) FROM creator_funders cf2 WHERE cf2.funder_address = creator_funders.funder_address) > 1 THEN funder_address END) as multi_creator_funders
+            FROM creator_funders
+        """)
+
+        stats = dict(cursor.fetchone())
+        conn.close()
+
+        # Build suspicious funders table HTML
+        suspicious_html = ''
+        for funder in suspicious_funders:
+            start_date = funder['first_funding_at'][:10] if funder['first_funding_at'] else 'N/A'
+            end_date = funder['last_funding_at'][:10] if funder['last_funding_at'] else 'N/A'
+            period = start_date if start_date == end_date else f"{start_date} - {end_date}"
+            account_label = funder['account_name'] if funder['account_name'] else ''
+
+            # Analysis status indicator
+            analysis_badge = '✅ Analyzed' if funder['is_analyzed'] else '⏳ Pending'
+            analysis_color = '#4ade80' if funder['is_analyzed'] else '#fbbf24'
+
+            # Highlight duplicate creators (high priority) - red background for high creator counts
+            row_highlight = 'background: rgba(255, 0, 0, 0.08);' if funder['creator_count'] > 3 else ''
+
+            suspicious_html += f"""
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); cursor: pointer; {row_highlight}" onclick="window.location.href = '/funder-details/{funder['funder_address']}'">
+                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #ef4444;">{funder['funder_address'][:20]}...</td>
+                <td style="padding: 12px; color: #fbbf24; font-weight: 600;">{account_label}</td>
+                <td style="padding: 12px; color: #ef4444; font-weight: bold;">{funder['creator_count']}</td>
+                <td style="padding: 12px; color: #4ade80;">{funder['total_sol_sent']:.2f}</td>
+                <td style="padding: 12px; color: #a0a0a0;">{funder['funding_record_count']}</td>
+                <td style="padding: 12px; font-size: 11px; color: {analysis_color};">{analysis_badge}</td>
+                <td style="padding: 12px; font-size: 11px; color: #a0a0a0;">{period}</td>
+            </tr>
+            """
+
+        # Build safe funders table HTML
+        safe_html = ''
+        for funder in safe_funders:
+            start_date = funder['first_funding_at'][:10] if funder['first_funding_at'] else 'N/A'
+            end_date = funder['last_funding_at'][:10] if funder['last_funding_at'] else 'N/A'
+            period = start_date if start_date == end_date else f"{start_date} - {end_date}"
+            account_type = 'CEX' if funder['is_cex_account'] else 'INFRA'
+            account_label = funder['account_name'] if funder['account_name'] else ''
+
+            safe_html += f"""
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #a0a0a0;">{funder['funder_address']}</td>
+                <td style="padding: 12px; color: #4ade80; font-weight: 600;">{account_label}</td>
+                <td style="padding: 12px; text-align: center;"><span style="background: rgba(34, 197, 94, 0.2); color: #4ade80; padding: 3px 8px; border-radius: 3px; font-size: 11px;">{account_type}</span></td>
+                <td style="padding: 12px; color: #a0a0a0; font-weight: bold;">{funder['creator_count']}</td>
+                <td style="padding: 12px; color: #a0a0a0;">{funder['total_sol_sent']:.2f}</td>
+            </tr>
+            """
+
+        html = f"""
+        <html>
+            <head>
+                <title>Coordinated Funders Analysis</title>
+                <style>
+                    body {{
+                        background: #0a0e27;
+                        color: #e0e0e0;
+                        font-family: 'Segoe UI', sans-serif;
+                        margin: 0;
+                        padding: 20px;
+                    }}
+                    .container {{
+                        max-width: 1400px;
+                        margin: 0 auto;
+                    }}
+                    h1 {{
+                        color: #00d4ff;
+                        margin-bottom: 10px;
+                    }}
+                    .subtitle {{
+                        color: #a0a0a0;
+                        margin-bottom: 30px;
+                        font-size: 14px;
+                    }}
+                    .back-link {{
+                        margin-bottom: 20px;
+                    }}
+                    .back-link a {{
+                        color: #00d4ff;
+                        text-decoration: none;
+                    }}
+                    .back-link a:hover {{
+                        text-decoration: underline;
+                    }}
+                    .stats-grid {{
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                        gap: 15px;
+                        margin-bottom: 30px;
+                    }}
+                    .stat-box {{
+                        background: rgba(0, 0, 0, 0.3);
+                        padding: 20px;
+                        border-radius: 8px;
+                        border-left: 3px solid;
+                        text-align: center;
+                    }}
+                    .stat-box.suspicious {{
+                        border-left-color: #ef4444;
+                    }}
+                    .stat-box.safe {{
+                        border-left-color: #4ade80;
+                    }}
+                    .stat-label {{
+                        color: #a0a0a0;
+                        font-size: 11px;
+                        text-transform: uppercase;
+                        margin-bottom: 10px;
+                    }}
+                    .stat-value {{
+                        font-size: 32px;
+                        font-weight: bold;
+                    }}
+                    .stat-box.suspicious .stat-value {{
+                        color: #ef4444;
+                    }}
+                    .stat-box.safe .stat-value {{
+                        color: #4ade80;
+                    }}
+                    .section {{
+                        background: rgba(0, 0, 0, 0.2);
+                        border-radius: 8px;
+                        margin-bottom: 30px;
+                        overflow: hidden;
+                    }}
+                    .section-title {{
+                        background: rgba(0, 0, 0, 0.4);
+                        padding: 15px;
+                        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+                        font-weight: 600;
+                        color: #00d4ff;
+                    }}
+                    .section-content {{
+                        max-height: 800px;
+                        overflow-y: auto;
+                    }}
+                    table {{
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 13px;
+                    }}
+                    th {{
+                        background: rgba(0, 0, 0, 0.3);
+                        padding: 12px;
+                        text-align: left;
+                        color: #a0a0a0;
+                        font-size: 11px;
+                        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+                    }}
+                    tr:hover {{
+                        background: rgba(0, 212, 255, 0.05);
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="back-link"><a href="/">← Back to Dashboard</a></div>
+                    <h1>Coordinated Funders Analysis</h1>
+                    <div class="subtitle">Funders supporting multiple token creators (potential coordination risk)</div>
+
+                    <!-- Tab Navigation -->
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(0, 212, 255, 0.2); padding-bottom: 15px;">
+                        <button onclick="switchTab('funders')" id="tab-funders" style="background: rgba(0, 212, 255, 0.2); color: #00d4ff; border: 1px solid #00d4ff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">👥 Multi-Creator Funders</button>
+                        <button onclick="switchTab('senders')" id="tab-senders" style="background: transparent; color: #a0a0a0; border: 1px solid #a0a0a0; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">📤 Duplicate Senders</button>
+                    </div>
+
+                    <!-- Funders Tab -->
+                    <div id="funders-tab" style="display: block;">
+                        <div style="margin-bottom: 20px;">
+                            <button onclick="analyzeAllFunders()" style="background: rgba(76, 175, 80, 0.2); color: #4ade80; border: 1px solid #4ade80; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">🔍 Analyze All Funders</button>
+                            <span id="analysis-status" style="margin-left: 15px; color: #a0a0a0;"></span>
+                        </div>
+                    </div>
+
+                    <!-- Senders Tab -->
+                    <div id="senders-tab" style="display: none;">
+                        <div style="margin-bottom: 20px;">
+                            <button onclick="loadDuplicateSenders()" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24; border: 1px solid #fbbf24; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Senders Data</button>
+                            <span id="senders-status" style="margin-left: 15px; color: #a0a0a0;"></span>
+                        </div>
+                        <div id="senders-content"></div>
+                    </div>
+
+                    <script>
+                    async function analyzeAllFunders() {{
+                        const btn = event.target;
+                        btn.disabled = true;
+                        const statusEl = document.getElementById('analysis-status');
+                        statusEl.textContent = 'Queuing analysis...';
+
+                        try {{
+                            const response = await fetch('/api/analyze-all-coordinated-funders', {{ method: 'POST' }});
+                            const data = await response.json();
+                            statusEl.innerHTML = `✅ ` + data.message + `<br/><small>Queued: ` + data.queued_for_analysis + ` | Already done: ` + data.already_analyzed + `</small>`;
+                        }} catch(e) {{
+                            statusEl.textContent = `Error: ` + e.message;
+                        }} finally {{
+                            btn.disabled = false;
+                        }}
+                    }}
+                    </script>
+
+                        <div class="stats-grid">
+                            <div class="stat-box suspicious">
+                                <div class="stat-label">Suspicious Multi-Creator</div>
+                                <div class="stat-value">{len(suspicious_funders)}</div>
+                            </div>
+                            <div class="stat-box safe">
+                                <div class="stat-label">Safe (INFRA/CEX)</div>
+                                <div class="stat-value">{len(safe_funders)}</div>
+                            </div>
+                            <div class="stat-box suspicious">
+                                <div class="stat-label">Total Funders</div>
+                                <div class="stat-value">{stats['total_funders']}</div>
+                            </div>
+                        </div>
+
+                        <div class="section">
+                            <div class="section-title">⚠️ Suspicious Multi-Creator Funders ({len(suspicious_funders)} total) - Click row for details</div>
+                            <div class="section-content">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Funder Address</th>
+                                            <th>Account Name</th>
+                                            <th>Creators</th>
+                                            <th>Total SOL</th>
+                                            <th>Records</th>
+                                            <th>Analysis Status</th>
+                                            <th>Period</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {suspicious_html if suspicious_html else '<tr><td colspan="6" style="padding: 20px; text-align: center; color: #a0a0a0;">No suspicious funders found</td></tr>'}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="section">
+                            <div class="section-title">✅ Safe Multi-Creator Funders ({len(safe_funders)} total)</div>
+                            <div class="section-content">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Funder Address</th>
+                                            <th>Account Name</th>
+                                            <th>Type</th>
+                                            <th>Creators Funded</th>
+                                            <th>Total SOL</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {safe_html if safe_html else '<tr><td colspan="5" style="padding: 20px; text-align: center; color: #a0a0a0;">No safe funders found</td></tr>'}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab switching and senders loading JavaScript -->
+                    <script>
+                    function switchTab(tabName) {{
+                        // Hide all tabs
+                        document.getElementById('funders-tab').style.display = 'none';
+                        document.getElementById('senders-tab').style.display = 'none';
+
+                        // Remove active state from all tabs
+                        document.getElementById('tab-funders').style.background = 'transparent';
+                        document.getElementById('tab-funders').style.color = '#a0a0a0';
+                        document.getElementById('tab-funders').style.borderColor = '#a0a0a0';
+                        document.getElementById('tab-senders').style.background = 'transparent';
+                        document.getElementById('tab-senders').style.color = '#a0a0a0';
+                        document.getElementById('tab-senders').style.borderColor = '#a0a0a0';
+
+                        // Show selected tab
+                        document.getElementById(tabName + '-tab').style.display = 'block';
+
+                        // Set active state
+                        if (tabName === 'funders') {{
+                            document.getElementById('tab-funders').style.background = 'rgba(0, 212, 255, 0.2)';
+                            document.getElementById('tab-funders').style.color = '#00d4ff';
+                            document.getElementById('tab-funders').style.borderColor = '#00d4ff';
+                        }} else {{
+                            document.getElementById('tab-senders').style.background = 'rgba(251, 191, 36, 0.2)';
+                            document.getElementById('tab-senders').style.color = '#fbbf24';
+                            document.getElementById('tab-senders').style.borderColor = '#fbbf24';
+                            if (!document.getElementById('senders-content').innerHTML) {{
+                                loadDuplicateSenders();
+                            }}
+                        }}
+                    }}
+
+                    async function loadDuplicateSenders() {{
+                        const statusEl = document.getElementById('senders-status');
+                        statusEl.textContent = '⟲ Loading duplicate senders...';
+
+                        try {{
+                            const response = await fetch('/api/duplicate-senders');
+                            const data = await response.json();
+
+                            if (data.error) {{
+                                statusEl.textContent = '❌ Error: ' + data.error;
+                                return;
+                            }}
+
+                            // Build senders table HTML
+                            let html = `
+                                <div class="section">
+                                    <div class="section-title">📤 Duplicate Senders - Sending to Multiple Funders (${{data.total_duplicate_senders}} total)</div>
+                                    <div class="section-content">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Sender Address</th>
+                                                    <th>Funders Sent To</th>
+                                                    <th>Total Transfers</th>
+                                                    <th>Total SOL</th>
+                                                    <th>Sender Types</th>
+                                                    <th>Period</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>`;
+
+                            if (data.senders.length === 0) {{
+                                html += '<tr><td colspan="6" style="padding: 20px; text-align: center; color: #a0a0a0;">No duplicate senders found</td></tr>';
+                            }} else {{
+                                data.senders.forEach(sender => {{
+                                    const firstDate = new Date(sender.first_seen * 1000).toISOString().substring(0, 10);
+                                    const lastDate = new Date(sender.last_seen * 1000).toISOString().substring(0, 10);
+                                    const period = firstDate === lastDate ? firstDate : firstDate + ' - ' + lastDate;
+                                    const senderTypes = sender.sender_types || 'unknown';
+                                    const rowHighlight = sender.funder_count > 10 ? 'background: rgba(251, 191, 36, 0.1);' : '';
+
+                                    html += `
+                                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); ${{rowHighlight}}">
+                                            <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #fbbf24;">${{sender.sender_address.substring(0, 20)}}...</td>
+                                            <td style="padding: 12px; color: #ef4444; font-weight: bold;">${{sender.funder_count}}</td>
+                                            <td style="padding: 12px; color: #a0a0a0;">${{sender.transfer_count}}</td>
+                                            <td style="padding: 12px; color: #4ade80;">${{sender.total_sol.toFixed(2)}}</td>
+                                            <td style="padding: 12px; font-size: 11px; color: #a0a0a0;">${{senderTypes}}</td>
+                                            <td style="padding: 12px; font-size: 11px; color: #a0a0a0;">${{period}}</td>
+                                        </tr>`;
+                                }});
+                            }}
+
+                            html += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>`;
+
+                            document.getElementById('senders-content').innerHTML = html;
+                            statusEl.textContent = '✅ Loaded ' + data.total_duplicate_senders + ' duplicate senders';
+                        }} catch(e) {{
+                            statusEl.textContent = '❌ Error: ' + e.message;
+                        }}
+                    }}
+                    </script>
+                </div>
+            </body>
+        </html>
+        """
+        return html
+
+    except Exception as e:
+        return f"<html><body style='background: #0a0e27; color: #e0e0e0;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
+
+
+@app.route('/funder-details/<funder_address>')
+def funder_details_view(funder_address: str):
+    """Serve a full webview for detailed funder analysis with transfer details"""
+    try:
+        from infra_mapping import get_account_info, get_cex_info
+        import requests
+
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get funder info
+        cursor.execute("""
+            SELECT
+                funder_address,
+                COUNT(DISTINCT creator_address) as creator_count,
+                COUNT(*) as funding_record_count,
+                SUM(amount_sol) as total_sol_sent,
+                MIN(first_detected_at) as first_funding_at,
+                MAX(first_detected_at) as last_funding_at,
+                MAX(is_cex) as is_cex_flag
+            FROM creator_funders
+            WHERE funder_address = ?
+            GROUP BY funder_address
+        """, (funder_address,))
+
+        funder = dict(cursor.fetchone() or {})
+        if not funder:
+            conn.close()
+            return f"<html><body style='background: #0a0e27; color: #e0e0e0;'><h1>Funder Not Found</h1><p>No funding data for {funder_address}</p><p><a href='/' style='color: #00d4ff;'>← Back to Dashboard</a></p></body></html>", 404
+
+        # Get detailed transfers to creators
+        cursor.execute("""
+            SELECT
+                creator_address,
+                amount_sol,
+                first_detected_at
+            FROM creator_funders
+            WHERE funder_address = ?
+            ORDER BY amount_sol DESC
+        """, (funder_address,))
+
+        transfers = [dict(row) for row in cursor.fetchall()]
+
+        # Get funder label/classification
+        funder_label = None
+        is_cex = False
+        is_infra = False
+
+        infra_info = get_account_info(funder_address)
+        if infra_info:
+            funder_label = infra_info.get('name')
+            is_infra = True
+
+        cex_info = get_cex_info(funder_address)
+        if cex_info:
+            funder_label = cex_info.get('name')
+            is_cex = True
+
+        conn.close()
+
+        # Fetch transfer details (incoming/outgoing) from API
+        incoming_transfers = []
+        outgoing_transfers = []
+        total_incoming = 0
+        total_outgoing = 0
+
+        try:
+            transfer_response = requests.get(f'http://localhost:5002/api/funder-transfer-details/{funder_address}', timeout=5)
+            if transfer_response.status_code == 200:
+                transfer_data = transfer_response.json()
+
+                # Parse incoming transfers
+                incoming_obj = transfer_data.get('incoming_transfers', {})
+                if isinstance(incoming_obj, dict):
+                    incoming_senders = incoming_obj.get('senders', [])
+                    total_incoming = incoming_obj.get('total_sol', 0)
+                    incoming_transfers = incoming_senders
+                else:
+                    incoming_transfers = incoming_obj if isinstance(incoming_obj, list) else []
+
+                # Parse outgoing transfers
+                outgoing_obj = transfer_data.get('outgoing_transfers', {})
+                if isinstance(outgoing_obj, dict):
+                    outgoing_recipients = outgoing_obj.get('recipients', [])
+                    total_outgoing = abs(outgoing_obj.get('total_sol', 0))
+                    outgoing_transfers = outgoing_recipients
+                else:
+                    outgoing_transfers = outgoing_obj if isinstance(outgoing_obj, list) else []
+        except Exception as e:
+            print(f"[ERROR] Failed to fetch transfer details: {str(e)}")
+
+        # Build creators funded table
+        transfers_html = ''
+        for transfer in transfers:
+            transfers_html += f"""
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #00d4ff; cursor: pointer;" onclick="window.location.href = '/creator/{transfer['creator_address']}'"><u>{transfer['creator_address'][:16]}...{transfer['creator_address'][-4:]}</u></td>
+                <td style="padding: 12px; color: #4ade80;">{transfer['amount_sol']:.2f} SOL</td>
+                <td style="padding: 12px; color: #a0a0a0; font-size: 11px;">{transfer['first_detected_at'][:10] if transfer['first_detected_at'] else 'N/A'}</td>
+            </tr>
+            """
+
+        # Build incoming transfers table
+        incoming_html = ''
+        for transfer in incoming_transfers[:20]:  # Limit to 20
+            label = transfer.get('label', 'Unknown')
+            category = transfer.get('category', '')
+            badge = ''
+            if category == 'CEX':
+                badge = '<span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">🚨 CEX</span>'
+            elif category == 'Infrastructure':
+                badge = '<span style="background: rgba(76, 175, 80, 0.2); color: #4ade80; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">✅ INFRA</span>'
+
+            incoming_html += f"""
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #a0a0a0;">{transfer['address'][:20]}...</td>
+                <td style="padding: 12px; color: #fbbf24;">{label}{badge}</td>
+                <td style="padding: 12px; text-align: right; color: #4ade80;">{transfer['amount_sol']:.2f} SOL</td>
+                <td style="padding: 12px; text-align: center; color: #a0a0a0;">{transfer['transaction_count']}</td>
+            </tr>
+            """
+
+        # Build outgoing transfers table
+        outgoing_html = ''
+        for transfer in outgoing_transfers[:20]:  # Limit to 20
+            label = transfer.get('label', 'Unknown')
+            category = transfer.get('category', '')
+            badge = ''
+            if category == 'CEX':
+                badge = '<span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">🚨 CEX</span>'
+            elif category == 'Infrastructure':
+                badge = '<span style="background: rgba(76, 175, 80, 0.2); color: #4ade80; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">✅ INFRA</span>'
+
+            outgoing_html += f"""
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #a0a0a0;">{transfer['address'][:20]}...</td>
+                <td style="padding: 12px; color: #fbbf24;">{label}{badge}</td>
+                <td style="padding: 12px; text-align: right; color: #4ade80;">{transfer['amount_sol']:.2f} SOL</td>
+                <td style="padding: 12px; text-align: center; color: #a0a0a0;">{transfer['transaction_count']}</td>
+            </tr>
+            """
+
+        classification = ''
+        if is_cex:
+            classification = '<span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">🚨 CEX Hot Wallet</span>'
+        elif is_infra:
+            classification = '<span style="background: rgba(76, 175, 80, 0.2); color: #4ade80; padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">✅ Infrastructure</span>'
+        else:
+            classification = '<span style="background: rgba(251, 191, 36, 0.2); color: #fbbf24; padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">❓ Unknown</span>'
+
+        html = f"""
+        <html>
+            <head>
+                <title>Funder Details - {funder_address[:16]}...</title>
+                <style>
+                    body {{
+                        background: #0a0e27;
+                        color: #e0e0e0;
+                        font-family: 'Segoe UI', sans-serif;
+                        margin: 0;
+                        padding: 20px;
+                    }}
+                    .container {{
+                        max-width: 1200px;
+                        margin: 0 auto;
+                    }}
+                    h1 {{
+                        color: #00d4ff;
+                        word-break: break-all;
+                        margin: 0 0 10px 0;
+                        font-size: 18px;
+                    }}
+                    h2 {{
+                        color: #00d4ff;
+                        font-size: 14px;
+                        margin-top: 30px;
+                        margin-bottom: 15px;
+                    }}
+                    .header {{
+                        background: rgba(0, 0, 0, 0.3);
+                        padding: 20px;
+                        border-radius: 8px;
+                        margin-bottom: 20px;
+                    }}
+                    .back-link {{
+                        margin-bottom: 20px;
+                    }}
+                    .back-link a {{
+                        color: #00d4ff;
+                        text-decoration: none;
+                    }}
+                    .back-link a:hover {{
+                        text-decoration: underline;
+                    }}
+                    .stats-grid {{
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                        gap: 12px;
+                        margin: 20px 0;
+                    }}
+                    .stat-box {{
+                        background: rgba(0, 0, 0, 0.3);
+                        padding: 15px;
+                        border-radius: 8px;
+                        border-left: 3px solid #00d4ff;
+                    }}
+                    .stat-label {{
+                        color: #a0a0a0;
+                        font-size: 10px;
+                        text-transform: uppercase;
+                        margin-bottom: 8px;
+                    }}
+                    .stat-value {{
+                        font-size: 20px;
+                        font-weight: bold;
+                        color: #00d4ff;
+                    }}
+                    .section {{
+                        background: rgba(0, 0, 0, 0.2);
+                        border-radius: 8px;
+                        margin-bottom: 20px;
+                        overflow: hidden;
+                    }}
+                    .section-title {{
+                        background: rgba(0, 0, 0, 0.4);
+                        padding: 12px 15px;
+                        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+                        font-weight: 600;
+                        color: #00d4ff;
+                        font-size: 13px;
+                    }}
+                    .section-content {{
+                        max-height: 500px;
+                        overflow-y: auto;
+                    }}
+                    table {{
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 12px;
+                    }}
+                    th {{
+                        background: rgba(0, 0, 0, 0.3);
+                        padding: 10px;
+                        text-align: left;
+                        font-size: 10px;
+                        color: #a0a0a0;
+                        text-transform: uppercase;
+                        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+                        font-weight: 600;
+                    }}
+                    td {{
+                        padding: 10px;
+                    }}
+                    tr:hover {{
+                        background: rgba(0, 212, 255, 0.05);
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="back-link">
+                        <a href="/coordinated-funders">← Back to Coordinated Funders</a>
+                    </div>
+
+                    <div class="header">
+                        <h1>💰 {funder_label or 'Unknown Funder'}</h1>
+                        <p style="margin: 10px 0 0 0; font-family: monospace; font-size: 12px; color: #a0a0a0; word-break: break-all;">{funder_address}</p>
+                        <div style="margin-top: 10px;">
+                            {classification}
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">Creators Funded</div>
+                            <div class="stat-value">{funder['creator_count']}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Total SOL Out</div>
+                            <div class="stat-value">{funder['total_sol_sent']:.2f}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Total SOL In</div>
+                            <div class="stat-value">{total_incoming:.2f}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Funding Records</div>
+                            <div class="stat-value">{funder['funding_record_count']}</div>
+                        </div>
+                    </div>
+
+                    <h2>📤 Incoming Transfers (Who Funded This Account)</h2>
+                    <div class="section">
+                        <div class="section-title">✅ {len(incoming_transfers)} Sources | {total_incoming:.2f} SOL Total</div>
+                        <div class="section-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Sender Address</th>
+                                        <th>Source</th>
+                                        <th>Amount</th>
+                                        <th>Txs</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {incoming_html if incoming_html else '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">No incoming transfers found (analyze to fetch)</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <h2>📥 Outgoing Transfers (Where This Account Sent SOL)</h2>
+                    <div class="section">
+                        <div class="section-title">✅ {len(outgoing_transfers)} Recipients | {total_outgoing:.2f} SOL Total</div>
+                        <div class="section-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Recipient Address</th>
+                                        <th>Destination</th>
+                                        <th>Amount</th>
+                                        <th>Txs</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {outgoing_html if outgoing_html else '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">No outgoing transfers found (analyze to fetch)</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">🎯 {len(transfers)} Creators Funded</div>
+                        <div class="section-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Creator Address</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {transfers_html if transfers_html else '<tr><td colspan="3" style="padding: 20px; text-align: center; color: #a0a0a0;">No creators found</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </body>
+        </html>
+        """
+        return html
+
+    except Exception as e:
+        import traceback
+        return f"<html><body style='background: #0a0e27; color: #e0e0e0;'><h1>Error</h1><p>{str(e)}</p><pre>{traceback.format_exc()}</pre></body></html>", 500
+
+
+@app.route('/api/duplicate-senders')
+def api_duplicate_senders():
+    """Get senders that send to multiple funders (duplicate senders analysis)"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get senders sending to multiple funders
+        cursor.execute("""
+            SELECT
+                sender_address,
+                COUNT(DISTINCT funder_address) as funder_count,
+                COUNT(*) as transfer_count,
+                SUM(amount_sol) as total_sol,
+                MIN(block_time) as first_seen,
+                MAX(block_time) as last_seen,
+                GROUP_CONCAT(sender_type, ',') as sender_types
+            FROM funder_incoming_transfers
+            WHERE sender_address IS NOT NULL
+            GROUP BY sender_address
+            HAVING COUNT(DISTINCT funder_address) > 1
+            ORDER BY funder_count DESC, total_sol DESC
+        """)
+
+        senders = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        return jsonify({
+            'senders': senders,
+            'total_duplicate_senders': len(senders)
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/analyze-all-coordinated-funders', methods=['POST'])
+def api_analyze_all_coordinated_funders():
+    """Trigger transfer analysis for all funders funding multiple creators.
+
+    This runs in background threads and returns immediately with status.
+    Each funder's incoming/outgoing transfers are fetched and saved to DB.
+    """
+    try:
+        from funder_incoming_extractor import extract_for_creator
+        import threading
+
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        cursor = conn.cursor()
+
+        # Get all funders funding multiple creators
+        cursor.execute("""
+            SELECT DISTINCT funder_address
+            FROM creator_funders
+            GROUP BY funder_address
+            HAVING COUNT(DISTINCT creator_address) > 1
+            ORDER BY SUM(amount_sol) DESC
+        """)
+
+        funder_addresses = [row[0] for row in cursor.fetchall()]
+        conn.close()
+
+        # Trigger background analysis for each funder
+        analyzed_count = 0
+        skipped_count = 0
+
+        for funder_address in funder_addresses:
+            try:
+                # Check if already analyzed
+                conn = sqlite3.connect(DB_PATH, timeout=5)
+                cursor = conn.cursor()
+                cursor.execute("SELECT COUNT(*) FROM funder_incoming_transfers WHERE funder_address = ? LIMIT 1", (funder_address,))
+                if cursor.fetchone()[0] > 0:
+                    skipped_count += 1
+                    conn.close()
+                    continue
+                conn.close()
+
+                # Run analysis in background thread (non-blocking)
+                thread = threading.Thread(target=extract_for_creator, args=(funder_address,), daemon=True)
+                thread.start()
+                analyzed_count += 1
+
+            except Exception as e:
+                print(f"[ERROR] Failed to queue analysis for {funder_address}: {str(e)}")
+
+        return jsonify({
+            'status': 'queued',
+            'total_funders': len(funder_addresses),
+            'queued_for_analysis': analyzed_count,
+            'already_analyzed': skipped_count,
+            'message': f'Queued {analyzed_count} funders for transfer analysis'
         })
 
     except Exception as e:

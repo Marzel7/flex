@@ -6629,21 +6629,45 @@ def coordinated_funders_view():
 
         # Get network information for each funder
         funder_networks = {}
+        network_id_to_name = {}
+
         if all_multi_funders:
             cursor.execute("""
                 SELECT DISTINCT
                     fnm.funder_address,
                     fn.network_id,
-                    fn.network_name
+                    fn.network_id as sort_key
                 FROM funding_network_members fnm
                 INNER JOIN funding_networks fn ON fnm.network_id = fn.network_id
                 WHERE fnm.funder_address IN ({})
+                ORDER BY fn.network_id
             """.format(','.join('?' * len(all_multi_funders))), [f['funder_address'] for f in all_multi_funders])
 
-            for row in cursor.fetchall():
+            # Generate random names for networks using same logic as api_funding_networks_list
+            import random
+            random.seed(42)  # Consistent seed so names don't change
+
+            adjectives = ['Shadow', 'Ghost', 'Phantom', 'Silent', 'Hidden', 'Dark', 'Swift', 'Rapid',
+                         'Sleek', 'Sharp', 'Cunning', 'Sly', 'Stealthy', 'Crafty', 'Clever', 'Subtle',
+                         'Veiled', 'Masked', 'Cloaked', 'Whispered', 'Covert', 'Secret', 'Mystic', 'Ancient']
+            nouns = ['Circle', 'Ring', 'Syndicate', 'Cabal', 'Order', 'Society', 'Collective', 'Alliance',
+                    'Coalition', 'Union', 'Cartel', 'Consortium', 'Federation', 'Network', 'Nexus', 'Web',
+                    'Chain', 'Echo', 'Whisper', 'Shadow', 'Phantom', 'Specter', 'Entity', 'Force']
+
+            rows = cursor.fetchall()
+            for row in rows:
+                network_id = row['network_id']
+
+                # Generate name if not already generated
+                if network_id not in network_id_to_name:
+                    adj = random.choice(adjectives)
+                    noun = random.choice(nouns)
+                    network_id_to_name[network_id] = f"{adj} {noun}"
+
+                network_name = network_id_to_name[network_id]
                 funder_networks[row['funder_address']] = {
-                    'network_id': row['network_id'],
-                    'network_name': row['network_name']
+                    'network_id': network_id,
+                    'network_name': network_name
                 }
 
         # Mark analysis status and network for each funder

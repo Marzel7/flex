@@ -10034,7 +10034,7 @@ def api_super_clusters():
 
 @app.route('/api/super-cluster/<cluster_id>')
 def api_super_cluster_details(cluster_id: str):
-    """Get detailed information about a super-cluster with network names and SOL flows"""
+    """Get detailed information about a super-cluster with complete SOL flow chains"""
     try:
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
@@ -10109,7 +10109,7 @@ def api_super_cluster_details(cluster_id: str):
 
         funder_row = cursor.fetchone()
 
-        # Get network names (members are funders)
+        # Get network names
         cursor.execute("""
             SELECT DISTINCT
                 fn.network_id,
@@ -10135,42 +10135,7 @@ def api_super_cluster_details(cluster_id: str):
 
         networks = [dict(row) for row in cursor.fetchall()]
 
-        # Get SOL flow examples (Top funders >> Creators with amounts)
-        flow_examples = []
-        cursor.execute("""
-            SELECT
-                cf.funder_address,
-                cf.creator_address,
-                cf.amount_sol,
-                cf.first_detected_at,
-                ta.mint,
-                ta.rug_probability,
-                ta.risk_level
-            FROM creator_funders cf
-            LEFT JOIN token_analysis ta ON cf.creator_address = ta.earliest_tx_creator
-            WHERE cf.creator_address IN (
-                SELECT DISTINCT creator_address
-                FROM creator_super_cluster_membership
-                WHERE super_cluster_id = ?
-            )
-            AND cf.funder_address NOT IN ({})
-            ORDER BY cf.amount_sol DESC
-            LIMIT 20
-        """.format(','.join('?' * len(infra_and_cex))),
-        (cluster_id,) + tuple(infra_and_cex))
-
-        for row in cursor.fetchall():
-            flow_examples.append({
-                'funder': row['funder_address'],
-                'creator': row['creator_address'],
-                'sol_amount': row['amount_sol'],
-                'date': row['first_detected_at'],
-                'token_mint': row['mint'],
-                'token_risk': row['risk_level'],
-                'rug_probability': row['rug_probability']
-            })
-
-        # Identify likely root operators (funders with multiple creators funded)
+        # Identify root operators (funders with multiple creators)
         cursor.execute("""
             SELECT
                 cf.funder_address,
@@ -10192,7 +10157,54 @@ def api_super_cluster_details(cluster_id: str):
         """.format(','.join('?' * len(infra_and_cex))),
         (cluster_id,) + tuple(infra_and_cex))
 
-        root_operators = [dict(row) for row in cursor.fetchall()]
+        root_operators_data = cursor.fetchall()
+
+        # Build complete SOL flow chains for each root operator
+        root_operator_flows = []
+        for root_op in root_operators_data:
+            root_op_addr = root_op['funder_address']
+
+            # Get upstream funders for this root operator
+            cursor.execute("""
+                SELECT
+                    funder_address,
+                    amount_sol,
+                    first_detected_at
+                FROM creator_funders
+                WHERE creator_address = ?
+                ORDER BY amount_sol DESC
+                LIMIT 5
+            """, (root_op_addr,))
+
+            upstream_sources = [dict(row) for row in cursor.fetchall()]
+
+            # Get downstream creators funded by this root operator
+            cursor.execute("""
+                SELECT
+                    cf.creator_address,
+                    cf.amount_sol,
+                    cf.first_detected_at,
+                    ta.mint,
+                    ta.rug_probability,
+                    ta.risk_level
+                FROM creator_funders cf
+                LEFT JOIN token_analysis ta ON cf.creator_address = ta.earliest_tx_creator
+                WHERE cf.funder_address = ?
+                AND cf.creator_address IN ({})
+                ORDER BY cf.amount_sol DESC
+            """.format(','.join('?' * len(creators))), (root_op_addr,) + tuple(creators))
+
+            downstream_creators = [dict(row) for row in cursor.fetchall()]
+
+            root_operator_flows.append({
+                'root_operator': root_op_addr,
+                'creators_funded': root_op['creators_funded'],
+                'total_sol_sent': root_op['total_sol_sent'],
+                'transfer_count': root_op['transfer_count'],
+                'first_transfer': root_op['first_transfer'],
+                'upstream_sources': upstream_sources,
+                'downstream_creators': downstream_creators
+            })
 
         conn.close()
 
@@ -10215,8 +10227,7 @@ def api_super_cluster_details(cluster_id: str):
                 'cex_funders': funder_row['cex_funders'] if funder_row else 0
             },
             'networks': networks,
-            'sol_flow_examples': flow_examples,
-            'identified_root_operators': root_operators
+            'root_operator_flows': root_operator_flows
         })
 
     except Exception as e:

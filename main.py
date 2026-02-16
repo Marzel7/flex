@@ -4639,53 +4639,46 @@ HTML_TEMPLATE = """
                 document.getElementById('scTotalSol').textContent = (data.funder_stats.total_sol || 0).toFixed(2) + ' SOL';
                 document.getElementById('scCexCount').textContent = data.funder_stats.cex_funders || 0;
 
-                // Update root operators with address flows
+                // Update root operators - always display addresses
                 const rootsContainer = document.getElementById('scRootAddresses');
-                if (data.root_operator_flows && data.root_operator_flows.length > 0) {{
-                    rootsContainer.innerHTML = data.root_operator_flows.map((flow, idx) => {{
-                        let flowsHTML = '';
-                        if (flow.example_flows && flow.example_flows.length > 0) {{
-                            flow.example_flows.forEach((ex, flowIdx) => {{
-                                flowsHTML += `<div style="font-family: monospace; font-size: 8px; color: #e0e0e0; padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.3;">
-                                    <div style="color: #3b82f6;">${ex.sender.substring(0, 14)}...</div>
-                                    <div style="color: #a0a0a0; margin-left: 8px; font-size: 7px;">↓ (to funder)</div>
-                                    <div style="color: #6366f1;">${ex.funder.substring(0, 14)}...</div>
-                                    <div style="color: #a0a0a0; margin-left: 8px; font-size: 7px;">↓ ${ex.sol_to_creator.toFixed(2)} SOL</div>
-                                    <div style="color: #f59e0b;">${ex.creator.substring(0, 14)}...</div>
-                                </div>`;
-                            }});
-                        }}
-                        return `
-                            <div style="background: rgba(99, 102, 241, 0.08); padding: 12px; border-radius: 6px; border-left: 3px solid #6366f1; margin-bottom: 12px;">
-                                <div style="font-size: 10px; color: #a0a0a0; margin-bottom: 8px;">ROOT OPERATOR #${idx + 1}</div>
-                                <div style="font-family: monospace; font-size: 11px; color: #6366f1; word-break: break-all; margin-bottom: 8px; padding: 6px; background: rgba(99, 102, 241, 0.1); border-radius: 4px;">${flow.root_operator}</div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; font-size: 10px;">
-                                    <div>
-                                        <div style="color: #a0a0a0;">CREATORS FUNDED</div>
-                                        <div style="color: #f59e0b; font-weight: bold;">${flow.creators_funded}</div>
-                                    </div>
-                                    <div>
-                                        <div style="color: #a0a0a0;">TOTAL SOL</div>
-                                        <div style="color: #4ade80; font-weight: bold;">${flow.total_sol_sent.toFixed(2)}</div>
-                                    </div>
-                                </div>
-                                <div style="font-size: 9px; color: #a0a0a0; margin-bottom: 6px;">EXAMPLE FLOWS: Sender → Funder → Creator</div>
-                                <div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 6px; max-height: 120px; overflow-y: auto;">
-                                    ${flowsHTML || '<div style="color: #a0a0a0; font-size: 9px;">No flows available</div>'}
-                                </div>
-                            </div>
-                        `;
-                    }}).join('');
-                }} else {{
-                    rootsContainer.innerHTML = data.root_addresses.map((addr, idx) => {{
-                        return `
-                            <div style="background: rgba(99, 102, 241, 0.05); padding: 10px; border-radius: 6px; border-left: 2px solid #6366f1;">
-                                <div style="font-family: monospace; font-size: 11px; color: #6366f1; word-break: break-all; margin-bottom: 5px;">${addr}</div>
-                                <div style="font-size: 11px; color: #a0a0a0;">Root Operator #${idx + 1}</div>
-                            </div>
-                        `;
-                    }}).join('');
-                }}
+
+                // Create a map of flows by root operator address for quick lookup
+                const flowsByOperator = {};
+                if (data.root_operator_flows && data.root_operator_flows.length > 0) {
+                    data.root_operator_flows.forEach(flow => {
+                        flowsByOperator[flow.root_operator] = flow;
+                    });
+                }
+
+                // Always display root addresses
+                rootsContainer.innerHTML = data.root_addresses.map((addr, idx) => {
+                    const flow = flowsByOperator[addr];
+                    let flowsHTML = '';
+
+                    if (flow && flow.example_flows && flow.example_flows.length > 0) {
+                        flowsHTML = flow.example_flows.map((ex) =>
+                            '<div style="font-family: monospace; font-size: 8px; color: #e0e0e0; padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.3;">' +
+                            '<div style="color: #3b82f6;">' + ex.sender.substring(0, 14) + '...</div>' +
+                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 7px;">↓ (to funder)</div>' +
+                            '<div style="color: #6366f1;">' + ex.funder.substring(0, 14) + '...</div>' +
+                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 7px;">↓ ' + ex.sol_to_creator.toFixed(2) + ' SOL</div>' +
+                            '<div style="color: #f59e0b;">' + ex.creator.substring(0, 14) + '...</div>' +
+                            '</div>'
+                        ).join('');
+                    }
+
+                    return '<div style="background: rgba(99, 102, 241, 0.08); padding: 12px; border-radius: 6px; border-left: 3px solid #6366f1; margin-bottom: 12px;">' +
+                        '<div style="font-size: 10px; color: #a0a0a0; margin-bottom: 8px;">ROOT OPERATOR #' + (idx + 1) + '</div>' +
+                        '<div style="font-family: monospace; font-size: 11px; color: #6366f1; word-break: break-all; margin-bottom: 8px; padding: 6px; background: rgba(99, 102, 241, 0.1); border-radius: 4px;">' + addr + '</div>' +
+                        (flow ? '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; font-size: 10px;">' +
+                            '<div><div style="color: #a0a0a0;">CREATORS FUNDED</div><div style="color: #f59e0b; font-weight: bold;">' + flow.creators_funded + '</div></div>' +
+                            '<div><div style="color: #a0a0a0;">TOTAL SOL</div><div style="color: #4ade80; font-weight: bold;">' + flow.total_sol_sent.toFixed(2) + '</div></div>' +
+                            '</div>' : '') +
+                        (flowsHTML ? '<div style="font-size: 9px; color: #a0a0a0; margin-bottom: 6px;">EXAMPLE FLOWS: Sender → Funder → Creator</div>' +
+                            '<div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 6px; max-height: 120px; overflow-y: auto;">' + flowsHTML + '</div>' : '') +
+                        '</div>';
+                }).join('');
+
 
                 // Build relationship diagram
                 const relationshipDiv = document.getElementById('scRelationshipDiagram');

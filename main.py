@@ -10436,7 +10436,6 @@ def api_super_cluster_details(cluster_id: str):
                 'total_sol_sent': root_op['total_sol_sent'],
                 'transfer_count': root_op['transfer_count'],
                 'first_transfer': root_op['first_transfer'],
-                'upstream_sources': upstream_sources,
                 'downstream_creators': downstream_creators,
                 'example_flows': example_flows
             })

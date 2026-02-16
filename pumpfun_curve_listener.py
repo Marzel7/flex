@@ -1142,6 +1142,15 @@ class PumpFunCurveListener:
             # Store analysis results (will be updated with live price in background)
             # Pass pool_address if available
             await self._store_analysis(mint, summary, signature, pool_address)
+
+            # Incrementally update networks if creator was found
+            if earliest_creator:
+                try:
+                    from main import update_networks_for_new_token
+                    update_networks_for_new_token(mint, earliest_creator)
+                except Exception as e:
+                    print(f"[NETWORK_UPDATE] Error updating networks for {mint}: {e}", flush=True)
+
         except Exception as e:
             print(f"[ANALYZER] ⚠ Analysis failed for {mint}: {e}", flush=True)
 

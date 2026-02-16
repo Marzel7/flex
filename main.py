@@ -8443,6 +8443,100 @@ def api_build_funding_networks():
         return jsonify({'error': str(e)}), 500
 
 
+def update_networks_for_new_token(mint: str, creator: str):
+    """
+    Incrementally update existing networks when a new token is launched.
+    Checks if the creator's funders/senders are in existing networks.
+    If yes, adds the token to those networks without rebuilding.
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        cursor = conn.cursor()
+
+        # Get all funders of this creator
+        cursor.execute("""
+            SELECT DISTINCT funder_address
+            FROM creator_funders
+            WHERE creator_address = ?
+        """, (creator,))
+
+        creator_funders = [row[0] for row in cursor.fetchall()]
+
+        if not creator_funders:
+            # No funders yet, nothing to add to networks
+            conn.close()
+            return
+
+        print(f"[NETWORK_UPDATE] Token {mint[:8]}... | Creator {creator[:8]}... has {len(creator_funders)} funders", flush=True)
+
+        # Get all senders to these funders
+        cursor.execute("""
+            SELECT DISTINCT sender_address
+            FROM funder_incoming_transfers
+            WHERE funder_address IN ({})
+        """.format(','.join('?' * len(creator_funders))), creator_funders)
+
+        creator_senders = [row[0] for row in cursor.fetchall()]
+
+        # Combine funders and senders
+        all_addresses = set(creator_funders + creator_senders)
+        print(f"[NETWORK_UPDATE] Total addresses (funders + senders): {len(all_addresses)}", flush=True)
+
+        # Find which networks contain any of these addresses
+        cursor.execute("""
+            SELECT DISTINCT network_id
+            FROM funding_network_members
+            WHERE funder_address IN ({})
+        """.format(','.join('?' * len(list(all_addresses)))), list(all_addresses))
+
+        affected_networks = [row[0] for row in cursor.fetchall()]
+
+        if not affected_networks:
+            print(f"[NETWORK_UPDATE] No existing networks contain this creator's funders/senders", flush=True)
+            conn.close()
+            return
+
+        print(f"[NETWORK_UPDATE] Found {len(affected_networks)} affected networks", flush=True)
+
+        # Add token to each affected network
+        for network_id in affected_networks:
+            cursor.execute("""
+                INSERT OR IGNORE INTO funding_network_shared_tokens
+                (network_id, mint)
+                VALUES (?, ?)
+            """, (network_id, mint))
+            conn.commit()
+
+        # Update network statistics for affected networks
+        for network_id in affected_networks:
+            cursor.execute("""
+                SELECT
+                    COUNT(DISTINCT mint) as token_count,
+                    SUM(total_sol_out) as total_sol
+                FROM funding_network_members fnm
+                LEFT JOIN funding_network_shared_tokens fnst ON fnm.network_id = fnst.network_id
+                WHERE fnm.network_id = ?
+                GROUP BY fnm.network_id
+            """, (network_id,))
+
+            stats = cursor.fetchone()
+            if stats:
+                token_count, total_sol = stats
+                cursor.execute("""
+                    UPDATE funding_networks
+                    SET total_tokens_funded = ?,
+                        total_sol = ?
+                    WHERE network_id = ?
+                """, (token_count or 0, total_sol or 0, network_id))
+                conn.commit()
+
+        print(f"[NETWORK_UPDATE] ✅ Added token {mint[:8]}... to {len(affected_networks)} networks", flush=True)
+        conn.close()
+
+    except Exception as e:
+        print(f"[NETWORK_UPDATE] Error updating networks: {e}", flush=True)
+
+
 @app.route('/api/tokens-by-funder/<funder_address>')
 def api_tokens_by_funder(funder_address: str):
     """Get all tokens funded by a specific funder address"""

@@ -4645,10 +4645,16 @@ HTML_TEMPLATE = """
                 // Create a map of flows by root operator address for quick lookup
                 const flowsByOperator = {};
                 if (data.root_operator_flows && data.root_operator_flows.length > 0) {
+                    console.log('Found ' + data.root_operator_flows.length + ' root operator flows');
                     data.root_operator_flows.forEach(flow => {
+                        console.log('Flow for: ' + flow.root_operator + ', example flows: ' + (flow.example_flows ? flow.example_flows.length : 0));
                         flowsByOperator[flow.root_operator] = flow;
                     });
+                } else {
+                    console.log('No root operator flows found');
                 }
+                console.log('Root addresses to display: ' + data.root_addresses.length);
+                data.root_addresses.forEach(addr => console.log('  ' + addr + ' -> has flow: ' + (flowsByOperator[addr] ? 'YES' : 'NO')));
 
                 // Always display root addresses
                 rootsContainer.innerHTML = data.root_addresses.map((addr, idx) => {
@@ -10442,9 +10448,8 @@ def api_super_cluster_details(cluster_id: str):
 
         conn.close()
 
-        # Filter out infrastructure and CEX accounts from root addresses
-        root_addresses_raw = cluster_row['root_addresses'].split(',') if cluster_row['root_addresses'] else []
-        root_addresses_filtered = [addr for addr in root_addresses_raw if addr not in infra_and_cex]
+        # Extract root addresses from flows (these are the actual root operators found)
+        root_addresses_filtered = [flow['root_operator'] for flow in root_operator_flows]
 
         return jsonify({
             'id': cluster_row['super_cluster_id'],

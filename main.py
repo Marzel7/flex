@@ -1445,7 +1445,8 @@ HTML_TEMPLATE = """
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(139, 92, 246, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(76, 175, 80, 0.2); color: #4ade80; border: 1px solid rgba(76, 175, 80, 0.5);">▶️ Polling ON</button>
-                <button class="action-button" onclick="toggleCEXView()" title="View CEX funders and activity" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.5); margin-left: 8px;">CEX View</button>
+                <button class="action-button" id="tokensTabBtn" onclick="switchToTokensTab()" title="View tokens" style="background: rgba(99, 102, 241, 0.2); color: #6366f1; border: 1px solid rgba(99, 102, 241, 0.5); margin-left: 8px;">Tokens</button>
+                <button class="action-button" id="networksTabBtn" onclick="switchToNetworksTab()" title="View funding networks" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">🔗 Networks</button>
                 <button class="action-button" onclick="window.location.href = '/coordinated-funders'" title="Analyze funders supporting multiple creators" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">Coordinated Funders</button>
                 <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Validate TX</button>
                 <button id="funderExtractionBtn" class="action-button" onclick="toggleFunderExtraction()" title="Toggle funder transfer extraction (incoming/outgoing)" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); margin-left: 8px;">Funder Extraction OFF</button>
@@ -1460,60 +1461,58 @@ HTML_TEMPLATE = """
             <div class="loading">Loading migrated tokens...</div>
         </div>
 
-        <!-- Funding Network View - CRITICAL COORDINATION DETECTION -->
-        <div id="funding-network-container" style="display: none;">
-            <div style="padding: 20px;">
-                <h2 style="color: #ef4444; margin-bottom: 20px;">🚨 Funding Network - Suspicious Coordination</h2>
-                <p style="color: #fca5a5; margin-bottom: 20px; font-size: 14px;">
-                    ⚠️ <strong>CRITICAL:</strong> These unknown addresses coordinate funding across multiple creators/funders.
-                    This pattern indicates organized malicious behavior or bot networks.
+        <!-- Funding Networks View -->
+        <div id="funding-network-container" style="display: none; padding: 20px;">
+            <div style="margin-bottom: 30px;">
+                <h2 style="color: #6366f1; margin-bottom: 10px;">🔗 Funding Networks</h2>
+                <p style="color: #a0a0a0; font-size: 14px; margin-bottom: 20px;">
+                    Coordinated funding groups across 108 networks. Each network represents funders that collectively funded the same tokens.
                 </p>
 
-                <!-- Coordinated Address Network -->
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #ff6b6b; margin-bottom: 15px;">Unknown Addresses Funding Multiple Creators</h3>
-                    <div id="fundingNetworkContainer" style="overflow-x: auto;">
-                        <table class="tokens-table" style="width: 100%;">
-                            <thead>
-                                <tr>
-                                    <th>Address</th>
-                                    <th>Creators Funded</th>
-                                    <th>Total SOL</th>
-                                    <th>Linked Funders</th>
-                                    <th>Risk Level</th>
-                                </tr>
-                            </thead>
-                            <tbody id="fundingNetworkBody">
-                                <tr><td colspan="5" style="text-align: center; color: #a0a0a0;">Loading...</td></tr>
-                            </tbody>
-                        </table>
+                <!-- Network Statistics Summary -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                    <div style="background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #6366f1;">
+                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total Networks</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #6366f1;">108</div>
+                    </div>
+                    <div style="background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #6366f1;">
+                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total Funders</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #6366f1;">15,589</div>
+                    </div>
+                    <div style="background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #6366f1;">
+                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Unique Senders</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #6366f1;">6,280</div>
+                    </div>
+                    <div style="background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #6366f1;">
+                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">SOL Traced</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #6366f1;">~29.8k</div>
                     </div>
                 </div>
 
-                <!-- Shared Counterparties Between Funders -->
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #ff6b6b; margin-bottom: 15px;">Shared Funding Sources (Hub Coordination)</h3>
-                    <div id="sharedCounterpartiesContainer" style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #ef4444;">
-                        <div id="sharedCounterpartiesBody" style="color: #fca5a5; font-family: monospace; font-size: 12px;">
-                            <div class="loading">Analyzing coordination patterns...</div>
+                <!-- Networks Grid -->
+                <div id="funding-networks-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+                    <div class="loading" style="grid-column: 1 / -1;">Loading funding networks...</div>
+                </div>
+            </div>
+
+            <!-- Network Details Modal (for clicking on a network) -->
+            <div id="network-details-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); z-index: 1000; padding: 20px;">
+                <div style="background: #0a0e27; color: #e0e0e0; border-radius: 12px; padding: 30px; max-width: 900px; margin: 50px auto; max-height: 80vh; overflow-y: auto; border: 1px solid rgba(99, 102, 241, 0.3);">
+                    <button onclick="closeNetworkDetails()" style="float: right; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">✕ Close</button>
+                    <h2 id="modal-network-name" style="color: #6366f1; margin-bottom: 20px; margin-top: 0;">Network Details</h2>
+
+                    <div id="modal-network-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                        <!-- Stats will be populated by JavaScript -->
+                    </div>
+
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="color: #00d4ff; margin-bottom: 15px;">Tokens in this Network</h3>
+                        <div id="modal-token-list" style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; max-height: 300px; overflow-y: auto;">
+                            <div class="loading">Loading tokens...</div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Statistics -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                    <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #ef4444;">
-                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Suspicious Networks</div>
-                        <div id="suspiciousNetworkCount" style="font-size: 24px; font-weight: bold; color: #ef4444;">0</div>
-                    </div>
-                    <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #ef4444;">
-                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Hub Addresses</div>
-                        <div id="hubAddressCount" style="font-size: 24px; font-weight: bold; color: #ef4444;">0</div>
-                    </div>
-                    <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #ef4444;">
-                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total SOL Tracked</div>
-                        <div id="totalSolTracked" style="font-size: 24px; font-weight: bold; color: #ef4444;">0 SOL</div>
-                    </div>
+                    <button onclick="closeNetworkDetails()" style="background: rgba(99, 102, 241, 0.2); color: #6366f1; border: 1px solid #6366f1; padding: 10px 20px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: 600;">← Back to Networks</button>
                 </div>
             </div>
         </div>
@@ -2879,6 +2878,38 @@ HTML_TEMPLATE = """
                 console.error('Error loading funding network data:', error);
                 document.getElementById('fundingNetworkBody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ef4444;">Failed to load data</td></tr>';
             }
+        }
+
+        function switchToTokensTab() {
+            const tokensContainer = document.getElementById('tokens-container');
+            const fundingNetworkContainer = document.getElementById('funding-network-container');
+            const tokensTabBtn = document.getElementById('tokensTabBtn');
+            const networksTabBtn = document.getElementById('networksTabBtn');
+
+            tokensContainer.style.display = 'block';
+            fundingNetworkContainer.style.display = 'none';
+
+            tokensTabBtn.style.background = 'rgba(99, 102, 241, 0.3)';
+            tokensTabBtn.style.color = '#818cf8';
+            networksTabBtn.style.background = 'rgba(139, 92, 246, 0.2)';
+            networksTabBtn.style.color = '#a78bfa';
+        }
+
+        function switchToNetworksTab() {
+            const tokensContainer = document.getElementById('tokens-container');
+            const fundingNetworkContainer = document.getElementById('funding-network-container');
+            const tokensTabBtn = document.getElementById('tokensTabBtn');
+            const networksTabBtn = document.getElementById('networksTabBtn');
+
+            tokensContainer.style.display = 'none';
+            fundingNetworkContainer.style.display = 'block';
+
+            tokensTabBtn.style.background = 'rgba(99, 102, 241, 0.2)';
+            tokensTabBtn.style.color = '#6366f1';
+            networksTabBtn.style.background = 'rgba(139, 92, 246, 0.3)';
+            networksTabBtn.style.color = '#c4b5fd';
+
+            loadFundingNetworks();
         }
 
         function toggleCEXView() {
@@ -6987,7 +7018,7 @@ def coordinated_funders_view():
 
                             html += `</div>`;
 
-                            document.getElementById('funding-networks-content').innerHTML = html;
+                            document.getElementById('funding-networks-grid').innerHTML = html;
                             statusEl.textContent = '✅ Loaded ' + data.total_networks + ' networks';
                         }} catch(e) {{
                             statusEl.textContent = '❌ Error: ' + e.message;
@@ -7050,11 +7081,15 @@ def coordinated_funders_view():
 
                             html += `</div></div>`;
 
-                            document.getElementById('funding-networks-content').innerHTML = html;
+                            document.getElementById('funding-networks-grid').innerHTML = html;
                             statusEl.textContent = '✅ Network details loaded';
                         }} catch(e) {{
                             statusEl.textContent = '❌ Error: ' + e.message;
                         }}
+                    }}
+
+                    function closeNetworkDetails() {{
+                        loadFundingNetworks();
                     }}
 
                     async function showSenderTokens(senderAddress) {{
@@ -7959,16 +7994,19 @@ def api_funding_networks_list():
         cursor = conn.cursor()
 
         # Get all networks with basic stats including senders count
+        # IMPORTANT: creators_count now shows ACTUAL creators who launched tokens in the network
         cursor.execute("""
             SELECT
                 fn.network_id,
                 fn.total_members as funders_count,
-                fn.total_tokens_funded as tokens_count,
-                fn.total_creators_funded as creators_count,
+                COUNT(DISTINCT fnt.mint) as tokens_count,
+                COUNT(DISTINCT ta.earliest_tx_creator) as creators_count,
                 ROUND(fn.total_sol, 2) as total_sol,
                 COUNT(DISTINCT fit.sender_address) as senders_count
             FROM funding_networks fn
             LEFT JOIN funding_network_members fnm ON fn.network_id = fnm.network_id
+            LEFT JOIN funding_network_shared_tokens fnt ON fn.network_id = fnt.network_id
+            LEFT JOIN token_analysis ta ON fnt.mint = ta.mint
             LEFT JOIN funder_incoming_transfers fit ON fit.funder_address = fnm.funder_address
             GROUP BY fn.network_id
             ORDER BY fn.total_members DESC
@@ -8020,16 +8058,20 @@ def api_funding_network_details(network_id):
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
-        # Get network basic info
+        # Get network basic info with CORRECTED creator count
+        # Only count creators who actually launched tokens in this network
         cursor.execute("""
             SELECT
                 fn.network_id,
                 fn.total_members as funders_count,
-                fn.total_tokens_funded as tokens_count,
-                fn.total_creators_funded as creators_count,
+                COUNT(DISTINCT fnt.mint) as tokens_count,
+                COUNT(DISTINCT ta.earliest_tx_creator) as creators_count,
                 ROUND(fn.total_sol, 2) as total_sol
             FROM funding_networks fn
+            LEFT JOIN funding_network_shared_tokens fnt ON fn.network_id = fnt.network_id
+            LEFT JOIN token_analysis ta ON fnt.mint = ta.mint
             WHERE fn.network_id = ?
+            GROUP BY fn.network_id
         """, (network_id,))
 
         network_row = cursor.fetchone()

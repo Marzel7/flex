@@ -8552,8 +8552,88 @@ def api_build_funding_networks():
             if network_id % 10 == 0:
                 print(f"[NETWORKS] Inserted {network_id} networks...", flush=True)
 
+        # Now build single-funder networks (one funder funding 2+ creators)
+        print(f"[NETWORKS] Building single-funder networks...", flush=True)
+        cursor.execute("""
+            SELECT funder_address, COUNT(DISTINCT creator_address) as creator_count
+            FROM creator_funders
+            WHERE funder_address NOT IN (SELECT cex_address FROM cex_wallets WHERE is_active = 1)
+            AND COALESCE(is_cex, 0) = 0
+            GROUP BY funder_address
+            HAVING creator_count >= 2
+            ORDER BY creator_count DESC
+        """)
+
+        single_funder_networks = cursor.fetchall()
+        single_funder_count = 0
+
+        for row in single_funder_networks:
+            funder_address = row['funder_address']
+            creator_count = row['creator_count']
+
+            # Create a single-funder network
+            network_name = f"SingleFunder_{single_funder_count + 1}"
+            cursor.execute("""
+                INSERT INTO funding_networks (network_name, total_members, network_type)
+                VALUES (?, ?, ?)
+            """, (network_name, 1, 'single_funder'))
+            conn.commit()
+
+            current_network_id = cursor.lastrowid
+
+            # Add the single funder as network member
+            # Get all their tokens and total SOL
+            cursor.execute("""
+                SELECT
+                    COUNT(DISTINCT ta.mint) as token_count,
+                    ROUND(SUM(cf.amount_sol), 2) as total_sol
+                FROM creator_funders cf
+                JOIN token_analysis ta ON cf.creator_address = ta.earliest_tx_creator
+                WHERE cf.funder_address = ?
+            """, (funder_address,))
+
+            stats = cursor.fetchone()
+            token_count = stats['token_count'] or 0
+            total_sol = stats['total_sol'] or 0
+
+            cursor.execute("""
+                INSERT INTO funding_network_members
+                (network_id, funder_address, shared_tokens_count, tokens_unique_to_member, total_sol_out)
+                VALUES (?, ?, ?, ?, ?)
+            """, (current_network_id, funder_address, token_count, token_count, total_sol))
+
+            # Add all their funded tokens to the network
+            cursor.execute("""
+                SELECT DISTINCT ta.mint
+                FROM creator_funders cf
+                JOIN token_analysis ta ON cf.creator_address = ta.earliest_tx_creator
+                WHERE cf.funder_address = ?
+            """, (funder_address,))
+
+            tokens = [row['mint'] for row in cursor.fetchall()]
+            for mint in tokens:
+                cursor.execute("""
+                    INSERT OR IGNORE INTO funding_network_shared_tokens
+                    (network_id, mint)
+                    VALUES (?, ?)
+                """, (current_network_id, mint))
+
+            # Update network stats
+            cursor.execute("""
+                UPDATE funding_networks
+                SET total_tokens_funded = ?,
+                    total_creators_funded = ?,
+                    total_sol = ?
+                WHERE network_id = ?
+            """, (token_count, creator_count, total_sol, current_network_id))
+            conn.commit()
+
+            single_funder_count += 1
+            if single_funder_count % 10 == 0:
+                print(f"[NETWORKS] Inserted {single_funder_count} single-funder networks...", flush=True)
+
         conn.close()
-        print(f"[NETWORKS] ✅ Network building complete: {network_id - 1} networks created", flush=True)
+        print(f"[NETWORKS] ✅ Network building complete: {network_id - 1} shared networks + {single_funder_count} single-funder networks created", flush=True)
         return jsonify({'status': 'Networks built successfully', 'networks_created': network_id - 1}), 201
 
     except Exception as e:

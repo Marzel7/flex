@@ -4657,12 +4657,14 @@ HTML_TEMPLATE = """
 
                     if (flow && flow.example_flows && flow.example_flows.length > 0) {
                         flowsHTML = flow.example_flows.map((ex) =>
-                            '<div style="font-family: monospace; font-size: 8px; color: #e0e0e0; padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.3;">' +
-                            '<div style="color: #3b82f6;">' + ex.sender.substring(0, 14) + '...</div>' +
-                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 7px;">↓ (to funder)</div>' +
-                            '<div style="color: #6366f1;">' + ex.funder.substring(0, 14) + '...</div>' +
-                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 7px;">↓ ' + ex.sol_to_creator.toFixed(2) + ' SOL</div>' +
-                            '<div style="color: #f59e0b;">' + ex.creator.substring(0, 14) + '...</div>' +
+                            '<div style="font-family: monospace; font-size: 8px; color: #e0e0e0; padding: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.4; background: rgba(0, 0, 0, 0.2); border-radius: 3px; margin-bottom: 4px;">' +
+                            '<div style="color: #3b82f6; margin-bottom: 2px;">📤 Sender: ' + ex.sender.substring(0, 16) + '...</div>' +
+                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 7px; margin-bottom: 2px;">⬇ to Funder</div>' +
+                            '<div style="color: #6366f1; margin-bottom: 2px;">💰 Root Op: ' + ex.funder.substring(0, 16) + '...</div>' +
+                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 7px; margin-bottom: 2px;">⬇ ' + ex.sol_to_creator.toFixed(2) + ' SOL</div>' +
+                            '<div style="color: #f59e0b; margin-bottom: 2px;">👤 Creator: ' + ex.creator.substring(0, 16) + '...</div>' +
+                            (ex.mint ? '<div style="color: #a0a0a0; margin-left: 8px; font-size: 7px; margin-bottom: 2px;">⬇ Token</div>' +
+                            '<div style="color: #4ade80;">🎫 ' + ex.mint.substring(0, 20) + '...</div>' : '') +
                             '</div>'
                         ).join('');
                     }
@@ -10380,20 +10382,6 @@ def api_super_cluster_details(cluster_id: str):
         for root_op in root_operators_data:
             root_op_addr = root_op['funder_address']
 
-            # Get upstream funders for this root operator
-            cursor.execute("""
-                SELECT
-                    funder_address,
-                    amount_sol,
-                    first_detected_at
-                FROM creator_funders
-                WHERE creator_address = ?
-                ORDER BY amount_sol DESC
-                LIMIT 5
-            """, (root_op_addr,))
-
-            upstream_sources = [dict(row) for row in cursor.fetchall()]
-
             # Get downstream creators funded by this root operator
             cursor.execute("""
                 SELECT
@@ -10412,20 +10400,35 @@ def api_super_cluster_details(cluster_id: str):
 
             downstream_creators = [dict(row) for row in cursor.fetchall()]
 
-            # Build example address flows (sender >> root op >> creator)
+            # Get all funders in this cluster (potential senders to the root op)
+            cursor.execute("""
+                SELECT DISTINCT cf.funder_address
+                FROM creator_funders cf
+                WHERE cf.creator_address IN ({})
+                ORDER BY RANDOM()
+                LIMIT 5
+            """.format(','.join('?' * len(creators))), tuple(creators))
+
+            all_funders = [row['funder_address'] for row in cursor.fetchall()]
+
+            # Build example address flows (random sender >> root op >> creator >> token)
             example_flows = []
-            if upstream_sources and downstream_creators:
-                for sender_data in upstream_sources[:3]:  # First 3 senders
-                    sender = sender_data['funder_address']
-                    for creator_data in downstream_creators[:2]:  # First 2 creators per sender
+            if all_funders and downstream_creators:
+                # Pick up to 3 random senders
+                import random
+                senders = all_funders[:3] if len(all_funders) >= 3 else all_funders
+
+                # For each sender, pair with a creator
+                for i, sender in enumerate(senders):
+                    if i < len(downstream_creators):
+                        creator_data = downstream_creators[i]
                         example_flows.append({
                             'sender': sender,
                             'funder': root_op_addr,
                             'creator': creator_data['creator_address'],
+                            'mint': creator_data.get('mint', ''),
                             'sol_to_creator': creator_data['amount_sol']
                         })
-                    if len(example_flows) >= 3:  # Limit to 3 total flows
-                        break
 
             root_operator_flows.append({
                 'root_operator': root_op_addr,

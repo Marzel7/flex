@@ -3742,10 +3742,16 @@ HTML_TEMPLATE = """
                             const endDate = new Date(funder.last_funding_at).toLocaleDateString();
                             const period = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
 
-                            // Get funder label - check if account_info has a name
-                            let funderLabel = '';
-                            if (funder.account_info && funder.account_info.name) {
-                                funderLabel = funder.account_info.name;
+                            // Build network display - show all networks this funder belongs to
+                            let networkDisplay = '';
+                            if (funder.networks && funder.networks.length > 0) {
+                                const networkNames = funder.networks.map(n => {
+                                    const typeBadge = n.network_type === 'single_funder' ? ' 🎯' : '';
+                                    return n.network_name + typeBadge;
+                                });
+                                networkDisplay = networkNames.join(', ');
+                            } else {
+                                networkDisplay = '—';
                             }
 
                             return `
@@ -3753,7 +3759,7 @@ HTML_TEMPLATE = """
                                     <td style="font-family: monospace; font-size: 12px; color: #ef4444;">
                                         ${funder.funder_address}
                                     </td>
-                                    <td style="color: #fbbf24; font-weight: 600; font-size: 12px; white-space: nowrap;">${funderLabel}</td>
+                                    <td style="color: #00d4ff; font-weight: 500; font-size: 12px; white-space: nowrap;">${networkDisplay}</td>
                                     <td><strong style="color: #ef4444;">${funder.creator_count}</strong></td>
                                     <td>${funder.total_sol_sent.toFixed(2)} SOL</td>
                                     <td>${funder.funding_record_count}</td>
@@ -6524,6 +6530,7 @@ def api_multi_creator_funders():
             funder_data['is_infrastructure'] = False
             funder_data['is_cex_account'] = False
             funder_data['account_info'] = None
+            funder_data['networks'] = []
 
             # Check if already marked as CEX in database
             if funder['is_cex_flag']:
@@ -6550,6 +6557,24 @@ def api_multi_creator_funders():
             suspicious_wallet_info = get_suspicious_wallet_info(funder_address)
             if suspicious_wallet_info and not funder_data['account_info']:
                 funder_data['account_info'] = suspicious_wallet_info
+
+            # Get networks this funder belongs to (both shared-token and single-funder)
+            cursor.execute("""
+                SELECT
+                    fn.network_id,
+                    fn.network_name,
+                    COALESCE(fn.network_type, 'shared') as network_type,
+                    COUNT(DISTINCT fnt.mint) as token_count
+                FROM funding_network_members fnm
+                JOIN funding_networks fn ON fnm.network_id = fn.network_id
+                LEFT JOIN funding_network_shared_tokens fnt ON fn.network_id = fnt.network_id
+                WHERE fnm.funder_address = ?
+                GROUP BY fn.network_id, fn.network_name, fn.network_type
+                ORDER BY fn.network_id
+            """, (funder_address,))
+
+            networks = [dict(row) for row in cursor.fetchall()]
+            funder_data['networks'] = networks
 
             # Add to appropriate list
             multi_funders.append(funder_data)
@@ -6626,16 +6651,16 @@ def coordinated_funders_view():
         """)
         analyzed_funders = set(row[0] for row in cursor.fetchall())
 
-        # Get network information for each funder
-        funder_networks = {}
+        # Get network information for each funder (can belong to multiple networks)
+        funder_networks = {}  # funder_address -> list of networks
         network_id_to_name = {}
 
         if all_multi_funders:
             cursor.execute("""
-                SELECT DISTINCT
+                SELECT
                     fnm.funder_address,
                     fn.network_id,
-                    fn.network_id as sort_key
+                    COALESCE(fn.network_type, 'shared') as network_type
                 FROM funding_network_members fnm
                 INNER JOIN funding_networks fn ON fnm.network_id = fn.network_id
                 WHERE fnm.funder_address IN ({})
@@ -6656,6 +6681,7 @@ def coordinated_funders_view():
             rows = cursor.fetchall()
             for row in rows:
                 network_id = row['network_id']
+                network_type = row['network_type']
 
                 # Generate name if not already generated
                 if network_id not in network_id_to_name:
@@ -6664,17 +6690,24 @@ def coordinated_funders_view():
                     network_id_to_name[network_id] = f"{adj} {noun}"
 
                 network_name = network_id_to_name[network_id]
-                funder_networks[row['funder_address']] = {
-                    'network_id': network_id,
-                    'network_name': network_name
-                }
+                funder_addr = row['funder_address']
 
-        # Mark analysis status and network for each funder
+                # Add to list of networks for this funder
+                if funder_addr not in funder_networks:
+                    funder_networks[funder_addr] = []
+
+                type_badge = ' 🎯' if network_type == 'single_funder' else ''
+                funder_networks[funder_addr].append({
+                    'network_id': network_id,
+                    'network_name': network_name + type_badge,
+                    'network_type': network_type
+                })
+
+        # Mark analysis status and networks for each funder
         for funder in all_multi_funders:
             funder['is_analyzed'] = funder['funder_address'] in analyzed_funders
-            network_info = funder_networks.get(funder['funder_address'])
-            funder['network_id'] = network_info['network_id'] if network_info else None
-            funder['network_name'] = network_info['network_name'] if network_info else None
+            network_list = funder_networks.get(funder['funder_address'], [])
+            funder['networks'] = network_list
 
         # Classify and tag infrastructure/CEX accounts
         suspicious_funders = []
@@ -6726,8 +6759,13 @@ def coordinated_funders_view():
             start_date = funder['first_funding_at'][:10] if funder['first_funding_at'] else 'N/A'
             end_date = funder['last_funding_at'][:10] if funder['last_funding_at'] else 'N/A'
             period = start_date if start_date == end_date else f"{start_date} - {end_date}"
-            account_label = funder['account_name'] if funder['account_name'] else ''
-            network_name = funder.get('network_name', '')
+
+            # Get all networks this funder belongs to
+            networks = funder.get('networks', [])
+            if networks:
+                network_display = ', '.join([n['network_name'] for n in networks])
+            else:
+                network_display = '—'
 
             # Analysis status indicator
             analysis_badge = '✅ Analyzed' if funder['is_analyzed'] else '⏳ Pending'
@@ -6739,7 +6777,7 @@ def coordinated_funders_view():
             suspicious_html += f"""
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); cursor: pointer; {row_highlight}" onclick="window.location.href = '/funder-details/{funder['funder_address']}'">
                 <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #ef4444; word-break: break-all;">{funder['funder_address']}</td>
-                <td style="padding: 12px; color: #6366f1; font-weight: 500;">{network_name if network_name else '—'}</td>
+                <td style="padding: 12px; color: #00d4ff; font-weight: 500; font-size: 12px;">{network_display}</td>
                 <td style="padding: 12px; color: #ef4444; font-weight: bold;">{funder['creator_count']}</td>
                 <td style="padding: 12px; color: #4ade80;">{funder['total_sol_sent']:.2f}</td>
                 <td style="padding: 12px; color: #a0a0a0;">{funder['funding_record_count']}</td>

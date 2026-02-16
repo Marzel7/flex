@@ -10034,7 +10034,7 @@ def api_super_clusters():
 
 @app.route('/api/super-cluster/<cluster_id>')
 def api_super_cluster_details(cluster_id: str):
-    """Get detailed information about a super-cluster"""
+    """Get detailed information about a super-cluster with network names and SOL flows"""
     try:
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
@@ -10057,7 +10057,7 @@ def api_super_cluster_details(cluster_id: str):
         if not cluster_row:
             return jsonify({'error': 'Cluster not found'}), 404
 
-        # Get creators in this cluster
+        # Get all creators in this cluster
         cursor.execute("""
             SELECT DISTINCT creator_address
             FROM creator_super_cluster_membership
@@ -10088,7 +10088,7 @@ def api_super_cluster_details(cluster_id: str):
 
         tokens = [dict(row) for row in cursor.fetchall()]
 
-        # Get funder info (excluding infrastructure accounts)
+        # Get funder info
         from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
         infra_and_cex = set(INFRASTRUCTURE_ACCOUNTS.keys()) | set(CEX_ACCOUNTS.keys())
 
@@ -10109,10 +10109,95 @@ def api_super_cluster_details(cluster_id: str):
 
         funder_row = cursor.fetchone()
 
+        # Get network names (members are funders)
+        cursor.execute("""
+            SELECT DISTINCT
+                fn.network_id,
+                fn.network_name,
+                fn.total_members,
+                fn.total_sol
+            FROM funding_networks fn
+            WHERE fn.network_id IN (
+                SELECT DISTINCT fnm.network_id
+                FROM funding_network_members fnm
+                WHERE fnm.funder_address IN (
+                    SELECT DISTINCT funder_address
+                    FROM creator_funders
+                    WHERE creator_address IN (
+                        SELECT DISTINCT creator_address
+                        FROM creator_super_cluster_membership
+                        WHERE super_cluster_id = ?
+                    )
+                )
+            )
+            ORDER BY fn.total_sol DESC
+        """, (cluster_id,))
+
+        networks = [dict(row) for row in cursor.fetchall()]
+
+        # Get SOL flow examples (Top funders >> Creators with amounts)
+        flow_examples = []
+        cursor.execute("""
+            SELECT
+                cf.funder_address,
+                cf.creator_address,
+                cf.amount_sol,
+                cf.first_detected_at,
+                ta.mint,
+                ta.rug_probability,
+                ta.risk_level
+            FROM creator_funders cf
+            LEFT JOIN token_analysis ta ON cf.creator_address = ta.earliest_tx_creator
+            WHERE cf.creator_address IN (
+                SELECT DISTINCT creator_address
+                FROM creator_super_cluster_membership
+                WHERE super_cluster_id = ?
+            )
+            AND cf.funder_address NOT IN ({})
+            ORDER BY cf.amount_sol DESC
+            LIMIT 20
+        """.format(','.join('?' * len(infra_and_cex))),
+        (cluster_id,) + tuple(infra_and_cex))
+
+        for row in cursor.fetchall():
+            flow_examples.append({
+                'funder': row['funder_address'],
+                'creator': row['creator_address'],
+                'sol_amount': row['amount_sol'],
+                'date': row['first_detected_at'],
+                'token_mint': row['mint'],
+                'token_risk': row['risk_level'],
+                'rug_probability': row['rug_probability']
+            })
+
+        # Identify likely root operators (funders with multiple creators funded)
+        cursor.execute("""
+            SELECT
+                cf.funder_address,
+                COUNT(DISTINCT cf.creator_address) as creators_funded,
+                SUM(cf.amount_sol) as total_sol_sent,
+                COUNT(*) as transfer_count,
+                MIN(cf.first_detected_at) as first_transfer
+            FROM creator_funders cf
+            WHERE cf.creator_address IN (
+                SELECT DISTINCT creator_address
+                FROM creator_super_cluster_membership
+                WHERE super_cluster_id = ?
+            )
+            AND cf.funder_address NOT IN ({})
+            GROUP BY cf.funder_address
+            HAVING COUNT(DISTINCT cf.creator_address) > 1
+            ORDER BY total_sol_sent DESC
+            LIMIT 10
+        """.format(','.join('?' * len(infra_and_cex))),
+        (cluster_id,) + tuple(infra_and_cex))
+
+        root_operators = [dict(row) for row in cursor.fetchall()]
+
         conn.close()
 
         # Filter out infrastructure and CEX accounts from root addresses
-        root_addresses_raw = cluster_row['root_addresses'].split(',')
+        root_addresses_raw = cluster_row['root_addresses'].split(',') if cluster_row['root_addresses'] else []
         root_addresses_filtered = [addr for addr in root_addresses_raw if addr not in infra_and_cex]
 
         return jsonify({
@@ -10128,7 +10213,10 @@ def api_super_cluster_details(cluster_id: str):
                 'total_funders': funder_row['total_funders'] if funder_row else 0,
                 'total_sol': funder_row['total_sol'] if funder_row else 0,
                 'cex_funders': funder_row['cex_funders'] if funder_row else 0
-            }
+            },
+            'networks': networks,
+            'sol_flow_examples': flow_examples,
+            'identified_root_operators': root_operators
         })
 
     except Exception as e:
@@ -10164,6 +10252,126 @@ def api_creator_super_cluster(creator_address: str):
             'creator_address': creator_address,
             'super_clusters': memberships,
             'total_clusters': len(memberships)
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/super-cluster/<cluster_id>/sol-flow')
+def api_super_cluster_sol_flow(cluster_id: str):
+    """Get detailed SOL flow visualization for a super cluster (Root Op >> Funder >> Creator)"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
+        infra_and_cex = set(INFRASTRUCTURE_ACCOUNTS.keys()) | set(CEX_ACCOUNTS.keys())
+
+        # Get all creators in cluster
+        cursor.execute("""
+            SELECT creator_address FROM creator_super_cluster_membership
+            WHERE super_cluster_id = ?
+        """, (cluster_id,))
+        cluster_creators = [row['creator_address'] for row in cursor.fetchall()]
+
+        if not cluster_creators:
+            return jsonify({'error': 'No creators found in cluster'}), 404
+
+        # Identify root operators (funders that funded multiple creators in cluster)
+        cursor.execute("""
+            SELECT
+                cf.funder_address,
+                COUNT(DISTINCT cf.creator_address) as creators_funded,
+                SUM(cf.amount_sol) as total_sol_sent
+            FROM creator_funders cf
+            WHERE cf.creator_address IN ({})
+            AND cf.funder_address NOT IN ({})
+            GROUP BY cf.funder_address
+            ORDER BY total_sol_sent DESC
+        """.format(
+            ','.join('?' * len(cluster_creators)),
+            ','.join('?' * len(infra_and_cex))
+        ), tuple(cluster_creators) + tuple(infra_and_cex))
+
+        root_operators = [dict(row) for row in cursor.fetchall()]
+
+        # Get SOL flows: Root Op -> Funder -> Creator
+        flows = []
+        for op in root_operators[:10]:  # Top 10 root operators
+            root_op = op['funder_address']
+
+            # Find who funds this root operator
+            cursor.execute("""
+                SELECT
+                    cf.funder_address,
+                    cf.creator_address,
+                    cf.amount_sol,
+                    cf.first_detected_at
+                FROM creator_funders cf
+                WHERE cf.creator_address = ?
+                AND cf.funder_address NOT IN ({})
+                ORDER BY cf.amount_sol DESC
+                LIMIT 5
+            """.format(','.join('?' * len(infra_and_cex))),
+            (root_op,) + tuple(infra_and_cex))
+
+            upstream_funders = [dict(row) for row in cursor.fetchall()]
+
+            # Find creators funded by this root operator
+            cursor.execute("""
+                SELECT
+                    cf.creator_address,
+                    cf.amount_sol,
+                    cf.first_detected_at,
+                    ta.mint,
+                    ta.risk_level,
+                    ta.rug_probability
+                FROM creator_funders cf
+                LEFT JOIN token_analysis ta ON cf.creator_address = ta.earliest_tx_creator
+                WHERE cf.funder_address = ?
+                AND cf.creator_address IN ({})
+                ORDER BY cf.amount_sol DESC
+            """.format(','.join('?' * len(cluster_creators))),
+            (root_op,) + tuple(cluster_creators))
+
+            downstream_creators = [dict(row) for row in cursor.fetchall()]
+
+            flows.append({
+                'root_operator': root_op,
+                'creators_funded': op['creators_funded'],
+                'total_sol_sent': op['total_sol_sent'],
+                'upstream_sources': upstream_funders,
+                'downstream_creators': downstream_creators
+            })
+
+        # Get network names
+        cursor.execute("""
+            SELECT DISTINCT
+                fn.network_id,
+                fn.network_name,
+                fn.total_sol
+            FROM funding_networks fn
+            WHERE fn.network_id IN (
+                SELECT DISTINCT fnm.network_id
+                FROM funding_network_members fnm
+                WHERE fnm.funder_address IN ({})
+            )
+            ORDER BY fn.total_sol DESC
+        """.format(','.join('?' * len([op['funder_address'] for op in root_operators]))),
+        tuple([op['funder_address'] for op in root_operators]))
+
+        networks = [dict(row) for row in cursor.fetchall()]
+
+        conn.close()
+
+        return jsonify({
+            'cluster_id': cluster_id,
+            'networks': networks,
+            'sol_flows': flows,
+            'total_root_operators': len(root_operators),
+            'top_flows_shown': len(flows)
         })
 
     except Exception as e:

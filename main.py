@@ -1507,7 +1507,7 @@ HTML_TEMPLATE = """
                 </div>
 
                 <!-- Networks Grid -->
-                <div id="funding-networks-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
+                <div id="funding-networks-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 20px;">
                     <div class="loading" style="grid-column: 1 / -1;">Loading funding networks...</div>
                 </div>
             </div>
@@ -4356,31 +4356,31 @@ HTML_TEMPLATE = """
 
                 data.networks.forEach(network => {
                     html += `
-                        <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid #6366f1; border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s;"
+                        <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid #6366f1; border-radius: 8px; padding: 25px; cursor: pointer; transition: all 0.3s;"
                              onclick="showNetworkDetails(${network.network_id})"
                              onmouseover="this.style.background='rgba(99, 102, 241, 0.15)'; this.style.boxShadow='0 0 15px rgba(99, 102, 241, 0.5)';"
                              onmouseout="this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='none';">
-                            <div style="font-weight: bold; color: #e0e0e0; font-size: 14px; margin-bottom: 12px;">${network.name}</div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 11px;">
-                                <div style="background: rgba(74, 222, 128, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #4ade80;">
-                                    <div style="color: #a0a0a0;">Funders</div>
-                                    <div style="color: #4ade80; font-weight: bold;">${network.funders}</div>
+                            <div style="font-weight: bold; color: #e0e0e0; font-size: 16px; margin-bottom: 18px;">${network.name}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px;">
+                                <div style="background: rgba(74, 222, 128, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #4ade80;">
+                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Funders</div>
+                                    <div style="color: #4ade80; font-weight: bold; font-size: 18px;">${network.funders}</div>
                                 </div>
-                                <div style="background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #3b82f6;">
-                                    <div style="color: #a0a0a0;">Senders</div>
-                                    <div style="color: #3b82f6; font-weight: bold;">${network.senders}</div>
+                                <div style="background: rgba(59, 130, 246, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #3b82f6;">
+                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Senders</div>
+                                    <div style="color: #3b82f6; font-weight: bold; font-size: 18px;">${network.senders}</div>
                                 </div>
-                                <div style="background: rgba(245, 158, 11, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #f59e0b;">
-                                    <div style="color: #a0a0a0;">Creators</div>
-                                    <div style="color: #f59e0b; font-weight: bold;">${network.creators}</div>
+                                <div style="background: rgba(245, 158, 11, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #f59e0b;">
+                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Creators</div>
+                                    <div style="color: #f59e0b; font-weight: bold; font-size: 18px;">${network.creators}</div>
                                 </div>
-                                <div style="background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #3b82f6;">
-                                    <div style="color: #a0a0a0;">Tokens</div>
-                                    <div style="color: #3b82f6; font-weight: bold;">${network.tokens}</div>
+                                <div style="background: rgba(59, 130, 246, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #3b82f6;">
+                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Tokens</div>
+                                    <div style="color: #3b82f6; font-weight: bold; font-size: 18px;">${network.tokens}</div>
                                 </div>
-                                <div style="background: rgba(168, 85, 247, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #a855f7;">
-                                    <div style="color: #a0a0a0;">SOL</div>
-                                    <div style="color: #a855f7; font-weight: bold;">${network.total_sol.toFixed(0)}</div>
+                                <div style="background: rgba(168, 85, 247, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #a855f7;">
+                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">SOL</div>
+                                    <div style="color: #a855f7; font-weight: bold; font-size: 18px;">${network.total_sol.toFixed(0)}</div>
                                 </div>
                             </div>
                         </div>`;

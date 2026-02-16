@@ -870,6 +870,26 @@ HTML_TEMPLATE = """
             font-weight: bold;
         }
 
+        /* Super-cluster tab buttons */
+        .sc-tab-button {
+            padding: 10px 20px !important;
+            background: none !important;
+            border: none !important;
+            color: #a0a0a0 !important;
+            cursor: pointer !important;
+            font-size: 14px !important;
+            transition: color 0.2s ease !important;
+        }
+
+        .sc-tab-button:hover {
+            color: #00d4ff !important;
+        }
+
+        .sc-tab-button.active {
+            color: #00d4ff !important;
+            border-bottom: 2px solid #00d4ff !important;
+        }
+
         #creatorTagsContainer {
             margin-bottom: 20px;
             display: flex;
@@ -1479,57 +1499,37 @@ HTML_TEMPLATE = """
         </div>
 
         <!-- Funding Networks View -->
+        <!-- Super-Clusters Networks View -->
         <div id="funding-network-container" style="display: none; padding: 20px;">
             <div style="margin-bottom: 30px;">
-                <h2 style="color: #6366f1; margin-bottom: 10px;">🔗 Funding Networks</h2>
+                <h2 style="color: #ef4444; margin-bottom: 10px;">🚨 Super-Clusters (Coordinated Networks)</h2>
                 <p style="color: #a0a0a0; font-size: 14px; margin-bottom: 20px;">
-                    Coordinated funding groups across 108 networks. Each network represents funders that collectively funded the same tokens.
+                    Networks with ≥5 shared creators have been merged into super-clusters. These represent large coordinated funding operations identified through sophisticated network analysis.
                 </p>
 
-                <!-- Network Statistics Summary -->
+                <!-- Super-Cluster Statistics -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px;">
-                    <div style="background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #6366f1;">
-                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total Networks</div>
-                        <div style="font-size: 24px; font-weight: bold; color: #6366f1;">108</div>
+                    <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #ef4444;">
+                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total Clusters</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #ef4444;" id="scTotalCount">—</div>
                     </div>
-                    <div style="background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #6366f1;">
-                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total Funders</div>
-                        <div style="font-size: 24px; font-weight: bold; color: #6366f1;">15,589</div>
+                    <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #ef4444;">
+                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Critical</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #ef4444;" id="scCriticalCount">—</div>
                     </div>
-                    <div style="background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #6366f1;">
-                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Unique Senders</div>
-                        <div style="font-size: 24px; font-weight: bold; color: #6366f1;">6,280</div>
+                    <div style="background: rgba(249, 115, 22, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #f97316;">
+                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">High Risk</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #f97316;" id="scHighCount">—</div>
                     </div>
-                    <div style="background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #6366f1;">
-                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">SOL Traced</div>
-                        <div style="font-size: 24px; font-weight: bold; color: #6366f1;">~29.8k</div>
+                    <div style="background: rgba(251, 191, 36, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #fbbf24;">
+                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Medium Risk</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #fbbf24;" id="scMediumCount">—</div>
                     </div>
                 </div>
 
-                <!-- Networks Grid -->
-                <div id="funding-networks-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 20px;">
-                    <div class="loading" style="grid-column: 1 / -1;">Loading funding networks...</div>
-                </div>
-            </div>
-
-            <!-- Network Details Modal (for clicking on a network) -->
-            <div id="network-details-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); z-index: 1000; padding: 20px;">
-                <div style="background: #0a0e27; color: #e0e0e0; border-radius: 12px; padding: 30px; max-width: 900px; margin: 50px auto; max-height: 80vh; overflow-y: auto; border: 1px solid rgba(99, 102, 241, 0.3);">
-                    <button onclick="closeNetworkDetails()" style="float: right; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">✕ Close</button>
-                    <h2 id="modal-network-name" style="color: #6366f1; margin-bottom: 20px; margin-top: 0;">Network Details</h2>
-
-                    <div id="modal-network-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px;">
-                        <!-- Stats will be populated by JavaScript -->
-                    </div>
-
-                    <div style="margin-bottom: 30px;">
-                        <h3 style="color: #00d4ff; margin-bottom: 15px;">Tokens in this Network</h3>
-                        <div id="modal-token-list" style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; max-height: 300px; overflow-y: auto;">
-                            <div class="loading">Loading tokens...</div>
-                        </div>
-                    </div>
-
-                    <button onclick="closeNetworkDetails()" style="background: rgba(99, 102, 241, 0.2); color: #6366f1; border: 1px solid #6366f1; padding: 10px 20px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: 600;">← Back to Networks</button>
+                <!-- Super-Clusters Grid -->
+                <div id="super-clusters-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
+                    <div class="loading" style="grid-column: 1 / -1;">Loading super-clusters...</div>
                 </div>
             </div>
         </div>
@@ -2115,6 +2115,101 @@ HTML_TEMPLATE = """
                         </tr>
                     </thead>
                     <tbody id="fdOutgoingBody">
+                        <tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Super-Cluster Details Modal -->
+    <div id="superClusterModal" class="modal">
+        <div class="modal-content" style="max-width: 1000px;">
+            <span class="close" onclick="closeSuperCluster()">&times;</span>
+            <h2>Super-Cluster Details - <span id="scModalId" style="font-size: 16px; color: #00d4ff;"></span></h2>
+
+            <!-- Risk Badge -->
+            <div style="display: inline-block; margin-bottom: 20px;">
+                <span id="scRiskBadge" style="padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 14px;">—</span>
+            </div>
+
+            <!-- Cluster Stats -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                <div style="background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #3b82f6;">
+                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Networks</div>
+                    <div id="scNetworkCount" style="color: #3b82f6; font-size: 20px; font-weight: bold;">—</div>
+                </div>
+                <div style="background: rgba(245, 158, 11, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #f59e0b;">
+                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Creators</div>
+                    <div id="scCreatorCount" style="color: #f59e0b; font-size: 20px; font-weight: bold;">—</div>
+                </div>
+                <div style="background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #3b82f6;">
+                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Tokens</div>
+                    <div id="scTokenCount" style="color: #3b82f6; font-size: 20px; font-weight: bold;">—</div>
+                </div>
+                <div style="background: rgba(74, 222, 128, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #4ade80;">
+                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Funders</div>
+                    <div id="scFunderCount" style="color: #4ade80; font-size: 20px; font-weight: bold;">—</div>
+                </div>
+                <div style="background: rgba(168, 85, 247, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #a855f7;">
+                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Total SOL</div>
+                    <div id="scTotalSol" style="color: #a855f7; font-size: 20px; font-weight: bold;">—</div>
+                </div>
+                <div style="background: rgba(168, 85, 247, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #a855f7;">
+                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">CEX Funders</div>
+                    <div id="scCexCount" style="color: #a855f7; font-size: 20px; font-weight: bold;">—</div>
+                </div>
+            </div>
+
+            <!-- Root Operators & Relationship -->
+            <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <h4 style="color: #a0a0a0; font-size: 12px; margin-bottom: 15px; text-transform: uppercase;">Root Operators & Cluster Relationship</h4>
+                <div id="scRootAddresses" style="display: flex; flex-direction: column; gap: 12px;">
+                    <!-- Populated by JS -->
+                </div>
+                <!-- Relationship Diagram -->
+                <div id="scRelationshipDiagram" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(99, 102, 241, 0.2);">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
+                <button onclick="switchSuperClusterTab('creators')" class="sc-tab-button active" data-tab="creators">
+                    Creators
+                </button>
+                <button onclick="switchSuperClusterTab('tokens')" class="sc-tab-button" data-tab="tokens">
+                    Tokens
+                </button>
+            </div>
+
+            <!-- Creators Tab -->
+            <div id="scCreatorsTab" class="sc-tab-content" style="display: block; max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
+                            <th style="text-align: left; padding: 10px; color: #a0a0a0; font-size: 12px;">Creator Address</th>
+                            <th style="text-align: left; padding: 10px; color: #a0a0a0; font-size: 12px;">Tokens</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scCreatorsList">
+                        <tr><td colspan="2" style="padding: 20px; text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tokens Tab -->
+            <div id="scTokensTab" class="sc-tab-content" style="display: none; max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
+                            <th style="text-align: left; padding: 10px; color: #a0a0a0; font-size: 12px;">Token Mint</th>
+                            <th style="text-align: left; padding: 10px; color: #a0a0a0; font-size: 12px;">Creator</th>
+                            <th style="text-align: right; padding: 10px; color: #a0a0a0; font-size: 12px;">Risk</th>
+                            <th style="text-align: right; padding: 10px; color: #a0a0a0; font-size: 12px;">Peak MC</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scTokensList">
                         <tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">Loading...</td></tr>
                     </tbody>
                 </table>
@@ -3613,6 +3708,54 @@ HTML_TEMPLATE = """
                     document.getElementById('jitotipsSection').style.display = 'none';
                 }
 
+                // Display super-cluster membership if available
+                if (data.super_clusters && data.super_clusters.length > 0) {
+                    const superClusterBanner = document.createElement('div');
+                    superClusterBanner.style.cssText = 'background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 15px; margin-bottom: 15px; border-radius: 4px; margin-top: 20px;';
+
+                    let bannerHTML = '<div style="color: #ef4444; font-weight: bold; margin-bottom: 10px; font-size: 14px;">⚠️ COORDINATED NETWORK DETECTED</div>';
+                    bannerHTML += '<div style="font-size: 12px; color: #e0e0e0;">';
+                    bannerHTML += 'This creator belongs to funding coordination networks:';
+                    bannerHTML += '<div style="margin-top: 8px;">';
+
+                    for (const sc of data.super_clusters) {
+                        let riskColor = '#6b7280';
+                        let riskEmoji = '';
+
+                        if (sc.risk_level === 'CRITICAL') {
+                            riskColor = '#ef4444';
+                            riskEmoji = '🚨';
+                        } else if (sc.risk_level === 'HIGH') {
+                            riskColor = '#f97316';
+                            riskEmoji = '⚠️';
+                        } else if (sc.risk_level === 'MEDIUM') {
+                            riskColor = '#fbbf24';
+                            riskEmoji = '⚡';
+                        }
+
+                        bannerHTML += `
+                            <div style="margin: 6px 0;">
+                                <a href="#" onclick="showSuperCluster('${sc.super_cluster_id}'); return false;"
+                                   style="color: ${riskColor}; text-decoration: none; font-weight: 600; cursor: pointer;">
+                                    ${riskEmoji} ${sc.super_cluster_id} (${sc.risk_level})
+                                </a>
+                                <span style="color: #a0a0a0; font-size: 11px; margin-left: 8px;">
+                                    ${sc.creator_count} creators, ${sc.network_count} networks
+                                </span>
+                            </div>
+                        `;
+                    }
+
+                    bannerHTML += '</div></div>';
+
+                    // Inject the banner into the modal - look for the tags container
+                    const tagsContainer = document.getElementById('creatorTagsContainer');
+                    if (tagsContainer) {
+                        superClusterBanner.innerHTML = bannerHTML;
+                        tagsContainer.parentElement.insertBefore(superClusterBanner, tagsContainer.nextElementSibling);
+                    }
+                }
+
                 // Show modal
                 modal.style.display = 'block';
 
@@ -4337,145 +4480,72 @@ HTML_TEMPLATE = """
 
         // Funding Networks Functions
         async function loadFundingNetworks() {
-            const gridEl = document.getElementById('funding-networks-grid');
-            const statusEl = document.getElementById('funding-networks-status');
+            // Load super-clusters directly (no separate funding networks)
+            loadSuperClustersInNetworkView();
+        }
 
-            if (!gridEl) {
-                console.error('funding-networks-grid element not found');
-                return;
-            }
-
-            if (statusEl) {
-                statusEl.textContent = '⟲ Loading networks...';
-            }
+        async function loadSuperClustersInNetworkView() {
+            const gridEl = document.getElementById('super-clusters-grid');
+            if (!gridEl) return;
 
             try {
-                const response = await fetch('/api/funding-networks-list');
+                const response = await fetch('/api/super-clusters');
                 const data = await response.json();
 
                 if (data.error) {
-                    if (statusEl) statusEl.textContent = '❌ Error: ' + data.error;
+                    gridEl.innerHTML = '<div style="grid-column: 1/-1; color: #ef4444;">Error loading super-clusters: ' + data.error + '</div>';
                     return;
                 }
 
-                let html = ``;
+                // Update statistics
+                const clusters = data.clusters || [];
+                document.getElementById('scTotalCount').textContent = clusters.length;
+                document.getElementById('scCriticalCount').textContent = clusters.filter(c => c.risk_level === 'CRITICAL').length;
+                document.getElementById('scHighCount').textContent = clusters.filter(c => c.risk_level === 'HIGH').length;
+                document.getElementById('scMediumCount').textContent = clusters.filter(c => c.risk_level === 'MEDIUM').length;
 
-                data.networks.forEach(network => {
+                let html = '';
+
+                clusters.forEach(cluster => {
                     html += `
                         <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid #6366f1; border-radius: 8px; padding: 25px; cursor: pointer; transition: all 0.3s;"
-                             onclick="showNetworkDetails(${network.network_id})"
+                             onclick="showSuperCluster('${cluster.id}')"
                              onmouseover="this.style.background='rgba(99, 102, 241, 0.15)'; this.style.boxShadow='0 0 15px rgba(99, 102, 241, 0.5)';"
                              onmouseout="this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='none';">
-                            <div style="font-weight: bold; color: #e0e0e0; font-size: 16px; margin-bottom: 18px;">${network.name}</div>
+                            <div style="font-weight: bold; color: #e0e0e0; font-size: 16px; margin-bottom: 18px;">${cluster.id}</div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px;">
-                                <div style="background: rgba(74, 222, 128, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #4ade80;">
-                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Funders</div>
-                                    <div style="color: #4ade80; font-weight: bold; font-size: 18px;">${network.funders}</div>
-                                </div>
-                                <div style="background: rgba(59, 130, 246, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #3b82f6;">
-                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Senders</div>
-                                    <div style="color: #3b82f6; font-weight: bold; font-size: 18px;">${network.senders}</div>
-                                </div>
-                                <div style="background: rgba(245, 158, 11, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #f59e0b;">
+                                <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
                                     <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Creators</div>
-                                    <div style="color: #f59e0b; font-weight: bold; font-size: 18px;">${network.creators}</div>
+                                    <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.creator_count}</div>
                                 </div>
-                                <div style="background: rgba(59, 130, 246, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #3b82f6;">
-                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Tokens</div>
-                                    <div style="color: #3b82f6; font-weight: bold; font-size: 18px;">${network.tokens}</div>
+                                <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
+                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Networks</div>
+                                    <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.network_count}</div>
                                 </div>
-                                <div style="background: rgba(168, 85, 247, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #a855f7;">
-                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">SOL</div>
-                                    <div style="color: #a855f7; font-weight: bold; font-size: 18px;">${network.total_sol.toFixed(0)}</div>
+                                <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
+                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Mapped</div>
+                                    <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.mapped_creators}</div>
                                 </div>
-                            </div>
-                        </div>`;
-                });
-
-                gridEl.innerHTML = html;
-                if (statusEl) statusEl.textContent = '✅ Loaded ' + data.total_networks + ' networks';
-            } catch(e) {
-                console.error('Error loading networks:', e);
-                if (statusEl) statusEl.textContent = '❌ Error: ' + e.message;
-            }
-        }
-
-        async function showNetworkDetails(networkId) {
-            const gridEl = document.getElementById('funding-networks-grid');
-            const statusEl = document.getElementById('funding-networks-status');
-
-            if (!gridEl) {
-                console.error('funding-networks-grid element not found');
-                return;
-            }
-
-            if (statusEl) {
-                statusEl.textContent = '⟲ Loading details...';
-            }
-
-            try {
-                const response = await fetch(`/api/funding-network-details/${networkId}`);
-                const data = await response.json();
-
-                if (data.error) {
-                    if (statusEl) statusEl.textContent = '❌ Error: ' + data.error;
-                    return;
-                }
-
-                let html = `
-                    <div style="margin-bottom: 20px;">
-                        <button onclick="loadFundingNetworks()" style="background: rgba(99, 102, 241, 0.2); color: #6366f1; border: 1px solid #6366f1; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px;">← Back to Networks</button>
-                    </div>
-                    <div style="background: rgba(99, 102, 241, 0.1); border-left: 3px solid #6366f1; border-radius: 6px; padding: 20px; margin-bottom: 20px;">
-                        <h2 style="color: #6366f1; margin: 0 0 15px 0;">Network Details</h2>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-                            <div>
-                                <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">FUNDERS</div>
-                                <div style="font-size: 28px; font-weight: bold; color: #4ade80;">${data.funders}</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">SENDERS</div>
-                                <div style="font-size: 28px; font-weight: bold; color: #3b82f6;">${data.senders}</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">CREATORS</div>
-                                <div style="font-size: 28px; font-weight: bold; color: #f59e0b;">${data.creators}</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">TOKENS</div>
-                                <div style="font-size: 28px; font-weight: bold; color: #a855f7;">${data.tokens}</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">TOTAL SOL</div>
-                                <div style="font-size: 28px; font-weight: bold; color: #ec4899;">${data.total_sol.toFixed(0)}</div>
+                                <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
+                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Root Ops</div>
+                                    <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.root_addresses.length}</div>
+                                </div>
+                                <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
+                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Risk</div>
+                                    <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.risk_level}</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div style="background: rgba(0, 0, 0, 0.2); border-radius: 6px; padding: 20px;">
-                        <h3 style="color: #e0e0e0; margin: 0 0 15px 0;">Tokens Coordinated</h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 10px;">`;
-
-                data.token_list.forEach(token => {
-                    html += `
-                        <div style="background: rgba(99, 102, 241, 0.05); padding: 10px; border-radius: 4px; border-left: 2px solid #6366f1; font-family: monospace; font-size: 10px; word-break: break-all; color: #a0a0a0;">
-                            ${token}
-                        </div>`;
+                    `;
                 });
 
-                html += `</div></div>`;
-
                 gridEl.innerHTML = html;
-                if (statusEl) statusEl.textContent = '✅ Network details loaded';
             } catch(e) {
-                console.error('Error loading network details:', e);
-                if (statusEl) statusEl.textContent = '❌ Error: ' + e.message;
+                console.error('Error loading super-clusters:', e);
+                gridEl.innerHTML = '<div style="grid-column: 1/-1; color: #ef4444;">Error: ' + e.message + '</div>';
             }
         }
 
-        function closeNetworkDetails() {
-            loadFundingNetworks();
-        }
 
         // Real-time polling for network updates
         let networkPollingInterval = null;
@@ -4521,6 +4591,191 @@ HTML_TEMPLATE = """
                 clearInterval(networkPollingInterval);
                 networkPollingInterval = null;
                 lastNetworkDataHash = null;
+            }
+        }
+
+        // =====================================================================
+        // SUPER-CLUSTER FUNCTIONS
+        // =====================================================================
+
+        async function showSuperCluster(clusterId) {
+            const modal = document.getElementById('superClusterModal');
+            document.getElementById('scModalId').textContent = clusterId;
+
+            try {
+                const response = await fetch(`/api/super-cluster/${clusterId}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    alert('Super-cluster details not found');
+                    return;
+                }
+
+                // Set risk badge color
+                const riskBadge = document.getElementById('scRiskBadge');
+                let badgeColor = '#6b7280';
+                let badgeText = data.risk_level;
+
+                if (data.risk_level === 'CRITICAL') {
+                    badgeColor = '#ef4444';
+                    badgeText = '🚨 CRITICAL';
+                } else if (data.risk_level === 'HIGH') {
+                    badgeColor = '#f97316';
+                    badgeText = '⚠️ HIGH';
+                } else if (data.risk_level === 'MEDIUM') {
+                    badgeColor = '#fbbf24';
+                    badgeText = '⚡ MEDIUM';
+                }
+
+                riskBadge.textContent = badgeText;
+                riskBadge.style.backgroundColor = badgeColor + '20';
+                riskBadge.style.color = badgeColor;
+
+                // Update stats
+                document.getElementById('scNetworkCount').textContent = data.network_count;
+                document.getElementById('scCreatorCount').textContent = data.creator_count;
+                document.getElementById('scTokenCount').textContent = data.tokens.length;
+                document.getElementById('scFunderCount').textContent = data.funder_stats.total_funders || 0;
+                document.getElementById('scTotalSol').textContent = (data.funder_stats.total_sol || 0).toFixed(2) + ' SOL';
+                document.getElementById('scCexCount').textContent = data.funder_stats.cex_funders || 0;
+
+                // Update root addresses with full addresses
+                const rootsContainer = document.getElementById('scRootAddresses');
+                rootsContainer.innerHTML = data.root_addresses.map((addr, idx) => {
+                    return `
+                        <div style="background: rgba(99, 102, 241, 0.05); padding: 10px; border-radius: 6px; border-left: 2px solid #6366f1;">
+                            <div style="font-family: monospace; font-size: 11px; color: #6366f1; word-break: break-all; margin-bottom: 5px;">${addr}</div>
+                            <div style="font-size: 11px; color: #a0a0a0;">Root Operator #${idx + 1}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Build relationship diagram
+                const relationshipDiv = document.getElementById('scRelationshipDiagram');
+                const relationshipHTML = `
+                    <div style="font-size: 12px; color: #a0a0a0; line-height: 1.8;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <div style="background: rgba(99, 102, 241, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #6366f1; color: #6366f1;">
+                                <strong>${data.root_addresses.length}</strong> Root Operators
+                            </div>
+                            <div style="color: #888;">↓</div>
+                            <div style="background: rgba(245, 158, 11, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #f59e0b; color: #f59e0b;">
+                                <strong>${data.creator_count}</strong> Creators
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <div style="background: rgba(245, 158, 11, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #f59e0b; color: #f59e0b;">
+                                <strong>${data.creator_count}</strong> Creators
+                            </div>
+                            <div style="color: #888;">↓</div>
+                            <div style="background: rgba(59, 130, 246, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #3b82f6; color: #3b82f6;">
+                                <strong>${data.tokens.length}</strong> Tokens
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="background: rgba(59, 130, 246, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #3b82f6; color: #3b82f6;">
+                                <strong>${data.tokens.length}</strong> Tokens
+                            </div>
+                            <div style="color: #888;">↓</div>
+                            <div style="background: rgba(74, 222, 128, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #4ade80; color: #4ade80;">
+                                <strong>${data.funder_stats.total_funders}</strong> Funders (${data.funder_stats.cex_funders} CEX)
+                            </div>
+                        </div>
+                        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(99, 102, 241, 0.2); color: #888; font-size: 11px;">
+                            Total funding tracked: <strong style="color: #a855f7;">${data.funder_stats.total_sol.toFixed(2)} SOL</strong> across <strong style="color: #6366f1;">${data.network_count}</strong> networks
+                        </div>
+                    </div>
+                `;
+                relationshipDiv.innerHTML = relationshipHTML;
+
+                // Populate creators tab
+                const creatorsList = document.getElementById('scCreatorsList');
+                if (data.creators.length > 0) {
+                    creatorsList.innerHTML = data.creators.map(creator => {
+                        const creatorTokens = data.tokens.filter(t => t.earliest_tx_creator === creator).length;
+                        return `
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                <td style="padding: 10px;">
+                                    <a href="#" onclick="showCreatorDetails('${creator}'); return false;"
+                                       style="color: #00d4ff; text-decoration: none; font-family: monospace; font-size: 11px; word-break: break-all;"
+                                       title="${creator}">${creator}</a>
+                                </td>
+                                <td style="padding: 10px; color: #e0e0e0;">${creatorTokens}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    creatorsList.innerHTML = '<tr><td colspan="2" style="padding: 20px; text-align: center; color: #a0a0a0;">No creators found</td></tr>';
+                }
+
+                // Populate tokens tab
+                const tokensList = document.getElementById('scTokensList');
+                if (data.tokens.length > 0) {
+                    tokensList.innerHTML = data.tokens.map(token => {
+                        const riskColor = token.rug_probability > 0.7 ? '#ef4444' : token.rug_probability > 0.4 ? '#fbbf24' : '#10b981';
+                        const riskPercent = (token.rug_probability * 100).toFixed(0);
+                        const mcDisplay = token.market_cap_highest ? formatMarketCap(token.market_cap_highest) : '—';
+
+                        return `
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                <td style="padding: 10px;">
+                                    <a href="#" onclick="showTokenMetrics('${token.mint}'); return false;"
+                                       style="color: #00d4ff; text-decoration: none; font-family: monospace; font-size: 11px; word-break: break-all;"
+                                       title="${token.mint}">${token.mint}</a>
+                                </td>
+                                <td style="padding: 10px; font-family: monospace; font-size: 11px; color: #a0a0a0; word-break: break-all;">${token.earliest_tx_creator}</td>
+                                <td style="padding: 10px; text-align: right;">
+                                    <span style="color: ${riskColor}; font-weight: bold;">${riskPercent}%</span>
+                                </td>
+                                <td style="padding: 10px; text-align: right; color: #e0e0e0;">${mcDisplay}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    tokensList.innerHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">No tokens found</td></tr>';
+                }
+
+                // Reset to creators tab
+                document.querySelectorAll('.sc-tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.sc-tab-content').forEach(tab => tab.style.display = 'none');
+                document.querySelector('[data-tab="creators"]').classList.add('active');
+                document.getElementById('scCreatorsTab').style.display = 'block';
+
+                modal.style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading super-cluster details:', error);
+                alert('Failed to load super-cluster details');
+            }
+        }
+
+        function closeSuperCluster() {
+            document.getElementById('superClusterModal').style.display = 'none';
+        }
+
+        function switchSuperClusterTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.sc-tab-content').forEach(tab => tab.style.display = 'none');
+            document.querySelectorAll('.sc-tab-button').forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(`sc${tabName.charAt(0).toUpperCase() + tabName.slice(1)}Tab`).style.display = 'block';
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        }
+
+        async function loadSuperClusters() {
+            try {
+                const response = await fetch('/api/super-clusters');
+                const data = await response.json();
+
+                console.log(`Loaded ${data.total} super-clusters`);
+
+                // Add super-cluster display to the UI if needed
+                // For now, just log the data
+                window.superClustersData = data;
+
+            } catch (error) {
+                console.error('Error loading super-clusters:', error);
             }
         }
     </script>
@@ -5116,6 +5371,21 @@ def api_creator_details(creator_address: str):
         except Exception as e:
             coordinator_flags = {}
 
+        # 11. Get super-cluster membership
+        cursor.execute("""
+            SELECT
+                csm.super_cluster_id,
+                sc.risk_level,
+                sc.creator_count,
+                sc.network_count
+            FROM creator_super_cluster_membership csm
+            INNER JOIN super_clusters sc ON csm.super_cluster_id = sc.super_cluster_id
+            WHERE csm.creator_address = ?
+            ORDER BY sc.creator_count DESC
+        """, (creator_address,))
+
+        super_clusters = [dict(row) for row in cursor.fetchall()]
+
         conn.close()
 
         # Enhance top_recipients with cross-reference info
@@ -5142,7 +5412,8 @@ def api_creator_details(creator_address: str):
             'cross_references': cross_refs,
             'cluster': cluster,
             'is_blocked': is_blocked,
-            'tags': tags
+            'tags': tags,
+            'super_clusters': super_clusters
         })
 
     except Exception as e:
@@ -9711,6 +9982,176 @@ def api_validate_transaction():
         return jsonify({'error': f'Network error: {str(e)}'}), 503
     except Exception as e:
         return jsonify({'error': f'Validation error: {str(e)}'}), 500
+
+
+@app.route('/api/super-clusters')
+def api_super_clusters():
+    """Get all super-clusters with their stats"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT
+                sc.super_cluster_id,
+                sc.network_count,
+                sc.creator_count,
+                sc.root_addresses,
+                sc.risk_level,
+                COUNT(DISTINCT csm.creator_address) as mapped_creators
+            FROM super_clusters sc
+            LEFT JOIN creator_super_cluster_membership csm ON sc.super_cluster_id = csm.super_cluster_id
+            GROUP BY sc.super_cluster_id
+            ORDER BY sc.creator_count DESC
+        """)
+
+        clusters = []
+        for row in cursor.fetchall():
+            clusters.append({
+                'id': row['super_cluster_id'],
+                'network_count': row['network_count'],
+                'creator_count': row['creator_count'],
+                'mapped_creators': row['mapped_creators'],
+                'root_addresses': row['root_addresses'].split(','),
+                'risk_level': row['risk_level']
+            })
+
+        conn.close()
+        return jsonify({'clusters': clusters, 'total': len(clusters)})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/super-cluster/<cluster_id>')
+def api_super_cluster_details(cluster_id: str):
+    """Get detailed information about a super-cluster"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get cluster info
+        cursor.execute("""
+            SELECT
+                super_cluster_id,
+                network_count,
+                creator_count,
+                root_addresses,
+                risk_level
+            FROM super_clusters
+            WHERE super_cluster_id = ?
+        """, (cluster_id,))
+
+        cluster_row = cursor.fetchone()
+        if not cluster_row:
+            return jsonify({'error': 'Cluster not found'}), 404
+
+        # Get creators in this cluster
+        cursor.execute("""
+            SELECT DISTINCT creator_address
+            FROM creator_super_cluster_membership
+            WHERE super_cluster_id = ?
+            ORDER BY creator_address
+        """, (cluster_id,))
+
+        creators = [row['creator_address'] for row in cursor.fetchall()]
+
+        # Get tokens for these creators
+        cursor.execute("""
+            SELECT
+                mint,
+                earliest_tx_creator,
+                created_at,
+                rug_probability,
+                risk_level,
+                market_cap_highest,
+                price_current
+            FROM token_analysis
+            WHERE earliest_tx_creator IN (
+                SELECT DISTINCT creator_address
+                FROM creator_super_cluster_membership
+                WHERE super_cluster_id = ?
+            )
+            ORDER BY created_at DESC
+        """, (cluster_id,))
+
+        tokens = [dict(row) for row in cursor.fetchall()]
+
+        # Get funder info
+        cursor.execute("""
+            SELECT
+                COUNT(DISTINCT funder_address) as total_funders,
+                SUM(amount_sol) as total_sol,
+                SUM(CASE WHEN is_cex = 1 THEN 1 ELSE 0 END) as cex_funders
+            FROM creator_funders
+            WHERE creator_address IN (
+                SELECT DISTINCT creator_address
+                FROM creator_super_cluster_membership
+                WHERE super_cluster_id = ?
+            )
+        """, (cluster_id,))
+
+        funder_row = cursor.fetchone()
+
+        conn.close()
+
+        return jsonify({
+            'id': cluster_row['super_cluster_id'],
+            'network_count': cluster_row['network_count'],
+            'creator_count': cluster_row['creator_count'],
+            'mapped_creator_count': len(creators),
+            'root_addresses': cluster_row['root_addresses'].split(','),
+            'risk_level': cluster_row['risk_level'],
+            'creators': creators,
+            'tokens': tokens,
+            'funder_stats': {
+                'total_funders': funder_row['total_funders'] if funder_row else 0,
+                'total_sol': funder_row['total_sol'] if funder_row else 0,
+                'cex_funders': funder_row['cex_funders'] if funder_row else 0
+            }
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/creator-super-cluster/<creator_address>')
+def api_creator_super_cluster(creator_address: str):
+    """Get super-cluster membership for a creator"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT
+                csm.super_cluster_id,
+                sc.risk_level,
+                sc.creator_count,
+                sc.network_count
+            FROM creator_super_cluster_membership csm
+            INNER JOIN super_clusters sc ON csm.super_cluster_id = sc.super_cluster_id
+            WHERE csm.creator_address = ?
+            ORDER BY sc.creator_count DESC
+        """, (creator_address,))
+
+        memberships = [dict(row) for row in cursor.fetchall()]
+
+        conn.close()
+
+        return jsonify({
+            'creator_address': creator_address,
+            'super_clusters': memberships,
+            'total_clusters': len(memberships)
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 # =========================================================================

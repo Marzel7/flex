@@ -1859,7 +1859,6 @@ HTML_TEMPLATE = """
                     <thead>
                         <tr>
                             <th>Funder Address</th>
-                            <th>Funder Name</th>
                             <th>Network</th>
                             <th>Creators Funded</th>
                             <th>Total SOL</th>
@@ -1868,7 +1867,7 @@ HTML_TEMPLATE = """
                         </tr>
                     </thead>
                     <tbody id="multiCreatorFundersBody">
-                        <tr><td colspan="7" style="text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                        <tr><td colspan="6" style="text-align: center; color: #a0a0a0;">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -6740,7 +6739,6 @@ def coordinated_funders_view():
             suspicious_html += f"""
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); cursor: pointer; {row_highlight}" onclick="window.location.href = '/funder-details/{funder['funder_address']}'">
                 <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #ef4444; word-break: break-all;">{funder['funder_address']}</td>
-                <td style="padding: 12px; color: #fbbf24; font-weight: 600;">{account_label if account_label else '—'}</td>
                 <td style="padding: 12px; color: #6366f1; font-weight: 500;">{network_name if network_name else '—'}</td>
                 <td style="padding: 12px; color: #ef4444; font-weight: bold;">{funder['creator_count']}</td>
                 <td style="padding: 12px; color: #4ade80;">{funder['total_sol_sent']:.2f}</td>
@@ -7534,7 +7532,6 @@ def coordinated_funders_view():
                                     <thead>
                                         <tr>
                                             <th>Funder Address</th>
-                                            <th>Account Name</th>
                                             <th>Network</th>
                                             <th>Creators</th>
                                             <th>Total SOL</th>
@@ -7544,7 +7541,7 @@ def coordinated_funders_view():
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {suspicious_html if suspicious_html else '<tr><td colspan="8" style="padding: 20px; text-align: center; color: #a0a0a0;">No suspicious funders found</td></tr>'}
+                                        {suspicious_html if suspicious_html else '<tr><td colspan="7" style="padding: 20px; text-align: center; color: #a0a0a0;">No suspicious funders found</td></tr>'}
                                     </tbody>
                                 </table>
                             </div>

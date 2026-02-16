@@ -6933,10 +6933,10 @@ def coordinated_funders_view():
 
                     async function loadFundingNetworks() {{
                         const statusEl = document.getElementById('funding-networks-status');
-                        statusEl.textContent = '⟲ Loading funding networks...';
+                        statusEl.textContent = '⟲ Loading networks...';
 
                         try {{
-                            const response = await fetch('/api/funding-networks');
+                            const response = await fetch('/api/funding-networks-list');
                             const data = await response.json();
 
                             if (data.error) {{
@@ -6944,60 +6944,114 @@ def coordinated_funders_view():
                                 return;
                             }}
 
-                            let html = `<div style="margin-bottom: 20px; padding: 15px; background: rgba(99, 102, 241, 0.1); border-left: 3px solid #6366f1; border-radius: 6px;">
-                                <strong style="color: #6366f1;">📊 Funding Network Clusters</strong>
-                                <p style="color: #a0a0a0; margin: 8px 0 0 0; font-size: 12px;">
-                                    Found <strong style="color: #6366f1;">${{data.total_networks}}</strong> networks of coordinated funders.
-                                    Networks are formed when 2+ funders share funding to 2+ of the same tokens.
-                                </p>
-                            </div>`;
+                            let html = `
+                                <div style="margin-bottom: 20px; padding: 15px; background: rgba(99, 102, 241, 0.1); border-left: 3px solid #6366f1; border-radius: 6px;">
+                                    <strong style="color: #6366f1;">🌐 Funding Networks</strong>
+                                    <p style="color: #a0a0a0; margin: 8px 0 0 0; font-size: 12px;">
+                                        <strong>${{data.total_networks}}</strong> coordinated funding networks. Click a network to see details.
+                                    </p>
+                                </div>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">`;
 
-                            data.networks.forEach((network, idx) => {{
-                                const color = network.member_count > 200 ? '#ef4444' : network.member_count > 100 ? '#f97316' : '#6366f1';
+                            data.networks.forEach(network => {{
+                                const sizeColor = network.funders > 200 ? '#ef4444' : network.funders > 100 ? '#f97316' : '#6366f1';
+                                const sizeLabel = network.funders > 200 ? '🔴 LARGE' : network.funders > 100 ? '🟠 MEDIUM' : '🔵 SMALL';
+
                                 html += `
-                                    <div style="margin-bottom: 20px; padding: 15px; background: rgba(0, 0, 0, 0.2); border: 1px solid ${{color}}; border-radius: 8px;">
-                                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center;">
-                                            <div>
-                                                <div style="font-size: 14px; font-weight: bold; color: #e0e0e0;">${{network.name}} - ${{network.member_count}} Members</div>
-                                                <div style="font-size: 12px; color: #a0a0a0; margin-top: 4px;">
-                                                    <span style="color: #4ade80;">🪙 ${{network.total_tokens}} shared tokens</span> |
-                                                    <span style="color: #f59e0b;">💰 ${{network.total_sol.toFixed(2)}} SOL</span> |
-                                                    <span style="color: #a0a0a0;">${{network.total_creators}} creators</span>
-                                                </div>
+                                    <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid ${{sizeColor}}; border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s;"
+                                         onclick="showNetworkDetails(${{network.network_id}})"
+                                         onmouseover="this.style.background='rgba(99, 102, 241, 0.15)'; this.style.boxShadow='0 0 15px rgba(99, 102, 241, 0.5)';"
+                                         onmouseout="this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='none';">
+                                        <div style="font-weight: bold; color: #e0e0e0; font-size: 14px; margin-bottom: 10px;">${{network.name}}</div>
+                                        <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 8px;">${{sizeLabel}}</div>
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 11px;">
+                                            <div style="background: rgba(74, 222, 128, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #4ade80;">
+                                                <div style="color: #a0a0a0;">Funders</div>
+                                                <div style="color: #4ade80; font-weight: bold;">${{network.funders}}</div>
+                                            </div>
+                                            <div style="background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #3b82f6;">
+                                                <div style="color: #a0a0a0;">Tokens</div>
+                                                <div style="color: #3b82f6; font-weight: bold;">${{network.tokens}}</div>
+                                            </div>
+                                            <div style="background: rgba(245, 158, 11, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #f59e0b;">
+                                                <div style="color: #a0a0a0;">Creators</div>
+                                                <div style="color: #f59e0b; font-weight: bold;">${{network.creators}}</div>
+                                            </div>
+                                            <div style="background: rgba(168, 85, 247, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #a855f7;">
+                                                <div style="color: #a0a0a0;">SOL</div>
+                                                <div style="color: #a855f7; font-weight: bold;">${{network.total_sol.toFixed(0)}}</div>
                                             </div>
                                         </div>
-
-                                        <div style="margin-top: 12px;">
-                                            <div style="font-size: 11px; color: #a0a0a0; font-weight: 600; margin-bottom: 8px;">TOP MEMBERS:</div>
-                                            <div style="max-height: 200px; overflow-y: auto;">`;
-
-                                const topMembers = network.members.slice(0, 10);
-                                topMembers.forEach((member, idx) => {{
-                                    const highlight = idx === 0 ? 'background: rgba(99, 102, 241, 0.2);' : '';
-                                    const cexWarning = member.is_cex ? '⚠️ (CEX: ' + member.exchange + ')' : '';
-                                    html += `
-                                        <div style="padding: 8px 12px; background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid rgba(255, 255, 255, 0.05); ${{highlight}}">
-                                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                                <div style="font-family: monospace; font-size: 10px; word-break: break-all; color: #6366f1; flex: 1;">
-                                                    ${{member.address}} ${{cexWarning}}
-                                                </div>
-                                                <div style="margin-left: 12px; color: #a0a0a0; font-size: 11px; white-space: nowrap;">
-                                                    <span style="color: #4ade80;">${{member.shared_tokens}}</span> shared,
-                                                    <span style="color: #f59e0b;">${{member.total_sol.toFixed(2)}}</span> SOL
-                                                </div>
-                                            </div>
-                                        </div>`;
-                                }});
-
-                                if (network.members.length > 10) {{
-                                    html += `<div style="padding: 8px 12px; color: #a0a0a0; font-size: 11px;">... and ${{network.members.length - 10}} more members</div>`;
-                                }}
-
-                                html += `</div></div>`;
+                                    </div>`;
                             }});
 
+                            html += `</div>`;
+
                             document.getElementById('funding-networks-content').innerHTML = html;
-                            statusEl.textContent = '✅ Loaded ' + data.total_networks + ' funding networks (' + data.networks.reduce((sum, n) => sum + n.member_count, 0) + ' total coordinated funders)';
+                            statusEl.textContent = '✅ Loaded ' + data.total_networks + ' networks';
+                        }} catch(e) {{
+                            statusEl.textContent = '❌ Error: ' + e.message;
+                        }}
+                    }}
+
+                    async function showNetworkDetails(networkId) {{
+                        const statusEl = document.getElementById('funding-networks-status');
+                        statusEl.textContent = '⟲ Loading details...';
+
+                        try {{
+                            const response = await fetch(`/api/funding-network-details/${{networkId}}`);
+                            const data = await response.json();
+
+                            if (data.error) {{
+                                statusEl.textContent = '❌ Error: ' + data.error;
+                                return;
+                            }}
+
+                            let html = `
+                                <div style="margin-bottom: 20px;">
+                                    <button onclick="loadFundingNetworks()" style="background: rgba(99, 102, 241, 0.2); color: #6366f1; border: 1px solid #6366f1; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px;">← Back to Networks</button>
+                                </div>
+                                <div style="background: rgba(99, 102, 241, 0.1); border-left: 3px solid #6366f1; border-radius: 6px; padding: 20px; margin-bottom: 20px;">
+                                    <h2 style="color: #6366f1; margin: 0 0 15px 0;">Network Details</h2>
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                                        <div>
+                                            <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">FUNDERS</div>
+                                            <div style="font-size: 28px; font-weight: bold; color: #4ade80;">${{data.funders}}</div>
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">SENDERS</div>
+                                            <div style="font-size: 28px; font-weight: bold; color: #3b82f6;">${{data.senders}}</div>
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">CREATORS</div>
+                                            <div style="font-size: 28px; font-weight: bold; color: #f59e0b;">${{data.creators}}</div>
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">TOKENS</div>
+                                            <div style="font-size: 28px; font-weight: bold; color: #a855f7;">${{data.tokens}}</div>
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">TOTAL SOL</div>
+                                            <div style="font-size: 28px; font-weight: bold; color: #ec4899;">${{data.total_sol.toFixed(0)}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="background: rgba(0, 0, 0, 0.2); border-radius: 6px; padding: 20px;">
+                                    <h3 style="color: #e0e0e0; margin: 0 0 15px 0;">Tokens Coordinated</h3>
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 10px;">`;
+
+                            data.token_list.forEach(token => {{
+                                html += `
+                                    <div style="background: rgba(99, 102, 241, 0.05); padding: 10px; border-radius: 4px; border-left: 2px solid #6366f1; font-family: monospace; font-size: 10px; word-break: break-all; color: #a0a0a0;">
+                                        ${{token}}
+                                    </div>`;
+                            }});
+
+                            html += `</div></div>`;
+
+                            document.getElementById('funding-networks-content').innerHTML = html;
+                            statusEl.textContent = '✅ Network details loaded';
                         }} catch(e) {{
                             statusEl.textContent = '❌ Error: ' + e.message;
                         }}
@@ -7893,6 +7947,128 @@ def api_funding_networks():
 
     except Exception as e:
         print(f"[FUNDING_NETWORKS_API] Error: {e}", flush=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/funding-networks-list')
+def api_funding_networks_list():
+    """Get simplified list of all funding networks with random names and stats"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Get all networks with basic stats
+        cursor.execute("""
+            SELECT
+                fn.network_id,
+                fn.total_members as funders_count,
+                fn.total_tokens_funded as tokens_count,
+                fn.total_creators_funded as creators_count,
+                ROUND(fn.total_sol, 2) as total_sol
+            FROM funding_networks fn
+            ORDER BY fn.total_members DESC
+        """)
+
+        networks = []
+        # Random name parts for generating network names
+        adjectives = ['Shadow', 'Ghost', 'Phantom', 'Silent', 'Hidden', 'Dark', 'Swift', 'Rapid', 
+                     'Sleek', 'Sharp', 'Cunning', 'Sly', 'Stealthy', 'Crafty', 'Clever', 'Subtle',
+                     'Veiled', 'Masked', 'Cloaked', 'Whispered', 'Covert', 'Secret', 'Mystic', 'Ancient']
+        nouns = ['Circle', 'Ring', 'Syndicate', 'Cabal', 'Order', 'Society', 'Collective', 'Alliance',
+                'Coalition', 'Union', 'Cartel', 'Consortium', 'Federation', 'Network', 'Nexus', 'Web',
+                'Chain', 'Echo', 'Whisper', 'Shadow', 'Phantom', 'Specter', 'Entity', 'Force']
+        
+        import random
+        random.seed(42)  # Consistent seed so names don't change on page reload
+
+        for idx, row in enumerate(cursor.fetchall()):
+            adj = random.choice(adjectives)
+            noun = random.choice(nouns)
+            random_name = f"{adj} {noun}"
+            
+            networks.append({
+                'network_id': row['network_id'],
+                'name': random_name,
+                'funders': row['funders_count'],
+                'tokens': row['tokens_count'],
+                'creators': row['creators_count'],
+                'total_sol': row['total_sol']
+            })
+
+        conn.close()
+        return jsonify({
+            'networks': networks,
+            'total_networks': len(networks)
+        })
+
+    except Exception as e:
+        print(f"[FUNDING_NETWORKS_LIST_API] Error: {e}", flush=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/funding-network-details/<int:network_id>')
+def api_funding_network_details(network_id):
+    """Get detailed stats for a specific network"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Get network basic info
+        cursor.execute("""
+            SELECT
+                fn.network_id,
+                fn.total_members as funders_count,
+                fn.total_tokens_funded as tokens_count,
+                fn.total_creators_funded as creators_count,
+                ROUND(fn.total_sol, 2) as total_sol
+            FROM funding_networks fn
+            WHERE fn.network_id = ?
+        """, (network_id,))
+
+        network_row = cursor.fetchone()
+        if not network_row:
+            return jsonify({'error': 'Network not found'}), 404
+
+        # Count unique senders that fund funders in this network
+        cursor.execute("""
+            SELECT COUNT(DISTINCT fit.sender_address) as senders_count
+            FROM funder_incoming_transfers fit
+            WHERE fit.funder_address IN (
+                SELECT fnm.funder_address
+                FROM funding_network_members fnm
+                WHERE fnm.network_id = ?
+            )
+        """, (network_id,))
+
+        senders_row = cursor.fetchone()
+        senders_count = senders_row['senders_count'] if senders_row else 0
+
+        # Get the tokens this network coordinates
+        cursor.execute("""
+            SELECT DISTINCT mint
+            FROM funding_network_shared_tokens
+            WHERE network_id = ?
+            ORDER BY mint
+        """, (network_id,))
+
+        tokens = [row['mint'] for row in cursor.fetchall()]
+
+        conn.close()
+
+        return jsonify({
+            'network_id': network_row['network_id'],
+            'funders': network_row['funders_count'],
+            'senders': senders_count,
+            'creators': network_row['creators_count'],
+            'tokens': network_row['tokens_count'],
+            'total_sol': network_row['total_sol'],
+            'token_list': tokens
+        })
+
+    except Exception as e:
+        print(f"[NETWORK_DETAILS_API] Error: {e}", flush=True)
         return jsonify({'error': str(e)}), 500
 
 

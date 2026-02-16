@@ -7663,67 +7663,62 @@ def coordinated_funders_view():
                             html += `</div></div>`;
 
                             // Add Root Operator Flows section
-                            if (data.root_operator_flows && data.root_operator_flows.length > 0) {
-                                html += `
-                                    <div style="background: rgba(0, 0, 0, 0.2); border-radius: 6px; padding: 20px; margin-top: 20px;">
-                                        <h3 style="color: #e0e0e0; margin: 0 0 15px 0;">Root Operators & Address Flows</h3>
-                                        <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">`;
+                            if (data.root_operator_flows && data.root_operator_flows.length > 0) {{
+                                html += `<div style="background: rgba(0, 0, 0, 0.2); border-radius: 6px; padding: 20px; margin-top: 20px;">
+                                    <h3 style="color: #e0e0e0; margin: 0 0 15px 0;">Root Operators & Address Flows</h3>
+                                    <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">`;
 
-                                data.root_operator_flows.forEach((flow, idx) => {
-                                    html += `
-                                        <div style="background: rgba(99, 102, 241, 0.08); border-left: 3px solid #6366f1; border-radius: 6px; padding: 15px;">
-                                            <div style="margin-bottom: 12px;">
-                                                <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 5px;">ROOT OPERATOR #${idx + 1}</div>
-                                                <div style="font-family: monospace; font-size: 12px; color: #6366f1; word-break: break-all; padding: 8px; background: rgba(99, 102, 241, 0.1); border-radius: 4px;">${flow.root_operator}</div>
+                                data.root_operator_flows.forEach((flow, idx) => {{
+                                    html += `<div style="background: rgba(99, 102, 241, 0.08); border-left: 3px solid #6366f1; border-radius: 6px; padding: 15px;">
+                                        <div style="margin-bottom: 12px;">
+                                            <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 5px;">ROOT OPERATOR #${{idx + 1}}</div>
+                                            <div style="font-family: monospace; font-size: 12px; color: #6366f1; word-break: break-all; padding: 8px; background: rgba(99, 102, 241, 0.1); border-radius: 4px;">${{flow.root_operator}}</div>
+                                        </div>
+                                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;">
+                                            <div>
+                                                <div style="font-size: 10px; color: #a0a0a0;">CREATORS FUNDED</div>
+                                                <div style="font-size: 18px; font-weight: bold; color: #f59e0b;">${{flow.creators_funded}}</div>
                                             </div>
-
-                                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;">
-                                                <div>
-                                                    <div style="font-size: 10px; color: #a0a0a0;">CREATORS FUNDED</div>
-                                                    <div style="font-size: 18px; font-weight: bold; color: #f59e0b;">${flow.creators_funded}</div>
-                                                </div>
-                                                <div>
-                                                    <div style="font-size: 10px; color: #a0a0a0;">TOTAL SOL</div>
-                                                    <div style="font-size: 18px; font-weight: bold; color: #4ade80;">${flow.total_sol_sent.toFixed(2)}</div>
-                                                </div>
+                                            <div>
+                                                <div style="font-size: 10px; color: #a0a0a0;">TOTAL SOL</div>
+                                                <div style="font-size: 18px; font-weight: bold; color: #4ade80;">${{flow.total_sol_sent.toFixed(2)}}</div>
                                             </div>
+                                        </div>
+                                        <div style="margin-bottom: 12px;">
+                                            <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 5px;">UPSTREAM SOURCES</div>
+                                            <div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 8px; max-height: 80px; overflow-y: auto;">`;
 
-                                            <div style="margin-bottom: 12px;">
-                                                <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 5px;">UPSTREAM SOURCES</div>
-                                                <div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 8px; max-height: 80px; overflow-y: auto;">`;
-
-                                    if (flow.upstream_sources.length > 0) {
-                                        flow.upstream_sources.forEach(source => {
-                                            html += `<div style="font-family: monospace; font-size: 10px; color: #3b82f6; word-break: break-all; padding: 4px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">${source.sender}</div>`;
-                                        });
-                                    } else {
+                                    if (flow.upstream_sources.length > 0) {{
+                                        flow.upstream_sources.forEach(source => {{
+                                            html += `<div style="font-family: monospace; font-size: 10px; color: #3b82f6; word-break: break-all; padding: 4px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">${{source.sender}}</div>`;
+                                        }});
+                                    }} else {{
                                         html += `<div style="color: #a0a0a0; font-size: 10px;">No upstream sources found</div>`;
-                                    }
+                                    }}
 
                                     html += `</div></div>
+                                        <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 5px;">TOKENS CREATED BY FUNDED CREATORS</div>
+                                        <div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 8px; max-height: 120px; overflow-y: auto;">`;
 
-                                            <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 5px;">TOKENS CREATED BY FUNDED CREATORS</div>
-                                            <div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 8px; max-height: 120px; overflow-y: auto;">`;
-
-                                    if (flow.downstream_creators.length > 0) {
-                                        flow.downstream_creators.forEach(creator => {
+                                    if (flow.downstream_creators.length > 0) {{
+                                        flow.downstream_creators.forEach(creator => {{
                                             const riskColor = creator.risk_level === 'HIGH' ? '#ef4444' : creator.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
                                             html += `
                                                 <div style="padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); display: flex; justify-content: space-between; align-items: center;">
-                                                    <div style="font-family: monospace; font-size: 9px; color: #a0a0a0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${creator.mint}">${creator.mint.substring(0, 16)}...</div>
-                                                    <div style="color: ${riskColor}; font-weight: bold; font-size: 10px; margin-left: 8px;">${(creator.rug_probability * 100).toFixed(0)}%</div>
+                                                    <div style="font-family: monospace; font-size: 9px; color: #a0a0a0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{creator.mint}}">${{creator.mint.substring(0, 16)}}...</div>
+                                                    <div style="color: ${{riskColor}}; font-weight: bold; font-size: 10px; margin-left: 8px;">${{(creator.rug_probability * 100).toFixed(0)}}%</div>
                                                 </div>`;
-                                        });
-                                    } else {
+                                        }});
+                                    }} else {{
                                         html += `<div style="color: #a0a0a0; font-size: 10px;">No tokens found</div>`;
-                                    }
+                                    }}
 
                                     html += `</div>
-                                        </div>`;
-                                });
+                                    </div>`;
+                                }});
 
                                 html += `</div></div>`;
-                            }
+                            }}
 
                             gridEl.innerHTML = html;
                             if (statusEl) statusEl.textContent = '✅ Network details loaded';

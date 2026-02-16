@@ -6954,16 +6954,12 @@ def coordinated_funders_view():
                                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">`;
 
                             data.networks.forEach(network => {{
-                                const sizeColor = network.funders > 200 ? '#ef4444' : network.funders > 100 ? '#f97316' : '#6366f1';
-                                const sizeLabel = network.funders > 200 ? '🔴 LARGE' : network.funders > 100 ? '🟠 MEDIUM' : '🔵 SMALL';
-
                                 html += `
-                                    <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid ${{sizeColor}}; border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s;"
+                                    <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid #6366f1; border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s;"
                                          onclick="showNetworkDetails(${{network.network_id}})"
                                          onmouseover="this.style.background='rgba(99, 102, 241, 0.15)'; this.style.boxShadow='0 0 15px rgba(99, 102, 241, 0.5)';"
                                          onmouseout="this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='none';">
-                                        <div style="font-weight: bold; color: #e0e0e0; font-size: 14px; margin-bottom: 10px;">${{network.name}}</div>
-                                        <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 8px;">${{sizeLabel}}</div>
+                                        <div style="font-weight: bold; color: #e0e0e0; font-size: 14px; margin-bottom: 12px;">${{network.name}}</div>
                                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 11px;">
                                             <div style="background: rgba(74, 222, 128, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #4ade80;">
                                                 <div style="color: #a0a0a0;">Funders</div>

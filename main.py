@@ -7624,7 +7624,7 @@ def coordinated_funders_view():
                                     <button onclick="loadFundingNetworks()" style="background: rgba(99, 102, 241, 0.2); color: #6366f1; border: 1px solid #6366f1; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px;">← Back to Networks</button>
                                 </div>
                                 <div style="background: rgba(99, 102, 241, 0.1); border-left: 3px solid #6366f1; border-radius: 6px; padding: 20px; margin-bottom: 20px;">
-                                    <h2 style="color: #6366f1; margin: 0 0 15px 0;">Network Details</h2>
+                                    <h2 style="color: #6366f1; margin: 0 0 15px 0;">${{data.network_name}} Details</h2>
                                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
                                         <div>
                                             <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">FUNDERS</div>
@@ -7697,7 +7697,25 @@ def coordinated_funders_view():
                                     }}
 
                                     html += `</div></div>
-                                        <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 5px;">TOKENS CREATED BY FUNDED CREATORS</div>
+                                        <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 5px;">EXAMPLE ADDRESS FLOWS</div>
+                                        <div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 8px; max-height: 100px; overflow-y: auto;">`;
+
+                                    if (flow.example_flows && flow.example_flows.length > 0) {{
+                                        flow.example_flows.forEach(ex => {{
+                                            html += `<div style="font-family: monospace; font-size: 9px; color: #e0e0e0; padding: 4px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.4;">
+                                                <div style="color: #3b82f6;">${{ex.sender.substring(0, 12)}}...</div>
+                                                <div style="color: #a0a0a0; margin-left: 10px;">↓ (to funder)</div>
+                                                <div style="color: #6366f1;">${{ex.funder.substring(0, 12)}}...</div>
+                                                <div style="color: #a0a0a0; margin-left: 10px;">↓ ${{{ex.sol_to_creator.toFixed(2)}}} SOL</div>
+                                                <div style="color: #f59e0b;">${{ex.creator.substring(0, 12)}}...</div>
+                                            </div>`;
+                                        }});
+                                    }} else {{
+                                        html += `<div style="color: #a0a0a0; font-size: 10px;">No flows available</div>`;
+                                    }}
+
+                                    html += `</div>
+                                        <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 5px; margin-top: 12px;">TOKENS CREATED BY FUNDED CREATORS</div>
                                         <div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 8px; max-height: 120px; overflow-y: auto;">`;
 
                                     if (flow.downstream_creators.length > 0) {{
@@ -8703,6 +8721,7 @@ def api_funding_network_details(network_id):
         cursor.execute("""
             SELECT
                 fn.network_id,
+                fn.network_name,
                 fn.total_members as funders_count,
                 COUNT(DISTINCT fnt.mint) as tokens_count,
                 COUNT(DISTINCT ta.earliest_tx_creator) as creators_count,
@@ -8797,6 +8816,21 @@ def api_funding_network_details(network_id):
 
             upstream_sources = [{'sender': row['sender_address'], 'transfers': row['transfer_count']} for row in cursor.fetchall()]
 
+            # Build example address flows (sender >> root op >> creator)
+            example_flows = []
+            if upstream_sources and funded_creators:
+                for sender_data in upstream_sources[:3]:  # First 3 senders
+                    sender = sender_data['sender']
+                    for creator_data in funded_creators[:2]:  # First 2 creators per sender
+                        example_flows.append({
+                            'sender': sender,
+                            'funder': root_op,
+                            'creator': creator_data['creator'],
+                            'sol_to_creator': creator_data['sol']
+                        })
+                    if len(example_flows) >= 3:  # Limit to 3 total flows
+                        break
+
             # Get downstream creators' token details
             creator_list = [c['creator'] for c in funded_creators[:10]]
             if creator_list:
@@ -8828,13 +8862,15 @@ def api_funding_network_details(network_id):
                 'total_sol_sent': total_sol_to_creators,
                 'transfer_count': len(funded_creators),
                 'upstream_sources': upstream_sources,
-                'downstream_creators': downstream_creators
+                'downstream_creators': downstream_creators,
+                'example_flows': example_flows
             })
 
         conn.close()
 
         return jsonify({
             'network_id': network_row['network_id'],
+            'network_name': network_row['network_name'],
             'funders': network_row['funders_count'],
             'senders': senders_count,
             'creators': network_row['creators_count'],

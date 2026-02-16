@@ -4647,31 +4647,31 @@ HTML_TEMPLATE = """
                         if (flow.example_flows && flow.example_flows.length > 0) {{
                             flow.example_flows.forEach((ex, flowIdx) => {{
                                 flowsHTML += `<div style="font-family: monospace; font-size: 8px; color: #e0e0e0; padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.3;">
-                                    <div style="color: #3b82f6;">${{ex.sender.substring(0, 14)}}...</div>
+                                    <div style="color: #3b82f6;">${ex.sender.substring(0, 14)}}...</div>
                                     <div style="color: #a0a0a0; margin-left: 8px; font-size: 7px;">↓ (to funder)</div>
-                                    <div style="color: #6366f1;">${{ex.funder.substring(0, 14)}}...</div>
-                                    <div style="color: #a0a0a0; margin-left: 8px; font-size: 7px;">↓ ${{ex.sol_to_creator.toFixed(2)}} SOL</div>
-                                    <div style="color: #f59e0b;">${{ex.creator.substring(0, 14)}}...</div>
+                                    <div style="color: #6366f1;">${ex.funder.substring(0, 14)}}...</div>
+                                    <div style="color: #a0a0a0; margin-left: 8px; font-size: 7px;">↓ ${ex.sol_to_creator.toFixed(2)}} SOL</div>
+                                    <div style="color: #f59e0b;">${ex.creator.substring(0, 14)}}...</div>
                                 </div>`;
                             }});
                         }}
                         return `
                             <div style="background: rgba(99, 102, 241, 0.08); padding: 12px; border-radius: 6px; border-left: 3px solid #6366f1; margin-bottom: 12px;">
-                                <div style="font-size: 10px; color: #a0a0a0; margin-bottom: 8px;">ROOT OPERATOR #${{idx + 1}}</div>
-                                <div style="font-family: monospace; font-size: 11px; color: #6366f1; word-break: break-all; margin-bottom: 8px; padding: 6px; background: rgba(99, 102, 241, 0.1); border-radius: 4px;">${{flow.root_operator}}</div>
+                                <div style="font-size: 10px; color: #a0a0a0; margin-bottom: 8px;">ROOT OPERATOR #${idx + 1}}</div>
+                                <div style="font-family: monospace; font-size: 11px; color: #6366f1; word-break: break-all; margin-bottom: 8px; padding: 6px; background: rgba(99, 102, 241, 0.1); border-radius: 4px;">${flow.root_operator}}</div>
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; font-size: 10px;">
                                     <div>
                                         <div style="color: #a0a0a0;">CREATORS FUNDED</div>
-                                        <div style="color: #f59e0b; font-weight: bold;">${{flow.creators_funded}}</div>
+                                        <div style="color: #f59e0b; font-weight: bold;">${flow.creators_funded}}</div>
                                     </div>
                                     <div>
                                         <div style="color: #a0a0a0;">TOTAL SOL</div>
-                                        <div style="color: #4ade80; font-weight: bold;">${{flow.total_sol_sent.toFixed(2)}}</div>
+                                        <div style="color: #4ade80; font-weight: bold;">${flow.total_sol_sent.toFixed(2)}}</div>
                                     </div>
                                 </div>
                                 <div style="font-size: 9px; color: #a0a0a0; margin-bottom: 6px;">EXAMPLE FLOWS: Sender → Funder → Creator</div>
                                 <div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 6px; max-height: 120px; overflow-y: auto;">
-                                    ${{flowsHTML || '<div style="color: #a0a0a0; font-size: 9px;">No flows available</div>'}}
+                                    ${flowsHTML || '<div style="color: #a0a0a0; font-size: 9px;">No flows available</div>'}}
                                 </div>
                             </div>
                         `;
@@ -4680,8 +4680,8 @@ HTML_TEMPLATE = """
                     rootsContainer.innerHTML = data.root_addresses.map((addr, idx) => {{
                         return `
                             <div style="background: rgba(99, 102, 241, 0.05); padding: 10px; border-radius: 6px; border-left: 2px solid #6366f1;">
-                                <div style="font-family: monospace; font-size: 11px; color: #6366f1; word-break: break-all; margin-bottom: 5px;">${{addr}}</div>
-                                <div style="font-size: 11px; color: #a0a0a0;">Root Operator #${{idx + 1}}</div>
+                                <div style="font-family: monospace; font-size: 11px; color: #6366f1; word-break: break-all; margin-bottom: 5px;">${addr}}</div>
+                                <div style="font-size: 11px; color: #a0a0a0;">Root Operator #${idx + 1}}</div>
                             </div>
                         `;
                     }}).join('');
@@ -4882,7 +4882,11 @@ def highlight_infra_in_funding(funders_list):
 @app.route('/')
 def index():
     """Serve the migration tracking dashboard"""
-    return render_template_string(HTML_TEMPLATE)
+    # Return HTML directly without Jinja2 processing
+    # The template contains ${{ }} which looks like Jinja2 escaping but is actually
+    # incorrect - Jinja2 would interpret {{ }} as a print statement regardless of the $
+    # Since there are no actual Jinja2 variables in the template, return it as-is
+    return HTML_TEMPLATE
 
 
 @app.route('/coordinated-funder-analysis/<creator_address>')

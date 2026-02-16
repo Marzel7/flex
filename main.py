@@ -8031,19 +8031,21 @@ def api_funding_network_details(network_id):
         if not network_row:
             return jsonify({'error': 'Network not found'}), 404
 
-        # Count unique senders that fund funders in this network
+        # Count unique senders (original wallets that have inbound transfers to funders)
+        # First try funder_incoming_transfers, fall back to 0 if empty
         cursor.execute("""
-            SELECT COUNT(DISTINCT fit.sender_address) as senders_count
+            SELECT COUNT(DISTINCT COALESCE(fit.sender_address, 0)) as senders_count
             FROM funder_incoming_transfers fit
             WHERE fit.funder_address IN (
                 SELECT fnm.funder_address
                 FROM funding_network_members fnm
                 WHERE fnm.network_id = ?
             )
+            AND fit.sender_address IS NOT NULL
         """, (network_id,))
 
         senders_row = cursor.fetchone()
-        senders_count = senders_row['senders_count'] if senders_row else 0
+        senders_count = senders_row['senders_count'] if senders_row and senders_row['senders_count'] else 0
 
         # Get the tokens this network coordinates
         cursor.execute("""

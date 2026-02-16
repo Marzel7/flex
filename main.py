@@ -10448,15 +10448,24 @@ def api_super_cluster_details(cluster_id: str):
 
         conn.close()
 
-        # Extract root addresses from flows (these are the actual root operators found)
-        root_addresses_filtered = [flow['root_operator'] for flow in root_operator_flows]
+        # Get root addresses from both sources:
+        # 1. From the database table (may include filtered-out infra accounts)
+        root_addresses_raw = cluster_row['root_addresses'].split(',') if cluster_row['root_addresses'] else []
+        root_addresses_filtered = [addr for addr in root_addresses_raw if addr not in infra_and_cex]
+
+        # 2. From the flows we found (unfiltered, has example flows)
+        flow_addresses = [flow['root_operator'] for flow in root_operator_flows]
+
+        # Combine them, preferring flow addresses (which have data) but keeping all from database
+        all_root_addresses = list(set(root_addresses_filtered + flow_addresses))
+        all_root_addresses.sort()
 
         return jsonify({
             'id': cluster_row['super_cluster_id'],
             'network_count': cluster_row['network_count'],
             'creator_count': cluster_row['creator_count'],
             'mapped_creator_count': len(creators),
-            'root_addresses': root_addresses_filtered,
+            'root_addresses': all_root_addresses,
             'risk_level': cluster_row['risk_level'],
             'creators': creators,
             'tokens': tokens,

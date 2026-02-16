@@ -1860,7 +1860,6 @@ HTML_TEMPLATE = """
                         <tr>
                             <th>Funder Address</th>
                             <th>Funder Name</th>
-                            <th>Network</th>
                             <th>Creators Funded</th>
                             <th>Total SOL</th>
                             <th>Funding Records</th>
@@ -1868,7 +1867,7 @@ HTML_TEMPLATE = """
                         </tr>
                     </thead>
                     <tbody id="multiCreatorFundersBody">
-                        <tr><td colspan="7" style="text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                        <tr><td colspan="6" style="text-align: center; color: #a0a0a0;">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -6627,30 +6626,9 @@ def coordinated_funders_view():
         """)
         analyzed_funders = set(row[0] for row in cursor.fetchall())
 
-        # Get network information for each funder
-        funder_networks = {}
-        cursor.execute("""
-            SELECT DISTINCT
-                fnm.funder_address,
-                fn.network_id,
-                fn.network_name
-            FROM funding_network_members fnm
-            INNER JOIN funding_networks fn ON fnm.network_id = fn.network_id
-            WHERE fnm.funder_address IN ({})
-        """.format(','.join('?' * len(all_multi_funders))), [f['funder_address'] for f in all_multi_funders])
-
-        for row in cursor.fetchall():
-            funder_networks[row['funder_address']] = {
-                'network_id': row['network_id'],
-                'network_name': row['network_name']
-            }
-
-        # Mark analysis status and network for each funder
+        # Mark analysis status for each funder
         for funder in all_multi_funders:
             funder['is_analyzed'] = funder['funder_address'] in analyzed_funders
-            network_info = funder_networks.get(funder['funder_address'])
-            funder['network_id'] = network_info['network_id'] if network_info else None
-            funder['network_name'] = network_info['network_name'] if network_info else None
 
         # Classify and tag infrastructure/CEX accounts
         suspicious_funders = []
@@ -6703,15 +6681,6 @@ def coordinated_funders_view():
             end_date = funder['last_funding_at'][:10] if funder['last_funding_at'] else 'N/A'
             period = start_date if start_date == end_date else f"{start_date} - {end_date}"
             account_label = funder['account_name'] if funder['account_name'] else ''
-            network_name = funder.get('network_name', '')
-            network_id = funder.get('network_id')
-
-            # Network link or dash
-            network_display = ''
-            if network_name and network_id:
-                network_display = f'<a href="#" onclick="switchTab(\'funding-networks\'); showNetworkDetails({network_id}); return false;" style="color: #6366f1; text-decoration: none; cursor: pointer;">{network_name}</a>'
-            else:
-                network_display = '—'
 
             # Analysis status indicator
             analysis_badge = '✅ Analyzed' if funder['is_analyzed'] else '⏳ Pending'
@@ -6722,9 +6691,8 @@ def coordinated_funders_view():
 
             suspicious_html += f"""
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); cursor: pointer; {row_highlight}" onclick="window.location.href = '/funder-details/{funder['funder_address']}'">
-                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #ef4444;">{funder['funder_address'][:20]}...</td>
-                <td style="padding: 12px; color: #fbbf24; font-weight: 600;">{account_label}</td>
-                <td style="padding: 12px; color: #a0a0a0;">{network_display}</td>
+                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #ef4444; word-break: break-all;">{funder['funder_address']}</td>
+                <td style="padding: 12px; color: #fbbf24; font-weight: 600;">{account_label if account_label else '—'}</td>
                 <td style="padding: 12px; color: #ef4444; font-weight: bold;">{funder['creator_count']}</td>
                 <td style="padding: 12px; color: #4ade80;">{funder['total_sol_sent']:.2f}</td>
                 <td style="padding: 12px; color: #a0a0a0;">{funder['funding_record_count']}</td>
@@ -7518,7 +7486,6 @@ def coordinated_funders_view():
                                         <tr>
                                             <th>Funder Address</th>
                                             <th>Account Name</th>
-                                            <th>Network</th>
                                             <th>Creators</th>
                                             <th>Total SOL</th>
                                             <th>Records</th>
@@ -7527,7 +7494,7 @@ def coordinated_funders_view():
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {suspicious_html if suspicious_html else '<tr><td colspan="8" style="padding: 20px; text-align: center; color: #a0a0a0;">No suspicious funders found</td></tr>'}
+                                        {suspicious_html if suspicious_html else '<tr><td colspan="7" style="padding: 20px; text-align: center; color: #a0a0a0;">No suspicious funders found</td></tr>'}
                                     </tbody>
                                 </table>
                             </div>

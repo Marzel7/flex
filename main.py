@@ -147,6 +147,21 @@ def get_migrated_tokens() -> List[Dict]:
                 funding_result = cursor.fetchone()
                 funding_checked = funding_result[0] > 0 if funding_result else False
 
+            # Get network information if token belongs to a network
+            network_name = None
+            network_id = None
+            cursor.execute("""
+                SELECT fn.network_id, fn.network_name
+                FROM funding_networks fn
+                INNER JOIN funding_network_shared_tokens fnst ON fn.network_id = fnst.network_id
+                WHERE fnst.mint = ?
+                LIMIT 1
+            """, (row['mint'],))
+            network_row = cursor.fetchone()
+            if network_row:
+                network_id = network_row[0]
+                network_name = network_row[1]
+
             tokens.append({
                 'mint': row['mint'],
                 'analyzed_at': row['analyzed_at'],
@@ -168,7 +183,9 @@ def get_migrated_tokens() -> List[Dict]:
                 'connected_malicious_count': row['connected_malicious_count'] if row['connected_malicious_count'] else 0,
                 'creator_infra_tags': creator_infra_tags,
                 'top_funder': top_funder,
-                'funding_checked': funding_checked
+                'funding_checked': funding_checked,
+                'network_name': network_name,
+                'network_id': network_id
             })
 
         conn.close()
@@ -2230,6 +2247,7 @@ HTML_TEMPLATE = """
                         <tr>
                             <th onclick="sortBy('mint')" class="sortable ${sortConfig.column === 'mint' ? 'sorted-' + sortConfig.direction : ''}">Token Mint</th>
                             <th></th>
+                            <th onclick="sortBy('network_name')" class="sortable ${sortConfig.column === 'network_name' ? 'sorted-' + sortConfig.direction : ''}">Network</th>
                             <th onclick="sortBy('rug_indicator')" class="sortable ${sortConfig.column === 'rug_indicator' ? 'sorted-' + sortConfig.direction : ''}">Rug Flag</th>
                             <th onclick="sortBy('risk_level')" class="sortable ${sortConfig.column === 'risk_level' ? 'sorted-' + sortConfig.direction : ''}">Risk Level</th>
                             <th onclick="sortBy('rug_probability')" class="sortable ${sortConfig.column === 'rug_probability' ? 'sorted-' + sortConfig.direction : ''}">Risk Score</th>
@@ -2459,6 +2477,9 @@ HTML_TEMPLATE = """
                                         </div>
                                     </td>
                                     <td class="creator-tags"><div style="display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">${columnTags.join('')}</div></td>
+                                    <td class="network-name">
+                                        ${token.network_name ? `<a href="#" onclick="switchTab('funding-networks'); showNetworkDetails(${token.network_id}); return false;" class="mint-link" style="font-size: 13px;" title="${token.network_name}">${token.network_name}</a>` : '—'}
+                                    </td>
                                     <td class="rug-flag"></td>
                                     <td>
                                         <span class="risk-score ${getRiskClass(token.risk_level)}">${token.risk_level || '—'}</span>

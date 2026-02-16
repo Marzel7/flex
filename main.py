@@ -6963,26 +6963,28 @@ def coordinated_funders_view():
                     }}
 
                     async function loadFundingNetworks() {{
+                        const gridEl = document.getElementById('funding-networks-grid');
                         const statusEl = document.getElementById('funding-networks-status');
-                        statusEl.textContent = '⟲ Loading networks...';
+
+                        if (!gridEl) {{
+                            console.error('funding-networks-grid element not found');
+                            return;
+                        }}
+
+                        if (statusEl) {{
+                            statusEl.textContent = '⟲ Loading networks...';
+                        }}
 
                         try {{
                             const response = await fetch('/api/funding-networks-list');
                             const data = await response.json();
 
                             if (data.error) {{
-                                statusEl.textContent = '❌ Error: ' + data.error;
+                                if (statusEl) statusEl.textContent = '❌ Error: ' + data.error;
                                 return;
                             }}
 
-                            let html = `
-                                <div style="margin-bottom: 20px; padding: 15px; background: rgba(99, 102, 241, 0.1); border-left: 3px solid #6366f1; border-radius: 6px;">
-                                    <strong style="color: #6366f1;">🌐 Funding Networks</strong>
-                                    <p style="color: #a0a0a0; margin: 8px 0 0 0; font-size: 12px;">
-                                        <strong>${{data.total_networks}}</strong> coordinated funding networks. Click a network to see details.
-                                    </p>
-                                </div>
-                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">`;
+                            let html = `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">`;
 
                             data.networks.forEach(network => {{
                                 html += `
@@ -7018,23 +7020,33 @@ def coordinated_funders_view():
 
                             html += `</div>`;
 
-                            document.getElementById('funding-networks-grid').innerHTML = html;
-                            statusEl.textContent = '✅ Loaded ' + data.total_networks + ' networks';
+                            gridEl.innerHTML = html;
+                            if (statusEl) statusEl.textContent = '✅ Loaded ' + data.total_networks + ' networks';
                         }} catch(e) {{
-                            statusEl.textContent = '❌ Error: ' + e.message;
+                            console.error('Error loading networks:', e);
+                            if (statusEl) statusEl.textContent = '❌ Error: ' + e.message;
                         }}
                     }}
 
                     async function showNetworkDetails(networkId) {{
+                        const gridEl = document.getElementById('funding-networks-grid');
                         const statusEl = document.getElementById('funding-networks-status');
-                        statusEl.textContent = '⟲ Loading details...';
+
+                        if (!gridEl) {{
+                            console.error('funding-networks-grid element not found');
+                            return;
+                        }}
+
+                        if (statusEl) {{
+                            statusEl.textContent = '⟲ Loading details...';
+                        }}
 
                         try {{
                             const response = await fetch(`/api/funding-network-details/${{networkId}}`);
                             const data = await response.json();
 
                             if (data.error) {{
-                                statusEl.textContent = '❌ Error: ' + data.error;
+                                if (statusEl) statusEl.textContent = '❌ Error: ' + data.error;
                                 return;
                             }}
 
@@ -7081,10 +7093,11 @@ def coordinated_funders_view():
 
                             html += `</div></div>`;
 
-                            document.getElementById('funding-networks-grid').innerHTML = html;
-                            statusEl.textContent = '✅ Network details loaded';
+                            gridEl.innerHTML = html;
+                            if (statusEl) statusEl.textContent = '✅ Network details loaded';
                         }} catch(e) {{
-                            statusEl.textContent = '❌ Error: ' + e.message;
+                            console.error('Error loading network details:', e);
+                            if (statusEl) statusEl.textContent = '❌ Error: ' + e.message;
                         }}
                     }}
 

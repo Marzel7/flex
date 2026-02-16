@@ -7662,6 +7662,69 @@ def coordinated_funders_view():
 
                             html += `</div></div>`;
 
+                            // Add Root Operator Flows section
+                            if (data.root_operator_flows && data.root_operator_flows.length > 0) {
+                                html += `
+                                    <div style="background: rgba(0, 0, 0, 0.2); border-radius: 6px; padding: 20px; margin-top: 20px;">
+                                        <h3 style="color: #e0e0e0; margin: 0 0 15px 0;">Root Operators & Address Flows</h3>
+                                        <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">`;
+
+                                data.root_operator_flows.forEach((flow, idx) => {
+                                    html += `
+                                        <div style="background: rgba(99, 102, 241, 0.08); border-left: 3px solid #6366f1; border-radius: 6px; padding: 15px;">
+                                            <div style="margin-bottom: 12px;">
+                                                <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 5px;">ROOT OPERATOR #${idx + 1}</div>
+                                                <div style="font-family: monospace; font-size: 12px; color: #6366f1; word-break: break-all; padding: 8px; background: rgba(99, 102, 241, 0.1); border-radius: 4px;">${flow.root_operator}</div>
+                                            </div>
+
+                                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;">
+                                                <div>
+                                                    <div style="font-size: 10px; color: #a0a0a0;">CREATORS FUNDED</div>
+                                                    <div style="font-size: 18px; font-weight: bold; color: #f59e0b;">${flow.creators_funded}</div>
+                                                </div>
+                                                <div>
+                                                    <div style="font-size: 10px; color: #a0a0a0;">TOTAL SOL</div>
+                                                    <div style="font-size: 18px; font-weight: bold; color: #4ade80;">${flow.total_sol_sent.toFixed(2)}</div>
+                                                </div>
+                                            </div>
+
+                                            <div style="margin-bottom: 12px;">
+                                                <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 5px;">UPSTREAM SOURCES</div>
+                                                <div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 8px; max-height: 80px; overflow-y: auto;">`;
+
+                                    if (flow.upstream_sources.length > 0) {
+                                        flow.upstream_sources.forEach(source => {
+                                            html += `<div style="font-family: monospace; font-size: 10px; color: #3b82f6; word-break: break-all; padding: 4px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">${source.sender}</div>`;
+                                        });
+                                    } else {
+                                        html += `<div style="color: #a0a0a0; font-size: 10px;">No upstream sources found</div>`;
+                                    }
+
+                                    html += `</div></div>
+
+                                            <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 5px;">TOKENS CREATED BY FUNDED CREATORS</div>
+                                            <div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 8px; max-height: 120px; overflow-y: auto;">`;
+
+                                    if (flow.downstream_creators.length > 0) {
+                                        flow.downstream_creators.forEach(creator => {
+                                            const riskColor = creator.risk_level === 'HIGH' ? '#ef4444' : creator.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
+                                            html += `
+                                                <div style="padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); display: flex; justify-content: space-between; align-items: center;">
+                                                    <div style="font-family: monospace; font-size: 9px; color: #a0a0a0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${creator.mint}">${creator.mint.substring(0, 16)}...</div>
+                                                    <div style="color: ${riskColor}; font-weight: bold; font-size: 10px; margin-left: 8px;">${(creator.rug_probability * 100).toFixed(0)}%</div>
+                                                </div>`;
+                                        });
+                                    } else {
+                                        html += `<div style="color: #a0a0a0; font-size: 10px;">No tokens found</div>`;
+                                    }
+
+                                    html += `</div>
+                                        </div>`;
+                                });
+
+                                html += `</div></div>`;
+                            }
+
                             gridEl.innerHTML = html;
                             if (statusEl) statusEl.textContent = '✅ Network details loaded';
                         }} catch(e) {{
@@ -8686,6 +8749,93 @@ def api_funding_network_details(network_id):
 
         tokens = [row['mint'] for row in cursor.fetchall()]
 
+        # Get root operators (funders that fund multiple creators in this network)
+        cursor.execute("""
+            SELECT DISTINCT cf.funder_address
+            FROM creator_funders cf
+            WHERE cf.creator_address IN (
+                SELECT DISTINCT ta.earliest_tx_creator
+                FROM funding_network_shared_tokens fnt
+                JOIN token_analysis ta ON fnt.mint = ta.mint
+                WHERE fnt.network_id = ?
+            )
+            GROUP BY cf.funder_address
+            HAVING COUNT(DISTINCT cf.creator_address) >= 2
+            ORDER BY COUNT(DISTINCT cf.creator_address) DESC
+        """, (network_id,))
+
+        root_operators = [row['funder_address'] for row in cursor.fetchall()]
+
+        # Build root operator flows
+        root_operator_flows = []
+        for root_op in root_operators:
+            # Get creators funded by this root operator in this network
+            cursor.execute("""
+                SELECT DISTINCT cf.creator_address, cf.amount_sol
+                FROM creator_funders cf
+                WHERE cf.funder_address = ?
+                AND cf.creator_address IN (
+                    SELECT DISTINCT ta.earliest_tx_creator
+                    FROM funding_network_shared_tokens fnt
+                    JOIN token_analysis ta ON fnt.mint = ta.mint
+                    WHERE fnt.network_id = ?
+                )
+                ORDER BY cf.amount_sol DESC
+            """, (root_op, network_id))
+
+            funded_creators = [{'creator': row['creator_address'], 'sol': float(row['amount_sol'])} for row in cursor.fetchall()]
+
+            if not funded_creators:
+                continue
+
+            total_sol_to_creators = sum(c['sol'] for c in funded_creators)
+
+            # Get upstream sources (senders to this root operator)
+            cursor.execute("""
+                SELECT DISTINCT sender_address, COUNT(*) as transfer_count
+                FROM funder_incoming_transfers
+                WHERE funder_address = ?
+                GROUP BY sender_address
+                ORDER BY transfer_count DESC
+                LIMIT 5
+            """, (root_op,))
+
+            upstream_sources = [{'sender': row['sender_address'], 'transfers': row['transfer_count']} for row in cursor.fetchall()]
+
+            # Get downstream creators' token details
+            creator_list = [c['creator'] for c in funded_creators[:10]]
+            if creator_list:
+                placeholders = ','.join('?' * len(creator_list))
+                cursor.execute(f"""
+                    SELECT
+                        ta.mint,
+                        ta.earliest_tx_creator,
+                        ta.risk_level,
+                        ta.rug_probability
+                    FROM token_analysis ta
+                    WHERE ta.earliest_tx_creator IN ({placeholders})
+                    ORDER BY ta.rug_probability DESC
+                    LIMIT 10
+                """, creator_list)
+
+                downstream_creators = [{
+                    'mint': row['mint'],
+                    'creator': row['earliest_tx_creator'],
+                    'risk_level': row['risk_level'],
+                    'rug_probability': float(row['rug_probability']) if row['rug_probability'] else 0
+                } for row in cursor.fetchall()]
+            else:
+                downstream_creators = []
+
+            root_operator_flows.append({
+                'root_operator': root_op,
+                'creators_funded': len(funded_creators),
+                'total_sol_sent': total_sol_to_creators,
+                'transfer_count': len(funded_creators),
+                'upstream_sources': upstream_sources,
+                'downstream_creators': downstream_creators
+            })
+
         conn.close()
 
         return jsonify({
@@ -8695,7 +8845,8 @@ def api_funding_network_details(network_id):
             'creators': network_row['creators_count'],
             'tokens': network_row['tokens_count'],
             'total_sol': network_row['total_sol'],
-            'token_list': tokens
+            'token_list': tokens,
+            'root_operator_flows': root_operator_flows
         })
 
     except Exception as e:

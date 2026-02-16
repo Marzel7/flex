@@ -4449,6 +4449,53 @@ HTML_TEMPLATE = """
         function closeNetworkDetails() {
             loadFundingNetworks();
         }
+
+        // Real-time polling for network updates
+        let networkPollingInterval = null;
+        let lastNetworkDataHash = null;
+
+        function startNetworkPolling() {
+            // Only poll if not already polling
+            if (networkPollingInterval) return;
+
+            console.log('[Networks] Starting real-time polling');
+
+            networkPollingInterval = setInterval(async () => {
+                try {
+                    const response = await fetch('/api/funding-networks-list');
+                    const data = await response.json();
+
+                    if (!data.error && data.networks) {
+                        // Create a hash of the current data to detect changes
+                        const currentHash = JSON.stringify(data.networks);
+
+                        if (currentHash !== lastNetworkDataHash) {
+                            console.log('[Networks] Changes detected, refreshing display');
+                            lastNetworkDataHash = currentHash;
+
+                            // Refresh the grid if we're on the main networks view
+                            const gridEl = document.getElementById('funding-networks-grid');
+
+                            if (gridEl && !gridEl.innerHTML.includes('Network Details')) {
+                                // We're on the main networks list, refresh it
+                                await loadFundingNetworks();
+                            }
+                        }
+                    }
+                } catch(e) {
+                    console.error('[Networks] Polling error:', e);
+                }
+            }, 10000); // Poll every 10 seconds
+        }
+
+        function stopNetworkPolling() {
+            if (networkPollingInterval) {
+                console.log('[Networks] Stopping polling');
+                clearInterval(networkPollingInterval);
+                networkPollingInterval = null;
+                lastNetworkDataHash = null;
+            }
+        }
     </script>
 </body>
 </html>
@@ -6834,6 +6881,9 @@ def coordinated_funders_view():
                             if (!document.getElementById('funding-networks-content').innerHTML) {{
                                 loadFundingNetworks();
                             }}
+                            startNetworkPolling();  // Start polling when networks tab is active
+                        }} else {{
+                            stopNetworkPolling();  // Stop polling when switching away from networks
                         }}
                     }}
 
@@ -8448,7 +8498,11 @@ def update_networks_for_new_token(mint: str, creator: str):
     Incrementally update existing networks when a new token is launched.
     Checks if the creator's funders/senders are in existing networks.
     If yes, adds the token to those networks without rebuilding.
+
+    Returns: List of affected network IDs for UI refresh
     """
+    affected_networks = []
+
     try:
         conn = sqlite3.connect(DB_PATH, timeout=30)
         cursor = conn.cursor()
@@ -8465,7 +8519,7 @@ def update_networks_for_new_token(mint: str, creator: str):
         if not creator_funders:
             # No funders yet, nothing to add to networks
             conn.close()
-            return
+            return affected_networks
 
         print(f"[NETWORK_UPDATE] Token {mint[:8]}... | Creator {creator[:8]}... has {len(creator_funders)} funders", flush=True)
 
@@ -8494,7 +8548,7 @@ def update_networks_for_new_token(mint: str, creator: str):
         if not affected_networks:
             print(f"[NETWORK_UPDATE] No existing networks contain this creator's funders/senders", flush=True)
             conn.close()
-            return
+            return affected_networks
 
         print(f"[NETWORK_UPDATE] Found {len(affected_networks)} affected networks", flush=True)
 
@@ -8535,6 +8589,8 @@ def update_networks_for_new_token(mint: str, creator: str):
 
     except Exception as e:
         print(f"[NETWORK_UPDATE] Error updating networks: {e}", flush=True)
+
+    return affected_networks
 
 
 @app.route('/api/tokens-by-funder/<funder_address>')

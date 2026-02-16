@@ -4307,6 +4307,150 @@ HTML_TEMPLATE = """
                 validateTransaction();
             }
         });
+
+        // Funding Networks Functions
+        async function loadFundingNetworks() {
+            const gridEl = document.getElementById('funding-networks-grid');
+            const statusEl = document.getElementById('funding-networks-status');
+
+            if (!gridEl) {
+                console.error('funding-networks-grid element not found');
+                return;
+            }
+
+            if (statusEl) {
+                statusEl.textContent = '⟲ Loading networks...';
+            }
+
+            try {
+                const response = await fetch('/api/funding-networks-list');
+                const data = await response.json();
+
+                if (data.error) {
+                    if (statusEl) statusEl.textContent = '❌ Error: ' + data.error;
+                    return;
+                }
+
+                let html = `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">`;
+
+                data.networks.forEach(network => {
+                    html += `
+                        <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid #6366f1; border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s;"
+                             onclick="showNetworkDetails(${network.network_id})"
+                             onmouseover="this.style.background='rgba(99, 102, 241, 0.15)'; this.style.boxShadow='0 0 15px rgba(99, 102, 241, 0.5)';"
+                             onmouseout="this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='none';">
+                            <div style="font-weight: bold; color: #e0e0e0; font-size: 14px; margin-bottom: 12px;">${network.name}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 11px;">
+                                <div style="background: rgba(74, 222, 128, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #4ade80;">
+                                    <div style="color: #a0a0a0;">Funders</div>
+                                    <div style="color: #4ade80; font-weight: bold;">${network.funders}</div>
+                                </div>
+                                <div style="background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #3b82f6;">
+                                    <div style="color: #a0a0a0;">Senders</div>
+                                    <div style="color: #3b82f6; font-weight: bold;">${network.senders}</div>
+                                </div>
+                                <div style="background: rgba(245, 158, 11, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #f59e0b;">
+                                    <div style="color: #a0a0a0;">Creators</div>
+                                    <div style="color: #f59e0b; font-weight: bold;">${network.creators}</div>
+                                </div>
+                                <div style="background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #3b82f6;">
+                                    <div style="color: #a0a0a0;">Tokens</div>
+                                    <div style="color: #3b82f6; font-weight: bold;">${network.tokens}</div>
+                                </div>
+                                <div style="background: rgba(168, 85, 247, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #a855f7;">
+                                    <div style="color: #a0a0a0;">SOL</div>
+                                    <div style="color: #a855f7; font-weight: bold;">${network.total_sol.toFixed(0)}</div>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+
+                html += `</div>`;
+
+                gridEl.innerHTML = html;
+                if (statusEl) statusEl.textContent = '✅ Loaded ' + data.total_networks + ' networks';
+            } catch(e) {
+                console.error('Error loading networks:', e);
+                if (statusEl) statusEl.textContent = '❌ Error: ' + e.message;
+            }
+        }
+
+        async function showNetworkDetails(networkId) {
+            const gridEl = document.getElementById('funding-networks-grid');
+            const statusEl = document.getElementById('funding-networks-status');
+
+            if (!gridEl) {
+                console.error('funding-networks-grid element not found');
+                return;
+            }
+
+            if (statusEl) {
+                statusEl.textContent = '⟲ Loading details...';
+            }
+
+            try {
+                const response = await fetch(`/api/funding-network-details/${networkId}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    if (statusEl) statusEl.textContent = '❌ Error: ' + data.error;
+                    return;
+                }
+
+                let html = `
+                    <div style="margin-bottom: 20px;">
+                        <button onclick="loadFundingNetworks()" style="background: rgba(99, 102, 241, 0.2); color: #6366f1; border: 1px solid #6366f1; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px;">← Back to Networks</button>
+                    </div>
+                    <div style="background: rgba(99, 102, 241, 0.1); border-left: 3px solid #6366f1; border-radius: 6px; padding: 20px; margin-bottom: 20px;">
+                        <h2 style="color: #6366f1; margin: 0 0 15px 0;">Network Details</h2>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                            <div>
+                                <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">FUNDERS</div>
+                                <div style="font-size: 28px; font-weight: bold; color: #4ade80;">${data.funders}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">SENDERS</div>
+                                <div style="font-size: 28px; font-weight: bold; color: #3b82f6;">${data.senders}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">CREATORS</div>
+                                <div style="font-size: 28px; font-weight: bold; color: #f59e0b;">${data.creators}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">TOKENS</div>
+                                <div style="font-size: 28px; font-weight: bold; color: #a855f7;">${data.tokens}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">TOTAL SOL</div>
+                                <div style="font-size: 28px; font-weight: bold; color: #ec4899;">${data.total_sol.toFixed(0)}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(0, 0, 0, 0.2); border-radius: 6px; padding: 20px;">
+                        <h3 style="color: #e0e0e0; margin: 0 0 15px 0;">Tokens Coordinated</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 10px;">`;
+
+                data.token_list.forEach(token => {
+                    html += `
+                        <div style="background: rgba(99, 102, 241, 0.05); padding: 10px; border-radius: 4px; border-left: 2px solid #6366f1; font-family: monospace; font-size: 10px; word-break: break-all; color: #a0a0a0;">
+                            ${token}
+                        </div>`;
+                });
+
+                html += `</div></div>`;
+
+                gridEl.innerHTML = html;
+                if (statusEl) statusEl.textContent = '✅ Network details loaded';
+            } catch(e) {
+                console.error('Error loading network details:', e);
+                if (statusEl) statusEl.textContent = '❌ Error: ' + e.message;
+            }
+        }
+
+        function closeNetworkDetails() {
+            loadFundingNetworks();
+        }
     </script>
 </body>
 </html>

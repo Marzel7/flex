@@ -9988,6 +9988,9 @@ def api_validate_transaction():
 def api_super_clusters():
     """Get all super-clusters with their stats"""
     try:
+        from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
+        infra_and_cex = set(INFRASTRUCTURE_ACCOUNTS.keys()) | set(CEX_ACCOUNTS.keys())
+
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
@@ -10009,12 +10012,16 @@ def api_super_clusters():
 
         clusters = []
         for row in cursor.fetchall():
+            # Filter out infrastructure and CEX accounts from root addresses
+            root_addresses_raw = row['root_addresses'].split(',')
+            root_addresses_filtered = [addr for addr in root_addresses_raw if addr not in infra_and_cex]
+
             clusters.append({
                 'id': row['super_cluster_id'],
                 'network_count': row['network_count'],
                 'creator_count': row['creator_count'],
                 'mapped_creators': row['mapped_creators'],
-                'root_addresses': row['root_addresses'].split(','),
+                'root_addresses': root_addresses_filtered,
                 'risk_level': row['risk_level']
             })
 
@@ -10104,12 +10111,16 @@ def api_super_cluster_details(cluster_id: str):
 
         conn.close()
 
+        # Filter out infrastructure and CEX accounts from root addresses
+        root_addresses_raw = cluster_row['root_addresses'].split(',')
+        root_addresses_filtered = [addr for addr in root_addresses_raw if addr not in infra_and_cex]
+
         return jsonify({
             'id': cluster_row['super_cluster_id'],
             'network_count': cluster_row['network_count'],
             'creator_count': cluster_row['creator_count'],
             'mapped_creator_count': len(creators),
-            'root_addresses': cluster_row['root_addresses'].split(','),
+            'root_addresses': root_addresses_filtered,
             'risk_level': cluster_row['risk_level'],
             'creators': creators,
             'tokens': tokens,

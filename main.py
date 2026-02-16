@@ -6966,12 +6966,16 @@ def coordinated_funders_view():
                                                 <div style="color: #4ade80; font-weight: bold;">${{network.funders}}</div>
                                             </div>
                                             <div style="background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #3b82f6;">
-                                                <div style="color: #a0a0a0;">Tokens</div>
-                                                <div style="color: #3b82f6; font-weight: bold;">${{network.tokens}}</div>
+                                                <div style="color: #a0a0a0;">Senders</div>
+                                                <div style="color: #3b82f6; font-weight: bold;">${{network.senders}}</div>
                                             </div>
                                             <div style="background: rgba(245, 158, 11, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #f59e0b;">
                                                 <div style="color: #a0a0a0;">Creators</div>
                                                 <div style="color: #f59e0b; font-weight: bold;">${{network.creators}}</div>
+                                            </div>
+                                            <div style="background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #3b82f6;">
+                                                <div style="color: #a0a0a0;">Tokens</div>
+                                                <div style="color: #3b82f6; font-weight: bold;">${{network.tokens}}</div>
                                             </div>
                                             <div style="background: rgba(168, 85, 247, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #a855f7;">
                                                 <div style="color: #a0a0a0;">SOL</div>
@@ -7954,15 +7958,19 @@ def api_funding_networks_list():
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
-        # Get all networks with basic stats
+        # Get all networks with basic stats including senders count
         cursor.execute("""
             SELECT
                 fn.network_id,
                 fn.total_members as funders_count,
                 fn.total_tokens_funded as tokens_count,
                 fn.total_creators_funded as creators_count,
-                ROUND(fn.total_sol, 2) as total_sol
+                ROUND(fn.total_sol, 2) as total_sol,
+                COUNT(DISTINCT fit.sender_address) as senders_count
             FROM funding_networks fn
+            LEFT JOIN funding_network_members fnm ON fn.network_id = fnm.network_id
+            LEFT JOIN funder_incoming_transfers fit ON fit.funder_address = fnm.funder_address
+            GROUP BY fn.network_id
             ORDER BY fn.total_members DESC
         """)
 
@@ -7982,13 +7990,14 @@ def api_funding_networks_list():
             adj = random.choice(adjectives)
             noun = random.choice(nouns)
             random_name = f"{adj} {noun}"
-            
+
             networks.append({
                 'network_id': row['network_id'],
                 'name': random_name,
                 'funders': row['funders_count'],
                 'tokens': row['tokens_count'],
                 'creators': row['creators_count'],
+                'senders': row['senders_count'] or 0,
                 'total_sol': row['total_sol']
             })
 

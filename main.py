@@ -10081,7 +10081,10 @@ def api_super_cluster_details(cluster_id: str):
 
         tokens = [dict(row) for row in cursor.fetchall()]
 
-        # Get funder info
+        # Get funder info (excluding infrastructure accounts)
+        from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
+        infra_and_cex = set(INFRASTRUCTURE_ACCOUNTS.keys()) | set(CEX_ACCOUNTS.keys())
+
         cursor.execute("""
             SELECT
                 COUNT(DISTINCT funder_address) as total_funders,
@@ -10093,7 +10096,9 @@ def api_super_cluster_details(cluster_id: str):
                 FROM creator_super_cluster_membership
                 WHERE super_cluster_id = ?
             )
-        """, (cluster_id,))
+            AND funder_address NOT IN ({})
+        """.format(','.join('?' * len(infra_and_cex))),
+        (cluster_id,) + tuple(infra_and_cex))
 
         funder_row = cursor.fetchone()
 

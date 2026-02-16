@@ -246,13 +246,13 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "jupiter", "aggregator"],
     },
 
-    # deBridge
+    # deBridge Bridge Vault
     "2snHHreXbpJ7UwZxPe37gnUNf7Wx7wv6UKDSR2JckKuS": {
-        "name": "deBridge",
+        "name": "deBridge Bridge Vault",
         "category": "bridge",
-        "description": "deBridge vault for cross-chain token transfers",
-        "risk_level": "medium",
-        "tags": ["infra", "bridge", "debridge"],
+        "description": "deBridge bridge vault for cross-chain token transfers and liquidity management",
+        "risk_level": "neutral",
+        "tags": ["infra", "bridge", "debridge", "cross-chain"],
     },
 
     # Raydium Launchpad Authority

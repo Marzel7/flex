@@ -6591,10 +6591,499 @@ def coordinated_funders_view():
                     <div class="subtitle">Funders supporting multiple token creators (potential coordination risk)</div>
 
                     <!-- Tab Navigation -->
-                    <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(0, 212, 255, 0.2); padding-bottom: 15px;">
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(0, 212, 255, 0.2); padding-bottom: 15px; flex-wrap: wrap;">
                         <button onclick="switchTab('funders')" id="tab-funders" style="background: rgba(0, 212, 255, 0.2); color: #00d4ff; border: 1px solid #00d4ff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">👥 Multi-Creator Funders</button>
                         <button onclick="switchTab('senders')" id="tab-senders" style="background: transparent; color: #a0a0a0; border: 1px solid #a0a0a0; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">📤 Duplicate Senders</button>
+                        <button onclick="switchTab('tokens')" id="tab-tokens" style="background: transparent; color: #a0a0a0; border: 1px solid #a0a0a0; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">🪙 Coordinated Tokens</button>
+                        <button onclick="switchTab('funder-networks')" id="tab-funder-networks" style="background: transparent; color: #a0a0a0; border: 1px solid #a0a0a0; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">🔗 Funder Networks</button>
+                        <button onclick="switchTab('funding-networks')" id="tab-funding-networks" style="background: transparent; color: #a0a0a0; border: 1px solid #a0a0a0; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">🌐 Funding Networks</button>
                     </div>
+
+                    <script>
+                    function switchTab(tabName) {{
+                        // Hide all tabs
+                        document.getElementById('funders-tab').style.display = 'none';
+                        document.getElementById('senders-tab').style.display = 'none';
+                        document.getElementById('tokens-tab').style.display = 'none';
+                        document.getElementById('funder-networks-tab').style.display = 'none';
+                        document.getElementById('funding-networks-tab').style.display = 'none';
+
+                        // Remove active state from all tabs
+                        document.getElementById('tab-funders').style.background = 'transparent';
+                        document.getElementById('tab-funders').style.color = '#a0a0a0';
+                        document.getElementById('tab-funders').style.borderColor = '#a0a0a0';
+                        document.getElementById('tab-senders').style.background = 'transparent';
+                        document.getElementById('tab-senders').style.color = '#a0a0a0';
+                        document.getElementById('tab-senders').style.borderColor = '#a0a0a0';
+                        document.getElementById('tab-tokens').style.background = 'transparent';
+                        document.getElementById('tab-tokens').style.color = '#a0a0a0';
+                        document.getElementById('tab-tokens').style.borderColor = '#a0a0a0';
+                        document.getElementById('tab-funder-networks').style.background = 'transparent';
+                        document.getElementById('tab-funder-networks').style.color = '#a0a0a0';
+                        document.getElementById('tab-funder-networks').style.borderColor = '#a0a0a0';
+                        document.getElementById('tab-funding-networks').style.background = 'transparent';
+                        document.getElementById('tab-funding-networks').style.color = '#a0a0a0';
+                        document.getElementById('tab-funding-networks').style.borderColor = '#a0a0a0';
+
+                        // Show selected tab
+                        document.getElementById(tabName + '-tab').style.display = 'block';
+
+                        // Set active state
+                        if (tabName === 'funders') {{
+                            document.getElementById('tab-funders').style.background = 'rgba(0, 212, 255, 0.2)';
+                            document.getElementById('tab-funders').style.color = '#00d4ff';
+                            document.getElementById('tab-funders').style.borderColor = '#00d4ff';
+                        }} else if (tabName === 'senders') {{
+                            document.getElementById('tab-senders').style.background = 'rgba(251, 191, 36, 0.2)';
+                            document.getElementById('tab-senders').style.color = '#fbbf24';
+                            document.getElementById('tab-senders').style.borderColor = '#fbbf24';
+                            if (!document.getElementById('senders-content').innerHTML) {{
+                                loadDuplicateSenders();
+                            }}
+                        }} else if (tabName === 'tokens') {{
+                            document.getElementById('tab-tokens').style.background = 'rgba(34, 197, 94, 0.2)';
+                            document.getElementById('tab-tokens').style.color = '#4ade80';
+                            document.getElementById('tab-tokens').style.borderColor = '#4ade80';
+                            if (!document.getElementById('tokens-content').innerHTML) {{
+                                loadDuplicateTokens();
+                            }}
+                        }} else if (tabName === 'funder-networks') {{
+                            document.getElementById('tab-funder-networks').style.background = 'rgba(59, 130, 246, 0.2)';
+                            document.getElementById('tab-funder-networks').style.color = '#3b82f6';
+                            document.getElementById('tab-funder-networks').style.borderColor = '#3b82f6';
+                            if (!document.getElementById('funder-networks-content').innerHTML) {{
+                                loadFunderNetworks();
+                            }}
+                        }} else if (tabName === 'funding-networks') {{
+                            document.getElementById('tab-funding-networks').style.background = 'rgba(99, 102, 241, 0.2)';
+                            document.getElementById('tab-funding-networks').style.color = '#6366f1';
+                            document.getElementById('tab-funding-networks').style.borderColor = '#6366f1';
+                            if (!document.getElementById('funding-networks-content').innerHTML) {{
+                                loadFundingNetworks();
+                            }}
+                        }}
+                    }}
+
+                    async function loadDuplicateSenders() {{
+                        const statusEl = document.getElementById('senders-status');
+                        statusEl.textContent = '⟲ Loading duplicate senders...';
+
+                        try {{
+                            const response = await fetch('/api/duplicate-senders');
+                            const data = await response.json();
+
+                            if (data.error) {{
+                                statusEl.textContent = '❌ Error: ' + data.error;
+                                return;
+                            }}
+
+                            // Build senders table HTML
+                            let html = `
+                                <div class="section">
+                                    <div class="section-title">📤 Duplicate Senders - Sending to Multiple Funders (${{data.total_duplicate_senders}} total)</div>
+                                    <div class="section-content">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Sender Address</th>
+                                                    <th>Funders Sent To</th>
+                                                    <th>Total Transfers</th>
+                                                    <th>Total SOL</th>
+                                                    <th>Related Tokens</th>
+                                                    <th>Period</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>`;
+
+                            if (data.senders.length === 0) {{
+                                html += '<tr><td colspan="6" style="padding: 20px; text-align: center; color: #a0a0a0;">No duplicate senders found</td></tr>';
+                            }} else {{
+                                data.senders.forEach(sender => {{
+                                    const firstDate = new Date(sender.first_seen * 1000).toISOString().substring(0, 10);
+                                    const lastDate = new Date(sender.last_seen * 1000).toISOString().substring(0, 10);
+                                    const period = firstDate === lastDate ? firstDate : firstDate + ' - ' + lastDate;
+                                    const rowHighlight = sender.funder_count > 10 ? 'background: rgba(251, 191, 36, 0.1);' : '';
+
+                                    html += `
+                                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); ${{rowHighlight}}">
+                                            <td style="padding: 12px; font-family: monospace; font-size: 11px; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                <a href="#" onclick="showSenderTokens('${{sender.sender_address}}'); return false;" style="color: #fbbf24; text-decoration: none; cursor: pointer;" title="${{sender.sender_address}}">${{sender.sender_address}}</a>
+                                            </td>
+                                            <td style="padding: 12px; color: #ef4444; font-weight: bold;">${{sender.funder_count}}</td>
+                                            <td style="padding: 12px; color: #a0a0a0;">${{sender.transfer_count}}</td>
+                                            <td style="padding: 12px; color: #4ade80;">${{sender.total_sol.toFixed(2)}}</td>
+                                            <td style="padding: 12px; color: #a0a0a0; font-weight: bold;">${{sender.related_token_count || 0}}</td>
+                                            <td style="padding: 12px; font-size: 11px; color: #a0a0a0;">${{period}}</td>
+                                        </tr>`;
+                                }});
+                            }}
+
+                            html += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>`;
+
+                            document.getElementById('senders-content').innerHTML = html;
+                            statusEl.textContent = '✅ Loaded ' + data.total_duplicate_senders + ' duplicate senders';
+                        }} catch(e) {{
+                            statusEl.textContent = '❌ Error: ' + e.message;
+                        }}
+                    }}
+
+                    async function loadDuplicateTokens() {{
+                        const statusEl = document.getElementById('tokens-status');
+                        statusEl.textContent = '⟲ Loading coordinated tokens...';
+
+                        try {{
+                            const response = await fetch('/api/duplicate-tokens');
+                            const data = await response.json();
+
+                            if (data.error) {{
+                                statusEl.textContent = '❌ Error: ' + data.error;
+                                return;
+                            }}
+
+                            // Build tokens table HTML
+                            let html = `
+                                <div class="section">
+                                    <div class="section-title">🪙 Coordinated Tokens - Funded by Multiple Senders (${{data.total_duplicate_tokens}} total)</div>
+                                    <div class="section-content">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Token Mint</th>
+                                                    <th>Creator</th>
+                                                    <th>Created</th>
+                                                    <th>Num Senders</th>
+                                                    <th>Num Funders</th>
+                                                    <th>Total SOL</th>
+                                                    <th>Risk</th>
+                                                    <th>Rug %</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>`;
+
+                            if (data.tokens.length === 0) {{
+                                html += '<tr><td colspan="8" style="padding: 20px; text-align: center; color: #a0a0a0;">No coordinated tokens found</td></tr>';
+                            }} else {{
+                                data.tokens.forEach(token => {{
+                                    const createdDate = new Date(token.created_at).toISOString().substring(0, 10);
+                                    const riskColor = token.risk_level === 'HIGH' ? '#ef4444' : token.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
+                                    const senderHighlight = token.num_senders > 100 ? 'background: rgba(239, 68, 68, 0.15);' : token.num_senders > 50 ? 'background: rgba(245, 158, 11, 0.15);' : '';
+
+                                    html += `
+                                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); ${{senderHighlight}}">
+                                            <td style="padding: 12px; font-family: monospace; font-size: 10px; word-break: break-all; color: #4ade80;">
+                                                <a href="https://solscan.io/token/${{token.mint}}" target="_blank" style="color: #4ade80; text-decoration: none;">${{token.mint}}</a>
+                                            </td>
+                                            <td style="padding: 12px; font-family: monospace; font-size: 10px; word-break: break-all; color: #a0a0a0;">${{token.creator}}</td>
+                                            <td style="padding: 12px; font-size: 11px; color: #a0a0a0;">${{createdDate}}</td>
+                                            <td style="padding: 12px; color: #ef4444; font-weight: bold; text-align: center;">${{token.num_senders}}</td>
+                                            <td style="padding: 12px; color: #fbbf24; font-weight: bold; text-align: center;">${{token.num_funders}}</td>
+                                            <td style="padding: 12px; color: #4ade80;">${{token.total_sol.toFixed(2)}}</td>
+                                            <td style="padding: 12px; color: ${{riskColor}}; font-weight: bold;">${{token.risk_level || 'N/A'}}</td>
+                                            <td style="padding: 12px; color: #f59e0b;">${{((token.rug_probability || 0) * 100).toFixed(1)}}%</td>
+                                        </tr>`;
+                                }});
+                            }}
+
+                            html += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>`;
+
+                            document.getElementById('tokens-content').innerHTML = html;
+                            statusEl.textContent = '✅ Loaded ' + data.total_duplicate_tokens + ' coordinated tokens';
+                        }} catch(e) {{
+                            statusEl.textContent = '❌ Error: ' + e.message;
+                        }}
+                    }}
+
+                    async function loadFunderNetworks() {{
+                        const statusEl = document.getElementById('funder-networks-status');
+                        statusEl.textContent = '⟲ Loading funder networks...';
+
+                        try {{
+                            const response = await fetch('/api/funder-networks');
+                            const data = await response.json();
+
+                            if (data.error) {{
+                                statusEl.textContent = '❌ Error: ' + data.error;
+                                return;
+                            }}
+
+                            // Build funders table HTML
+                            let html = `
+                                <div class="section">
+                                    <div class="section-title">🔗 Funder Networks - All Funders with Network Info (${{data.total_funders}} total)</div>
+                                    <div class="section-content">
+                                        <table style="width: 100%; border-collapse: collapse;">
+                                            <thead style="background: rgba(0, 0, 0, 0.3);">
+                                                <tr>
+                                                    <th style="padding: 12px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Funder Address</th>
+                                                    <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Tokens</th>
+                                                    <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Creators</th>
+                                                    <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Senders</th>
+                                                    <th style="padding: 12px; text-align: right; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">SOL In/Out</th>
+                                                    <th style="padding: 12px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Period</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>`;
+
+                            if (data.funders.length === 0) {{
+                                html += '<tr><td colspan="6" style="padding: 20px; text-align: center; color: #a0a0a0;">No funder networks found</td></tr>';
+                            }} else {{
+                                data.funders.forEach(funder => {{
+                                    const startDate = new Date(funder.earliest_funding * 1000).toISOString().substring(0, 10);
+                                    const endDate = new Date(funder.latest_funding * 1000).toISOString().substring(0, 10);
+                                    const period = startDate === endDate ? startDate : startDate + ' - ' + endDate;
+                                    const networkHighlight = funder.tokens_funded > 10 ? 'background: rgba(59, 130, 246, 0.15);' : '';
+
+                                    html += `
+                                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); ${{networkHighlight}}">
+                                            <td style="padding: 12px; font-family: monospace; font-size: 10px; word-break: break-all; color: #3b82f6;">
+                                                <a href="#" onclick="showFunderTokens('${{funder.funder_address}}'); return false;" style="color: #3b82f6; text-decoration: none; cursor: pointer;">${{funder.funder_address}}</a>
+                                            </td>
+                                            <td style="padding: 12px; text-align: center; color: #4ade80; font-weight: bold;">${{funder.tokens_funded}}</td>
+                                            <td style="padding: 12px; text-align: center; color: #a0a0a0;">${{funder.creators_funded}}</td>
+                                            <td style="padding: 12px; text-align: center; color: #fbbf24;">${{funder.num_senders || 0}}</td>
+                                            <td style="padding: 12px; text-align: right; color: #f59e0b; font-size: 10px;">${{funder.total_sol_in ? funder.total_sol_in.toFixed(2) : '0'}} / ${{funder.total_sol_out.toFixed(2)}}</td>
+                                            <td style="padding: 12px; font-size: 10px; color: #a0a0a0;">${{period}}</td>
+                                        </tr>`;
+                                }});
+                            }}
+
+                            html += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>`;
+
+                            document.getElementById('funder-networks-content').innerHTML = html;
+                            statusEl.textContent = '✅ Loaded ' + data.total_funders + ' funder networks';
+                        }} catch(e) {{
+                            statusEl.textContent = '❌ Error: ' + e.message;
+                        }}
+                    }}
+
+                    async function showFunderTokens(funderAddress) {{
+                        const modal = document.getElementById('funderTokensModal');
+                        if (!modal) {{
+                            alert('Click on a funder address to see its coordinated tokens');
+                            return;
+                        }}
+
+                        document.getElementById('modalFunderAddress').textContent = funderAddress;
+                        const statusEl = document.getElementById('funderTokensStatus');
+                        statusEl.textContent = '⟲ Loading tokens...';
+
+                        try {{
+                            const response = await fetch(`/api/tokens-by-funder/${{funderAddress}}`);
+                            const data = await response.json();
+
+                            if (data.error) {{
+                                statusEl.textContent = '❌ Error: ' + data.error;
+                                return;
+                            }}
+
+                            let html = `<table style="width: 100%; border-collapse: collapse;">
+                                <thead style="background: rgba(0, 0, 0, 0.3);">
+                                    <tr>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Token Mint</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Creator</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Created</th>
+                                        <th style="padding: 10px; text-align: right; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">SOL</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Senders</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+                            if (data.tokens.length === 0) {{
+                                html += '<tr><td colspan="5" style="padding: 20px; text-align: center; color: #a0a0a0;">No tokens found</td></tr>';
+                            }} else {{
+                                data.tokens.forEach(token => {{
+                                    const createdDate = new Date(token.created_at).toISOString().substring(0, 10);
+                                    html += `
+                                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                            <td style="padding: 10px; font-family: monospace; font-size: 10px; color: #4ade80;">
+                                                <a href="https://solscan.io/token/${{token.mint}}" target="_blank" style="color: #4ade80; text-decoration: none;">${{token.mint.substring(0, 20)}}...</a>
+                                            </td>
+                                            <td style="padding: 10px; font-family: monospace; font-size: 10px; color: #a0a0a0; word-break: break-all;">${{token.creator.substring(0, 20)}}...</td>
+                                            <td style="padding: 10px; font-size: 10px; color: #a0a0a0;">${{createdDate}}</td>
+                                            <td style="padding: 10px; color: #4ade80; font-weight: bold; text-align: right;">${{token.amount_sol ? token.amount_sol.toFixed(2) : '0'}}</td>
+                                            <td style="padding: 10px; color: #fbbf24; font-weight: bold;">${{token.num_senders || 0}}</td>
+                                        </tr>`;
+                                }});
+                            }}
+
+                            html += '</tbody></table>';
+
+                            const tokensContainer = document.getElementById('funderTokensContainer');
+                            tokensContainer.innerHTML = html;
+                            statusEl.textContent = `✅ Showing ${{data.total_tokens}} tokens funded by this funder`;
+                            modal.style.display = 'block';
+
+                        }} catch(error) {{
+                            console.error('Error loading funder tokens:', error);
+                            statusEl.textContent = '❌ Failed to load tokens';
+                        }}
+                    }}
+
+                    async function loadFundingNetworks() {{
+                        const statusEl = document.getElementById('funding-networks-status');
+                        statusEl.textContent = '⟲ Loading funding networks...';
+
+                        try {{
+                            const response = await fetch('/api/funding-networks');
+                            const data = await response.json();
+
+                            if (data.error) {{
+                                statusEl.textContent = '❌ Error: ' + data.error;
+                                return;
+                            }}
+
+                            let html = `<div style="margin-bottom: 20px; padding: 15px; background: rgba(99, 102, 241, 0.1); border-left: 3px solid #6366f1; border-radius: 6px;">
+                                <strong style="color: #6366f1;">📊 Funding Network Clusters</strong>
+                                <p style="color: #a0a0a0; margin: 8px 0 0 0; font-size: 12px;">
+                                    Found <strong style="color: #6366f1;">${{data.total_networks}}</strong> networks of coordinated funders.
+                                    Networks are formed when 2+ funders share funding to 2+ of the same tokens.
+                                </p>
+                            </div>`;
+
+                            data.networks.forEach((network, idx) => {{
+                                const color = network.member_count > 200 ? '#ef4444' : network.member_count > 100 ? '#f97316' : '#6366f1';
+                                html += `
+                                    <div style="margin-bottom: 20px; padding: 15px; background: rgba(0, 0, 0, 0.2); border: 1px solid ${color}; border-radius: 8px;">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center;">
+                                            <div>
+                                                <div style="font-size: 14px; font-weight: bold; color: #e0e0e0;">${{network.name}} - ${{network.member_count}} Members</div>
+                                                <div style="font-size: 12px; color: #a0a0a0; margin-top: 4px;">
+                                                    <span style="color: #4ade80;">🪙 ${{network.total_tokens}} shared tokens</span> |
+                                                    <span style="color: #f59e0b;">💰 ${{network.total_sol.toFixed(2)}} SOL</span> |
+                                                    <span style="color: #a0a0a0;">${{network.total_creators}} creators</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div style="margin-top: 12px;">
+                                            <div style="font-size: 11px; color: #a0a0a0; font-weight: 600; margin-bottom: 8px;">TOP MEMBERS:</div>
+                                            <div style="max-height: 200px; overflow-y: auto;">`;
+
+                                const topMembers = network.members.slice(0, 10);
+                                topMembers.forEach((member, idx) => {{
+                                    const highlight = idx === 0 ? 'background: rgba(99, 102, 241, 0.2);' : '';
+                                    const cexWarning = member.is_cex ? '⚠️ (CEX: ' + member.exchange + ')' : '';
+                                    html += `
+                                        <div style="padding: 8px 12px; background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid rgba(255, 255, 255, 0.05); ${{highlight}}">
+                                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                <div style="font-family: monospace; font-size: 10px; word-break: break-all; color: #6366f1; flex: 1;">
+                                                    ${{member.address}} ${cexWarning}
+                                                </div>
+                                                <div style="margin-left: 12px; color: #a0a0a0; font-size: 11px; white-space: nowrap;">
+                                                    <span style="color: #4ade80;">${{member.shared_tokens}}</span> shared,
+                                                    <span style="color: #f59e0b;">${{member.total_sol.toFixed(2)}}</span> SOL
+                                                </div>
+                                            </div>
+                                        </div>`;
+                                }});
+
+                                if (network.members.length > 10) {{
+                                    html += `<div style="padding: 8px 12px; color: #a0a0a0; font-size: 11px;">... and ${{network.members.length - 10}} more members</div>`;
+                                }}
+
+                                html += `</div></div>`;
+                            }});
+
+                            document.getElementById('funding-networks-content').innerHTML = html;
+                            statusEl.textContent = '✅ Loaded ' + data.total_networks + ' funding networks (' + data.networks.reduce((sum, n) => sum + n.member_count, 0) + ' total coordinated funders)';
+                        }} catch(e) {{
+                            statusEl.textContent = '❌ Error: ' + e.message;
+                        }}
+                    }}
+
+                    async function showSenderTokens(senderAddress) {{
+                        const modal = document.getElementById('senderTokensModal');
+                        if (!modal) return;
+
+                        document.getElementById('modalSenderAddress').textContent = senderAddress;
+                        const statusEl = document.getElementById('senderTokensStatus');
+                        statusEl.textContent = '⟲ Loading tokens...';
+
+                        try {{
+                            const response = await fetch(`/api/sender-tokens/${{senderAddress}}`);
+                            const data = await response.json();
+
+                            if (data.error) {{
+                                statusEl.textContent = '❌ Error: ' + data.error;
+                                return;
+                            }}
+
+                            let html = `<table style="width: 100%; border-collapse: collapse;">
+                                <thead style="background: rgba(0, 0, 0, 0.3);">
+                                    <tr>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Token Mint</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Creator</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Funding (SOL)</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Risk</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Rug %</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+                            if (data.tokens.length === 0) {{
+                                html += '<tr><td colspan="5" style="padding: 20px; text-align: center; color: #a0a0a0;">No tokens found</td></tr>';
+                            }} else {{
+                                data.tokens.forEach(token => {{
+                                    const riskColor = token.risk_level === 'HIGH' ? '#ef4444' : token.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
+                                    html += `
+                                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                            <td style="padding: 10px; font-family: monospace; font-size: 11px; color: #4ade80; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                <a href="https://solscan.io/token/${{token.mint}}" target="_blank" style="color: #4ade80; text-decoration: none;" title="${{token.mint}}">${{token.mint}}</a>
+                                            </td>
+                                            <td style="padding: 10px; font-family: monospace; font-size: 11px; color: #a0a0a0; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{token.creator_address}}">${{token.creator_address}}</td>
+                                            <td style="padding: 10px; color: #4ade80; font-weight: bold;">${{token.total_funding_sol.toFixed(2)}}</td>
+                                            <td style="padding: 10px; color: ${{riskColor}}; font-weight: bold;">${{token.risk_level || 'N/A'}}</td>
+                                            <td style="padding: 10px; color: #f59e0b;">${{(token.rug_probability * 100).toFixed(1)}}%</td>
+                                        </tr>`;
+                                }});
+                            }}
+
+                            html += '</tbody></table>';
+
+                            const tokensContainer = document.getElementById('senderTokensContainer');
+                            tokensContainer.innerHTML = html;
+                            statusEl.textContent = `✅ Showing ${{data.total_tokens}} tokens`;
+                            modal.style.display = 'block';
+
+                        }} catch(error) {{
+                            console.error('Error loading sender tokens:', error);
+                            statusEl.textContent = '❌ Failed to load tokens';
+                        }}
+                    }}
+
+                    function closeSenderTokens() {{
+                        const modal = document.getElementById('senderTokensModal');
+                        if (modal) modal.style.display = 'none';
+                    }}
+
+                    function closeFunderTokens() {{
+                        const modal = document.getElementById('funderTokensModal');
+                        if (modal) modal.style.display = 'none';
+                    }}
+
+                    window.onclick = function(event) {{
+                        const senderModal = document.getElementById('senderTokensModal');
+                        const funderModal = document.getElementById('funderTokensModal');
+                        if (event.target === senderModal) {{
+                            senderModal.style.display = 'none';
+                        }}
+                        if (event.target === funderModal) {{
+                            funderModal.style.display = 'none';
+                        }}
+                    }}
+                    </script>
 
                     <!-- Funders Tab -->
                     <div id="funders-tab" style="display: block;">
@@ -6611,6 +7100,33 @@ def coordinated_funders_view():
                             <span id="senders-status" style="margin-left: 15px; color: #a0a0a0;"></span>
                         </div>
                         <div id="senders-content"></div>
+                    </div>
+
+                    <!-- Coordinated Tokens Tab -->
+                    <div id="tokens-tab" style="display: none;">
+                        <div style="margin-bottom: 20px;">
+                            <button onclick="loadDuplicateTokens()" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Tokens Data</button>
+                            <span id="tokens-status" style="margin-left: 15px; color: #a0a0a0;"></span>
+                        </div>
+                        <div id="tokens-content"></div>
+                    </div>
+
+                    <!-- Funder Networks Tab -->
+                    <div id="funder-networks-tab" style="display: none;">
+                        <div style="margin-bottom: 20px;">
+                            <button onclick="loadFunderNetworks()" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid #3b82f6; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Funder Networks</button>
+                            <span id="funder-networks-status" style="margin-left: 15px; color: #a0a0a0;"></span>
+                        </div>
+                        <div id="funder-networks-content"></div>
+                    </div>
+
+                    <!-- Funding Networks Tab (Token Overlap Clustering) -->
+                    <div id="funding-networks-tab" style="display: none;">
+                        <div style="margin-bottom: 20px;">
+                            <button onclick="loadFundingNetworks()" style="background: rgba(99, 102, 241, 0.2); color: #6366f1; border: 1px solid #6366f1; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Funding Networks</button>
+                            <span id="funding-networks-status" style="margin-left: 15px; color: #a0a0a0;"></span>
+                        </div>
+                        <div id="funding-networks-content"></div>
                     </div>
 
                     <script>
@@ -6690,179 +7206,6 @@ def coordinated_funders_view():
                         </div>
                     </div>
 
-                    <!-- Tab switching and senders loading JavaScript -->
-                    <script>
-                    function switchTab(tabName) {{
-                        // Hide all tabs
-                        document.getElementById('funders-tab').style.display = 'none';
-                        document.getElementById('senders-tab').style.display = 'none';
-
-                        // Remove active state from all tabs
-                        document.getElementById('tab-funders').style.background = 'transparent';
-                        document.getElementById('tab-funders').style.color = '#a0a0a0';
-                        document.getElementById('tab-funders').style.borderColor = '#a0a0a0';
-                        document.getElementById('tab-senders').style.background = 'transparent';
-                        document.getElementById('tab-senders').style.color = '#a0a0a0';
-                        document.getElementById('tab-senders').style.borderColor = '#a0a0a0';
-
-                        // Show selected tab
-                        document.getElementById(tabName + '-tab').style.display = 'block';
-
-                        // Set active state
-                        if (tabName === 'funders') {{
-                            document.getElementById('tab-funders').style.background = 'rgba(0, 212, 255, 0.2)';
-                            document.getElementById('tab-funders').style.color = '#00d4ff';
-                            document.getElementById('tab-funders').style.borderColor = '#00d4ff';
-                        }} else {{
-                            document.getElementById('tab-senders').style.background = 'rgba(251, 191, 36, 0.2)';
-                            document.getElementById('tab-senders').style.color = '#fbbf24';
-                            document.getElementById('tab-senders').style.borderColor = '#fbbf24';
-                            if (!document.getElementById('senders-content').innerHTML) {{
-                                loadDuplicateSenders();
-                            }}
-                        }}
-                    }}
-
-                    async function loadDuplicateSenders() {{
-                        const statusEl = document.getElementById('senders-status');
-                        statusEl.textContent = '⟲ Loading duplicate senders...';
-
-                        try {{
-                            const response = await fetch('/api/duplicate-senders');
-                            const data = await response.json();
-
-                            if (data.error) {{
-                                statusEl.textContent = '❌ Error: ' + data.error;
-                                return;
-                            }}
-
-                            // Build senders table HTML
-                            let html = `
-                                <div class="section">
-                                    <div class="section-title">📤 Duplicate Senders - Sending to Multiple Funders (${{data.total_duplicate_senders}} total)</div>
-                                    <div class="section-content">
-                                        <table>
-                                            <thead>
-                                                <tr>
-                                                    <th>Sender Address</th>
-                                                    <th>Funders Sent To</th>
-                                                    <th>Total Transfers</th>
-                                                    <th>Total SOL</th>
-                                                    <th>Related Tokens</th>
-                                                    <th>Period</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>`;
-
-                            if (data.senders.length === 0) {{
-                                html += '<tr><td colspan="6" style="padding: 20px; text-align: center; color: #a0a0a0;">No duplicate senders found</td></tr>';
-                            }} else {{
-                                data.senders.forEach(sender => {{
-                                    const firstDate = new Date(sender.first_seen * 1000).toISOString().substring(0, 10);
-                                    const lastDate = new Date(sender.last_seen * 1000).toISOString().substring(0, 10);
-                                    const period = firstDate === lastDate ? firstDate : firstDate + ' - ' + lastDate;
-                                    const rowHighlight = sender.funder_count > 10 ? 'background: rgba(251, 191, 36, 0.1);' : '';
-
-                                    html += `
-                                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); ${{rowHighlight}}">
-                                            <td style="padding: 12px; font-family: monospace; font-size: 11px; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                <a href="#" onclick="showSenderTokens('${{sender.sender_address}}'); return false;" style="color: #fbbf24; text-decoration: none; cursor: pointer;" title="${{sender.sender_address}}">${{sender.sender_address}}</a>
-                                            </td>
-                                            <td style="padding: 12px; color: #ef4444; font-weight: bold;">${{sender.funder_count}}</td>
-                                            <td style="padding: 12px; color: #a0a0a0;">${{sender.transfer_count}}</td>
-                                            <td style="padding: 12px; color: #4ade80;">${{sender.total_sol.toFixed(2)}}</td>
-                                            <td style="padding: 12px; color: #a0a0a0; font-weight: bold;">${{sender.related_token_count || 0}}</td>
-                                            <td style="padding: 12px; font-size: 11px; color: #a0a0a0;">${{period}}</td>
-                                        </tr>`;
-                                }});
-                            }}
-
-                            html += `
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>`;
-
-                            document.getElementById('senders-content').innerHTML = html;
-                            statusEl.textContent = '✅ Loaded ' + data.total_duplicate_senders + ' duplicate senders';
-                        }} catch(e) {{
-                            statusEl.textContent = '❌ Error: ' + e.message;
-                        }}
-                    }}
-
-                    async function showSenderTokens(senderAddress) {{
-                        const modal = document.getElementById('senderTokensModal');
-                        if (!modal) return;
-
-                        document.getElementById('modalSenderAddress').textContent = senderAddress;
-                        const statusEl = document.getElementById('senderTokensStatus');
-                        statusEl.textContent = '⟲ Loading tokens...';
-
-                        try {{
-                            const response = await fetch(`/api/sender-tokens/${{senderAddress}}`);
-                            const data = await response.json();
-
-                            if (data.error) {{
-                                statusEl.textContent = '❌ Error: ' + data.error;
-                                return;
-                            }}
-
-                            let html = `<table style="width: 100%; border-collapse: collapse;">
-                                <thead style="background: rgba(0, 0, 0, 0.3);">
-                                    <tr>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Token Mint</th>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Creator</th>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Funding (SOL)</th>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Risk</th>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Rug %</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
-
-                            if (data.tokens.length === 0) {{
-                                html += '<tr><td colspan="5" style="padding: 20px; text-align: center; color: #a0a0a0;">No tokens found</td></tr>';
-                            }} else {{
-                                data.tokens.forEach(token => {{
-                                    const riskColor = token.risk_level === 'HIGH' ? '#ef4444' : token.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
-                                    html += `
-                                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                                            <td style="padding: 10px; font-family: monospace; font-size: 11px; color: #4ade80; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                <a href="https://solscan.io/token/${{token.mint}}" target="_blank" style="color: #4ade80; text-decoration: none;" title="${{token.mint}}">${{token.mint}}</a>
-                                            </td>
-                                            <td style="padding: 10px; font-family: monospace; font-size: 11px; color: #a0a0a0; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{token.creator_address}}">${{token.creator_address}}</td>
-                                            <td style="padding: 10px; color: #4ade80; font-weight: bold;">${{token.total_funding_sol.toFixed(2)}}</td>
-                                            <td style="padding: 10px; color: ${{riskColor}}; font-weight: bold;">${{token.risk_level || 'N/A'}}</td>
-                                            <td style="padding: 10px; color: #f59e0b;">${{(token.rug_probability * 100).toFixed(1)}}%</td>
-                                        </tr>`;
-                                }});
-                            }}
-
-                            html += '</tbody></table>';
-
-                            const tokensContainer = document.getElementById('senderTokensContainer');
-                            tokensContainer.innerHTML = html;
-                            statusEl.textContent = `✅ Showing ${{data.total_tokens}} tokens`;
-                            modal.style.display = 'block';
-
-                        }} catch(error) {{
-                            console.error('Error loading sender tokens:', error);
-                            statusEl.textContent = '❌ Failed to load tokens';
-                        }}
-                    }}
-
-                    function closeSenderTokens() {{
-                        const modal = document.getElementById('senderTokensModal');
-                        if (modal) modal.style.display = 'none';
-                    }}
-
-                    window.onclick = function(event) {{
-                        const modal = document.getElementById('senderTokensModal');
-                        if (event.target === modal) {{
-                            modal.style.display = 'none';
-                        }}
-                    }}
-                    </script>
-
                     <!-- Sender Tokens Modal -->
                     <div id="senderTokensModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7);">
                         <div style="background: #0a0e27; margin: 10% auto; padding: 20px; border: 1px solid #00d4ff; width: 90%; max-width: 1200px; max-height: 80vh; overflow-y: auto; border-radius: 8px;">
@@ -6875,6 +7218,21 @@ def coordinated_funders_view():
                                 <span id="senderTokensStatus">Loading...</span>
                             </div>
                             <div id="senderTokensContainer" style="overflow-x: auto;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Funder Tokens Modal -->
+                    <div id="funderTokensModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7);">
+                        <div style="background: #0a0e27; margin: 10% auto; padding: 20px; border: 1px solid #3b82f6; width: 90%; max-width: 1200px; max-height: 80vh; overflow-y: auto; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h2 style="color: #3b82f6; margin: 0;">Tokens Funded by Funder</h2>
+                                <span style="cursor: pointer; font-size: 28px; color: #a0a0a0;" onclick="closeFunderTokens()">&times;</span>
+                            </div>
+                            <p style="color: #a0a0a0; font-size: 12px; word-break: break-all; margin-bottom: 15px;"><strong>Funder:</strong> <span id="modalFunderAddress" style="font-family: monospace;"></span></p>
+                            <div style="background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 4px; margin-bottom: 15px; color: #a0a0a0;">
+                                <span id="funderTokensStatus">Loading...</span>
+                            </div>
+                            <div id="funderTokensContainer" style="overflow-x: auto;"></div>
                         </div>
                     </div>
                 </div>
@@ -7373,6 +7731,402 @@ def api_sender_tokens(sender_address: str):
             'sender_address': sender_address,
             'tokens': tokens_list,
             'total_tokens': len(tokens_list)
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/duplicate-tokens')
+def api_duplicate_tokens():
+    """Get tokens funded by multiple senders (coordinated funding)"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get tokens funded by multiple senders
+        cursor.execute("""
+            SELECT
+                ta.mint,
+                ta.earliest_tx_creator as creator,
+                ta.created_at,
+                ta.risk_level,
+                ta.rug_probability,
+                ta.market_cap_current,
+                COUNT(DISTINCT fit.sender_address) as num_senders,
+                COUNT(DISTINCT fit.funder_address) as num_funders,
+                ROUND(SUM(fit.amount_sol), 2) as total_sol
+            FROM token_analysis ta
+            LEFT JOIN creator_funders cf ON cf.creator_address = ta.earliest_tx_creator
+            LEFT JOIN funder_incoming_transfers fit ON fit.funder_address = cf.funder_address
+            WHERE ta.earliest_tx_creator IS NOT NULL
+              AND fit.sender_address IS NOT NULL
+            GROUP BY ta.mint
+            HAVING COUNT(DISTINCT fit.sender_address) > 1
+            ORDER BY ta.created_at DESC, num_senders DESC
+        """)
+
+        tokens = [dict(row) for row in cursor.fetchall()]
+
+        conn.close()
+
+        return jsonify({
+            'tokens': tokens,
+            'total_duplicate_tokens': len(tokens)
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/funder-networks')
+def api_funder_networks():
+    """Get all funders with their network info (tokens, creators, senders)"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get all funders and their network stats (excluding CEX and INFRA accounts)
+        cursor.execute("""
+            SELECT
+                cf.funder_address,
+                COUNT(DISTINCT cf.creator_address) as creators_funded,
+                COUNT(DISTINCT ta.mint) as tokens_funded,
+                ROUND(SUM(cf.amount_sol), 2) as total_sol_out,
+                COUNT(DISTINCT fit.sender_address) as num_senders,
+                ROUND(SUM(fit.amount_sol), 2) as total_sol_in,
+                MIN(CAST(strftime('%s', cf.first_detected_at) AS INTEGER)) as earliest_funding,
+                MAX(CAST(strftime('%s', cf.first_detected_at) AS INTEGER)) as latest_funding,
+                COALESCE(cf.is_cex, 0) as is_cex,
+                COALESCE(cf.cex_exchange, '') as cex_exchange
+            FROM creator_funders cf
+            LEFT JOIN token_analysis ta ON cf.creator_address = ta.earliest_tx_creator
+            LEFT JOIN funder_incoming_transfers fit ON fit.funder_address = cf.funder_address
+            WHERE COALESCE(cf.is_cex, 0) = 0
+            AND cf.funder_address NOT IN (SELECT cex_address FROM cex_wallets WHERE is_active = 1)
+            GROUP BY cf.funder_address
+            HAVING COUNT(DISTINCT ta.mint) > 0
+            ORDER BY tokens_funded DESC, total_sol_out DESC
+        """)
+
+        funders = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        return jsonify({
+            'funders': funders,
+            'total_funders': len(funders)
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/funding-networks')
+def api_funding_networks():
+    """Get funding network clusters (groups of funders that fund overlapping tokens)"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Get all active networks with their stats
+        cursor.execute("""
+            SELECT
+                fn.network_id,
+                fn.network_name,
+                fn.total_members,
+                fn.total_tokens_funded,
+                fn.total_creators_funded,
+                ROUND(fn.total_sol, 2) as total_sol
+            FROM funding_networks fn
+            ORDER BY fn.total_sol DESC, fn.total_tokens_funded DESC
+        """)
+
+        networks = []
+        for row in cursor.fetchall():
+            members = []
+            # Get detailed member info for each network
+            cursor.execute("""
+                SELECT
+                    fnm.funder_address,
+                    fnm.role,
+                    fnm.shared_tokens_count,
+                    fnm.tokens_unique_to_member,
+                    ROUND(fnm.total_sol_out, 2) as total_sol_out,
+                    (SELECT COUNT(DISTINCT cw.cex_address) FROM cex_wallets cw WHERE cw.cex_address = fnm.funder_address AND cw.is_active = 1) as is_cex,
+                    (SELECT exchange_name FROM cex_wallets WHERE cex_address = fnm.funder_address AND is_active = 1 LIMIT 1) as exchange_name
+                FROM funding_network_members fnm
+                WHERE fnm.network_id = ?
+                ORDER BY fnm.total_sol_out DESC
+            """, (row['network_id'],))
+
+            for member_row in cursor.fetchall():
+                members.append({
+                    'address': member_row['funder_address'],
+                    'role': member_row['role'],
+                    'shared_tokens': member_row['shared_tokens_count'],
+                    'unique_tokens': member_row['tokens_unique_to_member'],
+                    'total_sol': member_row['total_sol_out'],
+                    'is_cex': member_row['is_cex'],
+                    'exchange': member_row['exchange_name']
+                })
+
+            networks.append({
+                'network_id': row['network_id'],
+                'name': row['network_name'],
+                'members': members,
+                'member_count': row['total_members'],
+                'total_tokens': row['total_tokens_funded'],
+                'total_creators': row['total_creators_funded'],
+                'total_sol': row['total_sol']
+            })
+
+        conn.close()
+        return jsonify({
+            'networks': networks,
+            'total_networks': len(networks)
+        })
+
+    except Exception as e:
+        print(f"[FUNDING_NETWORKS_API] Error: {e}", flush=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/build-funding-networks', methods=['POST'])
+def api_build_funding_networks():
+    """Build/rebuild funding network clusters from scratch"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        cursor = conn.cursor()
+
+        # Clear existing networks
+        cursor.execute("DELETE FROM funding_network_shared_tokens")
+        cursor.execute("DELETE FROM funding_network_members")
+        cursor.execute("DELETE FROM funding_networks")
+        conn.commit()
+
+        # Get all funders with their funded tokens (excluding CEX/INFRA)
+        cursor.execute("""
+            SELECT DISTINCT cf.funder_address
+            FROM creator_funders cf
+            WHERE cf.funder_address NOT IN (SELECT cex_address FROM cex_wallets WHERE is_active = 1)
+            AND COALESCE(cf.is_cex, 0) = 0
+        """)
+
+        all_funders = [row[0] for row in cursor.fetchall()]
+        print(f"[NETWORKS] Found {len(all_funders)} non-CEX funders to cluster", flush=True)
+
+        # Build a mapping of funder -> set of tokens they fund
+        funder_to_tokens = {}
+        cursor.execute("""
+            SELECT DISTINCT cf.funder_address, ta.mint
+            FROM creator_funders cf
+            JOIN token_analysis ta ON cf.creator_address = ta.earliest_tx_creator
+            WHERE cf.funder_address NOT IN (SELECT cex_address FROM cex_wallets WHERE is_active = 1)
+            AND COALESCE(cf.is_cex, 0) = 0
+            AND ta.mint IS NOT NULL
+        """)
+
+        for funder, mint in cursor.fetchall():
+            if funder not in funder_to_tokens:
+                funder_to_tokens[funder] = set()
+            funder_to_tokens[funder].add(mint)
+
+        print(f"[NETWORKS] Built token map for {len(funder_to_tokens)} funders", flush=True)
+
+        # Union-Find data structure for efficient clustering
+        parent = {}
+        
+        def find(x):
+            if x not in parent:
+                parent[x] = x
+            if parent[x] != x:
+                parent[x] = find(parent[x])
+            return parent[x]
+        
+        def union(x, y):
+            px, py = find(x), find(y)
+            if px != py:
+                parent[px] = py
+
+        # Pre-compute overlaps: For each pair of funders, if they share 2+ tokens, union them
+        funder_list = list(funder_to_tokens.keys())
+        print(f"[NETWORKS] Computing overlaps for {len(funder_list)} funders", flush=True)
+        
+        for i, funder1 in enumerate(funder_list):
+            if i % 1000 == 0:
+                print(f"[NETWORKS] Processed {i}/{len(funder_list)} funders for overlap...", flush=True)
+            
+            for funder2 in funder_list[i+1:]:
+                overlap = len(funder_to_tokens[funder1] & funder_to_tokens[funder2])
+                if overlap >= 2:  # Threshold: 2+ shared tokens
+                    union(funder1, funder2)
+
+        # Group funders by their root parent
+        networks_dict = {}
+        for funder in funder_list:
+            root = find(funder)
+            if root not in networks_dict:
+                networks_dict[root] = []
+            networks_dict[root].append(funder)
+
+        # Only keep networks with 2+ members
+        networks_dict = {k: v for k, v in networks_dict.items() if len(v) >= 2}
+        print(f"[NETWORKS] Found {len(networks_dict)} networks with 2+ members", flush=True)
+
+        # Insert networks into database
+        network_id = 1
+        for root, network_members in sorted(networks_dict.items(), key=lambda x: -len(x[1])):
+            network_name = f"Network_{network_id}"
+            cursor.execute("""
+                INSERT INTO funding_networks (network_name, total_members)
+                VALUES (?, ?)
+            """, (network_name, len(network_members)))
+            conn.commit()
+
+            current_network_id = cursor.lastrowid
+
+            # Add members to network
+            for member_funder in network_members:
+                member_tokens = funder_to_tokens.get(member_funder, set())
+
+                # Count how many tokens this member shares with other network members
+                shared_tokens = set()
+                for other_member in network_members:
+                    if other_member != member_funder:
+                        shared_tokens.update(member_tokens & funder_to_tokens.get(other_member, set()))
+
+                unique_tokens = len(member_tokens - shared_tokens)
+
+                # Get total SOL from this funder
+                cursor.execute("""
+                    SELECT ROUND(SUM(amount_sol), 2) as total
+                    FROM creator_funders
+                    WHERE funder_address = ?
+                """, (member_funder,))
+
+                total_sol = cursor.fetchone()[0] or 0
+
+                cursor.execute("""
+                    INSERT INTO funding_network_members
+                    (network_id, funder_address, shared_tokens_count, tokens_unique_to_member, total_sol_out)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (current_network_id, member_funder, len(shared_tokens), unique_tokens, total_sol))
+                conn.commit()
+
+                # Add shared tokens to network
+                for token in shared_tokens:
+                    cursor.execute("""
+                        INSERT OR IGNORE INTO funding_network_shared_tokens
+                        (network_id, mint)
+                        VALUES (?, ?)
+                    """, (current_network_id, token))
+                    conn.commit()
+
+            # Update network totals
+            cursor.execute("""
+                SELECT
+                    COUNT(DISTINCT funder_address) as member_count,
+                    COUNT(DISTINCT mint) as token_count,
+                    SUM(total_sol_out) as total_sol
+                FROM funding_network_members fnm
+                LEFT JOIN funding_network_shared_tokens fnst ON fnm.network_id = fnst.network_id
+                WHERE fnm.network_id = ?
+                GROUP BY fnm.network_id
+            """, (current_network_id,))
+
+            stats = cursor.fetchone()
+            if stats:
+                cursor.execute("""
+                    UPDATE funding_networks
+                    SET total_members = ?,
+                        total_tokens_funded = ?,
+                        total_sol = ?
+                    WHERE network_id = ?
+                """, (len(network_members), stats[1] or 0, stats[2] or 0, current_network_id))
+                conn.commit()
+
+            network_id += 1
+            if network_id % 10 == 0:
+                print(f"[NETWORKS] Inserted {network_id} networks...", flush=True)
+
+        conn.close()
+        print(f"[NETWORKS] ✅ Network building complete: {network_id - 1} networks created", flush=True)
+        return jsonify({'status': 'Networks built successfully', 'networks_created': network_id - 1}), 201
+
+    except Exception as e:
+        print(f"[BUILD_NETWORKS_API] Error: {e}", flush=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/tokens-by-funder/<funder_address>')
+def api_tokens_by_funder(funder_address: str):
+    """Get all tokens funded by a specific funder address"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get all tokens funded by this funder
+        cursor.execute("""
+            SELECT
+                ta.mint,
+                ta.earliest_tx_creator as creator,
+                ta.created_at,
+                ta.risk_level,
+                ta.rug_probability,
+                ta.market_cap_current,
+                cf.amount_sol,
+                COUNT(DISTINCT fit.sender_address) as num_senders
+            FROM creator_funders cf
+            JOIN token_analysis ta ON cf.creator_address = ta.earliest_tx_creator
+            LEFT JOIN funder_incoming_transfers fit ON fit.funder_address = cf.funder_address
+            WHERE cf.funder_address = ?
+            GROUP BY ta.mint
+            ORDER BY ta.created_at DESC
+        """, (funder_address,))
+
+        tokens = [dict(row) for row in cursor.fetchall()]
+
+        # Get funder info
+        cursor.execute("""
+            SELECT
+                COUNT(DISTINCT creator_address) as creators_funded,
+                ROUND(SUM(amount_sol), 2) as total_sol_out,
+                MIN(created_at) as earliest_funding,
+                MAX(created_at) as latest_funding
+            FROM (
+                SELECT DISTINCT creator_address, amount_sol, created_at FROM creator_funders WHERE funder_address = ?
+            )
+        """, (funder_address,))
+        funder_info = dict(cursor.fetchone()) if cursor.fetchone() else {}
+
+        # Get funder incoming transfers
+        cursor.execute("""
+            SELECT
+                COUNT(DISTINCT sender_address) as senders,
+                ROUND(SUM(amount_sol), 2) as total_sol_in
+            FROM funder_incoming_transfers
+            WHERE funder_address = ?
+        """, (funder_address,))
+        incoming_info = dict(cursor.fetchone()) if cursor.fetchone() else {}
+
+        conn.close()
+
+        return jsonify({
+            'funder_address': funder_address,
+            'tokens': tokens,
+            'total_tokens': len(tokens),
+            'funder_info': {
+                **funder_info,
+                'senders': incoming_info.get('senders', 0),
+                'total_in': incoming_info.get('total_sol_in', 0)
+            }
         })
 
     except Exception as e:

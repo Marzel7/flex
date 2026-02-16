@@ -6955,7 +6955,7 @@ def coordinated_funders_view():
                             data.networks.forEach((network, idx) => {{
                                 const color = network.member_count > 200 ? '#ef4444' : network.member_count > 100 ? '#f97316' : '#6366f1';
                                 html += `
-                                    <div style="margin-bottom: 20px; padding: 15px; background: rgba(0, 0, 0, 0.2); border: 1px solid ${color}; border-radius: 8px;">
+                                    <div style="margin-bottom: 20px; padding: 15px; background: rgba(0, 0, 0, 0.2); border: 1px solid ${{color}}; border-radius: 8px;">
                                         <div style="display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center;">
                                             <div>
                                                 <div style="font-size: 14px; font-weight: bold; color: #e0e0e0;">${{network.name}} - ${{network.member_count}} Members</div>
@@ -6979,7 +6979,7 @@ def coordinated_funders_view():
                                         <div style="padding: 8px 12px; background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid rgba(255, 255, 255, 0.05); ${{highlight}}">
                                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                                 <div style="font-family: monospace; font-size: 10px; word-break: break-all; color: #6366f1; flex: 1;">
-                                                    ${{member.address}} ${cexWarning}
+                                                    ${{member.address}} ${{cexWarning}}
                                                 </div>
                                                 <div style="margin-left: 12px; color: #a0a0a0; font-size: 11px; white-space: nowrap;">
                                                     <span style="color: #4ade80;">${{member.shared_tokens}}</span> shared,

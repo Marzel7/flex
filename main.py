@@ -4656,7 +4656,9 @@ HTML_TEMPLATE = """
             let visibleNetworks = data.networks;
             if (!showCexInfra && data.network_root_operator_status) {
                 visibleNetworks = data.networks.filter(net => {
-                    const hasInfraOrCex = data.network_root_operator_status[net.network_id];
+                    // Check status by both network_id as string and number
+                    const hasInfraOrCex = data.network_root_operator_status[net.network_id] || data.network_root_operator_status[String(net.network_id)];
+                    // When toggle is OFF (showCexInfra=false), only show networks without CEX/INFRA
                     return !hasInfraOrCex;
                 });
             }
@@ -4787,7 +4789,8 @@ HTML_TEMPLATE = """
             if (!showCexInfra && data.network_root_operator_status) {
                 // Exclude networks that have CEX/INFRA as root operators
                 visibleNetworks = data.networks.filter(net => {
-                    const hasInfraOrCex = data.network_root_operator_status[net.network_id];
+                    // Check status by both network_id as string and number
+                    const hasInfraOrCex = data.network_root_operator_status[net.network_id] || data.network_root_operator_status[String(net.network_id)];
                     // Include network only if it does NOT have CEX/INFRA (hasInfraOrCex === false)
                     return !hasInfraOrCex;
                 });

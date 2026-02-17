@@ -1,0 +1,7 @@
+[FLASK] Starting Migration Tracker UI...
+[FLASK] Dashboard available at http://localhost:5002
+[FLASK] Database: pumpswap_tokens.db
+ * Serving Flask app 'main'
+ * Debug mode: off
+Address already in use
+Port 5002 is in use by another program. Either identify and stop that program, or start the server with a different port.

@@ -250,19 +250,22 @@ HTML_TEMPLATE = """
             --color-none: var(--color-none);
 
             /* Backgrounds - SolanaFM Dark Navy/Purple */
-            --bg-primary: var(--bg-primary);
-            --bg-secondary: rgba(15, 23, 42, 0.8);
-            --bg-overlay: rgba(124, 58, 237, 0.1);
+            --bg-primary: #1a1a24;
+            --bg-secondary: rgba(20, 20, 32, 0.85);
+            --bg-overlay: rgba(124, 58, 237, 0.08);
 
             /* Accents - SolanaFM Vibrant */
             --accent-cyan: var(--accent-cyan);
             --accent-green: var(--color-low);
             --accent-purple: var(--accent-purple);
+
+            /* Address/Mint Colors - Light Purple */
+            --address-color: #a78bfa;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
             color: var(--text-primary);
             padding: 20px;
             min-height: 100vh;
@@ -693,7 +696,7 @@ HTML_TEMPLATE = """
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.8);
             animation: fadeIn 0.3s;
         }
 
@@ -741,6 +744,20 @@ HTML_TEMPLATE = """
         .close:hover,
         .close:focus {
             color: var(--accent-cyan);
+        }
+
+        .address {
+            color: var(--address-color);
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .mint {
+            color: var(--address-color);
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
         }
 
         .metrics-grid {
@@ -799,9 +816,9 @@ HTML_TEMPLATE = """
 
         .mint-link {
             cursor: pointer;
-            color: var(--accent-cyan) !important;
+            color: var(--address-color) !important;
             text-decoration: none;
-            border-bottom: 1px dotted var(--accent-cyan);
+            border-bottom: 1px dotted var(--address-color);
             transition: all 0.2s;
         }
 
@@ -1518,10 +1535,6 @@ HTML_TEMPLATE = """
                 <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Validate TX</button>
                 <button id="funderExtractionBtn" class="action-button" onclick="toggleFunderExtraction()" title="Toggle funder transfer extraction (incoming/outgoing)" style="background: rgba(245, 158, 11, 0.2); color: var(--color-medium); border: 1px solid rgba(245, 158, 11, 0.5); margin-left: 8px;">Funder Extraction OFF</button>
             </div>
-            <div class="control-group" style="border-left: 1px solid rgba(239, 68, 68, 0.3); margin-left: 12px; padding-left: 12px;">
-                <button class="action-button danger" onclick="emptyDatabase()" title="Clear all tokens, clustering, and address data">Empty DB</button>
-                <button class="action-button danger" onclick="killFlask()" title="Stop Flask server on port 5002">Kill Port 5002</button>
-            </div>
         </div>
 
         <div id="tokens-container">
@@ -1639,7 +1652,7 @@ HTML_TEMPLATE = """
     <div id="metricsModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeTokenMetrics()">&times;</span>
-            <h2>Token Metrics - <span id="modalMint" style="font-family: monospace; font-size: 14px;"></span></h2>
+            <h2>Token Metrics - <span id="modalMint" style="font-family: monospace; font-size: 14px; color: var(--address-color);"></span></h2>
 
             <h3>Risk Metrics</h3>
             <div class="metrics-grid" id="metricsGrid">
@@ -1666,7 +1679,7 @@ HTML_TEMPLATE = """
     <div id="creatorModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeCreatorDetails()">&times;</span>
-            <h2>Creator Details - <span id="modalCreator" style="font-family: monospace; font-size: 14px;"></span></h2>
+            <h2>Creator Details - <span id="modalCreator" style="font-family: monospace; font-size: 14px; color: var(--address-color);"></span></h2>
 
             <!-- Creator Stats Summary -->
             <div class="creator-stats-grid">
@@ -2005,7 +2018,7 @@ HTML_TEMPLATE = """
 
                         <div style="margin-bottom: 15px;">
                             <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Token Mint</div>
-                            <div style="color: var(--accent-cyan); font-family: monospace; font-size: 12px; word-break: break-all;" id="resultMint">—</div>
+                            <div style="color: var(--address-color); font-family: monospace; font-size: 12px; word-break: break-all;" id="resultMint">—</div>
                         </div>
 
                         <div style="margin-bottom: 15px;">
@@ -3006,37 +3019,6 @@ HTML_TEMPLATE = """
             }).catch(e => console.error('❌ Error updating listener settings:', e));
         }
 
-        function emptyDatabase() {
-            if (confirm('🚨 WARNING: This will permanently delete ALL tokens, clustering data, and address information. Are you sure?')) {
-                fetch('/api/empty-database', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'}
-                }).then(resp => resp.json()).then(data => {
-                    console.log('✅ Database cleared:', data);
-                    alert('✅ Database emptied successfully');
-                    location.reload();
-                }).catch(e => {
-                    console.error('❌ Error clearing database:', e);
-                    alert('❌ Error clearing database');
-                });
-            }
-        }
-
-        function killFlask() {
-            if (confirm('⏹️ WARNING: This will stop the Flask server on port 5002. Page will become unresponsive. Continue?')) {
-                fetch('/api/kill-server', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'}
-                }).then(resp => {
-                    console.log('✅ Kill signal sent to Flask');
-                    alert('⏹️ Flask server stopped');
-                }).catch(e => {
-                    console.error('Server stopped (expected)', e);
-                    alert('⏹️ Flask server stopped');
-                });
-            }
-        }
-
         function togglePolling() {
             const btn = document.getElementById('pollingToggleBtn');
             const isEnabled = btn.textContent.includes('ON');
@@ -3747,7 +3729,7 @@ HTML_TEMPLATE = """
 
                         return `
                             <tr>
-                                <td title="${funder.funder_address}" style="font-family: monospace; color: var(--accent-cyan);">${funder.funder_address.substring(0, 16)}...</td>
+                                <td title="${funder.funder_address}" style="font-family: monospace; color: var(--address-color);">${funder.funder_address.substring(0, 16)}...</td>
                                 <td>${amountStr} SOL</td>
                                 <td>${funderType}</td>
                             </tr>
@@ -5843,14 +5825,14 @@ def api_creator_details(creator_address: str):
         tokens = [dict(row) for row in cursor.fetchall()]
 
         # 2. Get funding data - MERGED from both sources (funders + outgoing transfers from tx_ledger)
-        # Pre-migration funders
+        # Pre-migration funders (excluding CEX and INFRA)
         cursor.execute("""
             SELECT
                 COUNT(DISTINCT funder_address) as funder_count,
                 SUM(amount_sol) as total_sol,
                 SUM(CASE WHEN is_cex = 1 THEN 1 ELSE 0 END) as cex_funder_count
             FROM creator_funders
-            WHERE creator_address = ?
+            WHERE creator_address = ? AND is_cex = 0
         """, (creator_address,))
         funders_row = cursor.fetchone()
         
@@ -5879,7 +5861,7 @@ def api_creator_details(creator_address: str):
             'total_sol': funders_sol + recipients_sol
         }
 
-        # 3. Get top funders (with CEX info and source_type classification)
+        # 3. Get top funders (excluding CEX and INFRA, with source_type classification)
         cursor.execute("""
             SELECT
                 funder_address,
@@ -5889,7 +5871,7 @@ def api_creator_details(creator_address: str):
                 cex_type,
                 COALESCE(source_type, 'original_sender') as source_type
             FROM creator_funders
-            WHERE creator_address = ?
+            WHERE creator_address = ? AND is_cex = 0
             ORDER BY amount_sol DESC
             LIMIT 5
         """, (creator_address,))
@@ -6053,7 +6035,7 @@ def api_funder_tokens(funder_address: str):
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
 
-        # Get all tokens where this address was a funder
+        # Get all tokens where this address was a funder (excluding CEX and INFRA)
         cursor.execute("""
             SELECT DISTINCT
                 ta.mint,
@@ -6064,7 +6046,7 @@ def api_funder_tokens(funder_address: str):
                 cf.amount_sol
             FROM creator_funders cf
             JOIN token_analysis ta ON cf.creator_address = ta.earliest_tx_creator
-            WHERE cf.funder_address = ?
+            WHERE cf.funder_address = ? AND cf.is_cex = 0
             ORDER BY ta.created_at DESC
         """, (funder_address,))
 
@@ -9279,7 +9261,7 @@ def api_sender_tokens(sender_address: str):
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
 
-        # Get all tokens funded by funders that received from this sender
+        # Get all tokens funded by funders that received from this sender (excluding CEX and INFRA)
         cursor.execute("""
             SELECT DISTINCT
                 ta.mint,
@@ -9293,7 +9275,7 @@ def api_sender_tokens(sender_address: str):
                 SELECT DISTINCT funder_address
                 FROM funder_incoming_transfers
                 WHERE sender_address = ?
-            )
+            ) AND cf.is_cex = 0
             ORDER BY ta.created_at DESC
         """, (sender_address,))
 
@@ -9303,7 +9285,7 @@ def api_sender_tokens(sender_address: str):
             token_mint = token_row['mint']
             creator_addr = token_row['earliest_tx_creator']
 
-            # Get total funding for this token from this creator's funders that came from the sender
+            # Get total funding for this token from this creator's funders that came from the sender (excluding CEX and INFRA)
             cursor.execute("""
                 SELECT
                     SUM(cf.amount_sol) as total_funding_sol,
@@ -9313,7 +9295,7 @@ def api_sender_tokens(sender_address: str):
                     SELECT DISTINCT funder_address
                     FROM funder_incoming_transfers
                     WHERE sender_address = ?
-                )
+                ) AND cf.is_cex = 0
             """, (creator_addr, sender_address))
 
             funding_row = cursor.fetchone()
@@ -10302,6 +10284,28 @@ def api_analyze_funder_transfers():
                 print(f"[FUNDER_ANALYSIS] Starting extraction for {funder_address[:16]}...", flush=True)
 
                 result = extract_transfers_for_funder(funder_address)
+
+                # Mark all creators with this funder as analyzed
+                try:
+                    conn = sqlite3.connect(DB_PATH, timeout=5)
+                    cursor = conn.cursor()
+
+                    # Get all creators with this funder
+                    cursor.execute("SELECT DISTINCT creator_address FROM creator_funders WHERE funder_address = ?", (funder_address,))
+                    creators = [row[0] for row in cursor.fetchall()]
+
+                    # Mark each creator-funder pair as analyzed
+                    for creator_addr in creators:
+                        cursor.execute(
+                            "UPDATE creator_funders SET last_analyzed = CURRENT_TIMESTAMP, fully_analyzed = 1 WHERE creator_address = ? AND funder_address = ?",
+                            (creator_addr, funder_address)
+                        )
+
+                    conn.commit()
+                    conn.close()
+                    print(f"[FUNDER_ANALYSIS] ✅ Marked extraction complete for {len(creators)} creator(s)", flush=True)
+                except Exception as mark_err:
+                    print(f"[FUNDER_ANALYSIS] ⚠️ Could not mark analyzed: {mark_err}", flush=True)
 
                 # Store result in memory/cache for quick retrieval
                 app.funder_analysis_cache = app.funder_analysis_cache or {}

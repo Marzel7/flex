@@ -537,14 +537,15 @@ class RealTimeCreatorFundingExtractor:
             if not cex_exchange and is_cex_account(funder):
                 is_classified = 1  # Mark as classified (CEX in mapping)
 
-            # Mark as fully_analyzed if total amount > 1 SOL
-            fully_analyzed = 1 if new_total_amount > 1.0 else 0
+            # NOTE: Do NOT set fully_analyzed at discovery time.
+            # fully_analyzed should only be set AFTER actual extraction of incoming transfers.
+            # Discovery only creates the record; extraction sets fully_analyzed=1 and last_analyzed timestamp.
 
             cursor.execute("""
                 INSERT OR REPLACE INTO creator_funders
-                (creator_address, funder_address, amount_sol, first_detected_at, is_cex, cex_exchange, cex_type, is_classified, fully_analyzed)
-                VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?)
-            """, (creator, funder, new_total_amount, 1 if cex_exchange else 0, cex_exchange, cex_type, is_classified, fully_analyzed))
+                (creator_address, funder_address, amount_sol, first_detected_at, is_cex, cex_exchange, cex_type, is_classified)
+                VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)
+            """, (creator, funder, new_total_amount, 1 if cex_exchange else 0, cex_exchange, cex_type, is_classified))
 
             conn.commit()
             conn.close()

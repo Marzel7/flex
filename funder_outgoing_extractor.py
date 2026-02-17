@@ -76,12 +76,12 @@ def classify_recipient(recipient_address: str) -> Tuple[str, str]:
 
 def save_funder_transfer(funder_address: str, recipient_address: str, amount_sol: float,
                         tx_signature: str, block_time: int):
-    """Save a funder transfer to database"""
+    """Save a funder transfer to database (store CEX/INFRA but mark as terminal)"""
     try:
         # Classify recipient
         recipient_type, recipient_label = classify_recipient(recipient_address)
 
-        # Check if recipient is CEX
+        # Check if recipient is CEX or INFRA (mark for display but don't trace through)
         is_cex = 1 if recipient_type == "cex" else 0
         cex_exchange = None
         cex_type = None
@@ -109,6 +109,10 @@ def save_funder_transfer(funder_address: str, recipient_address: str, amount_sol
 
         conn.commit()
         conn.close()
+
+        # Show marker for terminal accounts (don't trace further)
+        marker = "🚫" if recipient_type in ("cex", "infra") else "✅"
+        print(f"[DB] {marker} Saved transfer: {funder_address[:16]}... → {recipient_address[:16]}... | {amount_sol:.4f} SOL ({recipient_type})")
         return True
     except Exception as e:
         print(f"[DB] Error saving transfer: {e}")

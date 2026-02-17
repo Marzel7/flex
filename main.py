@@ -10779,11 +10779,14 @@ def api_super_clusters():
                 sc.creators_in_multiple_clusters,
                 sc.meta_component_id,
                 sc.meta_component_reuse_ratio,
+                sc.meta_component_cluster_count,
+                sc.avg_clusters_per_creator,
+                sc.p95_clusters_per_creator,
                 COUNT(DISTINCT csm.creator_address) as mapped_creators
             FROM super_clusters sc
             LEFT JOIN creator_super_cluster_membership csm ON sc.super_cluster_id = csm.super_cluster_id
             GROUP BY sc.super_cluster_id
-            ORDER BY sc.creator_count DESC
+            ORDER BY sc.mapped_creators DESC, sc.super_cluster_id
         """)
 
         clusters = []
@@ -10810,13 +10813,16 @@ def api_super_clusters():
                 'mapped_creators': row['mapped_creators'],
                 'root_addresses': root_addresses_display,
                 'risk_level': row['risk_level'],
-                'has_cex_infra': has_cex_infra,  # Flag if cluster has ANY CEX/INFRA
+                'has_cex_infra': has_cex_infra,
                 'creator_reuse_level': row['creator_reuse_level'],
                 'creator_reuse_tag': row['creator_reuse_tag'],
                 'creator_reuse_ratio_across_clusters': round(row['creator_reuse_ratio_across_clusters'], 3) if row['creator_reuse_ratio_across_clusters'] else 0,
                 'creators_in_multiple_clusters': row['creators_in_multiple_clusters'] or 0,
                 'meta_component_id': row['meta_component_id'],
-                'meta_component_reuse_ratio': round(row['meta_component_reuse_ratio'], 3) if row['meta_component_reuse_ratio'] else 0
+                'meta_component_cluster_count': row['meta_component_cluster_count'],
+                'meta_component_reuse_ratio': round(row['meta_component_reuse_ratio'], 3) if row['meta_component_reuse_ratio'] else 0,
+                'avg_clusters_per_creator': round(row['avg_clusters_per_creator'], 1) if row['avg_clusters_per_creator'] else 0,
+                'p95_clusters_per_creator': row['p95_clusters_per_creator'] or 0
             })
 
         conn.close()
@@ -10848,7 +10854,10 @@ def api_super_cluster_details(cluster_id: str):
                 creator_reuse_ratio_across_clusters,
                 creators_in_multiple_clusters,
                 meta_component_id,
-                meta_component_reuse_ratio
+                meta_component_reuse_ratio,
+                meta_component_cluster_count,
+                avg_clusters_per_creator,
+                p95_clusters_per_creator
             FROM super_clusters
             WHERE super_cluster_id = ?
         """, (cluster_id,))
@@ -11119,7 +11128,10 @@ def api_super_cluster_details(cluster_id: str):
             'creator_reuse_ratio_across_clusters': round(cluster_row['creator_reuse_ratio_across_clusters'], 3) if cluster_row['creator_reuse_ratio_across_clusters'] else 0,
             'creators_in_multiple_clusters': cluster_row['creators_in_multiple_clusters'] or 0,
             'meta_component_id': cluster_row['meta_component_id'],
+            'meta_component_cluster_count': cluster_row['meta_component_cluster_count'],
             'meta_component_reuse_ratio': round(cluster_row['meta_component_reuse_ratio'], 3) if cluster_row['meta_component_reuse_ratio'] else 0,
+            'avg_clusters_per_creator': round(cluster_row['avg_clusters_per_creator'], 1) if cluster_row['avg_clusters_per_creator'] else 0,
+            'p95_clusters_per_creator': cluster_row['p95_clusters_per_creator'] or 0,
             'creators': creators,
             'tokens': tokens,
             'funder_stats': {

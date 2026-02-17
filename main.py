@@ -4725,18 +4725,18 @@ HTML_TEMPLATE = """
                     return;
                 }
 
-                // Determine color for creator reuse tag
-                let reuseColor = '#6bcf7f';  // green - NONE
-                let reuseTextColor = '#1a1a1a';
+                // Determine color for creator reuse tag (using CSS variables)
+                let reuseColor = 'var(--color-none)';  // muted sage - NONE
+                let reuseTextColor = 'var(--text-primary)';
                 if (cluster.creator_reuse_level === 'HIGH') {
-                    reuseColor = '#ff6b6b';  // red
-                    reuseTextColor = '#ffffff';
+                    reuseColor = 'var(--color-high)';  // muted mauve-red
+                    reuseTextColor = 'var(--text-light)';
                 } else if (cluster.creator_reuse_level === 'MEDIUM') {
-                    reuseColor = '#ffa94d';  // orange
-                    reuseTextColor = '#1a1a1a';
+                    reuseColor = 'var(--color-medium)';  // muted brown
+                    reuseTextColor = 'var(--text-primary)';
                 } else if (cluster.creator_reuse_level === 'LOW') {
-                    reuseColor = '#ffd93d';  // yellow
-                    reuseTextColor = '#1a1a1a';
+                    reuseColor = 'var(--color-low)';  // muted warm-neutral
+                    reuseTextColor = 'var(--text-primary)';
                 }
 
                 visibleHtml += `
@@ -5187,8 +5187,8 @@ HTML_TEMPLATE = """
 
             const definitions = {
                 'INDEPENDENT': {
-                    title: 'INDEPENDENT (Green)',
-                    color: '#6bcf7f',
+                    title: 'INDEPENDENT (Sage)',
+                    color: '#6b8d7a',
                     definition: '<strong>No creators reused across clusters</strong><br><br>' +
                         "This cluster's creators appear only in this cluster and nowhere else. " +
                         'Each creator wallet is independent and not shared with other coordinated operations.',
@@ -5199,8 +5199,8 @@ HTML_TEMPLATE = """
                     risk: 'LOW - Isolated operation'
                 },
                 'CREATOR_POOL_WEAK': {
-                    title: 'CREATOR POOL - WEAK (Yellow)',
-                    color: '#ffd93d',
+                    title: 'CREATOR POOL - WEAK (Warm)',
+                    color: '#a89e6b',
                     definition: '<strong>Minimal creator reuse</strong><br><br>' +
                         'Some creators appear in multiple clusters, but the coordination signal is weak. ' +
                         'Either few creators are reused, or the reuse ratio is below our minimum-support threshold.',
@@ -5212,8 +5212,8 @@ HTML_TEMPLATE = """
                     risk: 'MEDIUM - Monitor for escalation'
                 },
                 'CREATOR_POOL_SHARED': {
-                    title: 'CREATOR POOL - SHARED (Orange)',
-                    color: '#ffa94d',
+                    title: 'CREATOR POOL - SHARED (Brown)',
+                    color: '#a68b6b',
                     definition: '<strong>Solid creator pool coordination</strong><br><br>' +
                         'Multiple clusters share a pool of creators with consistent coordination. ' +
                         'Clear pattern of reusing the same launcher wallets across different funding networks.',
@@ -5225,8 +5225,8 @@ HTML_TEMPLATE = """
                     risk: 'HIGH - Coordinated operations'
                 },
                 'CREATOR_POOL_STRONG': {
-                    title: 'CREATOR POOL - STRONG (Red)',
-                    color: '#ff6b6b',
+                    title: 'CREATOR POOL - STRONG (Mauve)',
+                    color: '#9d7070',
                     definition: '<strong>Highly coordinated creator ecosystem</strong><br><br>' +
                         'Strong evidence of an organized operation reusing creators systematically. ' +
                         'Industrial-scale creator pool management with high concentration of reuse.',

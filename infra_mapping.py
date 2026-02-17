@@ -426,6 +426,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "protocol", "rollbit", "treasury"],
     },
 
+    # PYUSD (PayPal Stablecoin)
+    "76iXe9yKFDjGv3HicUVVy8AYxHLC71L1wYa12zaZzHHp": {
+        "name": "PYUSD",
+        "category": "automation",
+        "description": "PayPal USD stablecoin - bulk consolidation/sweeper bot activity",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "pyusd", "stablecoin", "sweeper"],
+    },
+
     # Solend (Lending Protocol)
     "So1endDq2YkqvzLvDtqKp2eiXodus4CMVqKwRQW4gS8": {
         "name": "Solend",

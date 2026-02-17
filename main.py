@@ -10609,7 +10609,7 @@ def api_super_cluster_details(cluster_id: str):
 
         networks = [dict(row) for row in cursor.fetchall()]
 
-        # Identify root operators (funders with multiple creators)
+        # Identify root operators (funders with multiple creators) - NOW INCLUDE ALL
         cursor.execute("""
             SELECT
                 cf.funder_address,
@@ -10623,13 +10623,11 @@ def api_super_cluster_details(cluster_id: str):
                 FROM creator_super_cluster_membership
                 WHERE super_cluster_id = ?
             )
-            AND cf.funder_address NOT IN ({})
             GROUP BY cf.funder_address
             HAVING COUNT(DISTINCT cf.creator_address) > 1
             ORDER BY total_sol_sent DESC
             LIMIT 10
-        """.format(','.join('?' * len(infra_and_cex))),
-        (cluster_id,) + tuple(infra_and_cex))
+        """, (cluster_id,))
 
         root_operators_data = cursor.fetchall()
 
@@ -10637,6 +10635,13 @@ def api_super_cluster_details(cluster_id: str):
         root_operator_flows = []
         for root_op in root_operators_data:
             root_op_addr = root_op['funder_address']
+
+            # Get display name (if CEX/INFRA)
+            display_name = root_op_addr
+            if root_op_addr in INFRASTRUCTURE_ACCOUNTS:
+                display_name = f"{INFRASTRUCTURE_ACCOUNTS[root_op_addr]['name']} (INFRA)"
+            elif root_op_addr in CEX_ACCOUNTS:
+                display_name = f"{CEX_ACCOUNTS[root_op_addr]['name']} (CEX)"
 
             # Get downstream creators funded by this root operator
             cursor.execute("""
@@ -10669,24 +10674,25 @@ def api_super_cluster_details(cluster_id: str):
                 """, (root_op_addr,))
 
                 sender_row = cursor.fetchone()
-                
+
                 # Get the largest transfer (highest SOL to creator)
                 creator_data = downstream_creators[0]
                 flow_data = {
-                    'funder': root_op_addr,
+                    'funder': display_name,  # Use display name
                     'creator': creator_data['creator_address'],
                     'mint': creator_data.get('mint', ''),
                     'sol_to_creator': creator_data['amount_sol']
                 }
-                
+
                 # Add sender if we found incoming transfers for this root op
                 if sender_row:
                     flow_data['sender'] = sender_row['sender_address']
-                
+
                 example_flows.append(flow_data)
 
             root_operator_flows.append({
-                'root_operator': root_op_addr,
+                'root_operator': display_name,  # Use display name
+                'root_operator_address': root_op_addr,  # Keep raw address for reference
                 'creators_funded': root_op['creators_funded'],
                 'total_sol_sent': root_op['total_sol_sent'],
                 'transfer_count': root_op['transfer_count'],
@@ -10697,16 +10703,19 @@ def api_super_cluster_details(cluster_id: str):
 
         conn.close()
 
-        # Get root addresses from both sources:
-        # 1. From the database table (may include filtered-out infra accounts)
+        # Get all root addresses (including CEX/INFRA) from database
         root_addresses_raw = cluster_row['root_addresses'].split(',') if cluster_row['root_addresses'] else []
-        root_addresses_filtered = [addr for addr in root_addresses_raw if addr not in infra_and_cex]
 
-        # 2. From the flows we found (unfiltered, has example flows)
-        flow_addresses = [flow['root_operator'] for flow in root_operator_flows]
+        # Map to display names
+        all_root_addresses = []
+        for addr in root_addresses_raw:
+            if addr in INFRASTRUCTURE_ACCOUNTS:
+                all_root_addresses.append(f"{INFRASTRUCTURE_ACCOUNTS[addr]['name']} (INFRA)")
+            elif addr in CEX_ACCOUNTS:
+                all_root_addresses.append(f"{CEX_ACCOUNTS[addr]['name']} (CEX)")
+            else:
+                all_root_addresses.append(addr)
 
-        # Combine them, preferring flow addresses (which have data) but keeping all from database
-        all_root_addresses = list(set(root_addresses_filtered + flow_addresses))
         all_root_addresses.sort()
 
         return jsonify({

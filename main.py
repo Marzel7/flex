@@ -3094,7 +3094,7 @@ HTML_TEMPLATE = """
                 if (data.networks && data.networks.length > 0) {
                     for (let network of data.networks) {
                         html += '<tr style="border-bottom: 1px solid rgba(239, 68, 68, 0.2);">';
-                        html += '<td style="color: var(--color-critical); font-family: monospace; font-size: 12px;">' + network.address.substring(0, 20) + '...</td>';
+                        html += '<td style="color: var(--color-critical); font-family: monospace; font-size: 12px; word-break: break-all;">' + network.address + '</td>';
                         html += '<td style="color: var(--color-critical);"><strong>' + network.creator_count + '</strong></td>';
                         html += '<td style="color: var(--color-critical);">' + (network.total_sol || 0).toFixed(2) + ' SOL</td>';
                         html += '<td style="color: var(--color-critical);">' + (network.linked_funders || 0) + '</td>';
@@ -3417,7 +3417,7 @@ HTML_TEMPLATE = """
                 let creatorDisplay = creatorAddress;
                 if (data.creator_address_tags && data.creator_address_tags.domain) {
                     const domains = data.creator_address_tags.domain;
-                    creatorDisplay = `${creatorAddress.substring(0, 14)}... <span class="domain-tag" style="font-size: 11px; margin-left: 8px;">🌐 ${domains[0]}</span>`;
+                    creatorDisplay = `<div style="word-break: break-all;">${creatorAddress} <span class="domain-tag" style="font-size: 11px; margin-left: 8px;">🌐 ${domains[0]}</span></div>`;
                 }
                 document.getElementById('modalCreator').innerHTML = creatorDisplay;
 
@@ -3662,9 +3662,9 @@ HTML_TEMPLATE = """
                         fundedBody.innerHTML = fundedData.tokens_funded.map(token => {
                             return `
                                 <tr>
-                                    <td><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="${token.mint}">${token.mint.substring(0, 16)}...</a></td>
-                                    <td style="font-family: monospace; font-size: 11px;">
-                                        <a href="#" onclick="showCreatorDetails('${token.creator_address}'); return false;" title="${token.creator_address}">${token.creator_address.substring(0, 16)}...</a>
+                                    <td style="word-break: break-all;"><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="${token.mint}">${token.mint}</a></td>
+                                    <td style="font-family: monospace; font-size: 11px; word-break: break-all;">
+                                        <a href="#" onclick="showCreatorDetails('${token.creator_address}'); return false;" title="${token.creator_address}">${token.creator_address}</a>
                                     </td>
                                     <td>${token.funding_amount_sol.toFixed(2)} SOL</td>
                                     <td>${formatDateISO(token.created_at)}</td>
@@ -4411,8 +4411,8 @@ HTML_TEMPLATE = """
                                          cc.risk_level === 'HIGH' ? 'color: var(--color-medium);' :
                                          'color: var(--color-low);';
                         creatorsList += `
-                            <div style="margin-bottom: 8px; ${riskStyle}">
-                                ${idx + 1}. ${cc.creator_address.substring(0, 16)}...
+                            <div style="margin-bottom: 8px; ${riskStyle}; word-break: break-all;">
+                                ${idx + 1}. ${cc.creator_address}
                                 <span style="font-size: 10px; color: var(--text-secondary);">
                                     [${cc.risk_level}] Rug: ${(cc.rug_probability * 100).toFixed(0)}%
                                 </span>

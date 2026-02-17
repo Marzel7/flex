@@ -239,7 +239,7 @@ HTML_TEMPLATE = """
             /* Text Colors - Professional Gray Scale */
             --text-primary: #e5e7eb;
             --text-secondary: var(--text-secondary);
-            --text-dark: #1a1a1a;
+            --text-dark: var(--text-dark);
             --text-light: #f3f4f6;
 
             /* Risk & Reuse Levels - Professional Palette */
@@ -1374,7 +1374,7 @@ HTML_TEMPLATE = """
         }
 
         .status-indicator.active {
-            background-color: #00ff00;
+            background-color: var(--color-low);
         }
 
         .action-button {
@@ -2184,9 +2184,9 @@ HTML_TEMPLATE = """
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Networks</div>
                     <div id="scNetworkCount" style="color: var(--color-none); font-size: 20px; font-weight: bold;">—</div>
                 </div>
-                <div style="background: rgba(245, 158, 11, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #f59e0b;">
+                <div style="background: rgba(245, 158, 11, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-high);">
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Creators</div>
-                    <div id="scCreatorCount" style="color: #f59e0b; font-size: 20px; font-weight: bold;">—</div>
+                    <div id="scCreatorCount" style="color: var(--color-high); font-size: 20px; font-weight: bold;">—</div>
                 </div>
                 <div style="background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-none);">
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Tokens</div>
@@ -2334,9 +2334,9 @@ HTML_TEMPLATE = """
             </div>
 
             <!-- INDEPENDENT -->
-            <div style="background: rgba(107, 207, 127, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #6bcf7f; margin-bottom: 20px;">
+            <div style="background: rgba(107, 207, 127, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid var(--color-low); margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                    <span style="background: #6bcf7f; color: #1a1a1a; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">INDEPENDENT</span>
+                    <span style="background: var(--color-low); color: var(--text-dark); padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">INDEPENDENT</span>
                     <span style="color: var(--text-secondary); font-size: 12px;">(Green)</span>
                 </div>
                 <div style="color: var(--text-primary);">
@@ -2353,9 +2353,9 @@ HTML_TEMPLATE = """
             </div>
 
             <!-- WEAK -->
-            <div style="background: rgba(255, 217, 61, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #ffd93d; margin-bottom: 20px;">
+            <div style="background: rgba(255, 217, 61, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid var(--color-medium); margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                    <span style="background: #ffd93d; color: #1a1a1a; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - WEAK</span>
+                    <span style="background: var(--color-medium); color: var(--text-dark); padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - WEAK</span>
                     <span style="color: var(--text-secondary); font-size: 12px;">(Yellow)</span>
                 </div>
                 <div style="color: var(--text-primary);">
@@ -2372,9 +2372,9 @@ HTML_TEMPLATE = """
             </div>
 
             <!-- SHARED -->
-            <div style="background: rgba(255, 169, 77, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #ffa94d; margin-bottom: 20px;">
+            <div style="background: rgba(255, 169, 77, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid var(--color-medium); margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                    <span style="background: #ffa94d; color: #1a1a1a; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - SHARED</span>
+                    <span style="background: var(--color-medium); color: var(--text-dark); padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - SHARED</span>
                     <span style="color: var(--text-secondary); font-size: 12px;">(Orange)</span>
                 </div>
                 <div style="color: var(--text-primary);">
@@ -2393,7 +2393,7 @@ HTML_TEMPLATE = """
             <!-- STRONG -->
             <div style="background: rgba(255, 107, 107, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid var(--color-critical); margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                    <span style="background: var(--color-critical); color: #ffffff; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - STRONG</span>
+                    <span style="background: var(--color-critical); color: var(--text-light); padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - STRONG</span>
                     <span style="color: var(--text-secondary); font-size: 12px;">(Red)</span>
                 </div>
                 <div style="color: var(--text-primary);">
@@ -3223,7 +3223,7 @@ HTML_TEMPLATE = """
             fundingNetworkContainer.style.display = 'none';
 
             tokensTabBtn.style.background = 'rgba(124, 58, 237, 0.3)';
-            tokensTabBtn.style.color = '#818cf8';
+            tokensTabBtn.style.color = 'var(--primary)';
             networksTabBtn.style.background = 'rgba(124, 58, 237, 0.2)';
             networksTabBtn.style.color = 'var(--accent-purple)';
         }
@@ -5017,16 +5017,16 @@ HTML_TEMPLATE = """
                         }
 
                         flowHTML += '<div style="color: var(--primary); margin-bottom: 6px;"><strong>💰 Root Op:</strong></div>' +
-                        '<div style="font-size: 12px; font-weight: bold; color: #818cf8; word-break: break-all; padding: 6px; background: rgba(129, 140, 248, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.funder + '</div>' +
+                        '<div style="font-size: 12px; font-weight: bold; color: var(--primary); word-break: break-all; padding: 6px; background: rgba(129, 140, 248, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.funder + '</div>' +
                         '<div style="color: var(--text-secondary); margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ ' + ex.sol_to_creator.toFixed(2) + ' SOL funds Creator</div>';
 
-                        flowHTML += '<div style="color: #f59e0b; margin-bottom: 6px;"><strong>👤 Creator:</strong></div>' +
+                        flowHTML += '<div style="color: var(--color-high); margin-bottom: 6px;"><strong>👤 Creator:</strong></div>' +
                         '<div style="font-size: 12px; font-weight: bold; color: var(--color-medium); word-break: break-all; padding: 6px; background: rgba(251, 191, 36, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.creator + '</div>';
 
                         if (ex.mint) {
                             flowHTML += '<div style="color: var(--text-secondary); margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ creates Token</div>' +
                             '<div style="color: var(--color-low);"><strong>🎫 Token:</strong></div>' +
-                            '<div style="font-size: 12px; font-weight: bold; color: #86efac; word-break: break-all; padding: 6px; background: rgba(134, 239, 172, 0.1); border-radius: 2px;">' + ex.mint + '</div>';
+                            '<div style="font-size: 12px; font-weight: bold; color: var(--color-low); word-break: break-all; padding: 6px; background: rgba(134, 239, 172, 0.1); border-radius: 2px;">' + ex.mint + '</div>';
                         }
 
                         flowHTML += '</div>';
@@ -5064,7 +5064,7 @@ HTML_TEMPLATE = """
                     '<div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 8px;">ROOT OPERATOR #' + (idx + 1) + '</div>' +
                     '<div style="font-family: monospace; font-size: 11px; color: var(--primary); word-break: break-all; margin-bottom: 8px; padding: 6px; background: rgba(124, 58, 237, 0.1); border-radius: 4px;">' + addr + '</div>' +
                     (flow ? '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; font-size: 10px;">' +
-                        '<div><div style="color: var(--text-secondary);">CREATORS FUNDED</div><div style="color: #f59e0b; font-weight: bold;">' + flow.creators_funded + '</div></div>' +
+                        '<div><div style="color: var(--text-secondary);">CREATORS FUNDED</div><div style="color: var(--color-high); font-weight: bold;">' + flow.creators_funded + '</div></div>' +
                         '<div><div style="color: var(--text-secondary);">TOTAL SOL</div><div style="color: var(--color-low); font-weight: bold;">' + flow.total_sol_sent.toFixed(2) + '</div></div>' +
                         '</div>' : '') +
                     (flowsHTML ? '<div style="margin-top: 10px; font-size: 9px; color: var(--text-secondary); margin-bottom: 6px;">EXAMPLE FLOWS: Sender → Funder → Creator</div>' +
@@ -5108,7 +5108,7 @@ HTML_TEMPLATE = """
                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;">
                                 <div>
                                     <div style="color: var(--primary); font-size: 11px; margin-bottom: 4px;">TOTAL NETWORKS</div>
-                                    <div style="color: #818cf8; font-weight: bold; font-size: 16px;">${visibleNetworkCount}</div>
+                                    <div style="color: var(--primary); font-weight: bold; font-size: 16px;">${visibleNetworkCount}</div>
                                     <div style="color: var(--text-secondary); font-size: 9px; margin-top: 4px;">
                                         ${visibleNetworks.length > 0 ? visibleNetworks.map(n => n.network_name || `Network_${n.network_id}`).join(', ') : 'N/A'}
                                     </div>
@@ -5141,17 +5141,17 @@ HTML_TEMPLATE = """
                                 <div style="font-size: 10px; color: var(--text-secondary);">Upstream</div>
                                 <strong>${data.funder_stats.total_funders}</strong> Senders
                             </div>
-                            <div style="color: #666; font-weight: bold;">➜</div>
+                            <div style="color: var(--text-secondary); font-weight: bold;">➜</div>
                             <div style="background: rgba(124, 58, 237, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid var(--primary); color: var(--primary); flex: 1;">
                                 <div style="font-size: 10px; color: var(--text-secondary);">Root Operators</div>
                                 <strong>${visibleRootOps}</strong> Ops
                             </div>
-                            <div style="color: #666; font-weight: bold;">➜</div>
-                            <div style="background: rgba(245, 158, 11, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #f59e0b; color: #f59e0b; flex: 1;">
+                            <div style="color: var(--text-secondary); font-weight: bold;">➜</div>
+                            <div style="background: rgba(245, 158, 11, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid var(--color-high); color: var(--color-high); flex: 1;">
                                 <div style="font-size: 10px; color: var(--text-secondary);">Creators</div>
                                 <strong>${data.creators_unique}</strong> Wallets
                             </div>
-                            <div style="color: #666; font-weight: bold;">➜</div>
+                            <div style="color: var(--text-secondary); font-weight: bold;">➜</div>
                             <div style="background: rgba(74, 222, 128, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #4ade80; color: var(--color-low); flex: 1;">
                                 <div style="font-size: 10px; color: var(--text-secondary);">Tokens</div>
                                 <strong>${data.tokens.length}</strong> Launch
@@ -7554,7 +7554,7 @@ coordinated_funders_html = '''
             transition: background 0.3s;
         }
         .button:hover {
-            background: #818cf8;
+            background: var(--primary);
         }
         ul {
             line-height: 1.8;
@@ -7582,7 +7582,7 @@ coordinated_funders_html = '''
         </div>
 
         <div class="section">
-            <h2 style="color: #f59e0b; margin-top: 0;">What is Coordinated Funders?</h2>
+            <h2 style="color: var(--color-high); margin-top: 0;">What is Coordinated Funders?</h2>
             <p>Coordinated funders are wallets that fund multiple creators, indicating potential coordination or network relationships. This analysis helps identify:</p>
             <ul>
                 <li><strong>Funding Networks:</strong> Groups of funders working together</li>
@@ -7655,7 +7655,7 @@ def coordinated_funders_view():
                 <td style="padding: 10px; font-family: monospace; font-size: 11px; color: var(--accent-cyan); word-break: break-all;">
                     {funder['funder_address']}
                 </td>
-                <td style="padding: 10px; text-align: right; color: #f59e0b;">{funder['creator_count']}</td>
+                <td style="padding: 10px; text-align: right; color: var(--color-high);">{funder['creator_count']}</td>
                 <td style="padding: 10px; text-align: right; color: var(--color-low);">{funder['total_sol_sent']:.2f} SOL</td>
             </tr>
             """
@@ -7709,7 +7709,7 @@ def coordinated_funders_view():
                     margin-top: 20px;
                 }}
                 .button:hover {{
-                    background: #818cf8;
+                    background: var(--primary);
                 }}
             </style>
         </head>
@@ -8225,7 +8225,7 @@ def coordinated_funders_view_old():
                             }} else {{
                                 data.tokens.forEach(token => {{
                                     const createdDate = new Date(token.created_at).toISOString().substring(0, 10);
-                                    const riskColor = token.risk_level === 'HIGH' ? 'var(--color-critical)' : token.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
+                                    const riskColor = token.risk_level === 'HIGH' ? 'var(--color-critical)' : token.risk_level === 'MEDIUM' ? 'var(--color-high)' : '#4ade80';
                                     const senderHighlight = token.num_senders > 100 ? 'background: rgba(239, 68, 68, 0.15);' : token.num_senders > 50 ? 'background: rgba(245, 158, 11, 0.15);' : '';
 
                                     html += `
@@ -8239,7 +8239,7 @@ def coordinated_funders_view_old():
                                             <td style="padding: 12px; color: var(--color-medium); font-weight: bold; text-align: center;">${{token.num_funders}}</td>
                                             <td style="padding: 12px; color: var(--color-low);">${{token.total_sol.toFixed(2)}}</td>
                                             <td style="padding: 12px; color: ${{riskColor}}; font-weight: bold;">${{token.risk_level || 'N/A'}}</td>
-                                            <td style="padding: 12px; color: #f59e0b;">${{((token.rug_probability || 0) * 100).toFixed(1)}}%</td>
+                                            <td style="padding: 12px; color: var(--color-high);">${{((token.rug_probability || 0) * 100).toFixed(1)}}%</td>
                                         </tr>`;
                                 }});
                             }}
@@ -8305,7 +8305,7 @@ def coordinated_funders_view_old():
                                             <td style="padding: 12px; text-align: center; color: var(--color-low); font-weight: bold;">${{funder.tokens_funded}}</td>
                                             <td style="padding: 12px; text-align: center; color: var(--text-secondary);">${{funder.creators_funded}}</td>
                                             <td style="padding: 12px; text-align: center; color: var(--color-medium);">${{funder.num_senders || 0}}</td>
-                                            <td style="padding: 12px; text-align: right; color: #f59e0b; font-size: 10px;">${{funder.total_sol_in ? funder.total_sol_in.toFixed(2) : '0'}} / ${{funder.total_sol_out.toFixed(2)}}</td>
+                                            <td style="padding: 12px; text-align: right; color: var(--color-high); font-size: 10px;">${{funder.total_sol_in ? funder.total_sol_in.toFixed(2) : '0'}} / ${{funder.total_sol_out.toFixed(2)}}</td>
                                             <td style="padding: 12px; font-size: 10px; color: var(--text-secondary);">${{period}}</td>
                                         </tr>`;
                                 }});
@@ -8427,9 +8427,9 @@ def coordinated_funders_view_old():
                                                 <div style="color: var(--text-secondary);">Senders</div>
                                                 <div style="color: var(--color-none); font-weight: bold;">${{network.senders}}</div>
                                             </div>
-                                            <div style="background: rgba(245, 158, 11, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #f59e0b;">
+                                            <div style="background: rgba(245, 158, 11, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid var(--color-high);">
                                                 <div style="color: var(--text-secondary);">Creators</div>
-                                                <div style="color: #f59e0b; font-weight: bold;">${{network.creators}}</div>
+                                                <div style="color: var(--color-high); font-weight: bold;">${{network.creators}}</div>
                                             </div>
                                             <div style="background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid var(--color-none);">
                                                 <div style="color: var(--text-secondary);">Tokens</div>
@@ -8492,7 +8492,7 @@ def coordinated_funders_view_old():
                                         </div>
                                         <div>
                                             <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">CREATORS</div>
-                                            <div style="font-size: 28px; font-weight: bold; color: #f59e0b;">${{data.creators}}</div>
+                                            <div style="font-size: 28px; font-weight: bold; color: var(--color-high);">${{data.creators}}</div>
                                         </div>
                                         <div>
                                             <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">TOKENS</div>
@@ -8500,7 +8500,7 @@ def coordinated_funders_view_old():
                                         </div>
                                         <div>
                                             <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">TOTAL SOL</div>
-                                            <div style="font-size: 28px; font-weight: bold; color: #ec4899;">${{data.total_sol.toFixed(0)}}</div>
+                                            <div style="font-size: 28px; font-weight: bold; color: var(--color-high);">${{data.total_sol.toFixed(0)}}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -8533,7 +8533,7 @@ def coordinated_funders_view_old():
                                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;">
                                             <div>
                                                 <div style="font-size: 10px; color: var(--text-secondary);">CREATORS FUNDED</div>
-                                                <div style="font-size: 18px; font-weight: bold; color: #f59e0b;">${{flow.creators_funded}}</div>
+                                                <div style="font-size: 18px; font-weight: bold; color: var(--color-high);">${{flow.creators_funded}}</div>
                                             </div>
                                             <div>
                                                 <div style="font-size: 10px; color: var(--text-secondary);">TOTAL SOL</div>
@@ -8563,7 +8563,7 @@ def coordinated_funders_view_old():
                                                 <div style="color: var(--text-secondary); margin-left: 10px;">↓ (to funder)</div>
                                                 <div style="color: var(--primary);">${{ex.funder.substring(0, 12)}}...</div>
                                                 <div style="color: var(--text-secondary); margin-left: 10px;">↓ ${{{ex.sol_to_creator.toFixed(2)}}} SOL</div>
-                                                <div style="color: #f59e0b;">${{ex.creator.substring(0, 12)}}...</div>
+                                                <div style="color: var(--color-high);">${{ex.creator.substring(0, 12)}}...</div>
                                             </div>`;
                                         }});
                                     }} else {{
@@ -8576,7 +8576,7 @@ def coordinated_funders_view_old():
 
                                     if (flow.downstream_creators.length > 0) {{
                                         flow.downstream_creators.forEach(creator => {{
-                                            const riskColor = creator.risk_level === 'HIGH' ? 'var(--color-critical)' : creator.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
+                                            const riskColor = creator.risk_level === 'HIGH' ? 'var(--color-critical)' : creator.risk_level === 'MEDIUM' ? 'var(--color-high)' : '#4ade80';
                                             html += `
                                                 <div style="padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); display: flex; justify-content: space-between; align-items: center;">
                                                     <div style="font-family: monospace; font-size: 9px; color: var(--text-secondary); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{creator.mint}}">${{creator.mint.substring(0, 16)}}...</div>
@@ -8639,7 +8639,7 @@ def coordinated_funders_view_old():
                                 html += '<tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--text-secondary);">No tokens found</td></tr>';
                             }} else {{
                                 data.tokens.forEach(token => {{
-                                    const riskColor = token.risk_level === 'HIGH' ? 'var(--color-critical)' : token.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
+                                    const riskColor = token.risk_level === 'HIGH' ? 'var(--color-critical)' : token.risk_level === 'MEDIUM' ? 'var(--color-high)' : '#4ade80';
                                     html += `
                                         <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                                             <td style="padding: 10px; font-family: monospace; font-size: 11px; color: var(--color-low); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -8648,7 +8648,7 @@ def coordinated_funders_view_old():
                                             <td style="padding: 10px; font-family: monospace; font-size: 11px; color: var(--text-secondary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{token.creator_address}}">${{token.creator_address}}</td>
                                             <td style="padding: 10px; color: var(--color-low); font-weight: bold;">${{token.total_funding_sol.toFixed(2)}}</td>
                                             <td style="padding: 10px; color: ${{riskColor}}; font-weight: bold;">${{token.risk_level || 'N/A'}}</td>
-                                            <td style="padding: 10px; color: #f59e0b;">${{(token.rug_probability * 100).toFixed(1)}}%</td>
+                                            <td style="padding: 10px; color: var(--color-high);">${{(token.rug_probability * 100).toFixed(1)}}%</td>
                                         </tr>`;
                                 }});
                             }}

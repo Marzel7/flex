@@ -2178,12 +2178,32 @@ HTML_TEMPLATE = """
 
             <!-- Tabs -->
             <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
-                <button onclick="switchSuperClusterTab('creators')" class="sc-tab-button active" data-tab="creators">
+                <button onclick="switchSuperClusterTab('networks')" class="sc-tab-button active" data-tab="networks">
+                    Networks
+                </button>
+                <button onclick="switchSuperClusterTab('creators')" class="sc-tab-button" data-tab="creators">
                     Creators
                 </button>
                 <button onclick="switchSuperClusterTab('tokens')" class="sc-tab-button" data-tab="tokens">
                     Tokens
                 </button>
+            </div>
+
+            <!-- Networks Tab -->
+            <div id="scNetworksTab" class="sc-tab-content" style="display: block; max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
+                            <th style="text-align: left; padding: 10px; color: #a0a0a0; font-size: 12px;">Network</th>
+                            <th style="text-align: right; padding: 10px; color: #a0a0a0; font-size: 12px;">Members</th>
+                            <th style="text-align: right; padding: 10px; color: #a0a0a0; font-size: 12px;">SOL</th>
+                            <th style="text-align: center; padding: 10px; color: #a0a0a0; font-size: 12px;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scNetworksList">
+                        <tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                    </tbody>
+                </table>
             </div>
 
             <!-- Creators Tab -->
@@ -4625,7 +4645,43 @@ HTML_TEMPLATE = """
             if (currentSuperClusterData) {
                 renderRootOperators(currentSuperClusterData);
                 renderRelationshipDiagram(currentSuperClusterData);
+                renderNetworks(currentSuperClusterData);
             }
+        }
+
+        function renderNetworks(data) {
+            const networksContainer = document.getElementById('scNetworksList');
+
+            // Filter networks based on toggle
+            let visibleNetworks = data.networks;
+            if (!showCexInfra && data.network_root_operator_status) {
+                visibleNetworks = data.networks.filter(net => {
+                    const hasInfraOrCex = data.network_root_operator_status[net.network_id];
+                    return !hasInfraOrCex;
+                });
+            }
+
+            if (visibleNetworks.length === 0) {
+                networksContainer.innerHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">No networks found</td></tr>';
+                return;
+            }
+
+            networksContainer.innerHTML = visibleNetworks.map(net => {
+                const networkName = net.network_name || `Network_${net.network_id}`;
+                const isCexInfra = data.network_root_operator_status && data.network_root_operator_status[net.network_id];
+                const statusBadge = isCexInfra ?
+                    '<span style="padding: 4px 8px; border-radius: 4px; background: rgba(239, 68, 68, 0.1); color: #ef4444; font-size: 10px; font-weight: bold;">CEX/INFRA</span>' :
+                    '<span style="padding: 4px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.1); color: #10b981; font-size: 10px; font-weight: bold;">CLEAN</span>';
+
+                return `
+                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                        <td style="padding: 10px; color: #e0e0e0;">${networkName}</td>
+                        <td style="padding: 10px; text-align: right; color: #a0a0a0;">${net.total_members}</td>
+                        <td style="padding: 10px; text-align: right; color: #a855f7; font-weight: bold;">${net.total_sol.toFixed(2)}</td>
+                        <td style="padding: 10px; text-align: center;">${statusBadge}</td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         function renderRootOperators(data) {
@@ -4861,9 +4917,10 @@ HTML_TEMPLATE = """
                 document.getElementById('scTotalSol').textContent = (data.funder_stats.total_sol || 0).toFixed(2) + ' SOL';
                 document.getElementById('scCexCount').textContent = data.funder_stats.cex_funders || 0;
 
-                // Render root operators and relationship diagram using the new functions
+                // Render root operators, relationship diagram, and networks using the new functions
                 renderRootOperators(data);
                 renderRelationshipDiagram(data);
+                renderNetworks(data);
 
                 // Populate creators tab
                 const creatorsList = document.getElementById('scCreatorsList');
@@ -4915,8 +4972,8 @@ HTML_TEMPLATE = """
                 // Reset to creators tab
                 document.querySelectorAll('.sc-tab-button').forEach(btn => btn.classList.remove('active'));
                 document.querySelectorAll('.sc-tab-content').forEach(tab => tab.style.display = 'none');
-                document.querySelector('[data-tab="creators"]').classList.add('active');
-                document.getElementById('scCreatorsTab').style.display = 'block';
+                document.querySelector('[data-tab="networks"]').classList.add('active');
+                document.getElementById('scNetworksTab').style.display = 'block';
 
                 modal.style.display = 'block';
 

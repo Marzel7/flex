@@ -2128,9 +2128,12 @@ HTML_TEMPLATE = """
             <span class="close" onclick="closeSuperCluster()">&times;</span>
             <h2>Super-Cluster Details - <span id="scModalId" style="font-size: 16px; color: #00d4ff;"></span></h2>
 
-            <!-- Risk Badge -->
-            <div style="display: inline-block; margin-bottom: 20px;">
+            <!-- Risk Badge & Toggle -->
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
                 <span id="scRiskBadge" style="padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 14px;">—</span>
+                <button id="scToggleCexInfra" onclick="toggleCexInfraView()" style="padding: 8px 14px; border-radius: 6px; border: 1px solid rgba(99, 102, 241, 0.5); background: rgba(99, 102, 241, 0.1); color: #6366f1; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
+                    ✓ Show CEX/INFRA
+                </button>
             </div>
 
             <!-- Cluster Stats -->
@@ -4598,6 +4601,212 @@ HTML_TEMPLATE = """
         // SUPER-CLUSTER FUNCTIONS
         // =====================================================================
 
+        // Track CEX/INFRA visibility state
+        let showCexInfra = true;
+        let currentSuperClusterData = null;
+
+        function toggleCexInfraView() {
+            showCexInfra = !showCexInfra;
+            const button = document.getElementById('scToggleCexInfra');
+
+            if (showCexInfra) {
+                button.textContent = '✓ Show CEX/INFRA';
+                button.style.background = 'rgba(99, 102, 241, 0.1)';
+                button.style.color = '#6366f1';
+                button.style.borderColor = 'rgba(99, 102, 241, 0.5)';
+            } else {
+                button.textContent = '✗ Hide CEX/INFRA';
+                button.style.background = 'rgba(239, 68, 68, 0.1)';
+                button.style.color = '#ef4444';
+                button.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+            }
+
+            // Re-render the root operators with updated visibility
+            if (currentSuperClusterData) {
+                renderRootOperators(currentSuperClusterData);
+                renderRelationshipDiagram(currentSuperClusterData);
+            }
+        }
+
+        function renderRootOperators(data) {
+            const rootsContainer = document.getElementById('scRootAddresses');
+            const flowsByOperator = {};
+
+            if (data.root_operator_flows && data.root_operator_flows.length > 0) {
+                data.root_operator_flows.forEach(flow => {
+                    flowsByOperator[flow.root_operator] = flow;
+                });
+            }
+
+            // Filter root addresses based on toggle
+            const root_addresses = data.root_addresses.filter(addr => {
+                if (!showCexInfra) {
+                    // Hide CEX and INFRA
+                    return !addr.includes('(CEX)') && !addr.includes('(INFRA)');
+                }
+                return true;
+            });
+
+            rootsContainer.innerHTML = root_addresses.map((addr, idx) => {
+                const flow = flowsByOperator[addr];
+                let flowsHTML = '';
+
+                if (flow && flow.example_flows && flow.example_flows.length > 0) {
+                    flowsHTML = flow.example_flows.map((ex) => {
+                        let flowHTML = '<div style="font-family: monospace; font-size: 11px; color: #e0e0e0; padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.6; background: rgba(0, 0, 0, 0.2); border-radius: 3px; margin-bottom: 6px;">';
+
+                        if (ex.sender) {
+                            flowHTML += '<div style="color: #3b82f6; margin-bottom: 6px;"><strong>📤 Sender:</strong></div>' +
+                            '<div style="font-size: 12px; font-weight: bold; color: #60a5fa; word-break: break-all; padding: 6px; background: rgba(96, 165, 250, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.sender + '</div>' +
+                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ to Funder</div>';
+                        }
+
+                        flowHTML += '<div style="color: #6366f1; margin-bottom: 6px;"><strong>💰 Root Op:</strong></div>' +
+                        '<div style="font-size: 12px; font-weight: bold; color: #818cf8; word-break: break-all; padding: 6px; background: rgba(129, 140, 248, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.funder + '</div>' +
+                        '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ ' + ex.sol_to_creator.toFixed(2) + ' SOL funds Creator</div>';
+
+                        flowHTML += '<div style="color: #f59e0b; margin-bottom: 6px;"><strong>👤 Creator:</strong></div>' +
+                        '<div style="font-size: 12px; font-weight: bold; color: #fbbf24; word-break: break-all; padding: 6px; background: rgba(251, 191, 36, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.creator + '</div>';
+
+                        if (ex.mint) {
+                            flowHTML += '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ creates Token</div>' +
+                            '<div style="color: #4ade80;"><strong>🎫 Token:</strong></div>' +
+                            '<div style="font-size: 12px; font-weight: bold; color: #86efac; word-break: break-all; padding: 6px; background: rgba(134, 239, 172, 0.1); border-radius: 2px;">' + ex.mint + '</div>';
+                        }
+
+                        flowHTML += '</div>';
+                        return flowHTML;
+                    }).join('');
+
+                    if (flow && flow.downstream_creators && flow.downstream_creators.length > 0) {
+                        const creatorMap = {};
+                        const creatorOrder = [];
+
+                        flow.downstream_creators.forEach(dc => {
+                            if (!creatorMap[dc.creator_address]) {
+                                creatorMap[dc.creator_address] = 0;
+                                creatorOrder.push(dc.creator_address);
+                            }
+                            creatorMap[dc.creator_address]++;
+                        });
+
+                        const creatorsList = creatorOrder
+                            .map((creator) => {
+                                const tokenCount = creatorMap[creator];
+                                const shortCreator = creator.substring(0, 8) + '...' + creator.substring(creator.length - 8);
+                                return `<div style="font-family: monospace; font-size: 10px; color: #d1d5db; padding: 6px; background: rgba(245, 158, 11, 0.05); border-radius: 2px; margin-bottom: 4px; display: flex; justify-content: space-between;"><span title="${creator}">${shortCreator}</span><span style="color: #fbbf24; font-weight: bold;">${tokenCount} token${tokenCount > 1 ? 's' : ''}</span></div>`;
+                            })
+                            .join('');
+
+                        flowsHTML += '<div style="margin-top: 10px; font-size: 9px; color: #a0a0a0; margin-bottom: 6px;">ALL CREATORS FUNDED:</div>' +
+                            '<div style="background: rgba(245, 158, 11, 0.05); border-radius: 4px; padding: 8px;">' +
+                            creatorsList +
+                            '</div>';
+                    }
+                }
+
+                return '<div style="background: rgba(99, 102, 241, 0.08); padding: 12px; border-radius: 6px; border-left: 3px solid #6366f1; margin-bottom: 12px;">' +
+                    '<div style="font-size: 10px; color: #a0a0a0; margin-bottom: 8px;">ROOT OPERATOR #' + (idx + 1) + '</div>' +
+                    '<div style="font-family: monospace; font-size: 11px; color: #6366f1; word-break: break-all; margin-bottom: 8px; padding: 6px; background: rgba(99, 102, 241, 0.1); border-radius: 4px;">' + addr + '</div>' +
+                    (flow ? '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; font-size: 10px;">' +
+                        '<div><div style="color: #a0a0a0;">CREATORS FUNDED</div><div style="color: #f59e0b; font-weight: bold;">' + flow.creators_funded + '</div></div>' +
+                        '<div><div style="color: #a0a0a0;">TOTAL SOL</div><div style="color: #4ade80; font-weight: bold;">' + flow.total_sol_sent.toFixed(2) + '</div></div>' +
+                        '</div>' : '') +
+                    (flowsHTML ? '<div style="margin-top: 10px; font-size: 9px; color: #a0a0a0; margin-bottom: 6px;">EXAMPLE FLOWS: Sender → Funder → Creator</div>' +
+                        '<div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 6px;">' + flowsHTML + '</div>' : '') +
+                    '</div>';
+            }).join('');
+        }
+
+        function renderRelationshipDiagram(data) {
+            const relationshipDiv = document.getElementById('scRelationshipDiagram');
+
+            // Count visible root operators
+            const visibleRootOps = showCexInfra ?
+                data.root_addresses.length :
+                data.root_addresses.filter(addr => !addr.includes('(CEX)') && !addr.includes('(INFRA)')).length;
+
+            // Calculate metrics
+            const avgCreatorsPerNetwork = (data.creator_count / data.network_count).toFixed(1);
+            const creatorReuseFactor = (data.creator_count > 5 ? 'HIGH' : data.creator_count > 2 ? 'MEDIUM' : 'LOW');
+            const creatorReuseColor = creatorReuseFactor === 'HIGH' ? '#ef4444' : creatorReuseFactor === 'MEDIUM' ? '#f59e0b' : '#10b981';
+
+            const relationshipHTML = `
+                <div style="font-size: 12px; color: #a0a0a0;">
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 10px; color: #888; margin-bottom: 8px; text-transform: uppercase; font-weight: bold;">📊 SUPER-NETWORK STRUCTURE</div>
+
+                        <div style="background: rgba(0, 0, 0, 0.2); border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                                <div>
+                                    <div style="color: #6366f1; font-size: 11px; margin-bottom: 4px;">TOTAL NETWORKS</div>
+                                    <div style="color: #818cf8; font-weight: bold; font-size: 16px;">${data.network_count}</div>
+                                    <div style="color: #a0a0a0; font-size: 9px; margin-top: 4px;">
+                                        ${data.networks.length > 0 ? data.networks.map(n => n.network_name || `Network_${n.network_id}`).join(', ') : 'N/A'}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="color: #f59e0b; font-size: 11px; margin-bottom: 4px;">UNIQUE CREATORS</div>
+                                    <div style="color: #fbbf24; font-weight: bold; font-size: 16px;">${data.creator_count}</div>
+                                </div>
+                                <div>
+                                    <div style="color: #10b981; font-size: 11px; margin-bottom: 4px;">REUSE FACTOR</div>
+                                    <div style="color: ${creatorReuseColor}; font-weight: bold; font-size: 16px;">${avgCreatorsPerNetwork}x/net</div>
+                                </div>
+                            </div>
+
+                            <div style="padding: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 4px; border-left: 2px solid ${creatorReuseColor}; margin-bottom: 10px;">
+                                <div style="color: ${creatorReuseColor}; font-size: 11px; font-weight: bold; margin-bottom: 4px;">⚠️ CREATOR REUSE: ${creatorReuseFactor}</div>
+                                <div style="color: #a0a0a0; font-size: 10px;">
+                                    ${data.creator_count} creators across ${data.network_count} networks = <strong style="color: ${creatorReuseColor};">${avgCreatorsPerNetwork} creators per network average</strong>
+                                    <br>This indicates a <strong>coordinated operation</strong> reusing launcher wallets.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-size: 10px; color: #888; margin-bottom: 8px; text-transform: uppercase; font-weight: bold;">🔗 FUNDING FLOW</div>
+
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <div style="background: rgba(59, 130, 246, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #3b82f6; color: #3b82f6; flex: 1;">
+                                <div style="font-size: 10px; color: #888;">Upstream</div>
+                                <strong>${data.funder_stats.total_funders}</strong> Senders
+                            </div>
+                            <div style="color: #666; font-weight: bold;">➜</div>
+                            <div style="background: rgba(99, 102, 241, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #6366f1; color: #6366f1; flex: 1;">
+                                <div style="font-size: 10px; color: #888;">Root Operators</div>
+                                <strong>${visibleRootOps}</strong> Ops
+                            </div>
+                            <div style="color: #666; font-weight: bold;">➜</div>
+                            <div style="background: rgba(245, 158, 11, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #f59e0b; color: #f59e0b; flex: 1;">
+                                <div style="font-size: 10px; color: #888;">Creators</div>
+                                <strong>${data.creator_count}</strong> Wallets
+                            </div>
+                            <div style="color: #666; font-weight: bold;">➜</div>
+                            <div style="background: rgba(74, 222, 128, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #4ade80; color: #4ade80; flex: 1;">
+                                <div style="font-size: 10px; color: #888;">Tokens</div>
+                                <strong>${data.tokens.length}</strong> Launch
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="padding: 10px; background: rgba(99, 102, 241, 0.05); border-radius: 4px; border: 1px solid rgba(99, 102, 241, 0.2);">
+                        <div style="font-size: 11px; line-height: 1.6;">
+                            <strong>💡 What ties these ${data.network_count} networks together:</strong><br>
+                            <span style="color: #a0a0a0;">
+                                Multiple funding networks consolidated into one super-cluster because they share <strong>${data.creator_count} creators</strong> across <strong>${data.network_count} networks</strong>.
+                                This indicates <strong>coordinated operations</strong> using the same launcher infrastructure.
+                            </span>
+                            <br><br>
+                            <strong>📈 Tracked funding:</strong> <span style="color: #a855f7;">${data.funder_stats.total_sol.toFixed(2)} SOL</span> flowing through this ecosystem
+                        </div>
+                    </div>
+                </div>
+            `;
+            relationshipDiv.innerHTML = relationshipHTML;
+        }
+
         async function showSuperCluster(clusterId) {
             const modal = document.getElementById('superClusterModal');
             document.getElementById('scModalId').textContent = clusterId;
@@ -4605,6 +4814,7 @@ HTML_TEMPLATE = """
             try {
                 const response = await fetch(`/api/super-cluster/${clusterId}`);
                 const data = await response.json();
+                currentSuperClusterData = data;
 
                 if (data.error) {
                     alert('Super-cluster details not found');
@@ -4639,184 +4849,9 @@ HTML_TEMPLATE = """
                 document.getElementById('scTotalSol').textContent = (data.funder_stats.total_sol || 0).toFixed(2) + ' SOL';
                 document.getElementById('scCexCount').textContent = data.funder_stats.cex_funders || 0;
 
-                // Update root operators - always display addresses
-                const rootsContainer = document.getElementById('scRootAddresses');
-
-                // Create a map of flows by root operator address for quick lookup
-                const flowsByOperator = {};
-                if (data.root_operator_flows && data.root_operator_flows.length > 0) {
-                    console.log('Found ' + data.root_operator_flows.length + ' root operator flows');
-                    data.root_operator_flows.forEach(flow => {
-                        console.log('Flow for: ' + flow.root_operator + ', example flows: ' + (flow.example_flows ? flow.example_flows.length : 0));
-                        flowsByOperator[flow.root_operator] = flow;
-                    });
-                } else {
-                    console.log('No root operator flows found');
-                }
-                console.log('Root addresses to display: ' + data.root_addresses.length);
-                data.root_addresses.forEach(addr => console.log('  ' + addr + ' -> has flow: ' + (flowsByOperator[addr] ? 'YES' : 'NO')));
-
-                // Always display root addresses
-                rootsContainer.innerHTML = data.root_addresses.map((addr, idx) => {
-                    const flow = flowsByOperator[addr];
-                    let flowsHTML = '';
-                    let creatorsListHTML = '';
-
-                    if (flow && flow.example_flows && flow.example_flows.length > 0) {
-                        flowsHTML = flow.example_flows.map((ex) => {
-                            let flowHTML = '<div style="font-family: monospace; font-size: 11px; color: #e0e0e0; padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.6; background: rgba(0, 0, 0, 0.2); border-radius: 3px; margin-bottom: 6px;">';
-
-                            // Add Sender section if available
-                            if (ex.sender) {
-                                flowHTML += '<div style="color: #3b82f6; margin-bottom: 6px;"><strong>📤 Sender:</strong></div>' +
-                                '<div style="font-size: 12px; font-weight: bold; color: #60a5fa; word-break: break-all; padding: 6px; background: rgba(96, 165, 250, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.sender + '</div>' +
-                                '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ to Funder</div>';
-                            }
-
-                            // Always show Root Op
-                            flowHTML += '<div style="color: #6366f1; margin-bottom: 6px;"><strong>💰 Root Op:</strong></div>' +
-                            '<div style="font-size: 12px; font-weight: bold; color: #818cf8; word-break: break-all; padding: 6px; background: rgba(129, 140, 248, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.funder + '</div>' +
-                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ ' + ex.sol_to_creator.toFixed(2) + ' SOL funds Creator</div>';
-
-                            // Always show Creator
-                            flowHTML += '<div style="color: #f59e0b; margin-bottom: 6px;"><strong>👤 Creator:</strong></div>' +
-                            '<div style="font-size: 12px; font-weight: bold; color: #fbbf24; word-break: break-all; padding: 6px; background: rgba(251, 191, 36, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.creator + '</div>';
-
-                            // Show Token if available
-                            if (ex.mint) {
-                                flowHTML += '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ creates Token</div>' +
-                                '<div style="color: #4ade80;"><strong>🎫 Token:</strong></div>' +
-                                '<div style="font-size: 12px; font-weight: bold; color: #86efac; word-break: break-all; padding: 6px; background: rgba(134, 239, 172, 0.1); border-radius: 2px;">' + ex.mint + '</div>';
-                            }
-
-                            flowHTML += '</div>';
-                            return flowHTML;
-                        }).join('');
-
-                        // Add all creators list after the example flow, preserving order from downstream_creators
-                        if (flow && flow.downstream_creators && flow.downstream_creators.length > 0) {
-                            // Create a map to track creators while preserving order
-                            const creatorMap = {};
-                            const creatorOrder = [];
-
-                            flow.downstream_creators.forEach(dc => {
-                                if (!creatorMap[dc.creator_address]) {
-                                    creatorMap[dc.creator_address] = 0;
-                                    creatorOrder.push(dc.creator_address);
-                                }
-                                creatorMap[dc.creator_address]++;
-                            });
-
-                            const creatorsList = creatorOrder
-                                .map((creator) => {
-                                    const tokenCount = creatorMap[creator];
-                                    const shortCreator = creator.substring(0, 8) + '...' + creator.substring(creator.length - 8);
-                                    return `<div style="font-family: monospace; font-size: 10px; color: #d1d5db; padding: 6px; background: rgba(245, 158, 11, 0.05); border-radius: 2px; margin-bottom: 4px; display: flex; justify-content: space-between;"><span title="${creator}">${shortCreator}</span><span style="color: #fbbf24; font-weight: bold;">${tokenCount} token${tokenCount > 1 ? 's' : ''}</span></div>`;
-                                })
-                                .join('');
-
-                            flowsHTML += '<div style="margin-top: 10px; font-size: 9px; color: #a0a0a0; margin-bottom: 6px;">ALL CREATORS FUNDED:</div>' +
-                                '<div style="background: rgba(245, 158, 11, 0.05); border-radius: 4px; padding: 8px;">' +
-                                creatorsList +
-                                '</div>';
-                        }
-                    }
-
-                    return '<div style="background: rgba(99, 102, 241, 0.08); padding: 12px; border-radius: 6px; border-left: 3px solid #6366f1; margin-bottom: 12px;">' +
-                        '<div style="font-size: 10px; color: #a0a0a0; margin-bottom: 8px;">ROOT OPERATOR #' + (idx + 1) + '</div>' +
-                        '<div style="font-family: monospace; font-size: 11px; color: #6366f1; word-break: break-all; margin-bottom: 8px; padding: 6px; background: rgba(99, 102, 241, 0.1); border-radius: 4px;">' + addr + '</div>' +
-                        (flow ? '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; font-size: 10px;">' +
-                            '<div><div style="color: #a0a0a0;">CREATORS FUNDED</div><div style="color: #f59e0b; font-weight: bold;">' + flow.creators_funded + '</div></div>' +
-                            '<div><div style="color: #a0a0a0;">TOTAL SOL</div><div style="color: #4ade80; font-weight: bold;">' + flow.total_sol_sent.toFixed(2) + '</div></div>' +
-                            '</div>' : '') +
-                        (flowsHTML ? '<div style="margin-top: 10px; font-size: 9px; color: #a0a0a0; margin-bottom: 6px;">EXAMPLE FLOWS: Sender → Funder → Creator</div>' +
-                            '<div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 6px;">' + flowsHTML + '</div>' : '') +
-                        '</div>';
-                }).join('');
-
-
-                // Build relationship diagram with super-network structure
-                const relationshipDiv = document.getElementById('scRelationshipDiagram');
-
-                // Calculate average creators per network for density
-                const avgCreatorsPerNetwork = (data.creator_count / data.network_count).toFixed(1);
-                const creatorReuseFactor = (data.creator_count > 5 ? 'HIGH' : data.creator_count > 2 ? 'MEDIUM' : 'LOW');
-                const creatorReuseColor = creatorReuseFactor === 'HIGH' ? '#ef4444' : creatorReuseFactor === 'MEDIUM' ? '#f59e0b' : '#10b981';
-
-                const relationshipHTML = `
-                    <div style="font-size: 12px; color: #a0a0a0;">
-                        <div style="margin-bottom: 16px;">
-                            <div style="font-size: 10px; color: #888; margin-bottom: 8px; text-transform: uppercase; font-weight: bold;">📊 SUPER-NETWORK STRUCTURE</div>
-
-                            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 6px; padding: 12px; margin-bottom: 12px;">
-                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;">
-                                    <div>
-                                        <div style="color: #6366f1; font-size: 11px; margin-bottom: 4px;">TOTAL NETWORKS</div>
-                                        <div style="color: #818cf8; font-weight: bold; font-size: 16px;">${data.network_count}</div>
-                                        <div style="color: #a0a0a0; font-size: 9px; margin-top: 4px;">
-                                            ${data.networks.length > 0 ? data.networks.map(n => n.network_name || `Network_${n.network_id}`).join(', ') : 'N/A'}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div style="color: #f59e0b; font-size: 11px; margin-bottom: 4px;">UNIQUE CREATORS</div>
-                                        <div style="color: #fbbf24; font-weight: bold; font-size: 16px;">${data.creator_count}</div>
-                                    </div>
-                                    <div>
-                                        <div style="color: #10b981; font-size: 11px; margin-bottom: 4px;">REUSE FACTOR</div>
-                                        <div style="color: ${creatorReuseColor}; font-weight: bold; font-size: 16px;">${avgCreatorsPerNetwork}x/net</div>
-                                    </div>
-                                </div>
-
-                                <div style="padding: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 4px; border-left: 2px solid ${creatorReuseColor}; margin-bottom: 10px;">
-                                    <div style="color: ${creatorReuseColor}; font-size: 11px; font-weight: bold; margin-bottom: 4px;">⚠️ CREATOR REUSE: ${creatorReuseFactor}</div>
-                                    <div style="color: #a0a0a0; font-size: 10px;">
-                                        ${data.creator_count} creators across ${data.network_count} networks = <strong style="color: ${creatorReuseColor};">${avgCreatorsPerNetwork} creators per network average</strong>
-                                        <br>This indicates a <strong>coordinated operation</strong> reusing launcher wallets.
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 12px;">
-                            <div style="font-size: 10px; color: #888; margin-bottom: 8px; text-transform: uppercase; font-weight: bold;">🔗 FUNDING FLOW</div>
-
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                                <div style="background: rgba(59, 130, 246, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #3b82f6; color: #3b82f6; flex: 1;">
-                                    <div style="font-size: 10px; color: #888;">Upstream</div>
-                                    <strong>${data.funder_stats.total_funders}</strong> Senders
-                                </div>
-                                <div style="color: #666; font-weight: bold;">➜</div>
-                                <div style="background: rgba(99, 102, 241, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #6366f1; color: #6366f1; flex: 1;">
-                                    <div style="font-size: 10px; color: #888;">Root Operators</div>
-                                    <strong>${data.root_addresses.length}</strong> Ops
-                                </div>
-                                <div style="color: #666; font-weight: bold;">➜</div>
-                                <div style="background: rgba(245, 158, 11, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #f59e0b; color: #f59e0b; flex: 1;">
-                                    <div style="font-size: 10px; color: #888;">Creators</div>
-                                    <strong>${data.creator_count}</strong> Wallets
-                                </div>
-                                <div style="color: #666; font-weight: bold;">➜</div>
-                                <div style="background: rgba(74, 222, 128, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #4ade80; color: #4ade80; flex: 1;">
-                                    <div style="font-size: 10px; color: #888;">Tokens</div>
-                                    <strong>${data.tokens.length}</strong> Launch
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="padding: 10px; background: rgba(99, 102, 241, 0.05); border-radius: 4px; border: 1px solid rgba(99, 102, 241, 0.2);">
-                            <div style="font-size: 11px; line-height: 1.6;">
-                                <strong>💡 What ties these ${data.network_count} networks together:</strong><br>
-                                <span style="color: #a0a0a0;">
-                                    Multiple funding networks consolidated into one super-cluster because they share <strong>${data.creator_count} creators</strong> across <strong>${data.network_count} networks</strong>.
-                                    This indicates <strong>coordinated operations</strong> using the same launcher infrastructure.
-                                </span>
-                                <br><br>
-                                <strong>📈 Tracked funding:</strong> <span style="color: #a855f7;">${data.funder_stats.total_sol.toFixed(2)} SOL</span> flowing through this ecosystem
-                            </div>
-                        </div>
-                    </div>
-                `;
-                relationshipDiv.innerHTML = relationshipHTML;
+                // Render root operators and relationship diagram using the new functions
+                renderRootOperators(data);
+                renderRelationshipDiagram(data);
 
                 // Populate creators tab
                 const creatorsList = document.getElementById('scCreatorsList');

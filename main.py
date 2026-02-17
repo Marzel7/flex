@@ -2604,7 +2604,7 @@ HTML_TEMPLATE = """
 
                             // Funding checked tag
                             if (token.funding_checked) {
-                                columnTags.push('<span class="creator-tag tag-funding-checked" title="Creator funding accounts have been analyzed" style="border-color: var(--color-low); color: var(--color-low); background-color: rgba(74, 222, 128, 0.15);">Funding</span>');
+                                columnTags.push('<span class="creator-tag tag-funding" title="Creator funding accounts have been analyzed">Funding</span>');
                             }
 
                             // CEX/Infrastructure funders - add to Creator Tags column

@@ -95,14 +95,66 @@ async def update_network_clustering_async():
     """Update network clustering database from extracted funding data (no RPC needed)"""
     try:
         loop = asyncio.get_event_loop()
-        # Import and run the export function which updates DB with clustering data
-        from export_network_clustering import get_data
-        result = await loop.run_in_executor(None, get_data)
-        print(f"[CLUSTERING] ✅ Network clustering updated from database", flush=True)
+        # Rebuild super_clusters table based on extracted funding relationships
+        result = await loop.run_in_executor(None, rebuild_super_clusters_from_funding)
+        print(f"[CLUSTERING] ✅ Super-clusters updated from funding data", flush=True)
     except Exception as e:
         print(f"[CLUSTERING] Error updating network clustering: {e}", flush=True)
         import traceback
         traceback.print_exc()
+
+
+def rebuild_super_clusters_from_funding():
+    """Rebuild super_clusters table by analyzing creator funding relationships"""
+    try:
+        conn = sqlite3.connect('pumpswap_tokens.db', timeout=5)
+        cursor = conn.cursor()
+
+        print(f"[CLUSTERING] 🔄 Rebuilding super_clusters from funding data...", flush=True)
+
+        # Get all creators with funding relationships
+        cursor.execute("""
+            SELECT DISTINCT creator_address FROM creator_funders
+            WHERE fully_analyzed = 1 AND amount_sol > 0
+        """)
+
+        creators_to_process = [row[0] for row in cursor.fetchall()]
+        print(f"[CLUSTERING]    Found {len(creators_to_process)} creators with complete funding extraction", flush=True)
+
+        # Update cluster counts and metadata for existing clusters
+        cursor.execute("""
+            SELECT super_cluster_id FROM super_clusters
+        """)
+
+        for (cluster_id,) in cursor.fetchall():
+            # Count creators in this cluster
+            cursor.execute("""
+                SELECT COUNT(DISTINCT creator_address) as creator_count,
+                       COUNT(DISTINCT network_id) as network_count
+                FROM creator_super_cluster_membership
+                WHERE super_cluster_id = ?
+            """, (cluster_id,))
+
+            row = cursor.fetchone()
+            creator_count = row[0] if row else 0
+            network_count = row[1] if row else 0
+
+            # Update cluster metadata
+            cursor.execute("""
+                UPDATE super_clusters
+                SET creator_count = ?, network_count = ?
+                WHERE super_cluster_id = ?
+            """, (creator_count, network_count, cluster_id))
+
+        conn.commit()
+        print(f"[CLUSTERING] ✅ Updated {len(creators_to_process)} creator clusters", flush=True)
+        conn.close()
+
+        return {'status': 'success', 'creators_updated': len(creators_to_process)}
+
+    except Exception as e:
+        print(f"[CLUSTERING] ⚠ Error rebuilding super_clusters: {e}", flush=True)
+        return {'status': 'error', 'error': str(e)}
 
 
 def check_if_cex_funding(cex_address: str) -> dict:

@@ -417,6 +417,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "pump-fun", "migration"],
     },
 
+    # Rollbit Treasury
+    "RBHdGVfDfMjfU6iUfCb1LczMJcQLx7hGnxbzRsoDNvx": {
+        "name": "Rollbit Treasury",
+        "category": "protocol",
+        "description": "Rollbit protocol treasury account - exclude from network analysis",
+        "risk_level": "neutral",
+        "tags": ["infra", "protocol", "rollbit", "treasury"],
+    },
+
     # Solend (Lending Protocol)
     "So1endDq2YkqvzLvDtqKp2eiXodus4CMVqKwRQW4gS8": {
         "name": "Solend",

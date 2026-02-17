@@ -4659,32 +4659,63 @@ HTML_TEMPLATE = """
                 // Always display root addresses
                 rootsContainer.innerHTML = data.root_addresses.map((addr, idx) => {
                     const flow = flowsByOperator[addr];
-                    let creatorFlowsHTML = '';
+                    let flowsHTML = '';
+                    let creatorsListHTML = '';
 
-                    // Build flows for ALL creators funded by this root operator
-                    if (flow && flow.downstream_creators && flow.downstream_creators.length > 0) {
-                        creatorFlowsHTML = flow.downstream_creators.map((dc) => {
+                    if (flow && flow.example_flows && flow.example_flows.length > 0) {
+                        flowsHTML = flow.example_flows.map((ex) => {
                             let flowHTML = '<div style="font-family: monospace; font-size: 11px; color: #e0e0e0; padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.6; background: rgba(0, 0, 0, 0.2); border-radius: 3px; margin-bottom: 6px;">';
+
+                            // Add Sender section if available
+                            if (ex.sender) {
+                                flowHTML += '<div style="color: #3b82f6; margin-bottom: 6px;"><strong>📤 Sender:</strong></div>' +
+                                '<div style="font-size: 12px; font-weight: bold; color: #60a5fa; word-break: break-all; padding: 6px; background: rgba(96, 165, 250, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.sender + '</div>' +
+                                '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ to Funder</div>';
+                            }
 
                             // Always show Root Op
                             flowHTML += '<div style="color: #6366f1; margin-bottom: 6px;"><strong>💰 Root Op:</strong></div>' +
-                            '<div style="font-size: 12px; font-weight: bold; color: #818cf8; word-break: break-all; padding: 6px; background: rgba(129, 140, 248, 0.1); border-radius: 2px; margin-bottom: 8px;">' + addr + '</div>' +
-                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ ' + dc.amount_sol.toFixed(2) + ' SOL funds Creator</div>';
+                            '<div style="font-size: 12px; font-weight: bold; color: #818cf8; word-break: break-all; padding: 6px; background: rgba(129, 140, 248, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.funder + '</div>' +
+                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ ' + ex.sol_to_creator.toFixed(2) + ' SOL funds Creator</div>';
 
                             // Always show Creator
                             flowHTML += '<div style="color: #f59e0b; margin-bottom: 6px;"><strong>👤 Creator:</strong></div>' +
-                            '<div style="font-size: 12px; font-weight: bold; color: #fbbf24; word-break: break-all; padding: 6px; background: rgba(251, 191, 36, 0.1); border-radius: 2px; margin-bottom: 8px;">' + dc.creator_address + '</div>';
+                            '<div style="font-size: 12px; font-weight: bold; color: #fbbf24; word-break: break-all; padding: 6px; background: rgba(251, 191, 36, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.creator + '</div>';
 
                             // Show Token if available
-                            if (dc.mint) {
+                            if (ex.mint) {
                                 flowHTML += '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ creates Token</div>' +
                                 '<div style="color: #4ade80;"><strong>🎫 Token:</strong></div>' +
-                                '<div style="font-size: 12px; font-weight: bold; color: #86efac; word-break: break-all; padding: 6px; background: rgba(134, 239, 172, 0.1); border-radius: 2px;">' + dc.mint + '</div>';
+                                '<div style="font-size: 12px; font-weight: bold; color: #86efac; word-break: break-all; padding: 6px; background: rgba(134, 239, 172, 0.1); border-radius: 2px;">' + ex.mint + '</div>';
                             }
 
                             flowHTML += '</div>';
                             return flowHTML;
                         }).join('');
+                    }
+
+                    // Build list of all creators funded by this root operator
+                    if (flow && flow.downstream_creators && flow.downstream_creators.length > 0) {
+                        const creatorCounts = {};
+                        flow.downstream_creators.forEach(dc => {
+                            if (!creatorCounts[dc.creator_address]) {
+                                creatorCounts[dc.creator_address] = 0;
+                            }
+                            creatorCounts[dc.creator_address]++;
+                        });
+
+                        const creatorsList = Object.entries(creatorCounts)
+                            .map(([creator, tokenCount]) => {
+                                const shortCreator = creator.substring(0, 8) + '...' + creator.substring(creator.length - 8);
+                                return `<div style="font-family: monospace; font-size: 10px; color: #d1d5db; padding: 6px; background: rgba(245, 158, 11, 0.05); border-radius: 2px; margin-bottom: 4px; display: flex; justify-content: space-between;"><span title="${creator}">${shortCreator}</span><span style="color: #fbbf24; font-weight: bold;">${tokenCount} token${tokenCount > 1 ? 's' : ''}</span></div>`;
+                            })
+                            .join('');
+
+                        creatorsListHTML = '<div style="margin-top: 10px;">' +
+                            '<div style="font-size: 9px; color: #a0a0a0; margin-bottom: 6px;">ALL CREATORS FUNDED:</div>' +
+                            '<div style="background: rgba(0, 0, 0, 0.2); border-radius: 4px; padding: 8px;">' +
+                            creatorsList +
+                            '</div></div>';
                     }
 
                     return '<div style="background: rgba(99, 102, 241, 0.08); padding: 12px; border-radius: 6px; border-left: 3px solid #6366f1; margin-bottom: 12px;">' +
@@ -4694,8 +4725,9 @@ HTML_TEMPLATE = """
                             '<div><div style="color: #a0a0a0;">CREATORS FUNDED</div><div style="color: #f59e0b; font-weight: bold;">' + flow.creators_funded + '</div></div>' +
                             '<div><div style="color: #a0a0a0;">TOTAL SOL</div><div style="color: #4ade80; font-weight: bold;">' + flow.total_sol_sent.toFixed(2) + '</div></div>' +
                             '</div>' : '') +
-                        (creatorFlowsHTML ? '<div style="margin-top: 10px; font-size: 9px; color: #a0a0a0; margin-bottom: 6px;">ALL CREATORS FUNDED:</div>' +
-                            '<div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 6px;">' + creatorFlowsHTML + '</div>' : '') +
+                        creatorsListHTML +
+                        (flowsHTML ? '<div style="margin-top: 10px; font-size: 9px; color: #a0a0a0; margin-bottom: 6px;">EXAMPLE FLOWS: Sender → Funder → Creator</div>' +
+                            '<div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 6px;">' + flowsHTML + '</div>' : '') +
                         '</div>';
                 }).join('');
 

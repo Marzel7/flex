@@ -307,7 +307,7 @@ HTML_TEMPLATE = """
         }
 
         .stat-label {
-            color: #a0a0a0;
+            color: var(--text-secondary);
             font-size: 12px;
             text-transform: uppercase;
             margin-bottom: 8px;
@@ -316,20 +316,20 @@ HTML_TEMPLATE = """
         .stat-value {
             font-size: 28px;
             font-weight: bold;
-            color: #00d4ff;
+            color: var(--accent-cyan);
         }
 
         .tokens-table {
             width: 100%;
             border-collapse: collapse;
-            background: rgba(0, 0, 0, 0.2);
+            background: var(--bg-secondary);
             border-radius: 8px;
             overflow: hidden;
         }
 
         .tokens-table thead {
-            background: rgba(0, 0, 0, 0.4);
-            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+            background: var(--bg-secondary);
+            border-bottom: 2px solid rgba(124, 58, 237, 0.3);
         }
 
         .tokens-table th {
@@ -337,7 +337,7 @@ HTML_TEMPLATE = """
             text-align: left;
             font-size: 12px;
             text-transform: uppercase;
-            color: #00d4ff;
+            color: var(--accent-cyan);
             font-weight: 600;
         }
 
@@ -349,7 +349,7 @@ HTML_TEMPLATE = """
         }
 
         .tokens-table th.sortable:hover {
-            background: rgba(0, 212, 255, 0.1);
+            background: rgba(124, 58, 237, 0.1);
         }
 
         .tokens-table th.sorted-asc::after {
@@ -378,7 +378,7 @@ HTML_TEMPLATE = """
         .mint {
             font-family: 'Courier New', monospace;
             font-size: 11px;
-            color: #00d4ff;
+            color: var(--accent-cyan);
             max-width: 350px;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -405,7 +405,7 @@ HTML_TEMPLATE = """
 
         .risk-high {
             background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
+            color: var(--color-critical);
         }
 
         .rug-badge {
@@ -432,7 +432,7 @@ HTML_TEMPLATE = """
         .creator-pump_fun_official {
             display: inline-block;
             background: rgba(59, 130, 246, 0.15);
-            color: #3b82f6;
+            color: var(--color-none);
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 11px;
@@ -499,34 +499,34 @@ HTML_TEMPLATE = """
         }
 
         .price-negative {
-            color: #ef4444;
+            color: var(--color-critical);
         }
 
         .time-badge {
-            background: rgba(0, 212, 255, 0.1);
+            background: rgba(124, 58, 237, 0.1);
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 12px;
-            color: #00d4ff;
+            color: var(--accent-cyan);
         }
 
         .loading {
             text-align: center;
             padding: 40px;
-            color: #a0a0a0;
+            color: var(--text-secondary);
         }
 
         .no-data {
             text-align: center;
             padding: 40px;
-            color: #a0a0a0;
-            background: rgba(0, 0, 0, 0.2);
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
             border-radius: 8px;
             margin-top: 20px;
         }
 
         .refresh-info {
-            color: #a0a0a0;
+            color: var(--text-secondary);
             font-size: 12px;
             margin-top: 20px;
             text-align: center;
@@ -561,7 +561,7 @@ HTML_TEMPLATE = """
             padding: 0 !important;
             background: none !important;
             border: none !important;
-            color: #00d4ff !important;
+            color: var(--accent-cyan) !important;
             text-decoration: underline !important;
             cursor: pointer !important;
             font-family: 'Courier New', monospace !important;
@@ -588,34 +588,34 @@ HTML_TEMPLATE = """
             white-space: nowrap;
             border: 1px solid rgba(0, 212, 255, 0.3);
             background: rgba(0, 212, 255, 0.15);
-            color: #00d4ff;
+            color: var(--accent-cyan);
         }
 
         /* Network size tag (cyan) */
         .tag-network {
             background: rgba(0, 212, 255, 0.15);
-            color: #00d4ff;
+            color: var(--accent-cyan);
             border: 1px solid rgba(0, 212, 255, 0.3);
         }
 
         /* Funding tag (cyan) */
         .tag-funding {
             background: rgba(0, 212, 255, 0.15);
-            color: #00d4ff;
+            color: var(--accent-cyan);
             border: 1px solid rgba(0, 212, 255, 0.3);
         }
 
         /* Repeat launcher tag (cyan) */
         .tag-repeat {
             background: rgba(0, 212, 255, 0.15);
-            color: #00d4ff;
+            color: var(--accent-cyan);
             border: 1px solid rgba(0, 212, 255, 0.3);
         }
 
         /* Blocked tag (cyan) */
         .tag-blocked {
             background: rgba(0, 212, 255, 0.15);
-            color: #00d4ff;
+            color: var(--accent-cyan);
             border: 1px solid rgba(239, 68, 68, 0.3);
             font-weight: 700;
         }
@@ -645,7 +645,7 @@ HTML_TEMPLATE = """
             border-radius: 2px;
             font-size: 8px;
             background: rgba(0, 0, 0, 0.3);
-            color: #a0a0a0;
+            color: var(--text-secondary);
         }
 
         /* Category-specific colors for creator display */
@@ -657,7 +657,7 @@ HTML_TEMPLATE = """
 
         .creator-infra-tags .infra-cex {
             background: rgba(34, 197, 94, 0.2);
-            color: #4ade80;
+            color: var(--color-low);
             border-color: rgba(34, 197, 94, 0.3);
         }
 
@@ -716,13 +716,13 @@ HTML_TEMPLATE = """
         }
 
         .modal-content h2 {
-            color: #00d4ff;
+            color: var(--accent-cyan);
             margin-bottom: 20px;
             font-size: 20px;
         }
 
         .modal-content h3 {
-            color: #00d4ff;
+            color: var(--accent-cyan);
             margin-top: 20px;
             margin-bottom: 10px;
             font-size: 14px;
@@ -730,7 +730,7 @@ HTML_TEMPLATE = """
         }
 
         .close {
-            color: #a0a0a0;
+            color: var(--text-secondary);
             float: right;
             font-size: 28px;
             font-weight: bold;
@@ -740,7 +740,7 @@ HTML_TEMPLATE = """
 
         .close:hover,
         .close:focus {
-            color: #00d4ff;
+            color: var(--accent-cyan);
         }
 
         .metrics-grid {
@@ -759,7 +759,7 @@ HTML_TEMPLATE = """
 
         .metric label {
             display: block;
-            color: #a0a0a0;
+            color: var(--text-secondary);
             font-size: 11px;
             text-transform: uppercase;
             margin-bottom: 8px;
@@ -767,7 +767,7 @@ HTML_TEMPLATE = """
 
         .metric span {
             display: block;
-            color: #00d4ff;
+            color: var(--accent-cyan);
             font-size: 16px;
             font-weight: 600;
             font-family: 'Courier New', monospace;
@@ -782,24 +782,24 @@ HTML_TEMPLATE = """
 
         .risk-section p {
             margin: 8px 0;
-            color: #e0e0e0;
+            color: var(--text-primary);
         }
 
         .risk-section label {
-            color: #a0a0a0;
+            color: var(--text-secondary);
             font-size: 12px;
             text-transform: uppercase;
         }
 
         .risk-value {
-            color: #00d4ff;
+            color: var(--accent-cyan);
             font-weight: 600;
             margin-left: 10px;
         }
 
         .mint-link {
             cursor: pointer;
-            color: #00d4ff !important;
+            color: var(--accent-cyan) !important;
             text-decoration: none;
             border-bottom: 1px dotted #00d4ff;
             transition: all 0.2s;
@@ -834,7 +834,7 @@ HTML_TEMPLATE = """
 
         .network-badge.network-medium {
             background: rgba(245, 158, 11, 0.2);
-            color: #fbbf24;
+            color: var(--color-medium);
             border: 1px solid rgba(245, 158, 11, 0.4);
             cursor: help;
         }
@@ -887,7 +887,7 @@ HTML_TEMPLATE = """
 
         .stat-box label {
             display: block;
-            color: #a0a0a0;
+            color: var(--text-secondary);
             font-size: 12px;
             margin-bottom: 8px;
             text-transform: uppercase;
@@ -895,7 +895,7 @@ HTML_TEMPLATE = """
 
         .stat-box span {
             display: block;
-            color: #00d4ff;
+            color: var(--accent-cyan);
             font-size: 18px;
             font-weight: bold;
         }
@@ -905,18 +905,18 @@ HTML_TEMPLATE = """
             padding: 10px 20px !important;
             background: none !important;
             border: none !important;
-            color: #a0a0a0 !important;
+            color: var(--text-secondary) !important;
             cursor: pointer !important;
             font-size: 14px !important;
             transition: color 0.2s ease !important;
         }
 
         .sc-tab-button:hover {
-            color: #00d4ff !important;
+            color: var(--accent-cyan) !important;
         }
 
         .sc-tab-button.active {
-            color: #00d4ff !important;
+            color: var(--accent-cyan) !important;
             border-bottom: 2px solid #00d4ff !important;
         }
 
@@ -936,7 +936,7 @@ HTML_TEMPLATE = """
         }
 
         .tag-label {
-            color: #4ade80;
+            color: var(--color-low);
             font-size: 13px;
             font-weight: 600;
         }
@@ -958,7 +958,7 @@ HTML_TEMPLATE = """
             padding: 10px;
             text-align: left;
             font-size: 12px;
-            color: #a0a0a0;
+            color: var(--text-secondary);
             border-bottom: 1px solid rgba(0, 212, 255, 0.2);
         }
 
@@ -989,7 +989,7 @@ HTML_TEMPLATE = """
             padding: 10px;
             text-align: left;
             font-size: 12px;
-            color: #a0a0a0;
+            color: var(--text-secondary);
             border-bottom: 1px solid rgba(0, 212, 255, 0.2);
         }
 
@@ -1009,7 +1009,7 @@ HTML_TEMPLATE = """
 
         .cluster-info p {
             margin: 5px 0;
-            color: #e0e0e0;
+            color: var(--text-primary);
             font-size: 12px;
         }
 
@@ -1019,7 +1019,7 @@ HTML_TEMPLATE = """
             padding: 2px 6px;
             border-radius: 3px;
             background: rgba(34, 197, 94, 0.2);
-            color: #4ade80;
+            color: var(--color-low);
             font-size: 10px;
             font-weight: 600;
             margin-left: 5px;
@@ -1046,7 +1046,7 @@ HTML_TEMPLATE = """
             padding: 10px;
             text-align: left;
             font-size: 12px;
-            color: #4ade80;
+            color: var(--color-low);
             border-bottom: 2px solid rgba(34, 197, 94, 0.3);
             font-weight: 600;
         }
@@ -1055,7 +1055,7 @@ HTML_TEMPLATE = """
             padding: 10px;
             font-size: 12px;
             border-bottom: 1px solid rgba(34, 197, 94, 0.1);
-            color: #e0e0e0;
+            color: var(--text-primary);
         }
 
         .cex-funders-table tr:hover {
@@ -1085,7 +1085,7 @@ HTML_TEMPLATE = """
         }
 
         .cex-exchange-name {
-            color: #4ade80;
+            color: var(--color-low);
             font-weight: 600;
             display: flex;
             align-items: center;
@@ -1107,7 +1107,7 @@ HTML_TEMPLATE = """
             padding: 10px;
             text-align: left;
             font-size: 12px;
-            color: #a0a0a0;
+            color: var(--text-secondary);
             border-bottom: 1px solid rgba(0, 212, 255, 0.2);
         }
 
@@ -1158,7 +1158,7 @@ HTML_TEMPLATE = """
             padding: 10px;
             font-size: 12px;
             border-bottom: 1px solid rgba(139, 92, 246, 0.1);
-            color: #e0e0e0;
+            color: var(--text-primary);
         }
 
         .funders-table tr:hover {
@@ -1181,7 +1181,7 @@ HTML_TEMPLATE = """
             padding: 4px 8px;
             border-radius: 4px;
             background: rgba(34, 197, 94, 0.2);
-            color: #4ade80;
+            color: var(--color-low);
             font-size: 11px;
             font-weight: 600;
             white-space: nowrap;
@@ -1217,7 +1217,7 @@ HTML_TEMPLATE = """
 
         .infra-cex {
             background: rgba(34, 197, 94, 0.2);
-            color: #4ade80;
+            color: var(--color-low);
             border: 1px solid rgba(34, 197, 94, 0.3);
         }
 
@@ -1280,7 +1280,7 @@ HTML_TEMPLATE = """
             font-size: 9px;
             margin-right: 2px;
             background: rgba(0, 0, 0, 0.3);
-            color: #a0a0a0;
+            color: var(--text-secondary);
         }
 
         .tag-infra {
@@ -1300,7 +1300,7 @@ HTML_TEMPLATE = """
 
         /* CREATE tx link */
         .create-tx-link {
-            color: #00d4ff;
+            color: var(--accent-cyan);
             text-decoration: none;
             font-family: monospace;
         }
@@ -1328,7 +1328,7 @@ HTML_TEMPLATE = """
         }
 
         .control-label {
-            color: #a0a0a0;
+            color: var(--text-secondary);
             font-size: 14px;
             font-weight: 500;
         }
@@ -1346,7 +1346,7 @@ HTML_TEMPLATE = """
         }
 
         .toggle-switch.active {
-            background-color: #00d4ff;
+            background-color: var(--accent-cyan);
         }
 
         .toggle-slider {
@@ -1390,7 +1390,7 @@ HTML_TEMPLATE = """
 
         .action-button.danger {
             background-color: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
+            color: var(--color-critical);
             border: 1px solid rgba(239, 68, 68, 0.4);
         }
 
@@ -1429,7 +1429,7 @@ HTML_TEMPLATE = """
         }
 
         .cex-exchange-card h4 {
-            color: #4ade80;
+            color: var(--color-low);
             margin: 0 0 10px 0;
             display: flex;
             align-items: center;
@@ -1441,15 +1441,15 @@ HTML_TEMPLATE = """
             justify-content: space-between;
             margin: 8px 0;
             font-size: 13px;
-            color: #e0e0e0;
+            color: var(--text-primary);
         }
 
         .cex-exchange-card .stat-label {
-            color: #a0a0a0;
+            color: var(--text-secondary);
         }
 
         .cex-exchange-card .stat-value {
-            color: #00d4ff;
+            color: var(--accent-cyan);
             font-weight: 600;
         }
     </style>
@@ -1511,12 +1511,12 @@ HTML_TEMPLATE = """
                 <span class="status-indicator active" id="listenLaunchesStatus"></span>
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(139, 92, 246, 0.3); margin-left: 12px; padding-left: 12px;">
-                <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(76, 175, 80, 0.2); color: #4ade80; border: 1px solid rgba(76, 175, 80, 0.5);">▶️ Polling ON</button>
+                <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(76, 175, 80, 0.2); color: var(--color-low); border: 1px solid rgba(76, 175, 80, 0.5);">▶️ Polling ON</button>
                 <button class="action-button" id="tokensTabBtn" onclick="switchToTokensTab()" title="View tokens" style="background: rgba(99, 102, 241, 0.2); color: #6366f1; border: 1px solid rgba(99, 102, 241, 0.5); margin-left: 8px;">Tokens</button>
                 <button class="action-button" id="networksTabBtn" onclick="switchToNetworksTab()" title="View funding networks" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">🔗 Networks</button>
                 <button class="action-button" onclick="window.location.href = '/coordinated-funders'" title="Analyze funders supporting multiple creators" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">Coordinated Funders</button>
-                <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Validate TX</button>
-                <button id="funderExtractionBtn" class="action-button" onclick="toggleFunderExtraction()" title="Toggle funder transfer extraction (incoming/outgoing)" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); margin-left: 8px;">Funder Extraction OFF</button>
+                <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Validate TX</button>
+                <button id="funderExtractionBtn" class="action-button" onclick="toggleFunderExtraction()" title="Toggle funder transfer extraction (incoming/outgoing)" style="background: rgba(245, 158, 11, 0.2); color: var(--color-medium); border: 1px solid rgba(245, 158, 11, 0.5); margin-left: 8px;">Funder Extraction OFF</button>
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(239, 68, 68, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button class="action-button danger" onclick="emptyDatabase()" title="Clear all tokens, clustering, and address data">Empty DB</button>
@@ -1533,10 +1533,10 @@ HTML_TEMPLATE = """
         <div id="funding-network-container" style="display: none; padding: 20px;">
             <div style="margin-bottom: 30px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h2 style="color: #ef4444; margin: 0;">🚨 Super-Clusters (Coordinated Networks)</h2>
+                    <h2 style="color: var(--color-critical); margin: 0;">🚨 Super-Clusters (Coordinated Networks)</h2>
                     <button onclick="showDefinitionsGuide()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid #6366f1; background: rgba(99, 102, 241, 0.1); color: #6366f1; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.2s;" title="View creator pool tag definitions">📖 Definitions</button>
                 </div>
-                <p style="color: #a0a0a0; font-size: 14px; margin-bottom: 20px;">
+                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 20px;">
                     Networks with ≥5 shared creators have been merged into super-clusters. These represent large coordinated funding operations identified through sophisticated network analysis.
                     <br><span style="font-size: 12px; color: #888;">Tip: Click the <strong>?</strong> button on any tag to see its definition</span>
                 </p>
@@ -1544,26 +1544,26 @@ HTML_TEMPLATE = """
                 <!-- Super-Cluster Statistics -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px;">
                     <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #ef4444;">
-                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total Clusters</div>
-                        <div style="font-size: 24px; font-weight: bold; color: #ef4444;" id="scTotalCount">—</div>
+                        <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total Clusters</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--color-critical);" id="scTotalCount">—</div>
                     </div>
                     <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #ef4444;">
-                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Critical</div>
-                        <div style="font-size: 24px; font-weight: bold; color: #ef4444;" id="scCriticalCount">—</div>
+                        <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Critical</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--color-critical);" id="scCriticalCount">—</div>
                     </div>
                     <div style="background: rgba(249, 115, 22, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #f97316;">
-                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">High Risk</div>
+                        <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">High Risk</div>
                         <div style="font-size: 24px; font-weight: bold; color: #f97316;" id="scHighCount">—</div>
                     </div>
                     <div style="background: rgba(251, 191, 36, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #fbbf24;">
-                        <div style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Medium Risk</div>
-                        <div style="font-size: 24px; font-weight: bold; color: #fbbf24;" id="scMediumCount">—</div>
+                        <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Medium Risk</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--color-medium);" id="scMediumCount">—</div>
                     </div>
                 </div>
 
                 <!-- Network Filter Toggle -->
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding: 15px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.3);">
-                    <span style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; font-weight: bold;">Filter Networks:</span>
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding: 15px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.3);">
+                    <span style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; font-weight: bold;">Filter Networks:</span>
                     <button id="scMainToggleCexInfra" onclick="toggleMainNetworkFilter()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid rgba(99, 102, 241, 0.5); background: rgba(99, 102, 241, 0.1); color: #6366f1; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
                         ✓ Show All Networks
                     </button>
@@ -1579,11 +1579,11 @@ HTML_TEMPLATE = """
         <!-- CEX Funders View -->
         <div id="cex-container" style="display: none;">
             <div style="padding: 20px;">
-                <h2 style="color: #4ade80; margin-bottom: 20px;">🏛️ CEX Funders Activity</h2>
+                <h2 style="color: var(--color-low); margin-bottom: 20px;">🏛️ CEX Funders Activity</h2>
 
                 <!-- CEX Exchanges Summary -->
                 <div style="margin-bottom: 30px;">
-                    <h3 style="color: #00d4ff; margin-bottom: 15px;">Exchanges Funding Creators</h3>
+                    <h3 style="color: var(--accent-cyan); margin-bottom: 15px;">Exchanges Funding Creators</h3>
                     <div id="cexExchangesContainer" class="cex-grid">
                         <div class="loading">Loading CEX exchanges...</div>
                     </div>
@@ -1591,7 +1591,7 @@ HTML_TEMPLATE = """
 
                 <!-- Top CEX Funder Wallets -->
                 <div style="margin-bottom: 30px;">
-                    <h3 style="color: #00d4ff; margin-bottom: 15px;">Top CEX Wallet Funders</h3>
+                    <h3 style="color: var(--accent-cyan); margin-bottom: 15px;">Top CEX Wallet Funders</h3>
                     <div id="topCexFundersContainer" style="overflow-x: auto;">
                         <table class="tokens-table" style="width: 100%;">
                             <thead>
@@ -1604,7 +1604,7 @@ HTML_TEMPLATE = """
                                 </tr>
                             </thead>
                             <tbody id="topCexFundersBody">
-                                <tr><td colspan="5" style="text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                                <tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1612,7 +1612,7 @@ HTML_TEMPLATE = """
 
                 <!-- CEX-Funded Creators -->
                 <div>
-                    <h3 style="color: #00d4ff; margin-bottom: 15px;">Creators Funded by CEX</h3>
+                    <h3 style="color: var(--accent-cyan); margin-bottom: 15px;">Creators Funded by CEX</h3>
                     <div id="cexFundedCreatorsContainer" style="overflow-x: auto;">
                         <table class="tokens-table" style="width: 100%;">
                             <thead>
@@ -1624,7 +1624,7 @@ HTML_TEMPLATE = """
                                 </tr>
                             </thead>
                             <tbody id="cexFundedCreatorsBody">
-                                <tr><td colspan="4" style="text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                                <tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1652,10 +1652,10 @@ HTML_TEMPLATE = """
             </div>
 
             <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0, 212, 255, 0.2);">
-                <p style="color: #a0a0a0; font-size: 12px;">
+                <p style="color: var(--text-secondary); font-size: 12px;">
                     💡 <strong>Tip:</strong> Click "DexTools" link below to view live trading data
                 </p>
-                <a id="dextoolsLink" href="#" target="_blank" style="color: #00d4ff; margin-top: 10px; display: inline-block;">
+                <a id="dextoolsLink" href="#" target="_blank" style="color: var(--accent-cyan); margin-top: 10px; display: inline-block;">
                     → View on DexTools
                 </a>
             </div>
@@ -1690,7 +1690,7 @@ HTML_TEMPLATE = """
 
             <!-- Analysis Buttons -->
             <div style="margin: 20px 0; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                <button onclick="showFundingNetwork3Tier(document.getElementById('modalCreator').textContent.split(' ')[0])" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">View Funding Patterns</button>
+                <button onclick="showFundingNetwork3Tier(document.getElementById('modalCreator').textContent.split(' ')[0])" style="background: rgba(239, 68, 68, 0.2); color: var(--color-critical); border: 1px solid rgba(239, 68, 68, 0.5); padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">View Funding Patterns</button>
                 <button onclick="window.location.href = '/coordinated-funder-analysis/' + document.getElementById('modalCreator').textContent.split(' ')[0]" style="background: rgba(249, 115, 22, 0.2); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.5); padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">Coordinated Network</button>
             </div>
 
@@ -1718,7 +1718,7 @@ HTML_TEMPLATE = """
 
             <!-- Tokens Funded Section -->
             <div id="tokensFundedSection" style="display: none; margin-bottom: 20px;">
-                <h3 style="color: #00d4ff;">💰 Tokens Funded (As Funder)</h3>
+                <h3 style="color: var(--accent-cyan);">💰 Tokens Funded (As Funder)</h3>
                 <div class="tokens-funded-container">
                     <table class="tokens-launched-table">
                         <thead>
@@ -1739,7 +1739,7 @@ HTML_TEMPLATE = """
 
             <!-- Jito Tips History Section -->
             <div id="jitotipsSection" style="display: none; margin-bottom: 20px;">
-                <h3 style="color: #00d4ff;">💸 Jito Tips History</h3>
+                <h3 style="color: var(--accent-cyan);">💸 Jito Tips History</h3>
                 <div class="jitotips-container">
                     <table class="jitotips-table">
                         <thead>
@@ -1760,7 +1760,7 @@ HTML_TEMPLATE = """
 
             <!-- CEX Funders Section -->
             <div id="cexFundersSection" style="display: none; margin-bottom: 20px;">
-                <h3 style="color: #00d4ff;">🏛️ CEX Funders</h3>
+                <h3 style="color: var(--accent-cyan);">🏛️ CEX Funders</h3>
                 <div class="cex-funders-container">
                     <table class="cex-funders-table">
                         <thead>
@@ -1779,7 +1779,7 @@ HTML_TEMPLATE = """
 
             <!-- Multi-Creator Funders Section (Coordination Risk) -->
             <div id="multiCreatorFundersSection" style="display: none; margin-bottom: 20px;">
-                <h3 style="color: #ef4444;">⚠️ Multi-Creator Funders (Coordination Risk)</h3>
+                <h3 style="color: var(--color-critical);">⚠️ Multi-Creator Funders (Coordination Risk)</h3>
                 <div class="multi-creator-container">
                     <div id="multiCreatorRiskBanner" style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 15px; margin-bottom: 15px; border-radius: 4px;">
                         <p style="color: #fca5a5; margin: 0; font-size: 13px;">
@@ -1805,7 +1805,7 @@ HTML_TEMPLATE = """
 
             <!-- Other Labeled Funders Section -->
             <div id="otherFundersSection" style="display: none; margin-bottom: 20px;">
-                <h3 style="color: #00d4ff;">🏛️ Other Labeled Funders</h3>
+                <h3 style="color: var(--accent-cyan);">🏛️ Other Labeled Funders</h3>
                 <div class="cex-funders-container">
                     <table class="cex-funders-table">
                         <thead>
@@ -1824,7 +1824,7 @@ HTML_TEMPLATE = """
 
             <!-- All Funders Section -->
             <div id="allFundersSection" style="margin-bottom: 20px;">
-                <h3 style="color: #00d4ff;">💰 All Funders</h3>
+                <h3 style="color: var(--accent-cyan);">💰 All Funders</h3>
                 <div class="cex-funders-container">
                     <table class="cex-funders-table">
                         <thead>
@@ -1909,7 +1909,7 @@ HTML_TEMPLATE = """
                         </tr>
                     </thead>
                     <tbody id="multiCreatorFundersBody">
-                        <tr><td colspan="6" style="text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                        <tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1932,25 +1932,25 @@ HTML_TEMPLATE = """
             <h2>Transaction Details - <span id="txViewerSig" style="font-family: monospace; font-size: 12px;"></span></h2>
 
             <div style="margin-bottom: 20px;">
-                <a id="txSolscanLink" href="#" target="_blank" style="color: #00d4ff; text-decoration: none; margin-right: 15px;">
+                <a id="txSolscanLink" href="#" target="_blank" style="color: var(--accent-cyan); text-decoration: none; margin-right: 15px;">
                     🔗 View on Solscan
                 </a>
-                <button onclick="copyToClipboard(document.getElementById('txViewerSig').textContent)" style="background: rgba(0, 212, 255, 0.2); color: #00d4ff; border: 1px solid #00d4ff; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-family: monospace; font-size: 12px;">
+                <button onclick="copyToClipboard(document.getElementById('txViewerSig').textContent)" style="background: rgba(0, 212, 255, 0.2); color: var(--accent-cyan); border: 1px solid #00d4ff; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-family: monospace; font-size: 12px;">
                     📋 Copy Signature
                 </button>
             </div>
 
             <h3>Account Keys (jsonParsed)</h3>
             <div style="background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 6px; padding: 15px; overflow-x: auto;">
-                <pre id="txViewerAccountKeys" style="color: #e0e0e0; font-size: 11px; margin: 0; white-space: pre-wrap; word-wrap: break-word;"></pre>
+                <pre id="txViewerAccountKeys" style="color: var(--text-primary); font-size: 11px; margin: 0; white-space: pre-wrap; word-wrap: break-word;"></pre>
             </div>
 
             <h3 style="margin-top: 20px;">Fee Payer (Creator)</h3>
             <div style="background: rgba(34, 197, 94, 0.1); border: 2px solid rgba(34, 197, 94, 0.3); border-radius: 6px; padding: 15px; margin-bottom: 20px;">
-                <div style="font-family: monospace; font-size: 12px; color: #4ade80; word-break: break-all;">
+                <div style="font-family: monospace; font-size: 12px; color: var(--color-low); word-break: break-all;">
                     <span id="txViewerFeePayer">—</span>
                 </div>
-                <div style="color: #a0a0a0; font-size: 11px; margin-top: 8px;">
+                <div style="color: var(--text-secondary); font-size: 11px; margin-top: 8px;">
                     ✓ Fee payer (always first signer at accountKeys[0]) = transaction creator
                 </div>
             </div>
@@ -1964,19 +1964,19 @@ HTML_TEMPLATE = """
             <h2>🔍 Transaction Validation</h2>
 
             <div style="margin-bottom: 20px;">
-                <label style="display: block; color: #a0a0a0; font-size: 12px; margin-bottom: 8px; text-transform: uppercase;">Transaction Signature</label>
+                <label style="display: block; color: var(--text-secondary); font-size: 12px; margin-bottom: 8px; text-transform: uppercase;">Transaction Signature</label>
                 <input
                     type="text"
                     id="validationInput"
                     placeholder="Paste transaction signature (e.g., 2NcBKN1RV35onHE1fP7wmjfb8PWrmhBgvsvemPaoVt2DkcV5...)"
-                    style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 6px; color: #e0e0e0; font-family: monospace; font-size: 12px; box-sizing: border-box;"
+                    style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 6px; color: var(--text-primary); font-family: monospace; font-size: 12px; box-sizing: border-box;"
                 >
             </div>
 
             <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                 <button
                     onclick="validateTransaction()"
-                    style="flex: 1; padding: 12px; background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s;"
+                    style="flex: 1; padding: 12px; background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s;"
                     onmouseover="this.style.background='rgba(59, 130, 246, 0.4)'"
                     onmouseout="this.style.background='rgba(59, 130, 246, 0.2)'"
                 >
@@ -1984,7 +1984,7 @@ HTML_TEMPLATE = """
                 </button>
                 <button
                     onclick="closeValidationModal()"
-                    style="flex: 1; padding: 12px; background: rgba(100, 100, 100, 0.2); color: #a0a0a0; border: 1px solid rgba(100, 100, 100, 0.5); border-radius: 6px; cursor: pointer;"
+                    style="flex: 1; padding: 12px; background: rgba(100, 100, 100, 0.2); color: var(--text-secondary); border: 1px solid rgba(100, 100, 100, 0.5); border-radius: 6px; cursor: pointer;"
                 >
                     Cancel
                 </button>
@@ -1994,44 +1994,44 @@ HTML_TEMPLATE = """
                 <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 6px; padding: 20px;">
 
                     <!-- Loading State -->
-                    <div id="validationLoading" style="text-align: center; color: #00d4ff;">
+                    <div id="validationLoading" style="text-align: center; color: var(--accent-cyan);">
                         <div style="font-size: 24px; margin-bottom: 10px;">⏳</div>
                         <div>Validating transaction...</div>
                     </div>
 
                     <!-- Results State -->
                     <div id="validationSuccess" style="display: none;">
-                        <div style="color: #4ade80; font-weight: bold; margin-bottom: 15px;">✅ PUMP.FUN CREATE TRANSACTION CONFIRMED</div>
+                        <div style="color: var(--color-low); font-weight: bold; margin-bottom: 15px;">✅ PUMP.FUN CREATE TRANSACTION CONFIRMED</div>
 
                         <div style="margin-bottom: 15px;">
-                            <div style="color: #a0a0a0; font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Token Mint</div>
-                            <div style="color: #00d4ff; font-family: monospace; font-size: 12px; word-break: break-all;" id="resultMint">—</div>
+                            <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Token Mint</div>
+                            <div style="color: var(--accent-cyan); font-family: monospace; font-size: 12px; word-break: break-all;" id="resultMint">—</div>
                         </div>
 
                         <div style="margin-bottom: 15px;">
-                            <div style="color: #a0a0a0; font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Creator (Fee Payer)</div>
-                            <div style="color: #4ade80; font-family: monospace; font-size: 12px; word-break: break-all;" id="resultCreator">—</div>
+                            <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Creator (Fee Payer)</div>
+                            <div style="color: var(--color-low); font-family: monospace; font-size: 12px; word-break: break-all;" id="resultCreator">—</div>
                         </div>
 
                         <div style="margin-bottom: 15px;">
-                            <div style="color: #a0a0a0; font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Timestamp</div>
-                            <div style="color: #e0e0e0; font-size: 12px;" id="resultTimestamp">—</div>
+                            <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Timestamp</div>
+                            <div style="color: var(--text-primary); font-size: 12px;" id="resultTimestamp">—</div>
                         </div>
 
                         <div style="background: rgba(0, 0, 0, 0.3); padding: 12px; border-radius: 4px; border-left: 3px solid #00d4ff;">
-                            <div style="color: #a0a0a0; font-size: 10px; text-transform: uppercase; margin-bottom: 8px;">Evidence</div>
-                            <div id="resultEvidence" style="color: #e0e0e0; font-size: 11px; line-height: 1.6;">—</div>
+                            <div style="color: var(--text-secondary); font-size: 10px; text-transform: uppercase; margin-bottom: 8px;">Evidence</div>
+                            <div id="resultEvidence" style="color: var(--text-primary); font-size: 11px; line-height: 1.6;">—</div>
                         </div>
 
                         <div style="margin-top: 15px;">
-                            <a id="resultSolscanLink" href="#" target="_blank" style="color: #3b82f6; text-decoration: none; font-size: 12px;">
+                            <a id="resultSolscanLink" href="#" target="_blank" style="color: var(--color-none); text-decoration: none; font-size: 12px;">
                                 🔗 View on Solscan →
                             </a>
                         </div>
                     </div>
 
                     <!-- Error State -->
-                    <div id="validationError" style="display: none; color: #ef4444;">
+                    <div id="validationError" style="display: none; color: var(--color-critical);">
                         <div style="font-weight: bold; margin-bottom: 10px;">❌ Validation Failed</div>
                         <div id="errorMessage" style="font-size: 12px; color: #ff6b6b;">—</div>
                     </div>
@@ -2047,9 +2047,9 @@ HTML_TEMPLATE = """
             <h2>Funding Patterns</h2>
 
             <!-- 3-Tier Network Visualization -->
-            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 15px;">
-                <div id="fn3tNetworkBody" style="font-family: monospace; font-size: 12px; line-height: 2; color: #e0e0e0; max-height: 500px; overflow-y: auto;">
-                    <div style="color: #a0a0a0;">Loading network...</div>
+            <div style="background: var(--bg-secondary); border-radius: 8px; padding: 15px;">
+                <div id="fn3tNetworkBody" style="font-family: monospace; font-size: 12px; line-height: 2; color: var(--text-primary); max-height: 500px; overflow-y: auto;">
+                    <div style="color: var(--text-secondary);">Loading network...</div>
                 </div>
             </div>
         </div>
@@ -2064,37 +2064,37 @@ HTML_TEMPLATE = """
             <!-- Network Risk Summary -->
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
                 <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #ef4444;">
-                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 5px;">NETWORK RISK</div>
-                    <div id="cfaRiskLevel" style="color: #ef4444; font-size: 18px; font-weight: bold;">—</div>
+                    <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 5px;">NETWORK RISK</div>
+                    <div id="cfaRiskLevel" style="color: var(--color-critical); font-size: 18px; font-weight: bold;">—</div>
                 </div>
                 <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #fbbf24;">
-                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 5px;">CONNECTED CREATORS</div>
-                    <div id="cfaConnectedCount" style="color: #fbbf24; font-size: 18px; font-weight: bold;">—</div>
+                    <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 5px;">CONNECTED CREATORS</div>
+                    <div id="cfaConnectedCount" style="color: var(--color-medium); font-size: 18px; font-weight: bold;">—</div>
                 </div>
                 <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #f97316;">
-                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 5px;">SHARED DESTINATIONS</div>
+                    <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 5px;">SHARED DESTINATIONS</div>
                     <div id="cfaSharedDests" style="color: #f97316; font-size: 18px; font-weight: bold;">—</div>
                 </div>
             </div>
 
             <!-- Connected Creators List -->
-            <h3 style="color: #e0e0e0; margin-top: 20px;">Connected Creators</h3>
-            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 15px; max-height: 300px; overflow-y: auto;">
-                <div id="cfaConnectedCreators" style="font-family: monospace; font-size: 12px; line-height: 1.8; color: #e0e0e0;">
-                    <div style="color: #a0a0a0;">Loading...</div>
+            <h3 style="color: var(--text-primary); margin-top: 20px;">Connected Creators</h3>
+            <div style="background: var(--bg-secondary); border-radius: 8px; padding: 15px; max-height: 300px; overflow-y: auto;">
+                <div id="cfaConnectedCreators" style="font-family: monospace; font-size: 12px; line-height: 1.8; color: var(--text-primary);">
+                    <div style="color: var(--text-secondary);">Loading...</div>
                 </div>
             </div>
 
             <!-- Shared Destinations List -->
-            <h3 style="color: #e0e0e0; margin-top: 20px;">Shared Destinations</h3>
-            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 15px; max-height: 300px; overflow-y: auto;">
-                <div id="cfaSharedDestinations" style="font-family: monospace; font-size: 12px; line-height: 1.8; color: #e0e0e0;">
-                    <div style="color: #a0a0a0;">Loading...</div>
+            <h3 style="color: var(--text-primary); margin-top: 20px;">Shared Destinations</h3>
+            <div style="background: var(--bg-secondary); border-radius: 8px; padding: 15px; max-height: 300px; overflow-y: auto;">
+                <div id="cfaSharedDestinations" style="font-family: monospace; font-size: 12px; line-height: 1.8; color: var(--text-primary);">
+                    <div style="color: var(--text-secondary);">Loading...</div>
                 </div>
             </div>
 
             <!-- Analysis Timestamp -->
-            <div style="color: #a0a0a0; font-size: 10px; margin-top: 15px;">
+            <div style="color: var(--text-secondary); font-size: 10px; margin-top: 15px;">
                 <div>Analyzed: <span id="cfaDetectedAt">—</span></div>
             </div>
         </div>
@@ -2109,55 +2109,55 @@ HTML_TEMPLATE = """
             <!-- Summary Stats -->
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px;">
                 <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #fbbf24;">
-                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 5px;">CREATORS FUNDED</div>
-                    <div id="fdCreatorCount" style="color: #fbbf24; font-size: 18px; font-weight: bold;">—</div>
+                    <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 5px;">CREATORS FUNDED</div>
+                    <div id="fdCreatorCount" style="color: var(--color-medium); font-size: 18px; font-weight: bold;">—</div>
                 </div>
                 <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #4ade80;">
-                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 5px;">INCOMING SOL</div>
-                    <div id="fdIncomingTotal" style="color: #4ade80; font-size: 18px; font-weight: bold;">—</div>
+                    <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 5px;">INCOMING SOL</div>
+                    <div id="fdIncomingTotal" style="color: var(--color-low); font-size: 18px; font-weight: bold;">—</div>
                 </div>
                 <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #ef4444;">
-                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 5px;">OUTGOING SOL</div>
-                    <div id="fdOutgoingTotal" style="color: #ef4444; font-size: 18px; font-weight: bold;">—</div>
+                    <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 5px;">OUTGOING SOL</div>
+                    <div id="fdOutgoingTotal" style="color: var(--color-critical); font-size: 18px; font-weight: bold;">—</div>
                 </div>
                 <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #f97316;">
-                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 5px;">NET FLOW</div>
+                    <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 5px;">NET FLOW</div>
                     <div id="fdNetFlow" style="color: #f97316; font-size: 18px; font-weight: bold;">—</div>
                 </div>
             </div>
 
             <!-- Incoming Transfers -->
-            <h3 style="color: #e0e0e0; margin-top: 20px;">Incoming Transfers (Senders)</h3>
-            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 0; max-height: 350px; overflow-y: auto;">
+            <h3 style="color: var(--text-primary); margin-top: 20px;">Incoming Transfers (Senders)</h3>
+            <div style="background: var(--bg-secondary); border-radius: 8px; padding: 0; max-height: 350px; overflow-y: auto;">
                 <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
-                    <thead style="position: sticky; top: 0; background: rgba(0, 0, 0, 0.4);">
+                    <thead style="position: sticky; top: 0; background: var(--bg-secondary);">
                         <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
-                            <th style="padding: 10px; text-align: left; color: #a0a0a0;">Sender Address</th>
-                            <th style="padding: 10px; text-align: right; color: #a0a0a0;">SOL</th>
-                            <th style="padding: 10px; text-align: center; color: #a0a0a0;">Txs</th>
-                            <th style="padding: 10px; text-align: left; color: #a0a0a0;">Classification</th>
+                            <th style="padding: 10px; text-align: left; color: var(--text-secondary);">Sender Address</th>
+                            <th style="padding: 10px; text-align: right; color: var(--text-secondary);">SOL</th>
+                            <th style="padding: 10px; text-align: center; color: var(--text-secondary);">Txs</th>
+                            <th style="padding: 10px; text-align: left; color: var(--text-secondary);">Classification</th>
                         </tr>
                     </thead>
                     <tbody id="fdIncomingBody">
-                        <tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                        <tr><td colspan="4" style="padding: 20px; text-align: center; color: var(--text-secondary);">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
 
             <!-- Outgoing Transfers -->
-            <h3 style="color: #e0e0e0; margin-top: 20px;">Outgoing Transfers (Recipients)</h3>
-            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 0; max-height: 350px; overflow-y: auto;">
+            <h3 style="color: var(--text-primary); margin-top: 20px;">Outgoing Transfers (Recipients)</h3>
+            <div style="background: var(--bg-secondary); border-radius: 8px; padding: 0; max-height: 350px; overflow-y: auto;">
                 <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
-                    <thead style="position: sticky; top: 0; background: rgba(0, 0, 0, 0.4);">
+                    <thead style="position: sticky; top: 0; background: var(--bg-secondary);">
                         <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
-                            <th style="padding: 10px; text-align: left; color: #a0a0a0;">Recipient Address</th>
-                            <th style="padding: 10px; text-align: right; color: #a0a0a0;">SOL</th>
-                            <th style="padding: 10px; text-align: center; color: #a0a0a0;">Txs</th>
-                            <th style="padding: 10px; text-align: left; color: #a0a0a0;">Classification</th>
+                            <th style="padding: 10px; text-align: left; color: var(--text-secondary);">Recipient Address</th>
+                            <th style="padding: 10px; text-align: right; color: var(--text-secondary);">SOL</th>
+                            <th style="padding: 10px; text-align: center; color: var(--text-secondary);">Txs</th>
+                            <th style="padding: 10px; text-align: left; color: var(--text-secondary);">Classification</th>
                         </tr>
                     </thead>
                     <tbody id="fdOutgoingBody">
-                        <tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                        <tr><td colspan="4" style="padding: 20px; text-align: center; color: var(--text-secondary);">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -2168,7 +2168,7 @@ HTML_TEMPLATE = """
     <div id="superClusterModal" class="modal">
         <div class="modal-content" style="max-width: 1000px;">
             <span class="close" onclick="closeSuperCluster()">&times;</span>
-            <h2>Super-Cluster Details - <span id="scModalId" style="font-size: 16px; color: #00d4ff;"></span></h2>
+            <h2>Super-Cluster Details - <span id="scModalId" style="font-size: 16px; color: var(--accent-cyan);"></span></h2>
 
             <!-- Risk Badge & Toggle -->
             <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
@@ -2181,34 +2181,34 @@ HTML_TEMPLATE = """
             <!-- Cluster Stats -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px;">
                 <div style="background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #3b82f6;">
-                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Networks</div>
-                    <div id="scNetworkCount" style="color: #3b82f6; font-size: 20px; font-weight: bold;">—</div>
+                    <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Networks</div>
+                    <div id="scNetworkCount" style="color: var(--color-none); font-size: 20px; font-weight: bold;">—</div>
                 </div>
                 <div style="background: rgba(245, 158, 11, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #f59e0b;">
-                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Creators</div>
+                    <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Creators</div>
                     <div id="scCreatorCount" style="color: #f59e0b; font-size: 20px; font-weight: bold;">—</div>
                 </div>
                 <div style="background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #3b82f6;">
-                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Tokens</div>
-                    <div id="scTokenCount" style="color: #3b82f6; font-size: 20px; font-weight: bold;">—</div>
+                    <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Tokens</div>
+                    <div id="scTokenCount" style="color: var(--color-none); font-size: 20px; font-weight: bold;">—</div>
                 </div>
                 <div style="background: rgba(74, 222, 128, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #4ade80;">
-                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Funders</div>
-                    <div id="scFunderCount" style="color: #4ade80; font-size: 20px; font-weight: bold;">—</div>
+                    <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Funders</div>
+                    <div id="scFunderCount" style="color: var(--color-low); font-size: 20px; font-weight: bold;">—</div>
                 </div>
                 <div style="background: rgba(168, 85, 247, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #a855f7;">
-                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Total SOL</div>
+                    <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Total SOL</div>
                     <div id="scTotalSol" style="color: #a855f7; font-size: 20px; font-weight: bold;">—</div>
                 </div>
                 <div style="background: rgba(168, 85, 247, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #a855f7;">
-                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">CEX Funders</div>
+                    <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">CEX Funders</div>
                     <div id="scCexCount" style="color: #a855f7; font-size: 20px; font-weight: bold;">—</div>
                 </div>
             </div>
 
             <!-- Root Operators & Relationship -->
             <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <h4 style="color: #a0a0a0; font-size: 12px; margin-bottom: 15px; text-transform: uppercase;">Root Operators & Cluster Relationship</h4>
+                <h4 style="color: var(--text-secondary); font-size: 12px; margin-bottom: 15px; text-transform: uppercase;">Root Operators & Cluster Relationship</h4>
                 <div id="scRootAddresses" style="display: flex; flex-direction: column; gap: 12px;">
                     <!-- Populated by JS -->
                 </div>
@@ -2235,7 +2235,7 @@ HTML_TEMPLATE = """
             <div id="scNetworksTab" class="sc-tab-content" style="display: none; margin-bottom: 20px;">
                 <!-- Networks Tab Toggle -->
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
-                    <span style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; font-weight: bold;">Filter Networks:</span>
+                    <span style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; font-weight: bold;">Filter Networks:</span>
                     <button id="scNetworksToggleCexInfra" onclick="toggleNetworksVisibility()" style="padding: 6px 12px; border-radius: 4px; border: 1px solid rgba(99, 102, 241, 0.5); background: rgba(99, 102, 241, 0.1); color: #6366f1; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
                         ✓ Show All
                     </button>
@@ -2243,14 +2243,14 @@ HTML_TEMPLATE = """
                 <table style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
-                            <th style="text-align: left; padding: 10px; color: #a0a0a0; font-size: 12px;">Network</th>
-                            <th style="text-align: right; padding: 10px; color: #a0a0a0; font-size: 12px;">Members</th>
-                            <th style="text-align: right; padding: 10px; color: #a0a0a0; font-size: 12px;">SOL</th>
-                            <th style="text-align: center; padding: 10px; color: #a0a0a0; font-size: 12px;">Status</th>
+                            <th style="text-align: left; padding: 10px; color: var(--text-secondary); font-size: 12px;">Network</th>
+                            <th style="text-align: right; padding: 10px; color: var(--text-secondary); font-size: 12px;">Members</th>
+                            <th style="text-align: right; padding: 10px; color: var(--text-secondary); font-size: 12px;">SOL</th>
+                            <th style="text-align: center; padding: 10px; color: var(--text-secondary); font-size: 12px;">Status</th>
                         </tr>
                     </thead>
                     <tbody id="scNetworksList">
-                        <tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                        <tr><td colspan="4" style="padding: 20px; text-align: center; color: var(--text-secondary);">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -2260,12 +2260,12 @@ HTML_TEMPLATE = """
                 <table style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
-                            <th style="text-align: left; padding: 10px; color: #a0a0a0; font-size: 12px;">Creator Address</th>
-                            <th style="text-align: left; padding: 10px; color: #a0a0a0; font-size: 12px;">Tokens</th>
+                            <th style="text-align: left; padding: 10px; color: var(--text-secondary); font-size: 12px;">Creator Address</th>
+                            <th style="text-align: left; padding: 10px; color: var(--text-secondary); font-size: 12px;">Tokens</th>
                         </tr>
                     </thead>
                     <tbody id="scCreatorsList">
-                        <tr><td colspan="2" style="padding: 20px; text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                        <tr><td colspan="2" style="padding: 20px; text-align: center; color: var(--text-secondary);">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -2275,14 +2275,14 @@ HTML_TEMPLATE = """
                 <table style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
-                            <th style="text-align: left; padding: 10px; color: #a0a0a0; font-size: 12px;">Token Mint</th>
-                            <th style="text-align: left; padding: 10px; color: #a0a0a0; font-size: 12px;">Creator</th>
-                            <th style="text-align: right; padding: 10px; color: #a0a0a0; font-size: 12px;">Risk</th>
-                            <th style="text-align: right; padding: 10px; color: #a0a0a0; font-size: 12px;">Peak MC</th>
+                            <th style="text-align: left; padding: 10px; color: var(--text-secondary); font-size: 12px;">Token Mint</th>
+                            <th style="text-align: left; padding: 10px; color: var(--text-secondary); font-size: 12px;">Creator</th>
+                            <th style="text-align: right; padding: 10px; color: var(--text-secondary); font-size: 12px;">Risk</th>
+                            <th style="text-align: right; padding: 10px; color: var(--text-secondary); font-size: 12px;">Peak MC</th>
                         </tr>
                     </thead>
                     <tbody id="scTokensList">
-                        <tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">Loading...</td></tr>
+                        <tr><td colspan="4" style="padding: 20px; text-align: center; color: var(--text-secondary);">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -2295,13 +2295,13 @@ HTML_TEMPLATE = """
             <span class="close" onclick="document.getElementById('tagDefinitionModal').style.display='none'">&times;</span>
             <h2 id="tagDefTitle" style="margin-bottom: 20px;">Definition</h2>
 
-            <div id="tagDefContent" style="color: #e0e0e0; line-height: 1.6;">
+            <div id="tagDefContent" style="color: var(--text-primary); line-height: 1.6;">
                 <!-- Content populated by JS -->
             </div>
 
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(99, 102, 241, 0.2);">
-                <h4 style="color: #a0a0a0; margin-bottom: 10px;">How It Works:</h4>
-                <ul style="margin-left: 20px; color: #a0a0a0; font-size: 12px;">
+                <h4 style="color: var(--text-secondary); margin-bottom: 10px;">How It Works:</h4>
+                <ul style="margin-left: 20px; color: var(--text-secondary); font-size: 12px;">
                     <li>Measures how many creators appear in <strong>multiple clusters</strong></li>
                     <li>Denominator: Total unique creators in THIS cluster</li>
                     <li>Numerator: Creators that also appear in other clusters</li>
@@ -2320,13 +2320,13 @@ HTML_TEMPLATE = """
 
             <div style="background: rgba(99, 102, 241, 0.05); padding: 20px; border-radius: 8px; border-left: 4px solid #6366f1; margin-bottom: 30px;">
                 <h3 style="color: #6366f1; margin-top: 0;">What Are Creator Pools?</h3>
-                <p style="color: #e0e0e0; line-height: 1.7;">
+                <p style="color: var(--text-primary); line-height: 1.7;">
                     A <strong>creator pool</strong> is a set of wallet addresses that are reused across multiple funding networks and clusters.
                     Instead of using unique wallets for each token launch, coordinated operations systematically reuse the same creators,
                     creating linkages between supposedly independent clusters. These tags identify the strength of creator pool coordination.
                 </p>
                 <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); padding: 12px; border-radius: 4px; margin-top: 15px;">
-                    <p style="color: #fbbf24; margin: 0; font-size: 12px;">
+                    <p style="color: var(--color-medium); margin: 0; font-size: 12px;">
                         <strong>⚠️ Important:</strong> Tags are based on <strong>wallet reuse patterns and structural signals</strong>.
                         They indicate <strong>coordination likelihood</strong>, not intent or ownership. Use as a risk indicator, not definitive proof.
                     </p>
@@ -2337,18 +2337,18 @@ HTML_TEMPLATE = """
             <div style="background: rgba(107, 207, 127, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #6bcf7f; margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
                     <span style="background: #6bcf7f; color: #1a1a1a; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">INDEPENDENT</span>
-                    <span style="color: #a0a0a0; font-size: 12px;">(Green)</span>
+                    <span style="color: var(--text-secondary); font-size: 12px;">(Green)</span>
                 </div>
-                <div style="color: #e0e0e0;">
+                <div style="color: var(--text-primary);">
                     <p><strong>No creators reused across clusters</strong><br>
                     This cluster's creators appear only in this cluster and nowhere else. Each creator wallet is independent and not shared with other coordinated operations.</p>
                     <p style="margin-bottom: 10px;"><strong>Key Indicators:</strong></p>
-                    <ul style="margin: 0 0 10px 20px; color: #a0a0a0; font-size: 13px;">
+                    <ul style="margin: 0 0 10px 20px; color: var(--text-secondary); font-size: 13px;">
                         <li>creators_in_multiple_clusters = 0</li>
                         <li>All creators unique to this cluster</li>
                         <li>No connection to other clusters via shared creators</li>
                     </ul>
-                    <p style="color: #a0a0a0; font-size: 12px;">🟢 <strong>Risk:</strong> Low - Isolated operation</p>
+                    <p style="color: var(--text-secondary); font-size: 12px;">🟢 <strong>Risk:</strong> Low - Isolated operation</p>
                 </div>
             </div>
 
@@ -2356,18 +2356,18 @@ HTML_TEMPLATE = """
             <div style="background: rgba(255, 217, 61, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #ffd93d; margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
                     <span style="background: #ffd93d; color: #1a1a1a; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - WEAK</span>
-                    <span style="color: #a0a0a0; font-size: 12px;">(Yellow)</span>
+                    <span style="color: var(--text-secondary); font-size: 12px;">(Yellow)</span>
                 </div>
-                <div style="color: #e0e0e0;">
+                <div style="color: var(--text-primary);">
                     <p><strong>Minimal creator reuse</strong><br>
                     Some creators appear in multiple clusters, but the coordination signal is weak. Either few creators are reused, or the reuse ratio is below our minimum-support threshold.</p>
                     <p style="margin-bottom: 10px;"><strong>Minimum Support Requirements:</strong></p>
-                    <ul style="margin: 0 0 10px 20px; color: #a0a0a0; font-size: 13px;">
+                    <ul style="margin: 0 0 10px 20px; color: var(--text-secondary); font-size: 13px;">
                         <li>creators_in_multiple_clusters ≥ 1</li>
                         <li>Below thresholds for SHARED or STRONG</li>
                         <li>Marginal coordination signal detected</li>
                     </ul>
-                    <p style="color: #a0a0a0; font-size: 12px;">🟡 <strong>Risk:</strong> Medium - Monitor for escalation</p>
+                    <p style="color: var(--text-secondary); font-size: 12px;">🟡 <strong>Risk:</strong> Medium - Monitor for escalation</p>
                 </div>
             </div>
 
@@ -2375,18 +2375,18 @@ HTML_TEMPLATE = """
             <div style="background: rgba(255, 169, 77, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #ffa94d; margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
                     <span style="background: #ffa94d; color: #1a1a1a; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - SHARED</span>
-                    <span style="color: #a0a0a0; font-size: 12px;">(Orange)</span>
+                    <span style="color: var(--text-secondary); font-size: 12px;">(Orange)</span>
                 </div>
-                <div style="color: #e0e0e0;">
+                <div style="color: var(--text-primary);">
                     <p><strong>Solid creator pool coordination</strong><br>
                     Multiple clusters share a pool of creators with consistent coordination. Clear pattern of reusing the same launcher wallets across different funding networks.</p>
                     <p style="margin-bottom: 10px;"><strong>Minimum Support Requirements:</strong></p>
-                    <ul style="margin: 0 0 10px 20px; color: #a0a0a0; font-size: 13px;">
+                    <ul style="margin: 0 0 10px 20px; color: var(--text-secondary); font-size: 13px;">
                         <li>✓ Min <strong>5+ unique creators</strong> in cluster</li>
                         <li>✓ Min <strong>2+ creators</strong> reused in other clusters</li>
                         <li>✓ Min <strong>30%+ reuse ratio</strong> (2 ÷ 5)</li>
                     </ul>
-                    <p style="color: #a0a0a0; font-size: 12px;">🟠 <strong>Risk:</strong> High - Clear coordinated operations</p>
+                    <p style="color: var(--text-secondary); font-size: 12px;">🟠 <strong>Risk:</strong> High - Clear coordinated operations</p>
                 </div>
             </div>
 
@@ -2394,40 +2394,40 @@ HTML_TEMPLATE = """
             <div style="background: rgba(255, 107, 107, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #ff6b6b; margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
                     <span style="background: #ff6b6b; color: #ffffff; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - STRONG</span>
-                    <span style="color: #a0a0a0; font-size: 12px;">(Red)</span>
+                    <span style="color: var(--text-secondary); font-size: 12px;">(Red)</span>
                 </div>
-                <div style="color: #e0e0e0;">
+                <div style="color: var(--text-primary);">
                     <p><strong>Highly coordinated creator ecosystem</strong><br>
                     Strong evidence of an organized operation reusing creators systematically. Industrial-scale creator pool management with high concentration of reuse.</p>
                     <p style="margin-bottom: 10px;"><strong>Minimum Support Requirements:</strong></p>
-                    <ul style="margin: 0 0 10px 20px; color: #a0a0a0; font-size: 13px;">
+                    <ul style="margin: 0 0 10px 20px; color: var(--text-secondary); font-size: 13px;">
                         <li>✓ Min <strong>10+ unique creators</strong> in cluster</li>
                         <li>✓ Min <strong>5+ creators</strong> reused in other clusters</li>
                         <li>✓ Min <strong>50%+ reuse ratio</strong> (5 ÷ 10)</li>
                     </ul>
-                    <p style="color: #a0a0a0; font-size: 12px;">🚨 <strong>Risk:</strong> CRITICAL - Industrialized operations</p>
+                    <p style="color: var(--text-secondary); font-size: 12px;">🚨 <strong>Risk:</strong> CRITICAL - Industrialized operations</p>
                 </div>
             </div>
 
             <!-- Key Metrics Explained -->
-            <div style="background: rgba(0, 0, 0, 0.2); padding: 20px; border-radius: 8px; margin-top: 30px;">
-                <h3 style="color: #a0a0a0; margin-top: 0;">Key Metrics Explained</h3>
+            <div style="background: var(--bg-secondary); padding: 20px; border-radius: 8px; margin-top: 30px;">
+                <h3 style="color: var(--text-secondary); margin-top: 0;">Key Metrics Explained</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div>
                         <p style="margin-bottom: 5px;"><strong style="color: #6366f1;">creators_unique</strong></p>
-                        <p style="color: #a0a0a0; font-size: 12px; margin: 0;">The actual count of distinct creator wallets in THIS cluster (denominator for reuse ratio)</p>
+                        <p style="color: var(--text-secondary); font-size: 12px; margin: 0;">The actual count of distinct creator wallets in THIS cluster (denominator for reuse ratio)</p>
                     </div>
                     <div>
                         <p style="margin-bottom: 5px;"><strong style="color: #6366f1;">creators_in_multiple_clusters</strong></p>
-                        <p style="color: #a0a0a0; font-size: 12px; margin: 0;">How many of those creators also appear in OTHER clusters (numerator for reuse ratio)</p>
+                        <p style="color: var(--text-secondary); font-size: 12px; margin: 0;">How many of those creators also appear in OTHER clusters (numerator for reuse ratio)</p>
                     </div>
                     <div>
                         <p style="margin-bottom: 5px;"><strong style="color: #6366f1;">reuse_ratio</strong></p>
-                        <p style="color: #a0a0a0; font-size: 12px; margin: 0;">creators_in_multiple_clusters ÷ creators_unique = coordination intensity</p>
+                        <p style="color: var(--text-secondary); font-size: 12px; margin: 0;">creators_in_multiple_clusters ÷ creators_unique = coordination intensity</p>
                     </div>
                     <div>
                         <p style="margin-bottom: 5px;"><strong style="color: #6366f1;">max_clusters_per_creator</strong></p>
-                        <p style="color: #a0a0a0; font-size: 12px; margin: 0;">The creator with highest reuse appears in this many clusters</p>
+                        <p style="color: var(--text-secondary); font-size: 12px; margin: 0;">The creator with highest reuse appears in this many clusters</p>
                     </div>
                 </div>
             </div>
@@ -2604,7 +2604,7 @@ HTML_TEMPLATE = """
 
                             // Funding checked tag
                             if (token.funding_checked) {
-                                columnTags.push('<span class="creator-tag tag-funding-checked" title="Creator funding accounts have been analyzed" style="border-color: #4ade80; color: #4ade80; background-color: rgba(74, 222, 128, 0.15);">Funding</span>');
+                                columnTags.push('<span class="creator-tag tag-funding-checked" title="Creator funding accounts have been analyzed" style="border-color: var(--color-low); color: var(--color-low); background-color: rgba(74, 222, 128, 0.15);">Funding</span>');
                             }
 
                             // CEX/Infrastructure funders - add to Creator Tags column
@@ -3164,7 +3164,7 @@ HTML_TEMPLATE = """
                 const data = await response.json();
 
                 if (data.error) {
-                    document.getElementById('fundingNetworkBody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ef4444;">Error: ' + data.error + '</td></tr>';
+                    document.getElementById('fundingNetworkBody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--color-critical);">Error: ' + data.error + '</td></tr>';
                     return;
                 }
 
@@ -3186,7 +3186,7 @@ HTML_TEMPLATE = """
                         counterpartiesHTML += '<div style="color: #fca5a5; margin-top: 10px;">... and ' + (data.shared_counterparties.length - 10) + ' more</div>';
                     }
                 } else {
-                    counterpartiesHTML += '<div style="color: #a0a0a0;">No shared funding sources detected yet. Analyze more funders to build network.</div>';
+                    counterpartiesHTML += '<div style="color: var(--text-secondary);">No shared funding sources detected yet. Analyze more funders to build network.</div>';
                 }
                 document.getElementById('sharedCounterpartiesBody').innerHTML = counterpartiesHTML;
 
@@ -3199,17 +3199,17 @@ HTML_TEMPLATE = """
                         html += '<td style="color: #ff6b6b;"><strong>' + network.creator_count + '</strong></td>';
                         html += '<td style="color: #fca5a5;">' + (network.total_sol || 0).toFixed(2) + ' SOL</td>';
                         html += '<td style="color: #fca5a5;">' + (network.linked_funders || 0) + '</td>';
-                        html += '<td><span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 4px 8px; border-radius: 4px; font-size: 12px;">🚨 HIGH</span></td>';
+                        html += '<td><span style="background: rgba(239, 68, 68, 0.2); color: var(--color-critical); padding: 4px 8px; border-radius: 4px; font-size: 12px;">🚨 HIGH</span></td>';
                         html += '</tr>';
                     }
                 } else {
-                    html += '<tr><td colspan="5" style="text-align: center; color: #a0a0a0; padding: 20px;">No suspicious coordination networks detected. Analyze more funders.</td></tr>';
+                    html += '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 20px;">No suspicious coordination networks detected. Analyze more funders.</td></tr>';
                 }
                 document.getElementById('fundingNetworkBody').innerHTML = html;
 
             } catch (error) {
                 console.error('Error loading funding network data:', error);
-                document.getElementById('fundingNetworkBody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ef4444;">Failed to load data</td></tr>';
+                document.getElementById('fundingNetworkBody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--color-critical);">Failed to load data</td></tr>';
             }
         }
 
@@ -3268,7 +3268,7 @@ HTML_TEMPLATE = """
                 const data = await response.json();
 
                 if (data.error) {
-                    document.getElementById('cexExchangesContainer').innerHTML = '<p style="color: #ef4444;">Error loading CEX data: ' + data.error + '</p>';
+                    document.getElementById('cexExchangesContainer').innerHTML = '<p style="color: var(--color-critical);">Error loading CEX data: ' + data.error + '</p>';
                     return;
                 }
 
@@ -3293,7 +3293,7 @@ HTML_TEMPLATE = """
                         </div>
                     `).join('');
                 } else {
-                    exchangesContainer.innerHTML = '<p style="color: #a0a0a0;">No CEX funders found</p>';
+                    exchangesContainer.innerHTML = '<p style="color: var(--text-secondary);">No CEX funders found</p>';
                 }
 
                 // Populate top CEX funders table
@@ -3307,12 +3307,12 @@ HTML_TEMPLATE = """
                                 <td style="font-family: monospace; font-size: 12px;" title="${funder.funder_address}">${funder.funder_address.substring(0, 16)}...</td>
                                 <td><span class="cex-exchange-name">${displayName}</span></td>
                                 <td>${funder.creators_funded}</td>
-                                <td style="text-align: right; color: #4ade80; font-weight: 600;">${(funder.total_sol || 0).toFixed(2)}</td>
+                                <td style="text-align: right; color: var(--color-low); font-weight: 600;">${(funder.total_sol || 0).toFixed(2)}</td>
                             </tr>
                         `;
                     }).join('');
                 } else {
-                    cexFundersBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #a0a0a0;">No top CEX funders found</td></tr>';
+                    cexFundersBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">No top CEX funders found</td></tr>';
                 }
 
                 // Populate CEX-funded creators table
@@ -3321,20 +3321,20 @@ HTML_TEMPLATE = """
                     creatorsBody.innerHTML = data.cex_funded_creators.map(creator => `
                         <tr>
                             <td style="font-family: monospace; font-size: 12px;" title="${creator.creator_address}">${creator.creator_address.substring(0, 16)}...</td>
-                            <td style="text-align: center; color: #00d4ff; font-weight: 600;">${creator.exchanges_funding}</td>
-                            <td style="text-align: right; color: #4ade80; font-weight: 600;">${(creator.total_cex_funding || 0).toFixed(2)}</td>
+                            <td style="text-align: center; color: var(--accent-cyan); font-weight: 600;">${creator.exchanges_funding}</td>
+                            <td style="text-align: right; color: var(--color-low); font-weight: 600;">${(creator.total_cex_funding || 0).toFixed(2)}</td>
                             <td>
-                                <a href="#" onclick="showCreatorDetails('${creator.creator_address}'); toggleCEXView(); return false;" style="color: #00d4ff; text-decoration: none;">View Creator →</a>
+                                <a href="#" onclick="showCreatorDetails('${creator.creator_address}'); toggleCEXView(); return false;" style="color: var(--accent-cyan); text-decoration: none;">View Creator →</a>
                             </td>
                         </tr>
                     `).join('');
                 } else {
-                    creatorsBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #a0a0a0;">No CEX-funded creators found</td></tr>';
+                    creatorsBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">No CEX-funded creators found</td></tr>';
                 }
 
             } catch (error) {
                 console.error('Error loading CEX data:', error);
-                document.getElementById('cexExchangesContainer').innerHTML = '<p style="color: #ef4444;">Error loading CEX data</p>';
+                document.getElementById('cexExchangesContainer').innerHTML = '<p style="color: var(--color-critical);">Error loading CEX data</p>';
             }
         }
 
@@ -3484,7 +3484,7 @@ HTML_TEMPLATE = """
                     <p>
                         <label>Rug Probability:</label>
                         <span class="risk-value">${rugProbability}%</span>
-                        <span style="color: #a0a0a0; margin-left: 10px;">${risk.risk_level || '—'}</span>
+                        <span style="color: var(--text-secondary); margin-left: 10px;">${risk.risk_level || '—'}</span>
                     </p>
                 `;
 
@@ -3602,7 +3602,7 @@ HTML_TEMPLATE = """
                         const createTxCell = token.create_tx_signature
                             ? `<a href="https://solscan.io/tx/${token.create_tx_signature}" target="_blank" class="create-tx-link" title="${token.create_tx_signature}">${createTxShort}</a>
                                 <div style="display: inline-block; margin-left: 8px;">
-                                    <button onclick="viewTransaction('${token.create_tx_signature}')" style="background: rgba(0, 212, 255, 0.2); color: #00d4ff; border: 1px solid #00d4ff; padding: 3px 10px; border-radius: 3px; cursor: pointer; font-size: 11px; font-family: monospace;">View Raw</button>
+                                    <button onclick="viewTransaction('${token.create_tx_signature}')" style="background: rgba(0, 212, 255, 0.2); color: var(--accent-cyan); border: 1px solid #00d4ff; padding: 3px 10px; border-radius: 3px; cursor: pointer; font-size: 11px; font-family: monospace;">View Raw</button>
                                 </div>`
                             : 'N/A';
 
@@ -3617,7 +3617,7 @@ HTML_TEMPLATE = """
                         `;
                     }).join('');
                 } else {
-                    tokensBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #a0a0a0;">No tokens launched yet</td></tr>';
+                    tokensBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No tokens launched yet</td></tr>';
                 }
 
                 // Separate CEX and non-CEX funders
@@ -3681,7 +3681,7 @@ HTML_TEMPLATE = """
                                 return `
                                     <tr>
                                         <td title="${funder.funder_address}" style="font-family: monospace;">
-                                            <a href="https://solscan.io/address/${funder.funder_address}" target="_blank" style="color: #ef4444; text-decoration: none; cursor: pointer;">
+                                            <a href="https://solscan.io/address/${funder.funder_address}" target="_blank" style="color: var(--color-critical); text-decoration: none; cursor: pointer;">
                                                 ${funder.funder_address.substring(0, 16)}...
                                             </a>
                                         </td>
@@ -3715,7 +3715,7 @@ HTML_TEMPLATE = """
                             : funder.amount_sol.toFixed(2);
                         return `
                             <tr>
-                                <td><span style="color: #4ade80; font-weight: 600;">${funder.display_name}</span></td>
+                                <td><span style="color: var(--color-low); font-weight: 600;">${funder.display_name}</span></td>
                                 <td>${funder.category || 'unknown'}</td>
                                 <td>${amountStr} SOL</td>
                             </tr>
@@ -3747,14 +3747,14 @@ HTML_TEMPLATE = """
 
                         return `
                             <tr>
-                                <td title="${funder.funder_address}" style="font-family: monospace; color: #00d4ff;">${funder.funder_address.substring(0, 16)}...</td>
+                                <td title="${funder.funder_address}" style="font-family: monospace; color: var(--accent-cyan);">${funder.funder_address.substring(0, 16)}...</td>
                                 <td>${amountStr} SOL</td>
                                 <td>${funderType}</td>
                             </tr>
                         `;
                     }).join('');
                 } else {
-                    allFundersBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0a0a0;">No funders found</td></tr>';
+                    allFundersBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-secondary);">No funders found</td></tr>';
                 }
 
                 // Load tokens funded (if this address is a funder)
@@ -3817,7 +3817,7 @@ HTML_TEMPLATE = """
                             <tr class="${recipient.is_network_coordinator ? 'row-network-coordinator' : recipient.shared_with_creators ? 'row-shared-recipient' : ''}">
                                 <td title="${recipient.recipient_address}" style="font-family: monospace; font-size: 12px;">
                                     ${displayLabel}
-                                    ${networkIndicator ? `<div style="margin-top: 3px; font-size: 10px; color: #a0a0a0;">${networkTooltip}</div>` : ''}
+                                    ${networkIndicator ? `<div style="margin-top: 3px; font-size: 10px; color: var(--text-secondary);">${networkTooltip}</div>` : ''}
                                 </td>
                                 <td>${recipientAmountStr} SOL</td>
                                 <td>${networkIndicator || (recipient.is_infrastructure ? recipient.category : 'Wallet')}</td>
@@ -3825,7 +3825,7 @@ HTML_TEMPLATE = """
                         `;
                     }).join('');
                 } else {
-                    recipientsBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0a0a0;">No outgoing transfers</td></tr>';
+                    recipientsBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-secondary);">No outgoing transfers</td></tr>';
                 }
 
                 // Populate cross-creator references
@@ -3837,11 +3837,11 @@ HTML_TEMPLATE = """
                             .slice(0, 3)
                             .map(c => `<span style="background: rgba(139, 92, 246, 0.2); padding: 2px 6px; border-radius: 3px; margin: 2px; display: inline-block; font-size: 10px; font-family: monospace;">${c.substring(0, 12)}...</span>`)
                             .join('');
-                        const moreCreators = crossRef.other_creators.length > 3 ? `<span style="color: #a0a0a0; font-size: 10px;"> +${crossRef.other_creators.length - 3} more</span>` : '';
+                        const moreCreators = crossRef.other_creators.length > 3 ? `<span style="color: var(--text-secondary); font-size: 10px;"> +${crossRef.other_creators.length - 3} more</span>` : '';
 
                         crossRefsHTML += `
                             <div style="margin-bottom: 12px; padding: 10px; background: rgba(139, 92, 246, 0.05); border-left: 3px solid rgba(139, 92, 246, 0.3); border-radius: 4px;">
-                                <div style="font-family: monospace; font-size: 11px; color: #00d4ff; word-break: break-all; margin-bottom: 5px;">
+                                <div style="font-family: monospace; font-size: 11px; color: var(--accent-cyan); word-break: break-all; margin-bottom: 5px;">
                                     ${crossRef.recipient_address}
                                 </div>
                                 <div style="font-size: 11px; color: #c4b5fd;">
@@ -3855,7 +3855,7 @@ HTML_TEMPLATE = """
                     }
                     crossRefsContainer.innerHTML = crossRefsHTML;
                 } else {
-                    crossRefsContainer.innerHTML = '<p style="color: #a0a0a0; text-align: center; margin: 0;">No cross-creator connections detected ✓</p>';
+                    crossRefsContainer.innerHTML = '<p style="color: var(--text-secondary); text-align: center; margin: 0;">No cross-creator connections detected ✓</p>';
                 }
 
                 // Populate cluster info
@@ -3868,7 +3868,7 @@ HTML_TEMPLATE = """
                         <p><strong>Tertiary Connections (Hop 2):</strong> ${data.cluster.hop2}</p>
                     `;
                 } else {
-                    clusterInfo.innerHTML = '<p style="color: #a0a0a0;">No wallet network data available</p>';
+                    clusterInfo.innerHTML = '<p style="color: var(--text-secondary);">No wallet network data available</p>';
                 }
 
                 // Fetch and populate Jito tips history
@@ -3930,8 +3930,8 @@ HTML_TEMPLATE = """
                     const superClusterBanner = document.createElement('div');
                     superClusterBanner.style.cssText = 'background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 15px; margin-bottom: 15px; border-radius: 4px; margin-top: 20px;';
 
-                    let bannerHTML = '<div style="color: #ef4444; font-weight: bold; margin-bottom: 10px; font-size: 14px;">⚠️ COORDINATED NETWORK DETECTED</div>';
-                    bannerHTML += '<div style="font-size: 12px; color: #e0e0e0;">';
+                    let bannerHTML = '<div style="color: var(--color-critical); font-weight: bold; margin-bottom: 10px; font-size: 14px;">⚠️ COORDINATED NETWORK DETECTED</div>';
+                    bannerHTML += '<div style="font-size: 12px; color: var(--text-primary);">';
                     bannerHTML += 'This creator belongs to funding coordination networks:';
                     bannerHTML += '<div style="margin-top: 8px;">';
 
@@ -3956,7 +3956,7 @@ HTML_TEMPLATE = """
                                    style="color: ${riskColor}; text-decoration: none; font-weight: 600; cursor: pointer;">
                                     ${riskEmoji} ${sc.super_cluster_id} (${sc.risk_level})
                                 </a>
-                                <span style="color: #a0a0a0; font-size: 11px; margin-left: 8px;">
+                                <span style="color: var(--text-secondary); font-size: 11px; margin-left: 8px;">
                                     ${sc.creator_count} creators, ${sc.network_count} networks
                                 </span>
                             </div>
@@ -4116,25 +4116,25 @@ HTML_TEMPLATE = """
 
                             return `
                                 <tr style="cursor: pointer;" onclick="showFunderDetails('${funder.funder_address}')" title="Click to view funder details">
-                                    <td style="font-family: monospace; font-size: 12px; color: #ef4444;">
+                                    <td style="font-family: monospace; font-size: 12px; color: var(--color-critical);">
                                         ${funder.funder_address}
                                     </td>
-                                    <td style="color: #00d4ff; font-weight: 500; font-size: 12px; white-space: nowrap;">${networkDisplay}</td>
-                                    <td><strong style="color: #ef4444;">${funder.creator_count}</strong></td>
+                                    <td style="color: var(--accent-cyan); font-weight: 500; font-size: 12px; white-space: nowrap;">${networkDisplay}</td>
+                                    <td><strong style="color: var(--color-critical);">${funder.creator_count}</strong></td>
                                     <td>${funder.total_sol_sent.toFixed(2)} SOL</td>
                                     <td>${funder.funding_record_count}</td>
                                     <td style="font-size: 11px;">${period}</td>
                                     <td onclick="event.stopPropagation();">
-                                        <button onclick="analyzeFunderTransfers('${funder.funder_address}')" style="padding: 4px 8px; font-size: 11px; background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.5); border-radius: 3px; cursor: pointer; white-space: nowrap;">Analyze</button>
+                                        <button onclick="analyzeFunderTransfers('${funder.funder_address}')" style="padding: 4px 8px; font-size: 11px; background: rgba(34, 197, 94, 0.2); color: var(--color-low); border: 1px solid rgba(34, 197, 94, 0.5); border-radius: 3px; cursor: pointer; white-space: nowrap;">Analyze</button>
                                     </td>
                                 </tr>
                             `;
                         }).join('');
                     } else {
-                        fundersBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #4ade80;">✅ All multi-creator funders are known INFRA/CEX accounts (safe)</td></tr>';
+                        fundersBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--color-low);">✅ All multi-creator funders are known INFRA/CEX accounts (safe)</td></tr>';
                     }
                 } else {
-                    fundersBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #4ade80;">✅ No coordinated funders detected</td></tr>';
+                    fundersBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--color-low);">✅ No coordinated funders detected</td></tr>';
                 }
 
                 // Show modal
@@ -4340,16 +4340,16 @@ HTML_TEMPLATE = """
                 const data = await response.json();
 
                 if (data.error) {
-                    document.getElementById('fn3tNetworkBody').innerHTML = '<div style="color: #ef4444;">Error loading network</div>';
+                    document.getElementById('fn3tNetworkBody').innerHTML = '<div style="color: var(--color-critical);">Error loading network</div>';
                     return;
                 }
 
                 // Add extraction status indicator
                 let statusIndicator = '';
                 if (statusData.is_complete) {
-                    statusIndicator = '<div style="color: #4ade80; font-weight: bold; margin-bottom: 15px; font-size: 13px;">✅ Funding complete</div>';
+                    statusIndicator = '<div style="color: var(--color-low); font-weight: bold; margin-bottom: 15px; font-size: 13px;">✅ Funding complete</div>';
                 } else if (statusData.status === 'pending') {
-                    statusIndicator = '<div style="color: #fbbf24; font-weight: bold; margin-bottom: 15px; font-size: 13px;">⏳ Extraction in progress...</div>';
+                    statusIndicator = '<div style="color: var(--color-medium); font-weight: bold; margin-bottom: 15px; font-size: 13px;">⏳ Extraction in progress...</div>';
                 }
 
                 // Build 3-tier network visualization - concise version
@@ -4384,14 +4384,14 @@ HTML_TEMPLATE = """
                             // Count risky vs trusted identified accounts
                             const riskyCount = tier.senders.filter(s => s.risk_level === 'high').length;
                             if (riskyCount > 0) {
-                                senderSummary += ` <span style="color: #ef4444;">(${riskyCount} risky ⚠️)</span>`;
+                                senderSummary += ` <span style="color: var(--color-critical);">(${riskyCount} risky ⚠️)</span>`;
                             }
                             const trustedCount = tier.senders.filter(s => s.risk_level === 'neutral' || s.risk_level === 'low').length;
                             if (trustedCount > 0) {
-                                senderSummary += ` <span style="color: #4ade80;">(${trustedCount} trusted ✓)</span>`;
+                                senderSummary += ` <span style="color: var(--color-low);">(${trustedCount} trusted ✓)</span>`;
                             }
                         }
-                        networkHTML += `<div style="color: #fbbf24; margin-left: 20px; margin-bottom: 6px;">${senderSummary}</div>`;
+                        networkHTML += `<div style="color: var(--color-medium); margin-left: 20px; margin-bottom: 6px;">${senderSummary}</div>`;
 
                         // Always show known senders (prioritized), then unknowns up to 5 total
                         if (tier.senders.length > 0) {
@@ -4429,11 +4429,11 @@ HTML_TEMPLATE = """
 
                             // Show remaining count if there are more
                             if (tier.senders.length > displayCount) {
-                                networkHTML += `<div style="color: #a0a0a0; margin-left: 40px; font-size: 11px;">... and ${tier.senders.length - displayCount} more senders</div>`;
+                                networkHTML += `<div style="color: var(--text-secondary); margin-left: 40px; font-size: 11px;">... and ${tier.senders.length - displayCount} more senders</div>`;
                             }
                         }
                     } else {
-                        networkHTML += `<div style="color: #a0a0a0; margin-left: 20px; margin-bottom: 6px;">→ ${totalToCreator} SOL (no tracked sources)</div>`;
+                        networkHTML += `<div style="color: var(--text-secondary); margin-left: 20px; margin-bottom: 6px;">→ ${totalToCreator} SOL (no tracked sources)</div>`;
                     }
 
                     networkHTML += `</div>`;
@@ -4444,12 +4444,12 @@ HTML_TEMPLATE = """
                 // If no funders with senders were found, show helpful message
                 if (networkHTML === '<div style="font-family: monospace; font-size: 12px; line-height: 2.2;"></div>') {
                     if (data.total_funders > 0) {
-                        networkHTML = `<div style="color: #fbbf24; padding: 20px; text-align: center;">
+                        networkHTML = `<div style="color: var(--color-medium); padding: 20px; text-align: center;">
                             This creator has ${data.total_funders} funder(s) but no tracked pre-migration senders.<br>
-                            <span style="color: #a0a0a0; font-size: 11px;">Funding source data extraction pending.</span>
+                            <span style="color: var(--text-secondary); font-size: 11px;">Funding source data extraction pending.</span>
                         </div>`;
                     } else {
-                        networkHTML = '<div style="color: #a0a0a0; padding: 20px; text-align: center;">No funding data available for this creator.</div>';
+                        networkHTML = '<div style="color: var(--text-secondary); padding: 20px; text-align: center;">No funding data available for this creator.</div>';
                     }
                 }
 
@@ -4459,7 +4459,7 @@ HTML_TEMPLATE = """
 
             } catch (error) {
                 console.error('Error loading 3-tier network:', error);
-                document.getElementById('fn3tNetworkBody').innerHTML = '<div style="color: #ef4444;">Error loading network data</div>';
+                document.getElementById('fn3tNetworkBody').innerHTML = '<div style="color: var(--color-critical);">Error loading network data</div>';
             }
         }
 
@@ -4476,7 +4476,7 @@ HTML_TEMPLATE = """
 
                 if (response.status === 404) {
                     document.getElementById('cfaConnectedCreators').innerHTML =
-                        '<div style="color: #fbbf24; text-align: center; padding: 20px;">Not yet analyzed. Run Coordinated Funder Analysis first.</div>';
+                        '<div style="color: var(--color-medium); text-align: center; padding: 20px;">Not yet analyzed. Run Coordinated Funder Analysis first.</div>';
                     document.getElementById('cfaSharedDestinations').innerHTML = '';
                     document.getElementById('cfaRiskLevel').textContent = 'PENDING';
                     document.getElementById('cfaRiskLevel').style.color = '#fbbf24';
@@ -4505,23 +4505,23 @@ HTML_TEMPLATE = """
                 let creatorsList = '';
                 if (data.connected_creators && data.connected_creators.length > 0) {
                     data.connected_creators.forEach((cc, idx) => {
-                        const riskStyle = cc.risk_level === 'CRITICAL' ? 'color: #ef4444;' :
-                                         cc.risk_level === 'HIGH' ? 'color: #fbbf24;' :
-                                         'color: #4ade80;';
+                        const riskStyle = cc.risk_level === 'CRITICAL' ? 'color: var(--color-critical);' :
+                                         cc.risk_level === 'HIGH' ? 'color: var(--color-medium);' :
+                                         'color: var(--color-low);';
                         creatorsList += `
                             <div style="margin-bottom: 8px; ${riskStyle}">
                                 ${idx + 1}. ${cc.creator_address.substring(0, 16)}...
-                                <span style="font-size: 10px; color: #a0a0a0;">
+                                <span style="font-size: 10px; color: var(--text-secondary);">
                                     [${cc.risk_level}] Rug: ${(cc.rug_probability * 100).toFixed(0)}%
                                 </span>
                             </div>
                         `;
                     });
                     if (data.connected_creators_count > 10) {
-                        creatorsList += `<div style="color: #a0a0a0; font-size: 11px;">... and ${data.connected_creators_count - 10} more</div>`;
+                        creatorsList += `<div style="color: var(--text-secondary); font-size: 11px;">... and ${data.connected_creators_count - 10} more</div>`;
                     }
                 } else {
-                    creatorsList = '<div style="color: #a0a0a0;">No connected creators found</div>';
+                    creatorsList = '<div style="color: var(--text-secondary);">No connected creators found</div>';
                 }
                 document.getElementById('cfaConnectedCreators').innerHTML = creatorsList;
 
@@ -4529,13 +4529,13 @@ HTML_TEMPLATE = """
                 let destsList = '';
                 if (data.shared_destinations && data.shared_destinations.length > 0) {
                     data.shared_destinations.slice(0, 20).forEach((dest, idx) => {
-                        destsList += `<div style="margin-bottom: 6px; color: #fbbf24; font-size: 11px;">${idx + 1}. ${dest}</div>`;
+                        destsList += `<div style="margin-bottom: 6px; color: var(--color-medium); font-size: 11px;">${idx + 1}. ${dest}</div>`;
                     });
                     if (data.shared_destinations_count > 20) {
-                        destsList += `<div style="color: #a0a0a0; font-size: 11px;">... and ${data.shared_destinations_count - 20} more</div>`;
+                        destsList += `<div style="color: var(--text-secondary); font-size: 11px;">... and ${data.shared_destinations_count - 20} more</div>`;
                     }
                 } else {
-                    destsList = '<div style="color: #a0a0a0;">No shared destinations found</div>';
+                    destsList = '<div style="color: var(--text-secondary);">No shared destinations found</div>';
                 }
                 document.getElementById('cfaSharedDestinations').innerHTML = destsList;
 
@@ -4583,15 +4583,15 @@ HTML_TEMPLATE = """
                         const badge = sender.is_known ? ' ✓' : '';
                         incomingHTML += `
                             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                                <td style="padding: 10px; color: #e0e0e0; font-family: monospace; font-size: 11px; word-break: break-all;">${sender.address.substring(0, 16)}...</td>
-                                <td style="padding: 10px; text-align: right; color: #4ade80;">${sender.amount_sol.toFixed(2)}</td>
-                                <td style="padding: 10px; text-align: center; color: #a0a0a0;">${sender.transaction_count}</td>
+                                <td style="padding: 10px; color: var(--text-primary); font-family: monospace; font-size: 11px; word-break: break-all;">${sender.address.substring(0, 16)}...</td>
+                                <td style="padding: 10px; text-align: right; color: var(--color-low);">${sender.amount_sol.toFixed(2)}</td>
+                                <td style="padding: 10px; text-align: center; color: var(--text-secondary);">${sender.transaction_count}</td>
                                 <td style="padding: 10px; color: ${labelColor};">${label}${badge}</td>
                             </tr>
                         `;
                     });
                 } else {
-                    incomingHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">No incoming transfers recorded</td></tr>';
+                    incomingHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: var(--text-secondary);">No incoming transfers recorded</td></tr>';
                 }
                 document.getElementById('fdIncomingBody').innerHTML = incomingHTML;
 
@@ -4604,15 +4604,15 @@ HTML_TEMPLATE = """
                         const badge = recipient.is_known ? ' ✓' : '';
                         outgoingHTML += `
                             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                                <td style="padding: 10px; color: #e0e0e0; font-family: monospace; font-size: 11px; word-break: break-all;">${recipient.address.substring(0, 16)}...</td>
-                                <td style="padding: 10px; text-align: right; color: #ef4444;">${recipient.amount_sol.toFixed(2)}</td>
-                                <td style="padding: 10px; text-align: center; color: #a0a0a0;">${recipient.transaction_count}</td>
+                                <td style="padding: 10px; color: var(--text-primary); font-family: monospace; font-size: 11px; word-break: break-all;">${recipient.address.substring(0, 16)}...</td>
+                                <td style="padding: 10px; text-align: right; color: var(--color-critical);">${recipient.amount_sol.toFixed(2)}</td>
+                                <td style="padding: 10px; text-align: center; color: var(--text-secondary);">${recipient.transaction_count}</td>
                                 <td style="padding: 10px; color: ${labelColor};">${label}${badge}</td>
                             </tr>
                         `;
                     });
                 } else {
-                    outgoingHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">No outgoing transfers recorded</td></tr>';
+                    outgoingHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: var(--text-secondary);">No outgoing transfers recorded</td></tr>';
                 }
                 document.getElementById('fdOutgoingBody').innerHTML = outgoingHTML;
 
@@ -4777,7 +4777,7 @@ HTML_TEMPLATE = """
                 `;
             });
 
-            gridEl.innerHTML = visibleHtml || '<div style="grid-column: 1/-1; color: #a0a0a0; text-align: center; padding: 40px;">No clusters match the filter</div>';
+            gridEl.innerHTML = visibleHtml || '<div style="grid-column: 1/-1; color: var(--text-secondary); text-align: center; padding: 40px;">No clusters match the filter</div>';
         }
 
         async function loadSuperClustersInNetworkView() {
@@ -4789,7 +4789,7 @@ HTML_TEMPLATE = """
                 const data = await response.json();
 
                 if (data.error) {
-                    gridEl.innerHTML = '<div style="grid-column: 1/-1; color: #ef4444;">Error loading super-clusters: ' + data.error + '</div>';
+                    gridEl.innerHTML = '<div style="grid-column: 1/-1; color: var(--color-critical);">Error loading super-clusters: ' + data.error + '</div>';
                     return;
                 }
 
@@ -4799,7 +4799,7 @@ HTML_TEMPLATE = """
 
             } catch(e) {
                 console.error('Error loading super-clusters:', e);
-                gridEl.innerHTML = '<div style="grid-column: 1/-1; color: #ef4444;">Error: ' + e.message + '</div>';
+                gridEl.innerHTML = '<div style="grid-column: 1/-1; color: var(--color-critical);">Error: ' + e.message + '</div>';
             }
         }
 
@@ -4961,7 +4961,7 @@ HTML_TEMPLATE = """
             }
 
             if (visibleNetworks.length === 0) {
-                networksContainer.innerHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">No networks found</td></tr>';
+                networksContainer.innerHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: var(--text-secondary);">No networks found</td></tr>';
                 return;
             }
 
@@ -4969,13 +4969,13 @@ HTML_TEMPLATE = """
                 const networkName = net.network_name || `Network_${net.network_id}`;
                 const isCexInfra = data.network_root_operator_status && (data.network_root_operator_status[net.network_id] || data.network_root_operator_status[String(net.network_id)]);
                 const statusBadge = isCexInfra ?
-                    '<span style="padding: 4px 8px; border-radius: 4px; background: rgba(239, 68, 68, 0.1); color: #ef4444; font-size: 10px; font-weight: bold;">CEX/INFRA</span>' :
+                    '<span style="padding: 4px 8px; border-radius: 4px; background: rgba(239, 68, 68, 0.1); color: var(--color-critical); font-size: 10px; font-weight: bold;">CEX/INFRA</span>' :
                     '<span style="padding: 4px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.1); color: #10b981; font-size: 10px; font-weight: bold;">CLEAN</span>';
 
                 return `
                     <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                        <td style="padding: 10px; color: #e0e0e0;">${networkName}</td>
-                        <td style="padding: 10px; text-align: right; color: #a0a0a0;">${net.total_members}</td>
+                        <td style="padding: 10px; color: var(--text-primary);">${networkName}</td>
+                        <td style="padding: 10px; text-align: right; color: var(--text-secondary);">${net.total_members}</td>
                         <td style="padding: 10px; text-align: right; color: #a855f7; font-weight: bold;">${net.total_sol.toFixed(2)}</td>
                         <td style="padding: 10px; text-align: center;">${statusBadge}</td>
                     </tr>
@@ -5008,24 +5008,24 @@ HTML_TEMPLATE = """
 
                 if (flow && flow.example_flows && flow.example_flows.length > 0) {
                     flowsHTML = flow.example_flows.map((ex) => {
-                        let flowHTML = '<div style="font-family: monospace; font-size: 11px; color: #e0e0e0; padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.6; background: rgba(0, 0, 0, 0.2); border-radius: 3px; margin-bottom: 6px;">';
+                        let flowHTML = '<div style="font-family: monospace; font-size: 11px; color: var(--text-primary); padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.6; background: var(--bg-secondary); border-radius: 3px; margin-bottom: 6px;">';
 
                         if (ex.sender) {
-                            flowHTML += '<div style="color: #3b82f6; margin-bottom: 6px;"><strong>📤 Sender:</strong></div>' +
+                            flowHTML += '<div style="color: var(--color-none); margin-bottom: 6px;"><strong>📤 Sender:</strong></div>' +
                             '<div style="font-size: 12px; font-weight: bold; color: #60a5fa; word-break: break-all; padding: 6px; background: rgba(96, 165, 250, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.sender + '</div>' +
-                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ to Funder</div>';
+                            '<div style="color: var(--text-secondary); margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ to Funder</div>';
                         }
 
                         flowHTML += '<div style="color: #6366f1; margin-bottom: 6px;"><strong>💰 Root Op:</strong></div>' +
                         '<div style="font-size: 12px; font-weight: bold; color: #818cf8; word-break: break-all; padding: 6px; background: rgba(129, 140, 248, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.funder + '</div>' +
-                        '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ ' + ex.sol_to_creator.toFixed(2) + ' SOL funds Creator</div>';
+                        '<div style="color: var(--text-secondary); margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ ' + ex.sol_to_creator.toFixed(2) + ' SOL funds Creator</div>';
 
                         flowHTML += '<div style="color: #f59e0b; margin-bottom: 6px;"><strong>👤 Creator:</strong></div>' +
-                        '<div style="font-size: 12px; font-weight: bold; color: #fbbf24; word-break: break-all; padding: 6px; background: rgba(251, 191, 36, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.creator + '</div>';
+                        '<div style="font-size: 12px; font-weight: bold; color: var(--color-medium); word-break: break-all; padding: 6px; background: rgba(251, 191, 36, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.creator + '</div>';
 
                         if (ex.mint) {
-                            flowHTML += '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ creates Token</div>' +
-                            '<div style="color: #4ade80;"><strong>🎫 Token:</strong></div>' +
+                            flowHTML += '<div style="color: var(--text-secondary); margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ creates Token</div>' +
+                            '<div style="color: var(--color-low);"><strong>🎫 Token:</strong></div>' +
                             '<div style="font-size: 12px; font-weight: bold; color: #86efac; word-break: break-all; padding: 6px; background: rgba(134, 239, 172, 0.1); border-radius: 2px;">' + ex.mint + '</div>';
                         }
 
@@ -5049,11 +5049,11 @@ HTML_TEMPLATE = """
                             .map((creator) => {
                                 const tokenCount = creatorMap[creator];
                                 const shortCreator = creator.substring(0, 8) + '...' + creator.substring(creator.length - 8);
-                                return `<div style="font-family: monospace; font-size: 10px; color: #d1d5db; padding: 6px; background: rgba(245, 158, 11, 0.05); border-radius: 2px; margin-bottom: 4px; display: flex; justify-content: space-between;"><span title="${creator}">${shortCreator}</span><span style="color: #fbbf24; font-weight: bold;">${tokenCount} token${tokenCount > 1 ? 's' : ''}</span></div>`;
+                                return `<div style="font-family: monospace; font-size: 10px; color: #d1d5db; padding: 6px; background: rgba(245, 158, 11, 0.05); border-radius: 2px; margin-bottom: 4px; display: flex; justify-content: space-between;"><span title="${creator}">${shortCreator}</span><span style="color: var(--color-medium); font-weight: bold;">${tokenCount} token${tokenCount > 1 ? 's' : ''}</span></div>`;
                             })
                             .join('');
 
-                        flowsHTML += '<div style="margin-top: 10px; font-size: 9px; color: #a0a0a0; margin-bottom: 6px;">ALL CREATORS FUNDED:</div>' +
+                        flowsHTML += '<div style="margin-top: 10px; font-size: 9px; color: var(--text-secondary); margin-bottom: 6px;">ALL CREATORS FUNDED:</div>' +
                             '<div style="background: rgba(245, 158, 11, 0.05); border-radius: 4px; padding: 8px;">' +
                             creatorsList +
                             '</div>';
@@ -5061,13 +5061,13 @@ HTML_TEMPLATE = """
                 }
 
                 return '<div style="background: rgba(99, 102, 241, 0.08); padding: 12px; border-radius: 6px; border-left: 3px solid #6366f1; margin-bottom: 12px;">' +
-                    '<div style="font-size: 10px; color: #a0a0a0; margin-bottom: 8px;">ROOT OPERATOR #' + (idx + 1) + '</div>' +
+                    '<div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 8px;">ROOT OPERATOR #' + (idx + 1) + '</div>' +
                     '<div style="font-family: monospace; font-size: 11px; color: #6366f1; word-break: break-all; margin-bottom: 8px; padding: 6px; background: rgba(99, 102, 241, 0.1); border-radius: 4px;">' + addr + '</div>' +
                     (flow ? '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; font-size: 10px;">' +
-                        '<div><div style="color: #a0a0a0;">CREATORS FUNDED</div><div style="color: #f59e0b; font-weight: bold;">' + flow.creators_funded + '</div></div>' +
-                        '<div><div style="color: #a0a0a0;">TOTAL SOL</div><div style="color: #4ade80; font-weight: bold;">' + flow.total_sol_sent.toFixed(2) + '</div></div>' +
+                        '<div><div style="color: var(--text-secondary);">CREATORS FUNDED</div><div style="color: #f59e0b; font-weight: bold;">' + flow.creators_funded + '</div></div>' +
+                        '<div><div style="color: var(--text-secondary);">TOTAL SOL</div><div style="color: var(--color-low); font-weight: bold;">' + flow.total_sol_sent.toFixed(2) + '</div></div>' +
                         '</div>' : '') +
-                    (flowsHTML ? '<div style="margin-top: 10px; font-size: 9px; color: #a0a0a0; margin-bottom: 6px;">EXAMPLE FLOWS: Sender → Funder → Creator</div>' +
+                    (flowsHTML ? '<div style="margin-top: 10px; font-size: 9px; color: var(--text-secondary); margin-bottom: 6px;">EXAMPLE FLOWS: Sender → Funder → Creator</div>' +
                         '<div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 6px;">' + flowsHTML + '</div>' : '') +
                     '</div>';
             }).join('');
@@ -5100,16 +5100,16 @@ HTML_TEMPLATE = """
             const creatorReuseColor = creatorReuseFactor === 'HIGH' ? 'var(--color-critical)' : creatorReuseFactor === 'MEDIUM' ? 'var(--color-medium)' : 'var(--color-none)';
 
             const relationshipHTML = `
-                <div style="font-size: 12px; color: #a0a0a0;">
+                <div style="font-size: 12px; color: var(--text-secondary);">
                     <div style="margin-bottom: 16px;">
                         <div style="font-size: 10px; color: #888; margin-bottom: 8px; text-transform: uppercase; font-weight: bold;">📊 SUPER-NETWORK STRUCTURE</div>
 
-                        <div style="background: rgba(0, 0, 0, 0.2); border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+                        <div style="background: var(--bg-secondary); border-radius: 6px; padding: 12px; margin-bottom: 12px;">
                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;">
                                 <div>
                                     <div style="color: #6366f1; font-size: 11px; margin-bottom: 4px;">TOTAL NETWORKS</div>
                                     <div style="color: #818cf8; font-weight: bold; font-size: 16px;">${visibleNetworkCount}</div>
-                                    <div style="color: #a0a0a0; font-size: 9px; margin-top: 4px;">
+                                    <div style="color: var(--text-secondary); font-size: 9px; margin-top: 4px;">
                                         ${visibleNetworks.length > 0 ? visibleNetworks.map(n => n.network_name || `Network_${n.network_id}`).join(', ') : 'N/A'}
                                     </div>
                                 </div>
@@ -5125,7 +5125,7 @@ HTML_TEMPLATE = """
 
                             <div style="padding: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 4px; border-left: 2px solid ${creatorReuseColor}; margin-bottom: 10px;">
                                 <div style="color: ${creatorReuseColor}; font-size: 11px; font-weight: bold; margin-bottom: 4px;">⚠️ CREATOR REUSE: ${creatorReuseFactor}</div>
-                                <div style="color: #a0a0a0; font-size: 10px;">
+                                <div style="color: var(--text-secondary); font-size: 10px;">
                                     ${data.creators_unique} creators across ${visibleNetworkCount} networks = <strong style="color: ${creatorReuseColor};">${avgCreatorsPerNetwork} creators per network average</strong>
                                     <br>This indicates a <strong>coordinated operation</strong> reusing launcher wallets.
                                 </div>
@@ -5137,7 +5137,7 @@ HTML_TEMPLATE = """
                         <div style="font-size: 10px; color: #888; margin-bottom: 8px; text-transform: uppercase; font-weight: bold;">🔗 FUNDING FLOW</div>
 
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                            <div style="background: rgba(59, 130, 246, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #3b82f6; color: #3b82f6; flex: 1;">
+                            <div style="background: rgba(59, 130, 246, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #3b82f6; color: var(--color-none); flex: 1;">
                                 <div style="font-size: 10px; color: #888;">Upstream</div>
                                 <strong>${data.funder_stats.total_funders}</strong> Senders
                             </div>
@@ -5152,7 +5152,7 @@ HTML_TEMPLATE = """
                                 <strong>${data.creators_unique}</strong> Wallets
                             </div>
                             <div style="color: #666; font-weight: bold;">➜</div>
-                            <div style="background: rgba(74, 222, 128, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #4ade80; color: #4ade80; flex: 1;">
+                            <div style="background: rgba(74, 222, 128, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #4ade80; color: var(--color-low); flex: 1;">
                                 <div style="font-size: 10px; color: #888;">Tokens</div>
                                 <strong>${data.tokens.length}</strong> Launch
                             </div>
@@ -5162,7 +5162,7 @@ HTML_TEMPLATE = """
                     <div style="padding: 10px; background: rgba(99, 102, 241, 0.05); border-radius: 4px; border: 1px solid rgba(99, 102, 241, 0.2);">
                         <div style="font-size: 11px; line-height: 1.6;">
                             <strong>💡 What ties these ${data.network_count} networks together:</strong><br>
-                            <span style="color: #a0a0a0;">
+                            <span style="color: var(--text-secondary);">
                                 Multiple funding networks consolidated into one super-cluster because they share <strong>${data.creators_unique} creators</strong> across <strong>${data.network_count} networks</strong>.
                                 This indicates <strong>coordinated operations</strong> using the same launcher infrastructure.
                             </span>
@@ -5317,15 +5317,15 @@ HTML_TEMPLATE = """
                             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                                 <td style="padding: 10px;">
                                     <a href="#" onclick="showCreatorDetails('${creator}'); return false;"
-                                       style="color: #00d4ff; text-decoration: none; font-family: monospace; font-size: 11px; word-break: break-all;"
+                                       style="color: var(--accent-cyan); text-decoration: none; font-family: monospace; font-size: 11px; word-break: break-all;"
                                        title="${creator}">${creator}</a>
                                 </td>
-                                <td style="padding: 10px; color: #e0e0e0;">${creatorTokens}</td>
+                                <td style="padding: 10px; color: var(--text-primary);">${creatorTokens}</td>
                             </tr>
                         `;
                     }).join('');
                 } else {
-                    creatorsList.innerHTML = '<tr><td colspan="2" style="padding: 20px; text-align: center; color: #a0a0a0;">No creators found</td></tr>';
+                    creatorsList.innerHTML = '<tr><td colspan="2" style="padding: 20px; text-align: center; color: var(--text-secondary);">No creators found</td></tr>';
                 }
 
                 // Populate tokens tab
@@ -5340,19 +5340,19 @@ HTML_TEMPLATE = """
                             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                                 <td style="padding: 10px;">
                                     <a href="#" onclick="showTokenMetrics('${token.mint}'); return false;"
-                                       style="color: #00d4ff; text-decoration: none; font-family: monospace; font-size: 11px; word-break: break-all;"
+                                       style="color: var(--accent-cyan); text-decoration: none; font-family: monospace; font-size: 11px; word-break: break-all;"
                                        title="${token.mint}">${token.mint}</a>
                                 </td>
-                                <td style="padding: 10px; font-family: monospace; font-size: 11px; color: #a0a0a0; word-break: break-all;">${token.earliest_tx_creator}</td>
+                                <td style="padding: 10px; font-family: monospace; font-size: 11px; color: var(--text-secondary); word-break: break-all;">${token.earliest_tx_creator}</td>
                                 <td style="padding: 10px; text-align: right;">
                                     <span style="color: ${riskColor}; font-weight: bold;">${riskPercent}%</span>
                                 </td>
-                                <td style="padding: 10px; text-align: right; color: #e0e0e0;">${mcDisplay}</td>
+                                <td style="padding: 10px; text-align: right; color: var(--text-primary);">${mcDisplay}</td>
                             </tr>
                         `;
                     }).join('');
                 } else {
-                    tokensList.innerHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">No tokens found</td></tr>';
+                    tokensList.innerHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: var(--text-secondary);">No tokens found</td></tr>';
                 }
 
                 // Reset to creators tab
@@ -5504,12 +5504,12 @@ def coordinated_funder_analysis_view(creator_address: str):
                 <head>
                     <title>Coordinated Funder Analysis</title>
                     <style>
-                        body {{ background: #0a0e27; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }}
+                        body {{ background: #0a0e27; color: var(--text-primary); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }}
                         .container {{ max-width: 1200px; margin: 0 auto; }}
-                        h1 {{ color: #00d4ff; margin-bottom: 30px; }}
+                        h1 {{ color: var(--accent-cyan); margin-bottom: 30px; }}
                         .not-analyzed {{ background: rgba(0, 0, 0, 0.3); padding: 30px; border-radius: 8px; text-align: center; border-left: 3px solid #fbbf24; }}
                         .back-link {{ margin-bottom: 20px; }}
-                        .back-link a {{ color: #00d4ff; text-decoration: none; }}
+                        .back-link a {{ color: var(--accent-cyan); text-decoration: none; }}
                         .back-link a:hover {{ text-decoration: underline; }}
                     </style>
                 </head>
@@ -5518,9 +5518,9 @@ def coordinated_funder_analysis_view(creator_address: str):
                         <div class="back-link"><a href="/">← Back to Dashboard</a></div>
                         <h1>Coordinated Funder Analysis</h1>
                         <div class="not-analyzed">
-                            <h2 style="color: #fbbf24;">Not Yet Analyzed</h2>
+                            <h2 style="color: var(--color-medium);">Not Yet Analyzed</h2>
                             <p>Coordinated funder analysis has not been performed for this creator yet.</p>
-                            <p style="color: #a0a0a0; font-size: 14px;">Run the coordinated funder analysis script to generate results.</p>
+                            <p style="color: var(--text-secondary); font-size: 14px;">Run the coordinated funder analysis script to generate results.</p>
                         </div>
                     </div>
                 </body>
@@ -5575,7 +5575,7 @@ def coordinated_funder_analysis_view(creator_address: str):
             <div style="padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 13px;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div style="font-family: monospace; color: {risk_color_cc};">{i}. {cc['address']}</div>
-                    <div style="display: flex; gap: 20px; color: #a0a0a0;">
+                    <div style="display: flex; gap: 20px; color: var(--text-secondary);">
                         <span style="color: {risk_color_cc};">{cc['risk_level']}</span>
                         <span>{(cc['rug_probability'] * 100):.0f}% rug</span>
                     </div>
@@ -5587,7 +5587,7 @@ def coordinated_funder_analysis_view(creator_address: str):
         destinations_html = ''
         for i, dest in enumerate(shared_destinations[:30], 1):
             destinations_html += f"""
-            <div style="padding: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-family: monospace; font-size: 12px; color: #fbbf24;">
+            <div style="padding: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-family: monospace; font-size: 12px; color: var(--color-medium);">
                 {i}. {dest}
             </div>
             """
@@ -5599,7 +5599,7 @@ def coordinated_funder_analysis_view(creator_address: str):
                 <style>
                     body {{
                         background: #0a0e27;
-                        color: #e0e0e0;
+                        color: var(--text-primary);
                         font-family: 'Segoe UI', sans-serif;
                         margin: 0;
                         padding: 20px;
@@ -5609,20 +5609,20 @@ def coordinated_funder_analysis_view(creator_address: str):
                         margin: 0 auto;
                     }}
                     h1 {{
-                        color: #00d4ff;
+                        color: var(--accent-cyan);
                         margin-bottom: 10px;
                     }}
                     .creator-addr {{
                         font-family: monospace;
                         font-size: 12px;
-                        color: #a0a0a0;
+                        color: var(--text-secondary);
                         margin-bottom: 30px;
                     }}
                     .back-link {{
                         margin-bottom: 20px;
                     }}
                     .back-link a {{
-                        color: #00d4ff;
+                        color: var(--accent-cyan);
                         text-decoration: none;
                     }}
                     .back-link a:hover {{
@@ -5641,7 +5641,7 @@ def coordinated_funder_analysis_view(creator_address: str):
                         border-left: 3px solid {risk_color};
                     }}
                     .stat-label {{
-                        color: #a0a0a0;
+                        color: var(--text-secondary);
                         font-size: 11px;
                         text-transform: uppercase;
                         margin-bottom: 10px;
@@ -5652,17 +5652,17 @@ def coordinated_funder_analysis_view(creator_address: str):
                         color: {risk_color};
                     }}
                     .section {{
-                        background: rgba(0, 0, 0, 0.2);
+                        background: var(--bg-secondary);
                         border-radius: 8px;
                         margin-bottom: 30px;
                         overflow: hidden;
                     }}
                     .section-title {{
-                        background: rgba(0, 0, 0, 0.4);
+                        background: var(--bg-secondary);
                         padding: 15px;
                         border-bottom: 1px solid rgba(0, 212, 255, 0.2);
                         font-weight: 600;
-                        color: #00d4ff;
+                        color: var(--accent-cyan);
                     }}
                     .section-content {{
                         max-height: 600px;
@@ -5698,18 +5698,18 @@ def coordinated_funder_analysis_view(creator_address: str):
                     <div class="section">
                         <div class="section-title">Connected Creators ({len(connected_creator_details)} shown)</div>
                         <div class="section-content">
-                            {connected_html if connected_html else '<div style="padding: 20px; color: #a0a0a0;">No connected creators found</div>'}
+                            {connected_html if connected_html else '<div style="padding: 20px; color: var(--text-secondary);">No connected creators found</div>'}
                         </div>
                     </div>
 
                     <div class="section">
                         <div class="section-title">Shared Destination Wallets ({len(shared_destinations)} total)</div>
                         <div class="section-content">
-                            {destinations_html if destinations_html else '<div style="padding: 20px; color: #a0a0a0;">No shared destinations found</div>'}
+                            {destinations_html if destinations_html else '<div style="padding: 20px; color: var(--text-secondary);">No shared destinations found</div>'}
                         </div>
                     </div>
 
-                    <div style="color: #a0a0a0; font-size: 12px; margin-top: 30px;">
+                    <div style="color: var(--text-secondary); font-size: 12px; margin-top: 30px;">
                         <p>Analysis performed: {result['detected_at']}</p>
                         <p>Last updated: {result['updated_at']}</p>
                     </div>
@@ -5720,7 +5720,7 @@ def coordinated_funder_analysis_view(creator_address: str):
         return html
 
     except Exception as e:
-        return f"<html><body style='background: #0a0e27; color: #e0e0e0;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
+        return f"<html><body style='background: #0a0e27; color: var(--text-primary);'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
 
 
 @app.route('/api/migrated-tokens')
@@ -7517,7 +7517,7 @@ coordinated_funders_html = '''
     <style>
         body {
             background: #0f0f1e;
-            color: #e0e0e0;
+            color: var(--text-primary);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
             padding: 40px;
             margin: 0;
@@ -7558,7 +7558,7 @@ coordinated_funders_html = '''
         }
         ul {
             line-height: 1.8;
-            color: #a0a0a0;
+            color: var(--text-secondary);
         }
         li {
             margin-bottom: 8px;
@@ -7566,7 +7566,7 @@ coordinated_funders_html = '''
         .status {
             background: rgba(74, 222, 128, 0.1);
             border: 1px solid #4ade80;
-            color: #4ade80;
+            color: var(--color-low);
             padding: 15px;
             border-radius: 6px;
             margin-bottom: 20px;
@@ -7593,7 +7593,7 @@ coordinated_funders_html = '''
         </div>
 
         <div class="section">
-            <h2 style="color: #3b82f6; margin-top: 0;">Features in Networks Tab</h2>
+            <h2 style="color: var(--color-none); margin-top: 0;">Features in Networks Tab</h2>
             <ul>
                 <li>View all funding networks in the cluster</li>
                 <li>See root operators and their relationships</li>
@@ -7652,11 +7652,11 @@ def coordinated_funders_view():
         for funder in multi_funders:
             html_rows += f"""
             <tr>
-                <td style="padding: 10px; font-family: monospace; font-size: 11px; color: #00d4ff; word-break: break-all;">
+                <td style="padding: 10px; font-family: monospace; font-size: 11px; color: var(--accent-cyan); word-break: break-all;">
                     {funder['funder_address']}
                 </td>
                 <td style="padding: 10px; text-align: right; color: #f59e0b;">{funder['creator_count']}</td>
-                <td style="padding: 10px; text-align: right; color: #4ade80;">{funder['total_sol_sent']:.2f} SOL</td>
+                <td style="padding: 10px; text-align: right; color: var(--color-low);">{funder['total_sol_sent']:.2f} SOL</td>
             </tr>
             """
 
@@ -7667,7 +7667,7 @@ def coordinated_funders_view():
             <style>
                 body {{
                     background: #0f0f1e;
-                    color: #e0e0e0;
+                    color: var(--text-primary);
                     font-family: monospace;
                     padding: 20px;
                 }}
@@ -7716,7 +7716,7 @@ def coordinated_funders_view():
         <body>
             <div class="container">
                 <h1>🔗 Coordinated Funders ({len(multi_funders)} total)</h1>
-                <p style="color: #a0a0a0;">Wallets that fund multiple creators, indicating coordination or network relationships</p>
+                <p style="color: var(--text-secondary);">Wallets that fund multiple creators, indicating coordination or network relationships</p>
 
                 <table>
                     <thead>
@@ -7903,13 +7903,13 @@ def coordinated_funders_view_old():
 
             suspicious_html += f"""
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); cursor: pointer; {row_highlight}" onclick="window.location.href = '/funder-details/{funder['funder_address']}'">
-                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #ef4444; word-break: break-all;">{funder['funder_address']}</td>
-                <td style="padding: 12px; color: #00d4ff; font-weight: 500; font-size: 12px;">{network_display}</td>
-                <td style="padding: 12px; color: #ef4444; font-weight: bold;">{funder['creator_count']}</td>
-                <td style="padding: 12px; color: #4ade80;">{funder['total_sol_sent']:.2f}</td>
-                <td style="padding: 12px; color: #a0a0a0;">{funder['funding_record_count']}</td>
+                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: var(--color-critical); word-break: break-all;">{funder['funder_address']}</td>
+                <td style="padding: 12px; color: var(--accent-cyan); font-weight: 500; font-size: 12px;">{network_display}</td>
+                <td style="padding: 12px; color: var(--color-critical); font-weight: bold;">{funder['creator_count']}</td>
+                <td style="padding: 12px; color: var(--color-low);">{funder['total_sol_sent']:.2f}</td>
+                <td style="padding: 12px; color: var(--text-secondary);">{funder['funding_record_count']}</td>
                 <td style="padding: 12px; font-size: 11px; color: {analysis_color};">{analysis_badge}</td>
-                <td style="padding: 12px; font-size: 11px; color: #a0a0a0;">{period}</td>
+                <td style="padding: 12px; font-size: 11px; color: var(--text-secondary);">{period}</td>
             </tr>
             """
 
@@ -7924,11 +7924,11 @@ def coordinated_funders_view_old():
 
             safe_html += f"""
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #a0a0a0;">{funder['funder_address']}</td>
-                <td style="padding: 12px; color: #4ade80; font-weight: 600;">{account_label}</td>
-                <td style="padding: 12px; text-align: center;"><span style="background: rgba(34, 197, 94, 0.2); color: #4ade80; padding: 3px 8px; border-radius: 3px; font-size: 11px;">{account_type}</span></td>
-                <td style="padding: 12px; color: #a0a0a0; font-weight: bold;">{funder['creator_count']}</td>
-                <td style="padding: 12px; color: #a0a0a0;">{funder['total_sol_sent']:.2f}</td>
+                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: var(--text-secondary);">{funder['funder_address']}</td>
+                <td style="padding: 12px; color: var(--color-low); font-weight: 600;">{account_label}</td>
+                <td style="padding: 12px; text-align: center;"><span style="background: rgba(34, 197, 94, 0.2); color: var(--color-low); padding: 3px 8px; border-radius: 3px; font-size: 11px;">{account_type}</span></td>
+                <td style="padding: 12px; color: var(--text-secondary); font-weight: bold;">{funder['creator_count']}</td>
+                <td style="padding: 12px; color: var(--text-secondary);">{funder['total_sol_sent']:.2f}</td>
             </tr>
             """
 
@@ -7939,7 +7939,7 @@ def coordinated_funders_view_old():
                 <style>
                     body {{
                         background: #0a0e27;
-                        color: #e0e0e0;
+                        color: var(--text-primary);
                         font-family: 'Segoe UI', sans-serif;
                         margin: 0;
                         padding: 20px;
@@ -7949,11 +7949,11 @@ def coordinated_funders_view_old():
                         margin: 0 auto;
                     }}
                     h1 {{
-                        color: #00d4ff;
+                        color: var(--accent-cyan);
                         margin-bottom: 10px;
                     }}
                     .subtitle {{
-                        color: #a0a0a0;
+                        color: var(--text-secondary);
                         margin-bottom: 30px;
                         font-size: 14px;
                     }}
@@ -7961,7 +7961,7 @@ def coordinated_funders_view_old():
                         margin-bottom: 20px;
                     }}
                     .back-link a {{
-                        color: #00d4ff;
+                        color: var(--accent-cyan);
                         text-decoration: none;
                     }}
                     .back-link a:hover {{
@@ -7981,13 +7981,13 @@ def coordinated_funders_view_old():
                         text-align: center;
                     }}
                     .stat-box.suspicious {{
-                        border-left-color: #ef4444;
+                        border-left-color: var(--color-critical);
                     }}
                     .stat-box.safe {{
-                        border-left-color: #4ade80;
+                        border-left-color: var(--color-low);
                     }}
                     .stat-label {{
-                        color: #a0a0a0;
+                        color: var(--text-secondary);
                         font-size: 11px;
                         text-transform: uppercase;
                         margin-bottom: 10px;
@@ -7997,23 +7997,23 @@ def coordinated_funders_view_old():
                         font-weight: bold;
                     }}
                     .stat-box.suspicious .stat-value {{
-                        color: #ef4444;
+                        color: var(--color-critical);
                     }}
                     .stat-box.safe .stat-value {{
-                        color: #4ade80;
+                        color: var(--color-low);
                     }}
                     .section {{
-                        background: rgba(0, 0, 0, 0.2);
+                        background: var(--bg-secondary);
                         border-radius: 8px;
                         margin-bottom: 30px;
                         overflow: hidden;
                     }}
                     .section-title {{
-                        background: rgba(0, 0, 0, 0.4);
+                        background: var(--bg-secondary);
                         padding: 15px;
                         border-bottom: 1px solid rgba(0, 212, 255, 0.2);
                         font-weight: 600;
-                        color: #00d4ff;
+                        color: var(--accent-cyan);
                     }}
                     .section-content {{
                         max-height: 800px;
@@ -8028,7 +8028,7 @@ def coordinated_funders_view_old():
                         background: rgba(0, 0, 0, 0.3);
                         padding: 12px;
                         text-align: left;
-                        color: #a0a0a0;
+                        color: var(--text-secondary);
                         font-size: 11px;
                         border-bottom: 1px solid rgba(0, 212, 255, 0.2);
                     }}
@@ -8045,11 +8045,11 @@ def coordinated_funders_view_old():
 
                     <!-- Tab Navigation -->
                     <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(0, 212, 255, 0.2); padding-bottom: 15px; flex-wrap: wrap;">
-                        <button onclick="switchTab('funders')" id="tab-funders" style="background: rgba(0, 212, 255, 0.2); color: #00d4ff; border: 1px solid #00d4ff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">👥 Multi-Creator Funders</button>
-                        <button onclick="switchTab('senders')" id="tab-senders" style="background: transparent; color: #a0a0a0; border: 1px solid #a0a0a0; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">📤 Duplicate Senders</button>
-                        <button onclick="switchTab('tokens')" id="tab-tokens" style="background: transparent; color: #a0a0a0; border: 1px solid #a0a0a0; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">🪙 Coordinated Tokens</button>
-                        <button onclick="switchTab('funder-networks')" id="tab-funder-networks" style="background: transparent; color: #a0a0a0; border: 1px solid #a0a0a0; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">🔗 Funder Networks</button>
-                        <button onclick="switchTab('funding-networks')" id="tab-funding-networks" style="background: transparent; color: #a0a0a0; border: 1px solid #a0a0a0; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">🌐 Funding Networks</button>
+                        <button onclick="switchTab('funders')" id="tab-funders" style="background: rgba(0, 212, 255, 0.2); color: var(--accent-cyan); border: 1px solid #00d4ff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">👥 Multi-Creator Funders</button>
+                        <button onclick="switchTab('senders')" id="tab-senders" style="background: transparent; color: var(--text-secondary); border: 1px solid #a0a0a0; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">📤 Duplicate Senders</button>
+                        <button onclick="switchTab('tokens')" id="tab-tokens" style="background: transparent; color: var(--text-secondary); border: 1px solid #a0a0a0; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">🪙 Coordinated Tokens</button>
+                        <button onclick="switchTab('funder-networks')" id="tab-funder-networks" style="background: transparent; color: var(--text-secondary); border: 1px solid #a0a0a0; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">🔗 Funder Networks</button>
+                        <button onclick="switchTab('funding-networks')" id="tab-funding-networks" style="background: transparent; color: var(--text-secondary); border: 1px solid #a0a0a0; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">🌐 Funding Networks</button>
                     </div>
 
                     <script>
@@ -8152,7 +8152,7 @@ def coordinated_funders_view_old():
                                             <tbody>`;
 
                             if (data.senders.length === 0) {{
-                                html += '<tr><td colspan="6" style="padding: 20px; text-align: center; color: #a0a0a0;">No duplicate senders found</td></tr>';
+                                html += '<tr><td colspan="6" style="padding: 20px; text-align: center; color: var(--text-secondary);">No duplicate senders found</td></tr>';
                             }} else {{
                                 data.senders.forEach(sender => {{
                                     const firstDate = new Date(sender.first_seen * 1000).toISOString().substring(0, 10);
@@ -8163,13 +8163,13 @@ def coordinated_funders_view_old():
                                     html += `
                                         <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); ${{rowHighlight}}">
                                             <td style="padding: 12px; font-family: monospace; font-size: 11px; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                <a href="#" onclick="showSenderTokens('${{sender.sender_address}}'); return false;" style="color: #fbbf24; text-decoration: none; cursor: pointer;" title="${{sender.sender_address}}">${{sender.sender_address}}</a>
+                                                <a href="#" onclick="showSenderTokens('${{sender.sender_address}}'); return false;" style="color: var(--color-medium); text-decoration: none; cursor: pointer;" title="${{sender.sender_address}}">${{sender.sender_address}}</a>
                                             </td>
-                                            <td style="padding: 12px; color: #ef4444; font-weight: bold;">${{sender.funder_count}}</td>
-                                            <td style="padding: 12px; color: #a0a0a0;">${{sender.transfer_count}}</td>
-                                            <td style="padding: 12px; color: #4ade80;">${{sender.total_sol.toFixed(2)}}</td>
-                                            <td style="padding: 12px; color: #a0a0a0; font-weight: bold;">${{sender.related_token_count || 0}}</td>
-                                            <td style="padding: 12px; font-size: 11px; color: #a0a0a0;">${{period}}</td>
+                                            <td style="padding: 12px; color: var(--color-critical); font-weight: bold;">${{sender.funder_count}}</td>
+                                            <td style="padding: 12px; color: var(--text-secondary);">${{sender.transfer_count}}</td>
+                                            <td style="padding: 12px; color: var(--color-low);">${{sender.total_sol.toFixed(2)}}</td>
+                                            <td style="padding: 12px; color: var(--text-secondary); font-weight: bold;">${{sender.related_token_count || 0}}</td>
+                                            <td style="padding: 12px; font-size: 11px; color: var(--text-secondary);">${{period}}</td>
                                         </tr>`;
                                 }});
                             }}
@@ -8221,7 +8221,7 @@ def coordinated_funders_view_old():
                                             <tbody>`;
 
                             if (data.tokens.length === 0) {{
-                                html += '<tr><td colspan="8" style="padding: 20px; text-align: center; color: #a0a0a0;">No coordinated tokens found</td></tr>';
+                                html += '<tr><td colspan="8" style="padding: 20px; text-align: center; color: var(--text-secondary);">No coordinated tokens found</td></tr>';
                             }} else {{
                                 data.tokens.forEach(token => {{
                                     const createdDate = new Date(token.created_at).toISOString().substring(0, 10);
@@ -8230,14 +8230,14 @@ def coordinated_funders_view_old():
 
                                     html += `
                                         <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); ${{senderHighlight}}">
-                                            <td style="padding: 12px; font-family: monospace; font-size: 10px; word-break: break-all; color: #4ade80;">
-                                                <a href="https://solscan.io/token/${{token.mint}}" target="_blank" style="color: #4ade80; text-decoration: none;">${{token.mint}}</a>
+                                            <td style="padding: 12px; font-family: monospace; font-size: 10px; word-break: break-all; color: var(--color-low);">
+                                                <a href="https://solscan.io/token/${{token.mint}}" target="_blank" style="color: var(--color-low); text-decoration: none;">${{token.mint}}</a>
                                             </td>
-                                            <td style="padding: 12px; font-family: monospace; font-size: 10px; word-break: break-all; color: #a0a0a0;">${{token.creator}}</td>
-                                            <td style="padding: 12px; font-size: 11px; color: #a0a0a0;">${{createdDate}}</td>
-                                            <td style="padding: 12px; color: #ef4444; font-weight: bold; text-align: center;">${{token.num_senders}}</td>
-                                            <td style="padding: 12px; color: #fbbf24; font-weight: bold; text-align: center;">${{token.num_funders}}</td>
-                                            <td style="padding: 12px; color: #4ade80;">${{token.total_sol.toFixed(2)}}</td>
+                                            <td style="padding: 12px; font-family: monospace; font-size: 10px; word-break: break-all; color: var(--text-secondary);">${{token.creator}}</td>
+                                            <td style="padding: 12px; font-size: 11px; color: var(--text-secondary);">${{createdDate}}</td>
+                                            <td style="padding: 12px; color: var(--color-critical); font-weight: bold; text-align: center;">${{token.num_senders}}</td>
+                                            <td style="padding: 12px; color: var(--color-medium); font-weight: bold; text-align: center;">${{token.num_funders}}</td>
+                                            <td style="padding: 12px; color: var(--color-low);">${{token.total_sol.toFixed(2)}}</td>
                                             <td style="padding: 12px; color: ${{riskColor}}; font-weight: bold;">${{token.risk_level || 'N/A'}}</td>
                                             <td style="padding: 12px; color: #f59e0b;">${{((token.rug_probability || 0) * 100).toFixed(1)}}%</td>
                                         </tr>`;
@@ -8278,18 +8278,18 @@ def coordinated_funders_view_old():
                                         <table style="width: 100%; border-collapse: collapse;">
                                             <thead style="background: rgba(0, 0, 0, 0.3);">
                                                 <tr>
-                                                    <th style="padding: 12px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Funder Address</th>
-                                                    <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Tokens</th>
-                                                    <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Creators</th>
-                                                    <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Senders</th>
-                                                    <th style="padding: 12px; text-align: right; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">SOL In/Out</th>
-                                                    <th style="padding: 12px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Period</th>
+                                                    <th style="padding: 12px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: var(--text-secondary); font-size: 11px;">Funder Address</th>
+                                                    <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: var(--text-secondary); font-size: 11px;">Tokens</th>
+                                                    <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: var(--text-secondary); font-size: 11px;">Creators</th>
+                                                    <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: var(--text-secondary); font-size: 11px;">Senders</th>
+                                                    <th style="padding: 12px; text-align: right; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: var(--text-secondary); font-size: 11px;">SOL In/Out</th>
+                                                    <th style="padding: 12px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: var(--text-secondary); font-size: 11px;">Period</th>
                                                 </tr>
                                             </thead>
                                             <tbody>`;
 
                             if (data.funders.length === 0) {{
-                                html += '<tr><td colspan="6" style="padding: 20px; text-align: center; color: #a0a0a0;">No funder networks found</td></tr>';
+                                html += '<tr><td colspan="6" style="padding: 20px; text-align: center; color: var(--text-secondary);">No funder networks found</td></tr>';
                             }} else {{
                                 data.funders.forEach(funder => {{
                                     const startDate = new Date(funder.earliest_funding * 1000).toISOString().substring(0, 10);
@@ -8299,14 +8299,14 @@ def coordinated_funders_view_old():
 
                                     html += `
                                         <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); ${{networkHighlight}}">
-                                            <td style="padding: 12px; font-family: monospace; font-size: 10px; word-break: break-all; color: #3b82f6;">
-                                                <a href="#" onclick="showFunderTokens('${{funder.funder_address}}'); return false;" style="color: #3b82f6; text-decoration: none; cursor: pointer;">${{funder.funder_address}}</a>
+                                            <td style="padding: 12px; font-family: monospace; font-size: 10px; word-break: break-all; color: var(--color-none);">
+                                                <a href="#" onclick="showFunderTokens('${{funder.funder_address}}'); return false;" style="color: var(--color-none); text-decoration: none; cursor: pointer;">${{funder.funder_address}}</a>
                                             </td>
-                                            <td style="padding: 12px; text-align: center; color: #4ade80; font-weight: bold;">${{funder.tokens_funded}}</td>
-                                            <td style="padding: 12px; text-align: center; color: #a0a0a0;">${{funder.creators_funded}}</td>
-                                            <td style="padding: 12px; text-align: center; color: #fbbf24;">${{funder.num_senders || 0}}</td>
+                                            <td style="padding: 12px; text-align: center; color: var(--color-low); font-weight: bold;">${{funder.tokens_funded}}</td>
+                                            <td style="padding: 12px; text-align: center; color: var(--text-secondary);">${{funder.creators_funded}}</td>
+                                            <td style="padding: 12px; text-align: center; color: var(--color-medium);">${{funder.num_senders || 0}}</td>
                                             <td style="padding: 12px; text-align: right; color: #f59e0b; font-size: 10px;">${{funder.total_sol_in ? funder.total_sol_in.toFixed(2) : '0'}} / ${{funder.total_sol_out.toFixed(2)}}</td>
-                                            <td style="padding: 12px; font-size: 10px; color: #a0a0a0;">${{period}}</td>
+                                            <td style="padding: 12px; font-size: 10px; color: var(--text-secondary);">${{period}}</td>
                                         </tr>`;
                                 }});
                             }}
@@ -8347,29 +8347,29 @@ def coordinated_funders_view_old():
                             let html = `<table style="width: 100%; border-collapse: collapse;">
                                 <thead style="background: rgba(0, 0, 0, 0.3);">
                                     <tr>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Token Mint</th>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Creator</th>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Created</th>
-                                        <th style="padding: 10px; text-align: right; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">SOL</th>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: #a0a0a0; font-size: 11px;">Senders</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: var(--text-secondary); font-size: 11px;">Token Mint</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: var(--text-secondary); font-size: 11px;">Creator</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: var(--text-secondary); font-size: 11px;">Created</th>
+                                        <th style="padding: 10px; text-align: right; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: var(--text-secondary); font-size: 11px;">SOL</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); color: var(--text-secondary); font-size: 11px;">Senders</th>
                                     </tr>
                                 </thead>
                                 <tbody>`;
 
                             if (data.tokens.length === 0) {{
-                                html += '<tr><td colspan="5" style="padding: 20px; text-align: center; color: #a0a0a0;">No tokens found</td></tr>';
+                                html += '<tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--text-secondary);">No tokens found</td></tr>';
                             }} else {{
                                 data.tokens.forEach(token => {{
                                     const createdDate = new Date(token.created_at).toISOString().substring(0, 10);
                                     html += `
                                         <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                                            <td style="padding: 10px; font-family: monospace; font-size: 10px; color: #4ade80;">
-                                                <a href="https://solscan.io/token/${{token.mint}}" target="_blank" style="color: #4ade80; text-decoration: none;">${{token.mint.substring(0, 20)}}...</a>
+                                            <td style="padding: 10px; font-family: monospace; font-size: 10px; color: var(--color-low);">
+                                                <a href="https://solscan.io/token/${{token.mint}}" target="_blank" style="color: var(--color-low); text-decoration: none;">${{token.mint.substring(0, 20)}}...</a>
                                             </td>
-                                            <td style="padding: 10px; font-family: monospace; font-size: 10px; color: #a0a0a0; word-break: break-all;">${{token.creator.substring(0, 20)}}...</td>
-                                            <td style="padding: 10px; font-size: 10px; color: #a0a0a0;">${{createdDate}}</td>
-                                            <td style="padding: 10px; color: #4ade80; font-weight: bold; text-align: right;">${{token.amount_sol ? token.amount_sol.toFixed(2) : '0'}}</td>
-                                            <td style="padding: 10px; color: #fbbf24; font-weight: bold;">${{token.num_senders || 0}}</td>
+                                            <td style="padding: 10px; font-family: monospace; font-size: 10px; color: var(--text-secondary); word-break: break-all;">${{token.creator.substring(0, 20)}}...</td>
+                                            <td style="padding: 10px; font-size: 10px; color: var(--text-secondary);">${{createdDate}}</td>
+                                            <td style="padding: 10px; color: var(--color-low); font-weight: bold; text-align: right;">${{token.amount_sol ? token.amount_sol.toFixed(2) : '0'}}</td>
+                                            <td style="padding: 10px; color: var(--color-medium); font-weight: bold;">${{token.num_senders || 0}}</td>
                                         </tr>`;
                                 }});
                             }}
@@ -8417,26 +8417,26 @@ def coordinated_funders_view_old():
                                          onclick="showNetworkDetails(${{network.network_id}})"
                                          onmouseover="this.style.background='rgba(99, 102, 241, 0.15)'; this.style.boxShadow='0 0 15px rgba(99, 102, 241, 0.5)';"
                                          onmouseout="this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='none';">
-                                        <div style="font-weight: bold; color: #e0e0e0; font-size: 14px; margin-bottom: 12px;">${{network.name}}</div>
+                                        <div style="font-weight: bold; color: var(--text-primary); font-size: 14px; margin-bottom: 12px;">${{network.name}}</div>
                                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 11px;">
                                             <div style="background: rgba(74, 222, 128, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #4ade80;">
-                                                <div style="color: #a0a0a0;">Funders</div>
-                                                <div style="color: #4ade80; font-weight: bold;">${{network.funders}}</div>
+                                                <div style="color: var(--text-secondary);">Funders</div>
+                                                <div style="color: var(--color-low); font-weight: bold;">${{network.funders}}</div>
                                             </div>
                                             <div style="background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #3b82f6;">
-                                                <div style="color: #a0a0a0;">Senders</div>
-                                                <div style="color: #3b82f6; font-weight: bold;">${{network.senders}}</div>
+                                                <div style="color: var(--text-secondary);">Senders</div>
+                                                <div style="color: var(--color-none); font-weight: bold;">${{network.senders}}</div>
                                             </div>
                                             <div style="background: rgba(245, 158, 11, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #f59e0b;">
-                                                <div style="color: #a0a0a0;">Creators</div>
+                                                <div style="color: var(--text-secondary);">Creators</div>
                                                 <div style="color: #f59e0b; font-weight: bold;">${{network.creators}}</div>
                                             </div>
                                             <div style="background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #3b82f6;">
-                                                <div style="color: #a0a0a0;">Tokens</div>
-                                                <div style="color: #3b82f6; font-weight: bold;">${{network.tokens}}</div>
+                                                <div style="color: var(--text-secondary);">Tokens</div>
+                                                <div style="color: var(--color-none); font-weight: bold;">${{network.tokens}}</div>
                                             </div>
                                             <div style="background: rgba(168, 85, 247, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #a855f7;">
-                                                <div style="color: #a0a0a0;">SOL</div>
+                                                <div style="color: var(--text-secondary);">SOL</div>
                                                 <div style="color: #a855f7; font-weight: bold;">${{network.total_sol.toFixed(0)}}</div>
                                             </div>
                                         </div>
@@ -8483,35 +8483,35 @@ def coordinated_funders_view_old():
                                     <h2 style="color: #6366f1; margin: 0 0 15px 0;">${{data.network_name}} Details</h2>
                                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
                                         <div>
-                                            <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">FUNDERS</div>
-                                            <div style="font-size: 28px; font-weight: bold; color: #4ade80;">${{data.funders}}</div>
+                                            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">FUNDERS</div>
+                                            <div style="font-size: 28px; font-weight: bold; color: var(--color-low);">${{data.funders}}</div>
                                         </div>
                                         <div>
-                                            <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">SENDERS</div>
-                                            <div style="font-size: 28px; font-weight: bold; color: #3b82f6;">${{data.senders}}</div>
+                                            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">SENDERS</div>
+                                            <div style="font-size: 28px; font-weight: bold; color: var(--color-none);">${{data.senders}}</div>
                                         </div>
                                         <div>
-                                            <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">CREATORS</div>
+                                            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">CREATORS</div>
                                             <div style="font-size: 28px; font-weight: bold; color: #f59e0b;">${{data.creators}}</div>
                                         </div>
                                         <div>
-                                            <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">TOKENS</div>
+                                            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">TOKENS</div>
                                             <div style="font-size: 28px; font-weight: bold; color: #a855f7;">${{data.tokens}}</div>
                                         </div>
                                         <div>
-                                            <div style="font-size: 12px; color: #a0a0a0; margin-bottom: 5px;">TOTAL SOL</div>
+                                            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">TOTAL SOL</div>
                                             <div style="font-size: 28px; font-weight: bold; color: #ec4899;">${{data.total_sol.toFixed(0)}}</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div style="background: rgba(0, 0, 0, 0.2); border-radius: 6px; padding: 20px;">
-                                    <h3 style="color: #e0e0e0; margin: 0 0 15px 0;">Tokens Coordinated</h3>
+                                <div style="background: var(--bg-secondary); border-radius: 6px; padding: 20px;">
+                                    <h3 style="color: var(--text-primary); margin: 0 0 15px 0;">Tokens Coordinated</h3>
                                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 10px;">`;
 
                             data.token_list.forEach(token => {{
                                 html += `
-                                    <div style="background: rgba(99, 102, 241, 0.05); padding: 10px; border-radius: 4px; border-left: 2px solid #6366f1; font-family: monospace; font-size: 10px; word-break: break-all; color: #a0a0a0;">
+                                    <div style="background: rgba(99, 102, 241, 0.05); padding: 10px; border-radius: 4px; border-left: 2px solid #6366f1; font-family: monospace; font-size: 10px; word-break: break-all; color: var(--text-secondary);">
                                         ${{token}}
                                     </div>`;
                             }});
@@ -8520,58 +8520,58 @@ def coordinated_funders_view_old():
 
                             // Add Root Operator Flows section
                             if (data.root_operator_flows && data.root_operator_flows.length > 0) {{
-                                html += `<div style="background: rgba(0, 0, 0, 0.2); border-radius: 6px; padding: 20px; margin-top: 20px;">
-                                    <h3 style="color: #e0e0e0; margin: 0 0 15px 0;">Root Operators & Address Flows</h3>
+                                html += `<div style="background: var(--bg-secondary); border-radius: 6px; padding: 20px; margin-top: 20px;">
+                                    <h3 style="color: var(--text-primary); margin: 0 0 15px 0;">Root Operators & Address Flows</h3>
                                     <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">`;
 
                                 data.root_operator_flows.forEach((flow, idx) => {{
                                     html += `<div style="background: rgba(99, 102, 241, 0.08); border-left: 3px solid #6366f1; border-radius: 6px; padding: 15px;">
                                         <div style="margin-bottom: 12px;">
-                                            <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 5px;">ROOT OPERATOR #${{idx + 1}}</div>
+                                            <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 5px;">ROOT OPERATOR #${{idx + 1}}</div>
                                             <div style="font-family: monospace; font-size: 12px; color: #6366f1; word-break: break-all; padding: 8px; background: rgba(99, 102, 241, 0.1); border-radius: 4px;">${{flow.root_operator}}</div>
                                         </div>
                                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;">
                                             <div>
-                                                <div style="font-size: 10px; color: #a0a0a0;">CREATORS FUNDED</div>
+                                                <div style="font-size: 10px; color: var(--text-secondary);">CREATORS FUNDED</div>
                                                 <div style="font-size: 18px; font-weight: bold; color: #f59e0b;">${{flow.creators_funded}}</div>
                                             </div>
                                             <div>
-                                                <div style="font-size: 10px; color: #a0a0a0;">TOTAL SOL</div>
-                                                <div style="font-size: 18px; font-weight: bold; color: #4ade80;">${{flow.total_sol_sent.toFixed(2)}}</div>
+                                                <div style="font-size: 10px; color: var(--text-secondary);">TOTAL SOL</div>
+                                                <div style="font-size: 18px; font-weight: bold; color: var(--color-low);">${{flow.total_sol_sent.toFixed(2)}}</div>
                                             </div>
                                         </div>
                                         <div style="margin-bottom: 12px;">
-                                            <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 5px;">UPSTREAM SOURCES</div>
+                                            <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 5px;">UPSTREAM SOURCES</div>
                                             <div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 8px; max-height: 80px; overflow-y: auto;">`;
 
                                     if (flow.upstream_sources.length > 0) {{
                                         flow.upstream_sources.forEach(source => {{
-                                            html += `<div style="font-family: monospace; font-size: 10px; color: #3b82f6; word-break: break-all; padding: 4px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">${{source.sender}}</div>`;
+                                            html += `<div style="font-family: monospace; font-size: 10px; color: var(--color-none); word-break: break-all; padding: 4px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">${{source.sender}}</div>`;
                                         }});
                                     }} else {{
-                                        html += `<div style="color: #a0a0a0; font-size: 10px;">No upstream sources found</div>`;
+                                        html += `<div style="color: var(--text-secondary); font-size: 10px;">No upstream sources found</div>`;
                                     }}
 
                                     html += `</div></div>
-                                        <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 5px;">EXAMPLE ADDRESS FLOWS</div>
+                                        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 5px;">EXAMPLE ADDRESS FLOWS</div>
                                         <div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 8px; max-height: 100px; overflow-y: auto;">`;
 
                                     if (flow.example_flows && flow.example_flows.length > 0) {{
                                         flow.example_flows.forEach(ex => {{
-                                            html += `<div style="font-family: monospace; font-size: 9px; color: #e0e0e0; padding: 4px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.4;">
-                                                <div style="color: #3b82f6;">${{ex.sender.substring(0, 12)}}...</div>
-                                                <div style="color: #a0a0a0; margin-left: 10px;">↓ (to funder)</div>
+                                            html += `<div style="font-family: monospace; font-size: 9px; color: var(--text-primary); padding: 4px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.4;">
+                                                <div style="color: var(--color-none);">${{ex.sender.substring(0, 12)}}...</div>
+                                                <div style="color: var(--text-secondary); margin-left: 10px;">↓ (to funder)</div>
                                                 <div style="color: #6366f1;">${{ex.funder.substring(0, 12)}}...</div>
-                                                <div style="color: #a0a0a0; margin-left: 10px;">↓ ${{{ex.sol_to_creator.toFixed(2)}}} SOL</div>
+                                                <div style="color: var(--text-secondary); margin-left: 10px;">↓ ${{{ex.sol_to_creator.toFixed(2)}}} SOL</div>
                                                 <div style="color: #f59e0b;">${{ex.creator.substring(0, 12)}}...</div>
                                             </div>`;
                                         }});
                                     }} else {{
-                                        html += `<div style="color: #a0a0a0; font-size: 10px;">No flows available</div>`;
+                                        html += `<div style="color: var(--text-secondary); font-size: 10px;">No flows available</div>`;
                                     }}
 
                                     html += `</div>
-                                        <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 5px; margin-top: 12px;">TOKENS CREATED BY FUNDED CREATORS</div>
+                                        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 5px; margin-top: 12px;">TOKENS CREATED BY FUNDED CREATORS</div>
                                         <div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 8px; max-height: 120px; overflow-y: auto;">`;
 
                                     if (flow.downstream_creators.length > 0) {{
@@ -8579,12 +8579,12 @@ def coordinated_funders_view_old():
                                             const riskColor = creator.risk_level === 'HIGH' ? '#ef4444' : creator.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
                                             html += `
                                                 <div style="padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); display: flex; justify-content: space-between; align-items: center;">
-                                                    <div style="font-family: monospace; font-size: 9px; color: #a0a0a0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{creator.mint}}">${{creator.mint.substring(0, 16)}}...</div>
+                                                    <div style="font-family: monospace; font-size: 9px; color: var(--text-secondary); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{creator.mint}}">${{creator.mint.substring(0, 16)}}...</div>
                                                     <div style="color: ${{riskColor}}; font-weight: bold; font-size: 10px; margin-left: 8px;">${{(creator.rug_probability * 100).toFixed(0)}}%</div>
                                                 </div>`;
                                         }});
                                     }} else {{
-                                        html += `<div style="color: #a0a0a0; font-size: 10px;">No tokens found</div>`;
+                                        html += `<div style="color: var(--text-secondary); font-size: 10px;">No tokens found</div>`;
                                     }}
 
                                     html += `</div>
@@ -8626,27 +8626,27 @@ def coordinated_funders_view_old():
                             let html = `<table style="width: 100%; border-collapse: collapse;">
                                 <thead style="background: rgba(0, 0, 0, 0.3);">
                                     <tr>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Token Mint</th>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Creator</th>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Funding (SOL)</th>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Risk</th>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: #a0a0a0; font-size: 12px;">Rug %</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: var(--text-secondary); font-size: 12px;">Token Mint</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: var(--text-secondary); font-size: 12px;">Creator</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: var(--text-secondary); font-size: 12px;">Funding (SOL)</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: var(--text-secondary); font-size: 12px;">Risk</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: var(--text-secondary); font-size: 12px;">Rug %</th>
                                     </tr>
                                 </thead>
                                 <tbody>`;
 
                             if (data.tokens.length === 0) {{
-                                html += '<tr><td colspan="5" style="padding: 20px; text-align: center; color: #a0a0a0;">No tokens found</td></tr>';
+                                html += '<tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--text-secondary);">No tokens found</td></tr>';
                             }} else {{
                                 data.tokens.forEach(token => {{
                                     const riskColor = token.risk_level === 'HIGH' ? '#ef4444' : token.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
                                     html += `
                                         <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                                            <td style="padding: 10px; font-family: monospace; font-size: 11px; color: #4ade80; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                <a href="https://solscan.io/token/${{token.mint}}" target="_blank" style="color: #4ade80; text-decoration: none;" title="${{token.mint}}">${{token.mint}}</a>
+                                            <td style="padding: 10px; font-family: monospace; font-size: 11px; color: var(--color-low); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                <a href="https://solscan.io/token/${{token.mint}}" target="_blank" style="color: var(--color-low); text-decoration: none;" title="${{token.mint}}">${{token.mint}}</a>
                                             </td>
-                                            <td style="padding: 10px; font-family: monospace; font-size: 11px; color: #a0a0a0; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{token.creator_address}}">${{token.creator_address}}</td>
-                                            <td style="padding: 10px; color: #4ade80; font-weight: bold;">${{token.total_funding_sol.toFixed(2)}}</td>
+                                            <td style="padding: 10px; font-family: monospace; font-size: 11px; color: var(--text-secondary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{token.creator_address}}">${{token.creator_address}}</td>
+                                            <td style="padding: 10px; color: var(--color-low); font-weight: bold;">${{token.total_funding_sol.toFixed(2)}}</td>
                                             <td style="padding: 10px; color: ${{riskColor}}; font-weight: bold;">${{token.risk_level || 'N/A'}}</td>
                                             <td style="padding: 10px; color: #f59e0b;">${{(token.rug_probability * 100).toFixed(1)}}%</td>
                                         </tr>`;
@@ -8691,16 +8691,16 @@ def coordinated_funders_view_old():
                     <!-- Funders Tab -->
                     <div id="funders-tab" style="display: block;">
                         <div style="margin-bottom: 20px;">
-                            <button onclick="analyzeAllFunders()" style="background: rgba(76, 175, 80, 0.2); color: #4ade80; border: 1px solid #4ade80; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">🔍 Analyze All Funders</button>
-                            <span id="analysis-status" style="margin-left: 15px; color: #a0a0a0;"></span>
+                            <button onclick="analyzeAllFunders()" style="background: rgba(76, 175, 80, 0.2); color: var(--color-low); border: 1px solid #4ade80; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">🔍 Analyze All Funders</button>
+                            <span id="analysis-status" style="margin-left: 15px; color: var(--text-secondary);"></span>
                         </div>
                     </div>
 
                     <!-- Senders Tab -->
                     <div id="senders-tab" style="display: none;">
                         <div style="margin-bottom: 20px;">
-                            <button onclick="loadDuplicateSenders()" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24; border: 1px solid #fbbf24; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Senders Data</button>
-                            <span id="senders-status" style="margin-left: 15px; color: #a0a0a0;"></span>
+                            <button onclick="loadDuplicateSenders()" style="background: rgba(251, 191, 36, 0.2); color: var(--color-medium); border: 1px solid #fbbf24; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Senders Data</button>
+                            <span id="senders-status" style="margin-left: 15px; color: var(--text-secondary);"></span>
                         </div>
                         <div id="senders-content"></div>
                     </div>
@@ -8708,8 +8708,8 @@ def coordinated_funders_view_old():
                     <!-- Coordinated Tokens Tab -->
                     <div id="tokens-tab" style="display: none;">
                         <div style="margin-bottom: 20px;">
-                            <button onclick="loadDuplicateTokens()" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Tokens Data</button>
-                            <span id="tokens-status" style="margin-left: 15px; color: #a0a0a0;"></span>
+                            <button onclick="loadDuplicateTokens()" style="background: rgba(34, 197, 94, 0.2); color: var(--color-low); border: 1px solid #4ade80; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Tokens Data</button>
+                            <span id="tokens-status" style="margin-left: 15px; color: var(--text-secondary);"></span>
                         </div>
                         <div id="tokens-content"></div>
                     </div>
@@ -8717,8 +8717,8 @@ def coordinated_funders_view_old():
                     <!-- Funder Networks Tab -->
                     <div id="funder-networks-tab" style="display: none;">
                         <div style="margin-bottom: 20px;">
-                            <button onclick="loadFunderNetworks()" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid #3b82f6; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Funder Networks</button>
-                            <span id="funder-networks-status" style="margin-left: 15px; color: #a0a0a0;"></span>
+                            <button onclick="loadFunderNetworks()" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid #3b82f6; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Funder Networks</button>
+                            <span id="funder-networks-status" style="margin-left: 15px; color: var(--text-secondary);"></span>
                         </div>
                         <div id="funder-networks-content"></div>
                     </div>
@@ -8727,7 +8727,7 @@ def coordinated_funders_view_old():
                     <div id="funding-networks-tab" style="display: none;">
                         <div style="margin-bottom: 20px;">
                             <button onclick="loadFundingNetworks()" style="background: rgba(99, 102, 241, 0.2); color: #6366f1; border: 1px solid #6366f1; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Funding Networks</button>
-                            <span id="funding-networks-status" style="margin-left: 15px; color: #a0a0a0;"></span>
+                            <span id="funding-networks-status" style="margin-left: 15px; color: var(--text-secondary);"></span>
                         </div>
                         <div id="funding-networks-content"></div>
                     </div>
@@ -8782,7 +8782,7 @@ def coordinated_funders_view_old():
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {suspicious_html if suspicious_html else '<tr><td colspan="7" style="padding: 20px; text-align: center; color: #a0a0a0;">No suspicious funders found</td></tr>'}
+                                        {suspicious_html if suspicious_html else '<tr><td colspan="7" style="padding: 20px; text-align: center; color: var(--text-secondary);">No suspicious funders found</td></tr>'}
                                     </tbody>
                                 </table>
                             </div>
@@ -8802,7 +8802,7 @@ def coordinated_funders_view_old():
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {safe_html if safe_html else '<tr><td colspan="5" style="padding: 20px; text-align: center; color: #a0a0a0;">No safe funders found</td></tr>'}
+                                        {safe_html if safe_html else '<tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--text-secondary);">No safe funders found</td></tr>'}
                                     </tbody>
                                 </table>
                             </div>
@@ -8813,11 +8813,11 @@ def coordinated_funders_view_old():
                     <div id="senderTokensModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7);">
                         <div style="background: #0a0e27; margin: 10% auto; padding: 20px; border: 1px solid #00d4ff; width: 90%; max-width: 1200px; max-height: 80vh; overflow-y: auto; border-radius: 8px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                                <h2 style="color: #00d4ff; margin: 0;">Tokens Funded by Sender</h2>
-                                <span style="cursor: pointer; font-size: 28px; color: #a0a0a0;" onclick="closeSenderTokens()">&times;</span>
+                                <h2 style="color: var(--accent-cyan); margin: 0;">Tokens Funded by Sender</h2>
+                                <span style="cursor: pointer; font-size: 28px; color: var(--text-secondary);" onclick="closeSenderTokens()">&times;</span>
                             </div>
-                            <p style="color: #a0a0a0; font-size: 12px; word-break: break-all; margin-bottom: 15px;"><strong>Sender:</strong> <span id="modalSenderAddress" style="font-family: monospace;"></span></p>
-                            <div style="background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 4px; margin-bottom: 15px; color: #a0a0a0;">
+                            <p style="color: var(--text-secondary); font-size: 12px; word-break: break-all; margin-bottom: 15px;"><strong>Sender:</strong> <span id="modalSenderAddress" style="font-family: monospace;"></span></p>
+                            <div style="background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 4px; margin-bottom: 15px; color: var(--text-secondary);">
                                 <span id="senderTokensStatus">Loading...</span>
                             </div>
                             <div id="senderTokensContainer" style="overflow-x: auto;"></div>
@@ -8828,11 +8828,11 @@ def coordinated_funders_view_old():
                     <div id="funderTokensModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7);">
                         <div style="background: #0a0e27; margin: 10% auto; padding: 20px; border: 1px solid #3b82f6; width: 90%; max-width: 1200px; max-height: 80vh; overflow-y: auto; border-radius: 8px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                                <h2 style="color: #3b82f6; margin: 0;">Tokens Funded by Funder</h2>
-                                <span style="cursor: pointer; font-size: 28px; color: #a0a0a0;" onclick="closeFunderTokens()">&times;</span>
+                                <h2 style="color: var(--color-none); margin: 0;">Tokens Funded by Funder</h2>
+                                <span style="cursor: pointer; font-size: 28px; color: var(--text-secondary);" onclick="closeFunderTokens()">&times;</span>
                             </div>
-                            <p style="color: #a0a0a0; font-size: 12px; word-break: break-all; margin-bottom: 15px;"><strong>Funder:</strong> <span id="modalFunderAddress" style="font-family: monospace;"></span></p>
-                            <div style="background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 4px; margin-bottom: 15px; color: #a0a0a0;">
+                            <p style="color: var(--text-secondary); font-size: 12px; word-break: break-all; margin-bottom: 15px;"><strong>Funder:</strong> <span id="modalFunderAddress" style="font-family: monospace;"></span></p>
+                            <div style="background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 4px; margin-bottom: 15px; color: var(--text-secondary);">
                                 <span id="funderTokensStatus">Loading...</span>
                             </div>
                             <div id="funderTokensContainer" style="overflow-x: auto;"></div>
@@ -8845,7 +8845,7 @@ def coordinated_funders_view_old():
         return html
 
     except Exception as e:
-        return f"<html><body style='background: #0a0e27; color: #e0e0e0;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
+        return f"<html><body style='background: #0a0e27; color: var(--text-primary);'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
 
 
 @app.route('/funder-details/<funder_address>')
@@ -8878,7 +8878,7 @@ def funder_details_view(funder_address: str):
         funder = dict(cursor.fetchone() or {})
         if not funder:
             conn.close()
-            return f"<html><body style='background: #0a0e27; color: #e0e0e0;'><h1>Funder Not Found</h1><p>No funding data for {funder_address}</p><p><a href='/' style='color: #00d4ff;'>← Back to Dashboard</a></p></body></html>", 404
+            return f"<html><body style='background: #0a0e27; color: var(--text-primary);'><h1>Funder Not Found</h1><p>No funding data for {funder_address}</p><p><a href='/' style='color: var(--accent-cyan);'>← Back to Dashboard</a></p></body></html>", 404
 
         # Get detailed transfers to creators
         cursor.execute("""
@@ -8946,9 +8946,9 @@ def funder_details_view(funder_address: str):
         for transfer in transfers:
             transfers_html += f"""
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #00d4ff; cursor: pointer;" onclick="window.location.href = '/creator/{transfer['creator_address']}'"><u>{transfer['creator_address'][:16]}...{transfer['creator_address'][-4:]}</u></td>
-                <td style="padding: 12px; color: #4ade80;">{transfer['amount_sol']:.2f} SOL</td>
-                <td style="padding: 12px; color: #a0a0a0; font-size: 11px;">{transfer['first_detected_at'][:10] if transfer['first_detected_at'] else 'N/A'}</td>
+                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: var(--accent-cyan); cursor: pointer;" onclick="window.location.href = '/creator/{transfer['creator_address']}'"><u>{transfer['creator_address'][:16]}...{transfer['creator_address'][-4:]}</u></td>
+                <td style="padding: 12px; color: var(--color-low);">{transfer['amount_sol']:.2f} SOL</td>
+                <td style="padding: 12px; color: var(--text-secondary); font-size: 11px;">{transfer['first_detected_at'][:10] if transfer['first_detected_at'] else 'N/A'}</td>
             </tr>
             """
 
@@ -8959,16 +8959,16 @@ def funder_details_view(funder_address: str):
             category = transfer.get('category', '')
             badge = ''
             if category == 'CEX':
-                badge = '<span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">🚨 CEX</span>'
+                badge = '<span style="background: rgba(239, 68, 68, 0.2); color: var(--color-critical); padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">🚨 CEX</span>'
             elif category == 'Infrastructure':
-                badge = '<span style="background: rgba(76, 175, 80, 0.2); color: #4ade80; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">✅ INFRA</span>'
+                badge = '<span style="background: rgba(76, 175, 80, 0.2); color: var(--color-low); padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">✅ INFRA</span>'
 
             incoming_html += f"""
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #a0a0a0;">{transfer['address'][:20]}...</td>
-                <td style="padding: 12px; color: #fbbf24;">{label}{badge}</td>
-                <td style="padding: 12px; text-align: right; color: #4ade80;">{transfer['amount_sol']:.2f} SOL</td>
-                <td style="padding: 12px; text-align: center; color: #a0a0a0;">{transfer['transaction_count']}</td>
+                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: var(--text-secondary);">{transfer['address'][:20]}...</td>
+                <td style="padding: 12px; color: var(--color-medium);">{label}{badge}</td>
+                <td style="padding: 12px; text-align: right; color: var(--color-low);">{transfer['amount_sol']:.2f} SOL</td>
+                <td style="padding: 12px; text-align: center; color: var(--text-secondary);">{transfer['transaction_count']}</td>
             </tr>
             """
 
@@ -8979,26 +8979,26 @@ def funder_details_view(funder_address: str):
             category = transfer.get('category', '')
             badge = ''
             if category == 'CEX':
-                badge = '<span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">🚨 CEX</span>'
+                badge = '<span style="background: rgba(239, 68, 68, 0.2); color: var(--color-critical); padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">🚨 CEX</span>'
             elif category == 'Infrastructure':
-                badge = '<span style="background: rgba(76, 175, 80, 0.2); color: #4ade80; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">✅ INFRA</span>'
+                badge = '<span style="background: rgba(76, 175, 80, 0.2); color: var(--color-low); padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">✅ INFRA</span>'
 
             outgoing_html += f"""
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #a0a0a0;">{transfer['address'][:20]}...</td>
-                <td style="padding: 12px; color: #fbbf24;">{label}{badge}</td>
-                <td style="padding: 12px; text-align: right; color: #4ade80;">{transfer['amount_sol']:.2f} SOL</td>
-                <td style="padding: 12px; text-align: center; color: #a0a0a0;">{transfer['transaction_count']}</td>
+                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: var(--text-secondary);">{transfer['address'][:20]}...</td>
+                <td style="padding: 12px; color: var(--color-medium);">{label}{badge}</td>
+                <td style="padding: 12px; text-align: right; color: var(--color-low);">{transfer['amount_sol']:.2f} SOL</td>
+                <td style="padding: 12px; text-align: center; color: var(--text-secondary);">{transfer['transaction_count']}</td>
             </tr>
             """
 
         classification = ''
         if is_cex:
-            classification = '<span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">🚨 CEX Hot Wallet</span>'
+            classification = '<span style="background: rgba(239, 68, 68, 0.2); color: var(--color-critical); padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">🚨 CEX Hot Wallet</span>'
         elif is_infra:
-            classification = '<span style="background: rgba(76, 175, 80, 0.2); color: #4ade80; padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">✅ Infrastructure</span>'
+            classification = '<span style="background: rgba(76, 175, 80, 0.2); color: var(--color-low); padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">✅ Infrastructure</span>'
         else:
-            classification = '<span style="background: rgba(251, 191, 36, 0.2); color: #fbbf24; padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">❓ Unknown</span>'
+            classification = '<span style="background: rgba(251, 191, 36, 0.2); color: var(--color-medium); padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">❓ Unknown</span>'
 
         html = f"""
         <html>
@@ -9007,7 +9007,7 @@ def funder_details_view(funder_address: str):
                 <style>
                     body {{
                         background: #0a0e27;
-                        color: #e0e0e0;
+                        color: var(--text-primary);
                         font-family: 'Segoe UI', sans-serif;
                         margin: 0;
                         padding: 20px;
@@ -9017,13 +9017,13 @@ def funder_details_view(funder_address: str):
                         margin: 0 auto;
                     }}
                     h1 {{
-                        color: #00d4ff;
+                        color: var(--accent-cyan);
                         word-break: break-all;
                         margin: 0 0 10px 0;
                         font-size: 18px;
                     }}
                     h2 {{
-                        color: #00d4ff;
+                        color: var(--accent-cyan);
                         font-size: 14px;
                         margin-top: 30px;
                         margin-bottom: 15px;
@@ -9038,7 +9038,7 @@ def funder_details_view(funder_address: str):
                         margin-bottom: 20px;
                     }}
                     .back-link a {{
-                        color: #00d4ff;
+                        color: var(--accent-cyan);
                         text-decoration: none;
                     }}
                     .back-link a:hover {{
@@ -9057,7 +9057,7 @@ def funder_details_view(funder_address: str):
                         border-left: 3px solid #00d4ff;
                     }}
                     .stat-label {{
-                        color: #a0a0a0;
+                        color: var(--text-secondary);
                         font-size: 10px;
                         text-transform: uppercase;
                         margin-bottom: 8px;
@@ -9065,20 +9065,20 @@ def funder_details_view(funder_address: str):
                     .stat-value {{
                         font-size: 20px;
                         font-weight: bold;
-                        color: #00d4ff;
+                        color: var(--accent-cyan);
                     }}
                     .section {{
-                        background: rgba(0, 0, 0, 0.2);
+                        background: var(--bg-secondary);
                         border-radius: 8px;
                         margin-bottom: 20px;
                         overflow: hidden;
                     }}
                     .section-title {{
-                        background: rgba(0, 0, 0, 0.4);
+                        background: var(--bg-secondary);
                         padding: 12px 15px;
                         border-bottom: 1px solid rgba(0, 212, 255, 0.2);
                         font-weight: 600;
-                        color: #00d4ff;
+                        color: var(--accent-cyan);
                         font-size: 13px;
                     }}
                     .section-content {{
@@ -9095,7 +9095,7 @@ def funder_details_view(funder_address: str):
                         padding: 10px;
                         text-align: left;
                         font-size: 10px;
-                        color: #a0a0a0;
+                        color: var(--text-secondary);
                         text-transform: uppercase;
                         border-bottom: 1px solid rgba(0, 212, 255, 0.2);
                         font-weight: 600;
@@ -9116,7 +9116,7 @@ def funder_details_view(funder_address: str):
 
                     <div class="header">
                         <h1>💰 {funder_label or 'Unknown Funder'}</h1>
-                        <p style="margin: 10px 0 0 0; font-family: monospace; font-size: 12px; color: #a0a0a0; word-break: break-all;">{funder_address}</p>
+                        <p style="margin: 10px 0 0 0; font-family: monospace; font-size: 12px; color: var(--text-secondary); word-break: break-all;">{funder_address}</p>
                         <div style="margin-top: 10px;">
                             {classification}
                         </div>
@@ -9155,7 +9155,7 @@ def funder_details_view(funder_address: str):
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {incoming_html if incoming_html else '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">No incoming transfers found (analyze to fetch)</td></tr>'}
+                                    {incoming_html if incoming_html else '<tr><td colspan="4" style="padding: 20px; text-align: center; color: var(--text-secondary);">No incoming transfers found (analyze to fetch)</td></tr>'}
                                 </tbody>
                             </table>
                         </div>
@@ -9175,7 +9175,7 @@ def funder_details_view(funder_address: str):
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {outgoing_html if outgoing_html else '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">No outgoing transfers found (analyze to fetch)</td></tr>'}
+                                    {outgoing_html if outgoing_html else '<tr><td colspan="4" style="padding: 20px; text-align: center; color: var(--text-secondary);">No outgoing transfers found (analyze to fetch)</td></tr>'}
                                 </tbody>
                             </table>
                         </div>
@@ -9193,7 +9193,7 @@ def funder_details_view(funder_address: str):
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {transfers_html if transfers_html else '<tr><td colspan="3" style="padding: 20px; text-align: center; color: #a0a0a0;">No creators found</td></tr>'}
+                                    {transfers_html if transfers_html else '<tr><td colspan="3" style="padding: 20px; text-align: center; color: var(--text-secondary);">No creators found</td></tr>'}
                                 </tbody>
                             </table>
                         </div>
@@ -9206,7 +9206,7 @@ def funder_details_view(funder_address: str):
 
     except Exception as e:
         import traceback
-        return f"<html><body style='background: #0a0e27; color: #e0e0e0;'><h1>Error</h1><p>{str(e)}</p><pre>{traceback.format_exc()}</pre></body></html>", 500
+        return f"<html><body style='background: #0a0e27; color: var(--text-primary);'><h1>Error</h1><p>{str(e)}</p><pre>{traceback.format_exc()}</pre></body></html>", 500
 
 
 @app.route('/api/duplicate-senders')

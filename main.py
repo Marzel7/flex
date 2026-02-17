@@ -4546,12 +4546,26 @@ HTML_TEMPLATE = """
                     return;
                 }
 
+                // Determine color for creator reuse tag
+                let reuseColor = '#6bcf7f';  // green - NONE
+                let reuseTextColor = '#1a1a1a';
+                if (cluster.creator_reuse_level === 'HIGH') {
+                    reuseColor = '#ff6b6b';  // red
+                    reuseTextColor = '#ffffff';
+                } else if (cluster.creator_reuse_level === 'MEDIUM') {
+                    reuseColor = '#ffa94d';  // orange
+                    reuseTextColor = '#1a1a1a';
+                }
+
                 visibleHtml += `
                     <div data-cluster-id="${cluster.id}" style="background: rgba(0, 0, 0, 0.3); border: 1px solid #6366f1; border-radius: 8px; padding: 25px; cursor: pointer; transition: all 0.3s;"
                          onclick="showSuperCluster('${cluster.id}')"
                          onmouseover="this.style.background='rgba(99, 102, 241, 0.15)'; this.style.boxShadow='0 0 15px rgba(99, 102, 241, 0.5)';"
                          onmouseout="this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='none';">
-                        <div style="font-weight: bold; color: #e0e0e0; font-size: 16px; margin-bottom: 18px;">${cluster.id}</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <div style="font-weight: bold; color: #e0e0e0; font-size: 16px;">${cluster.id}</div>
+                            <span style="background: ${reuseColor}; color: ${reuseTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; white-space: nowrap;">${cluster.creator_reuse_tag}</span>
+                        </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px;">
                             <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
                                 <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Creators</div>

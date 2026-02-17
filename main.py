@@ -5160,7 +5160,7 @@ HTML_TEMPLATE = """
                     title: 'INDEPENDENT (Green)',
                     color: '#6bcf7f',
                     definition: '<strong>No creators reused across clusters</strong><br><br>' +
-                        'This cluster\'s creators appear only in this cluster and nowhere else. ' +
+                        'This cluster's creators appear only in this cluster and nowhere else. ' +
                         'Each creator wallet is independent and not shared with other coordinated operations.',
                     metrics: '<strong>Characteristics:</strong><br>' +
                         '• creators_in_multiple_clusters = 0<br>' +

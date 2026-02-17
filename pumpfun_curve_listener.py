@@ -105,7 +105,7 @@ async def update_network_clustering_async():
 
 
 def rebuild_super_clusters_from_funding():
-    """Rebuild super_clusters table by analyzing creator funding relationships"""
+    """Rebuild super_clusters table and assign creators to networks based on funding"""
     try:
         conn = sqlite3.connect('pumpswap_tokens.db', timeout=5)
         cursor = conn.cursor()
@@ -146,14 +146,65 @@ def rebuild_super_clusters_from_funding():
                 WHERE super_cluster_id = ?
             """, (creator_count, network_count, cluster_id))
 
+        # Assign creators to networks based on their funders
+        creators_assigned = 0
+        for creator in creators_to_process:
+            # Find all networks that have funders of this creator (exclude CEX)
+            cursor.execute("""
+                SELECT DISTINCT fnm.network_id
+                FROM creator_funders cf
+                JOIN funding_network_members fnm ON cf.funder_address = fnm.funder_address
+                WHERE cf.creator_address = ? AND cf.fully_analyzed = 1 AND cf.amount_sol > 0
+                AND cf.is_cex = 0
+            """, (creator,))
+
+            networks = [row[0] for row in cursor.fetchall()]
+
+            if networks:
+                # Assign to the primary network (first one found)
+                primary_network = networks[0]
+
+                # Check if creator already assigned
+                cursor.execute("""
+                    SELECT COUNT(*) FROM creator_super_cluster_membership
+                    WHERE creator_address = ?
+                """, (creator,))
+
+                exists = cursor.fetchone()[0] > 0
+
+                if not exists:
+                    # Get or create a super_cluster_id for this network
+                    cursor.execute("""
+                        SELECT super_cluster_id FROM creator_super_cluster_membership
+                        WHERE network_id = ? LIMIT 1
+                    """, (primary_network,))
+
+                    cluster_row = cursor.fetchone()
+                    if cluster_row:
+                        cluster_id = cluster_row[0]
+                    else:
+                        # Create new cluster ID based on network
+                        cluster_id = f"network_{primary_network}"
+
+                    cursor.execute("""
+                        INSERT OR IGNORE INTO creator_super_cluster_membership
+                        (creator_address, super_cluster_id, network_id, assignment_source, assigned_at)
+                        VALUES (?, ?, ?, 'funding_analysis', CURRENT_TIMESTAMP)
+                    """, (creator, cluster_id, primary_network))
+
+                    creators_assigned += 1
+
         conn.commit()
-        print(f"[CLUSTERING] ✅ Updated {len(creators_to_process)} creator clusters", flush=True)
+        print(f"[CLUSTERING] ✅ Assigned {creators_assigned} creators to networks", flush=True)
+        print(f"[CLUSTERING] ✅ Updated super_cluster metadata", flush=True)
         conn.close()
 
-        return {'status': 'success', 'creators_updated': len(creators_to_process)}
+        return {'status': 'success', 'creators_updated': len(creators_to_process), 'creators_assigned': creators_assigned}
 
     except Exception as e:
         print(f"[CLUSTERING] ⚠ Error rebuilding super_clusters: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
         return {'status': 'error', 'error': str(e)}
 
 

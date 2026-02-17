@@ -10770,7 +10770,7 @@ def api_super_clusters():
             SELECT
                 sc.super_cluster_id,
                 sc.network_count,
-                sc.creator_count,
+                sc.creator_memberships_total,
                 sc.root_addresses,
                 sc.risk_level,
                 sc.creator_reuse_level,
@@ -10780,13 +10780,18 @@ def api_super_clusters():
                 sc.meta_component_id,
                 sc.meta_component_reuse_ratio,
                 sc.meta_component_cluster_count,
-                sc.avg_clusters_per_creator,
-                sc.p95_clusters_per_creator,
-                COUNT(DISTINCT csm.creator_address) as mapped_creators
+                sc.avg_clusters_per_creator_in_cluster,
+                sc.p95_clusters_per_creator_in_cluster,
+                sc.avg_clusters_per_creator_in_component,
+                sc.p95_clusters_per_creator_in_component,
+                sc.max_clusters_per_creator,
+                sc.hub_creator_addresses,
+                sc.creators_unique,
+                COUNT(DISTINCT csm.creator_address) as creators_unique_check
             FROM super_clusters sc
             LEFT JOIN creator_super_cluster_membership csm ON sc.super_cluster_id = csm.super_cluster_id
             GROUP BY sc.super_cluster_id
-            ORDER BY sc.mapped_creators DESC, sc.super_cluster_id
+            ORDER BY sc.creators_unique DESC, sc.super_cluster_id
         """)
 
         clusters = []
@@ -10809,8 +10814,8 @@ def api_super_clusters():
             clusters.append({
                 'id': row['super_cluster_id'],
                 'network_count': row['network_count'],
-                'creator_count': row['creator_count'],
-                'mapped_creators': row['mapped_creators'],
+                'creator_memberships_total': row['creator_memberships_total'],
+                'creators_unique': row['creators_unique'],
                 'root_addresses': root_addresses_display,
                 'risk_level': row['risk_level'],
                 'has_cex_infra': has_cex_infra,
@@ -10821,8 +10826,12 @@ def api_super_clusters():
                 'meta_component_id': row['meta_component_id'],
                 'meta_component_cluster_count': row['meta_component_cluster_count'],
                 'meta_component_reuse_ratio': round(row['meta_component_reuse_ratio'], 3) if row['meta_component_reuse_ratio'] else 0,
-                'avg_clusters_per_creator': round(row['avg_clusters_per_creator'], 1) if row['avg_clusters_per_creator'] else 0,
-                'p95_clusters_per_creator': row['p95_clusters_per_creator'] or 0
+                'avg_clusters_per_creator_in_cluster': round(row['avg_clusters_per_creator_in_cluster'], 1) if row['avg_clusters_per_creator_in_cluster'] else 0,
+                'p95_clusters_per_creator_in_cluster': row['p95_clusters_per_creator_in_cluster'] or 0,
+                'avg_clusters_per_creator_in_component': round(row['avg_clusters_per_creator_in_component'], 1) if row['avg_clusters_per_creator_in_component'] else 0,
+                'p95_clusters_per_creator_in_component': row['p95_clusters_per_creator_in_component'] or 0,
+                'max_clusters_per_creator': row['max_clusters_per_creator'] or 0,
+                'hub_creator_addresses': row['hub_creator_addresses'] or '[]'
             })
 
         conn.close()
@@ -10846,7 +10855,7 @@ def api_super_cluster_details(cluster_id: str):
             SELECT
                 super_cluster_id,
                 network_count,
-                creator_count,
+                creator_memberships_total,
                 root_addresses,
                 risk_level,
                 creator_reuse_level,
@@ -10856,8 +10865,13 @@ def api_super_cluster_details(cluster_id: str):
                 meta_component_id,
                 meta_component_reuse_ratio,
                 meta_component_cluster_count,
-                avg_clusters_per_creator,
-                p95_clusters_per_creator
+                avg_clusters_per_creator_in_cluster,
+                p95_clusters_per_creator_in_cluster,
+                avg_clusters_per_creator_in_component,
+                p95_clusters_per_creator_in_component,
+                max_clusters_per_creator,
+                hub_creator_addresses,
+                creators_unique
             FROM super_clusters
             WHERE super_cluster_id = ?
         """, (cluster_id,))
@@ -11117,8 +11131,9 @@ def api_super_cluster_details(cluster_id: str):
         return jsonify({
             'id': cluster_row['super_cluster_id'],
             'network_count': cluster_row['network_count'],
-            'creator_count': cluster_row['creator_count'],
-            'mapped_creator_count': len(creators),
+            'creator_memberships_total': cluster_row['creator_memberships_total'],
+            'creators_unique': cluster_row['creators_unique'],
+            'creators_mapped_in_cluster': len(creators),
             'root_addresses': all_root_addresses,
             'root_operator_status': root_operator_status,  # Track CEX/INFRA status
             'network_root_operator_status': network_root_operator_status,  # Track which networks have CEX/INFRA
@@ -11130,8 +11145,12 @@ def api_super_cluster_details(cluster_id: str):
             'meta_component_id': cluster_row['meta_component_id'],
             'meta_component_cluster_count': cluster_row['meta_component_cluster_count'],
             'meta_component_reuse_ratio': round(cluster_row['meta_component_reuse_ratio'], 3) if cluster_row['meta_component_reuse_ratio'] else 0,
-            'avg_clusters_per_creator': round(cluster_row['avg_clusters_per_creator'], 1) if cluster_row['avg_clusters_per_creator'] else 0,
-            'p95_clusters_per_creator': cluster_row['p95_clusters_per_creator'] or 0,
+            'avg_clusters_per_creator_in_cluster': round(cluster_row['avg_clusters_per_creator_in_cluster'], 1) if cluster_row['avg_clusters_per_creator_in_cluster'] else 0,
+            'p95_clusters_per_creator_in_cluster': cluster_row['p95_clusters_per_creator_in_cluster'] or 0,
+            'avg_clusters_per_creator_in_component': round(cluster_row['avg_clusters_per_creator_in_component'], 1) if cluster_row['avg_clusters_per_creator_in_component'] else 0,
+            'p95_clusters_per_creator_in_component': cluster_row['p95_clusters_per_creator_in_component'] or 0,
+            'max_clusters_per_creator': cluster_row['max_clusters_per_creator'] or 0,
+            'hub_creator_addresses': cluster_row['hub_creator_addresses'] or '[]',
             'creators': creators,
             'tokens': tokens,
             'funder_stats': {

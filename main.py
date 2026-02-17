@@ -9399,6 +9399,8 @@ def api_funding_networks():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/funding-networks-list')
+
 def api_funding_networks_list():
     """Get simplified list of all funding networks with their names and stats"""
     try:

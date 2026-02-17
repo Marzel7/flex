@@ -5295,6 +5295,66 @@ HTML_TEMPLATE = """
             document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
         }
 
+        async function showNetworkDetails(networkId) {
+            try {
+                const response = await fetch(`/api/funding-network-details/${networkId}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    alert('Network details not found: ' + data.error);
+                    return;
+                }
+
+                // Create a modal/popup to show network details
+                const modalHtml = `
+                    <div id="networkDetailsOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 10000; display: flex; align-items: center; justify-content: center;" onclick="document.getElementById('networkDetailsOverlay').remove();">
+                        <div style="background: var(--bg-primary); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 30px; max-width: 600px; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);" onclick="event.stopPropagation();">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h2 style="color: var(--primary); margin: 0;">${data.network_name} Details</h2>
+                                <button onclick="document.getElementById('networkDetailsOverlay').remove()" style="background: transparent; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer;">×</button>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                                <div style="background: rgba(74, 222, 128, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-low);">
+                                    <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px;">Funders</div>
+                                    <div style="font-size: 24px; font-weight: bold; color: var(--color-low);">${data.funders}</div>
+                                </div>
+                                <div style="background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-none);">
+                                    <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px;">Senders</div>
+                                    <div style="font-size: 24px; font-weight: bold; color: var(--color-none);">${data.senders}</div>
+                                </div>
+                                <div style="background: rgba(245, 158, 11, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-high);">
+                                    <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px;">Creators</div>
+                                    <div style="font-size: 24px; font-weight: bold; color: var(--color-high);">${data.creators}</div>
+                                </div>
+                                <div style="background: rgba(168, 85, 247, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent-purple);">
+                                    <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px;">Tokens</div>
+                                    <div style="font-size: 24px; font-weight: bold; color: var(--accent-purple);">${data.tokens}</div>
+                                </div>
+                                <div style="background: rgba(139, 92, 246, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--primary); grid-column: 1 / -1;">
+                                    <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px;">Total SOL</div>
+                                    <div style="font-size: 24px; font-weight: bold; color: var(--primary);">${(data.total_sol || 0).toFixed(2)}</div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center; color: var(--text-secondary); font-size: 12px;">
+                                Click outside to close
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Append to body
+                const div = document.createElement('div');
+                div.innerHTML = modalHtml;
+                document.body.appendChild(div.firstElementChild);
+
+            } catch (error) {
+                console.error('Error loading network details:', error);
+                alert('Failed to load network details: ' + error.message);
+            }
+        }
+
         async function loadSuperClusters() {
             try {
                 const response = await fetch('/api/super-clusters');

@@ -1473,11 +1473,6 @@ HTML_TEMPLATE = """
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🚀 Pump.Fun → PumpSwap Migration Tracker</h1>
-            <p>Real-time monitoring of tokens that migrated from Pump.Fun bonding curve to PumpSwap AMM</p>
-        </div>
-
         <div class="stats" id="stats">
             <div class="stat-card">
                 <div class="stat-label">Total Migrations</div>

@@ -7544,7 +7544,7 @@ coordinated_funders_html = '''
         }
         .button {
             background: var(--primary);
-            color: white;
+            color: var(--text-light);
             padding: 12px 24px;
             border: none;
             border-radius: 6px;
@@ -7701,7 +7701,7 @@ def coordinated_funders_view():
                 }}
                 .button {{
                     background: var(--primary);
-                    color: white;
+                    color: var(--text-light);
                     padding: 10px 20px;
                     border: none;
                     border-radius: 6px;

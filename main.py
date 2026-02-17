@@ -230,10 +230,40 @@ HTML_TEMPLATE = """
             box-sizing: border-box;
         }
 
+        :root {
+            /* Primary Colors */
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: rgba(99, 102, 241, 0.15);
+
+            /* Text Colors */
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --text-dark: #1a1a1a;
+            --text-light: #ffffff;
+
+            /* Risk & Reuse Levels */
+            --color-critical: #ef4444;
+            --color-high: #ff6b6b;
+            --color-medium: #ffa94d;
+            --color-low: #ffd93d;
+            --color-none: #6bcf7f;
+
+            /* Backgrounds */
+            --bg-primary: #0f0f1e;
+            --bg-secondary: rgba(0, 0, 0, 0.3);
+            --bg-overlay: rgba(99, 102, 241, 0.15);
+
+            /* Accents */
+            --accent-cyan: #00d4ff;
+            --accent-green: #4ade80;
+            --accent-purple: #a855f7;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
-            color: #e0e0e0;
+            color: var(--text-primary);
             padding: 20px;
             min-height: 100vh;
         }
@@ -244,21 +274,21 @@ HTML_TEMPLATE = """
         }
 
         .header {
-            background: rgba(0, 0, 0, 0.3);
+            background: var(--bg-secondary);
             padding: 30px;
             border-radius: 12px;
             margin-bottom: 30px;
-            border-left: 4px solid #00d4ff;
+            border-left: 4px solid var(--accent-cyan);
         }
 
         .header h1 {
             font-size: 28px;
             margin-bottom: 10px;
-            color: #00d4ff;
+            color: var(--accent-cyan);
         }
 
         .header p {
-            color: #a0a0a0;
+            color: var(--text-secondary);
             font-size: 14px;
         }
 
@@ -270,7 +300,7 @@ HTML_TEMPLATE = """
         }
 
         .stat-card {
-            background: rgba(0, 0, 0, 0.3);
+            background: var(--bg-secondary);
             padding: 20px;
             border-radius: 8px;
             border: 1px solid rgba(0, 212, 255, 0.2);
@@ -4710,37 +4740,37 @@ HTML_TEMPLATE = """
                 }
 
                 visibleHtml += `
-                    <div data-cluster-id="${cluster.id}" style="background: rgba(0, 0, 0, 0.3); border: 1px solid #6366f1; border-radius: 8px; padding: 25px; cursor: pointer; transition: all 0.3s;"
+                    <div data-cluster-id="${cluster.id}" style="background: var(--bg-secondary); border: 1px solid var(--primary); border-radius: 8px; padding: 25px; cursor: pointer; transition: all 0.3s;"
                          onclick="showSuperCluster('${cluster.id}')"
-                         onmouseover="this.style.background='rgba(99, 102, 241, 0.15)'; this.style.boxShadow='0 0 15px rgba(99, 102, 241, 0.5)';"
-                         onmouseout="this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='none';">
+                         onmouseover="this.style.background='var(--primary-light)'; this.style.boxShadow='0 0 15px rgba(99, 102, 241, 0.5)';"
+                         onmouseout="this.style.background='var(--bg-secondary)'; this.style.boxShadow='none';">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <div style="font-weight: bold; color: #e0e0e0; font-size: 16px;">${cluster.id}</div>
+                            <div style="font-weight: bold; color: var(--text-primary); font-size: 16px;">${cluster.id}</div>
                             <div style="display: flex; align-items: center; gap: 6px;">
                                 <span style="background: ${reuseColor}; color: ${reuseTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; white-space: nowrap;">${cluster.creator_reuse_tag}</span>
-                                <button onclick="showTagDefinition('${cluster.creator_reuse_tag}', event)" style="background: rgba(99, 102, 241, 0.3); border: 1px solid #6366f1; color: #6366f1; width: 20px; height: 20px; border-radius: 50%; padding: 0; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Click for definition">?</button>
+                                <button onclick="showTagDefinition('${cluster.creator_reuse_tag}', event)" style="background: rgba(99, 102, 241, 0.3); border: 1px solid var(--primary); color: var(--primary); width: 20px; height: 20px; border-radius: 50%; padding: 0; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Click for definition">?</button>
                             </div>
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px;">
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
-                                <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Creators</div>
-                                <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.creator_count}</div>
+                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
+                                <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 4px;">Creators</div>
+                                <div style="color: var(--primary); font-weight: bold; font-size: 18px;">${cluster.creators_unique}</div>
                             </div>
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
-                                <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Networks</div>
-                                <div data-network-count style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.network_count}</div>
+                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
+                                <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 4px;">Networks</div>
+                                <div data-network-count style="color: var(--primary); font-weight: bold; font-size: 18px;">${cluster.network_count}</div>
                             </div>
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
-                                <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Mapped</div>
-                                <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.mapped_creators}</div>
+                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
+                                <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 4px;">Mapped</div>
+                                <div style="color: var(--primary); font-weight: bold; font-size: 18px;">${cluster.creators_in_multiple_clusters}</div>
                             </div>
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
-                                <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Root Ops</div>
-                                <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.root_addresses.length}</div>
+                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
+                                <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 4px;">Root Ops</div>
+                                <div style="color: var(--primary); font-weight: bold; font-size: 18px;">${cluster.root_addresses.length}</div>
                             </div>
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
-                                <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Risk</div>
-                                <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.risk_level}</div>
+                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
+                                <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 4px;">Risk</div>
+                                <div style="color: var(--primary); font-weight: bold; font-size: 18px;">${cluster.risk_level}</div>
                             </div>
                         </div>
                     </div>
@@ -5160,7 +5190,7 @@ HTML_TEMPLATE = """
                     title: 'INDEPENDENT (Green)',
                     color: '#6bcf7f',
                     definition: '<strong>No creators reused across clusters</strong><br><br>' +
-                        'This cluster's creators appear only in this cluster and nowhere else. ' +
+                        "This cluster's creators appear only in this cluster and nowhere else. " +
                         'Each creator wallet is independent and not shared with other coordinated operations.',
                     metrics: '<strong>Characteristics:</strong><br>' +
                         '• creators_in_multiple_clusters = 0<br>' +

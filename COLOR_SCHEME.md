@@ -5,42 +5,42 @@ All colors in the Flex project are now defined using CSS custom properties (vari
 
 ## CSS Custom Properties Reference
 
-### Primary Colors (Dark, Muted)
+### Primary Colors (Uniform Gray-Blue, Very Muted)
 ```css
---primary: #5b5d7f;           /* Main muted purple - UI elements, borders */
---primary-dark: #484a63;      /* Darker shade - hover states */
---primary-light: rgba(91, 93, 127, 0.15);  /* Light overlay - overlays */
+--primary: #545664;           /* Main gray-blue - UI elements, borders */
+--primary-dark: #434552;      /* Darker shade - hover states */
+--primary-light: rgba(84, 86, 100, 0.12);  /* Very subtle overlay */
 ```
 
-### Text Colors (Low Contrast Dark Theme)
+### Text Colors (Soft, Minimal Contrast)
 ```css
---text-primary: #c8c8d0;      /* Main text color - soft gray */
+--text-primary: #b8b8c4;      /* Main text color - soft gray */
 --text-secondary: #8a8a94;    /* Muted/secondary text - darker gray */
 --text-dark: #1a1a1a;         /* Dark text on light backgrounds */
---text-light: #e8e8e8;        /* Light text on dark backgrounds */
+--text-light: #d0d0d8;        /* Light text on dark backgrounds */
 ```
 
-### Risk & Reuse Levels (Muted, Dark)
+### Risk & Reuse Levels (Uniform Muted Palette)
 ```css
---color-critical: #c44545;    /* CRITICAL risk - muted red */
---color-high: #d16b6b;        /* HIGH risk / Strong coordination - soft red */
---color-medium: #d4a56b;      /* MEDIUM risk / Shared - muted orange */
---color-low: #d4c26b;         /* LOW risk / Weak - muted yellow */
---color-none: #6b9d7a;        /* NONE / Independent - muted green */
+--color-critical: #9d5c5c;    /* CRITICAL risk - very muted red */
+--color-high: #9d7070;        /* HIGH risk / Strong coordination - soft red */
+--color-medium: #a68b6b;      /* MEDIUM risk / Shared - muted warm */
+--color-low: #a89e6b;         /* LOW risk / Weak - muted warm-neutral */
+--color-none: #6b8d7a;        /* NONE / Independent - muted cool */
 ```
 
-### Background Colors (Dark)
+### Background Colors (Dark, Uniform)
 ```css
 --bg-primary: #0f0f1e;        /* Primary background - very dark */
---bg-secondary: rgba(0, 0, 0, 0.5);  /* Secondary background (cards) - darker */
---bg-overlay: rgba(91, 93, 127, 0.1);  /* Overlay for hover states */
+--bg-secondary: rgba(0, 0, 0, 0.6);  /* Secondary background (cards) - darker */
+--bg-overlay: rgba(84, 86, 100, 0.08);  /* Very subtle overlay */
 ```
 
-### Accent Colors (Muted)
+### Accent Colors (Muted Gray Tones)
 ```css
---accent-cyan: #4a9bbe;       /* Cyan - muted blue-teal */
---accent-green: #5a9b6a;      /* Green - muted sage */
---accent-purple: #8b6ba8;     /* Purple - muted lavender */
+--accent-cyan: #4a8fa8;       /* Cyan - muted blue-teal */
+--accent-green: #5a8a6a;      /* Green - muted sage-green */
+--accent-purple: #7d6d9d;     /* Purple - muted mauve */
 ```
 
 ## Creator Pool Tag Color Mapping

@@ -2632,9 +2632,7 @@ HTML_TEMPLATE = """
 
                             // Add funder labels to columnTags (all cyan)
                             for (let label of funderLabels) {
-                                const tagColor = 'var(--accent-cyan)';
-                                const bgColor = 'rgba(6, 182, 212, 0.15)';
-                                columnTags.push(`<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor}; background-color: ${bgColor};" title="${label.description}">${label.name}</span>`);
+                                columnTags.push(`<span class="creator-tag tag-funding" title="${label.description}">${label.name}</span>`);
                             }
 
                             // Service tags (uses_axiom, uses_jitotip, uses_meteora, uses_debridge, etc.)
@@ -2649,10 +2647,6 @@ HTML_TEMPLATE = """
                                     if (!seenServiceTags.has(tagName) && !serviceTag.tag.match(/^[1-9A-HJ-NP-Za-km-z]{30,}\.?$/)) {
                                         seenServiceTags.add(tagName);
 
-                                        // All service tags use cyan color
-                                        const tagColor = 'var(--accent-cyan)';
-                                        const bgColor = 'rgba(6, 182, 212, 0.15)';
-
                                         // Custom display names for service tags
                                         let displayName = serviceTag.tag.replace('uses_', '');
                                         if (serviceTag.tag === 'uses_jitotip') {
@@ -2661,7 +2655,7 @@ HTML_TEMPLATE = """
                                             displayName = 'JitoTip';
                                         }
 
-                                        columnTags.push(`<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor}; background-color: ${bgColor};" title="${serviceTag.description}">${displayName}</span>`);
+                                        columnTags.push(`<span class="creator-tag tag-funding" title="${serviceTag.description}">${displayName}</span>`);
                                     }
                                 }
                             }

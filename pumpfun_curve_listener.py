@@ -129,22 +129,20 @@ def rebuild_super_clusters_from_funding():
         for (cluster_id,) in cursor.fetchall():
             # Count creators in this cluster
             cursor.execute("""
-                SELECT COUNT(DISTINCT creator_address) as creator_count,
-                       COUNT(DISTINCT network_id) as network_count
+                SELECT COUNT(DISTINCT creator_address) as creator_count
                 FROM creator_super_cluster_membership
                 WHERE super_cluster_id = ?
             """, (cluster_id,))
 
             row = cursor.fetchone()
             creator_count = row[0] if row else 0
-            network_count = row[1] if row else 0
 
             # Update cluster metadata
             cursor.execute("""
                 UPDATE super_clusters
-                SET creator_count = ?, network_count = ?
+                SET creator_count = ?
                 WHERE super_cluster_id = ?
-            """, (creator_count, network_count, cluster_id))
+            """, (creator_count, cluster_id))
 
         # Assign creators and funders to super_clusters
         # Logic:

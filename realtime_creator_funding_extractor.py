@@ -534,18 +534,25 @@ class RealTimeCreatorFundingExtractor:
                         print(f"[FUNDING] ⚠ Could not tag deBridge usage: {tag_err}", flush=True)
 
             # Check if funder is CEX via infra_mapping
+            fully_analyzed_now = 0
             if not cex_exchange and is_cex_account(funder):
                 is_classified = 1  # Mark as classified (CEX in mapping)
 
-            # NOTE: Do NOT set fully_analyzed at discovery time.
+            # Skip history extraction for CEX/INFRA - mark as fully_analyzed immediately
+            if cex_exchange or is_classified:
+                fully_analyzed_now = 1
+                print(f"[FUNDING] 🚫 Skipping history extraction for CEX/INFRA: {funder[:16]}... ({cex_exchange or 'INFRA'})", flush=True)
+
+            # NOTE: For regular wallets: Do NOT set fully_analyzed at discovery time.
             # fully_analyzed should only be set AFTER actual extraction of incoming transfers.
             # Discovery only creates the record; extraction sets fully_analyzed=1 and last_analyzed timestamp.
+            # BUT: For CEX/INFRA: Set fully_analyzed=1 immediately so we don't trace their history.
 
             cursor.execute("""
                 INSERT OR REPLACE INTO creator_funders
-                (creator_address, funder_address, amount_sol, first_detected_at, is_cex, cex_exchange, cex_type, is_classified)
-                VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)
-            """, (creator, funder, new_total_amount, 1 if cex_exchange else 0, cex_exchange, cex_type, is_classified))
+                (creator_address, funder_address, amount_sol, first_detected_at, is_cex, cex_exchange, cex_type, is_classified, fully_analyzed)
+                VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?)
+            """, (creator, funder, new_total_amount, 1 if cex_exchange else 0, cex_exchange, cex_type, is_classified, fully_analyzed_now))
 
             conn.commit()
             conn.close()

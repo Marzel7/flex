@@ -4693,18 +4693,23 @@ HTML_TEMPLATE = """
                             return flowHTML;
                         }).join('');
 
-                        // Add all creators list after the example flow
+                        // Add all creators list after the example flow, preserving order from downstream_creators
                         if (flow && flow.downstream_creators && flow.downstream_creators.length > 0) {
-                            const creatorCounts = {};
+                            // Create a map to track creators while preserving order
+                            const creatorMap = {};
+                            const creatorOrder = [];
+
                             flow.downstream_creators.forEach(dc => {
-                                if (!creatorCounts[dc.creator_address]) {
-                                    creatorCounts[dc.creator_address] = 0;
+                                if (!creatorMap[dc.creator_address]) {
+                                    creatorMap[dc.creator_address] = 0;
+                                    creatorOrder.push(dc.creator_address);
                                 }
-                                creatorCounts[dc.creator_address]++;
+                                creatorMap[dc.creator_address]++;
                             });
 
-                            const creatorsList = Object.entries(creatorCounts)
-                                .map(([creator, tokenCount]) => {
+                            const creatorsList = creatorOrder
+                                .map((creator) => {
+                                    const tokenCount = creatorMap[creator];
                                     const shortCreator = creator.substring(0, 8) + '...' + creator.substring(creator.length - 8);
                                     return `<div style="font-family: monospace; font-size: 10px; color: #d1d5db; padding: 6px; background: rgba(245, 158, 11, 0.05); border-radius: 2px; margin-bottom: 4px; display: flex; justify-content: space-between;"><span title="${creator}">${shortCreator}</span><span style="color: #fbbf24; font-weight: bold;">${tokenCount} token${tokenCount > 1 ? 's' : ''}</span></div>`;
                                 })

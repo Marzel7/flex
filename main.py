@@ -238,31 +238,31 @@ HTML_TEMPLATE = """
 
             /* Text Colors - Professional Gray Scale */
             --text-primary: #e5e7eb;
-            --text-secondary: #9ca3af;
+            --text-secondary: var(--text-secondary);
             --text-dark: #1a1a1a;
             --text-light: #f3f4f6;
 
             /* Risk & Reuse Levels - Professional Palette */
-            --color-critical: #ef4444;
-            --color-high: #f97316;
-            --color-medium: #eab308;
-            --color-low: #22c55e;
-            --color-none: #3b82f6;
+            --color-critical: var(--color-critical);
+            --color-high: var(--color-high);
+            --color-medium: var(--color-medium);
+            --color-low: var(--color-low);
+            --color-none: var(--color-none);
 
             /* Backgrounds - SolanaFM Dark Navy/Purple */
-            --bg-primary: #0f172a;
+            --bg-primary: var(--bg-primary);
             --bg-secondary: rgba(15, 23, 42, 0.8);
             --bg-overlay: rgba(124, 58, 237, 0.1);
 
             /* Accents - SolanaFM Vibrant */
-            --accent-cyan: #06b6d4;
-            --accent-green: #10b981;
-            --accent-purple: #a855f7;
+            --accent-cyan: var(--accent-cyan);
+            --accent-green: var(--color-low);
+            --accent-purple: var(--accent-purple);
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #2d2d44 100%);
             color: var(--text-primary);
             padding: 20px;
             min-height: 100vh;
@@ -303,7 +303,7 @@ HTML_TEMPLATE = """
             background: var(--bg-secondary);
             padding: 20px;
             border-radius: 8px;
-            border: 1px solid rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(6, 182, 212, 0.2);
         }
 
         .stat-label {
@@ -366,13 +366,13 @@ HTML_TEMPLATE = """
 
         .tokens-table td {
             padding: 15px;
-            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+            border-bottom: 1px solid rgba(6, 182, 212, 0.1);
             font-size: 13px;
         }
 
 
         .tokens-table tbody tr:hover {
-            background: rgba(0, 212, 255, 0.05);
+            background: rgba(6, 182, 212, 0.05);
         }
 
         .mint {
@@ -395,12 +395,12 @@ HTML_TEMPLATE = """
 
         .risk-low {
             background: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
+            color: var(--color-low);
         }
 
         .risk-medium {
             background: rgba(234, 179, 8, 0.2);
-            color: #eab308;
+            color: var(--color-medium);
         }
 
         .risk-high {
@@ -411,7 +411,7 @@ HTML_TEMPLATE = """
         .rug-badge {
             display: inline-block;
             background: rgba(239, 68, 68, 0.25);
-            color: #ff6b6b;
+            color: var(--color-critical);
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 11px;
@@ -422,7 +422,7 @@ HTML_TEMPLATE = """
         .safe-badge {
             display: inline-block;
             background: rgba(34, 197, 94, 0.15);
-            color: #22c55e;
+            color: var(--color-low);
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 11px;
@@ -443,7 +443,7 @@ HTML_TEMPLATE = """
         .creator-malicious {
             display: inline-block;
             background: rgba(239, 68, 68, 0.25);
-            color: #ff6b6b;
+            color: var(--color-critical);
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 11px;
@@ -454,7 +454,7 @@ HTML_TEMPLATE = """
         .creator-unknown {
             display: inline-block;
             background: rgba(156, 163, 175, 0.15);
-            color: #9ca3af;
+            color: var(--text-secondary);
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 11px;
@@ -464,7 +464,7 @@ HTML_TEMPLATE = """
         .creator-blocked {
             display: inline-block;
             background: rgba(239, 68, 68, 0.3);
-            color: #dc2626;
+            color: var(--color-critical);
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 11px;
@@ -476,7 +476,7 @@ HTML_TEMPLATE = """
         .network-risk {
             display: inline-block;
             background: rgba(249, 115, 22, 0.3);
-            color: #ea580c;
+            color: var(--color-high);
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 11px;
@@ -495,7 +495,7 @@ HTML_TEMPLATE = """
         }
 
         .price-positive {
-            color: #22c55e;
+            color: var(--color-low);
         }
 
         .price-negative {
@@ -544,7 +544,7 @@ HTML_TEMPLATE = """
         .creator-address-embedded {
             font-family: 'Courier New', monospace;
             font-size: 10px;
-            color: #6b7280;
+            color: var(--text-secondary);
             word-break: break-all;
             max-width: 250px;
             line-height: 1.4;
@@ -569,7 +569,7 @@ HTML_TEMPLATE = """
         }
 
         .creator-address-link:hover {
-            color: #0099ff;
+            color: var(--accent-cyan);
             text-decoration-thickness: 2px;
         }
 
@@ -586,35 +586,35 @@ HTML_TEMPLATE = """
             font-size: 10px;
             font-weight: 600;
             white-space: nowrap;
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            background: rgba(0, 212, 255, 0.15);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            background: rgba(6, 182, 212, 0.15);
             color: var(--accent-cyan);
         }
 
         /* Network size tag (cyan) */
         .tag-network {
-            background: rgba(0, 212, 255, 0.15);
+            background: rgba(6, 182, 212, 0.15);
             color: var(--accent-cyan);
-            border: 1px solid rgba(0, 212, 255, 0.3);
+            border: 1px solid rgba(6, 182, 212, 0.3);
         }
 
         /* Funding tag (cyan) */
         .tag-funding {
-            background: rgba(0, 212, 255, 0.15);
+            background: rgba(6, 182, 212, 0.15);
             color: var(--accent-cyan);
-            border: 1px solid rgba(0, 212, 255, 0.3);
+            border: 1px solid rgba(6, 182, 212, 0.3);
         }
 
         /* Repeat launcher tag (cyan) */
         .tag-repeat {
-            background: rgba(0, 212, 255, 0.15);
+            background: rgba(6, 182, 212, 0.15);
             color: var(--accent-cyan);
-            border: 1px solid rgba(0, 212, 255, 0.3);
+            border: 1px solid rgba(6, 182, 212, 0.3);
         }
 
         /* Blocked tag (cyan) */
         .tag-blocked {
-            background: rgba(0, 212, 255, 0.15);
+            background: rgba(6, 182, 212, 0.15);
             color: var(--accent-cyan);
             border: 1px solid rgba(239, 68, 68, 0.3);
             font-weight: 700;
@@ -651,7 +651,7 @@ HTML_TEMPLATE = """
         /* Category-specific colors for creator display */
         .creator-infra-tags .infra-automation {
             background: rgba(168, 85, 247, 0.2);
-            color: #d8b4fe;
+            color: var(--accent-purple);
             border-color: rgba(168, 85, 247, 0.3);
         }
 
@@ -663,25 +663,25 @@ HTML_TEMPLATE = """
 
         .creator-infra-tags .infra-system {
             background: rgba(107, 114, 128, 0.2);
-            color: #d1d5db;
+            color: var(--text-primary);
             border-color: rgba(107, 114, 128, 0.3);
         }
 
         .creator-infra-tags .infra-validator {
             background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
+            color: var(--color-none);
             border-color: rgba(59, 130, 246, 0.3);
         }
 
         .creator-infra-tags .infra-bridge {
             background: rgba(249, 115, 22, 0.2);
-            color: #fb923c;
+            color: var(--color-high);
             border-color: rgba(249, 115, 22, 0.3);
         }
 
         .creator-infra-tags .infra-relay {
             background: rgba(249, 115, 22, 0.2);
-            color: #fb923c;
+            color: var(--color-high);
             border-color: rgba(249, 115, 22, 0.3);
         }
 
@@ -703,10 +703,10 @@ HTML_TEMPLATE = """
         }
 
         .modal-content {
-            background-color: #1e1e2e;
+            background-color: var(--bg-primary);
             margin: 5% auto;
             padding: 30px;
-            border: 1px solid rgba(0, 212, 255, 0.3);
+            border: 1px solid rgba(6, 182, 212, 0.3);
             border-radius: 12px;
             width: 90%;
             max-width: 800px;
@@ -754,7 +754,7 @@ HTML_TEMPLATE = """
             background: rgba(0, 0, 0, 0.3);
             padding: 15px;
             border-radius: 8px;
-            border-left: 3px solid #00d4ff;
+            border-left: 3px solid var(--accent-cyan);
         }
 
         .metric label {
@@ -801,7 +801,7 @@ HTML_TEMPLATE = """
             cursor: pointer;
             color: var(--accent-cyan) !important;
             text-decoration: none;
-            border-bottom: 1px dotted #00d4ff;
+            border-bottom: 1px dotted var(--accent-cyan);
             transition: all 0.2s;
         }
 
@@ -827,7 +827,7 @@ HTML_TEMPLATE = """
 
         .network-badge.network-high {
             background: rgba(239, 68, 68, 0.2);
-            color: #fca5a5;
+            color: var(--color-critical);
             border: 1px solid rgba(239, 68, 68, 0.4);
             cursor: help;
         }
@@ -841,7 +841,7 @@ HTML_TEMPLATE = """
 
         .network-badge.network-low {
             background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
+            color: var(--color-none);
             border: 1px solid rgba(59, 130, 246, 0.4);
             cursor: help;
         }
@@ -852,9 +852,9 @@ HTML_TEMPLATE = """
             border-radius: 3px;
             font-size: 12px;
             margin-left: 5px;
-            background: rgba(139, 92, 246, 0.2);
-            color: #c4b5fd;
-            border: 1px solid rgba(139, 92, 246, 0.4);
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--accent-purple);
+            border: 1px solid rgba(124, 58, 237, 0.4);
             cursor: help;
         }
 
@@ -865,8 +865,8 @@ HTML_TEMPLATE = """
         }
 
         .row-shared-recipient {
-            background: rgba(139, 92, 246, 0.05) !important;
-            border-left: 2px solid rgba(139, 92, 246, 0.3) !important;
+            background: rgba(124, 58, 237, 0.05) !important;
+            border-left: 2px solid rgba(124, 58, 237, 0.3) !important;
         }
 
         /* Creator stats grid */
@@ -881,7 +881,7 @@ HTML_TEMPLATE = """
             background: rgba(0, 0, 0, 0.3);
             padding: 15px;
             border-radius: 8px;
-            border-left: 3px solid #00d4ff;
+            border-left: 3px solid var(--accent-cyan);
             text-align: center;
         }
 
@@ -917,7 +917,7 @@ HTML_TEMPLATE = """
 
         .sc-tab-button.active {
             color: var(--accent-cyan) !important;
-            border-bottom: 2px solid #00d4ff !important;
+            border-bottom: 2px solid var(--accent-cyan) !important;
         }
 
         #creatorTagsContainer {
@@ -959,7 +959,7 @@ HTML_TEMPLATE = """
             text-align: left;
             font-size: 12px;
             color: var(--text-secondary);
-            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            border-bottom: 1px solid rgba(6, 182, 212, 0.2);
         }
 
         .tokens-launched-table td {
@@ -969,7 +969,7 @@ HTML_TEMPLATE = """
         }
 
         .tokens-launched-table tr:hover {
-            background: rgba(0, 212, 255, 0.05);
+            background: rgba(6, 182, 212, 0.05);
         }
 
         /* Top funders table */
@@ -990,7 +990,7 @@ HTML_TEMPLATE = """
             text-align: left;
             font-size: 12px;
             color: var(--text-secondary);
-            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            border-bottom: 1px solid rgba(6, 182, 212, 0.2);
         }
 
         .top-funders-table td {
@@ -1072,7 +1072,7 @@ HTML_TEMPLATE = """
 
         .multi-creator-container .cex-funders-table th {
             background: rgba(239, 68, 68, 0.15);
-            color: #fca5a5;
+            color: var(--color-critical);
             border-bottom: 2px solid rgba(239, 68, 68, 0.3);
         }
 
@@ -1108,7 +1108,7 @@ HTML_TEMPLATE = """
             text-align: left;
             font-size: 12px;
             color: var(--text-secondary);
-            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            border-bottom: 1px solid rgba(6, 182, 212, 0.2);
         }
 
         .jitotips-table td {
@@ -1118,7 +1118,7 @@ HTML_TEMPLATE = """
         }
 
         .jitotips-table tr:hover {
-            background: rgba(0, 212, 255, 0.05);
+            background: rgba(6, 182, 212, 0.05);
         }
 
         /* Funder stats grid (multi-creator funders modal) */
@@ -1134,7 +1134,7 @@ HTML_TEMPLATE = """
             max-height: 400px;
             overflow-y: auto;
             margin-bottom: 20px;
-            border: 1px solid rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(124, 58, 237, 0.2);
             border-radius: 6px;
             padding: 10px;
         }
@@ -1145,28 +1145,28 @@ HTML_TEMPLATE = """
         }
 
         .funders-table th {
-            background: rgba(139, 92, 246, 0.15);
+            background: rgba(124, 58, 237, 0.15);
             padding: 10px;
             text-align: left;
             font-size: 12px;
-            color: #a78bfa;
-            border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+            color: var(--accent-purple);
+            border-bottom: 2px solid rgba(124, 58, 237, 0.3);
             font-weight: 600;
         }
 
         .funders-table td {
             padding: 10px;
             font-size: 12px;
-            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+            border-bottom: 1px solid rgba(124, 58, 237, 0.1);
             color: var(--text-primary);
         }
 
         .funders-table tr:hover {
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(124, 58, 237, 0.1);
         }
 
         .funders-table a {
-            color: #a78bfa;
+            color: var(--accent-purple);
             text-decoration: none;
             cursor: pointer;
         }
@@ -1192,7 +1192,7 @@ HTML_TEMPLATE = """
             padding: 4px 8px;
             border-radius: 4px;
             background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
+            color: var(--color-none);
             font-size: 11px;
             font-weight: 600;
             white-space: nowrap;
@@ -1211,7 +1211,7 @@ HTML_TEMPLATE = """
 
         .infra-automation {
             background: rgba(168, 85, 247, 0.2);
-            color: #d8b4fe;
+            color: var(--accent-purple);
             border: 1px solid rgba(168, 85, 247, 0.3);
         }
 
@@ -1223,25 +1223,25 @@ HTML_TEMPLATE = """
 
         .infra-system {
             background: rgba(107, 114, 128, 0.2);
-            color: #d1d5db;
+            color: var(--text-primary);
             border: 1px solid rgba(107, 114, 128, 0.3);
         }
 
         .infra-validator {
             background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
+            color: var(--color-none);
             border: 1px solid rgba(59, 130, 246, 0.3);
         }
 
         .infra-bridge {
             background: rgba(249, 115, 22, 0.2);
-            color: #fb923c;
+            color: var(--color-high);
             border: 1px solid rgba(249, 115, 22, 0.3);
         }
 
         .infra-relay {
             background: rgba(249, 115, 22, 0.2);
-            color: #fb923c;
+            color: var(--color-high);
             border: 1px solid rgba(249, 115, 22, 0.3);
         }
 
@@ -1254,7 +1254,7 @@ HTML_TEMPLATE = """
             font-weight: 600;
             margin-right: 4px;
             background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
+            color: var(--color-none);
             border: 1px solid rgba(59, 130, 246, 0.3);
             white-space: nowrap;
         }
@@ -1267,9 +1267,9 @@ HTML_TEMPLATE = """
             font-size: 10px;
             font-weight: 600;
             margin-right: 4px;
-            background: rgba(139, 92, 246, 0.2);
-            color: #c4b5fd;
-            border: 1px solid rgba(139, 92, 246, 0.3);
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--accent-purple);
+            border: 1px solid rgba(124, 58, 237, 0.3);
             white-space: nowrap;
         }
 
@@ -1285,17 +1285,17 @@ HTML_TEMPLATE = """
 
         .tag-infra {
             background: rgba(168, 85, 247, 0.15);
-            color: #c084fc;
+            color: var(--accent-purple);
         }
 
         .tag-automation {
             background: rgba(168, 85, 247, 0.15);
-            color: #c084fc;
+            color: var(--accent-purple);
         }
 
         .tag-oracle {
             background: rgba(34, 197, 94, 0.15);
-            color: #6ee7b7;
+            color: var(--color-low);
         }
 
         /* CREATE tx link */
@@ -1311,7 +1311,7 @@ HTML_TEMPLATE = """
 
         .controls-panel {
             background: rgba(0, 20, 40, 0.8);
-            border: 1px solid rgba(0, 212, 255, 0.3);
+            border: 1px solid rgba(6, 182, 212, 0.3);
             border-radius: 8px;
             padding: 20px;
             margin: 20px 0;
@@ -1338,11 +1338,11 @@ HTML_TEMPLATE = """
             display: inline-block;
             width: 50px;
             height: 24px;
-            background-color: #404050;
+            background-color: var(--bg-secondary);
             border-radius: 12px;
             cursor: pointer;
             transition: background-color 0.3s;
-            border: 1px solid rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(6, 182, 212, 0.2);
         }
 
         .toggle-switch.active {
@@ -1369,7 +1369,7 @@ HTML_TEMPLATE = """
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background-color: #ff4444;
+            background-color: var(--color-critical);
             margin-left: 8px;
         }
 
@@ -1503,18 +1503,18 @@ HTML_TEMPLATE = """
                 </div>
                 <span class="status-indicator active" id="clusteringStatus"></span>
             </div>
-            <div class="control-group" style="border-left: 1px solid rgba(0, 212, 255, 0.3); margin-left: 12px; padding-left: 12px;">
+            <div class="control-group" style="border-left: 1px solid rgba(6, 182, 212, 0.3); margin-left: 12px; padding-left: 12px;">
                 <span class="control-label">Token Launch</span>
                 <div class="toggle-switch active" id="listenLaunchesToggle" onclick="toggleListenLaunches()">
                     <div class="toggle-slider"></div>
                 </div>
                 <span class="status-indicator active" id="listenLaunchesStatus"></span>
             </div>
-            <div class="control-group" style="border-left: 1px solid rgba(139, 92, 246, 0.3); margin-left: 12px; padding-left: 12px;">
+            <div class="control-group" style="border-left: 1px solid rgba(124, 58, 237, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(76, 175, 80, 0.2); color: var(--color-low); border: 1px solid rgba(76, 175, 80, 0.5);">▶️ Polling ON</button>
-                <button class="action-button" id="tokensTabBtn" onclick="switchToTokensTab()" title="View tokens" style="background: rgba(99, 102, 241, 0.2); color: #6366f1; border: 1px solid rgba(99, 102, 241, 0.5); margin-left: 8px;">Tokens</button>
-                <button class="action-button" id="networksTabBtn" onclick="switchToNetworksTab()" title="View funding networks" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">🔗 Networks</button>
-                <button class="action-button" onclick="window.location.href = '/coordinated-funders'" title="Analyze funders supporting multiple creators" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.5); margin-left: 8px;">Coordinated Funders</button>
+                <button class="action-button" id="tokensTabBtn" onclick="switchToTokensTab()" title="View tokens" style="background: rgba(124, 58, 237, 0.2); color: var(--primary); border: 1px solid rgba(124, 58, 237, 0.5); margin-left: 8px;">Tokens</button>
+                <button class="action-button" id="networksTabBtn" onclick="switchToNetworksTab()" title="View funding networks" style="background: rgba(124, 58, 237, 0.2); color: var(--accent-purple); border: 1px solid rgba(124, 58, 237, 0.5); margin-left: 8px;">🔗 Networks</button>
+                <button class="action-button" onclick="window.location.href = '/coordinated-funders'" title="Analyze funders supporting multiple creators" style="background: rgba(124, 58, 237, 0.2); color: var(--accent-purple); border: 1px solid rgba(124, 58, 237, 0.5); margin-left: 8px;">Coordinated Funders</button>
                 <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Validate TX</button>
                 <button id="funderExtractionBtn" class="action-button" onclick="toggleFunderExtraction()" title="Toggle funder transfer extraction (incoming/outgoing)" style="background: rgba(245, 158, 11, 0.2); color: var(--color-medium); border: 1px solid rgba(245, 158, 11, 0.5); margin-left: 8px;">Funder Extraction OFF</button>
             </div>
@@ -1534,37 +1534,37 @@ HTML_TEMPLATE = """
             <div style="margin-bottom: 30px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                     <h2 style="color: var(--color-critical); margin: 0;">🚨 Super-Clusters (Coordinated Networks)</h2>
-                    <button onclick="showDefinitionsGuide()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid #6366f1; background: rgba(99, 102, 241, 0.1); color: #6366f1; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.2s;" title="View creator pool tag definitions">📖 Definitions</button>
+                    <button onclick="showDefinitionsGuide()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid var(--primary); background: rgba(124, 58, 237, 0.1); color: var(--primary); font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.2s;" title="View creator pool tag definitions">📖 Definitions</button>
                 </div>
                 <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 20px;">
                     Networks with ≥5 shared creators have been merged into super-clusters. These represent large coordinated funding operations identified through sophisticated network analysis.
-                    <br><span style="font-size: 12px; color: #888;">Tip: Click the <strong>?</strong> button on any tag to see its definition</span>
+                    <br><span style="font-size: 12px; color: var(--text-secondary);">Tip: Click the <strong>?</strong> button on any tag to see its definition</span>
                 </p>
 
                 <!-- Super-Cluster Statistics -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px;">
-                    <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #ef4444;">
+                    <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-critical);">
                         <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total Clusters</div>
                         <div style="font-size: 24px; font-weight: bold; color: var(--color-critical);" id="scTotalCount">—</div>
                     </div>
-                    <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #ef4444;">
+                    <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-critical);">
                         <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Critical</div>
                         <div style="font-size: 24px; font-weight: bold; color: var(--color-critical);" id="scCriticalCount">—</div>
                     </div>
-                    <div style="background: rgba(249, 115, 22, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #f97316;">
+                    <div style="background: rgba(249, 115, 22, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-high);">
                         <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">High Risk</div>
-                        <div style="font-size: 24px; font-weight: bold; color: #f97316;" id="scHighCount">—</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--color-high);" id="scHighCount">—</div>
                     </div>
-                    <div style="background: rgba(251, 191, 36, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #fbbf24;">
+                    <div style="background: rgba(251, 191, 36, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-medium);">
                         <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Medium Risk</div>
                         <div style="font-size: 24px; font-weight: bold; color: var(--color-medium);" id="scMediumCount">—</div>
                     </div>
                 </div>
 
                 <!-- Network Filter Toggle -->
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding: 15px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.3);">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding: 15px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3);">
                     <span style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; font-weight: bold;">Filter Networks:</span>
-                    <button id="scMainToggleCexInfra" onclick="toggleMainNetworkFilter()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid rgba(99, 102, 241, 0.5); background: rgba(99, 102, 241, 0.1); color: #6366f1; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
+                    <button id="scMainToggleCexInfra" onclick="toggleMainNetworkFilter()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid rgba(124, 58, 237, 0.5); background: rgba(124, 58, 237, 0.1); color: var(--primary); font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
                         ✓ Show All Networks
                     </button>
                 </div>
@@ -1651,7 +1651,7 @@ HTML_TEMPLATE = """
                 <!-- Populated by JavaScript -->
             </div>
 
-            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0, 212, 255, 0.2);">
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(6, 182, 212, 0.2);">
                 <p style="color: var(--text-secondary); font-size: 12px;">
                     💡 <strong>Tip:</strong> Click "DexTools" link below to view live trading data
                 </p>
@@ -1691,7 +1691,7 @@ HTML_TEMPLATE = """
             <!-- Analysis Buttons -->
             <div style="margin: 20px 0; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                 <button onclick="showFundingNetwork3Tier(document.getElementById('modalCreator').textContent.split(' ')[0])" style="background: rgba(239, 68, 68, 0.2); color: var(--color-critical); border: 1px solid rgba(239, 68, 68, 0.5); padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">View Funding Patterns</button>
-                <button onclick="window.location.href = '/coordinated-funder-analysis/' + document.getElementById('modalCreator').textContent.split(' ')[0]" style="background: rgba(249, 115, 22, 0.2); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.5); padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">Coordinated Network</button>
+                <button onclick="window.location.href = '/coordinated-funder-analysis/' + document.getElementById('modalCreator').textContent.split(' ')[0]" style="background: rgba(249, 115, 22, 0.2); color: var(--color-high); border: 1px solid rgba(249, 115, 22, 0.5); padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">Coordinated Network</button>
             </div>
 
             <!-- Creator Tags -->
@@ -1781,12 +1781,12 @@ HTML_TEMPLATE = """
             <div id="multiCreatorFundersSection" style="display: none; margin-bottom: 20px;">
                 <h3 style="color: var(--color-critical);">⚠️ Multi-Creator Funders (Coordination Risk)</h3>
                 <div class="multi-creator-container">
-                    <div id="multiCreatorRiskBanner" style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 15px; margin-bottom: 15px; border-radius: 4px;">
-                        <p style="color: #fca5a5; margin: 0; font-size: 13px;">
+                    <div id="multiCreatorRiskBanner" style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--color-critical); padding: 15px; margin-bottom: 15px; border-radius: 4px;">
+                        <p style="color: var(--color-critical); margin: 0; font-size: 13px;">
                             <strong>⚠️ Alert:</strong> This funder is also funding other token creators. This could indicate coordinated activity.
                         </p>
                     </div>
-                    <table class="cex-funders-table" style="border-left: 4px solid #ef4444;">
+                    <table class="cex-funders-table" style="border-left: 4px solid var(--color-critical);">
                         <thead>
                             <tr>
                                 <th>Funder Address</th>
@@ -1860,13 +1860,13 @@ HTML_TEMPLATE = """
 
             <!-- Cross-Creator Network -->
             <h3 style="margin-top: 20px;">Cross-Creator Network Connections</h3>
-            <div id="crossReferencesContainer" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 6px; padding: 15px;">
+            <div id="crossReferencesContainer" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 6px; padding: 15px;">
                 <!-- Populated by JavaScript -->
             </div>
 
             <!-- Wallet Cluster -->
             <h3 style="margin-top: 20px;">Wallet Network</h3>
-            <div class="cluster-info" id="clusterInfo" style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 6px; padding: 15px;">
+            <div class="cluster-info" id="clusterInfo" style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 6px; padding: 15px;">
                 <!-- Populated by JavaScript -->
             </div>
         </div>
@@ -1935,13 +1935,13 @@ HTML_TEMPLATE = """
                 <a id="txSolscanLink" href="#" target="_blank" style="color: var(--accent-cyan); text-decoration: none; margin-right: 15px;">
                     🔗 View on Solscan
                 </a>
-                <button onclick="copyToClipboard(document.getElementById('txViewerSig').textContent)" style="background: rgba(0, 212, 255, 0.2); color: var(--accent-cyan); border: 1px solid #00d4ff; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-family: monospace; font-size: 12px;">
+                <button onclick="copyToClipboard(document.getElementById('txViewerSig').textContent)" style="background: rgba(6, 182, 212, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); padding: 5px 12px; border-radius: 4px; cursor: pointer; font-family: monospace; font-size: 12px;">
                     📋 Copy Signature
                 </button>
             </div>
 
             <h3>Account Keys (jsonParsed)</h3>
-            <div style="background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 6px; padding: 15px; overflow-x: auto;">
+            <div style="background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 6px; padding: 15px; overflow-x: auto;">
                 <pre id="txViewerAccountKeys" style="color: var(--text-primary); font-size: 11px; margin: 0; white-space: pre-wrap; word-wrap: break-word;"></pre>
             </div>
 
@@ -1969,7 +1969,7 @@ HTML_TEMPLATE = """
                     type="text"
                     id="validationInput"
                     placeholder="Paste transaction signature (e.g., 2NcBKN1RV35onHE1fP7wmjfb8PWrmhBgvsvemPaoVt2DkcV5...)"
-                    style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 6px; color: var(--text-primary); font-family: monospace; font-size: 12px; box-sizing: border-box;"
+                    style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 6px; color: var(--text-primary); font-family: monospace; font-size: 12px; box-sizing: border-box;"
                 >
             </div>
 
@@ -1991,7 +1991,7 @@ HTML_TEMPLATE = """
             </div>
 
             <div id="validationResults" style="display: none;">
-                <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 6px; padding: 20px;">
+                <div style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 6px; padding: 20px;">
 
                     <!-- Loading State -->
                     <div id="validationLoading" style="text-align: center; color: var(--accent-cyan);">
@@ -2018,7 +2018,7 @@ HTML_TEMPLATE = """
                             <div style="color: var(--text-primary); font-size: 12px;" id="resultTimestamp">—</div>
                         </div>
 
-                        <div style="background: rgba(0, 0, 0, 0.3); padding: 12px; border-radius: 4px; border-left: 3px solid #00d4ff;">
+                        <div style="background: rgba(0, 0, 0, 0.3); padding: 12px; border-radius: 4px; border-left: 3px solid var(--accent-cyan);">
                             <div style="color: var(--text-secondary); font-size: 10px; text-transform: uppercase; margin-bottom: 8px;">Evidence</div>
                             <div id="resultEvidence" style="color: var(--text-primary); font-size: 11px; line-height: 1.6;">—</div>
                         </div>
@@ -2033,7 +2033,7 @@ HTML_TEMPLATE = """
                     <!-- Error State -->
                     <div id="validationError" style="display: none; color: var(--color-critical);">
                         <div style="font-weight: bold; margin-bottom: 10px;">❌ Validation Failed</div>
-                        <div id="errorMessage" style="font-size: 12px; color: #ff6b6b;">—</div>
+                        <div id="errorMessage" style="font-size: 12px; color: var(--color-critical);">—</div>
                     </div>
                 </div>
             </div>
@@ -2063,17 +2063,17 @@ HTML_TEMPLATE = """
 
             <!-- Network Risk Summary -->
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #ef4444;">
+                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid var(--color-critical);">
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 5px;">NETWORK RISK</div>
                     <div id="cfaRiskLevel" style="color: var(--color-critical); font-size: 18px; font-weight: bold;">—</div>
                 </div>
-                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #fbbf24;">
+                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid var(--color-medium);">
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 5px;">CONNECTED CREATORS</div>
                     <div id="cfaConnectedCount" style="color: var(--color-medium); font-size: 18px; font-weight: bold;">—</div>
                 </div>
-                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #f97316;">
+                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid var(--color-high);">
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 5px;">SHARED DESTINATIONS</div>
-                    <div id="cfaSharedDests" style="color: #f97316; font-size: 18px; font-weight: bold;">—</div>
+                    <div id="cfaSharedDests" style="color: var(--color-high); font-size: 18px; font-weight: bold;">—</div>
                 </div>
             </div>
 
@@ -2108,7 +2108,7 @@ HTML_TEMPLATE = """
 
             <!-- Summary Stats -->
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px;">
-                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #fbbf24;">
+                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid var(--color-medium);">
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 5px;">CREATORS FUNDED</div>
                     <div id="fdCreatorCount" style="color: var(--color-medium); font-size: 18px; font-weight: bold;">—</div>
                 </div>
@@ -2116,13 +2116,13 @@ HTML_TEMPLATE = """
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 5px;">INCOMING SOL</div>
                     <div id="fdIncomingTotal" style="color: var(--color-low); font-size: 18px; font-weight: bold;">—</div>
                 </div>
-                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #ef4444;">
+                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid var(--color-critical);">
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 5px;">OUTGOING SOL</div>
                     <div id="fdOutgoingTotal" style="color: var(--color-critical); font-size: 18px; font-weight: bold;">—</div>
                 </div>
-                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid #f97316;">
+                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; border-left: 3px solid var(--color-high);">
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 5px;">NET FLOW</div>
-                    <div id="fdNetFlow" style="color: #f97316; font-size: 18px; font-weight: bold;">—</div>
+                    <div id="fdNetFlow" style="color: var(--color-high); font-size: 18px; font-weight: bold;">—</div>
                 </div>
             </div>
 
@@ -2131,7 +2131,7 @@ HTML_TEMPLATE = """
             <div style="background: var(--bg-secondary); border-radius: 8px; padding: 0; max-height: 350px; overflow-y: auto;">
                 <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
                     <thead style="position: sticky; top: 0; background: var(--bg-secondary);">
-                        <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
+                        <tr style="border-bottom: 1px solid rgba(6, 182, 212, 0.2);">
                             <th style="padding: 10px; text-align: left; color: var(--text-secondary);">Sender Address</th>
                             <th style="padding: 10px; text-align: right; color: var(--text-secondary);">SOL</th>
                             <th style="padding: 10px; text-align: center; color: var(--text-secondary);">Txs</th>
@@ -2149,7 +2149,7 @@ HTML_TEMPLATE = """
             <div style="background: var(--bg-secondary); border-radius: 8px; padding: 0; max-height: 350px; overflow-y: auto;">
                 <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
                     <thead style="position: sticky; top: 0; background: var(--bg-secondary);">
-                        <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
+                        <tr style="border-bottom: 1px solid rgba(6, 182, 212, 0.2);">
                             <th style="padding: 10px; text-align: left; color: var(--text-secondary);">Recipient Address</th>
                             <th style="padding: 10px; text-align: right; color: var(--text-secondary);">SOL</th>
                             <th style="padding: 10px; text-align: center; color: var(--text-secondary);">Txs</th>
@@ -2173,14 +2173,14 @@ HTML_TEMPLATE = """
             <!-- Risk Badge & Toggle -->
             <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
                 <span id="scRiskBadge" style="padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 14px;">—</span>
-                <button id="scToggleCexInfra" onclick="toggleCexInfraView()" style="padding: 8px 14px; border-radius: 6px; border: 1px solid rgba(99, 102, 241, 0.5); background: rgba(99, 102, 241, 0.1); color: #6366f1; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
+                <button id="scToggleCexInfra" onclick="toggleCexInfraView()" style="padding: 8px 14px; border-radius: 6px; border: 1px solid rgba(124, 58, 237, 0.5); background: rgba(124, 58, 237, 0.1); color: var(--primary); font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
                     ✓ Show CEX/INFRA
                 </button>
             </div>
 
             <!-- Cluster Stats -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px;">
-                <div style="background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #3b82f6;">
+                <div style="background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-none);">
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Networks</div>
                     <div id="scNetworkCount" style="color: var(--color-none); font-size: 20px; font-weight: bold;">—</div>
                 </div>
@@ -2188,7 +2188,7 @@ HTML_TEMPLATE = """
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Creators</div>
                     <div id="scCreatorCount" style="color: #f59e0b; font-size: 20px; font-weight: bold;">—</div>
                 </div>
-                <div style="background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #3b82f6;">
+                <div style="background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-none);">
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Tokens</div>
                     <div id="scTokenCount" style="color: var(--color-none); font-size: 20px; font-weight: bold;">—</div>
                 </div>
@@ -2196,13 +2196,13 @@ HTML_TEMPLATE = """
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Funders</div>
                     <div id="scFunderCount" style="color: var(--color-low); font-size: 20px; font-weight: bold;">—</div>
                 </div>
-                <div style="background: rgba(168, 85, 247, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #a855f7;">
+                <div style="background: rgba(168, 85, 247, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent-purple);">
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Total SOL</div>
-                    <div id="scTotalSol" style="color: #a855f7; font-size: 20px; font-weight: bold;">—</div>
+                    <div id="scTotalSol" style="color: var(--accent-purple); font-size: 20px; font-weight: bold;">—</div>
                 </div>
-                <div style="background: rgba(168, 85, 247, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #a855f7;">
+                <div style="background: rgba(168, 85, 247, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent-purple);">
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">CEX Funders</div>
-                    <div id="scCexCount" style="color: #a855f7; font-size: 20px; font-weight: bold;">—</div>
+                    <div id="scCexCount" style="color: var(--accent-purple); font-size: 20px; font-weight: bold;">—</div>
                 </div>
             </div>
 
@@ -2213,13 +2213,13 @@ HTML_TEMPLATE = """
                     <!-- Populated by JS -->
                 </div>
                 <!-- Relationship Diagram -->
-                <div id="scRelationshipDiagram" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(99, 102, 241, 0.2);">
+                <div id="scRelationshipDiagram" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(124, 58, 237, 0.2);">
                     <!-- Populated by JS -->
                 </div>
             </div>
 
             <!-- Tabs -->
-            <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
+            <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(6, 182, 212, 0.2);">
                 <button onclick="switchSuperClusterTab('networks')" class="sc-tab-button active" data-tab="networks">
                     Networks
                 </button>
@@ -2234,15 +2234,15 @@ HTML_TEMPLATE = """
             <!-- Networks Tab -->
             <div id="scNetworksTab" class="sc-tab-content" style="display: none; margin-bottom: 20px;">
                 <!-- Networks Tab Toggle -->
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(6, 182, 212, 0.2);">
                     <span style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; font-weight: bold;">Filter Networks:</span>
-                    <button id="scNetworksToggleCexInfra" onclick="toggleNetworksVisibility()" style="padding: 6px 12px; border-radius: 4px; border: 1px solid rgba(99, 102, 241, 0.5); background: rgba(99, 102, 241, 0.1); color: #6366f1; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
+                    <button id="scNetworksToggleCexInfra" onclick="toggleNetworksVisibility()" style="padding: 6px 12px; border-radius: 4px; border: 1px solid rgba(124, 58, 237, 0.5); background: rgba(124, 58, 237, 0.1); color: var(--primary); font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
                         ✓ Show All
                     </button>
                 </div>
                 <table style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
+                        <tr style="border-bottom: 1px solid rgba(6, 182, 212, 0.2);">
                             <th style="text-align: left; padding: 10px; color: var(--text-secondary); font-size: 12px;">Network</th>
                             <th style="text-align: right; padding: 10px; color: var(--text-secondary); font-size: 12px;">Members</th>
                             <th style="text-align: right; padding: 10px; color: var(--text-secondary); font-size: 12px;">SOL</th>
@@ -2259,7 +2259,7 @@ HTML_TEMPLATE = """
             <div id="scCreatorsTab" class="sc-tab-content" style="display: block; max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
                 <table style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
+                        <tr style="border-bottom: 1px solid rgba(6, 182, 212, 0.2);">
                             <th style="text-align: left; padding: 10px; color: var(--text-secondary); font-size: 12px;">Creator Address</th>
                             <th style="text-align: left; padding: 10px; color: var(--text-secondary); font-size: 12px;">Tokens</th>
                         </tr>
@@ -2274,7 +2274,7 @@ HTML_TEMPLATE = """
             <div id="scTokensTab" class="sc-tab-content" style="display: none; max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
                 <table style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
+                        <tr style="border-bottom: 1px solid rgba(6, 182, 212, 0.2);">
                             <th style="text-align: left; padding: 10px; color: var(--text-secondary); font-size: 12px;">Token Mint</th>
                             <th style="text-align: left; padding: 10px; color: var(--text-secondary); font-size: 12px;">Creator</th>
                             <th style="text-align: right; padding: 10px; color: var(--text-secondary); font-size: 12px;">Risk</th>
@@ -2299,7 +2299,7 @@ HTML_TEMPLATE = """
                 <!-- Content populated by JS -->
             </div>
 
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(99, 102, 241, 0.2);">
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(124, 58, 237, 0.2);">
                 <h4 style="color: var(--text-secondary); margin-bottom: 10px;">How It Works:</h4>
                 <ul style="margin-left: 20px; color: var(--text-secondary); font-size: 12px;">
                     <li>Measures how many creators appear in <strong>multiple clusters</strong></li>
@@ -2318,8 +2318,8 @@ HTML_TEMPLATE = """
             <span class="close" onclick="document.getElementById('definitionsGuideModal').style.display='none'">&times;</span>
             <h2 style="margin-bottom: 30px;">Creator Pool Tag Definitions & Guide</h2>
 
-            <div style="background: rgba(99, 102, 241, 0.05); padding: 20px; border-radius: 8px; border-left: 4px solid #6366f1; margin-bottom: 30px;">
-                <h3 style="color: #6366f1; margin-top: 0;">What Are Creator Pools?</h3>
+            <div style="background: rgba(124, 58, 237, 0.05); padding: 20px; border-radius: 8px; border-left: 4px solid var(--primary); margin-bottom: 30px;">
+                <h3 style="color: var(--primary); margin-top: 0;">What Are Creator Pools?</h3>
                 <p style="color: var(--text-primary); line-height: 1.7;">
                     A <strong>creator pool</strong> is a set of wallet addresses that are reused across multiple funding networks and clusters.
                     Instead of using unique wallets for each token launch, coordinated operations systematically reuse the same creators,
@@ -2391,9 +2391,9 @@ HTML_TEMPLATE = """
             </div>
 
             <!-- STRONG -->
-            <div style="background: rgba(255, 107, 107, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #ff6b6b; margin-bottom: 20px;">
+            <div style="background: rgba(255, 107, 107, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid var(--color-critical); margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                    <span style="background: #ff6b6b; color: #ffffff; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - STRONG</span>
+                    <span style="background: var(--color-critical); color: #ffffff; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - STRONG</span>
                     <span style="color: var(--text-secondary); font-size: 12px;">(Red)</span>
                 </div>
                 <div style="color: var(--text-primary);">
@@ -2414,19 +2414,19 @@ HTML_TEMPLATE = """
                 <h3 style="color: var(--text-secondary); margin-top: 0;">Key Metrics Explained</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div>
-                        <p style="margin-bottom: 5px;"><strong style="color: #6366f1;">creators_unique</strong></p>
+                        <p style="margin-bottom: 5px;"><strong style="color: var(--primary);">creators_unique</strong></p>
                         <p style="color: var(--text-secondary); font-size: 12px; margin: 0;">The actual count of distinct creator wallets in THIS cluster (denominator for reuse ratio)</p>
                     </div>
                     <div>
-                        <p style="margin-bottom: 5px;"><strong style="color: #6366f1;">creators_in_multiple_clusters</strong></p>
+                        <p style="margin-bottom: 5px;"><strong style="color: var(--primary);">creators_in_multiple_clusters</strong></p>
                         <p style="color: var(--text-secondary); font-size: 12px; margin: 0;">How many of those creators also appear in OTHER clusters (numerator for reuse ratio)</p>
                     </div>
                     <div>
-                        <p style="margin-bottom: 5px;"><strong style="color: #6366f1;">reuse_ratio</strong></p>
+                        <p style="margin-bottom: 5px;"><strong style="color: var(--primary);">reuse_ratio</strong></p>
                         <p style="color: var(--text-secondary); font-size: 12px; margin: 0;">creators_in_multiple_clusters ÷ creators_unique = coordination intensity</p>
                     </div>
                     <div>
-                        <p style="margin-bottom: 5px;"><strong style="color: #6366f1;">max_clusters_per_creator</strong></p>
+                        <p style="margin-bottom: 5px;"><strong style="color: var(--primary);">max_clusters_per_creator</strong></p>
                         <p style="color: var(--text-secondary); font-size: 12px; margin: 0;">The creator with highest reuse appears in this many clusters</p>
                     </div>
                 </div>
@@ -2632,8 +2632,8 @@ HTML_TEMPLATE = """
 
                             // Add funder labels to columnTags (all cyan)
                             for (let label of funderLabels) {
-                                const tagColor = '#00d4ff';
-                                const bgColor = 'rgba(0, 212, 255, 0.15)';
+                                const tagColor = 'var(--accent-cyan)';
+                                const bgColor = 'rgba(6, 182, 212, 0.15)';
                                 columnTags.push(`<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor}; background-color: ${bgColor};" title="${label.description}">${label.name}</span>`);
                             }
 
@@ -2650,8 +2650,8 @@ HTML_TEMPLATE = """
                                         seenServiceTags.add(tagName);
 
                                         // All service tags use cyan color
-                                        const tagColor = '#00d4ff';
-                                        const bgColor = 'rgba(0, 212, 255, 0.15)';
+                                        const tagColor = 'var(--accent-cyan)';
+                                        const bgColor = 'rgba(6, 182, 212, 0.15)';
 
                                         // Custom display names for service tags
                                         let displayName = serviceTag.tag.replace('uses_', '');
@@ -2758,13 +2758,13 @@ HTML_TEMPLATE = """
                                         tagColor = '#ff9500';
                                         bgColor = 'rgba(255, 149, 0, 0.15)';
                                     } else if (infraTag.tag.includes('meteora')) {
-                                        tagColor = '#00d4ff';
-                                        bgColor = 'rgba(0, 212, 255, 0.15)';
+                                        tagColor = 'var(--accent-cyan)';
+                                        bgColor = 'rgba(6, 182, 212, 0.15)';
                                     } else if (infraTag.tag.includes('axiom')) {
                                         tagColor = '#9333ea';
                                         bgColor = 'rgba(147, 51, 234, 0.15)';
                                     } else if (infraTag.tag.includes('jito')) {
-                                        tagColor = '#fbbf24';
+                                        tagColor = 'var(--color-medium)';
                                         bgColor = 'rgba(251, 191, 36, 0.15)';
                                     } else {
                                         tagColor = '#4ade80';
@@ -3055,7 +3055,7 @@ HTML_TEMPLATE = """
                 } else {
                     btn.textContent = '⏸️ Polling OFF';
                     btn.style.background = 'rgba(239, 68, 68, 0.2)';
-                    btn.style.color = '#ef4444';
+                    btn.style.color = 'var(--color-critical)';
                     btn.style.borderColor = 'rgba(239, 68, 68, 0.5)';
                     console.log('✅ Creator TX polling DISABLED');
                 }
@@ -3080,7 +3080,7 @@ HTML_TEMPLATE = """
                 } else {
                     btn.textContent = '⏸️ Polling OFF';
                     btn.style.background = 'rgba(239, 68, 68, 0.2)';
-                    btn.style.color = '#ef4444';
+                    btn.style.color = 'var(--color-critical)';
                     btn.style.borderColor = 'rgba(239, 68, 68, 0.5)';
                 }
             } catch (e) {
@@ -3107,7 +3107,7 @@ HTML_TEMPLATE = """
                 } else {
                     btn.textContent = 'Funder Extraction OFF';
                     btn.style.background = 'rgba(245, 158, 11, 0.2)';
-                    btn.style.color = '#fbbf24';
+                    btn.style.color = 'var(--color-medium)';
                     btn.style.borderColor = 'rgba(245, 158, 11, 0.5)';
                     console.log('✅ Funder transfer extraction DISABLED');
                 }
@@ -3132,7 +3132,7 @@ HTML_TEMPLATE = """
                 } else {
                     btn.textContent = 'Funder Extraction OFF';
                     btn.style.background = 'rgba(245, 158, 11, 0.2)';
-                    btn.style.color = '#fbbf24';
+                    btn.style.color = 'var(--color-medium)';
                     btn.style.borderColor = 'rgba(245, 158, 11, 0.5)';
                 }
             } catch (e) {
@@ -3176,14 +3176,14 @@ HTML_TEMPLATE = """
                 // Populate shared counterparties
                 let counterpartiesHTML = '';
                 if (data.shared_counterparties && data.shared_counterparties.length > 0) {
-                    counterpartiesHTML += '<div style="margin-bottom: 15px;"><strong style="color: #ff6b6b;">🔗 ' + data.shared_counterparties.length + ' Shared Funding Sources:</strong></div>';
+                    counterpartiesHTML += '<div style="margin-bottom: 15px;"><strong style="color: var(--color-critical);">🔗 ' + data.shared_counterparties.length + ' Shared Funding Sources:</strong></div>';
                     for (let addr of data.shared_counterparties.slice(0, 10)) {
                         counterpartiesHTML += '<div style="margin: 8px 0; padding: 8px; background: rgba(239, 68, 68, 0.05); border-radius: 4px;">';
-                        counterpartiesHTML += '<span style="font-family: monospace; color: #fca5a5;">' + addr + '</span>';
+                        counterpartiesHTML += '<span style="font-family: monospace; color: var(--color-critical);">' + addr + '</span>';
                         counterpartiesHTML += '</div>';
                     }
                     if (data.shared_counterparties.length > 10) {
-                        counterpartiesHTML += '<div style="color: #fca5a5; margin-top: 10px;">... and ' + (data.shared_counterparties.length - 10) + ' more</div>';
+                        counterpartiesHTML += '<div style="color: var(--color-critical); margin-top: 10px;">... and ' + (data.shared_counterparties.length - 10) + ' more</div>';
                     }
                 } else {
                     counterpartiesHTML += '<div style="color: var(--text-secondary);">No shared funding sources detected yet. Analyze more funders to build network.</div>';
@@ -3195,10 +3195,10 @@ HTML_TEMPLATE = """
                 if (data.networks && data.networks.length > 0) {
                     for (let network of data.networks) {
                         html += '<tr style="border-bottom: 1px solid rgba(239, 68, 68, 0.2);">';
-                        html += '<td style="color: #fca5a5; font-family: monospace; font-size: 12px;">' + network.address.substring(0, 20) + '...</td>';
-                        html += '<td style="color: #ff6b6b;"><strong>' + network.creator_count + '</strong></td>';
-                        html += '<td style="color: #fca5a5;">' + (network.total_sol || 0).toFixed(2) + ' SOL</td>';
-                        html += '<td style="color: #fca5a5;">' + (network.linked_funders || 0) + '</td>';
+                        html += '<td style="color: var(--color-critical); font-family: monospace; font-size: 12px;">' + network.address.substring(0, 20) + '...</td>';
+                        html += '<td style="color: var(--color-critical);"><strong>' + network.creator_count + '</strong></td>';
+                        html += '<td style="color: var(--color-critical);">' + (network.total_sol || 0).toFixed(2) + ' SOL</td>';
+                        html += '<td style="color: var(--color-critical);">' + (network.linked_funders || 0) + '</td>';
                         html += '<td><span style="background: rgba(239, 68, 68, 0.2); color: var(--color-critical); padding: 4px 8px; border-radius: 4px; font-size: 12px;">🚨 HIGH</span></td>';
                         html += '</tr>';
                     }
@@ -3222,10 +3222,10 @@ HTML_TEMPLATE = """
             tokensContainer.style.display = 'block';
             fundingNetworkContainer.style.display = 'none';
 
-            tokensTabBtn.style.background = 'rgba(99, 102, 241, 0.3)';
+            tokensTabBtn.style.background = 'rgba(124, 58, 237, 0.3)';
             tokensTabBtn.style.color = '#818cf8';
-            networksTabBtn.style.background = 'rgba(139, 92, 246, 0.2)';
-            networksTabBtn.style.color = '#a78bfa';
+            networksTabBtn.style.background = 'rgba(124, 58, 237, 0.2)';
+            networksTabBtn.style.color = 'var(--accent-purple)';
         }
 
         function switchToNetworksTab() {
@@ -3237,10 +3237,10 @@ HTML_TEMPLATE = """
             tokensContainer.style.display = 'none';
             fundingNetworkContainer.style.display = 'block';
 
-            tokensTabBtn.style.background = 'rgba(99, 102, 241, 0.2)';
-            tokensTabBtn.style.color = '#6366f1';
-            networksTabBtn.style.background = 'rgba(139, 92, 246, 0.3)';
-            networksTabBtn.style.color = '#c4b5fd';
+            tokensTabBtn.style.background = 'rgba(124, 58, 237, 0.2)';
+            tokensTabBtn.style.color = 'var(--primary)';
+            networksTabBtn.style.background = 'rgba(124, 58, 237, 0.3)';
+            networksTabBtn.style.color = 'var(--accent-purple)';
 
             loadFundingNetworks();
         }
@@ -3602,7 +3602,7 @@ HTML_TEMPLATE = """
                         const createTxCell = token.create_tx_signature
                             ? `<a href="https://solscan.io/tx/${token.create_tx_signature}" target="_blank" class="create-tx-link" title="${token.create_tx_signature}">${createTxShort}</a>
                                 <div style="display: inline-block; margin-left: 8px;">
-                                    <button onclick="viewTransaction('${token.create_tx_signature}')" style="background: rgba(0, 212, 255, 0.2); color: var(--accent-cyan); border: 1px solid #00d4ff; padding: 3px 10px; border-radius: 3px; cursor: pointer; font-size: 11px; font-family: monospace;">View Raw</button>
+                                    <button onclick="viewTransaction('${token.create_tx_signature}')" style="background: rgba(6, 182, 212, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); padding: 3px 10px; border-radius: 3px; cursor: pointer; font-size: 11px; font-family: monospace;">View Raw</button>
                                 </div>`
                             : 'N/A';
 
@@ -3835,16 +3835,16 @@ HTML_TEMPLATE = """
                     for (const crossRef of data.cross_references) {
                         const creatorList = crossRef.other_creators
                             .slice(0, 3)
-                            .map(c => `<span style="background: rgba(139, 92, 246, 0.2); padding: 2px 6px; border-radius: 3px; margin: 2px; display: inline-block; font-size: 10px; font-family: monospace;">${c.substring(0, 12)}...</span>`)
+                            .map(c => `<span style="background: rgba(124, 58, 237, 0.2); padding: 2px 6px; border-radius: 3px; margin: 2px; display: inline-block; font-size: 10px; font-family: monospace;">${c.substring(0, 12)}...</span>`)
                             .join('');
                         const moreCreators = crossRef.other_creators.length > 3 ? `<span style="color: var(--text-secondary); font-size: 10px;"> +${crossRef.other_creators.length - 3} more</span>` : '';
 
                         crossRefsHTML += `
-                            <div style="margin-bottom: 12px; padding: 10px; background: rgba(139, 92, 246, 0.05); border-left: 3px solid rgba(139, 92, 246, 0.3); border-radius: 4px;">
+                            <div style="margin-bottom: 12px; padding: 10px; background: rgba(124, 58, 237, 0.05); border-left: 3px solid rgba(124, 58, 237, 0.3); border-radius: 4px;">
                                 <div style="font-family: monospace; font-size: 11px; color: var(--accent-cyan); word-break: break-all; margin-bottom: 5px;">
                                     ${crossRef.recipient_address}
                                 </div>
-                                <div style="font-size: 11px; color: #c4b5fd;">
+                                <div style="font-size: 11px; color: var(--accent-purple);">
                                     <strong>⚠️ Also linked to ${crossRef.creator_count} other creator${crossRef.creator_count > 1 ? 's' : ''}:</strong>
                                 </div>
                                 <div style="margin-top: 5px;">
@@ -3895,7 +3895,7 @@ HTML_TEMPLATE = """
                                 // Show actual transaction type with styling and Solscan link
                                 const txType = tip.tx_type || (tip.tag === 'uses_jitotip' ? 'Create' : 'Unknown');
                                 const isCreate = tip.tag === 'uses_jitotip' || txType.toLowerCase() === 'create';
-                                const typeColor = isCreate ? '#4ade80' : '#fbbf24';
+                                const typeColor = isCreate ? '#4ade80' : 'var(--color-medium)';
 
                                 let typeIndicator;
                                 if (txSig) {
@@ -3928,7 +3928,7 @@ HTML_TEMPLATE = """
                 // Display super-cluster membership if available
                 if (data.super_clusters && data.super_clusters.length > 0) {
                     const superClusterBanner = document.createElement('div');
-                    superClusterBanner.style.cssText = 'background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 15px; margin-bottom: 15px; border-radius: 4px; margin-top: 20px;';
+                    superClusterBanner.style.cssText = 'background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--color-critical); padding: 15px; margin-bottom: 15px; border-radius: 4px; margin-top: 20px;';
 
                     let bannerHTML = '<div style="color: var(--color-critical); font-weight: bold; margin-bottom: 10px; font-size: 14px;">⚠️ COORDINATED NETWORK DETECTED</div>';
                     bannerHTML += '<div style="font-size: 12px; color: var(--text-primary);">';
@@ -3936,17 +3936,17 @@ HTML_TEMPLATE = """
                     bannerHTML += '<div style="margin-top: 8px;">';
 
                     for (const sc of data.super_clusters) {
-                        let riskColor = '#6b7280';
+                        let riskColor = 'var(--text-secondary)';
                         let riskEmoji = '';
 
                         if (sc.risk_level === 'CRITICAL') {
-                            riskColor = '#ef4444';
+                            riskColor = 'var(--color-critical)';
                             riskEmoji = '🚨';
                         } else if (sc.risk_level === 'HIGH') {
-                            riskColor = '#f97316';
+                            riskColor = 'var(--color-high)';
                             riskEmoji = '⚠️';
                         } else if (sc.risk_level === 'MEDIUM') {
-                            riskColor = '#fbbf24';
+                            riskColor = 'var(--color-medium)';
                             riskEmoji = '⚡';
                         }
 
@@ -4083,7 +4083,7 @@ HTML_TEMPLATE = """
                 const safeCount = data.statistics.funding_multiple_creators - suspiciousCount;
 
                 document.getElementById('suspiciousFundersCount').textContent = suspiciousCount;
-                document.getElementById('suspiciousFundersCount').style.color = suspiciousCount > 0 ? '#ef4444' : '#4ade80';
+                document.getElementById('suspiciousFundersCount').style.color = suspiciousCount > 0 ? 'var(--color-critical)' : '#4ade80';
 
                 document.getElementById('safeFundersCount').textContent = safeCount;
                 document.getElementById('safeFundersCount').style.color = '#4ade80';
@@ -4170,7 +4170,7 @@ HTML_TEMPLATE = """
                 if (data.status === 'queued') {
                     btn.textContent = 'Queued ✓';
                     btn.style.background = 'rgba(245, 158, 11, 0.2)';
-                    btn.style.color = '#fbbf24';
+                    btn.style.color = 'var(--color-medium)';
                     btn.style.borderColor = 'rgba(245, 158, 11, 0.5)';
 
                     console.log(`✅ Analysis queued for: ${funderAddress}`);
@@ -4366,10 +4366,10 @@ HTML_TEMPLATE = """
                     let funderColor = '#4ade80';  // Default green for regular
                     let funderTypeLabel = '';
                     if (funderType === 'cex') {
-                        funderColor = '#ef4444';  // Red for CEX
+                        funderColor = 'var(--color-critical)';  // Red for CEX
                         funderTypeLabel = ' [CEX]';
                     } else if (funderType === 'infra') {
-                        funderColor = '#f97316';  // Orange for INFRA
+                        funderColor = 'var(--color-high)';  // Orange for INFRA
                         funderTypeLabel = ' [INFRA]';
                     }
 
@@ -4408,17 +4408,17 @@ HTML_TEMPLATE = """
                                 const riskLevel = sender.risk_level || 'unknown';
 
                                 // Color code by risk level
-                                let senderColor = '#fbbf24';  // unknown (yellow) - neutral
+                                let senderColor = 'var(--color-medium)';  // unknown (yellow) - neutral
                                 let badge = '';
 
                                 if (riskLevel === 'high') {
-                                    senderColor = '#ef4444';  // RED - suspicious (CEX hot wallets, risky accounts)
+                                    senderColor = 'var(--color-critical)';  // RED - suspicious (CEX hot wallets, risky accounts)
                                     badge = ' ⚠️';  // Warning emoji
                                 } else if (riskLevel === 'neutral' || riskLevel === 'low') {
                                     senderColor = '#4ade80';  // GREEN - trusted infrastructure (Axiom, safe accounts)
                                     badge = ' ✓';  // Checkmark for trusted
                                 } else if (riskLevel === 'medium') {
-                                    senderColor = '#fbbf24';  // YELLOW - moderate risk
+                                    senderColor = 'var(--color-medium)';  // YELLOW - moderate risk
                                     badge = '';
                                 }
 
@@ -4479,7 +4479,7 @@ HTML_TEMPLATE = """
                         '<div style="color: var(--color-medium); text-align: center; padding: 20px;">Not yet analyzed. Run Coordinated Funder Analysis first.</div>';
                     document.getElementById('cfaSharedDestinations').innerHTML = '';
                     document.getElementById('cfaRiskLevel').textContent = 'PENDING';
-                    document.getElementById('cfaRiskLevel').style.color = '#fbbf24';
+                    document.getElementById('cfaRiskLevel').style.color = 'var(--color-medium)';
                     document.getElementById('cfaConnectedCount').textContent = '0';
                     document.getElementById('cfaSharedDests').textContent = '0';
                     modal.style.display = 'block';
@@ -4493,8 +4493,8 @@ HTML_TEMPLATE = """
 
                 // Display risk level with color coding
                 let riskColor = '#4ade80';  // LOW - green
-                if (data.network_risk_level === 'HIGH') riskColor = '#fbbf24';  // orange
-                if (data.network_risk_level === 'CRITICAL') riskColor = '#ef4444';  // red
+                if (data.network_risk_level === 'HIGH') riskColor = 'var(--color-medium)';  // orange
+                if (data.network_risk_level === 'CRITICAL') riskColor = 'var(--color-critical)';  // red
 
                 document.getElementById('cfaRiskLevel').textContent = data.network_risk_level || 'UNKNOWN';
                 document.getElementById('cfaRiskLevel').style.color = riskColor;
@@ -4579,7 +4579,7 @@ HTML_TEMPLATE = """
                 if (data.incoming_transfers.senders && data.incoming_transfers.senders.length > 0) {
                     data.incoming_transfers.senders.forEach((sender) => {
                         const label = sender.label ? `[${sender.label}]` : `[${sender.category || 'Unknown'}]`;
-                        const labelColor = sender.is_known ? '#4ade80' : '#fbbf24';
+                        const labelColor = sender.is_known ? '#4ade80' : 'var(--color-medium)';
                         const badge = sender.is_known ? ' ✓' : '';
                         incomingHTML += `
                             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
@@ -4600,7 +4600,7 @@ HTML_TEMPLATE = """
                 if (data.outgoing_transfers.recipients && data.outgoing_transfers.recipients.length > 0) {
                     data.outgoing_transfers.recipients.forEach((recipient) => {
                         const label = recipient.label ? `[${recipient.label}]` : `[${recipient.category || 'Unknown'}]`;
-                        const labelColor = recipient.is_known ? '#4ade80' : '#fbbf24';
+                        const labelColor = recipient.is_known ? '#4ade80' : 'var(--color-medium)';
                         const badge = recipient.is_known ? ' ✓' : '';
                         outgoingHTML += `
                             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
@@ -4742,33 +4742,33 @@ HTML_TEMPLATE = """
                 visibleHtml += `
                     <div data-cluster-id="${cluster.id}" style="background: var(--bg-secondary); border: 1px solid var(--primary); border-radius: 8px; padding: 25px; cursor: pointer; transition: all 0.3s;"
                          onclick="showSuperCluster('${cluster.id}')"
-                         onmouseover="this.style.background='var(--primary-light)'; this.style.boxShadow='0 0 15px rgba(99, 102, 241, 0.5)';"
+                         onmouseover="this.style.background='var(--primary-light)'; this.style.boxShadow='0 0 15px rgba(124, 58, 237, 0.5)';"
                          onmouseout="this.style.background='var(--bg-secondary)'; this.style.boxShadow='none';">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <div style="font-weight: bold; color: var(--text-primary); font-size: 16px;">${cluster.id}</div>
                             <div style="display: flex; align-items: center; gap: 6px;">
                                 <span style="background: ${reuseColor}; color: ${reuseTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; white-space: nowrap;">${cluster.creator_reuse_tag}</span>
-                                <button onclick="showTagDefinition('${cluster.creator_reuse_tag}', event)" style="background: rgba(99, 102, 241, 0.3); border: 1px solid var(--primary); color: var(--primary); width: 20px; height: 20px; border-radius: 50%; padding: 0; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Click for definition">?</button>
+                                <button onclick="showTagDefinition('${cluster.creator_reuse_tag}', event)" style="background: rgba(124, 58, 237, 0.3); border: 1px solid var(--primary); color: var(--primary); width: 20px; height: 20px; border-radius: 50%; padding: 0; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Click for definition">?</button>
                             </div>
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px;">
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
+                            <div style="background: rgba(124, 58, 237, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
                                 <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 4px;">Creators</div>
                                 <div style="color: var(--primary); font-weight: bold; font-size: 18px;">${cluster.creators_unique}</div>
                             </div>
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
+                            <div style="background: rgba(124, 58, 237, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
                                 <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 4px;">Networks</div>
                                 <div data-network-count style="color: var(--primary); font-weight: bold; font-size: 18px;">${cluster.network_count}</div>
                             </div>
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
+                            <div style="background: rgba(124, 58, 237, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
                                 <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 4px;">Mapped</div>
                                 <div style="color: var(--primary); font-weight: bold; font-size: 18px;">${cluster.creators_in_multiple_clusters}</div>
                             </div>
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
+                            <div style="background: rgba(124, 58, 237, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
                                 <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 4px;">Root Ops</div>
                                 <div style="color: var(--primary); font-weight: bold; font-size: 18px;">${cluster.root_addresses.length}</div>
                             </div>
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
+                            <div style="background: rgba(124, 58, 237, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
                                 <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 4px;">Risk</div>
                                 <div style="color: var(--primary); font-weight: bold; font-size: 18px;">${cluster.risk_level}</div>
                             </div>
@@ -4868,13 +4868,13 @@ HTML_TEMPLATE = """
 
             if (showMainNetworksWithCexInfra) {
                 button.textContent = '✓ Show All Networks';
-                button.style.background = 'rgba(99, 102, 241, 0.1)';
-                button.style.color = '#6366f1';
-                button.style.borderColor = 'rgba(99, 102, 241, 0.5)';
+                button.style.background = 'rgba(124, 58, 237, 0.1)';
+                button.style.color = 'var(--primary)';
+                button.style.borderColor = 'rgba(124, 58, 237, 0.5)';
             } else {
                 button.textContent = '✗ Hide CEX/INFRA Networks';
                 button.style.background = 'rgba(239, 68, 68, 0.1)';
-                button.style.color = '#ef4444';
+                button.style.color = 'var(--color-critical)';
                 button.style.borderColor = 'rgba(239, 68, 68, 0.5)';
             }
 
@@ -4890,13 +4890,13 @@ HTML_TEMPLATE = """
 
             if (showNetworksWithCexInfra) {
                 button.textContent = '✓ Show All';
-                button.style.background = 'rgba(99, 102, 241, 0.1)';
-                button.style.color = '#6366f1';
-                button.style.borderColor = 'rgba(99, 102, 241, 0.5)';
+                button.style.background = 'rgba(124, 58, 237, 0.1)';
+                button.style.color = 'var(--primary)';
+                button.style.borderColor = 'rgba(124, 58, 237, 0.5)';
             } else {
                 button.textContent = '✗ Hide CEX/INFRA';
                 button.style.background = 'rgba(239, 68, 68, 0.1)';
-                button.style.color = '#ef4444';
+                button.style.color = 'var(--color-critical)';
                 button.style.borderColor = 'rgba(239, 68, 68, 0.5)';
             }
 
@@ -4912,13 +4912,13 @@ HTML_TEMPLATE = """
 
             if (showCexInfra) {
                 button.textContent = '✓ Show CEX/INFRA';
-                button.style.background = 'rgba(99, 102, 241, 0.1)';
-                button.style.color = '#6366f1';
-                button.style.borderColor = 'rgba(99, 102, 241, 0.5)';
+                button.style.background = 'rgba(124, 58, 237, 0.1)';
+                button.style.color = 'var(--primary)';
+                button.style.borderColor = 'rgba(124, 58, 237, 0.5)';
             } else {
                 button.textContent = '✗ Hide CEX/INFRA';
                 button.style.background = 'rgba(239, 68, 68, 0.1)';
-                button.style.color = '#ef4444';
+                button.style.color = 'var(--color-critical)';
                 button.style.borderColor = 'rgba(239, 68, 68, 0.5)';
             }
 
@@ -4938,13 +4938,13 @@ HTML_TEMPLATE = """
             if (toggleButton) {
                 if (showNetworksWithCexInfra) {
                     toggleButton.textContent = '✓ Show All';
-                    toggleButton.style.background = 'rgba(99, 102, 241, 0.1)';
-                    toggleButton.style.color = '#6366f1';
-                    toggleButton.style.borderColor = 'rgba(99, 102, 241, 0.5)';
+                    toggleButton.style.background = 'rgba(124, 58, 237, 0.1)';
+                    toggleButton.style.color = 'var(--primary)';
+                    toggleButton.style.borderColor = 'rgba(124, 58, 237, 0.5)';
                 } else {
                     toggleButton.textContent = '✗ Hide CEX/INFRA';
                     toggleButton.style.background = 'rgba(239, 68, 68, 0.1)';
-                    toggleButton.style.color = '#ef4444';
+                    toggleButton.style.color = 'var(--color-critical)';
                     toggleButton.style.borderColor = 'rgba(239, 68, 68, 0.5)';
                 }
             }
@@ -4970,13 +4970,13 @@ HTML_TEMPLATE = """
                 const isCexInfra = data.network_root_operator_status && (data.network_root_operator_status[net.network_id] || data.network_root_operator_status[String(net.network_id)]);
                 const statusBadge = isCexInfra ?
                     '<span style="padding: 4px 8px; border-radius: 4px; background: rgba(239, 68, 68, 0.1); color: var(--color-critical); font-size: 10px; font-weight: bold;">CEX/INFRA</span>' :
-                    '<span style="padding: 4px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.1); color: #10b981; font-size: 10px; font-weight: bold;">CLEAN</span>';
+                    '<span style="padding: 4px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.1); color: var(--color-low); font-size: 10px; font-weight: bold;">CLEAN</span>';
 
                 return `
                     <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                         <td style="padding: 10px; color: var(--text-primary);">${networkName}</td>
                         <td style="padding: 10px; text-align: right; color: var(--text-secondary);">${net.total_members}</td>
-                        <td style="padding: 10px; text-align: right; color: #a855f7; font-weight: bold;">${net.total_sol.toFixed(2)}</td>
+                        <td style="padding: 10px; text-align: right; color: var(--accent-purple); font-weight: bold;">${net.total_sol.toFixed(2)}</td>
                         <td style="padding: 10px; text-align: center;">${statusBadge}</td>
                     </tr>
                 `;
@@ -5012,11 +5012,11 @@ HTML_TEMPLATE = """
 
                         if (ex.sender) {
                             flowHTML += '<div style="color: var(--color-none); margin-bottom: 6px;"><strong>📤 Sender:</strong></div>' +
-                            '<div style="font-size: 12px; font-weight: bold; color: #60a5fa; word-break: break-all; padding: 6px; background: rgba(96, 165, 250, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.sender + '</div>' +
+                            '<div style="font-size: 12px; font-weight: bold; color: var(--color-none); word-break: break-all; padding: 6px; background: rgba(96, 165, 250, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.sender + '</div>' +
                             '<div style="color: var(--text-secondary); margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ to Funder</div>';
                         }
 
-                        flowHTML += '<div style="color: #6366f1; margin-bottom: 6px;"><strong>💰 Root Op:</strong></div>' +
+                        flowHTML += '<div style="color: var(--primary); margin-bottom: 6px;"><strong>💰 Root Op:</strong></div>' +
                         '<div style="font-size: 12px; font-weight: bold; color: #818cf8; word-break: break-all; padding: 6px; background: rgba(129, 140, 248, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.funder + '</div>' +
                         '<div style="color: var(--text-secondary); margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ ' + ex.sol_to_creator.toFixed(2) + ' SOL funds Creator</div>';
 
@@ -5049,7 +5049,7 @@ HTML_TEMPLATE = """
                             .map((creator) => {
                                 const tokenCount = creatorMap[creator];
                                 const shortCreator = creator.substring(0, 8) + '...' + creator.substring(creator.length - 8);
-                                return `<div style="font-family: monospace; font-size: 10px; color: #d1d5db; padding: 6px; background: rgba(245, 158, 11, 0.05); border-radius: 2px; margin-bottom: 4px; display: flex; justify-content: space-between;"><span title="${creator}">${shortCreator}</span><span style="color: var(--color-medium); font-weight: bold;">${tokenCount} token${tokenCount > 1 ? 's' : ''}</span></div>`;
+                                return `<div style="font-family: monospace; font-size: 10px; color: var(--text-primary); padding: 6px; background: rgba(245, 158, 11, 0.05); border-radius: 2px; margin-bottom: 4px; display: flex; justify-content: space-between;"><span title="${creator}">${shortCreator}</span><span style="color: var(--color-medium); font-weight: bold;">${tokenCount} token${tokenCount > 1 ? 's' : ''}</span></div>`;
                             })
                             .join('');
 
@@ -5060,9 +5060,9 @@ HTML_TEMPLATE = """
                     }
                 }
 
-                return '<div style="background: rgba(99, 102, 241, 0.08); padding: 12px; border-radius: 6px; border-left: 3px solid #6366f1; margin-bottom: 12px;">' +
+                return '<div style="background: rgba(124, 58, 237, 0.08); padding: 12px; border-radius: 6px; border-left: 3px solid var(--primary); margin-bottom: 12px;">' +
                     '<div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 8px;">ROOT OPERATOR #' + (idx + 1) + '</div>' +
-                    '<div style="font-family: monospace; font-size: 11px; color: #6366f1; word-break: break-all; margin-bottom: 8px; padding: 6px; background: rgba(99, 102, 241, 0.1); border-radius: 4px;">' + addr + '</div>' +
+                    '<div style="font-family: monospace; font-size: 11px; color: var(--primary); word-break: break-all; margin-bottom: 8px; padding: 6px; background: rgba(124, 58, 237, 0.1); border-radius: 4px;">' + addr + '</div>' +
                     (flow ? '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; font-size: 10px;">' +
                         '<div><div style="color: var(--text-secondary);">CREATORS FUNDED</div><div style="color: #f59e0b; font-weight: bold;">' + flow.creators_funded + '</div></div>' +
                         '<div><div style="color: var(--text-secondary);">TOTAL SOL</div><div style="color: var(--color-low); font-weight: bold;">' + flow.total_sol_sent.toFixed(2) + '</div></div>' +
@@ -5102,12 +5102,12 @@ HTML_TEMPLATE = """
             const relationshipHTML = `
                 <div style="font-size: 12px; color: var(--text-secondary);">
                     <div style="margin-bottom: 16px;">
-                        <div style="font-size: 10px; color: #888; margin-bottom: 8px; text-transform: uppercase; font-weight: bold;">📊 SUPER-NETWORK STRUCTURE</div>
+                        <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; font-weight: bold;">📊 SUPER-NETWORK STRUCTURE</div>
 
                         <div style="background: var(--bg-secondary); border-radius: 6px; padding: 12px; margin-bottom: 12px;">
                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;">
                                 <div>
-                                    <div style="color: #6366f1; font-size: 11px; margin-bottom: 4px;">TOTAL NETWORKS</div>
+                                    <div style="color: var(--primary); font-size: 11px; margin-bottom: 4px;">TOTAL NETWORKS</div>
                                     <div style="color: #818cf8; font-weight: bold; font-size: 16px;">${visibleNetworkCount}</div>
                                     <div style="color: var(--text-secondary); font-size: 9px; margin-top: 4px;">
                                         ${visibleNetworks.length > 0 ? visibleNetworks.map(n => n.network_name || `Network_${n.network_id}`).join(', ') : 'N/A'}
@@ -5134,32 +5134,32 @@ HTML_TEMPLATE = """
                     </div>
 
                     <div style="margin-bottom: 12px;">
-                        <div style="font-size: 10px; color: #888; margin-bottom: 8px; text-transform: uppercase; font-weight: bold;">🔗 FUNDING FLOW</div>
+                        <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; font-weight: bold;">🔗 FUNDING FLOW</div>
 
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                            <div style="background: rgba(59, 130, 246, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #3b82f6; color: var(--color-none); flex: 1;">
-                                <div style="font-size: 10px; color: #888;">Upstream</div>
+                            <div style="background: rgba(59, 130, 246, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid var(--color-none); color: var(--color-none); flex: 1;">
+                                <div style="font-size: 10px; color: var(--text-secondary);">Upstream</div>
                                 <strong>${data.funder_stats.total_funders}</strong> Senders
                             </div>
                             <div style="color: #666; font-weight: bold;">➜</div>
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #6366f1; color: #6366f1; flex: 1;">
-                                <div style="font-size: 10px; color: #888;">Root Operators</div>
+                            <div style="background: rgba(124, 58, 237, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid var(--primary); color: var(--primary); flex: 1;">
+                                <div style="font-size: 10px; color: var(--text-secondary);">Root Operators</div>
                                 <strong>${visibleRootOps}</strong> Ops
                             </div>
                             <div style="color: #666; font-weight: bold;">➜</div>
                             <div style="background: rgba(245, 158, 11, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #f59e0b; color: #f59e0b; flex: 1;">
-                                <div style="font-size: 10px; color: #888;">Creators</div>
+                                <div style="font-size: 10px; color: var(--text-secondary);">Creators</div>
                                 <strong>${data.creators_unique}</strong> Wallets
                             </div>
                             <div style="color: #666; font-weight: bold;">➜</div>
                             <div style="background: rgba(74, 222, 128, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #4ade80; color: var(--color-low); flex: 1;">
-                                <div style="font-size: 10px; color: #888;">Tokens</div>
+                                <div style="font-size: 10px; color: var(--text-secondary);">Tokens</div>
                                 <strong>${data.tokens.length}</strong> Launch
                             </div>
                         </div>
                     </div>
 
-                    <div style="padding: 10px; background: rgba(99, 102, 241, 0.05); border-radius: 4px; border: 1px solid rgba(99, 102, 241, 0.2);">
+                    <div style="padding: 10px; background: rgba(124, 58, 237, 0.05); border-radius: 4px; border: 1px solid rgba(124, 58, 237, 0.2);">
                         <div style="font-size: 11px; line-height: 1.6;">
                             <strong>💡 What ties these ${data.network_count} networks together:</strong><br>
                             <span style="color: var(--text-secondary);">
@@ -5167,7 +5167,7 @@ HTML_TEMPLATE = """
                                 This indicates <strong>coordinated operations</strong> using the same launcher infrastructure.
                             </span>
                             <br><br>
-                            <strong>📈 Tracked funding:</strong> <span style="color: #a855f7;">${data.funder_stats.total_sol.toFixed(2)} SOL</span> flowing through this ecosystem
+                            <strong>📈 Tracked funding:</strong> <span style="color: var(--accent-purple);">${data.funder_stats.total_sol.toFixed(2)} SOL</span> flowing through this ecosystem
                         </div>
                     </div>
                 </div>
@@ -5247,12 +5247,12 @@ HTML_TEMPLATE = """
                         <p>${def.definition}</p>
                     </div>
 
-                    <div style="background: rgba(99, 102, 241, 0.05); padding: 15px; border-radius: 6px; border-left: 4px solid ${def.color}; margin-bottom: 15px;">
+                    <div style="background: rgba(124, 58, 237, 0.05); padding: 15px; border-radius: 6px; border-left: 4px solid ${def.color}; margin-bottom: 15px;">
                         <strong>Thresholds & Metrics:</strong><br><br>
                         ${def.metrics}
                     </div>
 
-                    <div style="background: rgba(239, 68, 68, 0.05); padding: 15px; border-radius: 6px; border-left: 4px solid #ef4444;">
+                    <div style="background: rgba(239, 68, 68, 0.05); padding: 15px; border-radius: 6px; border-left: 4px solid var(--color-critical);">
                         <strong>Risk Assessment:</strong><br><br>
                         ${def.risk}
                     </div>
@@ -5277,17 +5277,17 @@ HTML_TEMPLATE = """
 
                 // Set risk badge color
                 const riskBadge = document.getElementById('scRiskBadge');
-                let badgeColor = '#6b7280';
+                let badgeColor = 'var(--text-secondary)';
                 let badgeText = data.risk_level;
 
                 if (data.risk_level === 'CRITICAL') {
-                    badgeColor = '#ef4444';
+                    badgeColor = 'var(--color-critical)';
                     badgeText = '🚨 CRITICAL';
                 } else if (data.risk_level === 'HIGH') {
-                    badgeColor = '#f97316';
+                    badgeColor = 'var(--color-high)';
                     badgeText = '⚠️ HIGH';
                 } else if (data.risk_level === 'MEDIUM') {
-                    badgeColor = '#fbbf24';
+                    badgeColor = 'var(--color-medium)';
                     badgeText = '⚡ MEDIUM';
                 }
 
@@ -5332,7 +5332,7 @@ HTML_TEMPLATE = """
                 const tokensList = document.getElementById('scTokensList');
                 if (data.tokens.length > 0) {
                     tokensList.innerHTML = data.tokens.map(token => {
-                        const riskColor = token.rug_probability > 0.7 ? '#ef4444' : token.rug_probability > 0.4 ? '#fbbf24' : '#10b981';
+                        const riskColor = token.rug_probability > 0.7 ? 'var(--color-critical)' : token.rug_probability > 0.4 ? 'var(--color-medium)' : 'var(--color-low)';
                         const riskPercent = (token.rug_probability * 100).toFixed(0);
                         const mcDisplay = token.market_cap_highest ? formatMarketCap(token.market_cap_highest) : '—';
 
@@ -5507,7 +5507,7 @@ def coordinated_funder_analysis_view(creator_address: str):
                         body {{ background: #0a0e27; color: var(--text-primary); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }}
                         .container {{ max-width: 1200px; margin: 0 auto; }}
                         h1 {{ color: var(--accent-cyan); margin-bottom: 30px; }}
-                        .not-analyzed {{ background: rgba(0, 0, 0, 0.3); padding: 30px; border-radius: 8px; text-align: center; border-left: 3px solid #fbbf24; }}
+                        .not-analyzed {{ background: rgba(0, 0, 0, 0.3); padding: 30px; border-radius: 8px; text-align: center; border-left: 3px solid var(--color-medium); }}
                         .back-link {{ margin-bottom: 20px; }}
                         .back-link a {{ color: var(--accent-cyan); text-decoration: none; }}
                         .back-link a:hover {{ text-decoration: underline; }}
@@ -5560,9 +5560,9 @@ def coordinated_funder_analysis_view(creator_address: str):
 
         # Determine risk color
         risk_colors = {
-            'CRITICAL': '#ef4444',
-            'HIGH': '#fbbf24',
-            'MEDIUM': '#f97316',
+            'CRITICAL': 'var(--color-critical)',
+            'HIGH': 'var(--color-medium)',
+            'MEDIUM': 'var(--color-high)',
             'LOW': '#4ade80'
         }
         risk_color = risk_colors.get(result['network_risk_level'], '#a0a0a0')
@@ -5660,7 +5660,7 @@ def coordinated_funder_analysis_view(creator_address: str):
                     .section-title {{
                         background: var(--bg-secondary);
                         padding: 15px;
-                        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+                        border-bottom: 1px solid rgba(6, 182, 212, 0.2);
                         font-weight: 600;
                         color: var(--accent-cyan);
                     }}
@@ -7525,13 +7525,13 @@ coordinated_funders_html = '''
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: rgba(99, 102, 241, 0.05);
-            border: 1px solid rgba(99, 102, 241, 0.2);
+            background: rgba(124, 58, 237, 0.05);
+            border: 1px solid rgba(124, 58, 237, 0.2);
             padding: 40px;
             border-radius: 12px;
         }
         h1 {
-            color: #6366f1;
+            color: var(--primary);
             margin-top: 0;
             font-size: 32px;
         }
@@ -7540,10 +7540,10 @@ coordinated_funders_html = '''
             padding: 20px;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 8px;
-            border-left: 3px solid #6366f1;
+            border-left: 3px solid var(--primary);
         }
         .button {
-            background: #6366f1;
+            background: var(--primary);
             color: white;
             padding: 12px 24px;
             border: none;
@@ -7605,7 +7605,7 @@ coordinated_funders_html = '''
         </div>
 
         <div class="section">
-            <h2 style="color: #a855f7; margin-top: 0;">How to Use</h2>
+            <h2 style="color: var(--accent-purple); margin-top: 0;">How to Use</h2>
             <ol style="line-height: 2;">
                 <li>Click on a Super-Cluster in the main dashboard</li>
                 <li>Navigate to the <strong>Networks</strong> tab</li>
@@ -7676,31 +7676,31 @@ def coordinated_funders_view():
                     margin: 0 auto;
                 }}
                 h1 {{
-                    color: #6366f1;
+                    color: var(--primary);
                 }}
                 table {{
                     width: 100%;
                     border-collapse: collapse;
-                    background: rgba(99, 102, 241, 0.05);
-                    border: 1px solid rgba(99, 102, 241, 0.2);
+                    background: rgba(124, 58, 237, 0.05);
+                    border: 1px solid rgba(124, 58, 237, 0.2);
                     border-radius: 8px;
                     overflow: hidden;
                 }}
                 thead {{
-                    background: rgba(99, 102, 241, 0.1);
-                    border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+                    background: rgba(124, 58, 237, 0.1);
+                    border-bottom: 1px solid rgba(124, 58, 237, 0.3);
                 }}
                 th {{
                     padding: 12px;
                     text-align: left;
-                    color: #6366f1;
+                    color: var(--primary);
                     font-weight: bold;
                 }}
                 tr:hover {{
-                    background: rgba(99, 102, 241, 0.08);
+                    background: rgba(124, 58, 237, 0.08);
                 }}
                 .button {{
-                    background: #6366f1;
+                    background: var(--primary);
                     color: white;
                     padding: 10px 20px;
                     border: none;
@@ -7896,7 +7896,7 @@ def coordinated_funders_view_old():
 
             # Analysis status indicator
             analysis_badge = '✅ Analyzed' if funder['is_analyzed'] else '⏳ Pending'
-            analysis_color = '#4ade80' if funder['is_analyzed'] else '#fbbf24'
+            analysis_color = '#4ade80' if funder['is_analyzed'] else 'var(--color-medium)'
 
             # Highlight duplicate creators (high priority) - red background for high creator counts
             row_highlight = 'background: rgba(255, 0, 0, 0.08);' if funder['creator_count'] > 3 else ''
@@ -8011,7 +8011,7 @@ def coordinated_funders_view_old():
                     .section-title {{
                         background: var(--bg-secondary);
                         padding: 15px;
-                        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+                        border-bottom: 1px solid rgba(6, 182, 212, 0.2);
                         font-weight: 600;
                         color: var(--accent-cyan);
                     }}
@@ -8030,10 +8030,10 @@ def coordinated_funders_view_old():
                         text-align: left;
                         color: var(--text-secondary);
                         font-size: 11px;
-                        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+                        border-bottom: 1px solid rgba(6, 182, 212, 0.2);
                     }}
                     tr:hover {{
-                        background: rgba(0, 212, 255, 0.05);
+                        background: rgba(6, 182, 212, 0.05);
                     }}
                 </style>
             </head>
@@ -8044,8 +8044,8 @@ def coordinated_funders_view_old():
                     <div class="subtitle">Funders supporting multiple token creators (potential coordination risk)</div>
 
                     <!-- Tab Navigation -->
-                    <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(0, 212, 255, 0.2); padding-bottom: 15px; flex-wrap: wrap;">
-                        <button onclick="switchTab('funders')" id="tab-funders" style="background: rgba(0, 212, 255, 0.2); color: var(--accent-cyan); border: 1px solid #00d4ff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">👥 Multi-Creator Funders</button>
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(6, 182, 212, 0.2); padding-bottom: 15px; flex-wrap: wrap;">
+                        <button onclick="switchTab('funders')" id="tab-funders" style="background: rgba(6, 182, 212, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">👥 Multi-Creator Funders</button>
                         <button onclick="switchTab('senders')" id="tab-senders" style="background: transparent; color: var(--text-secondary); border: 1px solid #a0a0a0; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">📤 Duplicate Senders</button>
                         <button onclick="switchTab('tokens')" id="tab-tokens" style="background: transparent; color: var(--text-secondary); border: 1px solid #a0a0a0; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">🪙 Coordinated Tokens</button>
                         <button onclick="switchTab('funder-networks')" id="tab-funder-networks" style="background: transparent; color: var(--text-secondary); border: 1px solid #a0a0a0; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">🔗 Funder Networks</button>
@@ -8083,13 +8083,13 @@ def coordinated_funders_view_old():
 
                         // Set active state
                         if (tabName === 'funders') {{
-                            document.getElementById('tab-funders').style.background = 'rgba(0, 212, 255, 0.2)';
-                            document.getElementById('tab-funders').style.color = '#00d4ff';
-                            document.getElementById('tab-funders').style.borderColor = '#00d4ff';
+                            document.getElementById('tab-funders').style.background = 'rgba(6, 182, 212, 0.2)';
+                            document.getElementById('tab-funders').style.color = 'var(--accent-cyan)';
+                            document.getElementById('tab-funders').style.borderColor = 'var(--accent-cyan)';
                         }} else if (tabName === 'senders') {{
                             document.getElementById('tab-senders').style.background = 'rgba(251, 191, 36, 0.2)';
-                            document.getElementById('tab-senders').style.color = '#fbbf24';
-                            document.getElementById('tab-senders').style.borderColor = '#fbbf24';
+                            document.getElementById('tab-senders').style.color = 'var(--color-medium)';
+                            document.getElementById('tab-senders').style.borderColor = 'var(--color-medium)';
                             if (!document.getElementById('senders-content').innerHTML) {{
                                 loadDuplicateSenders();
                             }}
@@ -8102,15 +8102,15 @@ def coordinated_funders_view_old():
                             }}
                         }} else if (tabName === 'funder-networks') {{
                             document.getElementById('tab-funder-networks').style.background = 'rgba(59, 130, 246, 0.2)';
-                            document.getElementById('tab-funder-networks').style.color = '#3b82f6';
-                            document.getElementById('tab-funder-networks').style.borderColor = '#3b82f6';
+                            document.getElementById('tab-funder-networks').style.color = 'var(--color-none)';
+                            document.getElementById('tab-funder-networks').style.borderColor = 'var(--color-none)';
                             if (!document.getElementById('funder-networks-content').innerHTML) {{
                                 loadFunderNetworks();
                             }}
                         }} else if (tabName === 'funding-networks') {{
-                            document.getElementById('tab-funding-networks').style.background = 'rgba(99, 102, 241, 0.2)';
-                            document.getElementById('tab-funding-networks').style.color = '#6366f1';
-                            document.getElementById('tab-funding-networks').style.borderColor = '#6366f1';
+                            document.getElementById('tab-funding-networks').style.background = 'rgba(124, 58, 237, 0.2)';
+                            document.getElementById('tab-funding-networks').style.color = 'var(--primary)';
+                            document.getElementById('tab-funding-networks').style.borderColor = 'var(--primary)';
                             if (!document.getElementById('funding-networks-content').innerHTML) {{
                                 loadFundingNetworks();
                             }}
@@ -8225,7 +8225,7 @@ def coordinated_funders_view_old():
                             }} else {{
                                 data.tokens.forEach(token => {{
                                     const createdDate = new Date(token.created_at).toISOString().substring(0, 10);
-                                    const riskColor = token.risk_level === 'HIGH' ? '#ef4444' : token.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
+                                    const riskColor = token.risk_level === 'HIGH' ? 'var(--color-critical)' : token.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
                                     const senderHighlight = token.num_senders > 100 ? 'background: rgba(239, 68, 68, 0.15);' : token.num_senders > 50 ? 'background: rgba(245, 158, 11, 0.15);' : '';
 
                                     html += `
@@ -8413,9 +8413,9 @@ def coordinated_funders_view_old():
 
                             data.networks.forEach(network => {{
                                 html += `
-                                    <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid #6366f1; border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s;"
+                                    <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid var(--primary); border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s;"
                                          onclick="showNetworkDetails(${{network.network_id}})"
-                                         onmouseover="this.style.background='rgba(99, 102, 241, 0.15)'; this.style.boxShadow='0 0 15px rgba(99, 102, 241, 0.5)';"
+                                         onmouseover="this.style.background='rgba(124, 58, 237, 0.15)'; this.style.boxShadow='0 0 15px rgba(124, 58, 237, 0.5)';"
                                          onmouseout="this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='none';">
                                         <div style="font-weight: bold; color: var(--text-primary); font-size: 14px; margin-bottom: 12px;">${{network.name}}</div>
                                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 11px;">
@@ -8423,7 +8423,7 @@ def coordinated_funders_view_old():
                                                 <div style="color: var(--text-secondary);">Funders</div>
                                                 <div style="color: var(--color-low); font-weight: bold;">${{network.funders}}</div>
                                             </div>
-                                            <div style="background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #3b82f6;">
+                                            <div style="background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid var(--color-none);">
                                                 <div style="color: var(--text-secondary);">Senders</div>
                                                 <div style="color: var(--color-none); font-weight: bold;">${{network.senders}}</div>
                                             </div>
@@ -8431,13 +8431,13 @@ def coordinated_funders_view_old():
                                                 <div style="color: var(--text-secondary);">Creators</div>
                                                 <div style="color: #f59e0b; font-weight: bold;">${{network.creators}}</div>
                                             </div>
-                                            <div style="background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #3b82f6;">
+                                            <div style="background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid var(--color-none);">
                                                 <div style="color: var(--text-secondary);">Tokens</div>
                                                 <div style="color: var(--color-none); font-weight: bold;">${{network.tokens}}</div>
                                             </div>
-                                            <div style="background: rgba(168, 85, 247, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid #a855f7;">
+                                            <div style="background: rgba(168, 85, 247, 0.1); padding: 8px; border-radius: 4px; border-left: 2px solid var(--accent-purple);">
                                                 <div style="color: var(--text-secondary);">SOL</div>
-                                                <div style="color: #a855f7; font-weight: bold;">${{network.total_sol.toFixed(0)}}</div>
+                                                <div style="color: var(--accent-purple); font-weight: bold;">${{network.total_sol.toFixed(0)}}</div>
                                             </div>
                                         </div>
                                     </div>`;
@@ -8477,10 +8477,10 @@ def coordinated_funders_view_old():
 
                             let html = `
                                 <div style="margin-bottom: 20px;">
-                                    <button onclick="loadFundingNetworks()" style="background: rgba(99, 102, 241, 0.2); color: #6366f1; border: 1px solid #6366f1; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px;">← Back to Networks</button>
+                                    <button onclick="loadFundingNetworks()" style="background: rgba(124, 58, 237, 0.2); color: var(--primary); border: 1px solid var(--primary); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px;">← Back to Networks</button>
                                 </div>
-                                <div style="background: rgba(99, 102, 241, 0.1); border-left: 3px solid #6366f1; border-radius: 6px; padding: 20px; margin-bottom: 20px;">
-                                    <h2 style="color: #6366f1; margin: 0 0 15px 0;">${{data.network_name}} Details</h2>
+                                <div style="background: rgba(124, 58, 237, 0.1); border-left: 3px solid var(--primary); border-radius: 6px; padding: 20px; margin-bottom: 20px;">
+                                    <h2 style="color: var(--primary); margin: 0 0 15px 0;">${{data.network_name}} Details</h2>
                                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
                                         <div>
                                             <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">FUNDERS</div>
@@ -8496,7 +8496,7 @@ def coordinated_funders_view_old():
                                         </div>
                                         <div>
                                             <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">TOKENS</div>
-                                            <div style="font-size: 28px; font-weight: bold; color: #a855f7;">${{data.tokens}}</div>
+                                            <div style="font-size: 28px; font-weight: bold; color: var(--accent-purple);">${{data.tokens}}</div>
                                         </div>
                                         <div>
                                             <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">TOTAL SOL</div>
@@ -8511,7 +8511,7 @@ def coordinated_funders_view_old():
 
                             data.token_list.forEach(token => {{
                                 html += `
-                                    <div style="background: rgba(99, 102, 241, 0.05); padding: 10px; border-radius: 4px; border-left: 2px solid #6366f1; font-family: monospace; font-size: 10px; word-break: break-all; color: var(--text-secondary);">
+                                    <div style="background: rgba(124, 58, 237, 0.05); padding: 10px; border-radius: 4px; border-left: 2px solid var(--primary); font-family: monospace; font-size: 10px; word-break: break-all; color: var(--text-secondary);">
                                         ${{token}}
                                     </div>`;
                             }});
@@ -8525,10 +8525,10 @@ def coordinated_funders_view_old():
                                     <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">`;
 
                                 data.root_operator_flows.forEach((flow, idx) => {{
-                                    html += `<div style="background: rgba(99, 102, 241, 0.08); border-left: 3px solid #6366f1; border-radius: 6px; padding: 15px;">
+                                    html += `<div style="background: rgba(124, 58, 237, 0.08); border-left: 3px solid var(--primary); border-radius: 6px; padding: 15px;">
                                         <div style="margin-bottom: 12px;">
                                             <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 5px;">ROOT OPERATOR #${{idx + 1}}</div>
-                                            <div style="font-family: monospace; font-size: 12px; color: #6366f1; word-break: break-all; padding: 8px; background: rgba(99, 102, 241, 0.1); border-radius: 4px;">${{flow.root_operator}}</div>
+                                            <div style="font-family: monospace; font-size: 12px; color: var(--primary); word-break: break-all; padding: 8px; background: rgba(124, 58, 237, 0.1); border-radius: 4px;">${{flow.root_operator}}</div>
                                         </div>
                                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;">
                                             <div>
@@ -8561,7 +8561,7 @@ def coordinated_funders_view_old():
                                             html += `<div style="font-family: monospace; font-size: 9px; color: var(--text-primary); padding: 4px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.4;">
                                                 <div style="color: var(--color-none);">${{ex.sender.substring(0, 12)}}...</div>
                                                 <div style="color: var(--text-secondary); margin-left: 10px;">↓ (to funder)</div>
-                                                <div style="color: #6366f1;">${{ex.funder.substring(0, 12)}}...</div>
+                                                <div style="color: var(--primary);">${{ex.funder.substring(0, 12)}}...</div>
                                                 <div style="color: var(--text-secondary); margin-left: 10px;">↓ ${{{ex.sol_to_creator.toFixed(2)}}} SOL</div>
                                                 <div style="color: #f59e0b;">${{ex.creator.substring(0, 12)}}...</div>
                                             </div>`;
@@ -8576,7 +8576,7 @@ def coordinated_funders_view_old():
 
                                     if (flow.downstream_creators.length > 0) {{
                                         flow.downstream_creators.forEach(creator => {{
-                                            const riskColor = creator.risk_level === 'HIGH' ? '#ef4444' : creator.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
+                                            const riskColor = creator.risk_level === 'HIGH' ? 'var(--color-critical)' : creator.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
                                             html += `
                                                 <div style="padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); display: flex; justify-content: space-between; align-items: center;">
                                                     <div style="font-family: monospace; font-size: 9px; color: var(--text-secondary); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{creator.mint}}">${{creator.mint.substring(0, 16)}}...</div>
@@ -8626,11 +8626,11 @@ def coordinated_funders_view_old():
                             let html = `<table style="width: 100%; border-collapse: collapse;">
                                 <thead style="background: rgba(0, 0, 0, 0.3);">
                                     <tr>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: var(--text-secondary); font-size: 12px;">Token Mint</th>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: var(--text-secondary); font-size: 12px;">Creator</th>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: var(--text-secondary); font-size: 12px;">Funding (SOL)</th>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: var(--text-secondary); font-size: 12px;">Risk</th>
-                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.2); color: var(--text-secondary); font-size: 12px;">Rug %</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(6, 182, 212, 0.2); color: var(--text-secondary); font-size: 12px;">Token Mint</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(6, 182, 212, 0.2); color: var(--text-secondary); font-size: 12px;">Creator</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(6, 182, 212, 0.2); color: var(--text-secondary); font-size: 12px;">Funding (SOL)</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(6, 182, 212, 0.2); color: var(--text-secondary); font-size: 12px;">Risk</th>
+                                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid rgba(6, 182, 212, 0.2); color: var(--text-secondary); font-size: 12px;">Rug %</th>
                                     </tr>
                                 </thead>
                                 <tbody>`;
@@ -8639,7 +8639,7 @@ def coordinated_funders_view_old():
                                 html += '<tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--text-secondary);">No tokens found</td></tr>';
                             }} else {{
                                 data.tokens.forEach(token => {{
-                                    const riskColor = token.risk_level === 'HIGH' ? '#ef4444' : token.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
+                                    const riskColor = token.risk_level === 'HIGH' ? 'var(--color-critical)' : token.risk_level === 'MEDIUM' ? '#f59e0b' : '#4ade80';
                                     html += `
                                         <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                                             <td style="padding: 10px; font-family: monospace; font-size: 11px; color: var(--color-low); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -8699,7 +8699,7 @@ def coordinated_funders_view_old():
                     <!-- Senders Tab -->
                     <div id="senders-tab" style="display: none;">
                         <div style="margin-bottom: 20px;">
-                            <button onclick="loadDuplicateSenders()" style="background: rgba(251, 191, 36, 0.2); color: var(--color-medium); border: 1px solid #fbbf24; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Senders Data</button>
+                            <button onclick="loadDuplicateSenders()" style="background: rgba(251, 191, 36, 0.2); color: var(--color-medium); border: 1px solid var(--color-medium); padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Senders Data</button>
                             <span id="senders-status" style="margin-left: 15px; color: var(--text-secondary);"></span>
                         </div>
                         <div id="senders-content"></div>
@@ -8717,7 +8717,7 @@ def coordinated_funders_view_old():
                     <!-- Funder Networks Tab -->
                     <div id="funder-networks-tab" style="display: none;">
                         <div style="margin-bottom: 20px;">
-                            <button onclick="loadFunderNetworks()" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid #3b82f6; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Funder Networks</button>
+                            <button onclick="loadFunderNetworks()" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid var(--color-none); padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Funder Networks</button>
                             <span id="funder-networks-status" style="margin-left: 15px; color: var(--text-secondary);"></span>
                         </div>
                         <div id="funder-networks-content"></div>
@@ -8726,7 +8726,7 @@ def coordinated_funders_view_old():
                     <!-- Funding Networks Tab (Token Overlap Clustering) -->
                     <div id="funding-networks-tab" style="display: none;">
                         <div style="margin-bottom: 20px;">
-                            <button onclick="loadFundingNetworks()" style="background: rgba(99, 102, 241, 0.2); color: #6366f1; border: 1px solid #6366f1; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Funding Networks</button>
+                            <button onclick="loadFundingNetworks()" style="background: rgba(124, 58, 237, 0.2); color: var(--primary); border: 1px solid var(--primary); padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">⟲ Reload Funding Networks</button>
                             <span id="funding-networks-status" style="margin-left: 15px; color: var(--text-secondary);"></span>
                         </div>
                         <div id="funding-networks-content"></div>
@@ -8811,7 +8811,7 @@ def coordinated_funders_view_old():
 
                     <!-- Sender Tokens Modal -->
                     <div id="senderTokensModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7);">
-                        <div style="background: #0a0e27; margin: 10% auto; padding: 20px; border: 1px solid #00d4ff; width: 90%; max-width: 1200px; max-height: 80vh; overflow-y: auto; border-radius: 8px;">
+                        <div style="background: #0a0e27; margin: 10% auto; padding: 20px; border: 1px solid var(--accent-cyan); width: 90%; max-width: 1200px; max-height: 80vh; overflow-y: auto; border-radius: 8px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                                 <h2 style="color: var(--accent-cyan); margin: 0;">Tokens Funded by Sender</h2>
                                 <span style="cursor: pointer; font-size: 28px; color: var(--text-secondary);" onclick="closeSenderTokens()">&times;</span>
@@ -8826,7 +8826,7 @@ def coordinated_funders_view_old():
 
                     <!-- Funder Tokens Modal -->
                     <div id="funderTokensModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7);">
-                        <div style="background: #0a0e27; margin: 10% auto; padding: 20px; border: 1px solid #3b82f6; width: 90%; max-width: 1200px; max-height: 80vh; overflow-y: auto; border-radius: 8px;">
+                        <div style="background: #0a0e27; margin: 10% auto; padding: 20px; border: 1px solid var(--color-none); width: 90%; max-width: 1200px; max-height: 80vh; overflow-y: auto; border-radius: 8px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                                 <h2 style="color: var(--color-none); margin: 0;">Tokens Funded by Funder</h2>
                                 <span style="cursor: pointer; font-size: 28px; color: var(--text-secondary);" onclick="closeFunderTokens()">&times;</span>
@@ -9054,7 +9054,7 @@ def funder_details_view(funder_address: str):
                         background: rgba(0, 0, 0, 0.3);
                         padding: 15px;
                         border-radius: 8px;
-                        border-left: 3px solid #00d4ff;
+                        border-left: 3px solid var(--accent-cyan);
                     }}
                     .stat-label {{
                         color: var(--text-secondary);
@@ -9076,7 +9076,7 @@ def funder_details_view(funder_address: str):
                     .section-title {{
                         background: var(--bg-secondary);
                         padding: 12px 15px;
-                        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+                        border-bottom: 1px solid rgba(6, 182, 212, 0.2);
                         font-weight: 600;
                         color: var(--accent-cyan);
                         font-size: 13px;
@@ -9097,14 +9097,14 @@ def funder_details_view(funder_address: str):
                         font-size: 10px;
                         color: var(--text-secondary);
                         text-transform: uppercase;
-                        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+                        border-bottom: 1px solid rgba(6, 182, 212, 0.2);
                         font-weight: 600;
                     }}
                     td {{
                         padding: 10px;
                     }}
                     tr:hover {{
-                        background: rgba(0, 212, 255, 0.05);
+                        background: rgba(6, 182, 212, 0.05);
                     }}
                 </style>
             </head>

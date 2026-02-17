@@ -10756,6 +10756,10 @@ def api_super_clusters():
                 sc.creator_count,
                 sc.root_addresses,
                 sc.risk_level,
+                sc.creator_reuse_level,
+                sc.creator_reuse_tag,
+                sc.creator_reuse_ratio,
+                sc.shared_creators_count,
                 COUNT(DISTINCT csm.creator_address) as mapped_creators
             FROM super_clusters sc
             LEFT JOIN creator_super_cluster_membership csm ON sc.super_cluster_id = csm.super_cluster_id
@@ -10787,7 +10791,11 @@ def api_super_clusters():
                 'mapped_creators': row['mapped_creators'],
                 'root_addresses': root_addresses_display,
                 'risk_level': row['risk_level'],
-                'has_cex_infra': has_cex_infra  # Flag if cluster has ANY CEX/INFRA
+                'has_cex_infra': has_cex_infra,  # Flag if cluster has ANY CEX/INFRA
+                'creator_reuse_level': row['creator_reuse_level'],
+                'creator_reuse_tag': row['creator_reuse_tag'],
+                'creator_reuse_ratio': round(row['creator_reuse_ratio'], 3) if row['creator_reuse_ratio'] else 0,
+                'shared_creators_count': row['shared_creators_count'] or 0
             })
 
         conn.close()
@@ -10813,7 +10821,11 @@ def api_super_cluster_details(cluster_id: str):
                 network_count,
                 creator_count,
                 root_addresses,
-                risk_level
+                risk_level,
+                creator_reuse_level,
+                creator_reuse_tag,
+                creator_reuse_ratio,
+                shared_creators_count
             FROM super_clusters
             WHERE super_cluster_id = ?
         """, (cluster_id,))
@@ -11079,6 +11091,10 @@ def api_super_cluster_details(cluster_id: str):
             'root_operator_status': root_operator_status,  # Track CEX/INFRA status
             'network_root_operator_status': network_root_operator_status,  # Track which networks have CEX/INFRA
             'risk_level': cluster_row['risk_level'],
+            'creator_reuse_level': cluster_row['creator_reuse_level'],
+            'creator_reuse_tag': cluster_row['creator_reuse_tag'],
+            'creator_reuse_ratio': round(cluster_row['creator_reuse_ratio'], 3) if cluster_row['creator_reuse_ratio'] else 0,
+            'shared_creators_count': cluster_row['shared_creators_count'] or 0,
             'creators': creators,
             'tokens': tokens,
             'funder_stats': {

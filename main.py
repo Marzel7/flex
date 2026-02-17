@@ -10286,6 +10286,8 @@ def api_analyze_funder_transfers():
                 result = extract_transfers_for_funder(funder_address)
 
                 # Mark all creators with this funder as analyzed
+                # NOTE: Only mark fully_analyzed=1 if we found sources (inflows > 0)
+                # If zero inflows found, only set last_analyzed to allow re-extraction later
                 try:
                     conn = sqlite3.connect(DB_PATH, timeout=5)
                     cursor = conn.cursor()
@@ -10295,15 +10297,23 @@ def api_analyze_funder_transfers():
                     creators = [row[0] for row in cursor.fetchall()]
 
                     # Mark each creator-funder pair as analyzed
+                    incoming_count = result.get('incoming_count', 0)
+                    outgoing_count = result.get('outgoing_count', 0)
+
+                    # Only mark fully_analyzed if we found sources (protects against Helius indexing lag)
+                    fully_analyzed_flag = 1 if (incoming_count > 0 or outgoing_count > 0) else 0
+
                     for creator_addr in creators:
                         cursor.execute(
-                            "UPDATE creator_funders SET last_analyzed = CURRENT_TIMESTAMP, fully_analyzed = 1 WHERE creator_address = ? AND funder_address = ?",
-                            (creator_addr, funder_address)
+                            "UPDATE creator_funders SET last_analyzed = CURRENT_TIMESTAMP, fully_analyzed = ? WHERE creator_address = ? AND funder_address = ?",
+                            (fully_analyzed_flag, creator_addr, funder_address)
                         )
 
                     conn.commit()
                     conn.close()
-                    print(f"[FUNDER_ANALYSIS] ✅ Marked extraction complete for {len(creators)} creator(s)", flush=True)
+
+                    status_msg = f"✅ Found sources" if fully_analyzed_flag else "⏳ Zero sources (may re-extract)"
+                    print(f"[FUNDER_ANALYSIS] {status_msg} for {len(creators)} creator(s)", flush=True)
                 except Exception as mark_err:
                     print(f"[FUNDER_ANALYSIS] ⚠️ Could not mark analyzed: {mark_err}", flush=True)
 

@@ -4663,14 +4663,18 @@ HTML_TEMPLATE = """
 
                     if (flow && flow.example_flows && flow.example_flows.length > 0) {
                         flowsHTML = flow.example_flows.map((ex) =>
-                            '<div style="font-family: monospace; font-size: 8px; color: #e0e0e0; padding: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.4; background: rgba(0, 0, 0, 0.2); border-radius: 3px; margin-bottom: 4px;">' +
-                            '<div style="color: #3b82f6; margin-bottom: 2px;">📤 Sender: ' + ex.sender.substring(0, 16) + '...</div>' +
-                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 7px; margin-bottom: 2px;">⬇ to Funder</div>' +
-                            '<div style="color: #6366f1; margin-bottom: 2px;">💰 Root Op: ' + ex.funder.substring(0, 16) + '...</div>' +
-                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 7px; margin-bottom: 2px;">⬇ ' + ex.sol_to_creator.toFixed(2) + ' SOL</div>' +
-                            '<div style="color: #f59e0b; margin-bottom: 2px;">👤 Creator: ' + ex.creator.substring(0, 16) + '...</div>' +
-                            (ex.mint ? '<div style="color: #a0a0a0; margin-left: 8px; font-size: 7px; margin-bottom: 2px;">⬇ Token</div>' +
-                            '<div style="color: #4ade80;">🎫 ' + ex.mint.substring(0, 20) + '...</div>' : '') +
+                            '<div style="font-family: monospace; font-size: 11px; color: #e0e0e0; padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.6; background: rgba(0, 0, 0, 0.2); border-radius: 3px; margin-bottom: 6px;">' +
+                            '<div style="color: #3b82f6; margin-bottom: 6px;"><strong>📤 Sender:</strong></div>' +
+                            '<div style="font-size: 12px; font-weight: bold; color: #60a5fa; word-break: break-all; padding: 6px; background: rgba(96, 165, 250, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.sender + '</div>' +
+                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ to Funder</div>' +
+                            '<div style="color: #6366f1; margin-bottom: 6px;"><strong>💰 Root Op:</strong></div>' +
+                            '<div style="font-size: 12px; font-weight: bold; color: #818cf8; word-break: break-all; padding: 6px; background: rgba(129, 140, 248, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.funder + '</div>' +
+                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ ' + ex.sol_to_creator.toFixed(2) + ' SOL funds Creator</div>' +
+                            '<div style="color: #f59e0b; margin-bottom: 6px;"><strong>👤 Creator:</strong></div>' +
+                            '<div style="font-size: 12px; font-weight: bold; color: #fbbf24; word-break: break-all; padding: 6px; background: rgba(251, 191, 36, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.creator + '</div>' +
+                            (ex.mint ? '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ creates Token</div>' +
+                            '<div style="color: #4ade80;"><strong>🎫 Token:</strong></div>' +
+                            '<div style="font-size: 12px; font-weight: bold; color: #86efac; word-break: break-all; padding: 6px; background: rgba(134, 239, 172, 0.1); border-radius: 2px;">' + ex.mint + '</div>' : '') +
                             '</div>'
                         ).join('');
                     }
@@ -4683,7 +4687,7 @@ HTML_TEMPLATE = """
                             '<div><div style="color: #a0a0a0;">TOTAL SOL</div><div style="color: #4ade80; font-weight: bold;">' + flow.total_sol_sent.toFixed(2) + '</div></div>' +
                             '</div>' : '') +
                         (flowsHTML ? '<div style="font-size: 9px; color: #a0a0a0; margin-bottom: 6px;">EXAMPLE FLOWS: Sender → Funder → Creator</div>' +
-                            '<div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 6px; max-height: 120px; overflow-y: auto;">' + flowsHTML + '</div>' : '') +
+                            '<div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 6px;">' + flowsHTML + '</div>' : '') +
                         '</div>';
                 }).join('');
 
@@ -6927,8 +6931,240 @@ def api_multi_creator_funders():
         return jsonify({'error': str(e)}), 500
 
 
+# HTML template for coordinated funders page
+coordinated_funders_html = '''
+<html>
+<head>
+    <title>Coordinated Funders</title>
+    <style>
+        body {
+            background: #0f0f1e;
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+            padding: 40px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 40px;
+            border-radius: 12px;
+        }
+        h1 {
+            color: #6366f1;
+            margin-top: 0;
+            font-size: 32px;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border-left: 3px solid #6366f1;
+        }
+        .button {
+            background: #6366f1;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        .button:hover {
+            background: #818cf8;
+        }
+        ul {
+            line-height: 1.8;
+            color: #a0a0a0;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .status {
+            background: rgba(74, 222, 128, 0.1);
+            border: 1px solid #4ade80;
+            color: #4ade80;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Coordinated Funders Analysis</h1>
+
+        <div class="status">
+            ✅ Use the <strong>🔗 Networks</strong> tab in the main dashboard for full coordinated funders analysis
+        </div>
+
+        <div class="section">
+            <h2 style="color: #f59e0b; margin-top: 0;">What is Coordinated Funders?</h2>
+            <p>Coordinated funders are wallets that fund multiple creators, indicating potential coordination or network relationships. This analysis helps identify:</p>
+            <ul>
+                <li><strong>Funding Networks:</strong> Groups of funders working together</li>
+                <li><strong>Coordinated Activity:</strong> Suspicious patterns of multi-creator funding</li>
+                <li><strong>Risk Clusters:</strong> Related accounts with elevated risk profiles</li>
+                <li><strong>Funding Flow:</strong> How SOL moves through the network</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2 style="color: #3b82f6; margin-top: 0;">Features in Networks Tab</h2>
+            <ul>
+                <li>View all funding networks in the cluster</li>
+                <li>See root operators and their relationships</li>
+                <li>Track example flows: Sender → Funder → Creator → Token</li>
+                <li>Analyze funding amounts and patterns</li>
+                <li>Identify suspicious coordination patterns</li>
+                <li>Real-time network analysis</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2 style="color: #a855f7; margin-top: 0;">How to Use</h2>
+            <ol style="line-height: 2;">
+                <li>Click on a Super-Cluster in the main dashboard</li>
+                <li>Navigate to the <strong>Networks</strong> tab</li>
+                <li>View all funding networks and their members</li>
+                <li>Click on root operators to see example flows</li>
+                <li>Analyze sender patterns and funding relationships</li>
+            </ol>
+        </div>
+
+        <button class="button" onclick="window.location.href = '/'">← Back to Dashboard</button>
+    </div>
+</body>
+</html>
+'''
+
+
 @app.route('/coordinated-funders')
 def coordinated_funders_view():
+    """Serve a full webview for coordinated funders analysis"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get funders funding multiple creators
+        cursor.execute("""
+            SELECT
+                funder_address,
+                COUNT(DISTINCT creator_address) as creator_count,
+                SUM(amount_sol) as total_sol_sent
+            FROM creator_funders
+            GROUP BY funder_address
+            HAVING COUNT(DISTINCT creator_address) > 1
+            ORDER BY creator_count DESC, total_sol_sent DESC
+            LIMIT 100
+        """)
+
+        multi_funders = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        # Build HTML response
+        html_rows = ""
+        for funder in multi_funders:
+            html_rows += f"""
+            <tr>
+                <td style="padding: 10px; font-family: monospace; font-size: 11px; color: #00d4ff; word-break: break-all;">
+                    {funder['funder_address']}
+                </td>
+                <td style="padding: 10px; text-align: right; color: #f59e0b;">{funder['creator_count']}</td>
+                <td style="padding: 10px; text-align: right; color: #4ade80;">{funder['total_sol_sent']:.2f} SOL</td>
+            </tr>
+            """
+
+        html = f"""
+        <html>
+        <head>
+            <title>Coordinated Funders</title>
+            <style>
+                body {{
+                    background: #0f0f1e;
+                    color: #e0e0e0;
+                    font-family: monospace;
+                    padding: 20px;
+                }}
+                .container {{
+                    max-width: 1000px;
+                    margin: 0 auto;
+                }}
+                h1 {{
+                    color: #6366f1;
+                }}
+                table {{
+                    width: 100%;
+                    border-collapse: collapse;
+                    background: rgba(99, 102, 241, 0.05);
+                    border: 1px solid rgba(99, 102, 241, 0.2);
+                    border-radius: 8px;
+                    overflow: hidden;
+                }}
+                thead {{
+                    background: rgba(99, 102, 241, 0.1);
+                    border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+                }}
+                th {{
+                    padding: 12px;
+                    text-align: left;
+                    color: #6366f1;
+                    font-weight: bold;
+                }}
+                tr:hover {{
+                    background: rgba(99, 102, 241, 0.08);
+                }}
+                .button {{
+                    background: #6366f1;
+                    color: white;
+                    padding: 10px 20px;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    margin-top: 20px;
+                }}
+                .button:hover {{
+                    background: #818cf8;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>🔗 Coordinated Funders ({len(multi_funders)} total)</h1>
+                <p style="color: #a0a0a0;">Wallets that fund multiple creators, indicating coordination or network relationships</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Funder Address</th>
+                            <th style="text-align: right;">Creators Funded</th>
+                            <th style="text-align: right;">Total SOL Sent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {html_rows}
+                    </tbody>
+                </table>
+
+                <button class="button" onclick="window.location.href = '/'">← Back to Dashboard</button>
+            </div>
+        </body>
+        </html>
+        """
+
+        return html
+
+    except Exception as e:
+        return f"<html><body style='background: #0f0f1e; color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
+# Original coordinated_funders_view (with syntax issues):
+def coordinated_funders_view_old():
     """Serve a full webview for coordinated funders analysis"""
     try:
         from infra_mapping import get_account_info, get_cex_info, get_pumpfun_creator_info, get_suspicious_wallet_info
@@ -10406,35 +10642,29 @@ def api_super_cluster_details(cluster_id: str):
 
             downstream_creators = [dict(row) for row in cursor.fetchall()]
 
-            # Get all funders in this cluster (potential senders to the root op)
-            cursor.execute("""
-                SELECT DISTINCT cf.funder_address
-                FROM creator_funders cf
-                WHERE cf.creator_address IN ({})
-                ORDER BY RANDOM()
-                LIMIT 5
-            """.format(','.join('?' * len(creators))), tuple(creators))
-
-            all_funders = [row['funder_address'] for row in cursor.fetchall()]
-
-            # Build example address flows (random sender >> root op >> creator >> token)
+            # Build example address flow with verified sender→funder→creator chain
             example_flows = []
-            if all_funders and downstream_creators:
-                # Pick up to 3 random senders
-                import random
-                senders = all_funders[:3] if len(all_funders) >= 3 else all_funders
+            if downstream_creators:
+                # Find a verified sender that actually sent to THIS root operator
+                cursor.execute("""
+                    SELECT sender_address, amount_sol
+                    FROM funder_incoming_transfers
+                    WHERE funder_address = ?
+                    ORDER BY amount_sol DESC
+                    LIMIT 1
+                """, (root_op_addr,))
 
-                # For each sender, pair with a creator
-                for i, sender in enumerate(senders):
-                    if i < len(downstream_creators):
-                        creator_data = downstream_creators[i]
-                        example_flows.append({
-                            'sender': sender,
-                            'funder': root_op_addr,
-                            'creator': creator_data['creator_address'],
-                            'mint': creator_data.get('mint', ''),
-                            'sol_to_creator': creator_data['amount_sol']
-                        })
+                sender_row = cursor.fetchone()
+                if sender_row:
+                    # Verified: sender → root op (actual transfer)
+                    creator_data = downstream_creators[0]
+                    example_flows.append({
+                        'sender': sender_row['sender_address'],
+                        'funder': root_op_addr,
+                        'creator': creator_data['creator_address'],
+                        'mint': creator_data.get('mint', ''),
+                        'sol_to_creator': creator_data['amount_sol']
+                    })
 
             root_operator_flows.append({
                 'root_operator': root_op_addr,

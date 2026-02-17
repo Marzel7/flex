@@ -231,33 +231,33 @@ HTML_TEMPLATE = """
         }
 
         :root {
-            /* Primary Colors */
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --primary-light: rgba(99, 102, 241, 0.15);
+            /* Primary Colors - Dark, Muted */
+            --primary: #5b5d7f;
+            --primary-dark: #484a63;
+            --primary-light: rgba(91, 93, 127, 0.15);
 
-            /* Text Colors */
-            --text-primary: #e0e0e0;
-            --text-secondary: #a0a0a0;
+            /* Text Colors - Low Contrast, Dark Theme */
+            --text-primary: #c8c8d0;
+            --text-secondary: #8a8a94;
             --text-dark: #1a1a1a;
-            --text-light: #ffffff;
+            --text-light: #e8e8e8;
 
-            /* Risk & Reuse Levels */
-            --color-critical: #ef4444;
-            --color-high: #ff6b6b;
-            --color-medium: #ffa94d;
-            --color-low: #ffd93d;
-            --color-none: #6bcf7f;
+            /* Risk & Reuse Levels - Muted, Dark */
+            --color-critical: #c44545;
+            --color-high: #d16b6b;
+            --color-medium: #d4a56b;
+            --color-low: #d4c26b;
+            --color-none: #6b9d7a;
 
-            /* Backgrounds */
+            /* Backgrounds - Dark */
             --bg-primary: #0f0f1e;
-            --bg-secondary: rgba(0, 0, 0, 0.3);
-            --bg-overlay: rgba(99, 102, 241, 0.15);
+            --bg-secondary: rgba(0, 0, 0, 0.5);
+            --bg-overlay: rgba(91, 93, 127, 0.1);
 
-            /* Accents */
-            --accent-cyan: #00d4ff;
-            --accent-green: #4ade80;
-            --accent-purple: #a855f7;
+            /* Accents - Muted */
+            --accent-cyan: #4a9bbe;
+            --accent-green: #5a9b6a;
+            --accent-purple: #8b6ba8;
         }
 
         body {

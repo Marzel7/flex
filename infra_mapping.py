@@ -435,6 +435,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "pyusd", "stablecoin", "sweeper"],
     },
 
+    # SolCasino
+    "6qkh2JcHt3ctFeiL4HBn1e9NU5aPw25XNhtgEv6ZCJ4U": {
+        "name": "SolCasino",
+        "category": "protocol",
+        "description": "SolCasino protocol treasury/distribution account - exclude from network analysis",
+        "risk_level": "neutral",
+        "tags": ["infra", "protocol", "solcasino", "treasury"],
+    },
+
     # Solend (Lending Protocol)
     "So1endDq2YkqvzLvDtqKp2eiXodus4CMVqKwRQW4gS8": {
         "name": "Solend",

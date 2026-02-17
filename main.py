@@ -4753,6 +4753,9 @@ HTML_TEMPLATE = """
                                     <div>
                                         <div style="color: #6366f1; font-size: 11px; margin-bottom: 4px;">TOTAL NETWORKS</div>
                                         <div style="color: #818cf8; font-weight: bold; font-size: 16px;">${data.network_count}</div>
+                                        <div style="color: #a0a0a0; font-size: 9px; margin-top: 4px;">
+                                            ${data.networks.length > 0 ? data.networks.map(n => n.network_name || `Network_${n.network_id}`).join(', ') : 'N/A'}
+                                        </div>
                                     </div>
                                     <div>
                                         <div style="color: #f59e0b; font-size: 11px; margin-bottom: 4px;">UNIQUE CREATORS</div>

@@ -151,6 +151,61 @@ def save_funder_outgoing_transfer(funder_address: str, recipient_address: str, a
         return False
 
 
+def _link_funder_to_creator_if_applicable(funder_address: str, incoming_transfers: List[Dict]):
+    """
+    If the funder address is itself a creator, record its pre-migration funding.
+    This links funder extraction results to creator_funders table.
+    """
+    if not incoming_transfers:
+        return  # No incoming transfers, can't be a creator funder
+
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Check if this funder address is a known creator
+        cursor.execute("""
+            SELECT earliest_tx_creator, created_at
+            FROM token_analysis
+            WHERE earliest_tx_creator = ?
+            LIMIT 1
+        """, (funder_address,))
+
+        creator_info = cursor.fetchone()
+        if not creator_info:
+            conn.close()
+            return  # Not a creator
+
+        creator_addr = creator_info['earliest_tx_creator']
+        created_at_str = creator_info['created_at']
+
+        from datetime import datetime
+        created_at = datetime.fromisoformat(created_at_str.replace('Z', '+00:00'))
+
+        print(f"\n[CREATOR_LINK] {funder_address[:16]}... is a creator! Linking funding sources...")
+
+        # For each incoming transfer, record as pre-migration funding
+        # (we assume all recorded transfers are pre-migration since Helius provides historical data)
+        for transfer in incoming_transfers:
+            sender = transfer['sender']
+            amount = transfer['amount_sol']
+
+            cursor.execute("""
+                INSERT OR REPLACE INTO creator_funders
+                (creator_address, funder_address, amount_sol, first_detected_at, source_type)
+                VALUES (?, ?, ?, CURRENT_TIMESTAMP, 'extraction_incoming')
+            """, (creator_addr, sender, amount))
+
+        conn.commit()
+        conn.close()
+
+        print(f"[CREATOR_LINK] ✅ Recorded {len(incoming_transfers)} funding source(s) for creator")
+
+    except Exception as e:
+        print(f"[CREATOR_LINK] ⚠️ Error linking funder to creator: {e}")
+
+
 def mark_funder_analyzed(funder_address: str, creator_address: str):
     """Mark a funder as analyzed by updating last_analyzed timestamp"""
     try:
@@ -298,6 +353,9 @@ def extract_transfers_for_funder(funder_address: str) -> Dict:
     total_sol = sum(t['amount_sol'] for t in incoming_transfers) + sum(t['amount_sol'] for t in outgoing_transfers)
 
     print(f"[SUMMARY] Funder {funder_address[:16]}...: {incoming_saved} incoming, {outgoing_saved} outgoing, {total_sol:.4f} SOL total")
+
+    # NEW: Check if this funder address is itself a creator, and link pre-migration funding
+    _link_funder_to_creator_if_applicable(funder_address, incoming_transfers)
 
     return {
         'incoming_count': incoming_saved,

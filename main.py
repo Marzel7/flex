@@ -4647,7 +4647,7 @@ HTML_TEMPLATE = """
                          onmouseover="this.style.background='var(--primary-light)'; this.style.boxShadow='0 0 15px rgba(124, 58, 237, 0.5)';"
                          onmouseout="this.style.background='var(--bg-secondary)'; this.style.boxShadow='none';">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <div style="font-weight: bold; color: var(--text-primary); font-size: 16px;">${cluster.id}</div>
+                            <div style="font-weight: bold; color: var(--text-primary); font-size: 16px;">${cluster.name || cluster.id}</div>
                             <div style="display: flex; align-items: center; gap: 6px;">
                                 <span style="background: ${reuseColor}; color: ${reuseTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; white-space: nowrap;">${cluster.creator_reuse_tag}</span>
                                 <button onclick="showTagDefinition('${cluster.creator_reuse_tag}', event)" style="background: rgba(124, 58, 237, 0.3); border: 1px solid var(--primary); color: var(--primary); width: 20px; height: 20px; border-radius: 50%; padding: 0; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Click for definition">?</button>
@@ -11044,6 +11044,7 @@ def api_super_clusters():
         cursor.execute("""
             SELECT
                 sc.super_cluster_id,
+                COALESCE(nn.display_name, sc.super_cluster_id) as display_name,
                 sc.network_count,
                 sc.creator_memberships_total,
                 sc.root_addresses,
@@ -11065,7 +11066,8 @@ def api_super_clusters():
                 COUNT(DISTINCT csm.creator_address) as creators_unique_check
             FROM super_clusters sc
             LEFT JOIN creator_super_cluster_membership csm ON sc.super_cluster_id = csm.super_cluster_id
-            GROUP BY sc.super_cluster_id
+            LEFT JOIN network_names nn ON sc.super_cluster_id = nn.super_cluster_id
+            GROUP BY sc.super_cluster_id, nn.display_name
             ORDER BY sc.creators_unique DESC, sc.super_cluster_id
         """)
 
@@ -11088,6 +11090,7 @@ def api_super_clusters():
 
             clusters.append({
                 'id': row['super_cluster_id'],
+                'name': row['display_name'],
                 'network_count': row['network_count'],
                 'creator_memberships_total': row['creator_memberships_total'],
                 'creators_unique': row['creators_unique'],

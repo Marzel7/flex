@@ -4726,8 +4726,20 @@ HTML_TEMPLATE = """
                 data.root_addresses.length :
                 data.root_addresses.filter(addr => !addr.includes('(CEX)') && !addr.includes('(INFRA)')).length;
 
-            // Calculate metrics
-            const avgCreatorsPerNetwork = (data.creator_count / data.network_count).toFixed(1);
+            // Filter networks based on visibility
+            let visibleNetworks = data.networks;
+            if (!showCexInfra && data.network_root_operator_status) {
+                // Exclude networks that have CEX/INFRA as root operators
+                visibleNetworks = data.networks.filter(net => {
+                    const hasInfraOrCex = data.network_root_operator_status[net.network_id];
+                    // Include network only if it does NOT have CEX/INFRA (hasInfraOrCex === false)
+                    return !hasInfraOrCex;
+                });
+            }
+
+            // Calculate metrics based on visible networks
+            const visibleNetworkCount = visibleNetworks.length;
+            const avgCreatorsPerNetwork = visibleNetworkCount > 0 ? (data.creator_count / visibleNetworkCount).toFixed(1) : 0;
             const creatorReuseFactor = (data.creator_count > 5 ? 'HIGH' : data.creator_count > 2 ? 'MEDIUM' : 'LOW');
             const creatorReuseColor = creatorReuseFactor === 'HIGH' ? '#ef4444' : creatorReuseFactor === 'MEDIUM' ? '#f59e0b' : '#10b981';
 
@@ -4740,9 +4752,9 @@ HTML_TEMPLATE = """
                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;">
                                 <div>
                                     <div style="color: #6366f1; font-size: 11px; margin-bottom: 4px;">TOTAL NETWORKS</div>
-                                    <div style="color: #818cf8; font-weight: bold; font-size: 16px;">${data.network_count}</div>
+                                    <div style="color: #818cf8; font-weight: bold; font-size: 16px;">${visibleNetworkCount}</div>
                                     <div style="color: #a0a0a0; font-size: 9px; margin-top: 4px;">
-                                        ${data.networks.length > 0 ? data.networks.map(n => n.network_name || `Network_${n.network_id}`).join(', ') : 'N/A'}
+                                        ${visibleNetworks.length > 0 ? visibleNetworks.map(n => n.network_name || `Network_${n.network_id}`).join(', ') : 'N/A'}
                                     </div>
                                 </div>
                                 <div>
@@ -4758,7 +4770,7 @@ HTML_TEMPLATE = """
                             <div style="padding: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 4px; border-left: 2px solid ${creatorReuseColor}; margin-bottom: 10px;">
                                 <div style="color: ${creatorReuseColor}; font-size: 11px; font-weight: bold; margin-bottom: 4px;">⚠️ CREATOR REUSE: ${creatorReuseFactor}</div>
                                 <div style="color: #a0a0a0; font-size: 10px;">
-                                    ${data.creator_count} creators across ${data.network_count} networks = <strong style="color: ${creatorReuseColor};">${avgCreatorsPerNetwork} creators per network average</strong>
+                                    ${data.creator_count} creators across ${visibleNetworkCount} networks = <strong style="color: ${creatorReuseColor};">${avgCreatorsPerNetwork} creators per network average</strong>
                                     <br>This indicates a <strong>coordinated operation</strong> reusing launcher wallets.
                                 </div>
                             </div>
@@ -10823,17 +10835,76 @@ def api_super_cluster_details(cluster_id: str):
                 'example_flows': example_flows
             })
 
-        # Map root_addresses_raw to display names
+        # Map root_addresses_raw to display names and track CEX/INFRA status
         all_root_addresses = []
+        root_operator_status = {}  # Track CEX/INFRA status for each operator
         for addr in root_addresses_raw:
             if addr in INFRASTRUCTURE_ACCOUNTS:
-                all_root_addresses.append(f"{INFRASTRUCTURE_ACCOUNTS[addr]['name']} (INFRA)")
+                display_name = f"{INFRASTRUCTURE_ACCOUNTS[addr]['name']} (INFRA)"
+                root_operator_status[display_name] = 'INFRA'
             elif addr in CEX_ACCOUNTS:
-                all_root_addresses.append(f"{CEX_ACCOUNTS[addr]['name']} (CEX)")
+                display_name = f"{CEX_ACCOUNTS[addr]['name']} (CEX)"
+                root_operator_status[display_name] = 'CEX'
             else:
-                all_root_addresses.append(addr)
+                display_name = addr
+                root_operator_status[display_name] = 'LEGITIMATE'
+            all_root_addresses.append(display_name)
 
         all_root_addresses.sort()
+
+        # For each network, identify if it contains any CEX/INFRA root operators
+        network_root_operator_status = {}  # Map network_id to True if has CEX/INFRA, False if clean
+
+        # Get all creators in this cluster
+        creators_in_cluster = set(creators)
+
+        # Build a mapping of root operators
+        root_op_status_map = {}
+        for addr in root_addresses_raw:
+            if addr in INFRASTRUCTURE_ACCOUNTS:
+                root_op_status_map[addr] = 'INFRA'
+            elif addr in CEX_ACCOUNTS:
+                root_op_status_map[addr] = 'CEX'
+            else:
+                root_op_status_map[addr] = 'LEGITIMATE'
+
+        # For each network, check if any of its creators are funded by CEX/INFRA root operators
+        for network in networks:
+            net_id = network['network_id']
+            network_root_operator_status[net_id] = False  # Assume clean
+
+            # Check if any root operator (CEX/INFRA) funds creators in this network
+            if root_addresses_raw:
+                placeholders = ','.join(['?' for _ in root_addresses_raw])
+                cursor.execute(f"""
+                    SELECT COUNT(*) as count
+                    FROM creator_funders cf
+                    WHERE cf.creator_address IN (
+                        SELECT DISTINCT creator_address
+                        FROM creator_super_cluster_membership
+                        WHERE super_cluster_id = ?
+                    )
+                    AND cf.funder_address IN ({placeholders})
+                    AND cf.funder_address IN (
+                        SELECT funder_address FROM funding_network_members
+                        WHERE network_id = ?
+                    )
+                """, (cluster_id,) + tuple(root_addresses_raw) + (net_id,))
+
+                result = cursor.fetchone()
+                if result and result[0] > 0:
+                    # Check if this root operator is CEX/INFRA
+                    cursor.execute(f"""
+                        SELECT DISTINCT fnm.funder_address
+                        FROM funding_network_members fnm
+                        WHERE fnm.network_id = ? AND fnm.funder_address IN ({placeholders})
+                    """, (net_id,) + tuple(root_addresses_raw))
+
+                    for row in cursor.fetchall():
+                        funder_addr = row[0]
+                        if root_op_status_map.get(funder_addr) in ['CEX', 'INFRA']:
+                            network_root_operator_status[net_id] = True  # Network has CEX/INFRA
+                            break
 
         conn.close()
 
@@ -10843,6 +10914,8 @@ def api_super_cluster_details(cluster_id: str):
             'creator_count': cluster_row['creator_count'],
             'mapped_creator_count': len(creators),
             'root_addresses': all_root_addresses,
+            'root_operator_status': root_operator_status,  # Track CEX/INFRA status
+            'network_root_operator_status': network_root_operator_status,  # Track which networks have CEX/INFRA
             'risk_level': cluster_row['risk_level'],
             'creators': creators,
             'tokens': tokens,

@@ -3412,9 +3412,12 @@ HTML_TEMPLATE = """
                 }
                 document.getElementById('modalCreator').innerHTML = creatorDisplay;
 
-                // Populate creator stats
-                document.getElementById('creatorTotalTokens').textContent = data.tokens.length;
-                document.getElementById('creatorTotalFunding').textContent = (data.funding.total_sol !== null ? data.funding.total_sol.toFixed(2) : '0.00') + ' SOL';
+                // Populate creator stats with styled badges
+                const tokenCount = data.tokens.length;
+                document.getElementById('creatorTotalTokens').innerHTML = `<span class="creator-tag tag-repeat" style="display: inline-block;">${tokenCount} token${tokenCount !== 1 ? 's' : ''}</span>`;
+
+                const fundingAmount = (data.funding.total_sol !== null ? data.funding.total_sol.toFixed(2) : '0.00');
+                document.getElementById('creatorTotalFunding').innerHTML = `<span class="creator-tag tag-funding" style="display: inline-block;">${fundingAmount} SOL</span>`;
 
                 // Show CEX funders if any
                 let fundersText = data.funding.total_funders || '0';

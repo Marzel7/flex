@@ -4662,21 +4662,35 @@ HTML_TEMPLATE = """
                     let flowsHTML = '';
 
                     if (flow && flow.example_flows && flow.example_flows.length > 0) {
-                        flowsHTML = flow.example_flows.map((ex) =>
-                            '<div style="font-family: monospace; font-size: 11px; color: #e0e0e0; padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.6; background: rgba(0, 0, 0, 0.2); border-radius: 3px; margin-bottom: 6px;">' +
-                            '<div style="color: #3b82f6; margin-bottom: 6px;"><strong>📤 Sender:</strong></div>' +
-                            '<div style="font-size: 12px; font-weight: bold; color: #60a5fa; word-break: break-all; padding: 6px; background: rgba(96, 165, 250, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.sender + '</div>' +
-                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ to Funder</div>' +
-                            '<div style="color: #6366f1; margin-bottom: 6px;"><strong>💰 Root Op:</strong></div>' +
+                        flowsHTML = flow.example_flows.map((ex) => {
+                            let flowHTML = '<div style="font-family: monospace; font-size: 11px; color: #e0e0e0; padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.6; background: rgba(0, 0, 0, 0.2); border-radius: 3px; margin-bottom: 6px;">';
+
+                            // Add Sender section if available
+                            if (ex.sender) {
+                                flowHTML += '<div style="color: #3b82f6; margin-bottom: 6px;"><strong>📤 Sender:</strong></div>' +
+                                '<div style="font-size: 12px; font-weight: bold; color: #60a5fa; word-break: break-all; padding: 6px; background: rgba(96, 165, 250, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.sender + '</div>' +
+                                '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ to Funder</div>';
+                            }
+
+                            // Always show Root Op
+                            flowHTML += '<div style="color: #6366f1; margin-bottom: 6px;"><strong>💰 Root Op:</strong></div>' +
                             '<div style="font-size: 12px; font-weight: bold; color: #818cf8; word-break: break-all; padding: 6px; background: rgba(129, 140, 248, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.funder + '</div>' +
-                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ ' + ex.sol_to_creator.toFixed(2) + ' SOL funds Creator</div>' +
-                            '<div style="color: #f59e0b; margin-bottom: 6px;"><strong>👤 Creator:</strong></div>' +
-                            '<div style="font-size: 12px; font-weight: bold; color: #fbbf24; word-break: break-all; padding: 6px; background: rgba(251, 191, 36, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.creator + '</div>' +
-                            (ex.mint ? '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ creates Token</div>' +
-                            '<div style="color: #4ade80;"><strong>🎫 Token:</strong></div>' +
-                            '<div style="font-size: 12px; font-weight: bold; color: #86efac; word-break: break-all; padding: 6px; background: rgba(134, 239, 172, 0.1); border-radius: 2px;">' + ex.mint + '</div>' : '') +
-                            '</div>'
-                        ).join('');
+                            '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ ' + ex.sol_to_creator.toFixed(2) + ' SOL funds Creator</div>';
+
+                            // Always show Creator
+                            flowHTML += '<div style="color: #f59e0b; margin-bottom: 6px;"><strong>👤 Creator:</strong></div>' +
+                            '<div style="font-size: 12px; font-weight: bold; color: #fbbf24; word-break: break-all; padding: 6px; background: rgba(251, 191, 36, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.creator + '</div>';
+
+                            // Show Token if available
+                            if (ex.mint) {
+                                flowHTML += '<div style="color: #a0a0a0; margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ creates Token</div>' +
+                                '<div style="color: #4ade80;"><strong>🎫 Token:</strong></div>' +
+                                '<div style="font-size: 12px; font-weight: bold; color: #86efac; word-break: break-all; padding: 6px; background: rgba(134, 239, 172, 0.1); border-radius: 2px;">' + ex.mint + '</div>';
+                            }
+
+                            flowHTML += '</div>';
+                            return flowHTML;
+                        }).join('');
                     }
 
                     return '<div style="background: rgba(99, 102, 241, 0.08); padding: 12px; border-radius: 6px; border-left: 3px solid #6366f1; margin-bottom: 12px;">' +
@@ -10642,10 +10656,10 @@ def api_super_cluster_details(cluster_id: str):
 
             downstream_creators = [dict(row) for row in cursor.fetchall()]
 
-            # Build example address flow with verified sender→funder→creator chain
+            # Build example address flows
             example_flows = []
             if downstream_creators:
-                # Find a verified sender that actually sent to THIS root operator
+                # Try to find a verified sender that actually sent to THIS root operator
                 cursor.execute("""
                     SELECT sender_address, amount_sol
                     FROM funder_incoming_transfers
@@ -10655,16 +10669,21 @@ def api_super_cluster_details(cluster_id: str):
                 """, (root_op_addr,))
 
                 sender_row = cursor.fetchone()
-                if sender_row:
-                    # Verified: sender → root op (actual transfer)
-                    creator_data = downstream_creators[0]
-                    example_flows.append({
-                        'sender': sender_row['sender_address'],
+                
+                # Build up to 3 example flows showing Root Op → Creator → Token chains
+                for idx, creator_data in enumerate(downstream_creators[:3]):
+                    flow_data = {
                         'funder': root_op_addr,
                         'creator': creator_data['creator_address'],
                         'mint': creator_data.get('mint', ''),
                         'sol_to_creator': creator_data['amount_sol']
-                    })
+                    }
+                    
+                    # Add sender if we found incoming transfers for this root op
+                    if sender_row:
+                        flow_data['sender'] = sender_row['sender_address']
+                    
+                    example_flows.append(flow_data)
 
             root_operator_flows.append({
                 'root_operator': root_op_addr,

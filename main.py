@@ -4555,6 +4555,9 @@ HTML_TEMPLATE = """
                 } else if (cluster.creator_reuse_level === 'MEDIUM') {
                     reuseColor = '#ffa94d';  // orange
                     reuseTextColor = '#1a1a1a';
+                } else if (cluster.creator_reuse_level === 'LOW') {
+                    reuseColor = '#ffd93d';  // yellow
+                    reuseTextColor = '#1a1a1a';
                 }
 
                 visibleHtml += `
@@ -10772,8 +10775,10 @@ def api_super_clusters():
                 sc.risk_level,
                 sc.creator_reuse_level,
                 sc.creator_reuse_tag,
-                sc.creator_reuse_ratio,
-                sc.shared_creators_count,
+                sc.creator_reuse_ratio_across_clusters,
+                sc.creators_in_multiple_clusters,
+                sc.meta_component_id,
+                sc.meta_component_reuse_ratio,
                 COUNT(DISTINCT csm.creator_address) as mapped_creators
             FROM super_clusters sc
             LEFT JOIN creator_super_cluster_membership csm ON sc.super_cluster_id = csm.super_cluster_id
@@ -10808,8 +10813,10 @@ def api_super_clusters():
                 'has_cex_infra': has_cex_infra,  # Flag if cluster has ANY CEX/INFRA
                 'creator_reuse_level': row['creator_reuse_level'],
                 'creator_reuse_tag': row['creator_reuse_tag'],
-                'creator_reuse_ratio': round(row['creator_reuse_ratio'], 3) if row['creator_reuse_ratio'] else 0,
-                'shared_creators_count': row['shared_creators_count'] or 0
+                'creator_reuse_ratio_across_clusters': round(row['creator_reuse_ratio_across_clusters'], 3) if row['creator_reuse_ratio_across_clusters'] else 0,
+                'creators_in_multiple_clusters': row['creators_in_multiple_clusters'] or 0,
+                'meta_component_id': row['meta_component_id'],
+                'meta_component_reuse_ratio': round(row['meta_component_reuse_ratio'], 3) if row['meta_component_reuse_ratio'] else 0
             })
 
         conn.close()
@@ -10838,8 +10845,10 @@ def api_super_cluster_details(cluster_id: str):
                 risk_level,
                 creator_reuse_level,
                 creator_reuse_tag,
-                creator_reuse_ratio,
-                shared_creators_count
+                creator_reuse_ratio_across_clusters,
+                creators_in_multiple_clusters,
+                meta_component_id,
+                meta_component_reuse_ratio
             FROM super_clusters
             WHERE super_cluster_id = ?
         """, (cluster_id,))
@@ -11107,8 +11116,10 @@ def api_super_cluster_details(cluster_id: str):
             'risk_level': cluster_row['risk_level'],
             'creator_reuse_level': cluster_row['creator_reuse_level'],
             'creator_reuse_tag': cluster_row['creator_reuse_tag'],
-            'creator_reuse_ratio': round(cluster_row['creator_reuse_ratio'], 3) if cluster_row['creator_reuse_ratio'] else 0,
-            'shared_creators_count': cluster_row['shared_creators_count'] or 0,
+            'creator_reuse_ratio_across_clusters': round(cluster_row['creator_reuse_ratio_across_clusters'], 3) if cluster_row['creator_reuse_ratio_across_clusters'] else 0,
+            'creators_in_multiple_clusters': cluster_row['creators_in_multiple_clusters'] or 0,
+            'meta_component_id': cluster_row['meta_component_id'],
+            'meta_component_reuse_ratio': round(cluster_row['meta_component_reuse_ratio'], 3) if cluster_row['meta_component_reuse_ratio'] else 0,
             'creators': creators,
             'tokens': tokens,
             'funder_stats': {

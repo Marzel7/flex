@@ -162,6 +162,23 @@ def get_migrated_tokens() -> List[Dict]:
                 network_id = network_row[0]
                 network_name = network_row[1]
 
+            # Get super_clusters for this creator
+            super_clusters = []
+            if row['earliest_tx_creator']:
+                cursor.execute("""
+                    SELECT DISTINCT sc.super_cluster_id, COALESCE(nn.display_name, sc.super_cluster_id) as display_name
+                    FROM creator_super_cluster_membership csm
+                    JOIN super_clusters sc ON csm.super_cluster_id = sc.super_cluster_id
+                    LEFT JOIN network_names nn ON sc.super_cluster_id = nn.super_cluster_id
+                    WHERE csm.creator_address = ?
+                    ORDER BY sc.creator_count DESC
+                """, (row['earliest_tx_creator'],))
+                for cluster_row in cursor.fetchall():
+                    super_clusters.append({
+                        'id': cluster_row[0],
+                        'name': cluster_row[1]
+                    })
+
             tokens.append({
                 'mint': row['mint'],
                 'analyzed_at': row['analyzed_at'],
@@ -185,7 +202,8 @@ def get_migrated_tokens() -> List[Dict]:
                 'top_funder': top_funder,
                 'funding_checked': funding_checked,
                 'network_name': network_name,
-                'network_id': network_id
+                'network_id': network_id,
+                'super_clusters': super_clusters
             })
 
         conn.close()
@@ -2602,11 +2620,6 @@ HTML_TEMPLATE = """
                                 columnTags.push('<span class="creator-tag tag-blocked" title="On blocklist">BLOCKED</span>');
                             }
 
-                            // Funding checked tag
-                            if (token.funding_checked) {
-                                columnTags.push('<span class="creator-tag tag-funding" title="Creator funding accounts have been analyzed">Funding</span>');
-                            }
-
                             // CEX/Infrastructure funders - add to Creator Tags column
                             let funderLabels = [];
                             if (creatorData.funders && creatorData.funders.length > 0) {
@@ -2784,7 +2797,9 @@ HTML_TEMPLATE = """
                                     </td>
                                     <td class="creator-tags"><div style="display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">${columnTags.join('')}</div></td>
                                     <td class="network-name">
-                                        ${token.network_name ? `<a href="#" onclick="switchTab('funding-networks'); showNetworkDetails(${token.network_id}); return false;" class="mint-link" style="font-size: 13px;" title="${token.network_name}">${token.network_name}</a>` : '—'}
+                                        ${token.super_clusters && token.super_clusters.length > 0
+                                            ? `<a href="#" onclick="showSuperCluster('${token.super_clusters[0].id}'); return false;" class="mint-link" style="font-size: 13px;" title="${token.super_clusters.map(sc => sc.name).join(', ')}">${token.super_clusters[0].name}</a>`
+                                            : (token.network_name ? `<a href="#" onclick="switchTab('funding-networks'); showNetworkDetails(${token.network_id}); return false;" class="mint-link" style="font-size: 13px;" title="${token.network_name}">${token.network_name}</a>` : '—')}
                                     </td>
                                     <td class="rug-flag"></td>
                                     <td>
@@ -3814,28 +3829,32 @@ HTML_TEMPLATE = """
                     bannerHTML += '<div style="margin-top: 8px;">';
 
                     for (const sc of data.super_clusters) {
-                        let riskColor = 'var(--text-secondary)';
-                        let riskEmoji = '';
+                        let riskColor = 'var(--color-low)';
+                        let riskEmoji = '✓';
+                        let displayRisk = 'LOW';
 
                         if (sc.risk_level === 'CRITICAL') {
                             riskColor = 'var(--color-critical)';
                             riskEmoji = '🚨';
+                            displayRisk = 'CRITICAL';
                         } else if (sc.risk_level === 'HIGH') {
                             riskColor = 'var(--color-high)';
                             riskEmoji = '⚠️';
+                            displayRisk = 'HIGH';
                         } else if (sc.risk_level === 'MEDIUM') {
                             riskColor = 'var(--color-medium)';
                             riskEmoji = '⚡';
+                            displayRisk = 'MEDIUM';
                         }
 
                         bannerHTML += `
                             <div style="margin: 6px 0;">
-                                <a href="#" onclick="showSuperCluster('${sc.super_cluster_id}'); return false;"
+                                <a href="#" onclick="showSuperCluster('${sc.id}'); return false;"
                                    style="color: ${riskColor}; text-decoration: none; font-weight: 600; cursor: pointer;">
-                                    ${riskEmoji} ${sc.super_cluster_id} (${sc.risk_level})
+                                    ${riskEmoji} ${sc.name} (${displayRisk})
                                 </a>
                                 <span style="color: var(--text-secondary); font-size: 11px; margin-left: 8px;">
-                                    ${sc.creator_count} creators, ${sc.network_count} networks
+                                    ${sc.creators_unique || 0} creators, ${sc.network_count || 0} networks
                                 </span>
                             </div>
                         `;
@@ -5141,7 +5160,7 @@ HTML_TEMPLATE = """
 
         async function showSuperCluster(clusterId) {
             const modal = document.getElementById('superClusterModal');
-            document.getElementById('scModalId').textContent = clusterId;
+            document.getElementById('scModalId').textContent = clusterId;  // Will update with name below
 
             try {
                 const response = await fetch(`/api/super-cluster/${clusterId}`);
@@ -5151,6 +5170,11 @@ HTML_TEMPLATE = """
                 if (data.error) {
                     alert('Super-cluster details not found');
                     return;
+                }
+
+                // Update title with network name
+                if (data.name) {
+                    document.getElementById('scModalId').textContent = data.name;
                 }
 
                 // Set risk badge color
@@ -5876,12 +5900,15 @@ def api_creator_details(creator_address: str):
         # 11. Get super-cluster membership
         cursor.execute("""
             SELECT
-                csm.super_cluster_id,
+                csm.super_cluster_id as id,
+                COALESCE(nn.display_name, csm.super_cluster_id) as name,
                 sc.risk_level,
                 sc.creator_count,
+                sc.creators_unique,
                 sc.network_count
             FROM creator_super_cluster_membership csm
             INNER JOIN super_clusters sc ON csm.super_cluster_id = sc.super_cluster_id
+            LEFT JOIN network_names nn ON csm.super_cluster_id = nn.super_cluster_id
             WHERE csm.creator_address = ?
             ORDER BY sc.creator_count DESC
         """, (creator_address,))
@@ -11021,27 +11048,29 @@ def api_super_cluster_details(cluster_id: str):
         # Get cluster info
         cursor.execute("""
             SELECT
-                super_cluster_id,
-                network_count,
-                creator_memberships_total,
-                root_addresses,
-                risk_level,
-                creator_reuse_level,
-                creator_reuse_tag,
-                creator_reuse_ratio_across_clusters,
-                creators_in_multiple_clusters,
-                meta_component_id,
-                meta_component_reuse_ratio,
-                meta_component_cluster_count,
-                avg_clusters_per_creator_in_cluster,
-                p95_clusters_per_creator_in_cluster,
-                avg_clusters_per_creator_in_component,
-                p95_clusters_per_creator_in_component,
-                max_clusters_per_creator,
-                hub_creator_addresses,
-                creators_unique
-            FROM super_clusters
-            WHERE super_cluster_id = ?
+                sc.super_cluster_id,
+                COALESCE(nn.display_name, sc.super_cluster_id) as display_name,
+                sc.network_count,
+                sc.creator_memberships_total,
+                sc.root_addresses,
+                sc.risk_level,
+                sc.creator_reuse_level,
+                sc.creator_reuse_tag,
+                sc.creator_reuse_ratio_across_clusters,
+                sc.creators_in_multiple_clusters,
+                sc.meta_component_id,
+                sc.meta_component_reuse_ratio,
+                sc.meta_component_cluster_count,
+                sc.avg_clusters_per_creator_in_cluster,
+                sc.p95_clusters_per_creator_in_cluster,
+                sc.avg_clusters_per_creator_in_component,
+                sc.p95_clusters_per_creator_in_component,
+                sc.max_clusters_per_creator,
+                sc.hub_creator_addresses,
+                sc.creators_unique
+            FROM super_clusters sc
+            LEFT JOIN network_names nn ON sc.super_cluster_id = nn.super_cluster_id
+            WHERE sc.super_cluster_id = ?
         """, (cluster_id,))
 
         cluster_row = cursor.fetchone()
@@ -11298,6 +11327,7 @@ def api_super_cluster_details(cluster_id: str):
 
         return jsonify({
             'id': cluster_row['super_cluster_id'],
+            'name': cluster_row['display_name'],
             'network_count': cluster_row['network_count'],
             'creator_memberships_total': cluster_row['creator_memberships_total'],
             'creators_unique': cluster_row['creators_unique'],

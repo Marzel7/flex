@@ -10515,16 +10515,24 @@ def api_super_clusters():
 
         clusters = []
         for row in cursor.fetchall():
-            # Filter out infrastructure and CEX accounts from root addresses
-            root_addresses_raw = row['root_addresses'].split(',')
-            root_addresses_filtered = [addr for addr in root_addresses_raw if addr not in infra_and_cex]
+            # Include all root operators (both legitimate and CEX/INFRA) with display names
+            root_addresses_raw = row['root_addresses'].split(',') if row['root_addresses'] else []
+            root_addresses_display = []
+
+            for addr in root_addresses_raw:
+                if addr in INFRASTRUCTURE_ACCOUNTS:
+                    root_addresses_display.append(f"{INFRASTRUCTURE_ACCOUNTS[addr]['name']} (INFRA)")
+                elif addr in CEX_ACCOUNTS:
+                    root_addresses_display.append(f"{CEX_ACCOUNTS[addr]['name']} (CEX)")
+                else:
+                    root_addresses_display.append(addr)
 
             clusters.append({
                 'id': row['super_cluster_id'],
                 'network_count': row['network_count'],
                 'creator_count': row['creator_count'],
                 'mapped_creators': row['mapped_creators'],
-                'root_addresses': root_addresses_filtered,
+                'root_addresses': root_addresses_display,
                 'risk_level': row['risk_level']
             })
 

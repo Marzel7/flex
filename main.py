@@ -1502,9 +1502,13 @@ HTML_TEMPLATE = """
         <!-- Super-Clusters Networks View -->
         <div id="funding-network-container" style="display: none; padding: 20px;">
             <div style="margin-bottom: 30px;">
-                <h2 style="color: #ef4444; margin-bottom: 10px;">🚨 Super-Clusters (Coordinated Networks)</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h2 style="color: #ef4444; margin: 0;">🚨 Super-Clusters (Coordinated Networks)</h2>
+                    <button onclick="showDefinitionsGuide()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid #6366f1; background: rgba(99, 102, 241, 0.1); color: #6366f1; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.2s;" title="View creator pool tag definitions">📖 Definitions</button>
+                </div>
                 <p style="color: #a0a0a0; font-size: 14px; margin-bottom: 20px;">
                     Networks with ≥5 shared creators have been merged into super-clusters. These represent large coordinated funding operations identified through sophisticated network analysis.
+                    <br><span style="font-size: 12px; color: #888;">Tip: Click the <strong>?</strong> button on any tag to see its definition</span>
                 </p>
 
                 <!-- Super-Cluster Statistics -->
@@ -2251,6 +2255,145 @@ HTML_TEMPLATE = """
                         <tr><td colspan="4" style="padding: 20px; text-align: center; color: #a0a0a0;">Loading...</td></tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Creator Pool Tag Definitions Modal -->
+    <div id="tagDefinitionModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close" onclick="document.getElementById('tagDefinitionModal').style.display='none'">&times;</span>
+            <h2 id="tagDefTitle" style="margin-bottom: 20px;">Definition</h2>
+
+            <div id="tagDefContent" style="color: #e0e0e0; line-height: 1.6;">
+                <!-- Content populated by JS -->
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(99, 102, 241, 0.2);">
+                <h4 style="color: #a0a0a0; margin-bottom: 10px;">How It Works:</h4>
+                <ul style="margin-left: 20px; color: #a0a0a0; font-size: 12px;">
+                    <li>Measures how many creators appear in <strong>multiple clusters</strong></li>
+                    <li>Denominator: Total unique creators in THIS cluster</li>
+                    <li>Numerator: Creators that also appear in other clusters</li>
+                    <li>Ratio: numerator ÷ denominator = reuse intensity</li>
+                    <li>Uses <strong>minimum-support thresholds</strong> to avoid false positives</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comprehensive Definitions Guide Modal -->
+    <div id="definitionsGuideModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 900px; max-height: 80vh; overflow-y: auto;">
+            <span class="close" onclick="document.getElementById('definitionsGuideModal').style.display='none'">&times;</span>
+            <h2 style="margin-bottom: 30px;">Creator Pool Tag Definitions & Guide</h2>
+
+            <div style="background: rgba(99, 102, 241, 0.05); padding: 20px; border-radius: 8px; border-left: 4px solid #6366f1; margin-bottom: 30px;">
+                <h3 style="color: #6366f1; margin-top: 0;">What Are Creator Pools?</h3>
+                <p style="color: #e0e0e0; line-height: 1.7;">
+                    A <strong>creator pool</strong> is a set of wallet addresses that are reused across multiple funding networks and clusters.
+                    Instead of using unique wallets for each token launch, coordinated operations systematically reuse the same creators,
+                    creating linkages between supposedly independent clusters. These tags identify the strength of creator pool coordination.
+                </p>
+            </div>
+
+            <!-- INDEPENDENT -->
+            <div style="background: rgba(107, 207, 127, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #6bcf7f; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <span style="background: #6bcf7f; color: #1a1a1a; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">INDEPENDENT</span>
+                    <span style="color: #a0a0a0; font-size: 12px;">(Green)</span>
+                </div>
+                <div style="color: #e0e0e0;">
+                    <p><strong>No creators reused across clusters</strong><br>
+                    This cluster's creators appear only in this cluster and nowhere else. Each creator wallet is independent and not shared with other coordinated operations.</p>
+                    <p style="margin-bottom: 10px;"><strong>Key Indicators:</strong></p>
+                    <ul style="margin: 0 0 10px 20px; color: #a0a0a0; font-size: 13px;">
+                        <li>creators_in_multiple_clusters = 0</li>
+                        <li>All creators unique to this cluster</li>
+                        <li>No connection to other clusters via shared creators</li>
+                    </ul>
+                    <p style="color: #a0a0a0; font-size: 12px;">🟢 <strong>Risk:</strong> Low - Isolated operation</p>
+                </div>
+            </div>
+
+            <!-- WEAK -->
+            <div style="background: rgba(255, 217, 61, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #ffd93d; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <span style="background: #ffd93d; color: #1a1a1a; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - WEAK</span>
+                    <span style="color: #a0a0a0; font-size: 12px;">(Yellow)</span>
+                </div>
+                <div style="color: #e0e0e0;">
+                    <p><strong>Minimal creator reuse</strong><br>
+                    Some creators appear in multiple clusters, but the coordination signal is weak. Either few creators are reused, or the reuse ratio is below our minimum-support threshold.</p>
+                    <p style="margin-bottom: 10px;"><strong>Minimum Support Requirements:</strong></p>
+                    <ul style="margin: 0 0 10px 20px; color: #a0a0a0; font-size: 13px;">
+                        <li>creators_in_multiple_clusters ≥ 1</li>
+                        <li>Below thresholds for SHARED or STRONG</li>
+                        <li>Marginal coordination signal detected</li>
+                    </ul>
+                    <p style="color: #a0a0a0; font-size: 12px;">🟡 <strong>Risk:</strong> Medium - Monitor for escalation</p>
+                </div>
+            </div>
+
+            <!-- SHARED -->
+            <div style="background: rgba(255, 169, 77, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #ffa94d; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <span style="background: #ffa94d; color: #1a1a1a; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - SHARED</span>
+                    <span style="color: #a0a0a0; font-size: 12px;">(Orange)</span>
+                </div>
+                <div style="color: #e0e0e0;">
+                    <p><strong>Solid creator pool coordination</strong><br>
+                    Multiple clusters share a pool of creators with consistent coordination. Clear pattern of reusing the same launcher wallets across different funding networks.</p>
+                    <p style="margin-bottom: 10px;"><strong>Minimum Support Requirements:</strong></p>
+                    <ul style="margin: 0 0 10px 20px; color: #a0a0a0; font-size: 13px;">
+                        <li>✓ Min <strong>5+ unique creators</strong> in cluster</li>
+                        <li>✓ Min <strong>2+ creators</strong> reused in other clusters</li>
+                        <li>✓ Min <strong>30%+ reuse ratio</strong> (2 ÷ 5)</li>
+                    </ul>
+                    <p style="color: #a0a0a0; font-size: 12px;">🟠 <strong>Risk:</strong> High - Clear coordinated operations</p>
+                </div>
+            </div>
+
+            <!-- STRONG -->
+            <div style="background: rgba(255, 107, 107, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #ff6b6b; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <span style="background: #ff6b6b; color: #ffffff; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - STRONG</span>
+                    <span style="color: #a0a0a0; font-size: 12px;">(Red)</span>
+                </div>
+                <div style="color: #e0e0e0;">
+                    <p><strong>Highly coordinated creator ecosystem</strong><br>
+                    Strong evidence of an organized operation reusing creators systematically. Industrial-scale creator pool management with high concentration of reuse.</p>
+                    <p style="margin-bottom: 10px;"><strong>Minimum Support Requirements:</strong></p>
+                    <ul style="margin: 0 0 10px 20px; color: #a0a0a0; font-size: 13px;">
+                        <li>✓ Min <strong>10+ unique creators</strong> in cluster</li>
+                        <li>✓ Min <strong>5+ creators</strong> reused in other clusters</li>
+                        <li>✓ Min <strong>50%+ reuse ratio</strong> (5 ÷ 10)</li>
+                    </ul>
+                    <p style="color: #a0a0a0; font-size: 12px;">🚨 <strong>Risk:</strong> CRITICAL - Industrialized operations</p>
+                </div>
+            </div>
+
+            <!-- Key Metrics Explained -->
+            <div style="background: rgba(0, 0, 0, 0.2); padding: 20px; border-radius: 8px; margin-top: 30px;">
+                <h3 style="color: #a0a0a0; margin-top: 0;">Key Metrics Explained</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <p style="margin-bottom: 5px;"><strong style="color: #6366f1;">creators_unique</strong></p>
+                        <p style="color: #a0a0a0; font-size: 12px; margin: 0;">The actual count of distinct creator wallets in THIS cluster (denominator for reuse ratio)</p>
+                    </div>
+                    <div>
+                        <p style="margin-bottom: 5px;"><strong style="color: #6366f1;">creators_in_multiple_clusters</strong></p>
+                        <p style="color: #a0a0a0; font-size: 12px; margin: 0;">How many of those creators also appear in OTHER clusters (numerator for reuse ratio)</p>
+                    </div>
+                    <div>
+                        <p style="margin-bottom: 5px;"><strong style="color: #6366f1;">reuse_ratio</strong></p>
+                        <p style="color: #a0a0a0; font-size: 12px; margin: 0;">creators_in_multiple_clusters ÷ creators_unique = coordination intensity</p>
+                    </div>
+                    <div>
+                        <p style="margin-bottom: 5px;"><strong style="color: #6366f1;">max_clusters_per_creator</strong></p>
+                        <p style="color: #a0a0a0; font-size: 12px; margin: 0;">The creator with highest reuse appears in this many clusters</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -4567,7 +4710,10 @@ HTML_TEMPLATE = """
                          onmouseout="this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='none';">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <div style="font-weight: bold; color: #e0e0e0; font-size: 16px;">${cluster.id}</div>
-                            <span style="background: ${reuseColor}; color: ${reuseTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; white-space: nowrap;">${cluster.creator_reuse_tag}</span>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="background: ${reuseColor}; color: ${reuseTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; white-space: nowrap;">${cluster.creator_reuse_tag}</span>
+                                <button onclick="showTagDefinition('${cluster.creator_reuse_tag}', event)" style="background: rgba(99, 102, 241, 0.3); border: 1px solid #6366f1; color: #6366f1; width: 20px; height: 20px; border-radius: 50%; padding: 0; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Click for definition">?</button>
+                            </div>
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px;">
                             <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
@@ -4991,6 +5137,92 @@ HTML_TEMPLATE = """
                 </div>
             `;
             relationshipDiv.innerHTML = relationshipHTML;
+        }
+
+        function showDefinitionsGuide() {
+            document.getElementById('definitionsGuideModal').style.display = 'block';
+        }
+
+        function showTagDefinition(tag, event) {
+            event.stopPropagation();
+            const modal = document.getElementById('tagDefinitionModal');
+            const titleEl = document.getElementById('tagDefTitle');
+            const contentEl = document.getElementById('tagDefContent');
+
+            const definitions = {
+                'INDEPENDENT': {
+                    title: 'INDEPENDENT (Green)',
+                    color: '#6bcf7f',
+                    definition: '<strong>No creators reused across clusters</strong><br><br>' +
+                        'This cluster\'s creators appear only in this cluster and nowhere else. ' +
+                        'Each creator wallet is independent and not shared with other coordinated operations.',
+                    metrics: '<strong>Characteristics:</strong><br>' +
+                        '• creators_in_multiple_clusters = 0<br>' +
+                        '• All creators unique to this cluster<br>' +
+                        '• No connection to other clusters via shared creators',
+                    risk: 'LOW - Isolated operation'
+                },
+                'CREATOR_POOL_WEAK': {
+                    title: 'CREATOR POOL - WEAK (Yellow)',
+                    color: '#ffd93d',
+                    definition: '<strong>Minimal creator reuse</strong><br><br>' +
+                        'Some creators appear in multiple clusters, but the coordination signal is weak. ' +
+                        'Either few creators are reused, or the reuse ratio is below our minimum-support threshold.',
+                    metrics: '<strong>Characteristics:</strong><br>' +
+                        '• creators_in_multiple_clusters ≥ 1<br>' +
+                        '• Below thresholds for SHARED or STRONG<br>' +
+                        '• Marginal coordination signal<br>' +
+                        '• Minimum-support rules: (min creator_count, min reused, min ratio)',
+                    risk: 'MEDIUM - Monitor for escalation'
+                },
+                'CREATOR_POOL_SHARED': {
+                    title: 'CREATOR POOL - SHARED (Orange)',
+                    color: '#ffa94d',
+                    definition: '<strong>Solid creator pool coordination</strong><br><br>' +
+                        'Multiple clusters share a pool of creators with consistent coordination. ' +
+                        'Clear pattern of reusing the same launcher wallets across different funding networks.',
+                    metrics: '<strong>Characteristics:</strong><br>' +
+                        '• Min 5 unique creators in cluster<br>' +
+                        '• Min 2+ creators reused in other clusters<br>' +
+                        '• Min 30% reuse ratio (2+ / 5+)<br>' +
+                        '• Solid coordination pattern detected',
+                    risk: 'HIGH - Coordinated operations'
+                },
+                'CREATOR_POOL_STRONG': {
+                    title: 'CREATOR POOL - STRONG (Red)',
+                    color: '#ff6b6b',
+                    definition: '<strong>Highly coordinated creator ecosystem</strong><br><br>' +
+                        'Strong evidence of an organized operation reusing creators systematically. ' +
+                        'Industrial-scale creator pool management with high concentration of reuse.',
+                    metrics: '<strong>Characteristics:</strong><br>' +
+                        '• Min 10 unique creators in cluster<br>' +
+                        '• Min 5+ creators reused in other clusters<br>' +
+                        '• Min 50% reuse ratio (5+ / 10+)<br>' +
+                        '• Very strong coordination signal',
+                    risk: '🚨 CRITICAL - Industrialized operation'
+                }
+            };
+
+            const def = definitions[tag];
+            if (def) {
+                titleEl.textContent = def.title;
+                contentEl.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <p>${def.definition}</p>
+                    </div>
+
+                    <div style="background: rgba(99, 102, 241, 0.05); padding: 15px; border-radius: 6px; border-left: 4px solid ${def.color}; margin-bottom: 15px;">
+                        <strong>Thresholds & Metrics:</strong><br><br>
+                        ${def.metrics}
+                    </div>
+
+                    <div style="background: rgba(239, 68, 68, 0.05); padding: 15px; border-radius: 6px; border-left: 4px solid #ef4444;">
+                        <strong>Risk Assessment:</strong><br><br>
+                        ${def.risk}
+                    </div>
+                `;
+                modal.style.display = 'block';
+            }
         }
 
         async function showSuperCluster(clusterId) {

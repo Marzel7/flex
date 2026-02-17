@@ -2190,7 +2190,14 @@ HTML_TEMPLATE = """
             </div>
 
             <!-- Networks Tab -->
-            <div id="scNetworksTab" class="sc-tab-content" style="display: block; max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
+            <div id="scNetworksTab" class="sc-tab-content" style="display: none; margin-bottom: 20px;">
+                <!-- Networks Tab Toggle -->
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
+                    <span style="color: #a0a0a0; font-size: 12px; text-transform: uppercase; font-weight: bold;">Filter Networks:</span>
+                    <button id="scNetworksToggleCexInfra" onclick="toggleNetworksVisibility()" style="padding: 6px 12px; border-radius: 4px; border: 1px solid rgba(99, 102, 241, 0.5); background: rgba(99, 102, 241, 0.1); color: #6366f1; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
+                        ✓ Show All
+                    </button>
+                </div>
                 <table style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
@@ -4623,7 +4630,30 @@ HTML_TEMPLATE = """
 
         // Track CEX/INFRA visibility state
         let showCexInfra = true;
+        let showNetworksWithCexInfra = true;  // Separate toggle for Networks tab
         let currentSuperClusterData = null;
+
+        function toggleNetworksVisibility() {
+            showNetworksWithCexInfra = !showNetworksWithCexInfra;
+            const button = document.getElementById('scNetworksToggleCexInfra');
+
+            if (showNetworksWithCexInfra) {
+                button.textContent = '✓ Show All';
+                button.style.background = 'rgba(99, 102, 241, 0.1)';
+                button.style.color = '#6366f1';
+                button.style.borderColor = 'rgba(99, 102, 241, 0.5)';
+            } else {
+                button.textContent = '✗ Hide CEX/INFRA';
+                button.style.background = 'rgba(239, 68, 68, 0.1)';
+                button.style.color = '#ef4444';
+                button.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+            }
+
+            // Re-render networks with updated visibility
+            if (currentSuperClusterData) {
+                renderNetworks(currentSuperClusterData);
+            }
+        }
 
         function toggleCexInfraView() {
             showCexInfra = !showCexInfra;
@@ -4652,13 +4682,13 @@ HTML_TEMPLATE = """
         function renderNetworks(data) {
             const networksContainer = document.getElementById('scNetworksList');
 
-            // Filter networks based on toggle
+            // Filter networks based on the Networks tab toggle (not the header toggle)
             let visibleNetworks = data.networks;
-            if (!showCexInfra && data.network_root_operator_status) {
+            if (!showNetworksWithCexInfra && data.network_root_operator_status) {
                 visibleNetworks = data.networks.filter(net => {
                     // Check status by both network_id as string and number
                     const hasInfraOrCex = data.network_root_operator_status[net.network_id] || data.network_root_operator_status[String(net.network_id)];
-                    // When toggle is OFF (showCexInfra=false), only show networks without CEX/INFRA
+                    // When toggle is OFF (showNetworksWithCexInfra=false), only show networks without CEX/INFRA
                     return !hasInfraOrCex;
                 });
             }

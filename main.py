@@ -2295,6 +2295,12 @@ HTML_TEMPLATE = """
                     Instead of using unique wallets for each token launch, coordinated operations systematically reuse the same creators,
                     creating linkages between supposedly independent clusters. These tags identify the strength of creator pool coordination.
                 </p>
+                <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); padding: 12px; border-radius: 4px; margin-top: 15px;">
+                    <p style="color: #fbbf24; margin: 0; font-size: 12px;">
+                        <strong>⚠️ Important:</strong> Tags are based on <strong>wallet reuse patterns and structural signals</strong>.
+                        They indicate <strong>coordination likelihood</strong>, not intent or ownership. Use as a risk indicator, not definitive proof.
+                    </p>
+                </div>
             </div>
 
             <!-- INDEPENDENT -->

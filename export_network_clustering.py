@@ -82,19 +82,26 @@ def get_data():
             CASE WHEN cf.funder_address IN (SELECT funder_address FROM funder_incoming_transfers) THEN 'Yes' ELSE 'No' END as has_incoming_data
         FROM creator_funders cf
         LEFT JOIN creator_super_cluster_membership cscm ON cf.creator_address = cscm.creator_address
-        WHERE cf.funder_address NOT IN (SELECT key FROM (
-            SELECT ? as key UNION ALL SELECT ? UNION ALL SELECT ? UNION ALL SELECT ?
-        ))
         GROUP BY cf.funder_address
         HAVING COUNT(DISTINCT cf.creator_address) > 1
         ORDER BY total_sol DESC
         LIMIT 200
-    """, tuple(list(infra_and_cex)[:4]))
+    """)
 
     root_ops = []
     for row in cursor.fetchall():
+        addr = row['funder_address']
+
+        # Get display name (if CEX/INFRA)
+        display_name = addr
+        if addr in INFRASTRUCTURE_ACCOUNTS:
+            display_name = f"{INFRASTRUCTURE_ACCOUNTS[addr]['name']} (INFRA)"
+        elif addr in CEX_ACCOUNTS:
+            display_name = f"{CEX_ACCOUNTS[addr]['name']} (CEX)"
+
         root_ops.append({
-            'Root Operator': row['funder_address'],
+            'Root Operator': display_name,
+            'Address': addr,
             'Creators Funded': row['creators_funded'],
             'Transfers': row['transfer_count'],
             'Total SOL': round(row['total_sol'] or 0, 2),

@@ -231,33 +231,33 @@ HTML_TEMPLATE = """
         }
 
         :root {
-            /* Primary Colors - Dark, Muted */
-            --primary: #5b5d7f;
-            --primary-dark: #484a63;
-            --primary-light: rgba(91, 93, 127, 0.15);
+            /* Primary Colors - Uniform Gray-Blue, Very Muted */
+            --primary: #545664;
+            --primary-dark: #434552;
+            --primary-light: rgba(84, 86, 100, 0.12);
 
-            /* Text Colors - Low Contrast, Dark Theme */
-            --text-primary: #c8c8d0;
+            /* Text Colors - Soft, Minimal Contrast */
+            --text-primary: #b8b8c4;
             --text-secondary: #8a8a94;
             --text-dark: #1a1a1a;
-            --text-light: #e8e8e8;
+            --text-light: #d0d0d8;
 
-            /* Risk & Reuse Levels - Muted, Dark */
-            --color-critical: #c44545;
-            --color-high: #d16b6b;
-            --color-medium: #d4a56b;
-            --color-low: #d4c26b;
-            --color-none: #6b9d7a;
+            /* Risk & Reuse Levels - Uniform Muted Palette */
+            --color-critical: #9d5c5c;
+            --color-high: #9d7070;
+            --color-medium: #a68b6b;
+            --color-low: #a89e6b;
+            --color-none: #6b8d7a;
 
-            /* Backgrounds - Dark */
+            /* Backgrounds - Dark, Uniform */
             --bg-primary: #0f0f1e;
-            --bg-secondary: rgba(0, 0, 0, 0.5);
-            --bg-overlay: rgba(91, 93, 127, 0.1);
+            --bg-secondary: rgba(0, 0, 0, 0.6);
+            --bg-overlay: rgba(84, 86, 100, 0.08);
 
-            /* Accents - Muted */
-            --accent-cyan: #4a9bbe;
-            --accent-green: #5a9b6a;
-            --accent-purple: #8b6ba8;
+            /* Accents - Muted Gray Tones */
+            --accent-cyan: #4a8fa8;
+            --accent-green: #5a8a6a;
+            --accent-purple: #7d6d9d;
         }
 
         body {

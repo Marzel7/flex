@@ -5,42 +5,42 @@ All colors in the Flex project are now defined using CSS custom properties (vari
 
 ## CSS Custom Properties Reference
 
-### Primary Colors
+### Primary Colors (Dark, Muted)
 ```css
---primary: #6366f1;           /* Main indigo - UI elements, borders */
---primary-dark: #4f46e5;      /* Darker indigo - hover states */
---primary-light: rgba(99, 102, 241, 0.15);  /* Light indigo - overlays */
+--primary: #5b5d7f;           /* Main muted purple - UI elements, borders */
+--primary-dark: #484a63;      /* Darker shade - hover states */
+--primary-light: rgba(91, 93, 127, 0.15);  /* Light overlay - overlays */
 ```
 
-### Text Colors
+### Text Colors (Low Contrast Dark Theme)
 ```css
---text-primary: #e0e0e0;      /* Main text color */
---text-secondary: #a0a0a0;    /* Muted/secondary text */
+--text-primary: #c8c8d0;      /* Main text color - soft gray */
+--text-secondary: #8a8a94;    /* Muted/secondary text - darker gray */
 --text-dark: #1a1a1a;         /* Dark text on light backgrounds */
---text-light: #ffffff;        /* Light text on dark backgrounds */
+--text-light: #e8e8e8;        /* Light text on dark backgrounds */
 ```
 
-### Risk & Reuse Levels (Semantic Colors)
+### Risk & Reuse Levels (Muted, Dark)
 ```css
---color-critical: #ef4444;    /* CRITICAL risk level */
---color-high: #ff6b6b;        /* HIGH risk / Strong coordination */
---color-medium: #ffa94d;      /* MEDIUM risk / Shared coordination */
---color-low: #ffd93d;         /* LOW risk / Weak coordination */
---color-none: #6bcf7f;        /* NONE / Independent (no coordination) */
+--color-critical: #c44545;    /* CRITICAL risk - muted red */
+--color-high: #d16b6b;        /* HIGH risk / Strong coordination - soft red */
+--color-medium: #d4a56b;      /* MEDIUM risk / Shared - muted orange */
+--color-low: #d4c26b;         /* LOW risk / Weak - muted yellow */
+--color-none: #6b9d7a;        /* NONE / Independent - muted green */
 ```
 
-### Background Colors
+### Background Colors (Dark)
 ```css
---bg-primary: #0f0f1e;        /* Primary background */
---bg-secondary: rgba(0, 0, 0, 0.3);  /* Secondary background (cards) */
---bg-overlay: rgba(99, 102, 241, 0.15);  /* Overlay for hover states */
+--bg-primary: #0f0f1e;        /* Primary background - very dark */
+--bg-secondary: rgba(0, 0, 0, 0.5);  /* Secondary background (cards) - darker */
+--bg-overlay: rgba(91, 93, 127, 0.1);  /* Overlay for hover states */
 ```
 
-### Accent Colors
+### Accent Colors (Muted)
 ```css
---accent-cyan: #00d4ff;       /* Cyan - Headers, highlights */
---accent-green: #4ade80;      /* Green - Success states */
---accent-purple: #a855f7;     /* Purple - Special emphasis */
+--accent-cyan: #4a9bbe;       /* Cyan - muted blue-teal */
+--accent-green: #5a9b6a;      /* Green - muted sage */
+--accent-purple: #8b6ba8;     /* Purple - muted lavender */
 ```
 
 ## Creator Pool Tag Color Mapping
@@ -132,4 +132,5 @@ This ensures that:
 
 ---
 **Last Updated**: 2026-02-17
-**Status**: Unified color system implemented
+**Status**: Dark theme with muted colors implemented
+**Theme**: Dark mode with reduced brightness and saturation for comfortable viewing

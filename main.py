@@ -4876,7 +4876,12 @@ HTML_TEMPLATE = """
 
                 return `
                     <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                        <td style="padding: 10px; color: var(--text-primary);">${networkName}</td>
+                        <td style="padding: 10px; color: var(--text-primary);">
+                            <a href="#" onclick="showNetworkDetails(${net.network_id}); return false;"
+                               style="color: var(--accent-cyan); text-decoration: none; cursor: pointer; font-weight: 500;">
+                                ${networkName}
+                            </a>
+                        </td>
                         <td style="padding: 10px; text-align: right; color: var(--text-secondary);">${net.total_members}</td>
                         <td style="padding: 10px; text-align: right; color: var(--accent-purple); font-weight: bold;">${net.total_sol.toFixed(2)}</td>
                         <td style="padding: 10px; text-align: center;">${statusBadge}</td>

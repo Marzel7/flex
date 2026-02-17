@@ -9399,9 +9399,8 @@ def api_funding_networks():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/funding-networks-list')
 def api_funding_networks_list():
-    """Get simplified list of all funding networks with random names and stats"""
+    """Get simplified list of all funding networks with their names and stats"""
     try:
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
@@ -9412,6 +9411,7 @@ def api_funding_networks_list():
         cursor.execute("""
             SELECT
                 fn.network_id,
+                fn.network_name,
                 fn.total_members as funders_count,
                 COUNT(DISTINCT fnt.mint) as tokens_count,
                 COUNT(DISTINCT ta.earliest_tx_creator) as creators_count,
@@ -9422,30 +9422,38 @@ def api_funding_networks_list():
             LEFT JOIN funding_network_shared_tokens fnt ON fn.network_id = fnt.network_id
             LEFT JOIN token_analysis ta ON fnt.mint = ta.mint
             LEFT JOIN funder_incoming_transfers fit ON fit.funder_address = fnm.funder_address
-            GROUP BY fn.network_id
+            GROUP BY fn.network_id, fn.network_name
             ORDER BY fn.total_members DESC
         """)
 
         networks = []
-        # Random name parts for generating network names
-        adjectives = ['Shadow', 'Ghost', 'Phantom', 'Silent', 'Hidden', 'Dark', 'Swift', 'Rapid', 
+
+        # Generate consistent memorable names for networks
+        adjectives = ['Shadow', 'Ghost', 'Phantom', 'Silent', 'Hidden', 'Dark', 'Swift', 'Rapid',
                      'Sleek', 'Sharp', 'Cunning', 'Sly', 'Stealthy', 'Crafty', 'Clever', 'Subtle',
-                     'Veiled', 'Masked', 'Cloaked', 'Whispered', 'Covert', 'Secret', 'Mystic', 'Ancient']
+                     'Veiled', 'Masked', 'Cloaked', 'Whispered', 'Covert', 'Secret', 'Mystic', 'Ancient',
+                     'Stellar', 'Quantum', 'Digital', 'Spectral', 'Ethereal', 'Twilight', 'Nocturnal']
         nouns = ['Circle', 'Ring', 'Syndicate', 'Cabal', 'Order', 'Society', 'Collective', 'Alliance',
                 'Coalition', 'Union', 'Cartel', 'Consortium', 'Federation', 'Network', 'Nexus', 'Web',
-                'Chain', 'Echo', 'Whisper', 'Shadow', 'Phantom', 'Specter', 'Entity', 'Force']
-        
+                'Chain', 'Echo', 'Whisper', 'Shadow', 'Phantom', 'Specter', 'Entity', 'Force',
+                'Nexus', 'Confluence', 'Fusion', 'Convergence', 'Resonance', 'Harmony', 'Synergy']
+
         import random
-        random.seed(42)  # Consistent seed so names don't change on page reload
+        random.seed(42)  # Consistent seed for reproducible names
 
         for idx, row in enumerate(cursor.fetchall()):
+            # Generate memorable name using network_id as seed
+            random.seed(42 + row['network_id'])  # Use network_id to get consistent names per network
             adj = random.choice(adjectives)
             noun = random.choice(nouns)
-            random_name = f"{adj} {noun}"
+            memorable_name = f"{adj}{noun}"
 
+            # Use the memorable name
+            network_name = memorable_name
+            
             networks.append({
                 'network_id': row['network_id'],
-                'name': random_name,
+                'name': network_name,
                 'funders': row['funders_count'],
                 'tokens': row['tokens_count'],
                 'creators': row['creators_count'],
@@ -11160,7 +11168,30 @@ def api_super_cluster_details(cluster_id: str):
             ORDER BY fn.total_sol DESC
         """, (cluster_id,))
 
-        networks = [dict(row) for row in cursor.fetchall()]
+        networks_raw = cursor.fetchall()
+
+        # Generate memorable names for networks
+        adjectives = ['Shadow', 'Ghost', 'Phantom', 'Silent', 'Hidden', 'Dark', 'Swift', 'Rapid',
+                     'Sleek', 'Sharp', 'Cunning', 'Sly', 'Stealthy', 'Crafty', 'Clever', 'Subtle',
+                     'Veiled', 'Masked', 'Cloaked', 'Whispered', 'Covert', 'Secret', 'Mystic', 'Ancient',
+                     'Stellar', 'Quantum', 'Digital', 'Spectral', 'Ethereal', 'Twilight', 'Nocturnal']
+        nouns = ['Circle', 'Ring', 'Syndicate', 'Cabal', 'Order', 'Society', 'Collective', 'Alliance',
+                'Coalition', 'Union', 'Cartel', 'Consortium', 'Federation', 'Network', 'Nexus', 'Web',
+                'Chain', 'Echo', 'Whisper', 'Shadow', 'Phantom', 'Specter', 'Entity', 'Force',
+                'Nexus', 'Confluence', 'Fusion', 'Convergence', 'Resonance', 'Harmony', 'Synergy']
+
+        import random
+        networks = []
+        for row in networks_raw:
+            # Use consistent seed based on network_id for reproducible names
+            random.seed(42 + row['network_id'])
+            adj = random.choice(adjectives)
+            noun = random.choice(nouns)
+            memorable_name = f"{adj}{noun}"
+
+            network_dict = dict(row)
+            network_dict['network_name'] = memorable_name  # Override with memorable name
+            networks.append(network_dict)
 
         # Get all root operators from the super_clusters table
         root_addresses_raw = cluster_row['root_addresses'].split(',') if cluster_row['root_addresses'] else []

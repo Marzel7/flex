@@ -5,42 +5,42 @@ All colors in the Flex project are now defined using CSS custom properties (vari
 
 ## CSS Custom Properties Reference
 
-### Primary Colors (Neutral Gray Base)
+### Primary Colors (SolanaFM Professional Dark)
 ```css
---primary: #4a4a52;           /* Main neutral gray - UI elements, borders */
---primary-dark: #383840;      /* Darker shade - hover states */
---primary-light: rgba(74, 74, 82, 0.1);  /* Subtle overlay */
+--primary: #7c3aed;           /* Main purple accent - UI elements, borders */
+--primary-dark: #6d28d9;      /* Darker purple - hover states */
+--primary-light: rgba(124, 58, 237, 0.15);  /* Purple overlay */
 ```
 
-### Text Colors (Uniform Gray Scale)
+### Text Colors (Professional Gray Scale)
 ```css
---text-primary: #a8a8b0;      /* Main text color - medium gray */
---text-secondary: #787880;    /* Muted/secondary text - darker gray */
+--text-primary: #e5e7eb;      /* Main text color - light gray */
+--text-secondary: #9ca3af;    /* Muted/secondary text - medium gray */
 --text-dark: #1a1a1a;         /* Dark text on light backgrounds */
---text-light: #c8c8d0;        /* Light text on dark backgrounds */
+--text-light: #f3f4f6;        /* Light text on dark backgrounds */
 ```
 
-### Risk & Reuse Levels (Monochrome with Subtle Variance)
+### Risk & Reuse Levels (Professional Vibrant)
 ```css
---color-critical: #6f6f75;    /* CRITICAL risk - darker gray */
---color-high: #717177;        /* HIGH risk / Strong coordination - gray */
---color-medium: #737979;      /* MEDIUM risk / Shared - neutral gray */
---color-low: #757b7f;         /* LOW risk / Weak - light gray */
---color-none: #717d75;        /* NONE / Independent - cool gray */
+--color-critical: #ef4444;    /* CRITICAL risk - bright red */
+--color-high: #f97316;        /* HIGH risk / Strong coordination - orange */
+--color-medium: #eab308;      /* MEDIUM risk / Shared - yellow */
+--color-low: #22c55e;         /* LOW risk / Weak - green */
+--color-none: #3b82f6;        /* NONE / Independent - blue */
 ```
 
-### Background Colors (Very Dark Grays)
+### Background Colors (SolanaFM Dark Navy)
 ```css
---bg-primary: #0a0a10;        /* Primary background - nearly black */
---bg-secondary: rgba(0, 0, 0, 0.7);  /* Secondary background (cards) - very dark */
---bg-overlay: rgba(74, 74, 82, 0.06);  /* Very subtle overlay */
+--bg-primary: #0f172a;        /* Primary background - dark navy */
+--bg-secondary: rgba(15, 23, 42, 0.8);  /* Secondary background (cards) */
+--bg-overlay: rgba(124, 58, 237, 0.1);  /* Purple overlay */
 ```
 
-### Accent Colors (Subtle Gray Variations)
+### Accent Colors (SolanaFM Vibrant)
 ```css
---accent-cyan: #4a7a88;       /* Cyan - muted cool gray */
---accent-green: #5a7a6a;      /* Green - muted gray-green */
---accent-purple: #6a6a7a;     /* Purple - neutral gray */
+--accent-cyan: #06b6d4;       /* Cyan - vibrant cyan */
+--accent-green: #10b981;      /* Green - vibrant green */
+--accent-purple: #a855f7;     /* Purple - vibrant purple */
 ```
 
 ## Creator Pool Tag Color Mapping
@@ -132,5 +132,5 @@ This ensures that:
 
 ---
 **Last Updated**: 2026-02-17
-**Status**: Monochrome dark theme implemented
-**Theme**: Ultra-dark monochrome gray palette - no bright colors, completely uniform
+**Status**: SolanaFM professional theme implemented
+**Theme**: Dark navy background with vibrant purple accents - professional, clean, modern

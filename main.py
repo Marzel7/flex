@@ -231,33 +231,33 @@ HTML_TEMPLATE = """
         }
 
         :root {
-            /* Primary Colors - Neutral Gray Base */
-            --primary: #4a4a52;
-            --primary-dark: #383840;
-            --primary-light: rgba(74, 74, 82, 0.1);
+            /* Primary Colors - SolanaFM Professional Dark */
+            --primary: #7c3aed;
+            --primary-dark: #6d28d9;
+            --primary-light: rgba(124, 58, 237, 0.15);
 
-            /* Text Colors - Uniform Gray Scale */
-            --text-primary: #a8a8b0;
-            --text-secondary: #787880;
+            /* Text Colors - Professional Gray Scale */
+            --text-primary: #e5e7eb;
+            --text-secondary: #9ca3af;
             --text-dark: #1a1a1a;
-            --text-light: #c8c8d0;
+            --text-light: #f3f4f6;
 
-            /* Risk & Reuse Levels - Monochrome with Subtle Variance */
-            --color-critical: #6f6f75;
-            --color-high: #717177;
-            --color-medium: #737979;
-            --color-low: #757b7f;
-            --color-none: #717d75;
+            /* Risk & Reuse Levels - Professional Palette */
+            --color-critical: #ef4444;
+            --color-high: #f97316;
+            --color-medium: #eab308;
+            --color-low: #22c55e;
+            --color-none: #3b82f6;
 
-            /* Backgrounds - Very Dark Grays */
-            --bg-primary: #0a0a10;
-            --bg-secondary: rgba(0, 0, 0, 0.7);
-            --bg-overlay: rgba(74, 74, 82, 0.06);
+            /* Backgrounds - SolanaFM Dark Navy/Purple */
+            --bg-primary: #0f172a;
+            --bg-secondary: rgba(15, 23, 42, 0.8);
+            --bg-overlay: rgba(124, 58, 237, 0.1);
 
-            /* Accents - Subtle Gray Variations */
-            --accent-cyan: #4a7a88;
-            --accent-green: #5a7a6a;
-            --accent-purple: #6a6a7a;
+            /* Accents - SolanaFM Vibrant */
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-purple: #a855f7;
         }
 
         body {

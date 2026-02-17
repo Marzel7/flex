@@ -4681,6 +4681,22 @@ HTML_TEMPLATE = """
 
         function renderNetworks(data) {
             const networksContainer = document.getElementById('scNetworksList');
+            const toggleButton = document.getElementById('scNetworksToggleCexInfra');
+
+            // Update toggle button state
+            if (toggleButton) {
+                if (showNetworksWithCexInfra) {
+                    toggleButton.textContent = '✓ Show All';
+                    toggleButton.style.background = 'rgba(99, 102, 241, 0.1)';
+                    toggleButton.style.color = '#6366f1';
+                    toggleButton.style.borderColor = 'rgba(99, 102, 241, 0.5)';
+                } else {
+                    toggleButton.textContent = '✗ Hide CEX/INFRA';
+                    toggleButton.style.background = 'rgba(239, 68, 68, 0.1)';
+                    toggleButton.style.color = '#ef4444';
+                    toggleButton.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                }
+            }
 
             // Filter networks based on the Networks tab toggle (not the header toggle)
             let visibleNetworks = data.networks;

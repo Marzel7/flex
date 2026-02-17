@@ -10656,7 +10656,7 @@ def api_super_cluster_details(cluster_id: str):
 
             downstream_creators = [dict(row) for row in cursor.fetchall()]
 
-            # Build example address flows
+            # Build one example flow (the highest SOL transfer)
             example_flows = []
             if downstream_creators:
                 # Try to find a verified sender that actually sent to THIS root operator
@@ -10670,20 +10670,20 @@ def api_super_cluster_details(cluster_id: str):
 
                 sender_row = cursor.fetchone()
                 
-                # Build up to 3 example flows showing Root Op → Creator → Token chains
-                for idx, creator_data in enumerate(downstream_creators[:3]):
-                    flow_data = {
-                        'funder': root_op_addr,
-                        'creator': creator_data['creator_address'],
-                        'mint': creator_data.get('mint', ''),
-                        'sol_to_creator': creator_data['amount_sol']
-                    }
-                    
-                    # Add sender if we found incoming transfers for this root op
-                    if sender_row:
-                        flow_data['sender'] = sender_row['sender_address']
-                    
-                    example_flows.append(flow_data)
+                # Get the largest transfer (highest SOL to creator)
+                creator_data = downstream_creators[0]
+                flow_data = {
+                    'funder': root_op_addr,
+                    'creator': creator_data['creator_address'],
+                    'mint': creator_data.get('mint', ''),
+                    'sol_to_creator': creator_data['amount_sol']
+                }
+                
+                # Add sender if we found incoming transfers for this root op
+                if sender_row:
+                    flow_data['sender'] = sender_row['sender_address']
+                
+                example_flows.append(flow_data)
 
             root_operator_flows.append({
                 'root_operator': root_op_addr,

@@ -11042,6 +11042,8 @@ def api_super_clusters():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/super-cluster/<cluster_id>')
+
 def api_super_cluster_details(cluster_id: str):
     """Get detailed information about a super-cluster with complete SOL flow chains"""
     try:

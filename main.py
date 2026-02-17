@@ -10609,27 +10609,32 @@ def api_super_cluster_details(cluster_id: str):
 
         networks = [dict(row) for row in cursor.fetchall()]
 
-        # Identify root operators (funders with multiple creators) - NOW INCLUDE ALL
-        cursor.execute("""
-            SELECT
-                cf.funder_address,
-                COUNT(DISTINCT cf.creator_address) as creators_funded,
-                SUM(cf.amount_sol) as total_sol_sent,
-                COUNT(*) as transfer_count,
-                MIN(cf.first_detected_at) as first_transfer
-            FROM creator_funders cf
-            WHERE cf.creator_address IN (
-                SELECT DISTINCT creator_address
-                FROM creator_super_cluster_membership
-                WHERE super_cluster_id = ?
-            )
-            GROUP BY cf.funder_address
-            HAVING COUNT(DISTINCT cf.creator_address) > 1
-            ORDER BY total_sol_sent DESC
-            LIMIT 10
-        """, (cluster_id,))
+        # Get all root operators from the super_clusters table
+        root_addresses_raw = cluster_row['root_addresses'].split(',') if cluster_row['root_addresses'] else []
 
-        root_operators_data = cursor.fetchall()
+        # Get funder data for each root operator
+        root_operators_data = []
+        if root_addresses_raw:
+            placeholders = ','.join(['?' for _ in root_addresses_raw])
+            cursor.execute(f"""
+                SELECT
+                    cf.funder_address,
+                    COUNT(DISTINCT cf.creator_address) as creators_funded,
+                    SUM(cf.amount_sol) as total_sol_sent,
+                    COUNT(*) as transfer_count,
+                    MIN(cf.first_detected_at) as first_transfer
+                FROM creator_funders cf
+                WHERE cf.creator_address IN (
+                    SELECT DISTINCT creator_address
+                    FROM creator_super_cluster_membership
+                    WHERE super_cluster_id = ?
+                )
+                AND cf.funder_address IN ({placeholders})
+                GROUP BY cf.funder_address
+                ORDER BY total_sol_sent DESC
+            """, (cluster_id,) + tuple(root_addresses_raw))
+
+            root_operators_data = cursor.fetchall()
 
         # Build complete SOL flow chains for each root operator
         root_operator_flows = []
@@ -10701,12 +10706,7 @@ def api_super_cluster_details(cluster_id: str):
                 'example_flows': example_flows
             })
 
-        conn.close()
-
-        # Get all root addresses (including CEX/INFRA) from database
-        root_addresses_raw = cluster_row['root_addresses'].split(',') if cluster_row['root_addresses'] else []
-
-        # Map to display names
+        # Map root_addresses_raw to display names
         all_root_addresses = []
         for addr in root_addresses_raw:
             if addr in INFRASTRUCTURE_ACCOUNTS:
@@ -10717,6 +10717,8 @@ def api_super_cluster_details(cluster_id: str):
                 all_root_addresses.append(addr)
 
         all_root_addresses.sort()
+
+        conn.close()
 
         return jsonify({
             'id': cluster_row['super_cluster_id'],

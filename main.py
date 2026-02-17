@@ -5272,7 +5272,8 @@ HTML_TEMPLATE = """
 
             } catch (error) {
                 console.error('Error loading super-cluster details:', error);
-                alert('Failed to load super-cluster details');
+                console.error('Stack trace:', error.stack);
+                alert('Failed to load super-cluster details: ' + error.message);
             }
         }
 
@@ -11041,7 +11042,6 @@ def api_super_clusters():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/super-cluster/<cluster_id>')
 def api_super_cluster_details(cluster_id: str):
     """Get detailed information about a super-cluster with complete SOL flow chains"""
     try:
@@ -11072,7 +11072,8 @@ def api_super_cluster_details(cluster_id: str):
                 sc.p95_clusters_per_creator_in_component,
                 sc.max_clusters_per_creator,
                 sc.hub_creator_addresses,
-                sc.creators_unique
+                sc.creators_unique,
+                sc.creator_count
             FROM super_clusters sc
             LEFT JOIN network_names nn ON sc.super_cluster_id = nn.super_cluster_id
             WHERE sc.super_cluster_id = ?
@@ -11243,6 +11244,7 @@ def api_super_cluster_details(cluster_id: str):
                 # Add sender if we found incoming transfers for this root op
                 if sender_row:
                     flow_data['sender'] = sender_row['sender_address']
+                    flow_data['sol_from_sender'] = sender_row['amount_sol']
 
                 example_flows.append(flow_data)
 
@@ -11330,23 +11332,25 @@ def api_super_cluster_details(cluster_id: str):
 
         conn.close()
 
-        return jsonify({
+        # Build response with safe defaults for all fields
+        response = {
             'id': cluster_row['super_cluster_id'],
             'name': cluster_row['display_name'],
-            'network_count': cluster_row['network_count'],
-            'creator_memberships_total': cluster_row['creator_memberships_total'],
-            'creators_unique': cluster_row['creators_unique'],
+            'network_count': cluster_row['network_count'] or 0,
+            'creator_memberships_total': cluster_row['creator_memberships_total'] or 0,
+            'creators_unique': cluster_row['creators_unique'] or 1,  # At least 1 if cluster exists
             'creators_mapped_in_cluster': len(creators),
+            'creator_count': cluster_row['creator_count'] or 0,
             'root_addresses': all_root_addresses,
-            'root_operator_status': root_operator_status,  # Track CEX/INFRA status
-            'network_root_operator_status': network_root_operator_status,  # Track which networks have CEX/INFRA
+            'root_operator_status': root_operator_status,
+            'network_root_operator_status': network_root_operator_status,
             'risk_level': cluster_row['risk_level'],
-            'creator_reuse_level': cluster_row['creator_reuse_level'],
-            'creator_reuse_tag': cluster_row['creator_reuse_tag'],
+            'creator_reuse_level': cluster_row['creator_reuse_level'] or 'NONE',
+            'creator_reuse_tag': cluster_row['creator_reuse_tag'] or 'INDEPENDENT_CREATORS',
             'creator_reuse_ratio_across_clusters': round(cluster_row['creator_reuse_ratio_across_clusters'], 3) if cluster_row['creator_reuse_ratio_across_clusters'] else 0,
             'creators_in_multiple_clusters': cluster_row['creators_in_multiple_clusters'] or 0,
             'meta_component_id': cluster_row['meta_component_id'],
-            'meta_component_cluster_count': cluster_row['meta_component_cluster_count'],
+            'meta_component_cluster_count': cluster_row['meta_component_cluster_count'] or 0,
             'meta_component_reuse_ratio': round(cluster_row['meta_component_reuse_ratio'], 3) if cluster_row['meta_component_reuse_ratio'] else 0,
             'avg_clusters_per_creator_in_cluster': round(cluster_row['avg_clusters_per_creator_in_cluster'], 1) if cluster_row['avg_clusters_per_creator_in_cluster'] else 0,
             'p95_clusters_per_creator_in_cluster': cluster_row['p95_clusters_per_creator_in_cluster'] or 0,
@@ -11357,13 +11361,15 @@ def api_super_cluster_details(cluster_id: str):
             'creators': creators,
             'tokens': tokens,
             'funder_stats': {
-                'total_funders': funder_row['total_funders'] if funder_row else 0,
-                'total_sol': funder_row['total_sol'] if funder_row else 0,
-                'cex_funders': funder_row['cex_funders'] if funder_row else 0
+                'total_funders': funder_row['total_funders'] if funder_row and funder_row['total_funders'] else 0,
+                'total_sol': float(funder_row['total_sol']) if funder_row and funder_row['total_sol'] else 0.0,
+                'cex_funders': funder_row['cex_funders'] if funder_row and funder_row['cex_funders'] else 0
             },
             'networks': networks,
             'root_operator_flows': root_operator_flows
-        })
+        }
+
+        return jsonify(response)
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

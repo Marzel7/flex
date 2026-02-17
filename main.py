@@ -4735,39 +4735,81 @@ HTML_TEMPLATE = """
                 }).join('');
 
 
-                // Build relationship diagram
+                // Build relationship diagram with super-network structure
                 const relationshipDiv = document.getElementById('scRelationshipDiagram');
+
+                // Calculate average creators per network for density
+                const avgCreatorsPerNetwork = (data.creator_count / data.network_count).toFixed(1);
+                const creatorReuseFactor = (data.creator_count > 5 ? 'HIGH' : data.creator_count > 2 ? 'MEDIUM' : 'LOW');
+                const creatorReuseColor = creatorReuseFactor === 'HIGH' ? '#ef4444' : creatorReuseFactor === 'MEDIUM' ? '#f59e0b' : '#10b981';
+
                 const relationshipHTML = `
-                    <div style="font-size: 12px; color: #a0a0a0; line-height: 1.8;">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #6366f1; color: #6366f1;">
-                                <strong>${data.root_addresses.length}</strong> Root Operators
-                            </div>
-                            <div style="color: #888;">↓</div>
-                            <div style="background: rgba(245, 158, 11, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #f59e0b; color: #f59e0b;">
-                                <strong>${data.creator_count}</strong> Creators
+                    <div style="font-size: 12px; color: #a0a0a0;">
+                        <div style="margin-bottom: 16px;">
+                            <div style="font-size: 10px; color: #888; margin-bottom: 8px; text-transform: uppercase; font-weight: bold;">📊 SUPER-NETWORK STRUCTURE</div>
+
+                            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                                    <div>
+                                        <div style="color: #6366f1; font-size: 11px; margin-bottom: 4px;">TOTAL NETWORKS</div>
+                                        <div style="color: #818cf8; font-weight: bold; font-size: 16px;">${data.network_count}</div>
+                                    </div>
+                                    <div>
+                                        <div style="color: #f59e0b; font-size: 11px; margin-bottom: 4px;">UNIQUE CREATORS</div>
+                                        <div style="color: #fbbf24; font-weight: bold; font-size: 16px;">${data.creator_count}</div>
+                                    </div>
+                                    <div>
+                                        <div style="color: #10b981; font-size: 11px; margin-bottom: 4px;">REUSE FACTOR</div>
+                                        <div style="color: ${creatorReuseColor}; font-weight: bold; font-size: 16px;">${avgCreatorsPerNetwork}x/net</div>
+                                    </div>
+                                </div>
+
+                                <div style="padding: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 4px; border-left: 2px solid ${creatorReuseColor}; margin-bottom: 10px;">
+                                    <div style="color: ${creatorReuseColor}; font-size: 11px; font-weight: bold; margin-bottom: 4px;">⚠️ CREATOR REUSE: ${creatorReuseFactor}</div>
+                                    <div style="color: #a0a0a0; font-size: 10px;">
+                                        ${data.creator_count} creators across ${data.network_count} networks = <strong style="color: ${creatorReuseColor};">${avgCreatorsPerNetwork} creators per network average</strong>
+                                        <br>This indicates a <strong>coordinated operation</strong> reusing launcher wallets.
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                            <div style="background: rgba(245, 158, 11, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #f59e0b; color: #f59e0b;">
-                                <strong>${data.creator_count}</strong> Creators
-                            </div>
-                            <div style="color: #888;">↓</div>
-                            <div style="background: rgba(59, 130, 246, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #3b82f6; color: #3b82f6;">
-                                <strong>${data.tokens.length}</strong> Tokens
+
+                        <div style="margin-bottom: 12px;">
+                            <div style="font-size: 10px; color: #888; margin-bottom: 8px; text-transform: uppercase; font-weight: bold;">🔗 FUNDING FLOW</div>
+
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <div style="background: rgba(59, 130, 246, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #3b82f6; color: #3b82f6; flex: 1;">
+                                    <div style="font-size: 10px; color: #888;">Upstream</div>
+                                    <strong>${data.funder_stats.total_funders}</strong> Senders
+                                </div>
+                                <div style="color: #666; font-weight: bold;">➜</div>
+                                <div style="background: rgba(99, 102, 241, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #6366f1; color: #6366f1; flex: 1;">
+                                    <div style="font-size: 10px; color: #888;">Root Operators</div>
+                                    <strong>${data.root_addresses.length}</strong> Ops
+                                </div>
+                                <div style="color: #666; font-weight: bold;">➜</div>
+                                <div style="background: rgba(245, 158, 11, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #f59e0b; color: #f59e0b; flex: 1;">
+                                    <div style="font-size: 10px; color: #888;">Creators</div>
+                                    <strong>${data.creator_count}</strong> Wallets
+                                </div>
+                                <div style="color: #666; font-weight: bold;">➜</div>
+                                <div style="background: rgba(74, 222, 128, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #4ade80; color: #4ade80; flex: 1;">
+                                    <div style="font-size: 10px; color: #888;">Tokens</div>
+                                    <strong>${data.tokens.length}</strong> Launch
+                                </div>
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="background: rgba(59, 130, 246, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #3b82f6; color: #3b82f6;">
-                                <strong>${data.tokens.length}</strong> Tokens
+
+                        <div style="padding: 10px; background: rgba(99, 102, 241, 0.05); border-radius: 4px; border: 1px solid rgba(99, 102, 241, 0.2);">
+                            <div style="font-size: 11px; line-height: 1.6;">
+                                <strong>💡 What ties these ${data.network_count} networks together:</strong><br>
+                                <span style="color: #a0a0a0;">
+                                    Multiple funding networks consolidated into one super-cluster because they share <strong>${data.creator_count} creators</strong> across <strong>${data.network_count} networks</strong>.
+                                    This indicates <strong>coordinated operations</strong> using the same launcher infrastructure.
+                                </span>
+                                <br><br>
+                                <strong>📈 Tracked funding:</strong> <span style="color: #a855f7;">${data.funder_stats.total_sol.toFixed(2)} SOL</span> flowing through this ecosystem
                             </div>
-                            <div style="color: #888;">↓</div>
-                            <div style="background: rgba(74, 222, 128, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #4ade80; color: #4ade80;">
-                                <strong>${data.funder_stats.total_funders}</strong> Funders (${data.funder_stats.cex_funders} CEX)
-                            </div>
-                        </div>
-                        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(99, 102, 241, 0.2); color: #888; font-size: 11px;">
-                            Total funding tracked: <strong style="color: #a855f7;">${data.funder_stats.total_sol.toFixed(2)} SOL</strong> across <strong style="color: #6366f1;">${data.network_count}</strong> networks
                         </div>
                     </div>
                 `;

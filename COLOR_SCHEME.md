@@ -5,42 +5,42 @@ All colors in the Flex project are now defined using CSS custom properties (vari
 
 ## CSS Custom Properties Reference
 
-### Primary Colors (Uniform Gray-Blue, Very Muted)
+### Primary Colors (Neutral Gray Base)
 ```css
---primary: #545664;           /* Main gray-blue - UI elements, borders */
---primary-dark: #434552;      /* Darker shade - hover states */
---primary-light: rgba(84, 86, 100, 0.12);  /* Very subtle overlay */
+--primary: #4a4a52;           /* Main neutral gray - UI elements, borders */
+--primary-dark: #383840;      /* Darker shade - hover states */
+--primary-light: rgba(74, 74, 82, 0.1);  /* Subtle overlay */
 ```
 
-### Text Colors (Soft, Minimal Contrast)
+### Text Colors (Uniform Gray Scale)
 ```css
---text-primary: #b8b8c4;      /* Main text color - soft gray */
---text-secondary: #8a8a94;    /* Muted/secondary text - darker gray */
+--text-primary: #a8a8b0;      /* Main text color - medium gray */
+--text-secondary: #787880;    /* Muted/secondary text - darker gray */
 --text-dark: #1a1a1a;         /* Dark text on light backgrounds */
---text-light: #d0d0d8;        /* Light text on dark backgrounds */
+--text-light: #c8c8d0;        /* Light text on dark backgrounds */
 ```
 
-### Risk & Reuse Levels (Uniform Muted Palette)
+### Risk & Reuse Levels (Monochrome with Subtle Variance)
 ```css
---color-critical: #9d5c5c;    /* CRITICAL risk - very muted red */
---color-high: #9d7070;        /* HIGH risk / Strong coordination - soft red */
---color-medium: #a68b6b;      /* MEDIUM risk / Shared - muted warm */
---color-low: #a89e6b;         /* LOW risk / Weak - muted warm-neutral */
---color-none: #6b8d7a;        /* NONE / Independent - muted cool */
+--color-critical: #6f6f75;    /* CRITICAL risk - darker gray */
+--color-high: #717177;        /* HIGH risk / Strong coordination - gray */
+--color-medium: #737979;      /* MEDIUM risk / Shared - neutral gray */
+--color-low: #757b7f;         /* LOW risk / Weak - light gray */
+--color-none: #717d75;        /* NONE / Independent - cool gray */
 ```
 
-### Background Colors (Dark, Uniform)
+### Background Colors (Very Dark Grays)
 ```css
---bg-primary: #0f0f1e;        /* Primary background - very dark */
---bg-secondary: rgba(0, 0, 0, 0.6);  /* Secondary background (cards) - darker */
---bg-overlay: rgba(84, 86, 100, 0.08);  /* Very subtle overlay */
+--bg-primary: #0a0a10;        /* Primary background - nearly black */
+--bg-secondary: rgba(0, 0, 0, 0.7);  /* Secondary background (cards) - very dark */
+--bg-overlay: rgba(74, 74, 82, 0.06);  /* Very subtle overlay */
 ```
 
-### Accent Colors (Muted Gray Tones)
+### Accent Colors (Subtle Gray Variations)
 ```css
---accent-cyan: #4a8fa8;       /* Cyan - muted blue-teal */
---accent-green: #5a8a6a;      /* Green - muted sage-green */
---accent-purple: #7d6d9d;     /* Purple - muted mauve */
+--accent-cyan: #4a7a88;       /* Cyan - muted cool gray */
+--accent-green: #5a7a6a;      /* Green - muted gray-green */
+--accent-purple: #6a6a7a;     /* Purple - neutral gray */
 ```
 
 ## Creator Pool Tag Color Mapping
@@ -132,5 +132,5 @@ This ensures that:
 
 ---
 **Last Updated**: 2026-02-17
-**Status**: Dark theme with muted colors implemented
-**Theme**: Dark mode with reduced brightness and saturation for comfortable viewing
+**Status**: Monochrome dark theme implemented
+**Theme**: Ultra-dark monochrome gray palette - no bright colors, completely uniform

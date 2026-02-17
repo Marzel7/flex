@@ -4670,7 +4670,7 @@ HTML_TEMPLATE = """
 
             networksContainer.innerHTML = visibleNetworks.map(net => {
                 const networkName = net.network_name || `Network_${net.network_id}`;
-                const isCexInfra = data.network_root_operator_status && data.network_root_operator_status[net.network_id];
+                const isCexInfra = data.network_root_operator_status && (data.network_root_operator_status[net.network_id] || data.network_root_operator_status[String(net.network_id)]);
                 const statusBadge = isCexInfra ?
                     '<span style="padding: 4px 8px; border-radius: 4px; background: rgba(239, 68, 68, 0.1); color: #ef4444; font-size: 10px; font-weight: bold;">CEX/INFRA</span>' :
                     '<span style="padding: 4px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.1); color: #10b981; font-size: 10px; font-weight: bold;">CLEAN</span>';

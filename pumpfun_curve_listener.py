@@ -146,60 +146,63 @@ def rebuild_super_clusters_from_funding():
                 WHERE super_cluster_id = ?
             """, (creator_count, network_count, cluster_id))
 
-        # Assign creators to networks based on their funders
+        # Assign creators and funders to super_clusters
+        # Logic:
+        # 1. Add creator to clusters where their funders are
+        # 2. Add funders to clusters if they fund real creators (not just CEX/INFRA)
         creators_assigned = 0
+        funders_assigned = 0
+
         for creator in creators_to_process:
-            # Find all networks that have funders of this creator (exclude CEX)
+            # Find all super_clusters where this creator's funders appear as cluster members
             cursor.execute("""
-                SELECT DISTINCT fnm.network_id
+                SELECT DISTINCT cscm.super_cluster_id, cf.funder_address
                 FROM creator_funders cf
-                JOIN funding_network_members fnm ON cf.funder_address = fnm.funder_address
+                JOIN creator_super_cluster_membership cscm ON cf.funder_address = cscm.creator_address
                 WHERE cf.creator_address = ? AND cf.fully_analyzed = 1 AND cf.amount_sol > 0
                 AND cf.is_cex = 0
             """, (creator,))
 
-            networks = [row[0] for row in cursor.fetchall()]
+            results = cursor.fetchall()
+            clusters = [row[0] for row in results]
+            funders = [row[1] for row in results]
 
-            if networks:
-                # Assign to the primary network (first one found)
-                primary_network = networks[0]
-
-                # Check if creator already assigned
+            # Add creator to those clusters
+            for cluster_id in clusters:
                 cursor.execute("""
-                    SELECT COUNT(*) FROM creator_super_cluster_membership
-                    WHERE creator_address = ?
-                """, (creator,))
+                    INSERT OR IGNORE INTO creator_super_cluster_membership
+                    (creator_address, super_cluster_id)
+                    VALUES (?, ?)
+                """, (creator, cluster_id))
+                creators_assigned += 1
 
-                exists = cursor.fetchone()[0] > 0
+            # Add funders to clusters if they fund real addresses (not just CEX/INFRA)
+            for funder in funders:
+                # Check if funder has outgoing transfers to non-CEX/INFRA addresses
+                cursor.execute("""
+                    SELECT COUNT(*) FROM funder_outgoing_transfers
+                    WHERE funder_address = ? AND is_cex = 0
+                """, (funder,))
 
-                if not exists:
-                    # Get or create a super_cluster_id for this network
-                    cursor.execute("""
-                        SELECT super_cluster_id FROM creator_super_cluster_membership
-                        WHERE network_id = ? LIMIT 1
-                    """, (primary_network,))
+                has_real_funding = cursor.fetchone()[0] > 0
 
-                    cluster_row = cursor.fetchone()
-                    if cluster_row:
-                        cluster_id = cluster_row[0]
-                    else:
-                        # Create new cluster ID based on network
-                        cluster_id = f"network_{primary_network}"
-
-                    cursor.execute("""
-                        INSERT OR IGNORE INTO creator_super_cluster_membership
-                        (creator_address, super_cluster_id, network_id, assignment_source, assigned_at)
-                        VALUES (?, ?, ?, 'funding_analysis', CURRENT_TIMESTAMP)
-                    """, (creator, cluster_id, primary_network))
-
-                    creators_assigned += 1
+                if has_real_funding:
+                    # Add funder to all clusters where creator appears
+                    for cluster_id in clusters:
+                        cursor.execute("""
+                            INSERT OR IGNORE INTO creator_super_cluster_membership
+                            (creator_address, super_cluster_id)
+                            VALUES (?, ?)
+                        """, (funder, cluster_id))
+                        funders_assigned += 1
 
         conn.commit()
         print(f"[CLUSTERING] ✅ Assigned {creators_assigned} creators to networks", flush=True)
+        print(f"[CLUSTERING] ✅ Assigned {funders_assigned} funders to networks (funding real addresses)", flush=True)
         print(f"[CLUSTERING] ✅ Updated super_cluster metadata", flush=True)
         conn.close()
 
-        return {'status': 'success', 'creators_updated': len(creators_to_process), 'creators_assigned': creators_assigned}
+        return {'status': 'success', 'creators_updated': len(creators_to_process), 'creators_assigned': creators_assigned, 'funders_assigned': funders_assigned}
 
     except Exception as e:
         print(f"[CLUSTERING] ⚠ Error rebuilding super_clusters: {e}", flush=True)

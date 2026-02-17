@@ -3203,7 +3203,7 @@ HTML_TEMPLATE = """
                         const displayName = funder.display_name || `${funder.cex_exchange || 'Unknown'} ${funder.cex_type || 'Wallet'}`;
                         return `
                             <tr>
-                                <td style="font-family: monospace; font-size: 12px;" title="${funder.funder_address}">${funder.funder_address.substring(0, 16)}...</td>
+                                <td style="font-family: monospace; font-size: 12px; word-break: break-all;" title="${funder.funder_address}">${funder.funder_address}</td>
                                 <td><span class="cex-exchange-name">${displayName}</span></td>
                                 <td>${funder.creators_funded}</td>
                                 <td style="text-align: right; color: var(--color-low); font-weight: 600;">${(funder.total_sol || 0).toFixed(2)}</td>
@@ -3219,7 +3219,7 @@ HTML_TEMPLATE = """
                 if (data.cex_funded_creators && data.cex_funded_creators.length > 0) {
                     creatorsBody.innerHTML = data.cex_funded_creators.map(creator => `
                         <tr>
-                            <td style="font-family: monospace; font-size: 12px;" title="${creator.creator_address}">${creator.creator_address.substring(0, 16)}...</td>
+                            <td style="font-family: monospace; font-size: 12px; word-break: break-all;" title="${creator.creator_address}">${creator.creator_address}</td>
                             <td style="text-align: center; color: var(--accent-cyan); font-weight: 600;">${creator.exchanges_funding}</td>
                             <td style="text-align: right; color: var(--color-low); font-weight: 600;">${(creator.total_cex_funding || 0).toFixed(2)}</td>
                             <td>
@@ -3532,7 +3532,7 @@ HTML_TEMPLATE = """
                         return `
                             <tr>
                                 <td><span class="cex-exchange-name">${displayName}</span></td>
-                                <td title="${funder.funder_address}" style="font-family: monospace;">${funder.funder_address.substring(0, 16)}...</td>
+                                <td title="${funder.funder_address}" style="font-family: monospace; word-break: break-all;">${funder.funder_address}</td>
                                 <td>${amountStr} SOL</td>
                             </tr>
                         `;
@@ -3575,7 +3575,7 @@ HTML_TEMPLATE = """
                                     <tr>
                                         <td title="${funder.funder_address}" style="font-family: monospace;">
                                             <a href="https://solscan.io/address/${funder.funder_address}" target="_blank" style="color: var(--color-critical); text-decoration: none; cursor: pointer;">
-                                                ${funder.funder_address.substring(0, 16)}...
+                                                ${funder.funder_address}
                                             </a>
                                         </td>
                                         <td><strong>${funder.creator_count}</strong></td>
@@ -3640,7 +3640,7 @@ HTML_TEMPLATE = """
 
                         return `
                             <tr>
-                                <td title="${funder.funder_address}" style="font-family: monospace; color: var(--address-color);">${funder.funder_address.substring(0, 16)}...</td>
+                                <td title="${funder.funder_address}" style="font-family: monospace; color: var(--address-color); word-break: break-all;">${funder.funder_address}</td>
                                 <td>${amountStr} SOL</td>
                                 <td>${funderType}</td>
                             </tr>
@@ -3704,11 +3704,11 @@ HTML_TEMPLATE = """
                             : recipient.amount_sol.toFixed(2);
 
                         // Display label name if available, otherwise use address
-                        const displayLabel = recipient.display_name || recipient.recipient_address.substring(0, 16) + '...';
+                        const displayLabel = recipient.display_name || recipient.recipient_address;
 
                         return `
                             <tr class="${recipient.is_network_coordinator ? 'row-network-coordinator' : recipient.shared_with_creators ? 'row-shared-recipient' : ''}">
-                                <td title="${recipient.recipient_address}" style="font-family: monospace; font-size: 12px;">
+                                <td title="${recipient.recipient_address}" style="font-family: monospace; font-size: 12px; word-break: break-all;">
                                     ${displayLabel}
                                     ${networkIndicator ? `<div style="margin-top: 3px; font-size: 10px; color: var(--text-secondary);">${networkTooltip}</div>` : ''}
                                 </td>
@@ -3728,7 +3728,7 @@ HTML_TEMPLATE = """
                     for (const crossRef of data.cross_references) {
                         const creatorList = crossRef.other_creators
                             .slice(0, 3)
-                            .map(c => `<span style="background: rgba(124, 58, 237, 0.2); padding: 2px 6px; border-radius: 3px; margin: 2px; display: inline-block; font-size: 10px; font-family: monospace;">${c.substring(0, 12)}...</span>`)
+                            .map(c => `<span style="background: rgba(124, 58, 237, 0.2); padding: 2px 6px; border-radius: 3px; margin: 2px; display: inline-block; font-size: 10px; font-family: monospace; word-break: break-all;">${c}</span>`)
                             .join('');
                         const moreCreators = crossRef.other_creators.length > 3 ? `<span style="color: var(--text-secondary); font-size: 10px;"> +${crossRef.other_creators.length - 3} more</span>` : '';
 
@@ -4485,7 +4485,7 @@ HTML_TEMPLATE = """
                         const badge = sender.is_known ? ' ✓' : '';
                         incomingHTML += `
                             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                                <td style="padding: 10px; color: var(--text-primary); font-family: monospace; font-size: 11px; word-break: break-all;">${sender.address.substring(0, 16)}...</td>
+                                <td style="padding: 10px; color: var(--text-primary); font-family: monospace; font-size: 11px; word-break: break-all;">${sender.address}</td>
                                 <td style="padding: 10px; text-align: right; color: var(--color-low);">${sender.amount_sol.toFixed(2)}</td>
                                 <td style="padding: 10px; text-align: center; color: var(--text-secondary);">${sender.transaction_count}</td>
                                 <td style="padding: 10px; color: ${labelColor};">${label}${badge}</td>
@@ -4506,7 +4506,7 @@ HTML_TEMPLATE = """
                         const badge = recipient.is_known ? ' ✓' : '';
                         outgoingHTML += `
                             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                                <td style="padding: 10px; color: var(--text-primary); font-family: monospace; font-size: 11px; word-break: break-all;">${recipient.address.substring(0, 16)}...</td>
+                                <td style="padding: 10px; color: var(--text-primary); font-family: monospace; font-size: 11px; word-break: break-all;">${recipient.address}</td>
                                 <td style="padding: 10px; text-align: right; color: var(--color-critical);">${recipient.amount_sol.toFixed(2)}</td>
                                 <td style="padding: 10px; text-align: center; color: var(--text-secondary);">${recipient.transaction_count}</td>
                                 <td style="padding: 10px; color: ${labelColor};">${label}${badge}</td>
@@ -4950,8 +4950,7 @@ HTML_TEMPLATE = """
                         const creatorsList = creatorOrder
                             .map((creator) => {
                                 const tokenCount = creatorMap[creator];
-                                const shortCreator = creator.substring(0, 8) + '...' + creator.substring(creator.length - 8);
-                                return `<div style="font-family: monospace; font-size: 10px; color: var(--text-primary); padding: 6px; background: rgba(245, 158, 11, 0.05); border-radius: 2px; margin-bottom: 4px; display: flex; justify-content: space-between;"><span title="${creator}">${shortCreator}</span><span style="color: var(--color-medium); font-weight: bold;">${tokenCount} token${tokenCount > 1 ? 's' : ''}</span></div>`;
+                                return `<div style="font-family: monospace; font-size: 10px; color: var(--text-primary); padding: 6px; background: rgba(245, 158, 11, 0.05); border-radius: 2px; margin-bottom: 4px; display: flex; justify-content: space-between; word-break: break-all;"><span title="${creator}">${creator}</span><span style="color: var(--color-medium); font-weight: bold; flex-shrink: 0; margin-left: 10px;">${tokenCount} token${tokenCount > 1 ? 's' : ''}</span></div>`;
                             })
                             .join('');
 

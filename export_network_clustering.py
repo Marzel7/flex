@@ -108,12 +108,13 @@ def get_data():
 
     # 3. CREATOR MEMBERSHIPS
     print("  → Creator memberships")
-    cursor.execute("""
+    infra_list = ','.join(['?' for _ in infra_and_cex])
+    cursor.execute(f"""
         SELECT
             cscm.creator_address,
             cscm.super_cluster_id,
-            COUNT(DISTINCT cf.funder_address) as funder_count,
-            SUM(cf.amount_sol) as total_sol_received,
+            COUNT(DISTINCT CASE WHEN cf.funder_address NOT IN ({infra_list}) THEN cf.funder_address END) as funder_count,
+            SUM(CASE WHEN cf.funder_address NOT IN ({infra_list}) THEN cf.amount_sol ELSE 0 END) as total_sol_received,
             ta.mint,
             ta.risk_level,
             ta.rug_probability,
@@ -124,7 +125,7 @@ def get_data():
         GROUP BY cscm.creator_address, cscm.super_cluster_id
         ORDER BY ta.rug_probability DESC
         LIMIT 2000
-    """)
+    """, tuple(infra_and_cex) * 2)
 
     memberships = []
     for row in cursor.fetchall():
@@ -143,22 +144,23 @@ def get_data():
 
     # 4. FUNDER NETWORK ANALYSIS
     print("  → Funder networks")
-    cursor.execute("""
+    infra_list = ','.join(['?' for _ in infra_and_cex])
+    cursor.execute(f"""
         SELECT
             fn.network_id,
             fn.network_name,
-            fn.total_members,
-            fn.total_sol,
-            COUNT(DISTINCT ta.mint) as tokens_created,
-            SUM(CASE WHEN ta.risk_level = 'HIGH' THEN 1 ELSE 0 END) as high_risk_tokens,
-            GROUP_CONCAT(DISTINCT fnm.funder_address) as top_funders
+            COUNT(DISTINCT CASE WHEN fnm.funder_address NOT IN ({infra_list}) THEN fnm.funder_address END) as total_members,
+            SUM(CASE WHEN cf.funder_address NOT IN ({infra_list}) THEN cf.amount_sol ELSE 0 END) as total_sol,
+            COUNT(DISTINCT CASE WHEN cf.funder_address NOT IN ({infra_list}) THEN ta.mint END) as tokens_created,
+            SUM(CASE WHEN ta.risk_level = 'HIGH' AND cf.funder_address NOT IN ({infra_list}) THEN 1 ELSE 0 END) as high_risk_tokens,
+            GROUP_CONCAT(DISTINCT CASE WHEN fnm.funder_address NOT IN ({infra_list}) THEN fnm.funder_address END) as top_funders
         FROM funding_networks fn
         LEFT JOIN funding_network_members fnm ON fn.network_id = fnm.network_id
         LEFT JOIN creator_funders cf ON fnm.funder_address = cf.funder_address
         LEFT JOIN token_analysis ta ON cf.creator_address = ta.earliest_tx_creator
         GROUP BY fn.network_id
-        ORDER BY fn.total_sol DESC
-    """)
+        ORDER BY total_sol DESC
+    """, tuple(infra_and_cex) * 5)
 
     networks = []
     for row in cursor.fetchall():
@@ -176,7 +178,8 @@ def get_data():
 
     # 5. TOKEN ANALYSIS
     print("  → Token analysis")
-    cursor.execute("""
+    infra_list = ','.join(['?' for _ in infra_and_cex])
+    cursor.execute(f"""
         SELECT
             ta.mint,
             ta.earliest_tx_creator,
@@ -187,13 +190,13 @@ def get_data():
             ta.risk_level,
             ta.rug_probability,
             cscm.super_cluster_id,
-            COUNT(DISTINCT cf.funder_address) as funder_count
+            COUNT(DISTINCT CASE WHEN cf.funder_address NOT IN ({infra_list}) THEN cf.funder_address END) as funder_count
         FROM token_analysis ta
         LEFT JOIN creator_super_cluster_membership cscm ON ta.earliest_tx_creator = cscm.creator_address
         LEFT JOIN creator_funders cf ON ta.earliest_tx_creator = cf.creator_address
         GROUP BY ta.mint
         ORDER BY ta.rug_probability DESC
-    """)
+    """, tuple(infra_and_cex))
 
     tokens = []
     for row in cursor.fetchall():

@@ -81,10 +81,12 @@ def classify_account(address: str) -> Tuple[str, Optional[str], Optional[str]]:
 
 def save_funder_incoming_transfer(sender_address: str, funder_address: str, amount_sol: float,
                                   tx_signature: str, block_time: Optional[int] = None):
-    """Save a funder incoming transfer to database"""
+    """Save a funder incoming transfer to database (store CEX/INFRA but mark as terminal)"""
     try:
         # Classify sender
         sender_type, exchange_name, exchange_type = classify_account(sender_address)
+
+        # Check if sender is CEX or INFRA (mark for display but don't trace through)
         is_cex = 1 if sender_type == "cex" else 0
 
         conn = sqlite3.connect(DB_PATH, timeout=5)
@@ -102,7 +104,10 @@ def save_funder_incoming_transfer(sender_address: str, funder_address: str, amou
 
         conn.commit()
         conn.close()
-        print(f"[DB] ✅ Saved incoming: {sender_address[:16]}... → {funder_address[:16]}... | {amount_sol:.4f} SOL")
+
+        # Show marker for terminal accounts (don't trace further)
+        marker = "🚫" if sender_type in ("cex", "infra") else "✅"
+        print(f"[DB] {marker} Saved incoming: {sender_address[:16]}... → {funder_address[:16]}... | {amount_sol:.4f} SOL ({sender_type})")
         return True
 
     except Exception as e:
@@ -112,10 +117,12 @@ def save_funder_incoming_transfer(sender_address: str, funder_address: str, amou
 
 def save_funder_outgoing_transfer(funder_address: str, recipient_address: str, amount_sol: float,
                                   tx_signature: str, block_time: Optional[int] = None):
-    """Save a funder outgoing transfer to database"""
+    """Save a funder outgoing transfer to database (store CEX/INFRA but mark as terminal)"""
     try:
         # Classify recipient
         recipient_type, exchange_name, exchange_type = classify_account(recipient_address)
+
+        # Check if recipient is CEX or INFRA (mark for display but don't trace through)
         is_cex = 1 if recipient_type == "cex" else 0
 
         conn = sqlite3.connect(DB_PATH, timeout=5)
@@ -133,11 +140,38 @@ def save_funder_outgoing_transfer(funder_address: str, recipient_address: str, a
 
         conn.commit()
         conn.close()
-        print(f"[DB] ✅ Saved outgoing: {funder_address[:16]}... → {recipient_address[:16]}... | {amount_sol:.4f} SOL")
+
+        # Show marker for terminal accounts (don't trace further)
+        marker = "🚫" if recipient_type in ("cex", "infra") else "✅"
+        print(f"[DB] {marker} Saved outgoing: {funder_address[:16]}... → {recipient_address[:16]}... | {amount_sol:.4f} SOL ({recipient_type})")
         return True
 
     except Exception as e:
         print(f"[DB] Error saving outgoing transfer: {e}")
+        return False
+
+
+def mark_funder_analyzed(funder_address: str, creator_address: str):
+    """Mark a funder as analyzed by updating last_analyzed timestamp"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            UPDATE creator_funders
+            SET last_analyzed = CURRENT_TIMESTAMP, fully_analyzed = 1
+            WHERE creator_address = ? AND funder_address = ?
+        """,
+            (creator_address, funder_address),
+        )
+
+        conn.commit()
+        conn.close()
+        print(f"[DB] ✅ Marked extraction complete for {funder_address[:16]}...")
+        return True
+    except Exception as e:
+        print(f"[DB] Error marking funder analyzed: {e}")
         return False
 
 

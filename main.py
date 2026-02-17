@@ -1355,7 +1355,7 @@ HTML_TEMPLATE = """
             left: 2px;
             width: 20px;
             height: 20px;
-            background-color: white;
+            background-color: var(--bg-secondary);
             border-radius: 50%;
             transition: left 0.3s;
         }
@@ -2325,7 +2325,7 @@ HTML_TEMPLATE = """
                     Instead of using unique wallets for each token launch, coordinated operations systematically reuse the same creators,
                     creating linkages between supposedly independent clusters. These tags identify the strength of creator pool coordination.
                 </p>
-                <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); padding: 12px; border-radius: 4px; margin-top: 15px;">
+                <div style="background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); padding: 12px; border-radius: 4px; margin-top: 15px;">
                     <p style="color: var(--color-medium); margin: 0; font-size: 12px;">
                         <strong>⚠️ Important:</strong> Tags are based on <strong>wallet reuse patterns and structural signals</strong>.
                         They indicate <strong>coordination likelihood</strong>, not intent or ownership. Use as a risk indicator, not definitive proof.
@@ -2353,7 +2353,7 @@ HTML_TEMPLATE = """
             </div>
 
             <!-- WEAK -->
-            <div style="background: rgba(255, 217, 61, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid var(--color-medium); margin-bottom: 20px;">
+            <div style="background: rgba(234, 179, 8, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid var(--color-medium); margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
                     <span style="background: var(--color-medium); color: var(--text-dark); padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - WEAK</span>
                     <span style="color: var(--text-secondary); font-size: 12px;">(Yellow)</span>
@@ -2372,7 +2372,7 @@ HTML_TEMPLATE = """
             </div>
 
             <!-- SHARED -->
-            <div style="background: rgba(255, 169, 77, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid var(--color-medium); margin-bottom: 20px;">
+            <div style="background: rgba(249, 115, 22, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid var(--color-medium); margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
                     <span style="background: var(--color-medium); color: var(--text-dark); padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - SHARED</span>
                     <span style="color: var(--text-secondary); font-size: 12px;">(Orange)</span>
@@ -2391,7 +2391,7 @@ HTML_TEMPLATE = """
             </div>
 
             <!-- STRONG -->
-            <div style="background: rgba(255, 107, 107, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid var(--color-critical); margin-bottom: 20px;">
+            <div style="background: rgba(239, 68, 68, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid var(--color-critical); margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
                     <span style="background: var(--color-critical); color: var(--text-light); padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">CREATOR POOL - STRONG</span>
                     <span style="color: var(--text-secondary); font-size: 12px;">(Red)</span>

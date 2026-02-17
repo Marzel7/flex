@@ -4532,62 +4532,67 @@ HTML_TEMPLATE = """
             document.getElementById('scHighCount').textContent = clusters.filter(c => c.risk_level === 'HIGH').length;
             document.getElementById('scMediumCount').textContent = clusters.filter(c => c.risk_level === 'MEDIUM').length;
 
-            let html = '';
-
-            clusters.forEach(cluster => {
-                // Fetch detailed data for this cluster to get network_root_operator_status
+            // Fetch all cluster details to determine visibility
+            Promise.all(clusters.map(cluster =>
                 fetch(`/api/super-cluster/${cluster.id}`)
                     .then(r => r.json())
-                    .then(details => {
-                        // Calculate filtered network count
-                        let networkCount = cluster.network_count;
-                        if (!showMainNetworksWithCexInfra && details.network_root_operator_status) {
-                            networkCount = details.networks.filter(net => {
-                                const hasInfra = details.network_root_operator_status[net.network_id] ||
-                                                details.network_root_operator_status[String(net.network_id)];
-                                return !hasInfra;
-                            }).length;
-                        }
-                        // Update the card with correct network count
-                        const card = document.querySelector(`[data-cluster-id="${cluster.id}"]`);
-                        if (card) {
-                            card.querySelector('[data-network-count]').textContent = networkCount;
-                        }
-                    });
+                    .then(details => ({ cluster, details }))
+                    .catch(() => ({ cluster, details: null }))
+            )).then(results => {
+                let visibleHtml = '';
 
-                html += `
-                    <div data-cluster-id="${cluster.id}" style="background: rgba(0, 0, 0, 0.3); border: 1px solid #6366f1; border-radius: 8px; padding: 25px; cursor: pointer; transition: all 0.3s;"
-                         onclick="showSuperCluster('${cluster.id}')"
-                         onmouseover="this.style.background='rgba(99, 102, 241, 0.15)'; this.style.boxShadow='0 0 15px rgba(99, 102, 241, 0.5)';"
-                         onmouseout="this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='none';">
-                        <div style="font-weight: bold; color: #e0e0e0; font-size: 16px; margin-bottom: 18px;">${cluster.id}</div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px;">
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
-                                <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Creators</div>
-                                <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.creator_count}</div>
-                            </div>
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
-                                <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Networks</div>
-                                <div data-network-count style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.network_count}</div>
-                            </div>
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
-                                <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Mapped</div>
-                                <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.mapped_creators}</div>
-                            </div>
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
-                                <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Root Ops</div>
-                                <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.root_addresses.length}</div>
-                            </div>
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
-                                <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Risk</div>
-                                <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.risk_level}</div>
+                results.forEach(({ cluster, details }) => {
+                    // Check if cluster should be hidden when filter is OFF
+                    let shouldHide = false;
+                    if (!showMainNetworksWithCexInfra && details && details.network_root_operator_status && details.networks) {
+                        // Check if ANY network has CEX/INFRA
+                        const hasAnyCexInfra = details.networks.some(net => {
+                            const hasInfra = details.network_root_operator_status[net.network_id] ||
+                                            details.network_root_operator_status[String(net.network_id)];
+                            return hasInfra;
+                        });
+                        shouldHide = hasAnyCexInfra;
+                    }
+
+                    // Skip rendering this cluster if it should be hidden
+                    if (shouldHide) {
+                        return;
+                    }
+
+                    visibleHtml += `
+                        <div data-cluster-id="${cluster.id}" style="background: rgba(0, 0, 0, 0.3); border: 1px solid #6366f1; border-radius: 8px; padding: 25px; cursor: pointer; transition: all 0.3s;"
+                             onclick="showSuperCluster('${cluster.id}')"
+                             onmouseover="this.style.background='rgba(99, 102, 241, 0.15)'; this.style.boxShadow='0 0 15px rgba(99, 102, 241, 0.5)';"
+                             onmouseout="this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='none';">
+                            <div style="font-weight: bold; color: #e0e0e0; font-size: 16px; margin-bottom: 18px;">${cluster.id}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px;">
+                                <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
+                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Creators</div>
+                                    <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.creator_count}</div>
+                                </div>
+                                <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
+                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Networks</div>
+                                    <div data-network-count style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.network_count}</div>
+                                </div>
+                                <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
+                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Mapped</div>
+                                    <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.mapped_creators}</div>
+                                </div>
+                                <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
+                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Root Ops</div>
+                                    <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.root_addresses.length}</div>
+                                </div>
+                                <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid #6366f1;">
+                                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 4px;">Risk</div>
+                                    <div style="color: #6366f1; font-weight: bold; font-size: 18px;">${cluster.risk_level}</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
 
-            gridEl.innerHTML = html;
+                gridEl.innerHTML = visibleHtml || '<div style="grid-column: 1/-1; color: #a0a0a0; text-align: center; padding: 40px;">No clusters match the filter</div>';
+            });
         }
 
         async function loadSuperClustersInNetworkView() {

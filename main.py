@@ -5095,9 +5095,9 @@ HTML_TEMPLATE = """
 
             // Calculate metrics based on visible networks
             const visibleNetworkCount = visibleNetworks.length;
-            const avgCreatorsPerNetwork = visibleNetworkCount > 0 ? (data.creator_count / visibleNetworkCount).toFixed(1) : 0;
-            const creatorReuseFactor = (data.creator_count > 5 ? 'HIGH' : data.creator_count > 2 ? 'MEDIUM' : 'LOW');
-            const creatorReuseColor = creatorReuseFactor === 'HIGH' ? '#ef4444' : creatorReuseFactor === 'MEDIUM' ? '#f59e0b' : '#10b981';
+            const avgCreatorsPerNetwork = visibleNetworkCount > 0 ? (data.creators_unique / visibleNetworkCount).toFixed(1) : 0;
+            const creatorReuseFactor = (data.creators_unique > 5 ? 'HIGH' : data.creators_unique > 2 ? 'MEDIUM' : 'LOW');
+            const creatorReuseColor = creatorReuseFactor === 'HIGH' ? 'var(--color-critical)' : creatorReuseFactor === 'MEDIUM' ? 'var(--color-medium)' : 'var(--color-none)';
 
             const relationshipHTML = `
                 <div style="font-size: 12px; color: #a0a0a0;">
@@ -5114,11 +5114,11 @@ HTML_TEMPLATE = """
                                     </div>
                                 </div>
                                 <div>
-                                    <div style="color: #f59e0b; font-size: 11px; margin-bottom: 4px;">UNIQUE CREATORS</div>
-                                    <div style="color: #fbbf24; font-weight: bold; font-size: 16px;">${data.creator_count}</div>
+                                    <div style="color: var(--accent-cyan); font-size: 11px; margin-bottom: 4px;">UNIQUE CREATORS</div>
+                                    <div style="color: var(--text-primary); font-weight: bold; font-size: 16px;">${data.creators_unique}</div>
                                 </div>
                                 <div>
-                                    <div style="color: #10b981; font-size: 11px; margin-bottom: 4px;">REUSE FACTOR</div>
+                                    <div style="color: var(--accent-green); font-size: 11px; margin-bottom: 4px;">REUSE FACTOR</div>
                                     <div style="color: ${creatorReuseColor}; font-weight: bold; font-size: 16px;">${avgCreatorsPerNetwork}x/net</div>
                                 </div>
                             </div>
@@ -5126,7 +5126,7 @@ HTML_TEMPLATE = """
                             <div style="padding: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 4px; border-left: 2px solid ${creatorReuseColor}; margin-bottom: 10px;">
                                 <div style="color: ${creatorReuseColor}; font-size: 11px; font-weight: bold; margin-bottom: 4px;">⚠️ CREATOR REUSE: ${creatorReuseFactor}</div>
                                 <div style="color: #a0a0a0; font-size: 10px;">
-                                    ${data.creator_count} creators across ${visibleNetworkCount} networks = <strong style="color: ${creatorReuseColor};">${avgCreatorsPerNetwork} creators per network average</strong>
+                                    ${data.creators_unique} creators across ${visibleNetworkCount} networks = <strong style="color: ${creatorReuseColor};">${avgCreatorsPerNetwork} creators per network average</strong>
                                     <br>This indicates a <strong>coordinated operation</strong> reusing launcher wallets.
                                 </div>
                             </div>
@@ -5149,7 +5149,7 @@ HTML_TEMPLATE = """
                             <div style="color: #666; font-weight: bold;">➜</div>
                             <div style="background: rgba(245, 158, 11, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #f59e0b; color: #f59e0b; flex: 1;">
                                 <div style="font-size: 10px; color: #888;">Creators</div>
-                                <strong>${data.creator_count}</strong> Wallets
+                                <strong>${data.creators_unique}</strong> Wallets
                             </div>
                             <div style="color: #666; font-weight: bold;">➜</div>
                             <div style="background: rgba(74, 222, 128, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid #4ade80; color: #4ade80; flex: 1;">
@@ -5163,7 +5163,7 @@ HTML_TEMPLATE = """
                         <div style="font-size: 11px; line-height: 1.6;">
                             <strong>💡 What ties these ${data.network_count} networks together:</strong><br>
                             <span style="color: #a0a0a0;">
-                                Multiple funding networks consolidated into one super-cluster because they share <strong>${data.creator_count} creators</strong> across <strong>${data.network_count} networks</strong>.
+                                Multiple funding networks consolidated into one super-cluster because they share <strong>${data.creators_unique} creators</strong> across <strong>${data.network_count} networks</strong>.
                                 This indicates <strong>coordinated operations</strong> using the same launcher infrastructure.
                             </span>
                             <br><br>
@@ -5297,7 +5297,7 @@ HTML_TEMPLATE = """
 
                 // Update stats
                 document.getElementById('scNetworkCount').textContent = data.network_count;
-                document.getElementById('scCreatorCount').textContent = data.creator_count;
+                document.getElementById('scCreatorCount').textContent = data.creators_unique;
                 document.getElementById('scTokenCount').textContent = data.tokens.length;
                 document.getElementById('scFunderCount').textContent = data.funder_stats.total_funders || 0;
                 document.getElementById('scTotalSol').textContent = (data.funder_stats.total_sol || 0).toFixed(2) + ' SOL';

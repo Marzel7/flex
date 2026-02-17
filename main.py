@@ -3820,7 +3820,12 @@ HTML_TEMPLATE = """
 
                 // Display super-cluster membership if available
                 if (data.super_clusters && data.super_clusters.length > 0) {
+                    // Remove any existing super-cluster banners first
+                    const existingBanners = document.querySelectorAll('[data-banner-type="super-cluster"]');
+                    existingBanners.forEach(banner => banner.remove());
+
                     const superClusterBanner = document.createElement('div');
+                    superClusterBanner.setAttribute('data-banner-type', 'super-cluster');
                     superClusterBanner.style.cssText = 'background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--color-critical); padding: 15px; margin-bottom: 15px; border-radius: 4px; margin-top: 20px;';
 
                     let bannerHTML = '<div style="color: var(--color-critical); font-weight: bold; margin-bottom: 10px; font-size: 14px;">⚠️ COORDINATED NETWORK DETECTED</div>';

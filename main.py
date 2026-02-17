@@ -1526,7 +1526,6 @@ HTML_TEMPLATE = """
                 <button class="action-button" id="networksTabBtn" onclick="switchToNetworksTab()" title="View funding networks" style="background: rgba(124, 58, 237, 0.2); color: var(--accent-purple); border: 1px solid rgba(124, 58, 237, 0.5); margin-left: 8px;">🔗 Networks</button>
                 <button class="action-button" onclick="window.location.href = '/coordinated-funders'" title="Analyze funders supporting multiple creators" style="background: rgba(124, 58, 237, 0.2); color: var(--accent-purple); border: 1px solid rgba(124, 58, 237, 0.5); margin-left: 8px;">Coordinated Funders</button>
                 <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Validate TX</button>
-                <button id="funderExtractionBtn" class="action-button" onclick="toggleFunderExtraction()" title="Toggle funder transfer extraction (incoming/outgoing)" style="background: rgba(245, 158, 11, 0.2); color: var(--color-medium); border: 1px solid rgba(245, 158, 11, 0.5); margin-left: 8px;">Funder Extraction OFF</button>
             </div>
         </div>
 
@@ -3036,58 +3035,7 @@ HTML_TEMPLATE = """
         }
 
         // Toggle funder transfer extraction (incoming/outgoing)
-        function toggleFunderExtraction() {
-            const btn = document.getElementById('funderExtractionBtn');
-            const isEnabled = btn.textContent.includes('ON');
-
-            fetch('/api/funder-extraction-control', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({action: 'toggle'})
-            }).then(resp => resp.json()).then(data => {
-                if (data.extraction_enabled) {
-                    btn.textContent = 'Funder Extraction ON';
-                    btn.style.background = 'rgba(34, 197, 94, 0.2)';
-                    btn.style.color = '#4ade80';
-                    btn.style.borderColor = 'rgba(34, 197, 94, 0.5)';
-                    console.log('✅ Funder transfer extraction ENABLED');
-                } else {
-                    btn.textContent = 'Funder Extraction OFF';
-                    btn.style.background = 'rgba(245, 158, 11, 0.2)';
-                    btn.style.color = 'var(--color-medium)';
-                    btn.style.borderColor = 'rgba(245, 158, 11, 0.5)';
-                    console.log('✅ Funder transfer extraction DISABLED');
-                }
-            }).catch(e => {
-                console.error('❌ Error toggling funder extraction:', e);
-                alert('❌ Error toggling funder extraction');
-            });
-        }
-
-        // Check funder extraction status on page load
-        async function checkFunderExtractionStatus() {
-            try {
-                const resp = await fetch('/api/funder-extraction-control');
-                const data = await resp.json();
-                const btn = document.getElementById('funderExtractionBtn');
-
-                if (data.extraction_enabled) {
-                    btn.textContent = 'Funder Extraction ON';
-                    btn.style.background = 'rgba(34, 197, 94, 0.2)';
-                    btn.style.color = '#4ade80';
-                    btn.style.borderColor = 'rgba(34, 197, 94, 0.5)';
-                } else {
-                    btn.textContent = 'Funder Extraction OFF';
-                    btn.style.background = 'rgba(245, 158, 11, 0.2)';
-                    btn.style.color = 'var(--color-medium)';
-                    btn.style.borderColor = 'rgba(245, 158, 11, 0.5)';
-                }
-            } catch (e) {
-                console.error('Error checking funder extraction status:', e);
-            }
-        }
-
-        // Toggle between token table and CEX view
+// Toggle between token table and CEX view
         function toggleFundingNetworkView() {
             const tokensContainer = document.getElementById('tokens-container');
             const fundingNetworkContainer = document.getElementById('funding-network-container');
@@ -3330,7 +3278,6 @@ HTML_TEMPLATE = """
         // Load tokens immediately and then every 10 seconds
         initializeSettings();
         checkPollingStatus();
-        checkFunderExtractionStatus();
         loadTokens();
         setInterval(loadTokens, 10000);
 

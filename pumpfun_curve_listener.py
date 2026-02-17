@@ -20,7 +20,6 @@ from datetime import datetime
 from typing import Set, Optional, List
 from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
 from realtime_creator_funding_extractor import extract_funding_for_new_token
-from realtime_wallet_clustering_extractor import trigger_wallet_clustering
 from creator_watch_manager import CreatorWatchManager
 from funder_incoming_extractor import extract_for_creator as extract_funder_transfers
 from dotenv import load_dotenv
@@ -88,6 +87,20 @@ async def extract_funder_transfers_async(creator_address: str):
             print(f"[FUNDER_EXTRACTION] Completed for {creator_address[:8]}...: {result}", flush=True)
     except Exception as e:
         print(f"[FUNDER_EXTRACTION] Error extracting transfers for {creator_address[:8]}...: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+
+
+async def update_network_clustering_async():
+    """Update network clustering database from extracted funding data (no RPC needed)"""
+    try:
+        loop = asyncio.get_event_loop()
+        # Import and run the export function which updates DB with clustering data
+        from export_network_clustering import get_data
+        result = await loop.run_in_executor(None, get_data)
+        print(f"[CLUSTERING] ✅ Network clustering updated from database", flush=True)
+    except Exception as e:
+        print(f"[CLUSTERING] Error updating network clustering: {e}", flush=True)
         import traceback
         traceback.print_exc()
 
@@ -1574,15 +1587,10 @@ class PumpFunCurveListener:
                 else:
                     print(f"[FUNDER_EXTRACTION] Toggle disabled - skipping funder transfer extraction", flush=True)
 
-            # Trigger creator polling (clustering + continuous monitoring) independently (if enabled)
-            if get_migration_setting('creator_history_check', True):
-                print(f"[SETTINGS] Creator analysis ✅ ON - analyzing creator network", flush=True)
-                if earliest_creator:
-                    # Trigger wallet clustering asynchronously
-                    asyncio.create_task(trigger_wallet_clustering(earliest_creator))
-                    print(f"[SETTINGS] Clustering task created for {earliest_creator[:8]}...", flush=True)
-            else:
-                print(f"[SETTINGS] Creator analysis ❌ OFF - skipping creator network clustering", flush=True)
+            # Update network clustering from funding data (no RPC needed)
+            print(f"[CLUSTERING] Updating network clustering from extracted funding data...", flush=True)
+            asyncio.create_task(update_network_clustering_async())
+            print(f"[CLUSTERING] Network update task created", flush=True)
 
         except Exception as e:
             print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)

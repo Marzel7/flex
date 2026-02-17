@@ -262,7 +262,7 @@ HTML_TEMPLATE = """
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, #2d2d44 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             color: var(--text-primary);
             padding: 20px;
             min-height: 100vh;

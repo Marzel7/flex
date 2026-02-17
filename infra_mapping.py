@@ -1122,6 +1122,16 @@ SUSPICIOUS_WALLET_TYPES = {
         "risk_level": "high",
         "tags": ["suspicious", "active_trading", "trading"],
     },
+
+    # Bidget Exchange
+    "A77HErqtfN1hLLpvZ9pCtu66FEtM8BveoaKbbMoZ4RiR": {
+        "name": "Bidget Exchange",
+        "category": "cex",
+        "exchange": "Bidget",
+        "description": "Bidget exchange wallet (CEX account)",
+        "risk_level": "neutral",
+        "tags": ["cex", "bidget", "exchange"],
+    },
 }
 
 # Risk-based categories for infrastructure

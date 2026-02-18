@@ -1606,6 +1606,9 @@ HTML_TEMPLATE = """
                                 <option value="small">SMALL (2-5 creators)</option>
                                 <option value="single">SINGLE (1 creator)</option>
                             </select>
+                            <button id="coordToggleCexInfra" onclick="toggleCoordinatorCexInfraFilter()" style="padding: 6px 12px; border-radius: 4px; border: 1px solid rgba(124, 58, 237, 0.5); background: rgba(124, 58, 237, 0.1); color: var(--primary); font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
+                                ✓ Hide CEX/INFRA
+                            </button>
                         </div>
                     </div>
                     <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 20px;">
@@ -4781,6 +4784,7 @@ HTML_TEMPLATE = """
 
         // Coordinator data storage
         let allCoordinatorsData = [];
+        let showCoordinatorsCexInfra = false;  // Toggle for CEX/INFRA display
 
         // Load cross-funder coordinators
         async function loadCoordinators() {
@@ -4813,12 +4817,31 @@ HTML_TEMPLATE = """
             }
         }
 
+        // Toggle CEX/INFRA filter for coordinators
+        function toggleCoordinatorCexInfraFilter() {
+            showCoordinatorsCexInfra = !showCoordinatorsCexInfra;
+            const btn = document.getElementById('coordToggleCexInfra');
+            if (showCoordinatorsCexInfra) {
+                btn.textContent = '✓ Show All';
+                btn.style.background = 'rgba(124, 58, 237, 0.2)';
+            } else {
+                btn.textContent = '✓ Hide CEX/INFRA';
+                btn.style.background = 'rgba(124, 58, 237, 0.1)';
+            }
+            filterCoordinators();
+        }
+
         // Filter and render coordinators
         function filterCoordinators() {
             const confidenceFilter = document.getElementById('coordinatorConfidenceFilter')?.value || '';
             const reachFilter = document.getElementById('coordinatorReachFilter')?.value || '';
 
             let filtered = allCoordinatorsData;
+
+            // Apply CEX/INFRA filter
+            if (!showCoordinatorsCexInfra) {
+                filtered = filtered.filter(c => !c.is_cex);
+            }
 
             if (confidenceFilter) {
                 filtered = filtered.filter(c => c.confidence === confidenceFilter);

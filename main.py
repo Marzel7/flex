@@ -2653,9 +2653,6 @@ HTML_TEMPLATE = """
                             <th onclick="sortBy('mint')" class="sortable ${sortConfig.column === 'mint' ? 'sorted-' + sortConfig.direction : ''}">Token Mint</th>
                             <th></th>
                             <th onclick="sortBy('network_name')" class="sortable ${sortConfig.column === 'network_name' ? 'sorted-' + sortConfig.direction : ''}">Network</th>
-                            <th onclick="sortBy('rug_indicator')" class="sortable ${sortConfig.column === 'rug_indicator' ? 'sorted-' + sortConfig.direction : ''}">Rug Flag</th>
-                            <th onclick="sortBy('risk_level')" class="sortable ${sortConfig.column === 'risk_level' ? 'sorted-' + sortConfig.direction : ''}">Risk Level</th>
-                            <th onclick="sortBy('rug_probability')" class="sortable ${sortConfig.column === 'rug_probability' ? 'sorted-' + sortConfig.direction : ''}">Risk Score</th>
                             <th onclick="sortBy('market_cap_current')" class="sortable ${sortConfig.column === 'market_cap_current' ? 'sorted-' + sortConfig.direction : ''}">Market Cap</th>
                             <th onclick="sortBy('market_cap_highest')" class="sortable ${sortConfig.column === 'market_cap_highest' ? 'sorted-' + sortConfig.direction : ''}">Peak MC</th>
                             <th onclick="sortBy('market_cap_highest_at')" class="sortable ${sortConfig.column === 'market_cap_highest_at' ? 'sorted-' + sortConfig.direction : ''}">Peak Timing</th>
@@ -2875,13 +2872,6 @@ HTML_TEMPLATE = """
                                         ${token.super_clusters && token.super_clusters.length > 0
                                             ? `<a href="#" onclick="showSuperCluster('${token.super_clusters[0].id}'); return false;" class="mint-link" style="font-size: 13px;" title="${token.super_clusters.map(sc => sc.name).join(', ')}">${token.super_clusters[0].name}</a>`
                                             : (token.network_name ? `<a href="#" onclick="switchTab('funding-networks'); showNetworkDetails(${token.network_id}); return false;" class="mint-link" style="font-size: 13px;" title="${token.network_name}">${token.network_name}</a>` : '—')}
-                                    </td>
-                                    <td class="rug-flag"></td>
-                                    <td>
-                                        <span class="risk-score ${getRiskClass(token.risk_level)}">${token.risk_level || '—'}</span>
-                                    </td>
-                                    <td>
-                                        ${token.rug_probability !== null && token.rug_probability !== undefined ? (token.rug_probability * 100).toFixed(1) + '%' : '—'}
                                     </td>
                                     <td>
                                         ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '—'}

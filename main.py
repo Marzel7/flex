@@ -4872,9 +4872,9 @@ HTML_TEMPLATE = """
 
                 html += `
                     <tr style="border-bottom: 1px solid rgba(124, 58, 237, 0.1);">
-                        <td style="padding: 12px; word-break: break-all; max-width: 250px;">
-                            <code style="background: rgba(124, 58, 237, 0.1); padding: 2px 6px; border-radius: 3px; font-size: 11px;">
-                                ${coord.address.substring(0, 16)}...${coord.address.substring(coord.address.length - 10)}
+                        <td style="padding: 12px; word-break: break-all;">
+                            <code style="background: rgba(124, 58, 237, 0.1); padding: 4px 8px; border-radius: 3px; font-size: 11px; display: block;">
+                                ${coord.address}
                             </code>
                         </td>
                         <td style="text-align: center; padding: 12px;">

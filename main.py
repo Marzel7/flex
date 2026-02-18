@@ -1587,8 +1587,73 @@ HTML_TEMPLATE = """
                     </button>
                 </div>
 
+                <!-- Cross-Funder Coordinators Section -->
+                <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid rgba(124, 58, 237, 0.3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="color: var(--color-critical); margin: 0;">🎭 Cross-Funder Coordinators</h3>
+                        <div style="display: flex; gap: 10px;">
+                            <select id="coordinatorConfidenceFilter" onchange="filterCoordinators()" style="padding: 6px 12px; border-radius: 4px; border: 1px solid rgba(124, 58, 237, 0.5); background: var(--bg-secondary); color: var(--text-primary); font-size: 11px; font-weight: bold;">
+                                <option value="">All Confidence</option>
+                                <option value="high">HIGH Confidence</option>
+                                <option value="medium">MEDIUM Confidence</option>
+                                <option value="low">LOW Confidence</option>
+                            </select>
+                            <select id="coordinatorReachFilter" onchange="filterCoordinators()" style="padding: 6px 12px; border-radius: 4px; border: 1px solid rgba(124, 58, 237, 0.5); background: var(--bg-secondary); color: var(--text-primary); font-size: 11px; font-weight: bold;">
+                                <option value="">All Reach</option>
+                                <option value="mega">MEGA (50+ creators)</option>
+                                <option value="large">LARGE (20-49 creators)</option>
+                                <option value="organized">ORGANIZED (6+ creators)</option>
+                                <option value="small">SMALL (2-5 creators)</option>
+                                <option value="single">SINGLE (1 creator)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 20px;">
+                        Entities identified as funding multiple creators through multiple funder addresses. HIGH confidence coordinators with 6+ creators indicate organized networks.
+                    </p>
+
+                    <!-- Coordinator Statistics -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                        <div style="background: rgba(239, 68, 68, 0.1); padding: 12px; border-radius: 6px; border-left: 3px solid var(--color-critical);">
+                            <div style="color: var(--text-secondary); font-size: 10px; text-transform: uppercase; margin-bottom: 6px;">Total</div>
+                            <div style="font-size: 22px; font-weight: bold; color: var(--color-critical);" id="coordTotalCount">—</div>
+                        </div>
+                        <div style="background: rgba(249, 115, 22, 0.1); padding: 12px; border-radius: 6px; border-left: 3px solid var(--color-high);">
+                            <div style="color: var(--text-secondary); font-size: 10px; text-transform: uppercase; margin-bottom: 6px;">HIGH</div>
+                            <div style="font-size: 22px; font-weight: bold; color: var(--color-high);" id="coordHighCount">—</div>
+                        </div>
+                        <div style="background: rgba(251, 191, 36, 0.1); padding: 12px; border-radius: 6px; border-left: 3px solid var(--color-medium);">
+                            <div style="color: var(--text-secondary); font-size: 10px; text-transform: uppercase; margin-bottom: 6px;">MEDIUM</div>
+                            <div style="font-size: 22px; font-weight: bold; color: var(--color-medium);" id="coordMediumCount">—</div>
+                        </div>
+                        <div style="background: rgba(107, 114, 128, 0.1); padding: 12px; border-radius: 6px; border-left: 3px solid var(--text-secondary);">
+                            <div style="color: var(--text-secondary); font-size: 10px; text-transform: uppercase; margin-bottom: 6px;">LOW</div>
+                            <div style="font-size: 22px; font-weight: bold; color: var(--text-secondary);" id="coordLowCount">—</div>
+                        </div>
+                    </div>
+
+                    <!-- Coordinators Table -->
+                    <div style="overflow-x: auto; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.2);">
+                        <table class="tokens-table" style="width: 100%;">
+                            <thead>
+                                <tr style="background: rgba(124, 58, 237, 0.1);">
+                                    <th style="text-align: left;">Coordinator Address</th>
+                                    <th style="text-align: center;">Reach</th>
+                                    <th style="text-align: center;">SOL Moved</th>
+                                    <th style="text-align: center;">Confidence</th>
+                                    <th style="text-align: center;">Flags</th>
+                                    <th style="text-align: center;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coordinatorsList">
+                                <tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--text-secondary);">Loading coordinators...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- Super-Clusters Grid -->
-                <div id="super-clusters-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
+                <div id="super-clusters-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; margin-top: 40px;">
                     <div class="loading" style="grid-column: 1 / -1;">Loading super-clusters...</div>
                 </div>
             </div>
@@ -2221,6 +2286,14 @@ HTML_TEMPLATE = """
                 <div style="background: rgba(168, 85, 247, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent-purple);">
                     <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">CEX Funders</div>
                     <div id="scCexCount" style="color: var(--accent-purple); font-size: 20px; font-weight: bold;">—</div>
+                </div>
+                <div style="background: rgba(34, 197, 94, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #22c55e;">
+                    <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Coordinated</div>
+                    <div id="scCoordinatedCount" style="color: #22c55e; font-size: 20px; font-weight: bold;">—</div>
+                </div>
+                <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-critical);">
+                    <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Reuse Tag</div>
+                    <div id="scReuseTag" style="color: var(--color-critical); font-size: 14px; font-weight: bold;">—</div>
                 </div>
             </div>
 
@@ -3142,6 +3215,7 @@ HTML_TEMPLATE = """
             networksTabBtn.style.color = 'var(--accent-purple)';
 
             loadFundingNetworks();
+            loadCoordinators();
         }
 
         function toggleCEXView() {
@@ -4705,6 +4779,209 @@ HTML_TEMPLATE = """
             }
         }
 
+        // Coordinator data storage
+        let allCoordinatorsData = [];
+
+        // Load cross-funder coordinators
+        async function loadCoordinators() {
+            try {
+                const response = await fetch('/api/network-coordinators');
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('coordinatorsList').innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--color-critical);">Error loading coordinators: ' + data.error + '</td></tr>';
+                    return;
+                }
+
+                allCoordinatorsData = data.coordinators || [];
+
+                // Update statistics
+                const highCount = allCoordinatorsData.filter(c => c.confidence === 'high').length;
+                const mediumCount = allCoordinatorsData.filter(c => c.confidence === 'medium').length;
+                const lowCount = allCoordinatorsData.filter(c => c.confidence === 'low').length;
+
+                document.getElementById('coordTotalCount').textContent = allCoordinatorsData.length;
+                document.getElementById('coordHighCount').textContent = highCount;
+                document.getElementById('coordMediumCount').textContent = mediumCount;
+                document.getElementById('coordLowCount').textContent = lowCount;
+
+                filterCoordinators();
+
+            } catch(e) {
+                console.error('Error loading coordinators:', e);
+                document.getElementById('coordinatorsList').innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--color-critical);">Error: ' + e.message + '</td></tr>';
+            }
+        }
+
+        // Filter and render coordinators
+        function filterCoordinators() {
+            const confidenceFilter = document.getElementById('coordinatorConfidenceFilter')?.value || '';
+            const reachFilter = document.getElementById('coordinatorReachFilter')?.value || '';
+
+            let filtered = allCoordinatorsData;
+
+            if (confidenceFilter) {
+                filtered = filtered.filter(c => c.confidence === confidenceFilter);
+            }
+
+            if (reachFilter) {
+                if (reachFilter === 'mega') {
+                    filtered = filtered.filter(c => c.creator_count >= 50);
+                } else if (reachFilter === 'large') {
+                    filtered = filtered.filter(c => c.creator_count >= 20 && c.creator_count < 50);
+                } else if (reachFilter === 'organized') {
+                    filtered = filtered.filter(c => c.creator_count >= 6 && c.creator_count < 20);
+                } else if (reachFilter === 'small') {
+                    filtered = filtered.filter(c => c.creator_count >= 2 && c.creator_count < 6);
+                } else if (reachFilter === 'single') {
+                    filtered = filtered.filter(c => c.creator_count === 1);
+                }
+            }
+
+            renderCoordinators(filtered);
+        }
+
+        // Render coordinators table
+        function renderCoordinators(coordinators) {
+            const tableBody = document.getElementById('coordinatorsList');
+
+            if (coordinators.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--text-secondary);">No coordinators match the filter</td></tr>';
+                return;
+            }
+
+            let html = '';
+            coordinators.forEach(coord => {
+                const confidence = coord.confidence || 'unknown';
+                const confidenceColor = confidence === 'high' ? 'var(--color-high)' :
+                                       confidence === 'medium' ? 'var(--color-medium)' :
+                                       'var(--text-secondary)';
+
+                const creatorCount = coord.creator_count || 0;
+                let reachTier = '';
+                if (creatorCount >= 50) reachTier = '🔴 MEGA';
+                else if (creatorCount >= 20) reachTier = '🟠 LARGE';
+                else if (creatorCount >= 10) reachTier = '🟡 MEDIUM';
+                else if (creatorCount >= 6) reachTier = '🟢 ORGANIZED';
+                else if (creatorCount >= 2) reachTier = '⚪ DUAL';
+                else reachTier = '⚫ SINGLE';
+
+                const solMoved = (coord.total_sol || 0).toFixed(2);
+                const flags = (coord.flags || []);
+                const flagsDisplay = flags.length > 0 ? flags.slice(0, 2).join(', ') : 'none';
+
+                html += `
+                    <tr style="border-bottom: 1px solid rgba(124, 58, 237, 0.1);">
+                        <td style="padding: 12px; word-break: break-all; max-width: 250px;">
+                            <code style="background: rgba(124, 58, 237, 0.1); padding: 2px 6px; border-radius: 3px; font-size: 11px;">
+                                ${coord.address.substring(0, 16)}...${coord.address.substring(coord.address.length - 10)}
+                            </code>
+                        </td>
+                        <td style="text-align: center; padding: 12px;">
+                            <strong>${reachTier}</strong><br>
+                            <span style="color: var(--text-secondary); font-size: 11px;">${creatorCount} creators</span>
+                        </td>
+                        <td style="text-align: center; padding: 12px;">
+                            <strong style="color: var(--primary);">${solMoved} SOL</strong>
+                        </td>
+                        <td style="text-align: center; padding: 12px;">
+                            <span style="background: ${confidenceColor}; color: white; padding: 3px 8px; border-radius: 3px; font-size: 10px; font-weight: bold; text-transform: uppercase;">
+                                ${confidence}
+                            </span>
+                        </td>
+                        <td style="text-align: center; padding: 12px; font-size: 11px; color: var(--text-secondary);">
+                            ${flagsDisplay}
+                            ${flags.length > 2 ? `<br>(+${flags.length - 2} more)` : ''}
+                        </td>
+                        <td style="text-align: center; padding: 12px;">
+                            <button onclick="showCoordinatorDetails('${coord.address}', ${creatorCount})" style="padding: 4px 10px; border-radius: 4px; border: 1px solid var(--primary); background: rgba(124, 58, 237, 0.1); color: var(--primary); font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s;" title="View creators funded by this coordinator">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableBody.innerHTML = html;
+        }
+
+        // Show coordinator details
+        function showCoordinatorDetails(coordAddress, creatorCount) {
+            const coordinator = allCoordinatorsData.find(c => c.address === coordAddress);
+            if (!coordinator) return;
+
+            const creators = coordinator.creators || [];
+            const flags = coordinator.flags || [];
+
+            let modalHtml = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px;">
+                    <div style="background: var(--bg-primary); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; max-width: 800px; width: 100%; max-height: 80vh; overflow-y: auto; padding: 30px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
+                            <div>
+                                <h2 style="color: var(--color-critical); margin: 0 0 10px 0;">🎭 Coordinator Details</h2>
+                                <code style="background: rgba(124, 58, 237, 0.1); padding: 4px 8px; border-radius: 4px; font-size: 12px; word-break: break-all;">
+                                    ${coordAddress}
+                                </code>
+                            </div>
+                            <button onclick="this.closest('div[style*=\\"position: fixed\\"]').remove()" style="background: rgba(124, 58, 237, 0.2); border: 1px solid rgba(124, 58, 237, 0.5); color: var(--primary); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 18px;">×</button>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                            <div style="background: rgba(124, 58, 237, 0.1); padding: 15px; border-radius: 6px; border-left: 3px solid var(--primary);">
+                                <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 6px;">Total Creators</div>
+                                <div style="font-size: 28px; font-weight: bold; color: var(--primary);">${creatorCount}</div>
+                            </div>
+                            <div style="background: rgba(124, 58, 237, 0.1); padding: 15px; border-radius: 6px; border-left: 3px solid var(--primary);">
+                                <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 6px;">Total SOL</div>
+                                <div style="font-size: 28px; font-weight: bold; color: var(--primary);">${(coordinator.total_sol || 0).toFixed(2)}</div>
+                            </div>
+                            <div style="background: rgba(124, 58, 237, 0.1); padding: 15px; border-radius: 6px; border-left: 3px solid var(--primary);">
+                                <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 6px;">Confidence</div>
+                                <div style="font-size: 20px; font-weight: bold; color: ${coordinator.confidence === 'high' ? 'var(--color-high)' : coordinator.confidence === 'medium' ? 'var(--color-medium)' : 'var(--text-secondary)'};text-transform: uppercase;">
+                                    ${coordinator.confidence}
+                                </div>
+                            </div>
+                        </div>
+
+                        ${flags.length > 0 ? `
+                            <div style="margin-bottom: 25px;">
+                                <h3 style="color: var(--accent-cyan); margin: 0 0 12px 0;">🚩 Suspicious Flags</h3>
+                                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                    ${flags.map(flag => `
+                                        <span style="background: var(--color-critical); color: white; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: bold;">
+                                            ${flag}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <div>
+                            <h3 style="color: var(--accent-cyan); margin: 0 0 12px 0;">👥 Funded Creators (${creators.length})</h3>
+                            <div style="display: grid; gap: 8px; max-height: 300px; overflow-y: auto;">
+                                ${creators.map(creator => `
+                                    <div style="background: rgba(124, 58, 237, 0.05); padding: 10px; border-radius: 4px; border-left: 2px solid var(--primary); cursor: pointer; transition: all 0.2s;"
+                                         onclick="document.querySelector('input[placeholder*=\\"Search\\"]').value = '${creator}'; searchTokens();">
+                                        <code style="font-size: 11px; word-break: break-all; color: var(--primary);">
+                                            ${creator}
+                                        </code>
+                                        <div style="font-size: 10px; color: var(--text-secondary); margin-top: 4px;">Click to search tokens by this creator</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div style="text-align: right; margin-top: 20px;">
+                            <button onclick="this.closest('div[style*=\\"position: fixed\\"]').remove()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid var(--primary); background: rgba(124, 58, 237, 0.1); color: var(--primary); font-size: 12px; font-weight: bold; cursor: pointer;">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
 
         // Real-time polling for network updates
         let networkPollingInterval = null;
@@ -5213,6 +5490,25 @@ HTML_TEMPLATE = """
                 document.getElementById('scFunderCount').textContent = data.funder_stats.total_funders || 0;
                 document.getElementById('scTotalSol').textContent = (data.funder_stats.total_sol || 0).toFixed(2) + ' SOL';
                 document.getElementById('scCexCount').textContent = data.funder_stats.cex_funders || 0;
+
+                // Update creator reuse metrics
+                document.getElementById('scCoordinatedCount').textContent = (data.creators_in_multiple_clusters || 0);
+
+                const reuseTag = data.creator_reuse_tag || 'UNKNOWN';
+                const reuseTagEl = document.getElementById('scReuseTag');
+                reuseTagEl.textContent = reuseTag;
+
+                let reuseTagColor = 'var(--text-secondary)';
+                if (reuseTag === 'STRONG') {
+                    reuseTagColor = 'var(--color-critical)';
+                } else if (reuseTag === 'SHARED') {
+                    reuseTagColor = 'var(--color-high)';
+                } else if (reuseTag === 'WEAK') {
+                    reuseTagColor = 'var(--color-medium)';
+                } else if (reuseTag === 'INDEPENDENT_CREATORS') {
+                    reuseTagColor = 'var(--color-low)';
+                }
+                reuseTagEl.style.color = reuseTagColor;
 
                 // Render root operators, relationship diagram, and networks using the new functions
                 renderRootOperators(data);

@@ -1644,12 +1644,11 @@ HTML_TEMPLATE = """
                                     <th style="text-align: center;">Reach</th>
                                     <th style="text-align: center;">SOL Moved</th>
                                     <th style="text-align: center;">Confidence</th>
-                                    <th style="text-align: center;">Flags</th>
                                     <th style="text-align: center;">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="coordinatorsList">
-                                <tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--text-secondary);">Loading coordinators...</td></tr>
+                                <tr><td colspan="5" style="text-align: center; padding: 30px; color: var(--text-secondary);">Loading coordinators...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -4869,7 +4868,7 @@ HTML_TEMPLATE = """
             const tableBody = document.getElementById('coordinatorsList');
 
             if (coordinators.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--text-secondary);">No coordinators match the filter</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px; color: var(--text-secondary);">No coordinators match the filter</td></tr>';
                 return;
             }
 
@@ -4890,8 +4889,6 @@ HTML_TEMPLATE = """
                 else reachTier = '⚫ SINGLE';
 
                 const solMoved = (coord.total_sol || 0).toFixed(2);
-                const flags = (coord.flags || []);
-                const flagsDisplay = flags.length > 0 ? flags.slice(0, 2).join(', ') : 'none';
 
                 html += `
                     <tr style="border-bottom: 1px solid rgba(124, 58, 237, 0.1);">
@@ -4911,10 +4908,6 @@ HTML_TEMPLATE = """
                             <span style="background: ${confidenceColor}; color: white; padding: 3px 8px; border-radius: 3px; font-size: 10px; font-weight: bold; text-transform: uppercase;">
                                 ${confidence}
                             </span>
-                        </td>
-                        <td style="text-align: center; padding: 12px; font-size: 11px; color: var(--text-secondary);">
-                            ${flagsDisplay}
-                            ${flags.length > 2 ? `<br>(+${flags.length - 2} more)` : ''}
                         </td>
                         <td style="text-align: center; padding: 12px;">
                             <button onclick="showCoordinatorDetails('${coord.address}', ${creatorCount})" style="padding: 4px 10px; border-radius: 4px; border: 1px solid var(--primary); background: rgba(124, 58, 237, 0.1); color: var(--primary); font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s;" title="View creators funded by this coordinator">

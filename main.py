@@ -4344,6 +4344,11 @@ HTML_TEMPLATE = """
                     networkHTML += `<div style="color: ${funderColor}; margin-bottom: 12px; font-family: monospace; font-size: 11px; word-break: break-all;">`;
                     networkHTML += `Funder: ${funderAddr}${funderTypeLabel}</div>`;
 
+                    // Show "Terminal" indicator for CEX/INFRA (no sender tracing)
+                    if (tier.is_terminal) {
+                        networkHTML += `<div style="color: var(--color-medium); margin-left: 20px; margin-bottom: 6px; font-size: 10px; font-style: italic;">(Terminal endpoint - ${totalToCreator} SOL, not traced)</div>`;
+                    }
+
                     if (senderCount > 0) {
                         const knownCount = tier.known_sender_count || 0;
                         const unknownCount = senderCount - knownCount;
@@ -5597,6 +5602,49 @@ HTML_TEMPLATE = """
             document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
         }
 
+        function renderNetworkRootOperators(data) {
+            if (!data.root_operator_flows || data.root_operator_flows.length === 0) {
+                return '<div style="color: var(--text-secondary); font-size: 12px; text-align: center; padding: 20px;">No root operators found</div>';
+            }
+
+            return data.root_operator_flows.map((flow, idx) => {
+                // Build example flows HTML
+                let flowsHTML = '';
+                if (flow.example_flows && flow.example_flows.length > 0) {
+                    flowsHTML = flow.example_flows.map((ex) => {
+                        let flowHTML = '<div style="font-family: monospace; font-size: 11px; color: var(--text-primary); padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.6; background: var(--bg-secondary); border-radius: 3px; margin-bottom: 6px;">';
+
+                        if (ex.sender) {
+                            flowHTML += '<div style="color: var(--color-none); margin-bottom: 6px;"><strong>📤 Sender:</strong></div>' +
+                            '<div style="font-size: 12px; font-weight: bold; color: var(--color-none); word-break: break-all; padding: 6px; background: rgba(96, 165, 250, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.sender + '</div>' +
+                            '<div style="color: var(--text-secondary); margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ to Funder</div>';
+                        }
+
+                        flowHTML += '<div style="color: var(--primary); margin-bottom: 6px;"><strong>💰 Root Op:</strong></div>' +
+                        '<div style="font-size: 12px; font-weight: bold; color: var(--primary); word-break: break-all; padding: 6px; background: rgba(129, 140, 248, 0.1); border-radius: 2px; margin-bottom: 8px;">' + ex.funder + '</div>' +
+                        '<div style="color: var(--text-secondary); margin-left: 8px; font-size: 10px; margin-bottom: 6px;">⬇ ' + ex.sol_to_creator.toFixed(2) + ' SOL funds Creator</div>';
+
+                        flowHTML += '<div style="color: var(--color-high); margin-bottom: 6px;"><strong>👤 Creator:</strong></div>' +
+                        '<div style="font-size: 12px; font-weight: bold; color: var(--color-medium); word-break: break-all; padding: 6px; background: rgba(251, 191, 36, 0.1); border-radius: 2px;">' + ex.creator + '</div>';
+
+                        flowHTML += '</div>';
+                        return flowHTML;
+                    }).join('');
+                }
+
+                return '<div style="background: rgba(124, 58, 237, 0.08); padding: 12px; border-radius: 6px; border-left: 3px solid var(--primary); margin-bottom: 12px;">' +
+                    '<div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 8px;">ROOT OPERATOR #' + (idx + 1) + '</div>' +
+                    '<div style="font-family: monospace; font-size: 11px; color: var(--primary); word-break: break-all; margin-bottom: 8px; padding: 6px; background: rgba(124, 58, 237, 0.1); border-radius: 4px;">' + flow.root_operator + '</div>' +
+                    '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; font-size: 10px;">' +
+                        '<div><div style="color: var(--text-secondary);">CREATORS FUNDED</div><div style="color: var(--color-high); font-weight: bold;">' + flow.creators_funded + '</div></div>' +
+                        '<div><div style="color: var(--text-secondary);">TOTAL SOL</div><div style="color: var(--color-low); font-weight: bold;">' + flow.total_sol_sent.toFixed(2) + '</div></div>' +
+                    '</div>' +
+                    (flowsHTML ? '<div style="margin-top: 10px; font-size: 9px; color: var(--text-secondary); margin-bottom: 6px;">EXAMPLE FLOWS: Sender → Funder → Creator</div>' +
+                        '<div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 6px;">' + flowsHTML + '</div>' : '') +
+                    '</div>';
+            }).join('');
+        }
+
         async function showNetworkDetails(networkId) {
             try {
                 const response = await fetch(`/api/funding-network-details/${networkId}`);
@@ -5607,35 +5655,42 @@ HTML_TEMPLATE = """
                     return;
                 }
 
-                // Create a modal/popup to show network details
+                // Create a modal/popup to show network details with address flows
                 const modalHtml = `
                     <div id="networkDetailsOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 10000; display: flex; align-items: center; justify-content: center;" onclick="document.getElementById('networkDetailsOverlay').remove();">
-                        <div style="background: var(--bg-primary); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 30px; max-width: 600px; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);" onclick="event.stopPropagation();">
+                        <div style="background: var(--bg-primary); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 30px; max-width: 900px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);" onclick="event.stopPropagation();">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                                 <h2 style="color: var(--primary); margin: 0;">${data.network_name} Details</h2>
                                 <button onclick="document.getElementById('networkDetailsOverlay').remove()" style="background: transparent; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer;">×</button>
                             </div>
 
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
-                                <div style="background: rgba(74, 222, 128, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-low);">
-                                    <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px;">Funders</div>
-                                    <div style="font-size: 24px; font-weight: bold; color: var(--color-low);">${data.funders}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 25px;">
+                                <div style="background: rgba(59, 130, 246, 0.1); padding: 12px; border-radius: 8px; border-left: 3px solid var(--color-none);">
+                                    <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px;">Senders</div>
+                                    <div style="font-size: 20px; font-weight: bold; color: var(--color-none);">${data.senders}</div>
                                 </div>
-                                <div style="background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-none);">
-                                    <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px;">Senders</div>
-                                    <div style="font-size: 24px; font-weight: bold; color: var(--color-none);">${data.senders}</div>
+                                <div style="background: rgba(139, 92, 246, 0.1); padding: 12px; border-radius: 8px; border-left: 3px solid var(--primary);">
+                                    <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px;">Funders</div>
+                                    <div style="font-size: 20px; font-weight: bold; color: var(--primary);">${data.funders}</div>
                                 </div>
-                                <div style="background: rgba(245, 158, 11, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-high);">
-                                    <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px;">Creators</div>
-                                    <div style="font-size: 24px; font-weight: bold; color: var(--color-high);">${data.creators}</div>
+                                <div style="background: rgba(245, 158, 11, 0.1); padding: 12px; border-radius: 8px; border-left: 3px solid var(--color-high);">
+                                    <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px;">Creators</div>
+                                    <div style="font-size: 20px; font-weight: bold; color: var(--color-high);">${data.creators}</div>
                                 </div>
-                                <div style="background: rgba(168, 85, 247, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent-purple);">
-                                    <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px;">Tokens</div>
-                                    <div style="font-size: 24px; font-weight: bold; color: var(--accent-purple);">${data.tokens}</div>
+                                <div style="background: rgba(168, 85, 247, 0.1); padding: 12px; border-radius: 8px; border-left: 3px solid var(--accent-purple);">
+                                    <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px;">Tokens</div>
+                                    <div style="font-size: 20px; font-weight: bold; color: var(--accent-purple);">${data.tokens}</div>
                                 </div>
-                                <div style="background: rgba(139, 92, 246, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--primary); grid-column: 1 / -1;">
-                                    <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px;">Total SOL</div>
-                                    <div style="font-size: 24px; font-weight: bold; color: var(--primary);">${(data.total_sol || 0).toFixed(2)}</div>
+                                <div style="background: rgba(74, 222, 128, 0.1); padding: 12px; border-radius: 8px; border-left: 3px solid var(--color-low); grid-column: 1 / -1;">
+                                    <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px;">Total SOL</div>
+                                    <div style="font-size: 20px; font-weight: bold; color: var(--color-low);">${(data.total_sol || 0).toFixed(2)}</div>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 20px;">
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; font-weight: bold;">🔗 Funding Flow (Sender → Funder → Creators)</div>
+                                <div style="border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 8px; padding: 15px; background: rgba(0, 0, 0, 0.2);" id="networkRootOpsContainer">
+                                    Loading root operators...
                                 </div>
                             </div>
 
@@ -5649,7 +5704,12 @@ HTML_TEMPLATE = """
                 // Append to body
                 const div = document.createElement('div');
                 div.innerHTML = modalHtml;
-                document.body.appendChild(div.firstElementChild);
+                const modalElement = div.firstElementChild;
+                document.body.appendChild(modalElement);
+
+                // Render root operators asynchronously
+                const rootOpsContainer = document.getElementById('networkRootOpsContainer');
+                rootOpsContainer.innerHTML = renderNetworkRootOperators(data);
 
             } catch (error) {
                 console.error('Error loading network details:', error);
@@ -6669,14 +6729,41 @@ def api_funding_network_3tier(creator_address: str):
             # Check funder type (CEX or INFRA)
             funder_type = 'unknown'
             funder_label = None
+            is_cex_or_infra = False
             try:
-                from infra_mapping import get_cex_info
+                from infra_mapping import get_cex_info, get_account_info
+
+                # Check if funder is CEX
                 cex_info = get_cex_info(funder_addr)
                 if cex_info:
                     funder_type = 'cex'
                     funder_label = cex_info.get('name', 'Unknown CEX')
+                    is_cex_or_infra = True
+
+                # Check if funder is infrastructure
+                if not cex_info:
+                    infra_info = get_account_info(funder_addr)
+                    if infra_info:
+                        funder_type = 'infra'
+                        funder_label = infra_info.get('name', 'Infrastructure')
+                        is_cex_or_infra = True
             except:
                 pass
+
+            # For CEX/INFRA funders, show them but don't trace senders
+            if is_cex_or_infra:
+                funder_info = {
+                    'funder_address': funder_addr,
+                    'funder_type': funder_type,
+                    'funder_label': funder_label,
+                    'total_to_creator': funder_total,
+                    'sender_count': 0,  # Don't count senders for CEX/INFRA
+                    'known_sender_count': 0,
+                    'senders': [],  # Empty senders list for CEX/INFRA
+                    'is_terminal': True  # Mark as terminal endpoint
+                }
+                network_3tier.append(funder_info)
+                continue
 
             # Get senders for this funder
             cursor.execute("""

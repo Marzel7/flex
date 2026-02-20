@@ -56,26 +56,6 @@ def get_migration_setting(key: str, default=True) -> bool:
     return default
 
 
-def is_funder_extraction_enabled() -> bool:
-    """Check if funder transfer extraction is enabled via UI toggle"""
-    try:
-        import sqlite3
-        conn = sqlite3.connect('pumpswap_tokens.db', timeout=5)
-        cursor = conn.cursor()
-        try:
-            cursor.execute("SELECT setting_value FROM polling_settings WHERE setting_name = 'funder_extraction_enabled'")
-            row = cursor.fetchone()
-            if row:
-                conn.close()
-                return row[0] == '1'
-        except:
-            pass
-        conn.close()
-    except:
-        pass
-    return False
-
-
 async def extract_funder_transfers_async(creator_address: str):
     """Async wrapper for funder transfer extraction"""
     try:
@@ -1678,18 +1658,13 @@ class PumpFunCurveListener:
                 asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at, create_tx_sig, mint))
                 print(f"[FUNDING] Extraction task created for new creator {earliest_creator[:8]}...", flush=True)
 
-                # Also extract funder incoming/outgoing transfers if toggle is ON
-                toggle_enabled = is_funder_extraction_enabled()
-                print(f"[FUNDER_EXTRACTION] DEBUG: Checking toggle... toggle_enabled={toggle_enabled}", flush=True)
-                if toggle_enabled:
-                    print(f"[FUNDER_EXTRACTION] Toggle enabled - extracting funder transfers for {earliest_creator[:8]}...", flush=True)
-                    try:
-                        asyncio.create_task(extract_funder_transfers_async(earliest_creator))
-                        print(f"[FUNDER_EXTRACTION] Task successfully created for {earliest_creator[:8]}...", flush=True)
-                    except Exception as e:
-                        print(f"[FUNDER_EXTRACTION] ERROR creating task: {e}", flush=True)
-                else:
-                    print(f"[FUNDER_EXTRACTION] Toggle disabled - skipping funder transfer extraction", flush=True)
+                # Extract funder incoming/outgoing transfers (automatic for all tokens)
+                print(f"[FUNDER_EXTRACTION] Extracting funder transfers for {earliest_creator[:8]}...", flush=True)
+                try:
+                    asyncio.create_task(extract_funder_transfers_async(earliest_creator))
+                    print(f"[FUNDER_EXTRACTION] Task successfully created for {earliest_creator[:8]}...", flush=True)
+                except Exception as e:
+                    print(f"[FUNDER_EXTRACTION] ERROR creating task: {e}", flush=True)
 
             # Update network clustering from funding data (no RPC needed)
             print(f"[CLUSTERING] Updating network clustering from extracted funding data...", flush=True)

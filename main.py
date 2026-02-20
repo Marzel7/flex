@@ -249,7 +249,8 @@ def calculate_funding_progress(creator_address: str) -> Dict:
             SELECT COUNT(*) as count FROM creator_funders
             WHERE creator_address = ?
         """, (creator_address,))
-        funder_count = cursor.fetchone()[0] if cursor.fetchone() else 0
+        result = cursor.fetchone()
+        funder_count = result[0] if result else 0
 
         # Get list of funders
         cursor.execute("""
@@ -267,7 +268,8 @@ def calculate_funding_progress(creator_address: str) -> Dict:
                 FROM funder_incoming_transfers
                 WHERE funder_address IN ({placeholders})
             """, funder_addresses)
-            sources_count = cursor.fetchone()[0] if cursor.fetchone() else 0
+            result = cursor.fetchone()
+            sources_count = result[0] if result else 0
 
         conn.close()
 

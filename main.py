@@ -225,12 +225,19 @@ def get_migrated_tokens() -> List[Dict]:
 def calculate_funding_progress(creator_address: str) -> Dict:
     """
     Calculate funding extraction progress for a creator
+    Progress tracks how many of the direct funders have had their sources extracted
     Returns: {
         'status': 'complete' | 'in_progress' | 'pending',
         'progress_percent': 0-100,
-        'funder_count': int,
-        'sources_extracted': int
+        'funder_count': int (total direct funders),
+        'sources_extracted': int (how many funders have had sources traced),
+        'completion_ratio': 'X/Y' (e.g., '3/10')
     }
+
+    Progress calculation:
+    - 0%: No funders identified yet
+    - X%: (sources_extracted / funder_count) * 100
+    - 100%: All funders' sources have been extracted
     """
     try:
         conn = sqlite3.connect(DB_PATH, timeout=30)
@@ -244,42 +251,58 @@ def calculate_funding_progress(creator_address: str) -> Dict:
         """, (creator_address,))
         funder_count = cursor.fetchone()[0] if cursor.fetchone() else 0
 
-        # Get funder sources extracted count (multi-hop)
-        if funder_count > 0:
-            cursor.execute("""
+        # Get list of funders
+        cursor.execute("""
+            SELECT DISTINCT funder_address FROM creator_funders
+            WHERE creator_address = ?
+        """, (creator_address,))
+        funder_addresses = [row[0] for row in cursor.fetchall()]
+
+        # For each funder, check if they have incoming transfers extracted
+        sources_count = 0
+        if funder_addresses:
+            placeholders = ','.join(['?' for _ in funder_addresses])
+            cursor.execute(f"""
                 SELECT COUNT(DISTINCT funder_address) as count
                 FROM funder_incoming_transfers
-                WHERE funder_address IN (
-                    SELECT funder_address FROM creator_funders
-                    WHERE creator_address = ?
-                )
-            """, (creator_address,))
+                WHERE funder_address IN ({placeholders})
+            """, funder_addresses)
             sources_count = cursor.fetchone()[0] if cursor.fetchone() else 0
-        else:
-            sources_count = 0
 
         conn.close()
 
-        # Calculate progress
+        # Calculate progress as percentage of funders with sources extracted
         if funder_count == 0:
             status = 'pending'
             progress = 0
-        elif sources_count == 0:
-            status = 'in_progress'
-            progress = 50
+            completion_ratio = '0/0'
         else:
-            status = 'complete'
-            progress = 100
+            progress = int((sources_count / funder_count) * 100)
+            completion_ratio = f'{sources_count}/{funder_count}'
+
+            if progress == 0:
+                status = 'pending'
+            elif progress == 100:
+                status = 'complete'
+            else:
+                status = 'in_progress'
 
         return {
             'status': status,
             'progress_percent': progress,
             'funder_count': funder_count,
-            'sources_extracted': sources_count
+            'sources_extracted': sources_count,
+            'completion_ratio': completion_ratio
         }
     except Exception as e:
         print(f"[PROGRESS] Error calculating funding progress: {e}")
-        return {'status': 'unknown', 'progress_percent': 0, 'funder_count': 0, 'sources_extracted': 0}
+        return {
+            'status': 'unknown',
+            'progress_percent': 0,
+            'funder_count': 0,
+            'sources_extracted': 0,
+            'completion_ratio': '0/0'
+        }
 
 
 def get_token_price(token_mint: str) -> Optional[float]:

@@ -28,6 +28,8 @@ wheels/
 
 # Project specific
 *.db
+*.db-wal
+*.db-shm
 pumpswap_tokens.db
 coordinated_accounts.json
 .claude/

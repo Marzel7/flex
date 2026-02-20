@@ -289,6 +289,18 @@ def calculate_funding_progress(creator_address: str) -> Dict:
             # Total completed = funders with sources + INFRA terminal endpoints
             sources_count += infra_count
 
+        # Check if extraction is currently in progress
+        # This happens when we have funders but none have been analyzed yet (last_analyzed is NULL)
+        extraction_in_progress = False
+        if funder_count > 0 and sources_count == 0:
+            cursor.execute("""
+                SELECT COUNT(*) FROM creator_funders
+                WHERE creator_address = ? AND last_analyzed IS NULL
+            """, (creator_address,))
+            result_check = cursor.fetchone()
+            unanalyzed_count = result_check[0] if result_check else 0
+            extraction_in_progress = unanalyzed_count > 0
+
         conn.close()
 
         # Calculate progress as percentage of funders with sources extracted
@@ -301,7 +313,8 @@ def calculate_funding_progress(creator_address: str) -> Dict:
             completion_ratio = f'{sources_count}/{funder_count}'
 
             if progress == 0:
-                status = 'pending'
+                # Check if extraction is running or truly pending
+                status = 'extracting' if extraction_in_progress else 'pending'
             elif progress == 100:
                 status = 'complete'
             else:

@@ -259,10 +259,12 @@ def calculate_funding_progress(creator_address: str) -> Dict:
         """, (creator_address,))
         funder_addresses = [row[0] for row in cursor.fetchall()]
 
-        # For each funder, check if they have incoming transfers extracted
+        # For each funder, check if they have incoming transfers extracted OR are INFRA endpoints
         sources_count = 0
         if funder_addresses:
             placeholders = ','.join(['?' for _ in funder_addresses])
+
+            # Count funders with incoming transfers extracted
             cursor.execute(f"""
                 SELECT COUNT(DISTINCT funder_address) as count
                 FROM funder_incoming_transfers
@@ -270,6 +272,22 @@ def calculate_funding_progress(creator_address: str) -> Dict:
             """, funder_addresses)
             result = cursor.fetchone()
             sources_count = result[0] if result else 0
+
+            # Count INFRA terminal endpoints (they have outgoing but no incoming - traced to endpoint)
+            cursor.execute(f"""
+                SELECT COUNT(DISTINCT funder_address) as count
+                FROM funder_outgoing_transfers
+                WHERE funder_address IN ({placeholders})
+                AND funder_address NOT IN (
+                    SELECT DISTINCT funder_address FROM funder_incoming_transfers
+                    WHERE funder_address IN ({placeholders})
+                )
+            """, funder_addresses + funder_addresses)
+            result = cursor.fetchone()
+            infra_count = result[0] if result else 0
+
+            # Total completed = funders with sources + INFRA terminal endpoints
+            sources_count += infra_count
 
         conn.close()
 

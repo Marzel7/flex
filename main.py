@@ -259,7 +259,10 @@ def calculate_funding_progress(creator_address: str) -> Dict:
         """, (creator_address,))
         funder_addresses = [row[0] for row in cursor.fetchall()]
 
-        # For each funder, check if they have incoming transfers extracted OR are INFRA endpoints
+        # For each funder, check if they have:
+        # 1. Incoming transfers extracted
+        # 2. Are INFRA endpoints (outgoing but no incoming)
+        # 3. Have been analyzed even if no transfers found (last_analyzed IS NOT NULL)
         sources_count = 0
         if funder_addresses:
             placeholders = ','.join(['?' for _ in funder_addresses])
@@ -286,8 +289,27 @@ def calculate_funding_progress(creator_address: str) -> Dict:
             result = cursor.fetchone()
             infra_count = result[0] if result else 0
 
-            # Total completed = funders with sources + INFRA terminal endpoints
-            sources_count += infra_count
+            # Count funders that have been analyzed but found no transfers
+            # (These are empty wallets or wallets with no transaction history)
+            cursor.execute(f"""
+                SELECT COUNT(DISTINCT cf.funder_address) as count
+                FROM creator_funders cf
+                WHERE cf.creator_address = ?
+                AND cf.last_analyzed IS NOT NULL
+                AND cf.funder_address NOT IN (
+                    SELECT DISTINCT funder_address FROM funder_incoming_transfers
+                    WHERE funder_address IN ({placeholders})
+                )
+                AND cf.funder_address NOT IN (
+                    SELECT DISTINCT funder_address FROM funder_outgoing_transfers
+                    WHERE funder_address IN ({placeholders})
+                )
+            """, (creator_address,) + tuple(funder_addresses) + tuple(funder_addresses))
+            result = cursor.fetchone()
+            empty_analyzed_count = result[0] if result else 0
+
+            # Total completed = funders with sources + INFRA endpoints + analyzed empty wallets
+            sources_count += infra_count + empty_analyzed_count
 
         # Check if extraction is currently in progress
         # This happens when we have funders but none have been analyzed yet (last_analyzed is NULL)

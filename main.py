@@ -147,6 +147,14 @@ def get_migrated_tokens() -> List[Dict]:
                 funding_result = cursor.fetchone()
                 funding_checked = funding_result[0] > 0 if funding_result else False
 
+            # Calculate funding extraction progress
+            funding_progress = calculate_funding_progress(row['earliest_tx_creator']) if row['earliest_tx_creator'] else {
+                'status': 'unknown',
+                'progress_percent': 0,
+                'funder_count': 0,
+                'sources_extracted': 0
+            }
+
             # Get network information if token belongs to a network
             network_name = None
             network_id = None
@@ -201,6 +209,7 @@ def get_migrated_tokens() -> List[Dict]:
                 'creator_infra_tags': creator_infra_tags,
                 'top_funder': top_funder,
                 'funding_checked': funding_checked,
+                'funding_progress': funding_progress,
                 'network_name': network_name,
                 'network_id': network_id,
                 'super_clusters': super_clusters
@@ -211,6 +220,66 @@ def get_migrated_tokens() -> List[Dict]:
     except Exception as e:
         print(f"[DB] Error fetching analyzed tokens: {e}")
         return []
+
+
+def calculate_funding_progress(creator_address: str) -> Dict:
+    """
+    Calculate funding extraction progress for a creator
+    Returns: {
+        'status': 'complete' | 'in_progress' | 'pending',
+        'progress_percent': 0-100,
+        'funder_count': int,
+        'sources_extracted': int
+    }
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Get direct funders count
+        cursor.execute("""
+            SELECT COUNT(*) as count FROM creator_funders
+            WHERE creator_address = ?
+        """, (creator_address,))
+        funder_count = cursor.fetchone()[0] if cursor.fetchone() else 0
+
+        # Get funder sources extracted count (multi-hop)
+        if funder_count > 0:
+            cursor.execute("""
+                SELECT COUNT(DISTINCT funder_address) as count
+                FROM funder_incoming_transfers
+                WHERE funder_address IN (
+                    SELECT funder_address FROM creator_funders
+                    WHERE creator_address = ?
+                )
+            """, (creator_address,))
+            sources_count = cursor.fetchone()[0] if cursor.fetchone() else 0
+        else:
+            sources_count = 0
+
+        conn.close()
+
+        # Calculate progress
+        if funder_count == 0:
+            status = 'pending'
+            progress = 0
+        elif sources_count == 0:
+            status = 'in_progress'
+            progress = 50
+        else:
+            status = 'complete'
+            progress = 100
+
+        return {
+            'status': status,
+            'progress_percent': progress,
+            'funder_count': funder_count,
+            'sources_extracted': sources_count
+        }
+    except Exception as e:
+        print(f"[PROGRESS] Error calculating funding progress: {e}")
+        return {'status': 'unknown', 'progress_percent': 0, 'funder_count': 0, 'sources_extracted': 0}
 
 
 def get_token_price(token_mint: str) -> Optional[float]:

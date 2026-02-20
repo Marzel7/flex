@@ -54,6 +54,7 @@ backfill_*.py
 !backfill_complete_funding_analysis.py
 !backfill_risk_assessment.py
 !backfill_missing_helius_analysis.py
+!backfill_funder_extraction.py
 benchmark.py
 tmp.py
 update_coordination_detection.py

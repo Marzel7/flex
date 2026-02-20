@@ -69,61 +69,42 @@ Calculates rug probability based on:
 - Peak market cap <$100,000
 - Often followed by rug pulls
 
-## Current Work: Creator Funding Extraction
+## Latest Features (Feb 19-20, 2026)
 
-### What's Happening Now
+### Cross-Funder Coordinator System
+- **Status**: ✅ Complete
+- **Purpose**: Identifies patterns where multiple funders collaborate to support token creators
+- **Implementation**: Clustering algorithm detects coordinated funding networks
+- **UI**: Super-Clusters page shows network details, memorable names, creator reuse metrics
+- **Display**: Full addresses, flow visualization, network connectivity analysis
 
-**Batch Extraction** (Task bd82073 - RUNNING):
-- File: `/tmp/extract_creator_transfers_pre_migration.py`
-- Progress: ~26/100 creators (26%)
-- SOL Traced: 500+ SOL
-- Extracts all pre-migration SOL transfers to each creator
+### Address Flow Visualization
+- **Status**: ✅ Complete
+- **Purpose**: Visual representation of SOL flows through funder networks
+- **Location**: Networks modal in UI
+- **Feature**: Shows all inbound/outbound transfers for coordinated accounts
 
-**Real-Time Integration** (JUST COMPLETED):
-- File: `realtime_creator_funding_extractor.py`
-- Location: Integrated into `pumpfun_curve_listener.py` line 913-920
-- Trigger: When new token detected → Funding extraction starts automatically
-- Non-blocking: Runs in background via `asyncio.create_task()`
+### UI Enhancements
+- ✅ Coordinator table with CEX/INFRA filtering toggle
+- ✅ Clickable column sorting in token table
+- ✅ Session complete summary dashboard
+- ✅ Simplified analysis data display (tick/cross indicators)
+- ✅ Color-coded badges matching theme (cyan/gray)
 
-### How Real-Time Works
+### Database & Clustering
+- ✅ Creator reuse metrics - tracks how often same funders appear across different creators
+- ✅ Super-cluster detection - identifies major funding networks
+- ✅ Memorable network naming system - user-friendly identifiers instead of "Network_X"
+- ✅ Full address display in modals (no truncation)
 
-```
-New token migration detected
-        ↓
-Creator extracted from transaction
-        ↓
-Real-time extractor called (async)
-        ↓
-Gets all pre-migration signatures for creator
-        ↓
-Parses SOL transfers from transaction metadata
-        ↓
-Identifies funder accounts (counterparties)
-        ↓
-Saves to creator_funders table
-        ↓
-Risk score updated with funder reputation
-```
+## Current Work: Continued Development
 
-### Integration Point
-
-In `analyze_post_migration()` method (line 913):
-```python
-# Extract pre-migration funding in real-time (non-blocking)
-asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at))
-```
-
-## Top Funding Discoveries (So Far)
-
-| Creator # | SOL In | Status |
-|-----------|--------|--------|
-| #5 | 149.28 | Major funder |
-| #14 | 95.15 | Major funder |
-| #25 | 45.49 | Large funding |
-| #7 | 27.95 | Moderate |
-| #6 | 27.69 | Moderate |
-
-Total: 500+ SOL from 26 creators (extraction ongoing)
+**Active Focus Areas**:
+- Creator funding network analysis and visualization
+- Cross-funder coordination detection
+- Risk scoring integration with funder reputation
+- CEX/INFRA wallet filtering and tagging
+- Real-time funding extraction on token launch
 
 ## Database Schema (Key Tables)
 
@@ -169,14 +150,17 @@ connected_to_malicious, network_members
    sqlite3 pumpswap_tokens.db "SELECT COUNT(*) FROM creator_funders;"
    ```
 
-## Active Tasks
+## Active Tasks & Status (Feb 20, 2026)
 
-- ✅ Batch extraction running (26/100)
+- ✅ Creator funding extraction complete
 - ✅ Real-time integration complete
-- ⏳ Post-extraction analysis (runs when batch completes)
-- ⏳ Network analysis (coordination detection)
-- ⏳ Risk score integration (funder reputation)
-- ⏳ Blocklist updates (suspicious creators)
+- ✅ Cross-funder coordinator system complete
+- ✅ Address flow visualization complete
+- ✅ Super-cluster detection and naming complete
+- ✅ Creator reuse metrics complete
+- ✅ UI coordinator table with filtering complete
+- ⏳ Documentation cleanup (removing 300+ obsolete .md files)
+- ⏳ Next phase: Integration improvements and performance optimization
 
 ## Running the System
 
@@ -243,6 +227,8 @@ If context is lost:
 
 ---
 
-**Last Updated**: 2026-01-19 23:25
-**By**: Claude Code
+**Last Updated**: 2026-02-20 14:00
+**By**: Claude Code (Haiku 4.5)
 **Status**: Complete & Production Ready
+**Current Branch**: main (recovered from recover-feb19 on 2026-02-20)
+**Note**: Removed dependency on 366 .md documentation files - using CLAUDE.md + memory system instead

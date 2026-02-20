@@ -1,0 +1,16 @@
+[ANALYZER] Loaded 1339 unique creators
+[ANALYZER] Starting full cluster analysis...
+
+[ANALYZER] Full Analysis Complete
+  Recipient Hubs: 0
+  Funder Clusters: 9
+  Creator Clusters: 0
+
+================================================================================
+FINAL RESULTS:
+{
+  "timestamp": "2026-02-20T20:24:23.044987+00:00",
+  "recipient_coordinators": 0,
+  "funder_clusters": 9,
+  "creator_clusters": 0
+}

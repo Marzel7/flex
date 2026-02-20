@@ -2750,6 +2750,7 @@ HTML_TEMPLATE = """
                             <th onclick="sortBy('market_cap_highest_at')" class="sortable ${sortConfig.column === 'market_cap_highest_at' ? 'sorted-' + sortConfig.direction : ''}">Peak Timing</th>
                             <th onclick="sortBy('total_events')" class="sortable ${sortConfig.column === 'total_events' ? 'sorted-' + sortConfig.direction : ''}">Events</th>
                             <th onclick="sortBy('coverage')" class="sortable ${sortConfig.column === 'coverage' ? 'sorted-' + sortConfig.direction : ''}">Coverage</th>
+                            <th title="Funding extraction progress">Funding Progress</th>
                             <th onclick="sortBy('analyzed_at')" class="sortable ${sortConfig.column === 'analyzed_at' ? 'sorted-' + sortConfig.direction : ''}">Analyzed</th>
                         </tr>
                     </thead>
@@ -2979,6 +2980,16 @@ HTML_TEMPLATE = """
                                     </td>
                                     <td>
                                         ${token.coverage ? token.coverage.toFixed(1) + '%' : '—'}
+                                    </td>
+                                    <td style="text-align: center; font-size: 12px;">
+                                        ${token.funding_progress ? `
+                                            <div style="display: flex; flex-direction: column; align-items: center; gap: 3px;">
+                                                <div style="width: 80px; height: 16px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 2px; overflow: hidden;">
+                                                    <div style="height: 100%; width: ${token.funding_progress.progress_percent}%; background: linear-gradient(90deg, rgba(59, 130, 246, 0.6), rgba(59, 130, 246, 0.8)); transition: width 0.3s ease;"></div>
+                                                </div>
+                                                <span style="color: var(--text-secondary); font-size: 10px; white-space: nowrap;" title="Funders with sources extracted: ${token.funding_progress.completion_ratio}">${token.funding_progress.progress_percent}%</span>
+                                            </div>
+                                        ` : '—'}
                                     </td>
                                     <td>
                                         ${formatDate(token.analyzed_at)}

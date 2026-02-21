@@ -11,15 +11,15 @@ CLUSTER_RISK_MULTIPLIERS = {
 }
 
 CLUSTER_NAMES = {
-    "FUNDERS_1": "BlackHawk",
-    "FUNDERS_9": "Viper",
-    "FUNDERS_3": "Falcon",
-    "FUNDERS_2": "Echo",
-    "FUNDERS_4": "Shadow",
-    "FUNDERS_5": "Cipher",
-    "FUNDERS_6": "Raven",
-    "FUNDERS_7": "Ghost",
-    "FUNDERS_8": "Wraith",
+    "FUNDERS_1": "NexusCerberus",
+    "FUNDERS_9": "CrimsonRaven",
+    "FUNDERS_3": "StellarDragon",
+    "FUNDERS_2": "IvoryWarden",
+    "FUNDERS_4": "OnyxRaven",
+    "FUNDERS_5": "SilentViper",
+    "FUNDERS_6": "PhantomWolf",
+    "FUNDERS_7": "EtherealEagle",
+    "FUNDERS_8": "CosmicLion",
 }
 
 CLUSTER_RISK_LABELS = {

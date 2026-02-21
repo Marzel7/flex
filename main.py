@@ -61,7 +61,10 @@ def get_migrated_tokens() -> List[Dict]:
                 earliest_tx_creator,
                 creator_is_blocked,
                 network_risk,
-                connected_malicious_count
+                connected_malicious_count,
+                cluster_id,
+                cluster_name,
+                cluster_risk_multiplier
             FROM token_analysis
             ORDER BY analyzed_at DESC
             LIMIT 25
@@ -195,7 +198,10 @@ def get_migrated_tokens() -> List[Dict]:
                 'funding_checked': funding_checked,
                 'funding_progress': funding_progress,
                 'network_name': network_name,
-                'network_id': network_id
+                'network_id': network_id,
+                'cluster_id': row['cluster_id'] if row['cluster_id'] else None,
+                'cluster_name': row['cluster_name'] if row['cluster_name'] else None,
+                'cluster_risk_multiplier': row['cluster_risk_multiplier'] if row['cluster_risk_multiplier'] else 1.0
             })
 
         conn.close()

@@ -83,6 +83,7 @@ class ClusterRiskChecker:
             {
                 'in_cluster': bool,
                 'cluster_id': str or None,
+                'cluster_name': str (memorable name like NexusCerberus),
                 'risk_multiplier': float,
                 'risk_label': str,
                 'network_size': int,
@@ -97,6 +98,7 @@ class ClusterRiskChecker:
             return {
                 'in_cluster': False,
                 'cluster_id': None,
+                'cluster_name': None,
                 'risk_multiplier': 1.0,
                 'risk_label': '✅ No cluster detected',
                 'network_size': 0,
@@ -105,6 +107,7 @@ class ClusterRiskChecker:
 
         return {
             'in_cluster': True,
+            'cluster_name': CLUSTER_NAMES.get(entry['cluster_id'], entry['cluster_id']),
             **entry,
         }
 

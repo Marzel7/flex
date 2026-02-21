@@ -46,7 +46,7 @@ def backfill_clusters(limit=None):
                 
                 if cluster_info.get('in_cluster'):
                     cluster_id = cluster_info.get('cluster_id')
-                    cluster_name = cluster_info.get('cluster_label', cluster_id)
+                    cluster_name = cluster_info.get('cluster_name', cluster_id)
                     cluster_multiplier = cluster_info.get('risk_multiplier', 1.0)
                     
                     cursor.execute("""

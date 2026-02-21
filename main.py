@@ -1683,7 +1683,9 @@ HTML_TEMPLATE = """
             <div class="control-group" style="border-left: 1px solid rgba(124, 58, 237, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(76, 175, 80, 0.2); color: var(--color-low); border: 1px solid rgba(76, 175, 80, 0.5);">▶️ Polling ON</button>
                 <button class="action-button" id="tokensTabBtn" onclick="switchToTokensTab()" title="View tokens" style="background: rgba(124, 58, 237, 0.2); color: var(--primary); border: 1px solid rgba(124, 58, 237, 0.5); margin-left: 8px;">Tokens</button>
+                <button class="action-button" id="clustersTabBtn" onclick="switchToClustersTab()" title="View cross-funding clusters" style="background: rgba(124, 58, 237, 0.2); color: var(--color-critical); border: 1px solid rgba(239, 68, 68, 0.5); margin-left: 8px;">🚨 Clusters</button>
                 <button class="action-button" id="networksTabBtn" onclick="switchToNetworksTab()" title="View funding networks" style="background: rgba(124, 58, 237, 0.2); color: var(--accent-purple); border: 1px solid rgba(124, 58, 237, 0.5); margin-left: 8px;">🔗 Networks</button>
+                <button class="action-button" onclick="window.location.href = '/clusters-dashboard'" title="View cross-funding cluster analysis" style="background: rgba(239, 68, 68, 0.2); color: var(--color-critical); border: 1px solid rgba(239, 68, 68, 0.5); margin-left: 8px;">📊 Clusters Dashboard</button>
                 <button class="action-button" onclick="window.location.href = '/coordinated-funders'" title="Analyze funders supporting multiple creators" style="background: rgba(124, 58, 237, 0.2); color: var(--accent-purple); border: 1px solid rgba(124, 58, 237, 0.5); margin-left: 8px;">Coordinated Funders</button>
                 <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Validate TX</button>
             </div>
@@ -1691,6 +1693,41 @@ HTML_TEMPLATE = """
 
         <div id="tokens-container">
             <div class="loading">Loading migrated tokens...</div>
+        </div>
+
+        <!-- Funder Clusters View -->
+        <div id="clusters-container" style="display: none; padding: 20px;">
+            <div style="margin-bottom: 30px;">
+                <h2 style="color: var(--color-critical); margin-bottom: 10px;">🚨 Cross-Funding Clusters</h2>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 20px;">
+                    Coordinated funder networks detected by the cross-funding analyzer. Shows clusters of funders that fund overlapping sets of creators with unusual density, indicating potential coordination.
+                </p>
+
+                <!-- Cluster Statistics -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                    <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-critical);">
+                        <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total Clusters</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--color-critical);" id="clusterTotalCount">—</div>
+                    </div>
+                    <div style="background: rgba(249, 115, 22, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-high);">
+                        <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total Coordinated Funders</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--color-high);" id="clusterTotalFunders">—</div>
+                    </div>
+                    <div style="background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-none);">
+                        <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total Volume (SOL)</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--color-none);" id="clusterTotalVolume">—</div>
+                    </div>
+                    <div style="background: rgba(34, 197, 94, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-low);">
+                        <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total Creators Tracked</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--color-low);" id="clusterTotalCreators">—</div>
+                    </div>
+                </div>
+
+                <!-- Clusters Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
+                    <div id="clustersGrid"></div>
+                </div>
+            </div>
         </div>
 
         <!-- Funding Networks View -->
@@ -1917,6 +1954,36 @@ HTML_TEMPLATE = """
                 <div class="stat-box">
                     <label>Network Size</label>
                     <span id="creatorNetworkSize">—</span>
+                </div>
+            </div>
+
+            <!-- Cluster Risk Indicator -->
+            <div id="creatorClusterRiskContainer" style="display: none; margin: 20px 0; padding: 15px; border-radius: 8px; background: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.5);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="color: var(--color-critical); margin: 0;">🚨 Cluster Risk Alert</h3>
+                    <div style="padding: 8px 16px; background: rgba(239, 68, 68, 0.3); border-radius: 4px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: var(--color-critical);" id="creatorRiskMultiplier">3.0x</div>
+                        <div style="font-size: 10px; color: var(--text-secondary);">Risk Multiplier</div>
+                    </div>
+                </div>
+                <div style="color: var(--text-secondary); margin-bottom: 12px;" id="creatorClusterLabel">—</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="background: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 4px;">
+                        <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 5px;">Cluster ID</div>
+                        <div style="font-size: 14px; font-weight: bold; color: var(--primary);" id="creatorClusterId">—</div>
+                    </div>
+                    <div style="background: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 4px;">
+                        <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 5px;">Network Size</div>
+                        <div style="font-size: 14px; font-weight: bold; color: var(--accent-purple);" id="creatorClusterNetworkSize">—</div>
+                    </div>
+                    <div style="background: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 4px;">
+                        <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 5px;">Cluster Volume</div>
+                        <div style="font-size: 14px; font-weight: bold; color: var(--color-none);" id="creatorClusterVolume">—</div>
+                    </div>
+                    <div style="background: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 4px;">
+                        <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 5px;">Risk Level</div>
+                        <div style="font-size: 14px; font-weight: bold; color: var(--color-critical);" id="creatorRiskLevel">—</div>
+                    </div>
                 </div>
             </div>
 
@@ -3338,31 +3405,63 @@ HTML_TEMPLATE = """
         function switchToTokensTab() {
             const tokensContainer = document.getElementById('tokens-container');
             const fundingNetworkContainer = document.getElementById('funding-network-container');
+            const clustersContainer = document.getElementById('clusters-container');
             const tokensTabBtn = document.getElementById('tokensTabBtn');
             const networksTabBtn = document.getElementById('networksTabBtn');
+            const clustersTabBtn = document.getElementById('clustersTabBtn');
 
             tokensContainer.style.display = 'block';
             fundingNetworkContainer.style.display = 'none';
+            clustersContainer.style.display = 'none';
 
             tokensTabBtn.style.background = 'rgba(124, 58, 237, 0.3)';
             tokensTabBtn.style.color = 'var(--primary)';
             networksTabBtn.style.background = 'rgba(124, 58, 237, 0.2)';
             networksTabBtn.style.color = 'var(--accent-purple)';
+            clustersTabBtn.style.background = 'rgba(124, 58, 237, 0.2)';
+            clustersTabBtn.style.color = 'var(--color-critical)';
+        }
+
+        function switchToClustersTab() {
+            const tokensContainer = document.getElementById('tokens-container');
+            const fundingNetworkContainer = document.getElementById('funding-network-container');
+            const clustersContainer = document.getElementById('clusters-container');
+            const tokensTabBtn = document.getElementById('tokensTabBtn');
+            const networksTabBtn = document.getElementById('networksTabBtn');
+            const clustersTabBtn = document.getElementById('clustersTabBtn');
+
+            tokensContainer.style.display = 'none';
+            fundingNetworkContainer.style.display = 'none';
+            clustersContainer.style.display = 'block';
+
+            tokensTabBtn.style.background = 'rgba(124, 58, 237, 0.2)';
+            tokensTabBtn.style.color = 'var(--primary)';
+            networksTabBtn.style.background = 'rgba(124, 58, 237, 0.2)';
+            networksTabBtn.style.color = 'var(--accent-purple)';
+            clustersTabBtn.style.background = 'rgba(124, 58, 237, 0.3)';
+            clustersTabBtn.style.color = 'var(--color-critical)';
+
+            loadFunderClusters();
         }
 
         function switchToNetworksTab() {
             const tokensContainer = document.getElementById('tokens-container');
             const fundingNetworkContainer = document.getElementById('funding-network-container');
+            const clustersContainer = document.getElementById('clusters-container');
             const tokensTabBtn = document.getElementById('tokensTabBtn');
             const networksTabBtn = document.getElementById('networksTabBtn');
+            const clustersTabBtn = document.getElementById('clustersTabBtn');
 
             tokensContainer.style.display = 'none';
             fundingNetworkContainer.style.display = 'block';
+            clustersContainer.style.display = 'none';
 
             tokensTabBtn.style.background = 'rgba(124, 58, 237, 0.2)';
             tokensTabBtn.style.color = 'var(--primary)';
             networksTabBtn.style.background = 'rgba(124, 58, 237, 0.3)';
             networksTabBtn.style.color = 'var(--accent-purple)';
+            clustersTabBtn.style.background = 'rgba(124, 58, 237, 0.2)';
+            clustersTabBtn.style.color = 'var(--color-critical)';
 
             loadFundingNetworks();
             loadCoordinators();
@@ -3709,6 +3808,28 @@ HTML_TEMPLATE = """
                     tagsContainer.innerHTML = tagsHTML;
                 } else {
                     tagsContainer.innerHTML = '';
+                }
+
+                // Check cluster risk for this creator
+                try {
+                    const clusterRiskResponse = await fetch(`/api/creator/${creatorAddress}/cluster-risk`);
+                    const clusterRiskData = await clusterRiskResponse.json();
+
+                    if (clusterRiskData.in_cluster) {
+                        // Show cluster risk alert
+                        document.getElementById('creatorClusterRiskContainer').style.display = 'block';
+                        document.getElementById('creatorRiskMultiplier').textContent = clusterRiskData.risk_multiplier.toFixed(1) + 'x';
+                        document.getElementById('creatorClusterLabel').textContent = clusterRiskData.risk_label;
+                        document.getElementById('creatorClusterId').textContent = clusterRiskData.cluster_id;
+                        document.getElementById('creatorClusterNetworkSize').textContent = clusterRiskData.network_size;
+                        document.getElementById('creatorClusterVolume').textContent = clusterRiskData.network_volume_sol.toFixed(2) + ' SOL';
+                        document.getElementById('creatorRiskLevel').textContent = clusterRiskData.risk_level;
+                    } else {
+                        document.getElementById('creatorClusterRiskContainer').style.display = 'none';
+                    }
+                } catch (e) {
+                    console.log('Note: Could not fetch cluster risk data:', e);
+                    document.getElementById('creatorClusterRiskContainer').style.display = 'none';
                 }
 
                 // Populate tokens launched table
@@ -4825,6 +4946,93 @@ HTML_TEMPLATE = """
                 validateTransaction();
             }
         });
+
+        // Funder Clusters Functions
+        async function loadFunderClusters() {
+            try {
+                const response = await fetch('/api/funder-clusters');
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('clustersGrid').innerHTML = `<div style="color: var(--color-critical);">Error: ${data.error}</div>`;
+                    return;
+                }
+
+                // Update statistics
+                document.getElementById('clusterTotalCount').textContent = data.total_clusters;
+                document.getElementById('clusterTotalFunders').textContent = data.clusters.reduce((sum, c) => sum + c.funder_count, 0);
+                document.getElementById('clusterTotalVolume').textContent = data.total_volume_sol.toFixed(2);
+                document.getElementById('clusterTotalCreators').textContent = data.clusters.reduce((sum, c) => sum + c.creator_count, 0);
+
+                // Display clusters
+                const grid = document.getElementById('clustersGrid');
+                grid.innerHTML = data.clusters.map(cluster => `
+                    <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 8px; padding: 20px; cursor: pointer;" onclick="showClusterDetails('${cluster.cluster_id}')">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                            <div>
+                                <h3 style="color: var(--primary); margin: 0 0 5px 0;">${cluster.cluster_id}</h3>
+                                <div style="font-size: 12px; color: var(--text-secondary);">${cluster.risk_label}</div>
+                            </div>
+                            <div style="background: ${cluster.risk_level === 'CRITICAL' ? 'rgba(239, 68, 68, 0.2)' : (cluster.risk_level === 'HIGH' ? 'rgba(249, 115, 22, 0.2)' : (cluster.risk_level === 'MEDIUM' ? 'rgba(234, 179, 8, 0.2)' : 'rgba(34, 197, 94, 0.2)'))}; padding: 8px 12px; border-radius: 4px; text-align: center;">
+                                <div style="font-size: 18px; font-weight: bold; color: ${cluster.risk_level === 'CRITICAL' ? 'var(--color-critical)' : (cluster.risk_level === 'HIGH' ? 'var(--color-high)' : (cluster.risk_level === 'MEDIUM' ? 'var(--color-medium)' : 'var(--color-low)'))};">${cluster.risk_multiplier.toFixed(1)}x</div>
+                                <div style="font-size: 10px; color: var(--text-secondary);">multiplier</div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                            <div style="background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 4px;">
+                                <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 5px;">Funders</div>
+                                <div style="font-size: 18px; font-weight: bold; color: var(--primary);">${cluster.funder_count}</div>
+                            </div>
+                            <div style="background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 4px;">
+                                <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 5px;">Creators</div>
+                                <div style="font-size: 18px; font-weight: bold; color: var(--accent-cyan);">${cluster.creator_count}</div>
+                            </div>
+                            <div style="background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 4px;">
+                                <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 5px;">Network Size</div>
+                                <div style="font-size: 18px; font-weight: bold; color: var(--accent-purple);">${cluster.network_size}</div>
+                            </div>
+                            <div style="background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 4px;">
+                                <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 5px;">Volume SOL</div>
+                                <div style="font-size: 18px; font-weight: bold; color: var(--color-none);">${cluster.total_volume_sol.toFixed(0)}</div>
+                            </div>
+                        </div>
+
+                        <div style="padding-top: 10px; border-top: 1px solid rgba(124, 58, 237, 0.2); font-size: 12px; color: var(--accent-cyan);">
+                            Click to view details →
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading funder clusters:', error);
+                document.getElementById('clustersGrid').innerHTML = `<div style="color: var(--color-critical);">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function showClusterDetails(clusterId) {
+            try {
+                const response = await fetch(`/api/funder-cluster/${clusterId}`);
+                const cluster = await response.json();
+
+                if (cluster.error) {
+                    alert(`Error: ${cluster.error}`);
+                    return;
+                }
+
+                // For now, create a simple alert showing the data
+                // In production, you'd want to use a proper modal
+                const fundersHtml = cluster.funders.map(f => f.funder_address).join('\n');
+                const creatorsHtml = cluster.creators.join('\n');
+
+                const details = `CLUSTER: ${cluster.cluster_id}\nRisk Multiplier: ${cluster.risk_multiplier}x\nFunders: ${cluster.funder_count}\nCreators: ${cluster.creator_count}\nVolume: ${cluster.total_volume_sol} SOL\n\nTop 10 Funders:\n${cluster.funders.slice(0, 10).map(f => f.funder_address).join('\n')}\n\nTop 10 Creators:\n${cluster.creators.slice(0, 10).join('\n')}`;
+
+                alert(details);
+            } catch (error) {
+                console.error('Error showing cluster details:', error);
+                alert(`Error: ${error.message}`);
+            }
+        }
 
         // Funding Networks Functions
         async function loadFundingNetworks() {
@@ -8253,6 +8461,254 @@ def coordinated_funders_view():
 
     except Exception as e:
         return f"<html><body style='background: #0f0f1e; color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
+
+
+@app.route('/clusters-dashboard')
+def clusters_dashboard():
+    """Serve a full webview for cross-funding clusters"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get all clusters
+        cursor.execute("""
+            SELECT
+                cluster_id,
+                COUNT(*) as funder_count,
+                MAX(network_size) as network_size,
+                MAX(total_volume_sol) as total_volume_sol,
+                MAX(creators_served) as creators_served_json
+            FROM funder_networks
+            WHERE cluster_id IS NOT NULL
+            GROUP BY cluster_id
+            ORDER BY funder_count DESC, total_volume_sol DESC
+        """)
+
+        clusters = []
+        risk_multipliers = {
+            'FUNDERS_1': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network', 'level': 'CRITICAL'},
+            'FUNDERS_9': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network', 'level': 'HIGH'},
+            'FUNDERS_3': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Small Network', 'level': 'MEDIUM'},
+        }
+
+        total_funders = 0
+        total_volume = 0.0
+        total_creators = 0
+
+        for row in cursor.fetchall():
+            cluster_id = row['cluster_id']
+            funder_count = int(row['funder_count'] or 0)
+            volume = float(row['total_volume_sol'] or 0.0)
+            total_funders += funder_count
+            total_volume += volume
+
+            # Parse creators_served JSON
+            import json
+            creators_count = 0
+            try:
+                creators = json.loads(row['creators_served_json'] or '[]')
+                creators_count = len(creators) if isinstance(creators, list) else 0
+            except:
+                creators_count = 0
+
+            total_creators += creators_count
+            risk_info = risk_multipliers.get(cluster_id, {'multiplier': 1.0, 'label': f'Network {cluster_id}', 'level': 'CLEAN'})
+
+            clusters.append({
+                'cluster_id': cluster_id,
+                'funder_count': funder_count,
+                'network_size': int(row['network_size'] or 0),
+                'total_volume_sol': volume,
+                'creator_count': creators_count,
+                'risk_multiplier': risk_info['multiplier'],
+                'risk_label': risk_info['label'],
+                'risk_level': risk_info['level']
+            })
+
+        conn.close()
+
+        # Build cluster rows HTML
+        cluster_rows = ""
+        for cluster in clusters:
+            color = {
+                'CRITICAL': '#EF4444',
+                'HIGH': '#F97316',
+                'MEDIUM': '#EAB308',
+                'CLEAN': '#22C55E'
+            }.get(cluster['risk_level'], '#8B5CF6')
+
+            cluster_rows += f"""
+            <tr>
+                <td style="padding: 12px; color: var(--primary); font-weight: bold;">{cluster['cluster_id']}</td>
+                <td style="padding: 12px; text-align: center; color: var(--accent-cyan);">{cluster['funder_count']}</td>
+                <td style="padding: 12px; text-align: center; color: var(--accent-purple);">{cluster['creator_count']}</td>
+                <td style="padding: 12px; text-align: right; color: var(--color-none);">{cluster['total_volume_sol']:.2f}</td>
+                <td style="padding: 12px; text-align: center;">
+                    <span style="background: rgba(255, 0, 0, 0.1); color: {color}; padding: 6px 12px; border-radius: 4px; font-weight: bold;">
+                        {cluster['risk_multiplier']:.1f}x
+                    </span>
+                </td>
+                <td style="padding: 12px; font-size: 12px;">{cluster['risk_label']}</td>
+            </tr>
+            """
+
+        html = f"""
+        <html>
+        <head>
+            <title>Cross-Funding Clusters Dashboard</title>
+            <style>
+                :root {{
+                    --bg-primary: #0f0f1e;
+                    --bg-secondary: #1a1a2e;
+                    --primary: #7c3aed;
+                    --accent-cyan: #06b6d4;
+                    --accent-purple: #a78bfa;
+                    --color-critical: #ef4444;
+                    --color-high: #f97316;
+                    --color-medium: #eab308;
+                    --color-low: #22c55e;
+                    --color-none: #3b82f6;
+                    --text-primary: #e5e7eb;
+                    --text-secondary: #9ca3af;
+                }}
+                body {{
+                    background: var(--bg-primary);
+                    color: var(--text-primary);
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+                    padding: 30px;
+                    margin: 0;
+                }}
+                .container {{
+                    max-width: 1200px;
+                    margin: 0 auto;
+                }}
+                h1 {{
+                    color: var(--color-critical);
+                    margin-bottom: 10px;
+                }}
+                .subtitle {{
+                    color: var(--text-secondary);
+                    font-size: 14px;
+                    margin-bottom: 30px;
+                }}
+                .stats-grid {{
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 20px;
+                    margin-bottom: 40px;
+                }}
+                .stat-box {{
+                    background: rgba(124, 58, 237, 0.1);
+                    border: 1px solid rgba(124, 58, 237, 0.3);
+                    padding: 20px;
+                    border-radius: 8px;
+                }}
+                .stat-label {{
+                    color: var(--text-secondary);
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    margin-bottom: 10px;
+                }}
+                .stat-value {{
+                    font-size: 32px;
+                    font-weight: bold;
+                    color: var(--primary);
+                }}
+                table {{
+                    width: 100%;
+                    border-collapse: collapse;
+                    background: rgba(26, 26, 46, 0.5);
+                    border: 1px solid rgba(124, 58, 237, 0.2);
+                    border-radius: 8px;
+                    overflow: hidden;
+                }}
+                thead {{
+                    background: rgba(124, 58, 237, 0.15);
+                    border-bottom: 2px solid rgba(124, 58, 237, 0.3);
+                }}
+                th {{
+                    padding: 15px 12px;
+                    text-align: left;
+                    color: var(--primary);
+                    font-weight: bold;
+                    font-size: 13px;
+                    text-transform: uppercase;
+                }}
+                tr:hover {{
+                    background: rgba(124, 58, 237, 0.08);
+                }}
+                .back-button {{
+                    display: inline-block;
+                    padding: 10px 20px;
+                    background: rgba(124, 58, 237, 0.2);
+                    color: var(--primary);
+                    text-decoration: none;
+                    border-radius: 4px;
+                    margin-bottom: 20px;
+                    font-weight: bold;
+                }}
+                .back-button:hover {{
+                    background: rgba(124, 58, 237, 0.3);
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <a href="/" class="back-button">← Back to Main Dashboard</a>
+
+                <h1>🚨 Cross-Funding Clusters</h1>
+                <p class="subtitle">
+                    Coordinated funder networks detected by the cross-funding analyzer.
+                    Shows clusters of funders that fund overlapping sets of creators with unusual density.
+                </p>
+
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Total Clusters</div>
+                        <div class="stat-value">{len(clusters)}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Total Funders</div>
+                        <div class="stat-value">{total_funders}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Total Creators</div>
+                        <div class="stat-value">{total_creators}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Total Volume (SOL)</div>
+                        <div class="stat-value">{total_volume:.0f}</div>
+                    </div>
+                </div>
+
+                <h2 style="color: var(--primary); margin-bottom: 20px;">Cluster Details</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cluster ID</th>
+                            <th>Funders</th>
+                            <th>Creators</th>
+                            <th>Volume (SOL)</th>
+                            <th>Multiplier</th>
+                            <th>Risk Level</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {cluster_rows}
+                    </tbody>
+                </table>
+            </div>
+        </body>
+        </html>
+        """
+
+        return html
+
+    except Exception as e:
+        return f"<html><body style='background: #0f0f1e; color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
+
 # Original coordinated_funders_view (with syntax issues):
 def coordinated_funders_view_old():
     """Serve a full webview for coordinated funders analysis"""
@@ -12053,6 +12509,176 @@ def api_creator_super_cluster(creator_address: str):
             'creator_address': creator_address,
             'super_clusters': memberships,
             'total_clusters': len(memberships)
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/funder-clusters')
+def api_funder_clusters():
+    """Get all funder clusters from analyzer with cluster_id (FUNDERS_1, FUNDERS_9, etc.)"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get all clusters with their aggregated stats
+        cursor.execute("""
+            SELECT
+                cluster_id,
+                COUNT(*) as funder_count,
+                MAX(network_size) as network_size,
+                MAX(total_volume_sol) as total_volume_sol,
+                MAX(creators_served) as creators_served_json
+            FROM funder_networks
+            WHERE cluster_id IS NOT NULL
+            GROUP BY cluster_id
+            ORDER BY funder_count DESC, total_volume_sol DESC
+        """)
+
+        # Risk multiplier mapping
+        risk_multipliers = {
+            'FUNDERS_1': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network', 'level': 'CRITICAL'},
+            'FUNDERS_9': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network', 'level': 'HIGH'},
+            'FUNDERS_3': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Small Network', 'level': 'MEDIUM'},
+        }
+
+        clusters = []
+        total_sol = 0
+        for row in cursor.fetchall():
+            cluster_id = row['cluster_id']
+            volume = float(row['total_volume_sol'] or 0.0)
+            total_sol += volume
+
+            # Parse creators_served JSON
+            creators_count = 0
+            try:
+                import json
+                creators = json.loads(row['creators_served_json'] or '[]')
+                creators_count = len(creators) if isinstance(creators, list) else 0
+            except:
+                creators_count = 0
+
+            risk_info = risk_multipliers.get(cluster_id, {'multiplier': 1.0, 'label': f'Network {cluster_id}', 'level': 'CLEAN'})
+
+            clusters.append({
+                'cluster_id': cluster_id,
+                'funder_count': int(row['funder_count'] or 0),
+                'network_size': int(row['network_size'] or 0),
+                'total_volume_sol': round(volume, 2),
+                'creator_count': creators_count,
+                'risk_multiplier': risk_info['multiplier'],
+                'risk_label': risk_info['label'],
+                'risk_level': risk_info['level']
+            })
+
+        conn.close()
+
+        return jsonify({
+            'clusters': clusters,
+            'total_clusters': len(clusters),
+            'total_volume_sol': round(total_sol, 2),
+            'note': 'Volume is aggregated correctly (MAX per cluster, not SUM per row)'
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/funder-cluster/<cluster_id>')
+def api_funder_cluster_details(cluster_id):
+    """Get detailed info for a specific funder cluster"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get cluster metadata
+        cursor.execute("""
+            SELECT
+                cluster_id,
+                COUNT(*) as funder_count,
+                MAX(network_size) as network_size,
+                MAX(total_volume_sol) as total_volume_sol,
+                MAX(creators_served) as creators_served_json
+            FROM funder_networks
+            WHERE cluster_id = ?
+            GROUP BY cluster_id
+        """, (cluster_id,))
+
+        cluster_meta = cursor.fetchone()
+        if not cluster_meta:
+            return jsonify({'error': f'Cluster {cluster_id} not found'}), 404
+
+        # Get all funders in this cluster
+        cursor.execute("""
+            SELECT DISTINCT funder_address
+            FROM funder_networks
+            WHERE cluster_id = ?
+            ORDER BY funder_address
+        """, (cluster_id,))
+
+        funders = [dict(row) for row in cursor.fetchall()]
+
+        # Get creators in this cluster
+        import json
+        creators = []
+        try:
+            creators_json = cluster_meta['creators_served_json']
+            creators = json.loads(creators_json or '[]') if isinstance(creators_json, str) else []
+        except:
+            creators = []
+
+        # Risk info
+        risk_multipliers = {
+            'FUNDERS_1': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network', 'level': 'CRITICAL'},
+            'FUNDERS_9': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network', 'level': 'HIGH'},
+            'FUNDERS_3': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Small Network', 'level': 'MEDIUM'},
+        }
+        risk_info = risk_multipliers.get(cluster_id, {'multiplier': 1.0, 'label': f'Network {cluster_id}', 'level': 'CLEAN'})
+
+        conn.close()
+
+        return jsonify({
+            'cluster_id': cluster_id,
+            'funder_count': int(cluster_meta['funder_count'] or 0),
+            'network_size': int(cluster_meta['network_size'] or 0),
+            'total_volume_sol': float(cluster_meta['total_volume_sol'] or 0.0),
+            'creator_count': len(creators),
+            'creators': creators,
+            'funders': funders,
+            'risk_multiplier': risk_info['multiplier'],
+            'risk_label': risk_info['label'],
+            'risk_level': risk_info['level']
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/creator/<creator_address>/cluster-risk')
+def api_creator_cluster_risk(creator_address):
+    """Get cluster assignment and risk multiplier for a creator"""
+    try:
+        from cluster_risk_checker import check_creator
+        
+        result = check_creator(creator_address)
+        
+        return jsonify({
+            'creator_address': creator_address,
+            'in_cluster': result['in_cluster'],
+            'cluster_id': result.get('cluster_id'),
+            'risk_multiplier': result.get('risk_multiplier', 1.0),
+            'risk_label': result.get('risk_label', '✅ No cluster detected'),
+            'risk_level': 'CRITICAL' if result.get('risk_multiplier', 1.0) >= 3.0 else (
+                'HIGH' if result.get('risk_multiplier', 1.0) >= 2.0 else (
+                'MEDIUM' if result.get('risk_multiplier', 1.0) >= 1.5 else 'CLEAN'
+            )),
+            'network_size': result.get('network_size', 0),
+            'network_volume_sol': result.get('network_volume_sol', 0.0)
         })
 
     except Exception as e:

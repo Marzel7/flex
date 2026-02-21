@@ -26,11 +26,11 @@ The cross-funding network analyzer has been successfully optimized with **SYSTEM
 
 - **591 clusters** (flawed) → **9 real clusters** (verified)
 - **6,485 mega-cluster** (wrong) → **95 funder cluster** (correct)
-- **41,734 database records** → **130 unique clusters**
-- **217.4M SOL** (inflated) → **1.63M SOL** (accurate)
+- **41,734 database records** → **130 funder records in clusters**
+- **217.4M SOL** (inflated aggregate) → **18,014 SOL** (true cluster volume)
 - **659 false coordinators** → **0 SYSTEM artifacts** (clean)
 
-The dominant network **FUNDERS_1** (95 coordinated funders) shows exceptionally high creator overlap (94%, 18.8x baseline) consistent with coordinated funding and is ready for **3.0x risk multiplier** integration in real-time token detection.
+The dominant network **FUNDERS_1** (95 coordinated funders) shows unusually dense co-funding patterns (94% overlap, 18.8x higher than baseline random) consistent with coordinated funding and is ready for **3.0x risk multiplier** integration in real-time token detection.
 
 ---
 
@@ -42,7 +42,7 @@ The dominant network **FUNDERS_1** (95 coordinated funders) shows exceptionally 
 | **Largest Cluster Size** | 6,485 | 95 | -98.5% ✅ |
 | **Database Records** | 41,734 | 130 | -99.7% ✅ |
 | **Recipient Hubs (SYSTEM)** | 659 | 0 | -100% ✅ |
-| **Total SOL Volume** | 217.4M | 1.63M | -99.3% ✅ |
+| **Total SOL in Clusters** | ~217.4M (global) | 18,014 | Correct accounting ✅ |
 | **Execution Time** | ~7 min | ~3 min | -57% ✅ |
 | **Result Accuracy** | Flawed | Verified | +100% ✅ |
 | **Clustering Candidates** | 42,016 | ~200-300 | -99.3% ✅ |
@@ -189,9 +189,10 @@ ALTER TABLE funder_networks ADD COLUMN cluster_id TEXT;
 | 9 | FUNDERS_8 | 2 | 58.43 | 🟢 CLEAN | 27Amcz9A... |
 
 **Network Statistics**:
-- **Total Funders in Clusters**: 130 rows in `funder_networks` table (95+20+3+2+2+2+2+2+2)
-- **Total SOL Volume**: 1,628,741.94
-- **Total Unique Funders (dataset-wide)**: 42,016+ from `creator_funders` table
+- **Total Funder Records in Clusters**: 130 rows in `funder_networks` table (95+20+3+2+2+2+2+2+2)
+- **Total SOL in Clusters**: 18,014.32 SOL (sum of cluster volumes, no duplication)
+- **Total SOL Dataset-wide (creator_funders)**: ~104,131 SOL (all creator funding)
+- **Total Unique Funders (dataset-wide)**: 42,016 from `creator_funders` table
 - **Largest Cluster**: 95 funders (FUNDERS_1)
 - **Smallest Clusters**: 2 funders (6 clusters)
 
@@ -246,20 +247,21 @@ FUNDERS_1 is the largest and most significant cluster detected:
 
 **Question**: Could FUNDERS_1 be a false positive?
 
-**Answer**: Extremely unlikely based on overlap density:
+**Answer**: FUNDERS_1 shows unusually dense co-funding patterns:
 
-- **95 funders × 95 creators** = 9,025 possible funding pairs
-- **8,500+ pairs actually funded** = 94% coverage
-- **In typical random creator funding**: expected overlap density is <5%
-- **FUNDERS_1 observed**: 94% coverage is 18.8x higher than baseline random
+**Observations**:
+- **95 funders** systematically fund **~95 creators**
+- **94% co-funding overlap** (8,500+ creator pairs out of 9,025 possible)
+- **Expected random overlap**: <5% (based on typical funder-creator distribution)
+- **Observed vs expected**: ~18.8x higher than baseline random funding patterns
 - **Conclusion**: Pattern is non-random and consistent with coordinated funding
 
-**Caveat**: This is a descriptive statistical observation, not a formal hypothesis test. A rigorous statistical test would require:
-- Defined null model (e.g., degree-preserving configuration model)
-- Permutation test or Monte Carlo simulation
-- Computed p-value or z-score
+**Caveat**: This is a descriptive statistical observation, not a formal hypothesis test. The "18.8x" comparison assumes:
+- Null model: uniform random co-funding (very conservative baseline)
+- Actual validation would require: degree-preserving shuffle, permutation test, or Monte Carlo
+- Proper p-value computation before citing "sigma values"
 
-Current evidence strongly suggests coordination but should be validated with formal statistical testing before citing exact sigma values.
+**Assessment**: Strong evidence of coordination. Recommended for 3.0x risk multiplier, but formal statistical validation would strengthen claims.
 
 ### What This Means
 
@@ -467,6 +469,27 @@ async def handle_token_migration(token_mint: str, creator_address: str, ...):
 
     # Continue with risk analysis
     # ... pass cluster_info to risk calculator ...
+```
+
+### Important: Guardrails for Real-Time Use
+
+**Recommended safeguard** to prevent infra-only false positives:
+
+Only flag CRITICAL when:
+1. Creator is in FUNDERS_1 **AND**
+2. Creator has ≥5 non-CEX funders within FUNDERS_1 (minimum weight threshold)
+
+This prevents edge cases where infrastructure/CEX-only membership accidentally triggers CRITICAL.
+
+**Code pattern**:
+```python
+if cluster_info['in_cluster'] and cluster_info['cluster_id'] == 'FUNDERS_1':
+    # Count non-CEX funders within cluster for this creator
+    non_cex_count = count_non_cex_funders_in_cluster(creator_address, 'FUNDERS_1')
+    if non_cex_count >= 5:  # Guardrail
+        risk_level = "CRITICAL"
+    else:
+        risk_level = "HIGH"  # Still elevated, but not auto-CRITICAL
 ```
 
 ### Integration into Risk Scoring
@@ -795,7 +818,7 @@ The cross-funding network analyzer v2.1 is **production-ready** with:
 ✅ **Fast execution** - 57% performance improvement
 ✅ **Full documentation** - Ready for integration
 
-**FUNDERS_1** (95 coordinated funders) demonstrates 94% creator overlap (18.8x higher than baseline random funding) and is ready for **3.0x risk multiplier** integration in real-time token detection.
+**FUNDERS_1** (95 coordinated funders) demonstrates unusually dense co-funding patterns (94% creator overlap, ~18.8x higher than baseline random) and is ready for **3.0x risk multiplier** integration in real-time token detection.
 
 ---
 

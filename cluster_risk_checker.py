@@ -10,6 +10,18 @@ CLUSTER_RISK_MULTIPLIERS = {
     "FUNDERS_3": 1.5,    # 1.5x multiplier - MEDIUM risk network
 }
 
+CLUSTER_NAMES = {
+    "FUNDERS_1": "The Syndicate",
+    "FUNDERS_9": "The Network",
+    "FUNDERS_3": "The Trio",
+    "FUNDERS_2": "Pair Alpha",
+    "FUNDERS_4": "Pair Beta",
+    "FUNDERS_5": "Pair Gamma",
+    "FUNDERS_6": "Pair Delta",
+    "FUNDERS_7": "Pair Epsilon",
+    "FUNDERS_8": "Pair Zeta",
+}
+
 CLUSTER_RISK_LABELS = {
     "FUNDERS_1": "🚨 CRITICAL - Coordinated Network (95 funders)",
     "FUNDERS_9": "⚠️ HIGH - Secondary Network (20 funders)",

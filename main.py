@@ -4726,13 +4726,28 @@ HTML_TEMPLATE = """
                                     cluster.risk_level === 'HIGH' ? '⚠️' :
                                     cluster.risk_level === 'MEDIUM' ? '🟡' : '✅';
 
+                    // Cluster names mapping
+                    const clusterNames = {
+                        'FUNDERS_1': 'The Syndicate',
+                        'FUNDERS_9': 'The Network',
+                        'FUNDERS_3': 'The Trio',
+                        'FUNDERS_2': 'Pair Alpha',
+                        'FUNDERS_4': 'Pair Beta',
+                        'FUNDERS_5': 'Pair Gamma',
+                        'FUNDERS_6': 'Pair Delta',
+                        'FUNDERS_7': 'Pair Epsilon',
+                        'FUNDERS_8': 'Pair Zeta',
+                    };
+
+                    const clusterName = clusterNames[cluster.cluster_id] || cluster.cluster_id;
+
                     html += `
                         <div style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
                             <!-- Cluster Header -->
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                                 <div style="flex: 1;">
-                                    <h3 style="margin: 0; color: var(--text-primary); font-size: 18px;">${cluster.cluster_id}</h3>
-                                    <div style="color: var(--text-secondary); font-size: 13px; margin-top: 5px;">${cluster.risk_label}</div>
+                                    <h3 style="margin: 0; color: var(--text-primary); font-size: 18px;">${clusterName}</h3>
+                                    <div style="color: var(--text-secondary); font-size: 13px; margin-top: 5px;">${cluster.cluster_id} • ${cluster.risk_label}</div>
                                 </div>
                                 <div style="text-align: right;">
                                     <div style="font-size: 24px;">${riskIcon}</div>
@@ -8084,9 +8099,15 @@ def clusters_dashboard():
 
         clusters = []
         risk_multipliers = {
-            'FUNDERS_1': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network', 'level': 'CRITICAL'},
-            'FUNDERS_9': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network', 'level': 'HIGH'},
-            'FUNDERS_3': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Small Network', 'level': 'MEDIUM'},
+            'FUNDERS_1': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network', 'level': 'CRITICAL', 'name': 'The Syndicate'},
+            'FUNDERS_9': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network', 'level': 'HIGH', 'name': 'The Network'},
+            'FUNDERS_3': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Small Network', 'level': 'MEDIUM', 'name': 'The Trio'},
+            'FUNDERS_2': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Alpha'},
+            'FUNDERS_4': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Beta'},
+            'FUNDERS_5': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Gamma'},
+            'FUNDERS_6': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Delta'},
+            'FUNDERS_7': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Epsilon'},
+            'FUNDERS_8': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Zeta'},
         }
 
         total_funders = 0
@@ -11653,9 +11674,15 @@ def api_funder_clusters():
 
         # Risk multiplier mapping
         risk_multipliers = {
-            'FUNDERS_1': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network', 'level': 'CRITICAL'},
-            'FUNDERS_9': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network', 'level': 'HIGH'},
-            'FUNDERS_3': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Small Network', 'level': 'MEDIUM'},
+            'FUNDERS_1': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network', 'level': 'CRITICAL', 'name': 'The Syndicate'},
+            'FUNDERS_9': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network', 'level': 'HIGH', 'name': 'The Network'},
+            'FUNDERS_3': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Small Network', 'level': 'MEDIUM', 'name': 'The Trio'},
+            'FUNDERS_2': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Alpha'},
+            'FUNDERS_4': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Beta'},
+            'FUNDERS_5': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Gamma'},
+            'FUNDERS_6': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Delta'},
+            'FUNDERS_7': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Epsilon'},
+            'FUNDERS_8': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Zeta'},
         }
 
         clusters = []
@@ -11747,9 +11774,15 @@ def api_funder_cluster_details(cluster_id):
 
         # Risk info
         risk_multipliers = {
-            'FUNDERS_1': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network', 'level': 'CRITICAL'},
-            'FUNDERS_9': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network', 'level': 'HIGH'},
-            'FUNDERS_3': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Small Network', 'level': 'MEDIUM'},
+            'FUNDERS_1': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network', 'level': 'CRITICAL', 'name': 'The Syndicate'},
+            'FUNDERS_9': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network', 'level': 'HIGH', 'name': 'The Network'},
+            'FUNDERS_3': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Small Network', 'level': 'MEDIUM', 'name': 'The Trio'},
+            'FUNDERS_2': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Alpha'},
+            'FUNDERS_4': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Beta'},
+            'FUNDERS_5': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Gamma'},
+            'FUNDERS_6': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Delta'},
+            'FUNDERS_7': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Epsilon'},
+            'FUNDERS_8': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'Pair Zeta'},
         }
         risk_info = risk_multipliers.get(cluster_id, {'multiplier': 1.0, 'label': f'Network {cluster_id}', 'level': 'CLEAN'})
 

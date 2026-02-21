@@ -2719,6 +2719,7 @@ HTML_TEMPLATE = """
                             <th onclick="sortBy('mint')" class="sortable ${sortConfig.column === 'mint' ? 'sorted-' + sortConfig.direction : ''}">Token Mint</th>
                             <th></th>
                             <th onclick="sortBy('network_name')" class="sortable ${sortConfig.column === 'network_name' ? 'sorted-' + sortConfig.direction : ''}">Network</th>
+                            <th onclick="sortBy('cluster_name')" class="sortable ${sortConfig.column === 'cluster_name' ? 'sorted-' + sortConfig.direction : ''}">Cluster</th>
                             <th onclick="sortBy('market_cap_current')" class="sortable ${sortConfig.column === 'market_cap_current' ? 'sorted-' + sortConfig.direction : ''}">Market Cap</th>
                             <th onclick="sortBy('market_cap_highest')" class="sortable ${sortConfig.column === 'market_cap_highest' ? 'sorted-' + sortConfig.direction : ''}">Peak MC</th>
                             <th onclick="sortBy('market_cap_highest_at')" class="sortable ${sortConfig.column === 'market_cap_highest_at' ? 'sorted-' + sortConfig.direction : ''}">Peak Timing</th>
@@ -2937,6 +2938,9 @@ HTML_TEMPLATE = """
                                     <td class="creator-tags"><div style="display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">${columnTags.join('')}</div></td>
                                     <td class="network-name">
                                         ${token.network_name ? `<a href="#" onclick="switchTab('funding-networks'); showNetworkDetails(${token.network_id}); return false;" class="mint-link" style="font-size: 13px;" title="${token.network_name}">${token.network_name}</a>` : '—'}
+                                    </td>
+                                    <td style="font-size: 13px; font-weight: bold;">
+                                        ${token.cluster_name ? `<span style="color: var(--accent-purple);" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : '—'}
                                     </td>
                                     <td>
                                         ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '—'}

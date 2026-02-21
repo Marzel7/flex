@@ -441,6 +441,23 @@ class PumpFunCurveListener:
                 conn.execute("PRAGMA busy_timeout=60000")
                 cursor = conn.cursor()
 
+                # Check if creator belongs to any cluster
+                creator_address = analysis.get("earliest_tx_creator")
+                cluster_id = None
+                cluster_name = None
+                cluster_risk_multiplier = 1.0
+
+                if creator_address:
+                    try:
+                        from cluster_risk_checker import check_creator
+                        cluster_info = check_creator(creator_address)
+                        if cluster_info.get('in_cluster'):
+                            cluster_id = cluster_info.get('cluster_id')
+                            cluster_name = cluster_info.get('cluster_label', cluster_id)
+                            cluster_risk_multiplier = cluster_info.get('risk_multiplier', 1.0)
+                    except Exception as e:
+                        print(f"[CLUSTER] Error checking creator {creator_address}: {e}", flush=True)
+
                 # Store post-migration analysis with live price tracking
                 cursor.execute("""
                     INSERT OR REPLACE INTO token_analysis (
@@ -450,8 +467,9 @@ class PumpFunCurveListener:
                         post_migration_buy_size_variance, post_migration_sell_volume_concentration,
                         post_migration_creator_activity_ratio,
                         rug_probability, risk_level, post_migration_coverage,
-                        migration_tx, price_current, price_highest, pool_address, earliest_tx_creator, creator_is_blocked, network_risk, connected_malicious_count
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        migration_tx, price_current, price_highest, pool_address, earliest_tx_creator, creator_is_blocked, network_risk, connected_malicious_count,
+                        cluster_id, cluster_name, cluster_risk_multiplier
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     mint,
                     time.time(),
@@ -473,7 +491,10 @@ class PumpFunCurveListener:
                     analysis.get("earliest_tx_creator"),  # Creator from earliest transaction
                     analysis.get("creator_is_blocked", 0),  # Is creator in blocklist?
                     analysis.get("network_risk", 0),  # Is creator connected to malicious creators?
-                    analysis.get("connected_malicious_count")  # Count of connected malicious creators
+                    analysis.get("connected_malicious_count"),  # Count of connected malicious creators
+                    cluster_id,  # Cluster ID if creator is in a cluster
+                    cluster_name,  # Cluster name (NexusCerberus, etc.)
+                    cluster_risk_multiplier  # Risk multiplier for cluster
                 ))
 
                 conn.commit()
@@ -1521,18 +1542,39 @@ class PumpFunCurveListener:
     def _update_token_entry_with_creator(self, mint: str, creator: str, created_at: str, bonding_curve_pda: str = None, create_tx_signature: str = None):
         """Update minimal token entry with creator, creation date, bonding curve, and CREATE tx signature"""
         try:
+            # Check if creator belongs to any cluster
+            cluster_id = None
+            cluster_name = None
+            cluster_risk_multiplier = 1.0
+
+            if creator:
+                try:
+                    from cluster_risk_checker import check_creator
+                    cluster_info = check_creator(creator)
+                    if cluster_info.get('in_cluster'):
+                        cluster_id = cluster_info.get('cluster_id')
+                        cluster_name = cluster_info.get('cluster_label', cluster_id)
+                        cluster_risk_multiplier = cluster_info.get('risk_multiplier', 1.0)
+                        print(f"[CLUSTER] ✅ Creator {creator[:8]}... belongs to {cluster_name} ({cluster_id}) - Risk multiplier: {cluster_risk_multiplier}x", flush=True)
+                    else:
+                        print(f"[CLUSTER] ℹ Creator {creator[:8]}... not in any cluster", flush=True)
+                except Exception as e:
+                    print(f"[CLUSTER] Error checking creator {creator}: {e}", flush=True)
+
             conn = sqlite3.connect(DB_PATH, timeout=30)
             cursor = conn.cursor()
 
             cursor.execute("""
                 UPDATE token_analysis
-                SET earliest_tx_creator = ?, created_at = ?, bonding_curve_pda = ?, create_tx_signature = ?
+                SET earliest_tx_creator = ?, created_at = ?, bonding_curve_pda = ?, create_tx_signature = ?,
+                    cluster_id = ?, cluster_name = ?, cluster_risk_multiplier = ?
                 WHERE mint = ?
-            """, (creator, created_at, bonding_curve_pda, create_tx_signature, mint))
+            """, (creator, created_at, bonding_curve_pda, create_tx_signature, cluster_id, cluster_name, cluster_risk_multiplier, mint))
 
             conn.commit()
             conn.close()
-            print(f"[DB] ✅ Updated token entry with creator: {creator[:8]}... | Created: {created_at} | CREATE tx: {create_tx_signature[:20] if create_tx_signature else 'N/A'}...", flush=True)
+            cluster_info_str = f" | Cluster: {cluster_name} ({cluster_risk_multiplier}x)" if cluster_id else ""
+            print(f"[DB] ✅ Updated token entry with creator: {creator[:8]}... | Created: {created_at} | CREATE tx: {create_tx_signature[:20] if create_tx_signature else 'N/A'}...{cluster_info_str}", flush=True)
         except Exception as e:
             print(f"[DB_ERROR] Failed to update token entry with creator: {e}", flush=True)
 

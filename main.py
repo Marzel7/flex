@@ -11693,10 +11693,10 @@ def api_funder_cluster_details(cluster_id):
 
         # Get all funders in this cluster
         cursor.execute("""
-            SELECT DISTINCT funder_address
+            SELECT DISTINCT primary_funder as funder_address
             FROM funder_networks
             WHERE cluster_id = ?
-            ORDER BY funder_address
+            ORDER BY primary_funder
         """, (cluster_id,))
 
         funders = [dict(row) for row in cursor.fetchall()]

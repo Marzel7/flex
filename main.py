@@ -4967,7 +4967,7 @@ HTML_TEMPLATE = """
                 // Display clusters
                 const grid = document.getElementById('clustersGrid');
                 grid.innerHTML = data.clusters.map(cluster => `
-                    <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 8px; padding: 20px; cursor: pointer;" onclick="showClusterDetails('${cluster.cluster_id}')">
+                    <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 8px; padding: 20px; cursor: pointer;" data-cluster-id="${cluster.cluster_id}" class="cluster-card">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
                             <div>
                                 <h3 style="color: var(--primary); margin: 0 0 5px 0;">${cluster.cluster_id}</h3>
@@ -5003,6 +5003,14 @@ HTML_TEMPLATE = """
                         </div>
                     </div>
                 `).join('');
+
+                // Add event listeners to cluster cards
+                document.querySelectorAll('.cluster-card').forEach(card => {
+                    card.addEventListener('click', function() {
+                        const clusterId = this.getAttribute('data-cluster-id');
+                        showClusterDetails(clusterId);
+                    });
+                });
 
             } catch (error) {
                 console.error('Error loading funder clusters:', error);

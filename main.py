@@ -158,20 +158,10 @@ def get_migrated_tokens() -> List[Dict]:
                 'sources_extracted': 0
             }
 
-            # Get network information if token belongs to a network
-            network_name = None
-            network_id = None
-            cursor.execute("""
-                SELECT fn.network_id, fn.network_name
-                FROM funding_networks fn
-                INNER JOIN funding_network_shared_tokens fnst ON fn.network_id = fnst.network_id
-                WHERE fnst.mint = ?
-                LIMIT 1
-            """, (row['mint'],))
-            network_row = cursor.fetchone()
-            if network_row:
-                network_id = network_row[0]
-                network_name = network_row[1]
+            # Network is the cluster (clusters are funding networks)
+            # Use cluster_name as network_name since clusters ARE networks
+            network_name = row['cluster_name']
+            network_id = row['cluster_id']
 
 
             tokens.append({
@@ -2724,8 +2714,7 @@ HTML_TEMPLATE = """
                         <tr>
                             <th onclick="sortBy('mint')" class="sortable ${sortConfig.column === 'mint' ? 'sorted-' + sortConfig.direction : ''}">Token Mint</th>
                             <th></th>
-                            <th onclick="sortBy('network_name')" class="sortable ${sortConfig.column === 'network_name' ? 'sorted-' + sortConfig.direction : ''}">Network</th>
-                            <th onclick="sortBy('cluster_name')" class="sortable ${sortConfig.column === 'cluster_name' ? 'sorted-' + sortConfig.direction : ''}">Cluster</th>
+                            <th onclick="sortBy('network_name')" class="sortable ${sortConfig.column === 'network_name' ? 'sorted-' + sortConfig.direction : ''}">Network/Cluster</th>
                             <th onclick="sortBy('market_cap_current')" class="sortable ${sortConfig.column === 'market_cap_current' ? 'sorted-' + sortConfig.direction : ''}">Market Cap</th>
                             <th onclick="sortBy('market_cap_highest')" class="sortable ${sortConfig.column === 'market_cap_highest' ? 'sorted-' + sortConfig.direction : ''}">Peak MC</th>
                             <th onclick="sortBy('market_cap_highest_at')" class="sortable ${sortConfig.column === 'market_cap_highest_at' ? 'sorted-' + sortConfig.direction : ''}">Peak Timing</th>
@@ -2943,10 +2932,7 @@ HTML_TEMPLATE = """
                                     </td>
                                     <td class="creator-tags"><div style="display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">${columnTags.join('')}</div></td>
                                     <td class="network-name">
-                                        ${token.network_name ? `<a href="#" onclick="switchTab('funding-networks'); showNetworkDetails(${token.network_id}); return false;" class="mint-link" style="font-size: 13px;" title="${token.network_name}">${token.network_name}</a>` : '—'}
-                                    </td>
-                                    <td style="font-size: 13px; font-weight: bold;">
-                                        ${token.cluster_name ? `<span style="color: var(--accent-purple);" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : '—'}
+                                        ${token.network_name ? `<span style="color: var(--accent-purple); font-weight: bold;" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.network_name}</span>` : '—'}
                                     </td>
                                     <td>
                                         ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '—'}

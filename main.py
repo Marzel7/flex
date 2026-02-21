@@ -1797,6 +1797,17 @@ HTML_TEMPLATE = """
             </div>
         </div>
 
+        <!-- Cluster Details Modal -->
+        <div id="clusterDetailsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center; padding: 20px;">
+            <div style="background: var(--bg-primary); border-radius: 12px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 30px; position: relative;">
+                <button onclick="closeClusterDetails()" style="position: absolute; top: 15px; right: 15px; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary);">✕</button>
+                <h2 style="margin: 0 0 25px 0; color: var(--text-primary);">Cluster Details</h2>
+                <div id="clusterDetailsContent" style="color: var(--text-primary);">
+                    Loading...
+                </div>
+            </div>
+        </div>
+
         <!-- CEX Funders View -->
         <div id="cex-container" style="display: none;">
             <div style="padding: 20px;">
@@ -4793,8 +4804,8 @@ HTML_TEMPLATE = """
                                      cluster.risk_level === 'MEDIUM' ? 'var(--color-medium)' : 'var(--color-low)';
 
                     html += `
-                        <tr>
-                            <td style="padding: 12px; font-weight: bold;">${cluster.cluster_id}</td>
+                        <tr style="cursor: pointer;" onclick="showClusterDetails('${cluster.cluster_id}')">
+                            <td style="padding: 12px; font-weight: bold; color: var(--color-primary);">${cluster.cluster_id}</td>
                             <td style="padding: 12px; text-align: center;">${cluster.funder_count}</td>
                             <td style="padding: 12px; text-align: center;">${cluster.creator_count}</td>
                             <td style="padding: 12px; text-align: center;">${cluster.total_volume_sol.toFixed(2)}</td>
@@ -4809,6 +4820,114 @@ HTML_TEMPLATE = """
             } catch(e) {
                 console.error('Error loading funder clusters:', e);
                 tableEl.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--color-critical);">Error: ' + e.message + '</td></tr>';
+            }
+        }
+
+        // Cluster Details Modal Functions
+        async function showClusterDetails(clusterId) {
+            const modal = document.getElementById('clusterDetailsModal');
+            if (!modal) {
+                console.error('Cluster details modal not found');
+                return;
+            }
+
+            modal.style.display = 'flex';
+            const detailsEl = document.getElementById('clusterDetailsContent');
+            detailsEl.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Loading cluster details...</div>';
+
+            try {
+                const response = await fetch(`/api/funder-cluster/${clusterId}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    detailsEl.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--color-critical);">Error: ${data.error}</div>`;
+                    return;
+                }
+
+                const riskColor = data.risk_level === 'CRITICAL' ? 'var(--color-critical)' :
+                                 data.risk_level === 'HIGH' ? 'var(--color-high)' :
+                                 data.risk_level === 'MEDIUM' ? 'var(--color-medium)' : 'var(--color-low)';
+
+                let html = `
+                    <div style="background: rgba(124, 58, 237, 0.05); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px;">
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Cluster ID</div>
+                                <div style="font-weight: bold; font-size: 18px;">${data.cluster_id}</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Total Funders</div>
+                                <div style="font-weight: bold; font-size: 18px;">${data.funder_count}</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Total Creators</div>
+                                <div style="font-weight: bold; font-size: 18px;">${data.creator_count}</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Total Volume (SOL)</div>
+                                <div style="font-weight: bold; font-size: 18px;">${data.total_volume_sol.toFixed(2)}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(124, 58, 237, 0.05); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                        <div style="margin-bottom: 10px;">
+                            <span style="font-weight: bold;">Risk Level: </span>
+                            <span style="color: ${riskColor}; font-weight: bold; font-size: 16px;">${data.risk_label}</span>
+                        </div>
+                        <div>
+                            <span style="font-weight: bold;">Risk Multiplier: </span>
+                            <span style="color: ${riskColor}; font-weight: bold; font-size: 16px;">${data.risk_multiplier}x</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="margin: 0 0 15px 0; color: var(--text-primary);">Funders (${data.funder_count})</h3>
+                        <div style="background: var(--bg-secondary); border-radius: 8px; max-height: 300px; overflow-y: auto; padding: 12px;">
+                            ${data.funders.length > 0 ? `
+                                <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+                                    <tbody>
+                                        ${data.funders.map((f, i) => `
+                                            <tr style="border-bottom: 1px solid var(--border-color); padding: 8px 0;">
+                                                <td style="padding: 8px; word-break: break-all; font-family: monospace; color: var(--text-secondary);">${f.funder_address}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            ` : '<div style="color: var(--text-secondary);">No funders found</div>'}
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="margin: 0 0 15px 0; color: var(--text-primary);">Creators (${data.creator_count})</h3>
+                        <div style="background: var(--bg-secondary); border-radius: 8px; max-height: 300px; overflow-y: auto; padding: 12px;">
+                            ${data.creators && data.creators.length > 0 ? `
+                                <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+                                    <tbody>
+                                        ${data.creators.map((c, i) => `
+                                            <tr style="border-bottom: 1px solid var(--border-color); padding: 8px 0;">
+                                                <td style="padding: 8px; word-break: break-all; font-family: monospace; color: var(--text-secondary);">${c}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            ` : '<div style="color: var(--text-secondary);">No creators found</div>'}
+                        </div>
+                    </div>
+                `;
+
+                detailsEl.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading cluster details:', error);
+                detailsEl.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--color-critical);">Error: ${error.message}</div>`;
+            }
+        }
+
+        function closeClusterDetails() {
+            const modal = document.getElementById('clusterDetailsModal');
+            if (modal) {
+                modal.style.display = 'none';
             }
         }
 

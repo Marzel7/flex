@@ -11,15 +11,15 @@ CLUSTER_RISK_MULTIPLIERS = {
 }
 
 CLUSTER_NAMES = {
-    "FUNDERS_1": "The Syndicate",
-    "FUNDERS_9": "The Network",
-    "FUNDERS_3": "The Trio",
-    "FUNDERS_2": "Pair Alpha",
-    "FUNDERS_4": "Pair Beta",
-    "FUNDERS_5": "Pair Gamma",
-    "FUNDERS_6": "Pair Delta",
-    "FUNDERS_7": "Pair Epsilon",
-    "FUNDERS_8": "Pair Zeta",
+    "FUNDERS_1": "BlackHawk",
+    "FUNDERS_9": "Viper",
+    "FUNDERS_3": "Falcon",
+    "FUNDERS_2": "Echo",
+    "FUNDERS_4": "Shadow",
+    "FUNDERS_5": "Cipher",
+    "FUNDERS_6": "Raven",
+    "FUNDERS_7": "Ghost",
+    "FUNDERS_8": "Wraith",
 }
 
 CLUSTER_RISK_LABELS = {

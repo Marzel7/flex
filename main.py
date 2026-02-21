@@ -1686,7 +1686,7 @@ HTML_TEMPLATE = """
                 </div>
                 <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 20px;">
                     Coordinated funder networks identified through Jaccard similarity analysis (≥0.25). These clusters represent multi-funder rings that systematically support overlapping creators.
-                    <br><span style="font-size: 12px; color: var(--color-critical);">⚠️ Risk Multipliers: FUNDERS_1 = 3.0x CRITICAL | FUNDERS_9 = 2.0x HIGH | FUNDERS_3 = 1.5x MEDIUM</span>
+                    <br><span style="font-size: 12px; color: var(--color-critical);">⚠️ Risk Multipliers: NexusCerberus = 3.0x CRITICAL | CrimsonRaven = 2.0x HIGH | StellarDragon = 1.5x MEDIUM</span>
                 </p>
 
                 <!-- Funder Cluster Statistics -->
@@ -4747,7 +4747,7 @@ HTML_TEMPLATE = """
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                                 <div style="flex: 1;">
                                     <h3 style="margin: 0; color: var(--text-primary); font-size: 18px;">${clusterName}</h3>
-                                    <div style="color: var(--text-secondary); font-size: 13px; margin-top: 5px;">${cluster.cluster_id} • ${cluster.risk_label}</div>
+                                    <div style="color: var(--text-secondary); font-size: 13px; margin-top: 5px;">${cluster.risk_label}</div>
                                 </div>
                                 <div style="text-align: right;">
                                     <div style="font-size: 24px;">${riskIcon}</div>
@@ -11701,10 +11701,11 @@ def api_funder_clusters():
             except:
                 creators_count = 0
 
-            risk_info = risk_multipliers.get(cluster_id, {'multiplier': 1.0, 'label': f'Network {cluster_id}', 'level': 'CLEAN'})
+            risk_info = risk_multipliers.get(cluster_id, {'multiplier': 1.0, 'label': f'Network {cluster_id}', 'level': 'CLEAN', 'name': cluster_id})
 
             clusters.append({
                 'cluster_id': cluster_id,
+                'cluster_name': risk_info.get('name', cluster_id),
                 'funder_count': int(row['funder_count'] or 0),
                 'network_size': int(row['network_size'] or 0),
                 'total_volume_sol': round(volume, 2),
@@ -11784,12 +11785,13 @@ def api_funder_cluster_details(cluster_id):
             'FUNDERS_7': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'EtherealEagle'},
             'FUNDERS_8': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'CosmicLion'},
         }
-        risk_info = risk_multipliers.get(cluster_id, {'multiplier': 1.0, 'label': f'Network {cluster_id}', 'level': 'CLEAN'})
+        risk_info = risk_multipliers.get(cluster_id, {'multiplier': 1.0, 'label': f'Network {cluster_id}', 'level': 'CLEAN', 'name': cluster_id})
 
         conn.close()
 
         return jsonify({
             'cluster_id': cluster_id,
+            'cluster_name': risk_info.get('name', cluster_id),
             'funder_count': int(cluster_meta['funder_count'] or 0),
             'network_size': int(cluster_meta['network_size'] or 0),
             'total_volume_sol': float(cluster_meta['total_volume_sol'] or 0.0),

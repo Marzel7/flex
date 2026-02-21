@@ -1677,45 +1677,36 @@ HTML_TEMPLATE = """
             <div class="loading">Loading migrated tokens...</div>
         </div>
 
-        <!-- Funding Networks View -->
-        <!-- Super-Clusters Networks View -->
+        <!-- Funding Networks View - Cross-Funding Clusters -->
         <div id="funding-network-container" style="display: none; padding: 20px;">
             <div style="margin-bottom: 30px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h2 style="color: var(--color-critical); margin: 0;">🚨 Super-Clusters (Coordinated Networks)</h2>
-                    <button onclick="showDefinitionsGuide()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid var(--primary); background: rgba(124, 58, 237, 0.1); color: var(--primary); font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.2s;" title="View creator pool tag definitions">📖 Definitions</button>
+                    <h2 style="color: var(--color-critical); margin: 0;">🚨 Cross-Funding Clusters</h2>
+                    <a href="/clusters-dashboard" style="padding: 8px 16px; border-radius: 6px; border: 1px solid var(--primary); background: rgba(124, 58, 237, 0.1); color: var(--primary); font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; transition: all 0.2s;" title="View full clusters dashboard">📊 Full Dashboard</a>
                 </div>
                 <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 20px;">
-                    Networks with ≥5 shared creators have been merged into super-clusters. These represent large coordinated funding operations identified through sophisticated network analysis.
-                    <br><span style="font-size: 12px; color: var(--text-secondary);">Tip: Click the <strong>?</strong> button on any tag to see its definition</span>
+                    Coordinated funder networks identified through Jaccard similarity analysis (≥0.25). These clusters represent multi-funder rings that systematically support overlapping creators.
+                    <br><span style="font-size: 12px; color: var(--color-critical);">⚠️ Risk Multipliers: FUNDERS_1 = 3.0x CRITICAL | FUNDERS_9 = 2.0x HIGH | FUNDERS_3 = 1.5x MEDIUM</span>
                 </p>
 
-                <!-- Super-Cluster Statistics -->
+                <!-- Funder Cluster Statistics -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px;">
                     <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-critical);">
                         <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total Clusters</div>
-                        <div style="font-size: 24px; font-weight: bold; color: var(--color-critical);" id="scTotalCount">—</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--color-critical);" id="fcTotalCount">—</div>
                     </div>
                     <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-critical);">
-                        <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Critical</div>
-                        <div style="font-size: 24px; font-weight: bold; color: var(--color-critical);" id="scCriticalCount">—</div>
-                    </div>
-                    <div style="background: rgba(249, 115, 22, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-high);">
-                        <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">High Risk</div>
-                        <div style="font-size: 24px; font-weight: bold; color: var(--color-high);" id="scHighCount">—</div>
+                        <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total Funders</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--color-critical);" id="fcTotalFunders">—</div>
                     </div>
                     <div style="background: rgba(251, 191, 36, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-medium);">
-                        <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Medium Risk</div>
-                        <div style="font-size: 24px; font-weight: bold; color: var(--color-medium);" id="scMediumCount">—</div>
+                        <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Total Volume</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--color-medium);" id="fcTotalVolume">—</div>
                     </div>
-                </div>
-
-                <!-- Network Filter Toggle -->
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding: 15px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3);">
-                    <span style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; font-weight: bold;">Filter Networks:</span>
-                    <button id="scMainToggleCexInfra" onclick="toggleMainNetworkFilter()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid rgba(124, 58, 237, 0.5); background: rgba(124, 58, 237, 0.1); color: var(--primary); font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
-                        ✓ Show All Networks
-                    </button>
+                    <div style="background: rgba(107, 114, 128, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--text-secondary);">
+                        <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Creators Tracked</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--text-secondary);" id="fcTotalCreators">—</div>
+                    </div>
                 </div>
 
                 <!-- Cross-Funder Coordinators Section -->
@@ -1785,9 +1776,23 @@ HTML_TEMPLATE = """
                     </div>
                 </div>
 
-                <!-- Super-Clusters Grid -->
-                <div id="super-clusters-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; margin-top: 40px;">
-                    <div class="loading" style="grid-column: 1 / -1;">Loading super-clusters...</div>
+                <!-- Funder Clusters Table -->
+                <div style="overflow-x: auto; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.2); margin-top: 20px;">
+                    <table class="tokens-table" style="width: 100%;">
+                        <thead>
+                            <tr style="background: rgba(124, 58, 237, 0.1);">
+                                <th style="text-align: left;">Cluster ID</th>
+                                <th style="text-align: center;">Funders</th>
+                                <th style="text-align: center;">Creators</th>
+                                <th style="text-align: center;">Volume (SOL)</th>
+                                <th style="text-align: center;">Risk Multiplier</th>
+                                <th style="text-align: left;">Risk Level</th>
+                            </tr>
+                        </thead>
+                        <tbody id="funder-clusters-list">
+                            <tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--text-secondary);">Loading cross-funding clusters...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -4752,110 +4757,58 @@ HTML_TEMPLATE = """
             }
         });
 
-        // Funding Networks Functions
+        // Funding Networks Functions - Cross-Funding Clusters
         async function loadFundingNetworks() {
-            // Load super-clusters directly (no separate funding networks)
-            loadSuperClustersInNetworkView();
+            // Load cross-funding clusters
+            loadFunderClustersInNetworkView();
         }
 
-        function renderSuperClustersWithFilter(data) {
-            const gridEl = document.getElementById('super-clusters-grid');
-            const clusters = data.clusters || [];
 
-            // Update statistics based on total (not filtered)
-            document.getElementById('scTotalCount').textContent = clusters.length;
-            document.getElementById('scCriticalCount').textContent = clusters.filter(c => c.risk_level === 'CRITICAL').length;
-            document.getElementById('scHighCount').textContent = clusters.filter(c => c.risk_level === 'HIGH').length;
-            document.getElementById('scMediumCount').textContent = clusters.filter(c => c.risk_level === 'MEDIUM').length;
-
-            let visibleHtml = '';
-
-            clusters.forEach(cluster => {
-                // Check if cluster should be hidden when filter is OFF
-                let shouldHide = false;
-                if (!showMainNetworksWithCexInfra && cluster.has_cex_infra) {
-                    shouldHide = true;
-                }
-
-                // Skip rendering this cluster if it should be hidden
-                if (shouldHide) {
-                    return;
-                }
-
-                // Determine color for creator reuse tag (using CSS variables)
-                let reuseColor = 'var(--color-none)';  // muted sage - NONE
-                let reuseTextColor = 'var(--text-primary)';
-                if (cluster.creator_reuse_level === 'HIGH') {
-                    reuseColor = 'var(--color-high)';  // muted mauve-red
-                    reuseTextColor = 'var(--text-light)';
-                } else if (cluster.creator_reuse_level === 'MEDIUM') {
-                    reuseColor = 'var(--color-medium)';  // muted brown
-                    reuseTextColor = 'var(--text-primary)';
-                } else if (cluster.creator_reuse_level === 'LOW') {
-                    reuseColor = 'var(--color-low)';  // muted warm-neutral
-                    reuseTextColor = 'var(--text-primary)';
-                }
-
-                visibleHtml += `
-                    <div data-cluster-id="${cluster.id}" style="background: var(--bg-secondary); border: 1px solid var(--primary); border-radius: 8px; padding: 25px; cursor: pointer; transition: all 0.3s;"
-                         onmouseover="this.style.background='var(--primary-light)'; this.style.boxShadow='0 0 15px rgba(124, 58, 237, 0.5)';"
-                         onmouseout="this.style.background='var(--bg-secondary)'; this.style.boxShadow='none';">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <div style="font-weight: bold; color: var(--text-primary); font-size: 16px;">${cluster.name || cluster.id}</div>
-                            <div style="display: flex; align-items: center; gap: 6px;">
-                                <span style="background: ${reuseColor}; color: ${reuseTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; white-space: nowrap;">${cluster.creator_reuse_tag}</span>
-                                <button onclick="showTagDefinition('${cluster.creator_reuse_tag}', event)" style="background: rgba(124, 58, 237, 0.3); border: 1px solid var(--primary); color: var(--primary); width: 20px; height: 20px; border-radius: 50%; padding: 0; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Click for definition">?</button>
-                            </div>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px;">
-                            <div style="background: rgba(124, 58, 237, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
-                                <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 4px;">Creators</div>
-                                <div style="color: var(--primary); font-weight: bold; font-size: 18px;">${cluster.creators_unique}</div>
-                            </div>
-                            <div style="background: rgba(124, 58, 237, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
-                                <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 4px;">Networks</div>
-                                <div data-network-count style="color: var(--primary); font-weight: bold; font-size: 18px;">${cluster.network_count}</div>
-                            </div>
-                            <div style="background: rgba(124, 58, 237, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
-                                <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 4px;">Mapped</div>
-                                <div style="color: var(--primary); font-weight: bold; font-size: 18px;">${cluster.creators_in_multiple_clusters}</div>
-                            </div>
-                            <div style="background: rgba(124, 58, 237, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
-                                <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 4px;">Root Ops</div>
-                                <div style="color: var(--primary); font-weight: bold; font-size: 18px;">${cluster.root_addresses.length}</div>
-                            </div>
-                            <div style="background: rgba(124, 58, 237, 0.1); padding: 12px; border-radius: 4px; border-left: 2px solid var(--primary);">
-                                <div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 4px;">Risk</div>
-                                <div style="color: var(--primary); font-weight: bold; font-size: 18px;">${cluster.risk_level}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            gridEl.innerHTML = visibleHtml || '<div style="grid-column: 1/-1; color: var(--text-secondary); text-align: center; padding: 40px;">No clusters match the filter</div>';
-        }
-
-        async function loadSuperClustersInNetworkView() {
-            const gridEl = document.getElementById('super-clusters-grid');
-            if (!gridEl) return;
+        async function loadFunderClustersInNetworkView() {
+            const tableEl = document.getElementById('funder-clusters-list');
+            if (!tableEl) return;
 
             try {
-                const response = await fetch('/api/super-clusters');
+                const response = await fetch('/api/funder-clusters');
                 const data = await response.json();
 
                 if (data.error) {
-                    gridEl.innerHTML = '<div style="grid-column: 1/-1; color: var(--color-critical);">Error loading super-clusters: ' + data.error + '</div>';
+                    tableEl.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--color-critical);">Error loading funder clusters: ' + data.error + '</td></tr>';
                     return;
                 }
 
-                // Store for re-rendering when filter changes
-                currentSuperClustersData = data;
-                renderSuperClustersWithFilter(data);
+                const clusters = data.clusters || [];
+
+                // Update statistics
+                document.getElementById('fcTotalCount').textContent = clusters.length;
+                document.getElementById('fcTotalFunders').textContent = clusters.reduce((sum, c) => sum + (c.funder_count || 0), 0);
+                document.getElementById('fcTotalVolume').textContent = '$' + (data.total_volume_sol || 0).toFixed(2);
+                document.getElementById('fcTotalCreators').textContent = clusters.reduce((sum, c) => sum + (c.creator_count || 0), 0);
+
+                // Render table
+                let html = '';
+                clusters.forEach(cluster => {
+                    const riskColor = cluster.risk_level === 'CRITICAL' ? 'var(--color-critical)' :
+                                     cluster.risk_level === 'HIGH' ? 'var(--color-high)' :
+                                     cluster.risk_level === 'MEDIUM' ? 'var(--color-medium)' : 'var(--color-low)';
+
+                    html += `
+                        <tr>
+                            <td style="padding: 12px; font-weight: bold;">${cluster.cluster_id}</td>
+                            <td style="padding: 12px; text-align: center;">${cluster.funder_count}</td>
+                            <td style="padding: 12px; text-align: center;">${cluster.creator_count}</td>
+                            <td style="padding: 12px; text-align: center;">${cluster.total_volume_sol.toFixed(2)}</td>
+                            <td style="padding: 12px; text-align: center; font-weight: bold; color: ${riskColor};">${cluster.risk_multiplier.toFixed(1)}x</td>
+                            <td style="padding: 12px; color: ${riskColor};">${cluster.risk_label}</td>
+                        </tr>
+                    `;
+                });
+
+                tableEl.innerHTML = html || '<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--text-secondary);">No clusters found</td></tr>';
 
             } catch(e) {
-                console.error('Error loading super-clusters:', e);
-                gridEl.innerHTML = '<div style="grid-column: 1/-1; color: var(--color-critical);">Error: ' + e.message + '</div>';
+                console.error('Error loading funder clusters:', e);
+                tableEl.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--color-critical);">Error: ' + e.message + '</td></tr>';
             }
         }
 
@@ -5130,54 +5083,6 @@ HTML_TEMPLATE = """
 
         // Track CEX/INFRA visibility state
         let showCexInfra = true;
-        let showNetworksWithCexInfra = true;  // Separate toggle for Networks tab
-        let showMainNetworksWithCexInfra = true;  // Toggle for main Super-Clusters list
-        let currentSuperClusterData = null;
-        let currentSuperClustersData = null;  // Store full cluster data for re-rendering
-
-        function toggleMainNetworkFilter() {
-            showMainNetworksWithCexInfra = !showMainNetworksWithCexInfra;
-            const button = document.getElementById('scMainToggleCexInfra');
-
-            if (showMainNetworksWithCexInfra) {
-                button.textContent = '✓ Show All Networks';
-                button.style.background = 'rgba(124, 58, 237, 0.1)';
-                button.style.color = 'var(--primary)';
-                button.style.borderColor = 'rgba(124, 58, 237, 0.5)';
-            } else {
-                button.textContent = '✗ Hide CEX/INFRA Networks';
-                button.style.background = 'rgba(239, 68, 68, 0.1)';
-                button.style.color = 'var(--color-critical)';
-                button.style.borderColor = 'rgba(239, 68, 68, 0.5)';
-            }
-
-            // Re-render super-clusters with updated filter
-            if (currentSuperClustersData) {
-                renderSuperClustersWithFilter(currentSuperClustersData);
-            }
-        }
-
-        function toggleNetworksVisibility() {
-            showNetworksWithCexInfra = !showNetworksWithCexInfra;
-            const button = document.getElementById('scNetworksToggleCexInfra');
-
-            if (showNetworksWithCexInfra) {
-                button.textContent = '✓ Show All';
-                button.style.background = 'rgba(124, 58, 237, 0.1)';
-                button.style.color = 'var(--primary)';
-                button.style.borderColor = 'rgba(124, 58, 237, 0.5)';
-            } else {
-                button.textContent = '✗ Hide CEX/INFRA';
-                button.style.background = 'rgba(239, 68, 68, 0.1)';
-                button.style.color = 'var(--color-critical)';
-                button.style.borderColor = 'rgba(239, 68, 68, 0.5)';
-            }
-
-            // Re-render networks with updated visibility
-            if (currentSuperClusterData) {
-                renderNetworks(currentSuperClusterData);
-            }
-        }
 
         function toggleCexInfraView() {
             showCexInfra = !showCexInfra;
@@ -5654,21 +5559,6 @@ HTML_TEMPLATE = """
             }
         }
 
-        async function loadSuperClusters() {
-            try {
-                const response = await fetch('/api/super-clusters');
-                const data = await response.json();
-
-                console.log(`Loaded ${data.total} super-clusters`);
-
-                // Add super-cluster display to the UI if needed
-                // For now, just log the data
-                window.superClustersData = data;
-
-            } catch (error) {
-                console.error('Error loading super-clusters:', error);
-            }
-        }
     </script>
 </body>
 </html>

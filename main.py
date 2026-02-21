@@ -8131,10 +8131,11 @@ def clusters_dashboard():
                 creators_count = 0
 
             total_creators += creators_count
-            risk_info = risk_multipliers.get(cluster_id, {'multiplier': 1.0, 'label': f'Network {cluster_id}', 'level': 'CLEAN'})
+            risk_info = risk_multipliers.get(cluster_id, {'multiplier': 1.0, 'label': f'Network {cluster_id}', 'level': 'CLEAN', 'name': cluster_id})
 
             clusters.append({
                 'cluster_id': cluster_id,
+                'cluster_name': risk_info.get('name', cluster_id),
                 'funder_count': funder_count,
                 'network_size': int(row['network_size'] or 0),
                 'total_volume_sol': volume,
@@ -8158,7 +8159,7 @@ def clusters_dashboard():
 
             cluster_rows += f"""
             <tr>
-                <td style="padding: 12px; color: var(--primary); font-weight: bold;">{cluster['cluster_id']}</td>
+                <td style="padding: 12px; color: var(--primary); font-weight: bold;">{cluster['cluster_name']}</td>
                 <td style="padding: 12px; text-align: center; color: var(--accent-cyan);">{cluster['funder_count']}</td>
                 <td style="padding: 12px; text-align: center; color: var(--accent-purple);">{cluster['creator_count']}</td>
                 <td style="padding: 12px; text-align: right; color: var(--color-none);">{cluster['total_volume_sol']:.2f}</td>
@@ -8304,7 +8305,7 @@ def clusters_dashboard():
                 <table>
                     <thead>
                         <tr>
-                            <th>Cluster ID</th>
+                            <th>Cluster Name</th>
                             <th>Funders</th>
                             <th>Creators</th>
                             <th>Volume (SOL)</th>

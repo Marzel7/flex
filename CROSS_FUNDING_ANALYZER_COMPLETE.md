@@ -190,7 +190,15 @@ ALTER TABLE funder_networks ADD COLUMN cluster_id TEXT;
 
 **Network Statistics**:
 - **Total Funder Records in Clusters**: 130 rows in `funder_networks` table (95+20+3+2+2+2+2+2+2)
-- **Total SOL in Clusters**: 18,014.32 SOL (sum of cluster volumes, no duplication)
+- **Total SOL in Clusters**: 18,014.30 SOL (correct: sum of unique cluster volumes)
+  - **⚠️ IMPORTANT QUERY GOTCHA**: If you naively `SUM(total_volume_sol)` from funder_networks, you get 1,628,741.94 (inflated) because each cluster's volume is stored once per funder row. Always use:
+    ```sql
+    SELECT SUM(cluster_volume_sol) FROM (
+      SELECT cluster_id, MAX(total_volume_sol) AS cluster_volume_sol
+      FROM funder_networks WHERE cluster_id IS NOT NULL
+      GROUP BY cluster_id
+    );
+    ```
 - **Total SOL Dataset-wide (creator_funders)**: ~104,131 SOL (all creator funding)
 - **Total Unique Funders (dataset-wide)**: 42,016 from `creator_funders` table
 - **Largest Cluster**: 95 funders (FUNDERS_1)
@@ -597,6 +605,21 @@ WHERE EXISTS (
   WHERE json_each.value = 'YOUR_CREATOR_ADDRESS_HERE'
 )
 AND cluster_id = 'FUNDERS_1';
+EOF
+```
+
+**Get cluster summary (correct method)**:
+```bash
+sqlite3 pumpswap_tokens.db << 'EOF'
+SELECT
+  cluster_id,
+  COUNT(*) AS funders,
+  MAX(network_size) AS network_size,
+  MAX(total_volume_sol) AS cluster_volume_sol
+FROM funder_networks
+WHERE cluster_id IS NOT NULL
+GROUP BY cluster_id
+ORDER BY funders DESC;
 EOF
 ```
 

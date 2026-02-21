@@ -453,7 +453,7 @@ class PumpFunCurveListener:
                         cluster_info = check_creator(creator_address)
                         if cluster_info.get('in_cluster'):
                             cluster_id = cluster_info.get('cluster_id')
-                            cluster_name = cluster_info.get('cluster_label', cluster_id)
+                            cluster_name = cluster_info.get('cluster_name', cluster_id)
                             cluster_risk_multiplier = cluster_info.get('risk_multiplier', 1.0)
                     except Exception as e:
                         print(f"[CLUSTER] Error checking creator {creator_address}: {e}", flush=True)
@@ -1553,7 +1553,7 @@ class PumpFunCurveListener:
                     cluster_info = check_creator(creator)
                     if cluster_info.get('in_cluster'):
                         cluster_id = cluster_info.get('cluster_id')
-                        cluster_name = cluster_info.get('cluster_label', cluster_id)
+                        cluster_name = cluster_info.get('cluster_name', cluster_id)
                         cluster_risk_multiplier = cluster_info.get('risk_multiplier', 1.0)
                         print(f"[CLUSTER] ✅ Creator {creator[:8]}... belongs to {cluster_name} ({cluster_id}) - Risk multiplier: {cluster_risk_multiplier}x", flush=True)
                     else:

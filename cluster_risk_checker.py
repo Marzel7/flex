@@ -5,27 +5,38 @@ from typing import Dict, Optional
 DB_PATH = "pumpswap_tokens.db"
 
 CLUSTER_RISK_MULTIPLIERS = {
-    "FUNDERS_1": 3.0,    # 3x multiplier - CRITICAL network
-    "FUNDERS_9": 2.0,    # 2x multiplier - HIGH risk network
-    "FUNDERS_3": 1.5,    # 1.5x multiplier - MEDIUM risk network
+    "FUNDERS_14": 3.0,    # 3x multiplier - CRITICAL network (25 non-CEX funders, v2.2 CEX-exclusive)
+    "FUNDERS_20": 2.0,    # 2x multiplier - HIGH risk network (20 non-CEX funders, v2.2 CEX-exclusive)
+    "FUNDERS_17": 1.5,    # 1.5x multiplier - MEDIUM risk network (9 non-CEX funders, v2.2 CEX-exclusive)
 }
 
 CLUSTER_NAMES = {
-    "FUNDERS_1": "NexusCerberus",
-    "FUNDERS_9": "CrimsonRaven",
-    "FUNDERS_3": "StellarDragon",
-    "FUNDERS_2": "IvoryWarden",
-    "FUNDERS_4": "OnyxRaven",
-    "FUNDERS_5": "SilentViper",
-    "FUNDERS_6": "PhantomWolf",
-    "FUNDERS_7": "EtherealEagle",
-    "FUNDERS_8": "CosmicLion",
+    "FUNDERS_14": "NexusCerberus",     # 25 funders - CRITICAL (v2.2: CEX-exclusive, largest)
+    "FUNDERS_20": "CrimsonRaven",      # 20 funders - HIGH (v2.2: CEX-exclusive)
+    "FUNDERS_17": "StellarDragon",     # 9 funders - MEDIUM (v2.2: CEX-exclusive)
+    "FUNDERS_6": "IvoryWarden",
+    "FUNDERS_10": "OnyxRaven",
+    "FUNDERS_8": "SilentViper",
+    "FUNDERS_16": "PhantomWolf",
+    "FUNDERS_9": "EtherealEagle",
+    "FUNDERS_1": "CosmicLion",
+    "FUNDERS_11": "PhoenixAscend",
+    "FUNDERS_13": "ShadowNova",
+    "FUNDERS_2": "VortexMind",
+    "FUNDERS_3": "IceShield",
+    "FUNDERS_4": "StormBringer",
+    "FUNDERS_5": "NightHunter",
+    "FUNDERS_7": "FrostByte",
+    "FUNDERS_12": "VortexFlow",
+    "FUNDERS_15": "IceVenom",
+    "FUNDERS_18": "ShadowBolt",
+    "FUNDERS_19": "VortexKing",
 }
 
 CLUSTER_RISK_LABELS = {
-    "FUNDERS_1": "🚨 CRITICAL - Coordinated Network (95 funders)",
-    "FUNDERS_9": "⚠️ HIGH - Secondary Network (20 funders)",
-    "FUNDERS_3": "🟡 MEDIUM - Small Network (3 funders)",
+    "FUNDERS_14": "🚨 CRITICAL - Coordinated Network (25 non-CEX funders, v2.2)",
+    "FUNDERS_20": "⚠️ HIGH - Secondary Network (20 non-CEX funders, v2.2)",
+    "FUNDERS_17": "🟡 MEDIUM - Tertiary Network (9 non-CEX funders, v2.2)",
 }
 
 

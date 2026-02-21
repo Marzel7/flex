@@ -1776,23 +1776,9 @@ HTML_TEMPLATE = """
                     </div>
                 </div>
 
-                <!-- Funder Clusters Table -->
-                <div style="overflow-x: auto; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.2); margin-top: 20px;">
-                    <table class="tokens-table" style="width: 100%;">
-                        <thead>
-                            <tr style="background: rgba(124, 58, 237, 0.1);">
-                                <th style="text-align: left;">Cluster ID</th>
-                                <th style="text-align: center;">Funders</th>
-                                <th style="text-align: center;">Creators</th>
-                                <th style="text-align: center;">Volume (SOL)</th>
-                                <th style="text-align: center;">Risk Multiplier</th>
-                                <th style="text-align: left;">Risk Level</th>
-                            </tr>
-                        </thead>
-                        <tbody id="funder-clusters-list">
-                            <tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--text-secondary);">Loading cross-funding clusters...</td></tr>
-                        </tbody>
-                    </table>
+                <!-- Funder Clusters Details -->
+                <div id="funder-clusters-container" style="margin-top: 20px;">
+                    <div style="text-align: center; padding: 30px; color: var(--text-secondary);">Loading cross-funding clusters...</div>
                 </div>
             </div>
         </div>
@@ -4776,15 +4762,15 @@ HTML_TEMPLATE = """
 
 
         async function loadFunderClustersInNetworkView() {
-            const tableEl = document.getElementById('funder-clusters-list');
-            if (!tableEl) return;
+            const containerEl = document.getElementById('funder-clusters-container');
+            if (!containerEl) return;
 
             try {
                 const response = await fetch('/api/funder-clusters');
                 const data = await response.json();
 
                 if (data.error) {
-                    tableEl.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--color-critical);">Error loading funder clusters: ' + data.error + '</td></tr>';
+                    containerEl.innerHTML = '<div style="text-align: center; padding: 30px; color: var(--color-critical);">Error loading funder clusters: ' + data.error + '</div>';
                     return;
                 }
 
@@ -4796,30 +4782,146 @@ HTML_TEMPLATE = """
                 document.getElementById('fcTotalVolume').textContent = '$' + (data.total_volume_sol || 0).toFixed(2);
                 document.getElementById('fcTotalCreators').textContent = clusters.reduce((sum, c) => sum + (c.creator_count || 0), 0);
 
-                // Render table
+                // Render cluster cards
                 let html = '';
-                clusters.forEach(cluster => {
+                clusters.forEach((cluster, index) => {
                     const riskColor = cluster.risk_level === 'CRITICAL' ? 'var(--color-critical)' :
                                      cluster.risk_level === 'HIGH' ? 'var(--color-high)' :
                                      cluster.risk_level === 'MEDIUM' ? 'var(--color-medium)' : 'var(--color-low)';
 
+                    const riskIcon = cluster.risk_level === 'CRITICAL' ? '🚨' :
+                                    cluster.risk_level === 'HIGH' ? '⚠️' :
+                                    cluster.risk_level === 'MEDIUM' ? '🟡' : '✅';
+
                     html += `
-                        <tr style="cursor: pointer;" onclick="showClusterDetails('${cluster.cluster_id}')">
-                            <td style="padding: 12px; font-weight: bold; color: var(--color-primary);">${cluster.cluster_id}</td>
-                            <td style="padding: 12px; text-align: center;">${cluster.funder_count}</td>
-                            <td style="padding: 12px; text-align: center;">${cluster.creator_count}</td>
-                            <td style="padding: 12px; text-align: center;">${cluster.total_volume_sol.toFixed(2)}</td>
-                            <td style="padding: 12px; text-align: center; font-weight: bold; color: ${riskColor};">${cluster.risk_multiplier.toFixed(1)}x</td>
-                            <td style="padding: 12px; color: ${riskColor};">${cluster.risk_label}</td>
-                        </tr>
+                        <div style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                            <!-- Cluster Header -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0; color: var(--text-primary); font-size: 18px;">${cluster.cluster_id}</h3>
+                                    <div style="color: var(--text-secondary); font-size: 13px; margin-top: 5px;">${cluster.risk_label}</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 24px;">${riskIcon}</div>
+                                    <div style="color: ${riskColor}; font-weight: bold; font-size: 16px;">${cluster.risk_multiplier.toFixed(1)}x</div>
+                                </div>
+                            </div>
+
+                            <!-- Stats Grid -->
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px;">
+                                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
+                                    <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Funders</div>
+                                    <div style="font-weight: bold; font-size: 18px; color: var(--color-primary);">${cluster.funder_count}</div>
+                                </div>
+                                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
+                                    <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Creators</div>
+                                    <div style="font-weight: bold; font-size: 18px; color: var(--color-primary);">${cluster.creator_count}</div>
+                                </div>
+                                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
+                                    <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Volume (SOL)</div>
+                                    <div style="font-weight: bold; font-size: 18px; color: var(--color-primary);">${cluster.total_volume_sol.toFixed(2)}</div>
+                                </div>
+                                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
+                                    <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Network Size</div>
+                                    <div style="font-weight: bold; font-size: 18px; color: var(--color-primary);">${cluster.network_size || cluster.funder_count}</div>
+                                </div>
+                            </div>
+
+                            <!-- Load Full Details Button -->
+                            <button onclick="loadClusterFullDetails('${cluster.cluster_id}', this)" style="width: 100%; padding: 10px; background: rgba(124, 58, 237, 0.2); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 6px; color: var(--color-primary); font-weight: bold; cursor: pointer; transition: all 0.3s ease;">
+                                📋 View Funders & Creators
+                            </button>
+
+                            <!-- Details Section (Hidden by default) -->
+                            <div id="cluster-details-${cluster.cluster_id}" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(124, 58, 237, 0.2);">
+                                <div id="cluster-details-content-${cluster.cluster_id}"></div>
+                            </div>
+                        </div>
                     `;
                 });
 
-                tableEl.innerHTML = html || '<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--text-secondary);">No clusters found</td></tr>';
+                containerEl.innerHTML = html || '<div style="text-align: center; padding: 30px; color: var(--text-secondary);">No clusters found</div>';
 
             } catch(e) {
                 console.error('Error loading funder clusters:', e);
-                tableEl.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--color-critical);">Error: ' + e.message + '</td></tr>';
+                containerEl.innerHTML = '<div style="text-align: center; padding: 30px; color: var(--color-critical);">Error: ' + e.message + '</div>';
+            }
+        }
+
+        // Load full cluster details when button is clicked
+        async function loadClusterFullDetails(clusterId, buttonEl) {
+            const detailsEl = document.getElementById(`cluster-details-${clusterId}`);
+            const contentEl = document.getElementById(`cluster-details-content-${clusterId}`);
+
+            if (!detailsEl || !contentEl) return;
+
+            // Toggle visibility
+            if (detailsEl.style.display !== 'none') {
+                detailsEl.style.display = 'none';
+                buttonEl.innerHTML = '📋 View Funders & Creators';
+                return;
+            }
+
+            // Show loading state
+            detailsEl.style.display = 'block';
+            contentEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-secondary);">Loading details...</div>';
+            buttonEl.innerHTML = '⏳ Loading...';
+
+            try {
+                const response = await fetch(`/api/funder-cluster/${clusterId}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    contentEl.innerHTML = `<div style="color: var(--color-critical);">Error: ${data.error}</div>`;
+                    buttonEl.innerHTML = '📋 View Funders & Creators';
+                    return;
+                }
+
+                // Render funders and creators in two columns
+                let detailsHtml = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <!-- Funders Column -->
+                        <div>
+                            <h4 style="margin: 0 0 10px 0; color: var(--text-primary);">Funders (${data.funder_count})</h4>
+                            <div style="background: var(--bg-secondary); border-radius: 6px; max-height: 300px; overflow-y: auto; padding: 10px;">
+                                ${data.funders && data.funders.length > 0 ? `
+                                    <div style="font-size: 12px; line-height: 1.6;">
+                                        ${data.funders.map((f, i) => `
+                                            <div style="padding: 6px; border-bottom: 1px solid var(--border-color); font-family: monospace; color: var(--text-secondary); word-break: break-all;">
+                                                ${i + 1}. ${f.funder_address}
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                ` : '<div style="color: var(--text-secondary); padding: 10px;">No funders found</div>'}
+                            </div>
+                        </div>
+
+                        <!-- Creators Column -->
+                        <div>
+                            <h4 style="margin: 0 0 10px 0; color: var(--text-primary);">Creators (${data.creator_count})</h4>
+                            <div style="background: var(--bg-secondary); border-radius: 6px; max-height: 300px; overflow-y: auto; padding: 10px;">
+                                ${data.creators && data.creators.length > 0 ? `
+                                    <div style="font-size: 12px; line-height: 1.6;">
+                                        ${data.creators.slice(0, 50).map((c, i) => `
+                                            <div style="padding: 6px; border-bottom: 1px solid var(--border-color); font-family: monospace; color: var(--text-secondary); word-break: break-all;">
+                                                ${i + 1}. ${c}
+                                            </div>
+                                        `).join('')}
+                                        ${data.creators.length > 50 ? `<div style="padding: 10px; color: var(--text-secondary); text-align: center;">+ ${data.creators.length - 50} more creators...</div>` : ''}
+                                    </div>
+                                ` : '<div style="color: var(--text-secondary); padding: 10px;">No creators found</div>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                contentEl.innerHTML = detailsHtml;
+                buttonEl.innerHTML = '⬆️ Hide Funders & Creators';
+
+            } catch (error) {
+                console.error('Error loading cluster details:', error);
+                contentEl.innerHTML = `<div style="color: var(--color-critical);">Error: ${error.message}</div>`;
+                buttonEl.innerHTML = '📋 View Funders & Creators';
             }
         }
 

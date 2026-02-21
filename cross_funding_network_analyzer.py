@@ -489,21 +489,42 @@ class CrossFundingClusterAnalyzer:
         cols = _get_columns(conn, "creator_funders")
         amount_col = _pick_first_existing(cols, ["amount_sol", "amount", "sol_amount"]) or "amount_sol"
 
-        funder_to_creators: Dict[str, Set[str]] = defaultdict(set)
+        # Split funders into graph (non-CEX) and infra (CEX) categories
+        graph_funder_to_creators: Dict[str, Set[str]] = defaultdict(set)
         funder_volume: Dict[str, float] = defaultdict(float)
+        infra_funders: Dict[str, Dict] = {}  # Store infra funder metadata for reporting
 
         try:
             cur.execute(f"""
-                SELECT funder_address, creator_address, COALESCE({amount_col}, 0) as amount_sol
+                SELECT funder_address, creator_address, COALESCE({amount_col}, 0) as amount_sol,
+                       is_cex, cex_exchange, cex_type
                 FROM creator_funders
                 WHERE funder_address IS NOT NULL AND creator_address IS NOT NULL
             """)
             for row in cur.fetchall():
                 f = row["funder_address"]
                 c = row["creator_address"]
+                is_cex = bool(row.get("is_cex", 0))
+                
                 if f in IGNORE_ADDRESSES or c in IGNORE_ADDRESSES:
                     continue
-                funder_to_creators[f].add(c)
+                
+                # CEX/infra funders: store for context but EXCLUDE from clustering graph
+                if is_cex:
+                    if f not in infra_funders:
+                        infra_funders[f] = {
+                            "funder": f,
+                            "cex_exchange": row.get("cex_exchange"),
+                            "cex_type": row.get("cex_type"),
+                            "creators_touched": set(),
+                            "volume": 0.0
+                        }
+                    infra_funders[f]["creators_touched"].add(c)
+                    infra_funders[f]["volume"] += float(row["amount_sol"] or 0.0)
+                    continue  # ❌ DO NOT include in clustering graph
+                
+                # Non-CEX funders: use for clustering
+                graph_funder_to_creators[f].add(c)
                 try:
                     funder_volume[f] += float(row["amount_sol"] or 0.0)
                 except Exception:
@@ -513,10 +534,12 @@ class CrossFundingClusterAnalyzer:
             print(f"[ERROR] Reading creator_funders: {e}")
             return clusters
 
-        # PATCH: only cluster funders that have >=2 creators (otherwise they can never connect)
-        funders = [f for f, cs in funder_to_creators.items() if len(cs) >= 2]
+        # Only cluster non-CEX funders with >=2 creators
+        funders = [f for f, cs in graph_funder_to_creators.items() if len(cs) >= 2]
         if len(funders) < 2:
             conn.close()
+            print(f"[ANALYZER] Found {len(infra_funders)} infra funders (excluded from clustering)")
+            print(f"[ANALYZER] Only {len(funders)} non-CEX multi-target funders available for clustering")
             return clusters
 
         uf = UnionFind()
@@ -524,13 +547,13 @@ class CrossFundingClusterAnalyzer:
         for f in funders:
             uf.find(f)
 
-        # O(n^2) is now safe because funders list is small (multi-target funders)
+        # O(n^2) is safe because funders list only contains non-CEX funders
         for i in range(len(funders)):
             a = funders[i]
-            A = funder_to_creators[a]
+            A = graph_funder_to_creators[a]
             for j in range(i + 1, len(funders)):
                 b = funders[j]
-                B = funder_to_creators[b]
+                B = graph_funder_to_creators[b]
                 overlap = len(A & B)
                 if overlap == 0:
                     continue
@@ -547,7 +570,7 @@ class CrossFundingClusterAnalyzer:
             creators_served: Set[str] = set()
             total_vol = 0.0
             for f in g:
-                creators_served |= funder_to_creators[f]
+                creators_served |= graph_funder_to_creators[f]
                 total_vol += funder_volume.get(f, 0.0)
 
             cluster_id = f"FUNDERS_{idx}"
@@ -562,6 +585,13 @@ class CrossFundingClusterAnalyzer:
 
         self._persist_funder_cluster_summaries(conn, clusters)
         conn.commit()
+        
+        # Report infra funders for context
+        if infra_funders:
+            print(f"[ANALYZER] Excluded {len(infra_funders)} CEX/infra funders from clustering:")
+            for f, info in sorted(infra_funders.items(), key=lambda x: -x[1]["volume"])[:5]:
+                print(f"  - {f[:8]}... ({info['cex_exchange'] or 'unknown'}) touched {len(info['creators_touched'])} creators, {info['volume']:.2f} SOL")
+        
         conn.close()
         return clusters
 

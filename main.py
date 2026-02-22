@@ -64,7 +64,11 @@ def get_migrated_tokens() -> List[Dict]:
                 connected_malicious_count,
                 cluster_id,
                 cluster_name,
-                cluster_risk_multiplier
+                cluster_risk_multiplier,
+                network_funder_address,
+                network_name,
+                network_tier,
+                network_is_cex
             FROM token_analysis
             ORDER BY analyzed_at DESC
             LIMIT 25
@@ -191,7 +195,10 @@ def get_migrated_tokens() -> List[Dict]:
                 'network_id': network_id,
                 'cluster_id': row['cluster_id'] if row['cluster_id'] else None,
                 'cluster_name': row['cluster_name'] if row['cluster_name'] else None,
-                'cluster_risk_multiplier': row['cluster_risk_multiplier'] if row['cluster_risk_multiplier'] else 1.0
+                'cluster_risk_multiplier': row['cluster_risk_multiplier'] if row['cluster_risk_multiplier'] else 1.0,
+                'atomic_network_name': row['network_name'] if row['network_name'] else None,
+                'atomic_network_tier': row['network_tier'] if row['network_tier'] else None,
+                'atomic_network_is_cex': bool(row['network_is_cex']) if row['network_is_cex'] else False
             })
 
         conn.close()

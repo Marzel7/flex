@@ -3278,7 +3278,6 @@ HTML_TEMPLATE = """
             networksTabBtn.style.color = 'var(--accent-purple)';
 
             loadFundingNetworks();
-            loadCoordinators();
         }
 
         function toggleCEXView() {
@@ -4722,17 +4721,28 @@ HTML_TEMPLATE = """
                                     cluster.risk_level === 'HIGH' ? '⚠️' :
                                     cluster.risk_level === 'MEDIUM' ? '🟡' : '✅';
 
-                    // Cluster names mapping
+                    // Cluster names mapping (v2.2: CEX-exclusive clusters)
                     const clusterNames = {
-                        'FUNDERS_1': 'NexusCerberus',
-                        'FUNDERS_9': 'CrimsonRaven',
-                        'FUNDERS_3': 'StellarDragon',
-                        'FUNDERS_2': 'IvoryWarden',
-                        'FUNDERS_4': 'OnyxRaven',
-                        'FUNDERS_5': 'SilentViper',
-                        'FUNDERS_6': 'PhantomWolf',
-                        'FUNDERS_7': 'EtherealEagle',
-                        'FUNDERS_8': 'CosmicLion',
+                        'FUNDERS_14': 'NexusCerberus',
+                        'FUNDERS_20': 'CrimsonRaven',
+                        'FUNDERS_17': 'StellarDragon',
+                        'FUNDERS_6': 'IvoryWarden',
+                        'FUNDERS_10': 'OnyxRaven',
+                        'FUNDERS_8': 'SilentViper',
+                        'FUNDERS_16': 'PhantomWolf',
+                        'FUNDERS_9': 'EtherealEagle',
+                        'FUNDERS_1': 'CosmicLion',
+                        'FUNDERS_11': 'PhoenixAscend',
+                        'FUNDERS_13': 'ShadowNova',
+                        'FUNDERS_2': 'VortexMind',
+                        'FUNDERS_3': 'IceShield',
+                        'FUNDERS_4': 'StormBringer',
+                        'FUNDERS_5': 'NightHunter',
+                        'FUNDERS_7': 'FrostByte',
+                        'FUNDERS_12': 'VortexFlow',
+                        'FUNDERS_15': 'IceVenom',
+                        'FUNDERS_18': 'ShadowBolt',
+                        'FUNDERS_19': 'VortexKing',
                     };
 
                     const clusterName = clusterNames[cluster.cluster_id] || cluster.cluster_id;
@@ -8095,15 +8105,26 @@ def clusters_dashboard():
 
         clusters = []
         risk_multipliers = {
-            'FUNDERS_1': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network', 'level': 'CRITICAL', 'name': 'NexusCerberus'},
-            'FUNDERS_9': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network', 'level': 'HIGH', 'name': 'CrimsonRaven'},
-            'FUNDERS_3': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Small Network', 'level': 'MEDIUM', 'name': 'StellarDragon'},
-            'FUNDERS_2': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IvoryWarden'},
-            'FUNDERS_4': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'OnyxRaven'},
-            'FUNDERS_5': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'SilentViper'},
-            'FUNDERS_6': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'PhantomWolf'},
-            'FUNDERS_7': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'EtherealEagle'},
-            'FUNDERS_8': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'CosmicLion'},
+            'FUNDERS_14': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network (25 non-CEX funders)', 'level': 'CRITICAL', 'name': 'NexusCerberus'},
+            'FUNDERS_20': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network (20 non-CEX funders)', 'level': 'HIGH', 'name': 'CrimsonRaven'},
+            'FUNDERS_17': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Tertiary Network (9 non-CEX funders)', 'level': 'MEDIUM', 'name': 'StellarDragon'},
+            'FUNDERS_6': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IvoryWarden'},
+            'FUNDERS_10': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'OnyxRaven'},
+            'FUNDERS_8': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'SilentViper'},
+            'FUNDERS_16': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'PhantomWolf'},
+            'FUNDERS_9': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'EtherealEagle'},
+            'FUNDERS_1': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'CosmicLion'},
+            'FUNDERS_11': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'PhoenixAscend'},
+            'FUNDERS_13': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'ShadowNova'},
+            'FUNDERS_2': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexMind'},
+            'FUNDERS_3': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IceShield'},
+            'FUNDERS_4': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'StormBringer'},
+            'FUNDERS_5': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'NightHunter'},
+            'FUNDERS_7': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'FrostByte'},
+            'FUNDERS_12': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexFlow'},
+            'FUNDERS_15': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IceVenom'},
+            'FUNDERS_18': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'ShadowBolt'},
+            'FUNDERS_19': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexKing'},
         }
 
         total_funders = 0
@@ -11669,17 +11690,28 @@ def api_funder_clusters():
             ORDER BY funder_count DESC, total_volume_sol DESC
         """)
 
-        # Risk multiplier mapping
+        # Risk multiplier mapping (v2.2: CEX-exclusive clusters)
         risk_multipliers = {
-            'FUNDERS_1': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network', 'level': 'CRITICAL', 'name': 'NexusCerberus'},
-            'FUNDERS_9': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network', 'level': 'HIGH', 'name': 'CrimsonRaven'},
-            'FUNDERS_3': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Small Network', 'level': 'MEDIUM', 'name': 'StellarDragon'},
-            'FUNDERS_2': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IvoryWarden'},
-            'FUNDERS_4': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'OnyxRaven'},
-            'FUNDERS_5': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'SilentViper'},
-            'FUNDERS_6': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'PhantomWolf'},
-            'FUNDERS_7': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'EtherealEagle'},
-            'FUNDERS_8': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'CosmicLion'},
+            'FUNDERS_14': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network (25 non-CEX funders)', 'level': 'CRITICAL', 'name': 'NexusCerberus'},
+            'FUNDERS_20': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network (20 non-CEX funders)', 'level': 'HIGH', 'name': 'CrimsonRaven'},
+            'FUNDERS_17': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Tertiary Network (9 non-CEX funders)', 'level': 'MEDIUM', 'name': 'StellarDragon'},
+            'FUNDERS_6': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IvoryWarden'},
+            'FUNDERS_10': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'OnyxRaven'},
+            'FUNDERS_8': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'SilentViper'},
+            'FUNDERS_16': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'PhantomWolf'},
+            'FUNDERS_9': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'EtherealEagle'},
+            'FUNDERS_1': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'CosmicLion'},
+            'FUNDERS_11': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'PhoenixAscend'},
+            'FUNDERS_13': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'ShadowNova'},
+            'FUNDERS_2': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexMind'},
+            'FUNDERS_3': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IceShield'},
+            'FUNDERS_4': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'StormBringer'},
+            'FUNDERS_5': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'NightHunter'},
+            'FUNDERS_7': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'FrostByte'},
+            'FUNDERS_12': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexFlow'},
+            'FUNDERS_15': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IceVenom'},
+            'FUNDERS_18': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'ShadowBolt'},
+            'FUNDERS_19': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexKing'},
         }
 
         clusters = []
@@ -11770,17 +11802,28 @@ def api_funder_cluster_details(cluster_id):
         except:
             creators = []
 
-        # Risk info
+        # Risk info (v2.2: CEX-exclusive clusters)
         risk_multipliers = {
-            'FUNDERS_1': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network', 'level': 'CRITICAL', 'name': 'NexusCerberus'},
-            'FUNDERS_9': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network', 'level': 'HIGH', 'name': 'CrimsonRaven'},
-            'FUNDERS_3': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Small Network', 'level': 'MEDIUM', 'name': 'StellarDragon'},
-            'FUNDERS_2': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IvoryWarden'},
-            'FUNDERS_4': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'OnyxRaven'},
-            'FUNDERS_5': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'SilentViper'},
-            'FUNDERS_6': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'PhantomWolf'},
-            'FUNDERS_7': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'EtherealEagle'},
-            'FUNDERS_8': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'CosmicLion'},
+            'FUNDERS_14': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network (25 non-CEX funders)', 'level': 'CRITICAL', 'name': 'NexusCerberus'},
+            'FUNDERS_20': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network (20 non-CEX funders)', 'level': 'HIGH', 'name': 'CrimsonRaven'},
+            'FUNDERS_17': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Tertiary Network (9 non-CEX funders)', 'level': 'MEDIUM', 'name': 'StellarDragon'},
+            'FUNDERS_6': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IvoryWarden'},
+            'FUNDERS_10': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'OnyxRaven'},
+            'FUNDERS_8': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'SilentViper'},
+            'FUNDERS_16': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'PhantomWolf'},
+            'FUNDERS_9': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'EtherealEagle'},
+            'FUNDERS_1': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'CosmicLion'},
+            'FUNDERS_11': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'PhoenixAscend'},
+            'FUNDERS_13': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'ShadowNova'},
+            'FUNDERS_2': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexMind'},
+            'FUNDERS_3': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IceShield'},
+            'FUNDERS_4': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'StormBringer'},
+            'FUNDERS_5': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'NightHunter'},
+            'FUNDERS_7': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'FrostByte'},
+            'FUNDERS_12': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexFlow'},
+            'FUNDERS_15': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IceVenom'},
+            'FUNDERS_18': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'ShadowBolt'},
+            'FUNDERS_19': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexKing'},
         }
         risk_info = risk_multipliers.get(cluster_id, {'multiplier': 1.0, 'label': f'Network {cluster_id}', 'level': 'CLEAN', 'name': cluster_id})
 

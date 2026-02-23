@@ -32,7 +32,9 @@ from domain_mapping import register_domain, link_domain_to_address
 from automatic_cex_detection import classify_addresses_from_funding
 
 DB_PATH = "pumpswap_tokens.db"
-HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or "84ec9a31-f8c2-4116-8e98-695a9377c5ed"
+# FIX #6: Remove hardcoded API key fallback — fail safe instead
+HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()
+USE_HELIUS = bool(HELIUS_API_KEY)
 
 # SNS Domain Resolver Configuration
 SNS_API_BASE = "https://sns-api.bonfida.com"
@@ -42,11 +44,13 @@ DOMAIN_CACHE_TTL_SECS = 7 * 24 * 60 * 60  # 7 days local TTL
 # Same RPC configuration as post_migration_analyzer for consistency
 # RPC Configuration: Use Helius + Public Solana only (QuickNode removed)
 RPC_URLS = []
-if HELIUS_API_KEY:
+if USE_HELIUS:
     RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}")
 RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
 
-BATCH_SIZE = 10  # Limit concurrent requests to reduce rate limiting
+MAX_CONCURRENT_RPC = 8  # FIX #8: Bound RPC concurrency (was unused BATCH_SIZE = 10)
+# FIX #2: Pagination limit (was hardcoded inline as 100)
+MAX_PAGES = 8
 MAX_RETRIES = 5
 RPC_TIMEOUT = 30
 
@@ -448,10 +452,10 @@ class RealTimeCreatorFundingExtractor:
                     # Determine direction
                     direction = "in" if balance_change > 0 else "out"
 
-                    # Try to find best counterparty (account with opposite balance change)
-                    # For multi-party transactions, just identify the largest opposite account
+                    # FIX #3: Find best counterparty (account with opposite balance change)
+                    # For multi-party transactions, identify the LARGEST opposite account (not smallest)
                     best_counterparty = None
-                    best_match = float('inf')
+                    best_match = 0  # FIX: was float('inf') — pick MAXIMUM magnitude
 
                     for idx2, acc2 in enumerate(accounts):
                         if idx2 == creator_idx or idx2 >= len(pre_balances) or idx2 >= len(post_balances):
@@ -461,13 +465,13 @@ class RealTimeCreatorFundingExtractor:
 
                         # Look for accounts with opposite direction
                         if direction == "in" and balance_change2 < 0:
-                            # Best match is most negative (source of funds)
-                            if abs(balance_change2) < best_match:
+                            # Best match is MOST negative (largest outflow = biggest sender) — FIX: > instead of <
+                            if abs(balance_change2) > best_match:
                                 best_match = abs(balance_change2)
                                 best_counterparty = acc2.get("pubkey") if isinstance(acc2, dict) else str(acc2)
                         elif direction == "out" and balance_change2 > 0:
-                            # Best match is most positive (destination of funds)
-                            if balance_change2 < best_match:
+                            # Best match is MOST positive (largest inflow = primary recipient) — FIX: > instead of <
+                            if balance_change2 > best_match:
                                 best_match = balance_change2
                                 best_counterparty = acc2.get("pubkey") if isinstance(acc2, dict) else str(acc2)
 
@@ -904,6 +908,11 @@ class RealTimeCreatorFundingExtractor:
         # Mark as processed to prevent duplicate API calls in same session
         self.processed_creators.add(creator)
 
+        # FIX #6: Fail safe if no Helius API key
+        if not USE_HELIUS:
+            print("[REALTIME_FUNDING] ⚠ No HELIUS_API_KEY set — skipping enriched extraction", flush=True)
+            return {"creator": creator, "error": "no_helius_key", "status": "skipped"}
+
         try:
             # Parse migration timestamp
             if "T" in migration_timestamp_str:
@@ -1264,9 +1273,9 @@ class RealTimeCreatorFundingExtractor:
                                         print(f"[REALTIME_FUNDING]    [PAGE {page_num}] Reached 1-month cutoff", flush=True)
                                         break
 
-                                    # Check if we've reached 100 pages limit
-                                    if page_num >= 100:
-                                        print(f"[REALTIME_FUNDING]    [PAGE {page_num}] Reached 100 page limit", flush=True)
+                                    # FIX #2: Check if we've reached MAX_PAGES limit
+                                    if page_num >= MAX_PAGES:
+                                        print(f"[REALTIME_FUNDING]    [PAGE {page_num}] Reached {MAX_PAGES} page limit", flush=True)
                                         break
 
                                     # Continue if we found pre-migration txs

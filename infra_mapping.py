@@ -524,6 +524,33 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["infra", "automation", "hyperunit", "wallet"],
     },
+
+    # Terminal (Padre) Program - Infrastructure
+    "term9YPb9mzAsABaqN71A4xdbxHmpBNZavpBiQKZzN3": {
+        "name": "Terminal (Padre) Program",
+        "category": "automation",
+        "description": "Terminal/Padre program for transaction processing",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "terminal", "padre"],
+    },
+
+    # Padre Fee Wallet 1
+    "J5XGHmzrRmnYWbmw45DbYkdZAU2bwERFZ11qCDXPvFB5": {
+        "name": "Padre Fee Wallet 1",
+        "category": "automation",
+        "description": "Padre fee collection wallet 1",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "padre", "fees"],
+    },
+
+    # Padre Fee Wallet 2
+    "DoAsxPQgiyAxyaJNvpAAUb2ups6rbJRdYrCPyWxwRxBb": {
+        "name": "Padre Fee Wallet 2",
+        "category": "automation",
+        "description": "Padre fee collection wallet 2",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "padre", "fees"],
+    },
 }
 
 # CEX account mappings (external exchanges - ONLY verified real addresses)
@@ -831,36 +858,6 @@ CEX_ACCOUNTS = {
         "description": "HTX exchange hot wallet for SOL (formerly Huobi)",
         "risk_level": "neutral",
         "tags": ["cex", "htx", "exchange"],
-    },
-
-    # Terminal (Padre) Program - Infrastructure
-    "term9YPb9mzAsABaqN71A4xdbxHmpBNZavpBiQKZzN3": {
-        "name": "Terminal (Padre) Program",
-        "category": "automation",
-        "exchange": "Terminal",
-        "description": "Terminal/Padre program for transaction processing",
-        "risk_level": "neutral",
-        "tags": ["infra", "automation", "terminal", "padre"],
-    },
-
-    # Padre Fee Wallet 1
-    "J5XGHmzrRmnYWbmw45DbYkdZAU2bwERFZ11qCDXPvFB5": {
-        "name": "Padre Fee Wallet 1",
-        "category": "automation",
-        "exchange": "Padre",
-        "description": "Padre fee collection wallet 1",
-        "risk_level": "neutral",
-        "tags": ["infra", "automation", "padre", "fees"],
-    },
-
-    # Padre Fee Wallet 2
-    "DoAsxPQgiyAxyaJNvpAAUb2ups6rbJRdYrCPyWxwRxBb": {
-        "name": "Padre Fee Wallet 2",
-        "category": "automation",
-        "exchange": "Padre",
-        "description": "Padre fee collection wallet 2",
-        "risk_level": "neutral",
-        "tags": ["infra", "automation", "padre", "fees"],
     },
 
     # Robinhood Hot Wallet 1

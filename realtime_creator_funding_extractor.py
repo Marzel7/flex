@@ -1108,36 +1108,40 @@ class RealTimeCreatorFundingExtractor:
                                     page_has_pre_migration = True
                                     found_pre_migration = True
 
-                                    # Extract token transfers and check cache
-                                    # These are likely Pump.Fun token transfers, swaps, migrations, etc.
+                                    # OPTIMIZATION: Early skip if Pump.Fun program involved (most likely token ops)
+                                    # This is the most common case and fastest check
+                                    tx_programs = tx.get("programs") or []
+                                    if PUMPFUN_PROGRAM in tx_programs:
+                                        token_transfers = tx.get("tokenTransfers") or []
+                                        if token_transfers:
+                                            filtered_token_transfers += 1
+                                            page_token_transfers_filtered += 1
+                                            continue
+
+                                    # Extract token transfers and check cache (only if not already Pump.Fun)
+                                    # These are likely token transfers, swaps, migrations, etc.
                                     # We only care about native SOL transfers for actual funding
                                     token_transfers = tx.get("tokenTransfers") or []
                                     skip_tx_for_token_ops = False
 
                                     # Check if ANY token in this tx is already cached (skip entire tx)
-                                    for tt in token_transfers:
-                                        mint = tt.get("mint")
-                                        if mint:
-                                            if mint in self.seen_bonding_curves:
-                                                # Already seen this token, skip entire tx
-                                                skip_tx_for_token_ops = True
-                                                break
-                                            else:
-                                                # New token, cache it for future txs
-                                                self.seen_bonding_curves.add(mint)
+                                    if token_transfers:
+                                        for tt in token_transfers:
+                                            mint = tt.get("mint")
+                                            if mint:
+                                                if mint in self.seen_bonding_curves:
+                                                    # Already seen this token, skip entire tx
+                                                    skip_tx_for_token_ops = True
+                                                    break
+                                                else:
+                                                    # New token, cache it for future txs
+                                                    self.seen_bonding_curves.add(mint)
 
-                                    # Also skip if transaction involves Pump.Fun program
-                                    # (swaps, bonding curve operations, migrations, etc.)
-                                    tx_programs = tx.get("programs") or []
-                                    if PUMPFUN_PROGRAM in tx_programs:
-                                        skip_tx_for_token_ops = True
-
-                                    # If we should skip this tx for token ops, do so now
-                                    # (but still process native transfers if no token ops detected)
-                                    if skip_tx_for_token_ops and token_transfers:
-                                        filtered_token_transfers += 1
-                                        page_token_transfers_filtered += 1
-                                        continue
+                                        # If we should skip this tx for token ops, do so now
+                                        if skip_tx_for_token_ops:
+                                            filtered_token_transfers += 1
+                                            page_token_transfers_filtered += 1
+                                            continue
 
                                     # Check if deBridge is a signer in this transaction (ONLY if not already detected)
                                     # For cross-chain transfers, deBridge initiates but creator may not be direct signer

@@ -524,15 +524,6 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["infra", "automation", "hyperunit", "wallet"],
     },
-
-    # mrdevvvv (Custom Account - User Label)
-    "GZVSEAajExLJEvACHHQcujBw7nJq98GWUEZtood9LM9b": {
-        "name": "mrdevvvv",
-        "category": "user",
-        "description": "Custom user-labeled account (mrdevvvv)",
-        "risk_level": "neutral",
-        "tags": ["custom", "user-labeled", "mrdevvvv"],
-    },
 }
 
 # CEX account mappings (external exchanges - ONLY verified real addresses)
@@ -1152,6 +1143,18 @@ SUSPICIOUS_WALLET_TYPES = {
     },
 }
 
+# Custom user-labeled accounts (NOT infrastructure, NOT CEX)
+CUSTOM_ACCOUNTS = {
+    # User-labeled accounts for tracking/monitoring purposes
+    "GZVSEAajExLJEvACHHQcujBw7nJq98GWUEZtood9LM9b": {
+        "name": "mrdevvvv",
+        "category": "user",
+        "description": "Custom user-labeled account (mrdevvvv)",
+        "risk_level": "neutral",
+        "tags": ["custom", "user-labeled", "mrdevvvv"],
+    },
+}
+
 # Risk-based categories for infrastructure
 INFRASTRUCTURE_RISK_MAPPING = {
     "automation": "neutral",      # Neutral infrastructure
@@ -1201,9 +1204,17 @@ def is_cex_account(address: str) -> bool:
     """Check if account is a known CEX"""
     return address in CEX_ACCOUNTS
 
+def is_custom_account(address: str) -> bool:
+    """Check if account is a user-labeled custom account"""
+    return address in CUSTOM_ACCOUNTS
+
+def get_custom_info(address: str) -> Optional[Dict]:
+    """Get custom account info"""
+    return CUSTOM_ACCOUNTS.get(address)
+
 def is_known_account(address: str) -> bool:
-    """Check if account is either infrastructure or CEX"""
-    return address in INFRASTRUCTURE_ACCOUNTS or address in CEX_ACCOUNTS
+    """Check if account is infrastructure, CEX, or custom"""
+    return address in INFRASTRUCTURE_ACCOUNTS or address in CEX_ACCOUNTS or address in CUSTOM_ACCOUNTS
 
 def get_category(address: str) -> str:
     """Get category for an address (infra or cex)"""

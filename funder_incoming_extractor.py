@@ -606,7 +606,7 @@ def extract_transfers_for_funder(funder_address: str) -> Dict:
 
 
 def extract_for_creator(creator_address: str) -> Dict:
-    """Extract incoming and outgoing transfers for all funders of a creator"""
+    """Extract incoming and outgoing transfers for all funders of a creator (async with bounded concurrency)"""
     print(f"\n{'='*80}")
     print(f"[START] Extracting funder transfers (IN/OUT) for creator: {creator_address}")
     print(f"{'='*80}")
@@ -619,16 +619,43 @@ def extract_for_creator(creator_address: str) -> Dict:
         print("[RESULT] No funders found for creator")
         return {'error': 'no_funders'}
 
-    # Extract for each funder
+    # Run async extraction with bounded concurrency
+    result = asyncio.run(_extract_all_funders_async(creator_address, funders))
+    return result
+
+
+
+async def _extract_all_funders_async(creator_address: str, funders: List[Tuple[str, float]]) -> Dict:
+    """Process all funders concurrently with bounded concurrency (max 8 at a time)"""
+    # Semaphore limits concurrent operations to 8
+    sem = asyncio.Semaphore(8)
+
+    async def process_funder(funder_addr: str, funder_amount: float) -> Dict:
+        """Process single funder with semaphore constraint"""
+        async with sem:
+            # Run blocking extract_transfers_for_funder in thread pool
+            return await asyncio.to_thread(extract_transfers_for_funder, funder_addr)
+
+    # Process all funders concurrently
+    tasks = [process_funder(addr, amount) for addr, amount in funders]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Aggregate results
     total_sol = 0
     total_incoming = 0
     total_outgoing = 0
+    error_count = 0
 
-    for funder_addr, funder_amount in funders:
-        result = extract_transfers_for_funder(funder_addr)
-        total_sol += result['total_sol']
-        total_incoming += result['incoming_count']
-        total_outgoing += result['outgoing_count']
+    for result in results:
+        if isinstance(result, Exception):
+            error_count += 1
+            print(f"[ERROR] Exception processing funder: {result}")
+            continue
+        
+        if isinstance(result, dict):
+            total_sol += result.get('total_sol', 0)
+            total_incoming += result.get('incoming_count', 0)
+            total_outgoing += result.get('outgoing_count', 0)
 
     # Mark extraction as complete by updating last_analyzed timestamp for all funders
     try:
@@ -650,6 +677,8 @@ def extract_for_creator(creator_address: str) -> Dict:
     print(f"  Total incoming transfers: {total_incoming}")
     print(f"  Total outgoing transfers: {total_outgoing}")
     print(f"  Total SOL traced: {total_sol:.4f}")
+    if error_count > 0:
+        print(f"  ⚠ {error_count} errors during processing")
     print(f"  ✅ Funding Complete")
     print(f"{'='*80}\n")
 

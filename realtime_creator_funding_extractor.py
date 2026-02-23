@@ -258,6 +258,7 @@ class RealTimeCreatorFundingExtractor:
         self.session = None
         self.domain_resolver: Optional[DomainResolver] = None
         self.seen_bonding_curves: Set[str] = set()  # Cache bonding curves to skip trading noise
+        self._rpc_sem = asyncio.Semaphore(MAX_CONCURRENT_RPC)  # FIX #8: Bound RPC concurrency
 
     async def init_session(self):
         """Initialize aiohttp session and domain resolver"""
@@ -280,10 +281,11 @@ class RealTimeCreatorFundingExtractor:
             conn.execute("PRAGMA journal_mode=WAL;")
             conn.execute("PRAGMA synchronous=NORMAL;")
             conn.execute("PRAGMA temp_store=MEMORY;")
-            conn.execute("PRAGMA cache_size=-200000;")  # ~200MB cache
+            conn.execute("PRAGMA cache_size=-50000;")  # ~50MB cache (reduced from 200MB)
+            conn.execute("PRAGMA busy_timeout=60000;")  # 60s timeout for locked DB
             conn.commit()
             conn.close()
-            print("[PERF] SQLite optimizations applied (WAL mode, faster sync)", flush=True)
+            print("[PERF] SQLite optimizations applied (WAL mode, 50MB cache, 60s busy timeout)", flush=True)
         except Exception as e:
             print(f"[PERF] Warning: Could not apply SQLite optimizations: {e}", flush=True)
 
@@ -293,53 +295,64 @@ class RealTimeCreatorFundingExtractor:
             await self.session.close()
 
     async def _post_rpc(self, payload: dict) -> Optional[dict]:
-        """Post to RPC with failover chain - mirrors post_migration_analyzer approach"""
-        for attempt in range(MAX_RETRIES):
-            # Try each RPC endpoint in the failover chain
-            for rpc_url in RPC_URLS:
-                try:
-                    async with self.session.post(
-                        rpc_url,
-                        json=payload,
-                        timeout=aiohttp.ClientTimeout(total=RPC_TIMEOUT)
-                    ) as resp:
-                        # HTTP-level errors
-                        if resp.status != 200:
-                            if resp.status == 429:
-                                # Rate limited on this RPC, try next one
-                                continue
-                            elif resp.status >= 500:
-                                # Server error, try next RPC
-                                continue
-                            else:
-                                # Client error, don't retry
-                                return None
+        """Post to RPC with failover chain + semaphore concurrency control - mirrors post_migration_analyzer approach"""
+        async with self._rpc_sem:  # FIX #8: Bound concurrent RPC calls
+            for attempt in range(MAX_RETRIES):
+                # Try each RPC endpoint in the failover chain
+                for rpc_url in RPC_URLS:
+                    try:
+                        async with self.session.post(
+                            rpc_url,
+                            json=payload,
+                            timeout=aiohttp.ClientTimeout(total=RPC_TIMEOUT)
+                        ) as resp:
+                            # HTTP-level errors
+                            if resp.status != 200:
+                                if resp.status == 429:
+                                    # Rate limited - check for Retry-After header
+                                    retry_after = resp.headers.get("Retry-After")
+                                    retry_delay = None
+                                    if retry_after:
+                                        try:
+                                            retry_delay = float(retry_after)
+                                        except (ValueError, TypeError):
+                                            retry_delay = None
 
-                        data = await resp.json()
+                                    wait_time = retry_delay or (0.5 * (2 ** attempt))
+                                    await asyncio.sleep(min(30.0, wait_time))  # Cap at 30s
+                                    continue
+                                elif resp.status >= 500:
+                                    # Server error, try next RPC
+                                    continue
+                                else:
+                                    # Client error, don't retry
+                                    return None
 
-                        # RPC-level errors
-                        if "error" in data:
-                            error_code = data["error"].get("code", -1)
-                            # Retryable RPC errors
-                            if error_code in {-32008, -32000, -32003, -32009}:
-                                continue
-                            else:
-                                return None
+                            data = await resp.json()
 
-                        # Success
-                        if "result" in data:
-                            return data
+                            # RPC-level errors
+                            if "error" in data:
+                                error_code = data["error"].get("code", -1)
+                                # Retryable RPC errors
+                                if error_code in {-32008, -32000, -32003, -32009}:
+                                    continue
+                                else:
+                                    return None
 
-                except asyncio.TimeoutError:
-                    # Timeout on this RPC, try next
-                    continue
-                except Exception as e:
-                    # Other errors, try next RPC
-                    continue
+                            # Success
+                            if "result" in data:
+                                return data
 
-            # After trying all RPCs once, wait before next attempt
-            if attempt < MAX_RETRIES - 1:
-                await asyncio.sleep(0.5 * (2 ** attempt))
+                    except asyncio.TimeoutError:
+                        # Timeout on this RPC, try next
+                        continue
+                    except Exception as e:
+                        # Other errors, try next RPC
+                        continue
+
+                # After trying all RPCs once, wait before next attempt
+                if attempt < MAX_RETRIES - 1:
+                    await asyncio.sleep(0.5 * (2 ** attempt))
 
         return None
 
@@ -1104,7 +1117,7 @@ class RealTimeCreatorFundingExtractor:
                                                                     (creator_address, tag, amount_sol, tx_signature, mint, network_fee_sol, tip_percentage, tx_type, created_at)
                                                                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
                                                                 """, (creator, "uses_jitotip_other", jitotip_amount, tx_sig, None, network_fee_sol, tip_percentage, tx_description))
-                                                                conn.commit()  # Persist Jito tip detection
+                                                                # FIX #8: Don't commit here - batch commit after page processing
                                                                 print(f"[REALTIME_FUNDING]      ✅ Jito tip ({jitotip_amount:.6f} SOL, {tip_percentage:.1f}%) detected in {tx_description} tx {tx_sig[:20]}...", flush=True)
                                                             except Exception:
                                                                 pass
@@ -1117,40 +1130,35 @@ class RealTimeCreatorFundingExtractor:
                                     page_has_pre_migration = True
                                     found_pre_migration = True
 
-                                    # OPTIMIZATION: Early skip if Pump.Fun program involved (most likely token ops)
-                                    # This is the most common case and fastest check
-                                    tx_programs = tx.get("programs") or []
-                                    if PUMPFUN_PROGRAM in tx_programs:
+                                    # FIX #7: Check if tx has native SOL transfers first
+                                    # If nativeTransfers exist, process them even if there are token ops
+                                    native = tx.get("nativeTransfers") or []
+                                    if not native:
+                                        # No SOL transfers - safe to skip if token ops present
+                                        tx_programs = tx.get("programs") or []
+                                        if PUMPFUN_PROGRAM in tx_programs:
+                                            token_transfers = tx.get("tokenTransfers") or []
+                                            if token_transfers:
+                                                filtered_token_transfers += 1
+                                                page_token_transfers_filtered += 1
+                                                continue
+
+                                        # Also check cached token ops (even non-Pump.Fun)
                                         token_transfers = tx.get("tokenTransfers") or []
                                         if token_transfers:
-                                            filtered_token_transfers += 1
-                                            page_token_transfers_filtered += 1
-                                            continue
-
-                                    # Extract token transfers and check cache (only if not already Pump.Fun)
-                                    # These are likely token transfers, swaps, migrations, etc.
-                                    # We only care about native SOL transfers for actual funding
-                                    token_transfers = tx.get("tokenTransfers") or []
-                                    skip_tx_for_token_ops = False
-
-                                    # Check if ANY token in this tx is already cached (skip entire tx)
-                                    if token_transfers:
-                                        for tt in token_transfers:
-                                            mint = tt.get("mint")
-                                            if mint:
-                                                if mint in self.seen_bonding_curves:
-                                                    # Already seen this token, skip entire tx
+                                            skip_tx_for_token_ops = False
+                                            for tt in token_transfers:
+                                                mint = tt.get("mint")
+                                                if mint and mint in self.seen_bonding_curves:
                                                     skip_tx_for_token_ops = True
                                                     break
-                                                else:
-                                                    # New token, cache it for future txs
+                                                elif mint:
                                                     self.seen_bonding_curves.add(mint)
 
-                                        # If we should skip this tx for token ops, do so now
-                                        if skip_tx_for_token_ops:
-                                            filtered_token_transfers += 1
-                                            page_token_transfers_filtered += 1
-                                            continue
+                                            if skip_tx_for_token_ops:
+                                                filtered_token_transfers += 1
+                                                page_token_transfers_filtered += 1
+                                                continue
 
                                     # Check if deBridge is a signer in this transaction (ONLY if not already detected)
                                     # For cross-chain transfers, deBridge initiates but creator may not be direct signer
@@ -1183,8 +1191,7 @@ class RealTimeCreatorFundingExtractor:
                                             except Exception as tag_err:
                                                 print(f"[REALTIME_FUNDING] ⚠ Could not tag deBridge: {tag_err}", flush=True)
 
-                                    # Extract nativeTransfers
-                                    native = tx.get("nativeTransfers") or []
+                                    # Process nativeTransfers (already extracted by FIX #7)
                                     for nt in native:
                                         frm = nt.get("fromUserAccount")
                                         to = nt.get("toUserAccount")
@@ -1237,6 +1244,9 @@ class RealTimeCreatorFundingExtractor:
                                                 recipients[to] = 0
                                             recipients[to] += amount_sol
                                             await self._save_recipient(creator, to, amount_sol)
+
+                                # FIX #8: Batch commit after page processing (includes Jito tips)
+                                conn.commit()
 
                                 # Log page summary
                                 if page_funders_found > 0 or page_dust_filtered > 0 or page_excluded_filtered > 0 or page_token_transfers_filtered > 0:

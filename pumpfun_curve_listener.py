@@ -446,6 +446,8 @@ class PumpFunCurveListener:
                 cluster_id = None
                 cluster_name = None
                 cluster_risk_multiplier = 1.0
+                network_funder_address = None
+                network_name = None
 
                 if creator_address:
                     try:
@@ -458,6 +460,30 @@ class PumpFunCurveListener:
                     except Exception as e:
                         print(f"[CLUSTER] Error checking creator {creator_address}: {e}", flush=True)
 
+                    # Look up creator's network immediately
+                    try:
+                        cursor.execute("""
+                            SELECT DISTINCT funder_address
+                            FROM creator_funders
+                            WHERE creator_address = ?
+                            LIMIT 1
+                        """, (creator_address,))
+                        funder_row = cursor.fetchone()
+                        if funder_row:
+                            network_funder_address = funder_row[0]
+                            # Look up network name from atomic_network_names
+                            cursor.execute("""
+                                SELECT network_name
+                                FROM atomic_network_names
+                                WHERE funder_address = ?
+                                LIMIT 1
+                            """, (network_funder_address,))
+                            network_row = cursor.fetchone()
+                            if network_row:
+                                network_name = network_row[0]
+                    except Exception as e:
+                        print(f"[NETWORK] Error looking up creator network {creator_address}: {e}", flush=True)
+
                 # Store post-migration analysis with live price tracking
                 cursor.execute("""
                     INSERT OR REPLACE INTO token_analysis (
@@ -468,8 +494,8 @@ class PumpFunCurveListener:
                         post_migration_creator_activity_ratio,
                         rug_probability, risk_level, post_migration_coverage,
                         migration_tx, price_current, price_highest, pool_address, earliest_tx_creator, creator_is_blocked, network_risk, connected_malicious_count,
-                        cluster_id, cluster_name, cluster_risk_multiplier
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        cluster_id, cluster_name, cluster_risk_multiplier, network_funder_address, network_name
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     mint,
                     time.time(),
@@ -494,7 +520,9 @@ class PumpFunCurveListener:
                     analysis.get("connected_malicious_count"),  # Count of connected malicious creators
                     cluster_id,  # Cluster ID if creator is in a cluster
                     cluster_name,  # Cluster name (NexusCerberus, etc.)
-                    cluster_risk_multiplier  # Risk multiplier for cluster
+                    cluster_risk_multiplier,  # Risk multiplier for cluster
+                    network_funder_address,  # Funder address from creator_funders
+                    network_name  # Network name from atomic_network_names
                 ))
 
                 conn.commit()

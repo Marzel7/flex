@@ -507,6 +507,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "tags": ["infra", "automation", "magic-eden", "royalties"],
     },
 
+    # Privacy Cash Pool
+    "4AV2Qzp3N4c9RfzyEbNZs2wqWfW4EwKnnxFAZCndvfGh": {
+        "name": "Privacy Cash Pool",
+        "category": "automation",
+        "description": "Privacy Cash Pool protocol account for privacy-enhanced transactions",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "privacy", "protocol"],
+    },
+
     # Hyperunit Hot Wallet (Funding Intermediary)
     "9SLPTL41SPsYkgdsMzdfJsxymEANKr5bYoBsQzJyKpKS": {
         "name": "Hyperunit Hot Wallet",

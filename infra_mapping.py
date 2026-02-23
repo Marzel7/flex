@@ -551,6 +551,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["infra", "automation", "padre", "fees"],
     },
+
+    # Fireblocks Custody (Institutional Custody Infrastructure)
+    "HVRcXaCFyUFG7iZLm3T1Qn8ZGDMHj3P3BpezUfWfRf2x": {
+        "name": "Fireblocks Custody",
+        "category": "automation",
+        "description": "Fireblocks institutional custody and blockchain security platform",
+        "risk_level": "neutral",
+        "tags": ["infra", "automation", "fireblocks", "custody", "institutional"],
+    },
 }
 
 # CEX account mappings (external exchanges - ONLY verified real addresses)
@@ -978,6 +987,16 @@ CEX_ACCOUNTS = {
         "description": "BingX exchange wallet (verified on-chain)",
         "risk_level": "neutral",
         "tags": ["cex", "bingx", "exchange"],
+    },
+
+    # Nexo Hot Wallet (Lending Platform/Exchange)
+    "jmLtKSEWyQhCbHgTa52XZwcfLQ2ze9J8VN3nfSTEjt4": {
+        "name": "Nexo Hot Wallet",
+        "category": "cex",
+        "exchange": "Nexo",
+        "description": "Nexo lending platform hot wallet for customer deposits/withdrawals",
+        "risk_level": "neutral",
+        "tags": ["cex", "nexo", "lending", "exchange"],
     },
 
     # Placeholder for future real addresses

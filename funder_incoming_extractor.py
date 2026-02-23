@@ -58,12 +58,12 @@ BASE_BACKOFF_SECS = 0.5
 DEFAULT_CONCURRENCY = 4
 
 # HARDENING FIX #2: Transient HTTP error codes (selective retry on 4xx)
+# Note: 429 is handled separately with Retry-After header support in _request_json()
 TRANSIENT_HTTP_CODES = {
     408,  # Request Timeout
     409,  # Conflict
     423,  # Locked
     425,  # Too Early
-    429,  # Rate Limited
 }
 
 # Shared HTTP session (keep-alive)
@@ -187,26 +187,27 @@ def get_creator_funders(creator_address: str) -> List[Tuple[str, float]]:
 def _has_cached_funder_transfers(funder_address: str) -> Tuple[int, int, float]:
     """Return (incoming_count, outgoing_count, total_sol) from cache if any."""
     conn = sqlite3.connect(DB_PATH, timeout=10)
-    cur = conn.cursor()
+    try:
+        cur = conn.cursor()
 
-    cur.execute("SELECT COUNT(*) FROM funder_incoming_transfers WHERE funder_address = ?", (funder_address,))
-    inc = int(cur.fetchone()[0] or 0)
+        cur.execute("SELECT COUNT(*) FROM funder_incoming_transfers WHERE funder_address = ?", (funder_address,))
+        inc = int(cur.fetchone()[0] or 0)
 
-    cur.execute("SELECT COUNT(*) FROM funder_outgoing_transfers WHERE funder_address = ?", (funder_address,))
-    out = int(cur.fetchone()[0] or 0)
+        cur.execute("SELECT COUNT(*) FROM funder_outgoing_transfers WHERE funder_address = ?", (funder_address,))
+        out = int(cur.fetchone()[0] or 0)
 
-    if inc or out:
-        cur.execute("SELECT COALESCE(SUM(amount_sol),0) FROM funder_incoming_transfers WHERE funder_address = ?", (funder_address,))
-        inc_sum = float(cur.fetchone()[0] or 0.0)
+        if inc or out:
+            cur.execute("SELECT COALESCE(SUM(amount_sol),0) FROM funder_incoming_transfers WHERE funder_address = ?", (funder_address,))
+            inc_sum = float(cur.fetchone()[0] or 0.0)
 
-        cur.execute("SELECT COALESCE(SUM(amount_sol),0) FROM funder_outgoing_transfers WHERE funder_address = ?", (funder_address,))
-        out_sum = float(cur.fetchone()[0] or 0.0)
+            cur.execute("SELECT COALESCE(SUM(amount_sol),0) FROM funder_outgoing_transfers WHERE funder_address = ?", (funder_address,))
+            out_sum = float(cur.fetchone()[0] or 0.0)
 
+            return inc, out, inc_sum + out_sum
+
+        return 0, 0, 0.0
+    finally:
         conn.close()
-        return inc, out, inc_sum + out_sum
-
-    conn.close()
-    return 0, 0, 0.0
 
 
 # -------------------------
@@ -224,23 +225,23 @@ def _sleep_backoff(attempt: int, retry_after: Optional[float] = None) -> None:
 def _is_rpc_error_retryable(error_obj: dict) -> bool:
     """
     Determine if an RPC error is retryable or permanent.
-    
+
     HARDENING FIX #3: Smart RPC error categorization
     • Transient (retryable): timeout, rate-limit, overloaded, slot errors
     • Permanent (fail-fast): invalid params, method not found, parse errors
     """
     if not isinstance(error_obj, dict):
         return False
-    
+
     code = error_obj.get("code")
     msg = (error_obj.get("message") or "").lower()
-    
-    # Transient errors (should retry)
-    transient_codes = {-32603, -32000, -32015, -32011, -32014}  # Internal, server, already processed, block height, out of range
-    if code in transient_codes:
-        return True
-    
-    # Check message for common transient patterns
+
+    # Permanent errors (fail-fast) - safe to identify by code
+    permanent_codes = {-32700, -32600, -32601, -32602, -32098}  # Parse, invalid request, method not found, invalid params, invalid account
+    if code in permanent_codes:
+        return False
+
+    # Check message for transient patterns (most reliable across providers)
     transient_patterns = [
         "timeout", "rate", "overload", "busy", "congested",
         "block height", "skipped", "commitment violation",
@@ -248,12 +249,12 @@ def _is_rpc_error_retryable(error_obj: dict) -> bool:
     ]
     if any(pattern in msg for pattern in transient_patterns):
         return True
-    
-    # Permanent errors (fail-fast)
-    permanent_codes = {-32700, -32600, -32601, -32602, -32098}  # Parse, invalid request, method not found, invalid params, invalid account
-    if code in permanent_codes:
-        return False
-    
+
+    # Transient codes (mostly reliable)
+    transient_codes = {-32603, -32000}  # Internal error, Server error
+    if code in transient_codes:
+        return True
+
     # Default to transient (safer for operational stability)
     return True
 
@@ -261,9 +262,10 @@ def _is_rpc_error_retryable(error_obj: dict) -> bool:
 def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, timeout: float = 20.0) -> Optional[object]:
     """
     Reliable HTTP call with retry/backoff on 429/5xx and network errors.
-    
+
     HARDENING FIX #2: Selective transient 4xx retry
-    • Retryable 4xx: 408, 409, 423, 425, 429 (timeout, conflict, locked, too early, rate-limit)
+    • Retryable 4xx: 408, 409, 423, 425 (timeout, conflict, locked, too early)
+    • 429 rate-limit: handled separately with Retry-After header support
     • Non-retryable 4xx: 400, 401, 403, 404, etc. (client responsibility)
     """
     for attempt in range(MAX_HTTP_RETRIES):
@@ -275,7 +277,12 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
 
             if resp.status_code == 429:
                 ra = resp.headers.get("Retry-After")
-                retry_after = float(ra) if ra and ra.isdigit() else None
+                retry_after = None
+                if ra:
+                    try:
+                        retry_after = float(ra)
+                    except (ValueError, TypeError):
+                        retry_after = None
                 print(f"[HTTP] 429 rate-limited. Backing off (attempt {attempt+1}/{MAX_HTTP_RETRIES})")
                 _sleep_backoff(attempt, retry_after=retry_after)
                 continue
@@ -317,23 +324,37 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
 # Chain fetchers
 # -------------------------
 
-def get_transactions_helius(address: str, limit: int = DEFAULT_HELIUS_LIMIT) -> Optional[List[dict]]:
+def get_transactions_helius(address: str, limit: int = DEFAULT_HELIUS_LIMIT, max_pages: int = 1) -> Optional[List[dict]]:
     """
     Helius enriched address transaction feed (fastest + most reliable parsing).
-    We explicitly pass limit to avoid uncontrolled response sizes.
+
+    Args:
+        address: Wallet address to fetch transactions for
+        limit: Transactions per page (max 100 per Helius limit)
+        max_pages: Maximum number of pages to fetch (default 1 = 100 txs)
+                  Set to 3 for ~300 txs (useful for active funders)
+
+    Returns:
+        List of transaction dicts, or None if unavailable
     """
     if not USE_HELIUS:
         return None
 
     lim = max(1, min(int(limit), DEFAULT_HELIUS_LIMIT))
-    url = (
-        f"https://api.helius.xyz/v0/addresses/{address}/transactions"
-        f"?api-key={HELIUS_API_KEY}&limit={lim}"
-    )
-    data = _request_json("GET", url, timeout=25.0)
-    if isinstance(data, list):
-        return data
-    return None
+    max_pages = max(1, int(max_pages))
+    all_txs: List[dict] = []
+
+    for _ in range(max_pages):
+        url = (
+            f"https://api.helius.xyz/v0/addresses/{address}/transactions"
+            f"?api-key={HELIUS_API_KEY}&limit={lim}&before={all_txs[-1].get('signature', '') if all_txs else ''}"
+        )
+        data = _request_json("GET", url, timeout=25.0)
+        if not isinstance(data, list) or not data:
+            break
+        all_txs.extend(data)
+
+    return all_txs if all_txs else None
 
 
 def _rpc_call(payload: dict, timeout: float = 20.0) -> Optional[dict]:
@@ -615,11 +636,15 @@ def extract_transfers_for_funder(
         except Exception:
             continue
 
-    # Batch save
+    # Batch save (with deduplication by primary key)
     incoming_saved = 0
     outgoing_saved = 0
 
     if incoming_rows or outgoing_rows:
+        # Deduplicate by primary key (sender_address, funder_address, transaction_signature)
+        incoming_rows = list(set(incoming_rows))
+        outgoing_rows = list(set(outgoing_rows))
+
         conn = _open_db_optimized()
         cur = conn.cursor()
 

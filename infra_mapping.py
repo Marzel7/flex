@@ -524,6 +524,15 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["infra", "automation", "hyperunit", "wallet"],
     },
+
+    # mrdevvvv (Custom Account - User Label)
+    "GZVSEAajExLJEvACHHQcujBw7nJq98GWUEZtood9LM9b": {
+        "name": "mrdevvvv",
+        "category": "user",
+        "description": "Custom user-labeled account (mrdevvvv)",
+        "risk_level": "neutral",
+        "tags": ["custom", "user-labeled", "mrdevvvv"],
+    },
 }
 
 # CEX account mappings (external exchanges - ONLY verified real addresses)

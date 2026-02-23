@@ -1780,11 +1780,12 @@ HTML_TEMPLATE = """
                 <span class="status-indicator active" id="listenLaunchesStatus"></span>
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(124, 58, 237, 0.3); margin-left: 12px; padding-left: 12px;">
-                <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(76, 175, 80, 0.2); color: var(--color-low); border: 1px solid rgba(76, 175, 80, 0.5);">▶️ Polling ON</button>
-                <button class="action-button" id="tokensTabBtn" onclick="switchToTokensTab()" title="View tokens" style="background: rgba(124, 58, 237, 0.2); color: var(--primary); border: 1px solid rgba(124, 58, 237, 0.5); margin-left: 8px;">Tokens</button>
-                <button class="action-button" onclick="window.location.href = '/networks'" title="View atomic funder networks" style="background: rgba(6, 182, 212, 0.2); color: var(--accent-cyan); border: 1px solid rgba(6, 182, 212, 0.5); margin-left: 8px;">🔗 Networks</button>
-                <button class="action-button" onclick="window.location.href = '/clusters'" title="View cross-funding cluster analysis" style="background: rgba(239, 68, 68, 0.2); color: var(--color-critical); border: 1px solid rgba(239, 68, 68, 0.5); margin-left: 8px;">📊 Clusters</button>
-                <button class="action-button" onclick="window.location.href = '/coordinated-funders'" title="Analyze funders supporting multiple creators" style="background: rgba(124, 58, 237, 0.2); color: var(--accent-purple); border: 1px solid rgba(124, 58, 237, 0.5); margin-left: 8px;">Coordinated Funders</button>
+                <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5);">▶️ Polling ON</button>
+                <button class="action-button" id="tokensTabBtn" onclick="switchToTokensTab()" title="View tokens" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Tokens</button>
+                <button class="action-button" onclick="window.location.href = '/networks'" title="View atomic funder networks" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Networks</button>
+                <button class="action-button" onclick="window.location.href = '/clusters'" title="View cross-funding cluster analysis" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Clusters</button>
+                <button class="action-button" onclick="window.location.href = '/coordinated-funders'" title="Analyze funders supporting multiple creators" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Coordinated Funders</button>
+                <button class="action-button" onclick="window.location.href = '/top-funding-hubs'" title="View top funding distribution hubs" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Hubs</button>
                 <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Validate TX</button>
             </div>
         </div>
@@ -3215,15 +3216,15 @@ HTML_TEMPLATE = """
             }).then(resp => resp.json()).then(data => {
                 if (data.polling_enabled) {
                     btn.textContent = '▶️ Polling ON';
-                    btn.style.background = 'rgba(76, 175, 80, 0.2)';
-                    btn.style.color = '#4ade80';
-                    btn.style.borderColor = 'rgba(76, 175, 80, 0.5)';
+                    btn.style.background = 'rgba(59, 130, 246, 0.2)';
+                    btn.style.color = 'var(--color-none)';
+                    btn.style.borderColor = 'rgba(59, 130, 246, 0.5)';
                     console.log('✅ Creator TX polling ENABLED');
                 } else {
                     btn.textContent = '⏸️ Polling OFF';
-                    btn.style.background = 'rgba(239, 68, 68, 0.2)';
-                    btn.style.color = 'var(--color-critical)';
-                    btn.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                    btn.style.background = 'rgba(59, 130, 246, 0.2)';
+                    btn.style.color = 'var(--color-none)';
+                    btn.style.borderColor = 'rgba(59, 130, 246, 0.5)';
                     console.log('✅ Creator TX polling DISABLED');
                 }
             }).catch(e => {
@@ -3241,14 +3242,14 @@ HTML_TEMPLATE = """
 
                 if (data.polling_enabled) {
                     btn.textContent = '▶️ Polling ON';
-                    btn.style.background = 'rgba(76, 175, 80, 0.2)';
-                    btn.style.color = '#4ade80';
-                    btn.style.borderColor = 'rgba(76, 175, 80, 0.5)';
+                    btn.style.background = 'rgba(59, 130, 246, 0.2)';
+                    btn.style.color = 'var(--color-none)';
+                    btn.style.borderColor = 'rgba(59, 130, 246, 0.5)';
                 } else {
                     btn.textContent = '⏸️ Polling OFF';
-                    btn.style.background = 'rgba(239, 68, 68, 0.2)';
-                    btn.style.color = 'var(--color-critical)';
-                    btn.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                    btn.style.background = 'rgba(59, 130, 246, 0.2)';
+                    btn.style.color = 'var(--color-none)';
+                    btn.style.borderColor = 'rgba(59, 130, 246, 0.5)';
                 }
             } catch (e) {
                 console.error('Error checking polling status:', e);
@@ -7996,8 +7997,10 @@ def coordinated_funders_view():
         for funder in multi_funders:
             html_rows += f"""
             <tr>
-                <td style="padding: 12px; font-family: monospace; font-size: 11px; color: #3b82f6; word-break: break-all;">
-                    {funder['funder_address']}
+                <td style="padding: 12px; font-family: monospace; font-size: 11px; word-break: break-all;">
+                    <a href="/funding-hub/{funder['funder_address']}" style="color: #3b82f6; text-decoration: none;">
+                        {funder['funder_address']}
+                    </a>
                 </td>
                 <td style="padding: 12px; text-align: right; color: #fbbf24; font-weight: 600;">{funder['creator_count']}</td>
                 <td style="padding: 12px; text-align: right; color: #a855f7; font-weight: 600;">{funder['total_sol_sent']:.2f} SOL</td>
@@ -8070,6 +8073,17 @@ def coordinated_funders_view():
                 tr:hover {{
                     background: rgba(124, 58, 237, 0.08);
                 }}
+                .back-link {{
+                    display: inline-block;
+                    margin-bottom: 20px;
+                    color: var(--accent-cyan);
+                    text-decoration: none;
+                    font-size: 13px;
+                }}
+                .back-link:hover {{
+                    color: var(--accent-purple);
+                    text-decoration: underline;
+                }}
                 .button {{
                     background: rgba(124, 58, 237, 0.2);
                     color: #a78bfa;
@@ -8087,6 +8101,8 @@ def coordinated_funders_view():
         </head>
         <body>
             <div class="container">
+                <a href="/" class="back-link">← Back to Dashboard</a>
+
                 <h1>🔗 Coordinated Funders ({len(multi_funders)} total)</h1>
                 <p class="subtitle">Wallets that fund multiple creators, indicating coordination or network relationships</p>
 
@@ -8102,8 +8118,6 @@ def coordinated_funders_view():
                         {html_rows}
                     </tbody>
                 </table>
-
-                <button class="button" onclick="window.location.href = '/'">← Back to Dashboard</button>
             </div>
         </body>
         </html>
@@ -8350,24 +8364,22 @@ def clusters_dashboard():
                 tr:hover {{
                     background: rgba(124, 58, 237, 0.08);
                 }}
-                .back-button {{
+                .back-link {{
                     display: inline-block;
-                    padding: 10px 20px;
-                    background: rgba(124, 58, 237, 0.2);
-                    color: var(--primary);
-                    text-decoration: none;
-                    border-radius: 4px;
                     margin-bottom: 20px;
-                    font-weight: bold;
+                    color: var(--accent-cyan);
+                    text-decoration: none;
+                    font-size: 13px;
                 }}
-                .back-button:hover {{
-                    background: rgba(124, 58, 237, 0.3);
+                .back-link:hover {{
+                    color: var(--accent-purple);
+                    text-decoration: underline;
                 }}
             </style>
         </head>
         <body>
             <div class="container">
-                <a href="/" class="back-button">← Back to Main Dashboard</a>
+                <a href="/" class="back-link">← Back to Dashboard</a>
 
                 <h1>🚨 Cross-Funding Clusters</h1>
                 <p class="subtitle">
@@ -12022,15 +12034,13 @@ def api_network_tokens(network_name):
         creators_with_tokens = len(set(token['creator'] for token in tokens))
 
         # Get example funding flow (sender -> funder -> creator)
-        # First try: get from funder_incoming_transfers (complete flow with sender)
+        # First try: get from creator_funders (the actual funding relationship)
         cursor.execute("""
             SELECT DISTINCT
-                fit.sender_address,
-                fit.funder_address,
+                cf.funder_address,
                 cf.creator_address
-            FROM funder_incoming_transfers fit
-            LEFT JOIN creator_funders cf ON fit.funder_address = cf.funder_address
-            WHERE fit.funder_address = ?
+            FROM creator_funders cf
+            WHERE cf.funder_address = ?
             AND cf.creator_address IS NOT NULL
             LIMIT 1
         """, (funder_address,))
@@ -12038,10 +12048,27 @@ def api_network_tokens(network_name):
         row_data = cursor.fetchone()
         if row_data:
             row_dict = dict(row_data)
+            funder_addr = row_dict.get('funder_address')
+            creator_addr = row_dict.get('creator_address')
+
+            # Try to get sender (upstream) if this funder has incoming transfers
+            sender_addr = None
+            cursor.execute("""
+                SELECT DISTINCT sender_address
+                FROM funder_incoming_transfers
+                WHERE funder_address = ?
+                ORDER BY block_time DESC
+                LIMIT 1
+            """, (funder_addr,))
+
+            sender_row = cursor.fetchone()
+            if sender_row:
+                sender_addr = sender_row['sender_address']
+
             example_data = {
-                'sender_address': row_dict.get('sender_address'),
-                'funder_address': row_dict.get('funder_address'),
-                'creator_address': row_dict.get('creator_address')
+                'sender_address': sender_addr,
+                'funder_address': funder_addr,
+                'creator_address': creator_addr
             }
         else:
             example_data = None
@@ -12311,26 +12338,22 @@ def networks_dashboard():
                 tr:hover {{
                     background: rgba(124, 58, 237, 0.1);
                 }}
-                .back-button {{
+                .back-link {{
                     display: inline-block;
-                    padding: 10px 20px;
-                    background: rgba(124, 58, 237, 0.2);
-                    border: 1px solid var(--primary);
-                    border-radius: 6px;
-                    color: var(--primary);
-                    text-decoration: none;
                     margin-bottom: 20px;
-                    cursor: pointer;
-                    font-size: 14px;
+                    color: var(--accent-cyan);
+                    text-decoration: none;
+                    font-size: 13px;
                 }}
-                .back-button:hover {{
-                    background: rgba(124, 58, 237, 0.3);
+                .back-link:hover {{
+                    color: var(--accent-purple);
+                    text-decoration: underline;
                 }}
             </style>
         </head>
         <body>
             <div class="container">
-                <a href="/" class="back-button">← Back to Dashboard</a>
+                <a href="/" class="back-link">← Back to Dashboard</a>
 
                 <h1>🔗 Funding Networks</h1>
                 <p class="subtitle">Coordinated funding groups across {total_networks} networks. Each network represents funders that collectively funded the same tokens.</p>
@@ -12580,6 +12603,585 @@ def networks_dashboard():
                 }}
             }});
         </script>
+        """
+
+        return html
+
+    except Exception as e:
+        return f"<h1>Error</h1><p>{str(e)}</p>", 500
+
+
+@app.route('/top-funding-hubs')
+def top_funding_hubs():
+    """Display dashboard of all top funding hubs (duplicate senders)"""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+
+        # Get top 20 senders by number of funders they send to
+        c.execute("""
+            SELECT
+                sender_address,
+                COUNT(DISTINCT funder_address) as funder_count,
+                SUM(amount_sol) as total_sol_sent
+            FROM funder_incoming_transfers
+            GROUP BY sender_address
+            ORDER BY funder_count DESC
+            LIMIT 20
+        """)
+        hubs = []
+        for row in c.fetchall():
+            sender_addr, funder_count, total_sol = row
+
+            # Count creators funded by those funders
+            c.execute("""
+                SELECT COUNT(DISTINCT creator_address) FROM creator_funders
+                WHERE funder_address IN (
+                    SELECT DISTINCT funder_address FROM funder_incoming_transfers
+                    WHERE sender_address = ?
+                )
+            """, (sender_addr,))
+            creator_count = c.fetchone()[0]
+
+            # Count tokens created by those creators
+            c.execute("""
+                SELECT COUNT(*) FROM token_analysis
+                WHERE earliest_tx_creator IN (
+                    SELECT DISTINCT creator_address FROM creator_funders
+                    WHERE funder_address IN (
+                        SELECT DISTINCT funder_address FROM funder_incoming_transfers
+                        WHERE sender_address = ?
+                    )
+                )
+            """, (sender_addr,))
+            token_count = c.fetchone()[0]
+
+            # Check if this sender is also a creator
+            c.execute("""
+                SELECT COUNT(*) FROM token_analysis
+                WHERE earliest_tx_creator = ?
+            """, (sender_addr,))
+            created_tokens = c.fetchone()[0]
+
+            # Check for self-funding (funders that only fund the sender back)
+            c.execute("""
+                SELECT COUNT(DISTINCT funder_address)
+                FROM funder_incoming_transfers
+                WHERE sender_address = ?
+                AND funder_address IN (
+                    SELECT funder_address FROM creator_funders
+                    WHERE creator_address = ?
+                )
+            """, (sender_addr, sender_addr))
+            self_funding_count = c.fetchone()[0]
+
+            # If all creators are the sender itself, mark as self-funding
+            is_likely_self_funded = creator_count == 1 and created_tokens > 0
+
+            hubs.append({
+                'address': sender_addr,
+                'funder_count': funder_count,
+                'creator_count': creator_count,
+                'total_sol_sent': total_sol or 0,
+                'token_count': token_count,
+                'created_tokens': created_tokens,
+                'self_funding_count': self_funding_count,
+                'is_likely_self_funded': is_likely_self_funded
+            })
+
+        conn.close()
+
+        html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Top Funding Hubs</title>
+            <style>
+                :root {
+                    --bg-primary: #0f0f1e;
+                    --bg-secondary: #1a1a2e;
+                    --text-primary: #e5e7eb;
+                    --text-secondary: #9ca3af;
+                    --primary: #7c3aed;
+                    --accent-cyan: #06b6d4;
+                    --accent-purple: #a78bfa;
+                    --green: #22c55e;
+                    --yellow: #fbbf24;
+                    --blue: #3b82f6;
+                    --purple: #a78bfa;
+                    --red: #ef4444;
+                }
+
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+
+                body {
+                    background: var(--bg-primary);
+                    color: var(--text-primary);
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+                    padding: 30px;
+                }
+
+                .container {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                }
+
+                h1 {
+                    color: var(--accent-purple);
+                    margin-bottom: 10px;
+                    font-size: 32px;
+                }
+
+                .subtitle {
+                    color: var(--text-secondary);
+                    margin-bottom: 30px;
+                    font-size: 14px;
+                }
+
+                .back-link {
+                    display: inline-block;
+                    margin-bottom: 20px;
+                    color: var(--accent-cyan);
+                    text-decoration: none;
+                    font-size: 13px;
+                }
+
+                .back-link:hover {
+                    color: var(--accent-purple);
+                    text-decoration: underline;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    background: var(--bg-secondary);
+                    border: 1px solid rgba(124, 58, 237, 0.3);
+                    border-radius: 8px;
+                    overflow: hidden;
+                }
+
+                thead {
+                    background: var(--bg-secondary);
+                    border-bottom: 2px solid rgba(124, 58, 237, 0.3);
+                    border-left: 3px solid rgba(124, 58, 237, 0.5);
+                }
+
+                th {
+                    padding: 15px;
+                    text-align: left;
+                    color: var(--accent-purple);
+                    font-weight: 600;
+                    font-size: 13px;
+                    text-transform: uppercase;
+                }
+
+                td {
+                    padding: 15px;
+                    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+                    font-size: 13px;
+                }
+
+                tr:last-child td {
+                    border-bottom: none;
+                }
+
+                tbody tr:hover {
+                    background: rgba(124, 58, 237, 0.08);
+                }
+
+                .address {
+                    font-family: monospace;
+                    font-size: 11px;
+                    word-break: break-all;
+                }
+
+                .address-link {
+                    color: var(--blue);
+                    text-decoration: none;
+                    cursor: pointer;
+                }
+
+                .address-link:hover {
+                    color: var(--accent-purple);
+                    text-decoration: underline;
+                }
+
+                .stat-number {
+                    font-weight: bold;
+                }
+
+                .stat-funders {
+                    color: var(--blue);
+                }
+
+                .stat-creators {
+                    color: var(--yellow);
+                }
+
+                .stat-tokens {
+                    color: var(--purple);
+                }
+
+                .stat-sol {
+                    color: var(--accent-cyan);
+                }
+
+                .badge {
+                    display: inline-block;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 11px;
+                    font-weight: 600;
+                    background-color: rgba(34, 197, 94, 0.2);
+                    color: var(--green);
+                }
+
+                .rank {
+                    font-weight: bold;
+                    color: var(--accent-purple);
+                    font-size: 14px;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <a href="/" class="back-link">← Back to Dashboard</a>
+
+                <h1>Top Funding Distribution Senders</h1>
+                <p class="subtitle">Wallets that send funds to the most funders. These represent major coordination hubs distributing capital.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="text-align: center; width: 40px;">#</th>
+                            <th>Sender Address</th>
+                            <th style="text-align: center;">Funders Funded</th>
+                            <th style="text-align: center;">Creators Funded</th>
+                            <th style="text-align: center;">Total Tokens Launched</th>
+                            <th style="text-align: right;">SOL Sent</th>
+                            <th style="text-align: center;">Tokens Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        """
+
+        for idx, hub in enumerate(hubs, 1):
+            hub_link = f'<a href="/funding-hub/{hub["address"]}" class="address-link">{hub["address"]}</a>'
+            created_badge = f'<span class="badge">{hub["created_tokens"]}</span>' if hub["created_tokens"] > 0 else ''
+
+            # Show blank for self-funded creators (no count display)
+            creator_display = '-' if hub["is_likely_self_funded"] else str(hub["creator_count"])
+
+            html += f"""
+                        <tr>
+                            <td class="rank">{idx}</td>
+                            <td><span class="address">{hub_link}</span></td>
+                            <td style="text-align: center;"><span class="stat-number stat-funders">{hub["funder_count"]}</span></td>
+                            <td style="text-align: center;"><span class="stat-number stat-creators">{creator_display}</span></td>
+                            <td style="text-align: center;"><span class="stat-number stat-tokens">{hub["token_count"]}</span></td>
+                            <td style="text-align: right;"><span class="stat-number stat-sol">{hub["total_sol_sent"]:.2f} SOL</span></td>
+                            <td style="text-align: center;">{created_badge}</td>
+                        </tr>
+            """
+
+        html += """
+                    </tbody>
+                </table>
+            </div>
+        </body>
+        </html>
+        """
+
+        return html
+
+    except Exception as e:
+        return f"<h1>Error</h1><p>{str(e)}</p>", 500
+
+
+@app.route('/funding-hub/<hub_address>')
+def funding_hub(hub_address):
+    """Display funding hub network: sender -> funders -> creators -> tokens"""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+
+        # Get sender info (tokens created by this sender)
+        c.execute("SELECT COUNT(*) FROM token_analysis WHERE earliest_tx_creator = ?", (hub_address,))
+        sender_token_count = c.fetchone()[0]
+
+        # Get all funders that received from this sender
+        c.execute("""
+            SELECT DISTINCT funder_address
+            FROM funder_incoming_transfers
+            WHERE sender_address = ?
+        """, (hub_address,))
+        receiving_funders = [row[0] for row in c.fetchall()]
+
+        # For each funder, get creators they funded and tokens those creators launched
+        funder_data = []
+        self_funding_funders = 0
+        third_party_funded_creators = set()
+
+        for funder in receiving_funders:
+            c.execute("""
+                SELECT DISTINCT creator_address
+                FROM creator_funders
+                WHERE funder_address = ?
+            """, (funder,))
+            funded_creators = [row[0] for row in c.fetchall()]
+
+            # Check if this funder only funds the sender (self-funding)
+            is_self_funding = len(funded_creators) == 1 and funded_creators[0] == hub_address
+            if is_self_funding:
+                self_funding_funders += 1
+                continue  # Skip self-funding funders in detailed view
+
+            # Count tokens for those creators
+            creator_list = ','.join(['?' for _ in funded_creators])
+            if funded_creators:
+                c.execute(f"""
+                    SELECT COUNT(*) FROM token_analysis
+                    WHERE earliest_tx_creator IN ({creator_list})
+                """, funded_creators)
+                token_count = c.fetchone()[0]
+                for creator in funded_creators:
+                    third_party_funded_creators.add(creator)
+            else:
+                token_count = 0
+
+            funder_data.append({
+                'address': funder,
+                'creator_count': len(funded_creators),
+                'token_count': token_count,
+                'sample_creators': funded_creators[:5]
+            })
+
+        conn.close()
+
+        # Sort by token count descending
+        funder_data.sort(key=lambda x: x['token_count'], reverse=True)
+
+        html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Funding Hub: """ + hub_address + """</title>
+            <style>
+                :root {
+                    --bg-primary: #0f0f1e;
+                    --bg-secondary: #1a1a2e;
+                    --text-primary: #e5e7eb;
+                    --text-secondary: #9ca3af;
+                    --primary: #7c3aed;
+                    --accent-cyan: #06b6d4;
+                    --accent-purple: #a78bfa;
+                    --green: #22c55e;
+                    --yellow: #fbbf24;
+                    --blue: #3b82f6;
+                    --purple: #a78bfa;
+                    --red: #ef4444;
+                }
+
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+
+                body {
+                    background: var(--bg-primary);
+                    color: var(--text-primary);
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+                    padding: 30px;
+                }
+
+                .container {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                }
+
+                h1 {
+                    color: var(--accent-purple);
+                    margin-bottom: 8px;
+                    font-size: 28px;
+                }
+
+                h2 {
+                    color: var(--accent-purple);
+                }
+
+                .hub-address {
+                    font-family: monospace;
+                    font-size: 12px;
+                    color: var(--text-secondary);
+                    margin-bottom: 24px;
+                    word-break: break-all;
+                }
+
+                .stats {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                    gap: 16px;
+                    margin-bottom: 32px;
+                }
+
+                .stat-box {
+                    background: var(--bg-secondary);
+                    border: 1px solid rgba(124, 58, 237, 0.3);
+                    border-radius: 8px;
+                    padding: 16px;
+                }
+
+                .stat-box.hub {
+                    border-left: 3px solid rgba(124, 58, 237, 0.5);
+                }
+
+                .stat-label {
+                    font-size: 11px;
+                    color: var(--text-secondary);
+                    text-transform: uppercase;
+                    margin-bottom: 8px;
+                }
+
+                .stat-value {
+                    font-size: 24px;
+                    font-weight: bold;
+                    color: var(--accent-purple);
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    background: var(--bg-secondary);
+                    border: 1px solid rgba(124, 58, 237, 0.3);
+                    border-radius: 8px;
+                    overflow: hidden;
+                }
+
+                thead {
+                    background: var(--bg-secondary);
+                    border-bottom: 2px solid rgba(124, 58, 237, 0.3);
+                    border-left: 3px solid rgba(124, 58, 237, 0.5);
+                }
+
+                th {
+                    padding: 15px;
+                    text-align: left;
+                    color: var(--accent-purple);
+                    font-weight: 600;
+                    font-size: 13px;
+                    text-transform: uppercase;
+                }
+
+                td {
+                    padding: 15px;
+                    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+                    font-size: 13px;
+                }
+
+                tr:last-child td {
+                    border-bottom: none;
+                }
+
+                tbody tr:hover {
+                    background: rgba(124, 58, 237, 0.08);
+                }
+
+                .address {
+                    font-family: monospace;
+                    font-size: 11px;
+                    color: var(--blue);
+                    word-break: break-all;
+                    cursor: pointer;
+                }
+
+                .address:hover {
+                    color: var(--accent-purple);
+                    text-decoration: underline;
+                }
+
+                .stat-number {
+                    font-weight: bold;
+                    color: var(--green);
+                }
+
+                .back-link {
+                    display: inline-block;
+                    margin-bottom: 20px;
+                    color: var(--accent-cyan);
+                    text-decoration: none;
+                    font-size: 13px;
+                }
+
+                .back-link:hover {
+                    color: var(--accent-purple);
+                    text-decoration: underline;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <a href="/top-funding-hubs" class="back-link">← Back to Hubs</a>
+
+                <h1>Funding Distribution Sender</h1>
+                <div class="hub-address">""" + hub_address + """</div>
+
+                <div class="stats">
+                    <div class="stat-box hub">
+                        <div class="stat-label">Tokens Created by Sender</div>
+                        <div class="stat-value">""" + str(sender_token_count) + """</div>
+                    </div>
+                    <div class="stat-box hub" style="border-left: 3px solid rgba(239, 68, 68, 0.5); background: rgba(239, 68, 68, 0.08);">
+                        <div class="stat-label">⚠️ Self-Funding Intermediates</div>
+                        <div class="stat-value" style="color: #ef4444;">""" + str(self_funding_funders) + """</div>
+                        <div class="stat-label" style="margin-top: 8px; font-size: 11px; color: #ef4444;">Fund sender only</div>
+                    </div>
+                    <div class="stat-box hub">
+                        <div class="stat-label">Third-Party Funded Creators</div>
+                        <div class="stat-value">""" + str(len(third_party_funded_creators)) + """</div>
+                    </div>
+                    <div class="stat-box hub">
+                        <div class="stat-label">Tokens from Third-Party Creators</div>
+                        <div class="stat-value">""" + str(sum(f['token_count'] for f in funder_data)) + """</div>
+                    </div>
+                </div>
+
+                <h2 style="margin-bottom: 16px; font-size: 18px;">Third-Party Funders (Fund Other Creators)</h2>
+                <p style="color: #94a3b8; margin-bottom: 16px; font-size: 13px;">Showing funders that fund creators OTHER than this sender. Self-funding intermediaries are excluded.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Funder Address</th>
+                            <th style="text-align: center;">Creators Funded</th>
+                            <th style="text-align: center;">Tokens Launched</th>
+                            <th>Sample Creators</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        """
+
+        for funder in funder_data:
+            sample_creators = ', '.join([addr[:8] + '...' for addr in funder['sample_creators']])
+            html += f"""
+                        <tr>
+                            <td><span class="address">{funder['address']}</span></td>
+                            <td style="text-align: center;"><span class="stat-number">{funder['creator_count']}</span></td>
+                            <td style="text-align: center;"><span class="stat-number">{funder['token_count']}</span></td>
+                            <td><small style="color: #94a3b8;">{sample_creators if sample_creators else 'N/A'}</small></td>
+                        </tr>
+            """
+
+        html += """
+                    </tbody>
+                </table>
+            </div>
+        </body>
+        </html>
         """
 
         return html

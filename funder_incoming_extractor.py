@@ -21,6 +21,7 @@ from typing import Dict, List, Tuple, Optional
 import sys
 import time
 import os
+from functools import lru_cache
 sys.path.insert(0, '/Users/kevinkeaveney/Dev/claude/flex')
 
 from infra_mapping import get_account_info, get_cex_info
@@ -67,8 +68,12 @@ def get_creator_funders(creator_address: str) -> list:
         return []
 
 
+@lru_cache(maxsize=50000)
 def classify_sender(sender_address: str) -> Tuple[str, Optional[str], Optional[str]]:
-    """Classify a sender address and return (sender_type, exchange_name, exchange_type)"""
+    """Classify a sender address and return (sender_type, exchange_name, exchange_type)
+
+    Results are cached to avoid repeated lookups for the same addresses.
+    """
 
     # Check CEX first
     cex_info = get_cex_info(sender_address)
@@ -81,6 +86,20 @@ def classify_sender(sender_address: str) -> Tuple[str, Optional[str], Optional[s
         return ("infra", infra_info.get('name'), None)
 
     return ("unknown", None, None)
+
+
+def _open_db_optimized():
+    """Open SQLite connection with optimizations for bulk operations"""
+    conn = sqlite3.connect(DB_PATH, timeout=60)
+    # WAL mode: write-ahead logging for better concurrency
+    conn.execute("PRAGMA journal_mode=WAL;")
+    # NORMAL: sync after each transaction (faster than FULL, safer than OFF)
+    conn.execute("PRAGMA synchronous=NORMAL;")
+    # Store temp tables in memory for speed
+    conn.execute("PRAGMA temp_store=MEMORY;")
+    # Increase cache to 200MB for better performance
+    conn.execute("PRAGMA cache_size=-200000;")
+    return conn
 
 
 def save_funder_incoming_transfer(sender_address: str, funder_address: str, amount_sol: float,
@@ -382,7 +401,6 @@ def extract_transfers_for_funder(funder_address: str) -> Dict:
                                 'tx_sig': tx_sig,
                                 'block_time': timestamp
                             })
-                            print(f"[INCOMING] {from_addr[:16]}... → {funder_address[:16]}... | {amount_sol:.4f} SOL")
 
                     # OUTGOING: Funder is sending
                     elif from_addr == funder_address and to_addr:
@@ -394,7 +412,6 @@ def extract_transfers_for_funder(funder_address: str) -> Dict:
                                 'tx_sig': tx_sig,
                                 'block_time': timestamp
                             })
-                            print(f"[OUTGOING] {funder_address[:16]}... → {to_addr[:16]}... | {amount_sol:.4f} SOL")
             else:
                 # Parse RPC format
                 sig_info = tx_data
@@ -463,7 +480,6 @@ def extract_transfers_for_funder(funder_address: str) -> Dict:
                                 'tx_sig': sig,
                                 'block_time': block_time
                             })
-                            print(f"[INCOMING] {sender[:16]}... → {funder_address[:16]}... | {amount_sol:.4f} SOL")
 
                 # OUTGOING: Funder's balance decreased
                 elif balance_change < 0:
@@ -503,7 +519,6 @@ def extract_transfers_for_funder(funder_address: str) -> Dict:
                                 'tx_sig': sig,
                                 'block_time': block_time
                             })
-                            print(f"[OUTGOING] {funder_address[:16]}... → {recipient[:16]}... | {amount_sol:.4f} SOL")
 
         except Exception as e:
             print(f"[PARSE] Error processing transaction: {e}")
@@ -512,29 +527,71 @@ def extract_transfers_for_funder(funder_address: str) -> Dict:
         if (i + 1) % 100 == 0:
             print(f"[PROGRESS] Processed {i + 1}/{len(txs)} transactions")
 
-    # Save all incoming transfers to database
+    # Save all transfers using batch inserts for speed
     incoming_saved = 0
-    for transfer in incoming_transfers:
-        if save_funder_incoming_transfer(
-            transfer['sender'],
-            transfer['funder'],
-            transfer['amount_sol'],
-            transfer['tx_sig'],
-            transfer['block_time']
-        ):
-            incoming_saved += 1
-
-    # Save all outgoing transfers to database
     outgoing_saved = 0
-    for transfer in outgoing_transfers:
-        if save_funder_outgoing_transfer(
-            transfer['funder'],
-            transfer['recipient'],
-            transfer['amount_sol'],
-            transfer['tx_sig'],
-            transfer['block_time']
-        ):
-            outgoing_saved += 1
+
+    if incoming_transfers or outgoing_transfers:
+        try:
+            conn = _open_db_optimized()
+            cur = conn.cursor()
+
+            # Batch insert incoming transfers
+            if incoming_transfers:
+                incoming_rows = []
+                for transfer in incoming_transfers:
+                    sender_type, exchange_name, exchange_type = classify_sender(transfer['sender'])
+                    is_cex = 1 if sender_type == "cex" else 0
+                    incoming_rows.append((
+                        transfer['sender'],
+                        transfer['funder'],
+                        transfer['amount_sol'],
+                        sender_type,
+                        transfer['tx_sig'],
+                        transfer['block_time'],
+                        is_cex,
+                        exchange_name,
+                        exchange_type
+                    ))
+
+                cur.executemany("""
+                    INSERT OR REPLACE INTO funder_incoming_transfers
+                    (sender_address, funder_address, amount_sol, sender_type, transaction_signature, block_time, is_cex, cex_exchange, cex_type)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, incoming_rows)
+                incoming_saved = len(incoming_rows)
+
+            # Batch insert outgoing transfers
+            if outgoing_transfers:
+                outgoing_rows = []
+                for transfer in outgoing_transfers:
+                    recipient_type, exchange_name, exchange_type = classify_sender(transfer['recipient'])
+                    is_cex = 1 if recipient_type == "cex" else 0
+                    outgoing_rows.append((
+                        transfer['funder'],
+                        transfer['recipient'],
+                        transfer['amount_sol'],
+                        recipient_type,
+                        transfer['tx_sig'],
+                        transfer['block_time'],
+                        is_cex,
+                        exchange_name,
+                        exchange_type
+                    ))
+
+                cur.executemany("""
+                    INSERT OR REPLACE INTO funder_outgoing_transfers
+                    (funder_address, recipient_address, amount_sol, recipient_type, transaction_signature, block_time, is_cex, cex_exchange, cex_type)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, outgoing_rows)
+                outgoing_saved = len(outgoing_rows)
+
+            conn.commit()
+            conn.close()
+
+            print(f"[DB] Batch saved: {incoming_saved} incoming, {outgoing_saved} outgoing transfers")
+        except Exception as e:
+            print(f"[DB] Error batch saving transfers: {e}")
 
     total_sol = sum(t['amount_sol'] for t in incoming_transfers) + sum(t['amount_sol'] for t in outgoing_transfers)
 

@@ -261,10 +261,27 @@ class RealTimeCreatorFundingExtractor:
             self.session = aiohttp.ClientSession()
         if not self.domain_resolver:
             self.domain_resolver = DomainResolver(DB_PATH, self.session)
-        
+
         # Initialize domain registry
         from domain_mapping import init_domain_registry
         init_domain_registry()
+
+        # Setup SQLite optimizations for performance
+        self._setup_db_optimizations()
+
+    def _setup_db_optimizations(self):
+        """Configure SQLite for better performance (PRAGMA settings)"""
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=60)
+            conn.execute("PRAGMA journal_mode=WAL;")
+            conn.execute("PRAGMA synchronous=NORMAL;")
+            conn.execute("PRAGMA temp_store=MEMORY;")
+            conn.execute("PRAGMA cache_size=-200000;")  # ~200MB cache
+            conn.commit()
+            conn.close()
+            print("[PERF] SQLite optimizations applied (WAL mode, faster sync)", flush=True)
+        except Exception as e:
+            print(f"[PERF] Warning: Could not apply SQLite optimizations: {e}", flush=True)
 
     async def close_session(self):
         """Close aiohttp session"""
@@ -965,28 +982,28 @@ class RealTimeCreatorFundingExtractor:
             print(f"[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...", flush=True)
 
             try:
-                async with aiohttp.ClientSession() as helius_session:
-                    url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{creator}/transactions"
+                url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{creator}/transactions"
 
-                    page_num = 0
-                    before_signature = None
-                    total_fetched = 0
-                    found_pre_migration = False
+                page_num = 0
+                before_signature = None
+                total_fetched = 0
+                found_pre_migration = False
+                empty_inbound_pages = 0
 
-                    while True:
-                        page_num += 1
+                while True:
+                    page_num += 1
 
-                        # Build URL with query parameters directly
-                        # Note: Helius Enhanced API max limit is 100, not 1000
-                        query_url = f"{url}?api-key={HELIUS_API_KEY}&limit=100&sort-order=desc&commitment=finalized"
-                        if before_signature:
-                            query_url += f"&before={before_signature}"
+                    # Build URL with query parameters directly
+                    # Note: Helius Enhanced API max limit is 100, not 1000
+                    query_url = f"{url}?api-key={HELIUS_API_KEY}&limit=100&sort-order=desc&commitment=finalized"
+                    if before_signature:
+                        query_url += f"&before={before_signature}"
 
-                        try:
-                            # Log the RPC call
-                            print(f"[REALTIME_FUNDING]    [PAGE {page_num}] RPC CALL #{page_num}...", flush=True)
+                    try:
+                        # Log the RPC call
+                        print(f"[REALTIME_FUNDING]    [PAGE {page_num}] RPC CALL #{page_num}...", flush=True)
 
-                            async with helius_session.get(
+                        async with self.session.get(
                                 query_url,
                                 timeout=aiohttp.ClientTimeout(total=30)
                             ) as resp:
@@ -1221,6 +1238,20 @@ class RealTimeCreatorFundingExtractor:
                                         details.append(f"🪙 {page_token_transfers_filtered} token ops")
                                     print(f"[REALTIME_FUNDING]    [PAGE {page_num}] " + " | ".join(details), flush=True)
 
+                                    # OPTIMIZATION: Early stopping if no inbound funding found
+                                    if page_funders_found == 0:
+                                        empty_inbound_pages += 1
+                                    else:
+                                        empty_inbound_pages = 0
+
+                                    # Stop if we've found enough funding or hit empty pages
+                                    if empty_inbound_pages >= 5 and len(funders) >= 5:
+                                        print(f"[REALTIME_FUNDING] ✅ EARLY STOP: {len(funders)} funders found + {empty_inbound_pages} empty pages", flush=True)
+                                        break
+                                    elif len(funders) >= 50:
+                                        print(f"[REALTIME_FUNDING] ✅ EARLY STOP: {len(funders)} funders found (sufficient coverage)", flush=True)
+                                        break
+
                                 # Set up next page - continue if within 1-month cutoff AND under 100 pages
                                 should_continue = False
                                 if page:
@@ -1255,12 +1286,12 @@ class RealTimeCreatorFundingExtractor:
                                 else:
                                     break
 
-                        except asyncio.TimeoutError:
-                            print(f"[REALTIME_FUNDING]    ⚠ Timeout on page {page_num}", flush=True)
-                            break
-                        except Exception as e:
-                            print(f"[REALTIME_FUNDING]    ⚠ Error on page {page_num}: {e}", flush=True)
-                            break
+                    except asyncio.TimeoutError:
+                        print(f"[REALTIME_FUNDING]    ⚠ Timeout on page {page_num}", flush=True)
+                        break
+                    except Exception as e:
+                        print(f"[REALTIME_FUNDING]    ⚠ Error on page {page_num}: {e}", flush=True)
+                        break
 
                     print(f"[REALTIME_FUNDING]    Total transactions fetched: {total_fetched}", flush=True)
 
@@ -1413,8 +1444,7 @@ class RealTimeCreatorFundingExtractor:
                 }
 
                 try:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+                    async with self.session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=15)) as resp:
                             if resp.status == 200:
                                 result = await resp.json()
 
@@ -1787,12 +1817,11 @@ class RealTimeCreatorFundingExtractor:
             print(f"[REALTIME_FUNDING]    🔍 Checking for Meteora DLMM program calls...", flush=True)
 
             try:
-                async with aiohttp.ClientSession() as session:
-                    url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{creator}/transactions"
-                    query_url = f"{url}?api-key={HELIUS_API_KEY}&limit=50&sort-order=desc&commitment=finalized"
+                url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{creator}/transactions"
+                query_url = f"{url}?api-key={HELIUS_API_KEY}&limit=50&sort-order=desc&commitment=finalized"
 
-                    # First get address transactions to find signatures
-                    async with session.get(query_url, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                # First get address transactions to find signatures
+                async with self.session.get(query_url, timeout=aiohttp.ClientTimeout(total=30)) as resp:
                         if resp.status == 200:
                             address_txs = await resp.json()
                             
@@ -1807,7 +1836,7 @@ class RealTimeCreatorFundingExtractor:
                                         "transactions": signatures_to_check
                                     }
                                     
-                                    async with session.post(tx_url, json=tx_payload, timeout=aiohttp.ClientTimeout(total=30)) as tx_resp:
+                                    async with self.session.post(tx_url, json=tx_payload, timeout=aiohttp.ClientTimeout(total=30)) as tx_resp:
                                         if tx_resp.status == 200:
                                             full_txs = await tx_resp.json()
                                             

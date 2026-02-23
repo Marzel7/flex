@@ -2,779 +2,709 @@
 """
 Extract and save funder transfers (both incoming and outgoing) to database.
 
-Uses Helius API for fast, efficient transaction history. Falls back to Solana RPC if needed.
+SAFEST/RELIABLE (but still fast) version:
+- Prefer Helius enriched tx feed when available (nativeTransfers already parsed)
+- Fall back to Solana RPC only if Helius unavailable/fails
+- Shared HTTP session w/ retries + exponential backoff
+- Bounded concurrency for multi-funder processing (default 4)
+- Batch DB inserts + WAL pragmas + required indexes
+- Async-safe entrypoints (no asyncio.run() inside running event loop)
 
 For each funder for a creator:
-1. Get recent transactions via Helius or Solana RPC
-2. Parse SOL transfers where funder is involved (both IN and OUT)
-3. For INCOMING: Identify sender addresses (funder received SOL)
-4. For OUTGOING: Identify recipient addresses (funder sent SOL)
-5. Classify senders/recipients (CEX, INFRA, unknown)
-6. Save to funder_incoming_transfers table (incoming)
-7. Save to funder_outgoing_transfers table (outgoing)
+1. Pull recent txs (Helius preferred)
+2. Parse nativeTransfers for IN/OUT wrt funder
+3. Classify counterparties (CEX/INFRA/unknown) with LRU cache
+4. Batch insert into funder_incoming_transfers + funder_outgoing_transfers
 """
 
-import sqlite3
-import asyncio
-import aiohttp
-from typing import Dict, List, Tuple, Optional
+from __future__ import annotations
+
+import os
 import sys
 import time
-import os
+import sqlite3
+import asyncio
+from typing import Dict, List, Tuple, Optional, Iterable
 from functools import lru_cache
-sys.path.insert(0, '/Users/kevinkeaveney/Dev/claude/flex')
-
-from infra_mapping import get_account_info, get_cex_info
 import requests
 
-# Try to load environment variables from .env file
+sys.path.insert(0, "/Users/kevinkeaveney/Dev/claude/flex")
+
+from infra_mapping import get_account_info, get_cex_info  # type: ignore
+
+# Env
 try:
-    from dotenv import load_dotenv
+    from dotenv import load_dotenv  # type: ignore
     load_dotenv()
-except ImportError:
-    pass  # dotenv not required, env vars can be set directly
+except Exception:
+    pass
 
 DB_PATH = "pumpswap_tokens.db"
 SOLANA_RPC = "https://api.mainnet-beta.solana.com"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()
-RPC_RATE_LIMIT_DELAY = 2  # 2 second delay between RPC calls to avoid rate limiting
-MAX_RETRIES = 3  # Retry failed requests up to 3 times
+
 LAMPORTS_PER_SOL = 1_000_000_000
-USE_HELIUS = bool(HELIUS_API_KEY)  # Use Helius if API key is available
+USE_HELIUS = bool(HELIUS_API_KEY)
+
+# Reliability defaults
+MIN_SOL = 0.001
+DEFAULT_HELIUS_LIMIT = 100        # Helius endpoint commonly maxes at 100
+DEFAULT_RPC_SIG_LIMIT = 200       # keep bounded
+MAX_HTTP_RETRIES = 5
+MAX_RPC_RETRIES = 4
+BASE_BACKOFF_SECS = 0.5
+
+# Concurrency: reliable but still fast
+DEFAULT_CONCURRENCY = 4
+
+# Shared HTTP session (keep-alive)
+SESSION = requests.Session()
+SESSION.headers.update({"User-Agent": "funder-transfer-extractor/2.3"})
+
+# -------------------------
+# DB helpers
+# -------------------------
+
+def _open_db_optimized() -> sqlite3.Connection:
+    """Open SQLite connection with pragmas that are safe-ish but faster for bulk."""
+    conn = sqlite3.connect(DB_PATH, timeout=60)
+    conn.execute("PRAGMA journal_mode=WAL;")
+    conn.execute("PRAGMA synchronous=NORMAL;")
+    conn.execute("PRAGMA temp_store=MEMORY;")
+    conn.execute("PRAGMA cache_size=-200000;")  # ~200MB
+    return conn
 
 
-def get_creator_funders(creator_address: str) -> list:
-    """Get all funders for a creator from database"""
+def _ensure_tables_and_indexes() -> None:
+    """Create tables/indexes if missing. Safe to call often."""
+    conn = _open_db_optimized()
+    cur = conn.cursor()
+
+    # Incoming transfers
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS funder_incoming_transfers (
+            sender_address TEXT NOT NULL,
+            funder_address TEXT NOT NULL,
+            amount_sol REAL,
+            sender_type TEXT,
+            transaction_signature TEXT,
+            block_time INTEGER,
+            is_cex INTEGER DEFAULT 0,
+            cex_exchange TEXT,
+            cex_type TEXT,
+            PRIMARY KEY (sender_address, funder_address, transaction_signature)
+        )
+    """)
+
+    # Outgoing transfers
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS funder_outgoing_transfers (
+            funder_address TEXT NOT NULL,
+            recipient_address TEXT NOT NULL,
+            amount_sol REAL,
+            recipient_type TEXT,
+            transaction_signature TEXT,
+            block_time INTEGER,
+            is_cex INTEGER DEFAULT 0,
+            cex_exchange TEXT,
+            cex_type TEXT,
+            PRIMARY KEY (funder_address, recipient_address, transaction_signature)
+        )
+    """)
+
+    # Indexes for the “cache exists?” checks
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_fit_funder ON funder_incoming_transfers(funder_address)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_fot_funder ON funder_outgoing_transfers(funder_address)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_fit_sig ON funder_incoming_transfers(transaction_signature)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_fot_sig ON funder_outgoing_transfers(transaction_signature)")
+
+    conn.commit()
+    conn.close()
+
+
+# -------------------------
+# Classification (cached)
+# -------------------------
+
+@lru_cache(maxsize=50000)
+def classify_sender(address: str) -> Tuple[str, Optional[str], Optional[str]]:
+    """
+    Return (type, exchange_name, exchange_type)
+    type in {"cex","infra","unknown"}
+    """
+    cex_info = get_cex_info(address)
+    if cex_info:
+        return ("cex", cex_info.get("name"), cex_info.get("cex_type"))
+
+    infra_info = get_account_info(address)
+    if infra_info:
+        return ("infra", infra_info.get("name"), None)
+
+    return ("unknown", None, None)
+
+
+# -------------------------
+# DB queries
+# -------------------------
+
+def get_creator_funders(creator_address: str) -> List[Tuple[str, float]]:
+    """Get all funders for a creator from database."""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = sqlite3.connect(DB_PATH, timeout=10)
         conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-
-        cursor.execute(
+        cur = conn.cursor()
+        cur.execute(
             """
             SELECT funder_address, amount_sol
             FROM creator_funders
             WHERE creator_address = ?
             ORDER BY amount_sol DESC
-        """,
+            """,
             (creator_address,),
         )
-
-        funders = [(row["funder_address"], row["amount_sol"]) for row in cursor.fetchall()]
+        rows = cur.fetchall()
         conn.close()
-        return funders
+        return [(r["funder_address"], float(r["amount_sol"] or 0.0)) for r in rows]
     except Exception as e:
         print(f"[DB] Error getting funders: {e}")
         return []
 
 
-@lru_cache(maxsize=50000)
-def classify_sender(sender_address: str) -> Tuple[str, Optional[str], Optional[str]]:
-    """Classify a sender address and return (sender_type, exchange_name, exchange_type)
+def _has_cached_funder_transfers(funder_address: str) -> Tuple[int, int, float]:
+    """Return (incoming_count, outgoing_count, total_sol) from cache if any."""
+    conn = sqlite3.connect(DB_PATH, timeout=10)
+    cur = conn.cursor()
 
-    Results are cached to avoid repeated lookups for the same addresses.
+    cur.execute("SELECT COUNT(*) FROM funder_incoming_transfers WHERE funder_address = ?", (funder_address,))
+    inc = int(cur.fetchone()[0] or 0)
+
+    cur.execute("SELECT COUNT(*) FROM funder_outgoing_transfers WHERE funder_address = ?", (funder_address,))
+    out = int(cur.fetchone()[0] or 0)
+
+    if inc or out:
+        cur.execute("SELECT COALESCE(SUM(amount_sol),0) FROM funder_incoming_transfers WHERE funder_address = ?", (funder_address,))
+        inc_sum = float(cur.fetchone()[0] or 0.0)
+
+        cur.execute("SELECT COALESCE(SUM(amount_sol),0) FROM funder_outgoing_transfers WHERE funder_address = ?", (funder_address,))
+        out_sum = float(cur.fetchone()[0] or 0.0)
+
+        conn.close()
+        return inc, out, inc_sum + out_sum
+
+    conn.close()
+    return 0, 0, 0.0
+
+
+# -------------------------
+# HTTP helpers (reliable)
+# -------------------------
+
+def _sleep_backoff(attempt: int, retry_after: Optional[float] = None) -> None:
+    if retry_after is not None and retry_after > 0:
+        time.sleep(min(30.0, retry_after))
+        return
+    # exponential backoff with cap
+    time.sleep(min(30.0, BASE_BACKOFF_SECS * (2 ** attempt)))
+
+
+def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, timeout: float = 20.0) -> Optional[object]:
     """
+    Reliable HTTP call with retry/backoff on 429/5xx and network errors.
+    """
+    for attempt in range(MAX_HTTP_RETRIES):
+        try:
+            if method.upper() == "GET":
+                resp = SESSION.get(url, timeout=timeout)
+            else:
+                resp = SESSION.post(url, json=json_body, timeout=timeout)
 
-    # Check CEX first
-    cex_info = get_cex_info(sender_address)
-    if cex_info:
-        return ("cex", cex_info.get('name'), cex_info.get('cex_type'))
+            if resp.status_code == 429:
+                ra = resp.headers.get("Retry-After")
+                retry_after = float(ra) if ra and ra.isdigit() else None
+                print(f"[HTTP] 429 rate-limited. Backing off (attempt {attempt+1}/{MAX_HTTP_RETRIES})")
+                _sleep_backoff(attempt, retry_after=retry_after)
+                continue
 
-    # Check infrastructure
-    infra_info = get_account_info(sender_address)
-    if infra_info:
-        return ("infra", infra_info.get('name'), None)
+            if resp.status_code >= 500:
+                print(f"[HTTP] {resp.status_code} server error. Backing off (attempt {attempt+1}/{MAX_HTTP_RETRIES})")
+                _sleep_backoff(attempt)
+                continue
 
-    return ("unknown", None, None)
+            if resp.status_code != 200:
+                # client errors: don’t loop forever
+                try:
+                    txt = resp.text[:300]
+                except Exception:
+                    txt = ""
+                print(f"[HTTP] Non-200 ({resp.status_code}). Body: {txt}")
+                return None
 
+            return resp.json()
 
-def _open_db_optimized():
-    """Open SQLite connection with optimizations for bulk operations"""
-    conn = sqlite3.connect(DB_PATH, timeout=60)
-    # WAL mode: write-ahead logging for better concurrency
-    conn.execute("PRAGMA journal_mode=WAL;")
-    # NORMAL: sync after each transaction (faster than FULL, safer than OFF)
-    conn.execute("PRAGMA synchronous=NORMAL;")
-    # Store temp tables in memory for speed
-    conn.execute("PRAGMA temp_store=MEMORY;")
-    # Increase cache to 200MB for better performance
-    conn.execute("PRAGMA cache_size=-200000;")
-    return conn
-
-
-def save_funder_incoming_transfer(sender_address: str, funder_address: str, amount_sol: float,
-                                  tx_signature: str, block_time: Optional[int] = None):
-    """Save a funder incoming transfer to database (store CEX/INFRA but mark as terminal)"""
-    try:
-        # Classify sender
-        sender_type, exchange_name, exchange_type = classify_sender(sender_address)
-
-        # Check if sender is CEX or INFRA (mark for display but don't trace through)
-        is_cex = 1 if sender_type == "cex" else 0
-
-        conn = sqlite3.connect(DB_PATH, timeout=5)
-        cursor = conn.cursor()
-
-        # Insert or update
-        cursor.execute(
-            """
-            INSERT OR REPLACE INTO funder_incoming_transfers
-            (sender_address, funder_address, amount_sol, sender_type, transaction_signature, block_time, is_cex, cex_exchange, cex_type)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-            (sender_address, funder_address, amount_sol, sender_type, tx_signature, block_time, is_cex, exchange_name, exchange_type),
-        )
-
-        conn.commit()
-        conn.close()
-
-        # Show marker for terminal accounts (don't trace further)
-        marker = "🚫" if sender_type in ("cex", "infra") else "✅"
-        print(f"[DB] {marker} Saved incoming: {sender_address[:16]}... → {funder_address[:16]}... | {amount_sol:.4f} SOL ({sender_type})")
-        return True
-
-    except Exception as e:
-        print(f"[DB] Error saving incoming transfer: {e}")
-        return False
-
-
-def save_funder_outgoing_transfer(funder_address: str, recipient_address: str, amount_sol: float,
-                                  tx_signature: str, block_time: Optional[int] = None):
-    """Save a funder outgoing transfer to database (store CEX/INFRA but mark as terminal)"""
-    try:
-        # Classify recipient
-        recipient_type, exchange_name, exchange_type = classify_sender(recipient_address)
-
-        # Check if recipient is CEX or INFRA (mark for display but don't trace through)
-        is_cex = 1 if recipient_type == "cex" else 0
-
-        conn = sqlite3.connect(DB_PATH, timeout=5)
-        cursor = conn.cursor()
-
-        # Insert or update
-        cursor.execute(
-            """
-            INSERT OR REPLACE INTO funder_outgoing_transfers
-            (funder_address, recipient_address, amount_sol, recipient_type, transaction_signature, block_time, is_cex, cex_exchange, cex_type)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-            (funder_address, recipient_address, amount_sol, recipient_type, tx_signature, block_time, is_cex, exchange_name, exchange_type),
-        )
-
-        conn.commit()
-        conn.close()
-
-        # Show marker for terminal accounts (don't trace further)
-        marker = "🚫" if recipient_type in ("cex", "infra") else "✅"
-        print(f"[DB] {marker} Saved outgoing: {funder_address[:16]}... → {recipient_address[:16]}... | {amount_sol:.4f} SOL ({recipient_type})")
-        return True
-
-    except Exception as e:
-        print(f"[DB] Error saving outgoing transfer: {e}")
-        return False
-
-
-def get_transactions_helius(address: str, limit: int = 1000) -> Optional[List[Dict]]:
-    """Get transactions for an address via Helius API"""
-    if not HELIUS_API_KEY:
-        return None
-
-    try:
-        url = f"https://api.helius.xyz/v0/addresses/{address}/transactions?api-key={HELIUS_API_KEY}"
-        print(f"[HELIUS] Fetching transactions for {address[:16]}...")
-        response = requests.get(url, timeout=15)
-        data = response.json()
-
-        if isinstance(data, list):
-            print(f"[HELIUS] Retrieved {len(data)} transactions")
-            return data
-        else:
-            print(f"[HELIUS] Error: {data}")
+        except (requests.Timeout, requests.ConnectionError) as e:
+            print(f"[HTTP] Network error: {e}. Backing off (attempt {attempt+1}/{MAX_HTTP_RETRIES})")
+            _sleep_backoff(attempt)
+            continue
+        except Exception as e:
+            print(f"[HTTP] Unexpected error: {e}")
             return None
-
-    except Exception as e:
-        print(f"[HELIUS] Error: {e}")
-        return None
-
-
-def get_transactions_for_address(address: str, limit: int = 100) -> List[Dict]:
-    """Get recent transactions for an address via RPC with retry logic"""
-    for attempt in range(MAX_RETRIES):
-        try:
-            time.sleep(RPC_RATE_LIMIT_DELAY)  # Rate limiting
-
-            payload = {
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "getSignaturesForAddress",
-                "params": [address, {"limit": limit}]
-            }
-
-            response = requests.post(SOLANA_RPC, json=payload, timeout=10)
-            data = response.json()
-
-            if 'error' in data:
-                error_msg = data['error'].get('message', str(data['error']))
-                if '429' in str(data['error']) or 'rate' in error_msg.lower():
-                    print(f"[RPC] Rate limited (attempt {attempt + 1}/{MAX_RETRIES}): {error_msg}")
-                    if attempt < MAX_RETRIES - 1:
-                        time.sleep(5)  # Wait longer before retry
-                        continue
-                    return []
-                else:
-                    print(f"[RPC] Error: {data['error']}")
-                    return []
-
-            if 'result' not in data or not data['result']:
-                return []
-
-            return data['result']
-
-        except Exception as e:
-            print(f"[RPC] Error getting signatures (attempt {attempt + 1}/{MAX_RETRIES}): {e}")
-            if attempt < MAX_RETRIES - 1:
-                time.sleep(5)  # Wait longer before retry
-            else:
-                return []
-
-    return []
-
-
-def parse_transaction(tx_sig: str) -> Optional[Dict]:
-    """Parse a transaction to find SOL transfers with retry logic"""
-    for attempt in range(MAX_RETRIES):
-        try:
-            time.sleep(RPC_RATE_LIMIT_DELAY)  # Rate limiting
-
-            payload = {
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "getTransaction",
-                "params": [tx_sig, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
-            }
-
-            response = requests.post(SOLANA_RPC, json=payload, timeout=10)
-            data = response.json()
-
-            if 'error' in data:
-                error_msg = str(data['error']).lower()
-                if '429' in str(data['error']) or 'rate' in error_msg:
-                    if attempt < MAX_RETRIES - 1:
-                        time.sleep(5)  # Wait longer before retry
-                        continue
-                return None
-
-            if 'result' not in data or data['result'] is None:
-                return None
-
-            tx = data['result']
-
-            return {
-                'signature': tx_sig,
-                'accounts': tx['transaction']['message']['accountKeys'],
-                'pre_balances': tx['meta']['preBalances'],
-                'post_balances': tx['meta']['postBalances'],
-                'block_time': tx['blockTime'],
-                'err': tx['meta']['err']
-            }
-
-        except Exception as e:
-            print(f"[RPC] Error parsing transaction {tx_sig[:16]}... (attempt {attempt + 1}/{MAX_RETRIES}): {e}")
-            if attempt < MAX_RETRIES - 1:
-                time.sleep(5)  # Wait longer before retry
-            else:
-                return None
 
     return None
 
 
-def parse_transactions_batch(tx_sigs: List[str]) -> Dict[str, Optional[Dict]]:
-    """Batch fetch multiple transactions via Helius API (50x faster than sequential RPC)
-    
-    Returns dict mapping tx_sig -> parsed transaction data
+# -------------------------
+# Chain fetchers
+# -------------------------
+
+def get_transactions_helius(address: str, limit: int = DEFAULT_HELIUS_LIMIT) -> Optional[List[dict]]:
     """
-    if not tx_sigs or not USE_HELIUS:
-        return {}
-    
-    try:
-        # Helius batch endpoint for transaction details
-        url = f"https://api.helius.xyz/v0/transactions?api-key={HELIUS_API_KEY}"
-        
-        # Batch up to 100 at a time (Helius limit)
-        results = {}
-        for batch_start in range(0, len(tx_sigs), 100):
-            batch_sigs = tx_sigs[batch_start:batch_start + 100]
-            
-            payload = {"transactions": batch_sigs}
-            
-            try:
-                response = requests.post(url, json=payload, timeout=30)
-                batch_data = response.json()
-                
-                if isinstance(batch_data, list):
-                    for tx in batch_data:
-                        if not tx:
-                            continue
-                        
-                        tx_sig = tx.get('signature', '')
-                        if not tx_sig:
-                            continue
-                        
-                        # Skip failed transactions
-                        if tx.get('type') == 'FAILED':
-                            results[tx_sig] = None
-                            continue
-                        
-                        # Extract native transfers if available
-                        native_transfers = tx.get('nativeTransfers', [])
-                        if native_transfers:
-                            # For batch API, we already have parsed transfers
-                            results[tx_sig] = {
-                                'signature': tx_sig,
-                                'nativeTransfers': native_transfers,
-                                'timestamp': tx.get('timestamp'),
-                                'type': tx.get('type'),
-                                'source': 'helius_batch'
-                            }
-                        else:
-                            results[tx_sig] = None
-                else:
-                    print(f"[HELIUS_BATCH] Unexpected response format: {type(batch_data)}")
-            
-            except Exception as e:
-                print(f"[HELIUS_BATCH] Error fetching batch {batch_start//100 + 1}: {e}")
-                continue
-        
-        if results:
-            print(f"[HELIUS_BATCH] Fetched {len([r for r in results.values() if r])} transactions from {len(tx_sigs)} signatures")
-        
-        return results
-    
-    except Exception as e:
-        print(f"[HELIUS_BATCH] Error: {e}")
-        return {}
-
-
-def extract_transfers_for_funder(funder_address: str) -> Dict:
-    """Extract incoming and outgoing SOL transfers for a funder address
-
-    Checks database first - if data already exists, returns cached results.
-    Only extracts from Helius/RPC if no data found.
+    Helius enriched address transaction feed (fastest + most reliable parsing).
+    We explicitly pass limit to avoid uncontrolled response sizes.
     """
-    print(f"\n[EXTRACT] Analyzing funder: {funder_address}")
+    if not USE_HELIUS:
+        return None
 
-    # OPTIMIZATION: Check if we already have extraction data for this funder
-    try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
-        cursor = conn.cursor()
+    lim = max(1, min(int(limit), DEFAULT_HELIUS_LIMIT))
+    url = (
+        f"https://api.helius.xyz/v0/addresses/{address}/transactions"
+        f"?api-key={HELIUS_API_KEY}&limit={lim}"
+    )
+    data = _request_json("GET", url, timeout=25.0)
+    if isinstance(data, list):
+        return data
+    return None
 
-        # Count existing transfers
-        cursor.execute("SELECT COUNT(*) FROM funder_incoming_transfers WHERE funder_address = ?", (funder_address,))
-        incoming_count = cursor.fetchone()[0]
 
-        cursor.execute("SELECT COUNT(*) FROM funder_outgoing_transfers WHERE funder_address = ?", (funder_address,))
-        outgoing_count = cursor.fetchone()[0]
-
-        # If we have data, return it instead of re-extracting
-        if incoming_count > 0 or outgoing_count > 0:
-            # Get total SOL
-            cursor.execute("SELECT SUM(amount_sol) FROM funder_incoming_transfers WHERE funder_address = ?", (funder_address,))
-            incoming_total = (cursor.fetchone()[0] or 0)
-
-            cursor.execute("SELECT SUM(amount_sol) FROM funder_outgoing_transfers WHERE funder_address = ?", (funder_address,))
-            outgoing_total = (cursor.fetchone()[0] or 0)
-
-            conn.close()
-
-            result = {
-                'incoming_count': incoming_count,
-                'outgoing_count': outgoing_count,
-                'total_sol': incoming_total + outgoing_total,
-                'source': 'database_cache'
-            }
-            print(f"[EXTRACT] ✅ Using cached data from DB: {incoming_count} IN, {outgoing_count} OUT")
-            return result
-
-        conn.close()
-    except Exception as e:
-        print(f"[EXTRACT] Database check error (will extract): {e}")
-        # Continue with extraction if check fails
-
-    # No cached data found - need to extract from blockchain
-    print(f"[EXTRACT] No cache found - extracting from blockchain")
-
-    incoming_transfers = []
-    outgoing_transfers = []
-
-    # Try Helius first (much faster), fall back to Solana RPC
-    txs = None
-    if USE_HELIUS:
-        helius_txs = get_transactions_helius(funder_address, limit=1000)
-        if helius_txs:
-            # Convert Helius format to our format for processing
-            txs = helius_txs
-            is_helius = True
-        else:
-            print(f"[RPC] Helius failed, falling back to Solana RPC")
-            is_helius = False
-    else:
-        is_helius = False
-
-    if not txs:
-        # Fall back to standard RPC
-        sigs = get_transactions_for_address(funder_address, limit=200)
-        print(f"[RPC] Found {len(sigs)} transactions for funder")
-        if not sigs:
-            return {'incoming_count': 0, 'outgoing_count': 0, 'total_sol': 0}
-
-        # OPTIMIZATION: Batch fetch all RPC transactions instead of sequential calls
-        sig_list = [sig_info['signature'] for sig_info in sigs]
-        batch_txs = parse_transactions_batch(sig_list)
-
-        # If batch fetch worked, use those; otherwise fall back to sequential
-        if batch_txs:
-            # Convert batch results to Helius-like format for consistent processing
-            txs = [tx_data for tx_data in batch_txs.values() if tx_data]
-            is_helius = True
-        else:
-            # Fall back to sequential parsing
-            txs = sigs
-            is_helius = False
-
-    # Parse each transaction
-    for i, tx_data in enumerate(txs):
+def _rpc_call(payload: dict, timeout: float = 20.0) -> Optional[dict]:
+    """Reliable Solana RPC POST with retry/backoff."""
+    for attempt in range(MAX_RPC_RETRIES):
         try:
-            if is_helius:
-                # Parse Helius format
-                tx_sig = tx_data.get('signature', '')
-                timestamp = tx_data.get('timestamp')
+            resp = SESSION.post(SOLANA_RPC, json=payload, timeout=timeout)
+            if resp.status_code == 429:
+                print(f"[RPC] 429 rate-limited. Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
+                _sleep_backoff(attempt)
+                continue
+            if resp.status_code >= 500:
+                print(f"[RPC] {resp.status_code} server error. Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
+                _sleep_backoff(attempt)
+                continue
+            if resp.status_code != 200:
+                return None
 
-                # Skip failed transactions
-                if tx_data.get('type') == 'FAILED':
-                    continue
+            data = resp.json()
+            if isinstance(data, dict) and data.get("error"):
+                # retry common transient errors
+                _sleep_backoff(attempt)
+                continue
+            return data
+        except (requests.Timeout, requests.ConnectionError) as e:
+            print(f"[RPC] Network error: {e}. Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
+            _sleep_backoff(attempt)
+            continue
+        except Exception:
+            return None
+    return None
 
-                # Get native transfers from Helius enriched data
-                native_transfers = tx_data.get('nativeTransfers', [])
 
-                if not native_transfers:
-                    continue
+def get_signatures_for_address_rpc(address: str, limit: int = DEFAULT_RPC_SIG_LIMIT) -> List[str]:
+    payload = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getSignaturesForAddress",
+        "params": [address, {"limit": int(limit)}],
+    }
+    data = _rpc_call(payload, timeout=20.0)
+    if not data or "result" not in data or not isinstance(data["result"], list):
+        return []
+    return [r.get("signature") for r in data["result"] if isinstance(r, dict) and r.get("signature")]
 
-                # Check each native transfer
-                for transfer in native_transfers:
-                    from_addr = transfer.get('fromUserAccount', '')
-                    to_addr = transfer.get('toUserAccount', '')
-                    amount_lamports = transfer.get('amount', 0)
-                    amount_sol = amount_lamports / LAMPORTS_PER_SOL
 
-                    # Filter dust
-                    if amount_sol < 0.001:
-                        continue
+def helius_batch_get_transactions(tx_sigs: List[str]) -> Dict[str, Optional[dict]]:
+    """
+    Helius batch tx details endpoint:
+    - much faster than calling getTransaction N times
+    - returns nativeTransfers (ideal) for most txs
 
-                    # INCOMING: Funder is receiving
-                    if to_addr == funder_address and from_addr:
-                        if amount_sol > 0:
-                            incoming_transfers.append({
-                                'sender': from_addr,
-                                'funder': funder_address,
-                                'amount_sol': amount_sol,
-                                'tx_sig': tx_sig,
-                                'block_time': timestamp
-                            })
+    Returns map sig -> tx dict (or None).
+    """
+    out: Dict[str, Optional[dict]] = {}
+    if not USE_HELIUS or not tx_sigs:
+        return out
 
-                    # OUTGOING: Funder is sending
-                    elif from_addr == funder_address and to_addr:
-                        if amount_sol > 0:
-                            outgoing_transfers.append({
-                                'funder': funder_address,
-                                'recipient': to_addr,
-                                'amount_sol': amount_sol,
-                                'tx_sig': tx_sig,
-                                'block_time': timestamp
-                            })
-            else:
-                # Parse RPC format
-                sig_info = tx_data
-                sig = sig_info['signature']
+    url = f"https://api.helius.xyz/v0/transactions?api-key={HELIUS_API_KEY}"
 
-                # Parse transaction
-                tx = parse_transaction(sig)
-                if not tx:
-                    continue
-
-                # Skip if transaction failed
-                if tx['err'] is not None:
-                    continue
-
-                accounts = tx['accounts']
-                pre_balances = tx['pre_balances']
-                post_balances = tx['post_balances']
-                block_time = tx['block_time']
-
-                # Find funder in accounts
-                funder_idx = None
-                try:
-                    funder_idx = accounts.index(funder_address)
-                except ValueError:
-                    continue
-
-                pre_balance = pre_balances[funder_idx]
-                post_balance = post_balances[funder_idx]
-                balance_change = post_balance - pre_balance
-
-                # INCOMING: Funder's balance increased
-                if balance_change > 0:
-                    amount_lamports = balance_change
-                    amount_sol = amount_lamports / 1e9
-
-                    # Only save transfers > 0.001 SOL (filter dust)
-                    if amount_sol > 0.001:
-                        # Find sender (account that decreased by similar amount)
-                        sender = None
-                        best_match = None
-                        best_diff = float('inf')
-
-                        for j, (pre, post) in enumerate(zip(pre_balances, post_balances)):
-                            if j == funder_idx:
-                                continue
-
-                            if pre > post:
-                                # This account lost SOL
-                                lost_amount = (pre - post) / 1e9
-
-                                # Find the account that lost approximately the right amount
-                                diff = abs(lost_amount - amount_sol)
-                                if diff < best_diff:
-                                    best_diff = diff
-                                    best_match = (j, accounts[j], lost_amount)
-
-                        # Use best match if it's close enough (within 5%)
-                        if best_match and best_diff < amount_sol * 0.05:
-                            sender = best_match[1]
-
-                        if sender:
-                            incoming_transfers.append({
-                                'sender': sender,
-                                'funder': funder_address,
-                                'amount_sol': amount_sol,
-                                'tx_sig': sig,
-                                'block_time': block_time
-                            })
-
-                # OUTGOING: Funder's balance decreased
-                elif balance_change < 0:
-                    amount_lamports = abs(balance_change)
-                    amount_sol = amount_lamports / 1e9
-
-                    # Only save transfers > 0.001 SOL (filter dust)
-                    if amount_sol > 0.001:
-                        # Find recipient (account that increased by similar amount)
-                        recipient = None
-                        best_match = None
-                        best_diff = float('inf')
-
-                        for j, (pre, post) in enumerate(zip(pre_balances, post_balances)):
-                            if j == funder_idx:
-                                continue
-
-                            if post > pre:
-                                # This account gained SOL
-                                gained_amount = (post - pre) / 1e9
-
-                                # Find the account that gained approximately the right amount
-                                diff = abs(gained_amount - amount_sol)
-                                if diff < best_diff:
-                                    best_diff = diff
-                                    best_match = (j, accounts[j], gained_amount)
-
-                        # Use best match if it's close enough (within 5%)
-                        if best_match and best_diff < amount_sol * 0.05:
-                            recipient = best_match[1]
-
-                        if recipient:
-                            outgoing_transfers.append({
-                                'funder': funder_address,
-                                'recipient': recipient,
-                                'amount_sol': amount_sol,
-                                'tx_sig': sig,
-                                'block_time': block_time
-                            })
-
-        except Exception as e:
-            print(f"[PARSE] Error processing transaction: {e}")
+    for i in range(0, len(tx_sigs), 100):
+        batch = tx_sigs[i:i + 100]
+        data = _request_json("POST", url, json_body={"transactions": batch}, timeout=35.0)
+        if not isinstance(data, list):
+            # mark batch unknown
+            for s in batch:
+                out[s] = None
             continue
 
-        if (i + 1) % 100 == 0:
-            print(f"[PROGRESS] Processed {i + 1}/{len(txs)} transactions")
+        for tx in data:
+            if not isinstance(tx, dict):
+                continue
+            sig = tx.get("signature")
+            if isinstance(sig, str) and sig:
+                out[sig] = tx
 
-    # Save all transfers using batch inserts for speed
+        # any missing in this batch -> None
+        for s in batch:
+            out.setdefault(s, None)
+
+    return out
+
+
+# -------------------------
+# Core extraction
+# -------------------------
+
+def _parse_native_transfers_from_helius_tx(tx: dict) -> Tuple[str, Optional[int], List[dict]]:
+    """
+    Returns (signature, timestamp, nativeTransfers list).
+    """
+    sig = tx.get("signature") if isinstance(tx.get("signature"), str) else ""
+    ts = tx.get("timestamp")
+    timestamp = int(ts) if isinstance(ts, int) else None
+    native = tx.get("nativeTransfers") if isinstance(tx.get("nativeTransfers"), list) else []
+    return sig, timestamp, native
+
+
+def extract_transfers_for_funder(
+    funder_address: str,
+    *,
+    helius_limit: int = DEFAULT_HELIUS_LIMIT,
+    rpc_sig_limit: int = DEFAULT_RPC_SIG_LIMIT,
+) -> Dict:
+    """
+    Extract incoming/outgoing transfers for a funder.
+    - Uses cached DB results if present.
+    - Otherwise fetches via Helius enriched feed (preferred).
+    - Falls back to RPC signatures + Helius batch tx (if Helius available) or pure RPC (last resort).
+    """
+    _ensure_tables_and_indexes()
+
+    print(f"\n[EXTRACT] Analyzing funder: {funder_address}")
+
+    # Cache check
+    inc_count, out_count, total_sol_cached = _has_cached_funder_transfers(funder_address)
+    if inc_count or out_count:
+        print(f"[EXTRACT] ✅ Using cached DB data: {inc_count} IN, {out_count} OUT")
+        return {
+            "incoming_count": inc_count,
+            "outgoing_count": out_count,
+            "total_sol": total_sol_cached,
+            "source": "database_cache",
+            "funder": funder_address,
+        }
+
+    incoming_rows: List[Tuple] = []
+    outgoing_rows: List[Tuple] = []
+
+    # 1) Prefer Helius address tx feed
+    txs = get_transactions_helius(funder_address, limit=helius_limit) if USE_HELIUS else None
+    source = "helius_address_feed"
+
+    # 2) Fallback: RPC signatures → batch tx details (Helius) → last resort pure RPC getTransaction
+    if not txs:
+        sigs = get_signatures_for_address_rpc(funder_address, limit=rpc_sig_limit)
+        if not sigs:
+            return {"incoming_count": 0, "outgoing_count": 0, "total_sol": 0.0, "source": "no_data", "funder": funder_address}
+
+        if USE_HELIUS:
+            batch = helius_batch_get_transactions(sigs)
+            txs = [t for t in batch.values() if isinstance(t, dict)]
+            source = "helius_batch_from_rpc_sigs"
+        else:
+            # Pure RPC last resort: extremely slow + less accurate
+            source = "rpc_only"
+            txs = []
+            for sig in sigs:
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getTransaction",
+                    "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}],
+                }
+                data = _rpc_call(payload, timeout=25.0)
+                tx = data.get("result") if isinstance(data, dict) else None
+                if isinstance(tx, dict):
+                    # Adapt into a minimal structure we can read
+                    # Note: rpc-only mode won’t have nativeTransfers; we’ll attempt meta-balance diffs (best-effort)
+                    txs.append({"_rpc_raw": tx, "signature": sig})
+
+    # Parse transfers
+    for tx in txs:
+        try:
+            # Helius mode (nativeTransfers exists)
+            if isinstance(tx, dict) and "nativeTransfers" in tx:
+                sig, ts, native = _parse_native_transfers_from_helius_tx(tx)
+                if not native:
+                    continue
+
+                for nt in native:
+                    if not isinstance(nt, dict):
+                        continue
+                    frm = nt.get("fromUserAccount")
+                    to = nt.get("toUserAccount")
+                    lamports = nt.get("amount", 0)
+
+                    if not isinstance(frm, str) or not isinstance(to, str):
+                        continue
+                    if not isinstance(lamports, int):
+                        try:
+                            lamports = int(lamports)
+                        except Exception:
+                            continue
+
+                    amount_sol = lamports / LAMPORTS_PER_SOL
+                    if amount_sol < MIN_SOL:
+                        continue
+
+                    # Incoming: someone -> funder
+                    if to == funder_address:
+                        sender_type, exch, exch_type = classify_sender(frm)
+                        is_cex = 1 if sender_type == "cex" else 0
+                        incoming_rows.append((frm, funder_address, amount_sol, sender_type, sig, ts, is_cex, exch, exch_type))
+
+                    # Outgoing: funder -> someone
+                    elif frm == funder_address:
+                        recipient_type, exch, exch_type = classify_sender(to)
+                        is_cex = 1 if recipient_type == "cex" else 0
+                        outgoing_rows.append((funder_address, to, amount_sol, recipient_type, sig, ts, is_cex, exch, exch_type))
+
+            # rpc-only mode (best-effort)
+            elif isinstance(tx, dict) and tx.get("_rpc_raw"):
+                raw = tx["_rpc_raw"]
+                sig = tx.get("signature", "")
+                block_time = raw.get("blockTime")
+                ts = int(block_time) if isinstance(block_time, int) else None
+
+                meta = raw.get("meta") or {}
+                pre = meta.get("preBalances") or []
+                post = meta.get("postBalances") or []
+                keys = (raw.get("transaction") or {}).get("message", {}).get("accountKeys") or []
+
+                # Find funder index
+                funder_idx = None
+                for i, k in enumerate(keys):
+                    k_str = k.get("pubkey") if isinstance(k, dict) else str(k)
+                    if k_str == funder_address:
+                        funder_idx = i
+                        break
+                if funder_idx is None or funder_idx >= len(pre) or funder_idx >= len(post):
+                    continue
+
+                delta = int(post[funder_idx]) - int(pre[funder_idx])
+                if abs(delta) < int(MIN_SOL * LAMPORTS_PER_SOL):
+                    continue
+
+                # Best-effort counterparty matching:
+                # pick the largest opposite delta account (more reliable than closest-match here)
+                best_idx = None
+                best_amt = 0
+                if delta > 0:
+                    # funder gained -> sender lost most
+                    for j in range(min(len(pre), len(post), len(keys))):
+                        if j == funder_idx:
+                            continue
+                        d = int(post[j]) - int(pre[j])
+                        if d < 0 and abs(d) > best_amt:
+                            best_amt = abs(d)
+                            best_idx = j
+                    if best_idx is not None:
+                        sender = keys[best_idx].get("pubkey") if isinstance(keys[best_idx], dict) else str(keys[best_idx])
+                        amt = delta / LAMPORTS_PER_SOL
+                        sender_type, exch, exch_type = classify_sender(sender)
+                        is_cex = 1 if sender_type == "cex" else 0
+                        incoming_rows.append((sender, funder_address, amt, sender_type, sig, ts, is_cex, exch, exch_type))
+
+                else:
+                    # funder lost -> recipient gained most
+                    for j in range(min(len(pre), len(post), len(keys))):
+                        if j == funder_idx:
+                            continue
+                        d = int(post[j]) - int(pre[j])
+                        if d > 0 and d > best_amt:
+                            best_amt = d
+                            best_idx = j
+                    if best_idx is not None:
+                        recipient = keys[best_idx].get("pubkey") if isinstance(keys[best_idx], dict) else str(keys[best_idx])
+                        amt = abs(delta) / LAMPORTS_PER_SOL
+                        recipient_type, exch, exch_type = classify_sender(recipient)
+                        is_cex = 1 if recipient_type == "cex" else 0
+                        outgoing_rows.append((funder_address, recipient, amt, recipient_type, sig, ts, is_cex, exch, exch_type))
+
+        except Exception:
+            continue
+
+    # Batch save
     incoming_saved = 0
     outgoing_saved = 0
 
-    if incoming_transfers or outgoing_transfers:
-        try:
-            conn = _open_db_optimized()
-            cur = conn.cursor()
+    if incoming_rows or outgoing_rows:
+        conn = _open_db_optimized()
+        cur = conn.cursor()
 
-            # Batch insert incoming transfers
-            if incoming_transfers:
-                incoming_rows = []
-                for transfer in incoming_transfers:
-                    sender_type, exchange_name, exchange_type = classify_sender(transfer['sender'])
-                    is_cex = 1 if sender_type == "cex" else 0
-                    incoming_rows.append((
-                        transfer['sender'],
-                        transfer['funder'],
-                        transfer['amount_sol'],
-                        sender_type,
-                        transfer['tx_sig'],
-                        transfer['block_time'],
-                        is_cex,
-                        exchange_name,
-                        exchange_type
-                    ))
+        if incoming_rows:
+            cur.executemany(
+                """
+                INSERT OR REPLACE INTO funder_incoming_transfers
+                (sender_address, funder_address, amount_sol, sender_type, transaction_signature, block_time, is_cex, cex_exchange, cex_type)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                incoming_rows,
+            )
+            incoming_saved = len(incoming_rows)
 
-                cur.executemany("""
-                    INSERT OR REPLACE INTO funder_incoming_transfers
-                    (sender_address, funder_address, amount_sol, sender_type, transaction_signature, block_time, is_cex, cex_exchange, cex_type)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, incoming_rows)
-                incoming_saved = len(incoming_rows)
+        if outgoing_rows:
+            cur.executemany(
+                """
+                INSERT OR REPLACE INTO funder_outgoing_transfers
+                (funder_address, recipient_address, amount_sol, recipient_type, transaction_signature, block_time, is_cex, cex_exchange, cex_type)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                outgoing_rows,
+            )
+            outgoing_saved = len(outgoing_rows)
 
-            # Batch insert outgoing transfers
-            if outgoing_transfers:
-                outgoing_rows = []
-                for transfer in outgoing_transfers:
-                    recipient_type, exchange_name, exchange_type = classify_sender(transfer['recipient'])
-                    is_cex = 1 if recipient_type == "cex" else 0
-                    outgoing_rows.append((
-                        transfer['funder'],
-                        transfer['recipient'],
-                        transfer['amount_sol'],
-                        recipient_type,
-                        transfer['tx_sig'],
-                        transfer['block_time'],
-                        is_cex,
-                        exchange_name,
-                        exchange_type
-                    ))
+        conn.commit()
+        conn.close()
 
-                cur.executemany("""
-                    INSERT OR REPLACE INTO funder_outgoing_transfers
-                    (funder_address, recipient_address, amount_sol, recipient_type, transaction_signature, block_time, is_cex, cex_exchange, cex_type)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, outgoing_rows)
-                outgoing_saved = len(outgoing_rows)
-
-            conn.commit()
-            conn.close()
-
-            print(f"[DB] Batch saved: {incoming_saved} incoming, {outgoing_saved} outgoing transfers")
-        except Exception as e:
-            print(f"[DB] Error batch saving transfers: {e}")
-
-    total_sol = sum(t['amount_sol'] for t in incoming_transfers) + sum(t['amount_sol'] for t in outgoing_transfers)
-
-    print(f"[SUMMARY] Funder {funder_address[:16]}...: {incoming_saved} incoming, {outgoing_saved} outgoing, {total_sol:.4f} SOL total")
+    total_sol = float(sum(r[2] for r in incoming_rows) + sum(r[2] for r in outgoing_rows))
+    print(f"[SUMMARY] {funder_address[:16]}... | {incoming_saved} IN, {outgoing_saved} OUT | {total_sol:.4f} SOL | source={source}")
 
     return {
-        'incoming_count': incoming_saved,
-        'outgoing_count': outgoing_saved,
-        'total_sol': total_sol,
-        'funder': funder_address
+        "incoming_count": incoming_saved,
+        "outgoing_count": outgoing_saved,
+        "total_sol": total_sol,
+        "source": source,
+        "funder": funder_address,
     }
 
 
-def extract_for_creator(creator_address: str) -> Dict:
-    """Extract incoming and outgoing transfers for all funders of a creator (async with bounded concurrency)"""
+# -------------------------
+# Creator-level extraction (async safe)
+# -------------------------
+
+async def extract_for_creator_async(
+    creator_address: str,
+    *,
+    concurrency: int = DEFAULT_CONCURRENCY,
+    helius_limit: int = DEFAULT_HELIUS_LIMIT,
+    rpc_sig_limit: int = DEFAULT_RPC_SIG_LIMIT,
+) -> Dict:
+    """
+    Extract for all funders of a creator using bounded concurrency.
+    Safe to call from within an existing event loop.
+    """
+    _ensure_tables_and_indexes()
+
     print(f"\n{'='*80}")
     print(f"[START] Extracting funder transfers (IN/OUT) for creator: {creator_address}")
     print(f"{'='*80}")
 
-    # Get all funders for this creator
     funders = get_creator_funders(creator_address)
     print(f"[DB] Found {len(funders)} funder(s) for this creator")
 
     if not funders:
-        print("[RESULT] No funders found for creator")
-        return {'error': 'no_funders'}
+        return {"error": "no_funders", "creator": creator_address}
 
-    # Run async extraction with bounded concurrency
-    result = asyncio.run(_extract_all_funders_async(creator_address, funders))
-    return result
+    sem = asyncio.Semaphore(max(1, int(concurrency)))
 
-
-
-async def _extract_all_funders_async(creator_address: str, funders: List[Tuple[str, float]]) -> Dict:
-    """Process all funders concurrently with bounded concurrency (max 8 at a time)"""
-    # Semaphore limits concurrent operations to 8
-    sem = asyncio.Semaphore(8)
-
-    async def process_funder(funder_addr: str, funder_amount: float) -> Dict:
-        """Process single funder with semaphore constraint"""
+    async def _process_one(funder_addr: str, _amount: float) -> Dict:
         async with sem:
-            # Run blocking extract_transfers_for_funder in thread pool
-            return await asyncio.to_thread(extract_transfers_for_funder, funder_addr)
+            return await asyncio.to_thread(
+                extract_transfers_for_funder,
+                funder_addr,
+                helius_limit=helius_limit,
+                rpc_sig_limit=rpc_sig_limit,
+            )
 
-    # Process all funders concurrently
-    tasks = [process_funder(addr, amount) for addr, amount in funders]
+    tasks = [_process_one(addr, amt) for addr, amt in funders]
     results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    # Aggregate results
-    total_sol = 0
+    total_sol = 0.0
     total_incoming = 0
     total_outgoing = 0
     error_count = 0
 
-    for result in results:
-        if isinstance(result, Exception):
+    for r in results:
+        if isinstance(r, Exception):
             error_count += 1
-            print(f"[ERROR] Exception processing funder: {result}")
             continue
-        
-        if isinstance(result, dict):
-            total_sol += result.get('total_sol', 0)
-            total_incoming += result.get('incoming_count', 0)
-            total_outgoing += result.get('outgoing_count', 0)
+        if isinstance(r, dict):
+            total_sol += float(r.get("total_sol", 0.0))
+            total_incoming += int(r.get("incoming_count", 0))
+            total_outgoing += int(r.get("outgoing_count", 0))
 
-    # Mark extraction as complete by updating last_analyzed timestamp for all funders
+    # Mark completion (best-effort)
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
-        cursor = conn.cursor()
-        cursor.execute("""
+        conn = sqlite3.connect(DB_PATH, timeout=10)
+        cur = conn.cursor()
+        cur.execute(
+            """
             UPDATE creator_funders
             SET last_analyzed = CURRENT_TIMESTAMP
             WHERE creator_address = ?
-        """, (creator_address,))
+            """,
+            (creator_address,),
+        )
         conn.commit()
         conn.close()
-        print(f"[DB] Marked extraction complete for all funders of {creator_address[:16]}...")
     except Exception as e:
         print(f"[DB] Error marking completion: {e}")
 
     print(f"\n{'='*80}")
-    print(f"[COMPLETE] Extraction complete for {creator_address}")
+    print(f"[COMPLETE] {creator_address}")
     print(f"  Total incoming transfers: {total_incoming}")
     print(f"  Total outgoing transfers: {total_outgoing}")
     print(f"  Total SOL traced: {total_sol:.4f}")
-    if error_count > 0:
+    if error_count:
         print(f"  ⚠ {error_count} errors during processing")
-    print(f"  ✅ Funding Complete")
     print(f"{'='*80}\n")
 
     return {
-        'creator': creator_address,
-        'incoming_found': total_incoming,
-        'outgoing_found': total_outgoing,
-        'total_sol': total_sol,
-        'status': 'complete'
+        "creator": creator_address,
+        "incoming_found": total_incoming,
+        "outgoing_found": total_outgoing,
+        "total_sol": total_sol,
+        "errors": error_count,
+        "status": "complete",
     }
 
+
+def extract_for_creator(creator_address: str) -> Dict:
+    """
+    Sync wrapper.
+    - If no event loop is running: runs async extraction normally.
+    - If called from an existing loop, instruct caller to use extract_for_creator_async().
+    """
+    try:
+        loop = asyncio.get_running_loop()
+        # If we’re here, we’re already inside an event loop
+        raise RuntimeError(
+            "extract_for_creator() called inside a running event loop. "
+            "Use: await extract_for_creator_async(creator_address)"
+        )
+    except RuntimeError as e:
+        # No running loop -> safe to run
+        if "no running event loop" in str(e).lower():
+            return asyncio.run(extract_for_creator_async(creator_address))
+        # Running loop -> propagate the helpful error
+        raise
+
+
+# -------------------------
+# CLI
+# -------------------------
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python3 funder_incoming_extractor.py <creator_address>")
         sys.exit(1)
 
-    creator = sys.argv[1]
+    creator = sys.argv[1].strip()
     result = extract_for_creator(creator)
     print(result)

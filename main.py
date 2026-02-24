@@ -2889,7 +2889,7 @@ HTML_TEMPLATE = """
 
                             // Repeat launcher tag (show if > 1 token)
                             if (creatorData.token_count > 1) {
-                                columnTags.push(`<span class="creator-tag tag-repeat" title="Repeat launcher">${creatorData.token_count} tokens</span>`);
+                                columnTags.push(`<span class="creator-tag tag-repeat" title="Repeat launcher">Multi-token (${creatorData.token_count})</span>`);
                             }
 
                             // Blocked tag

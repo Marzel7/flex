@@ -131,24 +131,85 @@ def ensure_tables():
         except sqlite3.OperationalError:
             # creator_funders table doesn't exist yet, skip index
             pass
+
+        # Create priority scanning view for intelligent creator selection
+        try:
+            conn = _connect()
+            cur = conn.cursor()
+            cur.execute("""
+            CREATE VIEW IF NOT EXISTS creator_scan_priority AS
+            WITH creator_stats AS (
+              SELECT earliest_tx_creator AS creator, MAX(ta.created_at) AS last_launch_at, COUNT(*) AS launch_count_30d
+              FROM token_analysis ta WHERE ta.earliest_tx_creator IS NOT NULL AND ta.created_at >= datetime('now','-30 days')
+              GROUP BY ta.earliest_tx_creator
+            ),
+            scan_state AS (SELECT c.creator_address AS creator, c.updated_at AS last_scanned_at FROM creator_sig_cursors c),
+            risk AS (SELECT b.creator_address AS creator, b.reputation, COALESCE(b.connected_to_malicious,0) AS connected_to_malicious FROM creator_blocklist b),
+            funding AS (SELECT cf.creator_address AS creator, MAX(cf.first_detected_at) AS last_funded_at, SUM(CASE WHEN cf.is_cex=0 THEN 1 ELSE 0 END) AS real_funder_edges FROM creator_funders cf GROUP BY cf.creator_address)
+            SELECT s.creator, 
+              ((CASE WHEN datetime(cs.last_launch_at) >= datetime('now','-6 hours') THEN 1000 ELSE 0 END) +
+               (CASE WHEN r.reputation='MALICIOUS' THEN 900 WHEN r.reputation='SUSPICIOUS' THEN 600 ELSE 0 END) +
+               (CASE WHEN r.connected_to_malicious=1 THEN 500 ELSE 0 END) +
+               (CASE WHEN datetime(f.last_funded_at) >= datetime('now','-6 hours') THEN 300 ELSE 0 END) +
+               (CASE WHEN COALESCE(f.real_funder_edges,0) > 0 THEN 200 ELSE 0 END) +
+               (CASE WHEN ss.last_scanned_at IS NULL THEN 150 WHEN datetime(ss.last_scanned_at) < datetime('now','-24 hours') THEN 100 ELSE 0 END) +
+               (MIN(COALESCE(cs.launch_count_30d,0), 20) * 10)) AS priority_score
+            FROM (SELECT DISTINCT earliest_tx_creator AS creator FROM token_analysis WHERE earliest_tx_creator IS NOT NULL) s
+            LEFT JOIN creator_stats cs ON cs.creator = s.creator
+            LEFT JOIN scan_state ss ON ss.creator = s.creator
+            LEFT JOIN risk r ON r.creator = s.creator
+            LEFT JOIN funding f ON f.creator = s.creator
+            """)
+            conn.commit()
+            conn.close()
+        except sqlite3.OperationalError as e:
+            # View creation may fail if dependencies don't exist yet, that's okay
+            pass
+
         print("[OUTGOING] ✅ Tables ensured", flush=True)
 
 
 def get_creators(limit: int = 1000) -> List[str]:
-    """Get all unique creators from token_analysis"""
+    """Get creators prioritized by activity, risk, and scan state.
+    
+    Priority scoring considers:
+    - Recent launches (1000 points if <6 hours)
+    - Risk reputation (900 for MALICIOUS, 600 for SUSPICIOUS)
+    - Connected to malicious (500 points)
+    - Recently funded (300 points if <6 hours)
+    - Has real funders (200 points)
+    - Never scanned (150 points) or >24 hours stale (100 points)
+    - Recent launch count (up to 200 points)
+    
+    Falls back to chronological ordering if priority view unavailable.
+    """
     conn = _connect()
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-    cur.execute("""
-      SELECT DISTINCT earliest_tx_creator
-      FROM token_analysis
-      WHERE earliest_tx_creator IS NOT NULL
-      ORDER BY analyzed_at DESC
-      LIMIT ?
-    """, (limit,))
-    rows = cur.fetchall()
-    conn.close()
-    return [r[0] for r in rows if r and r[0]]
+    
+    try:
+        # Try priority-based scanning first
+        cur.execute("""
+          SELECT creator
+          FROM creator_scan_priority
+          ORDER BY priority_score DESC
+          LIMIT ?
+        """, (limit,))
+        rows = cur.fetchall()
+        conn.close()
+        return [r["creator"] for r in rows if r and r["creator"]]
+    except sqlite3.OperationalError:
+        # Fallback to simple chronological ordering if view doesn't exist
+        cur.execute("""
+          SELECT DISTINCT earliest_tx_creator
+          FROM token_analysis
+          WHERE earliest_tx_creator IS NOT NULL
+          ORDER BY analyzed_at DESC
+          LIMIT ?
+        """, (limit,))
+        rows = cur.fetchall()
+        conn.close()
+        return [r[0] for r in rows if r and r[0]]
 
 
 def load_all_cursors(creators: List[str]) -> Dict[str, Tuple[Optional[str], Optional[int]]]:

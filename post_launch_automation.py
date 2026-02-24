@@ -216,8 +216,11 @@ class PostLaunchAutomationCoordinator:
     async def _assign_creator_network(self, creator: str):
         """
         Assign network to creator based on funding relationships
-
-        Analyzes shared funders with existing creators to find network membership.
+        
+        Priority order:
+        1. Atomic network funders (from atomic_network_names)
+        2. Coordinated funders (from coordinated_funders)
+        3. Shared funders (2+ shared with another creator)
         """
         try:
             # Retry with exponential backoff if funders not yet available
@@ -239,7 +242,7 @@ class PostLaunchAutomationCoordinator:
                         conn.close()
                         return True
 
-                    # Find creators with shared funders
+                    # Find creators with funders
                     cursor.execute("""
                         SELECT COUNT(*) FROM creator_funders WHERE creator_address = ?
                     """, (creator,))
@@ -263,7 +266,74 @@ class PostLaunchAutomationCoordinator:
                     else:
                         raise
 
-            # Query for connected creators
+            # PRIORITY 1: Check for atomic network funders
+            cursor.execute("""
+                SELECT DISTINCT an.network_name
+                FROM creator_funders cf
+                JOIN atomic_network_names an ON cf.funder_address = an.funder_address
+                WHERE cf.creator_address = ?
+                LIMIT 1
+            """, (creator,))
+            
+            atomic_network = cursor.fetchone()
+            if atomic_network:
+                network_name = atomic_network[0]
+                print(f"[NETWORK] 🌐 Creator {creator[:16]}... assigned to atomic network: {network_name}", flush=True)
+                
+                # Find other creators in the same network
+                cursor.execute("""
+                    SELECT DISTINCT cf.creator_address
+                    FROM creator_funders cf
+                    JOIN atomic_network_names an ON cf.funder_address = an.funder_address
+                    WHERE an.network_name = ?
+                    AND cf.creator_address != ?
+                    LIMIT 10
+                """, (network_name, creator))
+                
+                connected = [row[0] for row in cursor.fetchall()]
+                
+                cursor.execute("""
+                    INSERT OR REPLACE INTO creator_networks
+                    (creator_address, connected_creators, shared_destinations, network_size, network_risk_level, network_name, detected_at)
+                    VALUES (?, ?, ?, ?, 'MEDIUM', ?, CURRENT_TIMESTAMP)
+                """, (creator, json.dumps(connected), json.dumps([]), len(connected) + 1, network_name))
+                
+                conn.commit()
+                conn.close()
+                return True
+
+            # PRIORITY 2: Check for coordinated funders
+            cursor.execute("""
+                SELECT ccf.funder_address, ccf.creator_addresses, ccf.risk_level
+                FROM creator_funders cf
+                JOIN coordinated_funders ccf ON cf.funder_address = ccf.funder_address
+                WHERE cf.creator_address = ?
+                LIMIT 1
+            """, (creator,))
+            
+            coordinated = cursor.fetchone()
+            if coordinated:
+                funder_addr = coordinated[0]
+                other_creators_json = coordinated[1]
+                risk_level = coordinated[2]
+                
+                # Parse the JSON array of creators
+                other_creators = json.loads(other_creators_json) if isinstance(other_creators_json, str) else other_creators_json
+                connected_list = [c for c in other_creators if c != creator]
+                
+                print(f"[NETWORK] 🔴 Creator {creator[:16]}... assigned to coordinated funder network ({len(connected_list)} connected creators)", flush=True)
+                
+                cursor.execute("""
+                    INSERT OR REPLACE INTO creator_networks
+                    (creator_address, connected_creators, shared_destinations, network_size, network_risk_level, detected_at)
+                    VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                """, (creator, json.dumps(connected_list), json.dumps([]), len(connected_list) + 1, risk_level or 'MEDIUM'))
+                
+                conn.commit()
+                conn.close()
+                return True
+
+            # PRIORITY 3: Check for shared funders with other creators
             cursor.execute("""
                 SELECT DISTINCT cf2.creator_address, COUNT(DISTINCT cf1.funder_address) as shared_funder_count
                 FROM creator_funders cf1
@@ -279,39 +349,18 @@ class PostLaunchAutomationCoordinator:
             connected_creators = cursor.fetchall()
 
             if connected_creators:
-                print(f"[NETWORK] 🔗 Found {len(connected_creators)} connected creators for {creator[:16]}...", flush=True)
+                print(f"[NETWORK] 🔗 Creator {creator[:16]}... assigned to shared funder network ({len(connected_creators)} connected creators)", flush=True)
 
                 # Store connected creators relationship
                 connected_list = [addr for addr, count in connected_creators]
-
-                # Get shared destinations (recipients that all creators send to)
-                cursor.execute("""
-                    SELECT DISTINCT recipient_address
-                    FROM creator_recipients_unified
-                    WHERE creator_address = ?
-                """, (creator,))
-                creator_recipients = [row[0] for row in cursor.fetchall()]
-
-                # Find shared destinations with connected creators
-                shared_destinations = []
-                if creator_recipients:
-                    placeholders = ','.join(['?' for _ in connected_list])
-                    cursor.execute(f"""
-                        SELECT DISTINCT recipient_address
-                        FROM creator_recipients_unified
-                        WHERE creator_address IN ({placeholders})
-                        AND recipient_address IN ({','.join(['?'] * len(creator_recipients))})
-                    """, connected_list + creator_recipients)
-                    shared_destinations = [row[0] for row in cursor.fetchall()]
 
                 cursor.execute("""
                     INSERT OR REPLACE INTO creator_networks
                     (creator_address, connected_creators, shared_destinations, network_size, network_risk_level, detected_at)
                     VALUES (?, ?, ?, ?, 'MEDIUM', CURRENT_TIMESTAMP)
-                """, (creator, json.dumps(connected_list), json.dumps(shared_destinations), len(connected_list) + 1))
+                """, (creator, json.dumps(connected_list), json.dumps([]), len(connected_list) + 1))
 
                 conn.commit()
-                print(f"[NETWORK] ✅ Network assigned to creator {creator[:16]}...", flush=True)
                 conn.close()
                 return True
             else:

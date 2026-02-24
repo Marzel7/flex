@@ -132,37 +132,46 @@ def ensure_tables():
             # creator_funders table doesn't exist yet, skip index
             pass
 
-        # Create priority scanning view for intelligent creator selection
+        # Create priority scanning view using simple tier-based ordering
         try:
             conn = _connect()
             cur = conn.cursor()
             cur.execute("""
             CREATE VIEW IF NOT EXISTS creator_scan_priority AS
-            WITH creator_stats AS (
-              SELECT earliest_tx_creator AS creator, MAX(ta.created_at) AS last_launch_at, COUNT(*) AS launch_count_30d
-              FROM token_analysis ta WHERE ta.earliest_tx_creator IS NOT NULL AND ta.created_at >= datetime('now','-30 days')
+            WITH creator_data AS (
+              SELECT 
+                ta.earliest_tx_creator AS creator,
+                MAX(ta.created_at) AS last_launch_at,
+                CASE WHEN cn.creator_address IS NOT NULL THEN 1 ELSE 0 END AS in_network,
+                MAX(cf.first_detected_at) AS last_funded_at,
+                COALESCE(csc.updated_at, '2000-01-01') AS last_scanned_at,
+                COALESCE(cb.reputation, 'CLEAN') AS reputation,
+                COALESCE(cb.connected_to_malicious, 0) AS connected_to_malicious
+              FROM token_analysis ta
+              LEFT JOIN creator_networks cn ON cn.creator_address = ta.earliest_tx_creator
+              LEFT JOIN creator_funders cf ON cf.creator_address = ta.earliest_tx_creator
+              LEFT JOIN creator_sig_cursors csc ON csc.creator_address = ta.earliest_tx_creator
+              LEFT JOIN creator_blocklist cb ON cb.creator_address = ta.earliest_tx_creator
+              WHERE ta.earliest_tx_creator IS NOT NULL
               GROUP BY ta.earliest_tx_creator
-            ),
-            scan_state AS (SELECT c.creator_address AS creator, c.updated_at AS last_scanned_at FROM creator_sig_cursors c),
-            risk AS (SELECT b.creator_address AS creator, b.reputation, COALESCE(b.connected_to_malicious,0) AS connected_to_malicious FROM creator_blocklist b),
-            funding AS (SELECT cf.creator_address AS creator, MAX(cf.first_detected_at) AS last_funded_at, SUM(CASE WHEN cf.is_cex=0 THEN 1 ELSE 0 END) AS real_funder_edges FROM creator_funders cf GROUP BY cf.creator_address)
-            SELECT s.creator, 
-              ((CASE WHEN datetime(cs.last_launch_at) >= datetime('now','-6 hours') THEN 1000 ELSE 0 END) +
-               (CASE WHEN r.reputation='MALICIOUS' THEN 900 WHEN r.reputation='SUSPICIOUS' THEN 600 ELSE 0 END) +
-               (CASE WHEN r.connected_to_malicious=1 THEN 500 ELSE 0 END) +
-               (CASE WHEN datetime(f.last_funded_at) >= datetime('now','-6 hours') THEN 300 ELSE 0 END) +
-               (CASE WHEN COALESCE(f.real_funder_edges,0) > 0 THEN 200 ELSE 0 END) +
-               (CASE WHEN ss.last_scanned_at IS NULL THEN 150 WHEN datetime(ss.last_scanned_at) < datetime('now','-24 hours') THEN 100 ELSE 0 END) +
-               (MIN(COALESCE(cs.launch_count_30d,0), 20) * 10)) AS priority_score
-            FROM (SELECT DISTINCT earliest_tx_creator AS creator FROM token_analysis WHERE earliest_tx_creator IS NOT NULL) s
-            LEFT JOIN creator_stats cs ON cs.creator = s.creator
-            LEFT JOIN scan_state ss ON ss.creator = s.creator
-            LEFT JOIN risk r ON r.creator = s.creator
-            LEFT JOIN funding f ON f.creator = s.creator
+            )
+            SELECT creator,
+              CASE
+                WHEN datetime(last_launch_at) >= datetime('now', '-6 hours') THEN 0
+                WHEN reputation IN ('MALICIOUS', 'SUSPICIOUS') THEN 1
+                WHEN connected_to_malicious = 1 THEN 1
+                WHEN in_network = 0 THEN 2
+                WHEN datetime(last_funded_at) >= datetime('now', '-6 hours') THEN 3
+                WHEN datetime(last_scanned_at) < datetime('now', '-24 hours') THEN 4
+                ELSE 5
+              END AS tier,
+              last_launch_at,
+              last_scanned_at
+            FROM creator_data
             """)
             conn.commit()
             conn.close()
-        except sqlite3.OperationalError as e:
+        except sqlite3.OperationalError:
             # View creation may fail if dependencies don't exist yet, that's okay
             pass
 
@@ -170,16 +179,15 @@ def ensure_tables():
 
 
 def get_creators(limit: int = 1000) -> List[str]:
-    """Get creators prioritized by activity, risk, and scan state.
+    """Get creators ordered by priority tier.
     
-    Priority scoring considers:
-    - Recent launches (1000 points if <6 hours)
-    - Risk reputation (900 for MALICIOUS, 600 for SUSPICIOUS)
-    - Connected to malicious (500 points)
-    - Recently funded (300 points if <6 hours)
-    - Has real funders (200 points)
-    - Never scanned (150 points) or >24 hours stale (100 points)
-    - Recent launch count (up to 200 points)
+    Priority tiers (in order):
+    0. Launched in last 6 hours (always top)
+    1. MALICIOUS/SUSPICIOUS or connected to malicious
+    2. Not in any network (discovery)
+    3. Recently funded (last 6 hours)
+    4. Not scanned in 24 hours
+    5. Everything else
     
     Falls back to chronological ordering if priority view unavailable.
     """
@@ -188,11 +196,11 @@ def get_creators(limit: int = 1000) -> List[str]:
     cur = conn.cursor()
     
     try:
-        # Try priority-based scanning first
+        # Try tier-based scanning first
         cur.execute("""
           SELECT creator
           FROM creator_scan_priority
-          ORDER BY priority_score DESC
+          ORDER BY tier ASC, last_launch_at DESC, last_scanned_at ASC
           LIMIT ?
         """, (limit,))
         rows = cur.fetchall()

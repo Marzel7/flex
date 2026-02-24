@@ -377,6 +377,49 @@ def get_cex_infra_label(address: str) -> Optional[str]:
         return None
 
 
+def format_cross_references_display(cross_refs_data: Dict) -> str:
+    """
+    Format cross-reference data for display/CLI output.
+    Shows INBOUND and OUTBOUND connections clearly.
+    
+    Args:
+        cross_refs_data: Dict with 'inbound' and 'outbound' keys containing cross-reference lists
+    
+    Returns:
+        Formatted string showing cross-references
+    """
+    output = []
+    inbound = cross_refs_data.get('inbound', [])
+    outbound = cross_refs_data.get('outbound', [])
+    
+    if inbound:
+        output.append("\n📥 INBOUND CROSS-REFERENCES (Shared Funders):")
+        output.append("=" * 80)
+        for ref in inbound:
+            output.append(f"\n  Funder: {ref['address'][:16]}...")
+            output.append(f"    ├─ Shared with {ref['creator_count']} other creator(s)")
+            output.append(f"    └─ {ref['description']}")
+            if ref['other_creators'] and len(ref['other_creators']) <= 5:
+                for other_creator in ref['other_creators'][:5]:
+                    output.append(f"      • {other_creator[:16]}...")
+    
+    if outbound:
+        output.append("\n📤 OUTBOUND CROSS-REFERENCES (Shared Recipients):")
+        output.append("=" * 80)
+        for ref in outbound:
+            output.append(f"\n  Recipient: {ref['address'][:16]}...")
+            output.append(f"    ├─ Shared with {ref['creator_count']} other creator(s)")
+            output.append(f"    └─ {ref['description']}")
+            if ref['other_creators'] and len(ref['other_creators']) <= 5:
+                for other_creator in ref['other_creators'][:5]:
+                    output.append(f"      • {other_creator[:16]}...")
+    
+    if not inbound and not outbound:
+        return "  ✓ No cross-creator links detected"
+    
+    return "\n".join(output)
+
+
 def build_network_key(funder_address: str, is_cex: bool, upstream_sender: Optional[str] = None, funding_time: Optional[int] = None) -> tuple:
     """
     Build network key for grouping creators.
@@ -6303,25 +6346,63 @@ def api_creator_details(creator_address: str):
         # 8. Get creator's address tags (domains, etc. from address_tags table)
         creator_address_tags = get_address_tags(creator_address)
 
-        # 9. Get cross-creator references (network detection)
-        cross_refs = []
+        # 9. Get OUTBOUND cross-creator references (recipients this creator shares with others)
+        outbound_cross_refs = []
         try:
             from unified_recipient_tracker import UnifiedRecipientTracker
             tracker = UnifiedRecipientTracker()
             shared = tracker.find_shared_recipients(creator_address)
             for recipient, other_creators in shared.items():
                 if other_creators:
-                    cross_refs.append({
-                        'recipient_address': recipient,
+                    outbound_cross_refs.append({
+                        'address': recipient,
                         'other_creators': other_creators,
                         'creator_count': len(other_creators),
-                        'connection_type': 'shared_recipient'
+                        'direction': 'OUTBOUND',
+                        'type': 'shared_recipient',
+                        'description': f'This creator sends SOL to {recipient[:8]}..., which also receives from {len(other_creators)} other creator(s)'
                     })
-            cross_refs.sort(key=lambda x: x['creator_count'], reverse=True)
+            outbound_cross_refs.sort(key=lambda x: x['creator_count'], reverse=True)
         except Exception as e:
-            cross_refs = []
+            outbound_cross_refs = []
 
-        # 10. Check if any recipients are network coordinators
+        # 10. Get INBOUND cross-creator references (funders that also fund other creators)
+        inbound_cross_refs = []
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT DISTINCT cf.funder_address, COUNT(DISTINCT cf2.creator_address) as other_creator_count
+                FROM creator_funders cf
+                JOIN creator_funders cf2 ON cf.funder_address = cf2.funder_address
+                WHERE cf.creator_address = ?
+                AND cf2.creator_address != ?
+                GROUP BY cf.funder_address
+                ORDER BY other_creator_count DESC
+            """, (creator_address, creator_address))
+
+            for row in cursor.fetchall():
+                funder_addr, other_count = row
+                cursor.execute("""
+                    SELECT DISTINCT creator_address FROM creator_funders
+                    WHERE funder_address = ? AND creator_address != ?
+                """, (funder_addr, creator_address))
+                other_creators = [r[0] for r in cursor.fetchall()]
+
+                if other_creators:
+                    inbound_cross_refs.append({
+                        'address': funder_addr,
+                        'other_creators': other_creators,
+                        'creator_count': len(other_creators),
+                        'direction': 'INBOUND',
+                        'type': 'shared_funder',
+                        'description': f'This funder ({funder_addr[:8]}...) funds this creator AND {len(other_creators)} other creator(s)'
+                    })
+
+            inbound_cross_refs.sort(key=lambda x: x['creator_count'], reverse=True)
+        except Exception as e:
+            inbound_cross_refs = []
+
+        # 11. Check if any recipients are network coordinators
         coordinator_flags = {}
         try:
             from unified_recipient_tracker import UnifiedRecipientTracker
@@ -6339,7 +6420,7 @@ def api_creator_details(creator_address: str):
 
         conn.close()
 
-        # Enhance top_recipients with cross-reference info
+        # Enhance top_recipients with OUTBOUND cross-reference info
         for recipient in top_recipients:
             recipient_addr = recipient.get('recipient_address')
             if recipient_addr in coordinator_flags:
@@ -6347,10 +6428,21 @@ def api_creator_details(creator_address: str):
                 recipient['coordinator_info'] = coordinator_flags[recipient_addr]
             else:
                 recipient['is_network_coordinator'] = False
-            for cross_ref in cross_refs:
-                if cross_ref['recipient_address'] == recipient_addr:
+            for cross_ref in outbound_cross_refs:
+                if cross_ref['address'] == recipient_addr:
                     recipient['shared_with_creators'] = cross_ref['other_creators']
                     recipient['shared_creator_count'] = cross_ref['creator_count']
+                    recipient['cross_ref_direction'] = 'OUTBOUND'
+                    break
+
+        # Enhance top_funders with INBOUND cross-reference info
+        for funder in top_funders:
+            funder_addr = funder.get('funder_address')
+            for cross_ref in inbound_cross_refs:
+                if cross_ref['address'] == funder_addr:
+                    funder['shared_with_creators'] = cross_ref['other_creators']
+                    funder['shared_creator_count'] = cross_ref['creator_count']
+                    funder['cross_ref_direction'] = 'INBOUND'
                     break
 
         return jsonify({
@@ -6360,7 +6452,12 @@ def api_creator_details(creator_address: str):
             'funding': funding,
             'top_funders': top_funders,
             'top_recipients': top_recipients,
-            'cross_references': cross_refs,
+            'cross_references': {
+                'inbound': inbound_cross_refs,
+                'outbound': outbound_cross_refs,
+                'total_inbound_links': len(inbound_cross_refs),
+                'total_outbound_links': len(outbound_cross_refs)
+            },
             'cluster': cluster,
             'is_blocked': is_blocked,
             'tags': tags
@@ -7634,6 +7731,88 @@ def api_creator_cross_references(creator_address: str):
         return jsonify({'error': 'Unified recipient tracker not available'}), 503
     except Exception as e:
         return jsonify({'error': str(e)}), 500@app.route('/api/creator-funding-history/<creator_address>')
+
+
+@app.route('/api/creator-cross-references-directional/<creator_address>')
+def api_creator_cross_references_directional(creator_address: str):
+    """Get cross-creator references with direction labels (INBOUND/OUTBOUND)"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # OUTBOUND: Recipients this creator shares with other creators
+        outbound_refs = []
+        try:
+            from unified_recipient_tracker import UnifiedRecipientTracker
+            tracker = UnifiedRecipientTracker()
+            shared = tracker.find_shared_recipients(creator_address)
+            for recipient, other_creators in shared.items():
+                if other_creators:
+                    outbound_refs.append({
+                        'address': recipient,
+                        'other_creators': other_creators[:10],  # Limit display
+                        'creator_count': len(other_creators),
+                        'direction': 'OUTBOUND',
+                        'type': 'shared_recipient',
+                        'description': f'Sends SOL to {recipient[:8]}... which receives from {len(other_creators)} other creator(s)'
+                    })
+            outbound_refs.sort(key=lambda x: x['creator_count'], reverse=True)
+        except Exception as e:
+            outbound_refs = []
+
+        # INBOUND: Funders that also fund other creators
+        inbound_refs = []
+        try:
+            cursor.execute("""
+                SELECT DISTINCT cf.funder_address, COUNT(DISTINCT cf2.creator_address) as other_creator_count
+                FROM creator_funders cf
+                JOIN creator_funders cf2 ON cf.funder_address = cf2.funder_address
+                WHERE cf.creator_address = ?
+                AND cf2.creator_address != ?
+                GROUP BY cf.funder_address
+                ORDER BY other_creator_count DESC
+                LIMIT 50
+            """, (creator_address, creator_address))
+
+            for row in cursor.fetchall():
+                funder_addr, other_count = row
+                cursor.execute("""
+                    SELECT DISTINCT creator_address FROM creator_funders
+                    WHERE funder_address = ? AND creator_address != ?
+                    LIMIT 10
+                """, (funder_addr, creator_address))
+                other_creators = [r[0] for r in cursor.fetchall()]
+
+                if other_creators:
+                    inbound_refs.append({
+                        'address': funder_addr,
+                        'other_creators': other_creators,
+                        'creator_count': len(other_creators),
+                        'direction': 'INBOUND',
+                        'type': 'shared_funder',
+                        'description': f'Funder {funder_addr[:8]}... funds this creator AND {len(other_creators)} other creator(s)'
+                    })
+
+            inbound_refs.sort(key=lambda x: x['creator_count'], reverse=True)
+        except Exception as e:
+            inbound_refs = []
+
+        conn.close()
+
+        return jsonify({
+            'creator_address': creator_address,
+            'cross_references': {
+                'inbound': inbound_refs,
+                'outbound': outbound_refs,
+                'total_inbound_links': len(inbound_refs),
+                'total_outbound_links': len(outbound_refs),
+                'total_cross_creator_links': len(inbound_refs) + len(outbound_refs)
+            }
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 def api_creator_funding_history(creator_address: str):
     """Get unified funding history for a creator (both incoming and outgoing transfers)"""
     try:

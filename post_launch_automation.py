@@ -50,6 +50,9 @@ class PostLaunchAutomationCoordinator:
         print(f"[POST_LAUNCH] 🚀 Starting automation for creator {creator[:16]}...", flush=True)
 
         try:
+            # 0. TAG CREATOR based on funding patterns
+            await self._tag_creator_from_funding_patterns(creator, mint, total_funders, total_sol)
+
             # 1. Assign network to creator if not already assigned
             await self._assign_creator_network(creator)
 
@@ -71,6 +74,109 @@ class PostLaunchAutomationCoordinator:
             print(f"[POST_LAUNCH] ❌ Error in post-launch automation: {e}", flush=True)
             import traceback
             traceback.print_exc()
+
+    async def _tag_creator_from_funding_patterns(self, creator: str, mint: str, total_funders: int, total_sol: float):
+        """
+        Automatically tag creator based on established funding patterns
+
+        Creates creator_tags entries for:
+        - "coordinated_funding" - if funded by coordinated funders
+        - "multi_funder" - if has 5+ unique funders
+        - "heavy_funded" - if received 10+ SOL
+        - "cex_funded" - if funded by CEX accounts
+        - "infra_funded" - if funded by infrastructure accounts
+        - "network_member" - if part of funding network
+        """
+        try:
+            conn = sqlite3.connect(self.db_path, timeout=60)
+            cursor = conn.cursor()
+
+            tags_to_add = []
+
+            # 1. Check if funded by coordinated funders
+            cursor.execute("""
+                SELECT COUNT(DISTINCT cf.funder_address)
+                FROM creator_funders cf
+                WHERE cf.creator_address = ?
+                AND cf.funder_address IN (
+                    SELECT funder_address FROM cex_wallets WHERE is_active = 1
+                )
+            """, (creator,))
+            cex_funders_count = cursor.fetchone()[0] or 0
+
+            # 2. Check infrastructure funders
+            cursor.execute("""
+                SELECT COUNT(DISTINCT funder_address)
+                FROM creator_funders
+                WHERE creator_address = ?
+                AND is_classified = 1
+            """, (creator,))
+            infra_funders_count = cursor.fetchone()[0] or 0
+
+            # 3. Tag based on patterns
+            if total_funders >= 5:
+                tags_to_add.append(("multi_funder", f"Funded by {total_funders} unique addresses", total_sol))
+
+            if total_sol >= 10:
+                tags_to_add.append(("heavy_funded", f"Received {total_sol:.2f} SOL in funding", total_sol))
+
+            if cex_funders_count > 0:
+                tags_to_add.append(("cex_funded", f"Funded by {cex_funders_count} CEX account(s)", total_sol))
+
+            if infra_funders_count > 0:
+                tags_to_add.append(("infra_funded", f"Funded by {infra_funders_count} infrastructure account(s)", total_sol))
+
+            # 4. Check if this creator funds other creators (network member)
+            cursor.execute("""
+                SELECT COUNT(DISTINCT creator_address)
+                FROM creator_funders
+                WHERE funder_address IN (
+                    SELECT funder_address FROM creator_funders
+                    WHERE creator_address = ?
+                )
+                AND creator_address != ?
+            """, (creator, creator))
+            co_funded_count = cursor.fetchone()[0] or 0
+
+            if co_funded_count >= 1:
+                tags_to_add.append(("network_member", f"Part of funding network with {co_funded_count} other creators", 0))
+
+            # 5. Check for coordinated patterns (same funder as others)
+            cursor.execute("""
+                SELECT COUNT(DISTINCT cf.funder_address)
+                FROM creator_funders cf
+                WHERE cf.creator_address = ?
+                AND cf.funder_address IN (
+                    SELECT funder_address FROM creator_funders
+                    WHERE creator_address != ?
+                    GROUP BY funder_address
+                    HAVING COUNT(DISTINCT creator_address) >= 2
+                )
+            """, (creator, creator))
+            coordinated_funder_count = cursor.fetchone()[0] or 0
+
+            if coordinated_funder_count >= 2:
+                tags_to_add.append(("coordinated_funding", f"Funded by {coordinated_funder_count} coordinated funders", total_sol))
+
+            # 6. Add all tags to creator_tags table
+            for tag, description, amount in tags_to_add:
+                cursor.execute("""
+                    INSERT OR REPLACE INTO creator_tags
+                    (creator_address, tag, description, amount_sol, added_at)
+                    VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                """, (creator, tag, description, amount if amount > 0 else None))
+
+            conn.commit()
+            conn.close()
+
+            if tags_to_add:
+                tag_list = ", ".join([f"'{tag[0]}'" for tag in tags_to_add])
+                print(f"[TAGS] ✅ Tagged creator {creator[:16]}... with {len(tags_to_add)} funding-based tags: {tag_list}", flush=True)
+            else:
+                print(f"[TAGS] ℹ No funding-based tags for creator {creator[:16]}...", flush=True)
+
+        except Exception as e:
+            print(f"[TAGS] ⚠ Error tagging creator: {e}", flush=True)
 
     async def _assign_creator_network(self, creator: str):
         """

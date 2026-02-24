@@ -2,17 +2,22 @@
 """
 Creator Outgoing Transfer Extractor
 
-Detects when creators send SOL to addresses (especially funders).
-Runs hourly to catch creator→funder→creator relationships.
+Hourly scan:
+- 1000 creators
+- 1 RPC call per creator (getSignaturesForAddress)
+- Batch enhanced parse for new sigs (100 sigs/request)
+- Write outgoing edges + build chains + build coordinated edges
 
-Pattern: 1000 creators × 1 sig lookup each + batched enhanced parse of new sigs
+Concurrency-safe + lock-optimized:
+- Preload all cursors in one read
+- Batch update cursors in one transaction
+- Concurrent signature fetches + safe merge
 """
 
 import os
 import asyncio
 import time
 import sqlite3
-import json
 from datetime import datetime
 from typing import List, Dict, Tuple, Optional
 import aiohttp
@@ -23,15 +28,21 @@ HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
 RPC_HTTP = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com"
 HELIUS_ENHANCED = f"https://api-mainnet.helius-rpc.com/v0/transactions?api-key={HELIUS_API_KEY}"
 
-# Global write lock (shared across modules)
 DB_WRITE_LOCK = threading.RLock()
 
+
+def _connect():
+    """Create connection with optimal PRAGMA settings"""
+    conn = sqlite3.connect(DB_PATH, timeout=30)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
+    conn.execute("PRAGMA busy_timeout=30000")
+    return conn
+
 def ensure_tables():
-    """Create creator_outgoing_transfers and cursor tracking tables"""
+    """Create all tables with proper schema and indexes"""
     with DB_WRITE_LOCK:
-        conn = sqlite3.connect(DB_PATH, timeout=30)
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA busy_timeout=30000")
+        conn = _connect()
         cur = conn.cursor()
         cur.executescript("""
         CREATE TABLE IF NOT EXISTS creator_sig_cursors (
@@ -46,6 +57,7 @@ def ensure_tables():
           recipient_address TEXT NOT NULL,
           amount_sol REAL NOT NULL,
           transaction_signature TEXT PRIMARY KEY,
+          slot INTEGER,
           block_time INTEGER,
           first_detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           recipient_type TEXT DEFAULT 'unknown',
@@ -77,6 +89,9 @@ def ensure_tables():
         CREATE INDEX IF NOT EXISTS idx_fc_bridge ON funding_chains(bridge_funder);
         CREATE INDEX IF NOT EXISTS idx_fc_target ON funding_chains(target_creator);
 
+        CREATE UNIQUE INDEX IF NOT EXISTS uq_funding_chain
+          ON funding_chains(chain_type, source_tx, target_creator);
+
         CREATE TABLE IF NOT EXISTS coordinated_creator_edges (
           creator_a TEXT NOT NULL,
           creator_b TEXT NOT NULL,
@@ -98,7 +113,7 @@ def ensure_tables():
 
 def get_creators(limit: int = 1000) -> List[str]:
     """Get all unique creators from token_analysis"""
-    conn = sqlite3.connect(DB_PATH, timeout=30)
+    conn = _connect()
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
     cur.execute("""
@@ -113,30 +128,53 @@ def get_creators(limit: int = 1000) -> List[str]:
     return [r[0] for r in rows if r and r[0]]
 
 
-def get_cursor(creator: str) -> Tuple[Optional[str], Optional[int]]:
-    """Get last signature and slot for a creator"""
-    conn = sqlite3.connect(DB_PATH, timeout=30)
+def load_all_cursors(creators: List[str]) -> Dict[str, Tuple[Optional[str], Optional[int]]]:
+    """
+    Load all cursors in one DB read (reduces lock pressure).
+    Chunks by 800 to avoid SQLite parameter limit issues.
+    """
+    if not creators:
+        return {}
+
+    conn = _connect()
     cur = conn.cursor()
-    cur.execute("SELECT last_signature, last_slot FROM creator_sig_cursors WHERE creator_address = ?", (creator,))
-    row = cur.fetchone()
+    cursors: Dict[str, Tuple[Optional[str], Optional[int]]] = {}
+
+    chunk_size = 800
+    for i in range(0, len(creators), chunk_size):
+        chunk = creators[i:i+chunk_size]
+        qmarks = ",".join(["?"] * len(chunk))
+        cur.execute(f"""
+            SELECT creator_address, last_signature, last_slot
+            FROM creator_sig_cursors
+            WHERE creator_address IN ({qmarks})
+        """, chunk)
+        for addr, sig, slot in cur.fetchall():
+            cursors[addr] = (sig, slot)
+
     conn.close()
-    return (row[0], row[1]) if row else (None, None)
+    return cursors
 
 
-def update_cursor(creator: str, last_sig: str, last_slot: int):
-    """Update cursor after processing new signatures"""
+def batch_update_cursors(rows: List[Tuple[str, str, int]]):
+    """
+    One transaction upsert for all creators (major lock reduction).
+    This replaces 1000 individual update_cursor() calls.
+    """
+    if not rows:
+        return
+
     with DB_WRITE_LOCK:
-        conn = sqlite3.connect(DB_PATH, timeout=30)
-        conn.execute("PRAGMA busy_timeout=30000")
+        conn = _connect()
         cur = conn.cursor()
-        cur.execute("""
+        cur.executemany("""
           INSERT INTO creator_sig_cursors(creator_address, last_signature, last_slot, updated_at)
           VALUES(?, ?, ?, datetime('now'))
           ON CONFLICT(creator_address) DO UPDATE SET
             last_signature=excluded.last_signature,
             last_slot=excluded.last_slot,
             updated_at=datetime('now')
-        """, (creator, last_sig, last_slot))
+        """, rows)
         conn.commit()
         conn.close()
 
@@ -212,10 +250,7 @@ def insert_outgoing_rows(rows: List[Tuple]):
         return
 
     with DB_WRITE_LOCK:
-        conn = sqlite3.connect(DB_PATH, timeout=30)
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA synchronous=NORMAL")
-        conn.execute("PRAGMA busy_timeout=30000")
+        conn = _connect()
         cur = conn.cursor()
         cur.executemany("""
           INSERT OR IGNORE INTO creator_outgoing_transfers
@@ -229,8 +264,7 @@ def insert_outgoing_rows(rows: List[Tuple]):
 def build_funding_chains():
     """Build funding_chains from creator_outgoing_transfers + creator_funders join"""
     with DB_WRITE_LOCK:
-        conn = sqlite3.connect(DB_PATH, timeout=30)
-        conn.execute("PRAGMA busy_timeout=30000")
+        conn = _connect()
         cur = conn.cursor()
 
         # Insert new chains where creator sends to a funder who funds another creator
@@ -282,8 +316,7 @@ def build_funding_chains():
 def build_coordinated_edges():
     """Build coordinated_creator_edges from high-confidence funding chains"""
     with DB_WRITE_LOCK:
-        conn = sqlite3.connect(DB_PATH, timeout=30)
-        conn.execute("PRAGMA busy_timeout=30000")
+        conn = _connect()
         cur = conn.cursor()
 
         cur.execute("""
@@ -317,12 +350,13 @@ async def scan_once(concurrency: int = 25):
 
     Flow:
     1. Get 1000 creators
-    2. Concurrently fetch new signatures (1 RPC call per creator)
-    3. Batch parse new signatures via Helius Enhanced (100 sigs/request)
-    4. Extract outgoing SOL transfers
-    5. Write rows fast
-    6. Update cursors
-    7. Build chains
+    2. Load all cursors in one batch read
+    3. Concurrently fetch new signatures (1 RPC call per creator)
+    4. Batch parse new signatures via Helius Enhanced (100 sigs/request)
+    5. Extract outgoing SOL transfers
+    6. Write rows fast
+    7. Update all cursors in one batch
+    8. Build chains
     """
     creators = get_creators(limit=1000)
     if not creators:
@@ -330,17 +364,20 @@ async def scan_once(concurrency: int = 25):
         return
 
     creator_set = set(creators)
-    new_sigs: List[str] = []
-    creator_latest: Dict[str, Tuple[str, int]] = {}
 
     print(f"[OUTGOING] 🔍 Scanning {len(creators)} creators...", flush=True)
 
+    # Preload all cursors at once (reduces lock pressure)
+    cursors = load_all_cursors(creators)
+
+    # Concurrent signature fetches + safe result collection
     async with aiohttp.ClientSession() as session:
         sem = asyncio.Semaphore(concurrency)
 
-        async def handle_creator(c: str):
+        async def handle_creator(c: str) -> Tuple[List[str], Optional[Tuple[str, int]]]:
+            """Returns (fresh_sigs, (newest_sig, newest_slot))"""
             async with sem:
-                last_sig, _ = get_cursor(c)
+                last_sig, _ = cursors.get(c, (None, None))
                 sigs = await rpc_get_signatures(session, c, limit=25)
 
                 fresh = []
@@ -364,14 +401,25 @@ async def scan_once(concurrency: int = 25):
                     if item.get("err") is None:
                         fresh.append(s)
 
+                creator_update = None
                 if newest_sig:
-                    creator_latest[c] = (newest_sig, int(newest_slot or 0))
+                    creator_update = (newest_sig, int(newest_slot or 0))
 
-                if fresh:
-                    new_sigs.extend(fresh)
+                return (fresh, creator_update)
 
         # Concurrent signature fetches (1000 RPC calls)
-        await asyncio.gather(*(handle_creator(c) for c in creators))
+        tasks = [handle_creator(c) for c in creators]
+        results = await asyncio.gather(*tasks)
+
+    # Safely merge results from concurrent tasks
+    new_sigs: List[str] = []
+    cursor_updates: List[Tuple[str, str, int]] = []
+
+    for c, (fresh, creator_update) in zip(creators, results):
+        new_sigs.extend(fresh)
+        if creator_update:
+            newest_sig, newest_slot = creator_update
+            cursor_updates.append((c, newest_sig, newest_slot))
 
     print(f"[OUTGOING] 📋 Collected {len(new_sigs)} new signatures", flush=True)
 
@@ -388,9 +436,8 @@ async def scan_once(concurrency: int = 25):
     # Write rows (fast)
     insert_outgoing_rows(rows_all)
 
-    # Update cursors (fast)
-    for c, (sig, slot) in creator_latest.items():
-        update_cursor(c, sig, slot)
+    # Update cursors (one batch, not 1000 individual commits)
+    batch_update_cursors(cursor_updates)
 
     # Build chains from new outgoing transfers
     build_funding_chains()

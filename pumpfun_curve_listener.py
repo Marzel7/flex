@@ -1546,27 +1546,45 @@ class PumpFunCurveListener:
 
     def _create_minimal_token_entry(self, mint: str):
         """Create a minimal token entry in database immediately when migration is detected"""
-        try:
-            conn = sqlite3.connect(DB_PATH, timeout=30)
-            cursor = conn.cursor()
+        max_retries = 3
+        retry_delay = 1.0  # Start with 1 second, exponential backoff
 
-            # Create minimal entry with migration detection timestamp using INSERT OR REPLACE
-            # This prevents duplicates if entry already exists
-            # Use NULL for analysis fields so UI shows blank until analysis completes
-            now = time.time()
-            cursor.execute("""
-                INSERT OR REPLACE INTO token_analysis (
-                    mint, created_at, analyzed_at,
-                    rug_probability, risk_level, post_migration_coverage,
-                    rug_indicator, events_parsed
-                ) VALUES (?, ?, ?, NULL, NULL, NULL, NULL, NULL)
-            """, (mint, now, now))
+        for attempt in range(max_retries):
+            try:
+                # Use 60 second timeout instead of 30 to handle clustering write locks
+                conn = sqlite3.connect(DB_PATH, timeout=60)
+                cursor = conn.cursor()
 
-            conn.commit()
-            conn.close()
-            print(f"[DB] ✅ Created minimal token entry for {mint}", flush=True)
-        except Exception as e:
-            print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
+                # Create minimal entry with migration detection timestamp using INSERT OR REPLACE
+                # This prevents duplicates if entry already exists
+                # Use NULL for analysis fields so UI shows blank until analysis completes
+                now = time.time()
+                cursor.execute("""
+                    INSERT OR REPLACE INTO token_analysis (
+                        mint, created_at, analyzed_at,
+                        rug_probability, risk_level, post_migration_coverage,
+                        rug_indicator, events_parsed
+                    ) VALUES (?, ?, ?, NULL, NULL, NULL, NULL, NULL)
+                """, (mint, now, now))
+
+                conn.commit()
+                conn.close()
+                print(f"[DB] ✅ Created minimal token entry for {mint}", flush=True)
+                return
+
+            except sqlite3.OperationalError as e:
+                if "database is locked" in str(e) and attempt < max_retries - 1:
+                    # Transient lock, retry with backoff
+                    wait_time = retry_delay * (2 ** attempt)  # Exponential backoff
+                    print(f"[DB_RETRY] ⏳ Database locked, retrying in {wait_time}s... (attempt {attempt+1}/{max_retries})", flush=True)
+                    time.sleep(wait_time)
+                else:
+                    # Not a lock error or final attempt
+                    print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
+                    return
+            except Exception as e:
+                print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
+                return
 
     def _update_token_entry_with_creator(self, mint: str, creator: str, created_at: str, bonding_curve_pda: str = None, create_tx_signature: str = None):
         """Update minimal token entry with creator, creation date, bonding curve, and CREATE tx signature"""
@@ -1590,20 +1608,39 @@ class PumpFunCurveListener:
                 except Exception as e:
                     print(f"[CLUSTER] Error checking creator {creator}: {e}", flush=True)
 
-            conn = sqlite3.connect(DB_PATH, timeout=30)
-            cursor = conn.cursor()
+            max_retries = 3
+            retry_delay = 1.0
 
-            cursor.execute("""
-                UPDATE token_analysis
-                SET earliest_tx_creator = ?, created_at = ?, bonding_curve_pda = ?, create_tx_signature = ?,
-                    cluster_id = ?, cluster_name = ?, cluster_risk_multiplier = ?
-                WHERE mint = ?
-            """, (creator, created_at, bonding_curve_pda, create_tx_signature, cluster_id, cluster_name, cluster_risk_multiplier, mint))
+            for attempt in range(max_retries):
+                try:
+                    # Use 60 second timeout instead of 30 to handle clustering write locks
+                    conn = sqlite3.connect(DB_PATH, timeout=60)
+                    cursor = conn.cursor()
 
-            conn.commit()
-            conn.close()
-            cluster_info_str = f" | Cluster: {cluster_name} ({cluster_risk_multiplier}x)" if cluster_id else ""
-            print(f"[DB] ✅ Updated token entry with creator: {creator[:8]}... | Created: {created_at} | CREATE tx: {create_tx_signature[:20] if create_tx_signature else 'N/A'}...{cluster_info_str}", flush=True)
+                    cursor.execute("""
+                        UPDATE token_analysis
+                        SET earliest_tx_creator = ?, created_at = ?, bonding_curve_pda = ?, create_tx_signature = ?,
+                            cluster_id = ?, cluster_name = ?, cluster_risk_multiplier = ?
+                        WHERE mint = ?
+                    """, (creator, created_at, bonding_curve_pda, create_tx_signature, cluster_id, cluster_name, cluster_risk_multiplier, mint))
+
+                    conn.commit()
+                    conn.close()
+                    cluster_info_str = f" | Cluster: {cluster_name} ({cluster_risk_multiplier}x)" if cluster_id else ""
+                    print(f"[DB] ✅ Updated token entry with creator: {creator[:8]}... | Created: {created_at} | CREATE tx: {create_tx_signature[:20] if create_tx_signature else 'N/A'}...{cluster_info_str}", flush=True)
+                    return
+
+                except sqlite3.OperationalError as e:
+                    if "database is locked" in str(e) and attempt < max_retries - 1:
+                        # Transient lock, retry with backoff
+                        wait_time = retry_delay * (2 ** attempt)  # Exponential backoff
+                        print(f"[DB_RETRY] ⏳ Database locked, retrying in {wait_time}s... (attempt {attempt+1}/{max_retries})", flush=True)
+                        time.sleep(wait_time)
+                    else:
+                        # Not a lock error or final attempt
+                        print(f"[DB_ERROR] Failed to update token entry with creator: {e}", flush=True)
+                        return
+
         except Exception as e:
             print(f"[DB_ERROR] Failed to update token entry with creator: {e}", flush=True)
 

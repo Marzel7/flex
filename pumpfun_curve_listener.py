@@ -1759,47 +1759,52 @@ class PumpFunCurveListener:
             else:
                 print(f"[SETTINGS] Token history ❌ OFF - skipping token history analysis", flush=True)
 
-            # Extract creator funding for NEW tokens (ALWAYS runs - independent of settings)
+            # ==================================================================================
+            # 🎯 CRITICAL PATH COMPLETE - UI HAS TOKEN + CREATOR
+            # ==================================================================================
+            # Everything from here on is BACKGROUND - fire-and-forget async tasks
+            # The user sees the token and creator immediately; analysis happens in background
+            # ==================================================================================
+
+            print(f"[MIGRATION] ✅ CRITICAL PATH COMPLETE - Token {mint[:8]}... with creator {earliest_creator[:8] if earliest_creator else 'unknown'}... is now visible in UI", flush=True)
+
+            # Background Task 1: Extract creator funding (for UI updates on funding tab)
             if earliest_creator:
-                # Trigger funding extraction asynchronously (with CREATE tx signature and mint for Jitotip detection)
                 create_tx_sig = analyzer._create_tx_signature if hasattr(analyzer, '_create_tx_signature') else None
 
-                print(f"[FUNDING] ⏳ Starting funding extraction for new creator {earliest_creator[:8]}...", flush=True)
-                funding_task = asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at, create_tx_sig, mint))
+                async def background_funding_and_clustering():
+                    """Background: funding extraction, funder extraction, and clustering"""
+                    print(f"[BACKGROUND] 🚀 Starting background funding and clustering tasks...", flush=True)
 
-                # Extract funder incoming/outgoing transfers (automatic for all tokens)
-                print(f"[FUNDER_EXTRACTION] ⏳ Starting funder transfer extraction for {earliest_creator[:8]}...", flush=True)
-                try:
-                    funder_task = asyncio.create_task(extract_funder_transfers_async(earliest_creator))
-                except Exception as e:
-                    print(f"[FUNDER_EXTRACTION] ERROR creating task: {e}", flush=True)
-                    funder_task = None
-
-                # ⏸️ WAIT for both extractions to complete before clustering
-                try:
-                    await asyncio.wait_for(funding_task, timeout=300.0)  # 5 min timeout
-                    print(f"[FUNDING] ✅ Creator funding extraction complete", flush=True)
-                except asyncio.TimeoutError:
-                    print(f"[FUNDING] ⚠️ Creator funding extraction timed out after 5 minutes", flush=True)
-                except Exception as e:
-                    print(f"[FUNDING] ⚠️ Error in creator funding extraction: {e}", flush=True)
-
-                if funder_task:
+                    # Extract creator funding
                     try:
-                        await asyncio.wait_for(funder_task, timeout=300.0)  # 5 min timeout
+                        print(f"[FUNDING] ⏳ Starting creator funding extraction for {earliest_creator[:8]}...", flush=True)
+                        await extract_funding_for_new_token(earliest_creator, created_at, create_tx_sig, mint)
+                        print(f"[FUNDING] ✅ Creator funding extraction complete", flush=True)
+                    except Exception as e:
+                        print(f"[FUNDING] ⚠️ Error in creator funding extraction: {e}", flush=True)
+
+                    # Extract funder transfers
+                    try:
+                        print(f"[FUNDER_EXTRACTION] ⏳ Starting funder transfer extraction for {earliest_creator[:8]}...", flush=True)
+                        await extract_funder_transfers_async(earliest_creator)
                         print(f"[FUNDER_EXTRACTION] ✅ Funder transfer extraction complete", flush=True)
-                    except asyncio.TimeoutError:
-                        print(f"[FUNDER_EXTRACTION] ⚠️ Funder extraction timed out after 5 minutes", flush=True)
                     except Exception as e:
                         print(f"[FUNDER_EXTRACTION] ⚠️ Error in funder extraction: {e}", flush=True)
 
-                print(f"[MIGRATION] ✅ All extractions complete for {earliest_creator[:8]}...", flush=True)
+                    # Queue clustering (now that funding is extracted)
+                    try:
+                        print(f"[CLUSTERING] ⏳ Queueing network clustering task...", flush=True)
+                        await enqueue_clustering(rebuild_super_clusters_from_funding, "super_clusters_rebuild")
+                        print(f"[CLUSTERING] ✅ Clustering task enqueued for processing", flush=True)
+                    except Exception as e:
+                        print(f"[CLUSTERING] ⚠️ Error queueing clustering: {e}", flush=True)
 
-            # Update network clustering from funding data (no RPC needed)
-            # Use clustering queue to prevent database lock errors from parallel operations
-            print(f"[CLUSTERING] Queuing network clustering task...", flush=True)
-            await enqueue_clustering(rebuild_super_clusters_from_funding, "super_clusters_rebuild")
-            print(f"[CLUSTERING] Task enqueued for processing", flush=True)
+                # Fire-and-forget: don't wait for background tasks
+                asyncio.create_task(background_funding_and_clustering())
+                print(f"[BACKGROUND] 📤 Background tasks spawned (fire-and-forget)", flush=True)
+            else:
+                print(f"[BACKGROUND] ⏭️ Skipping background tasks (no creator found)", flush=True)
 
         except Exception as e:
             print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)

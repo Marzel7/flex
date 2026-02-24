@@ -21,46 +21,13 @@ import sqlite3
 from datetime import datetime
 from typing import List, Dict, Tuple, Optional
 import aiohttp
-import threading
-import contextlib
+
+from db_global_lock import db_write_lock_global
 
 DB_PATH = os.getenv("DB_PATH", "pumpswap_tokens.db")
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
 RPC_HTTP = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com"
 HELIUS_ENHANCED = f"https://api-mainnet.helius-rpc.com/v0/transactions?api-key={HELIUS_API_KEY}"
-
-# Cross-process lock file path (for serializing DB writes across listener + extractor processes)
-DB_LOCK_FILE = f"{DB_PATH}.write.lock"
-DB_WRITE_LOCK = threading.RLock()
-
-
-@contextlib.contextmanager
-def db_write_lock_global(timeout: float = 30.0):
-    """
-    Cross-process exclusive lock using fcntl with timeout.
-    Blocks up to `timeout` seconds then raises TimeoutError.
-    Prevents silent deadlock if listener holds lock on long transaction.
-    """
-    import fcntl
-    start = time.time()
-    lock_file = open(DB_LOCK_FILE, "a+")
-    lock_file.flush()
-
-    try:
-        while True:
-            try:
-                fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-                break
-            except BlockingIOError:
-                if time.time() - start > timeout:
-                    raise TimeoutError(f"Timed out waiting for DB lock: {DB_LOCK_FILE}")
-                time.sleep(0.05)
-        yield
-    finally:
-        try:
-            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
-        finally:
-            lock_file.close()
 
 
 def _connect():
@@ -100,6 +67,7 @@ def ensure_tables():
 
         CREATE INDEX IF NOT EXISTS idx_cot_creator ON creator_outgoing_transfers(creator_address);
         CREATE INDEX IF NOT EXISTS idx_cot_recipient ON creator_outgoing_transfers(recipient_address);
+        CREATE INDEX IF NOT EXISTS idx_cot_block_time ON creator_outgoing_transfers(block_time);
 
         CREATE TABLE IF NOT EXISTS funding_chains (
           chain_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -120,6 +88,7 @@ def ensure_tables():
         CREATE INDEX IF NOT EXISTS idx_fc_source ON funding_chains(source_creator);
         CREATE INDEX IF NOT EXISTS idx_fc_bridge ON funding_chains(bridge_funder);
         CREATE INDEX IF NOT EXISTS idx_fc_target ON funding_chains(target_creator);
+        CREATE INDEX IF NOT EXISTS idx_cf_funder ON creator_funders(funder_address);
 
         CREATE UNIQUE INDEX IF NOT EXISTS uq_funding_chain
           ON funding_chains(chain_type, source_tx, target_creator);
@@ -244,19 +213,47 @@ async def rpc_get_signatures(session: aiohttp.ClientSession, address: str, limit
 
 
 async def helius_enhanced_parse(session: aiohttp.ClientSession, sigs: List[str]) -> List[dict]:
-    """Batch parse transaction signatures via Helius Enhanced API (max 100/request)"""
+    """
+    Batch parse transaction signatures via Helius Enhanced API (max 100/request).
+    Handles 429 rate limits with exponential backoff + retries.
+    """
     if not sigs:
         return []
 
     body = {"transactions": sigs}
-    try:
-        async with session.post(HELIUS_ENHANCED, json=body, timeout=aiohttp.ClientTimeout(total=20)) as resp:
-            if resp.status != 200:
-                return []
-            return await resp.json()
-    except Exception as e:
-        print(f"[OUTGOING] ⚠️ helius_enhanced_parse error: {e}", flush=True)
-        return []
+    max_retries = 3
+    backoff_times = [0.5, 1.0, 2.0]
+
+    for attempt in range(max_retries):
+        try:
+            async with session.post(HELIUS_ENHANCED, json=body, timeout=aiohttp.ClientTimeout(total=20)) as resp:
+                if resp.status == 429:
+                    if attempt < max_retries - 1:
+                        sleep_time = backoff_times[attempt]
+                        print(f"[OUTGOING] ⏸️ Rate limited (429), retry in {sleep_time}s (attempt {attempt+1}/{max_retries})", flush=True)
+                        await asyncio.sleep(sleep_time)
+                        continue
+                    else:
+                        print(f"[OUTGOING] ⚠️ Rate limited (429) after {max_retries} retries, skipping batch", flush=True)
+                        return []
+                elif resp.status != 200:
+                    body_snippet = await resp.text()
+                    if len(body_snippet) > 200:
+                        body_snippet = body_snippet[:200] + "..."
+                    print(f"[OUTGOING] ⚠️ Helius status {resp.status}: {body_snippet}", flush=True)
+                    return []
+                return await resp.json()
+        except asyncio.TimeoutError:
+            print(f"[OUTGOING] ⚠️ Helius timeout on attempt {attempt+1}/{max_retries}", flush=True)
+            if attempt < max_retries - 1:
+                await asyncio.sleep(backoff_times[attempt])
+                continue
+            return []
+        except Exception as e:
+            print(f"[OUTGOING] ⚠️ helius_enhanced_parse error: {e}", flush=True)
+            return []
+
+    return []
 
 
 def extract_outgoing_sol(transactions: List[dict], creator_set: set) -> List[Tuple]:
@@ -316,7 +313,7 @@ def build_funding_chains_incremental():
     """
     Build funding chains from only NEW outgoing transfers since last run.
     Optimized: read cursor, release lock, do join, acquire lock again for insert.
-    This keeps lock hold time short even with large joins.
+    Safe against races: capture max block_time in same snapshot as candidates.
     """
     # Step 1: Read cursor without holding cross-process lock
     conn = _connect()
@@ -325,7 +322,8 @@ def build_funding_chains_incremental():
     row = cur.fetchone()
     last_bt = int(row[0] or 0) if row else 0
 
-    # Step 2: Execute read-only join to find candidate chains (no lock held)
+    # Step 2: Execute read-only join to find candidate chains + capture max block_time in same snapshot
+    # This prevents races where newer transfers arrive after we read candidates but before we update cursor
     cur.execute("""
       SELECT
         'CREATOR_TO_FUNDER_TO_CREATOR' AS chain_type,
@@ -355,6 +353,12 @@ def build_funding_chains_incremental():
         AND COALESCE(cf.is_cex,0) = 0
     """, (last_bt,))
     candidate_chains = cur.fetchall()
+
+    # Also capture the max block_time from outgoing transfers in the same transaction snapshot
+    cur.execute("SELECT COALESCE(MAX(cot.block_time), ?) FROM creator_outgoing_transfers cot WHERE cot.block_time > ?", (last_bt, last_bt))
+    new_bt_row = cur.fetchone()
+    new_bt = int(new_bt_row[0] or last_bt) if new_bt_row else last_bt
+
     conn.close()
 
     if not candidate_chains:
@@ -375,10 +379,7 @@ def build_funding_chains_incremental():
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, candidate_chains)
 
-        # Advance cursor to newest outgoing transfer block_time
-        cur.execute("SELECT COALESCE(MAX(block_time), ?) FROM creator_outgoing_transfers", (last_bt,))
-        new_bt = int(cur.fetchone()[0] or last_bt)
-
+        # Use pre-computed max block_time from read snapshot (avoids advancing cursor past unprocessed transfers)
         cur.execute("UPDATE outgoing_chain_cursor SET last_block_time=? WHERE id=1", (new_bt,))
         conn.commit()
         conn.close()
@@ -388,7 +389,7 @@ def build_coordinated_edges_incremental():
     """
     Build coordinated edges only from NEW high-confidence chains.
     Uses coordinated_edge_cursor to track max chain_id, avoiding full table scans.
-    Optimized: read cursor, release lock, then acquire for insert.
+    Safe against races: capture max chain_id in same snapshot as candidates.
     """
     # Step 1: Read cursor without holding cross-process lock
     conn = _connect()
@@ -397,7 +398,8 @@ def build_coordinated_edges_incremental():
     row = cur.fetchone()
     last_id = int(row[0] or 0) if row else 0
 
-    # Step 2: Execute read-only query to find new high-confidence chains (no lock held)
+    # Step 2: Execute read-only query to find new high-confidence chains + capture max chain_id in same snapshot
+    # This prevents races where newer chains arrive after we read candidates but before we update cursor
     cur.execute("""
       SELECT
         source_creator, target_creator, bridge_funder,
@@ -408,6 +410,12 @@ def build_coordinated_edges_incremental():
         AND confidence >= 70
     """, (last_id,))
     candidate_edges = cur.fetchall()
+
+    # Also capture the max chain_id from funding_chains in the same transaction snapshot
+    cur.execute("SELECT COALESCE(MAX(chain_id), ?) FROM funding_chains WHERE chain_id > ?", (last_id, last_id))
+    new_id_row = cur.fetchone()
+    new_id = int(new_id_row[0] or last_id) if new_id_row else last_id
+
     conn.close()
 
     if not candidate_edges:
@@ -427,10 +435,7 @@ def build_coordinated_edges_incremental():
           VALUES (?, ?, ?, ?, ?, ?)
         """, candidate_edges)
 
-        # Advance cursor to max chain_id
-        cur.execute("SELECT COALESCE(MAX(chain_id), ?) FROM funding_chains", (last_id,))
-        new_id = int(cur.fetchone()[0] or last_id)
-
+        # Use pre-computed max chain_id from read snapshot (avoids advancing cursor past unprocessed chains)
         cur.execute("UPDATE coordinated_edge_cursor SET last_chain_id=? WHERE id=1", (new_id,))
         conn.commit()
         conn.close()

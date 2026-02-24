@@ -3753,7 +3753,7 @@ function switchToTokensTab() {
                                 return `
                                     <tr>
                                         <td title="${funder.funder_address}" style="font-family: monospace;">
-                                            <a href="/coordinated-funders?funder=${funder.funder_address}" style="color: var(--color-critical); text-decoration: none; cursor: pointer;">
+                                            <a href="/funding-hub/${funder.funder_address}" style="color: var(--color-critical); text-decoration: none; cursor: pointer;">
                                                 ${funder.funder_address}
                                             </a>
                                         </td>
@@ -8220,11 +8220,6 @@ coordinated_funders_html = '''
 def coordinated_funders_view():
     """Serve a full webview for coordinated funders analysis"""
     try:
-        from flask import request
-
-        # Get optional funder parameter to highlight
-        highlighted_funder = request.args.get('funder', '').strip()
-
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
@@ -8249,11 +8244,8 @@ def coordinated_funders_view():
         # Build HTML response
         html_rows = ""
         for funder in multi_funders:
-            is_highlighted = funder['funder_address'] == highlighted_funder
-            highlight_style = "background: rgba(59, 130, 246, 0.3); border-left: 3px solid #3b82f6;" if is_highlighted else ""
-            row_id = f"funder-row-{funder['funder_address']}"
             html_rows += f"""
-            <tr id="{row_id}" style="{highlight_style}">
+            <tr>
                 <td style="padding: 12px; font-family: monospace; font-size: 11px; word-break: break-all;">
                     <a href="/funding-hub/{funder['funder_address']}" style="color: #3b82f6; text-decoration: none;">
                         {funder['funder_address']}
@@ -8376,26 +8368,6 @@ def coordinated_funders_view():
                     </tbody>
                 </table>
             </div>
-            <script>
-                // Highlight and scroll to funder if specified
-                const urlParams = new URLSearchParams(window.location.search);
-                const highlightedFunder = urlParams.get('funder');
-                if (highlightedFunder) {{
-                    const rowElement = document.getElementById(`funder-row-${{highlightedFunder}}`);
-                    if (rowElement) {{
-                        // Scroll to the row
-                        rowElement.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
-                        // Add a brief pulsing animation
-                        rowElement.style.animation = 'pulse 1s ease-in-out 3';
-                    }}
-                }}
-            </script>
-            <style>
-                @keyframes pulse {{
-                    0%, 100% {{ opacity: 1; }}
-                    50% {{ opacity: 0.7; }}
-                }}
-            </style>
         </body>
         </html>
         """

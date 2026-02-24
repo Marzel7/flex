@@ -1967,6 +1967,10 @@ HTML_TEMPLATE = """
                     <label>Network Size</label>
                     <span id="creatorNetworkSize">—</span>
                 </div>
+                <div class="stat-box">
+                    <label>Atomic Network</label>
+                    <span id="creatorNetworkName" style="color: var(--accent-purple); font-weight: bold;">—</span>
+                </div>
             </div>
 
             <!-- Analysis Buttons -->
@@ -3637,6 +3641,13 @@ function switchToTokensTab() {
                 document.getElementById('creatorTotalFunders').textContent = fundersText;
 
                 document.getElementById('creatorNetworkSize').textContent = (data.cluster.total_wallets || 0) + ' wallets';
+
+                // Display atomic network name if available
+                if (data.network_name) {
+                    document.getElementById('creatorNetworkName').innerHTML = `<a href="/networks?network=${encodeURIComponent(data.network_name)}" style="color: var(--accent-purple); text-decoration: none; cursor: pointer; border-bottom: 1px dotted var(--accent-purple);" title="View network">${data.network_name}</a>`;
+                } else {
+                    document.getElementById('creatorNetworkName').textContent = 'Unassigned';
+                }
 
                 // Display creator tags (remove 'uses_' prefix for cleaner display, deduplicate, filter addresses)
                 const tagsContainer = document.getElementById('creatorTagsContainer');
@@ -6510,6 +6521,20 @@ def api_creator_details(creator_address: str):
         except Exception as e:
             coordinator_flags = {}
 
+        # 12. Get network assignment for this creator
+        network_name = None
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT network_name FROM creator_networks
+                WHERE creator_address = ?
+            """, (creator_address,))
+            network_row = cursor.fetchone()
+            if network_row:
+                network_name = network_row[0]
+        except Exception as e:
+            pass
+
         conn.close()
 
         # Enhance top_recipients with OUTBOUND cross-reference info
@@ -6552,7 +6577,8 @@ def api_creator_details(creator_address: str):
             },
             'cluster': cluster,
             'is_blocked': is_blocked,
-            'tags': tags
+            'tags': tags,
+            'network_name': network_name
         })
 
     except Exception as e:

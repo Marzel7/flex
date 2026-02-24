@@ -13154,41 +13154,87 @@ def top_funding_hubs():
 
 @app.route('/funding-hub/<hub_address>')
 def funding_hub(hub_address):
-    """Display funding hub network: sender -> funders -> creators -> tokens"""
+    """Display funding hub network: sender -> funders -> creators -> tokens, OR funder -> creators -> tokens"""
     try:
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
 
-        # Get sender info (tokens created by this sender)
+        # Determine if this address is a sender or a funder
         c.execute("SELECT COUNT(*) FROM token_analysis WHERE earliest_tx_creator = ?", (hub_address,))
         sender_token_count = c.fetchone()[0]
 
-        # Get all funders that received from this sender
+        # Check if address is a funder (funds multiple creators)
+        c.execute("SELECT COUNT(DISTINCT creator_address) FROM creator_funders WHERE funder_address = ?", (hub_address,))
+        funder_creator_count = c.fetchone()[0]
+
+        # Check if address is a sender (has funders in funder_incoming_transfers)
         c.execute("""
-            SELECT DISTINCT funder_address
+            SELECT COUNT(DISTINCT funder_address)
             FROM funder_incoming_transfers
             WHERE sender_address = ?
         """, (hub_address,))
-        receiving_funders = [row[0] for row in c.fetchall()]
+        sender_funder_count = c.fetchone()[0]
 
-        # For each funder, get creators they funded and tokens those creators launched
         funder_data = []
         self_funding_funders = 0
         third_party_funded_creators = set()
+        hub_type = None  # 'sender' or 'funder'
 
-        for funder in receiving_funders:
+        # CASE 1: Address is a sender (original case)
+        if sender_funder_count > 0:
+            hub_type = 'sender'
+            # Get all funders that received from this sender
+            c.execute("""
+                SELECT DISTINCT funder_address
+                FROM funder_incoming_transfers
+                WHERE sender_address = ?
+            """, (hub_address,))
+            receiving_funders = [row[0] for row in c.fetchall()]
+
+            for funder in receiving_funders:
+                c.execute("""
+                    SELECT DISTINCT creator_address
+                    FROM creator_funders
+                    WHERE funder_address = ?
+                """, (funder,))
+                funded_creators = [row[0] for row in c.fetchall()]
+
+                # Check if this funder only funds the sender (self-funding)
+                is_self_funding = len(funded_creators) == 1 and funded_creators[0] == hub_address
+                if is_self_funding:
+                    self_funding_funders += 1
+                    continue
+
+                # Count tokens for those creators
+                creator_list = ','.join(['?' for _ in funded_creators])
+                if funded_creators:
+                    c.execute(f"""
+                        SELECT COUNT(*) FROM token_analysis
+                        WHERE earliest_tx_creator IN ({creator_list})
+                    """, funded_creators)
+                    token_count = c.fetchone()[0]
+                    for creator in funded_creators:
+                        third_party_funded_creators.add(creator)
+                else:
+                    token_count = 0
+
+                funder_data.append({
+                    'address': funder,
+                    'creator_count': len(funded_creators),
+                    'token_count': token_count,
+                    'sample_creators': funded_creators[:5]
+                })
+
+        # CASE 2: Address is a funder (funds creators directly)
+        elif funder_creator_count > 0:
+            hub_type = 'funder'
+            # Get all creators funded by this address
             c.execute("""
                 SELECT DISTINCT creator_address
                 FROM creator_funders
                 WHERE funder_address = ?
-            """, (funder,))
+            """, (hub_address,))
             funded_creators = [row[0] for row in c.fetchall()]
-
-            # Check if this funder only funds the sender (self-funding)
-            is_self_funding = len(funded_creators) == 1 and funded_creators[0] == hub_address
-            if is_self_funding:
-                self_funding_funders += 1
-                continue  # Skip self-funding funders in detailed view
 
             # Count tokens for those creators
             creator_list = ','.join(['?' for _ in funded_creators])
@@ -13204,10 +13250,11 @@ def funding_hub(hub_address):
                 token_count = 0
 
             funder_data.append({
-                'address': funder,
+                'address': hub_address,
                 'creator_count': len(funded_creators),
                 'token_count': token_count,
-                'sample_creators': funded_creators[:5]
+                'sample_creators': funded_creators[:5],
+                'is_self': True
             })
 
         conn.close()
@@ -13377,38 +13424,60 @@ def funding_hub(hub_address):
             <div class="container">
                 <a href="/top-funding-hubs" class="back-link">← Back to Hubs</a>
 
-                <h1>Funding Distribution Sender</h1>
+                <h1>""" + ("🔗 Multi-Creator Funder" if hub_type == 'funder' else "💰 Funding Distribution Sender") + """</h1>
                 <div class="hub-address">""" + hub_address + """</div>
 
                 <div class="stats">
+        """
+
+        if hub_type == 'sender':
+            html += f"""
                     <div class="stat-box hub">
                         <div class="stat-label">Tokens Created by Sender</div>
-                        <div class="stat-value">""" + str(sender_token_count) + """</div>
+                        <div class="stat-value">{sender_token_count}</div>
                     </div>
                     <div class="stat-box hub" style="border-left: 3px solid rgba(239, 68, 68, 0.5); background: rgba(239, 68, 68, 0.08);">
                         <div class="stat-label">⚠️ Self-Funding Intermediates</div>
-                        <div class="stat-value" style="color: #ef4444;">""" + str(self_funding_funders) + """</div>
+                        <div class="stat-value" style="color: #ef4444;">{self_funding_funders}</div>
                         <div class="stat-label" style="margin-top: 8px; font-size: 11px; color: #ef4444;">Fund sender only</div>
                     </div>
                     <div class="stat-box hub">
                         <div class="stat-label">Third-Party Funded Creators</div>
-                        <div class="stat-value">""" + str(len(third_party_funded_creators)) + """</div>
+                        <div class="stat-value">{len(third_party_funded_creators)}</div>
                     </div>
                     <div class="stat-box hub">
                         <div class="stat-label">Tokens from Third-Party Creators</div>
-                        <div class="stat-value">""" + str(sum(f['token_count'] for f in funder_data)) + """</div>
+                        <div class="stat-value">{sum(f['token_count'] for f in funder_data)}</div>
                     </div>
+            """
+        else:  # funder
+            html += f"""
+                    <div class="stat-box hub">
+                        <div class="stat-label">Creators Funded</div>
+                        <div class="stat-value">{funder_creator_count}</div>
+                    </div>
+                    <div class="stat-box hub">
+                        <div class="stat-label">Tokens Launched</div>
+                        <div class="stat-value">{sum(f['token_count'] for f in funder_data)}</div>
+                    </div>
+                    <div class="stat-box hub">
+                        <div class="stat-label">Multi-Creator Funder</div>
+                        <div class="stat-value" style="color: #fbbf24;">⚠️ YES</div>
+                    </div>
+            """
+
+        html += """
                 </div>
 
-                <h2 style="margin-bottom: 16px; font-size: 18px;">Third-Party Funders (Fund Other Creators)</h2>
-                <p style="color: #94a3b8; margin-bottom: 16px; font-size: 13px;">Showing funders that fund creators OTHER than this sender. Self-funding intermediaries are excluded.</p>
+                <h2 style="margin-bottom: 16px; font-size: 18px;">""" + ("Creators Funded" if hub_type == 'funder' else "Third-Party Funders (Fund Other Creators)") + """</h2>
+                <p style="color: #94a3b8; margin-bottom: 16px; font-size: 13px;">""" + ("Creators funded by this address and their tokens" if hub_type == 'funder' else "Showing funders that fund creators OTHER than this sender. Self-funding intermediaries are excluded.") + """</p>
                 <table>
                     <thead>
                         <tr>
-                            <th>Funder Address</th>
-                            <th style="text-align: center;">Creators Funded</th>
-                            <th style="text-align: center;">Tokens Launched</th>
-                            <th>Sample Creators</th>
+                            <th>""" + ("Creator Address" if hub_type == 'funder' else "Funder Address") + """</th>
+                            <th style="text-align: center;">""" + ("Tokens Launched" if hub_type == 'funder' else "Creators Funded") + """</th>
+                            <th style="text-align: center;">""" + ("Funding Source" if hub_type == 'funder' else "Tokens Launched") + """</th>
+                            <th>""" + ("Network Info" if hub_type == 'funder' else "Sample Creators") + """</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -13416,14 +13485,26 @@ def funding_hub(hub_address):
 
         for funder in funder_data:
             sample_creators = ', '.join([addr[:8] + '...' for addr in funder['sample_creators']])
-            html += f"""
+            if hub_type == 'funder':
+                # For funder type, show the creator entry directly
+                html += f"""
+                        <tr>
+                            <td><span class="address">{funder['address']}</span></td>
+                            <td style="text-align: center;"><span class="stat-number">{funder['token_count']}</span></td>
+                            <td style="text-align: center;"><span style="color: #fbbf24; font-weight: 600;">Multi-Creator</span></td>
+                            <td><small style="color: #94a3b8;">Funded by {hub_address[:8]}...</small></td>
+                        </tr>
+                """
+            else:
+                # For sender type, show funder entries as before
+                html += f"""
                         <tr>
                             <td><span class="address">{funder['address']}</span></td>
                             <td style="text-align: center;"><span class="stat-number">{funder['creator_count']}</span></td>
                             <td style="text-align: center;"><span class="stat-number">{funder['token_count']}</span></td>
                             <td><small style="color: #94a3b8;">{sample_creators if sample_creators else 'N/A'}</small></td>
                         </tr>
-            """
+                """
 
         html += """
                     </tbody>

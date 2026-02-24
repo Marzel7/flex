@@ -22,6 +22,7 @@ from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
 from realtime_creator_funding_extractor import extract_funding_for_new_token
 from creator_watch_manager import CreatorWatchManager
 from funder_incoming_extractor import extract_for_creator as extract_funder_transfers
+from clustering_task_queue import enqueue_clustering
 from dotenv import load_dotenv
 
 # Import settings checker (will be imported dynamically when needed)
@@ -1737,9 +1738,10 @@ class PumpFunCurveListener:
                     print(f"[FUNDER_EXTRACTION] ERROR creating task: {e}", flush=True)
 
             # Update network clustering from funding data (no RPC needed)
-            print(f"[CLUSTERING] Updating network clustering from extracted funding data...", flush=True)
-            asyncio.create_task(update_network_clustering_async())
-            print(f"[CLUSTERING] Network update task created", flush=True)
+            # Use clustering queue to prevent database lock errors from parallel operations
+            print(f"[CLUSTERING] Queuing network clustering task...", flush=True)
+            await enqueue_clustering(rebuild_super_clusters_from_funding, "super_clusters_rebuild")
+            print(f"[CLUSTERING] Task enqueued for processing", flush=True)
 
         except Exception as e:
             print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)

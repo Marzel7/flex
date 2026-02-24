@@ -13228,7 +13228,7 @@ def funding_hub(hub_address):
         # CASE 2: Address is a funder (funds creators directly)
         elif funder_creator_count > 0:
             hub_type = 'funder'
-            # Get all creators funded by this address
+            # Get all creators funded by this address with their token counts
             c.execute("""
                 SELECT DISTINCT creator_address
                 FROM creator_funders
@@ -13236,26 +13236,23 @@ def funding_hub(hub_address):
             """, (hub_address,))
             funded_creators = [row[0] for row in c.fetchall()]
 
-            # Count tokens for those creators
-            creator_list = ','.join(['?' for _ in funded_creators])
-            if funded_creators:
-                c.execute(f"""
+            # For each creator, get token count
+            for creator in funded_creators:
+                c.execute("""
                     SELECT COUNT(*) FROM token_analysis
-                    WHERE earliest_tx_creator IN ({creator_list})
-                """, funded_creators)
-                token_count = c.fetchone()[0]
-                for creator in funded_creators:
-                    third_party_funded_creators.add(creator)
-            else:
-                token_count = 0
+                    WHERE earliest_tx_creator = ?
+                """, (creator,))
+                creator_token_count = c.fetchone()[0]
 
-            funder_data.append({
-                'address': hub_address,
-                'creator_count': len(funded_creators),
-                'token_count': token_count,
-                'sample_creators': funded_creators[:5],
-                'is_self': True
-            })
+                third_party_funded_creators.add(creator)
+
+                funder_data.append({
+                    'address': creator,
+                    'creator_count': 1,  # This is a creator, not a funder
+                    'token_count': creator_token_count,
+                    'sample_creators': [creator],
+                    'is_creator': True
+                })
 
         conn.close()
 

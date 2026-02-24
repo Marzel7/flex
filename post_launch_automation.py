@@ -49,24 +49,41 @@ class PostLaunchAutomationCoordinator:
         """
         print(f"[POST_LAUNCH] 🚀 Starting automation for creator {creator[:16]}...", flush=True)
 
+        # Track what was updated for UI refresh
+        updates = {
+            "creator_tags": False,
+            "networks": False,
+            "metrics": False,
+            "coordinated_funders": False,
+            "clusters": False
+        }
+
         try:
             # 0. TAG CREATOR based on funding patterns
-            await self._tag_creator_from_funding_patterns(creator, mint, total_funders, total_sol)
+            tags_added = await self._tag_creator_from_funding_patterns(creator, mint, total_funders, total_sol)
+            if tags_added:
+                updates["creator_tags"] = True
 
             # 1. Assign network to creator if not already assigned
-            await self._assign_creator_network(creator)
+            network_assigned = await self._assign_creator_network(creator)
+            if network_assigned:
+                updates["networks"] = True
 
             # 2. Update Top Funding Distribution Senders metrics
             await self._update_funding_distribution_metrics(creator)
+            updates["metrics"] = True
 
             # 3. Detect coordinated funders
-            await self._detect_coordinated_funders(creator)
+            coordinated_found = await self._detect_coordinated_funders(creator)
+            if coordinated_found:
+                updates["coordinated_funders"] = True
 
             # 4. Rebuild clusters
             await self._rebuild_clusters_for_creator(creator)
+            updates["clusters"] = True
 
-            # 5. Emit WebSocket update to UI
-            await self._emit_ui_update(creator, mint, total_funders, total_sol)
+            # 5. Emit UI update with what was actually changed
+            await self._emit_ui_update(creator, mint, total_funders, total_sol, updates)
 
             print(f"[POST_LAUNCH] ✅ Automation complete for {creator[:16]}...", flush=True)
 
@@ -172,11 +189,14 @@ class PostLaunchAutomationCoordinator:
             if tags_to_add:
                 tag_list = ", ".join([f"'{tag[0]}'" for tag in tags_to_add])
                 print(f"[TAGS] ✅ Tagged creator {creator[:16]}... with {len(tags_to_add)} funding-based tags: {tag_list}", flush=True)
+                return True
             else:
                 print(f"[TAGS] ℹ No funding-based tags for creator {creator[:16]}...", flush=True)
+                return False
 
         except Exception as e:
             print(f"[TAGS] ⚠ Error tagging creator: {e}", flush=True)
+            return False
 
     async def _assign_creator_network(self, creator: str):
         """
@@ -229,13 +249,16 @@ class PostLaunchAutomationCoordinator:
 
                 conn.commit()
                 print(f"[NETWORK] ✅ Network assigned to creator {creator[:16]}...", flush=True)
+                conn.close()
+                return True
             else:
                 print(f"[NETWORK] 🔹 Creator {creator[:16]}... appears independent (no shared funders)", flush=True)
-
-            conn.close()
+                conn.close()
+                return False
 
         except Exception as e:
             print(f"[NETWORK] ⚠ Error assigning network: {e}", flush=True)
+            return False
 
     async def _update_funding_distribution_metrics(self, creator: str):
         """
@@ -353,13 +376,16 @@ class PostLaunchAutomationCoordinator:
 
                 conn.commit()
                 print(f"[COORDINATION] ✅ Registered {len(coordinated_funders)} coordinated funders", flush=True)
+                conn.close()
+                return True
             else:
                 print(f"[COORDINATION] ✅ Creator {creator[:16]}... has unique funders (no coordination detected)", flush=True)
-
-            conn.close()
+                conn.close()
+                return False
 
         except Exception as e:
             print(f"[COORDINATION] ⚠ Error detecting coordinated funders: {e}", flush=True)
+            return False
 
     async def _rebuild_clusters_for_creator(self, creator: str):
         """
@@ -404,7 +430,7 @@ class PostLaunchAutomationCoordinator:
         except Exception as e:
             print(f"[CLUSTERS] ⚠ Error rebuilding clusters: {e}", flush=True)
 
-    async def _emit_ui_update(self, creator: str, mint: str, total_funders: int, total_sol: float):
+    async def _emit_ui_update(self, creator: str, mint: str, total_funders: int, total_sol: float, updates: dict = None):
         """
         Emit WebSocket update to UI for real-time dashboard refresh
 
@@ -413,13 +439,30 @@ class PostLaunchAutomationCoordinator:
         - Funding distribution charts
         - Cluster visualizations
         - Network assignments
+        - Creator tags (NEW!)
+
+        Args:
+            updates: Dict indicating what was actually updated (creator_tags, networks, etc)
         """
         if not self.websocket_manager:
-            print(f"[UI] ℹ No WebSocket manager - skipping UI update", flush=True)
+            print(f"[UI] ℹ No WebSocket manager - skipping WebSocket broadcast", flush=True)
+            # Still log to console even without WebSocket
+            if updates and any(updates.values()):
+                updated_items = [k for k, v in updates.items() if v]
+                print(f"[UI] 📝 Updated: {', '.join(updated_items)}", flush=True)
             return
 
         try:
-            # Prepare update payload
+            # Prepare update payload with actual changes
+            updates_dict = updates if updates else {
+                "creator_details": True,
+                "funding_distribution": True,
+                "coordinated_funders": True,
+                "clusters": True,
+                "networks": True,
+                "creator_tags": True
+            }
+
             update_payload = {
                 "type": "post_launch_complete",
                 "creator": creator,
@@ -427,13 +470,7 @@ class PostLaunchAutomationCoordinator:
                 "total_funders": total_funders,
                 "total_sol": total_sol,
                 "timestamp": datetime.utcnow().isoformat(),
-                "updates": {
-                    "creator_details": True,
-                    "funding_distribution": True,
-                    "coordinated_funders": True,
-                    "clusters": True,
-                    "networks": True
-                }
+                "updates": updates_dict
             }
 
             # Broadcast to all connected clients

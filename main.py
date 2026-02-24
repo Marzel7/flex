@@ -45,32 +45,33 @@ def get_migrated_tokens() -> List[Dict]:
         # Query post-migration analysis data - LIMIT to 25 most recent tokens for UI display
         cursor.execute("""
             SELECT
-                mint,
-                analyzed_at,
-                created_at,
-                events_parsed,
-                rug_probability,
-                risk_level,
-                post_migration_coverage,
-                price_current,
-                price_highest,
-                market_cap_current,
-                market_cap_highest,
-                market_cap_highest_at,
-                rug_indicator,
-                earliest_tx_creator,
-                creator_is_blocked,
-                network_risk,
-                connected_malicious_count,
-                cluster_id,
-                cluster_name,
-                cluster_risk_multiplier,
-                network_funder_address,
-                network_name,
-                network_tier,
-                network_is_cex
-            FROM token_analysis
-            ORDER BY analyzed_at DESC
+                ta.mint,
+                ta.analyzed_at,
+                ta.created_at,
+                ta.events_parsed,
+                ta.rug_probability,
+                ta.risk_level,
+                ta.post_migration_coverage,
+                ta.price_current,
+                ta.price_highest,
+                ta.market_cap_current,
+                ta.market_cap_highest,
+                ta.market_cap_highest_at,
+                ta.rug_indicator,
+                ta.earliest_tx_creator,
+                ta.creator_is_blocked,
+                ta.network_risk,
+                ta.connected_malicious_count,
+                ta.cluster_id,
+                ta.cluster_name,
+                ta.cluster_risk_multiplier,
+                ta.network_funder_address,
+                COALESCE(cn.network_name, ta.network_name) as network_name,
+                ta.network_tier,
+                ta.network_is_cex
+            FROM token_analysis ta
+            LEFT JOIN creator_networks cn ON ta.earliest_tx_creator = cn.creator_address
+            ORDER BY ta.analyzed_at DESC
             LIMIT 25
         """)
 
@@ -911,7 +912,7 @@ HTML_TEMPLATE = """
         /* Base creator tag styling */
         .creator-tag {
             display: inline-block;
-            padding: 3px 8px;
+            padding: 3px 6px;
             border-radius: 3px;
             font-size: 10px;
             font-weight: 600;
@@ -1274,7 +1275,7 @@ HTML_TEMPLATE = """
         .creator-tag {
             background: rgba(34, 197, 94, 0.15);
             border: 1px solid rgba(34, 197, 94, 0.3);
-            padding: 8px 12px;
+            padding: 5px 9px;
             border-radius: 6px;
             cursor: help;
         }
@@ -1843,13 +1844,11 @@ HTML_TEMPLATE = """
                 <span class="status-indicator active" id="listenLaunchesStatus"></span>
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(124, 58, 237, 0.3); margin-left: 12px; padding-left: 12px;">
-                <button id="pollingToggleBtn" class="action-button" onclick="togglePolling()" title="Toggle creator TX polling ON/OFF" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5);">▶️ Polling ON</button>
                 <button class="action-button" id="tokensTabBtn" onclick="switchToTokensTab()" title="View tokens" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Tokens</button>
                 <button class="action-button" onclick="window.location.href = '/networks'" title="View atomic funder networks" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Networks</button>
                 <button class="action-button" onclick="window.location.href = '/clusters'" title="View cross-funding cluster analysis" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Clusters</button>
                 <button class="action-button" onclick="window.location.href = '/coordinated-funders'" title="Analyze funders supporting multiple creators" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Coordinated Funders</button>
                 <button class="action-button" onclick="window.location.href = '/top-funding-hubs'" title="View top funding distribution hubs" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Hubs</button>
-                <button class="action-button" onclick="openValidationModal()" title="Validate a transaction signature" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Validate TX</button>
             </div>
         </div>
 
@@ -2866,7 +2865,6 @@ HTML_TEMPLATE = """
                             <th onclick="sortBy('market_cap_highest_at')" class="sortable ${sortConfig.column === 'market_cap_highest_at' ? 'sorted-' + sortConfig.direction : ''}">Peak Timing</th>
                             <th onclick="sortBy('total_events')" class="sortable ${sortConfig.column === 'total_events' ? 'sorted-' + sortConfig.direction : ''}">Events</th>
                             <th onclick="sortBy('coverage')" class="sortable ${sortConfig.column === 'coverage' ? 'sorted-' + sortConfig.direction : ''}">Coverage</th>
-                            <th title="Funding extraction progress">Funding Progress</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -3079,37 +3077,27 @@ HTML_TEMPLATE = """
                                     </td>
                                     <td class="creator-tags"><div style="display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">${columnTags.join('')}</div></td>
                                     <td class="network-name">
-                                        ${token.atomic_network_name ? `<a href="/networks?network=${encodeURIComponent(token.atomic_network_name)}" style="color: var(--accent-purple); font-weight: bold; font-size: 12px; cursor: pointer; text-decoration: none; border-bottom: 1px dotted var(--accent-purple);" title="${token.atomic_network_tier || ''}">${token.atomic_network_name}</a>` : '—'}
+                                        ${token.atomic_network_name ? `<a href="/networks?network=${encodeURIComponent(token.atomic_network_name)}" style="color: var(--accent-purple); font-weight: bold; font-size: 12px; cursor: pointer; text-decoration: none; border-bottom: 1px dotted var(--accent-purple);" title="${token.atomic_network_tier || ''}">${token.atomic_network_name}</a>` : ''}
                                     </td>
                                     <td class="cluster-name">
-                                        ${token.cluster_name ? `<span style="color: var(--accent-orange); font-size: 12px;" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : '—'}
+                                        ${token.cluster_name ? `<span style="color: var(--accent-orange); font-size: 12px;" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : ''}
                                     </td>
                                     <td>
-                                        ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '—'}
+                                        ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : ''}
                                     </td>
                                     <td>
-                                        ${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '—'}
+                                        ${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : ''}
                                     </td>
                                     <td>
-                                        ${token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : '—'}
+                                        ${token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : ''}
                                     </td>
                                     <td>
-                                        ${token.total_events}
+                                        ${token.total_events > 0 ? token.total_events : ''}
                                     </td>
                                     <td>
-                                        ${token.coverage ? token.coverage.toFixed(1) + '%' : '—'}
+                                        ${token.coverage ? token.coverage.toFixed(1) + '%' : ''}
                                     </td>
-                                    <td style="text-align: center; font-size: 12px;">
-                                        ${token.funding_progress ? `
-                                            <div style="display: flex; flex-direction: column; align-items: center; gap: 3px;">
-                                                <div style="width: 80px; height: 16px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 2px; overflow: hidden;">
-                                                    <div style="height: 100%; width: ${token.funding_progress.progress_percent}%; background: linear-gradient(90deg, rgba(59, 130, 246, 0.6), rgba(59, 130, 246, 0.8)); transition: width 0.3s ease;"></div>
-                                                </div>
-                                                <span style="color: var(--text-secondary); font-size: 10px; white-space: nowrap;" title="Funders with sources extracted: ${token.funding_progress.completion_ratio}">${token.funding_progress.progress_percent}%</span>
-                                            </div>
-                                        ` : '—'}
-                                    </td>
-                                    <td title="Launched: ${formatDate(token.created_at)}">
+                                    <td title="Launched: ${formatDate(token.created_at)}" style="font-size: 11px;">
                                         ${timeSinceLaunch(token.created_at)}
                                     </td>
                                 </tr>
@@ -3191,24 +3179,52 @@ HTML_TEMPLATE = """
 
         function timeSinceLaunch(createdAtTimestamp) {
             if (!createdAtTimestamp) return '-';
+
             const now = Math.floor(Date.now() / 1000);
-            const created = createdAtTimestamp;
-            const secondsAgo = now - created;
+            let createdSeconds;
+
+            // Handle multiple input formats
+            if (typeof createdAtTimestamp === 'string') {
+                // ISO format string: "2026-02-10T10:38:19Z"
+                const parsedDate = new Date(createdAtTimestamp);
+                if (isNaN(parsedDate.getTime())) {
+                    return '-'; // Invalid date string
+                }
+                createdSeconds = Math.floor(parsedDate.getTime() / 1000);
+            } else if (typeof createdAtTimestamp === 'number') {
+                // Numeric timestamp
+                if (createdAtTimestamp > 10000000000) {
+                    // Milliseconds
+                    createdSeconds = Math.floor(createdAtTimestamp / 1000);
+                } else {
+                    // Unix seconds
+                    createdSeconds = createdAtTimestamp;
+                }
+            } else {
+                return '-'; // Invalid type
+            }
+
+            const secondsAgo = now - createdSeconds;
+
+            // Validate that result makes sense
+            if (secondsAgo < 0 || secondsAgo > 315360000) {
+                return '-'; // Invalid timestamp (more than 10 years in future)
+            }
 
             if (secondsAgo < 60) {
-                return `${secondsAgo}s`;
+                return `${Math.floor(secondsAgo)}s`;
             } else if (secondsAgo < 3600) {
                 const minutes = Math.floor(secondsAgo / 60);
-                const seconds = secondsAgo % 60;
-                return `${minutes}m ${seconds}s`;
+                const seconds = Math.floor(secondsAgo % 60);
+                return `${minutes}m${seconds}s`;
             } else if (secondsAgo < 86400) {
                 const hours = Math.floor(secondsAgo / 3600);
                 const minutes = Math.floor((secondsAgo % 3600) / 60);
-                return `${hours}h ${minutes}m`;
+                return `${hours}h${minutes}m`;
             } else {
                 const days = Math.floor(secondsAgo / 86400);
                 const hours = Math.floor((secondsAgo % 86400) / 3600);
-                return `${days}d ${hours}h`;
+                return `${days}d${hours}h`;
             }
         }
 
@@ -3223,20 +3239,20 @@ HTML_TEMPLATE = """
         }
 
         function getTimeToPeak(migrationTime, peakTime) {
-            if (!migrationTime || !peakTime) return '—';
+            if (!migrationTime || !peakTime) return '';
             try {
                 const migration = new Date(migrationTime);
                 const peak = new Date(peakTime);
                 const diffSeconds = (peak - migration) / 1000;
 
-                if (diffSeconds < 0) return '—';
+                if (diffSeconds < 0) return '';
                 if (diffSeconds < 60) return `${Math.floor(diffSeconds)}s`;
                 if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)}m`;
                 const hours = diffSeconds / 3600;
                 if (hours < 24) return `${hours.toFixed(1)}h`;
                 return `${(hours / 24).toFixed(1)}d`;
             } catch (e) {
-                return '—';
+                return '';
             }
         }
 
@@ -3294,57 +3310,6 @@ HTML_TEMPLATE = """
             }).then(resp => resp.json()).then(data => {
                 console.log('✅ [LISTENER] Updated - Launches: ' + state);
             }).catch(e => console.error('❌ Error updating listener settings:', e));
-        }
-
-        function togglePolling() {
-            const btn = document.getElementById('pollingToggleBtn');
-            const isEnabled = btn.textContent.includes('ON');
-
-            fetch('/api/polling-control', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({action: 'toggle'})
-            }).then(resp => resp.json()).then(data => {
-                if (data.polling_enabled) {
-                    btn.textContent = '▶️ Polling ON';
-                    btn.style.background = 'rgba(59, 130, 246, 0.2)';
-                    btn.style.color = 'var(--color-none)';
-                    btn.style.borderColor = 'rgba(59, 130, 246, 0.5)';
-                    console.log('✅ Creator TX polling ENABLED');
-                } else {
-                    btn.textContent = '⏸️ Polling OFF';
-                    btn.style.background = 'rgba(59, 130, 246, 0.2)';
-                    btn.style.color = 'var(--color-none)';
-                    btn.style.borderColor = 'rgba(59, 130, 246, 0.5)';
-                    console.log('✅ Creator TX polling DISABLED');
-                }
-            }).catch(e => {
-                console.error('❌ Error toggling polling:', e);
-                alert('❌ Error toggling polling');
-            });
-        }
-
-        // Check polling status on page load
-        async function checkPollingStatus() {
-            try {
-                const resp = await fetch('/api/polling-control');
-                const data = await resp.json();
-                const btn = document.getElementById('pollingToggleBtn');
-
-                if (data.polling_enabled) {
-                    btn.textContent = '▶️ Polling ON';
-                    btn.style.background = 'rgba(59, 130, 246, 0.2)';
-                    btn.style.color = 'var(--color-none)';
-                    btn.style.borderColor = 'rgba(59, 130, 246, 0.5)';
-                } else {
-                    btn.textContent = '⏸️ Polling OFF';
-                    btn.style.background = 'rgba(59, 130, 246, 0.2)';
-                    btn.style.color = 'var(--color-none)';
-                    btn.style.borderColor = 'rgba(59, 130, 246, 0.5)';
-                }
-            } catch (e) {
-                console.error('Error checking polling status:', e);
-            }
         }
 
         // Toggle funder transfer extraction (incoming/outgoing)
@@ -3508,7 +3473,6 @@ function switchToTokensTab() {
 
         // Load tokens immediately and then every 10 seconds
         initializeSettings();
-        checkPollingStatus();
         loadTokens();
         setInterval(loadTokens, 10000);
 
@@ -3547,7 +3511,7 @@ function switchToTokensTab() {
                 // Build HTML string first, then set it once
                 let metricsHTML = metricsGrid.innerHTML;
                 Object.keys(metricLabels).forEach(key => {
-                    const value = metrics[key] !== null && metrics[key] !== undefined ? metrics[key].toFixed(4) : '—';
+                    const value = metrics[key] !== null && metrics[key] !== undefined ? metrics[key].toFixed(4) : '';
                     metricsHTML += `
                         <div class="metric">
                             <label>${metricLabels[key]}</label>
@@ -3557,7 +3521,7 @@ function switchToTokensTab() {
                 });
 
                 // Add coverage metric
-                let coverage = '—';
+                let coverage = '';
                 if (data.coverage !== null && data.coverage !== undefined) {
                     coverage = data.coverage.toFixed(1);
                 }
@@ -3570,8 +3534,8 @@ function switchToTokensTab() {
                 `;
 
                 // Add market cap metrics
-                let marketCapCurrent = '—';
-                let marketCapHighest = '—';
+                let marketCapCurrent = '';
+                let marketCapHighest = '';
                 if (data.market_cap && data.market_cap.current) {
                     marketCapCurrent = '$' + formatMarketCap(data.market_cap.current);
                 }
@@ -3601,7 +3565,7 @@ function switchToTokensTab() {
                     <p>
                         <label>Rug Probability:</label>
                         <span class="risk-value">${rugProbability}%</span>
-                        <span style="color: var(--text-secondary); margin-left: 10px;">${risk.risk_level || '—'}</span>
+                        <span style="color: var(--text-secondary); margin-left: 10px;">${risk.risk_level || ''}</span>
                     </p>
                 `;
 
@@ -4171,7 +4135,7 @@ function switchToTokensTab() {
                 document.getElementById('txViewerAccountKeys').textContent = JSON.stringify(accountKeys, null, 2);
 
                 // Extract and highlight fee payer (first account, must be signer)
-                let feePayer = '—';
+                let feePayer = '';
                 let feePayerValid = false;
                 if (accountKeys.length > 0) {
                     const firstKey = accountKeys[0];
@@ -4261,7 +4225,7 @@ function switchToTokensTab() {
                                 });
                                 networkDisplay = networkNames.join(', ');
                             } else {
-                                networkDisplay = '—';
+                                networkDisplay = '';
                             }
 
                             return `
@@ -4818,9 +4782,9 @@ function switchToTokensTab() {
                     document.getElementById('validationSuccess').style.display = 'block';
 
                     // Populate results
-                    document.getElementById('resultMint').textContent = result.mint || '—';
-                    document.getElementById('resultCreator').textContent = result.creator || '—';
-                    document.getElementById('resultTimestamp').textContent = result.timestamp || '—';
+                    document.getElementById('resultMint').textContent = result.mint || '';
+                    document.getElementById('resultCreator').textContent = result.creator || '';
+                    document.getElementById('resultTimestamp').textContent = result.timestamp || '';
 
                     // Build evidence list
                     const evidence = [];
@@ -6391,6 +6355,7 @@ def api_creator_details(creator_address: str):
                 is_cex,
                 cex_exchange,
                 cex_type,
+                display_name,
                 COALESCE(source_type, 'original_sender') as source_type
             FROM creator_funders
             WHERE creator_address = ?
@@ -9005,7 +8970,7 @@ def coordinated_funders_view_old():
             if networks:
                 network_display = ', '.join([n['network_name'] for n in networks])
             else:
-                network_display = '—'
+                network_display = ''
 
             # Analysis status indicator
             analysis_badge = '✅ Analyzed' if funder['is_analyzed'] else '⏳ Pending'
@@ -11930,72 +11895,6 @@ def api_empty_database():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-
-@app.route('/api/polling-control', methods=['GET', 'POST'])
-def api_polling_control():
-    """Get or set creator TX polling status"""
-    try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
-        cursor = conn.cursor()
-        
-        # Ensure settings table exists
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS polling_settings (
-                setting_name TEXT PRIMARY KEY,
-                setting_value TEXT,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-        conn.commit()
-        
-        if request.method == 'GET':
-            # Get current polling status
-            cursor.execute("SELECT setting_value FROM polling_settings WHERE setting_name = 'polling_enabled'")
-            row = cursor.fetchone()
-            polling_enabled = row[0] == '1' if row else True
-            
-            conn.close()
-            return jsonify({
-                'status': 'enabled' if polling_enabled else 'paused',
-                'polling_enabled': polling_enabled
-            })
-        
-        elif request.method == 'POST':
-            data = request.get_json()
-            action = data.get('action')  # 'enable', 'disable', 'toggle'
-            
-            if action == 'toggle':
-                # Get current state
-                cursor.execute("SELECT setting_value FROM polling_settings WHERE setting_name = 'polling_enabled'")
-                row = cursor.fetchone()
-                current = row[0] == '1' if row else True
-                new_value = '0' if current else '1'
-            elif action == 'enable':
-                new_value = '1'
-            elif action == 'disable':
-                new_value = '0'
-            else:
-                conn.close()
-                return jsonify({'error': 'Invalid action'}), 400
-            
-            # Update setting
-            cursor.execute("""
-                INSERT OR REPLACE INTO polling_settings (setting_name, setting_value)
-                VALUES ('polling_enabled', ?)
-            """, (new_value,))
-            conn.commit()
-            conn.close()
-            
-            polling_enabled = new_value == '1'
-            return jsonify({
-                'status': 'success',
-                'polling_enabled': polling_enabled,
-                'action': action
-            })
-    
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/funder-extraction-control', methods=['GET', 'POST'])

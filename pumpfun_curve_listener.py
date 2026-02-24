@@ -1726,16 +1726,37 @@ class PumpFunCurveListener:
             if earliest_creator:
                 # Trigger funding extraction asynchronously (with CREATE tx signature and mint for Jitotip detection)
                 create_tx_sig = analyzer._create_tx_signature if hasattr(analyzer, '_create_tx_signature') else None
-                asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at, create_tx_sig, mint))
-                print(f"[FUNDING] Extraction task created for new creator {earliest_creator[:8]}...", flush=True)
+
+                print(f"[FUNDING] ⏳ Starting funding extraction for new creator {earliest_creator[:8]}...", flush=True)
+                funding_task = asyncio.create_task(extract_funding_for_new_token(earliest_creator, created_at, create_tx_sig, mint))
 
                 # Extract funder incoming/outgoing transfers (automatic for all tokens)
-                print(f"[FUNDER_EXTRACTION] Extracting funder transfers for {earliest_creator[:8]}...", flush=True)
+                print(f"[FUNDER_EXTRACTION] ⏳ Starting funder transfer extraction for {earliest_creator[:8]}...", flush=True)
                 try:
-                    asyncio.create_task(extract_funder_transfers_async(earliest_creator))
-                    print(f"[FUNDER_EXTRACTION] Task successfully created for {earliest_creator[:8]}...", flush=True)
+                    funder_task = asyncio.create_task(extract_funder_transfers_async(earliest_creator))
                 except Exception as e:
                     print(f"[FUNDER_EXTRACTION] ERROR creating task: {e}", flush=True)
+                    funder_task = None
+
+                # ⏸️ WAIT for both extractions to complete before clustering
+                try:
+                    await asyncio.wait_for(funding_task, timeout=300.0)  # 5 min timeout
+                    print(f"[FUNDING] ✅ Creator funding extraction complete", flush=True)
+                except asyncio.TimeoutError:
+                    print(f"[FUNDING] ⚠️ Creator funding extraction timed out after 5 minutes", flush=True)
+                except Exception as e:
+                    print(f"[FUNDING] ⚠️ Error in creator funding extraction: {e}", flush=True)
+
+                if funder_task:
+                    try:
+                        await asyncio.wait_for(funder_task, timeout=300.0)  # 5 min timeout
+                        print(f"[FUNDER_EXTRACTION] ✅ Funder transfer extraction complete", flush=True)
+                    except asyncio.TimeoutError:
+                        print(f"[FUNDER_EXTRACTION] ⚠️ Funder extraction timed out after 5 minutes", flush=True)
+                    except Exception as e:
+                        print(f"[FUNDER_EXTRACTION] ⚠️ Error in funder extraction: {e}", flush=True)
+
+                print(f"[MIGRATION] ✅ All extractions complete for {earliest_creator[:8]}...", flush=True)
 
             # Update network clustering from funding data (no RPC needed)
             # Use clustering queue to prevent database lock errors from parallel operations

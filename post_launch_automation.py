@@ -220,22 +220,50 @@ class PostLaunchAutomationCoordinator:
         Analyzes shared funders with existing creators to find network membership.
         """
         try:
-            conn = sqlite3.connect(self.db_path, timeout=60)
-            cursor = conn.cursor()
+            # Retry with exponential backoff if funders not yet available
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    conn = sqlite3.connect(self.db_path, timeout=60)
+                    cursor = conn.cursor()
 
-            # Check if creator already has a network assigned
-            cursor.execute("""
-                SELECT id FROM creator_networks
-                WHERE creator_address = ?
-            """, (creator,))
+                    # Check if creator already has a network assigned
+                    cursor.execute("""
+                        SELECT id FROM creator_networks
+                        WHERE creator_address = ?
+                    """, (creator,))
 
-            existing = cursor.fetchone()
-            if existing:
-                print(f"[NETWORK] ℹ Creator {creator[:16]}... already assigned to network {existing[0]}", flush=True)
-                conn.close()
-                return
+                    existing = cursor.fetchone()
+                    if existing:
+                        print(f"[NETWORK] ℹ Creator {creator[:16]}... already assigned to network {existing[0]}", flush=True)
+                        conn.close()
+                        return True
 
-            # Find creators with shared funders
+                    # Find creators with shared funders
+                    cursor.execute("""
+                        SELECT COUNT(*) FROM creator_funders WHERE creator_address = ?
+                    """, (creator,))
+                    funders_count = cursor.fetchone()[0]
+
+                    if not funders_count:
+                        if attempt < max_retries - 1:
+                            await asyncio.sleep(1)  # Wait before retry
+                            continue
+                        else:
+                            print(f"[NETWORK] 🔹 Creator {creator[:16]}... has no funders after {max_retries} attempts", flush=True)
+                            conn.close()
+                            return False
+
+                    # If we got here, we have funders, so break out of retry loop
+                    break
+                except Exception as e:
+                    if attempt < max_retries - 1:
+                        await asyncio.sleep(1)
+                        continue
+                    else:
+                        raise
+
+            # Query for connected creators
             cursor.execute("""
                 SELECT DISTINCT cf2.creator_address, COUNT(DISTINCT cf1.funder_address) as shared_funder_count
                 FROM creator_funders cf1
@@ -448,19 +476,22 @@ class PostLaunchAutomationCoordinator:
             recipients = [row[0] for row in cursor.fetchall()]
 
             # Create cluster entry
-            cluster_members = [creator] + funders + recipients
-            cluster_id = hash(tuple(sorted(cluster_members))) % (10 ** 8)
+            cluster_creators = [creator]
+            cluster_funders = funders
+            cluster_recipients = recipients
+            cluster_destinations = list(set(funders + recipients))
 
             cursor.execute("""
                 INSERT OR REPLACE INTO unified_creator_clusters
-                (cluster_id, member_addresses, cluster_size, risk_level, created_at)
-                VALUES (?, ?, ?, 'MEDIUM', CURRENT_TIMESTAMP)
-            """, (cluster_id, json.dumps(cluster_members), len(cluster_members)))
+                (target_creator, cluster_creators, cluster_funders, cluster_recipients, cluster_destinations, risk_level)
+                VALUES (?, ?, ?, ?, ?, 'MEDIUM')
+            """, (creator, json.dumps(cluster_creators), json.dumps(cluster_funders),
+                  json.dumps(cluster_recipients), json.dumps(cluster_destinations)))
 
             conn.commit()
             conn.close()
 
-            print(f"[CLUSTERS] ✅ Rebuilt clusters for {creator[:16]}... (cluster_id: {cluster_id})", flush=True)
+            print(f"[CLUSTERS] ✅ Rebuilt clusters for {creator[:16]}... (members: {len(cluster_destinations)} addresses)", flush=True)
 
         except Exception as e:
             print(f"[CLUSTERS] ⚠ Error rebuilding clusters: {e}", flush=True)

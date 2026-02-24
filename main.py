@@ -3753,7 +3753,7 @@ function switchToTokensTab() {
                                 return `
                                     <tr>
                                         <td title="${funder.funder_address}" style="font-family: monospace;">
-                                            <a href="/funding-hub/${funder.funder_address}" style="color: var(--color-critical); text-decoration: none; cursor: pointer;">
+                                            <a href="/coordinated-funders" style="color: var(--color-critical); text-decoration: none; cursor: pointer;">
                                                 ${funder.funder_address}
                                             </a>
                                         </td>

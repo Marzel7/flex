@@ -120,7 +120,7 @@ class PostLaunchAutomationCoordinator:
 
         # LEGACY CODE BELOW - UNREACHABLE
         try:
-            conn = sqlite3.connect(self.db_path, timeout=60)
+            conn = sqlite3.connect(self.db_path, timeout=120)
             cursor = conn.cursor()
 
             tags_to_add = []
@@ -220,7 +220,8 @@ class PostLaunchAutomationCoordinator:
         Analyzes shared funders with existing creators to find network membership.
         """
         try:
-            conn = sqlite3.connect(self.db_path, timeout=60)
+            # Increased timeout to handle concurrent database access
+            conn = sqlite3.connect(self.db_path, timeout=120)
             cursor = conn.cursor()
 
             # Check if creator already has a network assigned
@@ -302,7 +303,7 @@ class PostLaunchAutomationCoordinator:
         For each funder of this creator, update their participation metrics.
         """
         try:
-            conn = sqlite3.connect(self.db_path, timeout=60)
+            conn = sqlite3.connect(self.db_path, timeout=120)
             cursor = conn.cursor()
 
             # Get all funders for this creator
@@ -360,7 +361,8 @@ class PostLaunchAutomationCoordinator:
         Identifies funders that fund multiple creators (coordination indicator).
         """
         try:
-            conn = sqlite3.connect(self.db_path, timeout=60)
+            # Increased timeout to handle concurrent database access
+            conn = sqlite3.connect(self.db_path, timeout=120)
             cursor = conn.cursor()
 
             # Get funders for this creator
@@ -429,7 +431,7 @@ class PostLaunchAutomationCoordinator:
         Updates unified_creator_clusters based on funding relationships.
         """
         try:
-            conn = sqlite3.connect(self.db_path, timeout=60)
+            conn = sqlite3.connect(self.db_path, timeout=120)
             cursor = conn.cursor()
 
             # Get all funders and recipients for this creator

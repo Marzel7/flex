@@ -4477,10 +4477,10 @@ function switchToTokensTab() {
                     let funderTypeLabel = '';
                     if (funderType === 'cex') {
                         funderColor = 'var(--color-critical)';  // Red for CEX
-                        funderTypeLabel = ' [CEX]';
+                        funderTypeLabel = funderLabel ? ` [${funderLabel}]` : ' [CEX]';
                     } else if (funderType === 'infra') {
                         funderColor = 'var(--color-high)';  // Orange for INFRA
-                        funderTypeLabel = ' [INFRA]';
+                        funderTypeLabel = funderLabel ? ` [${funderLabel}]` : ' [INFRA]';
                     }
 
                     networkHTML += `<div style="color: ${funderColor}; margin-bottom: 12px; font-family: monospace; font-size: 11px; word-break: break-all;">`;

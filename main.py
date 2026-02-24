@@ -83,10 +83,12 @@ def get_migrated_tokens() -> List[Dict]:
                 seen_tags = set()
 
                 # Get tags from creator_tags (domain tags, infrastructure markers)
+                # FILTER: Only allow valid tags from CEX/INFRA detection
+                valid_tags = {'uses_jitotip', 'uses_axiom', 'uses_debridge', 'uses_meteora'}
                 cursor.execute("""
                     SELECT tag, description, amount_sol FROM creator_tags
-                    WHERE creator_address = ?
-                """, (row['earliest_tx_creator'],))
+                    WHERE creator_address = ? AND tag IN (?, ?, ?, ?)
+                """, (row['earliest_tx_creator'], 'uses_jitotip', 'uses_axiom', 'uses_debridge', 'uses_meteora'))
                 for tag_row in cursor.fetchall():
                     tag_name = tag_row[0]
                     if tag_name not in seen_tags:
@@ -112,6 +114,18 @@ def get_migrated_tokens() -> List[Dict]:
                             'uses_axiom': 'Uses Axiom for verification'
                         }.get(tag_name, f'Uses {tag_name}')
                         creator_infra_tags.append({'tag': tag_name, 'description': tag_desc, 'amount_sol': None})
+
+                # Check if creator is funded by multi-creator funders (coordinated funding)
+                cursor.execute("""
+                    SELECT COUNT(DISTINCT cf.funder_address) as coordinated_count
+                    FROM creator_funders cf
+                    WHERE cf.creator_address = ?
+                    AND cf.funder_address IN (SELECT funder_address FROM coordinated_funders)
+                """, (row['earliest_tx_creator'],))
+                coordinated_result = cursor.fetchone()
+                if coordinated_result and coordinated_result[0] > 0 and 'Multi-Funder' not in seen_tags:
+                    seen_tags.add('Multi-Funder')
+                    creator_infra_tags.append({'tag': 'Multi-Funder', 'description': 'Funded by account(s) supporting multiple creators', 'amount_sol': None})
 
             # Get top funder for creator (to show CEX funding info)
             top_funder = None

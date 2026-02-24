@@ -116,9 +116,9 @@ class PostLaunchAutomationCoordinator:
         - cex_wallets table
         - creator_networks table
         """
-        return False  # Early exit - never execute code below
+        return False  # PERMANENTLY DISABLED - Never executes code below
 
-        # LEGACY CODE - DO NOT USE - UNREACHABLE
+        # LEGACY CODE BELOW - UNREACHABLE
         try:
             conn = sqlite3.connect(self.db_path, timeout=60)
             cursor = conn.cursor()

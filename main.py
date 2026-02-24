@@ -13480,28 +13480,48 @@ def funding_hub(hub_address):
                     <tbody>
         """
 
-        for funder in funder_data:
-            sample_creators = ', '.join([addr[:8] + '...' for addr in funder['sample_creators']])
-            if hub_type == 'funder':
-                # For funder type, show the creator entry directly
-                html += f"""
+        if len(funder_data) == 0:
+            # Empty state message
+            if hub_type == 'sender':
+                html += """
                         <tr>
-                            <td><span class="address">{funder['address']}</span></td>
-                            <td style="text-align: center;"><span class="stat-number">{funder['token_count']}</span></td>
-                            <td style="text-align: center;"><span style="color: #fbbf24; font-weight: 600;">Multi-Creator</span></td>
-                            <td><small style="color: #94a3b8;">Funded by {hub_address[:8]}...</small></td>
+                            <td colspan="4" style="text-align: center; padding: 40px; color: #94a3b8;">
+                                <p style="margin: 0; font-size: 14px;">ℹ️ No third-party funders found</p>
+                                <p style="margin: 8px 0 0 0; font-size: 12px; color: #64748b;">All funders are self-funding intermediaries (fund sender only)</p>
+                            </td>
                         </tr>
                 """
             else:
-                # For sender type, show funder entries as before
-                html += f"""
+                html += """
                         <tr>
-                            <td><span class="address">{funder['address']}</span></td>
-                            <td style="text-align: center;"><span class="stat-number">{funder['creator_count']}</span></td>
-                            <td style="text-align: center;"><span class="stat-number">{funder['token_count']}</span></td>
-                            <td><small style="color: #94a3b8;">{sample_creators if sample_creators else 'N/A'}</small></td>
+                            <td colspan="4" style="text-align: center; padding: 40px; color: #94a3b8;">
+                                <p style="margin: 0; font-size: 14px;">ℹ️ No creators funded</p>
+                            </td>
                         </tr>
                 """
+        else:
+            for funder in funder_data:
+                sample_creators = ', '.join([addr[:8] + '...' for addr in funder['sample_creators']])
+                if hub_type == 'funder':
+                    # For funder type, show the creator entry directly
+                    html += f"""
+                            <tr>
+                                <td><span class="address">{funder['address']}</span></td>
+                                <td style="text-align: center;"><span class="stat-number">{funder['token_count']}</span></td>
+                                <td style="text-align: center;"><span style="color: #fbbf24; font-weight: 600;">Multi-Creator</span></td>
+                                <td><small style="color: #94a3b8;">Funded by {hub_address[:8]}...</small></td>
+                            </tr>
+                    """
+                else:
+                    # For sender type, show funder entries as before
+                    html += f"""
+                            <tr>
+                                <td><span class="address">{funder['address']}</span></td>
+                                <td style="text-align: center;"><span class="stat-number">{funder['creator_count']}</span></td>
+                                <td style="text-align: center;"><span class="stat-number">{funder['token_count']}</span></td>
+                                <td><small style="color: #94a3b8;">{sample_creators if sample_creators else 'N/A'}</small></td>
+                            </tr>
+                    """
 
         html += """
                     </tbody>

@@ -1849,6 +1849,7 @@ HTML_TEMPLATE = """
                 <button class="action-button" onclick="window.location.href = '/clusters'" title="View cross-funding cluster analysis" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Clusters</button>
                 <button class="action-button" onclick="window.location.href = '/coordinated-funders'" title="Analyze funders supporting multiple creators" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Coordinated Funders</button>
                 <button class="action-button" onclick="window.location.href = '/top-funding-hubs'" title="View top funding distribution hubs" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Hubs</button>
+                <button class="action-button" onclick="window.location.href = '/creator-analysis'" title="Analyze creator outgoing transfers and funding chains" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Creator Analysis</button>
             </div>
         </div>
 

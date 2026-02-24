@@ -256,11 +256,31 @@ class PostLaunchAutomationCoordinator:
                 # Store connected creators relationship
                 connected_list = [addr for addr, count in connected_creators]
 
+                # Get shared destinations (recipients that all creators send to)
+                cursor.execute("""
+                    SELECT DISTINCT recipient_address
+                    FROM creator_recipients_unified
+                    WHERE creator_address = ?
+                """, (creator,))
+                creator_recipients = [row[0] for row in cursor.fetchall()]
+
+                # Find shared destinations with connected creators
+                shared_destinations = []
+                if creator_recipients:
+                    placeholders = ','.join(['?' for _ in connected_list])
+                    cursor.execute(f"""
+                        SELECT DISTINCT recipient_address
+                        FROM creator_recipients_unified
+                        WHERE creator_address IN ({placeholders})
+                        AND recipient_address IN ({','.join(['?'] * len(creator_recipients))})
+                    """, connected_list + creator_recipients)
+                    shared_destinations = [row[0] for row in cursor.fetchall()]
+
                 cursor.execute("""
                     INSERT OR REPLACE INTO creator_networks
-                    (creator_address, connected_creators, network_size, network_risk_level, detected_at)
-                    VALUES (?, ?, ?, 'MEDIUM', CURRENT_TIMESTAMP)
-                """, (creator, json.dumps(connected_list), len(connected_list) + 1))
+                    (creator_address, connected_creators, shared_destinations, network_size, network_risk_level, detected_at)
+                    VALUES (?, ?, ?, ?, 'MEDIUM', CURRENT_TIMESTAMP)
+                """, (creator, json.dumps(connected_list), json.dumps(shared_destinations), len(connected_list) + 1))
 
                 conn.commit()
                 print(f"[NETWORK] ✅ Network assigned to creator {creator[:16]}...", flush=True)

@@ -210,7 +210,7 @@ class PostLaunchAutomationCoordinator:
 
             # Check if creator already has a network assigned
             cursor.execute("""
-                SELECT network_id FROM creator_networks
+                SELECT id FROM creator_networks
                 WHERE creator_address = ?
             """, (creator,))
 

@@ -130,24 +130,8 @@ def get_migrated_tokens() -> List[Dict]:
                     seen_tags.add('Multi-Funder')
                     creator_infra_tags.append({'tag': 'Multi-Funder', 'description': 'Funded by account(s) supporting multiple creators', 'amount_sol': None})
 
-                # Check if creator is part of a network with connected creators
-                if 'Network-Coordinator' not in seen_tags:
-                    try:
-                        cursor.execute("""
-                            SELECT connected_creators FROM creator_networks
-                            WHERE creator_address = ?
-                            AND connected_creators IS NOT NULL
-                            LIMIT 1
-                        """, (row['earliest_tx_creator'],))
-
-                        result = cursor.fetchone()
-                        if result:
-                            connected = json.loads(result[0]) if isinstance(result[0], str) else result[0]
-                            if connected and len(connected) > 0:
-                                seen_tags.add('Network-Coordinator')
-                                creator_infra_tags.append({'tag': 'Network-Coordinator', 'description': 'Part of multi-creator network', 'amount_sol': None})
-                    except Exception as e:
-                        pass  # Network coordinator detection optional
+                # Network membership is now indicated by network_name field, not a tag
+                # No need for Network-Coordinator tag since all network creators show their network name
 
             # Get top funder for creator (to show CEX funding info)
             top_funder = None
@@ -2941,7 +2925,7 @@ HTML_TEMPLATE = """
                                 columnTags.push(`<span class="creator-tag tag-funding" title="${label.description}">${label.name}</span>`);
                             }
 
-                            // Service tags (uses_axiom, uses_jitotip, uses_meteora, uses_debridge, Multi-Funder, Network-Coordinator, etc.)
+                            // Service tags (uses_axiom, uses_jitotip, uses_meteora, uses_debridge, Multi-Funder, etc.)
                             // Use creatorData.tags if available (from batch API), otherwise fall back to token.creator_infra_tags
                             const serviceTags = (creatorData.tags && creatorData.tags.length > 0) ? creatorData.tags : (token.creator_infra_tags || []);
                             if (serviceTags && serviceTags.length > 0) {
@@ -2960,7 +2944,7 @@ HTML_TEMPLATE = """
                                         } else if (serviceTag.tag === 'uses_jitotip_other') {
                                             displayName = 'JitoTip';
                                         }
-                                        // Keep Multi-Funder and Network-Coordinator as-is
+                                        // Keep Multi-Funder as-is
 
                                         columnTags.push(`<span class="creator-tag tag-funding" title="${serviceTag.description}">${displayName}</span>`);
                                     }
@@ -3049,9 +3033,9 @@ HTML_TEMPLATE = """
                                     }
 
                                     // SKIP service tags (uses_axiom, uses_jitotip, uses_meteora, uses_debridge)
-                                    // and coordination tags (Multi-Funder, Network-Coordinator)
+                                    // and coordination tags (Multi-Funder)
                                     // They are displayed in the "Creator Tags" column to avoid duplication
-                                    if (infraTag.tag.match(/^uses_/) || infraTag.tag === 'Multi-Funder' || infraTag.tag === 'Network-Coordinator') {
+                                    if (infraTag.tag.match(/^uses_/) || infraTag.tag === 'Multi-Funder') {
                                         continue;
                                     }
 
@@ -7542,24 +7526,8 @@ def api_creators_batch():
                         'amount_sol': None
                     })
 
-        # Network-Coordinator detection for batch API
-        cursor.execute(f"""
-            SELECT creator_address, connected_creators FROM creator_networks
-            WHERE creator_address IN ({placeholders})
-            AND connected_creators IS NOT NULL
-        """, creator_addresses)
-        for row in cursor.fetchall():
-            creator = row['creator_address']
-            connected = json.loads(row['connected_creators']) if isinstance(row['connected_creators'], str) else row['connected_creators']
-            if connected and len(connected) > 0:
-                if creator not in tags_data:
-                    tags_data[creator] = []
-                if not any(t['tag'] == 'Network-Coordinator' for t in tags_data[creator]):
-                    tags_data[creator].append({
-                        'tag': 'Network-Coordinator',
-                        'description': 'Part of multi-creator network',
-                        'amount_sol': None
-                    })
+        # Network membership is now indicated by network_name field, not a tag
+        # No need for Network-Coordinator tag since all network creators show their network name
 
         conn.close()
 

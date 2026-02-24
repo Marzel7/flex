@@ -25,6 +25,7 @@ import os
 import time
 from typing import Optional, Dict, List, Set, Iterable, Tuple
 from datetime import datetime
+from db_locking import DB_WRITE_LOCK
 from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
 from dust_addresses import DUST_ADDRESSES
 from domain_extraction import extract_from_helius_transaction_async

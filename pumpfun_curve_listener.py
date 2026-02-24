@@ -13,6 +13,7 @@ import re
 import sqlite3
 import sys
 import time
+import threading
 import websockets
 import aiohttp
 import requests
@@ -24,6 +25,11 @@ from creator_watch_manager import CreatorWatchManager
 from funder_incoming_extractor import extract_for_creator as extract_funder_transfers
 from clustering_task_queue import enqueue_clustering
 from dotenv import load_dotenv
+
+# === Global Database Write Lock ===
+# Serializes ALL database writes across threads/processes to prevent lock contention
+# Used by asyncio tasks (wrapped with self.db_lock THEN this), executor threads, and workers
+DB_WRITE_LOCK = threading.RLock()
 
 # Import settings checker (will be imported dynamically when needed)
 def get_migration_setting(key: str, default=True) -> bool:
@@ -88,98 +94,112 @@ async def update_network_clustering_async():
 def rebuild_super_clusters_from_funding():
     """Rebuild super_clusters table and assign creators to networks based on funding"""
     try:
-        conn = sqlite3.connect('pumpswap_tokens.db', timeout=5)
-        cursor = conn.cursor()
+        # Serialize writes: prevent other threads from interfering with clustering writes
+        with DB_WRITE_LOCK:
+            conn = sqlite3.connect('pumpswap_tokens.db', timeout=60)
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA synchronous=NORMAL")
+            conn.execute("PRAGMA busy_timeout=60000")
+            cursor = conn.cursor()
 
-        print(f"[CLUSTERING] 🔄 Rebuilding super_clusters from funding data...", flush=True)
+            # BEGIN IMMEDIATE: acquire write lock early and predictably
+            cursor.execute("BEGIN IMMEDIATE")
+            try:
+                print(f"[CLUSTERING] 🔄 Rebuilding super_clusters from funding data...", flush=True)
 
-        # Get all creators with funding relationships
-        cursor.execute("""
-            SELECT DISTINCT creator_address FROM creator_funders
-            WHERE fully_analyzed = 1 AND amount_sol > 0
-        """)
-
-        creators_to_process = [row[0] for row in cursor.fetchall()]
-        print(f"[CLUSTERING]    Found {len(creators_to_process)} creators with complete funding extraction", flush=True)
-
-        # Update cluster counts and metadata for existing clusters
-        cursor.execute("""
-            SELECT super_cluster_id FROM super_clusters
-        """)
-
-        for (cluster_id,) in cursor.fetchall():
-            # Count creators in this cluster
-            cursor.execute("""
-                SELECT COUNT(DISTINCT creator_address) as creator_count
-                FROM creator_super_cluster_membership
-                WHERE super_cluster_id = ?
-            """, (cluster_id,))
-
-            row = cursor.fetchone()
-            creator_count = row[0] if row else 0
-
-            # Update cluster metadata
-            cursor.execute("""
-                UPDATE super_clusters
-                SET creator_count = ?
-                WHERE super_cluster_id = ?
-            """, (creator_count, cluster_id))
-
-        # Assign creators and funders to super_clusters
-        # Logic:
-        # 1. Add creator to clusters where their funders are
-        # 2. Add funders to clusters if they fund real creators (not just CEX/INFRA)
-        creators_assigned = 0
-        funders_assigned = 0
-
-        for creator in creators_to_process:
-            # Find all super_clusters where this creator's funders appear as cluster members
-            cursor.execute("""
-                SELECT DISTINCT cscm.super_cluster_id, cf.funder_address
-                FROM creator_funders cf
-                JOIN creator_super_cluster_membership cscm ON cf.funder_address = cscm.creator_address
-                WHERE cf.creator_address = ? AND cf.fully_analyzed = 1 AND cf.amount_sol > 0
-                AND cf.is_cex = 0
-            """, (creator,))
-
-            results = cursor.fetchall()
-            clusters = [row[0] for row in results]
-            funders = [row[1] for row in results]
-
-            # Add creator to those clusters
-            for cluster_id in clusters:
+                # Get all creators with funding relationships
                 cursor.execute("""
-                    INSERT OR IGNORE INTO creator_super_cluster_membership
-                    (creator_address, super_cluster_id)
-                    VALUES (?, ?)
-                """, (creator, cluster_id))
-                creators_assigned += 1
+                    SELECT DISTINCT creator_address FROM creator_funders
+                    WHERE fully_analyzed = 1 AND amount_sol > 0
+                """)
 
-            # Add funders to clusters if they fund real addresses (not just CEX/INFRA)
-            for funder in funders:
-                # Check if funder has outgoing transfers to non-CEX/INFRA addresses
+                creators_to_process = [row[0] for row in cursor.fetchall()]
+                print(f"[CLUSTERING]    Found {len(creators_to_process)} creators with complete funding extraction", flush=True)
+
+                # Update cluster counts and metadata for existing clusters
                 cursor.execute("""
-                    SELECT COUNT(*) FROM funder_outgoing_transfers
-                    WHERE funder_address = ? AND is_cex = 0
-                """, (funder,))
+                    SELECT super_cluster_id FROM super_clusters
+                """)
 
-                has_real_funding = cursor.fetchone()[0] > 0
+                for (cluster_id,) in cursor.fetchall():
+                    # Count creators in this cluster
+                    cursor.execute("""
+                        SELECT COUNT(DISTINCT creator_address) as creator_count
+                        FROM creator_super_cluster_membership
+                        WHERE super_cluster_id = ?
+                    """, (cluster_id,))
 
-                if has_real_funding:
-                    # Add funder to all clusters where creator appears
+                    row = cursor.fetchone()
+                    creator_count = row[0] if row else 0
+
+                    # Update cluster metadata
+                    cursor.execute("""
+                        UPDATE super_clusters
+                        SET creator_count = ?
+                        WHERE super_cluster_id = ?
+                    """, (creator_count, cluster_id))
+
+                # Assign creators and funders to super_clusters
+                # Logic:
+                # 1. Add creator to clusters where their funders are
+                # 2. Add funders to clusters if they fund real creators (not just CEX/INFRA)
+                creators_assigned = 0
+                funders_assigned = 0
+
+                for creator in creators_to_process:
+                    # Find all super_clusters where this creator's funders appear as cluster members
+                    cursor.execute("""
+                        SELECT DISTINCT cscm.super_cluster_id, cf.funder_address
+                        FROM creator_funders cf
+                        JOIN creator_super_cluster_membership cscm ON cf.funder_address = cscm.creator_address
+                        WHERE cf.creator_address = ? AND cf.fully_analyzed = 1 AND cf.amount_sol > 0
+                        AND cf.is_cex = 0
+                    """, (creator,))
+
+                    results = cursor.fetchall()
+                    clusters = [row[0] for row in results]
+                    funders = [row[1] for row in results]
+
+                    # Add creator to those clusters
                     for cluster_id in clusters:
                         cursor.execute("""
                             INSERT OR IGNORE INTO creator_super_cluster_membership
                             (creator_address, super_cluster_id)
                             VALUES (?, ?)
-                        """, (funder, cluster_id))
-                        funders_assigned += 1
+                        """, (creator, cluster_id))
+                        creators_assigned += 1
 
-        conn.commit()
-        print(f"[CLUSTERING] ✅ Assigned {creators_assigned} creators to networks", flush=True)
-        print(f"[CLUSTERING] ✅ Assigned {funders_assigned} funders to networks (funding real addresses)", flush=True)
-        print(f"[CLUSTERING] ✅ Updated super_cluster metadata", flush=True)
-        conn.close()
+                    # Add funders to clusters if they fund real addresses (not just CEX/INFRA)
+                    for funder in funders:
+                        # Check if funder has outgoing transfers to non-CEX/INFRA addresses
+                        cursor.execute("""
+                            SELECT COUNT(*) FROM funder_outgoing_transfers
+                            WHERE funder_address = ? AND is_cex = 0
+                        """, (funder,))
+
+                        has_real_funding = cursor.fetchone()[0] > 0
+
+                        if has_real_funding:
+                            # Add funder to all clusters where creator appears
+                            for cluster_id in clusters:
+                                cursor.execute("""
+                                    INSERT OR IGNORE INTO creator_super_cluster_membership
+                                    (creator_address, super_cluster_id)
+                                    VALUES (?, ?)
+                                """, (funder, cluster_id))
+                                funders_assigned += 1
+
+                conn.commit()
+                print(f"[CLUSTERING] ✅ Assigned {creators_assigned} creators to networks", flush=True)
+                print(f"[CLUSTERING] ✅ Assigned {funders_assigned} funders to networks (funding real addresses)", flush=True)
+                print(f"[CLUSTERING] ✅ Updated super_cluster metadata", flush=True)
+
+            except Exception as e:
+                conn.rollback()
+                raise
+
+            finally:
+                conn.close()
 
         return {'status': 'success', 'creators_updated': len(creators_to_process), 'creators_assigned': creators_assigned, 'funders_assigned': funders_assigned}
 
@@ -1550,39 +1570,41 @@ class PumpFunCurveListener:
         base_delay = 0.25
 
         async with self.db_lock:
-            for attempt in range(max_retries):
-                try:
-                    conn = sqlite3.connect(DB_PATH, timeout=30)
-                    conn.execute("PRAGMA journal_mode=WAL")
-                    conn.execute("PRAGMA synchronous=NORMAL")
-                    conn.execute("PRAGMA busy_timeout=30000")
-                    cursor = conn.cursor()
+            # CRITICAL: Also protect with global thread lock (for executor/clustering threads)
+            with DB_WRITE_LOCK:
+                for attempt in range(max_retries):
+                    try:
+                        conn = sqlite3.connect(DB_PATH, timeout=30)
+                        conn.execute("PRAGMA journal_mode=WAL")
+                        conn.execute("PRAGMA synchronous=NORMAL")
+                        conn.execute("PRAGMA busy_timeout=30000")
+                        cursor = conn.cursor()
 
-                    now = time.time()
-                    cursor.execute("""
-                        INSERT OR REPLACE INTO token_analysis (
-                            mint, created_at, analyzed_at,
-                            rug_probability, risk_level, post_migration_coverage,
-                            rug_indicator, events_parsed
-                        ) VALUES (?, ?, ?, NULL, NULL, NULL, NULL, NULL)
-                    """, (mint, now, now))
+                        now = time.time()
+                        cursor.execute("""
+                            INSERT OR REPLACE INTO token_analysis (
+                                mint, created_at, analyzed_at,
+                                rug_probability, risk_level, post_migration_coverage,
+                                rug_indicator, events_parsed
+                            ) VALUES (?, ?, ?, NULL, NULL, NULL, NULL, NULL)
+                        """, (mint, now, now))
 
-                    conn.commit()
-                    conn.close()
-                    print(f"[DB] ✅ Created minimal token entry for {mint}", flush=True)
-                    return
+                        conn.commit()
+                        conn.close()
+                        print(f"[DB] ✅ Created minimal token entry for {mint}", flush=True)
+                        return
 
-                except sqlite3.OperationalError as e:
-                    if "database is locked" in str(e).lower() and attempt < max_retries - 1:
-                        wait = base_delay * (2 ** attempt)
-                        print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
-                        await asyncio.sleep(wait)
-                        continue
-                    print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
-                    return
-                except Exception as e:
-                    print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
-                    return
+                    except sqlite3.OperationalError as e:
+                        if "database is locked" in str(e).lower() and attempt < max_retries - 1:
+                            wait = base_delay * (2 ** attempt)
+                            print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
+                            await asyncio.sleep(wait)
+                            continue
+                        print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
+                        return
+                    except Exception as e:
+                        print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
+                        return
 
     async def _update_token_entry_with_creator(self, mint: str, creator: str, created_at: str, bonding_curve_pda: str = None, create_tx_signature: str = None):
         """Update minimal token entry with creator, creation date, bonding curve, and CREATE tx signature"""
@@ -1609,35 +1631,37 @@ class PumpFunCurveListener:
         base_delay = 0.25
 
         async with self.db_lock:
-            for attempt in range(max_retries):
-                try:
-                    conn = sqlite3.connect(DB_PATH, timeout=30)
-                    conn.execute("PRAGMA journal_mode=WAL")
-                    conn.execute("PRAGMA synchronous=NORMAL")
-                    conn.execute("PRAGMA busy_timeout=30000")
-                    cursor = conn.cursor()
+            # CRITICAL: Also protect with global thread lock (for executor/clustering threads)
+            with DB_WRITE_LOCK:
+                for attempt in range(max_retries):
+                    try:
+                        conn = sqlite3.connect(DB_PATH, timeout=30)
+                        conn.execute("PRAGMA journal_mode=WAL")
+                        conn.execute("PRAGMA synchronous=NORMAL")
+                        conn.execute("PRAGMA busy_timeout=30000")
+                        cursor = conn.cursor()
 
-                    cursor.execute("""
-                        UPDATE token_analysis
-                        SET earliest_tx_creator = ?, created_at = ?, bonding_curve_pda = ?, create_tx_signature = ?,
-                            cluster_id = ?, cluster_name = ?, cluster_risk_multiplier = ?
-                        WHERE mint = ?
-                    """, (creator, created_at, bonding_curve_pda, create_tx_signature, cluster_id, cluster_name, cluster_risk_multiplier, mint))
+                        cursor.execute("""
+                            UPDATE token_analysis
+                            SET earliest_tx_creator = ?, created_at = ?, bonding_curve_pda = ?, create_tx_signature = ?,
+                                cluster_id = ?, cluster_name = ?, cluster_risk_multiplier = ?
+                            WHERE mint = ?
+                        """, (creator, created_at, bonding_curve_pda, create_tx_signature, cluster_id, cluster_name, cluster_risk_multiplier, mint))
 
-                    conn.commit()
-                    conn.close()
-                    cluster_info_str = f" | Cluster: {cluster_name} ({cluster_risk_multiplier}x)" if cluster_id else ""
-                    print(f"[DB] ✅ Updated token entry with creator: {creator[:8]}... | Created: {created_at} | CREATE tx: {create_tx_signature[:20] if create_tx_signature else 'N/A'}...{cluster_info_str}", flush=True)
-                    return
-
-                except sqlite3.OperationalError as e:
-                    if "database is locked" in str(e).lower() and attempt < max_retries - 1:
-                        wait = base_delay * (2 ** attempt)
-                        print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
-                        await asyncio.sleep(wait)
-                    else:
-                        print(f"[DB_ERROR] Failed to update token entry with creator: {e}", flush=True)
+                        conn.commit()
+                        conn.close()
+                        cluster_info_str = f" | Cluster: {cluster_name} ({cluster_risk_multiplier}x)" if cluster_id else ""
+                        print(f"[DB] ✅ Updated token entry with creator: {creator[:8]}... | Created: {created_at} | CREATE tx: {create_tx_signature[:20] if create_tx_signature else 'N/A'}...{cluster_info_str}", flush=True)
                         return
+
+                    except sqlite3.OperationalError as e:
+                        if "database is locked" in str(e).lower() and attempt < max_retries - 1:
+                            wait = base_delay * (2 ** attempt)
+                            print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
+                            await asyncio.sleep(wait)
+                        else:
+                            print(f"[DB_ERROR] Failed to update token entry with creator: {e}", flush=True)
+                            return
 
     async def handle_migration(self, signature: str, logs: list):
         """Process detected migration"""
@@ -1691,6 +1715,7 @@ class PumpFunCurveListener:
             # This ensures creator and date are always visible in the UI
             earliest_creator = None
             created_at = None
+            analyzer = None  # Initialize early to prevent UnboundLocalError if try block fails
             try:
                 from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
                 analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
@@ -1728,12 +1753,13 @@ class PumpFunCurveListener:
 
                     # CRITICAL: Only accept create_tx_signature if it's a validated Pump.Fun CREATE transaction
                     is_pumpfun_create = provenance.get('is_pumpfun_create', False) if provenance else False
-                    create_tx_signature = analyzer._create_tx_signature if (hasattr(analyzer, '_create_tx_signature') and is_pumpfun_create) else None
+                    create_tx_signature = analyzer._create_tx_signature if (analyzer and hasattr(analyzer, '_create_tx_signature') and is_pumpfun_create) else None
 
                     if create_tx_signature:
                         print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status}) | CREATE tx validated: {create_tx_signature[:20]}...", flush=True)
                     else:
-                        print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status}) | CREATE tx validation: {'FAILED' if analyzer._create_tx_signature else 'NOT_SET'}", flush=True)
+                        analyzer_sig = analyzer._create_tx_signature if (analyzer and hasattr(analyzer, '_create_tx_signature')) else None
+                        print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status}) | CREATE tx validation: {'FAILED' if analyzer_sig else 'NOT_SET'}", flush=True)
 
                     # Update minimal entry with creator, date, bonding curve, and CREATE tx signature (only if validated)
                     await self._update_token_entry_with_creator(mint, earliest_creator, created_at, bonding_curve_pda, create_tx_signature)

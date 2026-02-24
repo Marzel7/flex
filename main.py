@@ -3904,28 +3904,98 @@ function switchToTokensTab() {
                 const crossRefsContainer = document.getElementById('crossReferencesContainer');
                 if (data.cross_references && data.cross_references.length > 0) {
                     let crossRefsHTML = '';
-                    for (const crossRef of data.cross_references) {
-                        const creatorList = crossRef.other_creators
-                            .slice(0, 3)
-                            .map(c => `<span style="background: rgba(124, 58, 237, 0.2); padding: 2px 6px; border-radius: 3px; margin: 2px; display: inline-block; font-size: 10px; font-family: monospace; word-break: break-all;">${c}</span>`)
-                            .join('');
-                        const moreCreators = crossRef.other_creators.length > 3 ? `<span style="color: var(--text-secondary); font-size: 10px;"> +${crossRef.other_creators.length - 3} more</span>` : '';
 
-                        crossRefsHTML += `
-                            <div style="margin-bottom: 12px; padding: 10px; background: rgba(124, 58, 237, 0.05); border-left: 3px solid rgba(124, 58, 237, 0.3); border-radius: 4px;">
-                                <div style="font-family: monospace; font-size: 11px; color: var(--accent-cyan); word-break: break-all; margin-bottom: 5px;">
-                                    ${crossRef.recipient_address}
+                    // Handle both new structure (with inbound/outbound) and legacy structure (flat array)
+                    const inbound = data.cross_references.inbound || [];
+                    const outbound = data.cross_references.outbound || [];
+                    const legacyRefs = Array.isArray(data.cross_references) ? data.cross_references : [];
+
+                    // Display INBOUND cross-references (shared funders)
+                    if (inbound.length > 0) {
+                        crossRefsHTML += '<div style="margin-bottom: 20px;">';
+                        crossRefsHTML += '<div style="color: var(--color-high); font-weight: bold; margin-bottom: 10px; font-size: 12px; text-transform: uppercase;">📥 Inbound (Shared Funders)</div>';
+                        for (const ref of inbound) {
+                            const creatorList = ref.other_creators
+                                .slice(0, 3)
+                                .map(c => `<span style="background: rgba(239, 68, 68, 0.2); padding: 2px 6px; border-radius: 3px; margin: 2px; display: inline-block; font-size: 10px; font-family: monospace; word-break: break-all;">${c}</span>`)
+                                .join('');
+                            const moreCreators = ref.other_creators.length > 3 ? `<span style="color: var(--text-secondary); font-size: 10px;"> +${ref.other_creators.length - 3} more</span>` : '';
+
+                            crossRefsHTML += `
+                                <div style="margin-bottom: 12px; padding: 10px; background: rgba(239, 68, 68, 0.1); border-left: 3px solid rgba(239, 68, 68, 0.4); border-radius: 4px;">
+                                    <div style="font-family: monospace; font-size: 11px; color: var(--accent-cyan); word-break: break-all; margin-bottom: 5px;">
+                                        ${ref.address}
+                                    </div>
+                                    <div style="font-size: 11px; color: var(--text-secondary);">
+                                        <strong>🔴 Funds this creator AND ${ref.creator_count} other creator${ref.creator_count > 1 ? 's' : ''}</strong>
+                                    </div>
+                                    <div style="margin-top: 5px;">
+                                        ${creatorList} ${moreCreators}
+                                    </div>
                                 </div>
-                                <div style="font-size: 11px; color: var(--accent-purple);">
-                                    <strong>⚠️ Also linked to ${crossRef.creator_count} other creator${crossRef.creator_count > 1 ? 's' : ''}:</strong>
-                                </div>
-                                <div style="margin-top: 5px;">
-                                    ${creatorList} ${moreCreators}
-                                </div>
-                            </div>
-                        `;
+                            `;
+                        }
+                        crossRefsHTML += '</div>';
                     }
-                    crossRefsContainer.innerHTML = crossRefsHTML;
+
+                    // Display OUTBOUND cross-references (shared recipients)
+                    if (outbound.length > 0) {
+                        crossRefsHTML += '<div style="margin-bottom: 20px;">';
+                        crossRefsHTML += '<div style="color: var(--color-medium); font-weight: bold; margin-bottom: 10px; font-size: 12px; text-transform: uppercase;">📤 Outbound (Shared Recipients)</div>';
+                        for (const ref of outbound) {
+                            const creatorList = ref.other_creators
+                                .slice(0, 3)
+                                .map(c => `<span style="background: rgba(124, 58, 237, 0.2); padding: 2px 6px; border-radius: 3px; margin: 2px; display: inline-block; font-size: 10px; font-family: monospace; word-break: break-all;">${c}</span>`)
+                                .join('');
+                            const moreCreators = ref.other_creators.length > 3 ? `<span style="color: var(--text-secondary); font-size: 10px;"> +${ref.other_creators.length - 3} more</span>` : '';
+
+                            crossRefsHTML += `
+                                <div style="margin-bottom: 12px; padding: 10px; background: rgba(124, 58, 237, 0.05); border-left: 3px solid rgba(124, 58, 237, 0.3); border-radius: 4px;">
+                                    <div style="font-family: monospace; font-size: 11px; color: var(--accent-cyan); word-break: break-all; margin-bottom: 5px;">
+                                        ${ref.address}
+                                    </div>
+                                    <div style="font-size: 11px; color: var(--accent-purple);">
+                                        <strong>⚠️ Receives from this creator AND ${ref.creator_count} other creator${ref.creator_count > 1 ? 's' : ''}</strong>
+                                    </div>
+                                    <div style="margin-top: 5px;">
+                                        ${creatorList} ${moreCreators}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        crossRefsHTML += '</div>';
+                    }
+
+                    // Fallback: handle legacy flat array format
+                    if (legacyRefs.length > 0 && inbound.length === 0 && outbound.length === 0) {
+                        for (const crossRef of legacyRefs) {
+                            const creatorList = crossRef.other_creators
+                                .slice(0, 3)
+                                .map(c => `<span style="background: rgba(124, 58, 237, 0.2); padding: 2px 6px; border-radius: 3px; margin: 2px; display: inline-block; font-size: 10px; font-family: monospace; word-break: break-all;">${c}</span>`)
+                                .join('');
+                            const moreCreators = crossRef.other_creators.length > 3 ? `<span style="color: var(--text-secondary); font-size: 10px;"> +${crossRef.other_creators.length - 3} more</span>` : '';
+
+                            crossRefsHTML += `
+                                <div style="margin-bottom: 12px; padding: 10px; background: rgba(124, 58, 237, 0.05); border-left: 3px solid rgba(124, 58, 237, 0.3); border-radius: 4px;">
+                                    <div style="font-family: monospace; font-size: 11px; color: var(--accent-cyan); word-break: break-all; margin-bottom: 5px;">
+                                        ${crossRef.recipient_address}
+                                    </div>
+                                    <div style="font-size: 11px; color: var(--accent-purple);">
+                                        <strong>⚠️ Also linked to ${crossRef.creator_count} other creator${crossRef.creator_count > 1 ? 's' : ''}:</strong>
+                                    </div>
+                                    <div style="margin-top: 5px;">
+                                        ${creatorList} ${moreCreators}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+
+                    if (crossRefsHTML) {
+                        crossRefsContainer.innerHTML = crossRefsHTML;
+                    } else {
+                        crossRefsContainer.innerHTML = '<p style="color: var(--text-secondary); text-align: center; margin: 0;">No cross-creator connections detected ✓</p>';
+                    }
                 } else {
                     crossRefsContainer.innerHTML = '<p style="color: var(--text-secondary); text-align: center; margin: 0;">No cross-creator connections detected ✓</p>';
                 }

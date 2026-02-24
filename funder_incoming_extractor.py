@@ -30,6 +30,7 @@ import requests
 
 sys.path.insert(0, "/Users/kevinkeaveney/Dev/claude/flex")
 
+from db_locking import DB_WRITE_LOCK
 from infra_mapping import get_account_info, get_cex_info  # type: ignore
 
 # Env

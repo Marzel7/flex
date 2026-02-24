@@ -130,19 +130,22 @@ def get_migrated_tokens() -> List[Dict]:
                     seen_tags.add('Multi-Funder')
                     creator_infra_tags.append({'tag': 'Multi-Funder', 'description': 'Funded by account(s) supporting multiple creators', 'amount_sol': None})
 
-                # Check if creator is part of a network with coordinated funders
+                # Check if creator is part of a network with connected creators
                 if 'Network-Coordinator' not in seen_tags:
                     try:
                         cursor.execute("""
-                            SELECT 1 FROM creator_networks
+                            SELECT connected_creators FROM creator_networks
                             WHERE creator_address = ?
-                            AND (SELECT COUNT(*) FROM coordinated_funders) > 0
+                            AND connected_creators IS NOT NULL
                             LIMIT 1
                         """, (row['earliest_tx_creator'],))
 
-                        if cursor.fetchone():
-                            seen_tags.add('Network-Coordinator')
-                            creator_infra_tags.append({'tag': 'Network-Coordinator', 'description': 'Part of multi-creator network', 'amount_sol': None})
+                        result = cursor.fetchone()
+                        if result:
+                            connected = json.loads(result[0]) if isinstance(result[0], str) else result[0]
+                            if connected and len(connected) > 0:
+                                seen_tags.add('Network-Coordinator')
+                                creator_infra_tags.append({'tag': 'Network-Coordinator', 'description': 'Part of multi-creator network', 'amount_sol': None})
                     except Exception as e:
                         pass  # Network coordinator detection optional
 
@@ -7541,20 +7544,22 @@ def api_creators_batch():
 
         # Network-Coordinator detection for batch API
         cursor.execute(f"""
-            SELECT DISTINCT creator_address FROM creator_networks
+            SELECT creator_address, connected_creators FROM creator_networks
             WHERE creator_address IN ({placeholders})
-            AND (SELECT COUNT(*) FROM coordinated_funders) > 0
+            AND connected_creators IS NOT NULL
         """, creator_addresses)
         for row in cursor.fetchall():
             creator = row['creator_address']
-            if creator not in tags_data:
-                tags_data[creator] = []
-            if not any(t['tag'] == 'Network-Coordinator' for t in tags_data[creator]):
-                tags_data[creator].append({
-                    'tag': 'Network-Coordinator',
-                    'description': 'Part of multi-creator network',
-                    'amount_sol': None
-                })
+            connected = json.loads(row['connected_creators']) if isinstance(row['connected_creators'], str) else row['connected_creators']
+            if connected and len(connected) > 0:
+                if creator not in tags_data:
+                    tags_data[creator] = []
+                if not any(t['tag'] == 'Network-Coordinator' for t in tags_data[creator]):
+                    tags_data[creator].append({
+                        'tag': 'Network-Coordinator',
+                        'description': 'Part of multi-creator network',
+                        'amount_sol': None
+                    })
 
         conn.close()
 

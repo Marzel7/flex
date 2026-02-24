@@ -13232,11 +13232,20 @@ def funding_hub(hub_address):
                 else:
                     token_count = 0
 
+                # Check if this funder is a multi-creator funder (coordinated funder)
+                c.execute("""
+                    SELECT creator_count FROM coordinated_funders
+                    WHERE funder_address = ?
+                """, (funder,))
+                coordinated_result = c.fetchone()
+                is_multi_creator_funder = coordinated_result is not None
+
                 funder_data.append({
                     'address': funder,
                     'creator_count': len(funded_creators),
                     'token_count': token_count,
-                    'sample_creators': funded_creators[:5]
+                    'sample_creators': funded_creators[:5],
+                    'is_multi_creator_funder': is_multi_creator_funder
                 })
 
         # CASE 2: Address is a funder (funds creators directly)
@@ -13460,6 +13469,11 @@ def funding_hub(hub_address):
                         <div class="stat-label">Tokens from Third-Party Creators</div>
                         <div class="stat-value">{sum(f['token_count'] for f in funder_data)}</div>
                     </div>
+                    <div class="stat-box hub" style="border-left: 3px solid rgba(251, 146, 60, 0.5); background: rgba(251, 146, 60, 0.08);">
+                        <div class="stat-label">🔗 Multi-Creator Funders</div>
+                        <div class="stat-value" style="color: #fb923c;">{sum(1 for f in funder_data if f.get('is_multi_creator_funder'))}</div>
+                        <div class="stat-label" style="margin-top: 8px; font-size: 11px; color: #fb923c;">Fund multiple creators</div>
+                    </div>
             """
         else:  # funder
             html += f"""
@@ -13527,10 +13541,14 @@ def funding_hub(hub_address):
                             </tr>
                     """
                 else:
-                    # For sender type, show funder entries as before
+                    # For sender type, show funder entries with multi-funder indicator
+                    multi_funder_badge = ""
+                    if funder.get('is_multi_creator_funder'):
+                        multi_funder_badge = ' <span style="background: rgba(251, 146, 60, 0.3); color: #fb923c; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; margin-left: 4px;">🔗 Multi-Funder</span>'
+
                     html += f"""
                             <tr>
-                                <td><span class="address">{funder['address']}</span></td>
+                                <td><span class="address">{funder['address']}</span>{multi_funder_badge}</td>
                                 <td style="text-align: center;"><span class="stat-number">{funder['creator_count']}</span></td>
                                 <td style="text-align: center;"><span class="stat-number">{funder['token_count']}</span></td>
                                 <td><small style="color: #94a3b8;">{sample_creators if sample_creators else 'N/A'}</small></td>

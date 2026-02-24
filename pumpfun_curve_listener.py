@@ -102,8 +102,8 @@ def rebuild_super_clusters_from_funding():
             conn.execute("PRAGMA busy_timeout=60000")
             cursor = conn.cursor()
 
-            # BEGIN IMMEDIATE: acquire write lock early and predictably
-            cursor.execute("BEGIN IMMEDIATE")
+            # Note: BEGIN IMMEDIATE removed - WAL mode + busy_timeout handles serialization
+            # Holding write lock for entire clustering operation starved other writers
             try:
                 print(f"[CLUSTERING] 🔄 Rebuilding super_clusters from funding data...", flush=True)
 
@@ -1570,10 +1570,10 @@ class PumpFunCurveListener:
         base_delay = 0.25
 
         async with self.db_lock:
-            # CRITICAL: Also protect with global thread lock (for executor/clustering threads)
-            with DB_WRITE_LOCK:
-                for attempt in range(max_retries):
-                    try:
+            for attempt in range(max_retries):
+                try:
+                    # CRITICAL: Acquire lock ONLY for the actual write, not the sleep
+                    with DB_WRITE_LOCK:
                         conn = sqlite3.connect(DB_PATH, timeout=30)
                         conn.execute("PRAGMA journal_mode=WAL")
                         conn.execute("PRAGMA synchronous=NORMAL")
@@ -1591,20 +1591,22 @@ class PumpFunCurveListener:
 
                         conn.commit()
                         conn.close()
-                        print(f"[DB] ✅ Created minimal token entry for {mint}", flush=True)
-                        return
 
-                    except sqlite3.OperationalError as e:
-                        if "database is locked" in str(e).lower() and attempt < max_retries - 1:
-                            wait = base_delay * (2 ** attempt)
-                            print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
-                            await asyncio.sleep(wait)
-                            continue
-                        print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
-                        return
-                    except Exception as e:
-                        print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
-                        return
+                    print(f"[DB] ✅ Created minimal token entry for {mint}", flush=True)
+                    return
+
+                except sqlite3.OperationalError as e:
+                    if "database is locked" in str(e).lower() and attempt < max_retries - 1:
+                        wait = base_delay * (2 ** attempt)
+                        print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
+                        # CRITICAL: Sleep OUTSIDE the lock
+                        await asyncio.sleep(wait)
+                        continue
+                    print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
+                    return
+                except Exception as e:
+                    print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
+                    return
 
     async def _update_token_entry_with_creator(self, mint: str, creator: str, created_at: str, bonding_curve_pda: str = None, create_tx_signature: str = None):
         """Update minimal token entry with creator, creation date, bonding curve, and CREATE tx signature"""
@@ -1631,10 +1633,10 @@ class PumpFunCurveListener:
         base_delay = 0.25
 
         async with self.db_lock:
-            # CRITICAL: Also protect with global thread lock (for executor/clustering threads)
-            with DB_WRITE_LOCK:
-                for attempt in range(max_retries):
-                    try:
+            for attempt in range(max_retries):
+                try:
+                    # CRITICAL: Acquire lock ONLY for the actual write, not the sleep
+                    with DB_WRITE_LOCK:
                         conn = sqlite3.connect(DB_PATH, timeout=30)
                         conn.execute("PRAGMA journal_mode=WAL")
                         conn.execute("PRAGMA synchronous=NORMAL")
@@ -1650,18 +1652,20 @@ class PumpFunCurveListener:
 
                         conn.commit()
                         conn.close()
-                        cluster_info_str = f" | Cluster: {cluster_name} ({cluster_risk_multiplier}x)" if cluster_id else ""
-                        print(f"[DB] ✅ Updated token entry with creator: {creator[:8]}... | Created: {created_at} | CREATE tx: {create_tx_signature[:20] if create_tx_signature else 'N/A'}...{cluster_info_str}", flush=True)
-                        return
 
-                    except sqlite3.OperationalError as e:
-                        if "database is locked" in str(e).lower() and attempt < max_retries - 1:
-                            wait = base_delay * (2 ** attempt)
-                            print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
-                            await asyncio.sleep(wait)
-                        else:
-                            print(f"[DB_ERROR] Failed to update token entry with creator: {e}", flush=True)
-                            return
+                    cluster_info_str = f" | Cluster: {cluster_name} ({cluster_risk_multiplier}x)" if cluster_id else ""
+                    print(f"[DB] ✅ Updated token entry with creator: {creator[:8]}... | Created: {created_at} | CREATE tx: {create_tx_signature[:20] if create_tx_signature else 'N/A'}...{cluster_info_str}", flush=True)
+                    return
+
+                except sqlite3.OperationalError as e:
+                    if "database is locked" in str(e).lower() and attempt < max_retries - 1:
+                        wait = base_delay * (2 ** attempt)
+                        print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
+                        # CRITICAL: Sleep OUTSIDE the lock
+                        await asyncio.sleep(wait)
+                    else:
+                        print(f"[DB_ERROR] Failed to update token entry with creator: {e}", flush=True)
+                        return
 
     async def handle_migration(self, signature: str, logs: list):
         """Process detected migration"""

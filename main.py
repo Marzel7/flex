@@ -13624,6 +13624,503 @@ def funding_hub(hub_address):
         return f"<h1>Error</h1><p>{str(e)}</p>", 500
 
 
+@app.route('/creator-analysis')
+def creator_analysis_page():
+    """Display creator scan history, findings, and network impacts"""
+    try:
+        html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Creator Outgoing Transfer Analysis</title>
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body {
+                    font-family: 'Courier New', monospace;
+                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                    color: #e0e0e0;
+                    padding: 20px;
+                }
+                .container { max-width: 1400px; margin: 0 auto; }
+                header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 30px;
+                    border-bottom: 2px solid rgba(106, 180, 255, 0.3);
+                    padding-bottom: 15px;
+                }
+                h1 { color: #6ab4ff; font-size: 28px; }
+                .back-btn {
+                    background: rgba(59, 130, 246, 0.2);
+                    color: #06b6d4;
+                    border: 1px solid rgba(59, 130, 246, 0.5);
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    font-family: 'Courier New', monospace;
+                }
+                .back-btn:hover { background: rgba(59, 130, 246, 0.4); }
+
+                .search-section {
+                    margin-bottom: 30px;
+                    display: flex;
+                    gap: 10px;
+                }
+                .search-input {
+                    flex: 1;
+                    background: rgba(0, 0, 0, 0.3);
+                    border: 1px solid rgba(106, 180, 255, 0.3);
+                    color: #e0e0e0;
+                    padding: 10px;
+                    border-radius: 4px;
+                    font-family: 'Courier New', monospace;
+                }
+                .search-input:focus {
+                    outline: none;
+                    border-color: #6ab4ff;
+                    box-shadow: 0 0 10px rgba(106, 180, 255, 0.2);
+                }
+                .search-btn {
+                    background: rgba(59, 130, 246, 0.2);
+                    color: #3b82f6;
+                    border: 1px solid rgba(59, 130, 246, 0.5);
+                    padding: 10px 20px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-family: 'Courier New', monospace;
+                }
+                .search-btn:hover { background: rgba(59, 130, 246, 0.4); }
+
+                .creator-section {
+                    background: rgba(0, 0, 0, 0.4);
+                    border: 1px solid rgba(106, 180, 255, 0.2);
+                    border-radius: 6px;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                }
+
+                .scan-meta {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 15px;
+                    margin-bottom: 20px;
+                }
+                .meta-item {
+                    background: rgba(59, 130, 246, 0.1);
+                    border-left: 3px solid #3b82f6;
+                    padding: 12px;
+                    border-radius: 4px;
+                }
+                .meta-label { font-size: 11px; color: #94a3b8; text-transform: uppercase; }
+                .meta-value { font-size: 14px; color: #e0e0e0; margin-top: 4px; word-break: break-all; }
+
+                .findings-section {
+                    margin-top: 20px;
+                }
+                .findings-title {
+                    color: #fbbf24;
+                    font-size: 14px;
+                    font-weight: bold;
+                    margin-bottom: 15px;
+                    text-transform: uppercase;
+                }
+
+                .finding-card {
+                    background: rgba(0, 0, 0, 0.5);
+                    border-left: 3px solid #ef4444;
+                    padding: 15px;
+                    margin-bottom: 12px;
+                    border-radius: 4px;
+                }
+                .finding-card.clean {
+                    border-left-color: #22c55e;
+                    background: rgba(34, 197, 94, 0.05);
+                }
+
+                .finding-type {
+                    display: inline-block;
+                    background: rgba(239, 68, 68, 0.2);
+                    color: #ef4444;
+                    padding: 3px 8px;
+                    border-radius: 3px;
+                    font-size: 10px;
+                    font-weight: bold;
+                    margin-right: 8px;
+                }
+                .finding-type.clean {
+                    background: rgba(34, 197, 94, 0.2);
+                    color: #22c55e;
+                }
+
+                .finding-details {
+                    font-size: 12px;
+                    color: #cbd5e1;
+                    margin-top: 8px;
+                    line-height: 1.5;
+                }
+
+                .network-list {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                    margin-top: 10px;
+                }
+                .network-badge {
+                    background: rgba(168, 139, 250, 0.2);
+                    color: #a78bfa;
+                    padding: 4px 10px;
+                    border-radius: 3px;
+                    font-size: 11px;
+                    border: 1px solid rgba(168, 139, 250, 0.4);
+                }
+
+                .chains-section {
+                    margin-top: 20px;
+                }
+                .chain-item {
+                    background: rgba(0, 0, 0, 0.5);
+                    border: 1px solid rgba(106, 180, 255, 0.2);
+                    padding: 12px;
+                    margin-bottom: 10px;
+                    border-radius: 4px;
+                    font-size: 11px;
+                }
+                .chain-flow {
+                    color: #06b6d4;
+                    margin-bottom: 8px;
+                }
+                .chain-details {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 10px;
+                    font-size: 10px;
+                }
+                .chain-detail {
+                    background: rgba(59, 130, 246, 0.1);
+                    padding: 6px;
+                    border-radius: 2px;
+                    border-left: 2px solid #3b82f6;
+                }
+
+                .stats-grid {
+                    display: grid;
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: 12px;
+                    margin-top: 15px;
+                }
+                .stat-box {
+                    background: rgba(59, 130, 246, 0.1);
+                    padding: 12px;
+                    border-radius: 4px;
+                    border: 1px solid rgba(59, 130, 246, 0.3);
+                    text-align: center;
+                }
+                .stat-num { font-size: 18px; color: #3b82f6; font-weight: bold; }
+                .stat-label { font-size: 10px; color: #94a3b8; margin-top: 4px; text-transform: uppercase; }
+
+                .loading { text-align: center; color: #6ab4ff; padding: 40px; }
+                .error {
+                    background: rgba(239, 68, 68, 0.1);
+                    border: 1px solid rgba(239, 68, 68, 0.3);
+                    color: #ef4444;
+                    padding: 15px;
+                    border-radius: 4px;
+                    margin-bottom: 20px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <header>
+                    <h1>🔍 Creator Outgoing Transfer Analysis</h1>
+                    <button class="back-btn" onclick="window.location='/'">← Back to Dashboard</button>
+                </header>
+
+                <div class="search-section">
+                    <input type="text" class="search-input" id="creatorInput" placeholder="Enter creator address (e.g., abc123...)">
+                    <button class="search-btn" onclick="searchCreator()">Search</button>
+                </div>
+
+                <div id="content">
+                    <div class="loading">Loading creator analysis...</div>
+                </div>
+            </div>
+
+            <script>
+                async function searchCreator() {
+                    const creator = document.getElementById('creatorInput').value.trim();
+                    if (!creator) {
+                        alert('Please enter a creator address');
+                        return;
+                    }
+                    loadCreatorAnalysis(creator);
+                }
+
+                async function loadCreatorAnalysis(creator) {
+                    const content = document.getElementById('content');
+                    content.innerHTML = '<div class="loading">Loading analysis...</div>';
+
+                    try {
+                        const response = await fetch(`/api/creator-outgoing-analysis/${creator}`);
+                        const data = await response.json();
+
+                        if (data.error) {
+                            content.innerHTML = `<div class="error">⚠️ ${data.error}</div>`;
+                            return;
+                        }
+
+                        renderAnalysis(data);
+                    } catch (error) {
+                        content.innerHTML = `<div class="error">❌ Error loading analysis: ${error.message}</div>`;
+                    }
+                }
+
+                function renderAnalysis(data) {
+                    let html = `
+                        <div class="creator-section">
+                            <div class="scan-meta">
+                                <div class="meta-item">
+                                    <div class="meta-label">Creator Address</div>
+                                    <div class="meta-value">${data.creator_address}</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Last Scanned</div>
+                                    <div class="meta-value">${data.last_scanned || 'Never'}</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Scan Status</div>
+                                    <div class="meta-value">${data.scan_status}</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Network Membership</div>
+                                    <div class="meta-value">${data.network_name || 'None'}</div>
+                                </div>
+                            </div>
+                    `;
+
+                    // Findings section
+                    if (data.findings && data.findings.length > 0) {
+                        html += `
+                            <div class="findings-section">
+                                <div class="findings-title">🚨 Findings</div>
+                        `;
+
+                        data.findings.forEach(finding => {
+                            const isClean = finding.type === 'CLEAN';
+                            html += `
+                                <div class="finding-card ${isClean ? 'clean' : ''}">
+                                    <span class="finding-type ${isClean ? 'clean' : ''}">${finding.type}</span>
+                                    <div class="finding-details">${finding.description}</div>
+            `;
+                            if (finding.networks && finding.networks.length > 0) {
+                                html += `
+                                    <div class="network-list">
+                                        ${finding.networks.map(n => `<div class="network-badge">${n}</div>`).join('')}
+                                    </div>
+                                `;
+                            }
+                            html += `</div>`;
+                        });
+
+                        html += `</div>`;
+                    }
+
+                    // Funding chains section
+                    if (data.funding_chains && data.funding_chains.length > 0) {
+                        html += `
+                            <div class="chains-section">
+                                <div class="findings-title">⛓️ Funding Chains Detected</div>
+                        `;
+
+                        data.funding_chains.forEach(chain => {
+                            html += `
+                                <div class="chain-item">
+                                    <div class="chain-flow">
+                                        ${chain.source_creator.substring(0, 8)}... → ${chain.bridge_funder.substring(0, 8)}... → ${chain.target_creator.substring(0, 8)}...
+                                    </div>
+                                    <div class="chain-details">
+                                        <div class="chain-detail">
+                                            <strong>Amount:</strong> ${chain.amount_sol.toFixed(2)} SOL
+                                        </div>
+                                        <div class="chain-detail">
+                                            <strong>Confidence:</strong> ${chain.confidence}%
+                                        </div>
+                                        <div class="chain-detail">
+                                            <strong>Time:</strong> ${new Date(chain.timestamp * 1000).toLocaleString()}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        html += `</div>`;
+                    }
+
+                    // Statistics
+                    html += `
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-num">${data.outgoing_transfer_count}</div>
+                                <div class="stat-label">Outgoing Transfers</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-num">${data.funding_chain_count}</div>
+                                <div class="stat-label">Detected Chains</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-num">${data.coordinated_edge_count}</div>
+                                <div class="stat-label">Coordinated Edges</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-num">${data.total_sol_sent.toFixed(1)}</div>
+                                <div class="stat-label">SOL Sent</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-num">${data.unique_recipients}</div>
+                                <div class="stat-label">Unique Recipients</div>
+                            </div>
+                        </div>
+                    `;
+
+                    html += `</div>`;
+
+                    document.getElementById('content').innerHTML = html;
+                }
+            </script>
+        </body>
+        </html>
+        """
+        return html
+    except Exception as e:
+        return f"<h1>Error</h1><p>{str(e)}</p>", 500
+
+
+@app.route('/api/creator-outgoing-analysis/<creator_address>')
+def api_creator_outgoing_analysis(creator_address: str):
+    """Get comprehensive creator outgoing transfer analysis"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Get creator scan state
+        cursor.execute("""
+            SELECT updated_at
+            FROM creator_sig_cursors
+            WHERE creator_address = ?
+        """, (creator_address,))
+        cursor_row = cursor.fetchone()
+        last_scanned = cursor_row['updated_at'] if cursor_row else None
+
+        # Get creator outgoing transfers
+        cursor.execute("""
+            SELECT COUNT(*) as count, SUM(amount_sol) as total_sol, COUNT(DISTINCT recipient_address) as unique_recipients
+            FROM creator_outgoing_transfers
+            WHERE creator_address = ?
+        """, (creator_address,))
+        transfers = cursor.fetchone()
+
+        # Get funding chains where this creator is the source
+        cursor.execute("""
+            SELECT
+                source_creator, bridge_funder, target_creator,
+                source_to_bridge_amount_sol, bridge_to_target_amount_sol,
+                source_block_time, confidence, chain_id
+            FROM funding_chains
+            WHERE source_creator = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'
+            ORDER BY created_at DESC
+        """, (creator_address,))
+        funding_chains = cursor.fetchall()
+
+        # Get coordinated edges where this creator is involved
+        cursor.execute("""
+            SELECT creator_a, creator_b, bridge_funder, confidence
+            FROM coordinated_creator_edges
+            WHERE creator_a = ? OR creator_b = ?
+            ORDER BY created_at DESC
+        """, (creator_address, creator_address))
+        coordinated_edges = cursor.fetchall()
+
+        # Get network membership
+        cursor.execute("""
+            SELECT network_name FROM creator_networks
+            WHERE creator_address = ?
+        """, (creator_address,))
+        network_row = cursor.fetchone()
+        network_name = network_row['network_name'] if network_row else None
+
+        conn.close()
+
+        # Build findings
+        findings = []
+
+        if funding_chains:
+            affected_networks = set()
+            if network_name:
+                affected_networks.add(network_name)
+
+            # Find networks of target creators
+            conn = sqlite3.connect(DB_PATH, timeout=5)
+            cursor = conn.cursor()
+            for chain in funding_chains:
+                cursor.execute("""
+                    SELECT network_name FROM creator_networks
+                    WHERE creator_address = ?
+                """, (chain['target_creator'],))
+                target_net = cursor.fetchone()
+                if target_net:
+                    affected_networks.add(target_net['network_name'])
+            conn.close()
+
+            findings.append({
+                'type': 'CREATOR_FUNDING_CHAIN',
+                'description': f'Detected {len(funding_chains)} creator-to-funder-to-creator funding chains. This creator sent SOL to funders who also fund other creators.',
+                'networks': list(affected_networks)
+            })
+
+        if coordinated_edges:
+            findings.append({
+                'type': 'COORDINATED_FUNDING',
+                'description': f'This creator is part of {len(coordinated_edges)} coordinated funding relationships with other creators through shared funders.',
+                'networks': [network_name] if network_name else []
+            })
+
+        if not findings:
+            findings.append({
+                'type': 'CLEAN',
+                'description': 'No suspicious funding chains detected. Creator operates independently.',
+                'networks': [network_name] if network_name else []
+            })
+
+        return jsonify({
+            'creator_address': creator_address,
+            'last_scanned': last_scanned,
+            'scan_status': 'Recently scanned' if last_scanned else 'Not yet scanned',
+            'network_name': network_name,
+            'outgoing_transfer_count': transfers['count'] or 0,
+            'total_sol_sent': transfers['total_sol'] or 0,
+            'unique_recipients': transfers['unique_recipients'] or 0,
+            'funding_chain_count': len(funding_chains),
+            'coordinated_edge_count': len(coordinated_edges),
+            'findings': findings,
+            'funding_chains': [
+                {
+                    'source_creator': fc['source_creator'],
+                    'bridge_funder': fc['bridge_funder'],
+                    'target_creator': fc['target_creator'],
+                    'amount_sol': fc['source_to_bridge_amount_sol'],
+                    'confidence': fc['confidence'],
+                    'timestamp': fc['source_block_time']
+                }
+                for fc in funding_chains[:20]  # Limit to 20 most recent
+            ]
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 # =========================================================================
 # MAIN
 # =========================================================================

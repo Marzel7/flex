@@ -35,24 +35,32 @@ DB_WRITE_LOCK = threading.RLock()
 
 
 @contextlib.contextmanager
-def db_write_lock_global():
+def db_write_lock_global(timeout: float = 30.0):
     """
-    Cross-process write lock using file locking.
-    Ensures this extractor + listener/clustering don't collide on DB writes.
+    Cross-process exclusive lock using fcntl with timeout.
+    Blocks up to `timeout` seconds then raises TimeoutError.
+    Prevents silent deadlock if listener holds lock on long transaction.
     """
     import fcntl
+    start = time.time()
+    lock_file = open(DB_LOCK_FILE, "a+")
+    lock_file.flush()
+
     try:
-        lock_file = open(DB_LOCK_FILE, 'w')
-        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
-        try:
-            yield
-        finally:
-            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+        while True:
+            try:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except BlockingIOError:
+                if time.time() - start > timeout:
+                    raise TimeoutError(f"Timed out waiting for DB lock: {DB_LOCK_FILE}")
+                time.sleep(0.05)
+        yield
     finally:
         try:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+        finally:
             lock_file.close()
-        except:
-            pass
 
 
 def _connect():
@@ -135,6 +143,12 @@ def ensure_tables():
           last_block_time INTEGER DEFAULT 0
         );
         INSERT OR IGNORE INTO outgoing_chain_cursor(id,last_block_time) VALUES (1,0);
+
+        CREATE TABLE IF NOT EXISTS coordinated_edge_cursor (
+          id INTEGER PRIMARY KEY CHECK (id=1),
+          last_chain_id INTEGER DEFAULT 0
+        );
+        INSERT OR IGNORE INTO coordinated_edge_cursor(id,last_chain_id) VALUES (1,0);
         """)
         conn.commit()
         conn.close()
@@ -301,61 +315,65 @@ def insert_outgoing_rows(rows: List[Tuple]):
 def build_funding_chains_incremental():
     """
     Build funding chains from only NEW outgoing transfers since last run.
-    Uses outgoing_chain_cursor to track max block_time, avoiding full table scans.
-    Keeps write lock short even as outgoing table grows.
-    Uses cross-process lock to serialize with listener.
+    Optimized: read cursor, release lock, do join, acquire lock again for insert.
+    This keeps lock hold time short even with large joins.
     """
+    # Step 1: Read cursor without holding cross-process lock
+    conn = _connect()
+    cur = conn.cursor()
+    cur.execute("SELECT last_block_time FROM outgoing_chain_cursor WHERE id=1")
+    row = cur.fetchone()
+    last_bt = int(row[0] or 0) if row else 0
+
+    # Step 2: Execute read-only join to find candidate chains (no lock held)
+    cur.execute("""
+      SELECT
+        'CREATOR_TO_FUNDER_TO_CREATOR' AS chain_type,
+        cot.creator_address AS source_creator,
+        cot.recipient_address AS bridge_funder,
+        cf.creator_address AS target_creator,
+        cot.transaction_signature AS source_tx,
+        cot.amount_sol AS source_to_bridge_amount_sol,
+        cf.amount_sol AS bridge_to_target_amount_sol,
+        cot.block_time AS source_block_time,
+        cf.first_detected_at AS bridge_first_detected_at,
+        COALESCE(cf.is_cex, 0) AS bridge_is_cex,
+        CASE
+          WHEN COALESCE(cf.is_cex,0)=1 THEN 10
+          WHEN cot.amount_sol >= 1 THEN 85
+          WHEN cot.amount_sol >= 0.2 THEN 70
+          ELSE 55
+        END AS confidence
+      FROM creator_outgoing_transfers cot
+      JOIN creator_funders cf
+        ON cf.funder_address = cot.recipient_address
+      WHERE
+        cot.block_time > ?
+        AND cot.creator_address IS NOT NULL
+        AND cf.creator_address IS NOT NULL
+        AND cot.creator_address != cf.creator_address
+        AND COALESCE(cf.is_cex,0) = 0
+    """, (last_bt,))
+    candidate_chains = cur.fetchall()
+    conn.close()
+
+    if not candidate_chains:
+        return
+
+    # Step 3: Acquire lock only for insert + cursor update (short hold)
     with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
 
-        # Read the last block_time we processed
-        cur.execute("SELECT last_block_time FROM outgoing_chain_cursor WHERE id=1")
-        row = cur.fetchone()
-        last_bt = int(row[0] or 0) if row else 0
-
-        # Insert new chains where creator sends to a funder who funds another creator (only since last_bt)
-        cur.execute("""
+        # Insert all candidate chains
+        cur.executemany("""
           INSERT OR IGNORE INTO funding_chains (
-            chain_type,
-            source_creator,
-            bridge_funder,
-            target_creator,
-            source_tx,
-            source_to_bridge_amount_sol,
-            bridge_to_target_amount_sol,
-            source_block_time,
-            bridge_first_detected_at,
-            bridge_is_cex,
-            confidence
+            chain_type, source_creator, bridge_funder, target_creator,
+            source_tx, source_to_bridge_amount_sol, bridge_to_target_amount_sol,
+            source_block_time, bridge_first_detected_at, bridge_is_cex, confidence
           )
-          SELECT
-            'CREATOR_TO_FUNDER_TO_CREATOR' AS chain_type,
-            cot.creator_address AS source_creator,
-            cot.recipient_address AS bridge_funder,
-            cf.creator_address AS target_creator,
-            cot.transaction_signature AS source_tx,
-            cot.amount_sol AS source_to_bridge_amount_sol,
-            cf.amount_sol AS bridge_to_target_amount_sol,
-            cot.block_time AS source_block_time,
-            cf.first_detected_at AS bridge_first_detected_at,
-            COALESCE(cf.is_cex, 0) AS bridge_is_cex,
-            CASE
-              WHEN COALESCE(cf.is_cex,0)=1 THEN 10
-              WHEN cot.amount_sol >= 1 THEN 85
-              WHEN cot.amount_sol >= 0.2 THEN 70
-              ELSE 55
-            END AS confidence
-          FROM creator_outgoing_transfers cot
-          JOIN creator_funders cf
-            ON cf.funder_address = cot.recipient_address
-          WHERE
-            cot.block_time > ?
-            AND cot.creator_address IS NOT NULL
-            AND cf.creator_address IS NOT NULL
-            AND cot.creator_address != cf.creator_address
-            AND COALESCE(cf.is_cex,0) = 0
-        """, (last_bt,))
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, candidate_chains)
 
         # Advance cursor to newest outgoing transfer block_time
         cur.execute("SELECT COALESCE(MAX(block_time), ?) FROM creator_outgoing_transfers", (last_bt,))
@@ -366,33 +384,54 @@ def build_funding_chains_incremental():
         conn.close()
 
 
-def build_coordinated_edges():
-    """Build coordinated_creator_edges from high-confidence funding chains"""
+def build_coordinated_edges_incremental():
+    """
+    Build coordinated edges only from NEW high-confidence chains.
+    Uses coordinated_edge_cursor to track max chain_id, avoiding full table scans.
+    Optimized: read cursor, release lock, then acquire for insert.
+    """
+    # Step 1: Read cursor without holding cross-process lock
+    conn = _connect()
+    cur = conn.cursor()
+    cur.execute("SELECT last_chain_id FROM coordinated_edge_cursor WHERE id=1")
+    row = cur.fetchone()
+    last_id = int(row[0] or 0) if row else 0
+
+    # Step 2: Execute read-only query to find new high-confidence chains (no lock held)
+    cur.execute("""
+      SELECT
+        source_creator, target_creator, bridge_funder,
+        source_block_time, source_tx, confidence
+      FROM funding_chains
+      WHERE chain_id > ?
+        AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'
+        AND confidence >= 70
+    """, (last_id,))
+    candidate_edges = cur.fetchall()
+    conn.close()
+
+    if not candidate_edges:
+        return
+
+    # Step 3: Acquire lock only for insert + cursor update (short hold)
     with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
 
-        cur.execute("""
+        # Insert all candidate edges
+        cur.executemany("""
           INSERT OR IGNORE INTO coordinated_creator_edges (
-            creator_a,
-            creator_b,
-            bridge_funder,
-            first_seen_block_time,
-            evidence_tx,
-            confidence
+            creator_a, creator_b, bridge_funder,
+            first_seen_block_time, evidence_tx, confidence
           )
-          SELECT
-            source_creator AS creator_a,
-            target_creator AS creator_b,
-            bridge_funder,
-            source_block_time,
-            source_tx,
-            confidence
-          FROM funding_chains
-          WHERE chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'
-            AND confidence >= 70
-        """)
+          VALUES (?, ?, ?, ?, ?, ?)
+        """, candidate_edges)
 
+        # Advance cursor to max chain_id
+        cur.execute("SELECT COALESCE(MAX(chain_id), ?) FROM funding_chains", (last_id,))
+        new_id = int(cur.fetchone()[0] or last_id)
+
+        cur.execute("UPDATE coordinated_edge_cursor SET last_chain_id=? WHERE id=1", (new_id,))
         conn.commit()
         conn.close()
 
@@ -494,7 +533,7 @@ async def scan_once(concurrency: int = 25):
 
     # Build chains incrementally from only new outgoing transfers (keeps lock short)
     build_funding_chains_incremental()
-    build_coordinated_edges()
+    build_coordinated_edges_incremental()
 
     print(f"[OUTGOING] ✅ Scan complete: creators={len(creators)} new_sigs={len(new_sigs)} new_rows={len(rows_all)}", flush=True)
 

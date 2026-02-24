@@ -116,17 +116,35 @@ def get_migrated_tokens() -> List[Dict]:
                         creator_infra_tags.append({'tag': tag_name, 'description': tag_desc, 'amount_sol': None})
 
                 # Check if creator is funded by multi-creator funders (coordinated funding)
+                # Only tag if funder is NOT CEX/INFRA (exclude exchanges and infrastructure)
                 # Add as regular green tag alongside service tags
                 cursor.execute("""
                     SELECT COUNT(DISTINCT cf.funder_address) as coordinated_count
                     FROM creator_funders cf
                     WHERE cf.creator_address = ?
+                    AND cf.is_cex = 0
                     AND cf.funder_address IN (SELECT funder_address FROM coordinated_funders)
                 """, (row['earliest_tx_creator'],))
                 coordinated_result = cursor.fetchone()
                 if coordinated_result and coordinated_result[0] > 0 and 'Multi-Funder' not in seen_tags:
                     seen_tags.add('Multi-Funder')
                     creator_infra_tags.append({'tag': 'Multi-Funder', 'description': 'Funded by account(s) supporting multiple creators', 'amount_sol': None})
+
+                # Check if creator is part of a network with coordinated funders
+                if 'Network-Coordinator' not in seen_tags:
+                    try:
+                        cursor.execute("""
+                            SELECT 1 FROM creator_networks
+                            WHERE creator_address = ?
+                            AND (SELECT COUNT(*) FROM coordinated_funders) > 0
+                            LIMIT 1
+                        """, (row['earliest_tx_creator'],))
+
+                        if cursor.fetchone():
+                            seen_tags.add('Network-Coordinator')
+                            creator_infra_tags.append({'tag': 'Network-Coordinator', 'description': 'Part of multi-creator network', 'amount_sol': None})
+                    except Exception as e:
+                        pass  # Network coordinator detection optional
 
             # Get top funder for creator (to show CEX funding info)
             top_funder = None
@@ -2920,7 +2938,7 @@ HTML_TEMPLATE = """
                                 columnTags.push(`<span class="creator-tag tag-funding" title="${label.description}">${label.name}</span>`);
                             }
 
-                            // Service tags (uses_axiom, uses_jitotip, uses_meteora, uses_debridge, etc.)
+                            // Service tags (uses_axiom, uses_jitotip, uses_meteora, uses_debridge, Multi-Funder, Network-Coordinator, etc.)
                             // Use creatorData.tags if available (from batch API), otherwise fall back to token.creator_infra_tags
                             const serviceTags = (creatorData.tags && creatorData.tags.length > 0) ? creatorData.tags : (token.creator_infra_tags || []);
                             if (serviceTags && serviceTags.length > 0) {
@@ -2939,6 +2957,7 @@ HTML_TEMPLATE = """
                                         } else if (serviceTag.tag === 'uses_jitotip_other') {
                                             displayName = 'JitoTip';
                                         }
+                                        // Keep Multi-Funder and Network-Coordinator as-is
 
                                         columnTags.push(`<span class="creator-tag tag-funding" title="${serviceTag.description}">${displayName}</span>`);
                                     }
@@ -3027,8 +3046,9 @@ HTML_TEMPLATE = """
                                     }
 
                                     // SKIP service tags (uses_axiom, uses_jitotip, uses_meteora, uses_debridge)
-                                    // They are now displayed in the "Creator Tags" column to avoid duplication
-                                    if (infraTag.tag.match(/^uses_/)) {
+                                    // and coordination tags (Multi-Funder, Network-Coordinator)
+                                    // They are displayed in the "Creator Tags" column to avoid duplication
+                                    if (infraTag.tag.match(/^uses_/) || infraTag.tag === 'Multi-Funder' || infraTag.tag === 'Network-Coordinator') {
                                         continue;
                                     }
 
@@ -6343,7 +6363,7 @@ def api_creator_details(creator_address: str):
             'total_sol': funders_sol + recipients_sol
         }
 
-        # 3. Get top funders (excluding CEX and INFRA, with source_type classification)
+        # 3. Get top funders (including all funders for complete view, with source_type classification)
         cursor.execute("""
             SELECT
                 funder_address,
@@ -6353,9 +6373,9 @@ def api_creator_details(creator_address: str):
                 cex_type,
                 COALESCE(source_type, 'original_sender') as source_type
             FROM creator_funders
-            WHERE creator_address = ? AND is_cex = 0
+            WHERE creator_address = ?
             ORDER BY amount_sol DESC
-            LIMIT 5
+            LIMIT 10
         """, (creator_address,))
         top_funders = [dict(row) for row in cursor.fetchall()]
 
@@ -7497,6 +7517,45 @@ def api_creators_batch():
             # Table may not exist yet, that's OK
             pass
 
+        # Multi-Funder detection for batch API
+        # Only tag if funder is NOT CEX/INFRA (exclude exchanges and infrastructure)
+        cursor.execute(f"""
+            SELECT cf.creator_address, COUNT(DISTINCT cf.funder_address) as coordinated_count
+            FROM creator_funders cf
+            WHERE cf.creator_address IN ({placeholders})
+            AND cf.is_cex = 0
+            AND cf.funder_address IN (SELECT funder_address FROM coordinated_funders)
+            GROUP BY cf.creator_address
+        """, creator_addresses)
+        for row in cursor.fetchall():
+            creator = row['creator_address']
+            if row['coordinated_count'] > 0:
+                if creator not in tags_data:
+                    tags_data[creator] = []
+                if not any(t['tag'] == 'Multi-Funder' for t in tags_data[creator]):
+                    tags_data[creator].append({
+                        'tag': 'Multi-Funder',
+                        'description': 'Funded by account(s) supporting multiple creators',
+                        'amount_sol': None
+                    })
+
+        # Network-Coordinator detection for batch API
+        cursor.execute(f"""
+            SELECT DISTINCT creator_address FROM creator_networks
+            WHERE creator_address IN ({placeholders})
+            AND (SELECT COUNT(*) FROM coordinated_funders) > 0
+        """, creator_addresses)
+        for row in cursor.fetchall():
+            creator = row['creator_address']
+            if creator not in tags_data:
+                tags_data[creator] = []
+            if not any(t['tag'] == 'Network-Coordinator' for t in tags_data[creator]):
+                tags_data[creator].append({
+                    'tag': 'Network-Coordinator',
+                    'description': 'Part of multi-creator network',
+                    'amount_sol': None
+                })
+
         conn.close()
 
         # Build response
@@ -8501,7 +8560,7 @@ def clusters_dashboard():
             rug_risk_color = '#EF4444' if cluster['rug_probability'] > 0.7 else ('#F97316' if cluster['rug_probability'] > 0.4 else '#22C55E')
 
             cluster_rows += f"""
-            <tr>
+            <tr style="cursor: pointer; transition: background-color 0.2s;" onclick="showClusterDetails('{cluster['cluster_id']}')" onmouseover="this.style.backgroundColor='rgba(124, 58, 237, 0.1)'" onmouseout="this.style.backgroundColor='transparent'">
                 <td style="padding: 12px; color: var(--primary); font-weight: bold;">{cluster['cluster_name']}</td>
                 <td style="padding: 12px; text-align: center; color: var(--accent-cyan);">{cluster['funder_count']}</td>
                 <td style="padding: 12px; text-align: center; color: var(--accent-purple);">{cluster['creator_count']}</td>
@@ -8689,8 +8748,83 @@ def clusters_dashboard():
                         {cluster_rows}
                     </tbody>
                 </table>
+
+                <!-- Cluster Details Modal -->
+                <div id="clusterModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000;">
+                    <div class="modal-content" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-primary); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 40px; max-width: 900px; max-height: 80vh; overflow-y: auto; width: 90%;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                            <h2 id="modalTitle" style="color: var(--primary); margin: 0;"></h2>
+                            <button onclick="closeClusterModal()" style="background: none; border: none; color: var(--accent-cyan); font-size: 24px; cursor: pointer;">✕</button>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;">
+                            <div style="background: rgba(6, 182, 212, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent-cyan);">
+                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">FUNDERS</div>
+                                <div id="modalFunders" style="color: var(--accent-cyan); font-size: 20px; font-weight: bold;"></div>
+                            </div>
+                            <div style="background: rgba(167, 139, 250, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent-purple);">
+                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">CREATORS</div>
+                                <div id="modalCreators" style="color: var(--accent-purple); font-size: 20px; font-weight: bold;"></div>
+                            </div>
+                            <div style="background: rgba(34, 197, 94, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #22C55E;">
+                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">VOLUME (SOL)</div>
+                                <div id="modalVolume" style="color: #22C55E; font-size: 20px; font-weight: bold;"></div>
+                            </div>
+                            <div style="background: rgba(249, 115, 22, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #F97316;">
+                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">RISK LEVEL</div>
+                                <div id="modalRiskLevel" style="color: #F97316; font-size: 20px; font-weight: bold;"></div>
+                            </div>
+                        </div>
+
+                        <h3 style="color: var(--accent-purple); margin-top: 30px; margin-bottom: 15px;">Creators in this Cluster</h3>
+                        <div id="creatorsList" style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; max-height: 300px; overflow-y: auto;">
+                            <p style="color: var(--text-secondary);">Loading...</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </body>
+        <script>
+            function showClusterDetails(clusterId) {{
+                fetch(`/api/funder-cluster/${{clusterId}}`)
+                    .then(r => r.json())
+                    .then(data => {{
+                        document.getElementById('modalTitle').textContent = data.cluster_name;
+                        document.getElementById('modalFunders').textContent = data.funder_count;
+                        document.getElementById('modalCreators').textContent = data.creator_count;
+                        document.getElementById('modalVolume').textContent = data.total_volume_sol.toFixed(2) + ' SOL';
+                        document.getElementById('modalRiskLevel').textContent = data.risk_label;
+
+                        const creatorsList = document.getElementById('creatorsList');
+                        if (data.creators && data.creators.length > 0) {{
+                            creatorsList.innerHTML = data.creators.map(c => `
+                                <div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: monospace; font-size: 12px; color: var(--accent-cyan); word-break: break-all;">
+                                    ${{c.substring(0, 12)}}...${{c.substring(c.length - 8)}}
+                                </div>
+                            `).join('');
+                        }} else {{
+                            creatorsList.innerHTML = '<p style="color: var(--text-secondary);">No creators found</p>';
+                        }}
+
+                        document.getElementById('clusterModal').style.display = 'block';
+                    }})
+                    .catch(e => {{
+                        alert('Error loading cluster details: ' + e.message);
+                    }});
+            }}
+
+            function closeClusterModal() {{
+                document.getElementById('clusterModal').style.display = 'none';
+            }}
+
+            // Close modal when clicking outside
+            document.addEventListener('click', function(event) {{
+                const modal = document.getElementById('clusterModal');
+                if (event.target === modal) {{
+                    modal.style.display = 'none';
+                }}
+            }});
+        </script>
         </html>
         """
 

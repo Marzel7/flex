@@ -22,13 +22,37 @@ from datetime import datetime
 from typing import List, Dict, Tuple, Optional
 import aiohttp
 import threading
+import contextlib
 
 DB_PATH = os.getenv("DB_PATH", "pumpswap_tokens.db")
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
 RPC_HTTP = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com"
 HELIUS_ENHANCED = f"https://api-mainnet.helius-rpc.com/v0/transactions?api-key={HELIUS_API_KEY}"
 
+# Cross-process lock file path (for serializing DB writes across listener + extractor processes)
+DB_LOCK_FILE = f"{DB_PATH}.write.lock"
 DB_WRITE_LOCK = threading.RLock()
+
+
+@contextlib.contextmanager
+def db_write_lock_global():
+    """
+    Cross-process write lock using file locking.
+    Ensures this extractor + listener/clustering don't collide on DB writes.
+    """
+    import fcntl
+    try:
+        lock_file = open(DB_LOCK_FILE, 'w')
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+    finally:
+        try:
+            lock_file.close()
+        except:
+            pass
 
 
 def _connect():
@@ -41,7 +65,7 @@ def _connect():
 
 def ensure_tables():
     """Create all tables with proper schema and indexes"""
-    with DB_WRITE_LOCK:
+    with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
         cur.executescript("""
@@ -105,6 +129,12 @@ def ensure_tables():
 
         CREATE INDEX IF NOT EXISTS idx_coord_a ON coordinated_creator_edges(creator_a);
         CREATE INDEX IF NOT EXISTS idx_coord_b ON coordinated_creator_edges(creator_b);
+
+        CREATE TABLE IF NOT EXISTS outgoing_chain_cursor (
+          id INTEGER PRIMARY KEY CHECK (id=1),
+          last_block_time INTEGER DEFAULT 0
+        );
+        INSERT OR IGNORE INTO outgoing_chain_cursor(id,last_block_time) VALUES (1,0);
         """)
         conn.commit()
         conn.close()
@@ -160,11 +190,12 @@ def batch_update_cursors(rows: List[Tuple[str, str, int]]):
     """
     One transaction upsert for all creators (major lock reduction).
     This replaces 1000 individual update_cursor() calls.
+    Uses cross-process lock to serialize with listener.
     """
     if not rows:
         return
 
-    with DB_WRITE_LOCK:
+    with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
         cur.executemany("""
@@ -217,16 +248,22 @@ async def helius_enhanced_parse(session: aiohttp.ClientSession, sigs: List[str])
 def extract_outgoing_sol(transactions: List[dict], creator_set: set) -> List[Tuple]:
     """
     Extract outgoing SOL transfers from transactions where creator is the sender.
-    Returns rows: (creator, recipient, amount_sol, signature, block_time)
+    Resilient to None transactions, missing/None fields.
+    Returns rows: (creator, recipient, amount_sol, signature, slot, block_time)
     """
     rows = []
-    for tx in transactions:
-        sig = tx.get("signature")
-        slot = tx.get("slot")
-        ts = tx.get("timestamp")  # seconds
+    for tx in (transactions or []):
+        # Skip non-dict items (error objects, None, etc from Helius)
+        if not isinstance(tx, dict):
+            continue
 
+        sig = tx.get("signature")
         if not sig:
             continue
+
+        # Force slot and timestamp to ints (Helius sometimes returns None)
+        slot = int(tx.get("slot") or 0)
+        ts = int(tx.get("timestamp") or 0)
 
         for nt in tx.get("nativeTransfers", []) or []:
             frm = nt.get("fromUserAccount")
@@ -249,7 +286,7 @@ def insert_outgoing_rows(rows: List[Tuple]):
     if not rows:
         return
 
-    with DB_WRITE_LOCK:
+    with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
         cur.executemany("""
@@ -261,13 +298,23 @@ def insert_outgoing_rows(rows: List[Tuple]):
         conn.close()
 
 
-def build_funding_chains():
-    """Build funding_chains from creator_outgoing_transfers + creator_funders join"""
-    with DB_WRITE_LOCK:
+def build_funding_chains_incremental():
+    """
+    Build funding chains from only NEW outgoing transfers since last run.
+    Uses outgoing_chain_cursor to track max block_time, avoiding full table scans.
+    Keeps write lock short even as outgoing table grows.
+    Uses cross-process lock to serialize with listener.
+    """
+    with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
 
-        # Insert new chains where creator sends to a funder who funds another creator
+        # Read the last block_time we processed
+        cur.execute("SELECT last_block_time FROM outgoing_chain_cursor WHERE id=1")
+        row = cur.fetchone()
+        last_bt = int(row[0] or 0) if row else 0
+
+        # Insert new chains where creator sends to a funder who funds another creator (only since last_bt)
         cur.execute("""
           INSERT OR IGNORE INTO funding_chains (
             chain_type,
@@ -303,19 +350,25 @@ def build_funding_chains():
           JOIN creator_funders cf
             ON cf.funder_address = cot.recipient_address
           WHERE
-            cot.creator_address IS NOT NULL
+            cot.block_time > ?
+            AND cot.creator_address IS NOT NULL
             AND cf.creator_address IS NOT NULL
             AND cot.creator_address != cf.creator_address
             AND COALESCE(cf.is_cex,0) = 0
-        """)
+        """, (last_bt,))
 
+        # Advance cursor to newest outgoing transfer block_time
+        cur.execute("SELECT COALESCE(MAX(block_time), ?) FROM creator_outgoing_transfers", (last_bt,))
+        new_bt = int(cur.fetchone()[0] or last_bt)
+
+        cur.execute("UPDATE outgoing_chain_cursor SET last_block_time=? WHERE id=1", (new_bt,))
         conn.commit()
         conn.close()
 
 
 def build_coordinated_edges():
     """Build coordinated_creator_edges from high-confidence funding chains"""
-    with DB_WRITE_LOCK:
+    with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
 
@@ -439,8 +492,8 @@ async def scan_once(concurrency: int = 25):
     # Update cursors (one batch, not 1000 individual commits)
     batch_update_cursors(cursor_updates)
 
-    # Build chains from new outgoing transfers
-    build_funding_chains()
+    # Build chains incrementally from only new outgoing transfers (keeps lock short)
+    build_funding_chains_incremental()
     build_coordinated_edges()
 
     print(f"[OUTGOING] ✅ Scan complete: creators={len(creators)} new_sigs={len(new_sigs)} new_rows={len(rows_all)}", flush=True)

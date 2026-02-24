@@ -13830,6 +13830,70 @@ def creator_analysis_page():
                     border-radius: 4px;
                     margin-bottom: 20px;
                 }
+
+                .recent-checks-section {
+                    margin-bottom: 30px;
+                }
+                .recent-checks-title {
+                    color: #fbbf24;
+                    font-size: 16px;
+                    font-weight: bold;
+                    margin-bottom: 15px;
+                    text-transform: uppercase;
+                }
+                .recent-checks-list {
+                    display: grid;
+                    gap: 10px;
+                }
+                .recent-check-row {
+                    background: rgba(0, 0, 0, 0.4);
+                    border: 1px solid rgba(106, 180, 255, 0.2);
+                    border-radius: 4px;
+                    padding: 12px;
+                    display: grid;
+                    grid-template-columns: 200px 1fr 100px 120px;
+                    gap: 15px;
+                    align-items: center;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .recent-check-row:hover {
+                    background: rgba(59, 130, 246, 0.1);
+                    border-color: rgba(106, 180, 255, 0.4);
+                }
+                .check-address {
+                    font-family: 'Courier New', monospace;
+                    font-size: 11px;
+                    color: #a78bfa;
+                    word-break: break-all;
+                }
+                .check-findings {
+                    font-size: 12px;
+                    color: #e0e0e0;
+                }
+                .check-finding-badge {
+                    display: inline-block;
+                    background: rgba(239, 68, 68, 0.2);
+                    color: #ef4444;
+                    padding: 2px 6px;
+                    border-radius: 2px;
+                    font-size: 9px;
+                    margin-right: 4px;
+                }
+                .check-finding-badge.clean {
+                    background: rgba(34, 197, 94, 0.2);
+                    color: #22c55e;
+                }
+                .check-chains {
+                    font-size: 12px;
+                    color: #06b6d4;
+                    text-align: center;
+                }
+                .check-time {
+                    font-size: 11px;
+                    color: #94a3b8;
+                    text-align: right;
+                }
             </style>
         </head>
         <body>
@@ -13850,6 +13914,71 @@ def creator_analysis_page():
             </div>
 
             <script>
+                // Load recent checks on page load
+                document.addEventListener('DOMContentLoaded', loadRecentChecks);
+
+                async function loadRecentChecks() {
+                    const content = document.getElementById('content');
+                    try {
+                        const response = await fetch('/api/creator-recent-checks');
+                        const data = await response.json();
+
+                        if (data.error || !data.recent_checks || data.recent_checks.length === 0) {
+                            content.innerHTML = '<div class="loading">No recent checks yet. Search for a creator to begin.</div>';
+                            return;
+                        }
+
+                        let html = `
+                            <div class="recent-checks-section">
+                                <div class="recent-checks-title">📋 Most Recent Checks</div>
+                                <div class="recent-checks-list">
+                        `;
+
+                        data.recent_checks.forEach(check => {
+                            const findings = check.findings || [];
+                            let findingsBadges = findings.map(f =>
+                                `<span class="check-finding-badge ${f === 'CLEAN' ? 'clean' : ''}">${f}</span>`
+                            ).join('');
+                            if (!findingsBadges) findingsBadges = '<span class="check-finding-badge clean">CLEAN</span>';
+
+                            html += `
+                                <div class="recent-check-row" onclick="loadCreatorAnalysisFrom('${check.creator_address}')">
+                                    <div class="check-address">${check.creator_address}</div>
+                                    <div class="check-findings">${findingsBadges}</div>
+                                    <div class="check-chains">${check.chain_count} chains</div>
+                                    <div class="check-time">${formatTime(check.last_scanned)}</div>
+                                </div>
+                            `;
+                        });
+
+                        html += `
+                                </div>
+                            </div>
+                        `;
+
+                        content.innerHTML = html;
+                    } catch (error) {
+                        content.innerHTML = '<div class="loading">Unable to load recent checks</div>';
+                    }
+                }
+
+                function formatTime(timestamp) {
+                    if (!timestamp) return 'Never';
+                    const date = new Date(timestamp);
+                    const now = new Date();
+                    const diff = now - date;
+
+                    if (diff < 60000) return 'Just now';
+                    if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+                    if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+                    return Math.floor(diff / 86400000) + 'd ago';
+                }
+
+                function loadCreatorAnalysisFrom(creator) {
+                    document.getElementById('creatorInput').value = creator;
+                    loadCreatorAnalysis(creator);
+                }
+
                 async function searchCreator() {
                     const creator = document.getElementById('creatorInput').value.trim();
                     if (!creator) {
@@ -14117,6 +14246,71 @@ def api_creator_outgoing_analysis(creator_address: str):
                 }
                 for fc in funding_chains[:20]  # Limit to 20 most recent
             ]
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/creator-recent-checks')
+def api_creator_recent_checks():
+    """Get the most recently scanned creators with their findings"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Get the 15 most recently scanned creators
+        cursor.execute("""
+            SELECT
+                csc.creator_address,
+                csc.updated_at,
+                COUNT(DISTINCT fc.chain_id) as chain_count
+            FROM creator_sig_cursors csc
+            LEFT JOIN funding_chains fc ON fc.source_creator = csc.creator_address
+            WHERE csc.updated_at IS NOT NULL
+            ORDER BY csc.updated_at DESC
+            LIMIT 15
+        """)
+        recent = cursor.fetchall()
+
+        recent_checks = []
+        for row in recent:
+            creator = row['creator_address']
+
+            # Get findings for this creator
+            cursor.execute("""
+                SELECT COUNT(*) as chain_count FROM funding_chains
+                WHERE source_creator = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'
+            """, (creator,))
+            chain_result = cursor.fetchone()
+            chain_count = chain_result['chain_count'] if chain_result else 0
+
+            cursor.execute("""
+                SELECT COUNT(*) as edge_count FROM coordinated_creator_edges
+                WHERE creator_a = ? OR creator_b = ?
+            """, (creator, creator))
+            edge_result = cursor.fetchone()
+            edge_count = edge_result['edge_count'] if edge_result else 0
+
+            findings = []
+            if chain_count > 0:
+                findings.append('CREATOR_FUNDING_CHAIN')
+            if edge_count > 0:
+                findings.append('COORDINATED_FUNDING')
+            if not findings:
+                findings.append('CLEAN')
+
+            recent_checks.append({
+                'creator_address': creator,
+                'last_scanned': row['updated_at'],
+                'chain_count': chain_count,
+                'findings': findings
+            })
+
+        conn.close()
+
+        return jsonify({
+            'recent_checks': recent_checks
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500

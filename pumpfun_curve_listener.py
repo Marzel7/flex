@@ -1802,21 +1802,6 @@ class PumpFunCurveListener:
                         print(f"[FUNDING] ⏳ Starting creator funding extraction for {earliest_creator[:8]}...", flush=True)
                         await extract_funding_for_new_token(earliest_creator, created_at, create_tx_sig, mint)
                         print(f"[FUNDING] ✅ Creator funding extraction complete", flush=True)
-
-                        # Add tag to creator indicating funding extraction is complete
-                        try:
-                            conn = sqlite3.connect('pumpswap_tokens.db', timeout=60)
-                            cursor = conn.cursor()
-                            cursor.execute("""
-                                INSERT OR REPLACE INTO creator_tags
-                                (creator_address, tag, description, added_at)
-                                VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-                            """, (earliest_creator, "funding_extracted", "Funding network extracted and analyzed"))
-                            conn.commit()
-                            conn.close()
-                            print(f"[TAGS] ✅ Added 'funding_extracted' tag to creator {earliest_creator[:16]}...", flush=True)
-                        except Exception as tag_err:
-                            print(f"[TAGS] ⚠ Could not add funding_extracted tag: {tag_err}", flush=True)
                     except Exception as e:
                         print(f"[FUNDING] ⚠️ Error in creator funding extraction: {e}", flush=True)
 

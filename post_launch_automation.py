@@ -96,18 +96,29 @@ class PostLaunchAutomationCoordinator:
 
     async def _tag_creator_from_funding_patterns(self, creator: str, mint: str, total_funders: int, total_sol: float):
         """
-        DISABLED: Do not create automatic funding-based tags.
+        PERMANENTLY DISABLED: Do not create automatic funding-based tags.
 
-        Only legitimate service tags (uses_jitotip, uses_axiom, etc.) and
-        Multi-Funder coordination indicator should appear in creator_tags.
+        These tags are invalid and must NEVER be created:
+        - cex_funded
+        - heavy_funded
+        - infra_funded
+        - network_member
+        - multi_funder
+        - coordinated_funding
+
+        Database triggers prevent insertion of these tags.
+        Only legitimate service tags appear in creator_tags:
+        - uses_jitotip, uses_axiom, uses_debridge, uses_meteora
+        - Multi-Funder (coordination indicator)
 
         Funding pattern analysis lives in separate tables:
         - coordinated_funders table
         - cex_wallets table
         - creator_networks table
         """
-        return False
+        return False  # Early exit - never execute code below
 
+        # LEGACY CODE - DO NOT USE - UNREACHABLE
         try:
             conn = sqlite3.connect(self.db_path, timeout=60)
             cursor = conn.cursor()

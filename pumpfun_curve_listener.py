@@ -1546,13 +1546,14 @@ class PumpFunCurveListener:
 
     def _create_minimal_token_entry(self, mint: str):
         """Create a minimal token entry in database immediately when migration is detected"""
-        max_retries = 3
-        retry_delay = 1.0  # Start with 1 second, exponential backoff
+        max_retries = 5  # Increased from 3 to handle heavier lock contention
+        retry_delay = 0.5  # Start with shorter delay
 
         for attempt in range(max_retries):
             try:
-                # Use 60 second timeout instead of 30 to handle clustering write locks
-                conn = sqlite3.connect(DB_PATH, timeout=60)
+                # Use 90 second timeout (increased from 60) to handle clustering write locks
+                conn = sqlite3.connect(DB_PATH, timeout=90)
+                conn.execute("PRAGMA busy_timeout = 90000")  # 90 seconds busy timeout
                 cursor = conn.cursor()
 
                 # Create minimal entry with migration detection timestamp using INSERT OR REPLACE
@@ -1574,13 +1575,13 @@ class PumpFunCurveListener:
 
             except sqlite3.OperationalError as e:
                 if "database is locked" in str(e) and attempt < max_retries - 1:
-                    # Transient lock, retry with backoff
-                    wait_time = retry_delay * (2 ** attempt)  # Exponential backoff
-                    print(f"[DB_RETRY] ⏳ Database locked, retrying in {wait_time}s... (attempt {attempt+1}/{max_retries})", flush=True)
+                    # Transient lock, retry with exponential backoff
+                    wait_time = retry_delay * (2 ** attempt)  # 0.5s, 1s, 2s, 4s, 8s
+                    print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait_time}s...", flush=True)
                     time.sleep(wait_time)
                 else:
                     # Not a lock error or final attempt
-                    print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
+                    print(f"[DB_ERROR] Failed to create minimal token entry after {max_retries} attempts: {e}", flush=True)
                     return
             except Exception as e:
                 print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)

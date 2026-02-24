@@ -2867,7 +2867,6 @@ HTML_TEMPLATE = """
                             <th onclick="sortBy('total_events')" class="sortable ${sortConfig.column === 'total_events' ? 'sorted-' + sortConfig.direction : ''}">Events</th>
                             <th onclick="sortBy('coverage')" class="sortable ${sortConfig.column === 'coverage' ? 'sorted-' + sortConfig.direction : ''}">Coverage</th>
                             <th title="Funding extraction progress">Funding Progress</th>
-                            <th onclick="sortBy('analyzed_at')" class="sortable ${sortConfig.column === 'analyzed_at' ? 'sorted-' + sortConfig.direction : ''}">Analyzed</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -3110,8 +3109,8 @@ HTML_TEMPLATE = """
                                             </div>
                                         ` : '—'}
                                     </td>
-                                    <td>
-                                        ${formatDate(token.analyzed_at)}
+                                    <td title="Launched: ${formatDate(token.created_at)}">
+                                        ${timeSinceLaunch(token.created_at)}
                                     </td>
                                 </tr>
                             `;
@@ -3188,6 +3187,29 @@ HTML_TEMPLATE = """
             const minutes = Math.floor(seconds / 60);
             const secs = seconds % 60;
             return `${minutes}m ${secs}s`;
+        }
+
+        function timeSinceLaunch(createdAtTimestamp) {
+            if (!createdAtTimestamp) return '-';
+            const now = Math.floor(Date.now() / 1000);
+            const created = createdAtTimestamp;
+            const secondsAgo = now - created;
+
+            if (secondsAgo < 60) {
+                return `${secondsAgo}s`;
+            } else if (secondsAgo < 3600) {
+                const minutes = Math.floor(secondsAgo / 60);
+                const seconds = secondsAgo % 60;
+                return `${minutes}m ${seconds}s`;
+            } else if (secondsAgo < 86400) {
+                const hours = Math.floor(secondsAgo / 3600);
+                const minutes = Math.floor((secondsAgo % 3600) / 60);
+                return `${hours}h ${minutes}m`;
+            } else {
+                const days = Math.floor(secondsAgo / 86400);
+                const hours = Math.floor((secondsAgo % 86400) / 3600);
+                return `${days}d ${hours}h`;
+            }
         }
 
         function formatMarketCap(value) {

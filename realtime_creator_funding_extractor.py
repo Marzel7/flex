@@ -30,6 +30,7 @@ from dust_addresses import DUST_ADDRESSES
 from domain_extraction import extract_from_helius_transaction_async
 from domain_mapping import register_domain, link_domain_to_address
 from automatic_cex_detection import classify_addresses_from_funding
+from post_launch_automation import run_post_launch_automation
 
 DB_PATH = "pumpswap_tokens.db"
 # FIX #6: Remove hardcoded API key fallback — fail safe instead
@@ -1391,6 +1392,18 @@ class RealTimeCreatorFundingExtractor:
 
             # ✅ MARK EXTRACTION AS COMPLETE — signals to UI that extraction is done
             self._mark_extraction_complete(creator, len(funders), len(recipients), total_inbound, total_outbound)
+
+            # 🚀 TRIGGER POST-LAUNCH AUTOMATION — networks, clustering, coordinated funder detection, UI updates
+            if funders:
+                # Run async without blocking extraction return
+                asyncio.create_task(run_post_launch_automation(
+                    creator=creator,
+                    mint=self._current_mint if hasattr(self, '_current_mint') else None,
+                    total_funders=len(funders),
+                    total_sol=total_inbound,
+                    websocket_manager=None  # Will be passed from main app if available
+                ))
+                print(f"[REALTIME_FUNDING] 🚀 Post-launch automation triggered", flush=True)
 
             return {
                 "creator": creator,

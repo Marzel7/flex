@@ -16,6 +16,7 @@ import aiohttp
 from typing import Dict, List, Optional
 from datetime import datetime
 import json
+from cross_funding_network_analyzer import CrossFundingClusterAnalyzer
 
 DB_PATH = "pumpswap_tokens.db"
 
@@ -79,6 +80,10 @@ class PostLaunchAutomationCoordinator:
             coordinated_found = await self._detect_coordinated_funders(creator)
             if coordinated_found:
                 updates["coordinated_funders"] = True
+
+            # 3.5. Comprehensive network analysis using CrossFundingClusterAnalyzer
+            # This analyzes the creator's position in atomic networks, clusters, and hubs
+            await self._analyze_creator_network_using_cluster_analyzer(creator)
 
             # 4. Rebuild clusters
             await self._rebuild_clusters_for_creator(creator)
@@ -544,6 +549,48 @@ class PostLaunchAutomationCoordinator:
 
         except Exception as e:
             print(f"[CLUSTERS] ⚠ Error rebuilding clusters: {e}", flush=True)
+
+    async def _analyze_creator_network_using_cluster_analyzer(self, creator: str):
+        """
+        Use CrossFundingClusterAnalyzer to comprehensively analyze creator's network position
+        
+        Applies all network detection logic from cross_funding_network_analyzer:
+        - Atomic funder networks
+        - Funder clusters
+        - Creator clusters
+        - Network coordinators
+        """
+        try:
+            print(f"[NETWORK_ANALYSIS] 🔍 Analyzing creator {creator[:16]}... with CrossFundingClusterAnalyzer", flush=True)
+            
+            analyzer = CrossFundingClusterAnalyzer(self.db_path)
+            
+            # Build all network structures
+            print(f"[NETWORK_ANALYSIS] 📊 Building atomic funder networks...", flush=True)
+            analyzer.build_atomic_funder_networks()
+            
+            print(f"[NETWORK_ANALYSIS] 🔗 Building funder clusters...", flush=True)
+            analyzer.build_funder_clusters()
+            
+            print(f"[NETWORK_ANALYSIS] 👥 Building creator clusters...", flush=True)
+            analyzer.build_creator_clusters()
+            
+            print(f"[NETWORK_ANALYSIS] 🌐 Detecting network coordinators...", flush=True)
+            coordinators = analyzer.detect_network_coordinators()
+            
+            # Analyze this specific creator's unified cluster
+            print(f"[NETWORK_ANALYSIS] 📈 Analyzing unified cluster for {creator[:16]}...", flush=True)
+            report = analyzer.analyze_creator_unified_cluster(creator)
+            
+            print(f"[NETWORK_ANALYSIS] ✅ Network analysis complete for {creator[:16]}...", flush=True)
+            
+            return True
+            
+        except Exception as e:
+            print(f"[NETWORK_ANALYSIS] ⚠ Error in network analysis: {e}", flush=True)
+            import traceback
+            traceback.print_exc()
+            return False
 
     async def _emit_ui_update(self, creator: str, mint: str, total_funders: int, total_sol: float, updates: dict = None):
         """

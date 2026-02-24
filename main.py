@@ -115,11 +115,18 @@ def get_migrated_tokens() -> List[Dict]:
                         }.get(tag_name, f'Uses {tag_name}')
                         creator_infra_tags.append({'tag': tag_name, 'description': tag_desc, 'amount_sol': None})
 
-                # NOTE: Multi-Funder coordination info only displayed in funding hub, not in token list tags
-                # Multi-Funder detection is available in:
-                # - coordinated_funders table
-                # - Funding hub page (/funding-hub/creator_address)
-                # - Not shown as tag on token list to keep UI clean
+                # Check if creator is funded by multi-creator funders (coordinated funding)
+                # Add as regular green tag alongside service tags
+                cursor.execute("""
+                    SELECT COUNT(DISTINCT cf.funder_address) as coordinated_count
+                    FROM creator_funders cf
+                    WHERE cf.creator_address = ?
+                    AND cf.funder_address IN (SELECT funder_address FROM coordinated_funders)
+                """, (row['earliest_tx_creator'],))
+                coordinated_result = cursor.fetchone()
+                if coordinated_result and coordinated_result[0] > 0 and 'Multi-Funder' not in seen_tags:
+                    seen_tags.add('Multi-Funder')
+                    creator_infra_tags.append({'tag': 'Multi-Funder', 'description': 'Funded by account(s) supporting multiple creators', 'amount_sol': None})
 
             # Get top funder for creator (to show CEX funding info)
             top_funder = None

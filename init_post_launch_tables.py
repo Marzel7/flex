@@ -46,11 +46,17 @@ def init_post_launch_tables():
         # Table 3: Unified Creator Clusters
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS unified_creator_clusters (
-                cluster_id INTEGER PRIMARY KEY,
-                member_addresses TEXT,  -- JSON array of all addresses in cluster
-                cluster_size INTEGER,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                target_creator TEXT NOT NULL UNIQUE,
+                cluster_creators TEXT,  -- JSON array of creators in cluster
+                cluster_funders TEXT,  -- JSON array of funders
+                cluster_recipients TEXT,  -- JSON array of recipients
+                cluster_destinations TEXT,  -- JSON array of destination addresses
+                score REAL,
                 risk_level TEXT,  -- LOW, MEDIUM, HIGH
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                reasons TEXT,  -- JSON array of risk reasons
+                burst_metrics TEXT,  -- JSON burst metrics
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
         print("✅ Created unified_creator_clusters table")

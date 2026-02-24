@@ -1544,78 +1544,77 @@ class PumpFunCurveListener:
             except Exception as e:
                 print(f"[DB_ERROR] Failed to update price for {token_mint}: {e}", flush=True)
 
-    def _create_minimal_token_entry(self, mint: str):
+    async def _create_minimal_token_entry(self, mint: str):
         """Create a minimal token entry in database immediately when migration is detected"""
-        max_retries = 5  # Increased from 3 to handle heavier lock contention
-        retry_delay = 0.5  # Start with shorter delay
+        max_retries = 6
+        base_delay = 0.25
 
-        for attempt in range(max_retries):
-            try:
-                # Use 90 second timeout (increased from 60) to handle clustering write locks
-                conn = sqlite3.connect(DB_PATH, timeout=90)
-                conn.execute("PRAGMA busy_timeout = 90000")  # 90 seconds busy timeout
-                cursor = conn.cursor()
-
-                # Create minimal entry with migration detection timestamp using INSERT OR REPLACE
-                # This prevents duplicates if entry already exists
-                # Use NULL for analysis fields so UI shows blank until analysis completes
-                now = time.time()
-                cursor.execute("""
-                    INSERT OR REPLACE INTO token_analysis (
-                        mint, created_at, analyzed_at,
-                        rug_probability, risk_level, post_migration_coverage,
-                        rug_indicator, events_parsed
-                    ) VALUES (?, ?, ?, NULL, NULL, NULL, NULL, NULL)
-                """, (mint, now, now))
-
-                conn.commit()
-                conn.close()
-                print(f"[DB] ✅ Created minimal token entry for {mint}", flush=True)
-                return
-
-            except sqlite3.OperationalError as e:
-                if "database is locked" in str(e) and attempt < max_retries - 1:
-                    # Transient lock, retry with exponential backoff
-                    wait_time = retry_delay * (2 ** attempt)  # 0.5s, 1s, 2s, 4s, 8s
-                    print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait_time}s...", flush=True)
-                    time.sleep(wait_time)
-                else:
-                    # Not a lock error or final attempt
-                    print(f"[DB_ERROR] Failed to create minimal token entry after {max_retries} attempts: {e}", flush=True)
-                    return
-            except Exception as e:
-                print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
-                return
-
-    def _update_token_entry_with_creator(self, mint: str, creator: str, created_at: str, bonding_curve_pda: str = None, create_tx_signature: str = None):
-        """Update minimal token entry with creator, creation date, bonding curve, and CREATE tx signature"""
-        try:
-            # Check if creator belongs to any cluster
-            cluster_id = None
-            cluster_name = None
-            cluster_risk_multiplier = 1.0
-
-            if creator:
-                try:
-                    from cluster_risk_checker import check_creator
-                    cluster_info = check_creator(creator)
-                    if cluster_info.get('in_cluster'):
-                        cluster_id = cluster_info.get('cluster_id')
-                        cluster_name = cluster_info.get('cluster_name', cluster_id)
-                        cluster_risk_multiplier = cluster_info.get('risk_multiplier', 1.0)
-                        print(f"[CLUSTER] ✅ Creator {creator[:8]}... belongs to {cluster_name} ({cluster_id}) - Risk multiplier: {cluster_risk_multiplier}x", flush=True)
-                    else:
-                        print(f"[CLUSTER] ℹ Creator {creator[:8]}... not in any cluster", flush=True)
-                except Exception as e:
-                    print(f"[CLUSTER] Error checking creator {creator}: {e}", flush=True)
-
-            max_retries = 3
-            retry_delay = 1.0
-
+        async with self.db_lock:
             for attempt in range(max_retries):
                 try:
-                    # Use 60 second timeout instead of 30 to handle clustering write locks
-                    conn = sqlite3.connect(DB_PATH, timeout=60)
+                    conn = sqlite3.connect(DB_PATH, timeout=30)
+                    conn.execute("PRAGMA journal_mode=WAL")
+                    conn.execute("PRAGMA synchronous=NORMAL")
+                    conn.execute("PRAGMA busy_timeout=30000")
+                    cursor = conn.cursor()
+
+                    now = time.time()
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO token_analysis (
+                            mint, created_at, analyzed_at,
+                            rug_probability, risk_level, post_migration_coverage,
+                            rug_indicator, events_parsed
+                        ) VALUES (?, ?, ?, NULL, NULL, NULL, NULL, NULL)
+                    """, (mint, now, now))
+
+                    conn.commit()
+                    conn.close()
+                    print(f"[DB] ✅ Created minimal token entry for {mint}", flush=True)
+                    return
+
+                except sqlite3.OperationalError as e:
+                    if "database is locked" in str(e).lower() and attempt < max_retries - 1:
+                        wait = base_delay * (2 ** attempt)
+                        print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
+                        await asyncio.sleep(wait)
+                        continue
+                    print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
+                    return
+                except Exception as e:
+                    print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
+                    return
+
+    async def _update_token_entry_with_creator(self, mint: str, creator: str, created_at: str, bonding_curve_pda: str = None, create_tx_signature: str = None):
+        """Update minimal token entry with creator, creation date, bonding curve, and CREATE tx signature"""
+        # Check if creator belongs to any cluster (sync operation, can run outside lock)
+        cluster_id = None
+        cluster_name = None
+        cluster_risk_multiplier = 1.0
+
+        if creator:
+            try:
+                from cluster_risk_checker import check_creator
+                cluster_info = check_creator(creator)
+                if cluster_info.get('in_cluster'):
+                    cluster_id = cluster_info.get('cluster_id')
+                    cluster_name = cluster_info.get('cluster_name', cluster_id)
+                    cluster_risk_multiplier = cluster_info.get('risk_multiplier', 1.0)
+                    print(f"[CLUSTER] ✅ Creator {creator[:8]}... belongs to {cluster_name} ({cluster_id}) - Risk multiplier: {cluster_risk_multiplier}x", flush=True)
+                else:
+                    print(f"[CLUSTER] ℹ Creator {creator[:8]}... not in any cluster", flush=True)
+            except Exception as e:
+                print(f"[CLUSTER] Error checking creator {creator}: {e}", flush=True)
+
+        max_retries = 6
+        base_delay = 0.25
+
+        async with self.db_lock:
+            for attempt in range(max_retries):
+                try:
+                    conn = sqlite3.connect(DB_PATH, timeout=30)
+                    conn.execute("PRAGMA journal_mode=WAL")
+                    conn.execute("PRAGMA synchronous=NORMAL")
+                    conn.execute("PRAGMA busy_timeout=30000")
                     cursor = conn.cursor()
 
                     cursor.execute("""
@@ -1632,18 +1631,13 @@ class PumpFunCurveListener:
                     return
 
                 except sqlite3.OperationalError as e:
-                    if "database is locked" in str(e) and attempt < max_retries - 1:
-                        # Transient lock, retry with backoff
-                        wait_time = retry_delay * (2 ** attempt)  # Exponential backoff
-                        print(f"[DB_RETRY] ⏳ Database locked, retrying in {wait_time}s... (attempt {attempt+1}/{max_retries})", flush=True)
-                        time.sleep(wait_time)
+                    if "database is locked" in str(e).lower() and attempt < max_retries - 1:
+                        wait = base_delay * (2 ** attempt)
+                        print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
+                        await asyncio.sleep(wait)
                     else:
-                        # Not a lock error or final attempt
                         print(f"[DB_ERROR] Failed to update token entry with creator: {e}", flush=True)
                         return
-
-        except Exception as e:
-            print(f"[DB_ERROR] Failed to update token entry with creator: {e}", flush=True)
 
     async def handle_migration(self, signature: str, logs: list):
         """Process detected migration"""
@@ -1675,7 +1669,7 @@ class PumpFunCurveListener:
             print(f"[EVENT] Migration signature: {signature}", flush=True)
 
             # Create minimal token entry immediately (so token appears in UI right away)
-            self._create_minimal_token_entry(mint)
+            await self._create_minimal_token_entry(mint)
 
             # Extract pool address from migration transaction for on-chain price queries
             pool_address = await self._extract_pool_from_migration_tx(signature)
@@ -1742,7 +1736,7 @@ class PumpFunCurveListener:
                         print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status}) | CREATE tx validation: {'FAILED' if analyzer._create_tx_signature else 'NOT_SET'}", flush=True)
 
                     # Update minimal entry with creator, date, bonding curve, and CREATE tx signature (only if validated)
-                    self._update_token_entry_with_creator(mint, earliest_creator, created_at, bonding_curve_pda, create_tx_signature)
+                    await self._update_token_entry_with_creator(mint, earliest_creator, created_at, bonding_curve_pda, create_tx_signature)
 
                     # Register creator with watch manager to track SOL in/out transfers
                     if self.creator_watch_manager:

@@ -298,6 +298,11 @@ def tag_creator_with_services(creator: str, service_names: set) -> int:
         """)
 
         for service_name in service_names:
+            # FILTER: Skip wallet addresses (Solana addresses are 44 chars or end with a period)
+            # and other invalid tag patterns
+            if len(service_name) > 40 or service_name.endswith('.') or '.' in service_name:
+                continue
+
             # Skip if already tagged
             cursor.execute(
                 "SELECT 1 FROM creator_tags WHERE creator_address = ? AND tag = ?",

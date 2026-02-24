@@ -60,9 +60,11 @@ class PostLaunchAutomationCoordinator:
 
         try:
             # 0. TAG CREATOR based on funding patterns
-            tags_added = await self._tag_creator_from_funding_patterns(creator, mint, total_funders, total_sol)
-            if tags_added:
-                updates["creator_tags"] = True
+            # DISABLED: Automatic funding-based tags (cex_funded, heavy_funded, etc.) should not be created
+            # Only legitimate service tags (uses_jitotip, uses_axiom, etc.) should appear in creator_tags
+            # tags_added = await self._tag_creator_from_funding_patterns(creator, mint, total_funders, total_sol)
+            # if tags_added:
+            #     updates["creator_tags"] = True
 
             # 1. Assign network to creator if not already assigned
             network_assigned = await self._assign_creator_network(creator)

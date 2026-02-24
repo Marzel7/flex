@@ -96,16 +96,18 @@ class PostLaunchAutomationCoordinator:
 
     async def _tag_creator_from_funding_patterns(self, creator: str, mint: str, total_funders: int, total_sol: float):
         """
-        Automatically tag creator based on established funding patterns
+        DISABLED: Do not create automatic funding-based tags.
 
-        Creates creator_tags entries for:
-        - "coordinated_funding" - if funded by coordinated funders
-        - "multi_funder" - if has 5+ unique funders
-        - "heavy_funded" - if received 10+ SOL
-        - "cex_funded" - if funded by CEX accounts
-        - "infra_funded" - if funded by infrastructure accounts
-        - "network_member" - if part of funding network
+        Only legitimate service tags (uses_jitotip, uses_axiom, etc.) and
+        Multi-Funder coordination indicator should appear in creator_tags.
+
+        Funding pattern analysis lives in separate tables:
+        - coordinated_funders table
+        - cex_wallets table
+        - creator_networks table
         """
+        return False
+
         try:
             conn = sqlite3.connect(self.db_path, timeout=60)
             cursor = conn.cursor()

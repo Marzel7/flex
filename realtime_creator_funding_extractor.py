@@ -544,8 +544,8 @@ class RealTimeCreatorFundingExtractor:
                     cex_type = wallet_type
                     is_classified = 1  # Mark as classified (already tagged)
                     print(f"[FUNDING] 🏛️ CEX FUNDER DETECTED: {exchange} {wallet_type} → {creator[:16]}... ({new_total_amount:.2f} SOL total)", flush=True)
-            except:
-                pass
+            except Exception as cex_err:
+                print(f"[FUNDING] ⚠ Error checking CEX wallet: {cex_err}", flush=True)
 
             # Check if funder is infrastructure/automation account
             if not cex_exchange and is_infrastructure_account(funder):
@@ -615,8 +615,10 @@ class RealTimeCreatorFundingExtractor:
             except Exception as label_err:
                 pass  # Label lookup is non-critical
 
-        except:
-            pass
+        except Exception as save_err:
+            print(f"[FUNDING] ❌ FAILED TO SAVE FUNDER {funder[:16]}... for creator {creator[:16]}...: {save_err}", flush=True)
+            import traceback
+            traceback.print_exc()
 
     async def _save_recipient(self, creator: str, recipient: str, amount_sol: float):
         """Save recipient relationship to database (creator sent SOL to recipient)"""
@@ -681,8 +683,10 @@ class RealTimeCreatorFundingExtractor:
             except Exception:
                 pass  # Label lookup is non-critical
 
-        except:
-            pass
+        except Exception as save_err:
+            print(f"[FUNDING] ❌ FAILED TO SAVE RECIPIENT {recipient[:16]}... for creator {creator[:16]}...: {save_err}", flush=True)
+            import traceback
+            traceback.print_exc()
 
     def _save_outgoing_transfer(self, creator: str, recipient: str, amount_sol: float, sig: str = None, block_time: int = None):
         """Save outgoing transfer from creator to recipient
@@ -901,6 +905,37 @@ class RealTimeCreatorFundingExtractor:
         except Exception as e:
             print(f"[REALTIME_FUNDING]    ⚠ Error searching outgoing: {e}", flush=True)
             return recipients
+
+    def _mark_extraction_complete(self, creator: str, total_funders: int, total_recipients: int, total_inbound: float, total_outbound: float):
+        """
+        Mark extraction as complete for a creator by updating creator_state.
+        
+        This signals to the UI that extraction has finished and results are ready.
+        Called after all funder/recipient data has been saved to the database.
+        """
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=60)
+            cursor = conn.cursor()
+            
+            # Update creator_state with final extraction status
+            cursor.execute("""
+                INSERT OR REPLACE INTO creator_state
+                (creator_pubkey, last_processed_at, total_signatures_processed, total_sol_in_lamports, total_sol_out_lamports, updated_at)
+                VALUES (?, CURRENT_TIMESTAMP, ?, ?, ?, CURRENT_TIMESTAMP)
+            """, (
+                creator,
+                total_funders + total_recipients,  # count of transactions processed
+                int(total_inbound * 1_000_000_000),  # convert SOL to lamports
+                int(total_outbound * 1_000_000_000)   # convert SOL to lamports
+            ))
+            
+            conn.commit()
+            conn.close()
+            
+            print(f"[EXTRACTION] ✅ COMPLETED for {creator[:16]}... | Funders: {total_funders}, Recipients: {total_recipients}", flush=True)
+            
+        except Exception as err:
+            print(f"[EXTRACTION] ⚠ Could not mark extraction complete: {err}", flush=True)
 
     async def extract_for_creator(self, creator: str, migration_timestamp_str: str) -> Dict:
         """
@@ -1353,6 +1388,9 @@ class RealTimeCreatorFundingExtractor:
 
             # Close database connection after all processing
             conn.close()
+
+            # ✅ MARK EXTRACTION AS COMPLETE — signals to UI that extraction is done
+            self._mark_extraction_complete(creator, len(funders), len(recipients), total_inbound, total_outbound)
 
             return {
                 "creator": creator,

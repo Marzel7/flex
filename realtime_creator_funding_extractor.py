@@ -504,188 +504,125 @@ class RealTimeCreatorFundingExtractor:
 
         return transfers
 
-    async def _save_funder(self, creator: str, funder: str, amount_sol: float):
-        """Save funder relationship to database, accumulating amounts from multiple transfers"""
-        try:
-            from infra_mapping import is_infrastructure_account, is_cex_account, get_account_info
-            from address_tags import get_domain_tag
+    def _save_funder(self, creator: str, funder: str, amount_sol: float, funders_delta: Dict[str, dict]):
+        """
+        Accumulate funder in memory dict (sync, no DB ops, no domain resolution).
+        CEX/INFRA classification deferred to flush phase.
+        """
+        if funder not in funders_delta:
+            funders_delta[funder] = {"amount": 0, "is_cex": 0, "cex_exchange": None, "cex_type": None, "is_classified": 0}
+        funders_delta[funder]["amount"] += amount_sol
 
-            conn = sqlite3.connect(DB_PATH, timeout=60)
+    def _save_recipient(self, creator: str, recipient: str, amount_sol: float, recipients_delta: Dict[str, float]):
+        """
+        Accumulate recipient in memory dict (sync, no DB ops).
+        Recipient classification deferred to flush phase.
+        """
+        if recipient not in recipients_delta:
+            recipients_delta[recipient] = 0
+        recipients_delta[recipient] += amount_sol
+
+    async def _flush_page_batch(self, conn, creator: str, funders_delta: Dict[str, dict], recipients_delta: Dict[str, float], domain_addrs: Set[str], jito_events: List[tuple]):
+        """
+        Flush accumulated page data to database in batch.
+        - Insert all funders with CEX/INFRA classification
+        - Insert all recipients 
+        - Single commit
+        - Batch resolve domains
+        - Insert Jito events
+        """
+        from infra_mapping import is_infrastructure_account, is_cex_account
+
+        try:
             cursor = conn.cursor()
 
-            # First, check if this funder already exists for this creator
-            cursor.execute("""
-                SELECT amount_sol, is_classified, fully_analyzed
-                FROM creator_funders
-                WHERE creator_address = ? AND funder_address = ?
-                LIMIT 1
-            """, (creator, funder))
-            existing = cursor.fetchone()
+            # Process funders: check CEX/INFRA status and upsert
+            for funder, funder_data in funders_delta.items():
+                is_cex = 0
+                cex_exchange = None
+                cex_type = None
+                is_classified = 0
 
-            # Get existing amount, or 0 if new
-            existing_amount = existing[0] if existing else 0
-            new_total_amount = existing_amount + amount_sol
-
-            # Check if funder is a known CEX wallet
-            cex_exchange = None
-            cex_type = None
-            is_classified = 0
-
-            try:
-                cursor.execute("""
-                    SELECT exchange_name, wallet_type
-                    FROM cex_wallets
-                    WHERE cex_address = ? AND is_active = 1
-                    LIMIT 1
-                """, (funder,))
-                cex_row = cursor.fetchone()
-                if cex_row:
-                    exchange, wallet_type = cex_row
-                    cex_exchange = exchange
-                    cex_type = wallet_type
-                    is_classified = 1  # Mark as classified (already tagged)
-                    print(f"[FUNDING] 🏛️ CEX FUNDER DETECTED: {exchange} {wallet_type} → {creator[:16]}... ({new_total_amount:.2f} SOL total)", flush=True)
-            except Exception as cex_err:
-                print(f"[FUNDING] ⚠ Error checking CEX wallet: {cex_err}", flush=True)
-
-            # Check if funder is infrastructure/automation account
-            if not cex_exchange and is_infrastructure_account(funder):
-                is_classified = 1  # Mark as classified (infrastructure)
-
-                # Special handling for deBridge
-                info = get_account_info(funder)
-                if info and "debridge" in str(info.get("tags", [])).lower():
-                    print(f"[FUNDING] 🌉 DEBRIDGE FUNDER DETECTED: {creator[:16]}... received {amount_sol:.6f} SOL from deBridge", flush=True)
-                    # Tag creator for deBridge usage
-                    try:
-                        cursor.execute("""
-                            INSERT OR REPLACE INTO creator_tags
-                            (creator_address, tag, description, amount_sol)
-                            VALUES (?, ?, ?, ?)
-                        """, (creator, "uses_debridge", f"Creator receives transfers from deBridge", new_total_amount))
-                        conn.commit()
-                        print(f"[FUNDING] ✅ Tagged creator as 'uses_debridge' - Total: {new_total_amount:.6f} SOL", flush=True)
-                    except Exception as tag_err:
-                        print(f"[FUNDING] ⚠ Could not tag deBridge usage: {tag_err}", flush=True)
-
-            # Check if funder is CEX via infra_mapping
-            fully_analyzed_now = 0
-            if not cex_exchange and is_cex_account(funder):
-                is_classified = 1  # Mark as classified (CEX in mapping)
-
-            # Skip history extraction for CEX/INFRA - mark as fully_analyzed immediately
-            if cex_exchange or is_classified:
-                fully_analyzed_now = 1
-                print(f"[FUNDING] 🚫 Skipping history extraction for CEX/INFRA: {funder[:16]}... ({cex_exchange or 'INFRA'})", flush=True)
-
-            # NOTE: For regular wallets: Do NOT set fully_analyzed at discovery time.
-            # fully_analyzed should only be set AFTER actual extraction of incoming transfers.
-            # Discovery only creates the record; extraction sets fully_analyzed=1 and last_analyzed timestamp.
-            # BUT: For CEX/INFRA: Set fully_analyzed=1 immediately so we don't trace their history.
-
-            cursor.execute("""
-                INSERT OR REPLACE INTO creator_funders
-                (creator_address, funder_address, amount_sol, first_detected_at, is_cex, cex_exchange, cex_type, is_classified, fully_analyzed)
-                VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?)
-            """, (creator, funder, new_total_amount, 1 if cex_exchange else 0, cex_exchange, cex_type, is_classified, fully_analyzed_now))
-
-            conn.commit()
-            conn.close()
-
-            # Resolve and cache domain names (non-blocking)
-            if self.domain_resolver:
+                # Check CEX wallet database
                 try:
-                    domains = await self.domain_resolver.resolve_primary_domains([funder, creator])
-                    funder_domain = domains.get(funder)
-                    creator_domain = domains.get(creator)
+                    cursor.execute("""
+                        SELECT exchange_name, wallet_type
+                        FROM cex_wallets
+                        WHERE cex_address = ? AND is_active = 1
+                        LIMIT 1
+                    """, (funder,))
+                    cex_row = cursor.fetchone()
+                    if cex_row:
+                        exchange, wallet_type = cex_row
+                        cex_exchange = exchange
+                        cex_type = wallet_type
+                        is_cex = 1
+                        is_classified = 1
+                        print(f"[FUNDING] 🏛️ CEX FUNDER: {exchange} {wallet_type} → {creator[:16]}... ({funder_data['amount']:.2f} SOL)", flush=True)
+                except Exception:
+                    pass
 
-                    if funder_domain:
-                        print(f"[DOMAIN] 🌐 Funder domain: {funder} → {funder_domain}", flush=True)
-                    if creator_domain:
-                        print(f"[DOMAIN] 🌐 Creator domain: {creator} → {creator_domain}", flush=True)
-                except Exception as domain_err:
-                    pass  # Domain resolution is non-critical
+                # Check infrastructure
+                if not cex_exchange and is_infrastructure_account(funder):
+                    is_classified = 1
 
-            # Look up and tag funder with local database label if available (non-blocking)
-            try:
-                from solscan_address_tagger import tag_funder_if_labeled, format_address_with_label
-                label_info = tag_funder_if_labeled(funder)
-                if label_info and label_info.get("label_name"):
-                    formatted = format_address_with_label(funder, label_info)
-                    print(f"[LABEL] 🏷️ Funder labeled: {formatted}", flush=True)
-            except Exception as label_err:
-                pass  # Label lookup is non-critical
+                # Check CEX in mapping
+                if not cex_exchange and is_cex_account(funder):
+                    is_classified = 1
 
-        except Exception as save_err:
-            print(f"[FUNDING] ❌ FAILED TO SAVE FUNDER {funder[:16]}... for creator {creator[:16]}...: {save_err}", flush=True)
-            import traceback
-            traceback.print_exc()
+                fully_analyzed = 1 if (cex_exchange or is_classified) else 0
 
-    async def _save_recipient(self, creator: str, recipient: str, amount_sol: float):
-        """Save recipient relationship to database (creator sent SOL to recipient)"""
-        try:
-            conn = sqlite3.connect(DB_PATH, timeout=60)
-            cursor = conn.cursor()
+                cursor.execute("""
+                    INSERT OR REPLACE INTO creator_funders
+                    (creator_address, funder_address, amount_sol, first_detected_at, is_cex, cex_exchange, cex_type, is_classified, fully_analyzed)
+                    VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?)
+                """, (creator, funder, funder_data['amount'], is_cex, cex_exchange, cex_type, is_classified, fully_analyzed))
 
-            # Check if recipient is INFRA or CEX account
-            is_infra = recipient in INFRASTRUCTURE_ACCOUNTS
-            is_cex = recipient in CEX_ACCOUNTS
+            # Process recipients: check INFRA/CEX and upsert
+            for recipient, amount_sol in recipients_delta.items():
+                is_infra = recipient in INFRASTRUCTURE_ACCOUNTS
+                is_cex = recipient in CEX_ACCOUNTS
 
-            # Get classification info if available
-            recipient_type = None
-            recipient_name = None
-            if is_infra:
-                recipient_type = "INFRA"
-                recipient_name = INFRASTRUCTURE_ACCOUNTS[recipient].get("name", "")
-            elif is_cex:
-                recipient_type = "CEX"
-                recipient_name = CEX_ACCOUNTS[recipient].get("name", "")
+                recipient_type = None
+                recipient_name = None
+                if is_infra:
+                    recipient_type = "INFRA"
+                    recipient_name = INFRASTRUCTURE_ACCOUNTS[recipient].get("name", "")
+                elif is_cex:
+                    recipient_type = "CEX"
+                    recipient_name = CEX_ACCOUNTS[recipient].get("name", "")
 
-            # Create table if needed
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS creator_receivers (
-                    creator_address TEXT NOT NULL,
-                    receiver_address TEXT NOT NULL,
-                    amount_sol REAL,
-                    receiver_type TEXT,
-                    receiver_name TEXT,
-                    first_detected_at TEXT,
-                    PRIMARY KEY (creator_address, receiver_address)
-                )
-            """)
+                cursor.execute("""
+                    INSERT OR REPLACE INTO creator_receivers
+                    (creator_address, receiver_address, amount_sol, receiver_type, receiver_name, first_detected_at)
+                    VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                """, (creator, recipient, amount_sol, recipient_type, recipient_name))
 
-            # Add new columns if they don't exist (for existing tables)
-            try:
-                cursor.execute("ALTER TABLE creator_receivers ADD COLUMN receiver_type TEXT")
-            except:
-                pass  # Column already exists
-
-            try:
-                cursor.execute("ALTER TABLE creator_receivers ADD COLUMN receiver_name TEXT")
-            except:
-                pass  # Column already exists
-
-            cursor.execute("""
-                INSERT OR REPLACE INTO creator_receivers
-                (creator_address, receiver_address, amount_sol, receiver_type, receiver_name, first_detected_at)
-                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-            """, (creator, recipient, amount_sol, recipient_type, recipient_name))
-
+            # Single commit after all funders and recipients
             conn.commit()
-            conn.close()
 
-            # Look up and tag recipient with local database label if available (non-blocking)
-            try:
-                from solscan_address_tagger import tag_recipient_if_labeled, format_address_with_label
-                label_info = tag_recipient_if_labeled(recipient)
-                if label_info and label_info.get("label_name"):
-                    formatted = format_address_with_label(recipient, label_info)
-                    print(f"[LABEL] 🏷️ Recipient labeled: {formatted}", flush=True)
-            except Exception:
-                pass  # Label lookup is non-critical
+            # Batch resolve domains (after DB commit, so resolver can cache reads)
+            if domain_addrs and self.domain_resolver:
+                try:
+                    domains = await self.domain_resolver.resolve_primary_domains(list(domain_addrs))
+                    for addr, domain in domains.items():
+                        if domain:
+                            print(f"[DOMAIN] 🌐 Resolved: {addr[:16]}... → {domain}", flush=True)
+                except Exception as domain_err:
+                    print(f"[DOMAIN] ⚠ Batch resolution error: {domain_err}", flush=True)
 
-        except Exception as save_err:
-            print(f"[FUNDING] ❌ FAILED TO SAVE RECIPIENT {recipient[:16]}... for creator {creator[:16]}...: {save_err}", flush=True)
+            # Insert Jito events in batch
+            if jito_events:
+                cursor.executemany("""
+                    INSERT OR IGNORE INTO creator_service_history
+                    (creator_address, tag, amount_sol, tx_signature, mint, network_fee_sol, tip_percentage, tx_type, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                """, jito_events)
+                conn.commit()
+                print(f"[JITO] 🪂 Batch inserted {len(jito_events)} Jito events", flush=True)
+
+        except Exception as e:
+            print(f"[FLUSH] ❌ Batch flush error: {e}", flush=True)
             import traceback
             traceback.print_exc()
 
@@ -978,18 +915,21 @@ class RealTimeCreatorFundingExtractor:
             print(f"[REALTIME_FUNDING]    Migration timestamp: {migration_timestamp_str}", flush=True)
             print(f"[REALTIME_FUNDING]    Will fetch up to 1 month of history", flush=True)
 
+            # FIX #4: Open one shared connection for entire extraction run + ensure schema
+            extraction_conn = sqlite3.connect(DB_PATH, timeout=90)
+            extraction_conn.execute("PRAGMA busy_timeout = 90000")
+            extraction_cursor = extraction_conn.cursor()
+
             # Build exclusion set: token mints + bonding curves created by this creator
             exclude_set = set()
 
             # Get all tokens launched by this creator to exclude them
-            conn = sqlite3.connect(DB_PATH, timeout=60)
-            cursor = conn.cursor()
-            cursor.execute("""
+            extraction_cursor.execute("""
                 SELECT mint, bonding_curve_pda, create_tx_signature
                 FROM token_analysis
                 WHERE earliest_tx_creator = ?
             """, (creator,))
-            creator_tokens = cursor.fetchall()
+            creator_tokens = extraction_cursor.fetchall()
 
             # Get CREATE tx signature(s) - if multiple tokens, just use the first one
             # (we mainly want to avoid double-counting Jito tips on the CREATE tx)
@@ -1005,28 +945,59 @@ class RealTimeCreatorFundingExtractor:
 
             # Exclude only funders already identified for THIS SPECIFIC CREATOR
             # Don't exclude globally analyzed funders, as they may fund multiple creators
-            cursor.execute("""
+            extraction_cursor.execute("""
                 SELECT DISTINCT funder_address
                 FROM creator_funders
                 WHERE creator_address = ? AND fully_analyzed = 1
             """, (creator,))
-            fully_analyzed = cursor.fetchall()
+            fully_analyzed = extraction_cursor.fetchall()
             for (funder,) in fully_analyzed:
                 exclude_set.add(funder)
 
             # Check if creator is already tagged with deBridge usage
             # If so, skip deBridge transaction detection in the loop
-            cursor.execute("""
+            extraction_cursor.execute("""
                 SELECT 1 FROM creator_tags
                 WHERE creator_address = ? AND tag = ?
             """, (creator, "uses_debridge"))
-            creator_uses_debridge = cursor.fetchone() is not None
+            creator_uses_debridge = extraction_cursor.fetchone() is not None
 
             if creator_uses_debridge:
                 print(f"[REALTIME_FUNDING]    ℹ Creator already tagged as 'uses_debridge', skipping detection", flush=True)
 
             if exclude_set:
                 print(f"[REALTIME_FUNDING]    Excluding {len(exclude_set)} addresses (creator's tokens & bonding curves)", flush=True)
+
+            # Ensure tables exist
+            try:
+                extraction_cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS creator_service_history (
+                        creator_address TEXT,
+                        tag TEXT,
+                        amount_sol REAL,
+                        tx_signature TEXT,
+                        mint TEXT,
+                        network_fee_sol REAL,
+                        tip_percentage REAL,
+                        tx_type TEXT,
+                        created_at TEXT,
+                        PRIMARY KEY (creator_address, tx_signature, tag)
+                    )
+                """)
+                extraction_cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS creator_receivers (
+                        creator_address TEXT NOT NULL,
+                        receiver_address TEXT NOT NULL,
+                        amount_sol REAL,
+                        receiver_type TEXT,
+                        receiver_name TEXT,
+                        first_detected_at TEXT,
+                        PRIMARY KEY (creator_address, receiver_address)
+                    )
+                """)
+                extraction_conn.commit()
+            except Exception:
+                pass  # Tables already exist
 
             # Use Helius Enhanced API - paginate through all transactions
             funders = {}
@@ -1081,6 +1052,12 @@ class RealTimeCreatorFundingExtractor:
 
                                 print(f"[REALTIME_FUNDING]    [PAGE {page_num}] fetched={len(page)} txs", flush=True)
                                 total_fetched += len(page)
+
+                                # FIX #1: Initialize per-page state for batch accumulation
+                                page_funders_delta: Dict[str, dict] = {}   # addr -> {amount, is_cex, cex_exchange, ...}
+                                page_recipients_delta: Dict[str, float] = {}
+                                page_domain_addrs: Set[str] = {creator}
+                                page_jito_events: List[tuple] = []
 
                                 # Process transactions
                                 page_has_pre_migration = False
@@ -1147,16 +1124,12 @@ class RealTimeCreatorFundingExtractor:
                                                             total_cost_sol = network_fee_sol + jitotip_amount
                                                             tip_percentage = (jitotip_amount / total_cost_sol * 100) if total_cost_sol > 0 else 0
 
-                                                            try:
-                                                                cursor.execute("""
-                                                                    INSERT OR IGNORE INTO creator_service_history
-                                                                    (creator_address, tag, amount_sol, tx_signature, mint, network_fee_sol, tip_percentage, tx_type, created_at)
-                                                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                                                                """, (creator, "uses_jitotip_other", jitotip_amount, tx_sig, None, network_fee_sol, tip_percentage, tx_description))
-                                                                # FIX #8: Don't commit here - batch commit after page processing
-                                                                print(f"[REALTIME_FUNDING]      ✅ Jito tip ({jitotip_amount:.6f} SOL, {tip_percentage:.1f}%) detected in {tx_description} tx {tx_sig[:20]}...", flush=True)
-                                                            except Exception:
-                                                                pass
+                                                            # FIX #1: Accumulate Jito event for batch insert
+                                                            page_jito_events.append((
+                                                                creator, "uses_jitotip_other", jitotip_amount,
+                                                                tx_sig, None, network_fee_sol, tip_percentage, tx_description
+                                                            ))
+                                                            print(f"[REALTIME_FUNDING]      ✅ Jito tip ({jitotip_amount:.6f} SOL, {tip_percentage:.1f}%) detected in {tx_description} tx {tx_sig[:20]}...", flush=True)
                                                         break
                                     except Exception:
                                         pass  # Jito scanning is non-critical
@@ -1261,7 +1234,9 @@ class RealTimeCreatorFundingExtractor:
                                                 funders[frm] = 0
                                                 page_funders_found += 1
                                             funders[frm] += amount_sol
-                                            await self._save_funder(creator, frm, amount_sol)
+                                            # FIX #1: Accumulate instead of saving immediately
+                                            self._save_funder(creator, frm, amount_sol, page_funders_delta)
+                                            page_domain_addrs.add(frm)
 
                                         # Outbound: creator sent SOL
                                         elif frm == creator and amount_sol > 0:
@@ -1279,10 +1254,11 @@ class RealTimeCreatorFundingExtractor:
                                             if to not in recipients:
                                                 recipients[to] = 0
                                             recipients[to] += amount_sol
-                                            await self._save_recipient(creator, to, amount_sol)
+                                            # FIX #1: Accumulate instead of saving immediately
+                                            self._save_recipient(creator, to, amount_sol, page_recipients_delta)
 
-                                # FIX #8: Batch commit after page processing (includes Jito tips)
-                                conn.commit()
+                                # FIX #1: Flush accumulated page data in batch
+                                await self._flush_page_batch(extraction_conn, creator, page_funders_delta, page_recipients_delta, page_domain_addrs, page_jito_events)
 
                                 # Log page summary
                                 if page_funders_found > 0 or page_dust_filtered > 0 or page_excluded_filtered > 0 or page_token_transfers_filtered > 0:
@@ -1388,7 +1364,7 @@ class RealTimeCreatorFundingExtractor:
             asyncio.create_task(self._try_blocksec_batch())
 
             # Close database connection after all processing
-            conn.close()
+            extraction_conn.close()
 
             # ✅ MARK EXTRACTION AS COMPLETE — signals to UI that extraction is done
             self._mark_extraction_complete(creator, len(funders), len(recipients), total_inbound, total_outbound)

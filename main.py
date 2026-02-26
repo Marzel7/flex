@@ -14798,8 +14798,13 @@ def api_creator_outgoing_analysis(creator_address: str):
             })
 
         # For backward compatibility, keep single network_name and network_type for primary network
-        network_name = all_networks[0] if all_networks else None
-        network_type = networks_with_types[0]['type'] if networks_with_types else None
+        # Prioritize by risk level: CEX > MIXED > INFRA > ORGANIC
+        # This ensures findings show the most important network when there are multiple
+        priority_order = {'cex_connected': 0, 'mixed': 1, 'infra_connected': 2, 'organic': 3}
+        sorted_networks = sorted(networks_with_types, key=lambda x: priority_order.get(x['type'], 999))
+
+        network_name = sorted_networks[0]['name'] if sorted_networks else None
+        network_type = sorted_networks[0]['type'] if sorted_networks else None
 
         # Get self-funding data from stored calculations
         cursor.execute("""

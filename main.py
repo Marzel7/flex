@@ -15587,7 +15587,7 @@ def api_creator_recent_checks():
             # Get all network memberships with types
             all_networks = []
 
-            # From creator_networks (traditional networks)
+            # 1. Direct membership (creator_address is the primary creator)
             cursor.execute("""
                 SELECT DISTINCT network_name FROM creator_networks
                 WHERE creator_address = ?
@@ -15595,7 +15595,21 @@ def api_creator_recent_checks():
             for net_row in cursor.fetchall():
                 all_networks.append(net_row['network_name'])
 
-            # From creator_to_creator_networks (organic networks)
+            # 2. Membership as connected creator (creator_address in connected_creators JSON)
+            cursor.execute("""
+                SELECT network_name, connected_creators FROM creator_networks
+                WHERE connected_creators LIKE ?
+            """, (f'%{creator}%',))
+            for net_row in cursor.fetchall():
+                try:
+                    import json as json_module
+                    connected = json_module.loads(net_row['connected_creators'])
+                    if creator in connected and net_row['network_name'] not in all_networks:
+                        all_networks.append(net_row['network_name'])
+                except:
+                    pass
+
+            # 3. From creator_to_creator_networks (organic networks)
             cursor.execute("""
                 SELECT DISTINCT network_name FROM creator_to_creator_networks
                 WHERE creator_address = ?

@@ -14912,7 +14912,35 @@ def api_creator_outgoing_analysis(creator_address: str):
             cursor.execute("SELECT COUNT(*) as count FROM funding_chains WHERE bridge_funder = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'", (funder['funder_address'],))
             chain_row = cursor.fetchone()
             if chain_row and chain_row['count'] > 0:
-                funder_info['labels'].append(f'CREATOR_FUNDING_CHAIN({chain_row["count"]})')
+                chain_count = chain_row['count']
+
+                # Check if this is circular funding (same creators appear as both sources and targets)
+                cursor.execute("""
+                    SELECT COUNT(DISTINCT source_creator) as sources, COUNT(DISTINCT target_creator) as targets
+                    FROM funding_chains
+                    WHERE bridge_funder = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'
+                """, (funder['funder_address'],))
+                creator_stats = cursor.fetchone()
+
+                # Circular if same set of creators appear as both sources and targets
+                is_circular = False
+                if creator_stats and creator_stats['sources'] == creator_stats['targets'] and creator_stats['sources'] <= 5:
+                    # Check if source creators match target creators
+                    cursor.execute("""
+                        SELECT COUNT(*) as overlap FROM (
+                            SELECT source_creator FROM funding_chains WHERE bridge_funder = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'
+                            INTERSECT
+                            SELECT target_creator FROM funding_chains WHERE bridge_funder = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'
+                        )
+                    """, (funder['funder_address'], funder['funder_address']))
+                    overlap = cursor.fetchone()
+                    if overlap and overlap['overlap'] == creator_stats['sources']:
+                        is_circular = True
+
+                if is_circular:
+                    funder_info['labels'].append(f'⚠️ CIRCULAR_FUNDING({chain_count})')
+                else:
+                    funder_info['labels'].append(f'CREATOR_FUNDING_CHAIN({chain_count})')
 
             # Check if funder is in a network
             cursor.execute("SELECT network_name FROM creator_networks WHERE creator_address = ?", (funder['funder_address'],))

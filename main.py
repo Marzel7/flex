@@ -14794,7 +14794,8 @@ def api_creator_outgoing_analysis(creator_address: str):
             WHERE creator_address = ?
         """, (creator_address,))
         for row in cursor.fetchall():
-            all_networks.append(row['network_name'])
+            if row['network_name']:
+                all_networks.append(row['network_name'])
 
         # 2. Membership as connected creator (creator_address in connected_creators JSON)
         cursor.execute("""
@@ -14804,7 +14805,7 @@ def api_creator_outgoing_analysis(creator_address: str):
         for row in cursor.fetchall():
             try:
                 connected = json.loads(row['connected_creators'])
-                if creator_address in connected and row['network_name'] not in all_networks:
+                if creator_address in connected and row['network_name'] and row['network_name'] not in all_networks:
                     all_networks.append(row['network_name'])
             except:
                 pass
@@ -14820,7 +14821,7 @@ def api_creator_outgoing_analysis(creator_address: str):
                 )
             """, (creator_address,))
             for row in cursor.fetchall():
-                if row['network_name'] not in all_networks:
+                if row['network_name'] and row['network_name'] not in all_networks:
                     all_networks.append(row['network_name'])
 
         # 4. Membership in creator-to-creator networks (organic networks for direct transfers)
@@ -14829,7 +14830,7 @@ def api_creator_outgoing_analysis(creator_address: str):
             WHERE creator_address = ?
         """, (creator_address,))
         for row in cursor.fetchall():
-            if row['network_name'] not in all_networks:
+            if row['network_name'] and row['network_name'] not in all_networks:
                 all_networks.append(row['network_name'])
 
         # Get CEX/INFRA types for all networks

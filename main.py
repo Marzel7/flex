@@ -14687,8 +14687,15 @@ def creator_analysis_page():
 
                             token.recipients.forEach((recipient, idx) => {
                                 // Build recipient info with labels and network
-                                let recipientInfo = `<div class="recipient-info">
-                                    <div class="recipient-address">${recipient.address}</div>`;
+                                let recipientInfo = `<div class="recipient-info">`;
+
+                                // Display name (CEX/INFRA) if available, otherwise address
+                                if (recipient.display_name) {
+                                    recipientInfo += `<div class="recipient-address" style="color: var(--accent-cyan); font-weight: 600;">${recipient.display_name}</div>`;
+                                    recipientInfo += `<div class="recipient-address" style="font-size: 10px; color: var(--text-secondary);">${recipient.address}</div>`;
+                                } else {
+                                    recipientInfo += `<div class="recipient-address">${recipient.address}</div>`;
+                                }
 
                                 if (recipient.network) {
                                     recipientInfo += `<div class="recipient-network">[${recipient.network}]</div>`;

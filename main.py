@@ -14975,6 +14975,15 @@ def api_creator_outgoing_analysis(creator_address: str):
                 funder_info['display_name'] = f"{cex_row['exchange_name']} ({cex_row['wallet_type']})"
                 funder_info['labels'].append('CEX')
 
+            # Check for infrastructure in infra_mapping (Padre, etc.)
+            if not funder_info['display_name']:
+                from infra_mapping import get_account_info
+                acct_info = get_account_info(funder['funder_address'])
+                if acct_info:
+                    funder_info['display_name'] = acct_info.get('name', '')
+                    if acct_info.get('category'):
+                        funder_info['labels'].append(f'INFRA({acct_info["category"]})')
+
             # Check for address labels (infrastructure, services, etc.)
             cursor.execute("SELECT label_name, category FROM address_labels WHERE address = ?", (funder['funder_address'],))
             label_row = cursor.fetchone()
@@ -15130,11 +15139,26 @@ def api_creator_outgoing_analysis(creator_address: str):
                 if multi_funder_count > 1:
                     recipient_labels.append(f'MULTI_FUNDED({multi_funder_count})')
 
-                # 5. Is it a CEX wallet?
-                cursor.execute("SELECT COUNT(*) as count FROM cex_wallets WHERE cex_address = ?", (recipient['recipient_address'],))
-                r = cursor.fetchone()
-                if r and r['count'] > 0:
-                    recipient_labels.append('CEX')
+                # 5. Check for infrastructure FIRST (Padre, etc.) - takes priority over CEX_WALLETS
+                recipient_display_name = None
+                from infra_mapping import get_account_info
+                acct_info = get_account_info(recipient['recipient_address'])
+                if acct_info:
+                    recipient_display_name = acct_info.get('name', '')
+                    if acct_info.get('category'):
+                        recipient_labels.append(f'INFRA({acct_info["category"]})')
+
+                # 6. If not in infra_mapping, check if it's a CEX wallet
+                if not acct_info:
+                    cursor.execute("SELECT COUNT(*) as count FROM cex_wallets WHERE cex_address = ?", (recipient['recipient_address'],))
+                    r = cursor.fetchone()
+                    if r and r['count'] > 0:
+                        recipient_labels.append('CEX')
+                        # Get CEX name
+                        cursor.execute("SELECT exchange_name FROM cex_wallets WHERE cex_address = ?", (recipient['recipient_address'],))
+                        cex_row = cursor.fetchone()
+                        if cex_row:
+                            recipient_display_name = cex_row['exchange_name']
 
                 # Check if recipient is in a network
                 recipient_network = None
@@ -15188,6 +15212,7 @@ def api_creator_outgoing_analysis(creator_address: str):
                     'last_transaction_time': recipient['last_transaction_time'],
                     'labels': recipient_labels,
                     'network': recipient_network,
+                    'display_name': recipient_display_name,
                     'funded_creators': funded_creators_data
                 })
 

@@ -3629,9 +3629,19 @@ function switchToTokensTab() {
 
                 document.getElementById('creatorNetworkSize').textContent = (data.cluster.total_wallets || 0) + ' wallets';
 
-                // Display atomic network name if available
+                // Display network name if available with CEX/INFRA badges
                 if (data.network_name) {
-                    document.getElementById('creatorNetworkName').innerHTML = `<a href="/networks?network=${encodeURIComponent(data.network_name)}" style="color: var(--accent-purple); text-decoration: none; cursor: pointer; border-bottom: 1px dotted var(--accent-purple);" title="View network">${data.network_name}</a>`;
+                    let networkBadges = '';
+                    if (data.network_type === 'cex_connected') {
+                        networkBadges = '<span style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700; margin-left: 8px;">🏦 CEX</span>';
+                    } else if (data.network_type === 'infra_connected') {
+                        networkBadges = '<span style="background: #f97316; color: white; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700; margin-left: 8px;">🔧 INFRA</span>';
+                    } else if (data.network_type === 'mixed') {
+                        networkBadges = '<span style="background: #d97706; color: white; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700; margin-left: 8px;">⚠️ MIXED</span>';
+                    } else if (data.network_type === 'organic') {
+                        networkBadges = '<span style="background: #22c55e; color: white; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700; margin-left: 8px;">✓ ORGANIC</span>';
+                    }
+                    document.getElementById('creatorNetworkName').innerHTML = `<a href="/creator-network/${encodeURIComponent(data.network_name)}" style="color: var(--accent-purple); text-decoration: none; cursor: pointer; border-bottom: 1px dotted var(--accent-purple);" title="View network">${data.network_name}</a>${networkBadges}`;
                 } else {
                     document.getElementById('creatorNetworkName').textContent = 'Unassigned';
                 }
@@ -3865,7 +3875,7 @@ function switchToTokensTab() {
                                     <td style="font-family: monospace; font-size: 11px; word-break: break-all;">
                                         <a href="#" onclick="showCreatorDetails('${token.creator_address}'); return false;" title="${token.creator_address}">${token.creator_address}</a>
                                     </td>
-                                    <td>${token.funding_amount_sol.toFixed(2)} SOL</td>
+                                    <td>${(token.funding_amount_sol || 0).toFixed(2)} SOL</td>
                                     <td>${formatDateISO(token.created_at)}</td>
                                     <td><span class="risk-score risk-${token.risk_level ? token.risk_level.toLowerCase() : 'medium'}">${token.risk_level || 'N/A'}</span></td>
                                 </tr>
@@ -4236,7 +4246,7 @@ function switchToTokensTab() {
                                     </td>
                                     <td style="color: var(--accent-cyan); font-weight: 500; font-size: 12px; white-space: nowrap;">${networkDisplay}</td>
                                     <td><strong style="color: var(--color-critical);">${funder.creator_count}</strong></td>
-                                    <td>${funder.total_sol_sent.toFixed(2)} SOL</td>
+                                    <td>${(funder.total_sol_sent || 0).toFixed(2)} SOL</td>
                                     <td>${funder.funding_record_count}</td>
                                     <td style="font-size: 11px;">${period}</td>
                                     <td onclick="event.stopPropagation();">
@@ -6511,6 +6521,7 @@ def api_creator_details(creator_address: str):
 
         # 12. Get network assignment for this creator
         network_name = None
+        network_type = None
         try:
             cursor = conn.cursor()
             cursor.execute("""
@@ -6520,6 +6531,14 @@ def api_creator_details(creator_address: str):
             network_row = cursor.fetchone()
             if network_row:
                 network_name = network_row[0]
+                # Get network type
+                cursor.execute("""
+                    SELECT network_type FROM network_cex_infra_flags
+                    WHERE network_name = ?
+                """, (network_name,))
+                net_type_row = cursor.fetchone()
+                if net_type_row:
+                    network_type = net_type_row[0]
         except Exception as e:
             pass
 
@@ -6566,7 +6585,8 @@ def api_creator_details(creator_address: str):
             'cluster': cluster,
             'is_blocked': is_blocked,
             'tags': tags,
-            'network_name': network_name
+            'network_name': network_name,
+            'network_type': network_type
         })
 
     except Exception as e:
@@ -13636,10 +13656,25 @@ def creator_analysis_page():
             <title>Creator Outgoing Transfer Analysis</title>
             <style>
                 * { margin: 0; padding: 0; box-sizing: border-box; }
+                :root {
+                    --primary: #7c3aed;
+                    --primary-dark: #6d28d9;
+                    --text-primary: #e5e7eb;
+                    --text-secondary: #a1a5b4;
+                    --bg-primary: #1a1a24;
+                    --bg-secondary: rgba(20, 20, 32, 0.85);
+                    --accent-cyan: #06b6d4;
+                    --accent-purple: #a78bfa;
+                    --color-critical: #ef4444;
+                    --color-high: #f97316;
+                    --color-medium: #eab308;
+                    --color-low: #22c55e;
+                    --color-none: #3b82f6;
+                }
                 body {
-                    font-family: 'Courier New', monospace;
-                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-                    color: #e0e0e0;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
+                    color: var(--text-primary);
                     padding: 20px;
                 }
                 .container { max-width: 1400px; margin: 0 auto; }
@@ -13648,56 +13683,60 @@ def creator_analysis_page():
                     justify-content: space-between;
                     align-items: center;
                     margin-bottom: 30px;
-                    border-bottom: 2px solid rgba(106, 180, 255, 0.3);
-                    padding-bottom: 15px;
+                    padding: 20px;
+                    background: var(--bg-secondary);
+                    border-radius: 8px;
+                    border-left: 4px solid var(--accent-cyan);
                 }
-                h1 { color: #6ab4ff; font-size: 28px; }
+                h1 { color: var(--accent-cyan); font-size: 28px; }
                 .back-btn {
-                    background: rgba(59, 130, 246, 0.2);
-                    color: #06b6d4;
-                    border: 1px solid rgba(59, 130, 246, 0.5);
-                    padding: 8px 16px;
-                    border-radius: 4px;
+                    background: rgba(124, 58, 237, 0.2);
+                    color: var(--accent-cyan);
+                    border: 1px solid rgba(124, 58, 237, 0.5);
+                    padding: 10px 20px;
+                    border-radius: 6px;
                     cursor: pointer;
                     font-size: 12px;
-                    font-family: 'Courier New', monospace;
+                    font-family: 'Segoe UI', sans-serif;
                 }
-                .back-btn:hover { background: rgba(59, 130, 246, 0.4); }
+                .back-btn:hover { background: rgba(124, 58, 237, 0.3); }
 
                 .search-section {
                     margin-bottom: 30px;
                     display: flex;
-                    gap: 10px;
+                    gap: 15px;
                 }
                 .search-input {
                     flex: 1;
-                    background: rgba(0, 0, 0, 0.3);
-                    border: 1px solid rgba(106, 180, 255, 0.3);
-                    color: #e0e0e0;
-                    padding: 10px;
-                    border-radius: 4px;
-                    font-family: 'Courier New', monospace;
+                    background: var(--bg-secondary);
+                    border: 1px solid rgba(124, 58, 237, 0.3);
+                    color: var(--text-primary);
+                    padding: 12px 16px;
+                    border-radius: 6px;
+                    font-family: 'Segoe UI', sans-serif;
+                    font-size: 14px;
                 }
                 .search-input:focus {
                     outline: none;
-                    border-color: #6ab4ff;
-                    box-shadow: 0 0 10px rgba(106, 180, 255, 0.2);
+                    border-color: var(--accent-cyan);
+                    box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
                 }
                 .search-btn {
-                    background: rgba(59, 130, 246, 0.2);
-                    color: #3b82f6;
-                    border: 1px solid rgba(59, 130, 246, 0.5);
-                    padding: 10px 20px;
-                    border-radius: 4px;
+                    background: rgba(124, 58, 237, 0.2);
+                    color: var(--primary);
+                    border: 1px solid rgba(124, 58, 237, 0.5);
+                    padding: 12px 28px;
+                    border-radius: 6px;
                     cursor: pointer;
-                    font-family: 'Courier New', monospace;
+                    font-family: 'Segoe UI', sans-serif;
+                    font-weight: 600;
                 }
-                .search-btn:hover { background: rgba(59, 130, 246, 0.4); }
+                .search-btn:hover { background: rgba(124, 58, 237, 0.3); }
 
                 .creator-section {
-                    background: rgba(0, 0, 0, 0.4);
-                    border: 1px solid rgba(106, 180, 255, 0.2);
-                    border-radius: 6px;
+                    background: var(--bg-secondary);
+                    border: 1px solid rgba(124, 58, 237, 0.2);
+                    border-radius: 8px;
                     padding: 20px;
                     margin-bottom: 20px;
                 }
@@ -13709,55 +13748,68 @@ def creator_analysis_page():
                     margin-bottom: 20px;
                 }
                 .meta-item {
-                    background: rgba(59, 130, 246, 0.1);
-                    border-left: 3px solid #3b82f6;
-                    padding: 12px;
-                    border-radius: 4px;
+                    background: rgba(124, 58, 237, 0.1);
+                    border-left: 3px solid var(--primary);
+                    padding: 15px;
+                    border-radius: 6px;
                 }
-                .meta-label { font-size: 11px; color: #94a3b8; text-transform: uppercase; }
-                .meta-value { font-size: 14px; color: #e0e0e0; margin-top: 4px; word-break: break-all; }
+                .meta-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; }
+                .meta-value { font-size: 13px; color: var(--text-primary); margin-top: 6px; word-break: break-all; }
 
                 .findings-section {
-                    margin-top: 20px;
+                    margin-top: 25px;
                 }
                 .findings-title {
-                    color: #fbbf24;
+                    color: var(--accent-purple);
                     font-size: 14px;
-                    font-weight: bold;
+                    font-weight: 700;
                     margin-bottom: 15px;
                     text-transform: uppercase;
+                    letter-spacing: 0.5px;
                 }
 
                 .finding-card {
-                    background: rgba(0, 0, 0, 0.5);
-                    border-left: 3px solid #ef4444;
+                    background: rgba(239, 68, 68, 0.05);
+                    border-left: 3px solid var(--color-critical);
                     padding: 15px;
                     margin-bottom: 12px;
-                    border-radius: 4px;
+                    border-radius: 6px;
+                    border: 1px solid rgba(239, 68, 68, 0.2);
                 }
                 .finding-card.clean {
-                    border-left-color: #22c55e;
                     background: rgba(34, 197, 94, 0.05);
+                    border-left-color: var(--color-low);
+                    border-color: rgba(34, 197, 94, 0.2);
+                }
+                .finding-card.critical {
+                    background: rgba(239, 68, 68, 0.15);
+                    border-left-color: #ff0000;
+                    border-color: rgba(239, 68, 68, 0.5);
+                    animation: critical-pulse 1s infinite;
+                }
+                @keyframes critical-pulse {
+                    0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+                    50% { opacity: 0.9; box-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
                 }
 
                 .finding-type {
                     display: inline-block;
-                    background: rgba(239, 68, 68, 0.2);
-                    color: #ef4444;
-                    padding: 3px 8px;
-                    border-radius: 3px;
-                    font-size: 10px;
-                    font-weight: bold;
+                    background: rgba(239, 68, 68, 0.15);
+                    color: var(--color-critical);
+                    padding: 4px 10px;
+                    border-radius: 4px;
+                    font-size: 11px;
+                    font-weight: 600;
                     margin-right: 8px;
                 }
                 .finding-type.clean {
-                    background: rgba(34, 197, 94, 0.2);
-                    color: #22c55e;
+                    background: rgba(34, 197, 94, 0.15);
+                    color: var(--color-low);
                 }
 
                 .finding-details {
-                    font-size: 12px;
-                    color: #cbd5e1;
+                    font-size: 13px;
+                    color: var(--text-primary);
                     margin-top: 8px;
                     line-height: 1.5;
                 }
@@ -13769,129 +13821,425 @@ def creator_analysis_page():
                     margin-top: 10px;
                 }
                 .network-badge {
-                    background: rgba(168, 139, 250, 0.2);
-                    color: #a78bfa;
-                    padding: 4px 10px;
-                    border-radius: 3px;
+                    background: rgba(168, 139, 250, 0.15);
+                    color: var(--accent-purple);
+                    padding: 5px 12px;
+                    border-radius: 4px;
                     font-size: 11px;
-                    border: 1px solid rgba(168, 139, 250, 0.4);
+                    border: 1px solid rgba(168, 139, 250, 0.3);
+                    font-weight: 500;
+                }
+
+                .network-link {
+                    color: var(--accent-purple);
+                    text-decoration: underline;
+                    cursor: pointer;
+                    font-weight: 600;
+                    border-bottom: 2px solid var(--accent-purple);
+                    transition: all 0.2s;
+                    display: inline-block;
+                }
+
+                .network-link:hover {
+                    color: var(--accent-cyan);
+                    border-bottom-color: var(--accent-cyan);
+                }
+
+                .network-link:active {
+                    color: var(--accent-cyan);
+                }
+
+                .tokens-section {
+                    margin-top: 25px;
+                }
+                .tokens-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                    gap: 15px;
+                    margin-top: 15px;
+                }
+                .token-card {
+                    background: var(--bg-secondary);
+                    border: 1px solid rgba(124, 58, 237, 0.2);
+                    padding: 16px;
+                    border-radius: 8px;
+                    font-size: 13px;
+                    transition: all 0.2s;
+                }
+                .token-card:hover {
+                    border-color: rgba(124, 58, 237, 0.4);
+                    background: rgba(20, 20, 32, 1);
+                }
+                .recipients-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    background: var(--bg-secondary);
+                    border: 1px solid rgba(124, 58, 237, 0.3);
+                    border-radius: 8px;
+                    overflow: hidden;
+                    margin-bottom: 12px;
+                }
+
+                .recipients-table thead {
+                    background: var(--bg-secondary);
+                    border-bottom: 2px solid rgba(124, 58, 237, 0.3);
+                    border-left: 3px solid rgba(124, 58, 237, 0.5);
+                }
+
+                .recipients-table th {
+                    padding: 12px 15px;
+                    text-align: left;
+                    color: var(--accent-purple);
+                    font-weight: 600;
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+
+                .recipients-table td {
+                    padding: 12px 15px;
+                    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+                    font-size: 12px;
+                }
+
+                .recipients-table tbody tr:hover {
+                    background: rgba(124, 58, 237, 0.08);
+                }
+
+                .recipients-table tr:last-child td {
+                    border-bottom: none;
+                }
+
+                .recipient-info {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                }
+
+                .recipient-address {
+                    color: var(--accent-cyan);
+                    font-size: 11px;
+                    font-family: 'Courier New', monospace;
+                    word-break: break-all;
+                }
+
+                .recipient-network {
+                    color: var(--accent-purple);
+                    font-size: 10px;
+                    font-weight: 600;
+                    background: rgba(168, 139, 250, 0.15);
+                    padding: 2px 6px;
+                    border-radius: 3px;
+                    border: 1px solid rgba(168, 139, 250, 0.3);
+                    width: fit-content;
+                }
+
+                .recipient-labels {
+                    color: var(--text-secondary);
+                    font-size: 9px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                }
+
+                .recipient-amount {
+                    color: var(--accent-cyan);
+                    font-weight: 600;
+                    text-align: right;
+                }
+
+                .funded-creator-row {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                    margin-bottom: 6px;
+                    padding: 0;
+                    background: transparent;
+                    border-left: none;
+                }
+
+                .funded-creator-row:last-child {
+                    margin-bottom: 0;
+                }
+
+                .funded-creator-address {
+                    color: var(--accent-cyan);
+                    font-size: 11px;
+                    font-family: 'Courier New', monospace;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                .creator-network {
+                    color: var(--accent-purple);
+                    font-size: 10px;
+                    font-weight: 600;
+                    background: rgba(168, 139, 250, 0.15);
+                    padding: 2px 6px;
+                    border-radius: 3px;
+                    border: 1px solid rgba(168, 139, 250, 0.3);
+                    white-space: nowrap;
+                    width: fit-content;
+                }
+
+                .creator-labels {
+                    color: var(--text-secondary);
+                    font-size: 9px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    white-space: nowrap;
+                }
+
+                .creator-items {
+                    display: flex;
+                    gap: 8px;
+                    flex-direction: column;
+                }
+
+                .collapse-toggle {
+                    cursor: pointer;
+                    color: var(--accent-cyan);
+                    font-weight: 700;
+                    user-select: none;
+                    font-size: 12px;
+                }
+                .flag-badge {
+                    display: inline-block;
+                    background: rgba(239, 68, 68, 0.15);
+                    color: var(--color-critical);
+                    padding: 2px 6px;
+                    border-radius: 3px;
+                    font-size: 9px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    border: 1px solid rgba(239, 68, 68, 0.3);
+                }
+                .flag-badge.creator {
+                    background: rgba(234, 179, 8, 0.15);
+                    color: var(--color-medium);
+                    border-color: rgba(234, 179, 8, 0.3);
+                }
+                .flag-badge.funds {
+                    background: rgba(168, 139, 250, 0.15);
+                    color: var(--accent-purple);
+                    border-color: rgba(168, 139, 250, 0.3);
+                }
+                .flag-badge.cross-funder {
+                    background: rgba(239, 68, 68, 0.25);
+                    color: #ff4444;
+                    border-color: rgba(239, 68, 68, 0.5);
+                    font-weight: 700;
+                    animation: pulse 2s infinite;
+                }
+                .flag-badge.sender {
+                    background: rgba(251, 146, 60, 0.15);
+                    color: #f97316;
+                    border-color: rgba(251, 146, 60, 0.3);
+                }
+                .flag-badge.multi-funded {
+                    background: rgba(168, 139, 250, 0.15);
+                    color: var(--accent-purple);
+                    border-color: rgba(168, 139, 250, 0.3);
+                }
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.7; }
+                }
+                .flag-badge.network {
+                    background: rgba(6, 182, 212, 0.15);
+                    color: var(--accent-cyan);
+                    border-color: rgba(6, 182, 212, 0.3);
+                }
+                .flag-badge.cex {
+                    background: rgba(34, 197, 94, 0.15);
+                    color: var(--color-low);
+                    border-color: rgba(34, 197, 94, 0.3);
+                }
+                .recipient-info-toggle {
+                    cursor: pointer;
+                    padding: 2px 4px;
+                    border-radius: 3px;
+                    font-size: 10px;
+                    color: var(--accent-cyan);
+                    border: 1px solid rgba(6, 182, 212, 0.5);
+                    background: rgba(6, 182, 212, 0.1);
+                    font-weight: 600;
+                }
+                .recipient-info-toggle:hover {
+                    background: rgba(6, 182, 212, 0.2);
+                }
+                .recipient-details {
+                    display: flex;
+                    gap: 8px;
+                    align-items: center;
+                    flex: 1;
+                    font-size: 10px;
+                }
+                .recipient-details.show {
+                    display: flex;
+                }
+                .recipient-details.collapsed {
+                    display: none;
+                }
+                .recipient-details-title {
+                    color: var(--accent-cyan);
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    white-space: nowrap;
+                }
+                .collapse-toggle {
+                    cursor: pointer;
+                    font-size: 10px;
+                    color: var(--accent-cyan);
+                    font-weight: 700;
+                    user-select: none;
+                    transition: transform 0.2s;
+                    min-width: 18px;
+                    text-align: center;
+                }
+                .recipient-details.collapsed .collapse-toggle {
+                    transform: rotate(-90deg);
+                }
+                .creator-items {
+                    display: flex;
+                    gap: 6px;
+                    align-items: center;
+                }
+                .creator-item {
+                    color: var(--accent-cyan);
+                    font-size: 10px;
+                    font-family: 'Courier New', monospace;
                 }
 
                 .chains-section {
-                    margin-top: 20px;
+                    margin-top: 25px;
                 }
                 .chain-item {
-                    background: rgba(0, 0, 0, 0.5);
-                    border: 1px solid rgba(106, 180, 255, 0.2);
-                    padding: 12px;
-                    margin-bottom: 10px;
-                    border-radius: 4px;
-                    font-size: 11px;
+                    background: var(--bg-secondary);
+                    border: 1px solid rgba(124, 58, 237, 0.2);
+                    padding: 14px;
+                    margin-bottom: 12px;
+                    border-radius: 6px;
+                    font-size: 13px;
                 }
                 .chain-flow {
-                    color: #06b6d4;
-                    margin-bottom: 8px;
+                    color: var(--accent-cyan);
+                    margin-bottom: 10px;
+                    font-weight: 600;
+                    font-family: 'Courier New', monospace;
                 }
                 .chain-details {
                     display: grid;
                     grid-template-columns: repeat(3, 1fr);
                     gap: 10px;
-                    font-size: 10px;
+                    font-size: 12px;
                 }
                 .chain-detail {
-                    background: rgba(59, 130, 246, 0.1);
-                    padding: 6px;
-                    border-radius: 2px;
-                    border-left: 2px solid #3b82f6;
+                    background: rgba(124, 58, 237, 0.1);
+                    padding: 8px 10px;
+                    border-radius: 4px;
+                    border-left: 2px solid var(--primary);
+                    border: 1px solid rgba(124, 58, 237, 0.15);
                 }
 
                 .stats-grid {
                     display: grid;
                     grid-template-columns: repeat(5, 1fr);
-                    gap: 12px;
-                    margin-top: 15px;
+                    gap: 15px;
+                    margin-top: 20px;
                 }
                 .stat-box {
-                    background: rgba(59, 130, 246, 0.1);
-                    padding: 12px;
-                    border-radius: 4px;
-                    border: 1px solid rgba(59, 130, 246, 0.3);
+                    background: var(--bg-secondary);
+                    padding: 15px;
+                    border-radius: 6px;
+                    border: 1px solid rgba(124, 58, 237, 0.2);
                     text-align: center;
                 }
-                .stat-num { font-size: 18px; color: #3b82f6; font-weight: bold; }
-                .stat-label { font-size: 10px; color: #94a3b8; margin-top: 4px; text-transform: uppercase; }
+                .stat-num { font-size: 20px; color: var(--primary); font-weight: 700; }
+                .stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 8px; text-transform: uppercase; font-weight: 600; }
 
-                .loading { text-align: center; color: #6ab4ff; padding: 40px; }
+                .loading { text-align: center; color: var(--primary); padding: 40px; font-size: 14px; }
                 .error {
-                    background: rgba(239, 68, 68, 0.1);
+                    background: rgba(239, 68, 68, 0.08);
                     border: 1px solid rgba(239, 68, 68, 0.3);
-                    color: #ef4444;
+                    border-left: 3px solid var(--color-critical);
+                    color: var(--color-critical);
                     padding: 15px;
-                    border-radius: 4px;
+                    border-radius: 6px;
                     margin-bottom: 20px;
+                    font-size: 13px;
                 }
 
                 .recent-checks-section {
                     margin-bottom: 30px;
                 }
                 .recent-checks-title {
-                    color: #fbbf24;
+                    color: var(--accent-purple);
                     font-size: 16px;
-                    font-weight: bold;
+                    font-weight: 700;
                     margin-bottom: 15px;
                     text-transform: uppercase;
+                    letter-spacing: 0.5px;
                 }
                 .recent-checks-list {
                     display: grid;
-                    gap: 10px;
+                    gap: 12px;
                 }
                 .recent-check-row {
-                    background: rgba(0, 0, 0, 0.4);
-                    border: 1px solid rgba(106, 180, 255, 0.2);
-                    border-radius: 4px;
-                    padding: 12px;
+                    background: var(--bg-secondary);
+                    border: 1px solid rgba(124, 58, 237, 0.2);
+                    border-radius: 6px;
+                    padding: 14px;
                     display: grid;
-                    grid-template-columns: 200px 1fr 100px 120px;
+                    grid-template-columns: 1fr 1fr 100px 120px;
                     gap: 15px;
                     align-items: center;
                     cursor: pointer;
                     transition: all 0.2s;
+                    min-width: 0;
                 }
                 .recent-check-row:hover {
-                    background: rgba(59, 130, 246, 0.1);
-                    border-color: rgba(106, 180, 255, 0.4);
+                    background: rgba(20, 20, 32, 1);
+                    border-color: rgba(124, 58, 237, 0.4);
                 }
                 .check-address {
-                    font-family: 'Courier New', monospace;
-                    font-size: 11px;
-                    color: #a78bfa;
+                    font-family: 'Courier New', 'Segoe UI', monospace;
+                    font-size: 12px;
+                    color: var(--accent-purple);
+                    font-weight: 500;
+                    min-width: 0;
                     word-break: break-all;
                 }
                 .check-findings {
-                    font-size: 12px;
-                    color: #e0e0e0;
+                    font-size: 13px;
+                    color: var(--text-primary);
                 }
                 .check-finding-badge {
                     display: inline-block;
-                    background: rgba(239, 68, 68, 0.2);
-                    color: #ef4444;
-                    padding: 2px 6px;
-                    border-radius: 2px;
-                    font-size: 9px;
-                    margin-right: 4px;
+                    background: rgba(239, 68, 68, 0.15);
+                    color: var(--color-critical);
+                    padding: 4px 8px;
+                    border-radius: 3px;
+                    font-size: 10px;
+                    margin-right: 6px;
+                    font-weight: 600;
                 }
                 .check-finding-badge.clean {
-                    background: rgba(34, 197, 94, 0.2);
-                    color: #22c55e;
+                    background: rgba(34, 197, 94, 0.15);
+                    color: var(--color-low);
                 }
                 .check-chains {
-                    font-size: 12px;
-                    color: #06b6d4;
+                    font-size: 13px;
+                    color: var(--accent-cyan);
                     text-align: center;
+                    font-weight: 600;
                 }
                 .check-time {
-                    font-size: 11px;
-                    color: #94a3b8;
+                    font-size: 12px;
+                    color: var(--text-secondary);
                     text-align: right;
                 }
             </style>
@@ -13912,6 +14260,7 @@ def creator_analysis_page():
                     <div class="loading">Loading creator analysis...</div>
                 </div>
             </div>
+
 
             <script>
                 // Load recent checks on page load
@@ -13979,6 +14328,10 @@ def creator_analysis_page():
                     loadCreatorAnalysis(creator);
                 }
 
+                function closeAnalysis() {
+                    loadRecentChecks();
+                }
+
                 async function searchCreator() {
                     const creator = document.getElementById('creatorInput').value.trim();
                     if (!creator) {
@@ -14010,6 +14363,9 @@ def creator_analysis_page():
                 function renderAnalysis(data) {
                     let html = `
                         <div class="creator-section">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <button class="back-btn" onclick="closeAnalysis()" style="background: rgba(124, 58, 237, 0.2); color: var(--accent-cyan); border: 1px solid rgba(124, 58, 237, 0.5); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px;">← Back to List</button>
+                            </div>
                             <div class="scan-meta">
                                 <div class="meta-item">
                                     <div class="meta-label">Creator Address</div>
@@ -14025,7 +14381,22 @@ def creator_analysis_page():
                                 </div>
                                 <div class="meta-item">
                                     <div class="meta-label">Network Membership</div>
-                                    <div class="meta-value">${data.network_name || 'None'}</div>
+                                    <div class="meta-value">
+                                        ${data.networks && data.networks.length > 0 ?
+                                            `<div style="display: flex; flex-direction: column; gap: 8px;">
+                                                ${data.networks.map(net => `
+                                                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                                        <span class="network-link" onclick="window.location='/creator-network/${encodeURIComponent(net.name)}';" style="cursor: pointer;">${net.name}</span>
+                                                        ${net.type === 'cex_connected' ? '<span style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700;">🏦 CEX</span>' : ''}
+                                                        ${net.type === 'infra_connected' ? '<span style="background: #f97316; color: white; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700;">🔧 INFRA</span>' : ''}
+                                                        ${net.type === 'mixed' ? '<span style="background: #d97706; color: white; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700;">⚠️ MIXED</span>' : ''}
+                                                        ${net.type === 'organic' ? '<span style="background: #22c55e; color: white; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700;">✓ ORGANIC</span>' : ''}
+                                                    </div>
+                                                `).join('')}
+                                            </div>`
+                                            : 'None'
+                                        }
+                                    </div>
                                 </div>
                             </div>
                     `;
@@ -14039,12 +14410,32 @@ def creator_analysis_page():
 
                         data.findings.forEach(finding => {
                             const isClean = finding.type === 'CLEAN';
+                            const isCritical = finding.type.includes('SUSPICIOUS_CROSS_FUNDING');
                             html += `
-                                <div class="finding-card ${isClean ? 'clean' : ''}">
+                                <div class="finding-card ${isClean ? 'clean' : ''} ${isCritical ? 'critical' : ''}">
                                     <span class="finding-type ${isClean ? 'clean' : ''}">${finding.type}</span>
                                     <div class="finding-details">${finding.description}</div>
             `;
-                            if (finding.networks && finding.networks.length > 0) {
+                            if (finding.networks_enriched && finding.networks_enriched.length > 0) {
+                                html += `
+                                    <div class="network-list">
+                                        ${finding.networks_enriched.map(n => {
+                                            let badge = `<div class="network-badge">${n.name}`;
+                                            if (n.type === 'cex_connected') {
+                                                badge += ' 🏦 CEX';
+                                            } else if (n.type === 'infra_connected') {
+                                                badge += ' 🔧 INFRA';
+                                            } else if (n.type === 'mixed') {
+                                                badge += ' ⚠️ MIXED';
+                                            } else if (n.type === 'organic') {
+                                                badge += ' ✓ ORGANIC';
+                                            }
+                                            badge += '</div>';
+                                            return badge;
+                                        }).join('')}
+                                    </div>
+                                `;
+                            } else if (finding.networks && finding.networks.length > 0) {
                                 html += `
                                     <div class="network-list">
                                         ${finding.networks.map(n => `<div class="network-badge">${n}</div>`).join('')}
@@ -14055,6 +14446,172 @@ def creator_analysis_page():
                         });
 
                         html += `</div>`;
+                    }
+
+                    // Incoming funders section
+                    if (data.incoming_funders && data.incoming_funders.length > 0) {
+                        html += `
+                            <div class="funders-section" style="margin-top: 25px;">
+                                <div class="findings-title">📥 Incoming Funders (Who Funded This Creator)</div>
+                                <table class="recipients-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 40%;">Funder Address</th>
+                                            <th style="width: 40%;">Details</th>
+                                            <th style="width: 20%; text-align: right;">Amount SOL</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                        `;
+
+                        data.incoming_funders.forEach((funder, idx) => {
+                            let funderInfo = `<div class="recipient-info">`;
+
+                            // Display name (CEX/INFRA) if available, otherwise address
+                            if (funder.display_name) {
+                                funderInfo += `<div class="recipient-address" style="color: var(--accent-cyan); font-weight: 600;">${funder.display_name}</div>`;
+                                funderInfo += `<div class="recipient-address" style="font-size: 10px; color: var(--text-secondary);">${funder.address}</div>`;
+                            } else {
+                                funderInfo += `<div class="recipient-address">${funder.address}</div>`;
+                            }
+
+                            if (funder.network) {
+                                funderInfo += `<div class="recipient-network">[${funder.network}]</div>`;
+                            }
+
+                            if (funder.labels && funder.labels.length > 0) {
+                                funderInfo += `<div class="recipient-labels">${funder.labels.join(' • ')}</div>`;
+                            }
+
+                            funderInfo += `</div>`;
+
+                            let detailsColumn = `<div style="font-size: 12px; color: var(--text-secondary);">${funder.transfer_count} transfer(s)</div>`;
+
+                            html += `
+                                <tr>
+                                    <td>${funderInfo}</td>
+                                    <td>${detailsColumn}</td>
+                                    <td class="recipient-amount">${(funder.amount_sol || 0).toFixed(4)} SOL</td>
+                                </tr>
+                            `;
+                        });
+
+                        html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                    }
+
+                    // Tokens created by this creator
+                    if (data.tokens && data.tokens.length > 0) {
+                        html += `
+                            <div class="tokens-section" style="margin-top: 25px;">
+                                <div class="findings-title">🪙 Tokens Created</div>
+                                <table class="recipients-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50%;">Mint Address</th>
+                                            <th style="width: 30%;">Created</th>
+                                            <th style="width: 20%; text-align: right;">Risk Level</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                        `;
+
+                        data.tokens.forEach(token => {
+                            const riskColor = token.risk_level === 'HIGH' ? 'var(--color-critical)' :
+                                            token.risk_level === 'MEDIUM' ? 'var(--color-medium)' :
+                                            'var(--color-low)';
+                            const createdDate = token.created_at ? new Date(token.created_at).toLocaleDateString() : 'N/A';
+
+                            html += `
+                                <tr>
+                                    <td style="font-family: 'Courier New', monospace; font-size: 12px; color: var(--accent-cyan); word-break: break-all;">${token.mint}</td>
+                                    <td style="color: var(--text-secondary);">${createdDate}</td>
+                                    <td style="text-align: right; color: ${riskColor}; font-weight: 600;">${token.risk_level || 'N/A'}</td>
+                                </tr>
+                            `;
+                        });
+
+                        html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                    }
+
+                    // Recipients section
+                    if (data.tokens && data.tokens.length > 0) {
+                        html += `
+                            <div class="tokens-section">
+                                <div class="findings-title">📤 Recipient Addresses & Funding Details</div>
+                        `;
+
+                        data.tokens.forEach(token => {
+                            if (!token.recipients || token.recipients.length === 0) return;
+
+                            html += `
+                                <table class="recipients-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 40%;">Recipient Address</th>
+                                            <th style="width: 50%;">Funded Creators</th>
+                                            <th style="width: 10%; text-align: right;">Amount SOL</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                            `;
+
+                            token.recipients.forEach((recipient, idx) => {
+                                // Build recipient info with labels and network
+                                let recipientInfo = `<div class="recipient-info">
+                                    <div class="recipient-address">${recipient.address}</div>`;
+
+                                if (recipient.network) {
+                                    recipientInfo += `<div class="recipient-network">[${recipient.network}]</div>`;
+                                }
+
+                                if (recipient.labels && recipient.labels.length > 0) {
+                                    recipientInfo += `<div class="recipient-labels">${recipient.labels.join(' • ')}</div>`;
+                                }
+
+                                recipientInfo += `</div>`;
+
+                                // Build funded creators column
+                                let creatorsColumn = '-';
+                                if (recipient.funded_creators && recipient.funded_creators.length > 0) {
+                                    creatorsColumn = recipient.funded_creators.map(c => {
+                                        let creatorHtml = `<div class="funded-creator-row">
+                                            <div class="funded-creator-address">${c.address}</div>`;
+
+                                        if (c.network) {
+                                            creatorHtml += `<div class="creator-network">[${c.network}]</div>`;
+                                        }
+
+                                        creatorHtml += `</div>`;
+                                        return creatorHtml;
+                                    }).join('');
+                                }
+
+                                html += `
+                                    <tr>
+                                        <td>${recipientInfo}</td>
+                                        <td>${creatorsColumn}</td>
+                                        <td class="recipient-amount">${recipient.amount_sol.toFixed(4)} SOL</td>
+                                    </tr>
+                                `;
+                            });
+
+                            html += `
+                                    </tbody>
+                                </table>
+                            `;
+                        });
+
+                        html += `
+                            </div>
+                        `;
                     }
 
                     // Funding chains section
@@ -14068,7 +14625,7 @@ def creator_analysis_page():
                             html += `
                                 <div class="chain-item">
                                     <div class="chain-flow">
-                                        ${chain.source_creator.substring(0, 8)}... → ${chain.bridge_funder.substring(0, 8)}... → ${chain.target_creator.substring(0, 8)}...
+                                        ${chain.source_creator} → ${chain.bridge_funder} → ${chain.target_creator}
                                     </div>
                                     <div class="chain-details">
                                         <div class="chain-detail">
@@ -14104,7 +14661,7 @@ def creator_analysis_page():
                                 <div class="stat-label">Coordinated Edges</div>
                             </div>
                             <div class="stat-box">
-                                <div class="stat-num">${data.total_sol_sent.toFixed(1)}</div>
+                                <div class="stat-num">${(data.total_sol_sent || 0).toFixed(1)}</div>
                                 <div class="stat-label">SOL Sent</div>
                             </div>
                             <div class="stat-box">
@@ -14150,7 +14707,12 @@ def api_creator_outgoing_analysis(creator_address: str):
             FROM creator_outgoing_transfers
             WHERE creator_address = ?
         """, (creator_address,))
-        transfers = cursor.fetchone()
+        row = cursor.fetchone()
+        transfers = {
+            'count': row['count'] if row else 0,
+            'total_sol': row['total_sol'] if row else 0,
+            'unique_recipients': row['unique_recipients'] if row else 0
+        }
 
         # Get funding chains where this creator is the source
         cursor.execute("""
@@ -14173,18 +14735,326 @@ def api_creator_outgoing_analysis(creator_address: str):
         """, (creator_address, creator_address))
         coordinated_edges = cursor.fetchall()
 
-        # Get network membership
+        # Get ALL network memberships for this creator (both primary and as connected creator)
+        all_networks = []
+
+        # 1. Direct membership (creator_address is the primary creator)
         cursor.execute("""
             SELECT network_name FROM creator_networks
             WHERE creator_address = ?
         """, (creator_address,))
-        network_row = cursor.fetchone()
-        network_name = network_row['network_name'] if network_row else None
+        for row in cursor.fetchall():
+            all_networks.append(row['network_name'])
+
+        # 2. Membership as connected creator (creator_address in connected_creators JSON)
+        cursor.execute("""
+            SELECT network_name, connected_creators FROM creator_networks
+            WHERE connected_creators LIKE ?
+        """, (f'%{creator_address}%',))
+        for row in cursor.fetchall():
+            try:
+                connected = json.loads(row['connected_creators'])
+                if creator_address in connected and row['network_name'] not in all_networks:
+                    all_networks.append(row['network_name'])
+            except:
+                pass
+
+        # 3. Membership via funders (creator's funders are primary creators in a network)
+        if not all_networks:
+            cursor.execute("""
+                SELECT DISTINCT cn.network_name
+                FROM creator_networks cn
+                WHERE cn.creator_address IN (
+                    SELECT DISTINCT funder_address FROM creator_funders
+                    WHERE creator_address = ?
+                )
+            """, (creator_address,))
+            for row in cursor.fetchall():
+                if row['network_name'] not in all_networks:
+                    all_networks.append(row['network_name'])
+
+        # 4. Membership in creator-to-creator networks (organic networks for direct transfers)
+        cursor.execute("""
+            SELECT DISTINCT network_name FROM creator_to_creator_networks
+            WHERE creator_address = ?
+        """, (creator_address,))
+        for row in cursor.fetchall():
+            if row['network_name'] not in all_networks:
+                all_networks.append(row['network_name'])
+
+        # Get CEX/INFRA types for all networks
+        networks_with_types = []
+        for net_name in all_networks:
+            cursor.execute("""
+                SELECT network_type
+                FROM network_cex_infra_flags
+                WHERE network_name = ?
+            """, (net_name,))
+            net_type_row = cursor.fetchone()
+            net_type = net_type_row['network_type'] if net_type_row else None
+            networks_with_types.append({
+                'name': net_name,
+                'type': net_type
+            })
+
+        # For backward compatibility, keep single network_name and network_type for primary network
+        network_name = all_networks[0] if all_networks else None
+        network_type = networks_with_types[0]['type'] if networks_with_types else None
+
+        # Get self-funding data from stored calculations
+        cursor.execute("""
+            SELECT self_funding_percentage, self_funding_intermediates, total_funders, is_self_funding
+            FROM creator_self_funding
+            WHERE creator_address = ?
+        """, (creator_address,))
+        self_funding_row = cursor.fetchone()
+        self_funding_percentage = self_funding_row['self_funding_percentage'] if self_funding_row else 0
+        self_funding_intermediates = self_funding_row['self_funding_intermediates'] if self_funding_row else 0
+        total_funders = self_funding_row['total_funders'] if self_funding_row else 0
+        is_self_funding = self_funding_row['is_self_funding'] if self_funding_row else 0
+
+        # Get incoming funders (who funded this creator)
+        cursor.execute("""
+            SELECT
+                funder_address,
+                SUM(amount_sol) as total_amount,
+                COUNT(*) as transfer_count
+            FROM creator_funders
+            WHERE creator_address = ?
+            GROUP BY funder_address
+            ORDER BY total_amount DESC
+        """, (creator_address,))
+        incoming_funders = cursor.fetchall()
+
+        # Enrich funders with their details
+        funders_with_info = []
+        for funder in incoming_funders:
+            funder_info = {
+                'address': funder['funder_address'],
+                'amount_sol': funder['total_amount'],
+                'transfer_count': funder['transfer_count'],
+                'labels': [],
+                'network': None,
+                'display_name': None
+            }
+
+            # Check if funder is a CEX wallet
+            cursor.execute("SELECT exchange_name, wallet_type FROM cex_wallets WHERE cex_address = ?", (funder['funder_address'],))
+            cex_row = cursor.fetchone()
+            if cex_row and cex_row['exchange_name']:
+                funder_info['display_name'] = f"{cex_row['exchange_name']} ({cex_row['wallet_type']})"
+                funder_info['labels'].append('CEX')
+
+            # Check for address labels (infrastructure, services, etc.)
+            cursor.execute("SELECT label_name, category FROM address_labels WHERE address = ?", (funder['funder_address'],))
+            label_row = cursor.fetchone()
+            if label_row and label_row['label_name']:
+                # If we don't have a display name yet, use the label
+                if not funder_info['display_name']:
+                    funder_info['display_name'] = label_row['label_name']
+                # Add category if it's an infrastructure/service type
+                if label_row['category'] and label_row['category'].upper() in ['INFRASTRUCTURE', 'SERVICE', 'BRIDGE', 'DEX', 'ROUTER']:
+                    if 'INFRA' not in funder_info['labels']:
+                        funder_info['labels'].append(f'INFRA({label_row["category"]})')
+
+            # Check if funder is a creator
+            cursor.execute("SELECT COUNT(*) as count FROM token_analysis WHERE earliest_tx_creator = ?", (funder['funder_address'],))
+            r = cursor.fetchone()
+            if r and r['count'] > 0:
+                funder_info['labels'].append(f'CREATOR({r["count"]})')
+
+            # Check if funder funds other creators
+            cursor.execute("SELECT COUNT(DISTINCT creator_address) as count FROM creator_funders WHERE funder_address = ?", (funder['funder_address'],))
+            r = cursor.fetchone()
+            if r and r['count'] > 1:
+                funder_info['labels'].append(f'MULTI_CREATOR_FUNDER({r["count"]})')
+
+            # Check if funder is in a network
+            cursor.execute("SELECT network_name FROM creator_networks WHERE creator_address = ?", (funder['funder_address'],))
+            net = cursor.fetchone()
+            if net:
+                funder_info['network'] = net['network_name']
+
+            funders_with_info.append(funder_info)
+
+        # Get tokens created by this creator with their SOL funding info
+        cursor.execute("""
+            SELECT
+                ta.mint,
+                ta.created_at,
+                ta.price_current,
+                ta.market_cap_current,
+                ta.risk_level
+            FROM token_analysis ta
+            WHERE ta.earliest_tx_creator = ?
+            ORDER BY ta.created_at DESC
+            LIMIT 50
+        """, (creator_address,))
+        tokens = cursor.fetchall()
+
+        # For each token, get the outgoing transfers and recipient addresses
+        tokens_with_transfers = []
+        for token in tokens:
+            cursor.execute("""
+                SELECT
+                    cot.recipient_address,
+                    SUM(cot.amount_sol) as amount_sol
+                FROM creator_outgoing_transfers cot
+                WHERE cot.creator_address = ?
+                GROUP BY cot.recipient_address
+                ORDER BY amount_sol DESC
+            """, (creator_address,))
+            recipients = cursor.fetchall()
+
+            # Flag each recipient if it appears elsewhere in the system
+            recipients_with_flags = []
+            for recipient in recipients:
+                recipient_labels = []
+                funded_creators_data = []
+
+                # Check what role the RECIPIENT ADDRESS itself plays
+                # 1. Is it a CREATOR (has created tokens)?
+                cursor.execute("SELECT COUNT(*) as count FROM token_analysis WHERE earliest_tx_creator = ?", (recipient['recipient_address'],))
+                r = cursor.fetchone()
+                creator_token_count = r['count'] if r else 0
+                if creator_token_count > 0:
+                    recipient_labels.append(f'CREATOR({creator_token_count})')
+
+                # 2. Is it a FUNDER (funds creators)?
+                cursor.execute("SELECT COUNT(DISTINCT creator_address) as count FROM creator_funders WHERE funder_address = ?", (recipient['recipient_address'],))
+                r = cursor.fetchone()
+                funder_creator_count = r['count'] if r else 0
+                if funder_creator_count > 0:
+                    recipient_labels.append(f'FUNDER({funder_creator_count})')
+
+                # 3. Is it a SENDER (sends SOL to other addresses)?
+                cursor.execute("SELECT COUNT(DISTINCT recipient_address) as count FROM creator_outgoing_transfers WHERE creator_address = ?", (recipient['recipient_address'],))
+                r = cursor.fetchone()
+                sender_count = r['count'] if r else 0
+                if sender_count > 0:
+                    recipient_labels.append(f'SENDER({sender_count})')
+
+                # 4. Is it MULTI_FUNDED (funded by multiple sources)?
+                cursor.execute("SELECT COUNT(DISTINCT funder_address) as count FROM creator_funders WHERE creator_address = ?", (recipient['recipient_address'],))
+                r = cursor.fetchone()
+                multi_funder_count = r['count'] if r else 0
+                if multi_funder_count > 1:
+                    recipient_labels.append(f'MULTI_FUNDED({multi_funder_count})')
+
+                # 5. Is it a CEX wallet?
+                cursor.execute("SELECT COUNT(*) as count FROM cex_wallets WHERE cex_address = ?", (recipient['recipient_address'],))
+                r = cursor.fetchone()
+                if r and r['count'] > 0:
+                    recipient_labels.append('CEX')
+
+                # Check if recipient is in a network
+                recipient_network = None
+                cursor.execute("SELECT network_name FROM creator_networks WHERE creator_address = ?", (recipient['recipient_address'],))
+                network = cursor.fetchone()
+                if network:
+                    recipient_network = network['network_name']
+
+                # Get details about funded creators
+                cursor.execute("SELECT DISTINCT creator_address FROM creator_funders WHERE funder_address = ?", (recipient['recipient_address'],))
+                funded = cursor.fetchall()
+                if funded:
+                    funded_creators = [f['creator_address'] for f in funded]
+
+                    # For each funded creator, get enriched details
+                    for fc in funded_creators:
+                        creator_info = {'address': fc, 'labels': []}
+
+                        # Check if funded creator is in a network
+                        cursor.execute("SELECT network_name FROM creator_networks WHERE creator_address = ?", (fc,))
+                        net = cursor.fetchone()
+                        if net:
+                            creator_info['network'] = net['network_name']
+
+                        # Check if funded creator has created tokens
+                        cursor.execute("SELECT COUNT(*) as count FROM token_analysis WHERE earliest_tx_creator = ?", (fc,))
+                        r = cursor.fetchone()
+                        token_count = r['count'] if r else 0
+                        if token_count > 0:
+                            creator_info['labels'].append(f'CREATOR({token_count})')
+
+                        # Check if funded creator sends SOL to other funders/creators
+                        cursor.execute("SELECT COUNT(DISTINCT recipient_address) as count FROM creator_outgoing_transfers WHERE creator_address = ?", (fc,))
+                        r = cursor.fetchone()
+                        outgoing_count = r['count'] if r else 0
+                        if outgoing_count > 0:
+                            creator_info['labels'].append(f'SENDER({outgoing_count})')
+
+                        # Check if funded creator receives from multiple funders
+                        cursor.execute("SELECT COUNT(DISTINCT funder_address) as count FROM creator_funders WHERE creator_address = ?", (fc,))
+                        r = cursor.fetchone()
+                        funder_count = r['count'] if r else 0
+                        if funder_count > 1:
+                            creator_info['labels'].append(f'MULTI_FUNDED({funder_count})')
+
+                        funded_creators_data.append(creator_info)
+
+                recipients_with_flags.append({
+                    'address': recipient['recipient_address'],
+                    'amount_sol': recipient['amount_sol'],
+                    'labels': recipient_labels,
+                    'network': recipient_network,
+                    'funded_creators': funded_creators_data
+                })
+
+            tokens_with_transfers.append({
+                'token': token,
+                'recipients': recipients_with_flags
+            })
+
+        # Check for circular funding BEFORE closing connection
+        cursor.execute("""
+            SELECT COUNT(*) as count FROM creator_outgoing_transfers cot
+            WHERE cot.creator_address = ?
+            AND cot.recipient_address IN (
+                SELECT funder_address FROM creator_funders
+                WHERE creator_address = ?
+            )
+        """, (creator_address, creator_address))
+        circular_result = cursor.fetchone()
+        has_circular_funding = circular_result['count'] > 0 if circular_result else False
 
         conn.close()
 
         # Build findings
         findings = []
+
+        # Check for cross-funder activity and multi-funder recipients
+        cross_funder_count = 0
+        multi_funded_count = 0
+        funds_count = 0
+        sender_count = 0
+
+        for token_data in tokens_with_transfers:
+            for recipient in token_data['recipients']:
+                flags = recipient.get('flags', [])
+                for flag in flags:
+                    if 'CROSS_FUNDER' in str(flag):
+                        cross_funder_count += 1
+                    elif 'MULTI_FUNDED' in str(flag):
+                        multi_funded_count += 1
+                    elif 'FUNDS_' in str(flag) and 'CROSS' not in str(flag):
+                        funds_count += 1
+                    elif 'SENDER_' in str(flag):
+                        sender_count += 1
+
+        if cross_funder_count > 0:
+            findings.append({
+                'type': '🚨 SUSPICIOUS_CROSS_FUNDING',
+                'description': f'CRITICAL: Detected {cross_funder_count} recipient address(es) that also fund OTHER different creators. This indicates potential coordinated manipulation or hidden funding networks.',
+                'networks': [network_name] if network_name else []
+            })
+
+        if funds_count > 0 or multi_funded_count > 0:
+            findings.append({
+                'type': '⚠️ FUNDER_ROUTING',
+                'description': f'This creator sends SOL to {funds_count} funder address(es) that also fund other creators, and {multi_funded_count} address(es) funded by multiple sources. Possible coordinated network activity.',
+                'networks': [network_name] if network_name else []
+            })
 
         if funding_chains:
             affected_networks = set()
@@ -14193,6 +15063,7 @@ def api_creator_outgoing_analysis(creator_address: str):
 
             # Find networks of target creators
             conn = sqlite3.connect(DB_PATH, timeout=5)
+            conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             for chain in funding_chains:
                 cursor.execute("""
@@ -14217,24 +15088,107 @@ def api_creator_outgoing_analysis(creator_address: str):
                 'networks': [network_name] if network_name else []
             })
 
+        # Check for distribution pattern: isolated funders + broad recipient distribution
+        # Pattern: small group of funders (all only fund this creator) sending to many unrelated recipients
+        if (len(incoming_funders) > 0 and transfers['count'] > 0 and
+            len(incoming_funders) <= 10 and transfers['unique_recipients'] > len(incoming_funders) * 1.5):
+            # Check if most incoming funders only fund this creator (isolated group)
+            isolated_funders = sum(1 for f in incoming_funders for _ in [True])  # All in incoming_funders are isolated
+            if isolated_funders >= 5:  # At least 5 isolated funders
+                findings.append({
+                    'type': '⚠️ DISTRIBUTION_PATTERN',
+                    'description': f'Creator receives from {len(incoming_funders)} isolated funders (only support this creator) but distributes to {transfers["unique_recipients"]} separate addresses. Pattern suggests fund distribution/intermediary activity rather than organic token creation support.',
+                    'networks': []
+                })
+
+        # Check for self-funding WITH circular funding (creator sends money back to funders)
+        # Only flag as SELF-FUNDING SCHEME if we see circular money flow
+        if is_self_funding and self_funding_intermediates > 0:
+            if self_funding_percentage >= 50 and has_circular_funding:  # If 50%+ of funders only fund this creator AND money flows back
+                findings.insert(0, {
+                    'type': '🚩 SELF-FUNDING SCHEME',
+                    'description': f'{int(self_funding_percentage)}% of this creator\'s funders ({self_funding_intermediates}/{total_funders}) only fund them, AND the creator sends money back to these funders. Circular funding pattern proves self-funding through intermediaries.',
+                    'networks': []
+                })
+
         if not findings:
+            # If creator is in a network, that's NOT clean
+            if network_name:
+                findings.append({
+                    'type': '⚠️ NETWORK_MEMBER',
+                    'description': f'Creator is part of the "{network_name}" coordinated funding network. Part of larger coordinated structure.',
+                    'networks': [network_name]
+                })
+            else:
+                findings.append({
+                    'type': 'CLEAN',
+                    'description': 'No suspicious activity detected. Creator operates independently.',
+                    'networks': []
+                })
+
+        # Always check if this address received SOL (is a recipient/funder)
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(DISTINCT creator_address) as count FROM creator_outgoing_transfers WHERE recipient_address = ?", (creator_address,))
+        result = cursor.fetchone()
+        received_from_count = result['count'] if result else 0
+        conn.close()
+
+        if received_from_count > 0 and not any('RECIPIENT' in f.get('type', '') for f in findings):
+            # Add recipient finding if not already added
             findings.append({
-                'type': 'CLEAN',
-                'description': 'No suspicious funding chains detected. Creator operates independently.',
-                'networks': [network_name] if network_name else []
+                'type': 'ℹ️ RECIPIENT',
+                'description': f'This address received SOL from {received_from_count} creator(s). It functions as a recipient/intermediate address in the funding network.',
+                'networks': []
             })
+
+        # Enrich findings with network type information
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        for finding in findings:
+            if finding['networks']:
+                enriched_networks = []
+                for net_name in finding['networks']:
+                    cursor.execute("""
+                        SELECT network_type FROM network_cex_infra_flags
+                        WHERE network_name = ?
+                    """, (net_name,))
+                    net_type_row = cursor.fetchone()
+                    net_type = net_type_row['network_type'] if net_type_row else None
+                    enriched_networks.append({
+                        'name': net_name,
+                        'type': net_type
+                    })
+                finding['networks_enriched'] = enriched_networks
+        conn.close()
 
         return jsonify({
             'creator_address': creator_address,
             'last_scanned': last_scanned,
             'scan_status': 'Recently scanned' if last_scanned else 'Not yet scanned',
             'network_name': network_name,
-            'outgoing_transfer_count': transfers['count'] or 0,
-            'total_sol_sent': transfers['total_sol'] or 0,
-            'unique_recipients': transfers['unique_recipients'] or 0,
+            'network_type': network_type,
+            'networks': networks_with_types,
+            'outgoing_transfer_count': transfers['count'] if transfers else 0,
+            'total_sol_sent': transfers['total_sol'] if transfers else 0,
+            'unique_recipients': transfers['unique_recipients'] if transfers else 0,
+            'incoming_funders': funders_with_info,
             'funding_chain_count': len(funding_chains),
             'coordinated_edge_count': len(coordinated_edges),
             'findings': findings,
+            'tokens': [
+                {
+                    'mint': t['token']['mint'],
+                    'created_at': t['token']['created_at'],
+                    'price_current': t['token']['price_current'],
+                    'market_cap_current': t['token']['market_cap_current'],
+                    'risk_level': t['token']['risk_level'],
+                    'recipients': t['recipients']
+                }
+                for t in tokens_with_transfers
+            ],
             'funding_chains': [
                 {
                     'source_creator': fc['source_creator'],
@@ -14248,7 +15202,273 @@ def api_creator_outgoing_analysis(creator_address: str):
             ]
         })
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        print(f"ERROR in api_creator_outgoing_analysis: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
+
+
+@app.route('/api/scan-creator/<creator_address>', methods=['POST'])
+def api_scan_creator(creator_address: str):
+    """Trigger extraction for a specific creator"""
+    try:
+        import asyncio
+        import sys
+        import os
+        import datetime
+
+        # Import the extraction module
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from creator_outgoing_extractor import (
+            rpc_get_signatures, helius_enhanced_parse, extract_outgoing_sol,
+            detect_and_update_networks_from_outgoing, calculate_and_store_self_funding
+        )
+
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Get current cursor position for this creator
+        cursor.execute("""
+            SELECT last_signature, last_slot FROM creator_sig_cursors
+            WHERE creator_address = ?
+        """, (creator_address,))
+        cursor_row = cursor.fetchone()
+        last_sig = cursor_row['last_signature'] if cursor_row else None
+        last_slot = cursor_row['last_slot'] if cursor_row else None
+
+        # Run async extraction
+        async def extract():
+            import aiohttp
+            async with aiohttp.ClientSession() as session:
+                # Get signatures for this creator
+                sigs = await rpc_get_signatures(session, creator_address, limit=25)
+
+                # Filter for fresh signatures
+                fresh_sigs = []
+                newest_sig = None
+                newest_slot = None
+
+                for item in sigs:
+                    s = item.get("signature")
+                    if not s:
+                        continue
+
+                    if newest_sig is None:
+                        newest_sig = s
+                        newest_slot = item.get("slot")
+
+                    if last_sig and s == last_sig:
+                        break
+
+                    if item.get("err") is None:
+                        fresh_sigs.append(s)
+
+                if not fresh_sigs:
+                    return {"status": "no_new_transfers", "fresh_sigs": 0}
+
+                # Parse signatures
+                parsed = await helius_enhanced_parse(session, fresh_sigs)
+
+                # Extract outgoing SOL transfers
+                transfers = extract_outgoing_sol(parsed, {creator_address})
+
+                if transfers:
+                    # Write transfers to database
+                    cursor.executemany("""
+                        INSERT OR IGNORE INTO creator_outgoing_transfers
+                        (creator_address, recipient_address, amount_sol, transaction_signature, slot, block_time)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    """, transfers)
+                    conn.commit()
+
+                # Update cursor
+                if newest_sig:
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO creator_sig_cursors
+                        (creator_address, last_signature, last_slot, updated_at)
+                        VALUES (?, ?, ?, ?)
+                    """, (creator_address, newest_sig, newest_slot, datetime.datetime.utcnow().isoformat()))
+                    conn.commit()
+
+                return {"status": "success", "transfers_found": len(transfers), "fresh_sigs": len(fresh_sigs)}
+
+        # Run the async extraction
+        result = asyncio.run(extract())
+
+        # Run network detection and self-funding calculation
+        detect_and_update_networks_from_outgoing()
+        calculate_and_store_self_funding()
+
+        # Log creator-to-creator transfers and detect CEX/INFRA connections
+        log_creator_to_creator_transfers(creator_address, conn)
+        detect_network_cex_infra_connections()
+
+        conn.close()
+
+        return jsonify({
+            'status': 'completed',
+            'creator_address': creator_address,
+            'extraction_result': result
+        })
+
+    except Exception as e:
+        import traceback
+        print(f"ERROR in api_scan_creator: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
+
+
+def log_creator_to_creator_transfers(source_creator: str, conn):
+    """Log transfers where source creator funds other creators"""
+    try:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Get all outgoing transfers from this creator
+        cursor.execute("""
+            SELECT cot.recipient_address, cot.amount_sol, cot.transaction_signature, cot.block_time,
+                   cn.network_name
+            FROM creator_outgoing_transfers cot
+            LEFT JOIN creator_networks cn ON cot.recipient_address = cn.creator_address
+            WHERE cot.creator_address = ?
+        """, (source_creator,))
+
+        transfers = cursor.fetchall()
+
+        for transfer in transfers:
+            recipient = transfer['recipient_address']
+
+            # Check if recipient is a creator
+            cursor.execute("SELECT COUNT(*) as count FROM token_analysis WHERE earliest_tx_creator = ?", (recipient,))
+            is_creator = cursor.fetchone()['count'] > 0
+
+            if is_creator:
+                # Get source creator's network
+                cursor.execute("SELECT network_name FROM creator_networks WHERE creator_address = ?", (source_creator,))
+                source_network_row = cursor.fetchone()
+                source_network = source_network_row['network_name'] if source_network_row else None
+
+                # Get target creator's network
+                target_network = transfer['network_name']
+
+                # Log the creator-to-creator transfer
+                cursor.execute("""
+                    INSERT OR IGNORE INTO creator_to_creator_transfers
+                    (source_creator, target_creator, amount_sol, transaction_signature, block_time,
+                     source_network, target_network)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, (source_creator, recipient, transfer['amount_sol'], transfer['transaction_signature'],
+                      transfer['block_time'], source_network, target_network))
+
+        conn.commit()
+    except Exception as e:
+        print(f"Error logging creator-to-creator transfers: {str(e)}")
+
+
+def detect_network_cex_infra_connections():
+    """Detect and flag networks that have CEX or INFRA funders"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Get all networks from both creator_networks and creator_to_creator_networks
+        cursor.execute("""
+            SELECT DISTINCT network_name FROM creator_networks WHERE network_name IS NOT NULL
+            UNION
+            SELECT DISTINCT network_name FROM creator_to_creator_networks
+        """)
+        networks = cursor.fetchall()
+
+        for network_row in networks:
+            network_name = network_row['network_name']
+
+            # Get all creators in this network
+            creators_in_network = set()
+
+            # From creator_networks (for traditional networks with primary + connected)
+            cursor.execute("""
+                SELECT creator_address, connected_creators FROM creator_networks
+                WHERE network_name = ?
+            """, (network_name,))
+            network_data = cursor.fetchone()
+
+            if network_data:
+                creators_in_network.add(network_data['creator_address'])
+                if network_data['connected_creators']:
+                    try:
+                        connected = json.loads(network_data['connected_creators'])
+                        creators_in_network.update(connected)
+                    except:
+                        pass
+
+            # From creator_to_creator_networks (for organic creator-to-creator networks)
+            cursor.execute("""
+                SELECT creator_address FROM creator_to_creator_networks
+                WHERE network_name = ?
+            """, (network_name,))
+            c2c_creators = cursor.fetchall()
+            for row in c2c_creators:
+                creators_in_network.add(row['creator_address'])
+
+            if not creators_in_network:
+                continue
+
+            # Check which funders are CEX or INFRA
+            cex_funders = []
+            infra_funders = []
+
+            for creator in creators_in_network:
+                # Get funders for this creator
+                cursor.execute("""
+                    SELECT DISTINCT funder_address FROM creator_funders WHERE creator_address = ?
+                """, (creator,))
+                funders = cursor.fetchall()
+
+                for funder_row in funders:
+                    funder = funder_row['funder_address']
+
+                    # Check if CEX
+                    cursor.execute("SELECT COUNT(*) as count FROM cex_wallets WHERE cex_address = ?", (funder,))
+                    if cursor.fetchone()['count'] > 0:
+                        cex_funders.append(funder)
+
+                    # Check if INFRA
+                    cursor.execute("SELECT COUNT(*) as count FROM address_labels WHERE address = ? AND category IN ('INFRASTRUCTURE', 'SERVICE', 'BRIDGE')", (funder,))
+                    if cursor.fetchone()['count'] > 0:
+                        infra_funders.append(funder)
+
+            # Determine network type
+            # CreatorTransfer networks are always organic by definition (direct creator-to-creator transfers)
+            if network_name.startswith('CreatorTransfer_'):
+                network_type = 'organic'
+            else:
+                has_cex = len(cex_funders) > 0
+                has_infra = len(infra_funders) > 0
+
+                if has_cex and has_infra:
+                    network_type = 'mixed'
+                elif has_cex:
+                    network_type = 'cex_connected'
+                elif has_infra:
+                    network_type = 'infra_connected'
+                else:
+                    network_type = 'organic'
+
+            # Update network flags
+            cursor.execute("""
+                INSERT OR REPLACE INTO network_cex_infra_flags
+                (network_name, has_cex_funder, has_infra_funder, cex_funder_addresses,
+                 infra_funder_addresses, network_type)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (network_name, 1 if has_cex else 0, 1 if has_infra else 0,
+                  json.dumps(list(set(cex_funders))), json.dumps(list(set(infra_funders))), network_type))
+
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Error detecting network CEX/INFRA connections: {str(e)}")
 
 
 @app.route('/api/creator-recent-checks')
@@ -14268,6 +15488,7 @@ def api_creator_recent_checks():
             FROM creator_sig_cursors csc
             LEFT JOIN funding_chains fc ON fc.source_creator = csc.creator_address
             WHERE csc.updated_at IS NOT NULL
+            GROUP BY csc.creator_address, csc.updated_at
             ORDER BY csc.updated_at DESC
             LIMIT 15
         """)
@@ -14277,26 +15498,114 @@ def api_creator_recent_checks():
         for row in recent:
             creator = row['creator_address']
 
-            # Get findings for this creator
+            # Get network membership
             cursor.execute("""
-                SELECT COUNT(*) as chain_count FROM funding_chains
+                SELECT network_name FROM creator_networks
+                WHERE creator_address = ?
+            """, (creator,))
+            network_row = cursor.fetchone()
+            network_name = network_row['network_name'] if network_row else None
+
+            # Get funding chains
+            cursor.execute("""
+                SELECT COUNT(*) as count FROM funding_chains
                 WHERE source_creator = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'
             """, (creator,))
             chain_result = cursor.fetchone()
-            chain_count = chain_result['chain_count'] if chain_result else 0
+            chain_count = chain_result['count'] if chain_result else 0
 
+            # Get coordinated edges
             cursor.execute("""
-                SELECT COUNT(*) as edge_count FROM coordinated_creator_edges
+                SELECT COUNT(*) as count FROM coordinated_creator_edges
                 WHERE creator_a = ? OR creator_b = ?
             """, (creator, creator))
             edge_result = cursor.fetchone()
-            edge_count = edge_result['edge_count'] if edge_result else 0
+            edge_count = edge_result['count'] if edge_result else 0
 
+            # Check for cross-funder activity in outgoing transfers
+            cursor.execute("""
+                SELECT COUNT(DISTINCT recipient_address) as count
+                FROM creator_outgoing_transfers
+                WHERE creator_address = ?
+                AND recipient_address IN (
+                    SELECT funder_address FROM creator_funders
+                    WHERE creator_address != ?
+                )
+            """, (creator, creator))
+            cross_funder_result = cursor.fetchone()
+            cross_funder_count = cross_funder_result['count'] if cross_funder_result else 0
+
+            # Check for funder routing (recipients that fund other creators)
+            cursor.execute("""
+                SELECT COUNT(DISTINCT cot.recipient_address) as count
+                FROM creator_outgoing_transfers cot
+                WHERE cot.creator_address = ?
+                AND cot.recipient_address IN (
+                    SELECT funder_address FROM creator_funders
+                    WHERE creator_address != ?
+                )
+            """, (creator, creator))
+            funder_routing_result = cursor.fetchone()
+            funder_routing_count = funder_routing_result['count'] if funder_routing_result else 0
+
+            # Get self-funding data from stored calculations
+            cursor.execute("""
+                SELECT self_funding_percentage, is_self_funding
+                FROM creator_self_funding
+                WHERE creator_address = ?
+            """, (creator,))
+            self_funding_row = cursor.fetchone()
+            self_funding_percentage = self_funding_row['self_funding_percentage'] if self_funding_row else 0
+            is_self_funding = self_funding_row['is_self_funding'] if self_funding_row else 0
+
+            # Check for distribution pattern
+            cursor.execute("""
+                SELECT COUNT(DISTINCT funder_address) as funder_count FROM creator_funders
+                WHERE creator_address = ?
+            """, (creator,))
+            funder_count_result = cursor.fetchone()
+            funder_count = funder_count_result['funder_count'] if funder_count_result else 0
+
+            cursor.execute("""
+                SELECT COUNT(DISTINCT recipient_address) as recipient_count FROM creator_outgoing_transfers
+                WHERE creator_address = ?
+            """, (creator,))
+            recipient_count_result = cursor.fetchone()
+            recipient_count = recipient_count_result['recipient_count'] if recipient_count_result else 0
+
+            # Check for circular funding (creator sends back to funders)
+            cursor.execute("""
+                SELECT COUNT(*) as count FROM creator_outgoing_transfers cot
+                WHERE cot.creator_address = ?
+                AND cot.recipient_address IN (
+                    SELECT funder_address FROM creator_funders
+                    WHERE creator_address = ?
+                )
+            """, (creator, creator))
+            circular_result = cursor.fetchone()
+            has_circular_funding = circular_result['count'] > 0 if circular_result else False
+
+            # Distribution pattern: small isolated funder group + broad recipient distribution
+            has_distribution_pattern = (funder_count > 0 and recipient_count > 0 and
+                                       funder_count <= 10 and recipient_count > funder_count * 1.5 and
+                                       is_self_funding)  # Only flag if self-funded
+
+            # Build findings
             findings = []
+            if is_self_funding and has_circular_funding:
+                findings.append('🚩 SELF-FUNDING SCHEME')
+            if has_distribution_pattern:
+                findings.append('⚠️ DISTRIBUTION_PATTERN')
+            if cross_funder_count > 0:
+                findings.append('🚨 SUSPICIOUS_CROSS_FUNDING')
+            if funder_routing_count > 0 or (cross_funder_count == 0 and funder_routing_count > 0):
+                findings.append('⚠️ FUNDER_ROUTING')
             if chain_count > 0:
                 findings.append('CREATOR_FUNDING_CHAIN')
             if edge_count > 0:
                 findings.append('COORDINATED_FUNDING')
+            if network_name:
+                findings.append('⚠️ NETWORK_MEMBER')
             if not findings:
                 findings.append('CLEAN')
 
@@ -14314,6 +15623,308 @@ def api_creator_recent_checks():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/creator-network/<network_name>')
+
+def creator_network_page(network_name: str):
+    """Display creator network details and members separated by role"""
+    try:
+        # URL decode the network name if needed
+        from urllib.parse import unquote
+        network_name = unquote(network_name)
+        
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Get network info
+        # First try creator_networks (traditional networks)
+        cursor.execute("""
+            SELECT
+                creator_address,
+                connected_creators,
+                network_size,
+                network_risk_level,
+                updated_at
+            FROM creator_networks
+            WHERE network_name = ?
+            LIMIT 1
+        """, (network_name,))
+        network_row = cursor.fetchone()
+
+        # If not found, check if it's a CreatorTransfer network
+        is_creator_transfer = False
+        if not network_row and network_name.startswith('CreatorTransfer_'):
+            is_creator_transfer = True
+            # For CreatorTransfer networks, get creators from creator_to_creator_networks
+            cursor.execute("""
+                SELECT creator_address FROM creator_to_creator_networks
+                WHERE network_name = ?
+            """, (network_name,))
+            c2c_creators = cursor.fetchall()
+            if c2c_creators:
+                # Create a virtual network_row for display
+                primary_creator = c2c_creators[0]['creator_address']
+                connected_creators = [c['creator_address'] for c in c2c_creators[1:]]
+                network_row = {
+                    'creator_address': primary_creator,
+                    'connected_creators': json.dumps(connected_creators),
+                    'network_size': len(c2c_creators),
+                    'network_risk_level': 'HIGH',
+                    'updated_at': ''
+                }
+
+        # Get CEX/INFRA info for this network
+        cursor.execute("""
+            SELECT network_type, has_cex_funder, has_infra_funder
+            FROM network_cex_infra_flags
+            WHERE network_name = ?
+        """, (network_name,))
+        cex_infra_row = cursor.fetchone()
+        network_type = cex_infra_row['network_type'] if cex_infra_row else 'unknown'
+        has_cex = cex_infra_row['has_cex_funder'] if cex_infra_row else 0
+        has_infra = cex_infra_row['has_infra_funder'] if cex_infra_row else 0
+
+        if not network_row:
+            conn.close()
+            return f"<h1>Error</h1><p>Network '{network_name}' not found</p>", 404
+
+        creators_html = ""
+        funders_html = ""
+        creator_count = 0
+        funder_count = 0
+        import json
+        try:
+            connected = json.loads(network_row['connected_creators'])
+
+            # Check primary creator
+            cursor.execute("SELECT COUNT(*) as count FROM token_analysis WHERE earliest_tx_creator = ?",
+                         (network_row['creator_address'],))
+            is_primary_creator = cursor.fetchone()['count'] > 0
+
+            if is_primary_creator:
+                creators_html += f"""
+                    <div class="network-member-row">
+                        <div class="member-address">{network_row['creator_address']}</div>
+                        <div class="member-role">PRIMARY CREATOR</div>
+                        <div class="member-added">{network_row['updated_at']}</div>
+                    </div>
+                """
+                creator_count += 1
+
+            # Categorize connected members
+            for addr in connected:
+                cursor.execute("SELECT COUNT(*) as count FROM token_analysis WHERE earliest_tx_creator = ?", (addr,))
+                is_creator = cursor.fetchone()['count'] > 0
+
+                if is_creator:
+                    creators_html += f"""
+                        <div class="network-member-row">
+                            <div class="member-address">{addr}</div>
+                            <div class="member-role">CREATOR</div>
+                            <div class="member-added">{network_row['updated_at']}</div>
+                        </div>
+                    """
+                    creator_count += 1
+                else:
+                    funders_html += f"""
+                        <div class="network-member-row">
+                            <div class="member-address">{addr}</div>
+                            <div class="member-role">FUNDER</div>
+                            <div class="member-added">{network_row['updated_at']}</div>
+                        </div>
+                    """
+                    funder_count += 1
+
+            # For FundingChain networks, also get funders from funding_chains table
+            if network_name.startswith('FundingChain_'):
+                # Extract all creators in this network
+                all_creators = [network_row['creator_address']] + connected
+
+                # Get all unique bridge funders for these creators
+                cursor.execute("""
+                    SELECT DISTINCT bridge_funder FROM funding_chains
+                    WHERE source_creator IN (""" + ",".join(["?"] * len(all_creators)) + """)
+                       OR target_creator IN (""" + ",".join(["?"] * len(all_creators)) + """)
+                """, all_creators + all_creators)
+
+                bridge_funders = [row['bridge_funder'] for row in cursor.fetchall()]
+
+                # Add bridge funders to funders section
+                for funder in bridge_funders:
+                    if funder and funder not in connected:  # Avoid duplicates
+                        funders_html += f"""
+                            <div class="network-member-row">
+                                <div class="member-address">{funder}</div>
+                                <div class="member-role">FUNDER</div>
+                                <div class="member-added">{network_row['updated_at']}</div>
+                            </div>
+                        """
+                        funder_count += 1
+
+        except Exception as parse_error:
+            creators_html = f'<p style="color: var(--text-secondary);">Error parsing members: {str(parse_error)}</p>'
+
+        conn.close()
+
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Creator Network: {network_name}</title>
+            <style>
+                * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+                :root {{
+                    --primary: #7c3aed;
+                    --text-primary: #e5e7eb;
+                    --text-secondary: #a1a5b4;
+                    --bg-primary: #1a1a24;
+                    --bg-secondary: rgba(20, 20, 32, 0.85);
+                    --accent-cyan: #06b6d4;
+                    --accent-purple: #a78bfa;
+                    --color-creator: #fbbf24;
+                    --color-funder: #3b82f6;
+                }}
+                body {{
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
+                    color: var(--text-primary);
+                    padding: 20px;
+                }}
+                .container {{ max-width: 1200px; margin: 0 auto; }}
+                header {{
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 30px;
+                    padding: 20px;
+                    background: var(--bg-secondary);
+                    border-radius: 8px;
+                    border-left: 4px solid var(--accent-cyan);
+                }}
+                h1 {{ color: var(--accent-cyan); font-size: 28px; }}
+                .back-btn {{
+                    background: rgba(124, 58, 237, 0.2);
+                    color: var(--accent-cyan);
+                    border: 1px solid rgba(124, 58, 237, 0.5);
+                    padding: 10px 20px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    font-family: 'Segoe UI', sans-serif;
+                    text-decoration: none;
+                }}
+                .back-btn:hover {{ background: rgba(124, 58, 237, 0.3); }}
+                .stats {{
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 15px;
+                    margin-bottom: 30px;
+                }}
+                .stat-box {{
+                    background: var(--bg-secondary);
+                    padding: 20px;
+                    border-radius: 6px;
+                    border: 1px solid rgba(124, 58, 237, 0.2);
+                }}
+                .stat-label {{ font-size: 12px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; }}
+                .stat-value {{ font-size: 24px; color: var(--accent-purple); font-weight: 700; margin-top: 8px; }}
+                .members-section {{ background: var(--bg-secondary); border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.2); padding: 20px; margin-bottom: 20px; }}
+                .members-title {{ color: var(--accent-purple); font-size: 18px; font-weight: 700; margin-bottom: 20px; text-transform: uppercase; border-bottom: 2px solid rgba(124, 58, 237, 0.3); padding-bottom: 10px; }}
+                .network-member-row {{
+                    display: grid;
+                    grid-template-columns: 1fr 200px 200px;
+                    gap: 15px;
+                    padding: 12px;
+                    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+                    align-items: center;
+                }}
+                .network-member-row:last-child {{ border-bottom: none; }}
+                .member-address {{
+                    font-family: 'Courier New', monospace;
+                    font-size: 11px;
+                    color: var(--accent-cyan);
+                    word-break: break-all;
+                }}
+                .member-role {{
+                    font-size: 11px;
+                    color: var(--text-primary);
+                    text-transform: uppercase;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    border: 1px solid;
+                    text-align: center;
+                    font-weight: 600;
+                }}
+                .member-role:contains("CREATOR") {{
+                    background: rgba(251, 191, 36, 0.15);
+                    border-color: rgba(251, 191, 36, 0.3);
+                    color: #fbbf24;
+                }}
+                .member-added {{
+                    font-size: 11px;
+                    color: var(--text-secondary);
+                    text-align: right;
+                }}
+                .creators-section .member-role {{
+                    background: rgba(251, 191, 36, 0.15);
+                    border-color: rgba(251, 191, 36, 0.3);
+                    color: #fbbf24;
+                }}
+                .funders-section .member-role {{
+                    background: rgba(59, 130, 246, 0.15);
+                    border-color: rgba(59, 130, 246, 0.3);
+                    color: #3b82f6;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <header>
+                    <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <h1>🔗 Creator Network: {network_name}</h1>
+                        <div style="display: flex; gap: 8px;">
+                            {'<span style="background: #ef4444; color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700;">🏦 CEX-CONNECTED</span>' if has_cex else ''}
+                            {'<span style="background: #f97316; color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700;">🔧 INFRA-CONNECTED</span>' if has_infra else ''}
+                            {'<span style="background: #22c55e; color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700;">✓ ORGANIC</span>' if network_type == 'organic' else ''}
+                        </div>
+                    </div>
+                    <a href="/creator-analysis" class="back-btn">← Back to Analysis</a>
+                </header>
+
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-label">Creators</div>
+                        <div class="stat-value">{creator_count}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Funders</div>
+                        <div class="stat-value">{funder_count}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Risk Level</div>
+                        <div class="stat-value">{network_row['network_risk_level'] if network_row else 'N/A'}</div>
+                    </div>
+                </div>
+
+                <div class="members-section creators-section">
+                    <div class="members-title">👥 Creators</div>
+                    {creators_html if creators_html else '<p style="color: var(--text-secondary);">No creators found</p>'}
+                </div>
+
+                <div class="members-section funders-section">
+                    <div class="members-title">💰 Funders / Intermediaries</div>
+                    {funders_html if funders_html else '<p style="color: var(--text-secondary);">No funders found</p>'}
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        return html
+    except Exception as e:
+        import traceback
+        return f"<h1>Error</h1><p>{str(e)}</p><pre>{traceback.format_exc()}</pre>", 500
 
 
 # =========================================================================

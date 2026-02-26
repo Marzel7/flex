@@ -15174,30 +15174,34 @@ def api_creator_outgoing_analysis(creator_address: str):
                 })
 
         if not findings:
-            # If creator is in a network, that's NOT clean
-            if network_name:
-                # Determine network type descriptor and finding type
-                network_type_desc = "coordinated funding network"
-                finding_type = '⚠️ NETWORK_MEMBER'
+            # If creator is in networks, add findings for each network
+            if networks_with_types:
+                for net_info in networks_with_types:
+                    net_name = net_info['name']
+                    net_type = net_info['type']
 
-                if network_type == 'cex_connected':
-                    network_type_desc = "🏦 CEX-connected coordinated network"
-                    finding_type = '🚨 NETWORK_MEMBER_CEX'
-                elif network_type == 'infra_connected':
-                    network_type_desc = "🔧 INFRA-connected coordinated network"
-                    finding_type = '⚠️ NETWORK_MEMBER_INFRA'
-                elif network_type == 'mixed':
-                    network_type_desc = "⚠️ MIXED (CEX+INFRA) coordinated network"
-                    finding_type = '🚨 NETWORK_MEMBER_MIXED'
-                elif network_type == 'organic':
-                    network_type_desc = "✓ ORGANIC creator-to-creator network"
-                    finding_type = 'ℹ️ NETWORK_MEMBER'
+                    # Determine network type descriptor and finding type
+                    network_type_desc = "coordinated funding network"
+                    finding_type = '⚠️ NETWORK_MEMBER'
 
-                findings.append({
-                    'type': finding_type,
-                    'description': f'Creator is part of the "{network_name}" {network_type_desc}. Part of larger coordinated structure.',
-                    'networks': [network_name]
-                })
+                    if net_type == 'cex_connected':
+                        network_type_desc = "🏦 CEX-connected coordinated network"
+                        finding_type = '🚨 NETWORK_MEMBER_CEX'
+                    elif net_type == 'infra_connected':
+                        network_type_desc = "🔧 INFRA-connected coordinated network"
+                        finding_type = '⚠️ NETWORK_MEMBER_INFRA'
+                    elif net_type == 'mixed':
+                        network_type_desc = "⚠️ MIXED (CEX+INFRA) coordinated network"
+                        finding_type = '🚨 NETWORK_MEMBER_MIXED'
+                    elif net_type == 'organic':
+                        network_type_desc = "✓ ORGANIC creator-to-creator network"
+                        finding_type = 'ℹ️ NETWORK_MEMBER'
+
+                    findings.append({
+                        'type': finding_type,
+                        'description': f'Creator is part of the "{net_name}" {network_type_desc}. Part of larger coordinated structure.',
+                        'networks': [net_name]
+                    })
             else:
                 findings.append({
                     'type': 'CLEAN',

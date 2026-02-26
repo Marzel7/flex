@@ -14285,6 +14285,11 @@ def creator_analysis_page():
                             <div class="scan-stats-section" style="background: var(--bg-secondary); border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.2); padding: 20px; margin-bottom: 20px;">
                                 <div style="color: var(--accent-purple); font-size: 16px; font-weight: 700; margin-bottom: 15px;">📊 Coverage</div>
                                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                                    <div style="padding: 10px; background: rgba(59, 130, 246, 0.1); border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">Scan Coverage</div>
+                                        <div style="font-size: 18px; font-weight: 700; color: #3b82f6;">${statsData.scanned_percentage.toFixed(1)}%</div>
+                                        <div style="font-size: 11px; color: var(--text-secondary);">${statsData.scanned_creators} of ${statsData.total_creators}</div>
+                                    </div>
                                     <div style="padding: 10px; background: rgba(124, 58, 237, 0.1); border-radius: 6px;">
                                         <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">Total Creators</div>
                                         <div style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">${statsData.total_creators || 0}</div>
@@ -15882,6 +15887,11 @@ def api_creator_scan_stats():
         cursor.execute("SELECT COUNT(DISTINCT earliest_tx_creator) as total FROM token_analysis")
         total_creators = cursor.fetchone()['total'] or 0
 
+        # Get scanned creator count
+        cursor.execute("SELECT COUNT(DISTINCT creator_address) as total FROM creator_sig_cursors WHERE updated_at IS NOT NULL")
+        scanned_creators = cursor.fetchone()['total'] or 0
+        scanned_percentage = (scanned_creators / total_creators * 100) if total_creators > 0 else 0
+
         # Get tier distribution
         cursor.execute("""
             SELECT
@@ -15923,6 +15933,8 @@ def api_creator_scan_stats():
 
         return jsonify({
             'total_creators': total_creators,
+            'scanned_creators': scanned_creators,
+            'scanned_percentage': scanned_percentage,
             'tier_stats': tier_stats,
             'tier_labels': {
                 0: 'Tier 0: Launched in last 6 hours',

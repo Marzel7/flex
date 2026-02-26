@@ -14494,7 +14494,17 @@ def creator_analysis_page():
                             }
 
                             if (funder.network) {
-                                funderInfo += `<div class="recipient-network">[${funder.network}]</div>`;
+                                let networkBadge = '';
+                                if (funder.network_type === 'cex_connected') {
+                                    networkBadge = ' <span style="color: #ef4444; font-weight: 600;">🏦 CEX</span>';
+                                } else if (funder.network_type === 'infra_connected') {
+                                    networkBadge = ' <span style="color: #f97316; font-weight: 600;">🔧 INFRA</span>';
+                                } else if (funder.network_type === 'mixed') {
+                                    networkBadge = ' <span style="color: #eab308; font-weight: 600;">⚠️ MIXED</span>';
+                                } else if (funder.network_type === 'organic') {
+                                    networkBadge = ' <span style="color: #22c55e; font-weight: 600;">✓ ORGANIC</span>';
+                                }
+                                funderInfo += `<div class="recipient-network">[${funder.network}]${networkBadge}</div>`;
                             }
 
                             if (funder.labels && funder.labels.length > 0) {
@@ -14858,6 +14868,7 @@ def api_creator_outgoing_analysis(creator_address: str):
                 'transfer_count': funder['transfer_count'],
                 'labels': [],
                 'network': None,
+                'network_type': None,
                 'display_name': None
             }
 
@@ -14897,6 +14908,11 @@ def api_creator_outgoing_analysis(creator_address: str):
             net = cursor.fetchone()
             if net:
                 funder_info['network'] = net['network_name']
+                # Get network type
+                cursor.execute("SELECT network_type FROM network_cex_infra_flags WHERE network_name = ?", (net['network_name'],))
+                net_type_row = cursor.fetchone()
+                if net_type_row:
+                    funder_info['network_type'] = net_type_row['network_type']
 
             funders_with_info.append(funder_info)
 

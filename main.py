@@ -15616,17 +15616,17 @@ def api_creator_recent_checks():
                 SELECT DISTINCT network_name FROM creator_networks
                 WHERE creator_address = ?
             """, (creator,))
-            for row in cursor.fetchall():
-                all_networks.append(row['network_name'])
+            for net_row in cursor.fetchall():
+                all_networks.append(net_row['network_name'])
 
             # From creator_to_creator_networks (organic networks)
             cursor.execute("""
                 SELECT DISTINCT network_name FROM creator_to_creator_networks
                 WHERE creator_address = ?
             """, (creator,))
-            for row in cursor.fetchall():
-                if row['network_name'] not in all_networks:
-                    all_networks.append(row['network_name'])
+            for net_row in cursor.fetchall():
+                if net_row['network_name'] not in all_networks:
+                    all_networks.append(net_row['network_name'])
 
             # Get network types for all networks
             networks_with_types = []

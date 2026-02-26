@@ -14416,6 +14416,14 @@ def creator_analysis_page():
                                         }
                                     </div>
                                 </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Last Activity</div>
+                                    <div class="meta-value">${
+                                        data.outgoing_transfer_count > 0 && data.last_transaction_time
+                                            ? new Date(data.last_transaction_time * 1000).toLocaleString()
+                                            : 'No outgoing transfers'
+                                    }</div>
+                                </div>
                             </div>
                     `;
 
@@ -15315,6 +15323,7 @@ def api_creator_outgoing_analysis(creator_address: str):
             'outgoing_transfer_count': transfers['count'] if transfers else 0,
             'total_sol_sent': transfers['total_sol'] if transfers else 0,
             'unique_recipients': transfers['unique_recipients'] if transfers else 0,
+            'last_transaction_time': transfers['last_transaction_time'] if transfers else None,
             'incoming_funders': funders_with_info,
             'funding_chain_count': len(funding_chains),
             'coordinated_edge_count': len(coordinated_edges),

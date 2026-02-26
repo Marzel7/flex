@@ -15646,7 +15646,7 @@ def api_creator_recent_checks():
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
-        # Get the 15 most recently scanned creators
+        # Get the 15 most recently scanned creators (sorted by timestamp, not string)
         cursor.execute("""
             SELECT
                 csc.creator_address,
@@ -15656,7 +15656,7 @@ def api_creator_recent_checks():
             LEFT JOIN funding_chains fc ON fc.source_creator = csc.creator_address
             WHERE csc.updated_at IS NOT NULL
             GROUP BY csc.creator_address, csc.updated_at
-            ORDER BY csc.updated_at DESC
+            ORDER BY datetime(csc.updated_at) DESC
             LIMIT 15
         """)
         recent = cursor.fetchall()

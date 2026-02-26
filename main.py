@@ -15114,9 +15114,20 @@ def api_creator_outgoing_analysis(creator_address: str):
         if not findings:
             # If creator is in a network, that's NOT clean
             if network_name:
+                # Determine network type descriptor
+                network_type_desc = "coordinated funding network"
+                if network_type == 'cex_connected':
+                    network_type_desc = "🏦 CEX-connected coordinated network"
+                elif network_type == 'infra_connected':
+                    network_type_desc = "🔧 INFRA-connected coordinated network"
+                elif network_type == 'mixed':
+                    network_type_desc = "⚠️ MIXED (CEX+INFRA) coordinated network"
+                elif network_type == 'organic':
+                    network_type_desc = "✓ ORGANIC creator-to-creator network"
+
                 findings.append({
                     'type': '⚠️ NETWORK_MEMBER',
-                    'description': f'Creator is part of the "{network_name}" coordinated funding network. Part of larger coordinated structure.',
+                    'description': f'Creator is part of the "{network_name}" {network_type_desc}. Part of larger coordinated structure.',
                     'networks': [network_name]
                 })
             else:

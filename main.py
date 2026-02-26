@@ -14384,15 +14384,33 @@ def creator_analysis_page():
                                     <div class="meta-value">
                                         ${data.networks && data.networks.length > 0 ?
                                             `<div style="display: flex; flex-direction: column; gap: 8px;">
-                                                ${data.networks.map(net => `
+                                                ${data.networks.map(net => {
+                                                    let badgeColor = '#808080';
+                                                    let badgeEmoji = '';
+                                                    let badgeText = '';
+                                                    if (net.type === 'cex_connected') {
+                                                        badgeColor = '#ef4444';
+                                                        badgeEmoji = '🏦';
+                                                        badgeText = 'CEX';
+                                                    } else if (net.type === 'infra_connected') {
+                                                        badgeColor = '#f97316';
+                                                        badgeEmoji = '🔧';
+                                                        badgeText = 'INFRA';
+                                                    } else if (net.type === 'mixed') {
+                                                        badgeColor = '#d97706';
+                                                        badgeEmoji = '⚠️';
+                                                        badgeText = 'MIXED';
+                                                    } else if (net.type === 'organic') {
+                                                        badgeColor = '#22c55e';
+                                                        badgeEmoji = '✓';
+                                                        badgeText = 'ORGANIC';
+                                                    }
+                                                    return `
                                                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                                        <span class="network-link" onclick="window.location='/creator-network/${encodeURIComponent(net.name)}';" style="cursor: pointer;">${net.name}</span>
-                                                        ${net.type === 'cex_connected' ? '<span style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700;">🏦 CEX</span>' : ''}
-                                                        ${net.type === 'infra_connected' ? '<span style="background: #f97316; color: white; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700;">🔧 INFRA</span>' : ''}
-                                                        ${net.type === 'mixed' ? '<span style="background: #d97706; color: white; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700;">⚠️ MIXED</span>' : ''}
-                                                        ${net.type === 'organic' ? '<span style="background: #22c55e; color: white; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700;">✓ ORGANIC</span>' : ''}
+                                                        <span class="network-link" onclick="window.location='/creator-network/${encodeURIComponent(net.name)}';" style="cursor: pointer; background: ${badgeColor}; color: white; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; display: inline-block;">${net.name} ${badgeEmoji} ${badgeText}</span>
                                                     </div>
-                                                `).join('')}
+                                                    `;
+                                                }).join('')}
                                             </div>`
                                             : 'None'
                                         }

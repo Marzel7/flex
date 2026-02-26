@@ -14894,14 +14894,19 @@ def api_creator_outgoing_analysis(creator_address: str):
             # Check if funder is a creator
             cursor.execute("SELECT COUNT(*) as count FROM token_analysis WHERE earliest_tx_creator = ?", (funder['funder_address'],))
             r = cursor.fetchone()
-            if r and r['count'] > 0:
+            is_creator = r and r['count'] > 0
+            if is_creator:
                 funder_info['labels'].append(f'CREATOR({r["count"]})')
 
             # Check if funder funds other creators
             cursor.execute("SELECT COUNT(DISTINCT creator_address) as count FROM creator_funders WHERE funder_address = ?", (funder['funder_address'],))
             r = cursor.fetchone()
-            if r and r['count'] > 1:
-                funder_info['labels'].append(f'MULTI_CREATOR_FUNDER({r["count"]})')
+            creator_fund_count = r['count'] if r else 0
+            if creator_fund_count > 1:
+                funder_info['labels'].append(f'MULTI_CREATOR_FUNDER({creator_fund_count})')
+            elif is_creator and creator_fund_count >= 1:
+                # Creator funding other creators (even just 1) is CREATOR_FUNDING_CHAIN pattern
+                funder_info['labels'].append('CREATOR_FUNDING_CHAIN')
 
             # Check if funder is in a funding chain (bridges SOL between creators)
             cursor.execute("SELECT COUNT(*) as count FROM funding_chains WHERE bridge_funder = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'", (funder['funder_address'],))

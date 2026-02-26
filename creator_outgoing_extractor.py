@@ -676,50 +676,50 @@ def detect_and_update_networks_from_outgoing():
             """)
 
             funding_relationships = cur.fetchall()
-            
+
             # Group creators that are connected via funding chains
             creator_connections = {}
             for rel in funding_relationships:
                 source = rel['source_creator']
                 target = rel['target_creator']
-                
+
                 # Create bidirectional graph for connected creators
                 if source not in creator_connections:
                     creator_connections[source] = set()
                 if target not in creator_connections:
                     creator_connections[target] = set()
-                
+
                 creator_connections[source].add(target)
                 creator_connections[target].add(source)
-            
+
             # Find connected components (clusters of related creators)
             processed = set()
             networks_to_create = []
-            
+
             for creator, connections in creator_connections.items():
                 if creator in processed:
                     continue
-                
+
                 # BFS to find all connected creators
                 cluster = {creator}
                 queue = [creator]
-                
+
                 while queue:
                     current = queue.pop(0)
                     for neighbor in creator_connections.get(current, set()):
                         if neighbor not in cluster:
                             cluster.add(neighbor)
                             queue.append(neighbor)
-                
+
                 # Mark all as processed
                 processed.update(cluster)
-                
+
                 # Create new network for this creator cluster regardless of existing network membership
                 # This allows direct creator-to-creator relationships to be tracked separately
                 # even if the creators are already members of other networks (e.g., CEX networks)
                 if len(cluster) > 1:
                     networks_to_create.append(cluster)
-            
+
             # Create new networks
             for cluster in networks_to_create:
                 if len(cluster) < 2:
@@ -735,13 +735,29 @@ def detect_and_update_networks_from_outgoing():
                 cluster_hash = hashlib.md5('|'.join(cluster_list).encode()).hexdigest()[:8]
                 network_name = f"CoordinatedFunding_{cluster_hash}"
 
-                # Check if this network already exists
+                # Check if this network already exists in creator_networks OR creator_to_creator_networks
+                # (might have been created in PART 1.5 as CreatorTransfer for direct transfers)
                 cur.execute("""
                     SELECT COUNT(*) as count FROM creator_networks
                     WHERE network_name = ?
                 """, (network_name,))
 
                 if cur.fetchone()['count'] == 0:
+                    # Also check if this pair already exists as a CreatorTransfer network
+                    if len(cluster_list) == 2:
+                        creator1 = cluster_list[0]
+                        creator2 = cluster_list[1]
+                        cur.execute("""
+                            SELECT DISTINCT network_name FROM creator_to_creator_networks
+                            WHERE (creator_address = ? OR creator_address = ?)
+                            AND network_name LIKE 'CreatorTransfer_%'
+                        """, (creator1, creator2))
+                        existing_c2c = cur.fetchone()
+
+                        # If a CreatorTransfer network already exists for this pair, skip creation
+                        if existing_c2c:
+                            continue
+
                     try:
                         cur.execute("""
                             INSERT INTO creator_networks

@@ -1023,4 +1023,6 @@ async def run_forever(interval_seconds: int = 3600):
 
 
 if __name__ == "__main__":
-    asyncio.run(run_forever(3600))
+    # Run every 12 hours to ensure all creators scanned once per day
+    # With 1453 creators and 1000 per scan, 2 scans cover all creators daily
+    asyncio.run(run_forever(43200))  # 43200 seconds = 12 hours

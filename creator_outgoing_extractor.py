@@ -33,6 +33,7 @@ HELIUS_ENHANCED = f"https://api-mainnet.helius-rpc.com/v0/transactions?api-key={
 def _connect():
     """Create connection with optimal PRAGMA settings"""
     conn = sqlite3.connect(DB_PATH, timeout=30)
+    conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
     conn.execute("PRAGMA busy_timeout=30000")
@@ -105,6 +106,15 @@ def ensure_tables():
 
         CREATE INDEX IF NOT EXISTS idx_coord_a ON coordinated_creator_edges(creator_a);
         CREATE INDEX IF NOT EXISTS idx_coord_b ON coordinated_creator_edges(creator_b);
+
+        CREATE TABLE IF NOT EXISTS creator_self_funding (
+          creator_address TEXT PRIMARY KEY,
+          self_funding_intermediates INTEGER DEFAULT 0,
+          total_funders INTEGER DEFAULT 0,
+          self_funding_percentage REAL DEFAULT 0.0,
+          is_self_funding INTEGER DEFAULT 0,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
 
         CREATE TABLE IF NOT EXISTS outgoing_chain_cursor (
           id INTEGER PRIMARY KEY CHECK (id=1),
@@ -540,6 +550,319 @@ def build_coordinated_edges_incremental():
         conn.close()
 
 
+def detect_and_update_networks_from_outgoing():
+    """
+    Detect creators funding funders/senders of network members and add them to networks.
+    Also create new networks for creators connected via funding chains.
+
+    Logic:
+    1. Add creators that fund network members to those networks
+    2. Create new networks from CREATOR_FUNDING_CHAIN patterns
+    3. Expand networks based on coordinated funding activity
+    """
+    with db_write_lock_global():
+        conn = _connect()
+        cur = conn.cursor()
+
+        try:
+            import json
+            from datetime import datetime
+            
+            # ========== PART 1: Expand existing networks ==========
+            # Get all networks and their members
+            cur.execute("""
+                SELECT creator_address, network_name, connected_creators
+                FROM creator_networks
+            """)
+            networks = cur.fetchall()
+            
+            for network in networks:
+                network_creator = network['creator_address']
+                network_name = network['network_name']
+                connected = json.loads(network['connected_creators'] or '[]')
+                all_members = {network_creator} | set(connected)
+                
+                # Find creators that fund funders of this network's members
+                cur.execute("""
+                    SELECT DISTINCT cot.creator_address
+                    FROM creator_outgoing_transfers cot
+                    JOIN creator_funders cf ON cot.recipient_address = cf.funder_address
+                    WHERE cf.creator_address IN ({})
+                    AND cot.creator_address NOT IN ({})
+                """.format(
+                    ','.join('?' * len(all_members)),
+                    ','.join('?' * len(all_members))
+                ), list(all_members) + list(all_members))
+                
+                new_members = set(row['creator_address'] for row in cur.fetchall())
+                
+                # Find creators that directly fund network members
+                cur.execute("""
+                    SELECT DISTINCT cot.creator_address
+                    FROM creator_outgoing_transfers cot
+                    WHERE cot.recipient_address IN ({})
+                    AND cot.creator_address NOT IN ({})
+                """.format(
+                    ','.join('?' * len(all_members)),
+                    ','.join('?' * len(all_members))
+                ), list(all_members) + list(all_members))
+                
+                new_members.update(row['creator_address'] for row in cur.fetchall())
+                
+                # Update network if there are new members
+                if new_members:
+                    updated_connected = list(set(connected) | new_members)
+                    cur.execute("""
+                        UPDATE creator_networks
+                        SET connected_creators = ?
+                        WHERE network_name = ?
+                    """, (json.dumps(updated_connected), network_name))
+            
+            # ========== PART 1.5: Detect direct creator-to-creator transfers ==========
+            # Find cases where one creator directly transfers SOL to another creator
+            cur.execute("""
+                SELECT DISTINCT
+                    cot.creator_address as source_creator,
+                    cot.recipient_address as target_creator
+                FROM creator_outgoing_transfers cot
+                WHERE cot.recipient_address IN (
+                    SELECT DISTINCT creator_address FROM creator_networks
+                    UNION
+                    SELECT DISTINCT earliest_tx_creator FROM token_analysis
+                )
+                AND cot.creator_address IN (
+                    SELECT DISTINCT creator_address FROM creator_networks
+                    UNION
+                    SELECT DISTINCT earliest_tx_creator FROM token_analysis
+                )
+                AND cot.creator_address != cot.recipient_address
+            """)
+
+            direct_transfers = cur.fetchall()
+
+            # Create SEPARATE organic networks for direct creator-to-creator transfers
+            # These are independent of existing CEX/INFRA networks they may belong to
+            for transfer in direct_transfers:
+                source = transfer['source_creator']
+                target = transfer['target_creator']
+
+                import hashlib
+                cluster = sorted([source, target])
+                cluster_hash = hashlib.md5('|'.join(cluster).encode()).hexdigest()[:8]
+                network_name = f"CreatorTransfer_{cluster_hash}"
+
+                # Add both creators to the creator_to_creator_networks table
+                # This allows tracking multiple network memberships without UNIQUE constraint issues
+                cur.execute("""
+                    INSERT OR IGNORE INTO creator_to_creator_networks
+                    (creator_address, network_name)
+                    VALUES (?, ?)
+                """, (source, network_name))
+
+                cur.execute("""
+                    INSERT OR IGNORE INTO creator_to_creator_networks
+                    (creator_address, network_name)
+                    VALUES (?, ?)
+                """, (target, network_name))
+
+            # ========== PART 2: Create networks from funding chains ==========
+            # Find creators with multiple CREATOR_FUNDING_CHAIN or COORDINATED_FUNDING patterns
+            cur.execute("""
+                SELECT source_creator, target_creator, COUNT(*) as chain_count
+                FROM funding_chains
+                WHERE chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'
+                GROUP BY source_creator, target_creator
+                HAVING chain_count > 0
+            """)
+
+            funding_relationships = cur.fetchall()
+            
+            # Group creators that are connected via funding chains
+            creator_connections = {}
+            for rel in funding_relationships:
+                source = rel['source_creator']
+                target = rel['target_creator']
+                
+                # Create bidirectional graph for connected creators
+                if source not in creator_connections:
+                    creator_connections[source] = set()
+                if target not in creator_connections:
+                    creator_connections[target] = set()
+                
+                creator_connections[source].add(target)
+                creator_connections[target].add(source)
+            
+            # Find connected components (clusters of related creators)
+            processed = set()
+            networks_to_create = []
+            
+            for creator, connections in creator_connections.items():
+                if creator in processed:
+                    continue
+                
+                # BFS to find all connected creators
+                cluster = {creator}
+                queue = [creator]
+                
+                while queue:
+                    current = queue.pop(0)
+                    for neighbor in creator_connections.get(current, set()):
+                        if neighbor not in cluster:
+                            cluster.add(neighbor)
+                            queue.append(neighbor)
+                
+                # Mark all as processed
+                processed.update(cluster)
+                
+                # Create new network for this creator cluster regardless of existing network membership
+                # This allows direct creator-to-creator relationships to be tracked separately
+                # even if the creators are already members of other networks (e.g., CEX networks)
+                if len(cluster) > 1:
+                    networks_to_create.append(cluster)
+            
+            # Create new networks
+            for cluster in networks_to_create:
+                if len(cluster) < 2:
+                    continue
+
+                cluster_list = sorted(list(cluster))
+                primary_creator = cluster_list[0]
+                connected_creators = cluster_list[1:]
+
+                # Create network name that's unique per cluster
+                # Use hash of all members to ensure uniqueness even with same primary creator
+                import hashlib
+                cluster_hash = hashlib.md5('|'.join(cluster_list).encode()).hexdigest()[:8]
+                network_name = f"CoordinatedFunding_{cluster_hash}"
+
+                # Check if this network already exists
+                cur.execute("""
+                    SELECT COUNT(*) as count FROM creator_networks
+                    WHERE network_name = ?
+                """, (network_name,))
+
+                if cur.fetchone()['count'] == 0:
+                    try:
+                        cur.execute("""
+                            INSERT INTO creator_networks
+                            (creator_address, network_name, connected_creators, shared_destinations, network_size, network_risk_level, updated_at)
+                            VALUES (?, ?, ?, ?, ?, ?, ?)
+                        """, (
+                            primary_creator,
+                            network_name,
+                            json.dumps(connected_creators),
+                            json.dumps([]),  # Empty shared destinations for now
+                            len(cluster),
+                            'HIGH',  # Creators funding other creators = high risk
+                            datetime.now().isoformat()
+                        ))
+                    except:
+                        # If primary creator already exists, skip (they're already in a network)
+                        pass
+            
+            conn.commit()
+            print("[OUTGOING] ✅ Network detection complete", flush=True)
+
+        except Exception as e:
+            conn.rollback()
+            print(f"[OUTGOING] ⚠️  Network detection error: {e}", flush=True)
+        finally:
+            conn.close()
+
+
+def calculate_and_store_self_funding():
+    """
+    Calculate self-funding percentages for all creators and store in database.
+    A creator is TRULY self-funded only if:
+    1. 50%+ of their funders only fund that specific creator (isolated funder group)
+    AND
+    2. The creator sends money BACK to these funders (circular funding)
+    """
+    with db_write_lock_global():
+        conn = _connect()
+        cur = conn.cursor()
+
+        try:
+            # Get all creators with funders
+            cur.execute("""
+                SELECT DISTINCT creator_address FROM creator_funders
+            """)
+            creators = [row['creator_address'] for row in cur.fetchall()]
+
+            updates = []
+
+            for creator in creators:
+                # Get all funders of this creator
+                cur.execute("""
+                    SELECT DISTINCT funder_address FROM creator_funders
+                    WHERE creator_address = ?
+                """, (creator,))
+                funders = [row['funder_address'] for row in cur.fetchall()]
+
+                if not funders:
+                    continue
+
+                # Count how many funders only fund this creator
+                self_funding_intermediates = 0
+                for funder in funders:
+                    cur.execute("""
+                        SELECT COUNT(DISTINCT creator_address) as count
+                        FROM creator_funders
+                        WHERE funder_address = ?
+                    """, (funder,))
+                    funder_count = cur.fetchone()['count']
+                    if funder_count == 1:
+                        self_funding_intermediates += 1
+
+                total_funders = len(funders)
+                self_funding_percentage = (self_funding_intermediates / total_funders) * 100 if total_funders > 0 else 0
+
+                # Only set is_self_funding = 1 if BOTH conditions are met:
+                # 1. 50%+ of funders only fund this creator
+                # 2. Creator sends money back to at least one of these funders (circular)
+                has_isolated_funders = self_funding_percentage >= 50
+
+                has_circular_funding = False
+                if has_isolated_funders:
+                    # Check if creator sends SOL back to any of their funders
+                    cur.execute("""
+                        SELECT COUNT(*) as count FROM creator_outgoing_transfers cot
+                        WHERE cot.creator_address = ?
+                        AND cot.recipient_address IN (
+                            SELECT funder_address FROM creator_funders
+                            WHERE creator_address = ?
+                        )
+                    """, (creator, creator))
+                    circular_result = cur.fetchone()
+                    has_circular_funding = circular_result['count'] > 0 if circular_result else False
+
+                is_self_funding = 1 if (has_isolated_funders and has_circular_funding) else 0
+
+                updates.append((
+                    self_funding_intermediates,
+                    total_funders,
+                    self_funding_percentage,
+                    is_self_funding,
+                    creator
+                ))
+
+            # Batch update
+            cur.executemany("""
+                INSERT OR REPLACE INTO creator_self_funding
+                (self_funding_intermediates, total_funders, self_funding_percentage, is_self_funding, creator_address, updated_at)
+                VALUES (?, ?, ?, ?, ?, datetime('now'))
+            """, updates)
+
+            conn.commit()
+            print(f"[OUTGOING] ✅ Recalculated self-funding for {len(updates)} creators (only true self-funding with circular flows)", flush=True)
+
+        except Exception as e:
+            conn.rollback()
+            print(f"[OUTGOING] ⚠️  Self-funding calculation error: {e}", flush=True)
+        finally:
+            conn.close()
+
+
 async def scan_once(concurrency: int = 25):
     """
     Scan all creators for new outgoing transfers.
@@ -638,6 +961,12 @@ async def scan_once(concurrency: int = 25):
     # Build chains incrementally from only new outgoing transfers (keeps lock short)
     build_funding_chains_incremental()
     build_coordinated_edges_incremental()
+
+    # Detect and update network membership based on outgoing transfers
+    detect_and_update_networks_from_outgoing()
+
+    # Calculate and store self-funding metrics for all creators
+    calculate_and_store_self_funding()
 
     print(f"[OUTGOING] ✅ Scan complete: creators={len(creators)} new_sigs={len(new_sigs)} new_rows={len(rows_all)}", flush=True)
 

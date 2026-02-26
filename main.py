@@ -15702,6 +15702,8 @@ def api_creator_recent_checks():
             # Get network types for all networks
             networks_with_types = []
             for net_name in all_networks:
+                if not net_name:  # Skip empty/null network names
+                    continue
                 cursor.execute("""
                     SELECT network_type FROM network_cex_infra_flags
                     WHERE network_name = ?

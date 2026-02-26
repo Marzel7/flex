@@ -14420,7 +14420,20 @@ def creator_analysis_page():
                                     <div class="meta-label">Last Activity</div>
                                     <div class="meta-value">${
                                         data.outgoing_transfer_count > 0 && data.last_transaction_time
-                                            ? new Date(data.last_transaction_time * 1000).toLocaleString()
+                                            ? (() => {
+                                                const now = Math.floor(Date.now() / 1000);
+                                                const secondsAgo = now - data.last_transaction_time;
+
+                                                if (secondsAgo < 60) {
+                                                    return Math.max(1, Math.floor(secondsAgo)) + ' min';
+                                                } else if (secondsAgo < 3600) {
+                                                    return Math.floor(secondsAgo / 60) + ' hour' + (Math.floor(secondsAgo / 60) !== 1 ? 's' : '');
+                                                } else if (secondsAgo < 86400) {
+                                                    return Math.floor(secondsAgo / 3600) + ' hour' + (Math.floor(secondsAgo / 3600) !== 1 ? 's' : '');
+                                                } else {
+                                                    return Math.floor(secondsAgo / 86400) + ' day' + (Math.floor(secondsAgo / 86400) !== 1 ? 's' : '');
+                                                }
+                                            })()
                                             : 'No outgoing transfers'
                                     }</div>
                                 </div>

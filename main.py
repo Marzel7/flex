@@ -14903,6 +14903,12 @@ def api_creator_outgoing_analysis(creator_address: str):
             if r and r['count'] > 1:
                 funder_info['labels'].append(f'MULTI_CREATOR_FUNDER({r["count"]})')
 
+            # Check if funder is in a funding chain (bridges SOL between creators)
+            cursor.execute("SELECT COUNT(*) as count FROM funding_chains WHERE bridge_funder = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'", (funder['funder_address'],))
+            chain_row = cursor.fetchone()
+            if chain_row and chain_row['count'] > 0:
+                funder_info['labels'].append(f'CREATOR_FUNDING_CHAIN({chain_row["count"]})')
+
             # Check if funder is in a network
             cursor.execute("SELECT network_name FROM creator_networks WHERE creator_address = ?", (funder['funder_address'],))
             net = cursor.fetchone()

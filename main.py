@@ -14283,7 +14283,7 @@ def creator_analysis_page():
 
                         let html = `
                             <div class="scan-stats-section" style="background: var(--bg-secondary); border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.2); padding: 20px; margin-bottom: 20px;">
-                                <div style="color: var(--accent-purple); font-size: 16px; font-weight: 700; margin-bottom: 15px;">📊 Scan Statistics</div>
+                                <div style="color: var(--accent-purple); font-size: 16px; font-weight: 700; margin-bottom: 15px;">📊 Coverage</div>
                                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                                     <div style="padding: 10px; background: rgba(124, 58, 237, 0.1); border-radius: 6px;">
                                         <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">Total Creators</div>

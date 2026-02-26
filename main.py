@@ -15869,10 +15869,21 @@ def creator_network_page(network_name: str):
             cursor.execute("SELECT COUNT(*) as count FROM cex_wallets WHERE cex_address = ?", (addr,))
             return cursor.fetchone()['count'] > 0
 
-        # Helper function to get member role tag with CEX indicator
+        # Helper function to get member role tag with network type indicator
         def get_member_role_tag(addr, base_role):
             cex_badge = " 🏦 CEX" if is_cex_address(addr) else ""
-            return f"{base_role}{cex_badge}"
+            # Add network type badge for CreatorTransfer networks
+            network_type_badge = ""
+            if is_creator_transfer:
+                if network_type == 'organic':
+                    network_type_badge = " ✓ ORGANIC"
+                elif network_type == 'cex_connected':
+                    network_type_badge = " 🏦 CEX"
+                elif network_type == 'infra_connected':
+                    network_type_badge = " 🔧 INFRA"
+                elif network_type == 'mixed':
+                    network_type_badge = " ⚠️ MIXED"
+            return f"{base_role}{cex_badge}{network_type_badge}"
 
         try:
             connected = json.loads(network_row['connected_creators'])

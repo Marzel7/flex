@@ -14290,10 +14290,34 @@ def creator_analysis_page():
                             ).join('');
                             if (!findingsBadges) findingsBadges = '<span class="check-finding-badge clean">CLEAN</span>';
 
+                            // Build network badges
+                            let networkBadges = '';
+                            if (check.networks && check.networks.length > 0) {
+                                networkBadges = check.networks.map(net => {
+                                    let color = '#808080';
+                                    let label = '';
+                                    if (net.type === 'cex_connected') {
+                                        color = '#ef4444';
+                                        label = '🏦 CEX';
+                                    } else if (net.type === 'infra_connected') {
+                                        color = '#f97316';
+                                        label = '🔧 INFRA';
+                                    } else if (net.type === 'mixed') {
+                                        color = '#d97706';
+                                        label = '⚠️ MIXED';
+                                    } else if (net.type === 'organic') {
+                                        color = '#22c55e';
+                                        label = '✓ ORGANIC';
+                                    }
+                                    return `<span class="check-network-badge" style="background: ${color}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 700;">${label}</span>`;
+                                }).join('');
+                            }
+
                             html += `
                                 <div class="recent-check-row" onclick="loadCreatorAnalysisFrom('${check.creator_address}')">
                                     <div class="check-address">${check.creator_address}</div>
                                     <div class="check-findings">${findingsBadges}</div>
+                                    <div class="check-networks" style="display: flex; gap: 4px; flex-wrap: wrap;">${networkBadges}</div>
                                     <div class="check-chains">${check.chain_count} chains</div>
                                     <div class="check-time">${formatTime(check.last_scanned)}</div>
                                 </div>
@@ -15584,13 +15608,41 @@ def api_creator_recent_checks():
         for row in recent:
             creator = row['creator_address']
 
-            # Get network membership
+            # Get all network memberships with types
+            all_networks = []
+
+            # From creator_networks (traditional networks)
             cursor.execute("""
-                SELECT network_name FROM creator_networks
+                SELECT DISTINCT network_name FROM creator_networks
                 WHERE creator_address = ?
             """, (creator,))
-            network_row = cursor.fetchone()
-            network_name = network_row['network_name'] if network_row else None
+            for row in cursor.fetchall():
+                all_networks.append(row['network_name'])
+
+            # From creator_to_creator_networks (organic networks)
+            cursor.execute("""
+                SELECT DISTINCT network_name FROM creator_to_creator_networks
+                WHERE creator_address = ?
+            """, (creator,))
+            for row in cursor.fetchall():
+                if row['network_name'] not in all_networks:
+                    all_networks.append(row['network_name'])
+
+            # Get network types for all networks
+            networks_with_types = []
+            for net_name in all_networks:
+                cursor.execute("""
+                    SELECT network_type FROM network_cex_infra_flags
+                    WHERE network_name = ?
+                """, (net_name,))
+                net_type_row = cursor.fetchone()
+                net_type = net_type_row['network_type'] if net_type_row else None
+                networks_with_types.append({
+                    'name': net_name,
+                    'type': net_type
+                })
+
+            network_name = all_networks[0] if all_networks else None
 
             # Get funding chains
             cursor.execute("""
@@ -15699,7 +15751,8 @@ def api_creator_recent_checks():
                 'creator_address': creator,
                 'last_scanned': row['updated_at'],
                 'chain_count': chain_count,
-                'findings': findings
+                'findings': findings,
+                'networks': networks_with_types
             })
 
         conn.close()

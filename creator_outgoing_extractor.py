@@ -620,6 +620,7 @@ def detect_and_update_networks_from_outgoing():
             
             # ========== PART 1.5: Detect direct creator-to-creator transfers ==========
             # Find cases where one creator directly transfers SOL to another creator
+            # Check both creator_outgoing_transfers (from extractor) and creator_funders (from listener)
             cur.execute("""
                 SELECT DISTINCT
                     cot.creator_address as source_creator,
@@ -636,6 +637,21 @@ def detect_and_update_networks_from_outgoing():
                     SELECT DISTINCT earliest_tx_creator FROM token_analysis
                 )
                 AND cot.creator_address != cot.recipient_address
+
+                UNION
+
+                -- Also check creator_funders for direct creator-to-creator transfers
+                SELECT DISTINCT
+                    cf.funder_address as source_creator,
+                    cf.creator_address as target_creator
+                FROM creator_funders cf
+                WHERE cf.creator_address IN (
+                    SELECT DISTINCT earliest_tx_creator FROM token_analysis
+                )
+                AND cf.funder_address IN (
+                    SELECT DISTINCT earliest_tx_creator FROM token_analysis
+                )
+                AND cf.funder_address != cf.creator_address
             """)
 
             direct_transfers = cur.fetchall()

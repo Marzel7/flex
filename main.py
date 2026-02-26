@@ -14290,34 +14290,10 @@ def creator_analysis_page():
                             ).join('');
                             if (!findingsBadges) findingsBadges = '<span class="check-finding-badge clean">CLEAN</span>';
 
-                            // Build network badges
-                            let networkBadges = '';
-                            if (check.networks && check.networks.length > 0) {
-                                networkBadges = check.networks.map(net => {
-                                    let color = '#808080';
-                                    let label = '';
-                                    if (net.type === 'cex_connected') {
-                                        color = '#ef4444';
-                                        label = '🏦 CEX';
-                                    } else if (net.type === 'infra_connected') {
-                                        color = '#f97316';
-                                        label = '🔧 INFRA';
-                                    } else if (net.type === 'mixed') {
-                                        color = '#d97706';
-                                        label = '⚠️ MIXED';
-                                    } else if (net.type === 'organic') {
-                                        color = '#22c55e';
-                                        label = '✓ ORGANIC';
-                                    }
-                                    return `<span class="check-network-badge" style="background: ${color}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 700;">${label}</span>`;
-                                }).join('');
-                            }
-
                             html += `
                                 <div class="recent-check-row" onclick="loadCreatorAnalysisFrom('${check.creator_address}')">
                                     <div class="check-address">${check.creator_address}</div>
                                     <div class="check-findings">${findingsBadges}</div>
-                                    <div class="check-networks" style="display: flex; gap: 4px; flex-wrap: wrap;">${networkBadges}</div>
                                     <div class="check-chains">${check.chain_count} chains</div>
                                     <div class="check-time">${formatTime(check.last_scanned)}</div>
                                 </div>
@@ -15742,8 +15718,20 @@ def api_creator_recent_checks():
                 findings.append('CREATOR_FUNDING_CHAIN')
             if edge_count > 0:
                 findings.append('COORDINATED_FUNDING')
-            if network_name:
-                findings.append('⚠️ NETWORK_MEMBER')
+
+            # Add network membership findings for each network
+            if networks_with_types:
+                for net_info in networks_with_types:
+                    net_type = net_info['type']
+                    if net_type == 'cex_connected':
+                        findings.append('🚨 NETWORK_MEMBER_CEX')
+                    elif net_type == 'infra_connected':
+                        findings.append('⚠️ NETWORK_MEMBER_INFRA')
+                    elif net_type == 'mixed':
+                        findings.append('🚨 NETWORK_MEMBER_MIXED')
+                    elif net_type == 'organic':
+                        findings.append('ℹ️ NETWORK_MEMBER')
+
             if not findings:
                 findings.append('CLEAN')
 

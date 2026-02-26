@@ -14731,7 +14731,7 @@ def api_creator_outgoing_analysis(creator_address: str):
 
         # Get creator outgoing transfers
         cursor.execute("""
-            SELECT COUNT(*) as count, SUM(amount_sol) as total_sol, COUNT(DISTINCT recipient_address) as unique_recipients
+            SELECT COUNT(*) as count, SUM(amount_sol) as total_sol, COUNT(DISTINCT recipient_address) as unique_recipients, MAX(block_time) as last_transaction_time
             FROM creator_outgoing_transfers
             WHERE creator_address = ?
         """, (creator_address,))
@@ -14739,7 +14739,8 @@ def api_creator_outgoing_analysis(creator_address: str):
         transfers = {
             'count': row['count'] if row else 0,
             'total_sol': row['total_sol'] if row else 0,
-            'unique_recipients': row['unique_recipients'] if row else 0
+            'unique_recipients': row['unique_recipients'] if row else 0,
+            'last_transaction_time': row['last_transaction_time'] if row else None
         }
 
         # Get funding chains where this creator is the source
@@ -14976,7 +14977,8 @@ def api_creator_outgoing_analysis(creator_address: str):
             cursor.execute("""
                 SELECT
                     cot.recipient_address,
-                    SUM(cot.amount_sol) as amount_sol
+                    SUM(cot.amount_sol) as amount_sol,
+                    MAX(cot.block_time) as last_transaction_time
                 FROM creator_outgoing_transfers cot
                 WHERE cot.creator_address = ?
                 GROUP BY cot.recipient_address
@@ -15074,6 +15076,7 @@ def api_creator_outgoing_analysis(creator_address: str):
                 recipients_with_flags.append({
                     'address': recipient['recipient_address'],
                     'amount_sol': recipient['amount_sol'],
+                    'last_transaction_time': recipient['last_transaction_time'],
                     'labels': recipient_labels,
                     'network': recipient_network,
                     'funded_creators': funded_creators_data

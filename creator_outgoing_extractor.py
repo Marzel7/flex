@@ -25,8 +25,17 @@ import aiohttp
 from db_global_lock import db_write_lock_global
 
 DB_PATH = os.getenv("DB_PATH", "pumpswap_tokens.db")
-HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
-RPC_HTTP = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com"
+
+# Helius API keys (from tests/test_pumpswap_listener.py)
+RPC_KEYS = [
+    ("a132b19d-9b44-4c71-8e6f-d320d9f351c6", "GITHUB"),     # Primary (best quota)
+    ("f084fae8-d111-4337-9960-2d9c5e02a726", "MARZEL"),     # Fallback 1
+    ("0ae07551-32df-4d9d-af2a-1925fb7f561f", "JEZZA"),      # Fallback 2
+    ("3b2917b8-9bed-4e2e-8c05-a74adbc34bb8", "NEW_KEY"),    # Fallback 3
+]
+
+HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or RPC_KEYS[0][0]  # Use first key as default
+RPC_HTTP = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
 HELIUS_ENHANCED = f"https://api-mainnet.helius-rpc.com/v0/transactions?api-key={HELIUS_API_KEY}"
 
 

@@ -6358,7 +6358,7 @@ def api_creator_details(creator_address: str):
             'total_sol': funders_sol + recipients_sol
         }
 
-        # 3. Get top funders (including all funders for complete view, with source_type classification)
+        # 3. Get ALL funders (not limited to top 10) and sort by relevance (tags > amount)
         cursor.execute("""
             SELECT
                 funder_address,
@@ -6371,16 +6371,63 @@ def api_creator_details(creator_address: str):
             FROM creator_funders
             WHERE creator_address = ?
             ORDER BY amount_sol DESC
-            LIMIT 10
         """, (creator_address,))
-        top_funders = [dict(row) for row in cursor.fetchall()]
+        all_funders = [dict(row) for row in cursor.fetchall()]
 
-        # Add CEX/INFRA labels to funders
-        for funder in top_funders:
+        # Add CEX/INFRA labels and security tags to funders
+        for funder in all_funders:
             funder['funder_label'] = get_cex_infra_label(funder['funder_address'])
+            funder['labels'] = []
 
         # Add infrastructure highlighting to funders
-        top_funders = highlight_infra_in_funding(top_funders)
+        all_funders = highlight_infra_in_funding(all_funders)
+
+        # Add security tags (circular funding, network membership, etc.)
+        for funder in all_funders:
+            # Check for DIRECT circular funding: funder received from creator AND sent back to creator
+            cursor.execute("""
+                SELECT COUNT(*) as direct_circular FROM (
+                    SELECT recipient_address FROM creator_outgoing_transfers
+                    WHERE creator_address = ? AND recipient_address = ?
+                    INTERSECT
+                    SELECT funder_address FROM creator_funders
+                    WHERE creator_address = ? AND funder_address = ?
+                )
+            """, (creator_address, funder['funder_address'], creator_address, funder['funder_address']))
+            direct_circ = cursor.fetchone()
+            if direct_circ and direct_circ['direct_circular'] > 0:
+                if 'labels' not in funder:
+                    funder['labels'] = []
+                funder['labels'].append('⚠️ CIRCULAR_FUNDING(direct)')
+
+            # Check if funder is in a network
+            cursor.execute("SELECT network_name FROM creator_networks WHERE creator_address = ?", (funder['funder_address'],))
+            net = cursor.fetchone()
+            if net:
+                funder['network'] = net['network_name']
+                if 'labels' not in funder:
+                    funder['labels'] = []
+                funder['labels'].append(f'NETWORK_MEMBER')
+
+        # Sort by relevance: funders with tags first, then by amount
+        def relevance_score(funder):
+            score = 0
+            labels = funder.get('labels', [])
+            # Circular funding is most important (higher score = more relevant)
+            if any('CIRCULAR_FUNDING' in label for label in labels):
+                score += 10000
+            if any('NETWORK_MEMBER' in label for label in labels):
+                score += 5000
+            if funder.get('is_infrastructure'):
+                score += 2000
+            if funder.get('funder_label'):
+                score += 1000
+            # Then sort by amount (secondary)
+            score += funder.get('amount_sol', 0)
+            return score
+
+        all_funders_sorted = sorted(all_funders, key=relevance_score, reverse=True)
+        top_funders = all_funders_sorted[:15]  # Show top 15 instead of 10 to include more tagged funders
 
         # 4. Get top recipients from creator_receivers (post-migration outgoing transfers)
         cursor.execute("""
@@ -14957,10 +15004,24 @@ def api_creator_outgoing_analysis(creator_address: str):
                 # Creator funding other creators (even just 1) is CREATOR_FUNDING_CHAIN pattern
                 funder_info['labels'].append('CREATOR_FUNDING_CHAIN')
 
+            # Check for DIRECT circular funding: funder received from creator AND sent back to creator
+            cursor.execute("""
+                SELECT COUNT(*) as direct_circular FROM (
+                    SELECT recipient_address FROM creator_outgoing_transfers
+                    WHERE creator_address = ? AND recipient_address = ?
+                    INTERSECT
+                    SELECT funder_address FROM creator_funders
+                    WHERE creator_address = ? AND funder_address = ?
+                )
+            """, (creator_address, funder['funder_address'], creator_address, funder['funder_address']))
+            direct_circ = cursor.fetchone()
+            if direct_circ and direct_circ['direct_circular'] > 0:
+                funder_info['labels'].append('⚠️ CIRCULAR_FUNDING(direct)')
+
             # Check if funder is in a funding chain (bridges SOL between creators)
             cursor.execute("SELECT COUNT(*) as count FROM funding_chains WHERE bridge_funder = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'", (funder['funder_address'],))
             chain_row = cursor.fetchone()
-            if chain_row and chain_row['count'] > 0:
+            if chain_row and chain_row['count'] > 0 and '⚠️ CIRCULAR_FUNDING' not in funder_info['labels']:
                 chain_count = chain_row['count']
 
                 # Check if this is circular funding (same creators appear as both sources and targets)

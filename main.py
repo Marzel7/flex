@@ -15441,8 +15441,11 @@ def detect_network_cex_infra_connections():
 
             # Determine network type
             # CreatorTransfer networks are always organic by definition (direct creator-to-creator transfers)
+            # They should have NO CEX/INFRA flags regardless of the creators' other funders
             if network_name.startswith('CreatorTransfer_'):
                 network_type = 'organic'
+                has_cex = 0
+                has_infra = 0
             else:
                 has_cex = len(cex_funders) > 0
                 has_infra = len(infra_funders) > 0
@@ -15885,8 +15888,9 @@ def creator_network_page(network_name: str):
                     <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                         <h1>🔗 Creator Network: {network_name}</h1>
                         <div style="display: flex; gap: 8px;">
-                            {'<span style="background: #ef4444; color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700;">🏦 CEX-CONNECTED</span>' if has_cex else ''}
-                            {'<span style="background: #f97316; color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700;">🔧 INFRA-CONNECTED</span>' if has_infra else ''}
+                            {'<span style="background: #ef4444; color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700;">🏦 CEX-CONNECTED</span>' if network_type == 'cex_connected' else ''}
+                            {'<span style="background: #f97316; color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700;">🔧 INFRA-CONNECTED</span>' if network_type == 'infra_connected' else ''}
+                            {'<span style="background: #d97706; color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700;">⚠️ MIXED</span>' if network_type == 'mixed' else ''}
                             {'<span style="background: #22c55e; color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700;">✓ ORGANIC</span>' if network_type == 'organic' else ''}
                         </div>
                     </div>

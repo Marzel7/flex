@@ -15632,6 +15632,7 @@ def creator_network_page(network_name: str):
     try:
         # URL decode the network name if needed
         from urllib.parse import unquote
+        import json
         network_name = unquote(network_name)
         
         conn = sqlite3.connect(DB_PATH, timeout=5)
@@ -15694,7 +15695,6 @@ def creator_network_page(network_name: str):
         funders_html = ""
         creator_count = 0
         funder_count = 0
-        import json
         try:
             connected = json.loads(network_row['connected_creators'])
 

@@ -15698,6 +15698,17 @@ def creator_network_page(network_name: str):
         funders_html = ""
         creator_count = 0
         funder_count = 0
+
+        # Helper function to check if address is CEX
+        def is_cex_address(addr):
+            cursor.execute("SELECT COUNT(*) as count FROM cex_wallets WHERE cex_address = ?", (addr,))
+            return cursor.fetchone()['count'] > 0
+
+        # Helper function to get member role tag with CEX indicator
+        def get_member_role_tag(addr, base_role):
+            cex_badge = " 🏦 CEX" if is_cex_address(addr) else ""
+            return f"{base_role}{cex_badge}"
+
         try:
             connected = json.loads(network_row['connected_creators'])
 
@@ -15707,10 +15718,11 @@ def creator_network_page(network_name: str):
             is_primary_creator = cursor.fetchone()['count'] > 0
 
             if is_primary_creator:
+                role_tag = get_member_role_tag(network_row['creator_address'], "PRIMARY CREATOR")
                 creators_html += f"""
                     <div class="network-member-row">
                         <div class="member-address">{network_row['creator_address']}</div>
-                        <div class="member-role">PRIMARY CREATOR</div>
+                        <div class="member-role">{role_tag}</div>
                         <div class="member-added">{network_row['updated_at']}</div>
                     </div>
                 """
@@ -15722,19 +15734,21 @@ def creator_network_page(network_name: str):
                 is_creator = cursor.fetchone()['count'] > 0
 
                 if is_creator:
+                    role_tag = get_member_role_tag(addr, "CREATOR")
                     creators_html += f"""
                         <div class="network-member-row">
                             <div class="member-address">{addr}</div>
-                            <div class="member-role">CREATOR</div>
+                            <div class="member-role">{role_tag}</div>
                             <div class="member-added">{network_row['updated_at']}</div>
                         </div>
                     """
                     creator_count += 1
                 else:
+                    role_tag = get_member_role_tag(addr, "FUNDER")
                     funders_html += f"""
                         <div class="network-member-row">
                             <div class="member-address">{addr}</div>
-                            <div class="member-role">FUNDER</div>
+                            <div class="member-role">{role_tag}</div>
                             <div class="member-added">{network_row['updated_at']}</div>
                         </div>
                     """
@@ -15757,10 +15771,11 @@ def creator_network_page(network_name: str):
                 # Add bridge funders to funders section
                 for funder in bridge_funders:
                     if funder and funder not in connected:  # Avoid duplicates
+                        role_tag = get_member_role_tag(funder, "FUNDER")
                         funders_html += f"""
                             <div class="network-member-row">
                                 <div class="member-address">{funder}</div>
-                                <div class="member-role">FUNDER</div>
+                                <div class="member-role">{role_tag}</div>
                                 <div class="member-added">{network_row['updated_at']}</div>
                             </div>
                         """

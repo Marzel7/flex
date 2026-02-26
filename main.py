@@ -15043,16 +15043,42 @@ def api_creator_outgoing_analysis(creator_address: str):
                         sender_count += 1
 
         if cross_funder_count > 0:
+            network_context = ""
+            if network_name:
+                if network_type == 'cex_connected':
+                    network_context = f' within the 🏦 CEX-connected "{network_name}" network'
+                elif network_type == 'infra_connected':
+                    network_context = f' within the 🔧 INFRA-connected "{network_name}" network'
+                elif network_type == 'mixed':
+                    network_context = f' within the ⚠️ MIXED "{network_name}" network'
+                elif network_type == 'organic':
+                    network_context = f' within the ✓ ORGANIC "{network_name}" network'
+                else:
+                    network_context = f' within the "{network_name}" network'
+
             findings.append({
                 'type': '🚨 SUSPICIOUS_CROSS_FUNDING',
-                'description': f'CRITICAL: Detected {cross_funder_count} recipient address(es) that also fund OTHER different creators. This indicates potential coordinated manipulation or hidden funding networks.',
+                'description': f'CRITICAL: Detected {cross_funder_count} recipient address(es) that also fund OTHER different creators. This indicates potential coordinated manipulation or hidden funding networks{network_context}.',
                 'networks': [network_name] if network_name else []
             })
 
         if funds_count > 0 or multi_funded_count > 0:
+            network_context = ""
+            if network_name:
+                if network_type == 'cex_connected':
+                    network_context = f' as part of the 🏦 CEX-connected "{network_name}" network'
+                elif network_type == 'infra_connected':
+                    network_context = f' as part of the 🔧 INFRA-connected "{network_name}" network'
+                elif network_type == 'mixed':
+                    network_context = f' as part of the ⚠️ MIXED "{network_name}" network'
+                elif network_type == 'organic':
+                    network_context = f' as part of the ✓ ORGANIC "{network_name}" network'
+                else:
+                    network_context = f' as part of the "{network_name}" network'
+
             findings.append({
                 'type': '⚠️ FUNDER_ROUTING',
-                'description': f'This creator sends SOL to {funds_count} funder address(es) that also fund other creators, and {multi_funded_count} address(es) funded by multiple sources. Possible coordinated network activity.',
+                'description': f'This creator sends SOL to {funds_count} funder address(es) that also fund other creators, and {multi_funded_count} address(es) funded by multiple sources. Possible coordinated network activity{network_context}.',
                 'networks': [network_name] if network_name else []
             })
 
@@ -15082,9 +15108,22 @@ def api_creator_outgoing_analysis(creator_address: str):
             })
 
         if coordinated_edges:
+            network_context = ""
+            if network_name:
+                if network_type == 'cex_connected':
+                    network_context = f' (member of 🏦 CEX-connected "{network_name}")'
+                elif network_type == 'infra_connected':
+                    network_context = f' (member of 🔧 INFRA-connected "{network_name}")'
+                elif network_type == 'mixed':
+                    network_context = f' (member of ⚠️ MIXED "{network_name}")'
+                elif network_type == 'organic':
+                    network_context = f' (member of ✓ ORGANIC "{network_name}")'
+                else:
+                    network_context = f' (member of "{network_name}")'
+
             findings.append({
                 'type': 'COORDINATED_FUNDING',
-                'description': f'This creator is part of {len(coordinated_edges)} coordinated funding relationships with other creators through shared funders.',
+                'description': f'This creator is part of {len(coordinated_edges)} coordinated funding relationships with other creators through shared funders{network_context}.',
                 'networks': [network_name] if network_name else []
             })
 

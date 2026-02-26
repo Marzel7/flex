@@ -15887,8 +15887,6 @@ def api_creator_scan_stats():
             SELECT
               CASE
                 WHEN datetime(last_launch_at) >= datetime('now', '-6 hours') THEN 0
-                WHEN reputation IN ('MALICIOUS', 'SUSPICIOUS') THEN 1
-                WHEN connected_to_malicious = 1 THEN 1
                 WHEN in_network = 0 THEN 2
                 WHEN datetime(last_funded_at) >= datetime('now', '-6 hours') THEN 3
                 WHEN datetime(last_scanned_at) < datetime('now', '-24 hours') THEN 4
@@ -15901,14 +15899,11 @@ def api_creator_scan_stats():
                 MAX(ta.created_at) AS last_launch_at,
                 CASE WHEN cn.creator_address IS NOT NULL THEN 1 ELSE 0 END AS in_network,
                 MAX(cf.first_detected_at) AS last_funded_at,
-                COALESCE(csc.updated_at, '2000-01-01') AS last_scanned_at,
-                COALESCE(cb.reputation, 'CLEAN') AS reputation,
-                COALESCE(cb.connected_to_malicious, 0) AS connected_to_malicious
+                COALESCE(csc.updated_at, '2000-01-01') AS last_scanned_at
               FROM token_analysis ta
               LEFT JOIN creator_networks cn ON cn.creator_address = ta.earliest_tx_creator
               LEFT JOIN creator_funders cf ON cf.creator_address = ta.earliest_tx_creator
               LEFT JOIN creator_sig_cursors csc ON csc.creator_address = ta.earliest_tx_creator
-              LEFT JOIN creator_blocklist cb ON cb.creator_address = ta.earliest_tx_creator
               WHERE ta.earliest_tx_creator IS NOT NULL
               GROUP BY ta.earliest_tx_creator
             )
@@ -15931,7 +15926,6 @@ def api_creator_scan_stats():
             'tier_stats': tier_stats,
             'tier_labels': {
                 0: 'Tier 0: Launched in last 6 hours',
-                1: 'Tier 1: Malicious/Suspicious or connected',
                 2: 'Tier 2: Not in any network (discovery)',
                 3: 'Tier 3: Recently funded (last 6 hours)',
                 4: 'Tier 4: Not scanned in 24 hours',

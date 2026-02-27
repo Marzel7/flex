@@ -9,7 +9,7 @@ Works like INFRA_ACCOUNTS and CEX_ACCOUNTS, but stores discovered tags
 import sqlite3
 from typing import Dict, List, Optional, Set
 
-DB_PATH = "pumpswap_tokens.db"
+DB_PATH = "flex_complete_database.db"
 
 
 def get_address_tags(address: str) -> Dict[str, List[str]]:

@@ -14,7 +14,7 @@ import sqlite3
 import json
 from typing import Dict, Optional, Set
 
-DB_PATH = "pumpswap_tokens.db"
+DB_PATH = "flex_complete_database.db"
 
 # In-memory cache of domains
 DOMAIN_REGISTRY: Dict[str, Dict] = {}

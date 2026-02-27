@@ -10,7 +10,7 @@ import sqlite3
 from typing import Optional, Dict, List
 from functools import lru_cache
 
-DB_PATH = "pumpswap_tokens.db"
+DB_PATH = "flex_complete_database.db"
 
 
 @lru_cache(maxsize=10000)

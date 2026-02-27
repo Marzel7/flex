@@ -23,7 +23,7 @@ from typing import List, Dict, Optional, Set
 from datetime import datetime, timedelta
 import aiohttp
 
-DB_PATH = "pumpswap_tokens.db"
+DB_PATH = "flex_complete_database.db"
 BLOCKSEC_API_KEY = "639144520c4d750bbce34dd8177314fff080de733c1773fb3667ce7754cb5738"
 BLOCKSEC_API_URL = "https://aml.blocksec.com/address-label/api/v3/batch-labels"
 

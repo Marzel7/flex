@@ -12,7 +12,7 @@ import sqlite3
 import json
 from typing import Dict, Set, List
 
-DB_PATH = "pumpswap_tokens.db"
+DB_PATH = "flex_complete_database.db"
 
 class CreatorTransferExtractor:
     def __init__(self, db_path: str = DB_PATH):

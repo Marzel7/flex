@@ -29,7 +29,7 @@ sys.path.insert(0, '/Users/kevinkeaveney/Dev/claude/flex')
 
 from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS, is_infrastructure_account, is_cex_account
 
-DB_PATH = "pumpswap_tokens.db"
+DB_PATH = "flex_complete_database.db"
 SOLSCAN_API_BASE = "https://api.solscan.io"
 BONFIDA_API_BASE = "https://api.bonfida.com/v2"
 

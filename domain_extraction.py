@@ -25,7 +25,7 @@ except ImportError:
     def is_infrastructure(addr: str) -> bool:
         return False
 
-DB_PATH = "pumpswap_tokens.db"
+DB_PATH = "flex_complete_database.db"
 
 # Regex pattern for Solana domain names (.sol TLD)
 SOL_DOMAIN_PATTERN = re.compile(r'[\w\-]+\.sol\b', re.IGNORECASE)

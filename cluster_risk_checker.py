@@ -2,7 +2,7 @@ import sqlite3
 import json
 from typing import Dict, Optional
 
-DB_PATH = "pumpswap_tokens.db"
+DB_PATH = "flex_complete_database.db"
 
 CLUSTER_RISK_MULTIPLIERS = {
     "FUNDERS_14": 3.0,    # 3x multiplier - CRITICAL network (25 non-CEX funders, v2.2 CEX-exclusive)

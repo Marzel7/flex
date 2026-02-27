@@ -29,7 +29,7 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional, Set, Tuple
 from collections import defaultdict, deque
 
-DB_PATH = os.getenv("DB_PATH", "pumpswap_tokens.db")
+DB_PATH = os.getenv("DB_PATH", "flex_complete_database.db")
 
 # -----------------------------
 # Tuning knobs

@@ -13,7 +13,7 @@ import sqlite3
 from typing import Optional, Dict, Set
 import time
 
-DB_PATH = "pumpswap_tokens.db"
+DB_PATH = "flex_complete_database.db"
 
 # In-memory cache for recently looked up addresses
 LABEL_CACHE: Dict[str, tuple] = {}  # {address: (label_name, category, timestamp)}

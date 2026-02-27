@@ -34,7 +34,7 @@ try:
 except ImportError:
     pass  # dotenv not required, env vars can be set directly
 
-DB_PATH = "pumpswap_tokens.db"
+DB_PATH = "flex_complete_database.db"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()
 LAMPORTS_PER_SOL = 1_000_000_000
 

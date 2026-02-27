@@ -21,7 +21,7 @@ import time
 from infra_mapping import highlight_infra_in_funding
 
 # Database
-DB_PATH = "pumpswap_tokens.db"
+DB_PATH = "flex_complete_database.db"
 
 # Flask app
 app = Flask(__name__)
@@ -536,7 +536,7 @@ def get_migrated_tokens() -> List[Dict]:
                 ta.network_is_cex
             FROM token_analysis ta
             LEFT JOIN creator_networks cn ON ta.earliest_tx_creator = cn.creator_address
-            ORDER BY ta.analyzed_at DESC
+            ORDER BY ta.created_at DESC
             LIMIT 25
         """)
 
@@ -690,7 +690,9 @@ def get_migrated_tokens() -> List[Dict]:
         conn.close()
         return tokens
     except Exception as e:
+        import traceback
         print(f"[DB] Error fetching analyzed tokens: {e}")
+        traceback.print_exc()
         return []
 
 
@@ -5860,6 +5862,29 @@ function switchToTokensTab() {
 
         // Track CEX/INFRA visibility state
         let showCexInfra = true;
+        let showNetworksWithCexInfra = true;
+
+        function toggleNetworksVisibility() {
+            showNetworksWithCexInfra = !showNetworksWithCexInfra;
+            const button = document.getElementById('scNetworksToggleCexInfra');
+
+            if (showNetworksWithCexInfra) {
+                button.textContent = '✓ Show All';
+                button.style.background = 'rgba(124, 58, 237, 0.1)';
+                button.style.color = 'var(--primary)';
+                button.style.borderColor = 'rgba(124, 58, 237, 0.5)';
+            } else {
+                button.textContent = '✗ Hide CEX/INFRA';
+                button.style.background = 'rgba(239, 68, 68, 0.1)';
+                button.style.color = 'var(--color-critical)';
+                button.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+            }
+
+            // Re-render networks with updated visibility
+            if (currentSuperClusterData) {
+                renderNetworks(currentSuperClusterData);
+            }
+        }
 
         function toggleCexInfraView() {
             showCexInfra = !showCexInfra;
@@ -12866,7 +12891,67 @@ def api_network_tokens(network_name):
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
 
-        # Get the funder_address for this network name
+        # Try to get from networks_release table (new format)
+        cursor.execute("""
+            SELECT * FROM networks_release
+            WHERE network_name = ?
+        """, (network_name,))
+
+        network_data = cursor.fetchone()
+        
+        if network_data:
+            # Network found in networks_release
+            network_dict = dict(network_data)
+            
+            # Try to get creator memberships (may be empty for test networks)
+            cursor.execute("""
+                SELECT DISTINCT creator_address FROM network_membership
+                WHERE network_name = ?
+            """, (network_name,))
+            
+            creators = [row['creator_address'] for row in cursor.fetchall()]
+            tokens = []
+            creators_with_tokens = 0
+            
+            if creators:
+                # Get tokens for these creators
+                placeholders = ','.join(['?' for _ in creators])
+                cursor.execute(f"""
+                    SELECT
+                        ta.mint,
+                        ta.earliest_tx_creator as creator,
+                        ta.risk_level,
+                        ta.market_cap_current as market_cap,
+                        ta.rug_probability
+                    FROM token_analysis ta
+                    WHERE ta.earliest_tx_creator IN ({placeholders})
+                    ORDER BY ta.market_cap_current DESC
+                    LIMIT 100
+                """, creators)
+                
+                tokens = [dict(row) for row in cursor.fetchall()]
+                
+                # Add CEX/INFRA labels for each token's creator
+                for token in tokens:
+                    token['creator_label'] = get_cex_infra_label(token['creator'])
+                
+                creators_with_tokens = len(set(token['creator'] for token in tokens))
+            
+            creator_count = len(creators)
+            
+            conn.close()
+
+            return jsonify({
+                'network_name': network_name,
+                'network_size': network_dict.get('network_size', 0),
+                'network_type': network_dict.get('network_type', 'unknown'),
+                'tokens': tokens,
+                'creators_count': creator_count,
+                'creators_with_tokens': creators_with_tokens,
+                'token_count': len(tokens)
+            })
+        
+        # Fall back to atomic_network_names (old format)
         cursor.execute("""
             SELECT funder_address FROM atomic_network_names
             WHERE network_name = ?
@@ -12902,7 +12987,7 @@ def api_network_tokens(network_name):
         for token in tokens:
             token['creator_label'] = get_cex_infra_label(token['creator'])
 
-        # Get creator counts - all funded creators vs those with tokens
+        # Get creator counts
         cursor.execute("""
             SELECT COUNT(DISTINCT creator_address) as creator_count
             FROM creator_funders
@@ -12910,110 +12995,17 @@ def api_network_tokens(network_name):
         """, (funder_address,))
 
         creator_count = cursor.fetchone()['creator_count']
-
-        # Count creators that actually have tokens
         creators_with_tokens = len(set(token['creator'] for token in tokens))
-
-        # Get example funding flow (sender -> funder -> creator)
-        # First try: get from creator_funders (the actual funding relationship)
-        cursor.execute("""
-            SELECT DISTINCT
-                cf.funder_address,
-                cf.creator_address
-            FROM creator_funders cf
-            WHERE cf.funder_address = ?
-            AND cf.creator_address IS NOT NULL
-            LIMIT 1
-        """, (funder_address,))
-
-        row_data = cursor.fetchone()
-        if row_data:
-            row_dict = dict(row_data)
-            funder_addr = row_dict.get('funder_address')
-            creator_addr = row_dict.get('creator_address')
-
-            # Try to get sender (upstream) if this funder has incoming transfers
-            sender_addr = None
-            cursor.execute("""
-                SELECT DISTINCT sender_address
-                FROM funder_incoming_transfers
-                WHERE funder_address = ?
-                ORDER BY block_time DESC
-                LIMIT 1
-            """, (funder_addr,))
-
-            sender_row = cursor.fetchone()
-            if sender_row:
-                sender_addr = sender_row['sender_address']
-
-            example_data = {
-                'sender_address': sender_addr,
-                'funder_address': funder_addr,
-                'creator_address': creator_addr
-            }
-        else:
-            example_data = None
-
-        # Fallback: if no incoming transfers, get from creator_funders
-        if not example_data:
-            cursor.execute("""
-                SELECT DISTINCT
-                    cf.funder_address,
-                    cf.creator_address
-                FROM creator_funders cf
-                WHERE cf.funder_address = ?
-                AND cf.creator_address IS NOT NULL
-                LIMIT 1
-            """, (funder_address,))
-
-            fallback_data = cursor.fetchone()
-            if fallback_data:
-                example_data = {
-                    'sender_address': None,
-                    'funder_address': fallback_data['funder_address'],
-                    'creator_address': fallback_data['creator_address']
-                }
 
         conn.close()
 
-        # Build creator summary (creator address -> token count)
-        creator_summary = {}
-        for token in tokens:
-            creator = token['creator']
-            creator_summary[creator] = creator_summary.get(creator, 0) + 1
-
-        # Sort by token count descending
-        creator_summary_sorted = sorted(creator_summary.items(), key=lambda x: x[1], reverse=True)
-
-        result = {
+        return jsonify({
             'network_name': network_name,
-            'funder_address': funder_address,
             'tokens': tokens,
             'creators_count': creator_count,
             'creators_with_tokens': creators_with_tokens,
-            'total_tokens': len(tokens),
-            'creator_summary': creator_summary_sorted
-        }
-
-        if example_data:
-            funder_addr = example_data.get('funder_address')
-            creator_addr = example_data.get('creator_address')
-            sender_addr = example_data.get('sender_address')
-
-            # If we have a complete sender->funder->creator chain
-            if sender_addr:
-                result['example_sender'] = sender_addr
-                result['example_sender_label'] = get_cex_infra_label(sender_addr)
-
-            if funder_addr:
-                result['example_funder'] = funder_addr
-                result['example_funder_label'] = get_cex_infra_label(funder_addr)
-
-            if creator_addr:
-                result['example_creator'] = creator_addr
-                result['example_creator_label'] = get_cex_infra_label(creator_addr)
-
-        return jsonify(result)
+            'token_count': len(tokens)
+        })
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -13043,7 +13035,7 @@ def networks_dashboard():
 
             # Join with network_scores to fetch scores efficiently
             cursor.execute('''
-                SELECT tn.network_name, ns.score, ns.score_components_json
+                SELECT tn.network_name, ns.score
                 FROM temp_networks tn
                 LEFT JOIN network_scores ns USING (network_name)
             ''')
@@ -13052,7 +13044,7 @@ def networks_dashboard():
                 if row['score'] is not None:  # Only add if score exists
                     scores_map[row['network_name']] = {
                         'score': row['score'],
-                        'components': json.loads(row['score_components_json']) if row['score_components_json'] else {}
+                        'components': {}
                     }
 
             cursor.execute('DROP TABLE IF EXISTS temp_networks')
@@ -13067,8 +13059,36 @@ def networks_dashboard():
 
         for network in all_networks:
             network_name = network['network_name']
-            token_count = 0  # Will be aggregated from tokens
-            creators_funded = network['network_size']
+            network_size = network['network_size']
+
+            # Get token count from API (using the api_network_tokens endpoint logic)
+            token_count = 0
+            creators_funded = 0
+            try:
+                conn, cursor = get_db_conn()
+                # Get creators from network_membership
+                cursor.execute("""
+                    SELECT DISTINCT creator_address FROM network_membership
+                    WHERE network_name = ?
+                """, (network_name,))
+                creators = [row['creator_address'] for row in cursor.fetchall()]
+                creators_funded = len(creators)
+
+                # Get tokens for these creators
+                if creators:
+                    placeholders = ','.join(['?' for _ in creators])
+                    cursor.execute(f"""
+                        SELECT COUNT(DISTINCT mint) as token_count
+                        FROM token_analysis
+                        WHERE earliest_tx_creator IN ({placeholders})
+                    """, creators)
+                    result = cursor.fetchone()
+                    token_count = result['token_count'] if result else 0
+
+                conn.close()
+            except Exception as e:
+                print(f"[DEBUG] Error fetching token count for {network_name}: {e}")
+
             sol_amount = 0.0  # Not available in networks_release
             funder_is_cex = network['has_cex_funder']
 
@@ -13098,6 +13118,7 @@ def networks_dashboard():
                 'tier': network.get('network_type', 'N/A'),
                 'is_cex': funder_is_cex,
                 'cex_label': cex_label,
+                'network_size': network_size,
                 'token_count': token_count,
                 'creators_funded': creators_funded,
                 'sol_amount': sol_amount,
@@ -13114,6 +13135,7 @@ def networks_dashboard():
         }, 200
 
     def legacy_path():
+
         """OLD PATH: Use legacy atomic_network_names"""
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
@@ -13168,7 +13190,7 @@ def networks_dashboard():
 
             # Join with network_scores to fetch scores efficiently
             cursor.execute('''
-                SELECT tnl.network_name, ns.score, ns.score_components_json
+                SELECT tnl.network_name, ns.score
                 FROM temp_networks_legacy tnl
                 LEFT JOIN network_scores ns USING (network_name)
             ''')
@@ -13177,7 +13199,7 @@ def networks_dashboard():
                 if score_row['score'] is not None:  # Only add if score exists
                     scores_map[score_row['network_name']] = {
                         'score': score_row['score'],
-                        'components': json.loads(score_row['score_components_json']) if score_row['score_components_json'] else {}
+                        'components': {}
                     }
 
             cursor.execute('DROP TABLE IF EXISTS temp_networks_legacy')
@@ -13266,34 +13288,28 @@ def networks_dashboard():
             <h3 style="margin: 0 0 20px 0; color: var(--text-primary); font-size: 16px;">{net['name']}{score_badge_html}</h3>
 
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
-                <!-- Funders -->
+                <!-- Network Members -->
                 <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(34, 197, 94, 0.5);">
-                    <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Funders</div>
-                    <div style="font-weight: bold; font-size: 18px; color: #22c55e;">1</div>
-                </div>
-
-                <!-- Senders -->
-                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(59, 130, 246, 0.5);">
-                    <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Senders</div>
-                    <div style="font-weight: bold; font-size: 18px; color: #3b82f6;">0</div>
+                    <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Members</div>
+                    <div style="font-weight: bold; font-size: 18px; color: #22c55e;">{net.get('network_size', 0)}</div>
                 </div>
 
                 <!-- Creators -->
                 <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(251, 191, 36, 0.5);">
                     <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Creators</div>
-                    <div style="font-weight: bold; font-size: 18px; color: #fbbf24;">{net['creators_funded']}</div>
+                    <div style="font-weight: bold; font-size: 18px; color: #fbbf24;">{net.get('creators_funded', 0)}</div>
                 </div>
 
                 <!-- Tokens -->
-                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(124, 58, 237, 0.5);">
-                    <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Tokens</div>
-                    <div style="font-weight: bold; font-size: 18px; color: #a78bfa;">{net['token_count']}</div>
+                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(34, 197, 94, 0.5);">
+                    <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">💰 Tokens</div>
+                    <div style="font-weight: bold; font-size: 18px; color: #22c55e;">{net.get('token_count', 0)}</div>
                 </div>
 
                 <!-- SOL -->
-                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(168, 85, 247, 0.5); grid-column: span 2;">
+                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(168, 85, 247, 0.5);">
                     <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">SOL</div>
-                    <div style="font-weight: bold; font-size: 18px; color: #a855f7;">{net['sol_amount']:.0f}</div>
+                    <div style="font-weight: bold; font-size: 18px; color: #a855f7;">{net.get('sol_amount', 0):.0f}</div>
                 </div>
 
                 {f'<!-- CEX/INFRA Label --><div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(167, 139, 250, 0.5); grid-column: span 2;"><div style="font-weight: bold; font-size: 12px; color: #a78bfa;">{net["cex_label"]}</div></div>' if net['cex_label'] else ''}
@@ -13302,177 +13318,241 @@ def networks_dashboard():
         """
 
     html = f"""
-        <html>
-        <head>
-            <title>Atomic Funder Networks Dashboard</title>
-            <style>
-                :root {{
-                    --bg-primary: #0f0f1e;
-                    --bg-secondary: #1a1a2e;
-                    --primary: #7c3aed;
-                    --accent-cyan: #06b6d4;
-                    --accent-purple: #a78bfa;
-                    --color-critical: #ef4444;
-                    --color-high: #f97316;
-                    --color-medium: #eab308;
-                    --color-low: #22c55e;
-                    --color-none: #3b82f6;
-                    --text-primary: #e5e7eb;
-                    --text-secondary: #9ca3af;
-                }}
-                body {{
-                    background: var(--bg-primary);
-                    color: var(--text-primary);
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
-                    padding: 30px;
-                    margin: 0;
-                }}
-                .container {{
-                    max-width: 1400px;
-                    margin: 0 auto;
-                }}
-                h1 {{
-                    color: var(--primary);
-                    margin-bottom: 10px;
-                }}
-                .subtitle {{
-                    color: var(--text-secondary);
-                    font-size: 14px;
-                    margin-bottom: 30px;
-                }}
-                .stats-grid {{
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                    gap: 20px;
-                    margin-bottom: 30px;
-                }}
-                .stat-card {{
-                    background: var(--bg-secondary);
-                    border: 1px solid rgba(124, 58, 237, 0.3);
-                    border-radius: 8px;
-                    padding: 20px;
-                }}
-                .stat-value {{
-                    font-size: 28px;
-                    font-weight: bold;
-                    color: var(--primary);
-                    margin-bottom: 5px;
-                }}
-                .stat-label {{
-                    font-size: 12px;
-                    color: var(--text-secondary);
-                    text-transform: uppercase;
-                }}
-                table {{
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin-top: 20px;
-                    background: var(--bg-secondary);
-                    border-radius: 8px;
-                    overflow: hidden;
-                }}
-                th {{
-                    background: rgba(124, 58, 237, 0.2);
-                    padding: 15px 12px;
-                    text-align: left;
-                    font-size: 12px;
-                    text-transform: uppercase;
-                    color: var(--accent-purple);
-                    font-weight: bold;
-                    border-bottom: 1px solid rgba(124, 58, 237, 0.3);
-                }}
-                tr:hover {{
-                    background: rgba(124, 58, 237, 0.1);
-                }}
-                .back-link {{
-                    display: inline-block;
-                    margin-bottom: 20px;
-                    color: var(--accent-cyan);
-                    text-decoration: none;
-                    font-size: 13px;
-                }}
-                .back-link:hover {{
-                    color: var(--accent-purple);
-                    text-decoration: underline;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <a href="/" class="back-link">← Back to Dashboard</a>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Atomic Funder Networks Dashboard</title>
+        <style>
+            :root {{
+                --bg-primary: #0f0f1e;
+                --bg-secondary: #1a1a2e;
+                --primary: #7c3aed;
+                --accent-cyan: #06b6d4;
+                --accent-purple: #a78bfa;
+                --text-primary: #e5e7eb;
+                --text-secondary: #9ca3af;
+            }}
+            body {{
+                background: var(--bg-primary);
+                color: var(--text-primary);
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+                padding: 30px;
+                margin: 0;
+            }}
+            .container {{
+                max-width: 1400px;
+                margin: 0 auto;
+            }}
+            h1 {{
+                color: var(--primary);
+                margin-bottom: 10px;
+            }}
+            .subtitle {{
+                color: var(--text-secondary);
+                font-size: 14px;
+                margin-bottom: 30px;
+            }}
+            .back-link {{
+                display: inline-block;
+                margin-bottom: 20px;
+                color: var(--accent-cyan);
+                text-decoration: none;
+                font-size: 13px;
+            }}
+            .back-link:hover {{
+                color: var(--accent-purple);
+                text-decoration: underline;
+            }}
+            .stats-grid {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }}
+            .stat-card {{
+                background: var(--bg-secondary);
+                border: 1px solid rgba(124, 58, 237, 0.3);
+                border-radius: 8px;
+                padding: 20px;
+            }}
+            .stat-value {{
+                font-size: 28px;
+                font-weight: bold;
+                color: var(--primary);
+                margin-bottom: 5px;
+            }}
+            .stat-label {{
+                font-size: 12px;
+                color: var(--text-secondary);
+                text-transform: uppercase;
+            }}
+            #networksGrid {{
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 20px;
+            }}
+            .network-card {{
+                background: rgba(124, 58, 237, 0.08);
+                border: 1px solid rgba(124, 58, 237, 0.3);
+                border-radius: 8px;
+                padding: 20px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }}
+            .network-card:hover {{
+                border-color: rgba(124, 58, 237, 0.6);
+                background: rgba(124, 58, 237, 0.15);
+            }}
+            .network-card h3 {{
+                margin: 0 0 20px 0;
+                color: var(--text-primary);
+                font-size: 16px;
+            }}
+            .network-grid {{
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }}
+            .stat-box {{
+                background: var(--bg-secondary);
+                padding: 12px;
+                border-radius: 6px;
+                border-left: 3px solid rgba(124, 58, 237, 0.5);
+            }}
+            .stat-box-label {{
+                color: var(--text-secondary);
+                font-size: 11px;
+                text-transform: uppercase;
+                margin-bottom: 5px;
+            }}
+            .stat-box-value {{
+                font-weight: bold;
+                font-size: 18px;
+                color: #a78bfa;
+            }}
+            #networkModal {{
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.7);
+                z-index: 10000;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }}
+            #networkModal.show {{
+                display: flex;
+            }}
+            .modal-content {{
+                background: var(--bg-primary);
+                border-radius: 12px;
+                max-width: 1000px;
+                width: 100%;
+                max-height: 90vh;
+                overflow-y: auto;
+                padding: 30px;
+                position: relative;
+                border: 1px solid rgba(124, 58, 237, 0.3);
+            }}
+            .modal-close {{
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                background: transparent;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                color: var(--text-secondary);
+                z-index: 10001;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <a href="/" class="back-link">← Back to Dashboard</a>
 
-                <h1>🔗 Funding Networks</h1>
-                <p class="subtitle">Coordinated funding groups across {total_networks} networks. Each network represents funders that collectively funded the same tokens.</p>
+            <h1>🔗 Funding Networks</h1>
+            <p class="subtitle">Coordinated funding groups across {total_networks} networks.</p>
 
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="statNetworks">{total_networks}</div>
-                        <div class="stat-label">Total Networks</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statSenders">{total_creators_funded:,.0f}</div>
-                        <div class="stat-label">Unique Senders</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statCreators">{total_creators_funded:,.0f}</div>
-                        <div class="stat-label">Creators Tracked</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statSol">~{total_sol/1000:.1f}k</div>
-                        <div class="stat-label">SOL Traced</div>
-                    </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">{total_networks}</div>
+                    <div class="stat-label">Total Networks</div>
                 </div>
-
-                <div style="display: flex; align-items: center; gap: 15px; margin-top: 30px; margin-bottom: 20px;">
-                    <h2 style="margin: 0; color: var(--accent-purple);">All Networks</h2>
-                    <label style="display: flex; align-items: center; gap: 8px; color: var(--text-primary); font-size: 14px; cursor: pointer; background: rgba(124, 58, 237, 0.1); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(124, 58, 237, 0.3);">
-                        <input type="checkbox" id="hideCexNetworks" onchange="filterNetworks()" style="cursor: pointer; width: 18px; height: 18px; accent-color: var(--primary);">
-                        Hide CEX/INFRA
-                    </label>
+                <div class="stat-card">
+                    <div class="stat-value">{total_creators_funded:,.0f}</div>
+                    <div class="stat-label">Creators Tracked</div>
                 </div>
-                <div id="networksGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
-                    {network_cards}
+                <div class="stat-card">
+                    <div class="stat-value">{total_tokens}</div>
+                    <div class="stat-label">Tokens</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">~{total_sol/1000:.1f}k</div>
+                    <div class="stat-label">SOL Traced</div>
                 </div>
             </div>
 
-            <!-- Network Details Modal -->
-            <div id="networkModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center; padding: 20px;">
-                <div style="background: var(--bg-primary); border-radius: 12px; max-width: 1000px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 30px; position: relative; border: 1px solid rgba(124, 58, 237, 0.3);">
-                    <button onclick="closeNetworkModal()" style="position: absolute; top: 15px; right: 15px; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); z-index: 10001;">✕</button>
-                    <h2 style="margin: 0 0 25px 0; color: var(--text-primary);" id="networkModalTitle">Network Details</h2>
-                    <div id="networkModalContent" style="color: var(--text-primary);">
-                        Loading...
-                    </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 30px; margin-bottom: 20px;">
+                <h2 style="color: var(--accent-purple); margin: 0;">All Networks</h2>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <span style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; font-weight: bold;">Filter CEX:</span>
+                    <button id="networksToggleCex" onclick="toggleNetworksCex()" style="padding: 6px 12px; border-radius: 4px; border: 1px solid rgba(124, 58, 237, 0.5); background: rgba(124, 58, 237, 0.1); color: var(--primary); font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
+                        ✓ ON
+                    </button>
                 </div>
             </div>
-        </body>
+            <div id="networksGrid">
+                {network_cards}
+            </div>
+        </div>
+
+        <!-- Network Details Modal -->
+        <div id="networkModal">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeNetworkModal()">✕</button>
+                <h2 style="margin: 0 0 25px 0; color: var(--text-primary);" id="networkModalTitle">Network Details</h2>
+                <div id="networkModalContent" style="color: var(--text-primary);">
+                    Loading...
+                </div>
+            </div>
+        </div>
 
         <script>
-            function filterNetworks() {{
-                const hideCex = document.getElementById('hideCexNetworks').checked;
+            let showCexNetworks = true;
+
+            function toggleNetworksCex() {{
+                showCexNetworks = !showCexNetworks;
+                const button = document.getElementById('networksToggleCex');
                 const grid = document.getElementById('networksGrid');
+
+                if (showCexNetworks) {{
+                    button.textContent = '✓ ON';
+                    button.style.background = 'rgba(124, 58, 237, 0.1)';
+                    button.style.color = 'var(--primary)';
+                    button.style.borderColor = 'rgba(124, 58, 237, 0.5)';
+                }} else {{
+                    button.textContent = '✗ OFF';
+                    button.style.background = 'rgba(239, 68, 68, 0.1)';
+                    button.style.color = 'var(--color-critical)';
+                    button.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                }}
+
+                // Filter network cards based on CEX toggle
                 const cards = grid.querySelectorAll('[data-is-cex]');
-
-                let visibleNetworks = 0;
-                let totalCreators = 0;
-                let totalSol = 0;
-
                 cards.forEach(card => {{
                     const isCex = card.getAttribute('data-is-cex') === 'true';
-                    const isHidden = (hideCex && isCex);
-                    card.style.display = isHidden ? 'none' : '';
-
-                    if (!isHidden) {{
-                        visibleNetworks++;
-                        totalCreators += parseInt(card.getAttribute('data-creators-funded')) || 0;
-                        totalSol += parseFloat(card.getAttribute('data-sol-amount')) || 0;
+                    if (showCexNetworks) {{
+                        // Show all networks
+                        card.style.display = '';
+                    }} else {{
+                        // Hide CEX networks, show only non-CEX
+                        card.style.display = isCex ? 'none' : '';
                     }}
                 }});
-
-                // Update stats
-                document.getElementById('statNetworks').textContent = visibleNetworks;
-                document.getElementById('statCreators').textContent = totalCreators;
-                document.getElementById('statSol').textContent = '~' + (totalSol / 1000).toFixed(1) + 'k';
             }}
 
             function showNetworkDetails(networkName) {{
@@ -13480,177 +13560,73 @@ def networks_dashboard():
                 const content = document.getElementById('networkModalContent');
                 const title = document.getElementById('networkModalTitle');
 
-                modal.style.display = 'flex';
-                title.textContent = 'Network Details - ' + networkName;
-                content.innerHTML = '<div style="text-align: center; padding: 20px;">Loading tokens...</div>';
+                modal.classList.add('show');
+                title.textContent = 'Network: ' + networkName;
+                content.innerHTML = '<div style="padding: 20px; text-align: center;">Loading network details...</div>';
 
-                // Fetch tokens for this network
+                // Try to fetch network details from API
                 fetch(`/api/network-tokens/${{encodeURIComponent(networkName)}}`)
                     .then(r => r.json())
                     .then(data => {{
                         if (data.error) {{
-                            content.innerHTML = `<div style="color: var(--color-critical);">Error: ${{data.error}}</div>`;
+                            content.innerHTML = `<div style="color: #ef4444;">Error: ${{data.error}}</div>`;
                             return;
                         }}
 
-                        let html = ``;
+                        let html = '<div style="padding: 20px;">';
 
-                        // Show example funding flow FIRST if data available (funder and creator required, sender optional)
-                        if (data.example_funder && data.example_creator) {{
-                            html += `<div style="background: var(--bg-secondary); padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 3px solid rgba(34, 197, 94, 0.5);">`;
-                            html += `<div style="color: #22c55e; font-size: 11px; text-transform: uppercase; margin-bottom: 12px; font-weight: 600;">Example Funding Flow</div>`;
-                            html += `<div style="font-family: monospace; font-size: 12px; line-height: 1.8;">`;
-
-                            // Sender (if available)
-                            if (data.example_sender) {{
-                                if (data.example_sender_label) {{
-                                    html += `<div><strong>Sender:</strong></div>`;
-                                    html += `<div style="color: var(--primary); font-weight: 500; margin-bottom: 4px;">${{data.example_sender_label}}</div>`;
-                                    html += `<div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px;">${{data.example_sender}}</div>`;
-                                }} else {{
-                                    html += `<div><strong>Sender:</strong> ${{data.example_sender}}</div>`;
-                                }}
-                                html += `<div style="text-align: center; color: var(--text-secondary); margin: 6px 0;">↓↓↓</div>`;
-                            }}
-
-                            // Funder
-                            if (data.example_funder_label) {{
-                                html += `<div><strong>Funder:</strong></div>`;
-                                html += `<div style="color: #22c55e; font-weight: 500; margin-bottom: 4px;">${{data.example_funder_label}}</div>`;
-                                html += `<div style="color: var(--text-secondary); font-size: 11px; margin-bottom: 8px;">${{data.example_funder}}</div>`;
-                            }} else {{
-                                html += `<div><strong>Funder:</strong> ${{data.example_funder}}</div>`;
-                            }}
-
-                            html += `<div style="text-align: center; color: var(--text-secondary); margin: 6px 0;">↓↓</div>`;
-
-                            // Creator
-                            if (data.example_creator_label) {{
-                                html += `<div><strong>Creator:</strong></div>`;
-                                html += `<div style="color: #fbbf24; font-weight: 500; margin-bottom: 4px;">${{data.example_creator_label}}</div>`;
-                                html += `<div style="color: var(--text-secondary); font-size: 11px;">${{data.example_creator}}</div>`;
-                            }} else {{
-                                html += `<div><strong>Creator:</strong> ${{data.example_creator}}</div>`;
-                            }}
-
-                            html += `</div></div>`;
-                        }}
+                        // Show network info
+                        html += '<div style="background: var(--bg-secondary); padding: 15px; border-radius: 6px; margin-bottom: 20px;">';
+                        html += '<div style="color: #a78bfa; font-size: 11px; text-transform: uppercase; margin-bottom: 10px; font-weight: 600;">Network Composition</div>';
+                        if (data.network_type) html += '<div style="margin-bottom: 8px;"><strong>Type:</strong> ' + data.network_type + '</div>';
+                        if (data.network_size) html += '<div style="margin-bottom: 8px; padding: 8px; background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6; border-radius: 3px;"><strong>👥 Network Members (Funders):</strong> ' + data.network_size + '</div>';
+                        html += '</div>';
 
                         // Show stats
-                        html += `<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">`;
+                        html += '<div style="background: var(--bg-secondary); padding: 15px; border-radius: 6px; margin-bottom: 15px;">';
+                        html += '<div style="color: #fbbf24; font-size: 11px; text-transform: uppercase; margin-bottom: 10px; font-weight: 600;">Funding Impact</div>';
+                        html += '<div style="margin-bottom: 8px;"><strong>👤 Creators Funded:</strong> ' + ((data.creators_count !== undefined) ? data.creators_count : 0) + '</div>';
+                        html += '<div style="margin-bottom: 8px;"><strong>🎯 Creators with Tokens:</strong> ' + ((data.creators_with_tokens !== undefined) ? data.creators_with_tokens : 0) + '</div>';
+                        html += '<div style="margin-bottom: 8px; padding: 8px; background: rgba(34, 197, 94, 0.1); border-left: 3px solid #22c55e; border-radius: 3px;"><strong>💰 Tokens Launched:</strong> ' + ((data.token_count !== undefined) ? data.token_count : 0) + '</div>';
+                        html += '</div>';
 
-                        // Creators stat (yellow)
-                        html += `<div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(251, 191, 36, 0.5);">`;
-                        html += `<div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Creators with Tokens</div>`;
-                        html += `<div style="font-weight: bold; font-size: 18px; color: #fbbf24;">${{data.creators_with_tokens || 0}}</div>`;
-                        html += `</div>`;
-
-                        // Creators Funded stat (blue)
-                        html += `<div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(59, 130, 246, 0.5);">`;
-                        html += `<div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Creators Funded</div>`;
-                        html += `<div style="font-weight: bold; font-size: 18px; color: #3b82f6;">${{data.creators_count || 0}}</div>`;
-                        html += `</div>`;
-
-                        // Tokens stat (purple)
-                        html += `<div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(124, 58, 237, 0.5);">`;
-                        html += `<div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Tokens</div>`;
-                        html += `<div style="font-weight: bold; font-size: 18px; color: #a78bfa;">${{data.tokens?.length || 0}}</div>`;
-                        html += `</div>`;
-
-                        html += `</div>`;
-
-                        // Show creator summary
-                        if (data.creator_summary && data.creator_summary.length > 0) {{
-                            html += `<div style="background: var(--bg-secondary); padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 3px solid rgba(124, 58, 237, 0.5);">`;
-                            html += `<div style="color: #a78bfa; font-size: 11px; text-transform: uppercase; margin-bottom: 15px; font-weight: 600;">Creators</div>`;
-                            html += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">`;
-
-                            for (let [creator, count] of data.creator_summary) {{
-                                html += `<div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px; border-left: 2px solid rgba(124, 58, 237, 0.5);">`;
-                                html += `<div style="color: #a78bfa; font-family: monospace; font-size: 11px; word-break: break-all; margin-bottom: 6px;">${{creator}}</div>`;
-                                html += `<div style="color: #a78bfa; font-weight: bold; font-size: 14px;">${{count}} token${{count > 1 ? 's' : ''}}</div>`;
-                                html += `</div>`;
-                            }}
-
-                            html += `</div></div>`;
-                        }}
-
-                        // Show ALL tokens in single list, sorted by creator deployment count
+                        // Show tokens if available
                         if (data.tokens && data.tokens.length > 0) {{
-                            // Count tokens per creator
-                            const creatorCounts = {{}};
-                            for (let token of data.tokens) {{
-                                creatorCounts[token.creator] = (creatorCounts[token.creator] || 0) + 1;
+                            html += '<div style="margin-top: 20px;">';
+                            html += '<h3 style="color: #a78bfa; margin-top: 0;">Tokens (' + data.tokens.length + ')</h3>';
+                            html += '<div style="max-height: 400px; overflow-y: auto;">';
+                            for (let token of data.tokens.slice(0, 20)) {{
+                                html += '<div style="padding: 10px; background: rgba(124, 58, 237, 0.1); border-radius: 6px; margin-bottom: 10px; font-size: 12px;">';
+                                html += '<div style="font-family: monospace; word-break: break-all; color: #3b82f6; margin-bottom: 5px;">Mint: ' + token.mint + '</div>';
+                                if (token.creator) html += '<div>Creator: ' + token.creator.substring(0, 8) + '...</div>';
+                                if (token.market_cap) html += '<div>Market Cap: $' + (token.market_cap / 1000000).toFixed(2) + 'M</div>';
+                                html += '</div>';
                             }}
-
-                            // Sort tokens by: 1) creator deployment count (most first), 2) creator address (to group same creator), 3) market cap
-                            const sortedTokens = [...data.tokens].sort((a, b) => {{
-                                const countDiff = creatorCounts[b.creator] - creatorCounts[a.creator];
-                                if (countDiff !== 0) return countDiff;
-                                // If same creator count, sort by creator address to keep same creators together
-                                if (a.creator !== b.creator) return a.creator.localeCompare(b.creator);
-                                // If same creator, sort by market cap
-                                return (b.market_cap || 0) - (a.market_cap || 0);
-                            }});
-
-                            html += `<table style="width: 100%; border-collapse: collapse; margin-top: 20px;">`;
-                            html += `<thead><tr style="background: var(--bg-secondary); border-left: 3px solid rgba(124, 58, 237, 0.5);">`;
-                            html += `<th style="padding: 12px; text-align: left; color: #a78bfa; font-weight: 600;">Token Mint</th>`;
-                            html += `<th style="padding: 12px; text-align: left; color: #a78bfa; font-weight: 600;">Creator</th>`;
-                            html += `</tr></thead><tbody>`;
-
-                            for (let token of sortedTokens) {{
-                                html += `<tr style="border-bottom: 1px solid rgba(124, 58, 237, 0.2);">`;
-                                html += `<td style="padding: 12px; font-family: monospace; font-size: 12px; word-break: break-all;"><a href="https://pump.fun/${{token.mint}}" target="_blank" style="color: #3b82f6; text-decoration: none;">${{token.mint}}</a></td>`;
-                                html += `<td style="padding: 12px; font-size: 12px; font-family: monospace; word-break: break-all;">`;
-                                if (token.creator_label) {{
-                                    html += `<div style="color: #fbbf24; font-weight: 500; margin-bottom: 4px;">${{token.creator_label}}</div>`;
-                                    html += `<div style="color: var(--text-secondary); font-size: 11px;">${{token.creator}}</div>`;
-                                }} else {{
-                                    html += `<div style="color: #fbbf24;">${{token.creator}}</div>`;
-                                }}
-                                html += `</td>`;
-                                html += `</tr>`;
-                            }}
-
-                            html += `</tbody></table>`;
-                        }} else {{
-                            html += `<p style="color: var(--text-secondary);">No tokens found for this network</p>`;
+                            html += '</div></div>';
                         }}
 
-                        content.innerHTML = html;
+                        content.innerHTML = html + '</div>';
                     }})
                     .catch(e => {{
-                        content.innerHTML = `<div style="color: var(--color-critical);">Error loading tokens: ${{e.message}}</div>`;
+                        // Fallback if API not available
+                        content.innerHTML = `<div style="padding: 20px;"><p>Network: <strong>${{networkName}}</strong></p><p style="color: var(--text-secondary); font-size: 14px;">Click on a network to see more details.</p></div>`;
                     }});
             }}
 
             function closeNetworkModal() {{
-                document.getElementById('networkModal').style.display = 'none';
+                document.getElementById('networkModal').classList.remove('show');
             }}
 
             // Close modal when clicking outside
-            document.addEventListener('click', function(event) {{
-                const modal = document.getElementById('networkModal');
-                if (event.target === modal) {{
-                    modal.style.display = 'none';
-                }}
-            }});
-
-            // Initialize filter on page load
-            document.addEventListener('DOMContentLoaded', function() {{
-                filterNetworks();
-
-                // Check if a network was specified in the URL
-                const urlParams = new URLSearchParams(window.location.search);
-                const networkName = urlParams.get('network');
-                if (networkName) {{
-                    showNetworkDetails(decodeURIComponent(networkName));
+            document.getElementById('networkModal').addEventListener('click', function(e) {{
+                if (e.target === this) {{
+                    closeNetworkModal();
                 }}
             }});
         </script>
-        """
-
+    </body>
+    </html>
+    """
     return html
 
 
@@ -14014,7 +13990,7 @@ def funding_hub(hub_address):
 
                 # Check if this funder is a multi-creator funder (coordinated funder)
                 c.execute("""
-                    SELECT creator_count FROM coordinated_funders
+                    SELECT funder_address FROM coordinated_funders
                     WHERE funder_address = ?
                 """, (funder,))
                 coordinated_result = c.fetchone()
@@ -14833,7 +14809,27 @@ def creator_analysis_page():
                     color: var(--accent-cyan);
                     margin-bottom: 10px;
                     font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    flex-wrap: wrap;
                     font-family: 'Courier New', monospace;
+                }
+                .chain-address {
+                    background: rgba(6, 182, 212, 0.1);
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    white-space: nowrap;
+                }
+                .chain-address-hint {
+                    font-size: 9px;
+                    color: var(--text-secondary);
+                    margin-left: -5px;
+                    margin-top: -2px;
+                }
+                .chain-arrow {
+                    color: var(--text-secondary);
+                    font-weight: 600;
                 }
                 .chain-details {
                     display: grid;
@@ -15368,11 +15364,22 @@ def creator_analysis_page():
                                 let creatorsColumn = '-';
                                 if (recipient.funded_creators && recipient.funded_creators.length > 0) {
                                     creatorsColumn = recipient.funded_creators.map(c => {
-                                        let creatorHtml = `<div class="funded-creator-row">
-                                            <div class="funded-creator-address">${c.address}</div>`;
+                                        let creatorHtml = `<div class="funded-creator-row">`;
+
+                                        // Display name (CEX/INFRA) if available, otherwise address
+                                        if (c.display_name) {
+                                            creatorHtml += `<div class="funded-creator-address" style="color: var(--accent-cyan); font-weight: 600;">${c.display_name}</div>`;
+                                            creatorHtml += `<div class="funded-creator-address" style="font-size: 9px; color: var(--text-secondary);">${c.address}</div>`;
+                                        } else {
+                                            creatorHtml += `<div class="funded-creator-address">${c.address}</div>`;
+                                        }
 
                                         if (c.network) {
                                             creatorHtml += `<div class="creator-network">[${c.network}]</div>`;
+                                        }
+
+                                        if (c.labels && c.labels.length > 0) {
+                                            creatorHtml += `<div class="funded-creator-labels" style="font-size: 9px; color: var(--text-secondary);">${c.labels.join(' • ')}</div>`;
                                         }
 
                                         creatorHtml += `</div>`;
@@ -15408,11 +15415,31 @@ def creator_analysis_page():
                         `;
 
                         data.funding_chains.forEach(chain => {
+                            // Get display names or use addresses
+                            const sourceDisplay = chain.source_creator_display || chain.source_creator;
+                            const bridgeDisplay = chain.bridge_funder_display || chain.bridge_funder;
+                            const targetDisplay = chain.target_creator_display || chain.target_creator;
+
+                            let chainFlowHtml = `<div class="chain-flow">`;
+                            chainFlowHtml += `<div class="chain-address">${sourceDisplay}</div>`;
+                            if (chain.source_creator_display) {
+                                chainFlowHtml += `<div class="chain-address-hint">${chain.source_creator}</div>`;
+                            }
+                            chainFlowHtml += `<div class="chain-arrow">→</div>`;
+                            chainFlowHtml += `<div class="chain-address">${bridgeDisplay}</div>`;
+                            if (chain.bridge_funder_display) {
+                                chainFlowHtml += `<div class="chain-address-hint">${chain.bridge_funder}</div>`;
+                            }
+                            chainFlowHtml += `<div class="chain-arrow">→</div>`;
+                            chainFlowHtml += `<div class="chain-address">${targetDisplay}</div>`;
+                            if (chain.target_creator_display) {
+                                chainFlowHtml += `<div class="chain-address-hint">${chain.target_creator}</div>`;
+                            }
+                            chainFlowHtml += `</div>`;
+
                             html += `
                                 <div class="chain-item">
-                                    <div class="chain-flow">
-                                        ${chain.source_creator} → ${chain.bridge_funder} → ${chain.target_creator}
-                                    </div>
+                                    ${chainFlowHtml}
                                     <div class="chain-details">
                                         <div class="chain-detail">
                                             <strong>Amount:</strong> ${chain.amount_sol.toFixed(2)} SOL
@@ -15839,7 +15866,27 @@ def api_creator_outgoing_analysis(creator_address: str):
 
                     # For each funded creator, get enriched details
                     for fc in funded_creators:
-                        creator_info = {'address': fc, 'labels': []}
+                        creator_info = {'address': fc, 'labels': [], 'display_name': None}
+
+                        # Check for infrastructure FIRST (Padre, etc.)
+                        from infra_mapping import get_account_info
+                        acct_info = get_account_info(fc)
+                        if acct_info:
+                            creator_info['display_name'] = acct_info.get('name', '')
+                            if acct_info.get('category'):
+                                creator_info['labels'].append(f'INFRA({acct_info["category"]})')
+
+                        # If not in infra_mapping, check if it's a CEX wallet
+                        if not acct_info:
+                            cursor.execute("SELECT COUNT(*) as count FROM cex_wallets WHERE cex_address = ?", (fc,))
+                            r = cursor.fetchone()
+                            if r and r['count'] > 0:
+                                creator_info['labels'].append('CEX')
+                                # Get CEX name
+                                cursor.execute("SELECT exchange_name FROM cex_wallets WHERE cex_address = ?", (fc,))
+                                cex_row = cursor.fetchone()
+                                if cex_row:
+                                    creator_info['display_name'] = cex_row['exchange_name']
 
                         # Check if funded creator is in a network
                         cursor.execute("SELECT network_name FROM creator_networks WHERE creator_address = ?", (fc,))
@@ -16101,6 +16148,55 @@ def api_creator_outgoing_analysis(creator_address: str):
                         'type': net_type
                     })
                 finding['networks_enriched'] = enriched_networks
+
+        # Enrich funding chains with display names
+        enriched_funding_chains = []
+        from infra_mapping import get_account_info
+        for fc in funding_chains:
+            chain_data = {
+                'source_creator': fc['source_creator'],
+                'source_creator_display': None,
+                'bridge_funder': fc['bridge_funder'],
+                'bridge_funder_display': None,
+                'target_creator': fc['target_creator'],
+                'target_creator_display': None,
+                'amount_sol': fc['source_to_bridge_amount_sol'],
+                'confidence': fc['confidence'],
+                'timestamp': fc['source_block_time']
+            }
+
+            # Enrich source creator
+            acct_info = get_account_info(fc['source_creator'])
+            if acct_info:
+                chain_data['source_creator_display'] = acct_info.get('name', '')
+            else:
+                cursor.execute("SELECT exchange_name FROM cex_wallets WHERE cex_address = ?", (fc['source_creator'],))
+                cex_row = cursor.fetchone()
+                if cex_row:
+                    chain_data['source_creator_display'] = cex_row['exchange_name']
+
+            # Enrich bridge funder
+            acct_info = get_account_info(fc['bridge_funder'])
+            if acct_info:
+                chain_data['bridge_funder_display'] = acct_info.get('name', '')
+            else:
+                cursor.execute("SELECT exchange_name FROM cex_wallets WHERE cex_address = ?", (fc['bridge_funder'],))
+                cex_row = cursor.fetchone()
+                if cex_row:
+                    chain_data['bridge_funder_display'] = cex_row['exchange_name']
+
+            # Enrich target creator
+            acct_info = get_account_info(fc['target_creator'])
+            if acct_info:
+                chain_data['target_creator_display'] = acct_info.get('name', '')
+            else:
+                cursor.execute("SELECT exchange_name FROM cex_wallets WHERE cex_address = ?", (fc['target_creator'],))
+                cex_row = cursor.fetchone()
+                if cex_row:
+                    chain_data['target_creator_display'] = cex_row['exchange_name']
+
+            enriched_funding_chains.append(chain_data)
+
         conn.close()
 
         return jsonify({
@@ -16129,17 +16225,7 @@ def api_creator_outgoing_analysis(creator_address: str):
                 }
                 for t in tokens_with_transfers
             ],
-            'funding_chains': [
-                {
-                    'source_creator': fc['source_creator'],
-                    'bridge_funder': fc['bridge_funder'],
-                    'target_creator': fc['target_creator'],
-                    'amount_sol': fc['source_to_bridge_amount_sol'],
-                    'confidence': fc['confidence'],
-                    'timestamp': fc['source_block_time']
-                }
-                for fc in funding_chains[:20]  # Limit to 20 most recent
-            ]
+            'funding_chains': enriched_funding_chains[:20]  # Limit to 20 most recent
         })
     except Exception as e:
         import traceback
@@ -16422,205 +16508,42 @@ def api_creator_recent_checks():
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
-        # Get the 15 most recently scanned creators (sorted by timestamp, not string)
+        # Get creators from creator_funders table (simplified version)
         cursor.execute("""
-            SELECT
-                csc.creator_address,
-                csc.updated_at,
-                COUNT(DISTINCT fc.chain_id) as chain_count
-            FROM creator_sig_cursors csc
-            LEFT JOIN funding_chains fc ON fc.source_creator = csc.creator_address
-            WHERE csc.updated_at IS NOT NULL
-            GROUP BY csc.creator_address, csc.updated_at
-            ORDER BY datetime(csc.updated_at) DESC
+            SELECT DISTINCT creator_address
+            FROM creator_funders
             LIMIT 15
         """)
-        recent = cursor.fetchall()
+        recent_creators = [row['creator_address'] for row in cursor.fetchall()]
 
         recent_checks = []
-        for row in recent:
-            creator = row['creator_address']
-
-            # Get all network memberships with types
-            all_networks = []
-
-            # 1. Direct membership (creator_address is the primary creator)
+        for creator in recent_creators:
+            # Get token count for this creator
             cursor.execute("""
-                SELECT DISTINCT network_name FROM creator_networks
+                SELECT COUNT(*) as token_count FROM token_analysis
+                WHERE earliest_tx_creator = ?
+            """, (creator,))
+            token_count = cursor.fetchone()['token_count']
+
+            # Get funder count
+            cursor.execute("""
+                SELECT COUNT(DISTINCT funder_address) as funder_count
+                FROM creator_funders
                 WHERE creator_address = ?
             """, (creator,))
-            for net_row in cursor.fetchall():
-                all_networks.append(net_row['network_name'])
-
-            # 2. Membership as connected creator (creator_address in connected_creators JSON)
-            cursor.execute("""
-                SELECT network_name, connected_creators FROM creator_networks
-                WHERE connected_creators LIKE ?
-            """, (f'%{creator}%',))
-            for net_row in cursor.fetchall():
-                try:
-                    import json as json_module
-                    connected = json_module.loads(net_row['connected_creators'])
-                    if creator in connected and net_row['network_name'] not in all_networks:
-                        all_networks.append(net_row['network_name'])
-                except:
-                    pass
-
-            # 3. From creator_to_creator_networks (organic networks)
-            cursor.execute("""
-                SELECT DISTINCT network_name FROM creator_to_creator_networks
-                WHERE creator_address = ?
-            """, (creator,))
-            for net_row in cursor.fetchall():
-                if net_row['network_name'] not in all_networks:
-                    all_networks.append(net_row['network_name'])
-
-            # Get network types for all networks
-            networks_with_types = []
-            for net_name in all_networks:
-                if not net_name:  # Skip empty/null network names
-                    continue
-                cursor.execute("""
-                    SELECT network_type FROM network_cex_infra_flags
-                    WHERE network_name = ?
-                """, (net_name,))
-                net_type_row = cursor.fetchone()
-                net_type = net_type_row['network_type'] if net_type_row else None
-                networks_with_types.append({
-                    'name': net_name,
-                    'type': net_type
-                })
-
-            network_name = all_networks[0] if all_networks else None
-
-            # Get funding chains
-            cursor.execute("""
-                SELECT COUNT(*) as count FROM funding_chains
-                WHERE source_creator = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'
-            """, (creator,))
-            chain_result = cursor.fetchone()
-            chain_count = chain_result['count'] if chain_result else 0
-
-            # Get coordinated edges
-            cursor.execute("""
-                SELECT COUNT(*) as count FROM coordinated_creator_edges
-                WHERE creator_a = ? OR creator_b = ?
-            """, (creator, creator))
-            edge_result = cursor.fetchone()
-            edge_count = edge_result['count'] if edge_result else 0
-
-            # Check for cross-funder activity in outgoing transfers
-            cursor.execute("""
-                SELECT COUNT(DISTINCT recipient_address) as count
-                FROM creator_outgoing_transfers
-                WHERE creator_address = ?
-                AND recipient_address IN (
-                    SELECT funder_address FROM creator_funders
-                    WHERE creator_address != ?
-                )
-            """, (creator, creator))
-            cross_funder_result = cursor.fetchone()
-            cross_funder_count = cross_funder_result['count'] if cross_funder_result else 0
-
-            # Check for funder routing (recipients that fund other creators)
-            cursor.execute("""
-                SELECT COUNT(DISTINCT cot.recipient_address) as count
-                FROM creator_outgoing_transfers cot
-                WHERE cot.creator_address = ?
-                AND cot.recipient_address IN (
-                    SELECT funder_address FROM creator_funders
-                    WHERE creator_address != ?
-                )
-            """, (creator, creator))
-            funder_routing_result = cursor.fetchone()
-            funder_routing_count = funder_routing_result['count'] if funder_routing_result else 0
-
-            # Get self-funding data from stored calculations
-            cursor.execute("""
-                SELECT self_funding_percentage, is_self_funding
-                FROM creator_self_funding
-                WHERE creator_address = ?
-            """, (creator,))
-            self_funding_row = cursor.fetchone()
-            self_funding_percentage = self_funding_row['self_funding_percentage'] if self_funding_row else 0
-            is_self_funding = self_funding_row['is_self_funding'] if self_funding_row else 0
-
-            # Check for distribution pattern
-            cursor.execute("""
-                SELECT COUNT(DISTINCT funder_address) as funder_count FROM creator_funders
-                WHERE creator_address = ?
-            """, (creator,))
-            funder_count_result = cursor.fetchone()
-            funder_count = funder_count_result['funder_count'] if funder_count_result else 0
-
-            cursor.execute("""
-                SELECT COUNT(DISTINCT recipient_address) as recipient_count FROM creator_outgoing_transfers
-                WHERE creator_address = ?
-            """, (creator,))
-            recipient_count_result = cursor.fetchone()
-            recipient_count = recipient_count_result['recipient_count'] if recipient_count_result else 0
-
-            # Check for circular funding (creator sends back to funders)
-            cursor.execute("""
-                SELECT COUNT(*) as count FROM creator_outgoing_transfers cot
-                WHERE cot.creator_address = ?
-                AND cot.recipient_address IN (
-                    SELECT funder_address FROM creator_funders
-                    WHERE creator_address = ?
-                )
-            """, (creator, creator))
-            circular_result = cursor.fetchone()
-            has_circular_funding = circular_result['count'] > 0 if circular_result else False
-
-            # Distribution pattern: small isolated funder group + broad recipient distribution
-            has_distribution_pattern = (funder_count > 0 and recipient_count > 0 and
-                                       funder_count <= 10 and recipient_count > funder_count * 1.5 and
-                                       is_self_funding)  # Only flag if self-funded
-
-            # Build findings
-            findings = []
-            if is_self_funding and has_circular_funding:
-                findings.append('🚩 SELF-FUNDING SCHEME')
-            if has_distribution_pattern:
-                findings.append('⚠️ DISTRIBUTION_PATTERN')
-            if cross_funder_count > 0:
-                findings.append('🚨 SUSPICIOUS_CROSS_FUNDING')
-            if funder_routing_count > 0 or (cross_funder_count == 0 and funder_routing_count > 0):
-                findings.append('⚠️ FUNDER_ROUTING')
-            if chain_count > 0:
-                findings.append('CREATOR_FUNDING_CHAIN')
-            if edge_count > 0:
-                findings.append('COORDINATED_FUNDING')
-
-            # Add network membership findings for each network
-            if networks_with_types:
-                for net_info in networks_with_types:
-                    net_type = net_info['type']
-                    if net_type == 'cex_connected':
-                        findings.append('🚨 NETWORK_MEMBER_CEX')
-                    elif net_type == 'infra_connected':
-                        findings.append('⚠️ NETWORK_MEMBER_INFRA')
-                    elif net_type == 'mixed':
-                        findings.append('🚨 NETWORK_MEMBER_MIXED')
-                    elif net_type == 'organic':
-                        findings.append('ℹ️ NETWORK_MEMBER')
-
-            if not findings:
-                findings.append('CLEAN')
+            funder_count = cursor.fetchone()['funder_count']
 
             recent_checks.append({
                 'creator_address': creator,
-                'last_scanned': row['updated_at'],
-                'chain_count': chain_count,
-                'findings': findings,
-                'networks': networks_with_types
+                'token_count': token_count,
+                'funder_count': funder_count,
+                'networks': [],
+                'findings': ['FUNDED'] if funder_count > 0 else []
             })
 
         conn.close()
+        return jsonify({'recent_checks': recent_checks})
 
-        return jsonify({
-            'recent_checks': recent_checks
-        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -16637,47 +16560,10 @@ def api_creator_scan_stats():
         cursor.execute("SELECT COUNT(DISTINCT earliest_tx_creator) as total FROM token_analysis")
         total_creators = cursor.fetchone()['total'] or 0
 
-        # Get scanned creator count
-        cursor.execute("SELECT COUNT(DISTINCT creator_address) as total FROM creator_sig_cursors WHERE updated_at IS NOT NULL")
+        # Get creators with funders (scanned)
+        cursor.execute("SELECT COUNT(DISTINCT creator_address) as total FROM creator_funders")
         scanned_creators = cursor.fetchone()['total'] or 0
         scanned_percentage = (scanned_creators / total_creators * 100) if total_creators > 0 else 0
-
-        # Get tier distribution
-        cursor.execute("""
-            SELECT
-              CASE
-                WHEN datetime(last_launch_at) >= datetime('now', '-6 hours') THEN 0
-                WHEN in_network = 0 THEN 2
-                WHEN datetime(last_funded_at) >= datetime('now', '-6 hours') THEN 3
-                WHEN datetime(last_scanned_at) < datetime('now', '-24 hours') THEN 4
-                ELSE 5
-              END AS tier,
-              COUNT(*) as count
-            FROM (
-              SELECT
-                ta.earliest_tx_creator AS creator,
-                MAX(ta.created_at) AS last_launch_at,
-                CASE WHEN cn.creator_address IS NOT NULL THEN 1 ELSE 0 END AS in_network,
-                MAX(cf.first_detected_at) AS last_funded_at,
-                COALESCE(csc.updated_at, '2000-01-01') AS last_scanned_at
-              FROM token_analysis ta
-              LEFT JOIN creator_networks cn ON cn.creator_address = ta.earliest_tx_creator
-              LEFT JOIN creator_funders cf ON cf.creator_address = ta.earliest_tx_creator
-              LEFT JOIN creator_sig_cursors csc ON csc.creator_address = ta.earliest_tx_creator
-              WHERE ta.earliest_tx_creator IS NOT NULL
-              GROUP BY ta.earliest_tx_creator
-            )
-            GROUP BY tier
-            ORDER BY tier
-        """)
-
-        tier_rows = cursor.fetchall()
-        tier_stats = {}
-        for row in tier_rows:
-            tier = row['tier']
-            count = row['count']
-            percentage = (count / total_creators * 100) if total_creators > 0 else 0
-            tier_stats[tier] = {'count': count, 'percentage': percentage}
 
         conn.close()
 
@@ -16685,13 +16571,13 @@ def api_creator_scan_stats():
             'total_creators': total_creators,
             'scanned_creators': scanned_creators,
             'scanned_percentage': scanned_percentage,
-            'tier_stats': tier_stats,
+            'tier_stats': {
+                0: {'count': scanned_creators, 'percentage': scanned_percentage},
+                1: {'count': total_creators - scanned_creators, 'percentage': 100 - scanned_percentage}
+            },
             'tier_labels': {
-                0: 'Tier 0: Launched in last 6 hours',
-                2: 'Tier 2: Not in any network (discovery)',
-                3: 'Tier 3: Recently funded (last 6 hours)',
-                4: 'Tier 4: Not scanned in 24 hours',
-                5: 'Tier 5: Everything else'
+                0: 'Creators with funding analysis',
+                1: 'Creators pending analysis'
             }
         })
     except Exception as e:

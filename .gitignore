@@ -64,4 +64,8 @@ update_coordination_detection.py
 # Runtime artifacts
 .logs/
 flex_addresses_export.xlsx
-flex_addresses_export.xlsx
+
+# Generated data exports (can be regenerated from database)
+*.csv
+network_analysis_output/
+top_funding_distribution_senders.csv

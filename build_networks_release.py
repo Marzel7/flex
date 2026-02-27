@@ -80,6 +80,14 @@ class PhaseProfiler:
         print("="*60 + "\n")
 
 
+def _ensure_column(db, table: str, col: str, col_type: str):
+    """Idempotently add a column to a table if it doesn't exist."""
+    cur = db.execute(f"PRAGMA table_info({table})")
+    cols = {r[1] for r in cur.fetchall()}  # r[1] = column name
+    if col not in cols:
+        db.execute(f"ALTER TABLE {table} ADD COLUMN {col} {col_type}")
+
+
 def ensure_network_evidence_table(db):
     """Ensure network_evidence table exists with proper schema."""
     db.execute('''
@@ -130,6 +138,109 @@ def ensure_network_evidence_table(db):
     ''')
 
 
+def phase_h1_snapshot_score_history(db):
+    """
+    Phase H.1 — Snapshot score history for ALL networks each run using build_tick.
+
+    Replaces the old H.1 logic that used nr.build_version as the history key.
+    That approach resulted in sparse history (only changed networks recorded).
+
+    New approach:
+    - build_tick is the global per-run time axis (increments every successful build)
+    - Snapshot ALL networks to network_score_history(network_name, build_tick)
+    - Preserves network_version = networks_release.build_version (Phase C structural)
+    - Enables stability/trend calculations for all networks
+
+    Returns:
+        dict with build_tick and history_rows_written
+    """
+
+    # 1) Ensure schema (idempotent)
+    _ensure_column(db, "network_score_history", "build_tick", "INTEGER")
+    _ensure_column(db, "network_score_history", "network_version", "INTEGER")
+
+    db.execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS uq_score_history_network_tick
+        ON network_score_history(network_name, build_tick)
+    """)
+
+    # Optional perf indexes
+    db.execute("""
+        CREATE INDEX IF NOT EXISTS idx_score_history_tick
+        ON network_score_history(build_tick)
+    """)
+
+    db.execute("""
+        CREATE INDEX IF NOT EXISTS idx_score_history_network_tick_desc
+        ON network_score_history(network_name, build_tick DESC)
+    """)
+
+    # 2) Compute global build_tick (time axis)
+    row = db.execute(
+        "SELECT COALESCE(MAX(build_tick), 0) + 1 FROM network_score_history"
+    ).fetchone()
+    build_tick = int(row[0])
+
+    # 3) Snapshot ALL networks for this build_tick
+    #
+    # Challenge: PRIMARY KEY is (network_name, build_version), but we want to snapshot
+    # all networks per build_tick (time axis). Multiple build_ticks can have the same
+    # network_name but would have conflicting PRIMARY KEYs if we reuse build_version.
+    #
+    # Solution: Update build_version to build_tick when inserting, so the PRIMARY KEY
+    # becomes unique. This allows us to keep all historical snapshots.
+    # We use INSERT OR REPLACE with updated build_version to make each tick unique.
+    #
+    # Note: This means build_version in the history will match build_tick, NOT the
+    # structural build_version from Phase C. Both are stored:
+    #   - build_version = build_tick (used as PK)
+    #   - network_version = nr.build_version (structural, from Phase C)
+
+    # First, check if this tick already exists
+    existing = db.execute(
+        "SELECT COUNT(*) as cnt FROM network_score_history WHERE build_tick = ?",
+        (build_tick,)
+    ).fetchone()['cnt']
+
+    if existing > 0:
+        # Already snapshotted this tick, skip
+        return {
+            "build_tick": build_tick,
+            "history_rows_written": 0,
+        }
+
+    # Insert all networks with this build_tick
+    inserted = db.execute("""
+        INSERT OR REPLACE INTO network_score_history (
+            network_name,
+            build_version,
+            build_tick,
+            network_version,
+            score,
+            score_version,
+            components_json,
+            computed_at
+        )
+        SELECT
+            nr.network_name,
+            ? AS build_version,
+            ? AS build_tick,
+            nr.build_version AS network_version,
+            ns.score,
+            ns.score_version,
+            ns.score_components_json,
+            COALESCE(ns.computed_at, CURRENT_TIMESTAMP)
+        FROM networks_release nr
+        LEFT JOIN network_scores ns
+          ON ns.network_name = nr.network_name
+    """, (build_tick, build_tick)).rowcount
+
+    return {
+        "build_tick": build_tick,
+        "history_rows_written": inserted,
+    }
+
+
 def build_networks_release(db_path: str) -> dict:
     """
     Build networks_release with version tracking and stability states.
@@ -156,6 +267,8 @@ def build_networks_release(db_path: str) -> dict:
         },
         'changed_networks': 0,
         'growth_spikes': [],  # Track networks with >25% growth
+        'build_tick': None,  # Global per-run time axis for score history
+        'history_rows_written': 0,  # Rows inserted into network_score_history
         'errors': [],
     }
 
@@ -1834,6 +1947,19 @@ def build_networks_release(db_path: str) -> dict:
         stats['new_networks'] = len([r for r in version_check if r['old_version'] is None])
 
         profiler.unmark('Phase J: Trends')
+
+        # Phase H.1: Snapshot score history for ALL networks (build_tick time axis)
+        profiler.mark('Phase H.1: History Snapshot')
+        print("🔄 Phase H.1: Snapshot score history for all networks...")
+
+        h1_result = phase_h1_snapshot_score_history(db)
+        stats['build_tick'] = h1_result['build_tick']
+        stats['history_rows_written'] = h1_result['history_rows_written']
+
+        print(f"   ✅ Score history snapshot: {h1_result['history_rows_written']} rows written")
+        print(f"      build_tick: {h1_result['build_tick']}")
+
+        profiler.unmark('Phase H.1: History Snapshot')
         profiler.report()
 
         # Phase L: Record build metadata (Phase 10 - Version 1.0 Governance)

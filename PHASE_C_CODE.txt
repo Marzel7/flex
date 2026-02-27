@@ -1,0 +1,204 @@
+================================================================================
+PHASE C: UPDATE BUILD VERSIONS
+================================================================================
+
+Location: build_networks_release.py, lines 355-434
+
+================================================================================
+CODE
+================================================================================
+
+# Phase C: Update build versions (AFTER stability, as you noted)
+profiler.unmark('Phase D: Stability')
+profiler.mark('Phase C: Versions')
+print("🔄 Phase C: Update build versions...")
+
+# Compute version changes in temp table
+# Also track which networks changed (for last_changed_at)
+db.execute('''
+    CREATE TEMP TABLE version_updates AS
+    SELECT
+      nr.network_name,
+      CASE
+        WHEN old.network_name IS NULL THEN 1
+        WHEN nr.network_size != old.network_size THEN old.build_version + 1
+        WHEN nr.network_type != old.network_type THEN old.build_version + 1
+        ELSE old.build_version
+      END as new_version,
+      CASE
+        WHEN old.network_name IS NULL THEN 1
+        WHEN nr.network_size != old.network_size THEN 1
+        WHEN nr.network_type != old.network_type THEN 1
+        ELSE 0
+      END as changed_flag
+    FROM networks_release nr
+    LEFT JOIN networks_release_prev old ON nr.network_name = old.network_name;
+''')
+
+# Update from temp table
+db.execute('''
+    UPDATE networks_release
+    SET
+      build_version = (
+        SELECT new_version FROM version_updates
+        WHERE version_updates.network_name = networks_release.network_name
+      ),
+      last_changed_at = CASE
+        WHEN (SELECT changed_flag FROM version_updates WHERE version_updates.network_name = networks_release.network_name) = 1
+        THEN CURRENT_TIMESTAMP
+        ELSE last_changed_at
+      END
+    WHERE network_name IN (SELECT network_name FROM version_updates);
+''')
+
+# Check version changes and growth spikes
+version_check = db.execute('''
+    SELECT
+      nr.network_name,
+      nr.build_version,
+      old.build_version as old_version,
+      sd.delta_pct
+    FROM networks_release nr
+    LEFT JOIN networks_release_prev old ON nr.network_name = old.network_name
+    LEFT JOIN stability_deltas sd ON nr.network_name = sd.network_name
+    WHERE (old.build_version IS NULL OR nr.build_version != old.build_version)
+    ORDER BY sd.delta_pct DESC NULLS LAST
+    LIMIT 20
+''').fetchall()
+
+print(f"   ✅ Version updates: {len(version_check)} networks changed")
+if version_check:
+    print(f"      Top changes (new/incremented networks):")
+    for row in version_check[:5]:
+        old_v = row['old_version'] or 'NEW'
+        new_v = row['build_version']
+        delta_str = f" ({row['delta_pct']:+.1f}%)" if row['delta_pct'] is not None else ""
+        print(f"      - {row['network_name']}: v{old_v} → v{new_v}{delta_str}")
+
+        # Track growth spikes (>25% growth)
+        if row['delta_pct'] is not None and row['delta_pct'] > 25:
+            stats['growth_spikes'].append({
+                'network': row['network_name'],
+                'delta_pct': row['delta_pct']
+            })
+
+    stats['versions_incremented'] = len(version_check)
+    stats['changed_networks'] = len(version_check)
+
+# Phase E: Finalize (update timestamp)
+profiler.unmark('Phase C: Versions')
+db.execute('UPDATE networks_release SET last_built_at = CURRENT_TIMESTAMP')
+
+================================================================================
+KEY LOGIC
+================================================================================
+
+1. FETCH CURRENT BUILD_VERSION
+   ├─ From networks_release (nr) table
+   ├─ Compare to networks_release_prev (old) table
+   └─ Previous version stored in old.build_version
+
+2. DECISION LOGIC
+   ├─ New network (old.network_name IS NULL)
+   │  └─ new_version = 1
+   │     changed_flag = 1
+   │
+   ├─ Network size changed (nr.network_size != old.network_size)
+   │  └─ new_version = old.build_version + 1
+   │     changed_flag = 1
+   │
+   ├─ Network type changed (nr.network_type != old.network_type)
+   │  └─ new_version = old.build_version + 1
+   │     changed_flag = 1
+   │
+   └─ No change detected
+      └─ new_version = old.build_version (keep same)
+         changed_flag = 0
+
+3. UPDATE networks_release TABLE
+   ├─ Set build_version = new_version (from temp table)
+   ├─ Set last_changed_at = CURRENT_TIMESTAMP if changed_flag = 1
+   └─ Otherwise keep existing last_changed_at
+
+4. TRACK CHANGES
+   ├─ Query networks where version changed
+   ├─ Join with stability_deltas for growth %
+   ├─ Report top 5 changes
+   └─ Flag growth_spikes (>25% delta_pct)
+
+================================================================================
+RELATED TABLES
+================================================================================
+
+networks_release
+├─ network_name (TEXT PRIMARY KEY)
+├─ build_version (INTEGER) ← Updated here
+├─ last_changed_at (TIMESTAMP) ← Updated if changed_flag = 1
+├─ last_built_at (TIMESTAMP)
+├─ network_size (INTEGER)
+└─ network_type (TEXT)
+
+networks_release_prev (snapshot from Phase A)
+├─ network_name (TEXT PRIMARY KEY)
+├─ build_version (INTEGER) ← Previous version
+├─ network_size (INTEGER)
+└─ network_type (TEXT)
+
+stability_deltas (computed in Phase D)
+├─ network_name (TEXT)
+└─ delta_pct (REAL) ← Growth % since last build
+
+================================================================================
+NETWORK_SCORE_HISTORY INSERTION
+================================================================================
+
+Note: Phase C does NOT insert into network_score_history.
+
+Phase H.1 (Score History) handles that:
+
+    INSERT OR IGNORE INTO network_score_history
+    (network_name, build_version, score, score_version, components_json, computed_at)
+    SELECT
+      nr.network_name,
+      nr.build_version,           ← Uses version from Phase C
+      ns.score,
+      ns.score_version,
+      ns.score_components_json,
+      ns.computed_at
+    FROM networks_release nr
+    LEFT JOIN network_scores ns ON nr.network_name = ns.network_name;
+
+So the flow is:
+  Phase C: Update build_version in networks_release
+  Phase G: Compute scores into network_scores
+  Phase H.1: Copy to network_score_history with new build_version
+
+================================================================================
+EXAMPLE FLOW (Current Data)
+================================================================================
+
+Initial state:
+  networks_release_prev: 101 networks at v1
+  networks_release: 101 networks (unchanged)
+
+Phase C result:
+  ✅ Version updates: 0 networks changed
+  (No networks changed in size or type)
+
+Next build where 1 network grows:
+  networks_release_prev: 101 networks (saved from previous)
+  networks_release: 101 networks but 1 changed size
+
+Phase C result:
+  ✅ Version updates: 1 networks changed
+  - network_name: v1 → v2 (+15.3%)
+
+Phase H.1 then creates history entries:
+  network_score_history gets rows for all 101 networks
+  but only 1 has build_version = 2
+  other 100 still have build_version = 1
+
+This explains why network_score_history has gaps in version numbers
+(version 2 exists in history but only 1 network entry at v2)
+
+================================================================================

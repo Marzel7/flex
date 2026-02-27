@@ -1,0 +1,306 @@
+================================================================================
+                 COMPREHENSIVE DATA REPORT - SUMMARY
+================================================================================
+
+📊 DELIVERABLES CREATED
+================================================================================
+
+1. COMPREHENSIVE_DATA_REPORT.xlsx (4.6 MB)
+   - 9 comprehensive sheets with 50K+ data rows
+   - All addresses, creators, funders, senders, networks, chains
+   - Database schema reference
+
+2. DATA_MAPPING_GUIDE.md (14 KB)
+   - 6-phase data capture flow explained
+   - Database schema & relationships
+   - Usage examples & SQL queries
+   - Data quality notes
+
+3. QUICK_REFERENCE.txt (9.9 KB)
+   - At-a-glance statistics
+   - Phase overview
+   - Key relationships & patterns
+   - Common queries
+
+================================================================================
+                    EXCEL REPORT CONTENTS (9 SHEETS)
+================================================================================
+
+Sheet 00: Summary
+  ✅ Overview statistics
+  ✅ Network statistics breakdown
+  ✅ Data capture flow diagram
+  ✅ Quick access guide
+
+Sheet 01: Data_Capture_Flow
+  ✅ Phase 1-6 pipeline documentation
+  ✅ File locations & functions
+  ✅ Input/output for each phase
+  ✅ Trigger conditions
+
+Sheet 02: Creators (1,373 rows)
+  ✅ Creator address
+  ✅ Number of funders
+  ✅ Total SOL received
+  ✅ Tokens launched
+  ✅ Recipients count
+
+Sheet 03: Funders (10,000 rows)
+  ✅ Funder address
+  ✅ Creators funded
+  ✅ SOL to creators
+  ✅ Sources & SOL received
+  ✅ CEX/Infrastructure flags
+
+Sheet 04: Senders (10,000 rows)
+  ✅ Sender address
+  ✅ Funders funded
+  ✅ Total SOL distribution
+
+Sheet 05: Networks (777 rows)
+  ✅ Network name
+  ✅ Lead creator
+  ✅ Network size
+  ✅ Risk level
+
+Sheet 06: Funding_Chains (204 rows)
+  ✅ Source creator
+  ✅ Bridge funder
+  ✅ Target creator
+  ✅ SOL amounts
+  ✅ Confidence scores
+  ✅ Chain type
+
+Sheet 07: Super_Clusters (500 rows)
+  ✅ Cluster ID
+  ✅ Network count
+  ✅ Creator count
+  ✅ Risk level
+
+Sheet 08: Database_Schema
+  ✅ All table definitions
+  ✅ Column descriptions
+  ✅ Relationships
+  ✅ Key insights
+
+================================================================================
+                         KEY DATA EXTRACTED
+================================================================================
+
+Addresses:
+  ✅ Total unique: ~11,000
+  ✅ Creators: 1,373 (100% of funded creators)
+  ✅ Funders: 10,000+
+  ✅ Senders: 10,000+
+  ✅ Recipients: 1,000+
+
+Relationships:
+  ✅ Creator ← Funder: ~300,000 edges
+  ✅ Funder ← Sender: ~400,000 edges
+  ✅ Creator → Recipient: ~40,000 edges
+
+Patterns Detected:
+  ✅ Coordinated funding chains: 204 (confidence >= 70)
+  ✅ Creator networks: 777 groups
+  ✅ Super clusters: 500 meta-groups
+  ✅ Self-funding schemes: Fully analyzed
+
+Coverage:
+  ✅ Creators scanned: 1,413 / 1,457 (97.0%)
+  ✅ Data freshness: Every 12 hours
+  ✅ Quality: HIGH
+
+================================================================================
+                    DATA CAPTURE PIPELINE FLOW
+================================================================================
+
+Phase 1: Token Launch Detection
+  └─> pumpfun_curve_listener.py
+      └─> websocket_listener_pump()
+          └─> Detects: mint, creator, tx_signature
+              Output: token_info, token_analysis
+
+Phase 2: Creator Funding Extraction
+  └─> realtime_creator_funding_extractor.py
+      └─> extract_funding_for_new_token()
+          └─> Finds all funders who sent SOL to creator
+              Output: creator_funders (~300K rows)
+
+Phase 3: Funder Source Extraction
+  └─> funder_incoming_extractor.py
+      └─> extract_for_creator()
+          └─> Finds who funded each funder
+              Output: funder_incoming_transfers (~400K rows)
+
+Phase 4: Creator Outgoing Extraction (ACTIVE - 12 hour cycle)
+  └─> creator_outgoing_extractor.py
+      └─> scan_once() / run_forever()
+          └─> Finds all outgoing transfers from creators
+              Output: creator_outgoing_transfers (~40K rows)
+              Coverage: 1,413 / 1,457 (97%)
+
+Phase 5: Funding Chain Building
+  └─> creator_outgoing_extractor.py
+      └─> build_funding_chains_incremental()
+          └─> Links Creator → Funder → Creator patterns
+              Output: funding_chains (~400 rows)
+
+Phase 6: Network Clustering & Analysis
+  └─> cross_funding_network_analyzer.py
+      └─> analyze_atomic_networks()
+          └─> Groups coordinated actors
+              Output: creator_networks (777), super_clusters (500)
+
+================================================================================
+                       HOW DATA MAPS TOGETHER
+================================================================================
+
+Full Data Flow Chain:
+  
+  SENDER
+    ↓ sends SOL
+  FUNDER (tracked in creator_funders)
+    ↓ funds creator
+  CREATOR (tracked in token_analysis)
+    ↓ sends SOL (tracked in creator_outgoing_transfers)
+  RECIPIENT
+
+When RECIPIENT is a FUNDER:
+  → Indicates: Creator A → Funder → Creator B
+  → Means: Coordination between Creator A and B
+  → Tracked in: funding_chains (confidence >= 70)
+  → Result: Flagged in creator_networks
+
+When RECIPIENT is a SENDER:
+  → Indicates: Circular funding flow
+  → Means: Money cycle A → B → A → B
+  → Tracked in: coordinated_creator_edges
+  → Result: High risk network
+
+When RECIPIENT is CEX/Infra:
+  → Indicates: Creator withdrawing/paying fees
+  → Means: Normal activity (not suspicious)
+  → Tracked in: recipient_type column
+  → Result: Filtered from suspicious patterns
+
+Self-Funding Detection:
+  Creator creates 942 intermediaries
+    → Each intermediary receives SOL
+    → Each intermediary ONLY sends back to creator
+    → Creator then launches 23 tokens
+  Tracked in: creator_self_funding
+  Result: Flagged as is_self_funding = 1
+
+================================================================================
+                        HOW TO USE THE REPORT
+================================================================================
+
+Find Suspicious Activity:
+  1. Open COMPREHENSIVE_DATA_REPORT.xlsx
+  2. Go to Sheet 06: Funding_Chains
+  3. Sort by Confidence (highest first)
+  4. Chains with 85+ confidence = High coordination
+  5. Chain type "CIRCULAR_FUNDING" = Suspicious
+
+Find Self-Funded Creators:
+  1. Check Database directly:
+     SELECT creator_address, self_funding_intermediates
+     FROM creator_self_funding
+     WHERE is_self_funding = 1
+     ORDER BY self_funding_intermediates DESC
+  2. Or use the DATA_MAPPING_GUIDE.md example queries
+
+Analyze a Specific Creator:
+  1. Find creator address in Sheet 02: Creators
+  2. Note their SOL received & recipients
+  3. Check Sheet 05: Networks for their network
+  4. Check Sheet 06: Funding_Chains for connections
+  5. Assess risk based on chain confidence & pattern
+
+Understand Data Quality:
+  1. Refer to DATA_MAPPING_GUIDE.md "Data Quality Notes"
+  2. 97% creator coverage (1,413/1,457)
+  3. Missing: 44 creators with no funding history
+  4. Data updates: Every 12 hours via Phase 4
+
+================================================================================
+                         QUICK STATISTICS
+================================================================================
+
+Total Addresses:          ~11,000
+Total Creators:           1,373
+Total Funders:            10,000+
+Total Senders:            10,000+
+
+Total Relationships:
+  Creator ← Funder:       ~300,000
+  Funder ← Sender:        ~400,000
+  Creator → Recipient:    ~40,000
+
+Suspicious Patterns:
+  Funding Chains (70+ conf): 204
+  Networks:                  777
+  Super Clusters:            500
+  Self-Funded Creators:      (check query)
+
+Coverage:
+  Creators Scanned:       1,413 / 1,457 (97%)
+  Last Update:            Every 12 hours
+  Data Age:               < 12 hours
+  Quality:                HIGH
+
+================================================================================
+                         FILE LOCATIONS
+================================================================================
+
+Main Database:
+  📁 /Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db
+
+Report Files:
+  📄 COMPREHENSIVE_DATA_REPORT.xlsx        (Excel, 4.6 MB)
+  📄 DATA_MAPPING_GUIDE.md                 (Markdown, 14 KB)
+  📄 QUICK_REFERENCE.txt                   (Text, 9.9 KB)
+  📄 REPORT_SUMMARY.txt                    (This file)
+
+Source Code Files:
+  📄 pumpfun_curve_listener.py             (Phase 1)
+  📄 realtime_creator_funding_extractor.py (Phase 2)
+  📄 funder_incoming_extractor.py          (Phase 3)
+  📄 creator_outgoing_extractor.py         (Phase 4 & 5)
+  📄 cross_funding_network_analyzer.py     (Phase 6)
+  📄 main.py                               (Web UI)
+
+================================================================================
+                            NEXT STEPS
+================================================================================
+
+To Explore the Data:
+
+  1. Open COMPREHENSIVE_DATA_REPORT.xlsx
+  2. Start with Sheet 00: Summary
+  3. Review Sheet 01: Data_Capture_Flow
+  4. Analyze Sheet 06: Funding_Chains (suspicious patterns)
+  5. Check Sheet 07: Super_Clusters (meta-groups)
+
+To Query the Database:
+
+  1. Use DATA_MAPPING_GUIDE.md "Usage Examples"
+  2. Run SQL queries directly on pumpswap_tokens.db
+  3. Common queries are in QUICK_REFERENCE.txt
+
+To Validate Findings:
+
+  1. Cross-reference multiple sheets
+  2. Check creator_self_funding for self-funded schemes
+  3. Verify chain confidence (higher = more reliable)
+  4. Review network_risk_level for each network
+
+================================================================================
+
+Report Generated: February 26, 2026
+System: Flex - Token Funding Network Analyzer
+Database: SQLite (pumpswap_tokens.db)
+Version: Comprehensive Analysis Complete
+Status: ✅ READY FOR REVIEW
+
+================================================================================

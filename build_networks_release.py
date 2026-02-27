@@ -54,6 +54,8 @@ def build_networks_release(db_path: str) -> dict:
             'growing': 0,
             'shrinking': 0,
         },
+        'changed_networks': 0,
+        'growth_spikes': [],  # Track networks with >25% growth
         'errors': [],
     }
 
@@ -187,12 +189,18 @@ def build_networks_release(db_path: str) -> dict:
         print("🔄 Phase D: Compute stability states...")
 
         # Compute deltas in a temp table first (SQLite doesn't support UPDATE...FROM with complex joins)
+        # Track delta_pct for future risk scoring and spike detection
         db.execute('''
             CREATE TEMP TABLE stability_deltas AS
             SELECT
               nr.network_name,
               nr.network_size,
               old.network_size as old_size,
+              CASE
+                WHEN old.network_size IS NULL THEN NULL
+                WHEN old.network_size = 0 THEN NULL
+                ELSE ROUND((nr.network_size - old.network_size) / CAST(old.network_size AS FLOAT) * 100, 2)
+              END as delta_pct,
               CASE
                 WHEN old.network_size IS NULL THEN 'new'
                 WHEN old.network_size = 0 THEN 'new'
@@ -231,6 +239,7 @@ def build_networks_release(db_path: str) -> dict:
         print("🔄 Phase C: Update build versions...")
 
         # Compute version changes in temp table
+        # Also track which networks changed (for last_changed_at)
         db.execute('''
             CREATE TEMP TABLE version_updates AS
             SELECT
@@ -240,7 +249,13 @@ def build_networks_release(db_path: str) -> dict:
                 WHEN nr.network_size != old.network_size THEN old.build_version + 1
                 WHEN nr.network_type != old.network_type THEN old.build_version + 1
                 ELSE old.build_version
-              END as new_version
+              END as new_version,
+              CASE
+                WHEN old.network_name IS NULL THEN 1
+                WHEN nr.network_size != old.network_size THEN 1
+                WHEN nr.network_type != old.network_type THEN 1
+                ELSE 0
+              END as changed_flag
             FROM networks_release nr
             LEFT JOIN networks_release_prev old ON nr.network_name = old.network_name;
         ''')
@@ -248,20 +263,31 @@ def build_networks_release(db_path: str) -> dict:
         # Update from temp table
         db.execute('''
             UPDATE networks_release
-            SET build_version = (
-              SELECT new_version FROM version_updates
-              WHERE version_updates.network_name = networks_release.network_name
-            )
+            SET
+              build_version = (
+                SELECT new_version FROM version_updates
+                WHERE version_updates.network_name = networks_release.network_name
+              ),
+              last_changed_at = CASE
+                WHEN (SELECT changed_flag FROM version_updates WHERE version_updates.network_name = networks_release.network_name) = 1
+                THEN CURRENT_TIMESTAMP
+                ELSE last_changed_at
+              END
             WHERE network_name IN (SELECT network_name FROM version_updates);
         ''')
 
-        # Check version changes
+        # Check version changes and growth spikes
         version_check = db.execute('''
-            SELECT nr.network_name, nr.build_version, old.build_version as old_version
+            SELECT
+              nr.network_name,
+              nr.build_version,
+              old.build_version as old_version,
+              sd.delta_pct
             FROM networks_release nr
             LEFT JOIN networks_release_prev old ON nr.network_name = old.network_name
+            LEFT JOIN stability_deltas sd ON nr.network_name = sd.network_name
             WHERE (old.build_version IS NULL OR nr.build_version != old.build_version)
-            ORDER BY nr.build_version DESC
+            ORDER BY sd.delta_pct DESC NULLS LAST
             LIMIT 20
         ''').fetchall()
 
@@ -271,8 +297,18 @@ def build_networks_release(db_path: str) -> dict:
             for row in version_check[:5]:
                 old_v = row['old_version'] or 'NEW'
                 new_v = row['build_version']
-                print(f"      - {row['network_name']}: v{old_v} → v{new_v}")
+                delta_str = f" ({row['delta_pct']:+.1f}%)" if row['delta_pct'] is not None else ""
+                print(f"      - {row['network_name']}: v{old_v} → v{new_v}{delta_str}")
+
+                # Track growth spikes (>25% growth)
+                if row['delta_pct'] is not None and row['delta_pct'] > 25:
+                    stats['growth_spikes'].append({
+                        'network': row['network_name'],
+                        'delta_pct': row['delta_pct']
+                    })
+
             stats['versions_incremented'] = len(version_check)
+            stats['changed_networks'] = len(version_check)
 
         # Phase E: Finalize (update timestamp)
         db.execute('UPDATE networks_release SET last_built_at = CURRENT_TIMESTAMP')
@@ -362,6 +398,29 @@ def verify_build(db_path: str) -> None:
         else:
             print("   (no new networks since last build)")
 
+        # Recently changed networks (useful for monitoring/alerting)
+        print("\n⏱️  Recently Changed Networks (last 24 hours):")
+        recent = db.execute('''
+            SELECT
+              network_name,
+              network_size,
+              build_version,
+              stability_state,
+              last_changed_at
+            FROM networks_release
+            WHERE last_changed_at IS NOT NULL
+            AND last_changed_at > datetime('now', '-1 day')
+            ORDER BY last_changed_at DESC
+            LIMIT 5
+        ''').fetchall()
+
+        if recent:
+            for row in recent:
+                changed = row['last_changed_at'].split('T')[0] if row['last_changed_at'] else 'unknown'
+                print(f"   {row['network_name']:.<25} v{row['build_version']} | {row['stability_state']:<10} | {changed}")
+        else:
+            print("   (no networks changed in last 24 hours)")
+
         print("\n" + "=" * 60)
 
 
@@ -384,11 +443,18 @@ if __name__ == '__main__':
         print(f"""
 📊 Build Statistics:
    Networks processed:   {stats['networks_processed']}
+   Networks changed:     {stats['changed_networks']}
    Versions incremented: {stats['versions_incremented']}
    New networks:         {stats['new_networks']}
-
-✅ Build successful!
+   Growth spikes (>25%): {len(stats['growth_spikes'])}
 """)
+
+        if stats['growth_spikes']:
+            print("\n⚠️  Growth Spikes Detected:")
+            for spike in sorted(stats['growth_spikes'], key=lambda x: x['delta_pct'], reverse=True):
+                print(f"   🚀 {spike['network']}: +{spike['delta_pct']:.1f}% growth")
+
+        print("\n✅ Build successful!")
         sys.exit(0)
 
     except Exception as e:

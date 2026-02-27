@@ -92,6 +92,22 @@ USE TEMP B-TREE FOR DISTINCT
 ```
 ✅ **Optimized**
 
+### Query 5: Reverse lookup - all creators funded by a funder (Phase 6)
+```
+SEARCH cf USING INDEX idx_creator_funders_funder (funder_address=?)
+```
+✅ **Optimized** - Critical for clustering efficiency
+
+### Query 6: Shared funders detection (network expansion)
+```
+SELECT cf1.funder_address FROM creator_funders cf1
+JOIN creator_funders cf2 ON cf1.funder_address = cf2.funder_address
+WHERE cf1.creator_address = ? AND cf2.creator_address = ?
+
+Result: COVERING INDEX idx_creator_funders_creator_funder + INDEX idx_cf_funder
+```
+✅ **Optimized** - Powers coordinated network detection
+
 ## Performance Impact
 
 ### Before (Estimated)
@@ -103,7 +119,8 @@ USE TEMP B-TREE FOR DISTINCT
 - All queries use covering/composite indexes
 - ~100-1000x faster for network operations
 - Predictable, consistent query performance
-- Minimal insert overhead (5 additional indexes)
+- Minimal insert overhead (6 targeted indexes)
+- Critical reverse lookup index for Phase 6 clustering
 
 ## Index Statistics
 

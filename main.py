@@ -14,7 +14,7 @@ import json
 import requests
 import threading
 from datetime import datetime
-from flask import Flask, jsonify, render_template_string, request
+from flask import Flask, jsonify, render_template_string, request, Response
 from typing import Dict, List, Optional
 import os
 import time
@@ -28,6 +28,471 @@ app = Flask(__name__)
 
 # Analysis result cache for background operations
 app.funder_analysis_cache = {}
+
+# Database capability flags (checked on app startup)
+app.has_networks_release = None  # Set to True/False on first request
+
+# =========================================================================
+# DATABASE CAPABILITY CHECK
+# =========================================================================
+
+def check_networks_release_capability() -> bool:
+    """
+    Check if networks_release table exists in the database.
+
+    Used for safe Phase 2A rollout:
+    - If table exists → use new network release paths
+    - If not → use legacy paths
+    - Allows rollback by deploying older DB schema
+
+    Returns:
+        bool: True if networks_release table exists, False otherwise
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=10)
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='networks_release'"
+        )
+        result = cursor.fetchone() is not None
+        conn.close()
+        return result
+    except Exception as e:
+        # On error, assume old path (conservative fallback)
+        print(f"[CAPABILITY_CHECK] Error checking networks_release: {e}")
+        return False
+
+
+@app.before_request
+def initialize_capability_check():
+    """
+    Initialize database capability check on first request.
+    Cached in app.has_networks_release to avoid repeated queries.
+    """
+    if app.has_networks_release is None:
+        app.has_networks_release = check_networks_release_capability()
+        status = "ENABLED" if app.has_networks_release else "DISABLED"
+        print(f"[CAPABILITY_CHECK] Phase 2A networks_release: {status}")
+
+# =========================================================================
+# PHASE 2C HELPERS
+# =========================================================================
+
+def get_db_conn():
+    """
+    Open database connection with row_factory configured.
+
+    Returns:
+        tuple: (conn, cursor) - configured connection and cursor
+    """
+    conn = sqlite3.connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    return conn, cursor
+
+
+def get_networks_release_list(include_evidence=False):
+    """
+    Get all networks from networks_release table.
+
+    Args:
+        include_evidence (bool): If True, LEFT JOIN network_evidence
+
+    Returns:
+        list: List of dict rows from networks_release
+    """
+    conn, cursor = get_db_conn()
+
+    if include_evidence:
+        cursor.execute("""
+            SELECT
+                nr.network_name,
+                nr.network_size,
+                nr.network_risk_level,
+                nr.network_type,
+                nr.has_cex_funder,
+                nr.has_infra_funder,
+                nr.cex_funder_count,
+                nr.infra_funder_count,
+                nr.stability_state,
+                nr.build_version,
+                nr.last_built_at,
+                COALESCE(ne.total_edges, 0) as evidence_edges,
+                COALESCE(ne.average_confidence, 0) as evidence_confidence,
+                COALESCE(ne.evidence_risk_score, 0) as evidence_risk_score
+            FROM networks_release nr
+            LEFT JOIN network_evidence ne ON nr.network_name = ne.network_name
+            ORDER BY nr.network_size DESC, nr.network_name ASC
+        """)
+    else:
+        cursor.execute("""
+            SELECT * FROM networks_release
+            ORDER BY network_size DESC, network_name ASC
+        """)
+
+    networks = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return networks
+
+
+def get_network_release_by_name(network_name, include_evidence=False):
+    """
+    Get single network from networks_release by name.
+
+    Args:
+        network_name (str): Name of network
+        include_evidence (bool): If True, LEFT JOIN network_evidence
+
+    Returns:
+        dict or None: Network row as dict, or None if not found
+    """
+    conn, cursor = get_db_conn()
+
+    if include_evidence:
+        cursor.execute("""
+            SELECT
+                nr.network_name,
+                nr.network_size,
+                nr.network_risk_level,
+                nr.network_type,
+                nr.has_cex_funder,
+                nr.has_infra_funder,
+                nr.cex_funder_count,
+                nr.infra_funder_count,
+                nr.stability_state,
+                nr.build_version,
+                nr.last_built_at,
+                COALESCE(ne.total_edges, 0) as evidence_edges,
+                COALESCE(ne.average_confidence, 0) as evidence_confidence,
+                COALESCE(ne.evidence_risk_score, 0) as evidence_risk_score
+            FROM networks_release nr
+            LEFT JOIN network_evidence ne ON nr.network_name = ne.network_name
+            WHERE nr.network_name = ?
+        """, (network_name,))
+    else:
+        cursor.execute("""
+            SELECT * FROM networks_release WHERE network_name = ?
+        """, (network_name,))
+
+    row = cursor.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def get_network_score(network_name: str) -> dict:
+    """
+    Retrieve precomputed network score for UI display.
+    
+    Returns dict with:
+    - score: 0-100 integer
+    - score_version: version of scoring model
+    - components: dict with {connectivity, lifecycle, evidence} breakdown
+    - score_badge: 'high' (70+), 'medium' (30-69), or 'low' (0-29)
+    """
+    try:
+        conn, cursor = get_db_conn()
+        cursor.execute('''
+            SELECT 
+              score,
+              score_version,
+              score_components_json
+            FROM network_scores
+            WHERE network_name = ?
+        ''', (network_name,))
+        
+        row = cursor.fetchone()
+        conn.close()
+        
+        if not row:
+            return {
+                'score': None,
+                'score_version': None,
+                'components': None,
+                'score_badge': None,
+            }
+        
+        score = row['score']
+        components = json.loads(row['score_components_json']) if row['score_components_json'] else {}
+        
+        # Determine risk badge
+        if score >= 70:
+            badge = 'high'
+        elif score >= 30:
+            badge = 'medium'
+        else:
+            badge = 'low'
+        
+        return {
+            'score': score,
+            'score_version': row['score_version'],
+            'components': components,
+            'score_badge': badge,
+        }
+    except Exception as e:
+        print(f"[ERROR] get_network_score: {e}")
+        return {
+            'score': None,
+            'score_version': None,
+            'components': None,
+            'score_badge': None,
+        }
+
+
+def get_latest_alerts(limit: int = 100) -> list:
+    """
+    Get latest network alerts for monitoring dashboard.
+
+    Returns list of dicts with:
+    - network_name
+    - alert_type (SCORE_SPIKE, NEW_HIGH_RISK, TYPE_FLIP, LIFECYCLE_FLIP)
+    - severity (low, medium, high)
+    - message
+    - details_json (parsed as dict)
+    - created_at
+    """
+    try:
+        conn, cursor = get_db_conn()
+        cursor.execute('''
+            SELECT
+              network_name,
+              alert_type,
+              severity,
+              message,
+              details_json,
+              created_at
+            FROM network_alerts
+            ORDER BY created_at DESC
+            LIMIT ?
+        ''', (limit,))
+
+        alerts = []
+        for row in cursor.fetchall():
+            alerts.append({
+                'network_name': row['network_name'],
+                'alert_type': row['alert_type'],
+                'severity': row['severity'],
+                'message': row['message'],
+                'details': json.loads(row['details_json']) if row['details_json'] else {},
+                'created_at': row['created_at'],
+            })
+
+        conn.close()
+        return alerts
+    except Exception as e:
+        print(f"[ERROR] get_latest_alerts: {e}")
+        return []
+
+
+def get_top_risky_networks(limit: int = 50) -> list:
+    """
+    Get current top risky networks by score.
+
+    Returns list of dicts with:
+    - network_name
+    - score
+    - score_badge (high/medium/low)
+    """
+    try:
+        conn, cursor = get_db_conn()
+        cursor.execute('''
+            SELECT
+              network_name,
+              score
+            FROM network_scores
+            ORDER BY score DESC
+            LIMIT ?
+        ''', (limit,))
+
+        networks = []
+        for row in cursor.fetchall():
+            score = row['score']
+            badge = 'high' if score >= 70 else ('medium' if score >= 30 else 'low')
+            networks.append({
+                'network_name': row['network_name'],
+                'score': score,
+                'score_badge': badge,
+            })
+
+        conn.close()
+        return networks
+    except Exception as e:
+        print(f"[ERROR] get_top_risky_networks: {e}")
+        return []
+
+
+def get_biggest_score_movers(limit: int = 50) -> list:
+    """
+    Get networks with biggest score changes in the last build.
+
+    Returns list of dicts with:
+    - network_name
+    - delta (change in score)
+    - prev_score
+    - curr_score
+    """
+    try:
+        conn, cursor = get_db_conn()
+        cursor.execute('''
+            SELECT
+              h.network_name,
+              (h.score - p.score) AS delta,
+              p.score AS prev_score,
+              h.score AS curr_score
+            FROM network_score_history h
+            JOIN network_score_history p
+              ON p.network_name = h.network_name
+              AND p.build_version = h.build_version - 1
+            WHERE h.build_version = (SELECT MAX(build_version) FROM network_score_history)
+            ORDER BY delta DESC
+            LIMIT ?
+        ''', (limit,))
+
+        movers = []
+        for row in cursor.fetchall():
+            movers.append({
+                'network_name': row['network_name'],
+                'delta': row['delta'],
+                'prev_score': row['prev_score'],
+                'curr_score': row['curr_score'],
+            })
+
+        conn.close()
+        return movers
+    except Exception as e:
+        print(f"[ERROR] get_biggest_score_movers: {e}")
+        return []
+
+
+def get_network_members(network_name):
+    """
+    Get member creators for a network from network_membership.
+
+    Args:
+        network_name (str): Name of network
+
+    Returns:
+        list: List of dict rows with creator_address
+    """
+    conn, cursor = get_db_conn()
+
+    cursor.execute("""
+        SELECT creator_address
+        FROM network_membership
+        WHERE network_name = ?
+        ORDER BY creator_address
+    """, (network_name,))
+
+    members = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return members
+
+
+def get_network_name_from_id(network_id):
+    """
+    Convert numeric network_id to network_name using deterministic ordering.
+
+    Uses ORDER BY network_name ASC to ensure consistent 1-based index mapping.
+    Prefers networks_release if available, falls back to creator_networks.
+
+    Args:
+        network_id (int): Numeric network ID (1-based index)
+
+    Returns:
+        str or None: Network name, or None if ID out of range
+    """
+    conn, cursor = get_db_conn()
+
+    # Try networks_release first (new path)
+    try:
+        cursor.execute("""
+            SELECT network_name
+            FROM networks_release
+            ORDER BY network_name ASC
+        """)
+        all_networks = [row['network_name'] for row in cursor.fetchall()]
+    except sqlite3.OperationalError:
+        # Fall back to creator_networks (legacy path)
+        cursor.execute("""
+            SELECT DISTINCT network_name
+            FROM creator_networks
+            WHERE network_name IS NOT NULL
+            ORDER BY network_name ASC
+        """)
+        all_networks = [row['network_name'] for row in cursor.fetchall()]
+
+    conn.close()
+
+    if network_id < 1 or network_id > len(all_networks):
+        return None
+
+    return all_networks[network_id - 1]
+
+
+def route_phase2c(endpoint_name, new_fn, legacy_fn):
+    """
+    Route Phase 2C endpoint to new or legacy implementation based on capability.
+
+    Handles:
+    - Logging path selection
+    - Exception handling for HTML responses
+    - JSON/HTML response formatting
+    - Response object type handling
+
+    Args:
+        endpoint_name (str): Name of endpoint for logging
+        new_fn (callable): Function to call if networks_release exists
+                          Must return (response_obj, status_code)
+                          response_obj can be dict/list/Response/HTML string
+        legacy_fn (callable): Function to call if networks_release missing
+                             Must return (response_obj, status_code)
+
+    Returns:
+        Response: Flask response (HTML or JSON)
+    """
+    from collections.abc import Mapping
+
+    # PHASE3A: Optional force mode for benchmarking (isolated, easy to remove)
+    force_mode = os.environ.get('PHASE2C_FORCE_MODE', '').lower()
+    use_new_path = app.has_networks_release
+    if force_mode == 'new':
+        use_new_path = True
+    elif force_mode == 'legacy':
+        use_new_path = False
+
+    try:
+        if use_new_path:
+            print(f"[PHASE2C] {endpoint_name} using networks_release path", flush=True)
+            result, status_code = new_fn()
+        else:
+            print(f"[PHASE2C] {endpoint_name} using legacy path", flush=True)
+            result, status_code = legacy_fn()
+
+        # Handle Flask Response objects first (check before dict/list)
+        if isinstance(result, Response):
+            result.status_code = status_code
+            return result
+        
+        # Handle JSON responses (dict or list)
+        if isinstance(result, Mapping) or isinstance(result, list):
+            return jsonify(result), status_code
+        
+        # Handle string/HTML responses or None
+        if result is None:
+            # Graceful fallback for None
+            if endpoint_name.startswith('/api'):
+                return jsonify({'error': 'No response generated'}), 500
+            else:
+                return f"<h1>Error</h1><p>No response generated</p>", 500
+        
+        # Handle string responses (HTML, etc.)
+        return result, status_code
+
+    except Exception as e:
+        print(f"[PHASE2C_ERROR] {endpoint_name}: {e}", flush=True)
+        if endpoint_name.startswith('/api'):
+            return jsonify({'error': str(e)}), 500
+        else:
+            return f"<h1>Error</h1><p>{str(e)}</p>", 500
+
 
 # =========================================================================
 # DATABASE QUERIES
@@ -10733,15 +11198,47 @@ def api_funding_networks_list():
 
 
 @app.route('/api/funding-network-details/<int:network_id>')
+
 def api_funding_network_details(network_id):
-    """Get detailed stats for a specific network"""
-    try:
+    """Get detailed stats for a specific network by ID"""
+
+    def new_path():
+        """NEW PATH: Use networks_release and convert ID to name"""
+        # Map network_id to network_name using deterministic ordering
+        network_name = get_network_name_from_id(network_id)
+        if not network_name:
+            return {'error': 'Network not found'}, 404
+
+        # Get network from networks_release
+        network_data = get_network_release_by_name(network_name, include_evidence=False)
+        if not network_data:
+            return {'error': 'Network not found'}, 404
+
+        # Return network details in same schema as legacy path
+        return {
+            'network_id': network_id,
+            'network_name': network_name,
+            'funders': network_data.get('network_size', 0),
+            'senders': 0,  # Not available in networks_release
+            'creators': network_data.get('network_size', 0),
+            'tokens': 0,  # Not available in networks_release
+            'total_sol': 0.0,  # Not available in networks_release
+            'token_list': [],  # Not available in networks_release
+            'root_operator_flows': [],  # Simplified for new path
+            'network_risk_level': network_data.get('network_risk_level'),
+            'network_type': network_data.get('network_type'),
+            'stability_state': network_data.get('stability_state'),
+            'build_version': network_data.get('build_version'),
+            'last_built_at': network_data.get('last_built_at')
+        }, 200
+
+    def legacy_path():
+        """OLD PATH: Use legacy funding_networks table"""
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
-        # Get network basic info with CORRECTED creator count
-        # Only count creators who actually launched tokens in this network
+        # Get network basic info
         cursor.execute("""
             SELECT
                 fn.network_id,
@@ -10759,10 +11256,10 @@ def api_funding_network_details(network_id):
 
         network_row = cursor.fetchone()
         if not network_row:
-            return jsonify({'error': 'Network not found'}), 404
+            conn.close()
+            return {'error': 'Network not found'}, 404
 
-        # Count unique senders (original wallets that have inbound transfers to funders)
-        # First try funder_incoming_transfers, fall back to 0 if empty
+        # Count unique senders
         cursor.execute("""
             SELECT COUNT(DISTINCT COALESCE(fit.sender_address, 0)) as senders_count
             FROM funder_incoming_transfers fit
@@ -10840,19 +11337,19 @@ def api_funding_network_details(network_id):
 
             upstream_sources = [{'sender': row['sender_address'], 'transfers': row['transfer_count']} for row in cursor.fetchall()]
 
-            # Build example address flows (sender >> root op >> creator)
+            # Build example address flows
             example_flows = []
             if upstream_sources and funded_creators:
-                for sender_data in upstream_sources[:3]:  # First 3 senders
+                for sender_data in upstream_sources[:3]:
                     sender = sender_data['sender']
-                    for creator_data in funded_creators[:2]:  # First 2 creators per sender
+                    for creator_data in funded_creators[:2]:
                         example_flows.append({
                             'sender': sender,
                             'funder': root_op,
                             'creator': creator_data['creator'],
                             'sol_to_creator': creator_data['sol']
                         })
-                    if len(example_flows) >= 3:  # Limit to 3 total flows
+                    if len(example_flows) >= 3:
                         break
 
             # Get downstream creators' token details
@@ -10892,7 +11389,7 @@ def api_funding_network_details(network_id):
 
         conn.close()
 
-        return jsonify({
+        return {
             'network_id': network_row['network_id'],
             'network_name': network_row['network_name'],
             'funders': network_row['funders_count'],
@@ -10902,11 +11399,9 @@ def api_funding_network_details(network_id):
             'total_sol': network_row['total_sol'],
             'token_list': tokens,
             'root_operator_flows': root_operator_flows
-        })
+        }, 200
 
-    except Exception as e:
-        print(f"[NETWORK_DETAILS_API] Error: {e}", flush=True)
-        return jsonify({'error': str(e)}), 500
+    return route_phase2c('/api/funding-network-details', new_path, legacy_path)
 
 
 @app.route('/api/build-funding-networks', methods=['POST'])
@@ -12527,7 +13022,99 @@ def api_network_tokens(network_name):
 @app.route('/networks')
 def networks_dashboard():
     """Serve a full webview for atomic funder networks"""
-    try:
+
+    def new_path():
+        """NEW PATH: Use precomputed networks_release"""
+        all_networks = get_networks_release_list(include_evidence=False)
+
+        # Batch fetch all network scores (using JOIN for better scalability than IN clause)
+        scores_map = {}
+        try:
+            conn, cursor = get_db_conn()
+            # Build a temporary table from network_names for efficient JOIN
+            # (Avoids long IN clause with hundreds/thousands of names)
+            cursor.execute('DROP TABLE IF EXISTS temp_networks')
+            cursor.execute('CREATE TEMP TABLE temp_networks (network_name TEXT PRIMARY KEY)')
+
+            # Insert all network names
+            for network in all_networks:
+                cursor.execute('INSERT INTO temp_networks (network_name) VALUES (?)',
+                             (network['network_name'],))
+
+            # Join with network_scores to fetch scores efficiently
+            cursor.execute('''
+                SELECT tn.network_name, ns.score, ns.score_components_json
+                FROM temp_networks tn
+                LEFT JOIN network_scores ns USING (network_name)
+            ''')
+
+            for row in cursor.fetchall():
+                if row['score'] is not None:  # Only add if score exists
+                    scores_map[row['network_name']] = {
+                        'score': row['score'],
+                        'components': json.loads(row['score_components_json']) if row['score_components_json'] else {}
+                    }
+
+            cursor.execute('DROP TABLE IF EXISTS temp_networks')
+            conn.close()
+        except Exception as e:
+            print(f"[DEBUG] Error fetching network scores: {e}")
+
+        networks = []
+        total_tokens = 0
+        total_creators_funded = 0
+        total_sol = 0.0
+
+        for network in all_networks:
+            network_name = network['network_name']
+            token_count = 0  # Will be aggregated from tokens
+            creators_funded = network['network_size']
+            sol_amount = 0.0  # Not available in networks_release
+            funder_is_cex = network['has_cex_funder']
+
+            total_tokens += token_count
+            total_creators_funded += creators_funded
+            total_sol += sol_amount
+
+            # Get CEX/INFRA label if this is a CEX funder
+            cex_label = None
+            if funder_is_cex:
+                # Try to get a representative funder from the network
+                conn, cursor = get_db_conn()
+                cursor.execute("""
+                    SELECT DISTINCT creator_address FROM network_membership
+                    WHERE network_name = ? LIMIT 1
+                """, (network_name,))
+                member_row = cursor.fetchone()
+                if member_row:
+                    cex_label = get_cex_infra_label(member_row['creator_address'])
+                conn.close()
+
+            # Get score information
+            score_info = scores_map.get(network_name)
+
+            networks.append({
+                'name': network_name,
+                'tier': network.get('network_type', 'N/A'),
+                'is_cex': funder_is_cex,
+                'cex_label': cex_label,
+                'token_count': token_count,
+                'creators_funded': creators_funded,
+                'sol_amount': sol_amount,
+                'score': score_info['score'] if score_info else None,
+                'score_badge': 'high' if (score_info and score_info['score'] >= 70) else ('medium' if (score_info and score_info['score'] >= 30) else 'low') if score_info else None
+            })
+
+        return {
+            'networks': networks,
+            'total_tokens': total_tokens,
+            'total_creators_funded': total_creators_funded,
+            'total_sol': total_sol,
+            'total_networks': len(networks)
+        }, 200
+
+    def legacy_path():
+        """OLD PATH: Use legacy atomic_network_names"""
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
@@ -12566,8 +13153,38 @@ def networks_dashboard():
         total_creators_funded = 0
         total_sol = 0.0
         total_networks = 0
+        all_rows = list(cursor.fetchall())
 
-        for row in cursor.fetchall():
+        # Batch fetch scores for all networks (using JOIN for better scalability)
+        scores_map = {}
+        try:
+            cursor.execute('DROP TABLE IF EXISTS temp_networks_legacy')
+            cursor.execute('CREATE TEMP TABLE temp_networks_legacy (network_name TEXT PRIMARY KEY)')
+
+            # Insert all network names from rows
+            for row in all_rows:
+                cursor.execute('INSERT INTO temp_networks_legacy (network_name) VALUES (?)',
+                             (row['network_name'],))
+
+            # Join with network_scores to fetch scores efficiently
+            cursor.execute('''
+                SELECT tnl.network_name, ns.score, ns.score_components_json
+                FROM temp_networks_legacy tnl
+                LEFT JOIN network_scores ns USING (network_name)
+            ''')
+
+            for score_row in cursor.fetchall():
+                if score_row['score'] is not None:  # Only add if score exists
+                    scores_map[score_row['network_name']] = {
+                        'score': score_row['score'],
+                        'components': json.loads(score_row['score_components_json']) if score_row['score_components_json'] else {}
+                    }
+
+            cursor.execute('DROP TABLE IF EXISTS temp_networks_legacy')
+        except Exception as e:
+            print(f"[DEBUG] Error fetching network scores in legacy path: {e}")
+
+        for row in all_rows:
             network_name = row['network_name']
             tier = row['network_tier']
             funder_address = row['funder_address']
@@ -12584,6 +13201,9 @@ def networks_dashboard():
             # Get CEX/INFRA label if this is a CEX/INFRA funder
             cex_label = get_cex_infra_label(funder_address) if funder_is_cex else None
 
+            # Get score information
+            score_info = scores_map.get(network_name)
+
             networks.append({
                 'name': network_name,
                 'tier': tier,
@@ -12591,57 +13211,97 @@ def networks_dashboard():
                 'cex_label': cex_label,
                 'token_count': token_count,
                 'creators_funded': creators_funded,
-                'sol_amount': sol_amount
+                'sol_amount': sol_amount,
+                'score': score_info['score'] if score_info else None,
+                'score_badge': 'high' if (score_info and score_info['score'] >= 70) else ('medium' if (score_info and score_info['score'] >= 30) else 'low') if score_info else None
             })
 
         conn.close()
 
-        # Build network cards HTML
-        network_cards = ""
-        for net in networks:
-            network_name_escaped = net['name'].replace("'", "\\'")
-            is_cex = "true" if net['is_cex'] else "false"
-            network_cards += f"""
-            <div data-is-cex="{is_cex}" data-token-count="{net['token_count']}" data-creators-funded="{net['creators_funded']}" data-sol-amount="{net['sol_amount']:.0f}" style="background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 8px; padding: 20px; cursor: pointer; transition: all 0.2s ease;" onclick="showNetworkDetails('{network_name_escaped}')" onmouseover="this.style.borderColor='rgba(124, 58, 237, 0.6)'; this.style.background='rgba(124, 58, 237, 0.15)';" onmouseout="this.style.borderColor='rgba(124, 58, 237, 0.3)'; this.style.background='rgba(124, 58, 237, 0.08)';">
-                <h3 style="margin: 0 0 20px 0; color: var(--text-primary); font-size: 16px;">{net['name']}</h3>
+        return {
+            'networks': networks,
+            'total_tokens': total_tokens,
+            'total_creators_funded': total_creators_funded,
+            'total_sol': total_sol,
+            'total_networks': total_networks
+        }, 200
 
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
-                    <!-- Funders -->
-                    <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(34, 197, 94, 0.5);">
-                        <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Funders</div>
-                        <div style="font-weight: bold; font-size: 18px; color: #22c55e;">1</div>
-                    </div>
+    # Call the router to get the context
+    response, status_code = route_phase2c('/networks', new_path, legacy_path)
 
-                    <!-- Senders -->
-                    <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(59, 130, 246, 0.5);">
-                        <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Senders</div>
-                        <div style="font-weight: bold; font-size: 18px; color: #3b82f6;">0</div>
-                    </div>
+    # Extract context from response
+    if status_code == 200:
+        if isinstance(response, str):
+            return response, status_code
+        # If it came from jsonify, extract the data
+        import json as json_module
+        context = json.loads(response.get_data(as_text=True))
+    else:
+        return response, status_code
 
-                    <!-- Creators -->
-                    <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(251, 191, 36, 0.5);">
-                        <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Creators</div>
-                        <div style="font-weight: bold; font-size: 18px; color: #fbbf24;">{net['creators_funded']}</div>
-                    </div>
+    networks = context['networks']
+    total_tokens = context['total_tokens']
+    total_creators_funded = context['total_creators_funded']
+    total_sol = context['total_sol']
+    total_networks = context['total_networks']
 
-                    <!-- Tokens -->
-                    <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(124, 58, 237, 0.5);">
-                        <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Tokens</div>
-                        <div style="font-weight: bold; font-size: 18px; color: #a78bfa;">{net['token_count']}</div>
-                    </div>
+    # Build network cards HTML
+    network_cards = ""
+    for net in networks:
+        network_name_escaped = net['name'].replace("'", "\\'")
+        is_cex = "true" if net['is_cex'] else "false"
+        # Build score badge HTML (if score exists)
+        score_badge_html = ""
+        if net['score'] is not None:
+            badge_color_map = {
+                'high': '#ef4444',    # red
+                'medium': '#eab308',  # yellow
+                'low': '#22c55e'      # green
+            }
+            badge_color = badge_color_map.get(net['score_badge'], '#eab308')
+            score_badge_html = f"""<span style="display: inline-block; background-color: {badge_color}; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-left: 8px;">{net['score']}</span>"""
 
-                    <!-- SOL -->
-                    <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(168, 85, 247, 0.5); grid-column: span 2;">
-                        <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">SOL</div>
-                        <div style="font-weight: bold; font-size: 18px; color: #a855f7;">{net['sol_amount']:.0f}</div>
-                    </div>
+        network_cards += f"""
+        <div data-is-cex="{is_cex}" data-token-count="{net['token_count']}" data-creators-funded="{net['creators_funded']}" data-sol-amount="{net['sol_amount']:.0f}" style="background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 8px; padding: 20px; cursor: pointer; transition: all 0.2s ease;" onclick="showNetworkDetails('{network_name_escaped}')" onmouseover="this.style.borderColor='rgba(124, 58, 237, 0.6)'; this.style.background='rgba(124, 58, 237, 0.15)';" onmouseout="this.style.borderColor='rgba(124, 58, 237, 0.3)'; this.style.background='rgba(124, 58, 237, 0.08)';">
+            <h3 style="margin: 0 0 20px 0; color: var(--text-primary); font-size: 16px;">{net['name']}{score_badge_html}</h3>
 
-                    {f'<!-- CEX/INFRA Label --><div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(167, 139, 250, 0.5); grid-column: span 2;"><div style="font-weight: bold; font-size: 12px; color: #a78bfa;">{net["cex_label"]}</div></div>' if net['cex_label'] else ''}
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                <!-- Funders -->
+                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(34, 197, 94, 0.5);">
+                    <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Funders</div>
+                    <div style="font-weight: bold; font-size: 18px; color: #22c55e;">1</div>
                 </div>
-            </div>
-            """
 
-        html = f"""
+                <!-- Senders -->
+                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(59, 130, 246, 0.5);">
+                    <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Senders</div>
+                    <div style="font-weight: bold; font-size: 18px; color: #3b82f6;">0</div>
+                </div>
+
+                <!-- Creators -->
+                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(251, 191, 36, 0.5);">
+                    <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Creators</div>
+                    <div style="font-weight: bold; font-size: 18px; color: #fbbf24;">{net['creators_funded']}</div>
+                </div>
+
+                <!-- Tokens -->
+                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(124, 58, 237, 0.5);">
+                    <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Tokens</div>
+                    <div style="font-weight: bold; font-size: 18px; color: #a78bfa;">{net['token_count']}</div>
+                </div>
+
+                <!-- SOL -->
+                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(168, 85, 247, 0.5); grid-column: span 2;">
+                    <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">SOL</div>
+                    <div style="font-weight: bold; font-size: 18px; color: #a855f7;">{net['sol_amount']:.0f}</div>
+                </div>
+
+                {f'<!-- CEX/INFRA Label --><div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(167, 139, 250, 0.5); grid-column: span 2;"><div style="font-weight: bold; font-size: 12px; color: #a78bfa;">{net["cex_label"]}</div></div>' if net['cex_label'] else ''}
+            </div>
+        </div>
+        """
+
+    html = f"""
         <html>
         <head>
             <title>Atomic Funder Networks Dashboard</title>
@@ -12991,10 +13651,7 @@ def networks_dashboard():
         </script>
         """
 
-        return html
-
-    except Exception as e:
-        return f"<h1>Error</h1><p>{str(e)}</p>", 500
+    return html
 
 
 @app.route('/top-funding-hubs')
@@ -16041,20 +16698,85 @@ def api_creator_scan_stats():
         return jsonify({'error': str(e)}), 500
 
 
+def _build_score_section(score_info: dict) -> str:
+    """Build HTML score display section for creator network page"""
+    if not score_info or score_info.get('score') is None:
+        return ""
+
+    score = score_info['score']
+    components = score_info.get('components', {})
+
+    # Determine badge color
+    badge_color_map = {
+        'high': '#ef4444',    # red
+        'medium': '#eab308',  # yellow
+        'low': '#22c55e'      # green
+    }
+    badge_color = badge_color_map.get(score_info.get('score_badge', 'medium'), '#eab308')
+
+    return f"""
+            <div class="members-section" style="background: var(--bg-secondary); border-radius: 8px; padding: 20px; border: 1px solid rgba(124, 58, 237, 0.3); margin-bottom: 30px;">
+                <h2 style="color: var(--accent-purple); font-size: 16px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                    📊 Risk Score
+                    <span style="display: inline-block; background-color: {badge_color}; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 14px; font-weight: bold; margin-left: auto;">{score} / 100</span>
+                </h2>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                    <div style="background: var(--bg-primary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(59, 130, 246, 0.5);">
+                        <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Connectivity</div>
+                        <div style="font-weight: bold; font-size: 18px; color: #3b82f6;">{components.get('connectivity', 0)} / 40</div>
+                    </div>
+                    <div style="background: var(--bg-primary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(251, 191, 36, 0.5);">
+                        <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Lifecycle</div>
+                        <div style="font-weight: bold; font-size: 18px; color: #fbbf24;">{components.get('lifecycle', 0)} / 25</div>
+                    </div>
+                    <div style="background: var(--bg-primary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(168, 85, 247, 0.5);">
+                        <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Evidence</div>
+                        <div style="font-weight: bold; font-size: 18px; color: #a855f7;">{components.get('evidence', 0)} / 35</div>
+                    </div>
+                </div>
+            </div>
+    """
+
+
 @app.route('/creator-network/<network_name>')
 
 def creator_network_page(network_name: str):
     """Display creator network details and members separated by role"""
-    try:
-        # URL decode the network name if needed
-        from urllib.parse import unquote
-        import json
-        network_name = unquote(network_name)
-        
+    from urllib.parse import unquote
+    import json
+    
+    def new_path():
+        """NEW PATH: Use networks_release and network_membership"""
+        network_name_decoded = unquote(network_name)
+
+        # Get network info from networks_release
+        network = get_network_release_by_name(network_name_decoded, include_evidence=False)
+
+        if not network:
+            return {'error': f"Network '{network_name_decoded}' not found"}, 404
+
+        # Get members from network_membership
+        members = get_network_members(network_name_decoded)
+
+        # Get network score
+        score_info = get_network_score(network_name_decoded)
+
+        return {
+            'network': network,
+            'members': members,
+            'network_name': network_name_decoded,
+            'creator_count': len(members),
+            'funder_count': 0,
+            'score_info': score_info
+        }, 200
+    
+    def legacy_path():
+        """OLD PATH: Use creator_networks and creator_to_creator_networks"""
+        network_name_decoded = unquote(network_name)
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-
+        
         # Get network info
         # First try creator_networks (traditional networks)
         cursor.execute("""
@@ -16067,18 +16789,18 @@ def creator_network_page(network_name: str):
             FROM creator_networks
             WHERE network_name = ?
             LIMIT 1
-        """, (network_name,))
+        """, (network_name_decoded,))
         network_row = cursor.fetchone()
-
+        
         # If not found, check if it's a CreatorTransfer network
         is_creator_transfer = False
-        if not network_row and network_name.startswith('CreatorTransfer_'):
+        if not network_row and network_name_decoded.startswith('CreatorTransfer_'):
             is_creator_transfer = True
             # For CreatorTransfer networks, get creators from creator_to_creator_networks
             cursor.execute("""
                 SELECT creator_address FROM creator_to_creator_networks
                 WHERE network_name = ?
-            """, (network_name,))
+            """, (network_name_decoded,))
             c2c_creators = cursor.fetchall()
             if c2c_creators:
                 # Create a virtual network_row for display
@@ -16091,32 +16813,32 @@ def creator_network_page(network_name: str):
                     'network_risk_level': 'HIGH',
                     'updated_at': ''
                 }
-
+        
         # Get CEX/INFRA info for this network
         cursor.execute("""
             SELECT network_type, has_cex_funder, has_infra_funder
             FROM network_cex_infra_flags
             WHERE network_name = ?
-        """, (network_name,))
+        """, (network_name_decoded,))
         cex_infra_row = cursor.fetchone()
         network_type = cex_infra_row['network_type'] if cex_infra_row else 'unknown'
         has_cex = cex_infra_row['has_cex_funder'] if cex_infra_row else 0
         has_infra = cex_infra_row['has_infra_funder'] if cex_infra_row else 0
-
+        
         if not network_row:
             conn.close()
-            return f"<h1>Error</h1><p>Network '{network_name}' not found</p>", 404
-
+            return {'error': f"Network '{network_name_decoded}' not found"}, 404
+        
         creators_html = ""
         funders_html = ""
         creator_count = 0
         funder_count = 0
-
+        
         # Helper function to check if address is CEX
         def is_cex_address(addr):
             cursor.execute("SELECT COUNT(*) as count FROM cex_wallets WHERE cex_address = ?", (addr,))
             return cursor.fetchone()['count'] > 0
-
+        
         # Helper function to get member role tag with network type indicator
         def get_member_role_tag(addr, base_role):
             cex_badge = " 🏦 CEX" if is_cex_address(addr) else ""
@@ -16132,15 +16854,15 @@ def creator_network_page(network_name: str):
                 elif network_type == 'mixed':
                     network_type_badge = " ⚠️ MIXED"
             return f"{base_role}{cex_badge}{network_type_badge}"
-
+        
         try:
             connected = json.loads(network_row['connected_creators'])
-
+            
             # Check primary creator
             cursor.execute("SELECT COUNT(*) as count FROM token_analysis WHERE earliest_tx_creator = ?",
                          (network_row['creator_address'],))
             is_primary_creator = cursor.fetchone()['count'] > 0
-
+            
             if is_primary_creator:
                 role_tag = get_member_role_tag(network_row['creator_address'], "PRIMARY CREATOR")
                 creators_html += f"""
@@ -16151,12 +16873,12 @@ def creator_network_page(network_name: str):
                     </div>
                 """
                 creator_count += 1
-
+            
             # Categorize connected members
             for addr in connected:
                 cursor.execute("SELECT COUNT(*) as count FROM token_analysis WHERE earliest_tx_creator = ?", (addr,))
                 is_creator = cursor.fetchone()['count'] > 0
-
+                
                 if is_creator:
                     role_tag = get_member_role_tag(addr, "CREATOR")
                     creators_html += f"""
@@ -16177,21 +16899,21 @@ def creator_network_page(network_name: str):
                         </div>
                     """
                     funder_count += 1
-
+            
             # For FundingChain networks, also get funders from funding_chains table
-            if network_name.startswith('FundingChain_'):
+            if network_name_decoded.startswith('FundingChain_'):
                 # Extract all creators in this network
                 all_creators = [network_row['creator_address']] + connected
-
+                
                 # Get all unique bridge funders for these creators
                 cursor.execute("""
                     SELECT DISTINCT bridge_funder FROM funding_chains
                     WHERE source_creator IN (""" + ",".join(["?"] * len(all_creators)) + """)
                        OR target_creator IN (""" + ",".join(["?"] * len(all_creators)) + """)
                 """, all_creators + all_creators)
-
+                
                 bridge_funders = [row['bridge_funder'] for row in cursor.fetchall()]
-
+                
                 # Add bridge funders to funders section
                 for funder in bridge_funders:
                     if funder and funder not in connected:  # Avoid duplicates
@@ -16204,170 +16926,162 @@ def creator_network_page(network_name: str):
                             </div>
                         """
                         funder_count += 1
-
+        
         except Exception as parse_error:
             creators_html = f'<p style="color: var(--text-secondary);">Error parsing members: {str(parse_error)}</p>'
-
+        
         conn.close()
 
-        html = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Creator Network: {network_name}</title>
-            <style>
-                * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-                :root {{
-                    --primary: #7c3aed;
-                    --text-primary: #e5e7eb;
-                    --text-secondary: #a1a5b4;
-                    --bg-primary: #1a1a24;
-                    --bg-secondary: rgba(20, 20, 32, 0.85);
-                    --accent-cyan: #06b6d4;
-                    --accent-purple: #a78bfa;
-                    --color-creator: #fbbf24;
-                    --color-funder: #3b82f6;
-                }}
-                body {{
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
-                    color: var(--text-primary);
-                    padding: 20px;
-                }}
-                .container {{ max-width: 1200px; margin: 0 auto; }}
-                header {{
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 30px;
-                    padding: 20px;
-                    background: var(--bg-secondary);
-                    border-radius: 8px;
-                    border-left: 4px solid var(--accent-cyan);
-                }}
-                h1 {{ color: var(--accent-cyan); font-size: 28px; }}
-                .back-btn {{
-                    background: rgba(124, 58, 237, 0.2);
-                    color: var(--accent-cyan);
-                    border: 1px solid rgba(124, 58, 237, 0.5);
-                    padding: 10px 20px;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-size: 12px;
-                    font-family: 'Segoe UI', sans-serif;
-                    text-decoration: none;
-                }}
-                .back-btn:hover {{ background: rgba(124, 58, 237, 0.3); }}
-                .stats {{
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 15px;
-                    margin-bottom: 30px;
-                }}
-                .stat-box {{
-                    background: var(--bg-secondary);
-                    padding: 20px;
-                    border-radius: 6px;
-                    border: 1px solid rgba(124, 58, 237, 0.2);
-                }}
-                .stat-label {{ font-size: 12px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; }}
-                .stat-value {{ font-size: 24px; color: var(--accent-purple); font-weight: 700; margin-top: 8px; }}
-                .members-section {{ background: var(--bg-secondary); border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.2); padding: 20px; margin-bottom: 20px; }}
-                .members-title {{ color: var(--accent-purple); font-size: 18px; font-weight: 700; margin-bottom: 20px; text-transform: uppercase; border-bottom: 2px solid rgba(124, 58, 237, 0.3); padding-bottom: 10px; }}
-                .network-member-row {{
-                    display: grid;
-                    grid-template-columns: 1fr 200px 200px;
-                    gap: 15px;
-                    padding: 12px;
-                    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
-                    align-items: center;
-                }}
-                .network-member-row:last-child {{ border-bottom: none; }}
-                .member-address {{
-                    font-family: 'Courier New', monospace;
-                    font-size: 11px;
-                    color: var(--accent-cyan);
-                    word-break: break-all;
-                }}
-                .member-role {{
-                    font-size: 11px;
-                    color: var(--text-primary);
-                    text-transform: uppercase;
-                    padding: 4px 8px;
-                    border-radius: 4px;
-                    border: 1px solid;
-                    text-align: center;
-                    font-weight: 600;
-                }}
-                .member-role:contains("CREATOR") {{
-                    background: rgba(251, 191, 36, 0.15);
-                    border-color: rgba(251, 191, 36, 0.3);
-                    color: #fbbf24;
-                }}
-                .member-added {{
-                    font-size: 11px;
-                    color: var(--text-secondary);
-                    text-align: right;
-                }}
-                .creators-section .member-role {{
-                    background: rgba(251, 191, 36, 0.15);
-                    border-color: rgba(251, 191, 36, 0.3);
-                    color: #fbbf24;
-                }}
-                .funders-section .member-role {{
-                    background: rgba(59, 130, 246, 0.15);
-                    border-color: rgba(59, 130, 246, 0.3);
-                    color: #3b82f6;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <header>
-                    <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-                        <h1>🔗 Creator Network: {network_name}</h1>
-                        <div style="display: flex; gap: 8px;">
-                            {'<span style="background: #ef4444; color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700;">🏦 CEX-CONNECTED</span>' if network_type == 'cex_connected' else ''}
-                            {'<span style="background: #f97316; color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700;">🔧 INFRA-CONNECTED</span>' if network_type == 'infra_connected' else ''}
-                            {'<span style="background: #d97706; color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700;">⚠️ MIXED</span>' if network_type == 'mixed' else ''}
-                            {'<span style="background: #22c55e; color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700;">✓ ORGANIC</span>' if network_type == 'organic' else ''}
-                        </div>
-                    </div>
-                    <a href="/creator-analysis" class="back-btn">← Back to Analysis</a>
-                </header>
+        # Get network score
+        score_info = get_network_score(network_name_decoded)
 
-                <div class="stats">
-                    <div class="stat-box">
-                        <div class="stat-label">Creators</div>
-                        <div class="stat-value">{creator_count}</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Funders</div>
-                        <div class="stat-value">{funder_count}</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Risk Level</div>
-                        <div class="stat-value">{network_row['network_risk_level'] if network_row else 'N/A'}</div>
-                    </div>
+        return {
+            'network': network_row,
+            'creators_html': creators_html,
+            'funders_html': funders_html,
+            'creator_count': creator_count,
+            'funder_count': funder_count,
+            'network_name': network_name_decoded,
+            'network_type': network_type,
+            'has_cex': has_cex,
+            'has_infra': has_infra,
+            'score_info': score_info
+        }, 200
+    
+    # Route to new or legacy path
+    result, status_code = route_phase2c('/creator-network', new_path, legacy_path)
+    
+    if status_code != 200:
+        return result, status_code
+    
+    # Extract result from jsonify response
+    import json as json_module
+    if isinstance(result, str):
+        return result, status_code
+    context = json_module.loads(result.get_data(as_text=True))
+    
+    if context.get('error'):
+        return f"<h1>Error</h1><p>{context.get('error')}</p>", 404
+    
+    # Build HTML response
+    network_name_decoded = unquote(network_name)
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Creator Network: {network_name_decoded}</title>
+        <style>
+            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            :root {{
+                --primary: #7c3aed;
+                --text-primary: #e5e7eb;
+                --text-secondary: #a1a5b4;
+                --bg-primary: #1a1a24;
+                --bg-secondary: rgba(20, 20, 32, 0.85);
+                --accent-cyan: #06b6d4;
+                --accent-purple: #a78bfa;
+                --color-creator: #fbbf24;
+                --color-funder: #3b82f6;
+            }}
+            body {{
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
+                color: var(--text-primary);
+                padding: 20px;
+            }}
+            .container {{ max-width: 1200px; margin: 0 auto; }}
+            header {{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 30px;
+            }}
+            h1 {{
+                color: var(--primary);
+                margin: 0;
+                font-size: 28px;
+            }}
+            .back-link {{
+                color: var(--accent-cyan);
+                text-decoration: none;
+                font-size: 13px;
+                transition: color 0.2s;
+            }}
+            .back-link:hover {{
+                color: var(--accent-purple);
+            }}
+            .network-members {{
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+                margin-top: 30px;
+            }}
+            .members-section {{
+                background: var(--bg-secondary);
+                border-radius: 8px;
+                padding: 20px;
+                border: 1px solid rgba(124, 58, 237, 0.3);
+            }}
+            .members-section h2 {{
+                color: var(--accent-purple);
+                font-size: 16px;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }}
+            .network-member-row {{
+                background: var(--bg-primary);
+                padding: 12px;
+                border-radius: 6px;
+                margin-bottom: 10px;
+                border-left: 3px solid rgba(124, 58, 237, 0.5);
+            }}
+            .member-address {{
+                font-family: monospace;
+                font-size: 12px;
+                color: var(--text-secondary);
+                margin-bottom: 5px;
+                word-break: break-all;
+            }}
+            .member-role {{
+                font-size: 11px;
+                font-weight: bold;
+                color: var(--accent-cyan);
+                text-transform: uppercase;
+            }}
+            .member-added {{
+                font-size: 10px;
+                color: var(--text-secondary);
+                margin-top: 5px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>🔗 {network_name_decoded}</h1>
+                <a href="/networks" class="back-link">← Back to Networks</a>
+            </header>
+
+            {_build_score_section(context.get('score_info', {}))}
+
+            <div class="network-members">
+                <div class="members-section">
+                    <h2>👥 Creators ({context.get('creator_count', 0)})</h2>
+                    {context.get('creators_html', '<p style="color: var(--text-secondary);">No creators found</p>')}
                 </div>
-
-                <div class="members-section creators-section">
-                    <div class="members-title">👥 Creators</div>
-                    {creators_html if creators_html else '<p style="color: var(--text-secondary);">No creators found</p>'}
-                </div>
-
-                <div class="members-section funders-section">
-                    <div class="members-title">💰 Funders / Intermediaries</div>
-                    {funders_html if funders_html else '<p style="color: var(--text-secondary);">No funders found</p>'}
+                <div class="members-section">
+                    <h2>💰 Funders ({context.get('funder_count', 0)})</h2>
+                    {context.get('funders_html', '<p style="color: var(--text-secondary);">No funders found</p>')}
                 </div>
             </div>
-        </body>
-        </html>
-        """
-        return html
-    except Exception as e:
-        import traceback
-        return f"<h1>Error</h1><p>{str(e)}</p><pre>{traceback.format_exc()}</pre>", 500
+        </div>
+    </body>
+    </html>
+    """
+    
+    return html
 
 
 # =========================================================================

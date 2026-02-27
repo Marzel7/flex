@@ -14,12 +14,20 @@ Optimized the three core edge tables that power the network analysis engine with
 ```sql
 CREATE INDEX IF NOT EXISTS idx_creator_funders_creator_funder
 ON creator_funders(creator_address, funder_address);
+
+CREATE INDEX IF NOT EXISTS idx_creator_funders_funder
+ON creator_funders(funder_address);
 ```
-**Purpose**: Composite index for efficient joins on both columns
-**Use Cases**: 
-- Find all funders for a creator
+**Purpose**:
+- Composite index for forward lookups (creator → funders)
+- Reverse index for backward lookups (funder → creators)
+
+**Use Cases**:
+- Forward: Find all funders for a creator
+- Reverse: Find all creators funded by a funder (critical for Phase 6 clustering)
 - Network membership detection
 - Circular funding patterns
+- Shared funder detection (clustering)
 
 ### funder_incoming_transfers
 ```sql
@@ -33,10 +41,13 @@ CREATE INDEX IF NOT EXISTS idx_funder_incoming_block_time
 ON funder_incoming_transfers(block_time);
 ```
 **Purpose**: Support lookups by sender, composite joins, and time-window queries
+
 **Use Cases**:
 - Trace funding sources (Phase 3)
 - Build funding chains (Phase 5)
 - Time-filtered analysis
+
+⚠️ **Note on block_time index**: Currently **unused** in queries (all filter on funder_address only). Kept for future time-window filtering. Can be removed if space is needed.
 
 ### creator_outgoing_transfers
 ```sql
@@ -96,12 +107,23 @@ USE TEMP B-TREE FOR DISTINCT
 
 ## Index Statistics
 
-### Total Indexes Added: 5
+### Total Indexes Added: 6
 ```
-creator_funders:              1 new composite index
+creator_funders:              2 new indexes (composite + reverse)
 funder_incoming_transfers:    3 new indexes
 creator_outgoing_transfers:   1 new composite index
 ```
+
+### Index Details
+**Active Indexes (in use)**:
+- idx_creator_funders_creator_funder (composite: forward lookup)
+- idx_creator_funders_funder (reverse lookup: critical for Phase 6)
+- idx_funder_incoming_sender (sender lookup)
+- idx_funder_incoming_funder_sender (composite)
+- idx_creator_outgoing_creator_recipient (composite)
+
+**Monitor (low/zero current usage)**:
+- idx_funder_incoming_block_time (waiting for time-window filtering)
 
 ### Existing Indexes Verified: 13
 - Single column indexes (already present)

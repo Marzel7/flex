@@ -1058,6 +1058,143 @@ def build_networks_release(db_path: str) -> dict:
         for row in alert_counts:
             print(f"      - {row['alert_type']}: {row['count']}")
 
+        # Phase I: Apply exponential smoothing and compute stability coefficient
+        print("🔄 Phase I: Apply score smoothing & stability coefficient...")
+
+        # Ensure smoothing columns exist (safe for older SQLite)
+        try:
+            db.execute('ALTER TABLE network_scores ADD COLUMN smoothed_score INTEGER;')
+        except Exception:
+            pass  # Column already exists
+
+        try:
+            db.execute('ALTER TABLE network_scores ADD COLUMN stability_coeff REAL;')
+        except Exception:
+            pass
+
+        try:
+            db.execute('ALTER TABLE network_scores ADD COLUMN smoothing_alpha REAL DEFAULT 0.3;')
+        except Exception:
+            pass
+
+        try:
+            db.execute('ALTER TABLE network_scores ADD COLUMN smoothing_version INTEGER DEFAULT 1;')
+        except Exception:
+            pass
+
+        try:
+            db.execute('ALTER TABLE network_scores ADD COLUMN smoothed_updated_at TIMESTAMP;')
+        except Exception:
+            pass
+
+        # Phase I.1: Compute exponential smoothing
+        # Formula: smooth_t = alpha * raw_t + (1 - alpha) * smooth_{t-1}
+        smoothing_alpha = 0.3  # Default smoothing factor
+
+        db.execute('''
+            CREATE TEMP TABLE smoothing_data AS
+            SELECT
+              ns.network_name,
+              ns.score as raw_score,
+              COALESCE(old.smoothed_score, ns.score) as prev_smoothed,
+              ? as alpha
+            FROM network_scores ns
+            LEFT JOIN (
+              SELECT network_name, smoothed_score
+              FROM network_scores
+              WHERE smoothed_score IS NOT NULL
+            ) old ON ns.network_name = old.network_name
+              AND old.smoothed_score IS NOT NULL;
+        ''', (smoothing_alpha,))
+
+        # Apply smoothing formula
+        db.execute('''
+            UPDATE network_scores
+            SET
+              smoothed_score = CAST(ROUND(
+                (SELECT alpha FROM smoothing_data WHERE network_name = network_scores.network_name) *
+                (SELECT raw_score FROM smoothing_data WHERE network_name = network_scores.network_name) +
+                (1 - (SELECT alpha FROM smoothing_data WHERE network_name = network_scores.network_name)) *
+                (SELECT prev_smoothed FROM smoothing_data WHERE network_name = network_scores.network_name)
+              ) AS INTEGER),
+              smoothing_alpha = ?,
+              smoothing_version = CASE
+                WHEN smoothed_score IS NULL THEN 1
+                ELSE smoothing_version
+              END,
+              smoothed_updated_at = CURRENT_TIMESTAMP
+            WHERE network_name IN (SELECT network_name FROM smoothing_data);
+        ''', (smoothing_alpha,))
+
+        # Phase I.2: Compute stability coefficient from vol5 (volatility over last 5 transitions)
+        # Formula: stability = 1 / (1 + (vol5 / 10)), clamped to [0.1, 1.0]
+
+        db.execute('''
+            CREATE TEMP TABLE volatility_data AS
+            WITH score_deltas AS (
+              SELECT
+                h.network_name,
+                h.build_version,
+                h.score,
+                LAG(h.score, 1) OVER (PARTITION BY h.network_name ORDER BY h.build_version) as prev_score,
+                ABS(h.score - LAG(h.score, 1) OVER (PARTITION BY h.network_name ORDER BY h.build_version)) as abs_delta,
+                COUNT(*) OVER (PARTITION BY h.network_name ORDER BY h.build_version ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) as delta_count
+              FROM network_score_history h
+              WHERE h.build_version <= ?
+            ),
+            vol5_calc AS (
+              SELECT
+                network_name,
+                CASE
+                  WHEN COUNT(*) < 2 THEN 0.0
+                  ELSE AVG(abs_delta)
+                END as vol5
+              FROM score_deltas
+              WHERE delta_count >= 2
+                AND prev_score IS NOT NULL
+              GROUP BY network_name
+            )
+            SELECT
+              network_name,
+              vol5,
+              MAX(0.1, MIN(1.0, 1.0 / (1.0 + (vol5 / 10.0)))) as stability_coeff
+            FROM vol5_calc;
+        ''', (current_build,))
+
+        # Update stability coefficient
+        db.execute('''
+            UPDATE network_scores
+            SET
+              stability_coeff = (
+                SELECT COALESCE(stability_coeff, 1.0) FROM volatility_data
+                WHERE volatility_data.network_name = network_scores.network_name
+              ),
+              smoothed_updated_at = CURRENT_TIMESTAMP
+            WHERE network_name IN (SELECT network_name FROM volatility_data);
+        ''')
+
+        # For networks without history, set stability to 1.0 (fully stable)
+        db.execute('''
+            UPDATE network_scores
+            SET stability_coeff = 1.0
+            WHERE stability_coeff IS NULL;
+        ''')
+
+        # Verify smoothing and stability
+        smoothing_stats = db.execute('''
+            SELECT
+              COUNT(*) as total_networks,
+              COUNT(CASE WHEN smoothed_score IS NOT NULL THEN 1 END) as smoothed_count,
+              COUNT(CASE WHEN stability_coeff IS NOT NULL THEN 1 END) as stability_count,
+              ROUND(AVG(stability_coeff), 3) as avg_stability,
+              ROUND(MIN(stability_coeff), 3) as min_stability,
+              ROUND(MAX(stability_coeff), 3) as max_stability
+            FROM network_scores
+        ''').fetchone()
+
+        print(f"   ✅ Smoothing applied: {smoothing_stats['smoothed_count']} networks")
+        print(f"      Stability coefficient: avg={smoothing_stats['avg_stability']} (min={smoothing_stats['min_stability']}, max={smoothing_stats['max_stability']})")
+
         # Cleanup temp tables
         db.execute('DROP TABLE IF EXISTS networks_release_prev')
         db.execute('DROP TABLE IF EXISTS network_evidence_prev')

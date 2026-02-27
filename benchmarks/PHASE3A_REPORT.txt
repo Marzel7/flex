@@ -1,0 +1,73 @@
+================================================================================
+PHASE 3A BENCHMARK REPORT
+================================================================================
+Timestamp: 2026-02-27T10:41:30.644658
+Iterations per endpoint/mode: 20
+Test network: ObsidianDark (id=1)
+
+--------------------------------------------------------------------------------
+Endpoint: /api/funding-networks (API)
+--------------------------------------------------------------------------------
+  NEW PATH:
+    Cold start:     120.77 ms
+    Warm average:   83.08 ms
+    P95 latency:    122.05 ms
+
+  LEGACY PATH:
+    Cold start:     82.28 ms
+    Warm average:   80.44 ms
+    P95 latency:    90.72 ms
+
+  Speedup: 3.3% slower (new path)
+
+--------------------------------------------------------------------------------
+Endpoint: /api/funding-network-details/1 (API)
+--------------------------------------------------------------------------------
+  NEW PATH:
+    Cold start:     5.78 ms
+    Warm average:   4.73 ms
+    P95 latency:    5.80 ms
+
+  LEGACY PATH:
+    Cold start:     4.89 ms
+    Warm average:   4.63 ms
+    P95 latency:    5.43 ms
+
+  Speedup: 2.2% slower (new path)
+
+--------------------------------------------------------------------------------
+Endpoint: /networks (HTML)
+--------------------------------------------------------------------------------
+  NEW PATH:
+    Cold start:     164.78 ms
+    Warm average:   160.12 ms
+    P95 latency:    164.71 ms
+
+  LEGACY PATH:
+    Cold start:     159.75 ms
+    Warm average:   162.51 ms
+    P95 latency:    200.64 ms
+
+  Speedup: 1.5% faster (new path)
+
+--------------------------------------------------------------------------------
+Endpoint: /creator-network/ObsidianDark (HTML)
+--------------------------------------------------------------------------------
+  NEW PATH:
+    Cold start:     5.28 ms
+    Warm average:   4.76 ms
+    P95 latency:    5.27 ms
+
+  LEGACY PATH:
+    Cold start:     4.77 ms
+    Warm average:   4.77 ms
+    P95 latency:    5.16 ms
+
+  Speedup: 0.3% faster (new path)
+
+================================================================================
+Summary:
+  - 'Cold start' is the first request (may include app warmup)
+  - 'Warm average' is the mean of requests 2..N (steady state)
+  - 'P95 latency' is the 95th percentile (tail performance)
+================================================================================

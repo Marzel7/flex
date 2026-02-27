@@ -150,7 +150,7 @@ CREATE TABLE networks_release (
   last_built_at             TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   input_coverage_pct        REAL DEFAULT 100.0,
   stability_state           TEXT DEFAULT 'new',
-  network_type              TEXT,  -- 'cex_and_infra_coordinated', 'cex_coordinated', 'infra_coordinated', 'normal'
+  network_type              TEXT,  -- 'cex_and_infra_connected', 'cex_connected', 'infra_connected', 'organic'
   has_cex_funder            BOOLEAN DEFAULT 0,
   has_infra_funder          BOOLEAN DEFAULT 0,
   cex_funder_count          INTEGER DEFAULT 0,
@@ -179,33 +179,34 @@ network_membership → creators → creator_funders → funders → infra_funder
 Distinct count of infra funders per network
 ```
 
-**Phase 4**: Network type classification
+**Phase 4**: Network type classification (detection-based, not accusatory)
 ```
-if has_cex AND has_infra: 'cex_and_infra_coordinated'
-else if has_cex: 'cex_coordinated'
-else if has_infra: 'infra_coordinated'
-else: 'normal'
+if has_cex AND has_infra: 'cex_and_infra_connected'
+else if has_cex: 'cex_connected'
+else if has_infra: 'infra_connected'
+else: 'organic'
 ```
+*Note: "Connected" reflects observed CEX/infra wallet presence, not implied malicious coordination*
 
 ### Initial Population Results
 
 **Statistics** (103 networks, 773 creators):
 - Networks with CEX funders: 61
 - Networks with infra funders: 54
-- Networks with both: 54 (52% coordinated)
-- CEX-only: 7 (7%)
-- Normal: 42 (41%)
+- Networks with both: 54 (52% cex_and_infra_connected)
+- CEX-only: 7 (7% cex_connected)
+- Organic (no CEX/infra): 42 (41%)
 - Total CEX funders: 200 distinct
 - Total infra funders: 164 distinct
 
 **Top 5 Networks** (by size):
 | Network | Creators | Type | CEX Funders | Infra Funders |
 |---------|----------|------|-------------|---------------|
-| ObsidianDark | 179 | cex_and_infra | 18 | 15 |
-| Beacon | 75 | cex_and_infra | 2 | 2 |
-| CEXGateway | 54 | cex_and_infra | 1 | 1 |
-| OceanDepth | 48 | cex_and_infra | 12 | 10 |
-| ArcticFreeze | 41 | cex_and_infra | 4 | 4 |
+| ObsidianDark | 179 | cex_and_infra_connected | 18 | 15 |
+| Beacon | 75 | cex_and_infra_connected | 2 | 2 |
+| CEXGateway | 54 | cex_and_infra_connected | 1 | 1 |
+| OceanDepth | 48 | cex_and_infra_connected | 12 | 10 |
+| ArcticFreeze | 41 | cex_and_infra_connected | 4 | 4 |
 
 ### Indexes Added (5)
 ```sql
@@ -260,14 +261,46 @@ UI → networks_release (single indexed query) → Ready to render
 **Benefits**:
 - Single source of truth for network presentation
 - No JSON parsing in application code
-- Deterministic CEX/infra classification
+- Deterministic CEX/infra classification with accurate semantics
 - Query performance 10-20x faster
-- Versioning support for tracking network evolution
-- Stability tracking (new/stable/growing/shrinking)
+- Versioning support for tracking network evolution (Phase 1)
+- Stability tracking (new/stable/growing/shrinking) (Phase 1)
+
+**Pending Architecture Improvements**:
+- Normalized `network_flag_addresses` table (Phase 2) - Move JSON address arrays to 3NF
+- Build version logic (Phase 1) - Increment on size/type changes
+- Stability state computation (Phase 1) - Snapshot-and-compare delta tracking
 
 ### Status
-✅ Complete - 1 commit
+✅ Complete - 2 commits
 - df03f7c: Create networks_release with full initial population
+- 5cb4a62: Fix semantic accuracy (coordinated → connected), add Phase 1 build logic spec
+
+### Critical Semantic Fix (Post-Implementation Review)
+Renamed network types from `*_coordinated` to `*_connected` to accurately reflect detection:
+- **"Coordinated"** implies intentional malicious behavior
+- **"Connected"** reflects what we actually detect: CEX/infra wallet presence
+- This prevents semantic overreach and legal liability at release
+
+**Updated Classification**:
+- `cex_and_infra_connected` (was: cex_and_infra_coordinated)
+- `cex_connected` (was: cex_coordinated)
+- `infra_connected` (was: infra_coordinated)
+- `organic` (was: normal) - Better semantic antonym
+
+### Pending Phase 1 Implementation
+Two critical build logic components still need implementation (before UI migration):
+
+1. **Build Version Incrementing**: Currently defaults to 1 and never changes
+   - Should increment when network_size or network_type changes
+   - Enables network diffing and versioning
+
+2. **Stability State Enforcement**: Currently unpopulated despite being defined
+   - Should track delta from previous build
+   - Classification: new/stable/growing/shrinking based on ±10% size threshold
+   - Requires snapshot-and-compare pattern during build
+
+See `OPTIMIZATION_STEP3_PHASE1_BUILD_LOGIC.md` for complete implementation specification (5-phase build process with test cases)
 
 ---
 
@@ -367,6 +400,8 @@ Implement evolution tracking:
 | 1b3e4ee | Step 2: Normalize network membership | pumpswap_tokens.db, OPTIMIZATION_STEP2_NETWORK_MEMBERSHIP.md | ✅ |
 | e8271b4 | Step 2 indexing documentation | OPTIMIZATION_STEP2_INDEXING.md | ✅ |
 | df03f7c | Step 3: Create networks_release | pumpswap_tokens.db, OPTIMIZATION_STEP3_NETWORKS_RELEASE.md | ✅ |
+| abf08a0 | Add comprehensive optimization summary | OPTIMIZATIONS_SUMMARY.md | ✅ |
+| 5cb4a62 | Fix semantic accuracy & add Phase 1 build logic spec | OPTIMIZATION_STEP3_NETWORKS_RELEASE.md, OPTIMIZATION_STEP3_PHASE1_BUILD_LOGIC.md | ✅ |
 
 ---
 
@@ -433,15 +468,25 @@ Implement evolution tracking:
 
 ## Next Steps (Post-Optimization)
 
-1. **UI Migration** - Update main.py to read from networks_release
-2. **Phase 6 Integration** - Add network_membership writes to cluster building
-3. **Stability Tracking** - Implement network evolution monitoring
-4. **Performance Monitoring** - Track query times and index usage in production
-5. **Backward Cleanup** - Deprecate creator_networks and network_cex_infra_flags once UI migrates
+### Phase 1 (Pre-UI Migration) - 2-3 hours
+1. **Build Version Logic** - Implement version incrementing on size/type changes
+2. **Stability State Logic** - Implement snapshot-and-compare delta tracking (±10% threshold)
+3. **Test & Validate** - Verify with existing networks_release data (5 test cases provided)
+4. See: `OPTIMIZATION_STEP3_PHASE1_BUILD_LOGIC.md` for complete specification
+
+### Phase 2 (UI Integration) - Parallel track
+5. **UI Migration** - Update main.py to read from networks_release with new type names
+6. **Phase 6 Integration** - Add network_membership writes to cluster building
+7. **Stability UI Indicators** - Add badges for growing/shrinking networks
+
+### Phase 3 (Post-UI) - Optional improvements
+8. **Normalized Address Table** - Create network_flag_addresses for 3NF design
+9. **Performance Monitoring** - Track query times and index usage in production
+10. **Backward Cleanup** - Deprecate creator_networks once UI fully migrates
 
 ---
 
-**Created**: February 27, 2026
+**Created**: February 27, 2026 (Updated: Feb 27, 2026 - Semantic fixes + Phase 1 spec)
 **Author**: Claude Code
 **Branch**: optimisations
-**Status**: ✅ Complete & Ready for Integration
+**Status**: ✅ Step 1-3 Complete | ⏳ Phase 1 Build Logic Pending | Ready for Phase 1 Implementation

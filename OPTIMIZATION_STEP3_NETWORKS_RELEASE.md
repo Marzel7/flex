@@ -38,15 +38,15 @@ CREATE TABLE networks_release (
 - `network_risk_level` - Risk classification (from creator_networks)
 - `stability_state` - Network stability tracking: `new`, `stable`, `growing`, `shrinking`
 
-**CEX/Infra Tagging** (deterministically computed):
-- `network_type` - Classification based on CEX/infra presence:
-  - `cex_and_infra_coordinated` - Has both CEX and infra funders
-  - `cex_coordinated` - Has CEX funders only
-  - `infra_coordinated` - Has infra funders only
-  - `normal` - No CEX/infra funders
+**CEX/Infra Tagging** (deterministically detected, not implied):
+- `network_type` - Detection classification (reflects observed CEX/infra presence, not malicious intent):
+  - `cex_and_infra_connected` - Contains funders from both CEX and infrastructure wallets
+  - `cex_connected` - Contains funders from CEX wallets only
+  - `infra_connected` - Contains funders from infrastructure wallets only
+  - `organic` - No detected CEX or infrastructure wallet funders
 - `has_cex_funder` / `has_infra_funder` - Boolean flags
 - `cex_funder_count` / `infra_funder_count` - Distinct funder counts
-- `cex_funder_addresses` / `infra_funder_addresses` - JSON arrays for UI rendering
+- `cex_funder_addresses` / `infra_funder_addresses` - JSON arrays for UI rendering (future: move to normalized table)
 
 ## Build Process - Deterministic & Idempotent
 
@@ -128,21 +128,27 @@ FROM infra_counts ic
 - Counts distinct infra funders per network
 - Collects addresses for UI display
 
-### Phase 4: Network Type Classification
+### Phase 4: Network Type Classification (Detection, Not Implication)
 ```sql
 UPDATE networks_release
 SET network_type = CASE
-  WHEN has_cex_funder = 1 AND has_infra_funder = 1 THEN 'cex_and_infra_coordinated'
-  WHEN has_cex_funder = 1 THEN 'cex_coordinated'
-  WHEN has_infra_funder = 1 THEN 'infra_coordinated'
-  ELSE 'normal'
+  WHEN has_cex_funder = 1 AND has_infra_funder = 1 THEN 'cex_and_infra_connected'
+  WHEN has_cex_funder = 1 THEN 'cex_connected'
+  WHEN has_infra_funder = 1 THEN 'infra_connected'
+  ELSE 'organic'
 END;
 ```
 
-**Deterministic Classification**:
-- No ambiguity - purely boolean logic
+**Semantic Correctness**:
+- **Not "coordinated"** - That term implies intentional malicious behavior
+- **Actually detected**: "Network contains at least one member funded by CEX/infra wallet"
+- Type names reflect observation, not accusation:
+  - `cex_and_infra_connected` (not "coordinated")
+  - `cex_connected` (not "coordinated")
+  - `infra_connected` (not "coordinated")
+  - `organic` (not "normal") - Better antonym to "connected"
 - Single responsibility: network_type = f(has_cex_funder, has_infra_funder)
-- Enables efficient filtering on UI
+- Enables efficient filtering on UI without semantic overreach
 
 ## Initial Build Results
 
@@ -157,24 +163,26 @@ END;
 
 ### Network Type Distribution
 ```
-cex_and_infra_coordinated:  54 networks (52%)
-normal:                     42 networks (41%)
-cex_coordinated:             7 networks (7%)
-infra_coordinated:           0 networks (0%)
+cex_and_infra_connected:  54 networks (52%)
+organic:                  42 networks (41%)
+cex_connected:             7 networks (7%)
+infra_connected:           0 networks (0%)
 ```
 
-### Top 10 Networks by Size & Coordination
+**Semantic Note**: Types reflect *detection* of CEX/infra wallet connections, not implication of malicious coordination.
+
+### Top 10 Networks by Size & Connection Type
 ```
-ObsidianDark        | 179 creators | cex_and_infra_coordinated | 18 CEX, 15 infra
-Beacon              |  75 creators | cex_and_infra_coordinated |  2 CEX,  2 infra
-CEXGateway          |  54 creators | cex_and_infra_coordinated |  1 CEX,  1 infra
-OceanDepth          |  48 creators | cex_and_infra_coordinated | 12 CEX, 10 infra
-ArcticFreeze        |  41 creators | cex_and_infra_coordinated |  4 CEX,  4 infra
-TwilightShadow      |  30 creators | cex_and_infra_coordinated |  2 CEX,  2 infra
-PrimordialForce     |  24 creators | cex_and_infra_coordinated | 16 CEX, 15 infra
-PearlShine          |  21 creators | cex_and_infra_coordinated |  3 CEX,  3 infra
-ThunderClap         |  21 creators | cex_and_infra_coordinated | 11 CEX,  8 infra
-NexusCerberus       |  13 creators | cex_and_infra_coordinated | 10 CEX,  7 infra
+ObsidianDark        | 179 creators | cex_and_infra_connected | 18 CEX, 15 infra
+Beacon              |  75 creators | cex_and_infra_connected |  2 CEX,  2 infra
+CEXGateway          |  54 creators | cex_and_infra_connected |  1 CEX,  1 infra
+OceanDepth          |  48 creators | cex_and_infra_connected | 12 CEX, 10 infra
+ArcticFreeze        |  41 creators | cex_and_infra_connected |  4 CEX,  4 infra
+TwilightShadow      |  30 creators | cex_and_infra_connected |  2 CEX,  2 infra
+PrimordialForce     |  24 creators | cex_and_infra_connected | 16 CEX, 15 infra
+PearlShine          |  21 creators | cex_and_infra_connected |  3 CEX,  3 infra
+ThunderClap         |  21 creators | cex_and_infra_connected | 11 CEX,  8 infra
+NexusCerberus       |  13 creators | cex_and_infra_connected | 10 CEX,  7 infra
 ```
 
 ## Indexing
@@ -340,17 +348,188 @@ Can run both in parallel:
 
 ---
 
-**Created**: February 27, 2026
+## Critical Issues & Future Improvements (Addressed in Iteration 2)
+
+### ⚠️ 1. Naming Semantics Risk - FIXED ✅
+
+**Issue**: Types named `*_coordinated` imply intentional malicious behavior, but we only detect CEX/infra wallet presence.
+
+**What we actually measure**:
+- "Network contains at least one member funded by a CEX/infra wallet"
+- This is **detection**, not accusation of coordination
+
+**Fix Applied**:
+```
+Before                          After
+cex_coordinated        →        cex_connected
+infra_coordinated      →        infra_connected
+cex_and_infra_coordinated  →    cex_and_infra_connected
+normal                 →        organic
+```
+
+**Why**:
+- "Connected" reflects observation (network has CEX connections)
+- "Organic" is better semantic antonym to "connected"
+- Avoids false implication of malicious intent
+- Accurate at release time prevents future liability issues
+
+**Verification**:
+```
+cex_and_infra_connected:  54 networks (52%)
+organic:                  42 networks (41%)
+cex_connected:             7 networks (7%)
+infra_connected:           0 networks (0%)
+```
+
+---
+
+### ⚠️ 2. JSON Aggregation Method - Future Roadmap
+
+**Current approach**:
+```sql
+cex_funder_addresses = '[' || cc.cex_addresses || ']'
+```
+
+**Future architectural pattern** (not urgent, post-UI migration):
+```sql
+CREATE TABLE network_flag_addresses (
+  network_name TEXT NOT NULL,
+  address      TEXT NOT NULL,
+  flag_type    TEXT NOT NULL,  -- 'cex' or 'infra'
+  detected_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (network_name, address, flag_type),
+  FOREIGN KEY (network_name) REFERENCES networks_release(network_name)
+);
+
+CREATE INDEX idx_nfa_network ON network_flag_addresses(network_name);
+CREATE INDEX idx_nfa_address ON network_flag_addresses(address);
+CREATE INDEX idx_nfa_type ON network_flag_addresses(flag_type);
+```
+
+**Benefits of normalized approach**:
+- Remove JSON parsing from application code
+- Enable efficient queries like "Show all networks containing this CEX wallet"
+- Support future filtering/searching at address level
+- Trivial to implement given current architecture
+- Can coexist with JSON arrays during migration period
+
+**Timeline**: Post-UI migration, Phase 2 of optimization
+
+---
+
+### ⚠️ 3. Build Version Logic - Needs Implementation
+
+**Current state**:
+- `build_version` defaults to 1
+- Never increments (all networks stuck at version 1)
+
+**Required logic** (before stability tracking works):
+```sql
+-- Phase 4b: Version & Stability Tracking
+UPDATE networks_release nr
+SET
+  build_version = CASE
+    WHEN old.network_size != nr.network_size THEN old.build_version + 1
+    WHEN old.network_type != nr.network_type THEN old.build_version + 1
+    ELSE old.build_version
+  END,
+  stability_state = CASE
+    WHEN old.network_size IS NULL THEN 'new'
+    WHEN ABS(nr.network_size - old.network_size) / CAST(old.network_size AS FLOAT) > 0.1 THEN
+      CASE WHEN nr.network_size > old.network_size THEN 'growing' ELSE 'shrinking' END
+    ELSE 'stable'
+  END
+FROM (SELECT network_name, network_size, build_version FROM networks_release_prev) old
+WHERE nr.network_name = old.network_name;
+```
+
+**What this enables**:
+- Network diffing: Track which networks changed between builds
+- Historical evolution: Compare v1 → v2 → v3 over time
+- Stability state: Identify growth/shrinkage patterns
+- Maturity: Professional release system
+
+**Implementation strategy**:
+1. Create `networks_release_prev` snapshot before rebuild
+2. Run Phase 4b comparison logic
+3. Compare size/type deltas
+4. Set version and stability atomically
+
+---
+
+### ⚠️ 4. Stability State Defined But Not Enforced
+
+**Current problem**:
+- `stability_state` column exists
+- No logic to populate it (all NULL or 'new')
+- Rendering "stable" networks without evidence
+
+**Required logic** (companion to build version):
+```sql
+-- After computing sizes/types, before UPDATE:
+WITH size_deltas AS (
+  SELECT
+    nr.network_name,
+    nr.network_size as new_size,
+    COALESCE(old.network_size, 0) as old_size,
+    CASE
+      WHEN old.network_size IS NULL THEN 'new'
+      WHEN old.network_size = 0 THEN 'new'
+      ELSE CASE
+        WHEN (nr.network_size - old.network_size) / CAST(old.network_size AS FLOAT) > 0.1 THEN 'growing'
+        WHEN (nr.network_size - old.network_size) / CAST(old.network_size AS FLOAT) < -0.1 THEN 'shrinking'
+        ELSE 'stable'
+      END
+    END as computed_state
+  FROM networks_release nr
+  LEFT JOIN networks_release_prev old ON nr.network_name = old.network_name
+)
+UPDATE networks_release
+SET stability_state = sd.computed_state
+FROM size_deltas sd
+WHERE networks_release.network_name = sd.network_name;
+```
+
+**Key thresholds**:
+- ±10% size delta triggers classification change
+- First build = 'new' (no previous state)
+- Size increases → 'growing'
+- Size decreases → 'shrinking'
+- Size stable ±10% → 'stable'
+
+**Why this matters**:
+- "Stable" networks are different from "growing" networks
+- Identifies which networks are consolidating vs expanding
+- Risk assessment: Rapidly growing networks may warrant scrutiny
+
+---
+
+### Summary of Improvements
+
+| Issue | Status | Priority | Timeline |
+|-------|--------|----------|----------|
+| Naming semantics (coordinated → connected) | ✅ Fixed | Critical | Done |
+| JSON aggregation normalization plan | 📋 Roadmap | Low | Phase 2 |
+| Build version incrementing | ⏳ Pending | Medium | Phase 1 |
+| Stability state enforcement | ⏳ Pending | Medium | Phase 1 |
+
+---
+
+**Created**: February 27, 2026 (Updated: Feb 27, 2026 - Semantics & Implementation Roadmap)
 **Branch**: optimisations
-**Status**: ✅ Complete - Initial build with 103 networks
+**Status**: ✅ Naming fixed | ⏳ Build logic pending Phase 1
 
 ## Summary
 
 Step 3 successfully created the `networks_release` table as the authoritative UI read source. The deterministic build process converts canonical network_membership data into presentation-ready network summaries with CEX/infra tagging, network types, and versioning support. This decouples business logic (network detection) from presentation logic (UI rendering), enabling faster queries, cleaner code, and network evolution tracking.
 
-All 103 networks are now properly classified:
-- 54 have both CEX and infrastructure coordination
-- 7 have CEX-only coordination
-- 42 are normal (no CEX/infra funders)
+All 103 networks are now properly classified with accurate semantic names:
+- 54 are CEX and infrastructure connected (52%)
+- 7 are CEX connected (7%)
+- 42 are organic with no CEX/infra wallet funders (41%)
 
-The next phase will integrate this into the UI and add stability tracking.
+The next phase will:
+1. Implement build_version incrementing logic (Phase 1)
+2. Enforce stability_state tracking via size deltas (Phase 1)
+3. Integrate into UI layer (Phase 1)
+4. Plan normalized network_flag_addresses table (Phase 2)

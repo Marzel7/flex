@@ -6856,7 +6856,6 @@ def api_creator_details(creator_address: str):
                 is_cex,
                 cex_exchange,
                 cex_type,
-                display_name,
                 COALESCE(source_type, 'original_sender') as source_type
             FROM creator_funders
             WHERE creator_address = ?

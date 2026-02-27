@@ -40,7 +40,7 @@ try:
 except Exception:
     pass
 
-DB_PATH = "pumpswap_tokens.db"
+DB_PATH = "flex_complete_database.db"
 SOLANA_RPC = "https://api.mainnet-beta.solana.com"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()
 

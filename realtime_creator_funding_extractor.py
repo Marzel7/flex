@@ -33,7 +33,7 @@ from domain_mapping import register_domain, link_domain_to_address
 from automatic_cex_detection import classify_addresses_from_funding
 from post_launch_automation import run_post_launch_automation
 
-DB_PATH = "pumpswap_tokens.db"
+DB_PATH = "flex_complete_database.db"
 # FIX #6: Remove hardcoded API key fallback — fail safe instead
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()
 USE_HELIUS = bool(HELIUS_API_KEY)

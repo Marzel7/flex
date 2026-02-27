@@ -38,7 +38,7 @@ def get_migration_setting(key: str, default=True) -> bool:
         # Try database first (listener_settings table)
         import sqlite3
         if key in ['listen_to_launches', 'listen_to_price_updates', 'auto_extract_funding']:
-            conn = sqlite3.connect('pumpswap_tokens.db', timeout=5)
+            conn = sqlite3.connect('flex_complete_database.db', timeout=5)
             cursor = conn.cursor()
             try:
                 cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", (key,))
@@ -96,7 +96,7 @@ def rebuild_super_clusters_from_funding():
     try:
         # Serialize writes: prevent other threads from interfering with clustering writes
         with DB_WRITE_LOCK:
-            conn = sqlite3.connect('pumpswap_tokens.db', timeout=60)
+            conn = sqlite3.connect('flex_complete_database.db', timeout=60)
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA synchronous=NORMAL")
             conn.execute("PRAGMA busy_timeout=60000")
@@ -281,7 +281,7 @@ RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
 PUMPFUN_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
 PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
 
-DB_PATH = "pumpswap_tokens.db"
+DB_PATH = "flex_complete_database.db"
 
 
 class PumpFunCurveListener:

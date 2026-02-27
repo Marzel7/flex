@@ -29,7 +29,7 @@ import sqlite3
 from typing import Dict, List, Optional, Tuple
 import time
 
-DB_PATH = "pumpswap_tokens.db"
+DB_PATH = "flex_complete_database.db"
 
 # Import unified recipient tracker if available
 try:

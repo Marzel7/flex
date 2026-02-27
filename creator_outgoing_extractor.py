@@ -24,7 +24,7 @@ import aiohttp
 
 from db_global_lock import db_write_lock_global
 
-DB_PATH = os.getenv("DB_PATH", "pumpswap_tokens.db")
+DB_PATH = os.getenv("DB_PATH", "flex_complete_database.db")
 
 # Helius API keys (from tests/test_pumpswap_listener.py)
 RPC_KEYS = [

@@ -540,10 +540,10 @@ def build_networks_release(db_path: str) -> dict:
             FROM network_scores;
         ''')
 
-        # Compute scores with three components:
+        # Compute scores with three components (v2 model):
         # A) Connectivity Risk (0-40): Based on network_type and CEX/infra connections
         # B) Lifecycle Risk (0-25): Based on stability_state and growth patterns
-        # C) Evidence Risk (0-35): Based on coordinated activity evidence
+        # C) Evidence Risk v2 (0-35): Weighted confidence mix (H*1.0 + M*0.6 + L*0.2) / total
         db.execute('''
             WITH score_components AS (
               SELECT
@@ -566,14 +566,31 @@ def build_networks_release(db_path: str) -> dict:
                   WHEN nr.stability_state = 'shrinking' THEN 5
                   ELSE 0
                 END as lifecycle_risk,
-                -- Component C: Evidence Risk (0-35)
-                -- Normalize by total_edges if evidence table exists
+                -- Component C: Evidence Risk v2 (0-35)
+                -- Phase 5A: Weighted confidence mix instead of simple high-confidence ratio
+                -- conf = (H*1.0 + M*0.6 + L*0.2) / max(total_edges, 1)
+                -- evidence_points = round(conf * 35)
                 CASE
                   WHEN ne.total_edges IS NULL THEN 0
                   WHEN ne.total_edges = 0 THEN 0
-                  ELSE MIN(35, CAST((ne.high_confidence_edges + 1) * 35 / CAST(ne.total_edges AS FLOAT) AS INTEGER))
+                  ELSE CAST(ROUND(
+                    (
+                      CAST(ne.high_confidence_edges AS FLOAT) * 1.0 +
+                      CAST(ne.medium_confidence_edges AS FLOAT) * 0.6 +
+                      CAST(COALESCE(ne.low_confidence_edges, 0) AS FLOAT) * 0.2
+                    ) / CAST(CASE WHEN ne.total_edges IS NULL OR ne.total_edges = 0 THEN 1 ELSE ne.total_edges END AS FLOAT) * 35.0
+                  ) AS INTEGER)
                 END as evidence_risk,
+                -- Store confidence components for transparency
+                CAST(
+                  (
+                    CAST(ne.high_confidence_edges AS FLOAT) * 1.0 +
+                    CAST(ne.medium_confidence_edges AS FLOAT) * 0.6 +
+                    CAST(COALESCE(ne.low_confidence_edges, 0) AS FLOAT) * 0.2
+                  ) / CAST(CASE WHEN ne.total_edges IS NULL OR ne.total_edges = 0 THEN 1 ELSE ne.total_edges END AS FLOAT)
+                AS REAL) as confidence_score,
                 ne.high_confidence_edges,
+                ne.medium_confidence_edges,
                 ne.total_edges
               FROM networks_release nr
               LEFT JOIN network_evidence ne ON nr.network_name = ne.network_name
@@ -585,12 +602,15 @@ def build_networks_release(db_path: str) -> dict:
                 lifecycle_risk,
                 evidence_risk,
                 MIN(100, connectivity_risk + lifecycle_risk + evidence_risk) as final_score,
-                -- JSON component breakdown for explainability
+                -- JSON component breakdown for explainability (Phase 5A: includes evidence_conf and model)
                 json_object(
                   'connectivity', connectivity_risk,
                   'lifecycle', lifecycle_risk,
                   'evidence', evidence_risk,
+                  'evidence_conf', COALESCE(ROUND(confidence_score, 4), 0.0),
+                  'model', 'v2',
                   'high_confidence_edges', COALESCE(high_confidence_edges, 0),
+                  'medium_confidence_edges', COALESCE(medium_confidence_edges, 0),
                   'total_edges', COALESCE(total_edges, 0)
                 ) as components_json
               FROM score_components
@@ -600,13 +620,13 @@ def build_networks_release(db_path: str) -> dict:
             SELECT
               network_name,
               final_score,
-              1,
+              2,
               components_json,
               CURRENT_TIMESTAMP
             FROM final_scores;
         ''')
 
-        # Update score versions idempotently (only if score changed)
+        # Update score versions idempotently (only if score changed, not for new networks)
         db.execute('''
             CREATE TEMP TABLE score_deltas AS
             SELECT
@@ -614,7 +634,7 @@ def build_networks_release(db_path: str) -> dict:
               ns.score,
               COALESCE(old.score, -1) as old_score,
               CASE
-                WHEN old.network_name IS NULL THEN 1
+                WHEN old.network_name IS NULL THEN 0
                 WHEN ns.score != old.score THEN 1
                 ELSE 0
               END as changed_flag
@@ -848,6 +868,183 @@ def build_networks_release(db_path: str) -> dict:
               AND sc.old_state != sc.new_state
               AND COALESCE(sc.score, 0) >= 50;
         ''', (current_build,))
+
+        # E) SCORE_DROP (Phase 5A): delta <= -20 (downward move)
+        db.execute('''
+            INSERT OR IGNORE INTO network_alerts
+            (network_name, build_version, alert_type, severity, message, details_json)
+            WITH score_deltas AS (
+              SELECT
+                h.network_name,
+                h.build_version,
+                h.score as curr_score,
+                (SELECT score FROM network_score_history p
+                 WHERE p.network_name = h.network_name
+                 AND p.build_version = h.build_version - 1) as prev_score
+              FROM network_score_history h
+              WHERE h.build_version = ?
+            )
+            SELECT
+              sd.network_name,
+              sd.build_version,
+              'SCORE_DROP',
+              CASE
+                WHEN (sd.curr_score - COALESCE(sd.prev_score, 0)) <= -35 THEN 'high'
+                ELSE 'medium'
+              END,
+              'Score decreased by ' || ABS(sd.curr_score - COALESCE(sd.prev_score, 0)) ||
+                ' points (from ' || COALESCE(sd.prev_score, 'N/A') || ' to ' || sd.curr_score || ')',
+              json_object(
+                'prev_score', sd.prev_score,
+                'curr_score', sd.curr_score,
+                'delta', sd.curr_score - COALESCE(sd.prev_score, 0)
+              )
+            FROM score_deltas sd
+            WHERE COALESCE(sd.prev_score, 0) IS NOT NULL
+              AND (sd.curr_score - COALESCE(sd.prev_score, 0)) <= -20;
+        ''', (current_build,))
+
+        # F) VOLATILITY_SPIKE (Phase 5A): avg(|score_i - score_{i-1}|) over last 5 builds >= 15
+        # Safe: only generates if network has >= 2 history points (ensures prev_score exists)
+        db.execute('''
+            INSERT OR IGNORE INTO network_alerts
+            (network_name, build_version, alert_type, severity, message, details_json)
+            WITH volatility_data AS (
+              SELECT
+                h.network_name,
+                h.build_version,
+                h.score,
+                (SELECT score FROM network_score_history p
+                 WHERE p.network_name = h.network_name
+                 AND p.build_version = h.build_version - 1) as prev_score,
+                COUNT(*) OVER (PARTITION BY h.network_name ORDER BY h.build_version ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) as window_size
+              FROM network_score_history h
+              WHERE h.build_version <= ?
+            ),
+            score_diffs AS (
+              SELECT
+                network_name,
+                build_version,
+                window_size,
+                AVG(ABS(score - COALESCE(prev_score, score))) as volatility
+              FROM volatility_data
+              WHERE window_size >= 2
+              GROUP BY network_name, build_version, window_size
+            )
+            SELECT
+              sd.network_name,
+              sd.build_version,
+              'VOLATILITY_SPIKE',
+              CASE
+                WHEN sd.volatility >= 25 THEN 'high'
+                ELSE 'medium'
+              END,
+              'High volatility detected: avg score change ' || CAST(ROUND(sd.volatility, 1) AS TEXT) || ' over last ' || sd.window_size || ' builds',
+              json_object(
+                'volatility', ROUND(sd.volatility, 2),
+                'window_size', sd.window_size
+              )
+            FROM score_diffs sd
+            WHERE sd.build_version = ?
+              AND sd.volatility >= 15;
+        ''', (current_build, current_build))
+
+        # G) RISK_MOMENTUM_UP (Phase 5B): momentum >= 10 (sustained upward risk movement)
+        # Safe: only generates if network has >= 3 history points (window_size >= 3)
+        db.execute('''
+            INSERT OR IGNORE INTO network_alerts
+            (network_name, build_version, alert_type, severity, message, details_json)
+            WITH deltas AS (
+              SELECT
+                h.network_name,
+                h.build_version,
+                h.score,
+                h.score - LAG(h.score, 1) OVER (PARTITION BY h.network_name ORDER BY h.build_version) as delta,
+                COUNT(*) OVER (PARTITION BY h.network_name ORDER BY h.build_version ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as window_size
+              FROM network_score_history h
+              WHERE h.build_version <= ?
+            ),
+            momentum_calc AS (
+              SELECT
+                network_name,
+                build_version,
+                window_size,
+                AVG(delta) OVER (PARTITION BY network_name ORDER BY build_version ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as momentum
+              FROM deltas
+              WHERE window_size >= 3
+            )
+            SELECT
+              mc.network_name,
+              mc.build_version,
+              'RISK_MOMENTUM_UP',
+              CASE
+                WHEN mc.momentum >= 20 THEN 'high'
+                ELSE 'medium'
+              END,
+              'Risk momentum increasing: avg +' || CAST(ROUND(mc.momentum, 1) AS TEXT) || ' over last 3 builds',
+              json_object(
+                'momentum', ROUND(mc.momentum, 2),
+                'window', 3
+              )
+            FROM momentum_calc mc
+            WHERE mc.build_version = ?
+              AND mc.momentum >= 10;
+        ''', (current_build, current_build))
+
+        # H) RISK_ACCELERATION_SPIKE (Phase 5B): |acceleration| >= 15 (rapid change in delta)
+        # Acceleration = Δ_t - Δ_{t-1}
+        # Safe: only generates if network has >= 3 history points (ensures both Δ_t and Δ_{t-1} exist)
+        db.execute('''
+            INSERT OR IGNORE INTO network_alerts
+            (network_name, build_version, alert_type, severity, message, details_json)
+            WITH deltas AS (
+              SELECT
+                h.network_name,
+                h.build_version,
+                h.score,
+                h.score - LAG(h.score, 1) OVER (PARTITION BY h.network_name ORDER BY h.build_version) as delta,
+                LAG(h.score, 1) OVER (PARTITION BY h.network_name ORDER BY h.build_version) as prev_score,
+                LAG(h.score, 2) OVER (PARTITION BY h.network_name ORDER BY h.build_version) as prev_prev_score,
+                COUNT(*) OVER (PARTITION BY h.network_name ORDER BY h.build_version ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as window_size
+              FROM network_score_history h
+              WHERE h.build_version <= ?
+            ),
+            acceleration_calc AS (
+              SELECT
+                network_name,
+                build_version,
+                window_size,
+                delta,
+                CASE WHEN prev_score IS NOT NULL AND prev_prev_score IS NOT NULL
+                     THEN prev_score - prev_prev_score
+                     ELSE NULL
+                END as prev_delta,
+                delta - CASE WHEN prev_score IS NOT NULL AND prev_prev_score IS NOT NULL
+                             THEN prev_score - prev_prev_score
+                             ELSE NULL
+                        END as acceleration
+              FROM deltas
+              WHERE window_size >= 3
+            )
+            SELECT
+              ac.network_name,
+              ac.build_version,
+              'RISK_ACCELERATION_SPIKE',
+              CASE
+                WHEN ABS(ac.acceleration) >= 25 THEN 'high'
+                ELSE 'medium'
+              END,
+              'Risk acceleration spike: Δ increased by ' || CAST(ROUND(ac.acceleration, 1) AS TEXT),
+              json_object(
+                'delta_current', ROUND(ac.delta, 2),
+                'delta_previous', ROUND(ac.prev_delta, 2),
+                'acceleration', ROUND(ac.acceleration, 2)
+              )
+            FROM acceleration_calc ac
+            WHERE ac.build_version = ?
+              AND ac.prev_delta IS NOT NULL
+              AND ac.acceleration >= 15;
+        ''', (current_build, current_build))
 
         # Get alert counts
         alert_counts = db.execute('''

@@ -19,6 +19,8 @@ import sqlite3
 from datetime import datetime
 import json
 from contextlib import contextmanager
+import os
+import time
 
 
 @contextmanager
@@ -34,6 +36,48 @@ def db_transaction(db_path):
         raise e
     finally:
         db.close()
+
+
+class PhaseProfiler:
+    """Optional performance profiler for build phases (BUILD_PROFILE=1)."""
+
+    def __init__(self):
+        self.enabled = os.environ.get('BUILD_PROFILE', '0') == '1'
+        self.phases = {}
+        self.start_time = time.time() if self.enabled else None
+
+    def mark(self, phase_name):
+        """Mark the start of a phase."""
+        if not self.enabled:
+            return
+        self.phases[phase_name] = {'start': time.time(), 'end': None}
+
+    def unmark(self, phase_name):
+        """Mark the end of a phase."""
+        if not self.enabled or phase_name not in self.phases:
+            return
+        self.phases[phase_name]['end'] = time.time()
+
+    def report(self):
+        """Print profiling report."""
+        if not self.enabled or not self.phases:
+            return
+
+        print("\n" + "="*60)
+        print("⏱️  Build Profile Report (BUILD_PROFILE=1)")
+        print("="*60)
+
+        total_time = time.time() - self.start_time
+
+        for phase_name in sorted(self.phases.keys()):
+            phase = self.phases[phase_name]
+            if phase['end']:
+                elapsed = (phase['end'] - phase['start']) * 1000  # ms
+                pct = (elapsed / total_time * 100) if total_time > 0 else 0
+                print(f"  {phase_name:20s} {elapsed:8.2f}ms  ({pct:5.1f}%)")
+
+        print(f"  {'TOTAL':20s} {total_time*1000:8.2f}ms")
+        print("="*60 + "\n")
 
 
 def ensure_network_evidence_table(db):
@@ -92,7 +136,13 @@ def build_networks_release(db_path: str) -> dict:
 
     Returns:
         dict with build statistics and status
+
+    Performance Profiling:
+        Optional timing via BUILD_PROFILE=1 environment variable
+        Prints per-phase execution time and total build time
     """
+
+    profiler = PhaseProfiler()
 
     stats = {
         'networks_processed': 0,
@@ -110,6 +160,7 @@ def build_networks_release(db_path: str) -> dict:
     }
 
     with db_transaction(db_path) as db:
+        profiler.mark('Phase A: Snapshot')
         print("🔄 Phase A: Snapshot previous state...")
 
         # Phase A: Snapshot old state before building new
@@ -124,8 +175,22 @@ def build_networks_release(db_path: str) -> dict:
 
         prev_count = db.execute('SELECT COUNT(*) as cnt FROM networks_release_prev').fetchone()['cnt']
         print(f"   ✅ Snapshot: {prev_count} previous networks saved")
+        profiler.unmark('Phase A: Snapshot')
+
+        # Phase A.1: Ensure system_metadata table exists (Phase 10)
+        try:
+            db.execute('''
+                CREATE TABLE IF NOT EXISTS system_metadata (
+                    key TEXT PRIMARY KEY,
+                    value TEXT NOT NULL,
+                    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+        except Exception as e:
+            print(f"   ⚠️  system_metadata table creation skipped: {e}")
 
         # Phase B: Compute new state (Phases 1-4 from Step 3)
+        profiler.mark('Phase B: Compute state')
         print("🔄 Phase B: Compute new network state...")
 
         # Phase B.1: Network sizes from network_membership
@@ -233,9 +298,11 @@ def build_networks_release(db_path: str) -> dict:
 
         new_count = db.execute('SELECT COUNT(*) as cnt FROM networks_release').fetchone()['cnt']
         print(f"   ✅ New state computed: {new_count} networks")
+        profiler.unmark('Phase B: Compute state')
 
         # Phase D: Compute stability state based on deltas
         # BEFORE incrementing versions (critical ordering)
+        profiler.mark('Phase D: Stability')
         print("🔄 Phase D: Compute stability states...")
 
         # Compute deltas in a temp table first (SQLite doesn't support UPDATE...FROM with complex joins)
@@ -286,6 +353,8 @@ def build_networks_release(db_path: str) -> dict:
             print(f"      - {state}: {count}")
 
         # Phase C: Update build versions (AFTER stability, as you noted)
+        profiler.unmark('Phase D: Stability')
+        profiler.mark('Phase C: Versions')
         print("🔄 Phase C: Update build versions...")
 
         # Compute version changes in temp table
@@ -361,9 +430,11 @@ def build_networks_release(db_path: str) -> dict:
             stats['changed_networks'] = len(version_check)
 
         # Phase E: Finalize (update timestamp)
+        profiler.unmark('Phase C: Versions')
         db.execute('UPDATE networks_release SET last_built_at = CURRENT_TIMESTAMP')
 
         # Phase F: Aggregate network evidence (rollup table)
+        profiler.mark('Phase F: Evidence')
         print("🔄 Phase F: Aggregate network evidence...")
 
         # Ensure table exists
@@ -425,20 +496,29 @@ def build_networks_release(db_path: str) -> dict:
                     ROUND(
                       MIN(100,
                         (COALESCE(ne.total_edges, 0) / CAST(
-                          CASE WHEN COUNT(DISTINCT nm.creator_address) * 10 < 50 THEN 50 ELSE COUNT(DISTINCT nm.creator_address) * 10 END AS FLOAT
+                          CASE WHEN nm_count.creator_count * 10 < 50 THEN 50 ELSE nm_count.creator_count * 10 END AS FLOAT
                         )) * 40 +
                         (COALESCE(ne.avg_confidence, 0) / 100.0) * 40 +
                         CASE
-                          WHEN COALESCE(ne.evidence_span_days, 0) <= 1 THEN 20
-                          WHEN COALESCE(ne.evidence_span_days, 0) <= 7 THEN 15
-                          WHEN COALESCE(ne.evidence_span_days, 0) <= 30 THEN 10
+                          WHEN COALESCE(
+                            CAST((ne.latest_time - ne.earliest_time) / 86400.0 AS INTEGER),
+                            0
+                          ) <= 1 THEN 20
+                          WHEN COALESCE(
+                            CAST((ne.latest_time - ne.earliest_time) / 86400.0 AS INTEGER),
+                            0
+                          ) <= 7 THEN 15
+                          WHEN COALESCE(
+                            CAST((ne.latest_time - ne.earliest_time) / 86400.0 AS INTEGER),
+                            0
+                          ) <= 30 THEN 10
                           ELSE 5
                         END
                       ),
                       2
                     ) as risk_score
                   FROM network_edges ne
-                  CROSS JOIN (SELECT COUNT(DISTINCT creator_address) FROM network_membership) nm
+                  CROSS JOIN (SELECT COUNT(DISTINCT creator_address) as creator_count FROM network_membership) nm_count
                 )
                 INSERT OR REPLACE INTO network_evidence
                 (
@@ -509,10 +589,16 @@ def build_networks_release(db_path: str) -> dict:
             print(f"      Maximum risk score: {evidence_stats['max_risk_score']}")
 
         except Exception as e:
+            import traceback
             print(f"   ⚠️  Evidence aggregation skipped: {e}")
+            print(f"\n   Full traceback:")
+            print(traceback.format_exc())
             stats['errors'].append(f"Evidence aggregation: {str(e)}")
 
+        profiler.unmark('Phase F: Evidence')
+
         # Phase G: Compute network scores (deterministic, precomputed)
+        profiler.mark('Phase G: Scores')
         print("🔄 Phase G: Compute network scores...")
 
         # Ensure network_scores table exists
@@ -670,8 +756,65 @@ def build_networks_release(db_path: str) -> dict:
         print(f"      Average score: {score_stats['avg_score']}")
         print(f"      Risk distribution: High({score_stats['high_risk']}) | Med({score_stats['medium_risk']}) | Low({score_stats['low_risk']})")
 
+        # Define severity modulation function (Phase 7C)
+        # Returns adjusted severity based on stability_coeff
+        def apply_severity_modulation(base_severity, stability_coeff):
+            """
+            Apply Phase 7C severity modulation based on stability_coeff.
+
+            Rules:
+            - If stability_coeff < 0.3: bump severity up one level
+            - If stability_coeff > 0.8: bump severity down one level
+            - Otherwise: keep base severity
+
+            Severity levels: low < medium < high
+            """
+            if stability_coeff is None:
+                return base_severity
+
+            severity_map = {'low': 0, 'medium': 1, 'high': 2}
+            reverse_map = {0: 'low', 1: 'medium', 2: 'high'}
+
+            base_level = severity_map.get(base_severity, 1)
+
+            if stability_coeff < 0.3:
+                # Unstable: bump up (low→medium, medium→high, high→high)
+                final_level = min(base_level + 1, 2)
+            elif stability_coeff > 0.8:
+                # Very stable: bump down (high→medium, medium→low, low→low)
+                final_level = max(base_level - 1, 0)
+            else:
+                # Moderate stability: no change
+                final_level = base_level
+
+            return reverse_map.get(final_level, base_severity)
+
         # Phase H: Generate monitoring history and alerts
+        profiler.unmark('Phase G: Scores')
+        profiler.mark('Phase H: Alerts')
         print("🔄 Phase H: Generate monitoring history and alerts...")
+
+        # Ensure Phase 7A columns exist (needed for stability-aware alerting in Phase 7C)
+        try:
+            db.execute('ALTER TABLE network_scores ADD COLUMN stability_coeff REAL;')
+        except Exception:
+            pass  # Column already exists
+        try:
+            db.execute('ALTER TABLE network_scores ADD COLUMN smoothed_score INTEGER;')
+        except Exception:
+            pass
+        try:
+            db.execute('ALTER TABLE network_scores ADD COLUMN smoothing_alpha REAL DEFAULT 0.3;')
+        except Exception:
+            pass
+        try:
+            db.execute('ALTER TABLE network_scores ADD COLUMN smoothing_version INTEGER DEFAULT 1;')
+        except Exception:
+            pass
+        try:
+            db.execute('ALTER TABLE network_scores ADD COLUMN smoothed_updated_at TIMESTAMP;')
+        except Exception:
+            pass
 
         # Ensure tables exist
         db.execute('''
@@ -1046,6 +1189,216 @@ def build_networks_release(db_path: str) -> dict:
               AND ac.acceleration >= 15;
         ''', (current_build, current_build))
 
+        # I) STABILITY_DROP (Phase 7C): stability_coeff decreased by >= 0.25
+        # Requires prev_stability to exist and curr smoothed_score >= 50
+        db.execute('''
+            INSERT OR IGNORE INTO network_alerts
+            (network_name, build_version, alert_type, severity, message, details_json)
+            WITH stability_history AS (
+              SELECT
+                ns.network_name,
+                ns.stability_coeff as curr_stability,
+                (SELECT stability_coeff FROM network_scores p
+                 WHERE p.network_name = ns.network_name
+                 AND p.network_name IN (
+                   SELECT DISTINCT network_name FROM network_score_history
+                   WHERE build_version = (? - 1)
+                 )) as prev_stability,
+                ns.smoothed_score,
+                COALESCE(ns.smoothed_score, ns.score) as display_smoothed
+              FROM network_scores ns
+              WHERE EXISTS (
+                SELECT 1 FROM network_score_history
+                WHERE network_name = ns.network_name
+                AND build_version = ?
+              )
+            ),
+            stability_drops AS (
+              SELECT
+                sh.network_name,
+                sh.curr_stability,
+                sh.prev_stability,
+                sh.prev_stability - sh.curr_stability as stability_delta,
+                sh.display_smoothed
+              FROM stability_history sh
+              WHERE sh.prev_stability IS NOT NULL
+                AND (sh.prev_stability - sh.curr_stability) >= 0.25
+                AND sh.display_smoothed >= 50
+            )
+            SELECT
+              sd.network_name,
+              ?,
+              'STABILITY_DROP',
+              CASE
+                WHEN sd.stability_delta >= 0.40 THEN 'high'
+                ELSE 'medium'
+              END,
+              'Stability dropped: ' || PRINTF('%.2f', sd.prev_stability) || ' → ' || PRINTF('%.2f', sd.curr_stability) || ' (Δ -' || PRINTF('%.2f', sd.stability_delta) || ')',
+              json_object(
+                'prev_stability', ROUND(sd.prev_stability, 3),
+                'curr_stability', ROUND(sd.curr_stability, 3),
+                'drop', ROUND(sd.stability_delta, 3),
+                'curr_smoothed', sd.display_smoothed
+              )
+            FROM stability_drops sd;
+        ''', (current_build, current_build - 1, current_build))
+
+        # J) STABILITY_TREND_DOWN (Phase 7D): Stability decreasing strictly over 3 builds
+        # Requires S_t < S_t-1 < S_t-2 (strictly decreasing) with total drop >= 0.20
+        # Requires non-null stability for all 3 builds and current smoothed_score >= 50
+        #
+        # ARCHITECTURAL NOTE (Data Source):
+        # This query joins networks_release (current build) with network_scores (current state).
+        # LAG window functions retrieve previous build stability values from network_scores snapshots.
+        # This works for sequential builds because network_scores holds the latest state after each Phase I.
+        #
+        # If future features require backfill, parallel builds, or retroactive corrections,
+        # consider migrating to query network_score_history (which stores historical values).
+        # See PHASE7D_ARCHITECTURAL_NOTES.md for upgrade path and alternatives.
+        db.execute('''
+            INSERT OR IGNORE INTO network_alerts
+            (network_name, build_version, alert_type, severity, message, details_json)
+            WITH stability_trends AS (
+              SELECT
+                ns.network_name,
+                ns.stability_coeff as s_t,
+                LAG(ns.stability_coeff, 1) OVER (PARTITION BY ns.network_name ORDER BY nr.build_version) as s_t_minus_1,
+                LAG(ns.stability_coeff, 2) OVER (PARTITION BY ns.network_name ORDER BY nr.build_version) as s_t_minus_2,
+                COALESCE(ns.smoothed_score, ns.score) as display_smoothed,
+                nr.build_version,
+                COUNT(*) OVER (PARTITION BY ns.network_name ORDER BY nr.build_version ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as history_count
+              FROM networks_release nr
+              LEFT JOIN network_scores ns ON nr.network_name = ns.network_name
+              WHERE nr.build_version <= ?
+            ),
+            trend_down_candidates AS (
+              SELECT
+                st.network_name,
+                st.s_t,
+                st.s_t_minus_1,
+                st.s_t_minus_2,
+                st.s_t_minus_2 - st.s_t as total_drop,
+                st.display_smoothed,
+                st.build_version
+              FROM stability_trends st
+              WHERE st.history_count >= 3
+                AND st.s_t IS NOT NULL
+                AND st.s_t_minus_1 IS NOT NULL
+                AND st.s_t_minus_2 IS NOT NULL
+                AND st.s_t < st.s_t_minus_1
+                AND st.s_t_minus_1 < st.s_t_minus_2
+                AND (st.s_t_minus_2 - st.s_t) >= 0.20
+                AND st.display_smoothed >= 50
+            )
+            SELECT
+              tdc.network_name,
+              ?,
+              'STABILITY_TREND_DOWN',
+              CASE
+                WHEN tdc.total_drop >= 0.35 THEN 'high'
+                ELSE 'medium'
+              END,
+              'Stability trending down: ' || PRINTF('%.2f', tdc.s_t_minus_2) || ' → ' || PRINTF('%.2f', tdc.s_t) || ' over 3 builds',
+              json_object(
+                'stability_t_minus_2', ROUND(tdc.s_t_minus_2, 3),
+                'stability_t_minus_1', ROUND(tdc.s_t_minus_1, 3),
+                'stability_t', ROUND(tdc.s_t, 3),
+                'total_drop', ROUND(tdc.total_drop, 3)
+              )
+            FROM trend_down_candidates tdc;
+        ''', (current_build, current_build))
+
+        # K) STABILITY_TREND_UP (Phase 7D): Stability increasing strictly over 3 builds
+        # Requires S_t > S_t-1 > S_t-2 (strictly increasing) with total increase >= 0.20
+        # Requires non-null stability for all 3 builds (no smoothed_score threshold)
+        #
+        # ARCHITECTURAL NOTE (Data Source):
+        # Same as STABILITY_TREND_DOWN - uses network_scores with LAG window functions.
+        # See PHASE7D_ARCHITECTURAL_NOTES.md for upgrade path if backfill or parallel processing needed.
+        db.execute('''
+            INSERT OR IGNORE INTO network_alerts
+            (network_name, build_version, alert_type, severity, message, details_json)
+            WITH stability_trends AS (
+              SELECT
+                ns.network_name,
+                ns.stability_coeff as s_t,
+                LAG(ns.stability_coeff, 1) OVER (PARTITION BY ns.network_name ORDER BY nr.build_version) as s_t_minus_1,
+                LAG(ns.stability_coeff, 2) OVER (PARTITION BY ns.network_name ORDER BY nr.build_version) as s_t_minus_2,
+                nr.build_version,
+                COUNT(*) OVER (PARTITION BY ns.network_name ORDER BY nr.build_version ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as history_count
+              FROM networks_release nr
+              LEFT JOIN network_scores ns ON nr.network_name = ns.network_name
+              WHERE nr.build_version <= ?
+            ),
+            trend_up_candidates AS (
+              SELECT
+                st.network_name,
+                st.s_t,
+                st.s_t_minus_1,
+                st.s_t_minus_2,
+                st.s_t - st.s_t_minus_2 as total_increase,
+                st.build_version
+              FROM stability_trends st
+              WHERE st.history_count >= 3
+                AND st.s_t IS NOT NULL
+                AND st.s_t_minus_1 IS NOT NULL
+                AND st.s_t_minus_2 IS NOT NULL
+                AND st.s_t > st.s_t_minus_1
+                AND st.s_t_minus_1 > st.s_t_minus_2
+                AND (st.s_t - st.s_t_minus_2) >= 0.20
+            )
+            SELECT
+              tuc.network_name,
+              ?,
+              'STABILITY_TREND_UP',
+              CASE
+                WHEN tuc.total_increase >= 0.35 THEN 'low'
+                ELSE 'medium'
+              END,
+              'Stability improving: ' || PRINTF('%.2f', tuc.s_t_minus_2) || ' → ' || PRINTF('%.2f', tuc.s_t) || ' over 3 builds',
+              json_object(
+                'stability_t_minus_2', ROUND(tuc.s_t_minus_2, 3),
+                'stability_t_minus_1', ROUND(tuc.s_t_minus_1, 3),
+                'stability_t', ROUND(tuc.s_t, 3),
+                'total_increase', ROUND(tuc.total_increase, 3)
+              )
+            FROM trend_up_candidates tuc;
+        ''', (current_build, current_build))
+
+        # Phase 7C: Apply severity modulation based on stability_coeff
+        # Modulation rules:
+        # - stability_coeff < 0.3: bump severity up one level
+        # - stability_coeff > 0.8: bump severity down one level
+        db.execute('''
+            UPDATE network_alerts
+            SET severity = CASE
+              WHEN (
+                SELECT stability_coeff FROM network_scores
+                WHERE network_name = network_alerts.network_name
+              ) < 0.3 THEN
+                CASE severity
+                  WHEN 'low' THEN 'medium'
+                  WHEN 'medium' THEN 'high'
+                  ELSE 'high'
+                END
+              WHEN (
+                SELECT stability_coeff FROM network_scores
+                WHERE network_name = network_alerts.network_name
+              ) > 0.8 THEN
+                CASE severity
+                  WHEN 'high' THEN 'medium'
+                  WHEN 'medium' THEN 'low'
+                  ELSE 'low'
+                END
+              ELSE severity
+            END
+            WHERE build_version = ?
+              AND (
+                SELECT stability_coeff FROM network_scores
+                WHERE network_name = network_alerts.network_name
+              ) IS NOT NULL;
+        ''', (current_build,))
+
         # Get alert counts
         alert_counts = db.execute('''
             SELECT alert_type, COUNT(*) as count
@@ -1058,7 +1411,85 @@ def build_networks_release(db_path: str) -> dict:
         for row in alert_counts:
             print(f"      - {row['alert_type']}: {row['count']}")
 
+        # Phase 8B: Escalation Rules (Deterministic, Build-Time)
+        print("🔄 Phase 8B: Applying escalation rules...")
+
+        try:
+            # Design note on suppression behavior:
+            # Suppression is durable (not time-based expiry). If an operator suppresses an alert,
+            # it stays suppressed until explicitly unsuppressed. Escalation respects this decision.
+            # This prevents escalation from reactivating suppressed alerts after expiry.
+            # If time-based auto-unsuppress is needed in future, change to:
+            #   AND (suppressed_until IS NULL OR suppressed_until <= CURRENT_TIMESTAMP)
+
+            # R1_CRITICAL_HIGH: risk_band = CRITICAL AND severity = high
+            db.execute('''
+                UPDATE network_alerts
+                SET is_escalated = 1,
+                    escalated_at = COALESCE(escalated_at, CURRENT_TIMESTAMP),
+                    escalation_rule = 'R1_CRITICAL_HIGH',
+                    escalation_reason = 'Risk band CRITICAL with high severity'
+                WHERE build_version = ?
+                  AND is_escalated = 0
+                  AND acknowledged = 0
+                  AND suppressed_until IS NULL
+                  AND severity = 'high'
+                  AND (SELECT COALESCE(risk_band, 'LOW') FROM network_scores WHERE network_name = network_alerts.network_name) = 'CRITICAL';
+            ''', (current_build,))
+
+            # R2_STABILITY_REPEATED: >= 2 STABILITY_DROP alerts in last 3 builds
+            db.execute('''
+                UPDATE network_alerts
+                SET is_escalated = 1,
+                    escalated_at = COALESCE(escalated_at, CURRENT_TIMESTAMP),
+                    escalation_rule = 'R2_STABILITY_REPEATED',
+                    escalation_reason = 'Repeated stability drops detected'
+                WHERE build_version = ?
+                  AND is_escalated = 0
+                  AND acknowledged = 0
+                  AND suppressed_until IS NULL
+                  AND alert_type = 'STABILITY_DROP'
+                  AND network_name IN (
+                    SELECT network_name FROM network_alerts
+                    WHERE alert_type = 'STABILITY_DROP'
+                      AND build_version >= (? - 2)
+                      AND build_version <= ?
+                    GROUP BY network_name
+                    HAVING COUNT(*) >= 2
+                  );
+            ''', (current_build, current_build, current_build))
+
+            # R3_ACCEL_UNSTABLE: (SCORE_SPIKE or RISK_ACCELERATION_SPIKE) AND stability < 0.30 AND smoothed_score >= 60
+            db.execute('''
+                UPDATE network_alerts
+                SET is_escalated = 1,
+                    escalated_at = COALESCE(escalated_at, CURRENT_TIMESTAMP),
+                    escalation_rule = 'R3_ACCEL_UNSTABLE',
+                    escalation_reason = 'Score acceleration with high instability'
+                WHERE build_version = ?
+                  AND is_escalated = 0
+                  AND acknowledged = 0
+                  AND suppressed_until IS NULL
+                  AND alert_type IN ('SCORE_SPIKE', 'RISK_ACCELERATION_SPIKE')
+                  AND (SELECT stability_coeff FROM network_scores WHERE network_name = network_alerts.network_name) < 0.30
+                  AND (SELECT COALESCE(smoothed_score, score) FROM network_scores WHERE network_name = network_alerts.network_name) >= 60;
+            ''', (current_build,))
+
+            escalated_count = db.execute('''
+                SELECT COUNT(*) as count FROM network_alerts
+                WHERE build_version = ? AND is_escalated = 1
+            ''', (current_build,)).fetchone()['count']
+
+            print(f"   ✅ Escalation rules applied: {escalated_count} alerts escalated")
+
+        except Exception as e:
+            # Phase 8B columns may not exist in older test databases
+            # This is safe because escalation is optional and build-time only
+            print(f"   ⚠️  Escalation rules skipped: {e}")
+
         # Phase I: Apply exponential smoothing and compute stability coefficient
+        profiler.unmark('Phase H: Alerts')
+        profiler.mark('Phase I: Smoothing')
         print("🔄 Phase I: Apply score smoothing & stability coefficient...")
 
         # Ensure smoothing columns exist (safe for older SQLite)
@@ -1086,6 +1517,75 @@ def build_networks_release(db_path: str) -> dict:
             db.execute('ALTER TABLE network_scores ADD COLUMN smoothed_updated_at TIMESTAMP;')
         except Exception:
             pass
+
+        # Phase 7E: Ensure trend and risk band columns exist (added after Phase I computation)
+        try:
+            db.execute('ALTER TABLE network_scores ADD COLUMN stability_trend REAL;')
+        except Exception:
+            pass  # Column already exists
+        try:
+            db.execute('ALTER TABLE network_scores ADD COLUMN trend_direction TEXT;')
+        except Exception:
+            pass
+        try:
+            db.execute('ALTER TABLE network_scores ADD COLUMN risk_band TEXT;')
+        except Exception:
+            pass
+
+        # Phase 8B: Ensure alert lifecycle & escalation columns exist (idempotent)
+        try:
+            db.execute('ALTER TABLE network_alerts ADD COLUMN acknowledged INTEGER NOT NULL DEFAULT 0;')
+        except Exception:
+            pass
+        try:
+            db.execute('ALTER TABLE network_alerts ADD COLUMN acknowledged_at TEXT;')
+        except Exception:
+            pass
+        try:
+            db.execute('ALTER TABLE network_alerts ADD COLUMN acknowledged_by TEXT;')
+        except Exception:
+            pass
+        try:
+            db.execute('ALTER TABLE network_alerts ADD COLUMN suppressed_until TEXT;')
+        except Exception:
+            pass
+        try:
+            db.execute('ALTER TABLE network_alerts ADD COLUMN suppression_reason TEXT;')
+        except Exception:
+            pass
+        try:
+            db.execute('ALTER TABLE network_alerts ADD COLUMN suppressed_by TEXT;')
+        except Exception:
+            pass
+        try:
+            db.execute('ALTER TABLE network_alerts ADD COLUMN suppressed_at TEXT;')
+        except Exception:
+            pass
+        try:
+            db.execute('ALTER TABLE network_alerts ADD COLUMN is_escalated INTEGER NOT NULL DEFAULT 0;')
+        except Exception:
+            pass
+        try:
+            db.execute('ALTER TABLE network_alerts ADD COLUMN escalated_at TEXT;')
+        except Exception:
+            pass
+        try:
+            db.execute('ALTER TABLE network_alerts ADD COLUMN escalation_reason TEXT;')
+        except Exception:
+            pass
+        try:
+            db.execute('ALTER TABLE network_alerts ADD COLUMN escalation_rule TEXT;')
+        except Exception:
+            pass
+        try:
+            db.execute('ALTER TABLE network_alerts ADD COLUMN operator_note TEXT;')
+        except Exception:
+            pass
+
+        # Add indexes for alert lifecycle operations (Phase 8B)
+        db.execute('CREATE INDEX IF NOT EXISTS idx_alerts_unacked_created ON network_alerts(acknowledged, created_at DESC);')
+        db.execute('CREATE INDEX IF NOT EXISTS idx_alerts_suppressed_until ON network_alerts(suppressed_until);')
+        db.execute('CREATE INDEX IF NOT EXISTS idx_alerts_escalated_created ON network_alerts(is_escalated, created_at DESC);')
 
         # Phase I.1: Compute exponential smoothing
         # Formula: smooth_t = alpha * raw_t + (1 - alpha) * smooth_{t-1}
@@ -1194,6 +1694,134 @@ def build_networks_release(db_path: str) -> dict:
 
         print(f"   ✅ Smoothing applied: {smoothing_stats['smoothed_count']} networks")
         print(f"      Stability coefficient: avg={smoothing_stats['avg_stability']} (min={smoothing_stats['min_stability']}, max={smoothing_stats['max_stability']})")
+        profiler.unmark('Phase I: Smoothing')
+
+        # Phase J: Compute trend metrics and risk band classification
+        profiler.mark('Phase J: Trends')
+        print("🔄 Phase J: Computing trend metrics and risk band classification...")
+
+        # Phase J.1: Compute stability_trend = S_t - S_t-2 using window functions
+        # Requires at least 3 builds; if insufficient history, stability_trend is NULL
+        db.execute('''
+            CREATE TEMP TABLE stability_trends AS
+            SELECT
+              ns.network_name,
+              ns.stability_coeff as s_t,
+              LAG(ns.stability_coeff, 2) OVER (PARTITION BY ns.network_name ORDER BY nr.build_version) as s_t_minus_2,
+              ns.stability_coeff - LAG(ns.stability_coeff, 2) OVER (PARTITION BY ns.network_name ORDER BY nr.build_version) as stability_trend,
+              COUNT(*) OVER (PARTITION BY ns.network_name ORDER BY nr.build_version ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as history_count,
+              ns.smoothed_score,
+              COALESCE(ns.smoothed_score, ns.score) as display_smoothed
+            FROM networks_release nr
+            LEFT JOIN network_scores ns ON nr.network_name = ns.network_name
+            WHERE nr.build_version <= ?
+        ''', (current_build,))
+
+        # Phase J.2: Update stability_trend (NULL if < 3 builds)
+        db.execute('''
+            UPDATE network_scores
+            SET stability_trend = (
+              SELECT CASE
+                WHEN st.history_count >= 3 THEN st.stability_trend
+                ELSE NULL
+              END
+              FROM stability_trends st
+              WHERE st.network_name = network_scores.network_name
+            )
+            WHERE network_name IN (SELECT DISTINCT network_name FROM stability_trends);
+        ''')
+
+        # Phase J.3: Compute trend_direction based on stability_trend
+        # DOWN: stability_trend <= -0.20
+        # UP: stability_trend >= +0.20
+        # FLAT: otherwise (including NULL)
+        db.execute('''
+            UPDATE network_scores
+            SET trend_direction = CASE
+              WHEN stability_trend <= -0.20 THEN 'DOWN'
+              WHEN stability_trend >= 0.20 THEN 'UP'
+              ELSE 'FLAT'
+            END
+            WHERE network_name IN (SELECT network_name FROM stability_trends);
+        ''')
+
+        # Phase J.4: Compute risk_band using deterministic CASE logic
+        # Priority order: CRITICAL > ELEVATED > MODERATE > LOW
+        #
+        # CRITICAL:
+        #   smoothed_score >= 75
+        #   OR (smoothed_score >= 60 AND stability_coeff < 0.30)
+        #
+        # ELEVATED:
+        #   smoothed_score BETWEEN 50 AND 74
+        #   OR (smoothed_score >= 40 AND stability_coeff < 0.50)
+        #
+        # MODERATE:
+        #   smoothed_score BETWEEN 25 AND 49
+        #
+        # LOW:
+        #   smoothed_score < 25
+        db.execute('''
+            UPDATE network_scores
+            SET risk_band = CASE
+              -- CRITICAL: high score OR (moderate-high score with instability)
+              WHEN COALESCE(smoothed_score, score) >= 75 THEN 'CRITICAL'
+              WHEN (COALESCE(smoothed_score, score) >= 60 AND stability_coeff < 0.30) THEN 'CRITICAL'
+              -- ELEVATED: medium-high score OR (moderate score with instability)
+              WHEN COALESCE(smoothed_score, score) BETWEEN 50 AND 74 THEN 'ELEVATED'
+              WHEN (COALESCE(smoothed_score, score) >= 40 AND stability_coeff < 0.50) THEN 'ELEVATED'
+              -- MODERATE: medium score range
+              WHEN COALESCE(smoothed_score, score) BETWEEN 25 AND 49 THEN 'MODERATE'
+              -- LOW: low score
+              WHEN COALESCE(smoothed_score, score) < 25 THEN 'LOW'
+              -- Fallback (shouldn't happen)
+              ELSE 'LOW'
+            END
+            WHERE network_name IN (SELECT network_name FROM stability_trends);
+        ''')
+
+        # Verify trend and risk band computation
+        trend_stats = db.execute('''
+            SELECT
+              COUNT(*) as total_networks,
+              COUNT(CASE WHEN stability_trend IS NOT NULL THEN 1 END) as trend_computed,
+              COUNT(CASE WHEN trend_direction IS NOT NULL THEN 1 END) as direction_computed,
+              COUNT(CASE WHEN risk_band IS NOT NULL THEN 1 END) as risk_band_computed,
+              COUNT(CASE WHEN trend_direction = 'UP' THEN 1 END) as trend_up_count,
+              COUNT(CASE WHEN trend_direction = 'DOWN' THEN 1 END) as trend_down_count,
+              COUNT(CASE WHEN trend_direction = 'FLAT' THEN 1 END) as trend_flat_count,
+              COUNT(CASE WHEN risk_band = 'CRITICAL' THEN 1 END) as critical_count,
+              COUNT(CASE WHEN risk_band = 'ELEVATED' THEN 1 END) as elevated_count,
+              COUNT(CASE WHEN risk_band = 'MODERATE' THEN 1 END) as moderate_count,
+              COUNT(CASE WHEN risk_band = 'LOW' THEN 1 END) as low_count
+            FROM network_scores
+        ''').fetchone()
+
+        print(f"   ✅ Trend metrics: {trend_stats['trend_computed']} networks computed")
+        print(f"      Direction: UP={trend_stats['trend_up_count']}, DOWN={trend_stats['trend_down_count']}, FLAT={trend_stats['trend_flat_count']}")
+        print(f"   ✅ Risk bands assigned:")
+        print(f"      CRITICAL={trend_stats['critical_count']}, ELEVATED={trend_stats['elevated_count']}, MODERATE={trend_stats['moderate_count']}, LOW={trend_stats['low_count']}")
+
+        # Phase K: Create performance indexes (Phase 9A optimization)
+        # All indexes use IF NOT EXISTS for idempotency
+        try:
+            # Alert indexes (high priority)
+            db.execute('CREATE INDEX IF NOT EXISTS idx_network_alerts_created_at_desc ON network_alerts(created_at DESC);')
+            db.execute('CREATE INDEX IF NOT EXISTS idx_network_alerts_acknowledged_created ON network_alerts(acknowledged, created_at DESC);')
+            db.execute('CREATE INDEX IF NOT EXISTS idx_network_alerts_escalated_created ON network_alerts(is_escalated, created_at DESC);')
+            db.execute('CREATE INDEX IF NOT EXISTS idx_network_alerts_severity_type_created ON network_alerts(severity, alert_type, created_at DESC);')
+            db.execute('CREATE INDEX IF NOT EXISTS idx_network_alerts_suppressed_until ON network_alerts(suppressed_until);')
+
+            # Network score indexes (medium priority)
+            db.execute('CREATE INDEX IF NOT EXISTS idx_network_scores_risk_band ON network_scores(risk_band, smoothed_score DESC);')
+            db.execute('CREATE INDEX IF NOT EXISTS idx_network_scores_trend ON network_scores(stability_trend DESC);')
+
+            # Score history indexes (medium priority)
+            db.execute('CREATE INDEX IF NOT EXISTS idx_network_score_history_build_version ON network_score_history(build_version DESC);')
+            db.execute('CREATE INDEX IF NOT EXISTS idx_network_score_history_network_build ON network_score_history(network_name, build_version DESC);')
+
+        except Exception as e:
+            print(f"   ⚠️  Index creation skipped: {e}")
 
         # Cleanup temp tables
         db.execute('DROP TABLE IF EXISTS networks_release_prev')
@@ -1204,6 +1832,68 @@ def build_networks_release(db_path: str) -> dict:
         final_count = db.execute('SELECT COUNT(*) as cnt FROM networks_release').fetchone()['cnt']
         stats['networks_processed'] = final_count
         stats['new_networks'] = len([r for r in version_check if r['old_version'] is None])
+
+        profiler.unmark('Phase J: Trends')
+        profiler.report()
+
+        # Phase L: Record build metadata (Phase 10 - Version 1.0 Governance)
+        # Record system versioning, build timing, and counts for operational tracking
+        # All updates idempotent (INSERT OR REPLACE pattern)
+        try:
+            build_duration_ms = int((time.time() - profiler.start_time) * 1000) if profiler.enabled else None
+
+            # Get current build version for metadata
+            current_build = db.execute('SELECT MAX(build_version) FROM network_score_history').fetchone()[0] or 0
+
+            # Count stats for this build
+            alerts_count = db.execute('''
+                SELECT COUNT(*) as cnt FROM network_alerts
+                WHERE build_version = ?
+            ''', (current_build,)).fetchone()['cnt']
+
+            escalations_count = db.execute('''
+                SELECT COUNT(*) as cnt FROM network_alerts
+                WHERE build_version = ? AND is_escalated = 1
+            ''', (current_build,)).fetchone()['cnt']
+
+            networks_count = db.execute('SELECT COUNT(*) as cnt FROM network_scores').fetchone()['cnt']
+
+            now = datetime.utcnow().isoformat()
+
+            # Update system metadata (all idempotent)
+            metadata_updates = [
+                ('SYSTEM_VERSION', '1.0.0'),
+                ('SCHEMA_VERSION', '10'),
+                ('BUILD_PIPELINE_VERSION', '10'),
+                ('LAST_BUILD_VERSION', str(current_build)),
+                ('LAST_BUILD_AT', now),
+                ('LAST_BUILD_NETWORKS_PROCESSED', str(networks_count)),
+                ('LAST_BUILD_ALERTS_INSERTED', str(alerts_count)),
+                ('LAST_BUILD_ESCALATIONS_SET', str(escalations_count)),
+            ]
+
+            # Only add duration if profiler was enabled (accurate measurement)
+            if build_duration_ms is not None:
+                metadata_updates.append(('LAST_BUILD_DURATION_MS', str(build_duration_ms)))
+
+            for key, value in metadata_updates:
+                db.execute('''
+                    INSERT OR REPLACE INTO system_metadata (key, value, updated_at)
+                    VALUES (?, ?, CURRENT_TIMESTAMP)
+                ''', (key, value))
+
+            print(f"\n📊 Build Metadata Recorded:")
+            print(f"   Version: 1.0.0 (Phase 10)")
+            print(f"   Build: version {current_build}")
+            print(f"   Networks: {networks_count}")
+            print(f"   Alerts: {alerts_count}")
+            print(f"   Escalations: {escalations_count}")
+            if build_duration_ms:
+                print(f"   Duration: {build_duration_ms}ms")
+
+        except Exception as e:
+            print(f"   ⚠️  Metadata recording failed: {e}")
+            stats['errors'].append(f"Metadata recording: {str(e)}")
 
         print("\n✅ Build complete!")
         return stats

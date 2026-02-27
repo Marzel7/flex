@@ -14,7 +14,7 @@ import json
 import requests
 import threading
 from datetime import datetime
-from flask import Flask, jsonify, render_template_string, request, Response
+from flask import Flask, jsonify, render_template, render_template_string, request, Response
 from typing import Dict, List, Optional
 import os
 import time
@@ -17082,6 +17082,438 @@ def creator_network_page(network_name: str):
     """
     
     return html
+
+
+@app.route('/network-monitoring')
+def network_monitoring():
+    """
+    Phase 8A: Monitoring Dashboard with Risk Band & Trend Surfacing
+
+    Display precomputed monitoring data from Phase 4C + Phase 7A + Phase 7E:
+    - Latest alerts (from network_alerts) with severity/alert_type/search filters
+    - High risk networks (from network_scores) with smoothed_score, stability_coeff, risk_band, trend_direction
+    - Biggest score movers (from network_score_history)
+
+    Sorting: ?sort=score (default), ?sort=risk, ?sort=trend
+    Filtering: ?band=CRITICAL|ELEVATED|MODERATE|LOW (optional)
+    """
+    try:
+        conn, cursor = get_db_conn()
+
+        # Check if monitoring tables exist
+        cursor.execute("""
+            SELECT name FROM sqlite_master
+            WHERE type='table' AND name IN ('network_alerts', 'network_score_history')
+        """)
+        tables = [row[0] for row in cursor.fetchall()]
+
+        if 'network_alerts' not in tables or 'network_score_history' not in tables:
+            conn.close()
+            return render_template_string('''
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Network Monitoring</title>
+                <style>
+                    body { font-family: system-ui, -apple-system, sans-serif; margin: 20px; }
+                    .warning { background: #fef3c7; border: 1px solid #f59e0b; border-radius: 4px; padding: 15px; color: #92400e; }
+                </style>
+            </head>
+            <body>
+                <h1>🔍 Network Monitoring</h1>
+                <div class="warning">
+                    <strong>⚠️ Monitoring not yet available</strong><br>
+                    The monitoring system requires the build process to have run. Please run the build to generate monitoring data.
+                </div>
+            </body>
+            </html>
+            ''')
+
+        # Section A: Latest Alerts with filters (Phase 4E + Phase 8B)
+        severity = request.args.get('severity', '').strip()
+        alert_type = request.args.get('alert_type', '').strip()
+        q = request.args.get('q', '').strip()
+        show = request.args.get('show', 'active').strip().lower()
+
+        # Phase 8B: Build alert lifecycle filter
+        # ACTIVE = acknowledged = 0 AND (suppressed_until IS NULL OR suppressed_until <= now)
+        where_parts = [
+            "(? IS NULL OR severity = ?)",
+            "(? IS NULL OR alert_type = ?)",
+            "(? IS NULL OR network_name LIKE ?)"
+        ]
+        params = [
+            severity if severity else None, severity,
+            alert_type if alert_type else None, alert_type,
+            q if q else None, f"%{q}%" if q else None
+        ]
+
+        # Add lifecycle filter based on ?show= parameter
+        if show == 'active':
+            where_parts.append("(acknowledged = 0 AND (suppressed_until IS NULL OR suppressed_until <= CURRENT_TIMESTAMP))")
+        elif show == 'unacked':
+            where_parts.append("acknowledged = 0")
+        elif show == 'escalated':
+            where_parts.append("is_escalated = 1")
+        # show == 'all' uses no additional filter
+
+        where_clause = ' AND '.join(where_parts)
+
+        # Build parameterized query for alerts (Phase 8B includes lifecycle fields)
+        cursor.execute(f'''
+            SELECT alert_id, network_name, alert_type, severity, message, created_at,
+                   acknowledged, acknowledged_at, acknowledged_by,
+                   suppressed_until, suppressed_at, suppression_reason,
+                   is_escalated, escalated_at, escalation_rule, escalation_reason
+            FROM network_alerts
+            WHERE {where_clause}
+            ORDER BY created_at DESC
+            LIMIT 200
+        ''', params)
+        latest_alerts = cursor.fetchall()
+
+        # Section B: High Risk Networks with Phase 7A + 7E metrics
+        # Phase 8A: Determine sort order (default: score)
+        sort_param = request.args.get('sort', 'score').strip().lower()
+        band_filter = request.args.get('band', '').strip().upper()
+
+        # Build ORDER BY clause with explicit mapping (no dynamic injection)
+        if sort_param == 'risk':
+            # Sort by risk_band priority: CRITICAL(1) < ELEVATED(2) < MODERATE(3) < LOW(4)
+            # ELSE 5 provides defensive handling for corrupted/unexpected values
+            order_clause = '''ORDER BY
+                CASE COALESCE(ns.risk_band, 'LOW')
+                    WHEN 'CRITICAL' THEN 1
+                    WHEN 'ELEVATED' THEN 2
+                    WHEN 'MODERATE' THEN 3
+                    WHEN 'LOW' THEN 4
+                    ELSE 5
+                END ASC, ns.smoothed_score DESC'''
+        elif sort_param == 'trend':
+            # Sort by trend descending (UP > FLAT > DOWN numerically)
+            order_clause = 'ORDER BY COALESCE(ns.stability_trend, 0) DESC'
+        else:
+            # Default: sort by smoothed_score descending
+            order_clause = 'ORDER BY COALESCE(ns.smoothed_score, ns.score) DESC'
+
+        # Build WHERE clause for band filtering
+        where_clause = ''
+        where_params = []
+        if band_filter and band_filter in ('CRITICAL', 'ELEVATED', 'MODERATE', 'LOW'):
+            where_clause = 'WHERE COALESCE(ns.risk_band, \'LOW\') = ?'
+            where_params.append(band_filter)
+
+        query = f'''
+            SELECT
+              nr.network_name,
+              ns.score,
+              ns.smoothed_score,
+              ns.stability_coeff,
+              ns.stability_trend,
+              ns.trend_direction,
+              ns.risk_band,
+              nr.network_type,
+              nr.stability_state,
+              nr.build_version
+            FROM network_scores ns
+            JOIN networks_release nr ON nr.network_name = ns.network_name
+            {where_clause}
+            {order_clause}
+            LIMIT 50
+        '''
+        cursor.execute(query, where_params)
+        high_risk_networks = cursor.fetchall()
+
+        # Section C: Biggest Movers
+        cursor.execute('''
+            SELECT h.network_name, p.score AS prev_score, h.score AS curr_score, (h.score - p.score) AS delta
+            FROM network_score_history h
+            JOIN network_score_history p ON p.network_name = h.network_name
+              AND p.build_version = h.build_version - 1
+            WHERE h.build_version = (SELECT MAX(build_version) FROM network_score_history)
+            ORDER BY delta DESC
+            LIMIT 50
+        ''')
+        biggest_movers = cursor.fetchall()
+
+        conn.close()
+
+        return render_template('network_monitoring.html',
+                             latest_alerts=latest_alerts,
+                             high_risk_networks=high_risk_networks,
+                             biggest_movers=biggest_movers,
+                             severity_filter=severity,
+                             alert_type_filter=alert_type,
+                             q_filter=q,
+                             show_filter=show,
+                             sort_param=sort_param,
+                             band_filter=band_filter)
+
+    except Exception as e:
+        print(f"[ERROR] network_monitoring: {e}", flush=True)
+        conn.close()
+        return render_template_string('''
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Network Monitoring</title>
+            <style>
+                body { font-family: system-ui, -apple-system, sans-serif; margin: 20px; }
+                .error { background: #fee2e2; border: 1px solid #ef4444; border-radius: 4px; padding: 15px; color: #991b1b; }
+            </style>
+        </head>
+        <body>
+            <h1>🔍 Network Monitoring</h1>
+            <div class="error">
+                <strong>❌ Error loading monitoring data</strong><br>
+                Please check the application logs.
+            </div>
+        </body>
+        </html>
+        '''), 500
+
+
+@app.route('/network-monitoring/alerts.csv')
+def network_monitoring_csv():
+    """
+    Phase 4E: Export alerts as CSV
+
+    Uses same filters as /network-monitoring (severity, alert_type, q).
+    Returns CSV with headers: created_at, severity, alert_type, network_name, message
+    """
+    try:
+        conn, cursor = get_db_conn()
+
+        # Check if monitoring table exists
+        cursor.execute("""
+            SELECT name FROM sqlite_master WHERE type='table' AND name = 'network_alerts'
+        """)
+        if not cursor.fetchone():
+            conn.close()
+            return "Monitoring data not available yet. Please run the build.", 503
+
+        # Get filters from query params
+        severity = request.args.get('severity', '').strip()
+        alert_type = request.args.get('alert_type', '').strip()
+        q = request.args.get('q', '').strip()
+
+        # Fetch filtered alerts (up to 1000 rows)
+        cursor.execute('''
+            SELECT created_at, severity, alert_type, network_name, message
+            FROM network_alerts
+            WHERE (? IS NULL OR severity = ?)
+              AND (? IS NULL OR alert_type = ?)
+              AND (? IS NULL OR network_name LIKE ?)
+            ORDER BY created_at DESC
+            LIMIT 1000
+        ''', (
+            severity if severity else None, severity,
+            alert_type if alert_type else None, alert_type,
+            q if q else None, f"%{q}%" if q else None
+        ))
+        alerts = cursor.fetchall()
+        conn.close()
+
+        # Generate CSV
+        import csv
+        from io import StringIO
+        output = StringIO()
+        writer = csv.writer(output)
+
+        # Write header
+        writer.writerow(['created_at', 'severity', 'alert_type', 'network_name', 'message'])
+
+        # Write data rows
+        for alert in alerts:
+            writer.writerow([
+                alert['created_at'],
+                alert['severity'],
+                alert['alert_type'],
+                alert['network_name'],
+                alert['message']
+            ])
+
+        # Return as CSV attachment
+        csv_data = output.getvalue()
+        response = Response(csv_data, mimetype='text/csv')
+        response.headers['Content-Disposition'] = 'attachment; filename=network_alerts.csv'
+        return response
+
+    except Exception as e:
+        print(f"[ERROR] network_monitoring_csv: {e}", flush=True)
+        return f"Error generating CSV: {str(e)}", 500
+
+
+# =========================================================================
+# Phase 8B: Alert Operator Endpoints
+# =========================================================================
+
+@app.route('/api/alerts/<int:alert_id>/ack', methods=['POST'])
+def ack_alert(alert_id):
+    """
+    Acknowledge an alert.
+
+    Request body (optional):
+    {
+        "acknowledged_by": "operator_name"  (default: "local")
+    }
+
+    Returns: {acknowledged: 1, acknowledged_at: timestamp}
+    """
+    try:
+        conn, cursor = get_db_conn()
+
+        data = request.get_json() or {}
+        acknowledged_by = data.get('acknowledged_by', 'local').strip()
+
+        cursor.execute('''
+            UPDATE network_alerts
+            SET acknowledged = 1,
+                acknowledged_at = CURRENT_TIMESTAMP,
+                acknowledged_by = ?
+            WHERE alert_id = ?
+        ''', (acknowledged_by, alert_id))
+
+        conn.commit()
+
+        # Return updated alert state
+        cursor.execute('SELECT acknowledged, acknowledged_at FROM network_alerts WHERE alert_id = ?', (alert_id,))
+        result = cursor.fetchone()
+        conn.close()
+
+        if result:
+            return {
+                'success': True,
+                'alert_id': alert_id,
+                'acknowledged': result[0],
+                'acknowledged_at': result[1]
+            }
+        else:
+            return {'success': False, 'error': 'Alert not found'}, 404
+
+    except Exception as e:
+        print(f"[ERROR] ack_alert: {e}", flush=True)
+        return {'success': False, 'error': str(e)}, 500
+
+
+@app.route('/api/alerts/<int:alert_id>/unack', methods=['POST'])
+def unack_alert(alert_id):
+    """
+    Unacknowledge an alert.
+
+    Returns: {acknowledged: 0}
+    """
+    try:
+        conn, cursor = get_db_conn()
+
+        cursor.execute('''
+            UPDATE network_alerts
+            SET acknowledged = 0,
+                acknowledged_at = NULL,
+                acknowledged_by = NULL
+            WHERE alert_id = ?
+        ''', (alert_id,))
+
+        conn.commit()
+        conn.close()
+
+        return {
+            'success': True,
+            'alert_id': alert_id,
+            'acknowledged': 0
+        }
+
+    except Exception as e:
+        print(f"[ERROR] unack_alert: {e}", flush=True)
+        return {'success': False, 'error': str(e)}, 500
+
+
+@app.route('/api/alerts/<int:alert_id>/suppress', methods=['POST'])
+def suppress_alert(alert_id):
+    """
+    Suppress an alert until a specified time.
+
+    Request body:
+    {
+        "suppressed_until": "2026-02-27T12:00:00",  (ISO 8601 timestamp)
+        "suppression_reason": "False positive",
+        "suppressed_by": "operator_name"  (optional, default: "local")
+    }
+
+    Returns: {suppressed_until: timestamp}
+    """
+    try:
+        conn, cursor = get_db_conn()
+
+        data = request.get_json() or {}
+        suppressed_until = data.get('suppressed_until')
+        suppression_reason = data.get('suppression_reason', 'User suppression').strip()
+        suppressed_by = data.get('suppressed_by', 'local').strip()
+
+        if not suppressed_until:
+            return {'success': False, 'error': 'suppressed_until is required'}, 400
+
+        cursor.execute('''
+            UPDATE network_alerts
+            SET suppressed_until = ?,
+                suppressed_at = CURRENT_TIMESTAMP,
+                suppressed_by = ?,
+                suppression_reason = ?
+            WHERE alert_id = ?
+        ''', (suppressed_until, suppressed_by, suppression_reason, alert_id))
+
+        conn.commit()
+
+        cursor.execute('SELECT suppressed_until, suppressed_at FROM network_alerts WHERE alert_id = ?', (alert_id,))
+        result = cursor.fetchone()
+        conn.close()
+
+        if result:
+            return {
+                'success': True,
+                'alert_id': alert_id,
+                'suppressed_until': result[0],
+                'suppressed_at': result[1]
+            }
+        else:
+            return {'success': False, 'error': 'Alert not found'}, 404
+
+    except Exception as e:
+        print(f"[ERROR] suppress_alert: {e}", flush=True)
+        return {'success': False, 'error': str(e)}, 500
+
+
+@app.route('/api/alerts/<int:alert_id>/unsuppress', methods=['POST'])
+def unsuppress_alert(alert_id):
+    """
+    Remove suppression from an alert.
+
+    Returns: {suppressed_until: null}
+    """
+    try:
+        conn, cursor = get_db_conn()
+
+        cursor.execute('''
+            UPDATE network_alerts
+            SET suppressed_until = NULL,
+                suppressed_at = NULL,
+                suppressed_by = NULL,
+                suppression_reason = NULL
+            WHERE alert_id = ?
+        ''', (alert_id,))
+
+        conn.commit()
+        conn.close()
+
+        return {
+            'success': True,
+            'alert_id': alert_id,
+            'suppressed_until': None
+        }
+
+    except Exception as e:
+        print(f"[ERROR] unsuppress_alert: {e}", flush=True)
+        return {'success': False, 'error': str(e)}, 500
 
 
 # =========================================================================

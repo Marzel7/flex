@@ -16532,10 +16532,27 @@ def api_creator_recent_checks():
             """, (creator,))
             funder_count = cursor.fetchone()['funder_count']
 
+            # Get funding chain count (creator as source)
+            cursor.execute("""
+                SELECT COUNT(*) as chain_count FROM funding_chains
+                WHERE source_creator = ?
+            """, (creator,))
+            chain_count = cursor.fetchone()['chain_count'] or 0
+
+            # Get last scanned time from creator_sig_cursors
+            cursor.execute("""
+                SELECT updated_at FROM creator_sig_cursors
+                WHERE creator_address = ?
+            """, (creator,))
+            scan_row = cursor.fetchone()
+            last_scanned = scan_row['updated_at'] if scan_row else None
+
             recent_checks.append({
                 'creator_address': creator,
                 'token_count': token_count,
                 'funder_count': funder_count,
+                'chain_count': chain_count,
+                'last_scanned': last_scanned,
                 'networks': [],
                 'findings': ['FUNDED'] if funder_count > 0 else []
             })

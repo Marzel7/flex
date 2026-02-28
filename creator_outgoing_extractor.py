@@ -583,7 +583,7 @@ def build_coordinated_edges_incremental():
         cur.execute("""
           SELECT
             source_creator, target_creator, bridge_funder,
-            source_block_time, source_tx, confidence
+            source_block_time, confidence
           FROM funding_chains
           WHERE chain_id > ?
             AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'
@@ -611,13 +611,20 @@ def build_coordinated_edges_incremental():
 
         if candidate_edges:
             # Insert all candidate edges
+            # candidate_edges is (source_creator, target_creator, bridge_funder, source_block_time, confidence)
+            # We need to map to (creator_a, creator_b, bridge_funder, first_seen_block_time, evidence_tx, confidence)
+            # evidence_tx is now NULL since source_tx doesn't exist in funding_chains
+            edges_for_insert = [
+                (e[0], e[1], e[2], e[3], None, e[4])  # Add NULL for evidence_tx
+                for e in candidate_edges
+            ]
             cur.executemany("""
               INSERT OR IGNORE INTO coordinated_creator_edges (
                 creator_a, creator_b, bridge_funder,
                 first_seen_block_time, evidence_tx, confidence
               )
               VALUES (?, ?, ?, ?, ?, ?)
-            """, candidate_edges)
+            """, edges_for_insert)
 
         # Always advance cursor to latest processed chain_id
         # This prevents re-scanning the same chains forever

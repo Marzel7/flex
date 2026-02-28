@@ -535,37 +535,25 @@ def build_funding_chains_incremental():
 
         if candidate_chains:
             # Insert all candidate chains
-            # Adapt to schema: skip source_tx if column doesn't exist
-            try:
-                cur.executemany("""
-                  INSERT OR IGNORE INTO funding_chains (
-                    chain_type, source_creator, bridge_funder, target_creator,
-                    source_tx, source_to_bridge_amount_sol, bridge_to_target_amount_sol,
-                    source_block_time, bridge_first_detected_at, bridge_is_cex, confidence
-                  )
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, candidate_chains)
-            except sqlite3.OperationalError as e:
-                if 'source_tx' in str(e):
-                    # New schema without source_tx - skip it
-                    # Rows are (chain_type, source_creator, bridge_funder, target_creator,
-                    #          source_tx, source_to_bridge_amount_sol, bridge_to_target_amount_sol,
-                    #          source_block_time, bridge_first_detected_at, bridge_is_cex, confidence)
-                    # Skip index 4 (source_tx)
-                    rows_without_source_tx = [
-                        (r[0], r[1], r[2], r[3], r[5], r[6], r[7], r[8], r[9], r[10])
-                        for r in candidate_chains
-                    ]
-                    cur.executemany("""
-                      INSERT OR IGNORE INTO funding_chains (
-                        chain_type, source_creator, bridge_funder, target_creator,
-                        source_to_bridge_amount_sol, bridge_to_target_amount_sol,
-                        source_block_time, bridge_first_detected_at, bridge_is_cex, confidence
-                      )
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """, rows_without_source_tx)
-                else:
-                    raise
+            # Adapt to actual schema: only insert columns that exist
+            # Rows from query are (chain_type, source_creator, bridge_funder, target_creator,
+            #                      source_tx, source_to_bridge_amount_sol, bridge_to_target_amount_sol,
+            #                      source_block_time, bridge_first_detected_at, bridge_is_cex, confidence)
+            # Table only has: chain_type, source_creator, bridge_funder, target_creator,
+            #               source_to_bridge_amount_sol, bridge_to_target_amount_sol,
+            #               source_block_time, confidence
+            rows_for_insert = [
+                (r[0], r[1], r[2], r[3], r[5], r[6], r[7], r[10])  # Skip indices 4,8,9
+                for r in candidate_chains
+            ]
+            cur.executemany("""
+              INSERT OR IGNORE INTO funding_chains (
+                chain_type, source_creator, bridge_funder, target_creator,
+                source_to_bridge_amount_sol, bridge_to_target_amount_sol,
+                source_block_time, confidence
+              )
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, rows_for_insert)
 
         # Always advance cursor to latest processed block_time
         # This prevents re-scanning the same outgoing transfers forever

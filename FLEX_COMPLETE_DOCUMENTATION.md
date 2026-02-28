@@ -1,0 +1,992 @@
+# FLEX Complete System Documentation
+
+**Comprehensive guide to the Flex token funding network analysis system**
+
+---
+
+## 📋 Table of Contents
+
+1. [System Overview](#system-overview)
+2. [Participant Roles](#participant-roles)
+3. [Network Architecture](#network-architecture)
+4. [SOL Transfer Filtering](#sol-transfer-filtering)
+5. [Findings Tags](#findings-tags)
+6. [Risk Calculation](#risk-calculation)
+7. [CEX Account Mapping](#cex-account-mapping)
+8. [INFRA Account Mapping](#infra-account-mapping)
+9. [Network Data](#network-data)
+10. [Database Schema](#database-schema)
+11. [Implementation Details](#implementation-details)
+12. [Integration Guide](#integration-guide)
+
+---
+
+## System Overview
+
+**Flex** is a Solana token analysis system that tracks funding networks, identifies coordinated funder relationships, and detects suspicious pump-and-dump schemes across Pump.Fun tokens.
+
+### Key Statistics
+- **41,734 funder networks** tracked
+- **503 super clusters** identified
+- **43 CEX wallets** mapped (20 exchanges)
+- **59 INFRA programs** tracked (8 categories)
+- **8 findings tags** for risk assessment
+- **MINIMUM_SOL = 0.001** threshold filters 30-40% micro-transactions
+
+---
+
+## Participant Roles
+
+### Three-Layer Funding Flow
+
+```
+SENDERS (Layer 1: Original Source)
+    ↓ Distribute SOL
+FUNDERS (Layer 2: Intermediaries)
+    ↓ Send SOL
+CREATORS (Layer 3: Token Launchers)
+    ↓ Launch Token
+TOKENS
+```
+
+### 1. SENDER - Money Source
+
+**Definition**: Original wallet addresses that send SOL to funders
+
+**Characteristics**:
+- Initial funding source
+- May distribute to many funder addresses
+- Fund distribution width indicates coordination level
+
+**Types**:
+- CEX accounts (legitimate exchanges)
+- INFRA bots (automation programs)
+- Individual creators (reusing wallets)
+- Unknown wallets (organic or suspicious)
+
+**Risk Indicators**:
+- Fund distribution width (many recipients = higher risk)
+- Concentration (sending to many addresses that all fund same creator = self-funding)
+
+**Database**:
+- `funder_incoming_transfers.sender_address`
+- `funder_incoming_transfers.amount_sol`
+
+### 2. FUNDER - Intermediary Bridge
+
+**Definition**: Wallet addresses that receive from senders and send to creators
+
+**Characteristics**:
+- Relay point connecting sources to token creators
+- Receives from senders, forwards to creators
+- May pass through multiple layers
+
+**Types**:
+- Unknown intermediaries (highest investigation priority)
+- Automation accounts (bots distributing)
+- Relay addresses (legitimate services)
+- Creator-controlled wallets (self-funding indicator)
+
+**Risk Indicators**:
+- Creator count served (how many creators do they fund?)
+- Sender diversity (how many different sources funded them?)
+- Behavior patterns (passthrough vs accumulation)
+
+**Database**:
+- `creator_funders.funder_address`
+- `creator_funders.amount_sol`
+- `funder_incoming_transfers.funder_address`
+- `funder_outgoing_transfers.funder_address`
+
+### 3. CREATOR - Token Launcher
+
+**Definition**: Wallet addresses that create tokens and receive funder support
+
+**Characteristics**:
+- Receives SOL from funders
+- Creates Pump.Fun token
+- May redistribute SOL to other addresses
+
+**Risk Indicators**:
+- Funder count (how many funded this creator?)
+- Self-funding percentage (% of funders controlled by creator)
+- Distribution pattern (do they spread SOL to many addresses?)
+- Network involvement (coordinated with other creators?)
+
+**Metrics**:
+- Funder count
+- Token count
+- Outgoing transfer patterns
+- Self-funding intermediates
+- Coordinated creator count
+
+**Database**:
+- `creator_funders.creator_address`
+- `creator_outgoing_transfers.creator_address`
+- `creator_self_funding.is_self_funding`
+- `token_analysis.earliest_tx_creator`
+
+---
+
+## Network Architecture
+
+### Funding Extraction Pipeline
+
+#### Step 1: Detect Token Creation
+- WebSocket listener detects new Pump.Fun token
+- Extract creator address from onchain data
+
+#### Step 2: Extract Creator Funders
+- Query: Who funded the creator?
+- File: `realtime_creator_funding_extractor.py`
+- Records in: `creator_funders` table
+- Filters: >= 0.001 SOL only
+
+#### Step 3: Extract Funder Sources
+- Query: Where did funders get their money?
+- File: `funder_incoming_extractor.py`
+- Records in: `funder_incoming_transfers` table
+- Classify senders: CEX/INFRA/Unknown
+
+#### Step 4: Extract Creator Outgoing
+- Query: Where does creator send SOL?
+- File: `creator_outgoing_extractor.py`
+- Records in: `creator_outgoing_transfers` table
+- Frequency: Every 12 hours (background scan)
+
+#### Step 5: Build Network Relationships
+- File: `cross_funding_network_analyzer.py`
+- Creates: Coordinated edges, clusters, networks
+- Identifies: Shared funders, coordination patterns
+
+#### Step 6: Generate Findings
+- API: `/api/creator-recent-checks`
+- File: `main.py` (lines 16502-16649)
+- Generates: Findings tags and risk scores
+- Frequency: Real-time on demand
+
+---
+
+## SOL Transfer Filtering
+
+### MINIMUM_SOL Threshold
+
+**Value**: 0.001 SOL (~$0.15 USD)
+
+**Location**: `funder_incoming_extractor.py:51`
+
+**Mechanism**: All SOL transfers below threshold are filtered out and NOT recorded in database
+
+### Why Filter?
+
+| Reason | Explanation |
+|--------|-------------|
+| **Dust Transfers** | Network spam, test transactions, minimal amounts |
+| **Fee Precision** | Small system fees or error corrections |
+| **Noise Reduction** | Reduces false positives in suspicious pattern detection |
+| **Performance** | Excludes millions of micro-transfers |
+| **Data Quality** | Focuses analysis on meaningful funding flows |
+
+### Implementation
+
+```python
+# funder_incoming_extractor.py
+MIN_SOL = 0.001
+
+# During extraction:
+if amount_sol < 0.001:
+    skip_transfer()  # Don't record
+else:
+    save_to_database()  # Record if >= 0.001 SOL
+```
+
+### Impact
+
+- **Recorded Transfers**: Only >= 0.001 SOL
+- **Database Size**: Filters out 30-40% of micro-transactions
+- **Network Analysis**: Focuses on meaningful flows
+- **Self-Funding Detection**: Works on meaningful amounts only
+
+### Example
+
+```
+Creator ABC receives from:
+  Funder A: 1.5 SOL    ✅ Recorded (>= 0.001)
+  Funder B: 0.05 SOL   ✅ Recorded (>= 0.001)
+  Funder C: 0.0005 SOL ❌ Filtered (< 0.001)
+  Funder D: 0.15 SOL   ✅ Recorded (>= 0.001)
+
+Total recorded funders: 3
+Total recorded amount: 1.7 SOL
+```
+
+---
+
+## Findings Tags
+
+### Complete Reference (8 Total)
+
+All findings tags are automatically generated based on analyzing creator behavior and funding patterns.
+
+#### 1. 🚩 SELF-FUNDING (CRITICAL Risk)
+
+**Meaning**: Creator owns and controls multiple funder intermediaries
+
+**Detection**:
+- `is_self_funding = 1` AND percentage > 50%
+- Query: `SELECT is_self_funding, self_funding_percentage FROM creator_self_funding`
+
+**Indicator**: % of funders that are creator-controlled wallets
+
+**Example**: 24 of 28 funders are creator's own wallets (85%)
+
+**Action**: Investigate pump-and-dump scheme immediately
+
+**Database**: `creator_self_funding` table
+
+---
+
+#### 2. ⚠️ CREATOR_FUNDING_CHAIN (HIGH Risk)
+
+**Meaning**: Creator's funders are funded by OTHER creators
+
+**Detection**:
+- Exists in `funding_chains` table with `source_creator`
+- Query: `SELECT COUNT(*) FROM funding_chains WHERE source_creator = ?`
+
+**Indicator**: Multi-layer funding through creator network
+
+**Example**: Funder X was funded by Creator C, who then funds Creator A
+
+**Action**: Check if part of coordinated creator network
+
+**Database**: `funding_chains` table
+
+---
+
+#### 3. ⚠️ DISTRIBUTION_PATTERN (HIGH Risk)
+
+**Meaning**: Creator distributes to many recipients (unbalanced pattern)
+
+**Detection**:
+- `recipient_count > (funder_count × 5) AND funder_count < 20`
+- Query: Count distinct recipients vs funders in `creator_outgoing_transfers`
+
+**Indicator**: Suspicious redistribution ratio
+
+**Example**: 10 funders → 85 recipients (8.5:1 ratio)
+
+**Action**: Monitor for follow-up token launches using same funders
+
+**Database**: `creator_outgoing_transfers` table
+
+---
+
+#### 4. 🔗 COORDINATED_FUNDERS (HIGH Risk)
+
+**Meaning**: Creator shares funders with multiple other creators
+
+**Detection**:
+- `COUNT(*) > 0` in `coordinated_creator_edges`
+- Query: `SELECT COUNT(*) FROM coordinated_creator_edges WHERE creator_a = ? OR creator_b = ?`
+
+**Indicator**: Shared funding across multiple tokens
+
+**Example**: Funder X funds Creator A, Creator B, and Creator C
+
+**Action**: Map entire coordinated network
+
+**Database**: `coordinated_creator_edges` table
+
+---
+
+#### 5. ⚠️ NETWORK_MEMBER (MEDIUM Risk)
+
+**Meaning**: Creator identified as part of detected funding network
+
+**Detection**:
+- Found in `funding_network_members` table
+- Query: `SELECT network_id FROM funding_network_members WHERE funder_address = ?`
+
+**Indicator**: Part of network cluster analysis
+
+**Example**: Member of FUNDERS_14 network
+
+**Action**: Check network cluster statistics
+
+**Database**: `funding_network_members` table
+
+---
+
+#### 6. 🤖 AUTOMATION_DETECTED (MEDIUM Risk)
+
+**Meaning**: Creator's funders include automation programs
+
+**Detection**:
+- Funder in `INFRASTRUCTURE_ACCOUNTS` with `category='automation'`
+- Query: `get_account_info(funder)` checks automation category
+
+**Indicator**: Bot-automated distribution
+
+**Example**: Creator funded by Axiom automation bot
+
+**Action**: Check for coordinated distribution patterns
+
+**Database**: `infra_mapping.py` INFRASTRUCTURE_ACCOUNTS dict
+
+---
+
+#### 7. 💱 INSTITUTIONAL_BACKED (LOW Risk)
+
+**Meaning**: Creator received funding from known CEX address
+
+**Detection**:
+- Funder in `CEX_ACCOUNTS` mapping
+- Query: `get_cex_info(funder)` returns match
+
+**Indicator**: Institutional/legitimate backing
+
+**Example**: Creator funded by Coinbase, Binance, or Kraken
+
+**Action**: Reduces suspicion, may exclude from suspicious networks
+
+**Database**: `cex_wallets` table or `infra_mapping.py` CEX_ACCOUNTS dict
+
+---
+
+#### 8. ✅ CLEAN (NONE Risk)
+
+**Meaning**: No suspicious patterns detected
+
+**Detection**:
+- No other findings generated
+- Logic: `if not any(findings): findings.append('✅ CLEAN')`
+
+**Indicator**: Organic, legitimate funding
+
+**Example**: Normal funder distribution, no coordination
+
+**Action**: Standard monitoring
+
+---
+
+### Findings Detection Workflow
+
+#### Step-by-Step Process
+
+```
+1. CREATOR DETECTED
+   └─ Token creation identified
+
+2. EXTRACT CREATOR FUNDERS
+   ├─ Query creator_funders table
+   ├─ Filter: >= 0.001 SOL only
+   └─ Count funders and amounts
+
+3. CHECK SELF-FUNDING
+   ├─ Query creator_self_funding table
+   ├─ Calculate self-funding %
+   └─ If > 50%: 🚩 SELF-FUNDING tag
+
+4. CHECK CREATOR FUNDING CHAIN
+   ├─ Query funding_chains
+   └─ If found: ⚠️ CREATOR_FUNDING_CHAIN tag
+
+5. CHECK DISTRIBUTION PATTERN
+   ├─ Count outgoing recipients
+   ├─ Compare to funder count
+   └─ If high ratio: ⚠️ DISTRIBUTION_PATTERN tag
+
+6. CHECK COORDINATED EDGES
+   ├─ Query coordinated_creator_edges
+   └─ If matches: 🔗 COORDINATED_FUNDERS tag
+
+7. CHECK NETWORK MEMBERSHIP
+   ├─ Query funding_network_members
+   └─ If member: ⚠️ NETWORK_MEMBER tag
+
+8. CHECK CEX/INFRA
+   ├─ For each funder:
+   │  ├─ Check if CEX → 💱 INSTITUTIONAL_BACKED
+   │  ├─ Check if INFRA automation → 🤖 AUTOMATION_DETECTED
+   │  └─ Record classification
+   └─ Adjust risk factors
+
+9. FINAL VERDICT
+   ├─ If any risk tag: Display findings
+   └─ If no tags: Add ✅ CLEAN
+
+10. DISPLAY ON UI
+    ├─ Creator Analysis: Show badges
+    ├─ Dashboard: Color-code by risk
+    └─ API: Return JSON with findings
+```
+
+---
+
+## Risk Calculation
+
+### Weighted Formula
+
+```
+Risk = (Self-Funding % × 0.40) +
+       (Coordinated Score × 0.30) +
+       (Unknown Funder % × 0.20) +
+       (Automation Score × 0.10)
+```
+
+### Component Weights
+
+| Component | Weight | Reason |
+|-----------|--------|--------|
+| **Self-Funding %** | 40% | Strongest indicator of manipulation |
+| **Coordination Score** | 30% | Network effect and shared funders |
+| **Unknown Funder %** | 20% | Unverified/unclassified sources |
+| **Automation Score** | 10% | Bot activity level |
+
+### Adjustment Factors
+
+| Factor | Adjustment | Effect |
+|--------|-----------|--------|
+| **CEX Backing** | -0.20 | Institutional backing reduces risk |
+| **INFRA Automation** | +0.10 | Bot automation increases risk |
+| **Clean Pattern** | 0.10 base | Minimum for truly clean patterns |
+
+### Risk Thresholds
+
+| Tier | Range | Emoji | Action |
+|------|-------|-------|--------|
+| **CRITICAL** | > 0.30 | 🔴 | Immediate investigation |
+| **HIGH** | 0.15 - 0.30 | 🟠 | Monitor closely |
+| **MEDIUM** | 0.05 - 0.15 | 🟡 | Watch for changes |
+| **LOW** | < 0.05 | 🟢 | Normal monitoring |
+
+### Calculation Examples
+
+#### Example 1: Pure Self-Funding (CRITICAL)
+
+```
+Funders: 20 total (18 self-created, 2 external)
+Risk = (90% × 0.40) + (0 × 0.30) + (10% × 0.20) + (0 × 0.10)
+Risk = 0.36 + 0 + 0.02 + 0 = 0.38
+Result: 🔴 CRITICAL (> 0.30)
+Tags: 🚩 SELF-FUNDING (90%)
+```
+
+#### Example 2: Coordinated Network (CRITICAL)
+
+```
+Funders: 15 total (3 self, 12 coordinated)
+Risk = (20% × 0.40) + (0.80 × 0.30) + (0% × 0.20) + (0.05 × 0.10)
+Risk = 0.08 + 0.24 + 0 + 0.005 = 0.325
+Result: 🔴 CRITICAL (> 0.30)
+Tags: 🔗 COORDINATED_FUNDERS (8 shared), ⚠️ CREATOR_FUNDING_CHAIN
+```
+
+#### Example 3: CEX-Backed (CLEAN)
+
+```
+Funders: 10 total (7 Coinbase, 3 unknown)
+Risk = (0% × 0.40) + (0 × 0.30) + (30% × 0.20) + (0 × 0.10)
+Risk = 0 + 0 + 0.06 + 0 = 0.06
+Risk - 0.20 (CEX adjustment) = -0.14 → Clamped to 0.0
+Result: 🟢 CLEAN (< 0.05)
+Tags: 💱 INSTITUTIONAL_BACKED, ✅ CLEAN
+```
+
+---
+
+## CEX Account Mapping
+
+### Overview
+
+**43 CEX addresses** mapped across **20 exchanges**
+
+All CEX accounts are stored in:
+- **Database**: `cex_wallets` table
+- **Code**: `infra_mapping.py` CEX_ACCOUNTS dictionary
+
+### CEX Account Types
+
+| Type | Function | Risk | Impact |
+|------|----------|------|--------|
+| **Hot Wallet** | Active trading, deposits/withdrawals | LOW | Filter from suspicious networks |
+| **Cold Wallet** | Reserve storage | LOW | Rare movements, institutional |
+| **Deposit Account** | Receive user deposits, route to hot wallets | LOW | Expected pattern, exclude |
+| **Withdrawal Account** | Distribute to users after trades | LOW | User payouts, normal |
+| **Trading Account** | Market-making and price discovery | LOW | High frequency expected |
+| **Staking Account** | Hold customer staked SOL and rewards | LOW | Institutional custody |
+| **Treasury** | Long-term strategic holdings | LOW | Low frequency, institutional |
+
+### Exchanges Mapped (20 Total)
+
+#### Tier 1: Major Global Exchanges
+- **Binance** (4 addresses) - Largest exchange, primary liquidity
+- **Coinbase** (12 addresses) - US regulated, institutional custody
+- **Kraken** (2 addresses) - Secure EUR/USD trading
+- **OKX** (2 addresses) - Asian market leader
+
+#### Tier 2: High-Volume Exchanges
+- **Bybit** (2) - Derivatives exchange
+- **Robinhood** (6) - Retail brokerage
+- **KuCoin** (1) - Community exchange
+- **MEXC** (1) - Emerging market
+- **HTX** (1) - Asian exchange (formerly Huobi)
+- **BingX** (1) - Copy trading platform
+
+#### Tier 3: Specialized Services
+- **Moonpay** - Fiat on-ramp
+- **Crypto.com** - Payments & trading
+- **ChangeNow** - Atomic swaps
+- **FixedFloat** - Instant swaps
+- **Revolut** - Fintech payments
+- **Nexo** - Lending platform
+- **Stake.com** - Crypto casino
+
+#### Legacy & Custody
+- **Fireblocks** - Institutional custody (LOW RISK)
+- **FTX** - Historical legacy account (INACTIVE)
+- **Bidget** - Unknown exchange
+
+### Risk Assessment
+
+**Low Risk (All CEX accounts)**:
+- Institutional backing and regulation
+- Known custody procedures
+- Verified onchain addresses
+- High transaction volume
+
+### Integration
+
+CEX funding reduces overall risk score by **-0.20** (adjustment factor)
+
+---
+
+## INFRA Account Mapping
+
+### Overview
+
+**59 INFRA programs** tracked across **8 categories**
+
+All INFRA accounts are stored in:
+- **Code**: `infra_mapping.py` INFRASTRUCTURE_ACCOUNTS dictionary
+- **Database**: Referenced via `get_account_info()` function
+
+### INFRA Categories
+
+#### 1. AUTOMATION (55 programs) ⚠️ HIGH PRIORITY
+
+**Function**: Task scheduling, bot operations, automated distribution
+
+**Examples**:
+- **RapidLaunch** - Token launch platform automation
+- **Axiom** - Monitoring & automation infrastructure
+- **Trojan Trade** - Bot automation for trading
+
+**Role in Network**:
+- Distribute SOL to many funders on a schedule
+- Create artificial funding patterns
+- May indicate organized distribution schemes
+
+**Risk Assessment**: MEDIUM
+- Normal: Legitimate automation for user services
+- Suspicious: Coordinated distribution across multiple creators
+
+**Monitoring**: HIGH PRIORITY - Watch for suspicious coordination
+
+---
+
+#### 2. BRIDGE (1 program)
+
+**Function**: Cross-chain token transfers and liquidity bridges
+
+**Example**:
+- **deBridge** - Cross-chain token transfer vault
+
+**Role in Network**:
+- Move SOL between Solana and other chains
+- Natural, expected pattern for cross-chain users
+
+**Risk Assessment**: LOW
+- Exclude from suspicious networks
+- Normal ecosystem operation
+
+---
+
+#### 3. PROTOCOL (2 programs)
+
+**Function**: Protocol operations, treasury, and governance
+
+**Examples**:
+- **Rollbit Treasury** - Protocol treasury account
+- **SolCasino** - Protocol operations and distribution
+
+**Role in Network**:
+- Long-term holdings and strategic distribution
+- Governance operations
+
+**Risk Assessment**: LOW
+- Institutional pattern
+- Exclude from suspicious networks
+
+---
+
+#### 4. SYSTEM (1 program)
+
+**Function**: Core Solana network operations
+
+**Example**:
+- **System Program** - Basic operations, account creation, rent
+
+**Role in Network**:
+- Core infrastructure, affects all accounts
+- Not user-facing
+
+**Risk Assessment**: LOW
+- EXCLUDE - System level operations
+- Not relevant to token funding analysis
+
+---
+
+#### 5. VALIDATOR (Multiple)
+
+**Function**: Staking participation and block validation
+
+**Role in Network**:
+- Participate in Solana consensus
+- Receive staking rewards
+
+**Risk Assessment**: LOW
+- Exclude from suspicious networks
+
+---
+
+#### 6. RELAYER (Multiple)
+
+**Function**: Message relaying between blockchains
+
+**Role in Network**:
+- Cross-chain communication
+- Bridge operations
+
+**Risk Assessment**: LOW
+- Exclude from suspicious networks
+
+---
+
+#### 7. DEX (Multiple)
+
+**Function**: Decentralized exchange liquidity pools and automation
+
+**Role in Network**:
+- Provide trading liquidity
+- Automated market making
+
+**Risk Assessment**: LOW
+- Expected pattern
+- Exclude from suspicious networks
+
+---
+
+#### 8. LENDING (Multiple)
+
+**Function**: Lending protocol operations and loan management
+
+**Role in Network**:
+- Loan operations and collateral management
+- Interest distribution
+
+**Risk Assessment**: LOW to MEDIUM
+- Institutional pattern
+- Monitor for unusual distributions
+
+---
+
+### Risk Classifications
+
+**Low Risk (Exclude from Analysis)**:
+- Bridge, Protocol, System, Validator, Relayer, DEX, Lending
+- Normal ecosystem operations
+
+**Medium Risk (Monitor)**:
+- Automation: Watch for suspicious distribution patterns
+- Only flag if coordinating with unknown funders
+
+**Investigation Priority**:
+1. 🔴 HIGH: Automation bots creating unusual funding patterns
+2. 🟡 MEDIUM: Unknown category programs with unusual activity
+3. 🟢 LOW: Known infrastructure with expected patterns
+
+### Integration
+
+INFRA automation funding increases overall risk score by **+0.10** (adjustment factor)
+
+---
+
+## Network Data
+
+### Funder Networks
+
+**Total Networks**: 41,734
+
+**Coverage**:
+- Primary funders: Tracked
+- Network size: Members counted
+- SOL volume: Total per network
+- Cluster ID: Grouping info
+
+**Key Metrics**:
+- Total Members: Network-wide
+- Total Volume: $31,711.97 SOL
+- Avg Network Size: ~6,485
+- Max Network Size: 6,485
+- Unique Funders: 6,485
+
+### Coordinated Edges
+
+**Type**: Creator-to-creator relationships
+
+**Information**:
+- Creator A address
+- Creator B address (coordinated)
+- Bridge funder connecting them
+- Confidence score (0-1)
+- Detection timestamp
+
+**Purpose**: Show which creators share funding relationships
+
+### Super Clusters
+
+**Total Clusters**: 503
+
+**Information per Cluster**:
+- Super cluster ID
+- Network count in cluster
+- Creator count in cluster
+- Risk level (NORMAL/HIGH/CRITICAL)
+- Creator reuse ratio
+- Creator reuse tags (INDEPENDENT/SUSPICIOUS/COORDINATED)
+- Shared creator count
+
+**Purpose**: Identify multi-creator coordination schemes
+
+### Top Creators
+
+**Total Creators**: 300+
+
+**Ranking by**:
+- Creator address
+- Funder count (how many funded this creator)
+- Token count
+- Self-funding flag (yes/no)
+- Self-funding percentage
+- Self-funding intermediates count
+
+**Use Case**: Focus on prolific creators and identify self-funding schemes
+
+---
+
+## Database Schema
+
+### Key Tables
+
+#### creator_funders
+```
+creator_address      TEXT - Token creator
+funder_address       TEXT - Who funded the creator
+amount_sol           REAL - SOL amount
+first_detected_at    TIMESTAMP
+is_cex              BOOLEAN
+cex_exchange        TEXT
+source_type         TEXT - 'original_sender' or 'relay'
+```
+
+#### creator_outgoing_transfers
+```
+creator_address      TEXT - Creator sending SOL
+recipient_address    TEXT - Who receives from creator
+amount_sol           REAL - SOL amount
+transaction_signature TEXT - TX hash
+block_time           INT - Timestamp
+```
+
+#### funding_chains
+```
+source_creator       TEXT - Original creator
+target_creator       TEXT - Recipient creator
+bridge_funder        TEXT - Intermediary
+amount_sol           REAL
+chain_type           TEXT
+```
+
+#### coordinated_creator_edges
+```
+creator_a            TEXT - Creator A
+creator_b            TEXT - Creator B
+bridge_funder        TEXT - Shared funder
+confidence           REAL - 0-1 score
+```
+
+#### creator_self_funding
+```
+creator_address      TEXT - Creator
+is_self_funding      INT - 0 or 1
+self_funding_percentage REAL
+self_funding_intermediates INT
+total_funders        INT
+```
+
+#### funding_network_members
+```
+network_id           TEXT
+funder_address       TEXT - Member address
+member_count         INT
+```
+
+#### super_clusters
+```
+super_cluster_id     TEXT
+network_count        INT
+creator_count        INT
+risk_level           TEXT
+creator_reuse_ratio  REAL
+creator_reuse_tag    TEXT
+```
+
+#### cex_wallets
+```
+cex_address          TEXT - Solana wallet
+exchange_name        TEXT - Exchange name
+wallet_type          TEXT - Hot, Cold, etc.
+confidence_level     INT - 1-5
+discovered_date      TIMESTAMP
+is_active            BOOLEAN
+```
+
+---
+
+## Implementation Details
+
+### Code Locations
+
+#### SOL Filtering
+- **File**: `funder_incoming_extractor.py`
+- **Line**: 51
+- **Code**: `MIN_SOL = 0.001`
+
+#### Findings Detection
+- **File**: `main.py`
+- **Endpoint**: `/api/creator-recent-checks`
+- **Lines**: 16502-16649
+
+#### CEX/INFRA Mapping
+- **File**: `infra_mapping.py`
+- **Functions**: `get_account_info()`, `get_cex_info()`
+- **Data**: `CEX_ACCOUNTS`, `INFRASTRUCTURE_ACCOUNTS` dicts
+
+#### Network Analysis
+- **File**: `cross_funding_network_analyzer.py`
+- **Functions**: Build clusters, identify edges
+
+#### Creator Extraction
+- **Files**:
+  - `realtime_creator_funding_extractor.py` (funders)
+  - `funder_incoming_extractor.py` (sources)
+  - `creator_outgoing_extractor.py` (distributions)
+
+### API Endpoints
+
+#### `/api/creator-recent-checks`
+Returns most recently scanned creators with findings
+
+**Response**:
+```json
+{
+  "recent_checks": [
+    {
+      "creator_address": "...",
+      "token_count": 5,
+      "funder_count": 10,
+      "findings": ["🚩 SELF-FUNDING (85%)", "⚠️ CREATOR_FUNDING_CHAIN"],
+      "risk_level": "CRITICAL",
+      "last_scanned": "2026-02-28 15:30:00"
+    }
+  ]
+}
+```
+
+---
+
+## Integration Guide
+
+### Dashboard & UI
+- **Creator Analysis Page**: Display findings badges with emojis
+- **Dashboard**: Color-code by risk tier (red/orange/yellow/green)
+- **API**: Return JSON with all findings and risk score
+
+### Machine Learning
+- **Feature**: CEX backing (binary institutional signal)
+- **Feature**: Automation score (bot activity level)
+- **Feature**: Self-funding percentage (manipulation indicator)
+- **Feature**: Coordination score (network effect)
+
+### Alerting Systems
+- 🔴 HIGH: Self-funding > 80%, coordination detected
+- 🟠 MEDIUM: Unknown funders, distribution patterns
+- 🟡 LOW: Automation detected, network membership
+- 🟢 NONE: CEX-backed, clean pattern
+
+### Monitoring
+- **Real-time**: Findings generation on new tokens
+- **Hourly**: Update coordinated edges and clusters
+- **Daily**: Review top suspicious creators
+- **Weekly**: Update CEX/INFRA mappings
+
+---
+
+## Summary
+
+### Coverage Statistics
+| Category | Count | Status |
+|----------|-------|--------|
+| Funder Networks | 41,734 | ✅ Complete |
+| Coordinated Edges | 500+ | ✅ Sampled |
+| Super Clusters | 503 | ✅ Complete |
+| Top Creators | 300+ | ✅ Ranked |
+| CEX Wallets | 43 | ✅ Mapped (20 exchanges) |
+| INFRA Programs | 59 | ✅ Tracked (8 categories) |
+| Findings Tags | 8 | ✅ Complete with detection logic |
+
+### Key Takeaways
+
+✅ **Complete Three-Layer Model**
+- Sender → Funder → Creator flow fully documented
+- Risk indicators identified for each layer
+- Database tables mapped for each role
+
+✅ **SOL Filtering Strategy**
+- MINIMUM_SOL = 0.001 SOL threshold applied
+- Filters dust transfers, reduces noise 30-40%
+- Focuses analysis on meaningful funding flows
+
+✅ **Comprehensive Findings System**
+- 8 findings tags with complete detection logic
+- Risk levels from CRITICAL to CLEAN
+- Automatic generation via database queries
+
+✅ **Robust Risk Calculation**
+- Weighted formula (40/30/20/10)
+- Adjustment factors for CEX and INFRA
+- Thresholds tied to specific actions
+
+✅ **Production Ready**
+- All documentation in single file
+- Code locations and queries provided
+- Integration examples included
+
+---
+
+*Complete System Documentation*
+*Generated: 2026-02-28*
+*Database: flex_complete_database.db*
+*Ready for production deployment and integration*

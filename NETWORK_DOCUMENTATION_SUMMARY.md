@@ -55,7 +55,57 @@ Creators ranked by activity:
 
 **Use Case:** Focus on most prolific creators and identify self-funding schemes.
 
-#### 5. **CEX Wallets** (51 rows)
+#### 5. **CEX Roles & Functions** (35 rows) ⭐ NEW
+Detailed breakdown of cryptocurrency exchange account roles:
+- Exchange name and account count
+- Wallet type breakdown (Hot, Cold, Deposit, Withdrawal, Trading, Staking)
+- Primary role description
+- Risk profile classification
+- Monitoring notes
+
+**Purpose:** Understand how exchange accounts impact network analysis
+
+**Key Content:**
+- All 20 exchanges mapped with role descriptions
+- Tier 1: Binance, Coinbase, Kraken, OKX (major global exchanges)
+- Tier 2: Bybit, Robinhood, KuCoin, MEXC, HTX, BingX (high volume)
+- Tier 3: Moonpay, ChangeNow, Revolut, Nexo, Stake.com, Fireblocks
+
+#### 6. **INFRA Roles & Functions** (19 rows) ⭐ NEW
+Infrastructure program categories and their ecosystem roles:
+- Category (Automation, Bridge, Protocol, System, Validator, etc.)
+- Count of programs per category
+- Primary function description
+- Risk level assessment
+- Monitoring priority
+- Example programs
+
+**Purpose:** Identify automated bot distribution vs institutional operations
+
+**Key Content:**
+- Automation: 55 programs (highest priority monitoring)
+- Bridge: Cross-chain operations
+- Protocol: Governance and treasury
+- System: Core Solana operations
+- Validator/Relayer/DEX/Lending: Normal ecosystem operations
+
+#### 7. **Network Roles Summary** (34 rows) ⭐ NEW
+Complete guide to how CEX/INFRA detection impacts analysis:
+- Detection & filtering methodology
+- CEX account roles & impact on findings
+- INFRA account roles & impact
+- Complete network analysis workflow (8-step process)
+- Detection examples (legitimate vs suspicious patterns)
+
+**Purpose:** Understand end-to-end how account roles drive risk assessment
+
+**Key Content:**
+- Workflow from token creation → founder funding → risk assessment
+- 3 examples: Legitimate CEX funding, Automation bot, Self-funding scheme
+- How findings tags are generated (CLEAN, SELF-FUNDED, COORDINATED, etc.)
+- Risk calculation methodology
+
+#### 8. **CEX Wallets** (51 rows)
 All cryptocurrency exchange addresses mapped:
 - CEX address (Solana wallet)
 - Exchange name (Coinbase, Binance, etc.)
@@ -66,7 +116,7 @@ All cryptocurrency exchange addresses mapped:
 
 **Purpose:** Filter legitimate CEX activity from organic funding.
 
-#### 6. **INFRA Programs** (29 rows)
+#### 9. **INFRA Programs** (29 rows)
 Infrastructure programs and services:
 - Funder address
 - Creator count served
@@ -76,7 +126,7 @@ Infrastructure programs and services:
 
 **Purpose:** Identify automated funder services and distribution mechanisms.
 
-#### 7. **Documentation Index** (9 rows)
+#### 10. **Documentation Index** (9 rows)
 Quick reference guide with:
 - Sheet name
 - Description
@@ -110,14 +160,49 @@ Quick reference guide with:
 - **300+ top creators** ranked by funding patterns
 - **Self-funding detection** identifies circular funding schemes
 
+## 🎓 NEW: Comprehensive Role Guide
+
+**CEX_INFRA_ROLES_GUIDE.md** provides in-depth documentation:
+
+### CEX Account Roles
+- 43 addresses mapped to 20 exchanges
+- Role types: Hot Wallet, Cold Wallet, Deposit, Withdrawal, Trading, Staking, Treasury
+- Risk classification: Low (institutional), Medium, High
+- How CEX funding reduces suspicion vs unknown funders
+
+### INFRA Account Roles
+- 59 programs across 8 categories
+- Automation: Highest monitoring priority (55 programs)
+- Bridge: Cross-chain, normal pattern (exclude)
+- Protocol: Long-term operations (exclude)
+- System: Core network (exclude)
+- Validator/Relayer/DEX: Normal ecosystem (exclude)
+
+### Impact on Network Analysis
+- Detection workflow: Check funder against mappings
+- Classification: Mark as INSTITUTIONAL or AUTOMATED
+- Filtering: May exclude from suspicious networks
+- Findings tags: CLEAN, SELF-FUNDED, COORDINATED_FUNDERS, CREATOR_FUNDING_CHAIN
+- Risk calculation: CEX reduces risk, Automation increases investigation priority
+
+### Complete Workflow Example
+Step-by-step example from token creation → founder funding → risk assessment with detection of legitimate vs suspicious patterns.
+
 ## 📱 Integration
 
 Use this documentation for:
-- ✅ Data-driven risk assessment
-- ✅ Network visualization tools
-- ✅ Machine learning feature engineering
-- ✅ Compliance monitoring
-- ✅ Funding pattern analysis
+- ✅ Data-driven risk assessment (CEX/INFRA context)
+- ✅ Network visualization tools (role-based coloring)
+- ✅ Machine learning feature engineering (institutional signals)
+- ✅ Compliance monitoring (knowing what to ignore)
+- ✅ Funding pattern analysis (organic vs bot-driven)
+- ✅ Automated monitoring alerts (automation bot detection)
+
+## 📁 Documentation Files
+
+1. **FLEX_Comprehensive_Network_Documentation.xlsx** (11 MB) - 10 sheets with network data
+2. **NETWORK_DOCUMENTATION_SUMMARY.md** - Quick reference guide
+3. **CEX_INFRA_ROLES_GUIDE.md** - Detailed roles & functions (600+ lines)
 
 ---
 

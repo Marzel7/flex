@@ -53,92 +53,96 @@ def ensure_tables():
     with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
-        cur.executescript("""
-        CREATE TABLE IF NOT EXISTS creator_sig_cursors (
-          creator_address TEXT PRIMARY KEY,
-          last_signature  TEXT,
-          last_slot       INTEGER,
-          updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
+        try:
+            cur.executescript("""
+            CREATE TABLE IF NOT EXISTS creator_sig_cursors (
+              creator_address TEXT PRIMARY KEY,
+              last_signature  TEXT,
+              last_slot       INTEGER,
+              updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
 
-        CREATE TABLE IF NOT EXISTS creator_outgoing_transfers (
-          creator_address TEXT NOT NULL,
-          recipient_address TEXT NOT NULL,
-          amount_sol REAL NOT NULL,
-          transaction_signature TEXT PRIMARY KEY,
-          slot INTEGER,
-          block_time INTEGER,
-          first_detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          recipient_type TEXT DEFAULT 'unknown',
-          is_cex INTEGER DEFAULT 0,
-          cex_exchange TEXT,
-          cex_type TEXT
-        );
+            CREATE TABLE IF NOT EXISTS creator_outgoing_transfers (
+              creator_address TEXT NOT NULL,
+              recipient_address TEXT NOT NULL,
+              amount_sol REAL NOT NULL,
+              transaction_signature TEXT PRIMARY KEY,
+              slot INTEGER,
+              block_time INTEGER,
+              first_detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              recipient_type TEXT DEFAULT 'unknown',
+              is_cex INTEGER DEFAULT 0,
+              cex_exchange TEXT,
+              cex_type TEXT
+            );
 
-        CREATE INDEX IF NOT EXISTS idx_cot_creator ON creator_outgoing_transfers(creator_address);
-        CREATE INDEX IF NOT EXISTS idx_cot_recipient ON creator_outgoing_transfers(recipient_address);
-        CREATE INDEX IF NOT EXISTS idx_cot_block_time ON creator_outgoing_transfers(block_time);
+            CREATE INDEX IF NOT EXISTS idx_cot_creator ON creator_outgoing_transfers(creator_address);
+            CREATE INDEX IF NOT EXISTS idx_cot_recipient ON creator_outgoing_transfers(recipient_address);
+            CREATE INDEX IF NOT EXISTS idx_cot_block_time ON creator_outgoing_transfers(block_time);
 
-        CREATE TABLE IF NOT EXISTS funding_chains (
-          chain_id INTEGER PRIMARY KEY AUTOINCREMENT,
-          chain_type TEXT NOT NULL,
-          source_creator TEXT,
-          bridge_funder TEXT,
-          target_creator TEXT,
-          source_tx TEXT,
-          bridge_to_target_amount_sol REAL,
-          source_to_bridge_amount_sol REAL,
-          source_block_time INTEGER,
-          bridge_first_detected_at TIMESTAMP,
-          bridge_is_cex INTEGER DEFAULT 0,
-          confidence INTEGER DEFAULT 50,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
+            CREATE TABLE IF NOT EXISTS funding_chains (
+              chain_id INTEGER PRIMARY KEY AUTOINCREMENT,
+              chain_type TEXT NOT NULL,
+              source_creator TEXT,
+              bridge_funder TEXT,
+              target_creator TEXT,
+              source_tx TEXT,
+              bridge_to_target_amount_sol REAL,
+              source_to_bridge_amount_sol REAL,
+              source_block_time INTEGER,
+              bridge_first_detected_at TIMESTAMP,
+              bridge_is_cex INTEGER DEFAULT 0,
+              confidence INTEGER DEFAULT 50,
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
 
-        CREATE INDEX IF NOT EXISTS idx_fc_source ON funding_chains(source_creator);
-        CREATE INDEX IF NOT EXISTS idx_fc_bridge ON funding_chains(bridge_funder);
-        CREATE INDEX IF NOT EXISTS idx_fc_target ON funding_chains(target_creator);
+            CREATE INDEX IF NOT EXISTS idx_fc_source ON funding_chains(source_creator);
+            CREATE INDEX IF NOT EXISTS idx_fc_bridge ON funding_chains(bridge_funder);
+            CREATE INDEX IF NOT EXISTS idx_fc_target ON funding_chains(target_creator);
 
-        CREATE UNIQUE INDEX IF NOT EXISTS uq_funding_chain
-          ON funding_chains(chain_type, source_tx, target_creator);
+            CREATE TABLE IF NOT EXISTS coordinated_creator_edges (
+              creator_a TEXT NOT NULL,
+              creator_b TEXT NOT NULL,
+              bridge_funder TEXT NOT NULL,
+              first_seen_block_time INTEGER,
+              evidence_tx TEXT,
+              confidence INTEGER DEFAULT 50,
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              PRIMARY KEY (creator_a, creator_b, bridge_funder)
+            );
 
-        CREATE TABLE IF NOT EXISTS coordinated_creator_edges (
-          creator_a TEXT NOT NULL,
-          creator_b TEXT NOT NULL,
-          bridge_funder TEXT NOT NULL,
-          first_seen_block_time INTEGER,
-          evidence_tx TEXT,
-          confidence INTEGER DEFAULT 50,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          PRIMARY KEY (creator_a, creator_b, bridge_funder)
-        );
+            CREATE INDEX IF NOT EXISTS idx_coord_a ON coordinated_creator_edges(creator_a);
+            CREATE INDEX IF NOT EXISTS idx_coord_b ON coordinated_creator_edges(creator_b);
 
-        CREATE INDEX IF NOT EXISTS idx_coord_a ON coordinated_creator_edges(creator_a);
-        CREATE INDEX IF NOT EXISTS idx_coord_b ON coordinated_creator_edges(creator_b);
+            CREATE TABLE IF NOT EXISTS creator_self_funding (
+              creator_address TEXT PRIMARY KEY,
+              self_funding_intermediates INTEGER DEFAULT 0,
+              total_funders INTEGER DEFAULT 0,
+              self_funding_percentage REAL DEFAULT 0.0,
+              is_self_funding INTEGER DEFAULT 0,
+              updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
 
-        CREATE TABLE IF NOT EXISTS creator_self_funding (
-          creator_address TEXT PRIMARY KEY,
-          self_funding_intermediates INTEGER DEFAULT 0,
-          total_funders INTEGER DEFAULT 0,
-          self_funding_percentage REAL DEFAULT 0.0,
-          is_self_funding INTEGER DEFAULT 0,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
+            CREATE TABLE IF NOT EXISTS outgoing_chain_cursor (
+              id INTEGER PRIMARY KEY CHECK (id=1),
+              last_block_time INTEGER DEFAULT 0
+            );
+            INSERT OR IGNORE INTO outgoing_chain_cursor(id,last_block_time) VALUES (1,0);
 
-        CREATE TABLE IF NOT EXISTS outgoing_chain_cursor (
-          id INTEGER PRIMARY KEY CHECK (id=1),
-          last_block_time INTEGER DEFAULT 0
-        );
-        INSERT OR IGNORE INTO outgoing_chain_cursor(id,last_block_time) VALUES (1,0);
-
-        CREATE TABLE IF NOT EXISTS coordinated_edge_cursor (
-          id INTEGER PRIMARY KEY CHECK (id=1),
-          last_chain_id INTEGER DEFAULT 0
-        );
-        INSERT OR IGNORE INTO coordinated_edge_cursor(id,last_chain_id) VALUES (1,0);
-        """)
-        conn.commit()
-        conn.close()
+            CREATE TABLE IF NOT EXISTS coordinated_edge_cursor (
+              id INTEGER PRIMARY KEY CHECK (id=1),
+              last_chain_id INTEGER DEFAULT 0
+            );
+            INSERT OR IGNORE INTO coordinated_edge_cursor(id,last_chain_id) VALUES (1,0);
+            """)
+            conn.commit()
+        except sqlite3.OperationalError as e:
+            # Ignore schema mismatch errors - tables may have evolved
+            if 'source_tx' not in str(e):
+                raise
+            print(f"[OUTGOING] ℹ️ Schema evolved - ignoring index on non-existent column", flush=True)
+        finally:
+            conn.close()
 
         # Try to create idx_cf_funder on creator_funders (may not exist yet)
         try:

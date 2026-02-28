@@ -9,15 +9,16 @@
 1. [System Overview](#system-overview)
 2. [Participant Roles](#participant-roles)
 3. [Network Architecture](#network-architecture)
-4. [SOL Transfer Filtering](#sol-transfer-filtering)
-5. [Findings Tags](#findings-tags)
-6. [Risk Calculation](#risk-calculation)
-7. [CEX Account Mapping](#cex-account-mapping)
-8. [INFRA Account Mapping](#infra-account-mapping)
-9. [Network Data](#network-data)
-10. [Database Schema](#database-schema)
-11. [Implementation Details](#implementation-details)
-12. [Integration Guide](#integration-guide)
+4. [Execution Flow & Components](#execution-flow--components)
+5. [SOL Transfer Filtering](#sol-transfer-filtering)
+6. [Findings Tags](#findings-tags)
+7. [Risk Calculation](#risk-calculation)
+8. [CEX Account Mapping](#cex-account-mapping)
+9. [INFRA Account Mapping](#infra-account-mapping)
+10. [Network Data](#network-data)
+11. [Database Schema](#database-schema)
+12. [Implementation Details](#implementation-details)
+13. [Integration Guide](#integration-guide)
 
 ---
 
@@ -164,6 +165,315 @@ TOKENS
 - File: `main.py` (lines 16502-16649)
 - Generates: Findings tags and risk scores
 - Frequency: Real-time on demand
+
+---
+
+## Execution Flow & Components
+
+### Main Entry Point: Listener Startup
+
+**File**: `pumpfun_curve_listener.py:1966-1986`
+
+When the listener starts with `python pumpfun_curve_listener.py`, it initializes and spawns **4 background async tasks**:
+
+```python
+# In PumpFunCurveListener.listen() method:
+
+# Task 1: Creator Watch Manager (polls every 30 seconds)
+asyncio.create_task(self.creator_watch_manager.run_polling_loop(poll_interval=30))
+
+# Task 2: Live Price Updater (continuous background updates)
+asyncio.create_task(self.update_live_prices_background())
+
+# Task 3: Creator Outgoing Transfer Extractor (scans all creators every 12 hours)
+asyncio.create_task(run_outgoing_extractor(interval_seconds=43200))
+
+# Task 4: WebSocket Listener (real-time token detection)
+await self.listen_websocket()
+```
+
+---
+
+### Real-Time Token Detection Flow
+
+**Trigger**: New Pump.Fun migration transaction detected via WebSocket
+
+**File**: `pumpfun_curve_listener.py:1724-1839`
+
+```
+1. WebSocket receives transaction
+   ↓
+2. Parse migration data (line ~1745)
+   - Extract mint address
+   - Extract creator address
+   - Extract creation timestamp
+   - Extract transaction signature
+   ↓
+3. Store token in database (line ~1765)
+   - Add to `tokens` table
+   - Mark as new discovery
+   ↓
+4. Spawn background tasks (line 1830)
+   - Fire-and-forget, don't wait for completion
+   ↓
+   └─→ Background Task Chain (executed concurrently):
+
+       ┌─ STEP 1: Extract Creator Funding (line 1808)
+       │  File: realtime_creator_funding_extractor.py
+       │  Function: extract_funding_for_new_token()
+       │  Purpose: Find all wallets that funded this creator
+       │  Output: Populates creator_funders table
+       │  Time: ~5-30 seconds per creator
+       │
+       ├─ STEP 2: Extract Funder Transfers (line 1816)
+       │  File: funder_incoming_extractor.py
+       │  Function: extract_for_creator()
+       │  Purpose: For EACH funder, find who funded them
+       │  Output: Populates funder_incoming_transfers table
+       │  Time: ~30-120 seconds (scales with funder count)
+       │
+       └─ STEP 3: Rebuild Network Clustering (line 1824)
+          File: cross_funding_network_analyzer.py
+          Function: rebuild_super_clusters_from_funding()
+          Purpose: Analyze relationships, find coordinated funders
+          Output: Updates super_clusters, coordinated_edges tables
+          Time: ~10-60 seconds
+```
+
+---
+
+### Key Components & Their Responsibilities
+
+#### 1. **PumpFunCurveListener** (Main Controller)
+**File**: `pumpfun_curve_listener.py`
+
+**Primary Responsibilities**:
+- WebSocket connection to Solana RPC
+- Parse migration transactions
+- Detect new token creation events
+- Spawn background extraction tasks
+- Update live token prices
+- Store tokens in database
+
+**Key Methods**:
+- `listen()` - Entry point, spawns all background tasks
+- `listen_websocket()` - Real-time WebSocket listener
+- `handle_migration()` - Process new token events
+- `update_live_prices_background()` - Price polling (async)
+
+---
+
+#### 2. **Creator Funding Extractor**
+**File**: `realtime_creator_funding_extractor.py`
+
+**Function**: `extract_funding_for_new_token(creator_address, created_at, create_tx_sig, mint)`
+
+**What it does**:
+- Queries blockchain: "Who funded this creator?"
+- Uses Helius API or RPC to get all SOL transfers to creator address
+- Filters transfers by timestamp (must be before token creation)
+- Saves funder wallet addresses to database
+
+**Database Output**:
+```
+creator_funders table:
+├─ creator_address: "bwamJzzt..."
+├─ funder_address: "wallet_123..."
+├─ amount_sol: 0.5
+├─ transaction_signature: "tx_hash"
+└─ first_detected_at: timestamp
+```
+
+**Duration**: 5-30 seconds depending on funding complexity
+
+---
+
+#### 3. **Funder Incoming Extractor**
+**File**: `funder_incoming_extractor.py`
+
+**Wrapper Function**: `extract_funder_transfers_async(creator_address)` (line 67)
+
+**Internal Function**: `extract_for_creator()` (called for EACH funder)
+
+**What it does**:
+- Takes list of funders from Step 1
+- For EACH funder, queries blockchain: "Who funded this funder?"
+- Finds the SOURCE of the funder's money
+- Applies MINIMUM_SOL = 0.001 threshold (filters dust transfers)
+- Builds incoming transfer chain
+
+**Database Output**:
+```
+funder_incoming_transfers table:
+├─ funder_address: "wallet_123..."
+├─ sender_address: "wallet_456..." (who funded the funder)
+├─ amount_sol: 0.1
+├─ transaction_signature: "tx_hash"
+└─ block_time: timestamp
+```
+
+**Duration**: 30-120 seconds (proportional to funder count)
+
+**Algorithm**:
+```python
+# From funder_incoming_extractor.py:51
+MIN_SOL = 0.001  # Filter transfers below 0.001 SOL
+
+For each funder in creator_funders:
+  - Get all incoming transfers to this funder address
+  - Filter: amount_sol >= MIN_SOL
+  - Store sender_address + amount in database
+  - This maps SOURCE → FUNDER relationship
+```
+
+---
+
+#### 4. **Creator Outgoing Extractor** (Background - Every 12 Hours)
+**File**: `creator_outgoing_extractor.py`
+
+**Spawned at**: Listener startup (line 1983)
+
+**What it does**:
+- Continuous background scanning of all creators
+- Extracts outgoing transfers from creators (where they send SOL after token launch)
+- Scans approximately 1,000 creators per 12-hour cycle
+- Updates "last_scanned" timestamps
+
+**Database Output**:
+```
+creator_outgoing_transfers table:
+├─ creator_address: "creator_123..."
+├─ recipient_address: "wallet_456..."
+├─ amount_sol: 0.05
+└─ transaction_signature: "tx_hash"
+```
+
+**Duration**: Runs continuously in background, never blocks main listener
+
+---
+
+#### 5. **Creator Watch Manager** (Polling - Every 30 Seconds)
+**File**: `creator_watch_manager.py`
+
+**Spawned at**: Listener startup (line 1977)
+
+**What it does**:
+- Polls watched creators at regular intervals
+- Checks for token launches from tracked addresses
+- Notifies listeners of creator activity
+- Runs async loop without blocking
+
+**Duration**: 30-second intervals
+
+---
+
+#### 6. **Network Analyzer**
+**File**: `cross_funding_network_analyzer.py`
+
+**Function**: `rebuild_super_clusters_from_funding()`
+
+**What it does**:
+- Analyzes creator_funders + funder_incoming_transfers data
+- Identifies coordinated funders (shared across multiple creators)
+- Builds network clusters and super-clusters
+- Detects relationships between creators
+
+**Database Output**:
+```
+super_clusters table:
+├─ cluster_id: unique identifier
+├─ member_count: number of creators
+└─ relationship_strength: coordination score
+
+coordinated_edges table:
+├─ funder_address: shared across creators
+├─ creator_1_address
+├─ creator_2_address
+└─ funding_strength: amount coordination
+```
+
+**Duration**: 10-60 seconds
+
+---
+
+### Complete Execution Timeline
+
+```
+T=0s      Listener starts
+          ↓
+T=0s      Spawn 4 background tasks (async, non-blocking)
+          │
+          ├─ Task 1: Creator Watch Manager (polls every 30s)
+          ├─ Task 2: Price Updater (continuous background)
+          ├─ Task 3: Outgoing Extractor (runs every 12h)
+          └─ Task 4: WebSocket Listener (real-time, BLOCKING)
+                    ↓ waits for transaction
+
+T=X       Transaction detected via WebSocket
+          ↓
+T=X+0.1s  Parse migration data
+          ↓
+T=X+0.5s  Store token in database
+          ↓
+T=X+0.6s  Spawn background funding tasks (fire-and-forget)
+          │
+          ├─ PARALLEL STEP 1: Creator Funding Extraction
+          │  Duration: 5-30s
+          │  Output: creator_funders table populated
+          │
+          ├─ PARALLEL STEP 2: Funder Transfer Extraction
+          │  Duration: 30-120s (depends on funder count)
+          │  Output: funder_incoming_transfers table populated
+          │
+          └─ PARALLEL STEP 3: Network Clustering
+             Duration: 10-60s
+             Output: super_clusters, coordinated_edges updated
+
+T=X+180s  All background tasks complete
+          Data available for querying via API
+
+T=X+200s+ Tasks complete, listener continues waiting
+          for next WebSocket transaction
+```
+
+---
+
+### Component Dependency Graph
+
+```
+PumpFunCurveListener (main entry point)
+    ├─ imports CreatorWatchManager
+    │   └─ polls creator activity every 30s
+    ├─ imports run_outgoing_extractor (async task)
+    │   └─ background scans all creators every 12h
+    ├─ calls extract_funding_for_new_token()
+    │   ├─ File: realtime_creator_funding_extractor.py
+    │   ├─ uses: Helius API / RPC
+    │   └─ outputs: creator_funders table
+    ├─ calls extract_funder_transfers_async()
+    │   ├─ File: funder_incoming_extractor.py
+    │   ├─ uses: RPC for transfer history
+    │   ├─ applies: MIN_SOL = 0.001 threshold
+    │   └─ outputs: funder_incoming_transfers table
+    └─ calls rebuild_super_clusters_from_funding()
+        ├─ File: cross_funding_network_analyzer.py
+        ├─ inputs: creator_funders + funder_incoming_transfers
+        └─ outputs: super_clusters, coordinated_edges tables
+```
+
+---
+
+### Task Scheduling Summary
+
+| Task | File | Trigger | Frequency | Duration | Type |
+|------|------|---------|-----------|----------|------|
+| **WebSocket Listener** | `pumpfun_curve_listener.py` | Start | Continuous | Blocking | Real-time |
+| **Creator Funding Extract** | `realtime_creator_funding_extractor.py` | New token | On-demand | 5-30s | Background |
+| **Funder Transfer Extract** | `funder_incoming_extractor.py` | New token | On-demand | 30-120s | Background |
+| **Network Clustering** | `cross_funding_network_analyzer.py` | New token | On-demand | 10-60s | Background |
+| **Creator Watch Polling** | `creator_watch_manager.py` | Start | Every 30s | <5s | Background |
+| **Live Price Updates** | `pumpfun_curve_listener.py` | Start | Continuous | <1s per token | Background |
+| **Creator Outgoing Scans** | `creator_outgoing_extractor.py` | Start | Every 12h | ~1000 creators | Background |
 
 ---
 

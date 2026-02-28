@@ -431,18 +431,38 @@ def extract_outgoing_sol(transactions: List[dict], creator_set: set) -> List[Tup
 
 
 def insert_outgoing_rows(rows: List[Tuple]):
-    """Insert outgoing transfer rows (fast batch write)"""
+    """Insert outgoing transfer rows (fast batch write)
+    Handles both old schema (with slot) and new schema (without slot).
+    """
     if not rows:
         return
 
     with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
-        cur.executemany("""
-          INSERT OR IGNORE INTO creator_outgoing_transfers
-            (creator_address, recipient_address, amount_sol, transaction_signature, slot, block_time)
-          VALUES (?, ?, ?, ?, ?, ?)
-        """, rows)
+
+        # Check which columns exist in the table
+        cur.execute("PRAGMA table_info(creator_outgoing_transfers)")
+        existing_cols = {col[1] for col in cur.fetchall()}
+
+        if 'slot' in existing_cols:
+            # Old schema with slot column
+            cur.executemany("""
+              INSERT OR IGNORE INTO creator_outgoing_transfers
+                (creator_address, recipient_address, amount_sol, transaction_signature, slot, block_time)
+              VALUES (?, ?, ?, ?, ?, ?)
+            """, rows)
+        else:
+            # New schema without slot column - skip slot parameter
+            # Assuming rows are (creator, recipient, amount, sig, slot, block_time)
+            # We'll use (creator, recipient, amount, sig, block_time) and ignore slot
+            rows_without_slot = [(r[0], r[1], r[2], r[3], r[5] if len(r) > 5 else None) for r in rows]
+            cur.executemany("""
+              INSERT OR IGNORE INTO creator_outgoing_transfers
+                (creator_address, recipient_address, amount_sol, transaction_signature, block_time)
+              VALUES (?, ?, ?, ?, ?)
+            """, rows_without_slot)
+
         conn.commit()
         conn.close()
 

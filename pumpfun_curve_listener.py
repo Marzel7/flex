@@ -24,6 +24,7 @@ from realtime_creator_funding_extractor import extract_funding_for_new_token
 from creator_watch_manager import CreatorWatchManager
 from funder_incoming_extractor import extract_for_creator as extract_funder_transfers
 from clustering_task_queue import enqueue_clustering
+from creator_outgoing_extractor import run_forever as run_outgoing_extractor
 from dotenv import load_dotenv
 
 # === Global Database Write Lock ===
@@ -1977,6 +1978,10 @@ class PumpFunCurveListener:
 
         # Start live price updater in background
         asyncio.create_task(self.update_live_prices_background())
+
+        # Start creator outgoing transfer extractor in background (scans all creators every 12 hours)
+        print("[LISTENER] 🔄 Starting creator outgoing transfer extractor (background scan every 12 hours)...", flush=True)
+        asyncio.create_task(run_outgoing_extractor(interval_seconds=43200))  # 12 hours
 
         # Start WebSocket listener
         await self.listen_websocket()

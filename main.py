@@ -16507,10 +16507,13 @@ def api_creator_recent_checks():
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
-        # Get creators from creator_funders table (simplified version)
+        # Get creators from creator_outgoing_transfers (most recently extracted by the scanner)
+        # Order by MAX(block_time) to get most recently scanned creators
         cursor.execute("""
-            SELECT DISTINCT creator_address
-            FROM creator_funders
+            SELECT creator_address, MAX(block_time) as latest_block_time
+            FROM creator_outgoing_transfers
+            GROUP BY creator_address
+            ORDER BY MAX(block_time) DESC
             LIMIT 15
         """)
         recent_creators = [row['creator_address'] for row in cursor.fetchall()]
@@ -16539,22 +16542,67 @@ def api_creator_recent_checks():
             """, (creator,))
             chain_count = cursor.fetchone()['chain_count'] or 0
 
-            # Get last scanned time from creator_sig_cursors
+            # Get outgoing transfer count and latest scan time
             cursor.execute("""
-                SELECT updated_at FROM creator_sig_cursors
+                SELECT COUNT(*) as outgoing_count, MAX(block_time) as latest_scan
+                FROM creator_outgoing_transfers
                 WHERE creator_address = ?
             """, (creator,))
-            scan_row = cursor.fetchone()
-            last_scanned = scan_row['updated_at'] if scan_row else None
+            result = cursor.fetchone()
+            outgoing_count = result['outgoing_count'] or 0
+            latest_scan = result['latest_scan']
+
+            # Convert Unix timestamp to datetime string
+            last_scanned = None
+            if latest_scan is not None:
+                try:
+                    last_scanned = datetime.utcfromtimestamp(latest_scan).strftime('%Y-%m-%d %H:%M:%S')
+                except Exception as e:
+                    last_scanned = f"Error: {str(e)}"
+
+            # Determine findings based on creator behavior
+            findings = []
+
+            # Check for self-funding pattern
+            cursor.execute("""
+                SELECT is_self_funding FROM creator_self_funding
+                WHERE creator_address = ?
+            """, (creator,))
+            self_fund_row = cursor.fetchone()
+            if self_fund_row and self_fund_row['is_self_funding']:
+                findings.append('SELF FUNDING')
+
+            # Check for coordinated edges
+            cursor.execute("""
+                SELECT COUNT(*) as coordinated_count FROM coordinated_creator_edges
+                WHERE creator_a = ? OR creator_b = ?
+            """, (creator, creator))
+            coordinated_count = cursor.fetchone()['coordinated_count'] or 0
+            if coordinated_count > 0:
+                findings.append('COORDINATED')
+
+            # Check if creator is in a network
+            cursor.execute("""
+                SELECT COUNT(*) as network_count FROM funding_network_members
+                WHERE funder_address = ?
+            """, (creator,))
+            network_count = cursor.fetchone()['network_count'] or 0
+            if network_count > 0:
+                findings.append('NETWORK')
+
+            # Default to CLEAN if no red flags
+            if not findings:
+                findings.append('CLEAN')
 
             recent_checks.append({
                 'creator_address': creator,
                 'token_count': token_count,
                 'funder_count': funder_count,
                 'chain_count': chain_count,
+                'outgoing_count': outgoing_count,
                 'last_scanned': last_scanned,
                 'networks': [],
-                'findings': ['FUNDED'] if funder_count > 0 else []
+                'findings': findings
             })
 
         conn.close()
@@ -16576,8 +16624,8 @@ def api_creator_scan_stats():
         cursor.execute("SELECT COUNT(DISTINCT earliest_tx_creator) as total FROM token_analysis")
         total_creators = cursor.fetchone()['total'] or 0
 
-        # Get creators with funders (scanned)
-        cursor.execute("SELECT COUNT(DISTINCT creator_address) as total FROM creator_funders")
+        # Get creators with outgoing transfers (scanned by extractor)
+        cursor.execute("SELECT COUNT(DISTINCT creator_address) as total FROM creator_outgoing_transfers")
         scanned_creators = cursor.fetchone()['total'] or 0
         scanned_percentage = (scanned_creators / total_creators * 100) if total_creators > 0 else 0
 
@@ -16592,8 +16640,8 @@ def api_creator_scan_stats():
                 1: {'count': total_creators - scanned_creators, 'percentage': 100 - scanned_percentage}
             },
             'tier_labels': {
-                0: 'Creators with funding analysis',
-                1: 'Creators pending analysis'
+                0: 'Creators with outgoing transfers scanned',
+                1: 'Creators pending outgoing transfer scan'
             }
         })
     except Exception as e:

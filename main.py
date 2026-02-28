@@ -16597,6 +16597,10 @@ def api_creator_recent_checks():
                 if recipient_count > funder_count * 5 and funder_count < 20:
                     findings.append(f'⚠️ DISTRIBUTION_PATTERN')
 
+            # Check for funding chains (creator-to-funder-to-creator)
+            if int(chain_count) > 0:
+                findings.append('⚠️ CREATOR_FUNDING_CHAIN')
+
             # Check for coordinated edges with network info
             cursor.execute("""
                 SELECT COUNT(*) as coordinated_count FROM coordinated_creator_edges
@@ -16604,20 +16608,17 @@ def api_creator_recent_checks():
             """, (creator, creator))
             coordinated_count = cursor.fetchone()['coordinated_count'] or 0
             if coordinated_count > 0:
-                findings.append('COORDINATED')
+                findings.append('⚠️ COORDINATED')
 
-            # Check if creator is in a network and get network name
+            # Check if creator is in a network
             cursor.execute("""
-                SELECT DISTINCT fn.network_name FROM funding_network_members fnm
-                JOIN funding_networks fn ON fnm.network_id = fn.network_id
+                SELECT DISTINCT fnm.network_id FROM funding_network_members fnm
                 WHERE fnm.funder_address = ?
                 LIMIT 1
             """, (creator,))
             network_row = cursor.fetchone()
             if network_row:
-                net_name = network_row['network_name'] if hasattr(network_row, 'network_name') else (network_row[0] if len(network_row) > 0 else None)
-                if net_name:
-                    findings.append(f"⚠️ NETWORK_MEMBER")
+                findings.append(f"⚠️ NETWORK_MEMBER")
 
             # Check creator-to-creator networks
             cursor.execute("""
@@ -16627,7 +16628,7 @@ def api_creator_recent_checks():
             """, (creator,))
             c2c_network = cursor.fetchone()
             if c2c_network and c2c_network['network_name']:
-                findings.append(f"⚠️ C2C_NETWORK ({c2c_network['network_name']})")
+                findings.append(f"⚠️ C2C_NETWORK")
 
             # Default to CLEAN if no red flags
             if not findings:

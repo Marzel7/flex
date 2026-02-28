@@ -14925,10 +14925,16 @@ def creator_analysis_page():
                     font-size: 10px;
                     margin-right: 6px;
                     font-weight: 600;
+                    white-space: nowrap;
                 }
                 .check-finding-badge.clean {
                     background: rgba(34, 197, 94, 0.15);
                     color: var(--color-low);
+                }
+                .check-findings {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 6px;
                 }
                 .check-chains {
                     font-size: 13px;
@@ -15010,10 +15016,12 @@ def creator_analysis_page():
 
                         data.recent_checks.forEach(check => {
                             const findings = check.findings || [];
-                            let findingsBadges = findings.map(f =>
-                                `<span class="check-finding-badge ${f === 'CLEAN' ? 'clean' : ''}">${f}</span>`
-                            ).join('');
-                            if (!findingsBadges) findingsBadges = '<span class="check-finding-badge clean">CLEAN</span>';
+                            let findingsBadges = findings.map(f => {
+                                const isClean = f.includes('CLEAN');
+                                const classes = isClean ? 'check-finding-badge clean' : 'check-finding-badge';
+                                return `<span class="${classes}">${f}</span>`;
+                            }).join('');
+                            if (!findingsBadges) findingsBadges = '<span class="check-finding-badge clean">✅ CLEAN</span>';
 
                             html += `
                                 <div class="recent-check-row" onclick="loadCreatorAnalysisFrom('${check.creator_address}')">
@@ -16565,14 +16573,31 @@ def api_creator_recent_checks():
 
             # Check for self-funding pattern
             cursor.execute("""
-                SELECT is_self_funding FROM creator_self_funding
+                SELECT is_self_funding, self_funding_intermediates, total_funders
+                FROM creator_self_funding
                 WHERE creator_address = ?
             """, (creator,))
             self_fund_row = cursor.fetchone()
             if self_fund_row and self_fund_row['is_self_funding']:
-                findings.append('SELF FUNDING')
+                self_fund_count = self_fund_row['self_funding_intermediates'] or 0
+                total_funders = self_fund_row['total_funders'] or 1  # Avoid division by zero
+                pct = (self_fund_count / total_funders * 100) if total_funders > 0 else 0
+                findings.append(f'🚩 SELF-FUNDING ({pct:.0f}%)')
 
-            # Check for coordinated edges
+            # Check for distribution pattern (many recipients, few funders)
+            if outgoing_count > 0:
+                cursor.execute("""
+                    SELECT COUNT(DISTINCT recipient_address) as recipient_count
+                    FROM creator_outgoing_transfers
+                    WHERE creator_address = ?
+                """, (creator,))
+                recipient_row = cursor.fetchone()
+                recipient_count = recipient_row['recipient_count'] if recipient_row else 0
+
+                if recipient_count > funder_count * 5 and funder_count < 20:
+                    findings.append(f'⚠️ DISTRIBUTION_PATTERN')
+
+            # Check for coordinated edges with network info
             cursor.execute("""
                 SELECT COUNT(*) as coordinated_count FROM coordinated_creator_edges
                 WHERE creator_a = ? OR creator_b = ?
@@ -16581,18 +16606,32 @@ def api_creator_recent_checks():
             if coordinated_count > 0:
                 findings.append('COORDINATED')
 
-            # Check if creator is in a network
+            # Check if creator is in a network and get network name
             cursor.execute("""
-                SELECT COUNT(*) as network_count FROM funding_network_members
-                WHERE funder_address = ?
+                SELECT DISTINCT fn.network_name FROM funding_network_members fnm
+                JOIN funding_networks fn ON fnm.network_id = fn.network_id
+                WHERE fnm.funder_address = ?
+                LIMIT 1
             """, (creator,))
-            network_count = cursor.fetchone()['network_count'] or 0
-            if network_count > 0:
-                findings.append('NETWORK')
+            network_row = cursor.fetchone()
+            if network_row:
+                net_name = network_row['network_name'] if hasattr(network_row, 'network_name') else (network_row[0] if len(network_row) > 0 else None)
+                if net_name:
+                    findings.append(f"⚠️ NETWORK_MEMBER")
+
+            # Check creator-to-creator networks
+            cursor.execute("""
+                SELECT DISTINCT network_name FROM creator_to_creator_networks
+                WHERE creator_address = ?
+                LIMIT 1
+            """, (creator,))
+            c2c_network = cursor.fetchone()
+            if c2c_network and c2c_network['network_name']:
+                findings.append(f"⚠️ C2C_NETWORK ({c2c_network['network_name']})")
 
             # Default to CLEAN if no red flags
             if not findings:
-                findings.append('CLEAN')
+                findings.append('✅ CLEAN')
 
             recent_checks.append({
                 'creator_address': creator,

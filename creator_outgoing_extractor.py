@@ -247,6 +247,7 @@ def load_all_cursors(creators: List[str]) -> Dict[str, Tuple[Optional[str], Opti
     """
     Load all cursors in one DB read (reduces lock pressure).
     Chunks by 800 to avoid SQLite parameter limit issues.
+    Uses cursor_position if available (new schema), falls back to dummy values.
     """
     if not creators:
         return {}
@@ -259,13 +260,25 @@ def load_all_cursors(creators: List[str]) -> Dict[str, Tuple[Optional[str], Opti
     for i in range(0, len(creators), chunk_size):
         chunk = creators[i:i+chunk_size]
         qmarks = ",".join(["?"] * len(chunk))
-        cur.execute(f"""
-            SELECT creator_address, last_signature, last_slot
-            FROM creator_sig_cursors
-            WHERE creator_address IN ({qmarks})
-        """, chunk)
-        for addr, sig, slot in cur.fetchall():
-            cursors[addr] = (sig, slot)
+        try:
+            # Try to get last_signature and last_slot (old schema)
+            cur.execute(f"""
+                SELECT creator_address, last_signature, last_slot
+                FROM creator_sig_cursors
+                WHERE creator_address IN ({qmarks})
+            """, chunk)
+            for addr, sig, slot in cur.fetchall():
+                cursors[addr] = (sig, slot)
+        except sqlite3.OperationalError:
+            # Fall back to cursor_position only (new schema)
+            cur.execute(f"""
+                SELECT creator_address, cursor_position
+                FROM creator_sig_cursors
+                WHERE creator_address IN ({qmarks})
+            """, chunk)
+            for addr, pos in cur.fetchall():
+                # Return cursor_position as both signature and slot for compatibility
+                cursors[addr] = (None, pos if pos else None)
 
     conn.close()
     return cursors
@@ -276,6 +289,7 @@ def batch_update_cursors(rows: List[Tuple[str, str, int]]):
     One transaction upsert for all creators (major lock reduction).
     This replaces 1000 individual update_cursor() calls.
     Uses cross-process lock to serialize with listener.
+    Handles both old schema (last_signature, last_slot) and new schema (cursor_position).
     """
     if not rows:
         return
@@ -283,14 +297,32 @@ def batch_update_cursors(rows: List[Tuple[str, str, int]]):
     with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
-        cur.executemany("""
-          INSERT INTO creator_sig_cursors(creator_address, last_signature, last_slot, updated_at)
-          VALUES(?, ?, ?, datetime('now'))
-          ON CONFLICT(creator_address) DO UPDATE SET
-            last_signature=excluded.last_signature,
-            last_slot=excluded.last_slot,
-            updated_at=datetime('now')
-        """, rows)
+
+        # Try to detect which schema we have by checking a PRAGMA
+        try:
+            cur.execute("PRAGMA table_info(creator_sig_cursors)")
+            cols = [col[1] for col in cur.fetchall()]
+
+            if 'cursor_position' in cols:
+                # New schema: just update updated_at and cursor_position
+                for creator_addr, sig, slot in rows:
+                    cur.execute("""
+                      INSERT OR REPLACE INTO creator_sig_cursors(creator_address, cursor_position, updated_at)
+                      VALUES(?, ?, datetime('now'))
+                    """, (creator_addr, slot))
+            else:
+                # Old schema: update last_signature and last_slot
+                cur.executemany("""
+                  INSERT INTO creator_sig_cursors(creator_address, last_signature, last_slot, updated_at)
+                  VALUES(?, ?, ?, datetime('now'))
+                  ON CONFLICT(creator_address) DO UPDATE SET
+                    last_signature=excluded.last_signature,
+                    last_slot=excluded.last_slot,
+                    updated_at=datetime('now')
+                """, rows)
+        except Exception as e:
+            print(f"[OUTGOING] Warning: Could not update cursors: {e}", flush=True)
+
         conn.commit()
         conn.close()
 

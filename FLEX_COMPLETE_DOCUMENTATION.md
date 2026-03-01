@@ -1329,6 +1329,41 @@ The Flex system makes RPC calls to the Solana blockchain at multiple points to e
 - Inner instructions
 - Account interactions
 
+**Code Example 1** - `pumpfun_curve_listener.py:619-626`
+```python
+payload = {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTransaction",
+    "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
+}
+
+data = await self._post_rpc_with_fallback(payload)
+if not data or "result" not in data or not data["result"]:
+    print(f"[MINT] Transaction not found after retries: {signature}")
+```
+
+**Code Example 2** - `realtime_creator_funding_extractor.py:418-427`
+```python
+async def get_transaction(self, signature: str) -> Optional[Dict]:
+    """Get transaction with RPC failover"""
+    payload = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getTransaction",
+        "params": [
+            signature,
+            {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}
+        ]
+    }
+    result = await self._post_rpc(payload)
+    if result and "result" in result:
+        tx = result.get("result")
+        if tx is not None:
+            return tx
+    return None
+```
+
 ---
 
 #### 2. **getSignaturesForAddress**
@@ -1348,6 +1383,76 @@ The Flex system makes RPC calls to the Solana blockchain at multiple points to e
 
 **Data extracted**: Transaction signatures and block time
 
+**Code Example 1** - `realtime_creator_funding_extractor.py:371-395`
+```python
+# Paginated loop to get all signatures
+signatures = []
+before = None
+
+while True:
+    payload = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getSignaturesForAddress",
+        "params": [
+            creator,
+            {
+                "limit": limit,
+                **({"before": before} if before else {})
+            }
+        ]
+    }
+
+    result = await self._post_rpc(payload)
+    if not result or "result" not in result:
+        break
+
+    sigs = result.get("result", [])
+    if not sigs:
+        break
+
+    signatures.extend([sig["signature"] for sig in sigs])
+    before = sigs[-1]["signature"]  # Continue pagination
+```
+
+**Code Example 2** - `funder_incoming_extractor.py:404-414`
+```python
+def get_signatures_for_address_rpc(address: str, limit: int = 1000) -> List[str]:
+    payload = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getSignaturesForAddress",
+        "params": [address, {"limit": int(limit)}],
+    }
+    data = _rpc_call(payload, timeout=20.0)
+    if not data or "result" not in data or not isinstance(data["result"], list):
+        return []
+    return [r.get("signature") for r in data["result"]
+            if isinstance(r, dict) and r.get("signature")]
+```
+
+**Code Example 3** - `creator_outgoing_extractor.py:330-346`
+```python
+async def rpc_get_signatures(session: aiohttp.ClientSession, address: str, limit: int = 25) -> List[dict]:
+    """Fetch recent signatures for a creator address"""
+    payload = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getSignaturesForAddress",
+        "params": [address, {"limit": limit}]
+    }
+    try:
+        async with session.post(RPC_HTTP, json=payload,
+                               timeout=aiohttp.ClientTimeout(total=10)) as resp:
+            if resp.status != 200:
+                return []
+            data = await resp.json()
+            return data.get("result") or []
+    except Exception as e:
+        print(f"[OUTGOING] ⚠️ rpc_get_signatures error: {e}")
+        return []
+```
+
 ---
 
 #### 3. **getAccountInfo**
@@ -1359,6 +1464,25 @@ The Flex system makes RPC calls to the Solana blockchain at multiple points to e
 
 **Cost**: 1 RPC call per account
 **Data extracted**: Account balance, owner, data
+
+**Code Example** - `pumpfun_curve_listener.py:890-902`
+```python
+# Get account info with jsonParsed to extract the owner
+acct_payload = {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getAccountInfo",
+    "params": [token_account_addr, {"encoding": "jsonParsed"}]
+}
+
+try:
+    acct_data = await self._post_rpc_with_fallback(acct_payload, timeout=5)
+    if acct_data and "result" in acct_data and acct_data["result"]:
+        account = acct_data["result"]
+        value = account.get("value", {})
+        # Extract balance and owner from account data
+        balance = value.get("lamports", 0) / 1e9  # Convert to SOL
+```
 
 ---
 
@@ -1384,6 +1508,33 @@ The Flex system makes RPC calls to the Solana blockchain at multiple points to e
 - Domain/NFT information
 - Account interactions
 
+**Code Example** - `realtime_creator_funding_extractor.py:1014-1039`
+```python
+# Helius Enhanced API for faster transaction enrichment
+url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{creator}/transactions"
+
+page_num = 0
+before_signature = None
+
+while True:
+    page_num += 1
+
+    # Build URL with query parameters
+    query_url = f"{url}?api-key={HELIUS_API_KEY}&limit=100&sort-order=desc&commitment=finalized"
+    if before_signature:
+        query_url += f"&before={before_signature}"
+
+    try:
+        print(f"[REALTIME_FUNDING] [PAGE {page_num}] RPC CALL #{page_num}...", flush=True)
+
+        async with self.session.get(
+                query_url,
+                timeout=aiohttp.ClientTimeout(total=30)
+            ) as resp:
+            # Process response and continue pagination
+            ...
+```
+
 ---
 
 #### Helius `/v0/transactions` Endpoint
@@ -1394,6 +1545,29 @@ The Flex system makes RPC calls to the Solana blockchain at multiple points to e
 
 **Cost**: Per API plan
 **Data extracted**: Full parsed transaction details
+
+**Code Example** - `creator_outgoing_extractor.py:357-375`
+```python
+# Helius batch endpoint for parsing multiple transactions
+body = {"transactions": sigs}
+max_retries = 3
+backoff_times = [0.5, 1.0, 2.0]
+
+for attempt in range(max_retries):
+    try:
+        async with session.post(HELIUS_ENHANCED, json=body,
+                               timeout=aiohttp.ClientTimeout(total=20)) as resp:
+            if resp.status == 429:
+                if attempt < max_retries - 1:
+                    sleep_time = backoff_times[attempt]
+                    print(f"[OUTGOING] Rate limited (429), retry in {sleep_time}s", flush=True)
+                    await asyncio.sleep(sleep_time)
+                    continue
+            elif resp.status == 200:
+                return await resp.json()
+    except Exception as e:
+        print(f"[OUTGOING] Error: {e}")
+```
 
 ---
 

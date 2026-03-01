@@ -27,6 +27,13 @@ from clustering_task_queue import enqueue_clustering
 from creator_outgoing_extractor import run_forever as run_outgoing_extractor
 from dotenv import load_dotenv
 
+# Import RPC metrics recorder for monitoring
+try:
+    from rpc_metrics_recorder import initialize_recorder
+    initialize_recorder(plan_monthly_credits=50_000_000)
+except Exception as e:
+    print(f"[WARNING] Could not initialize RPC metrics: {e}", flush=True)
+
 # === Global Database Write Lock ===
 # Serializes ALL database writes across threads/processes to prevent lock contention
 # Used by asyncio tasks (wrapped with self.db_lock THEN this), executor threads, and workers

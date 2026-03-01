@@ -35,8 +35,9 @@ CREDIT_SCHEDULE = {
     "getTransactionsForAddress": 100,
 
     # Helius Enhanced Transactions API (REST pseudo-methods)
-    "helius_enhanced_addresses_transactions": 1,  # Per request (configurable per plan)
-    "helius_enhanced_transactions_batch": 5,       # Batch endpoint
+    # Source: https://www.helius.dev/docs/billing/credits
+    "helius_enhanced_addresses_transactions": 100,  # Per request (official Helius rate)
+    "helius_enhanced_transactions_batch": 100,      # Per request (official Helius rate)
 
     # Streaming (handled separately via bytes)
     # "laserstream_bytes": 3 per 0.1MB

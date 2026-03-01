@@ -33,6 +33,13 @@ sys.path.insert(0, "/Users/kevinkeaveney/Dev/claude/flex")
 from db_locking import DB_WRITE_LOCK
 from infra_mapping import get_account_info, get_cex_info  # type: ignore
 
+# Import RPC metrics recorder for monitoring
+try:
+    from rpc_metrics_recorder import record_request
+except ImportError:
+    def record_request(*args, **kwargs):
+        pass  # No-op if metrics recorder not available
+
 # Env
 try:
     from dotenv import load_dotenv  # type: ignore
@@ -271,10 +278,32 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
     """
     for attempt in range(MAX_HTTP_RETRIES):
         try:
+            # Determine RPC method from URL or payload
+            rpc_method = "unknown"
+            if "helius" in url:
+                rpc_method = "helius_addresses_transactions"
+            elif method.upper() == "POST" and json_body:
+                rpc_method = json_body.get("method", "unknown")
+
+            start_time = time.time()
             if method.upper() == "GET":
                 resp = SESSION.get(url, timeout=timeout)
             else:
                 resp = SESSION.post(url, json=json_body, timeout=timeout)
+
+            latency_ms = (time.time() - start_time) * 1000
+
+            # Record metrics for all responses
+            provider = "helius_rpc" if "helius" in url else "solana_rpc"
+            record_request(
+                section="funder_incoming",
+                provider=provider,
+                method=rpc_method,
+                status_code=resp.status_code,
+                latency_ms=latency_ms,
+                mode="realtime",
+                retries=attempt,
+            )
 
             if resp.status_code == 429:
                 ra = resp.headers.get("Retry-After")
@@ -311,6 +340,22 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
             return resp.json()
 
         except (requests.Timeout, requests.ConnectionError) as e:
+            rpc_method = "unknown"
+            if "helius" in url:
+                rpc_method = "helius_addresses_transactions"
+            elif method.upper() == "POST" and json_body:
+                rpc_method = json_body.get("method", "unknown")
+            provider = "helius_rpc" if "helius" in url else "solana_rpc"
+            record_request(
+                section="funder_incoming",
+                provider=provider,
+                method=rpc_method,
+                status_code=0,
+                latency_ms=(time.time() - start_time) * 1000,
+                mode="realtime",
+                retries=attempt,
+                error=str(e),
+            )
             print(f"[HTTP] Network error: {e}. Backing off (attempt {attempt+1}/{MAX_HTTP_RETRIES})")
             _sleep_backoff(attempt)
             continue
@@ -361,14 +406,28 @@ def get_transactions_helius(address: str, limit: int = DEFAULT_HELIUS_LIMIT, max
 def _rpc_call(payload: dict, timeout: float = 20.0) -> Optional[dict]:
     """
     Reliable Solana RPC POST with retry/backoff.
-    
+
     HARDENING FIX #3: Smart RPC error categorization
     • Only retries transient errors (timeout, rate-limit, etc.)
     • Fails fast on permanent errors (invalid params, method not found, etc.)
     """
     for attempt in range(MAX_RPC_RETRIES):
         try:
+            start_time = time.time()
             resp = SESSION.post(SOLANA_RPC, json=payload, timeout=timeout)
+            latency_ms = (time.time() - start_time) * 1000
+            rpc_method = payload.get("method", "unknown")
+            # Record metric  for all RPC responses
+            record_request(
+                section="funder_incoming",
+                provider="solana_rpc",
+                method=rpc_method,
+                status_code=resp.status_code,
+                latency_ms=latency_ms,
+                mode="realtime",
+                retries=attempt,
+            )
+
             if resp.status_code == 429:
                 print(f"[RPC] 429 rate-limited. Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
                 _sleep_backoff(attempt)
@@ -393,6 +452,17 @@ def _rpc_call(payload: dict, timeout: float = 20.0) -> Optional[dict]:
                     return None
             return data
         except (requests.Timeout, requests.ConnectionError) as e:
+            rpc_method = payload.get("method", "unknown")
+            record_request(
+                section="funder_incoming",
+                provider="solana_rpc",
+                method=rpc_method,
+                status_code=0,
+                latency_ms=(time.time() - start_time) * 1000,
+                mode="realtime",
+                retries=attempt,
+                error=str(e),
+            )
             print(f"[RPC] Network error: {e}. Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
             _sleep_backoff(attempt)
             continue

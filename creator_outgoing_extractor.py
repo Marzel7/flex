@@ -24,6 +24,13 @@ import aiohttp
 
 from db_global_lock import db_write_lock_global
 
+# Import RPC metrics recorder for monitoring
+try:
+    from rpc_metrics_recorder import record_request
+except ImportError:
+    def record_request(*args, **kwargs):
+        pass  # No-op if metrics recorder not available
+
 DB_PATH = os.getenv("DB_PATH", "flex_complete_database.db")
 
 # Helius API keys (from tests/test_pumpswap_listener.py)
@@ -336,13 +343,32 @@ async def rpc_get_signatures(session: aiohttp.ClientSession, address: str, limit
         "params": [address, {"limit": limit}]
     }
     try:
+        start_time = time.time()
         async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+            latency_ms = (time.time() - start_time) * 1000
+            record_request(
+                section="creator_outgoing_scan",
+                provider="helius_rpc",
+                method="getSignaturesForAddress",
+                status_code=resp.status,
+                latency_ms=latency_ms,
+                mode="background",
+            )
             if resp.status != 200:
                 return []
             data = await resp.json()
             return data.get("result") or []
     except Exception as e:
         print(f"[OUTGOING] ⚠️ rpc_get_signatures error: {e}", flush=True)
+        record_request(
+            section="creator_outgoing_scan",
+            provider="helius_rpc",
+            method="getSignaturesForAddress",
+            status_code=0,
+            latency_ms=(time.time() - start_time) * 1000,
+            mode="background",
+            error=str(e),
+        )
         return []
 
 
@@ -360,7 +386,9 @@ async def helius_enhanced_parse(session: aiohttp.ClientSession, sigs: List[str])
 
     for attempt in range(max_retries):
         try:
+            start_time = time.time()
             async with session.post(HELIUS_ENHANCED, json=body, timeout=aiohttp.ClientTimeout(total=20)) as resp:
+                latency_ms = (time.time() - start_time) * 1000
                 if resp.status == 429:
                     if attempt < max_retries - 1:
                         sleep_time = backoff_times[attempt]
@@ -377,6 +405,14 @@ async def helius_enhanced_parse(session: aiohttp.ClientSession, sigs: List[str])
                     print(f"[OUTGOING] ⚠️ Helius status {resp.status}: {body_snippet}", flush=True)
                     return []
                 data = await resp.json()
+                record_request(
+                    section="creator_outgoing_scan",
+                    provider="helius_enhanced",
+                    method="helius_enhanced_transactions_batch",
+                    status_code=resp.status,
+                    latency_ms=latency_ms,
+                    mode="background",
+                )
                 # Normalize response format (may be dict with "result" or direct list)
                 if isinstance(data, dict) and "result" in data:
                     data = data["result"]

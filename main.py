@@ -2317,6 +2317,7 @@ HTML_TEMPLATE = """
                 <button class="action-button" onclick="window.location.href = '/coordinated-funders'" title="Analyze funders supporting multiple creators" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Coordinated Funders</button>
                 <button class="action-button" onclick="window.location.href = '/top-funding-hubs'" title="View top funding distribution hubs" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Hubs</button>
                 <button class="action-button" onclick="window.location.href = '/creator-analysis'" title="Analyze creator outgoing transfers and funding chains" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Creator Analysis</button>
+                <button class="action-button" onclick="window.location.href = 'http://localhost:8001/dashboard'" title="View RPC credit usage and cost monitoring in real-time" style="background: rgba(16, 185, 129, 0.2); color: var(--color-low); border: 1px solid rgba(16, 185, 129, 0.5); margin-left: 8px;">💰 RPC Metrics</button>
             </div>
         </div>
 

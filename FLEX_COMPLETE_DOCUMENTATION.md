@@ -1305,6 +1305,22 @@ The Flex system makes RPC calls to the Solana blockchain at multiple points to e
 1. **Solana Public RPC**: `https://api.mainnet-beta.solana.com`
 2. **Helius RPC** (optional, faster): `https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}`
 
+### RPC Call Status
+
+**✅ ACTIVE IN MAIN LISTENER** (automatic, production use):
+- `getTransaction` - Fetch transaction details
+- `getSignaturesForAddress` - List address transactions
+- `getAccountInfo` - Get account balances
+- Helius `/v0/addresses/{address}/transactions` - Fast transaction history (when API key set)
+- Helius `/v0/transactions` - Batch transaction processing (background 12h scan)
+
+**⚠️ SECONDARY** (on-demand, API endpoint only):
+- `funder_helius_extractor.py` - User-triggered via `/funder-analysis` endpoint
+
+**❌ ARCHIVED** (legacy, not called in main listener):
+- `pump_fun_analyzer.py` - Legacy analysis script
+- `pump_fun_post_migration_analyzer.py` - Legacy analysis script
+
 ---
 
 ### Primary RPC Methods Used
@@ -1705,6 +1721,51 @@ for attempt in range(max_retries):
 **12-Hour Creator Outgoing Scan** (1000 creators):
 - Pure RPC: 1000-5000 RPC calls
 - Helius: 1000 Helius API calls + batch parsing
+
+---
+
+### Active RPC Flow in Listener
+
+**When listener starts** (`python pumpfun_curve_listener.py`):
+
+```
+listen() spawns 4 async background tasks:
+
+1. Creator Watch Manager (Every 30 seconds)
+   └─ getSignaturesForAddress ✅
+   └─ getTransaction ✅
+
+2. Live Price Updater (Continuous)
+   └─ getTransaction ✅
+
+3. Creator Outgoing Extractor (Every 12 hours)
+   └─ getSignaturesForAddress ✅
+   └─ Helius /v0/transactions batch ✅
+
+4. WebSocket Listener (Real-time, blocking)
+   └─ Waits for token detection
+      └─ When token detected:
+         ├─ getTransaction (3×) ✅
+         ├─ getAccountInfo (2×) ✅
+         └─ Spawn 3 background tasks:
+            ├─ extract_funding_for_new_token()
+            │  ├─ getSignaturesForAddress ✅
+            │  ├─ getTransaction ✅
+            │  └─ Helius /v0/addresses/tx ✅ (if key available)
+            │
+            ├─ extract_funder_transfers_async()
+            │  ├─ getSignaturesForAddress ✅ (per funder)
+            │  └─ getTransaction ✅ (per transaction)
+            │
+            └─ update_network_clustering_async()
+               └─ Database only (no RPC)
+```
+
+**RPC Calls per New Token**:
+- Listener detection: 5 calls (getTransaction ×3, getAccountInfo ×2)
+- Creator funding: 10-50 calls (or 1-2 Helius if available)
+- Funder incoming: 50-500+ calls (scales with funder network)
+- **Total: 65-555 calls** (or 17-30 with Helius)
 
 ---
 

@@ -1296,6 +1296,330 @@ Returns most recently scanned creators with findings
 
 ---
 
+## RPC Calls & External API Integration
+
+### Overview
+
+The Flex system makes RPC calls to the Solana blockchain at multiple points to extract funding data. There are two main RPC providers used:
+
+1. **Solana Public RPC**: `https://api.mainnet-beta.solana.com`
+2. **Helius RPC** (optional, faster): `https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}`
+
+---
+
+### Primary RPC Methods Used
+
+#### 1. **getTransaction**
+**Purpose**: Fetch full transaction details including inner instructions and token transfers
+
+**Used in**:
+- `pumpfun_curve_listener.py:622` - Extract pool from migration tx
+- `pumpfun_curve_listener.py:708` - Fetch creator from migration
+- `pumpfun_curve_listener.py:1742` - Parse new token migration
+- `realtime_creator_funding_extractor.py:421` - Extract creator funding
+- `realtime_creator_funding_extractor.py:1490` - Batch transaction fetching
+- `funder_incoming_extractor.py:525` - Get funder transfer details
+- `main.py:7798` - API endpoint transaction lookup
+- `main.py:12587` - Debug endpoint
+
+**Cost**: 1 RPC call per transaction
+**Data extracted**:
+- SOL transfers
+- Token transfers
+- Inner instructions
+- Account interactions
+
+---
+
+#### 2. **getSignaturesForAddress**
+**Purpose**: Get all transaction signatures for an address (paginated)
+
+**Used in**:
+- `realtime_creator_funding_extractor.py:375` - Get all creator transactions
+- `realtime_creator_funding_extractor.py:785` - List funder transactions
+- `funder_incoming_extractor.py:408` - Get funder transaction history
+- `creator_outgoing_extractor.py:335` - Get creator outgoing transactions
+
+**Cost**: 1 RPC call per 1,000 signatures returned (paginated in 1000-sig chunks)
+**Parameters**:
+- `before`: Pagination cursor
+- `limit`: 1000 (max per call)
+- `commitment`: "finalized"
+
+**Data extracted**: Transaction signatures and block time
+
+---
+
+#### 3. **getAccountInfo**
+**Purpose**: Fetch raw account data for a specific address
+
+**Used in**:
+- `pumpfun_curve_listener.py:894` - Get SOL vault balance
+- `pumpfun_curve_listener.py:977` - Get WSOL vault balance
+
+**Cost**: 1 RPC call per account
+**Data extracted**: Account balance, owner, data
+
+---
+
+### Secondary RPC Calls (Helius Enhanced API)
+
+#### Helius `/v0/addresses/{address}/transactions` Endpoint
+**Purpose**: Enhanced transaction history with parsed instructions (faster than standard RPC)
+
+**Used in**:
+- `realtime_creator_funding_extractor.py:1015-1028` - Creator transaction enrichment
+- `realtime_creator_funding_extractor.py:1871-1872` - Batch creator scanning
+
+**Cost**: Per API plan (typically 1 call per address)
+**Parameters**:
+- `api-key`: {HELIUS_API_KEY}
+- `limit`: 100 (max per page)
+- `sort-order`: desc
+- `commitment`: finalized
+
+**Data extracted**:
+- Parsed transfer instructions
+- Token metadata
+- Domain/NFT information
+- Account interactions
+
+---
+
+#### Helius `/v0/transactions` Endpoint
+**Purpose**: Batch fetch enriched transaction data
+
+**Used in**:
+- `realtime_creator_funding_extractor.py:1885-1890` - Batch get detailed transfers
+
+**Cost**: Per API plan
+**Data extracted**: Full parsed transaction details
+
+---
+
+### RPC Call Locations by Component
+
+#### 1. **PumpFunCurveListener** (pumpfun_curve_listener.py)
+
+**Startup/Connection**:
+- WebSocket connection to Helius or Solana RPC (line 271)
+- Fallback to public Solana RPC if Helius unavailable
+
+**Token Detection** (when migration detected):
+- `getTransaction` (line 622) - Extract initial pool from migration TX
+- `getTransaction` (line 708) - Fetch creator address from migration
+- `getAccountInfo` (line 894) - Get SOL vault balance from pool
+- `getAccountInfo` (line 977) - Get WSOL vault balance from pool
+- `getTransaction` (line 1742) - Parse latest migration transaction
+
+**Total RPC calls per token**: 5 calls
+**Timing**: ~2-5 seconds total
+**Purpose**: Extract creator, mint, and price information
+
+---
+
+#### 2. **Creator Funding Extractor** (realtime_creator_funding_extractor.py)
+
+**Entry**: `extract_funding_for_new_token(creator_address, created_at, create_tx_sig, mint)`
+
+**RPC Calls**:
+1. `getSignaturesForAddress` (line 375) - Get all creator SOL transfers
+   - Multiple calls if >1000 signatures (pagination)
+   - Cost: 1 per 1000 signatures
+
+2. `getTransaction` (line 421) - Fetch full details per signature
+   - Cost: 1 per transaction found
+
+3. **OR** Helius Enhanced API (line 1015-1028)
+   - Single call to get creator transactions with parsing
+   - Cost: 1 per creator
+   - Much faster than RPC method #1 + #2
+
+**Alternative Path** (Helius batch):
+- POST to `/v0/transactions` (line 1885) - Get enriched data for multiple TXs
+
+**Total RPC calls per creator**:
+- Pure RPC: N (where N = number of creator transactions)
+- Helius Enhanced: 1 + possibly batch calls for detailed parsing
+
+**Timing**: 5-30 seconds depending on creator activity
+**Purpose**: Identify all funders who sent SOL to creator before token launch
+
+---
+
+#### 3. **Funder Incoming Extractor** (funder_incoming_extractor.py)
+
+**Entry**: `extract_for_creator()` (called for each creator)
+
+**RPC Calls**:
+1. `getSignaturesForAddress` (line 408) - Get all funder transactions
+   - Called for EACH funder from creator_funders table
+   - Multiple paginated calls if >1000 signatures
+   - Cost: 1 per 1000 signatures per funder
+
+2. `getTransaction` (line 525) - Fetch full transaction details
+   - Cost: 1 per transaction for each funder
+
+**OR Helius Transactions** (line 328):
+- `get_transactions_helius(address, limit=100, max_pages=1)`
+- Fetches up to 100 transactions per Helius call
+- Much faster parsing
+
+**Total RPC calls per creator**:
+- Pure RPC: Sum of (N_funder_transactions for each funder)
+- Helius: 1 per funder + potential batch calls
+
+**Cost Scale**:
+- Small creator (10 funders, 50 transfers each): ~10-500 calls
+- Large creator (100 funders, 100 transfers each): ~100-10,000 calls
+
+**Timing**: 30-120 seconds depending on funder network complexity
+**Purpose**: For each creator funder, find the SOURCE of their money
+
+---
+
+#### 4. **Creator Outgoing Extractor** (creator_outgoing_extractor.py)
+
+**Entry**: `run_outgoing_extractor(interval_seconds=43200)` (background, every 12 hours)
+
+**RPC Calls**:
+1. `getSignaturesForAddress` (line 335) - Get all creator outgoing transactions
+   - Cost: 1 per 1000 signatures per creator
+
+2. Helius Enhanced API (line 363) - Parse transaction data
+   - POST to Helius endpoint for enriched data
+   - Cost: Per API plan
+
+**Total RPC calls per creator**: 1-5 (paginated)
+**Timing per creator**: ~1-2 seconds
+**Total per 12h cycle**: ~1000-2000 creators = 2000-5000 RPC calls
+
+**Purpose**: Track creator outgoing transfers (where they send SOL after launch)
+
+---
+
+### RPC Call Summary Table
+
+| Component | RPC Method | Calls/Trigger | Cost | Purpose |
+|-----------|-----------|---------------|------|---------|
+| **Listener** | getTransaction | 5 per token | 5 RPC calls | Extract creator & price |
+| **Listener** | getAccountInfo | 2 per token | 2 RPC calls | Get vault balances |
+| **Creator Funding** | getSignaturesForAddress | 1-10 per creator | Variable | List creator TXs |
+| **Creator Funding** | getTransaction | 1 per TX | N TXs × 1 | Parse each TX |
+| **Creator Funding** | Helius Enhanced | 1 per creator | 1 API call | Fast parsing |
+| **Funder Incoming** | getSignaturesForAddress | 1-100+ per creator | Variable | List funder TXs |
+| **Funder Incoming** | getTransaction | 1 per TX | Sum(N) TXs | Parse each TX |
+| **Creator Outgoing** | getSignaturesForAddress | 1-5 per creator | Variable | List outgoing TXs |
+| **Creator Outgoing** | Helius Enhanced | 1 per creator | 1 API call | Parse outgoing |
+
+---
+
+### RPC Cost Analysis
+
+**New Token (1 token detected)**:
+- Listener: 5-7 RPC calls (fixed)
+- Creator Funding: 1 Helius call OR 10-50 RPC calls
+- Funder Incoming: 50-500 RPC calls (depends on funder count)
+- **Total**: 56-557 RPC calls
+
+**With Helius API (recommended)**:
+- Listener: 5-7 RPC calls
+- Creator Funding: 1 Helius call
+- Funder Incoming: 1-2 Helius calls + 10-20 RPC calls
+- **Total**: 17-30 RPC calls (much more efficient)
+
+**12-Hour Creator Outgoing Scan** (1000 creators):
+- Pure RPC: 1000-5000 RPC calls
+- Helius: 1000 Helius API calls + batch parsing
+
+---
+
+### Configuration
+
+**File**: `pumpfun_curve_listener.py:268-279`
+
+```python
+HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
+HELIUS_RPC_WS = f"wss://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "wss://api.mainnet-beta.solana.com/"
+RPC_HTTP = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com"
+
+RPC_URLS = [
+    "https://api.mainnet-beta.solana.com",  # Fallback 1
+    "https://api.anza.dev/rpc",             # Fallback 2
+]
+
+if HELIUS_API_KEY:
+    RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}")  # Primary if available
+```
+
+**WebSocket Connection**:
+- Primary: Helius WebSocket (if `HELIUS_API_KEY` set)
+- Fallback: Solana public WebSocket
+
+**HTTP RPC**:
+- Primary: Helius HTTP endpoint (if `HELIUS_API_KEY` set)
+- Fallback: Solana public RPC + Anza RPC
+
+---
+
+### Performance Optimization
+
+**Without Helius API**:
+- New token processing: 180-220 seconds
+- RPC calls per token: 50-500+
+- Heavily rate-limited
+
+**With Helius API** (recommended):
+- New token processing: 90-120 seconds
+- RPC calls per token: 10-30
+- Better rate limiting tier
+- Faster transaction parsing
+
+**Helius Benefits**:
+✅ Faster transaction parsing (enriched data)
+✅ Better rate limits for high-volume analysis
+✅ Built-in pagination support (limit=100)
+✅ Includes parsed instruction data
+✅ Domain/NFT enrichment included
+
+---
+
+### Rate Limiting Strategy
+
+**Solana Public RPC**:
+- ~100 requests per second
+- Shared across all users
+- Subject to abuse limits
+
+**Helius RPC**:
+- Depends on plan tier
+- Usually 1000+ requests per second
+- Dedicated allocation
+
+**Mitigation**:
+- Batch requests where possible
+- Use pagination correctly (don't repeat signature fetches)
+- Fallback to slower RPC if primary rate-limited
+- Queue background tasks (creator outgoing scan) to avoid spike
+
+---
+
+### Database Impact
+
+**After RPC extraction, data stored in**:
+- `creator_funders` - Direct funder relationships
+- `funder_incoming_transfers` - Funder source traces
+- `creator_outgoing_transfers` - Creator spending
+- `tokens` - Token metadata
+- `address_labels` - Account classifications
+
+**Query instead of RPC**:
+- Most analyses query database instead of RPC
+- Reduces ongoing RPC costs
+- Enables offline analysis
+
+---
+
 *Complete System Documentation*
 *Generated: 2026-02-28*
 *Database: flex_complete_database.db*

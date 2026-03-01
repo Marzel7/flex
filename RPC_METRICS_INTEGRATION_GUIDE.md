@@ -283,17 +283,10 @@ getTransactionsForAddress  (100 credits)
 Helius Enhanced REST pseudo-methods:
 
 ```
-⚠️ CRITICAL: Enhanced Transactions endpoints are NOT documented as fixed credits by Helius.
-   Actual cost depends on your plan tier and may range from:
-   - Included in plan
-   - 10-100+ credits per request
-   - Metered by data volume
+Source: https://www.helius.dev/docs/billing/credits
 
-helius_enhanced_addresses_transactions  (PLAN-DEPENDENT - VERIFY WITH YOUR ACCOUNT)
-helius_enhanced_transactions_batch      (PLAN-DEPENDENT - VERIFY WITH YOUR ACCOUNT)
-
-Action: Check your Helius dashboard for actual billing.
-        Update CREDIT_SCHEDULE in rpc_metrics_config.py with your verified rates.
+helius_enhanced_addresses_transactions  (100 credits per request)
+helius_enhanced_transactions_batch      (100 credits per request)
 ```
 
 Streaming:

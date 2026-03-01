@@ -149,12 +149,10 @@ Use these when calling `record_request()`:
 "getTransaction"
 "getSignaturesForAddress"
 
-# Helius Enhanced Transactions (PLAN-DEPENDENT)
-# ⚠️ IMPORTANT: These are NOT published by Helius as fixed credits.
-# Verify actual cost with your Helius billing dashboard or support.
-# Configure in rpc_metrics_config.py CREDIT_SCHEDULE after checking your plan.
-"helius_enhanced_addresses_transactions"  # Default: "unknown" (0 credits until configured)
-"helius_enhanced_transactions_batch"      # Default: "unknown" (0 credits until configured)
+# Helius Enhanced Transactions (100 credits per request)
+# Source: https://www.helius.dev/docs/billing/credits
+"helius_enhanced_addresses_transactions"  # 100 credits per request (official)
+"helius_enhanced_transactions_batch"      # 100 credits per request (official)
 
 # Streaming (3 credits per 0.1MB)
 # Use record_stream_bytes() instead

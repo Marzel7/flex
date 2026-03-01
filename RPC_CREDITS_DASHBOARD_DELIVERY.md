@@ -280,14 +280,14 @@ Based on [Helius pricing documentation](https://docs.helius.xyz/):
 | getTransaction | 10 | Archival |
 | getSignatureStatuses (hist=false) | 1 | Quick check |
 | getSignatureStatuses (hist=true) | 10 | With history |
-| getTransactionsForAddress | 100 | Helius-exclusive |
-| helius_enhanced_addresses_transactions | **PLAN-DEPENDENT** | ⚠️ Verify with your account |
-| helius_enhanced_transactions_batch | **PLAN-DEPENDENT** | ⚠️ Verify with your account |
+| getTransactionsForAddress | 100 | Helius-exclusive RPC |
+| helius_enhanced_addresses_transactions | 100 | Enhanced Transactions |
+| helius_enhanced_transactions_batch | 100 | Enhanced Transactions |
 | Streaming (LaserStream/WS) | 3 per 0.1MB | Metered |
 
-⚠️ **CRITICAL**: Helius does NOT publish fixed credit costs for Enhanced Transactions endpoints.
-   Cost depends on your plan tier. Default is "unknown" (0 credits).
-   **ACTION REQUIRED**: Check your Helius billing dashboard and update `CREDIT_SCHEDULE` in `rpc_metrics_config.py`.
+**Source**: [Official Helius Billing Docs](https://www.helius.dev/docs/billing/credits)
+- Enhanced Transactions (REST): 100 credits per request
+- All rates current as of March 2026
 
 ---
 

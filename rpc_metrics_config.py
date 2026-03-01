@@ -3,10 +3,10 @@ RPC Metrics Configuration
 
 Customize credit schedules, plan budgets, and alerting thresholds here.
 
-⚠️  CRITICAL: Enhanced Transactions endpoints (helius_enhanced_addresses_transactions, etc.)
-    are NOT published by Helius with fixed credit costs. They are plan-dependent.
-    Default is "unknown" (0 credits) - you MUST verify with your Helius account
-    and update CREDIT_SCHEDULE accordingly. Check your billing dashboard or contact support.
+Source: https://www.helius.dev/docs/billing/credits (Official Helius Pricing)
+
+All credit rates are from official Helius documentation.
+Enhanced Transactions are 100 credits per request (official rate).
 """
 
 # ============================================================================
@@ -59,18 +59,14 @@ CREDIT_SCHEDULE = {
     # "enhanced_ws_bytes": 3 per 0.1MB
 
     # Helius Enhanced Transactions API (REST pseudo-methods)
-    # IMPORTANT: Enhanced Transactions billing is plan-dependent and NOT documented as fixed credits.
-    # Helius does NOT publish a fixed credit cost for Enhanced Transactions endpoints.
-    # These are estimates - verify with your Helius dashboard or support.
-    # Common patterns:
-    #   - May be billed as part of plan tier (included or premium tier)
-    #   - May be billed per request at 10-100 credits depending on plan
-    #   - May be metered based on response data volume
-    #
-    # RECOMMENDATION: Set to "unknown" and override in config per your plan.
-    # Then monitor actual usage and adjust based on Helius billing dashboard.
-    "helius_enhanced_addresses_transactions": "unknown",  # VERIFY WITH YOUR PLAN
-    "helius_enhanced_transactions_batch": "unknown",       # VERIFY WITH YOUR PLAN
+    # Source: https://www.helius.dev/docs/billing/credits
+    # "Enhanced transaction parsing" = 100 credits per request
+    # This applies to:
+    # - GET /v0/addresses/{address}/transactions (Enhanced Transactions)
+    # - POST /v0/transactions (Batch Enhanced Transactions)
+    # - All Enhanced Transactions REST endpoints
+    "helius_enhanced_addresses_transactions": 100,  # Per request (official docs)
+    "helius_enhanced_transactions_batch": 100,       # Per request (official docs)
 
     # Fallback RPC methods
     "fallback_getTransaction": 10,

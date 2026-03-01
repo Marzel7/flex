@@ -27,6 +27,13 @@ sys.path.insert(0, '/Users/kevinkeaveney/Dev/claude/flex')
 
 from infra_mapping import get_account_info, get_cex_info
 
+# Import RPC metrics recorder for monitoring
+try:
+    from rpc_metrics_recorder import record_request
+except ImportError:
+    def record_request(*args, **kwargs):
+        pass  # No-op if metrics recorder not available
+
 # Try to load environment variables from .env file
 try:
     from dotenv import load_dotenv
@@ -281,7 +288,20 @@ def get_transactions_helius(
 
                 print(f"[HELIUS] Page {page_num + 1}/{max_pages}: Fetching {limit} txs for {address[:16]}... (attempt {attempt + 1}/{retries})", flush=True)
 
+                # Record RPC request for metrics
+                start_time = time.time()
                 response = requests.get(url, timeout=timeout)
+                latency_ms = (time.time() - start_time) * 1000
+
+                record_request(
+                    section="funder_incoming",
+                    provider="helius_enhanced",
+                    method="helius_enhanced_addresses_transactions",
+                    status_code=response.status_code,
+                    latency_ms=latency_ms,
+                    mode="realtime" if max_pages == 1 else "background",
+                    retries=attempt,
+                )
 
                 # Handle rate limiting
                 if response.status_code == 429:

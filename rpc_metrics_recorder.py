@@ -466,9 +466,33 @@ def record_request(
     error: Optional[str] = None,
 ) -> int:
     """Convenience function to record request with global instance"""
-    return get_recorder().record_request(
+    credits = get_recorder().record_request(
         section, provider, method, status_code, latency_ms, mode, retries, bytes_in, bytes_out, error
     )
+
+    # Also POST to API if running on localhost:8001 (for multi-process support)
+    try:
+        import requests
+        requests.post(
+            'http://localhost:8001/metrics/rpc/record',
+            json={
+                'section': section,
+                'provider': provider,
+                'method': method,
+                'status_code': status_code,
+                'latency_ms': latency_ms,
+                'mode': mode,
+                'retries': retries,
+                'bytes_in': bytes_in,
+                'bytes_out': bytes_out,
+                'error': error,
+            },
+            timeout=1
+        )
+    except Exception:
+        pass  # Fail silently if API not available
+
+    return credits
 
 
 def record_stream_bytes(

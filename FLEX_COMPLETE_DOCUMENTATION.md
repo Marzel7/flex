@@ -1855,6 +1855,263 @@ if HELIUS_API_KEY:
 
 ---
 
+## RPC Implementation Functions
+
+### Overview
+
+Three different RPC call implementations are used throughout the codebase, each optimized for different use cases:
+
+1. **`_post_rpc_with_fallback()`** - Listener (async, simpler failover)
+2. **`_post_rpc()`** - Creator funding extractor (async, advanced retry/rate-limiting)
+3. **`_rpc_call()`** - Funder incoming extractor (sync, smart error categorization)
+
+---
+
+### 1. `_post_rpc_with_fallback()` - PumpFunCurveListener
+
+**File**: `pumpfun_curve_listener.py:306-339`
+**Type**: Async method (class-based)
+**Usage**: Main listener for token detection and pool extraction
+
+```python
+async def _post_rpc_with_fallback(self, payload: dict, timeout: int = 10) -> Optional[dict]:
+    """
+    Post to RPC with automatic failover chain.
+    Tries: Primary QuickNode -> Secondary QuickNode -> Helius -> Public Solana
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            for i, rpc_url in enumerate(RPC_URLS):
+                try:
+                    async with session.post(rpc_url, json=payload,
+                                           timeout=aiohttp.ClientTimeout(total=timeout)) as resp:
+                        if resp.status == 200:
+                            return await resp.json()
+                        elif resp.status == 429:
+                            if i < len(RPC_URLS) - 1:
+                                continue
+                        else:
+                            if i < len(RPC_URLS) - 1:
+                                continue
+                except asyncio.TimeoutError:
+                    if i < len(RPC_URLS) - 1:
+                        continue
+                except Exception as e:
+                    if i < len(RPC_URLS) - 1:
+                        continue
+
+            return None
+    except Exception as e:
+        print(f"[RPC_ERROR] {e}", flush=True)
+        return None
+```
+
+**Characteristics**:
+- ✅ Simple failover chain (tries each RPC in sequence)
+- ✅ Async/await with aiohttp
+- ✅ Timeout handling (default 10 seconds)
+- ✅ No exponential backoff (just tries next immediately)
+- ✅ Creates new session per call
+
+---
+
+### 2. `_post_rpc()` - RealtimeCreatorFundingExtractor
+
+**File**: `realtime_creator_funding_extractor.py:299-359`
+**Type**: Async method (class-based)
+**Usage**: Creator funding extraction with advanced retry logic
+
+```python
+async def _post_rpc(self, payload: dict) -> Optional[dict]:
+    """Post to RPC with failover chain + semaphore concurrency control"""
+    async with self._rpc_sem:  # Bound concurrent RPC calls
+        for attempt in range(MAX_RETRIES):
+            for rpc_url in RPC_URLS:
+                try:
+                    async with self.session.post(
+                        rpc_url,
+                        json=payload,
+                        timeout=aiohttp.ClientTimeout(total=RPC_TIMEOUT)
+                    ) as resp:
+                        if resp.status != 200:
+                            if resp.status == 429:
+                                # Rate limited - check for Retry-After header
+                                retry_after = resp.headers.get("Retry-After")
+                                retry_delay = None
+                                if retry_after:
+                                    try:
+                                        retry_delay = float(retry_after)
+                                    except (ValueError, TypeError):
+                                        retry_delay = None
+
+                                wait_time = retry_delay or (0.5 * (2 ** attempt))
+                                await asyncio.sleep(min(30.0, wait_time))
+                                continue
+                            elif resp.status >= 500:
+                                continue
+                            else:
+                                return None
+
+                        data = await resp.json()
+
+                        # RPC-level errors
+                        if "error" in data:
+                            error_code = data["error"].get("code", -1)
+                            # Retryable: -32008, -32000, -32003, -32009
+                            if error_code in {-32008, -32000, -32003, -32009}:
+                                continue
+                            else:
+                                return None
+
+                        if "result" in data:
+                            return data
+
+                except asyncio.TimeoutError:
+                    continue
+                except Exception as e:
+                    continue
+
+            # After trying all RPCs, wait before next attempt
+            if attempt < MAX_RETRIES - 1:
+                await asyncio.sleep(0.5 * (2 ** attempt))
+
+    return None
+```
+
+**Characteristics**:
+- ✅ Semaphore concurrency control (`_rpc_sem`)
+- ✅ Advanced retry with exponential backoff (0.5s → 1s → 2s → 4s)
+- ✅ Respects `Retry-After` header from rate-limit responses
+- ✅ Smart RPC error detection (knows which errors are retryable)
+- ✅ Max 30-second wait per attempt
+- ✅ Reuses persistent session (more efficient)
+- ✅ Handles both HTTP and RPC-level errors
+
+**Retryable RPC Error Codes**:
+- `-32008`: Invalid index
+- `-32000`: Server error (generic)
+- `-32003`: Invalid request
+- `-32009`: Resource exhausted
+
+---
+
+### 3. `_rpc_call()` - FunderIncomingExtractor
+
+**File**: `funder_incoming_extractor.py:361-401`
+**Type**: Synchronous function
+**Usage**: Funder transfer extraction with smart error categorization
+
+```python
+def _rpc_call(payload: dict, timeout: float = 20.0) -> Optional[dict]:
+    """
+    Reliable Solana RPC POST with retry/backoff.
+    Smart RPC error categorization:
+    • Only retries transient errors (timeout, rate-limit, etc.)
+    • Fails fast on permanent errors (invalid params, etc.)
+    """
+    for attempt in range(MAX_RPC_RETRIES):
+        try:
+            resp = SESSION.post(SOLANA_RPC, json=payload, timeout=timeout)
+            if resp.status_code == 429:
+                print(f"[RPC] 429 rate-limited. Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
+                _sleep_backoff(attempt)
+                continue
+            if resp.status_code >= 500:
+                print(f"[RPC] {resp.status_code} server error. Backing off")
+                _sleep_backoff(attempt)
+                continue
+            if resp.status_code != 200:
+                return None
+
+            data = resp.json()
+            if isinstance(data, dict) and data.get("error"):
+                error_obj = data["error"]
+                if _is_rpc_error_retryable(error_obj):
+                    print(f"[RPC] Transient error (code={error_obj.get('code')}). Backing off")
+                    _sleep_backoff(attempt)
+                    continue
+                else:
+                    # Permanent error: fail fast
+                    print(f"[RPC] Permanent error (code={error_obj.get('code')})")
+                    return None
+            return data
+        except (requests.Timeout, requests.ConnectionError) as e:
+            print(f"[RPC] Network error: {e}. Backing off")
+            _sleep_backoff(attempt)
+            continue
+        except Exception:
+            return None
+    return None
+```
+
+**Helper Functions**:
+```python
+def _is_rpc_error_retryable(error_obj: dict) -> bool:
+    """Determine if RPC error is transient (retryable)."""
+    code = error_obj.get("code")
+    # Retryable: -32008, -32000, -32003, -32009
+    return code in {-32008, -32000, -32003, -32009}
+
+def _sleep_backoff(attempt: int, retry_after: Optional[float] = None):
+    """Exponential backoff: 0.5s → 1s → 2s → 4s..."""
+    if retry_after is not None:
+        time.sleep(retry_after)
+        return
+    delay = 0.5 * (2 ** attempt)
+    time.sleep(min(delay, 60.0))  # Cap at 60 seconds
+```
+
+**Characteristics**:
+- ✅ Synchronous (blocking) implementation
+- ✅ Single SOLANA_RPC endpoint (no failover chain)
+- ✅ Smart error categorization (retryable vs permanent)
+- ✅ Fast-fail on permanent errors
+- ✅ Exponential backoff with jitter
+- ✅ Detailed error messages for debugging
+- ✅ Reuses persistent SESSION (requests.Session)
+
+---
+
+### Comparison Table
+
+| Feature | `_post_rpc_with_fallback()` | `_post_rpc()` | `_rpc_call()` |
+|---------|---------------------------|---------------|--------------|
+| **Type** | Async (class) | Async (class) | Sync (func) |
+| **Failover** | ✅ Full chain | ✅ Full chain | ❌ Single |
+| **Retry** | Simple | ✅ Exponential | ✅ Exponential |
+| **Concurrency** | ❌ None | ✅ Semaphore | ❌ None |
+| **Error Category** | Simple | ✅ Advanced | ✅ Advanced |
+| **Retry-After** | ❌ No | ✅ Yes (30s cap) | ✅ Yes |
+| **Session Reuse** | ❌ No | ✅ Yes | ✅ Yes |
+| **Use Case** | Token detection | Creator extract | Funder extract |
+| **Timeout** | 10s default | RPC_TIMEOUT | 20s default |
+
+---
+
+### Which to Use?
+
+**`_post_rpc_with_fallback()`** - When:
+- You need simple failover for critical operations
+- You don't expect many retries
+- RPC response comes back quickly
+- Used in: Main listener for token detection
+
+**`_post_rpc()`** - When:
+- You're extracting large amounts of data
+- You need bounded concurrency (semaphore)
+- You want to respect Retry-After headers
+- You're doing batch processing
+- Used in: Creator funding extraction
+
+**`_rpc_call()`** - When:
+- You're in synchronous code
+- You want smart error categorization
+- You want fast-fail on permanent errors
+- You don't need concurrent calls
+- Used in: Funder transfer extraction
+
+---
+
 *Complete System Documentation*
 *Generated: 2026-02-28*
 *Database: flex_complete_database.db*

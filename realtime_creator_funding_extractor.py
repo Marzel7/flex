@@ -33,6 +33,13 @@ from domain_mapping import register_domain, link_domain_to_address
 from automatic_cex_detection import classify_addresses_from_funding
 from post_launch_automation import run_post_launch_automation
 
+# Import RPC metrics recorder for monitoring
+try:
+    from rpc_metrics_recorder import record_request
+except ImportError:
+    def record_request(*args, **kwargs):
+        pass  # No-op if metrics recorder not available
+
 DB_PATH = "flex_complete_database.db"
 # FIX #6: Remove hardcoded API key fallback — fail safe instead
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()
@@ -208,7 +215,17 @@ class DomainResolver:
             url = f"https://sns-api.bonfida.com/v2/user/fav-domains/{pubkeys}"
 
             try:
+                start_time = time.time()
                 async with self.session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                    latency_ms = (time.time() - start_time) * 1000
+                    record_request(
+                        section="creator_funding",
+                        provider="bonfida_sns",
+                        method="sns_primary_domains",
+                        status_code=resp.status,
+                        latency_ms=latency_ms,
+                        mode="realtime",
+                    )
                     if resp.status != 200:
                         # Mark as unknown but cache locally
                         for a in batch:
@@ -303,13 +320,27 @@ class RealTimeCreatorFundingExtractor:
                 # Try each RPC endpoint in the failover chain
                 for rpc_url in RPC_URLS:
                     try:
+                        # Record RPC request for metrics
+                        start_time = time.time()
                         async with self.session.post(
                             rpc_url,
                             json=payload,
                             timeout=aiohttp.ClientTimeout(total=RPC_TIMEOUT)
                         ) as resp:
+                            latency_ms = (time.time() - start_time) * 1000
+
                             # HTTP-level errors
                             if resp.status != 200:
+                                record_request(
+                                    section="creator_funding",
+                                    provider="helius_rpc",
+                                    method=payload.get("method", "unknown"),
+                                    status_code=resp.status,
+                                    latency_ms=latency_ms,
+                                    mode="realtime",
+                                    retries=attempt,
+                                    error=f"HTTP {resp.status}",
+                                )
                                 if resp.status == 429:
                                     # Rate limited - check for Retry-After header
                                     retry_after = resp.headers.get("Retry-After")
@@ -330,11 +361,23 @@ class RealTimeCreatorFundingExtractor:
                                     # Client error, don't retry
                                     return None
 
+                            latency_ms = (time.time() - start_time) * 1000
                             data = await resp.json()
 
                             # RPC-level errors
                             if "error" in data:
                                 error_code = data["error"].get("code", -1)
+                                # Record error for metrics
+                                record_request(
+                                    section="creator_funding",
+                                    provider="helius_rpc",
+                                    method=payload.get("method", "unknown"),
+                                    status_code=200,  # HTTP level was OK
+                                    latency_ms=latency_ms,
+                                    mode="realtime",
+                                    retries=attempt,
+                                    error=f"RPC error {error_code}",
+                                )
                                 # Retryable RPC errors
                                 if error_code in {-32008, -32000, -32003, -32009}:
                                     continue
@@ -343,6 +386,15 @@ class RealTimeCreatorFundingExtractor:
 
                             # Success
                             if "result" in data:
+                                record_request(
+                                    section="creator_funding",
+                                    provider="helius_rpc",
+                                    method=payload.get("method", "unknown"),
+                                    status_code=resp.status,
+                                    latency_ms=latency_ms,
+                                    mode="realtime",
+                                    retries=attempt,
+                                )
                                 return data
 
                     except asyncio.TimeoutError:

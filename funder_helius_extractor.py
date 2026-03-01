@@ -230,37 +230,170 @@ def mark_funder_analyzed(funder_address: str, creator_address: str):
         return False
 
 
-def get_transactions_helius(address: str, limit: int = 1000) -> List[Dict]:
-    """Get transactions for an address via Helius API"""
-    try:
-        # Use correct Helius endpoint format
-        url = f"https://api.helius.xyz/v0/addresses/{address}/transactions?api-key={HELIUS_API_KEY}"
+def get_transactions_helius(
+    address: str,
+    *,
+    limit: int = 100,
+    max_pages: int = 1,
+    before: Optional[str] = None,
+    timeout: int = 15,
+    retries: int = 3,
+) -> List[Dict]:
+    """
+    Get transactions for an address via Helius API with cost controls.
 
-        print(f"[HELIUS] Fetching transactions for {address[:16]}...")
-        response = requests.get(url, timeout=15)
-        data = response.json()
+    PRODUCTION-READY COST REDUCTION:
+    - Respects `limit` parameter (passed in query string)
+    - Supports pagination via `before` cursor and `max_pages` cap
+    - Implements exponential backoff + retry logic
+    - Handles HTTP 429 (rate limit) with Retry-After support
+    - Returns combined list across pages
+    - Defaults optimized for realtime (limit=100, max_pages=1)
 
-        if isinstance(data, list):
-            print(f"[HELIUS] Retrieved {len(data)} transactions")
-            return data
-        else:
-            print(f"[HELIUS] Error: {data}")
-            return []
+    Args:
+        address: Funder address to query
+        limit: Transactions per page (default 100 for realtime cost control)
+        max_pages: Maximum pages to fetch (default 1 for realtime, 5+ for background)
+        before: Pagination cursor (signature to start before)
+        timeout: Request timeout in seconds
+        retries: Number of retries on transient failures
 
-    except Exception as e:
-        print(f"[HELIUS] Error: {e}")
-        return []
+    Returns:
+        List of transaction objects across all pages
+
+    Cost Notes:
+        - Realtime defaults (limit=100, max_pages=1): ~1 API call
+        - Background defaults (limit=100, max_pages=5): ~5 API calls
+        - Never fetch all transactions; cap at max_pages
+    """
+    all_transactions = []
+    current_before = before
+    pages_fetched = 0
+
+    for page_num in range(max_pages):
+        attempt = 0
+        while attempt < retries:
+            try:
+                # Build URL with pagination support
+                url = f"https://api.helius.xyz/v0/addresses/{address}/transactions?api-key={HELIUS_API_KEY}&limit={limit}"
+                if current_before:
+                    url += f"&before={current_before}"
+
+                print(f"[HELIUS] Page {page_num + 1}/{max_pages}: Fetching {limit} txs for {address[:16]}... (attempt {attempt + 1}/{retries})", flush=True)
+
+                response = requests.get(url, timeout=timeout)
+
+                # Handle rate limiting
+                if response.status_code == 429:
+                    retry_after = response.headers.get("Retry-After")
+                    if retry_after:
+                        try:
+                            sleep_time = float(retry_after)
+                        except (ValueError, TypeError):
+                            sleep_time = 0.5 * (2 ** attempt)
+                    else:
+                        sleep_time = 0.5 * (2 ** attempt)
+
+                    sleep_time = min(sleep_time, 30.0)  # Cap at 30s
+                    print(f"[HELIUS] Rate limited (429). Sleeping {sleep_time:.1f}s...", flush=True)
+                    time.sleep(sleep_time)
+                    attempt += 1
+                    continue
+
+                # Handle server errors
+                if response.status_code >= 500:
+                    sleep_time = 0.5 * (2 ** attempt)
+                    print(f"[HELIUS] Server error ({response.status_code}). Backing off {sleep_time:.1f}s...", flush=True)
+                    time.sleep(sleep_time)
+                    attempt += 1
+                    continue
+
+                # Handle other HTTP errors
+                if response.status_code != 200:
+                    print(f"[HELIUS] HTTP {response.status_code}: {response.text[:200]}")
+                    return all_transactions if all_transactions else []
+
+                data = response.json()
+
+                # Validate response
+                if not isinstance(data, list):
+                    print(f"[HELIUS] Invalid response (expected list): {str(data)[:200]}")
+                    return all_transactions if all_transactions else []
+
+                if not data:
+                    print(f"[HELIUS] Page {page_num + 1}: No more transactions")
+                    return all_transactions
+
+                print(f"[HELIUS] Page {page_num + 1}: Got {len(data)} transactions", flush=True)
+                all_transactions.extend(data)
+                pages_fetched += 1
+
+                # Prepare for next page
+                if len(data) < limit:
+                    # Got fewer than limit, so we've reached the end
+                    print(f"[HELIUS] Reached end (got {len(data)} < {limit})")
+                    return all_transactions
+
+                # Set cursor for next page (last tx signature)
+                current_before = data[-1].get("signature")
+                if not current_before:
+                    print(f"[HELIUS] No signature in last transaction, stopping")
+                    return all_transactions
+
+                break  # Success, exit retry loop
+
+            except requests.Timeout:
+                sleep_time = 0.5 * (2 ** attempt)
+                print(f"[HELIUS] Timeout. Backing off {sleep_time:.1f}s... (attempt {attempt + 1}/{retries})", flush=True)
+                time.sleep(sleep_time)
+                attempt += 1
+
+            except requests.ConnectionError as e:
+                sleep_time = 0.5 * (2 ** attempt)
+                print(f"[HELIUS] Connection error: {e}. Backing off {sleep_time:.1f}s... (attempt {attempt + 1}/{retries})", flush=True)
+                time.sleep(sleep_time)
+                attempt += 1
+
+            except Exception as e:
+                print(f"[HELIUS] Unexpected error: {e}")
+                return all_transactions if all_transactions else []
+
+        # If we exhausted retries for this page
+        if attempt >= retries:
+            print(f"[HELIUS] Exhausted retries for page {page_num + 1}")
+            break
+
+    print(f"[HELIUS] Total: Fetched {len(all_transactions)} transactions across {pages_fetched} pages", flush=True)
+    return all_transactions
 
 
-def extract_transfers_for_funder(funder_address: str) -> Dict:
-    """Extract incoming and outgoing SOL transfers for a funder address using Helius"""
-    print(f"\n[EXTRACT] Analyzing funder: {funder_address}")
+def extract_transfers_for_funder(funder_address: str, *, mode: str = "realtime") -> Dict:
+    """
+    Extract incoming and outgoing SOL transfers for a funder address using Helius.
+
+    COST-CONTROLLED DEFAULTS:
+    - Realtime mode: limit=100, max_pages=1 (typically 1 API call)
+    - Background mode: limit=100, max_pages=5 (typically 5 API calls)
+
+    Args:
+        funder_address: Address to analyze
+        mode: "realtime" (token detection) or "background" (12h scan)
+
+    Returns:
+        Dict with incoming_count, outgoing_count, total_sol
+    """
+    print(f"\n[EXTRACT] Analyzing funder: {funder_address} (mode={mode})", flush=True)
 
     incoming_transfers = []
     outgoing_transfers = []
 
-    # Get recent transactions for this funder via Helius
-    txs = get_transactions_helius(funder_address, limit=1000)
+    # Get transactions with cost-controlled defaults based on mode
+    if mode == "realtime":
+        # Realtime: tight controls for token detection
+        txs = get_transactions_helius(funder_address, limit=100, max_pages=1, timeout=15)
+    else:
+        # Background: deeper scan for 12h enrichment (still bounded)
+        txs = get_transactions_helius(funder_address, limit=100, max_pages=5, timeout=20)
 
     if not txs:
         return {'incoming_count': 0, 'outgoing_count': 0, 'total_sol': 0}

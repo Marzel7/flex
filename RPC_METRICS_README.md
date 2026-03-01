@@ -323,10 +323,20 @@ getSignatureStatuses (searchTransactionHistory=true): 10
 getTransactionsForAddress: 100
 ```
 
-### Helius Enhanced REST (1-5 credits per request)
+### Helius Enhanced Transactions REST (PLAN-DEPENDENT)
 ```
-helius_enhanced_addresses_transactions: 1 credit/request
-helius_enhanced_transactions_batch: 5 credits/request
+⚠️  CRITICAL: Helius does NOT publish fixed credit costs for Enhanced Transactions.
+    Pricing is plan-dependent and may include:
+    - Included in plan tier
+    - Premium tier (higher cost)
+    - Metered per data volume
+    - Fixed per-request (10-100 credits depending on plan)
+
+helius_enhanced_addresses_transactions: VERIFY WITH YOUR PLAN
+helius_enhanced_transactions_batch: VERIFY WITH YOUR PLAN
+
+Action: Check your Helius dashboard or contact support for actual credits.
+        Then update rpc_metrics_config.py CREDIT_SCHEDULE accordingly.
 ```
 
 ### Streaming (3 credits per 0.1MB)

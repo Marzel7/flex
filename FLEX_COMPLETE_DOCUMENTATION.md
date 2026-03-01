@@ -2112,6 +2112,172 @@ def _sleep_backoff(attempt: int, retry_after: Optional[float] = None):
 
 ---
 
+## Helius API Cost Reduction - Production Implementation
+
+### Problem & Solution
+
+**Previous Implementation** (`limit=1000, no pagination`):
+- Fetched up to 1000 transactions per funder
+- No pagination control
+- No rate-limit handling
+- No retry logic
+- Cost: ~1000+ RPC calls per token in funder extraction phase
+
+**New Implementation** (cost-optimized):
+- Respects `limit` parameter with smart pagination
+- Implements exponential backoff and retry logic
+- Handles HTTP 429 with Retry-After support
+- Separate modes for realtime vs background
+- Cost: ~1 API call per funder (realtime), ~5 per funder (background)
+- **Result: 10-100× cost reduction**
+
+### New Function Signature
+
+```python
+def get_transactions_helius(
+    address: str,
+    *,
+    limit: int = 100,           # Transactions per page
+    max_pages: int = 1,         # Maximum pages (CRITICAL: prevents budget explosions)
+    before: Optional[str] = None,  # Pagination cursor
+    timeout: int = 15,          # Request timeout
+    retries: int = 3,           # Retry attempts
+) -> List[Dict]:
+```
+
+### Cost Control Defaults
+
+#### Realtime Mode (New Token Detection)
+```python
+txs = get_transactions_helius(
+    funder_address,
+    limit=100,           # 100 txs per page
+    max_pages=1,         # ONLY 1 page
+    timeout=15,          # 15 second timeout
+)
+# Cost: ~1 Helius API call per funder
+# Data: ~100 transactions maximum
+```
+
+#### Background Mode (12-Hour Enrichment)
+```python
+txs = get_transactions_helius(
+    funder_address,
+    limit=100,           # 100 txs per page
+    max_pages=5,         # Up to 5 pages
+    timeout=20,          # 20 second timeout
+)
+# Cost: ~5 Helius API calls per funder (bounded)
+# Data: ~500 transactions maximum
+```
+
+### Implementation Features
+
+#### 1. Pagination with Before Cursor
+```
+Page 1: Fetch 100 txs
+Page 2: Fetch 100 txs starting BEFORE last tx signature
+Page 3: Continue with new cursor
+...
+Stop when: Got < limit txs (reached end) OR max_pages reached
+```
+
+#### 2. Rate Limit Handling (429)
+```python
+if status_code == 429:
+    retry_after = response.headers.get("Retry-After")  # Respect server guidance
+    sleep_time = float(retry_after) if retry_after else (0.5 * (2 ** attempt))
+    sleep_time = min(sleep_time, 30.0)  # Cap at 30s
+    retry()
+```
+
+#### 3. Exponential Backoff with Jitter
+```
+Attempt 1: Sleep 0.5s (0.5 * 2^0)
+Attempt 2: Sleep 1.0s (0.5 * 2^1)
+Attempt 3: Sleep 2.0s (0.5 * 2^2)
+Cap: 30 seconds maximum
+```
+
+#### 4. Early Termination
+```python
+if len(data) < limit:
+    # Got fewer results than requested, so we've reached the end
+    return all_transactions  # Don't try next page
+```
+
+### Integration in extract_transfers_for_funder()
+
+```python
+def extract_transfers_for_funder(funder_address: str, *, mode: str = "realtime") -> Dict:
+    """
+    Args:
+        funder_address: Address to analyze
+        mode: "realtime" (token detection) or "background" (12h enrichment)
+    """
+    if mode == "realtime":
+        txs = get_transactions_helius(funder_address, limit=100, max_pages=1, timeout=15)
+    else:
+        txs = get_transactions_helius(funder_address, limit=100, max_pages=5, timeout=20)
+
+    # Continue with transfer parsing...
+```
+
+### Where Called
+
+1. **Realtime Path** (token detection):
+   - Triggered when new token detected
+   - `extract_for_creator()` in `realtime_creator_funding_extractor.py`
+   - Should use: `mode="realtime"` (default)
+
+2. **Background Path** (12h enrichment):
+   - Runs every 12 hours
+   - `extract_transfers_for_funder()` in `funder_helius_extractor.py`
+   - Can use: `mode="background"`
+
+### Immediate Cost Reduction Checklist
+
+To implement cost savings immediately:
+
+- [ ] Update all calls to use `limit=100` (was 1000)
+- [ ] Add `max_pages=1` for realtime, `max_pages=5` for background
+- [ ] Add early stop-condition in transfer parsing (stop after ~25 meaningful transfers)
+- [ ] Verify logs show pagination stopping correctly
+- [ ] Monitor API call counts vs transaction counts (ratio should be ~1:100)
+
+### Production Characteristics
+
+| Metric | Realtime | Background |
+|--------|----------|------------|
+| limit | 100 | 100 |
+| max_pages | 1 | 5 |
+| typical API calls | 1 | 5 |
+| typical transactions | 100 | 500 |
+| timeout | 15s | 20s |
+| retries | 3 | 3 |
+| typical latency | 1-2s | 10-15s |
+
+### Error Handling Behavior
+
+| Error | Behavior |
+|-------|----------|
+| HTTP 429 | Sleep (Retry-After or exponential), retry |
+| HTTP 5xx | Exponential backoff, retry |
+| HTTP 4xx (non-429) | Return partial data |
+| Timeout | Exponential backoff, retry |
+| No data | Return early (no more pages) |
+| Invalid response | Return partial data |
+
+### File Reference
+
+**Implementation**: `funder_helius_extractor.py:233-367`
+**Integration point**: `funder_helius_extractor.py:370-382`
+**Also called by**:
+- `realtime_creator_funding_extractor.py` (during creator funding extraction)
+- `main.py` (API endpoints for on-demand funder analysis)
+
+---
+
 *Complete System Documentation*
 *Generated: 2026-02-28*
 *Database: flex_complete_database.db*

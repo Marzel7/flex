@@ -2317,7 +2317,7 @@ HTML_TEMPLATE = """
                 <button class="action-button" onclick="window.location.href = '/coordinated-funders'" title="Analyze funders supporting multiple creators" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Coordinated Funders</button>
                 <button class="action-button" onclick="window.location.href = '/top-funding-hubs'" title="View top funding distribution hubs" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Hubs</button>
                 <button class="action-button" onclick="window.location.href = '/creator-analysis'" title="Analyze creator outgoing transfers and funding chains" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Creator Analysis</button>
-                <button class="action-button" onclick="window.location.href = 'http://localhost:8001/dashboard'" title="View RPC credit usage and cost monitoring in real-time" style="background: rgba(16, 185, 129, 0.2); color: var(--color-low); border: 1px solid rgba(16, 185, 129, 0.5); margin-left: 8px;">💰 RPC Metrics</button>
+                <button class="action-button" onclick="window.location.href = 'http://localhost:5002/rpc-metrics'" title="View RPC credit usage and cost monitoring in real-time" style="background: rgba(16, 185, 129, 0.2); color: var(--color-low); border: 1px solid rgba(16, 185, 129, 0.5); margin-left: 8px;">💰 RPC Metrics</button>
             </div>
         </div>
 
@@ -17505,6 +17505,157 @@ def unsuppress_alert(alert_id):
     except Exception as e:
         print(f"[ERROR] unsuppress_alert: {e}", flush=True)
         return {'success': False, 'error': str(e)}, 500
+
+
+@app.route('/rpc-metrics')
+def rpc_metrics_dashboard():
+    """
+    Proxy to RPC Metrics Dashboard.
+    Returns the HTML dashboard from rpc_metrics_api.
+    """
+    try:
+        import requests
+        response = requests.get('http://localhost:8001/dashboard', timeout=5)
+        if response.status_code == 200:
+            return response.text, 200, {'Content-Type': 'text/html'}
+        else:
+            return f'''
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>RPC Metrics Dashboard</title>
+                <style>
+                    body {{
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+                        background: #0f172a;
+                        color: #e2e8f0;
+                        padding: 40px;
+                        text-align: center;
+                    }}
+                    .error {{
+                        color: #ef4444;
+                        font-size: 18px;
+                        margin-bottom: 20px;
+                    }}
+                    .info {{
+                        color: #94a3b8;
+                        font-size: 14px;
+                        margin-top: 20px;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="error">⚠️ RPC Metrics Dashboard Not Available</div>
+                <p>The RPC Metrics service (localhost:8001) is not running.</p>
+                <p class="info">Start it with: <code>python rpc_metrics_api.py</code></p>
+            </body>
+            </html>
+            ''', 503, {'Content-Type': 'text/html'}
+    except Exception as e:
+        return f'''
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>RPC Metrics Dashboard</title>
+            <style>
+                body {{
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+                    background: #0f172a;
+                    color: #e2e8f0;
+                    padding: 40px;
+                    text-align: center;
+                }}
+                .error {{
+                    color: #ef4444;
+                    font-size: 18px;
+                    margin-bottom: 20px;
+                }}
+                .info {{
+                    color: #94a3b8;
+                    font-size: 14px;
+                    margin-top: 20px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="error">⚠️ Error Loading RPC Metrics Dashboard</div>
+            <p>{str(e)}</p>
+            <p class="info">Make sure the RPC Metrics service is running: <code>python rpc_metrics_api.py</code></p>
+        </body>
+        </html>
+        ''', 503, {'Content-Type': 'text/html'}
+
+
+@app.route('/metrics/rpc')
+def metrics_rpc_proxy():
+    """Proxy /metrics/rpc requests to the RPC Metrics API"""
+    try:
+        import requests
+        response = requests.get('http://localhost:8001/metrics/rpc', timeout=5)
+        return response.json(), response.status_code
+    except Exception as e:
+        return {'error': str(e)}, 503
+
+
+@app.route('/metrics/rpc/summary')
+def metrics_rpc_summary_proxy():
+    """Proxy /metrics/rpc/summary requests to the RPC Metrics API"""
+    try:
+        import requests
+        response = requests.get('http://localhost:8001/metrics/rpc/summary', timeout=5)
+        return response.json(), response.status_code
+    except Exception as e:
+        return {'error': str(e)}, 503
+
+
+@app.route('/metrics/rpc/sections')
+def metrics_rpc_sections_proxy():
+    """Proxy /metrics/rpc/sections requests to the RPC Metrics API"""
+    try:
+        import requests
+        response = requests.get('http://localhost:8001/metrics/rpc/sections', timeout=5)
+        return response.json(), response.status_code
+    except Exception as e:
+        return {'error': str(e)}, 503
+
+
+@app.route('/metrics/rpc/methods')
+def metrics_rpc_methods_proxy():
+    """Proxy /metrics/rpc/methods requests to the RPC Metrics API"""
+    try:
+        import requests
+        from flask import request
+        limit = request.args.get('limit', '10')
+        response = requests.get(f'http://localhost:8001/metrics/rpc/methods?limit={limit}', timeout=5)
+        return response.json(), response.status_code
+    except Exception as e:
+        return {'error': str(e)}, 503
+
+
+@app.route('/metrics/rpc/alerts')
+def metrics_rpc_alerts_proxy():
+    """Proxy /metrics/rpc/alerts requests to the RPC Metrics API"""
+    try:
+        import requests
+        from flask import request
+        burn_rate_threshold = request.args.get('burn_rate_threshold', '100.0')
+        response = requests.get(f'http://localhost:8001/metrics/rpc/alerts?burn_rate_threshold={burn_rate_threshold}', timeout=5)
+        return response.json(), response.status_code
+    except Exception as e:
+        return {'error': str(e)}, 503
+
+
+@app.route('/metrics/rpc/reset', methods=['POST'])
+def metrics_rpc_reset_proxy():
+    """Proxy /metrics/rpc/reset requests to the RPC Metrics API"""
+    try:
+        import requests
+        from flask import request
+        admin_token = request.args.get('admin_token', '')
+        response = requests.post(f'http://localhost:8001/metrics/rpc/reset?admin_token={admin_token}', timeout=5)
+        return response.json(), response.status_code
+    except Exception as e:
+        return {'error': str(e)}, 503
 
 
 # =========================================================================

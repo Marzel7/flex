@@ -2,6 +2,11 @@
 RPC Metrics Configuration
 
 Customize credit schedules, plan budgets, and alerting thresholds here.
+
+⚠️  CRITICAL: Enhanced Transactions endpoints (helius_enhanced_addresses_transactions, etc.)
+    are NOT published by Helius with fixed credit costs. They are plan-dependent.
+    Default is "unknown" (0 credits) - you MUST verify with your Helius account
+    and update CREDIT_SCHEDULE accordingly. Check your billing dashboard or contact support.
 """
 
 # ============================================================================
@@ -9,6 +14,9 @@ Customize credit schedules, plan budgets, and alerting thresholds here.
 # ============================================================================
 # Based on Helius pricing documentation
 # https://docs.helius.xyz/
+#
+# IMPORTANT: Some methods (like Enhanced Transactions) have plan-dependent costs.
+# See documentation in CREDIT_SCHEDULE below for which ones need manual verification.
 
 CREDIT_SCHEDULE = {
     # Standard RPC methods (low cost)
@@ -51,8 +59,18 @@ CREDIT_SCHEDULE = {
     # "enhanced_ws_bytes": 3 per 0.1MB
 
     # Helius Enhanced Transactions API (REST pseudo-methods)
-    "helius_enhanced_addresses_transactions": 1,  # Per request
-    "helius_enhanced_transactions_batch": 5,       # Batch endpoint (per request, not per tx)
+    # IMPORTANT: Enhanced Transactions billing is plan-dependent and NOT documented as fixed credits.
+    # Helius does NOT publish a fixed credit cost for Enhanced Transactions endpoints.
+    # These are estimates - verify with your Helius dashboard or support.
+    # Common patterns:
+    #   - May be billed as part of plan tier (included or premium tier)
+    #   - May be billed per request at 10-100 credits depending on plan
+    #   - May be metered based on response data volume
+    #
+    # RECOMMENDATION: Set to "unknown" and override in config per your plan.
+    # Then monitor actual usage and adjust based on Helius billing dashboard.
+    "helius_enhanced_addresses_transactions": "unknown",  # VERIFY WITH YOUR PLAN
+    "helius_enhanced_transactions_batch": "unknown",       # VERIFY WITH YOUR PLAN
 
     # Fallback RPC methods
     "fallback_getTransaction": 10,

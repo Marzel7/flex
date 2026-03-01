@@ -145,12 +145,16 @@ Use these when calling `record_request()`:
 Use these when calling `record_request()`:
 
 ```python
-# Standard RPC (10 credits)
+# Standard RPC (archival - 10 credits)
 "getTransaction"
 "getSignaturesForAddress"
 
-# Helius Enhanced (1 credit)
-"helius_enhanced_addresses_transactions"
+# Helius Enhanced Transactions (PLAN-DEPENDENT)
+# ⚠️ IMPORTANT: These are NOT published by Helius as fixed credits.
+# Verify actual cost with your Helius billing dashboard or support.
+# Configure in rpc_metrics_config.py CREDIT_SCHEDULE after checking your plan.
+"helius_enhanced_addresses_transactions"  # Default: "unknown" (0 credits until configured)
+"helius_enhanced_transactions_batch"      # Default: "unknown" (0 credits until configured)
 
 # Streaming (3 credits per 0.1MB)
 # Use record_stream_bytes() instead

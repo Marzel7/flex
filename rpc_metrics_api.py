@@ -105,6 +105,36 @@ async def metrics_alerts(
     }
 
 
+@app.post("/metrics/rpc/record")
+async def record_metric(
+    section: str = Query(...),
+    provider: str = Query(...),
+    method: str = Query(...),
+    status_code: int = Query(...),
+    latency_ms: float = Query(...),
+    mode: str = Query("realtime"),
+    retries: int = Query(0),
+    bytes_in: int = Query(0),
+    bytes_out: int = Query(0),
+    error: Optional[str] = Query(None),
+):
+    """Record a single RPC metric (called by instrumented code in other processes)"""
+    recorder = get_recorder()
+    credits = recorder.record_request(
+        section=section,
+        provider=provider,
+        method=method,
+        status_code=status_code,
+        latency_ms=latency_ms,
+        mode=mode,
+        retries=retries,
+        bytes_in=bytes_in,
+        bytes_out=bytes_out,
+        error=error,
+    )
+    return {"credits": credits, "status": "recorded"}
+
+
 @app.post("/metrics/rpc/reset")
 async def metrics_reset(admin_token: Optional[str] = Query(None)):
     """Reset daily counters (requires admin_token for security)"""

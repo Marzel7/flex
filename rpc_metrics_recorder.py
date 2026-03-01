@@ -261,7 +261,13 @@ class RPCMetricsRecorder:
             return credits
 
     def _compute_credits(self, method: str, status_code: int) -> int:
-        """Compute credits for a method based on schedule"""
+        """
+        Compute credits for a method based on schedule.
+
+        Returns 0 for:
+        - Failed requests (status >= 400)
+        - Methods with "unknown" cost (user must verify with Helius)
+        """
         # Failed requests may not consume credits (depends on plan)
         # Default: 400+ errors cost credits, but this is configurable
         if status_code >= 400:
@@ -269,16 +275,24 @@ class RPCMetricsRecorder:
 
         # Look up in schedule
         if method not in CREDIT_SCHEDULE:
-            # Unknown method - assume 1 credit to be conservative
-            return 1
+            # Unknown method - return 0 and let user add it to CREDIT_SCHEDULE
+            return 0
 
         schedule_entry = CREDIT_SCHEDULE[method]
 
+        # If entry is "unknown" string, return 0 (user must configure)
+        if schedule_entry == "unknown":
+            return 0
+
         # If it's a dict (e.g., getSignatureStatuses with conditional), use default
         if isinstance(schedule_entry, dict):
-            return schedule_entry.get("default", 1)
+            return schedule_entry.get("default", 0)
 
-        return int(schedule_entry)
+        # Try to convert to int
+        try:
+            return int(schedule_entry)
+        except (ValueError, TypeError):
+            return 0
 
     def get_summary(self) -> Dict:
         """Get high-level summary of credit usage"""

@@ -17607,6 +17607,17 @@ def metrics_rpc_alerts_proxy():
         return {'error': str(e)}, 503
 
 
+@app.route('/metrics/rpc/source-files')
+def metrics_rpc_source_files_proxy():
+    """Proxy /metrics/rpc/source-files requests to the RPC Metrics API"""
+    try:
+        import requests
+        response = requests.get('http://localhost:8001/metrics/rpc/source-files', timeout=5)
+        return response.json(), response.status_code
+    except Exception as e:
+        return {'error': str(e)}, 503
+
+
 @app.route('/metrics/rpc/reset', methods=['POST'])
 def metrics_rpc_reset_proxy():
     """Proxy /metrics/rpc/reset requests to the RPC Metrics API"""

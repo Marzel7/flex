@@ -17631,6 +17631,17 @@ def metrics_rpc_reset_proxy():
         return {'error': str(e)}, 503
 
 
+@app.route('/metrics/helius/capture', methods=['POST'])
+def metrics_helius_capture_proxy():
+    """Proxy /metrics/helius/capture requests to the RPC Metrics API"""
+    try:
+        import requests
+        response = requests.post('http://localhost:8001/metrics/helius/capture', timeout=10)
+        return response.json(), response.status_code
+    except Exception as e:
+        return {'error': str(e)}, 503
+
+
 # =========================================================================
 # MAIN
 # =========================================================================

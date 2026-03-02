@@ -106,8 +106,8 @@ class PlanConfig:
     # ACTUAL USAGE FROM HELIUS DASHBOARD (as of 2026-03-02 after reset)
     # This is synced from your Helius account
     CURRENT_USAGE = {
-        "credits_used_today": 17_575,        # Total credits consumed today
-        "credits_remaining": 982_425,        # Remaining monthly budget (1M - 17,575)
+        "credits_used_today": 0,             # Total credits consumed today
+        "credits_remaining": 1_000_000,      # Remaining monthly budget (1M)
         "budget_start_date": "2026-03-01",   # Start of billing period
     }
 

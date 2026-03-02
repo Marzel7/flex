@@ -495,6 +495,17 @@ class RPCMetricsRecorder:
             self._daily_reset_time = datetime.now()
             self._daily_credits = 0
 
+    def reset_credits_today(self):
+        """Reset Helius daily credit baseline (for dashboard reset button)"""
+        try:
+            from rpc_metrics_config import PlanConfig
+            # Reset credits_used_today to 0, keep credits_remaining as is
+            monthly_budget = PlanConfig.CURRENT_USAGE.get("credits_remaining", 0) + PlanConfig.CURRENT_USAGE.get("credits_used_today", 0)
+            PlanConfig.CURRENT_USAGE["credits_used_today"] = 0
+            PlanConfig.CURRENT_USAGE["credits_remaining"] = monthly_budget
+        except Exception:
+            pass  # Config may not be available
+
     def export_json(self) -> str:
         """Export full metrics as JSON"""
         with self._lock:

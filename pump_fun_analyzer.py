@@ -11,6 +11,14 @@ from typing import List, Dict
 import time
 import sys
 
+# Import RPC metrics recorder for monitoring
+try:
+    from rpc_metrics_recorder import record_request, initialize_recorder
+    initialize_recorder(plan_monthly_credits=50_000_000)
+except ImportError:
+    def record_request(*args, **kwargs):
+        pass  # No-op if metrics recorder not available
+
 
 class PumpFunTokenAnalyzer:
     """
@@ -67,9 +75,31 @@ class PumpFunTokenAnalyzer:
                     payload["params"][1]["before"] = before_cursor
 
                 try:
-                    resp = requests.post(self.rpc_url, json=payload, timeout=10).json()
+                    start_time = time.time()
+                    http_resp = requests.post(self.rpc_url, json=payload, timeout=10)
+                    latency_ms = (time.time() - start_time) * 1000
+                    resp = http_resp.json()
+
+                    # Record metrics
+                    record_request(
+                        section="ui_api",
+                        provider="solana_rpc",
+                        method="getSignaturesForAddress",
+                        status_code=http_resp.status_code,
+                        latency_ms=latency_ms,
+                        mode="background",
+                    )
                 except Exception as e:
                     print(f"[ANALYZER] ❌ Failed to fetch signatures: {e}", flush=True)
+                    record_request(
+                        section="ui_api",
+                        provider="solana_rpc",
+                        method="getSignaturesForAddress",
+                        status_code=0,
+                        latency_ms=(time.time() - start_time) * 1000,
+                        mode="background",
+                        error=str(e),
+                    )
                     break
 
                 if "result" not in resp or not resp["result"]:
@@ -118,11 +148,34 @@ class PumpFunTokenAnalyzer:
                     "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
                 }
                 try:
-                    tx_resp = requests.post(self.rpc_url, json=payload_tx, timeout=10).json()
+                    start_time = time.time()
+                    tx_http_resp = requests.post(self.rpc_url, json=payload_tx, timeout=10)
+                    latency_ms = (time.time() - start_time) * 1000
+                    tx_resp = tx_http_resp.json()
+
+                    # Record metrics
+                    record_request(
+                        section="ui_api",
+                        provider="solana_rpc",
+                        method="getTransaction",
+                        status_code=tx_http_resp.status_code,
+                        latency_ms=latency_ms,
+                        mode="background",
+                    )
+
                     tx_info = tx_resp.get("result")
                     if tx_info:
                         self._parse_transaction(tx_info)
-                except Exception:
+                except Exception as e:
+                    record_request(
+                        section="ui_api",
+                        provider="solana_rpc",
+                        method="getTransaction",
+                        status_code=0,
+                        latency_ms=(time.time() - start_time) * 1000,
+                        mode="background",
+                        error=str(e),
+                    )
                     pass
                 time.sleep(0.05)  # avoid rate limits
 

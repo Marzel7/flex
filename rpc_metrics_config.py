@@ -95,6 +95,14 @@ class PlanConfig:
     # Your current plan (set in environment or here)
     CURRENT_PLAN = "business"  # Change to your plan
 
+    # ACTUAL USAGE FROM HELIUS DASHBOARD (as of 2026-03-02)
+    # This is synced from your Helius account
+    CURRENT_USAGE = {
+        "credits_used_today": 15_709,        # Total credits consumed today
+        "credits_remaining": 984_291,        # Remaining monthly budget
+        "budget_start_date": "2026-03-01",   # Start of billing period
+    }
+
     @classmethod
     def get_monthly_credits(cls):
         """Get monthly credit budget for current plan"""

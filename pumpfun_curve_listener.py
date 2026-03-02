@@ -1935,6 +1935,19 @@ class PumpFunCurveListener:
                     except Exception as e:
                         print(f"[CLUSTERING] ⚠️ Error queueing clustering: {e}", flush=True)
 
+                    # Capture Helius account usage snapshot
+                    try:
+                        print(f"[HELIUS] ⏳ Capturing Helius account usage snapshot...", flush=True)
+                        from helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
+                        usage = get_helius_usage_cli()
+                        if usage:
+                            record_usage_snapshot(usage)
+                            print(f"[HELIUS] ✅ Helius snapshot captured: {usage.get('credits_used_month', 'N/A')} credits used this month", flush=True)
+                        else:
+                            print(f"[HELIUS] ⚠️ Could not retrieve Helius usage data", flush=True)
+                    except Exception as e:
+                        print(f"[HELIUS] ⚠️ Error capturing Helius snapshot: {e}", flush=True)
+
                 # Fire-and-forget: don't wait for background tasks
                 asyncio.create_task(background_funding_and_clustering())
                 print(f"[BACKGROUND] 📤 Background tasks spawned (fire-and-forget)", flush=True)

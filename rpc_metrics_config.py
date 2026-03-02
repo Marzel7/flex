@@ -104,11 +104,11 @@ class PlanConfig:
     CURRENT_PLAN = "business"  # Change to your plan
 
     # ACTUAL USAGE FROM HELIUS DASHBOARD (as of 2026-03-02 after reset)
-    # This is synced from your Helius account
+    # This is synced from your Helius account via helius_cli_monitor.py
     CURRENT_USAGE = {
         "credits_used_today": 0,             # Total credits consumed today
-        "credits_remaining": 1_000_000,      # Remaining monthly budget (1M)
-        "budget_start_date": "2026-03-01",   # Start of billing period
+        "credits_remaining": 10_000_000,     # Remaining monthly budget (10M tier)
+        "budget_start_date": "2026-03-02",   # Start of billing period
     }
 
     @classmethod

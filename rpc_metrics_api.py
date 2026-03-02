@@ -36,9 +36,9 @@ app = FastAPI(
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize recorder on startup (with 1M credits/month plan example)"""
-    # Adjust plan_monthly_credits to your actual plan
-    initialize_recorder(plan_monthly_credits=1_000_000)
+    """Initialize recorder on startup (with 10M credits/month plan)"""
+    # Using Helius tier: 10M credits/month
+    initialize_recorder(plan_monthly_credits=10_000_000)
 
 
 @app.get("/health")
@@ -147,14 +147,14 @@ async def record_metric(data: dict):
 
 @app.post("/metrics/rpc/reset")
 async def metrics_reset(request: dict = Body(None)):
-    """Reset all daily metrics to 0 (including Helius credit baseline)"""
+    """Reset all RPC instrumentation metrics to 0"""
     # Reset is available for local/trusted access
     # In production, add authentication if exposed to untrusted networks
     try:
         recorder = get_recorder()
         recorder.reset_daily()
         recorder.reset_credits_today()
-        return {"status": "success", "message": "Daily metrics reset to 0 (Total Credits Today, burn rate, and all counters)"}
+        return {"status": "success", "message": "All RPC metrics reset to 0 (requests, errors, sections, methods)"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Reset failed: {str(e)}")
 
@@ -262,6 +262,13 @@ async def capture_helius_snapshot():
                 "credits_remaining": usage.get("credits_remaining"),
                 "credits_used": usage.get("credits_used"),
                 "credits_used_month": usage.get("credits_used_month"),
+                "prepaid_credits_used": usage.get("prepaid_credits_used"),
+                "overage_credits_used": usage.get("overage_credits_used"),
+                "overage_cost": usage.get("overage_cost"),
+                "webhook_usage": usage.get("webhook_usage"),
+                "api_usage": usage.get("api_usage"),
+                "rpc_usage": usage.get("rpc_usage"),
+                "rpc_gpa_usage": usage.get("rpc_gpa_usage"),
                 "timestamp": usage.get("timestamp"),
             },
         }
@@ -626,7 +633,10 @@ DASHBOARD_HTML = """
                     <h1>🚀 FLEX RPC Metrics Dashboard</h1>
                     <p>Real-time Helius credit usage tracking by component</p>
                 </div>
-                <button class="reset-btn" onclick="showResetConfirm()">🔄 Reset Metrics</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="reset-btn" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); box-shadow: 0 4px 6px rgba(6, 182, 212, 0.3);" id="refreshBtn" onclick="refreshHelius()">💎 Refresh Helius</button>
+                    <button class="reset-btn" onclick="showResetConfirm()">🔄 Reset Metrics</button>
+                </div>
             </div>
         </header>
 
@@ -688,14 +698,10 @@ DASHBOARD_HTML = """
             const creditsUsedAlert = creditsUsedSinceReset > 100000 ? 'alert' : '';
 
             html += `<div class="grid">
-                <div class="card">
-                    <h3>Total Credits Today</h3>
-                    <div class="value">${formatNumber(summary.credits_today)}</div>
-                </div>
                 <div class="card ${creditsUsedAlert}">
                     <h3>Credits Used (Since Reset)</h3>
                     <div class="value">${formatNumber(creditsUsedSinceReset)}</div>
-                    <div class="unit">change since last reset</div>
+                    <div class="unit">your local instrumentation</div>
                 </div>
                 <div class="card">
                     <h3>Daily Burn Rate</h3>
@@ -720,19 +726,56 @@ DASHBOARD_HTML = """
                     <h3>Errors</h3>
                     <div class="value">${formatNumber(summary.errors_total)}</div>
                 </div>
-                ${heliusSnapshot ? `
-                <div class="card" style="border: 2px solid #06b6d4;">
-                    <h3>💎 Helius: Actual Account</h3>
-                    <div class="value" style="color: #06b6d4;">${formatNumber(heliusSnapshot.credits_remaining)}</div>
-                    <div class="unit" style="font-size: 11px; color: #64748b;">remaining | Snapshot: ${new Date(heliusSnapshot.timestamp).toLocaleTimeString()}</div>
-                </div>
-                <div class="card" style="border: 2px solid #8b5cf6;">
-                    <h3>📊 Your Usage: Estimated</h3>
-                    <div class="value" style="color: #8b5cf6;">${formatNumber(summary.credits_monthly_estimate)}</div>
-                    <div class="unit" style="font-size: 11px; color: #64748b;">monthly projection at current burn rate</div>
-                </div>
-                ` : ''}
             </div>`;
+
+            // Helius breakdown
+            if (heliusSnapshot) {
+                html += `<div class="section">
+                    <h2>💎 Helius Usage Breakdown</h2>
+                    <div class="grid">
+                        <div class="card" style="border: 1px solid #a78bfa;">
+                            <h3>Today's Usage</h3>
+                            <div class="value" style="color: #a78bfa;">${formatNumber(heliusSnapshot.prepaid_credits_used + (heliusSnapshot.overage_credits_used || 0))}</div>
+                            <div class="unit">credits</div>
+                        </div>
+                        <div class="card" style="border: 1px solid #fbbf24;">
+                            <h3>Remaining</h3>
+                            <div class="value" style="color: #fbbf24;">${formatNumber(Math.max(0, 10000000 - (heliusSnapshot.prepaid_credits_used + (heliusSnapshot.overage_credits_used || 0))))}</div>
+                            <div class="unit">of 10M monthly</div>
+                        </div>
+                        <div class="card" style="border: 1px solid #06b6d4;">
+                            <h3>RPC Usage</h3>
+                            <div class="value" style="color: #06b6d4;">${formatNumber(heliusSnapshot.rpc_usage || 0)}</div>
+                            <div class="unit">RPC method calls</div>
+                        </div>
+                        <div class="card" style="border: 1px solid #06b6d4;">
+                            <h3>RPC GPA Usage</h3>
+                            <div class="value" style="color: #06b6d4;">${formatNumber(heliusSnapshot.rpc_gpa_usage || 0)}</div>
+                            <div class="unit">GetProgramAccounts calls</div>
+                        </div>
+                        <div class="card" style="border: 1px solid #06b6d4;">
+                            <h3>API Usage</h3>
+                            <div class="value" style="color: #06b6d4;">${formatNumber(heliusSnapshot.api_usage || 0)}</div>
+                            <div class="unit">REST API calls</div>
+                        </div>
+                        <div class="card" style="border: 1px solid #06b6d4;">
+                            <h3>Webhook Usage</h3>
+                            <div class="value" style="color: #06b6d4;">${formatNumber(heliusSnapshot.webhook_usage || 0)}</div>
+                            <div class="unit">Webhook triggers</div>
+                        </div>
+                        <div class="card" style="border: 1px solid #10b981;">
+                            <h3>Prepaid Used</h3>
+                            <div class="value" style="color: #10b981;">${formatNumber(heliusSnapshot.prepaid_credits_used || 0)}</div>
+                            <div class="unit">from prepaid tier</div>
+                        </div>
+                        <div class="card" style="border: 1px solid #ef4444;">
+                            <h3>Overage Used</h3>
+                            <div class="value" style="color: #ef4444;">${formatNumber(heliusSnapshot.overage_credits_used || 0)}</div>
+                            <div class="unit">beyond prepaid (cost: $${(heliusSnapshot.overage_cost || 0).toFixed(2)})</div>
+                        </div>
+                    </div>
+                </div>`;
+            }
 
             // Alerts
             if (alerts.length > 0) {
@@ -893,7 +936,7 @@ DASHBOARD_HTML = """
 
                 if (response.ok) {
                     const data = await response.json();
-                    statusDiv.textContent = "✅ Metrics reset successfully! Helius credit baseline preserved.";
+                    statusDiv.textContent = "✅ All RPC metrics reset to 0 (requests, errors, sections, methods). Helius account data preserved.";
                     statusDiv.classList.add("success", "show");
 
                     // Refresh dashboard after reset
@@ -910,6 +953,43 @@ DASHBOARD_HTML = """
                 statusDiv.classList.add("error", "show");
             } finally {
                 resetBtn.disabled = false;
+            }
+        }
+
+        async function refreshHelius() {
+            const btn = document.getElementById("refreshBtn");
+            const statusDiv = document.getElementById("resetStatus");
+
+            btn.disabled = true;
+            btn.textContent = "⏳ Syncing...";
+
+            try {
+                const response = await fetch("/metrics/helius/capture", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    statusDiv.textContent = "✅ Helius data synced! Remaining: " +
+                        new Intl.NumberFormat("en-US").format(data.snapshot.credits_remaining) + " credits";
+                    statusDiv.classList.add("success", "show");
+
+                    // Refresh dashboard
+                    setTimeout(() => {
+                        fetchMetrics();
+                        statusDiv.classList.remove("show");
+                    }, 1500);
+                } else {
+                    statusDiv.textContent = "⚠️ Helius sync failed: " + (response.statusText || "Unknown error");
+                    statusDiv.classList.add("error", "show");
+                }
+            } catch (error) {
+                statusDiv.textContent = "❌ Error syncing Helius: " + error.message;
+                statusDiv.classList.add("error", "show");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "💎 Refresh Helius";
             }
         }
 

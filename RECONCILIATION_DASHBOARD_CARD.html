@@ -1,0 +1,147 @@
+<!--
+Reconciliation Health Card - Add to RPC Metrics Dashboard
+Insert into renderDashboard() after Helius breakdown section
+-->
+
+<!-- Reconciliation Health Card -->
+<div class="section">
+    <h2>🔄 Reconciliation Health</h2>
+    <div class="grid">
+        <div class="card" id="reconciliation-health-card" style="border: 1px solid #06b6d4;">
+            <h3>Status</h3>
+            <div class="value" id="reconciliation-status" style="color: #06b6d4;">LOADING</div>
+            <div class="unit" id="reconciliation-status-note">Fetching health data...</div>
+        </div>
+        <div class="card" style="border: 1px solid #06b6d4;">
+            <h3>Avg Diff %</h3>
+            <div class="value" id="reconciliation-avg-diff" style="color: #06b6d4;">-</div>
+            <div class="unit">7-day average</div>
+        </div>
+        <div class="card" style="border: 1px solid #06b6d4;">
+            <h3>Clean Intervals</h3>
+            <div class="value" id="reconciliation-clean" style="color: #06b6d4;">-</div>
+            <div class="unit">±1–2% diff</div>
+        </div>
+        <div class="card" style="border: 1px solid #06b6d4;">
+            <h3>Total Samples</h3>
+            <div class="value" id="reconciliation-samples" style="color: #06b6d4;">-</div>
+            <div class="unit">last 7 days</div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Fetch and display reconciliation health
+async function loadReconciliationHealth() {
+    try {
+        const response = await fetch('/reconciliation/health');
+        const data = await response.json();
+
+        if (data.status === 'error') {
+            document.getElementById('reconciliation-status').textContent = 'ERROR';
+            document.getElementById('reconciliation-status-note').textContent = data.message || 'Failed to load';
+            return;
+        }
+
+        const health = data.health || 'NO_DATA';
+        const details = data.details || {};
+
+        // Update status with color
+        const statusEl = document.getElementById('reconciliation-status');
+        const statusNote = document.getElementById('reconciliation-status-note');
+
+        statusEl.textContent = health;
+
+        let statusColor = '#06b6d4'; // cyan (default)
+        let statusMessage = 'Unknown';
+
+        switch (health) {
+            case 'HEALTHY':
+                statusColor = '#10b981'; // green
+                statusMessage = 'Reconciliation within tolerance';
+                break;
+            case 'WARNING':
+                statusColor = '#f59e0b'; // yellow
+                statusMessage = 'Minor drift detected';
+                break;
+            case 'DEGRADED':
+                statusColor = '#f97316'; // orange
+                statusMessage = 'Significant drift in some intervals';
+                break;
+            case 'UNSTABLE':
+                statusColor = '#ef4444'; // red
+                statusMessage = 'Frequent breaks or resets';
+                break;
+            case 'NO_DATA':
+                statusColor = '#94a3b8'; // gray
+                statusMessage = 'Awaiting first data collection';
+                break;
+        }
+
+        statusEl.style.color = statusColor;
+        statusNote.textContent = statusMessage;
+        document.getElementById('reconciliation-health-card').style.borderColor = statusColor;
+
+        // Update metrics
+        document.getElementById('reconciliation-avg-diff').textContent =
+            details.avg_diff_pct ? `${details.avg_diff_pct.toFixed(2)}%` : '-';
+
+        document.getElementById('reconciliation-clean').textContent =
+            details.clean_count || '0';
+
+        document.getElementById('reconciliation-samples').textContent =
+            details.total_intervals || '0';
+
+    } catch (error) {
+        console.error('Error loading reconciliation health:', error);
+        document.getElementById('reconciliation-status').textContent = 'ERROR';
+        document.getElementById('reconciliation-status-note').textContent = error.message;
+    }
+}
+
+// Call after main dashboard renders (add to existing renderDashboard function)
+// loadReconciliationHealth();
+</script>
+
+<!--
+INTEGRATION INSTRUCTIONS:
+
+1. Add to rpc_metrics_api.py routes (if using FastAPI):
+   from reconciliation_api import router as reconciliation_router
+   app.include_router(reconciliation_router, prefix="/reconciliation")
+
+2. Add to renderDashboard() JavaScript function in DASHBOARD_HTML:
+
+   // After Helius breakdown section, add:
+
+   // Reconciliation card
+   if (true) {  // always show card
+       html += `<div class="section">
+           <h2>🔄 Reconciliation Health</h2>
+           <div class="grid">
+               <div class="card" style="border: 1px solid #06b6d4;">
+                   <h3>Status</h3>
+                   <div class="value" id="reconciliation-status" style="color: #06b6d4;">LOADING</div>
+                   <div class="unit" id="reconciliation-status-note">Fetching...</div>
+               </div>
+               ...
+           </div>
+       </div>`;
+   }
+
+3. Add to end of renderDashboard(), before document.getElementById("content").innerHTML = html:
+
+   // Load reconciliation health asynchronously
+   setTimeout(loadReconciliationHealth, 500);
+
+4. Make sure cron is running:
+   */5 * * * * cd /path/to/flex && python reconciliation_main.py
+
+STATUS COLORS:
+  🟢 HEALTHY   - diff ≤ 2%
+  🟡 WARNING   - diff > 2% but stable
+  🟠 DEGRADED  - >5% intervals with drift
+  🔴 UNSTABLE  - >10% intervals with breaks
+  ⚫ NO_DATA   - waiting for first collection
+  ⚪ ERROR     - fetch or API error
+-->

@@ -103,17 +103,13 @@ class PlanConfig:
     # Your current plan (set in environment or here)
     CURRENT_PLAN = "business"  # Change to your plan
 
-    # ACTUAL USAGE FROM HELIUS DASHBOARD (as of 2026-03-02 08:30 UTC)
+    # ACTUAL USAGE FROM HELIUS DASHBOARD (as of 2026-03-02 after reset)
     # This is synced from your Helius account
     CURRENT_USAGE = {
-        "credits_used_today": 15_880,        # Total credits consumed today
-        "credits_remaining": 984_120,        # Remaining monthly budget (1M - 15,880)
+        "credits_used_today": 17_575,        # Total credits consumed today
+        "credits_remaining": 982_425,        # Remaining monthly budget (1M - 17,575)
         "budget_start_date": "2026-03-01",   # Start of billing period
     }
-    # NOTE: +27 credits from 15,853 come from uninstrumented Flask API endpoints:
-    # - /api/validate-transaction (makes getTransaction calls, 10 credits each)
-    # - /api/transaction/<signature> (makes getTransaction calls, 10 credits each)
-    # These endpoints are not yet instrumented and bypass the metrics recorder.
 
     @classmethod
     def get_monthly_credits(cls):

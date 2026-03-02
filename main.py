@@ -7331,25 +7331,12 @@ def api_funding_network():
 
 @app.route('/api/creator-sol-stats/<creator_address>')
 def api_creator_sol_stats(creator_address: str):
-    """Get SOL in/out summary for a creator"""
-    try:
-        from creator_watch_manager import CreatorWatchManager
-
-        # Create temporary manager instance to query stats
-        helius_rpc = f"https://mainnet.helius-rpc.com/?api-key={os.getenv('HELIUS_API_KEY')}" if os.getenv("HELIUS_API_KEY") else "https://api.mainnet-beta.solana.com"
-        manager = CreatorWatchManager(
-            rpc_url=helius_rpc
-        )
-
-        stats = manager.get_creator_stats(creator_address)
-
-        if not stats:
-            return jsonify({'error': 'Creator not found in watch'}), 404
-
-        return jsonify(stats)
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    """Get SOL in/out summary for a creator - DEPRECATED
+    
+    CreatorWatchManager has been removed. Use /api/creator-outgoing-analysis/<creator_address>
+    or /api/creator-details/<creator_address> instead for updated creator analysis.
+    """
+    return jsonify({'error': 'This endpoint is deprecated. Use /api/creator-details/<creator_address> instead'}), 410
 
 @app.route('/api/infrastructure-mapping')
 def api_infrastructure_mapping():
@@ -7752,37 +7739,12 @@ def api_coordinated_funder_analysis(creator_address: str):
 
 @app.route('/api/creator-sol-ledger/<creator_address>')
 def api_creator_sol_ledger(creator_address: str):
-    """Get recent SOL transactions for a creator"""
-    try:
-        limit = request.args.get('limit', 50, type=int)
-
-        from creator_watch_manager import CreatorWatchManager
-
-        # Create temporary manager instance to query ledger
-        helius_rpc = f"https://mainnet.helius-rpc.com/?api-key={os.getenv('HELIUS_API_KEY')}" if os.getenv("HELIUS_API_KEY") else "https://api.mainnet-beta.solana.com"
-        manager = CreatorWatchManager(
-            rpc_url=helius_rpc
-        )
-
-        ledger = manager.get_recent_ledger(creator_address, limit=limit)
-
-        return jsonify({
-            'creator_address': creator_address,
-            'transactions': [
-                {
-                    'signature': tx['signature'],
-                    'blockTime': tx['blockTime'],
-                    'delta_sol': tx['delta_sol_lamports'] / 1e9 if tx['delta_sol_lamports'] else 0,
-                    'fee_sol': tx['fee_lamports'] / 1e9 if tx['fee_lamports'] else 0,
-                    'type': tx['tx_type'],
-                    'counterparty': tx['counterparty']
-                }
-                for tx in ledger
-            ]
-        })
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    """Get recent SOL transactions for a creator - DEPRECATED
+    
+    CreatorWatchManager has been removed. Use /api/creator-outgoing-analysis/<creator_address>
+    for updated transaction analysis.
+    """
+    return jsonify({'error': 'This endpoint is deprecated. Use /api/creator-outgoing-analysis/<creator_address> instead'}), 410
 
 
 @app.route('/api/transaction/<signature>')

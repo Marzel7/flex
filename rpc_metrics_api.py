@@ -148,6 +148,43 @@ async def metrics_reset(request: dict = Body(None)):
         raise HTTPException(status_code=500, detail=f"Reset failed: {str(e)}")
 
 
+@app.get("/metrics/rpc/scan-cost")
+async def scan_cost_estimate():
+    """
+    Get estimated credits for a complete creator_outgoing_extractor scan cycle.
+
+    Returns breakdown of:
+    - RPC calls (getSignaturesForAddress)
+    - Enhanced transaction parsing calls
+    - Total estimated credits
+    - Estimated duration with rate limiting
+    """
+    try:
+        from creator_outgoing_extractor import calculate_scan_cost_estimate
+        cost = calculate_scan_cost_estimate()
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "scan_cost_estimate": cost,
+            "configuration": {
+                "total_creators": 1000,
+                "pages_per_creator": 2,
+                "requests_per_second": 8.0,
+                "concurrency": 3,
+                "max_retries": 3,
+            },
+            "notes": [
+                "Estimate based on MAX_PAGES_PER_CYCLE=2 per creator",
+                "Rate limited to 8 req/sec (smooth, prevents 429s)",
+                "Enhanced calls assume 25 sigs per page, 100 sigs per batch",
+                "Actual cost may vary based on retry count and data volume",
+                "One scan cycle runs every 12 hours",
+                "Two cycles per day = covers all 1,453 creators",
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not calculate scan cost: {str(e)}")
+
+
 @app.get("/dashboard")
 async def dashboard():
     """Serve minimal HTML dashboard"""

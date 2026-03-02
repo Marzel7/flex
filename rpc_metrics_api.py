@@ -83,6 +83,16 @@ async def metrics_sections():
     }
 
 
+@app.get("/metrics/rpc/source-files")
+async def metrics_source_files():
+    """Per-source-file breakdown (which files/processes are making RPC calls)"""
+    recorder = get_recorder()
+    return {
+        "timestamp": datetime.now().isoformat(),
+        "source_files": recorder.get_source_file_stats(),
+    }
+
+
 @app.get("/metrics/rpc/methods")
 async def metrics_methods(limit: int = Query(10, ge=1, le=50)):
     """Top methods by credits"""
@@ -358,6 +368,12 @@ DASHBOARD_HTML = """
             try {
                 const response = await fetch(API_URL);
                 const data = await response.json();
+
+                // Also fetch source file stats
+                const sourceResponse = await fetch("/metrics/rpc/source-files");
+                const sourceData = await sourceResponse.json();
+                data.source_files = sourceData.source_files;
+
                 renderDashboard(data);
             } catch (error) {
                 document.getElementById("content").innerHTML = `<p style="color: #ef4444;">Error loading metrics: ${error.message}</p>`;
@@ -375,6 +391,7 @@ DASHBOARD_HTML = """
         function renderDashboard(data) {
             const summary = data.summary;
             const sections = data.sections;
+            const sourceFiles = data.source_files || {};
             const topMethods = data.top_methods;
             const alerts = data.alerts;
 
@@ -453,6 +470,47 @@ DASHBOARD_HTML = """
                         <td style="color: ${stats.rate_limits_429 > 0 ? '#ef4444' : '#10b981'};">${formatNumber(stats.rate_limits_429)}</td>
                         <td>${stats.avg_latency_ms.toFixed(1)}</td>
                         <td>${stats.p95_latency_ms.toFixed(1)}</td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody>
+                </table>
+            </div>`;
+
+            // By source file/process
+            html += `<div class="section">
+                <h2>📁 By Source File/Process</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>File/Process</th>
+                            <th>Credits</th>
+                            <th>Requests</th>
+                            <th>Errors</th>
+                            <th>429s</th>
+                            <th>Sections</th>
+                            <th>Avg Latency (ms)</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            Object.entries(sourceFiles).forEach(([sourceFile, stats]) => {
+                const sections = Object.entries(stats.sections)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([s, count]) => `${s} (${count})`)
+                    .join(", ")
+                    .substring(0, 50) + (Object.entries(stats.sections).length > 2 ? "..." : "");
+
+                html += `
+                    <tr>
+                        <td><strong>${sourceFile}</strong></td>
+                        <td>${formatNumber(stats.credits)}</td>
+                        <td>${formatNumber(stats.requests)}</td>
+                        <td style="color: ${stats.errors > 0 ? '#f59e0b' : '#10b981'};">${formatNumber(stats.errors)}</td>
+                        <td style="color: ${stats.rate_limits_429 > 0 ? '#ef4444' : '#10b981'};">${formatNumber(stats.rate_limits_429)}</td>
+                        <td>${sections}</td>
+                        <td>${stats.avg_latency_ms.toFixed(1)}</td>
                     </tr>
                 `;
             });

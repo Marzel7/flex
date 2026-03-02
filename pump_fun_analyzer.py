@@ -98,6 +98,8 @@ class PumpFunTokenAnalyzer:
                         status_code=0,
                         latency_ms=(time.time() - start_time) * 1000,
                         mode="background",
+                        source_file="pump_fun_analyzer",
+
                         error=str(e),
                     )
                     break
@@ -174,6 +176,8 @@ class PumpFunTokenAnalyzer:
                         status_code=0,
                         latency_ms=(time.time() - start_time) * 1000,
                         mode="background",
+                        source_file="pump_fun_analyzer",
+
                         error=str(e),
                     )
                     pass

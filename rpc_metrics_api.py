@@ -223,6 +223,64 @@ async def helius_account_status():
         raise HTTPException(status_code=500, detail=f"Could not fetch Helius status: {str(e)}")
 
 
+@app.post("/metrics/helius/capture")
+async def capture_helius_snapshot():
+    """
+    Capture Helius usage snapshot via CLI tool.
+
+    Requires:
+    - helius-cli installed (npm install -g helius-cli)
+    - helius login already run with your keypair
+
+    Returns: Latest snapshot from CLI
+    """
+    try:
+        from helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
+
+        usage = get_helius_usage_cli()
+        if not usage:
+            raise HTTPException(
+                status_code=503,
+                detail="Could not capture usage from Helius CLI. Ensure helius-cli is installed and authenticated.",
+            )
+
+        record_usage_snapshot(usage)
+        return {
+            "status": "success",
+            "message": "Helius usage snapshot captured",
+            "snapshot": {
+                "credits_remaining": usage.get("credits_remaining"),
+                "credits_used": usage.get("credits_used"),
+                "credits_used_month": usage.get("credits_used_month"),
+                "timestamp": usage.get("timestamp"),
+            },
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Capture failed: {str(e)}")
+
+
+@app.get("/metrics/helius/snapshots")
+async def get_helius_snapshots(limit: int = Query(20, ge=1, le=100)):
+    """
+    Get recent Helius usage snapshots from database.
+
+    Returns the last N snapshots in reverse chronological order.
+    """
+    try:
+        from helius_cli_monitor import get_snapshot_history
+
+        snapshots = get_snapshot_history(limit=limit)
+        return {
+            "status": "success",
+            "count": len(snapshots),
+            "snapshots": snapshots,
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Could not fetch snapshots: {str(e)}"
+        )
+
+
 @app.get("/dashboard")
 async def dashboard():
     """Serve minimal HTML dashboard"""

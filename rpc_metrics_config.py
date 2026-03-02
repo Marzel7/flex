@@ -3,7 +3,10 @@ RPC Metrics Configuration
 
 Customize credit schedules, plan budgets, and alerting thresholds here.
 
-Source: https://www.helius.dev/docs/billing/credits (Official Helius Pricing)
+OFFICIAL HELIUS DOCUMENTATION:
+- Credits & Pricing: https://www.helius.dev/docs/billing/credits
+- Rate Limits: https://www.helius.dev/docs/billing/rate-limits
+- API Methods: https://docs.helius.xyz/
 
 All credit rates are from official Helius documentation.
 Enhanced Transactions are 100 credits per request (official rate).
@@ -12,8 +15,8 @@ Enhanced Transactions are 100 credits per request (official rate).
 # ============================================================================
 # HELIUS CREDIT SCHEDULE
 # ============================================================================
-# Based on Helius pricing documentation
-# https://docs.helius.xyz/
+# Based on official Helius pricing documentation
+# https://www.helius.dev/docs/billing/credits
 #
 # IMPORTANT: Some methods (like Enhanced Transactions) have plan-dependent costs.
 # See documentation in CREDIT_SCHEDULE below for which ones need manual verification.
@@ -50,6 +53,11 @@ CREDIT_SCHEDULE = {
     "getTokenSupply": 1,
     "getTransaction": 10,  # Historical transaction (archival)
     "getTransactionCount": 1,
+    "getAccountInfo": 1,                        # Account lookup (newly added)
+    "getBalance": 1,                            # SOL balance check (newly added)
+    "getTokenAccountBalance": 1,                # Token balance check (newly added)
+    "getBlock": 1,                              # Block data (newly added)
+    "getSignaturesForAddress": 10,              # Transaction history for address
 
     # Helius-exclusive RPC methods (high cost)
     "getTransactionsForAddress": 100,
@@ -98,8 +106,8 @@ class PlanConfig:
     # ACTUAL USAGE FROM HELIUS DASHBOARD (as of 2026-03-02)
     # This is synced from your Helius account
     CURRENT_USAGE = {
-        "credits_used_today": 15_709,        # Total credits consumed today
-        "credits_remaining": 984_291,        # Remaining monthly budget
+        "credits_used_today": 15_853,        # Total credits consumed today (+134 from 15,719)
+        "credits_remaining": 984_147,        # Remaining monthly budget (-134 from 984,281)
         "budget_start_date": "2026-03-01",   # Start of billing period
     }
 

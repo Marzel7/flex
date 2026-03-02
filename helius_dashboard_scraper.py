@@ -115,64 +115,106 @@ def scrape_helius_dashboard(
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=chrome_options)
 
-        print("[HELIUS] 🔐 Logging into dashboard...", flush=True)
+        print("[HELIUS] 🔐 Logging into dashboard via Google...", flush=True)
 
         # Navigate to login
         driver.get("https://dashboard.helius.dev/login")
         import time
 
-        # Wait for login form
+        # Wait for login buttons
         WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, "email"))
+            EC.presence_of_element_located((By.TAG_NAME, "button"))
         )
-
-        # Step 1: Enter email
-        print("[HELIUS] 📧 Entering email...", flush=True)
-        email_field = driver.find_element(By.ID, "email")
-        email_field.send_keys(email)
         time.sleep(1)
 
-        # Step 2: Click "Next" button to proceed to password
-        print("[HELIUS] ➡️  Clicking Next...", flush=True)
-        # Find all buttons and look for the one containing "Next"
+        # Step 1: Click Google button
+        print("[HELIUS] 🔵 Clicking Google login button...", flush=True)
         buttons = driver.find_elements(By.TAG_NAME, "button")
-        next_button = None
+        google_button = None
         for btn in buttons:
-            if "Next" in btn.text:
-                next_button = btn
+            if "Google" in btn.text:
+                google_button = btn
                 break
 
-        if not next_button:
-            raise Exception("Could not find Next button")
+        if not google_button:
+            raise Exception("Could not find Google login button")
 
-        next_button.click()
+        google_button.click()
         time.sleep(2)
 
-        # Step 3: Wait for password field to appear and enter password
-        print("[HELIUS] 🔑 Entering password...", flush=True)
+        # Step 2: Wait for Google OAuth or URL change
+        print("[HELIUS] 🔄 Waiting for Google authentication...", flush=True)
+        time.sleep(3)
+
+        # Check if we have multiple windows (popup) or if URL changed (redirect)
+        current_url = driver.current_url
+        print(f"[HELIUS] Current URL: {current_url}", flush=True)
+
+        # Try to handle popup window if it exists
+        if len(driver.window_handles) > 1:
+            print("[HELIUS] 📱 OAuth popup detected, switching...", flush=True)
+            driver.switch_to.window(driver.window_handles[1])
+            time.sleep(2)
+        elif "accounts.google.com" in driver.current_url or "google.com" in driver.current_url:
+            print("[HELIUS] 📱 OAuth redirected, on Google login...", flush=True)
+        else:
+            print("[HELIUS] ℹ️ OAuth may be in iframe or same window", flush=True)
+
+        # Step 3: Try to enter Gmail email (works for popup or redirect)
+        print("[HELIUS] 📧 Entering Gmail address...", flush=True)
+        try:
+            # Try multiple selectors for email field
+            email_field = None
+            try:
+                email_field = WebDriverWait(driver, 5).until(
+                    EC.presence_of_element_located((By.ID, "identifierId"))
+                )
+            except:
+                try:
+                    email_field = driver.find_element(By.NAME, "identifier")
+                except:
+                    email_field = driver.find_element(By.CSS_SELECTOR, "input[type='email']")
+
+            email_field.send_keys(email)
+            time.sleep(1)
+
+            # Click Next
+            try:
+                next_button = driver.find_element(By.ID, "identifierNext")
+            except:
+                next_button = driver.find_element(By.XPATH, "//button[@jsname='LgbsSe']")
+            next_button.click()
+            time.sleep(2)
+        except Exception as e:
+            raise Exception(f"Could not enter Gmail email: {str(e)}")
+
+        # Step 4: Enter Gmail password
+        print("[HELIUS] 🔑 Entering Gmail password...", flush=True)
         try:
             password_field = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.ID, "password"))
+                EC.presence_of_element_located((By.NAME, "password"))
             )
             password_field.send_keys(password)
             time.sleep(1)
-        except Exception as e:
-            raise Exception(f"Password field did not appear: {str(e)}")
 
-        # Step 4: Click the Sign In button
-        print("[HELIUS] ✍️  Submitting login...", flush=True)
-        try:
-            sign_in_button = WebDriverWait(driver, 5).until(
-                EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Sign In')]"))
-            )
-            sign_in_button.click()
-        except:
-            # Try alternative button selectors
+            # Click Next
             try:
-                sign_in_button = driver.find_element(By.XPATH, "//button[@type='submit']")
-                sign_in_button.click()
+                next_button = driver.find_element(By.ID, "passwordNext")
             except:
-                raise Exception("Could not find Sign In button")
+                next_button = driver.find_element(By.XPATH, "//button[@jsname='LgbsSe']")
+            next_button.click()
+            time.sleep(3)
+        except Exception as e:
+            raise Exception(f"Could not enter Gmail password: {str(e)}")
+
+        # Step 5: Switch back to main window if needed
+        print("[HELIUS] ↩️  Returning to dashboard...", flush=True)
+        try:
+            if len(driver.window_handles) > 1:
+                driver.switch_to.window(driver.window_handles[0])
+        except:
+            pass
+        time.sleep(3)
 
         # Wait for dashboard to load
         print("[HELIUS] ⏳ Waiting for dashboard...", flush=True)

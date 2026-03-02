@@ -578,10 +578,18 @@ DASHBOARD_HTML = """
             let html = "";
 
             // Summary cards
+            const creditsUsedSinceReset = summary.credits_instrumented_today;
+            const creditsUsedAlert = creditsUsedSinceReset > 100000 ? 'alert' : '';
+
             html += `<div class="grid">
                 <div class="card">
                     <h3>Total Credits Today</h3>
                     <div class="value">${formatNumber(summary.credits_today)}</div>
+                </div>
+                <div class="card ${creditsUsedAlert}">
+                    <h3>Credits Used (Since Reset)</h3>
+                    <div class="value">${formatNumber(creditsUsedSinceReset)}</div>
+                    <div class="unit">change since last reset</div>
                 </div>
                 <div class="card">
                     <h3>Daily Burn Rate</h3>

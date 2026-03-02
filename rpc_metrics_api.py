@@ -186,6 +186,43 @@ async def scan_cost_estimate():
         raise HTTPException(status_code=500, detail=f"Could not calculate scan cost: {str(e)}")
 
 
+@app.get("/metrics/helius")
+async def helius_account_status():
+    """
+    Get Helius account status with full comparison
+
+    Returns:
+    - Account usage (credits used, remaining, budget)
+    - Instrumented metrics (our RPC tracking)
+    - Comparison and discrepancy analysis
+    - Alerts if usage is high
+    """
+    try:
+        from helius_account_monitor import get_account_status, get_alerts
+
+        status = get_account_status()
+        if not status:
+            return {
+                "status": "error",
+                "message": "Could not fetch account status",
+                "timestamp": datetime.now().isoformat(),
+            }
+
+        # Get alerts
+        alerts = get_alerts()
+
+        return {
+            "timestamp": status["timestamp"],
+            "helius_account": status["helius_account"],
+            "instrumented_metrics": status["instrumented_metrics"],
+            "discrepancy": status["discrepancy"],
+            "alerts": alerts,
+            "source": "config",  # Using rpc_metrics_config.py (manually synced)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not fetch Helius status: {str(e)}")
+
+
 @app.get("/dashboard")
 async def dashboard():
     """Serve minimal HTML dashboard"""

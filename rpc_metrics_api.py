@@ -54,12 +54,22 @@ async def metrics_full():
     Returns everything needed for the dashboard.
     """
     recorder = get_recorder()
+
+    # Try to get latest Helius snapshot for display
+    helius_snapshot = None
+    try:
+        from helius_cli_monitor import get_latest_snapshot
+        helius_snapshot = get_latest_snapshot()
+    except:
+        pass
+
     return {
         "timestamp": datetime.now().isoformat(),
         "summary": recorder.get_summary(),
         "sections": recorder.get_section_stats(),
         "top_methods": recorder.get_top_methods(limit=10),
         "alerts": recorder.get_alerts(burn_rate_threshold=100.0),
+        "helius_snapshot": helius_snapshot,
     }
 
 
@@ -669,6 +679,7 @@ DASHBOARD_HTML = """
             const sourceFiles = data.source_files || {};
             const topMethods = data.top_methods;
             const alerts = data.alerts;
+            const heliusSnapshot = data.helius_snapshot;
 
             let html = "";
 
@@ -709,6 +720,13 @@ DASHBOARD_HTML = """
                     <h3>Errors</h3>
                     <div class="value">${formatNumber(summary.errors_total)}</div>
                 </div>
+                ${heliusSnapshot ? `
+                <div class="card" style="border: 2px solid #06b6d4;">
+                    <h3>💎 Helius Account Remaining</h3>
+                    <div class="value" style="color: #06b6d4;">${formatNumber(heliusSnapshot.credits_remaining)}</div>
+                    <div class="unit" style="font-size: 11px; color: #64748b;">Last snapshot: ${new Date(heliusSnapshot.timestamp).toLocaleTimeString()}</div>
+                </div>
+                ` : ''}
             </div>`;
 
             // Alerts

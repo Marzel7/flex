@@ -722,9 +722,14 @@ DASHBOARD_HTML = """
                 </div>
                 ${heliusSnapshot ? `
                 <div class="card" style="border: 2px solid #06b6d4;">
-                    <h3>💎 Helius Account Remaining</h3>
+                    <h3>💎 Helius: Actual Account</h3>
                     <div class="value" style="color: #06b6d4;">${formatNumber(heliusSnapshot.credits_remaining)}</div>
-                    <div class="unit" style="font-size: 11px; color: #64748b;">Last snapshot: ${new Date(heliusSnapshot.timestamp).toLocaleTimeString()}</div>
+                    <div class="unit" style="font-size: 11px; color: #64748b;">remaining | Snapshot: ${new Date(heliusSnapshot.timestamp).toLocaleTimeString()}</div>
+                </div>
+                <div class="card" style="border: 2px solid #8b5cf6;">
+                    <h3>📊 Your Usage: Estimated</h3>
+                    <div class="value" style="color: #8b5cf6;">${formatNumber(summary.credits_monthly_estimate)}</div>
+                    <div class="unit" style="font-size: 11px; color: #64748b;">monthly projection at current burn rate</div>
                 </div>
                 ` : ''}
             </div>`;

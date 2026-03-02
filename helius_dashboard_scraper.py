@@ -119,27 +119,74 @@ def scrape_helius_dashboard(
 
         # Navigate to login
         driver.get("https://dashboard.helius.dev/login")
+        import time
 
         # Wait for login form
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, "email"))
         )
 
-        # Enter credentials
-        driver.find_element(By.ID, "email").send_keys(email)
-        driver.find_element(By.ID, "password").send_keys(password)
+        # Step 1: Enter email
+        print("[HELIUS] 📧 Entering email...", flush=True)
+        email_field = driver.find_element(By.ID, "email")
+        email_field.send_keys(email)
+        time.sleep(1)
 
-        # Submit login
-        driver.find_element(By.XPATH, "//button[contains(text(), 'Sign In')]").click()
+        # Step 2: Click "Next" button to proceed to password
+        print("[HELIUS] ➡️  Clicking Next...", flush=True)
+        # Find all buttons and look for the one containing "Next"
+        buttons = driver.find_elements(By.TAG_NAME, "button")
+        next_button = None
+        for btn in buttons:
+            if "Next" in btn.text:
+                next_button = btn
+                break
+
+        if not next_button:
+            raise Exception("Could not find Next button")
+
+        next_button.click()
+        time.sleep(2)
+
+        # Step 3: Wait for password field to appear and enter password
+        print("[HELIUS] 🔑 Entering password...", flush=True)
+        try:
+            password_field = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.ID, "password"))
+            )
+            password_field.send_keys(password)
+            time.sleep(1)
+        except Exception as e:
+            raise Exception(f"Password field did not appear: {str(e)}")
+
+        # Step 4: Click the Sign In button
+        print("[HELIUS] ✍️  Submitting login...", flush=True)
+        try:
+            sign_in_button = WebDriverWait(driver, 5).until(
+                EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Sign In')]"))
+            )
+            sign_in_button.click()
+        except:
+            # Try alternative button selectors
+            try:
+                sign_in_button = driver.find_element(By.XPATH, "//button[@type='submit']")
+                sign_in_button.click()
+            except:
+                raise Exception("Could not find Sign In button")
 
         # Wait for dashboard to load
         print("[HELIUS] ⏳ Waiting for dashboard...", flush=True)
-        WebDriverWait(driver, 15).until(
-            EC.presence_of_element_located((By.XPATH, "//text()[contains(., 'Credits')]"))
-        )
+        time.sleep(5)
 
         # Extract credits info
         page_source = driver.page_source
+        page_text = driver.find_element(By.TAG_NAME, "body").text
+
+        # Check if still on login page (failed auth)
+        if "Email" in page_text and "Password" in page_text and "Sign In" in page_text:
+            print("[HELIUS] ❌ Still on login page - credentials may be incorrect or 2FA enabled", flush=True)
+            print(f"[HELIUS] 📋 Page contains: {page_text[:500]}", flush=True)
+            return None
 
         # Parse usage values from page
         usage = parse_dashboard_page(page_source)
@@ -150,6 +197,7 @@ def scrape_helius_dashboard(
             print("[HELIUS] ✅ Successfully scraped dashboard", flush=True)
         else:
             print("[HELIUS] ⚠️ Could not parse dashboard data", flush=True)
+            print(f"[HELIUS] 📄 Page preview: {page_text[:300]}", flush=True)
 
         driver.quit()
         return usage

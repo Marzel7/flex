@@ -137,13 +137,14 @@ async def record_metric(data: dict):
 
 @app.post("/metrics/rpc/reset")
 async def metrics_reset(request: dict = Body(None)):
-    """Reset daily counters (all metrics except Helius credit baseline)"""
+    """Reset all daily metrics to 0 (including Helius credit baseline)"""
     # Reset is available for local/trusted access
     # In production, add authentication if exposed to untrusted networks
     try:
         recorder = get_recorder()
         recorder.reset_daily()
-        return {"status": "success", "message": "Daily counters reset to 0 (Helius credit baseline preserved)"}
+        recorder.reset_credits_today()
+        return {"status": "success", "message": "Daily metrics reset to 0 (Total Credits Today, burn rate, and all counters)"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Reset failed: {str(e)}")
 

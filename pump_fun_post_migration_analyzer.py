@@ -38,6 +38,14 @@ import struct
 
 load_dotenv()
 
+# Import RPC metrics recorder for monitoring
+try:
+    from rpc_metrics_recorder import record_request, initialize_recorder
+    initialize_recorder(plan_monthly_credits=50_000_000)
+except ImportError:
+    def record_request(*args, **kwargs):
+        pass  # No-op if metrics recorder not available
+
 # -----------------------------
 # Config (tune to your RPC tier)
 # -----------------------------
@@ -84,8 +92,21 @@ async def _rpc_post(session: aiohttp.ClientSession, url: str, payload: dict, tim
     max_retries = 5
     for attempt in range(max_retries):
         try:
+            start_time = time.time()
             async with session.post(url, json=payload, timeout=aiohttp.ClientTimeout(total=timeout_s)) as resp:
+                latency_ms = (time.time() - start_time) * 1000
+                rpc_method = payload.get("method", "unknown")
+
                 if resp.status == 429:
+                    record_request(
+                        section="ui_api",
+                        provider="helius_rpc" if "helius" in url else "solana_rpc",
+                        method=rpc_method,
+                        status_code=429,
+                        latency_ms=latency_ms,
+                        mode="background",
+                        retries=attempt,
+                    )
                     if attempt < max_retries - 1:
                         print(f"⚠️  RPC 429, retrying in {retry_delay}s... ({attempt+1}/{max_retries})", flush=True)
                         await asyncio.sleep(retry_delay)
@@ -96,11 +117,39 @@ async def _rpc_post(session: aiohttp.ClientSession, url: str, payload: dict, tim
 
                 if resp.status == 200:
                     data = await resp.json()
+                    record_request(
+                        section="ui_api",
+                        provider="helius_rpc" if "helius" in url else "solana_rpc",
+                        method=rpc_method,
+                        status_code=200,
+                        latency_ms=latency_ms,
+                        mode="background",
+                        retries=attempt,
+                    )
                     # allow caller to inspect RPC errors
                     return data
 
+                record_request(
+                    section="ui_api",
+                    provider="helius_rpc" if "helius" in url else "solana_rpc",
+                    method=rpc_method,
+                    status_code=resp.status,
+                    latency_ms=latency_ms,
+                    mode="background",
+                    retries=attempt,
+                )
                 return None
         except asyncio.TimeoutError:
+            record_request(
+                section="ui_api",
+                provider="helius_rpc" if "helius" in url else "solana_rpc",
+                method=payload.get("method", "unknown"),
+                status_code=0,
+                latency_ms=(time.time() - start_time) * 1000,
+                mode="background",
+                retries=attempt,
+                error="timeout",
+            )
             if attempt < max_retries - 1:
                 print(f"⚠️  RPC timeout, retrying in {retry_delay}s... ({attempt+1}/{max_retries})", flush=True)
                 await asyncio.sleep(retry_delay)
@@ -108,7 +157,17 @@ async def _rpc_post(session: aiohttp.ClientSession, url: str, payload: dict, tim
                 continue
             print(f"❌ RPC timeout after {max_retries} retries", flush=True)
             return None
-        except Exception:
+        except Exception as e:
+            record_request(
+                section="ui_api",
+                provider="helius_rpc" if "helius" in url else "solana_rpc",
+                method=payload.get("method", "unknown"),
+                status_code=0,
+                latency_ms=(time.time() - start_time) * 1000,
+                mode="background",
+                retries=attempt,
+                error=str(e),
+            )
             return None
     return None
 

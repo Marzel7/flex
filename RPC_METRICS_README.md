@@ -4,6 +4,10 @@
 
 Tracks Helius credit consumption by component section, provides real-time dashboard, and enables automated cost controls.
 
+**Official References**:
+- [Helius Billing & Credits](https://www.helius.dev/docs/billing/credits) - Credit rates for all RPC methods
+- [Helius Rate Limits](https://www.helius.dev/docs/billing/rate-limits) - Plan-specific rate limits and concurrency
+
 ---
 
 ## Features

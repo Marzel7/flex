@@ -29,10 +29,15 @@ from dotenv import load_dotenv
 
 # Import RPC metrics recorder for monitoring
 try:
-    from rpc_metrics_recorder import initialize_recorder
+    from rpc_metrics_recorder import initialize_recorder, record_request
     initialize_recorder(plan_monthly_credits=50_000_000)
+except ImportError:
+    def record_request(*args, **kwargs):
+        pass  # No-op if metrics recorder not available
 except Exception as e:
     print(f"[WARNING] Could not initialize RPC metrics: {e}", flush=True)
+    def record_request(*args, **kwargs):
+        pass  # No-op fallback
 
 # === Global Database Write Lock ===
 # Serializes ALL database writes across threads/processes to prevent lock contention
@@ -313,36 +318,125 @@ class PumpFunCurveListener:
     async def _post_rpc_with_fallback(self, payload: dict, timeout: int = 10) -> Optional[dict]:
         """
         Post to RPC with automatic failover chain.
-        
+
         Tries: Primary QuickNode -> Secondary QuickNode -> Helius -> Public Solana
         Returns: JSON response data or None if all fail
         """
         try:
+            rpc_method = payload.get("method", "unknown")
+            start_time = time.time()
+            last_status = None
+            last_error = None
+            retry_count = 0
+
             async with aiohttp.ClientSession() as session:
                 for i, rpc_url in enumerate(RPC_URLS):
                     try:
+                        retry_count = i  # Track which RPC endpoint we tried
                         async with session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=timeout)) as resp:
+                            latency_ms = (time.time() - start_time) * 1000
+
                             if resp.status == 200:
+                                # Success - record metrics
+                                record_request(
+                                    section="listener",
+                                    provider="helius_rpc" if "helius" in rpc_url else "quicknode_rpc" if "quiknode" in rpc_url else "solana_rpc",
+                                    method=rpc_method,
+                                    status_code=200,
+                                    latency_ms=latency_ms,
+                                    mode="realtime",
+                                    retries=retry_count,
+                                    error=None,
+                                )
                                 return await resp.json()
                             elif resp.status == 429:
-                                # Rate limited, try next in chain (silently)
+                                # Rate limited, record and try next in chain
+                                last_status = 429
+                                record_request(
+                                    section="listener",
+                                    provider="helius_rpc" if "helius" in rpc_url else "quicknode_rpc" if "quiknode" in rpc_url else "solana_rpc",
+                                    method=rpc_method,
+                                    status_code=429,
+                                    latency_ms=latency_ms,
+                                    mode="realtime",
+                                    retries=retry_count,
+                                    error="Rate limited",
+                                )
                                 if i < len(RPC_URLS) - 1:
                                     continue
                             else:
-                                # Other error, try next
+                                # Other error, record and try next
+                                last_status = resp.status
+                                record_request(
+                                    section="listener",
+                                    provider="helius_rpc" if "helius" in rpc_url else "quicknode_rpc" if "quiknode" in rpc_url else "solana_rpc",
+                                    method=rpc_method,
+                                    status_code=resp.status,
+                                    latency_ms=latency_ms,
+                                    mode="realtime",
+                                    retries=retry_count,
+                                    error=f"HTTP {resp.status}",
+                                )
                                 if i < len(RPC_URLS) - 1:
                                     continue
                     except asyncio.TimeoutError:
+                        latency_ms = (time.time() - start_time) * 1000
+                        last_error = "Timeout"
+                        record_request(
+                            section="listener",
+                            provider="helius_rpc" if "helius" in rpc_url else "quicknode_rpc" if "quiknode" in rpc_url else "solana_rpc",
+                            method=rpc_method,
+                            status_code=0,
+                            latency_ms=latency_ms,
+                            mode="realtime",
+                            retries=retry_count,
+                            error="Timeout",
+                        )
                         if i < len(RPC_URLS) - 1:
                             continue
                     except Exception as e:
+                        latency_ms = (time.time() - start_time) * 1000
+                        last_error = str(e)
+                        record_request(
+                            section="listener",
+                            provider="helius_rpc" if "helius" in rpc_url else "quicknode_rpc" if "quiknode" in rpc_url else "solana_rpc",
+                            method=rpc_method,
+                            status_code=0,
+                            latency_ms=latency_ms,
+                            mode="realtime",
+                            retries=retry_count,
+                            error=last_error,
+                        )
                         if i < len(RPC_URLS) - 1:
                             continue
-                
-                # All RPC endpoints failed
+
+                # All RPC endpoints failed - record final failure
+                latency_ms = (time.time() - start_time) * 1000
+                record_request(
+                    section="listener",
+                    provider="solana_rpc",
+                    method=rpc_method,
+                    status_code=last_status or 0,
+                    latency_ms=latency_ms,
+                    mode="realtime",
+                    retries=retry_count,
+                    error=last_error or "All endpoints failed",
+                )
                 return None
         except Exception as e:
             print(f"[RPC_ERROR] {e}", flush=True)
+            # Record the outer exception too
+            latency_ms = (time.time() - start_time) * 1000 if 'start_time' in locals() else 0
+            record_request(
+                section="listener",
+                provider="solana_rpc",
+                method=payload.get("method", "unknown"),
+                status_code=0,
+                latency_ms=latency_ms,
+                mode="realtime",
+                retries=0,
+                error=str(e),
+            )
             return None
 
     # --- Database ---

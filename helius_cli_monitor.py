@@ -228,9 +228,25 @@ if __name__ == "__main__":
     # Initialize
     ensure_helius_usage_table()
 
+    # Check for test/mock mode
+    test_mode = "--test" in sys.argv or "--mock" in sys.argv
+
     # Capture usage
     print("[HELIUS] 🌐 Helius CLI Usage Monitor", flush=True)
-    usage = get_helius_usage_cli()
+
+    if test_mode:
+        # Mock mode for testing without CLI (for dev environments)
+        print("[HELIUS] 🧪 TEST MODE - Using mock data", flush=True)
+        usage = {
+            "credits_remaining": 975318,
+            "credits_used": 24682,
+            "credits_used_month": 24682,
+            "project_id": "test-project",
+            "raw_json": '{"creditsRemaining": 975318, "creditsUsed": 24682}',
+            "timestamp": datetime.now().isoformat(),
+        }
+    else:
+        usage = get_helius_usage_cli()
 
     if usage:
         print_usage(usage)
@@ -238,4 +254,5 @@ if __name__ == "__main__":
         print("[HELIUS] ✅ Done", flush=True)
     else:
         print("[HELIUS] ❌ Failed to retrieve usage", flush=True)
+        print("[HELIUS] 💡 Hint: Use --test flag for mock data", flush=True)
         sys.exit(1)

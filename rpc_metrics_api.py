@@ -9,7 +9,7 @@ Provides HTTP endpoints:
 - POST /metrics/rpc/reset - Reset daily counters (admin only)
 """
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Body
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from datetime import datetime
@@ -136,15 +136,16 @@ async def record_metric(data: dict):
 
 
 @app.post("/metrics/rpc/reset")
-async def metrics_reset(admin_token: Optional[str] = Query(None)):
-    """Reset daily counters (requires admin_token for security)"""
-    # In production, validate admin_token against environment or config
-    if not admin_token or admin_token != "SECRET_ADMIN_TOKEN":
-        raise HTTPException(status_code=403, detail="Unauthorized")
-
-    recorder = get_recorder()
-    recorder.reset_daily()
-    return {"message": "Daily counters reset"}
+async def metrics_reset(request: dict = Body(None)):
+    """Reset daily counters (all metrics except Helius credit baseline)"""
+    # Reset is available for local/trusted access
+    # In production, add authentication if exposed to untrusted networks
+    try:
+        recorder = get_recorder()
+        recorder.reset_daily()
+        return {"status": "success", "message": "Daily counters reset to 0 (Helius credit baseline preserved)"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Reset failed: {str(e)}")
 
 
 @app.get("/dashboard")
@@ -338,16 +339,167 @@ DASHBOARD_HTML = """
             padding: 40px;
             color: #94a3b8;
         }
+
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+        }
+
+        .reset-btn:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            box-shadow: 0 6px 12px rgba(239, 68, 68, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .reset-btn:active {
+            transform: translateY(0);
+        }
+
+        .reset-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .reset-confirm {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(30, 41, 59, 0.95);
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 30px;
+            z-index: 1000;
+            max-width: 400px;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .reset-confirm h3 {
+            color: #ef4444;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .reset-confirm p {
+            color: #cbd5e1;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .reset-confirm-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .reset-confirm-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .reset-confirm-btn.confirm {
+            background: #ef4444;
+            color: white;
+        }
+
+        .reset-confirm-btn.confirm:hover {
+            background: #dc2626;
+        }
+
+        .reset-confirm-btn.cancel {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        .reset-confirm-btn.cancel:hover {
+            background: #475569;
+        }
+
+        .reset-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .reset-overlay.show {
+            display: block;
+        }
+
+        .reset-status {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .reset-status.show {
+            display: block;
+        }
+
+        .reset-status.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #10b981;
+        }
+
+        .reset-status.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🚀 FLEX RPC Metrics Dashboard</h1>
-            <p>Real-time Helius credit usage tracking by component</p>
+            <div class="header-controls">
+                <div>
+                    <h1>🚀 FLEX RPC Metrics Dashboard</h1>
+                    <p>Real-time Helius credit usage tracking by component</p>
+                </div>
+                <button class="reset-btn" onclick="showResetConfirm()">🔄 Reset Metrics</button>
+            </div>
         </header>
 
+        <div id="resetStatus" class="reset-status"></div>
+
         <div id="content" class="loading">Loading metrics...</div>
+    </div>
+
+    <div id="resetOverlay" class="reset-overlay" onclick="hideResetConfirm()"></div>
+    <div id="resetConfirm" class="reset-confirm" style="display: none;">
+        <h3>⚠️ Reset Metrics?</h3>
+        <p>This will reset all metrics to 0 except for Helius credit baseline information. This action cannot be undone.</p>
+        <div class="reset-confirm-buttons">
+            <button class="reset-confirm-btn cancel" onclick="hideResetConfirm()">Cancel</button>
+            <button class="reset-confirm-btn confirm" onclick="confirmReset()">Reset All</button>
+        </div>
     </div>
 
     <script>
@@ -546,6 +698,55 @@ DASHBOARD_HTML = """
             </div>`;
 
             document.getElementById("content").innerHTML = html;
+        }
+
+        function showResetConfirm() {
+            document.getElementById("resetOverlay").classList.add("show");
+            document.getElementById("resetConfirm").style.display = "block";
+        }
+
+        function hideResetConfirm() {
+            document.getElementById("resetOverlay").classList.remove("show");
+            document.getElementById("resetConfirm").style.display = "none";
+        }
+
+        async function confirmReset() {
+            const resetBtn = document.querySelector(".reset-btn");
+            const statusDiv = document.getElementById("resetStatus");
+
+            resetBtn.disabled = true;
+            hideResetConfirm();
+
+            try {
+                // Call the reset endpoint
+                const response = await fetch("/metrics/rpc/reset", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    statusDiv.textContent = "✅ Metrics reset successfully! Helius credit baseline preserved.";
+                    statusDiv.classList.add("success", "show");
+
+                    // Refresh dashboard after reset
+                    setTimeout(() => {
+                        fetchMetrics();
+                        statusDiv.classList.remove("show");
+                    }, 2000);
+                } else {
+                    statusDiv.textContent = "⚠️ Reset failed: " + (response.statusText || "Unknown error");
+                    statusDiv.classList.add("error", "show");
+                }
+            } catch (error) {
+                statusDiv.textContent = "❌ Error resetting metrics: " + error.message;
+                statusDiv.classList.add("error", "show");
+            } finally {
+                resetBtn.disabled = false;
+            }
         }
 
         // Initial fetch and auto-refresh

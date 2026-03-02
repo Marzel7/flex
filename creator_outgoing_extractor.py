@@ -1154,6 +1154,58 @@ def calculate_and_store_self_funding():
             conn.close()
 
 
+def calculate_scan_cost_estimate() -> dict:
+    """
+    Calculate estimated credits consumed by a complete scan cycle.
+
+    Returns dict with:
+    - total_creators: Number of creators per scan
+    - pages_per_creator: MAX_PAGES_PER_CYCLE
+    - total_rpc_calls: getSignaturesForAddress calls
+    - credits_per_call: 10 credits (Helius rate)
+    - total_rpc_credits: Cost of all RPC calls
+    - enhanced_calls: helius_enhanced_transactions_batch calls
+    - credits_per_enhanced: 100 credits
+    - total_enhanced_credits: Cost of enhanced parsing
+    - total_credits_estimate: Total cost for one scan
+    - duration_seconds: Estimated duration with rate limiting
+    """
+    total_creators = 1000
+    pages_per_creator = MAX_PAGES_PER_CYCLE
+    rps = OUTGOING_RPS
+
+    # RPC calls: MAX_PAGES_PER_CYCLE per creator
+    total_rpc_calls = total_creators * pages_per_creator
+    credits_per_rpc_call = 10  # getSignaturesForAddress = 10 credits
+    total_rpc_credits = total_rpc_calls * credits_per_rpc_call
+
+    # Enhanced parse calls (estimate: 25 sigs per page, 100 sigs per enhanced call)
+    total_sigs = total_rpc_calls * 25  # 25 sigs per page limit
+    enhanced_calls = max(1, total_sigs // 100)  # 100 sigs per enhanced request
+    credits_per_enhanced_call = 100
+    total_enhanced_credits = enhanced_calls * credits_per_enhanced_call
+
+    # Total credits
+    total_credits_estimate = total_rpc_credits + total_enhanced_credits
+
+    # Duration estimate
+    duration_seconds = total_rpc_calls / rps  # Rate limited to 8 req/sec
+
+    return {
+        "total_creators": total_creators,
+        "pages_per_creator": pages_per_creator,
+        "total_rpc_calls": total_rpc_calls,
+        "credits_per_rpc_call": credits_per_rpc_call,
+        "total_rpc_credits": total_rpc_credits,
+        "enhanced_calls": enhanced_calls,
+        "credits_per_enhanced_call": credits_per_enhanced_call,
+        "total_enhanced_credits": total_enhanced_credits,
+        "total_credits_estimate": total_credits_estimate,
+        "duration_seconds": duration_seconds,
+        "duration_minutes": duration_seconds / 60,
+    }
+
+
 async def scan_once(concurrency: int = OUTGOING_CONCURRENCY):
     """
     Scan all creators for new outgoing transfers with efficient rate limiting.
@@ -1312,7 +1364,21 @@ async def scan_once(concurrency: int = OUTGOING_CONCURRENCY):
     # Calculate and store self-funding metrics for all creators
     calculate_and_store_self_funding()
 
+    # Get actual metrics from recorder
+    try:
+        from rpc_metrics_recorder import get_recorder
+        recorder = get_recorder()
+        summary = recorder.get_summary()
+        actual_credits = summary.get("credits_total", 0)
+    except:
+        actual_credits = 0
+
+    # Calculate estimated cost for reference
+    cost_estimate = calculate_scan_cost_estimate()
+
     print(f"[OUTGOING] ✅ Scan complete: creators={len(creators)} new_sigs={len(new_sigs)} new_rows={len(rows_all)}", flush=True)
+    print(f"[OUTGOING] 💰 Credits this scan: {actual_credits:.0f} (Estimate: {cost_estimate['total_credits_estimate']:.0f})", flush=True)
+    print(f"[OUTGOING] 📊 Scan breakdown: {cost_estimate['total_rpc_calls']} RPC calls ({cost_estimate['total_rpc_credits']:.0f} cr) + {cost_estimate['enhanced_calls']} enhanced ({cost_estimate['total_enhanced_credits']:.0f} cr)", flush=True)
 
 
 async def run_forever(interval_seconds: int = 3600):

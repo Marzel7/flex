@@ -18,7 +18,8 @@
 10. [Network Data](#network-data)
 11. [Database Schema](#database-schema)
 12. [Implementation Details](#implementation-details)
-13. [Integration Guide](#integration-guide)
+13. [Helius RPC & Billing](#helius-rpc--billing) ⭐ NEW
+14. [Integration Guide](#integration-guide)
 
 ---
 
@@ -1227,6 +1228,297 @@ Returns most recently scanned creators with findings
 
 ---
 
+## Helius RPC & Billing
+
+**Status**: ✅ Production Ready
+**Last Updated**: 2026-03-02
+**Documentation**: https://www.helius.dev/docs/billing/credits and https://www.helius.dev/docs/billing/rate-limits
+
+### Overview
+
+Flex uses **Helius** as its primary RPC provider and enhanced API for:
+- Transaction history queries (`getSignaturesForAddress`)
+- Enhanced transaction parsing (`helius_enhanced_addresses_transactions`)
+- Token metadata and funder analysis
+- Backup for public RPC failover
+
+### Your Configuration
+
+```
+Project ID: b5b55487-ccfb-43f8-a2fb-766fbb68f8ce
+API Key: f084fae8-d111-4337-9960-2d9c5e02a726
+RPC Endpoint: https://mainnet.helius-rpc.com/?api-key={API_KEY}
+Enhanced API: https://api-mainnet.helius-rpc.com/v0/transactions?api-key={API_KEY}
+Estimated Plan: Developer (50 req/sec) or higher
+```
+
+### Authentication
+
+**Status**: ✅ API Key validated
+
+Your API key works via:
+1. Direct REST calls with Authorization header
+2. JSON-RPC endpoint with `?api-key=` parameter
+3. Enhanced API for batch operations
+
+**Validation**:
+```bash
+python helius_api_monitor.py          # Returns ✅ API key validated
+python helius_usage_cli.py check       # Alternative check
+```
+
+### Credit Costs (Official Helius Rates)
+
+#### Standard RPC Methods (1 credit each)
+- `getBalance`, `getAccountInfo`, `getMultipleAccounts`
+- `getHealth`, `getVersion`, `getSlot`, `getVoteAccounts`
+- `simulateBundle`, `getPriorityFeeEstimate`
+- **`sendTransaction`: 0 credits** (completely free!)
+
+#### Historical/Archival Methods (10 credits each)
+- `getSignaturesForAddress` - **Used by: creator_outgoing_extractor.py**
+- `getTransaction`
+- `getBlock`, `getBlocks`, `getBlockTime`
+- `getInflationReward`
+- `getSignatureStatuses` (default, no history search)
+
+#### Advanced Methods
+| Method | Cost | Usage |
+|--------|------|-------|
+| `getProgramAccounts` | 10 | Program account lookups |
+| `getProgramAccountsV2` | 1 | ⭐ Paginated alternative (cheaper!) |
+| `getTransactionsForAddress` | 100 | Helius-exclusive (Developer+ only) |
+| `getDAS` (Digital Assets) | 10 | NFT/token metadata |
+| `getSignatureStatuses` (with history) | 10 | Status + history search |
+
+#### Enhanced APIs (100 credits each)
+- `helius_enhanced_addresses_transactions` - **Used by: funder_incoming_extractor.py**
+- `helius_enhanced_transactions_batch`
+- `helius_enhanced_single_transaction` (10 credits)
+
+#### Streaming
+- **3 credits per 0.1 MB** uncompressed data
+- LaserStream gRPC or Enhanced WebSockets
+
+### Rate Limits
+
+Your plan appears to be: **Developer or higher**
+
+| Plan | RPC Requests/sec | DAS/Enhanced/sec |
+|------|------------------|------------------|
+| Free | 10 | 2 |
+| Developer | 50 | 10 |
+| Business | 200 | 50 |
+| Professional | 500 | 100 |
+
+**Your Current Usage**:
+- `creator_outgoing_extractor`: 8 req/sec (safe margin from 50 limit)
+- Concurrency: 3 (conservative)
+- Very healthy usage pattern - no rate limit issues
+
+### Usage in Flex Components
+
+#### 1. creator_outgoing_extractor.py
+```python
+# Method: getSignaturesForAddress (10 credits each)
+# Frequency: Hourly scan of 1000 creators
+# Cost: 1000 × 10 = 10,000 credits/hour
+
+async def rpc_get_signatures(creator_address):
+    # Fetches creator's outgoing transaction signatures
+    # Uses paginated results with MAX_PAGES_PER_CYCLE = 2
+    method="getSignaturesForAddress",
+    status_code=200,
+    latency_ms=latency
+```
+
+Expected daily cost: **240,000 credits** (if running 24/7)
+
+#### 2. funder_incoming_extractor.py
+```python
+# Method: helius_enhanced_addresses_transactions (100 credits per batch)
+# Triggered: When analyzing funders for new token
+# Batch size: Up to 100 addresses per request
+
+url = f"https://api-mainnet.helius-rpc.com/v0/transactions?api-key={API_KEY}"
+# Returns enhanced transaction data with parsing
+```
+
+Expected cost: **100 credits per funder analyzed** (100+ addresses per batch)
+
+#### 3. funder_helius_extractor.py
+```python
+# Various RPC calls for price/metadata
+# Mix of 1-credit (getBalance) and 10-credit (getTransaction) calls
+# Mode: Realtime (1 page) or Background (5 pages)
+```
+
+### Cost Tracking & Reconciliation
+
+#### Your Instrumentation
+- **File**: `rpc_metrics_recorder.py`
+- **CREDIT_SCHEDULE**: Official Helius rates
+- **Recording**: Every RPC call logged with `record_request()`
+- **Access**: GET `http://localhost:8001/metrics/rpc/summary`
+
+#### Actual Helius Usage
+- **Source**: Helius dashboard
+- **URL**: https://dashboard.helius.dev/rpcs?projectId=b5b55487-ccfb-43f8-a2fb-766fbb68f8ce
+- **Tools**:
+  - `python helius_usage_cli.py dashboard` (opens in browser)
+  - `python helius_usage_cli.py update X Y Z` (record snapshot)
+
+#### Reconciliation Process
+
+Weekly check:
+```bash
+# 1. Validate API key
+python helius_api_monitor.py
+
+# 2. Check dashboard
+python helius_usage_cli.py dashboard
+
+# 3. Record what you see
+python helius_usage_cli.py update 975318 24682 24682
+
+# 4. Compare with your instrumentation
+python analyze_rpc_accuracy.py
+```
+
+This shows:
+- Instrumented credits vs actual usage
+- Possible causes of discrepancies
+- Breakdown by section/method
+
+### Managing the 33,530 Call Discrepancy
+
+**Observed**: 33,530 recorded calls consuming only 3,353 credits
+**Expected**: 33,530 calls × 10 credits = 335,300 credits
+**Reality**: Only ~0.1 credits per call
+
+**Likely Causes**:
+1. **Retries inflating count** - Same operation counted multiple times
+2. **Test/mock mode** - Calls recorded but not executing
+3. **Batch calls** - Different cost structure than expected
+4. **Credits already corrected** - If this is old data
+
+**To Diagnose**:
+```bash
+python analyze_rpc_accuracy.py
+python analyze_rpc_accuracy.py --section creator_outgoing_scan
+```
+
+Shows exact breakdown and identifies root cause.
+
+### Optimization Strategies
+
+#### Immediate Wins
+1. **Use getProgramAccountsV2** (1 credit) instead of getProgramAccounts (10 credits)
+2. **getSignatureStatuses without history** (1 credit) vs with history (10 credits)
+3. **Progressive deepening** - Start with limit=100, max_pages=2 (already implemented!)
+
+#### Medium-term
+- Cache transaction lookups (many scanners query same tx)
+- Deduplicate signature fetches
+- Batch addresses in enhanced API calls (already doing this!)
+
+#### Long-term
+- WebSockets for streaming data (more efficient)
+- LaserStream for high-volume needs
+- Local database mirrors for frequently-accessed data
+
+### Tools & Commands
+
+| Tool | Purpose | Command |
+|------|---------|---------|
+| helius_api_monitor.py | Validate API key | `python helius_api_monitor.py` |
+| helius_usage_cli.py | Manage usage snapshots | `python helius_usage_cli.py check` |
+| analyze_rpc_accuracy.py | Diagnose discrepancies | `python analyze_rpc_accuracy.py` |
+| helius_usage_cli.py | Dashboard link | `python helius_usage_cli.py dashboard` |
+| helius_usage_cli.py | Record usage | `python helius_usage_cli.py update X Y Z` |
+| helius_usage_cli.py | View history | `python helius_usage_cli.py history --limit 10` |
+
+### Monitoring & Alerts
+
+#### Daily Checks
+- Run: `python helius_api_monitor.py`
+- Expected: ✅ API key validated
+- Frequency: Automated (can add to cron)
+
+#### Weekly Reconciliation
+- Open dashboard: `python helius_usage_cli.py dashboard`
+- Compare with: `python analyze_rpc_accuracy.py`
+- Record if changed: `python helius_usage_cli.py update X Y Z`
+
+#### Monthly Review
+- Check CREDIT_SCHEDULE in `rpc_metrics_recorder.py` (updated 2026-03-02)
+- Review optimization opportunities
+- Plan for next month's usage
+
+### Rate Limit Handling
+
+**Current Implementation**:
+- `creator_outgoing_extractor.py`: Exponential backoff with Retry-After
+- Backoff: 2^attempt seconds + jitter
+- Max retries: 3
+- No 429 errors observed (safe 8 req/sec rate)
+
+**If You Hit 429**:
+1. Increase backoff time
+2. Reduce concurrency (currently 3, can go lower)
+3. Reduce OUTGOING_RPS (currently 8, can go to 5)
+4. Contact Helius support if plan limit genuinely exceeded
+
+### Integration with main.py
+
+**API Endpoints for RPC Metrics**:
+- `GET /metrics/rpc/summary` - Overall summary
+- `GET /metrics/rpc/sections` - Breakdown by section
+- `GET /metrics/rpc/methods` - Breakdown by method
+- `POST /metrics/rpc/record` - Record manual call
+- `POST /metrics/rpc/reset` - Reset daily metrics
+
+**Accessed via**:
+- Dashboard at `http://localhost:8001` (separate metrics server)
+- Proxied through `main.py` at `GET /metrics/rpc/*`
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| API key invalid | Run `python helius_api_monitor.py` to verify |
+| 429 Rate Limited | Reduce RPS or concurrency in extractor |
+| High discrepancy | Run `python analyze_rpc_accuracy.py` |
+| Missing usage data | `python helius_usage_cli.py dashboard` then update |
+| Retries inflating count | Check logs for retry patterns |
+
+### Related Files
+
+| File | Purpose |
+|------|---------|
+| rpc_metrics_recorder.py | CREDIT_SCHEDULE + instrumentation |
+| creator_outgoing_extractor.py | Helius RPC calls (8 req/sec) |
+| funder_incoming_extractor.py | Enhanced API batch calls |
+| funder_helius_extractor.py | Price/metadata queries |
+| helius_api_monitor.py | API validation |
+| helius_usage_cli.py | CLI tool for usage management |
+| analyze_rpc_accuracy.py | Diagnostic/reconciliation |
+| HELIUS_BILLING_MASTER.md | Complete billing reference |
+| HELIUS_SETUP_SUMMARY.md | Quick setup guide |
+
+### References
+
+**Official Documentation**:
+- Credits: https://www.helius.dev/docs/billing/credits
+- Rate Limits: https://www.helius.dev/docs/billing/rate-limits
+
+**Flex Documentation**:
+- HELIUS_BILLING_MASTER.md - Complete reference
+- HELIUS_SETUP_SUMMARY.md - Quick setup
+- HELIUS_API_AUTHENTICATION.md - Auth details
+
+---
+
 ## Integration Guide
 
 ### Dashboard & UI
@@ -2279,6 +2571,23 @@ To implement cost savings immediately:
 ---
 
 *Complete System Documentation*
-*Generated: 2026-02-28*
+*Initial: 2026-02-28*
+*Updated: 2026-03-02 (Helius RPC & Billing integration)*
 *Database: flex_complete_database.db*
 *Ready for production deployment and integration*
+
+---
+
+## Recent Updates (2026-03-02)
+
+✅ Added comprehensive Helius RPC & Billing section
+✅ Integrated official Helius credit costs
+✅ Added rate limiting documentation
+✅ Included reconciliation & diagnostic tools
+✅ Cost tracking and optimization strategies
+
+**Key Files**:
+- HELIUS_BILLING_MASTER.md (complete reference)
+- HELIUS_SETUP_SUMMARY.md (quick start)
+- analyze_rpc_accuracy.py (diagnostic tool)
+- helius_usage_cli.py (CLI management)

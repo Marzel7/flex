@@ -15,33 +15,68 @@ import json
 
 # ============================================================================
 # CREDIT SCHEDULE (configurable)
+# Based on official Helius documentation:
+# https://www.helius.dev/docs/billing/credits
+# https://www.helius.dev/docs/billing/rate-limits
+# Last updated: 2026-03-02
 # ============================================================================
 
 CREDIT_SCHEDULE = {
-    # Standard RPC methods
+    # --------
+    # Standard RPC Methods (1 credit each)
+    # --------
     "getHealth": 1,
     "getClusterNodes": 1,
     "getSystemProgram": 1,
+    "getVersion": 1,
+    "getSlot": 1,
+    "getSlotLeader": 1,
+    "getVoteAccounts": 1,
+    "getBalance": 1,
+    "getAccountInfo": 1,
+    "getMultipleAccounts": 1,
+    "simulateBundle": 1,
+    "getPriorityFeeEstimate": 1,  # Priority Fee API
+    "sendTransaction": 0,  # No cost for sending
 
-    # Historical/Archival
+    # --------
+    # Historical/Archival Methods (10 credits each)
+    # --------
     "getSignaturesForAddress": 10,
     "getTransaction": 10,
+    "getBlock": 10,
+    "getBlocks": 10,
+    "getBlocksWithLimit": 10,
+    "getBlockTime": 10,
+    "getInflationReward": 10,
     "getSignatureStatuses": {
-        "default": 1,
-        "searchTransactionHistory": 10,
+        "default": 1,                        # 1 credit without searchTransactionHistory
+        "searchTransactionHistory": 10,      # 10 credits with searchTransactionHistory enabled
     },
 
-    # Helius-exclusive RPC
-    "getTransactionsForAddress": 100,
+    # --------
+    # Advanced/Expensive Methods
+    # --------
+    "getProgramAccounts": 10,               # Standard: 10 credits
+    "getProgramAccountsV2": 1,              # Paginated alternative: 1 credit
+    "getTransactionsForAddress": 100,       # Helius-exclusive: 100 credits (Developer+ only)
+    "getDAS": 10,                           # Digital Asset Standard: 10 credits per request
 
+    # --------
     # Helius Enhanced Transactions API (REST pseudo-methods)
+    # Used by funder_incoming_extractor.py and similar
     # Source: https://www.helius.dev/docs/billing/credits
-    "helius_enhanced_addresses_transactions": 100,  # Per request (official Helius rate)
-    "helius_enhanced_transactions_batch": 100,      # Per request (official Helius rate)
+    # --------
+    "helius_enhanced_addresses_transactions": 100,  # Batch addresses endpoint: 100 credits per request
+    "helius_enhanced_transactions_batch": 100,      # Batch transactions endpoint: 100 credits per request
+    "helius_enhanced_single_transaction": 10,       # Single transaction endpoint: 10 credits
 
+    # --------
     # Streaming (handled separately via bytes)
-    # "laserstream_bytes": 3 per 0.1MB
-    # "enhanced_ws_bytes": 3 per 0.1MB
+    # 3 credits per 0.1 MB of uncompressed data
+    # --------
+    # "laserstream_bytes": Calculated as bytes * STREAMING_CREDITS_PER_BYTE
+    # "enhanced_ws_bytes": Calculated as bytes * STREAMING_CREDITS_PER_BYTE
 }
 
 # Streaming credits: 3 credits per 0.1MB = 3 credits per 102400 bytes
@@ -121,6 +156,10 @@ class RPCMetricsRecorder:
         # Per-section stats
         self._section_stats: Dict[str, SectionStats] = defaultdict(SectionStats)
 
+        # Source file and method stats (initialized lazily but set here for reset)
+        self._source_file_stats = {}
+        self._method_stats = {}
+
         # Global tracking
         self._start_time = time.time()
         self._total_credits = 0
@@ -131,6 +170,9 @@ class RPCMetricsRecorder:
         # Daily reset tracking
         self._daily_reset_time = datetime.now()
         self._daily_credits = 0
+        self._daily_requests = 0
+        self._daily_errors = 0
+        self._daily_429s = 0
 
     def record_request(
         self,
@@ -494,17 +536,73 @@ class RPCMetricsRecorder:
         with self._lock:
             self._daily_reset_time = datetime.now()
             self._daily_credits = 0
+            self._daily_requests = 0
+            self._daily_errors = 0
+            self._daily_429s = 0
+            # Reset section stats
+            for section in self._section_stats:
+                self._section_stats[section] = {
+                    "credits": 0,
+                    "requests": 0,
+                    "errors": 0,
+                    "rate_limits_429": 0,
+                    "latencies": [],
+                    "error_types": {},
+                }
+            # Reset source file stats
+            for source_file in self._source_file_stats:
+                self._source_file_stats[source_file] = {
+                    "credits": 0,
+                    "requests": 0,
+                    "errors": 0,
+                    "rate_limits_429": 0,
+                    "latencies": [],
+                    "sections": {},
+                }
+            # Reset method stats
+            for method in self._method_stats:
+                self._method_stats[method] = {
+                    "credits": 0,
+                    "requests": 0,
+                }
 
     def reset_credits_today(self):
-        """Reset Helius daily credit baseline (for dashboard reset button)"""
-        try:
-            from rpc_metrics_config import PlanConfig
-            # Reset credits_used_today to 0, keep credits_remaining as is
-            monthly_budget = PlanConfig.CURRENT_USAGE.get("credits_remaining", 0) + PlanConfig.CURRENT_USAGE.get("credits_used_today", 0)
-            PlanConfig.CURRENT_USAGE["credits_used_today"] = 0
-            PlanConfig.CURRENT_USAGE["credits_remaining"] = monthly_budget
-        except Exception:
-            pass  # Config may not be available
+        """Reset all local metrics to 0 (for dashboard reset button)"""
+        with self._lock:
+            try:
+                from rpc_metrics_config import PlanConfig
+                # Reset credits_used_today to 0, keep credits_remaining as is
+                monthly_budget = PlanConfig.CURRENT_USAGE.get("credits_remaining", 0) + PlanConfig.CURRENT_USAGE.get("credits_used_today", 0)
+                PlanConfig.CURRENT_USAGE["credits_used_today"] = 0
+                PlanConfig.CURRENT_USAGE["credits_remaining"] = monthly_budget
+            except Exception:
+                pass
+
+            # Reset all total counters
+            self._total_credits = 0
+            self._total_requests = 0
+            self._total_errors = 0
+            self._total_429s = 0
+            self._daily_credits = 0
+            self._daily_requests = 0
+            self._daily_errors = 0
+            self._daily_429s = 0
+            self._daily_reset_time = datetime.now()
+            self._start_time = datetime.now().timestamp()
+
+            # Clear history buffer (this is what get_source_file_stats rebuilds from)
+            self._history.clear()
+
+            # Reset section stats (clear all entries, keep as defaultdict)
+            self._section_stats.clear()
+
+            # Reset source file stats if they exist
+            if hasattr(self, '_source_file_stats'):
+                self._source_file_stats.clear()
+
+            # Reset method stats if they exist
+            if hasattr(self, '_method_stats'):
+                self._method_stats.clear()  # Config may not be available
 
     def export_json(self) -> str:
         """Export full metrics as JSON"""

@@ -35,7 +35,8 @@ from post_launch_automation import run_post_launch_automation
 
 # Import RPC metrics recorder for monitoring
 try:
-    from rpc_metrics_recorder import record_request
+    from rpc_metrics_recorder import record_request, initialize_recorder
+    initialize_recorder(plan_monthly_credits=50_000_000)
 except ImportError:
     def record_request(*args, **kwargs):
         pass  # No-op if metrics recorder not available

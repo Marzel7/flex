@@ -116,31 +116,21 @@ async def metrics_alerts(
 
 
 @app.post("/metrics/rpc/record")
-async def record_metric(
-    section: str = Query(...),
-    provider: str = Query(...),
-    method: str = Query(...),
-    status_code: int = Query(...),
-    latency_ms: float = Query(...),
-    mode: str = Query("realtime"),
-    retries: int = Query(0),
-    bytes_in: int = Query(0),
-    bytes_out: int = Query(0),
-    error: Optional[str] = Query(None),
-):
+async def record_metric(data: dict):
     """Record a single RPC metric (called by instrumented code in other processes)"""
     recorder = get_recorder()
     credits = recorder.record_request(
-        section=section,
-        provider=provider,
-        method=method,
-        status_code=status_code,
-        latency_ms=latency_ms,
-        mode=mode,
-        retries=retries,
-        bytes_in=bytes_in,
-        bytes_out=bytes_out,
-        error=error,
+        section=data.get("section", "unknown"),
+        provider=data.get("provider", "unknown"),
+        method=data.get("method", "unknown"),
+        status_code=data.get("status_code", 0),
+        latency_ms=data.get("latency_ms", 0),
+        mode=data.get("mode", "realtime"),
+        retries=data.get("retries", 0),
+        bytes_in=data.get("bytes_in", 0),
+        bytes_out=data.get("bytes_out", 0),
+        source_file=data.get("source_file", "unknown"),
+        error=data.get("error"),
     )
     return {"credits": credits, "status": "recorded"}
 

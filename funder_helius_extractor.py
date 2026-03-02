@@ -61,8 +61,9 @@ def get_creator_funders(creator_address: str) -> list:
             WHERE creator_address = ?
             ORDER BY amount_sol DESC
         """,
-            (creator_address,),
-        )
+            (creator_address,),,
+
+        source_file="funder_helius_extractor")
 
         funders = [(row["funder_address"], row["amount_sol"]) for row in cursor.fetchall()]
         conn.close()

@@ -63,6 +63,7 @@ class RequestRecord:
     status_code: int
     latency_ms: float
     retries: int
+    source_file: str = "unknown"  # File/process making the call (e.g., pumpfun_curve_listener, creator_outgoing_extractor)
     bytes_in: int = 0
     bytes_out: int = 0
     credits: int = 0
@@ -142,6 +143,7 @@ class RPCMetricsRecorder:
         retries: int = 0,
         bytes_in: int = 0,
         bytes_out: int = 0,
+        source_file: str = "unknown",
         error: Optional[str] = None,
     ) -> int:
         """
@@ -157,6 +159,7 @@ class RPCMetricsRecorder:
             retries: Number of retries before success
             bytes_in: Request body bytes
             bytes_out: Response body bytes
+            source_file: File/process making the call (e.g., pumpfun_curve_listener, creator_outgoing_extractor)
             error: Error message if failed
 
         Returns:
@@ -176,6 +179,7 @@ class RPCMetricsRecorder:
                 status_code=status_code,
                 latency_ms=latency_ms,
                 retries=retries,
+                source_file=source_file,
                 bytes_in=bytes_in,
                 bytes_out=bytes_out,
                 credits=credits,
@@ -365,6 +369,64 @@ class RPCMetricsRecorder:
 
             return result
 
+    def get_source_file_stats(self) -> Dict[str, Dict]:
+        """Get detailed stats grouped by source file/process"""
+        with self._lock:
+            source_stats = {}
+            
+            # Aggregate by source file
+            for record in self._history:
+                source = record.source_file or "unknown"
+                if source not in source_stats:
+                    source_stats[source] = {
+                        'requests': 0,
+                        'credits': 0,
+                        'errors': 0,
+                        'rate_limits_429': 0,
+                        'latencies': [],
+                        'sections': {},  # Track which sections this source uses
+                        'methods': {},   # Track which methods this source uses
+                    }
+                
+                stats = source_stats[source]
+                stats['requests'] += 1
+                stats['credits'] += record.credits
+                stats['latencies'].append(record.latency_ms)
+                
+                # Track sections and methods
+                if record.section not in stats['sections']:
+                    stats['sections'][record.section] = 0
+                stats['sections'][record.section] += 1
+                
+                if record.method not in stats['methods']:
+                    stats['methods'][record.method] = 0
+                stats['methods'][record.method] += 1
+                
+                if record.status_code >= 400:
+                    stats['errors'] += 1
+                if record.status_code == 429:
+                    stats['rate_limits_429'] += 1
+            
+            # Calculate percentiles and format for API
+            result = {}
+            for source, stats in source_stats.items():
+                latencies = sorted(stats['latencies'])
+                result[source] = {
+                    'credits': stats['credits'],
+                    'requests': stats['requests'],
+                    'errors': stats['errors'],
+                    'rate_limits_429': stats['rate_limits_429'],
+                    'avg_latency_ms': round(sum(stats['latencies']) / len(stats['latencies']), 2) if stats['latencies'] else 0,
+                    'p95_latency_ms': round(latencies[int(len(latencies) * 0.95)], 2) if latencies else 0,
+                    'sections': dict(sorted(stats['sections'].items(), key=lambda x: x[1], reverse=True)),
+                    'top_methods': [
+                        {'method': m, 'calls': c}
+                        for m, c in sorted(stats['methods'].items(), key=lambda x: x[1], reverse=True)[:5]
+                    ],
+                }
+            
+            return dict(sorted(result.items(), key=lambda x: x[1]['credits'], reverse=True))
+
     def get_top_methods(self, limit: int = 10) -> List[Dict]:
         """Get top methods by credits across all sections"""
         with self._lock:
@@ -473,11 +535,12 @@ def record_request(
     retries: int = 0,
     bytes_in: int = 0,
     bytes_out: int = 0,
+    source_file: str = "unknown",
     error: Optional[str] = None,
 ) -> int:
     """Convenience function to record request with global instance"""
     credits = get_recorder().record_request(
-        section, provider, method, status_code, latency_ms, mode, retries, bytes_in, bytes_out, error
+        section, provider, method, status_code, latency_ms, mode, retries, bytes_in, bytes_out, source_file, error
     )
 
     # Also POST to API if running on localhost:8001 (for multi-process support)
@@ -493,6 +556,7 @@ def record_request(
                 'latency_ms': latency_ms,
                 'mode': mode,
                 'retries': retries,
+                'source_file': source_file,
                 'bytes_in': bytes_in,
                 'bytes_out': bytes_out,
                 'error': error,

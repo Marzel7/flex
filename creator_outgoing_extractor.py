@@ -26,7 +26,8 @@ from db_global_lock import db_write_lock_global
 
 # Import RPC metrics recorder for monitoring
 try:
-    from rpc_metrics_recorder import record_request
+    from rpc_metrics_recorder import record_request, initialize_recorder
+    initialize_recorder(plan_monthly_credits=50_000_000)
 except ImportError:
     def record_request(*args, **kwargs):
         pass  # No-op if metrics recorder not available

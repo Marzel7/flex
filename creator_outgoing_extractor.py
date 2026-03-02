@@ -18,6 +18,7 @@ import os
 import asyncio
 import time
 import sqlite3
+import random
 from datetime import datetime
 from typing import List, Dict, Tuple, Optional
 import aiohttp
@@ -45,6 +46,47 @@ RPC_KEYS = [
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or RPC_KEYS[0][0]  # Use first key as default
 RPC_HTTP = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
 HELIUS_ENHANCED = f"https://api-mainnet.helius-rpc.com/v0/transactions?api-key={HELIUS_API_KEY}"
+
+# Rate limiting configuration for background scan
+OUTGOING_RPS = 8.0  # 8 requests per second (respects Helius 100 req/sec limit)
+OUTGOING_MAX_RETRIES = 3
+MAX_PAGES_PER_CYCLE = 2  # Process only 2 pages per creator per scan (progressive deepening)
+OUTGOING_CONCURRENCY = 3  # Reduced from 25 to avoid burst spikes
+
+# Global rate limiter instance
+_outgoing_limiter = None
+
+
+class RateLimiter:
+    """Async rate limiter using token bucket algorithm (no external deps)"""
+    def __init__(self, rate_per_sec: float):
+        self._interval = 1.0 / max(rate_per_sec, 0.1)
+        self._lock = asyncio.Lock()
+        self._next = 0.0
+
+    async def acquire(self):
+        """Wait until it's safe to proceed with next request"""
+        async with self._lock:
+            now = time.monotonic()
+            if now < self._next:
+                await asyncio.sleep(self._next - now)
+            self._next = max(self._next + self._interval, time.monotonic() + self._interval)
+
+
+async def sleep_backoff(attempt: int, retry_after_s: Optional[float]):
+    """Sleep with exponential backoff + jitter, respecting Retry-After header"""
+    if retry_after_s is not None:
+        await asyncio.sleep(retry_after_s + random.uniform(0, 0.25))
+    else:
+        await asyncio.sleep(min(2 ** attempt, 30) + random.uniform(0, 0.25))
+
+
+def get_outgoing_limiter() -> RateLimiter:
+    """Get or create global rate limiter for background scan"""
+    global _outgoing_limiter
+    if _outgoing_limiter is None:
+        _outgoing_limiter = RateLimiter(OUTGOING_RPS)
+    return _outgoing_limiter
 
 
 def _connect():
@@ -335,44 +377,139 @@ def batch_update_cursors(rows: List[Tuple[str, str, int]]):
         conn.close()
 
 
-async def rpc_get_signatures(session: aiohttp.ClientSession, address: str, limit: int = 25) -> List[dict]:
-    """Fetch recent signatures for a creator address"""
+def load_before_cursor(creator_address: str) -> Optional[str]:
+    """Load the 'before' cursor for pagination (progressive deepening strategy)"""
+    conn = _connect()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT before_signature FROM creator_outgoing_cursor
+            WHERE creator_address = ?
+        """, (creator_address,))
+        row = cur.fetchone()
+        conn.close()
+        return row[0] if row else None
+    except sqlite3.OperationalError:
+        # Table doesn't exist yet, return None
+        conn.close()
+        return None
+
+
+def save_before_cursor(creator_address: str, before_signature: Optional[str]):
+    """Save the 'before' cursor for pagination (progressive deepening strategy)"""
+    if not before_signature:
+        return
+
+    with db_write_lock_global():
+        conn = _connect()
+        cur = conn.cursor()
+        try:
+            # Create table if it doesn't exist
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS creator_outgoing_cursor (
+                    creator_address TEXT PRIMARY KEY,
+                    before_signature TEXT,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            # Upsert the cursor
+            cur.execute("""
+                INSERT OR REPLACE INTO creator_outgoing_cursor
+                (creator_address, before_signature, updated_at)
+                VALUES (?, ?, datetime('now'))
+            """, (creator_address, before_signature))
+            conn.commit()
+        except sqlite3.OperationalError as e:
+            print(f"[OUTGOING] Warning: Could not save before_cursor: {e}", flush=True)
+        finally:
+            conn.close()
+
+
+async def rpc_get_signatures(
+    session: aiohttp.ClientSession,
+    address: str,
+    limit: int = 25,
+    before: Optional[str] = None,
+    source_file: str = "creator_outgoing_extractor"
+) -> List[dict]:
+    """
+    Fetch recent signatures for a creator address with efficient rate limiting.
+
+    Features:
+    - Smooth request rate (5-8 req/sec) via rate limiter
+    - Retries on 429 with exponential backoff + jitter
+    - Respects Retry-After header if present
+    - Supports 'before' cursor for pagination
+    - Records all metrics with retry/rate-limit metadata
+    """
+    limiter = get_outgoing_limiter()
     payload = {
         "jsonrpc": "2.0",
         "id": 1,
         "method": "getSignaturesForAddress",
-        "params": [address, {"limit": limit}]
+        "params": [address, {"limit": limit, **({"before": before} if before else {})}],
     }
-    try:
+
+    for attempt in range(OUTGOING_MAX_RETRIES + 1):
+        await limiter.acquire()
         start_time = time.time()
-        async with session.post(RPC_HTTP, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+
+        try:
+            async with session.post(
+                RPC_HTTP,
+                json=payload,
+                timeout=aiohttp.ClientTimeout(total=10),
+            ) as resp:
+                latency_ms = (time.time() - start_time) * 1000
+
+                # Extract Retry-After header for rate limit info
+                retry_after_hdr = resp.headers.get("Retry-After")
+                retry_after_s = float(retry_after_hdr) if retry_after_hdr else None
+
+                record_request(
+                    section="creator_outgoing_scan",
+                    provider="helius_rpc",
+                    method="getSignaturesForAddress",
+                    status_code=resp.status,
+                    latency_ms=latency_ms,
+                    mode="background",
+                    source_file=source_file,
+                    retries=attempt,
+                    retry_after_ms=(retry_after_s * 1000) if retry_after_s else None,
+                )
+
+                # Success
+                if resp.status == 200:
+                    data = await resp.json()
+                    return data.get("result") or []
+
+                # Rate limit: backoff and retry
+                if resp.status == 429 and attempt < OUTGOING_MAX_RETRIES:
+                    await sleep_backoff(attempt, retry_after_s)
+                    continue
+
+                # Non-200, non-429: don't spam retries
+                return []
+
+        except Exception as e:
             latency_ms = (time.time() - start_time) * 1000
             record_request(
                 section="creator_outgoing_scan",
                 provider="helius_rpc",
                 method="getSignaturesForAddress",
-                status_code=resp.status,
+                status_code=0,
                 latency_ms=latency_ms,
                 mode="background",
+                source_file=source_file,
+                retries=attempt,
+                error=str(e),
             )
-            if resp.status != 200:
-                return []
-            data = await resp.json()
-            return data.get("result") or []
-    except Exception as e:
-        print(f"[OUTGOING] ⚠️ rpc_get_signatures error: {e}", flush=True)
-        record_request(
-            section="creator_outgoing_scan",
-            provider="helius_rpc",
-            method="getSignaturesForAddress",
-            status_code=0,
-            latency_ms=(time.time() - start_time) * 1000,
-            mode="background",
-            source_file="creator_outgoing_extractor",
+            if attempt < OUTGOING_MAX_RETRIES:
+                await sleep_backoff(attempt, None)
+                continue
+            return []
 
-            error=str(e),
-        )
-        return []
+    return []
 
 
 async def helius_enhanced_parse(session: aiohttp.ClientSession, sigs: List[str]) -> List[dict]:
@@ -1017,19 +1154,28 @@ def calculate_and_store_self_funding():
             conn.close()
 
 
-async def scan_once(concurrency: int = 25):
+async def scan_once(concurrency: int = OUTGOING_CONCURRENCY):
     """
-    Scan all creators for new outgoing transfers.
+    Scan all creators for new outgoing transfers with efficient rate limiting.
+
+    Features:
+    - Progressive deepening: MAX_PAGES_PER_CYCLE (2) per creator per cycle
+    - Low concurrency (3) to avoid burst spikes
+    - Smooth rate limiting (8 req/sec)
+    - Retry with backoff on 429s
+    - Cursor persistence for pagination
 
     Flow:
     1. Get 1000 creators
     2. Load all cursors in one batch read
-    3. Concurrently fetch new signatures (1 RPC call per creator)
-    4. Batch parse new signatures via Helius Enhanced (100 sigs/request)
-    5. Extract outgoing SOL transfers
-    6. Write rows fast
-    7. Update all cursors in one batch
-    8. Build chains
+    3. For each creator, paginate MAX_PAGES_PER_CYCLE (progressive deepening)
+    4. Concurrently fetch signatures with rate limiting (3 in flight)
+    5. Batch parse new signatures via Helius Enhanced (100 sigs/request)
+    6. Extract outgoing SOL transfers
+    7. Write rows fast
+    8. Save pagination cursors for next cycle
+    9. Update all cursors in one batch
+    10. Build chains
     """
     creators = get_creators(limit=1000)
     if not creators:
@@ -1047,38 +1193,73 @@ async def scan_once(concurrency: int = 25):
     async with aiohttp.ClientSession() as session:
         sem = asyncio.Semaphore(concurrency)
 
-        async def handle_creator(c: str) -> Tuple[List[str], Optional[Tuple[str, int]]]:
-            """Returns (fresh_sigs, (newest_sig, newest_slot))"""
+        async def handle_creator(c: str) -> Tuple[List[str], Optional[Tuple[str, int]], Optional[str]]:
+            """
+            Returns (fresh_sigs, (newest_sig, newest_slot), next_before_cursor)
+
+            Implements progressive deepening: fetch MAX_PAGES_PER_CYCLE pages per creator per cycle.
+            Uses 'before' cursor to resume from where we left off last cycle.
+            """
             async with sem:
                 last_sig, _ = cursors.get(c, (None, None))
-                sigs = await rpc_get_signatures(session, c, limit=25)
+                before = load_before_cursor(c)  # Load pagination cursor
 
-                fresh = []
+                all_fresh = []
                 newest_sig = None
                 newest_slot = None
+                final_before = None
 
-                for item in sigs:
-                    s = item.get("signature")
-                    if not s:
-                        continue
-
-                    if newest_sig is None:
-                        newest_sig = s
-                        newest_slot = item.get("slot")
-
-                    # Stop at last known signature
-                    if last_sig and s == last_sig:
+                # Progressive deepening: MAX_PAGES_PER_CYCLE per creator per cycle
+                for page_num in range(MAX_PAGES_PER_CYCLE):
+                    sigs = await rpc_get_signatures(session, c, limit=25, before=before)
+                    if not sigs:
                         break
 
-                    # Only include successful txs
-                    if item.get("err") is None:
-                        fresh.append(s)
+                    fresh = []
+                    page_newest_sig = None
+                    page_newest_slot = None
+
+                    for item in sigs:
+                        s = item.get("signature")
+                        if not s:
+                            continue
+
+                        if page_newest_sig is None:
+                            page_newest_sig = s
+                            page_newest_slot = item.get("slot")
+
+                        # Stop at last known signature (old cursor position)
+                        if last_sig and s == last_sig:
+                            # We've reached previously scanned data, stop here
+                            break
+
+                        # Only include successful txs
+                        if item.get("err") is None:
+                            fresh.append(s)
+
+                    all_fresh.extend(fresh)
+
+                    # Update newest from this page
+                    if page_newest_sig and newest_sig is None:
+                        newest_sig = page_newest_sig
+                        newest_slot = page_newest_slot
+
+                    # Save cursor for next cycle (last sig on this page)
+                    if sigs:
+                        final_before = sigs[-1].get("signature")
+
+                    # If we hit a stopping condition, don't fetch next page
+                    if last_sig and any(item.get("signature") == last_sig for item in sigs):
+                        break
+
+                    # Move to next page
+                    before = final_before
 
                 creator_update = None
                 if newest_sig:
                     creator_update = (newest_sig, int(newest_slot or 0))
 
-                return (fresh, creator_update)
+                return (all_fresh, creator_update, final_before)
 
         # Concurrent signature fetches (1000 RPC calls)
         tasks = [handle_creator(c) for c in creators]
@@ -1087,12 +1268,17 @@ async def scan_once(concurrency: int = 25):
     # Safely merge results from concurrent tasks
     new_sigs: List[str] = []
     cursor_updates: List[Tuple[str, str, int]] = []
+    before_cursor_updates: List[Tuple[str, Optional[str]]] = []
 
-    for c, (fresh, creator_update) in zip(creators, results):
+    for c, result in zip(creators, results):
+        fresh, creator_update, final_before = result
         new_sigs.extend(fresh)
         if creator_update:
             newest_sig, newest_slot = creator_update
             cursor_updates.append((c, newest_sig, newest_slot))
+        # Save pagination cursor for next cycle
+        if final_before:
+            before_cursor_updates.append((c, final_before))
 
     print(f"[OUTGOING] 📋 Collected {len(new_sigs)} new signatures", flush=True)
 
@@ -1111,6 +1297,10 @@ async def scan_once(concurrency: int = 25):
 
     # Update cursors (one batch, not 1000 individual commits)
     batch_update_cursors(cursor_updates)
+
+    # Save pagination cursors for next cycle (progressive deepening)
+    for creator, before_sig in before_cursor_updates:
+        save_before_cursor(creator, before_sig)
 
     # Build chains incrementally from only new outgoing transfers (keeps lock short)
     build_funding_chains_incremental()

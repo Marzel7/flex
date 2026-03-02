@@ -355,6 +355,8 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
                 latency_ms=(time.time() - start_time) * 1000,
                 mode="realtime",
                 retries=attempt,
+                source_file="funder_incoming_extractor",
+
                 error=str(e),
             )
             print(f"[HTTP] Network error: {e}. Backing off (attempt {attempt+1}/{MAX_HTTP_RETRIES})")
@@ -462,6 +464,8 @@ def _rpc_call(payload: dict, timeout: float = 20.0) -> Optional[dict]:
                 latency_ms=(time.time() - start_time) * 1000,
                 mode="realtime",
                 retries=attempt,
+                source_file="funder_incoming_extractor",
+
                 error=str(e),
             )
             print(f"[RPC] Network error: {e}. Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")

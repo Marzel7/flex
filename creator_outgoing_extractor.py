@@ -368,6 +368,8 @@ async def rpc_get_signatures(session: aiohttp.ClientSession, address: str, limit
             status_code=0,
             latency_ms=(time.time() - start_time) * 1000,
             mode="background",
+            source_file="creator_outgoing_extractor",
+
             error=str(e),
         )
         return []

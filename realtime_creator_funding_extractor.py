@@ -340,6 +340,8 @@ class RealTimeCreatorFundingExtractor:
                                     latency_ms=latency_ms,
                                     mode="realtime",
                                     retries=attempt,
+                                    source_file="realtime_creator_funding_extractor",
+
                                     error=f"HTTP {resp.status}",
                                 )
                                 if resp.status == 429:
@@ -377,6 +379,8 @@ class RealTimeCreatorFundingExtractor:
                                     latency_ms=latency_ms,
                                     mode="realtime",
                                     retries=attempt,
+                                    source_file="realtime_creator_funding_extractor",
+
                                     error=f"RPC error {error_code}",
                                 )
                                 # Retryable RPC errors

@@ -344,6 +344,8 @@ class PumpFunCurveListener:
                                     latency_ms=latency_ms,
                                     mode="realtime",
                                     retries=retry_count,
+                                    source_file="pumpfun_curve_listener",
+
                                     error=None,
                                 )
                                 return await resp.json()
@@ -358,6 +360,8 @@ class PumpFunCurveListener:
                                     latency_ms=latency_ms,
                                     mode="realtime",
                                     retries=retry_count,
+                                    source_file="pumpfun_curve_listener",
+
                                     error="Rate limited",
                                 )
                                 if i < len(RPC_URLS) - 1:
@@ -373,6 +377,8 @@ class PumpFunCurveListener:
                                     latency_ms=latency_ms,
                                     mode="realtime",
                                     retries=retry_count,
+                                    source_file="pumpfun_curve_listener",
+
                                     error=f"HTTP {resp.status}",
                                 )
                                 if i < len(RPC_URLS) - 1:
@@ -388,6 +394,8 @@ class PumpFunCurveListener:
                             latency_ms=latency_ms,
                             mode="realtime",
                             retries=retry_count,
+                            source_file="pumpfun_curve_listener",
+
                             error="Timeout",
                         )
                         if i < len(RPC_URLS) - 1:
@@ -403,6 +411,8 @@ class PumpFunCurveListener:
                             latency_ms=latency_ms,
                             mode="realtime",
                             retries=retry_count,
+                            source_file="pumpfun_curve_listener",
+
                             error=last_error,
                         )
                         if i < len(RPC_URLS) - 1:
@@ -418,6 +428,8 @@ class PumpFunCurveListener:
                     latency_ms=latency_ms,
                     mode="realtime",
                     retries=retry_count,
+                    source_file="pumpfun_curve_listener",
+
                     error=last_error or "All endpoints failed",
                 )
                 return None
@@ -433,6 +445,8 @@ class PumpFunCurveListener:
                 latency_ms=latency_ms,
                 mode="realtime",
                 retries=0,
+                source_file="pumpfun_curve_listener",
+
                 error=str(e),
             )
             return None

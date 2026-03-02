@@ -148,6 +148,8 @@ async def _rpc_post(session: aiohttp.ClientSession, url: str, payload: dict, tim
                 latency_ms=(time.time() - start_time) * 1000,
                 mode="background",
                 retries=attempt,
+                source_file="pump_fun_post_migration_analyzer",
+
                 error="timeout",
             )
             if attempt < max_retries - 1:
@@ -166,6 +168,8 @@ async def _rpc_post(session: aiohttp.ClientSession, url: str, payload: dict, tim
                 latency_ms=(time.time() - start_time) * 1000,
                 mode="background",
                 retries=attempt,
+                source_file="pump_fun_post_migration_analyzer",
+
                 error=str(e),
             )
             return None

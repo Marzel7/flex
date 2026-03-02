@@ -302,7 +302,20 @@ class RPCMetricsRecorder:
             uptime_seconds = now - self._start_time
             uptime_minutes = uptime_seconds / 60.0
 
-            # Daily credit estimate
+            # Get actual Helius usage from config
+            try:
+                from rpc_metrics_config import PlanConfig
+                actual_usage = PlanConfig.CURRENT_USAGE
+                credits_used_today = actual_usage["credits_used_today"]
+                credits_remaining_budget = actual_usage["credits_remaining"]
+                credits_total_budget = credits_used_today + credits_remaining_budget
+            except Exception:
+                # Fallback if config not available
+                credits_used_today = self._daily_credits
+                credits_total_budget = self._plan_monthly_credits
+                credits_remaining_budget = max(0, credits_total_budget - credits_used_today) if credits_total_budget > 0 else None
+
+            # Daily credit estimate (from our instrumentation)
             hours_elapsed = uptime_seconds / 3600.0
             daily_estimate = (self._daily_credits / hours_elapsed * 24) if hours_elapsed > 0 else 0
 
@@ -312,18 +325,15 @@ class RPCMetricsRecorder:
             # Burn rate (credits per minute)
             burn_rate = self._total_credits / max(uptime_minutes, 1)
 
-            # Credits remaining (if plan specified)
-            remaining = None
-            if self._plan_monthly_credits > 0:
-                remaining = max(0, self._plan_monthly_credits - int(monthly_estimate))
-
             return {
                 "timestamp": datetime.now().isoformat(),
                 "uptime_minutes": round(uptime_minutes, 2),
-                "credits_today": self._daily_credits,
+                "credits_today": credits_used_today,                    # From Helius dashboard
+                "credits_instrumented_today": self._daily_credits,      # From our instrumentation
                 "credits_total": self._total_credits,
                 "credits_monthly_estimate": int(monthly_estimate),
-                "credits_monthly_remaining": remaining,
+                "credits_monthly_budget": credits_total_budget,
+                "credits_monthly_remaining": credits_remaining_budget,
                 "credits_burn_rate_per_minute": round(burn_rate, 2),
                 "requests_total": self._total_requests,
                 "errors_total": self._total_errors,

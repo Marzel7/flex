@@ -75,9 +75,39 @@ def ensure_history_table():
         conn.close()
 
 
+def get_account_usage_from_dashboard() -> Optional[Dict]:
+    """
+    Try to get live usage from Helius dashboard (requires credentials)
+
+    Returns usage dict or None if scraper not available
+    """
+    try:
+        from helius_dashboard_scraper import scrape_helius_dashboard
+
+        email = os.getenv("HELIUS_EMAIL", "")
+        password = os.getenv("HELIUS_PASSWORD", "")
+
+        if not email or not password:
+            return None
+
+        print("[HELIUS] 🌐 Fetching from dashboard...", flush=True)
+        usage = scrape_helius_dashboard(email, password, headless=True)
+
+        if usage:
+            print("[HELIUS] ✅ Got live data from dashboard", flush=True)
+            return usage
+    except ImportError:
+        # Selenium not installed
+        pass
+    except Exception as e:
+        print(f"[HELIUS] ⚠️ Dashboard fetch failed: {str(e)[:100]}", flush=True)
+
+    return None
+
+
 def get_account_usage() -> Optional[Dict]:
     """
-    Get account usage from configuration and metrics
+    Get account usage - tries dashboard first, falls back to config
 
     Returns:
     {
@@ -87,11 +117,29 @@ def get_account_usage() -> Optional[Dict]:
         "api_calls": int,
         "estimated_daily_burn": int,
         "timestamp": ISO datetime string,
-        "source": "config"  (config-based, not API)
+        "source": "dashboard" or "config"
     }
 
-    Note: Uses PlanConfig.CURRENT_USAGE which is manually synced from Helius dashboard
+    Order:
+    1. Try Helius dashboard (if HELIUS_EMAIL + HELIUS_PASSWORD set)
+    2. Fall back to PlanConfig.CURRENT_USAGE (manually synced)
     """
+    # Try live dashboard first
+    dashboard_usage = get_account_usage_from_dashboard()
+    if dashboard_usage:
+        # Add estimated daily burn from metrics
+        try:
+            from rpc_metrics_recorder import get_recorder
+            recorder = get_recorder()
+            summary = recorder.get_summary()
+            burn_rate_per_min = summary.get("credits_burn_rate_per_minute", 0)
+            dashboard_usage["estimated_daily_burn"] = int(burn_rate_per_min * 60 * 24)
+        except:
+            dashboard_usage["estimated_daily_burn"] = 0
+
+        return dashboard_usage
+
+    # Fall back to config
     try:
         from rpc_metrics_config import PlanConfig
         from rpc_metrics_recorder import get_recorder

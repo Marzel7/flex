@@ -2,16 +2,22 @@
 """
 Creator Outgoing Transfer Extractor
 
-Hourly scan:
-- 1000 creators
-- 1 RPC call per creator (getSignaturesForAddress)
+Scan cycle:
+- Up to 1000 creators per cycle
+- getSignaturesForAddress per creator (page 1 always; page 2 only if enabled + needed)
 - Batch enhanced parse for new sigs (100 sigs/request)
 - Write outgoing edges + build chains + build coordinated edges
 
 Concurrency-safe + lock-optimized:
 - Preload all cursors in one read
+- Preload all before-cursors in one read
 - Batch update cursors in one transaction
+- Batch save before-cursors in one transaction
 - Concurrent signature fetches + safe merge
+
+Metrics:
+- Counts *attempts* vs *successful* requests separately
+- "Local credits" computed from successful calls (closest to dashboard)
 """
 
 import os
@@ -19,7 +25,6 @@ import asyncio
 import time
 import sqlite3
 import random
-from datetime import datetime
 from typing import List, Dict, Tuple, Optional
 import aiohttp
 
@@ -43,29 +48,48 @@ RPC_KEYS = [
     ("3b2917b8-9bed-4e2e-8c05-a74adbc34bb8", "NEW_KEY"),    # Fallback 3
 ]
 
-HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or RPC_KEYS[0][0]  # Use first key as default
-RPC_HTTP = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
-HELIUS_ENHANCED = f"https://api-mainnet.helius-rpc.com/v0/transactions?api-key={HELIUS_API_KEY}"
+HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "") or RPC_KEYS[0][0]
+HELIUS_MONITORING_API_KEY = os.getenv("HELIUS_MONITORING_API_KEY", "")
 
-# Rate limiting configuration for background scan
-OUTGOING_RPS = 8.0  # 8 requests per second (respects Helius 100 req/sec limit)
+# Use monitoring key if available, fall back to regular key
+_RPC_KEY = HELIUS_MONITORING_API_KEY or HELIUS_API_KEY
+
+RPC_HTTP = f"https://mainnet.helius-rpc.com/?api-key={_RPC_KEY}"
+HELIUS_ENHANCED = f"https://api-mainnet.helius-rpc.com/v0/transactions?api-key={_RPC_KEY}"
+
+# Rate limiting configuration
+OUTGOING_RPS = 8.0
 OUTGOING_MAX_RETRIES = 3
-MAX_PAGES_PER_CYCLE = 2  # Process only 2 pages per creator per scan (progressive deepening)
-OUTGOING_CONCURRENCY = 3  # Reduced from 25 to avoid burst spikes
+
+# Full scan target: 1 page per creator per cycle.
+# Set to 2 if you want adaptive page-2 (still "full scan" on page 1).
+MAX_PAGES_PER_CYCLE = 1
+
+OUTGOING_CONCURRENCY = 3
+
+# Helius credit model (keep in one place)
+CREDITS_GSFA = 10
+CREDITS_ENHANCED_BATCH = 100
 
 # Global rate limiter instance
 _outgoing_limiter = None
 
+# Global instrumentation counters
+GSFA_ATTEMPTS = 0
+GSFA_SUCCESS = 0
+ENH_ATTEMPTS = 0
+ENH_SUCCESS = 0
+RPC_SIGNATURE_CALL_COUNT = 0
+
 
 class RateLimiter:
-    """Async rate limiter using token bucket algorithm (no external deps)"""
+    """Async rate limiter using token bucket algorithm (no external deps)."""
     def __init__(self, rate_per_sec: float):
         self._interval = 1.0 / max(rate_per_sec, 0.1)
         self._lock = asyncio.Lock()
         self._next = 0.0
 
     async def acquire(self):
-        """Wait until it's safe to proceed with next request"""
         async with self._lock:
             now = time.monotonic()
             if now < self._next:
@@ -74,7 +98,7 @@ class RateLimiter:
 
 
 async def sleep_backoff(attempt: int, retry_after_s: Optional[float]):
-    """Sleep with exponential backoff + jitter, respecting Retry-After header"""
+    """Sleep with exponential backoff + jitter, respecting Retry-After header."""
     if retry_after_s is not None:
         await asyncio.sleep(retry_after_s + random.uniform(0, 0.25))
     else:
@@ -82,7 +106,6 @@ async def sleep_backoff(attempt: int, retry_after_s: Optional[float]):
 
 
 def get_outgoing_limiter() -> RateLimiter:
-    """Get or create global rate limiter for background scan"""
     global _outgoing_limiter
     if _outgoing_limiter is None:
         _outgoing_limiter = RateLimiter(OUTGOING_RPS)
@@ -90,7 +113,7 @@ def get_outgoing_limiter() -> RateLimiter:
 
 
 def _connect():
-    """Create connection with optimal PRAGMA settings"""
+    """Create connection with optimal PRAGMA settings."""
     conn = sqlite3.connect(DB_PATH, timeout=30)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
@@ -98,8 +121,9 @@ def _connect():
     conn.execute("PRAGMA busy_timeout=30000")
     return conn
 
+
 def ensure_tables():
-    """Create all tables with proper schema and indexes"""
+    """Create all tables with proper schema and indexes."""
     with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
@@ -184,13 +208,18 @@ def ensure_tables():
               last_chain_id INTEGER DEFAULT 0
             );
             INSERT OR IGNORE INTO coordinated_edge_cursor(id,last_chain_id) VALUES (1,0);
+
+            CREATE TABLE IF NOT EXISTS creator_outgoing_cursor (
+              creator_address TEXT PRIMARY KEY,
+              before_signature TEXT,
+              updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
             """)
             conn.commit()
         except sqlite3.OperationalError as e:
-            # Ignore schema mismatch errors - tables may have evolved
             if 'source_tx' not in str(e):
                 raise
-            print(f"[OUTGOING] ℹ️ Schema evolved - ignoring index on non-existent column", flush=True)
+            print("[OUTGOING] ℹ️ Schema evolved - ignoring index on non-existent column", flush=True)
         finally:
             conn.close()
 
@@ -202,7 +231,6 @@ def ensure_tables():
             conn.commit()
             conn.close()
         except sqlite3.OperationalError:
-            # creator_funders table doesn't exist yet, skip index
             pass
 
         # Create priority scanning view using simple tier-based ordering
@@ -212,7 +240,7 @@ def ensure_tables():
             cur.execute("""
             CREATE VIEW IF NOT EXISTS creator_scan_priority AS
             WITH creator_data AS (
-              SELECT 
+              SELECT
                 ta.earliest_tx_creator AS creator,
                 MAX(ta.created_at) AS last_launch_at,
                 CASE WHEN cn.creator_address IS NOT NULL THEN 1 ELSE 0 END AS in_network,
@@ -245,31 +273,16 @@ def ensure_tables():
             conn.commit()
             conn.close()
         except sqlite3.OperationalError:
-            # View creation may fail if dependencies don't exist yet, that's okay
             pass
 
         print("[OUTGOING] ✅ Tables ensured", flush=True)
 
 
 def get_creators(limit: int = 1000) -> List[str]:
-    """Get creators ordered by priority tier.
-    
-    Priority tiers (in order):
-    0. Launched in last 6 hours (always top)
-    1. MALICIOUS/SUSPICIOUS or connected to malicious
-    2. Not in any network (discovery)
-    3. Recently funded (last 6 hours)
-    4. Not scanned in 24 hours
-    5. Everything else
-    
-    Falls back to chronological ordering if priority view unavailable.
-    """
     conn = _connect()
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-    
     try:
-        # Try tier-based scanning first
         cur.execute("""
           SELECT creator
           FROM creator_scan_priority
@@ -280,7 +293,6 @@ def get_creators(limit: int = 1000) -> List[str]:
         conn.close()
         return [r["creator"] for r in rows if r and r["creator"]]
     except sqlite3.OperationalError:
-        # Fallback to simple chronological ordering if view doesn't exist
         cur.execute("""
           SELECT DISTINCT earliest_tx_creator
           FROM token_analysis
@@ -294,11 +306,6 @@ def get_creators(limit: int = 1000) -> List[str]:
 
 
 def load_all_cursors(creators: List[str]) -> Dict[str, Tuple[Optional[str], Optional[int]]]:
-    """
-    Load all cursors in one DB read (reduces lock pressure).
-    Chunks by 800 to avoid SQLite parameter limit issues.
-    Uses cursor_position if available (new schema), falls back to dummy values.
-    """
     if not creators:
         return {}
 
@@ -311,7 +318,6 @@ def load_all_cursors(creators: List[str]) -> Dict[str, Tuple[Optional[str], Opti
         chunk = creators[i:i+chunk_size]
         qmarks = ",".join(["?"] * len(chunk))
         try:
-            # Try to get last_signature and last_slot (old schema)
             cur.execute(f"""
                 SELECT creator_address, last_signature, last_slot
                 FROM creator_sig_cursors
@@ -320,14 +326,12 @@ def load_all_cursors(creators: List[str]) -> Dict[str, Tuple[Optional[str], Opti
             for addr, sig, slot in cur.fetchall():
                 cursors[addr] = (sig, slot)
         except sqlite3.OperationalError:
-            # Fall back to cursor_position only (new schema)
             cur.execute(f"""
                 SELECT creator_address, cursor_position
                 FROM creator_sig_cursors
                 WHERE creator_address IN ({qmarks})
             """, chunk)
             for addr, pos in cur.fetchall():
-                # Return cursor_position as both signature and slot for compatibility
                 cursors[addr] = (None, pos if pos else None)
 
     conn.close()
@@ -335,33 +339,23 @@ def load_all_cursors(creators: List[str]) -> Dict[str, Tuple[Optional[str], Opti
 
 
 def batch_update_cursors(rows: List[Tuple[str, str, int]]):
-    """
-    One transaction upsert for all creators (major lock reduction).
-    This replaces 1000 individual update_cursor() calls.
-    Uses cross-process lock to serialize with listener.
-    Handles both old schema (last_signature, last_slot) and new schema (cursor_position).
-    """
     if not rows:
         return
 
     with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
-
-        # Try to detect which schema we have by checking a PRAGMA
         try:
             cur.execute("PRAGMA table_info(creator_sig_cursors)")
             cols = [col[1] for col in cur.fetchall()]
 
             if 'cursor_position' in cols:
-                # New schema: just update updated_at and cursor_position
                 for creator_addr, sig, slot in rows:
                     cur.execute("""
                       INSERT OR REPLACE INTO creator_sig_cursors(creator_address, cursor_position, updated_at)
                       VALUES(?, ?, datetime('now'))
                     """, (creator_addr, slot))
             else:
-                # Old schema: update last_signature and last_slot
                 cur.executemany("""
                   INSERT INTO creator_sig_cursors(creator_address, last_signature, last_slot, updated_at)
                   VALUES(?, ?, ?, datetime('now'))
@@ -377,50 +371,51 @@ def batch_update_cursors(rows: List[Tuple[str, str, int]]):
         conn.close()
 
 
-def load_before_cursor(creator_address: str) -> Optional[str]:
-    """Load the 'before' cursor for pagination (progressive deepening strategy)"""
+def load_all_before_cursors(creators: List[str]) -> Dict[str, Optional[str]]:
+    if not creators:
+        return {}
+
     conn = _connect()
     cur = conn.cursor()
-    try:
-        cur.execute("""
-            SELECT before_signature FROM creator_outgoing_cursor
-            WHERE creator_address = ?
-        """, (creator_address,))
-        row = cur.fetchone()
-        conn.close()
-        return row[0] if row else None
-    except sqlite3.OperationalError:
-        # Table doesn't exist yet, return None
-        conn.close()
-        return None
+    result: Dict[str, Optional[str]] = {}
+
+    chunk_size = 800
+    for i in range(0, len(creators), chunk_size):
+        chunk = creators[i:i+chunk_size]
+        qmarks = ",".join(["?"] * len(chunk))
+        cur.execute(f"""
+            SELECT creator_address, before_signature
+            FROM creator_outgoing_cursor
+            WHERE creator_address IN ({qmarks})
+        """, chunk)
+        for addr, before_sig in cur.fetchall():
+            result[addr] = before_sig
+
+    conn.close()
+    return result
 
 
-def save_before_cursor(creator_address: str, before_signature: Optional[str]):
-    """Save the 'before' cursor for pagination (progressive deepening strategy)"""
-    if not before_signature:
+def batch_save_before_cursors(rows: List[Tuple[str, Optional[str]]]):
+    if not rows:
+        return
+
+    # Filter out None before_signatures (don’t overwrite with NULL)
+    rows = [(a, b) for (a, b) in rows if b]
+    if not rows:
         return
 
     with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
         try:
-            # Create table if it doesn't exist
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS creator_outgoing_cursor (
-                    creator_address TEXT PRIMARY KEY,
-                    before_signature TEXT,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
-            # Upsert the cursor
-            cur.execute("""
-                INSERT OR REPLACE INTO creator_outgoing_cursor
-                (creator_address, before_signature, updated_at)
+            cur.executemany("""
+                INSERT INTO creator_outgoing_cursor(creator_address, before_signature, updated_at)
                 VALUES (?, ?, datetime('now'))
-            """, (creator_address, before_signature))
+                ON CONFLICT(creator_address) DO UPDATE SET
+                  before_signature=excluded.before_signature,
+                  updated_at=datetime('now')
+            """, rows)
             conn.commit()
-        except sqlite3.OperationalError as e:
-            print(f"[OUTGOING] Warning: Could not save before_cursor: {e}", flush=True)
         finally:
             conn.close()
 
@@ -433,15 +428,14 @@ async def rpc_get_signatures(
     source_file: str = "creator_outgoing_extractor"
 ) -> List[dict]:
     """
-    Fetch recent signatures for a creator address with efficient rate limiting.
+    Fetch recent signatures for an address.
 
-    Features:
-    - Smooth request rate (5-8 req/sec) via rate limiter
-    - Retries on 429 with exponential backoff + jitter
-    - Respects Retry-After header if present
-    - Supports 'before' cursor for pagination
-    - Records all metrics with retry/rate-limit metadata
+    Instrumentation:
+    - GSFA_ATTEMPTS increments per HTTP attempt
+    - GSFA_SUCCESS increments only for HTTP 200 (closest to billable)
     """
+    global GSFA_ATTEMPTS, GSFA_SUCCESS, RPC_SIGNATURE_CALL_COUNT
+
     limiter = get_outgoing_limiter()
     payload = {
         "jsonrpc": "2.0",
@@ -453,6 +447,8 @@ async def rpc_get_signatures(
     for attempt in range(OUTGOING_MAX_RETRIES + 1):
         await limiter.acquire()
         start_time = time.time()
+        GSFA_ATTEMPTS += 1
+        RPC_SIGNATURE_CALL_COUNT += 1
 
         try:
             async with session.post(
@@ -462,7 +458,6 @@ async def rpc_get_signatures(
             ) as resp:
                 latency_ms = (time.time() - start_time) * 1000
 
-                # Extract Retry-After header for rate limit info
                 retry_after_hdr = resp.headers.get("Retry-After")
                 retry_after_s = float(retry_after_hdr) if retry_after_hdr else None
 
@@ -478,17 +473,15 @@ async def rpc_get_signatures(
                     retry_after_ms=(retry_after_s * 1000) if retry_after_s else None,
                 )
 
-                # Success
                 if resp.status == 200:
+                    GSFA_SUCCESS += 1
                     data = await resp.json()
                     return data.get("result") or []
 
-                # Rate limit: backoff and retry
                 if resp.status == 429 and attempt < OUTGOING_MAX_RETRIES:
                     await sleep_backoff(attempt, retry_after_s)
                     continue
 
-                # Non-200, non-429: don't spam retries
                 return []
 
         except Exception as e:
@@ -515,8 +508,13 @@ async def rpc_get_signatures(
 async def helius_enhanced_parse(session: aiohttp.ClientSession, sigs: List[str]) -> List[dict]:
     """
     Batch parse transaction signatures via Helius Enhanced API (max 100/request).
-    Handles 429 rate limits with exponential backoff + retries.
+
+    Instrumentation:
+    - ENH_ATTEMPTS increments per HTTP attempt
+    - ENH_SUCCESS increments only for HTTP 200 (closest to billable)
     """
+    global ENH_ATTEMPTS, ENH_SUCCESS
+
     if not sigs:
         return []
 
@@ -525,40 +523,44 @@ async def helius_enhanced_parse(session: aiohttp.ClientSession, sigs: List[str])
     backoff_times = [0.5, 1.0, 2.0]
 
     for attempt in range(max_retries):
+        ENH_ATTEMPTS += 1
         try:
             start_time = time.time()
             async with session.post(HELIUS_ENHANCED, json=body, timeout=aiohttp.ClientTimeout(total=20)) as resp:
                 latency_ms = (time.time() - start_time) * 1000
+
                 if resp.status == 429:
                     if attempt < max_retries - 1:
-                        sleep_time = backoff_times[attempt]
-                        print(f"[OUTGOING] ⏸️ Rate limited (429), retry in {sleep_time}s (attempt {attempt+1}/{max_retries})", flush=True)
-                        await asyncio.sleep(sleep_time)
+                        await asyncio.sleep(backoff_times[attempt])
                         continue
-                    else:
-                        print(f"[OUTGOING] ⚠️ Rate limited (429) after {max_retries} retries, skipping batch", flush=True)
-                        return []
-                elif resp.status != 200:
+                    return []
+
+                if resp.status != 200:
                     body_snippet = await resp.text()
                     if len(body_snippet) > 200:
                         body_snippet = body_snippet[:200] + "..."
-                    print(f"[OUTGOING] ⚠️ Helius status {resp.status}: {body_snippet}", flush=True)
+                    print(f"[OUTGOING] ⚠️ Helius enhanced status {resp.status}: {body_snippet}", flush=True)
                     return []
+
+                ENH_SUCCESS += 1
                 data = await resp.json()
-                record_request(
-                    section="creator_outgoing_scan",
-                    provider="helius_enhanced",
-                    method="helius_enhanced_transactions_batch",
-                    status_code=resp.status,
-                    latency_ms=latency_ms,
-                    mode="background",
-                )
-                # Normalize response format (may be dict with "result" or direct list)
+                # Record request with batch multiplier (Helius charges per-transaction)
+                batch_size = len(sigs)
+                for i in range(batch_size):
+                    record_request(
+                        section="creator_outgoing_scan",
+                        provider="helius_enhanced",
+                        method="helius_enhanced_transactions_batch",
+                        status_code=resp.status,
+                        latency_ms=latency_ms,
+                        mode="background",
+                    )
+
                 if isinstance(data, dict) and "result" in data:
                     data = data["result"]
                 return data if isinstance(data, list) else []
+
         except asyncio.TimeoutError:
-            print(f"[OUTGOING] ⚠️ Helius timeout on attempt {attempt+1}/{max_retries}", flush=True)
             if attempt < max_retries - 1:
                 await asyncio.sleep(backoff_times[attempt])
                 continue
@@ -571,14 +573,8 @@ async def helius_enhanced_parse(session: aiohttp.ClientSession, sigs: List[str])
 
 
 def extract_outgoing_sol(transactions: List[dict], creator_set: set) -> List[Tuple]:
-    """
-    Extract outgoing SOL transfers from transactions where creator is the sender.
-    Resilient to None transactions, missing/None fields.
-    Returns rows: (creator, recipient, amount_sol, signature, slot, block_time)
-    """
     rows = []
     for tx in (transactions or []):
-        # Skip non-dict items (error objects, None, etc from Helius)
         if not isinstance(tx, dict):
             continue
 
@@ -586,7 +582,6 @@ def extract_outgoing_sol(transactions: List[dict], creator_set: set) -> List[Tup
         if not sig:
             continue
 
-        # Force slot and timestamp to ints (Helius sometimes returns None)
         slot = int(tx.get("slot") or 0)
         ts = int(tx.get("timestamp") or 0)
 
@@ -598,7 +593,6 @@ def extract_outgoing_sol(transactions: List[dict], creator_set: set) -> List[Tup
             if not frm or not to or not amt:
                 continue
 
-            # Only track outgoing (creator as sender)
             if frm in creator_set and int(amt) > 0:
                 amount_sol = float(amt) / 1e9
                 rows.append((frm, to, amount_sol, sig, slot, ts))
@@ -607,9 +601,6 @@ def extract_outgoing_sol(transactions: List[dict], creator_set: set) -> List[Tup
 
 
 def insert_outgoing_rows(rows: List[Tuple]):
-    """Insert outgoing transfer rows (fast batch write)
-    Handles both old schema (with slot) and new schema (without slot).
-    """
     if not rows:
         return
 
@@ -617,21 +608,16 @@ def insert_outgoing_rows(rows: List[Tuple]):
         conn = _connect()
         cur = conn.cursor()
 
-        # Check which columns exist in the table
         cur.execute("PRAGMA table_info(creator_outgoing_transfers)")
         existing_cols = {col[1] for col in cur.fetchall()}
 
         if 'slot' in existing_cols:
-            # Old schema with slot column
             cur.executemany("""
               INSERT OR IGNORE INTO creator_outgoing_transfers
                 (creator_address, recipient_address, amount_sol, transaction_signature, slot, block_time)
               VALUES (?, ?, ?, ?, ?, ?)
             """, rows)
         else:
-            # New schema without slot column - skip slot parameter
-            # Assuming rows are (creator, recipient, amount, sig, slot, block_time)
-            # We'll use (creator, recipient, amount, sig, block_time) and ignore slot
             rows_without_slot = [(r[0], r[1], r[2], r[3], r[5] if len(r) > 5 else None) for r in rows]
             cur.executemany("""
               INSERT OR IGNORE INTO creator_outgoing_transfers
@@ -644,23 +630,15 @@ def insert_outgoing_rows(rows: List[Tuple]):
 
 
 def build_funding_chains_incremental():
-    """
-    Build funding chains from only NEW outgoing transfers since last run.
-    Optimized: read cursor, release lock, do join, acquire lock again for insert.
-    Safe against races: capture max block_time in same snapshot as candidates.
-    """
-    # Step 1: Read cursor and candidate chains in explicit read transaction (ensures snapshot consistency)
     conn = _connect()
     cur = conn.cursor()
-    cur.execute("BEGIN DEFERRED")  # Start explicit read transaction
+    cur.execute("BEGIN DEFERRED")
 
     try:
         cur.execute("SELECT last_block_time FROM outgoing_chain_cursor WHERE id=1")
         row = cur.fetchone()
         last_bt = int(row[0] or 0) if row else 0
 
-        # Step 2: Execute read-only join to find candidate chains + capture max block_time in same snapshot
-        # This prevents races where newer transfers arrive after we read candidates but before we update cursor
         cur.execute("""
           SELECT
             'CREATOR_TO_FUNDER_TO_CREATOR' AS chain_type,
@@ -691,7 +669,6 @@ def build_funding_chains_incremental():
         """, (last_bt,))
         candidate_chains = cur.fetchall()
 
-        # Also capture the max block_time from outgoing transfers in the same transaction snapshot
         cur.execute("SELECT COALESCE(MAX(cot.block_time), ?) FROM creator_outgoing_transfers cot WHERE cot.block_time > ?", (last_bt, last_bt))
         new_bt_row = cur.fetchone()
         new_bt = int(new_bt_row[0] or last_bt) if new_bt_row else last_bt
@@ -703,23 +680,13 @@ def build_funding_chains_incremental():
     finally:
         conn.close()
 
-    # Step 3: Acquire lock only for insert + cursor update (short hold)
-    # Even if no candidates, we still advance the cursor based on max block_time
     with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
 
         if candidate_chains:
-            # Insert all candidate chains
-            # Adapt to actual schema: only insert columns that exist
-            # Rows from query are (chain_type, source_creator, bridge_funder, target_creator,
-            #                      source_tx, source_to_bridge_amount_sol, bridge_to_target_amount_sol,
-            #                      source_block_time, bridge_first_detected_at, bridge_is_cex, confidence)
-            # Table only has: chain_type, source_creator, bridge_funder, target_creator,
-            #               source_to_bridge_amount_sol, bridge_to_target_amount_sol,
-            #               source_block_time, confidence
             rows_for_insert = [
-                (r[0], r[1], r[2], r[3], r[5], r[6], r[7], r[10])  # Skip indices 4,8,9
+                (r[0], r[1], r[2], r[3], r[5], r[6], r[7], r[10])
                 for r in candidate_chains
             ]
             cur.executemany("""
@@ -731,31 +698,21 @@ def build_funding_chains_incremental():
               VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """, rows_for_insert)
 
-        # Always advance cursor to latest processed block_time
-        # This prevents re-scanning the same outgoing transfers forever
         cur.execute("UPDATE outgoing_chain_cursor SET last_block_time=? WHERE id=1", (new_bt,))
         conn.commit()
         conn.close()
 
 
 def build_coordinated_edges_incremental():
-    """
-    Build coordinated edges only from NEW high-confidence chains.
-    Uses coordinated_edge_cursor to track max chain_id, avoiding full table scans.
-    Safe against races: capture max chain_id in same snapshot as candidates.
-    """
-    # Step 1: Read cursor and candidate edges in explicit read transaction (ensures snapshot consistency)
     conn = _connect()
     cur = conn.cursor()
-    cur.execute("BEGIN DEFERRED")  # Start explicit read transaction
+    cur.execute("BEGIN DEFERRED")
 
     try:
         cur.execute("SELECT last_chain_id FROM coordinated_edge_cursor WHERE id=1")
         row = cur.fetchone()
         last_id = int(row[0] or 0) if row else 0
 
-        # Step 2: Execute read-only query to find new high-confidence chains + capture max chain_id in same snapshot
-        # This prevents races where newer chains arrive after we read candidates but before we update cursor
         cur.execute("""
           SELECT
             source_creator, target_creator, bridge_funder,
@@ -767,7 +724,6 @@ def build_coordinated_edges_incremental():
         """, (last_id,))
         candidate_edges = cur.fetchall()
 
-        # Also capture the max chain_id from funding_chains in the same transaction snapshot
         cur.execute("SELECT COALESCE(MAX(chain_id), ?) FROM funding_chains WHERE chain_id > ?", (last_id, last_id))
         new_id_row = cur.fetchone()
         new_id = int(new_id_row[0] or last_id) if new_id_row else last_id
@@ -779,21 +735,12 @@ def build_coordinated_edges_incremental():
     finally:
         conn.close()
 
-    # Step 3: Acquire lock only for insert + cursor update (short hold)
-    # Even if no candidates, we still advance the cursor based on max chain_id
     with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
 
         if candidate_edges:
-            # Insert all candidate edges
-            # candidate_edges is (source_creator, target_creator, bridge_funder, source_block_time, confidence)
-            # We need to map to (creator_a, creator_b, bridge_funder, first_seen_block_time, evidence_tx, confidence)
-            # evidence_tx is now NULL since source_tx doesn't exist in funding_chains
-            edges_for_insert = [
-                (e[0], e[1], e[2], e[3], None, e[4])  # Add NULL for evidence_tx
-                for e in candidate_edges
-            ]
+            edges_for_insert = [(e[0], e[1], e[2], e[3], None, e[4]) for e in candidate_edges]
             cur.executemany("""
               INSERT OR IGNORE INTO coordinated_creator_edges (
                 creator_a, creator_b, bridge_funder,
@@ -802,46 +749,32 @@ def build_coordinated_edges_incremental():
               VALUES (?, ?, ?, ?, ?, ?)
             """, edges_for_insert)
 
-        # Always advance cursor to latest processed chain_id
-        # This prevents re-scanning the same chains forever
         cur.execute("UPDATE coordinated_edge_cursor SET last_chain_id=? WHERE id=1", (new_id,))
         conn.commit()
         conn.close()
 
 
 def detect_and_update_networks_from_outgoing():
-    """
-    Detect creators funding funders/senders of network members and add them to networks.
-    Also create new networks for creators connected via funding chains.
-
-    Logic:
-    1. Add creators that fund network members to those networks
-    2. Create new networks from CREATOR_FUNDING_CHAIN patterns
-    3. Expand networks based on coordinated funding activity
-    """
+    # unchanged (kept as-is in your version)
     with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
-
         try:
             import json
             from datetime import datetime
-            
-            # ========== PART 1: Expand existing networks ==========
-            # Get all networks and their members
+            # PART 1: Expand existing networks
             cur.execute("""
                 SELECT creator_address, network_name, connected_creators
                 FROM creator_networks
             """)
             networks = cur.fetchall()
-            
+
             for network in networks:
                 network_creator = network['creator_address']
                 network_name = network['network_name']
                 connected = json.loads(network['connected_creators'] or '[]')
                 all_members = {network_creator} | set(connected)
-                
-                # Find creators that fund funders of this network's members
+
                 cur.execute("""
                     SELECT DISTINCT cot.creator_address
                     FROM creator_outgoing_transfers cot
@@ -852,10 +785,8 @@ def detect_and_update_networks_from_outgoing():
                     ','.join('?' * len(all_members)),
                     ','.join('?' * len(all_members))
                 ), list(all_members) + list(all_members))
-                
                 new_members = set(row['creator_address'] for row in cur.fetchall())
-                
-                # Find creators that directly fund network members
+
                 cur.execute("""
                     SELECT DISTINCT cot.creator_address
                     FROM creator_outgoing_transfers cot
@@ -865,10 +796,8 @@ def detect_and_update_networks_from_outgoing():
                     ','.join('?' * len(all_members)),
                     ','.join('?' * len(all_members))
                 ), list(all_members) + list(all_members))
-                
                 new_members.update(row['creator_address'] for row in cur.fetchall())
-                
-                # Update network if there are new members
+
                 if new_members:
                     updated_connected = list(set(connected) | new_members)
                     cur.execute("""
@@ -876,10 +805,8 @@ def detect_and_update_networks_from_outgoing():
                         SET connected_creators = ?
                         WHERE network_name = ?
                     """, (json.dumps(updated_connected), network_name))
-            
-            # ========== PART 1.5: Detect direct creator-to-creator transfers ==========
-            # Find cases where one creator directly transfers SOL to another creator
-            # Check both creator_outgoing_transfers (from extractor) and creator_funders (from listener)
+
+            # PART 1.5 direct creator-to-creator transfers
             cur.execute("""
                 SELECT DISTINCT
                     cot.creator_address as source_creator,
@@ -899,7 +826,6 @@ def detect_and_update_networks_from_outgoing():
 
                 UNION
 
-                -- Also check creator_funders for direct creator-to-creator transfers
                 SELECT DISTINCT
                     cf.funder_address as source_creator,
                     cf.creator_address as target_creator
@@ -912,11 +838,8 @@ def detect_and_update_networks_from_outgoing():
                 )
                 AND cf.funder_address != cf.creator_address
             """)
-
             direct_transfers = cur.fetchall()
 
-            # Create SEPARATE organic networks for direct creator-to-creator transfers
-            # These are independent of existing CEX/INFRA networks they may belong to
             for transfer in direct_transfers:
                 source = transfer['source_creator']
                 target = transfer['target_creator']
@@ -926,8 +849,6 @@ def detect_and_update_networks_from_outgoing():
                 cluster_hash = hashlib.md5('|'.join(cluster).encode()).hexdigest()[:8]
                 network_name = f"CreatorTransfer_{cluster_hash}"
 
-                # Add both creators to the creator_to_creator_networks table
-                # This allows tracking multiple network memberships without UNIQUE constraint issues
                 cur.execute("""
                     INSERT OR IGNORE INTO creator_to_creator_networks
                     (creator_address, network_name)
@@ -940,8 +861,7 @@ def detect_and_update_networks_from_outgoing():
                     VALUES (?, ?)
                 """, (target, network_name))
 
-            # ========== PART 2: Create networks from funding chains ==========
-            # Find creators with multiple CREATOR_FUNDING_CHAIN or COORDINATED_FUNDING patterns
+            # PART 2 networks from funding chains
             cur.execute("""
                 SELECT source_creator, target_creator, COUNT(*) as chain_count
                 FROM funding_chains
@@ -949,53 +869,33 @@ def detect_and_update_networks_from_outgoing():
                 GROUP BY source_creator, target_creator
                 HAVING chain_count > 0
             """)
-
             funding_relationships = cur.fetchall()
 
-            # Group creators that are connected via funding chains
             creator_connections = {}
             for rel in funding_relationships:
                 source = rel['source_creator']
                 target = rel['target_creator']
+                creator_connections.setdefault(source, set()).add(target)
+                creator_connections.setdefault(target, set()).add(source)
 
-                # Create bidirectional graph for connected creators
-                if source not in creator_connections:
-                    creator_connections[source] = set()
-                if target not in creator_connections:
-                    creator_connections[target] = set()
-
-                creator_connections[source].add(target)
-                creator_connections[target].add(source)
-
-            # Find connected components (clusters of related creators)
             processed = set()
             networks_to_create = []
 
             for creator, connections in creator_connections.items():
                 if creator in processed:
                     continue
-
-                # BFS to find all connected creators
                 cluster = {creator}
                 queue = [creator]
-
                 while queue:
                     current = queue.pop(0)
                     for neighbor in creator_connections.get(current, set()):
                         if neighbor not in cluster:
                             cluster.add(neighbor)
                             queue.append(neighbor)
-
-                # Mark all as processed
                 processed.update(cluster)
-
-                # Create new network for this creator cluster regardless of existing network membership
-                # This allows direct creator-to-creator relationships to be tracked separately
-                # even if the creators are already members of other networks (e.g., CEX networks)
                 if len(cluster) > 1:
                     networks_to_create.append(cluster)
 
-            # Create new networks
             for cluster in networks_to_create:
                 if len(cluster) < 2:
                     continue
@@ -1004,33 +904,23 @@ def detect_and_update_networks_from_outgoing():
                 primary_creator = cluster_list[0]
                 connected_creators = cluster_list[1:]
 
-                # Create network name that's unique per cluster
-                # Use hash of all members to ensure uniqueness even with same primary creator
                 import hashlib
                 cluster_hash = hashlib.md5('|'.join(cluster_list).encode()).hexdigest()[:8]
                 network_name = f"CoordinatedFunding_{cluster_hash}"
 
-                # Check if this network already exists in creator_networks OR creator_to_creator_networks
-                # (might have been created in PART 1.5 as CreatorTransfer for direct transfers)
                 cur.execute("""
                     SELECT COUNT(*) as count FROM creator_networks
                     WHERE network_name = ?
                 """, (network_name,))
-
                 if cur.fetchone()['count'] == 0:
-                    # Also check if this pair already exists as a CreatorTransfer network
                     if len(cluster_list) == 2:
-                        creator1 = cluster_list[0]
-                        creator2 = cluster_list[1]
+                        creator1, creator2 = cluster_list
                         cur.execute("""
                             SELECT DISTINCT network_name FROM creator_to_creator_networks
                             WHERE (creator_address = ? OR creator_address = ?)
                             AND network_name LIKE 'CreatorTransfer_%'
                         """, (creator1, creator2))
-                        existing_c2c = cur.fetchone()
-
-                        # If a CreatorTransfer network already exists for this pair, skip creation
-                        if existing_c2c:
+                        if cur.fetchone():
                             continue
 
                     try:
@@ -1042,15 +932,14 @@ def detect_and_update_networks_from_outgoing():
                             primary_creator,
                             network_name,
                             json.dumps(connected_creators),
-                            json.dumps([]),  # Empty shared destinations for now
+                            json.dumps([]),
                             len(cluster),
-                            'HIGH',  # Creators funding other creators = high risk
+                            'HIGH',
                             datetime.now().isoformat()
                         ))
-                    except:
-                        # If primary creator already exists, skip (they're already in a network)
+                    except Exception:
                         pass
-            
+
             conn.commit()
             print("[OUTGOING] ✅ Network detection complete", flush=True)
 
@@ -1062,38 +951,24 @@ def detect_and_update_networks_from_outgoing():
 
 
 def calculate_and_store_self_funding():
-    """
-    Calculate self-funding percentages for all creators and store in database.
-    A creator is TRULY self-funded only if:
-    1. 50%+ of their funders only fund that specific creator (isolated funder group)
-    AND
-    2. The creator sends money BACK to these funders (circular funding)
-    """
     with db_write_lock_global():
         conn = _connect()
         cur = conn.cursor()
 
         try:
-            # Get all creators with funders
-            cur.execute("""
-                SELECT DISTINCT creator_address FROM creator_funders
-            """)
+            cur.execute("SELECT DISTINCT creator_address FROM creator_funders")
             creators = [row['creator_address'] for row in cur.fetchall()]
-
             updates = []
 
             for creator in creators:
-                # Get all funders of this creator
                 cur.execute("""
                     SELECT DISTINCT funder_address FROM creator_funders
                     WHERE creator_address = ?
                 """, (creator,))
                 funders = [row['funder_address'] for row in cur.fetchall()]
-
                 if not funders:
                     continue
 
-                # Count how many funders only fund this creator
                 self_funding_intermediates = 0
                 for funder in funders:
                     cur.execute("""
@@ -1101,21 +976,16 @@ def calculate_and_store_self_funding():
                         FROM creator_funders
                         WHERE funder_address = ?
                     """, (funder,))
-                    funder_count = cur.fetchone()['count']
-                    if funder_count == 1:
+                    if cur.fetchone()['count'] == 1:
                         self_funding_intermediates += 1
 
                 total_funders = len(funders)
-                self_funding_percentage = (self_funding_intermediates / total_funders) * 100 if total_funders > 0 else 0
+                self_funding_percentage = (self_funding_intermediates / total_funders) * 100 if total_funders else 0
 
-                # Only set is_self_funding = 1 if BOTH conditions are met:
-                # 1. 50%+ of funders only fund this creator
-                # 2. Creator sends money back to at least one of these funders (circular)
                 has_isolated_funders = self_funding_percentage >= 50
 
                 has_circular_funding = False
                 if has_isolated_funders:
-                    # Check if creator sends SOL back to any of their funders
                     cur.execute("""
                         SELECT COUNT(*) as count FROM creator_outgoing_transfers cot
                         WHERE cot.creator_address = ?
@@ -1125,7 +995,7 @@ def calculate_and_store_self_funding():
                         )
                     """, (creator, creator))
                     circular_result = cur.fetchone()
-                    has_circular_funding = circular_result['count'] > 0 if circular_result else False
+                    has_circular_funding = (circular_result['count'] > 0) if circular_result else False
 
                 is_self_funding = 1 if (has_isolated_funders and has_circular_funding) else 0
 
@@ -1137,7 +1007,6 @@ def calculate_and_store_self_funding():
                     creator
                 ))
 
-            # Batch update
             cur.executemany("""
                 INSERT OR REPLACE INTO creator_self_funding
                 (self_funding_intermediates, total_funders, self_funding_percentage, is_self_funding, creator_address, updated_at)
@@ -1145,7 +1014,7 @@ def calculate_and_store_self_funding():
             """, updates)
 
             conn.commit()
-            print(f"[OUTGOING] ✅ Recalculated self-funding for {len(updates)} creators (only true self-funding with circular flows)", flush=True)
+            print(f"[OUTGOING] ✅ Recalculated self-funding for {len(updates)} creators", flush=True)
 
         except Exception as e:
             conn.rollback()
@@ -1154,189 +1023,133 @@ def calculate_and_store_self_funding():
             conn.close()
 
 
-def calculate_scan_cost_estimate() -> dict:
-    """
-    Calculate estimated credits consumed by a complete scan cycle.
+def reset_local_counters():
+    global GSFA_ATTEMPTS, GSFA_SUCCESS, ENH_ATTEMPTS, ENH_SUCCESS, RPC_SIGNATURE_CALL_COUNT
+    GSFA_ATTEMPTS = GSFA_SUCCESS = 0
+    ENH_ATTEMPTS = ENH_SUCCESS = 0
+    print("Actual getSignaturesForAddress calls:", RPC_SIGNATURE_CALL_COUNT)
+    RPC_SIGNATURE_CALL_COUNT = 0
 
-    Returns dict with:
-    - total_creators: Number of creators per scan
-    - pages_per_creator: MAX_PAGES_PER_CYCLE
-    - total_rpc_calls: getSignaturesForAddress calls
-    - credits_per_call: 10 credits (Helius rate)
-    - total_rpc_credits: Cost of all RPC calls
-    - enhanced_calls: helius_enhanced_transactions_batch calls
-    - credits_per_enhanced: 100 credits
-    - total_enhanced_credits: Cost of enhanced parsing
-    - total_credits_estimate: Total cost for one scan
-    - duration_seconds: Estimated duration with rate limiting
-    """
-    total_creators = 1000
-    pages_per_creator = MAX_PAGES_PER_CYCLE
-    rps = OUTGOING_RPS
 
-    # RPC calls: MAX_PAGES_PER_CYCLE per creator
-    total_rpc_calls = total_creators * pages_per_creator
-    credits_per_rpc_call = 10  # getSignaturesForAddress = 10 credits
-    total_rpc_credits = total_rpc_calls * credits_per_rpc_call
-
-    # Enhanced parse calls (estimate: 25 sigs per page, 100 sigs per enhanced call)
-    total_sigs = total_rpc_calls * 25  # 25 sigs per page limit
-    enhanced_calls = max(1, total_sigs // 100)  # 100 sigs per enhanced request
-    credits_per_enhanced_call = 100
-    total_enhanced_credits = enhanced_calls * credits_per_enhanced_call
-
-    # Total credits
-    total_credits_estimate = total_rpc_credits + total_enhanced_credits
-
-    # Duration estimate
-    duration_seconds = total_rpc_calls / rps  # Rate limited to 8 req/sec
-
+def local_credits_summary() -> Dict[str, int]:
+    # Closest-to-billable: use SUCCESS counts
+    rpc_credits = GSFA_SUCCESS * CREDITS_GSFA
+    enh_credits = ENH_SUCCESS * CREDITS_ENHANCED_BATCH
+    total = rpc_credits + enh_credits
     return {
-        "total_creators": total_creators,
-        "pages_per_creator": pages_per_creator,
-        "total_rpc_calls": total_rpc_calls,
-        "credits_per_rpc_call": credits_per_rpc_call,
-        "total_rpc_credits": total_rpc_credits,
-        "enhanced_calls": enhanced_calls,
-        "credits_per_enhanced_call": credits_per_enhanced_call,
-        "total_enhanced_credits": total_enhanced_credits,
-        "total_credits_estimate": total_credits_estimate,
-        "duration_seconds": duration_seconds,
-        "duration_minutes": duration_seconds / 60,
+        "gsfa_attempts": GSFA_ATTEMPTS,
+        "gsfa_success": GSFA_SUCCESS,
+        "enh_attempts": ENH_ATTEMPTS,
+        "enh_success": ENH_SUCCESS,
+        "credits_rpc": rpc_credits,
+        "credits_enhanced": enh_credits,
+        "credits_total_local": total,
     }
 
 
 async def scan_once(concurrency: int = OUTGOING_CONCURRENCY):
-    """
-    Scan all creators for new outgoing transfers with efficient rate limiting.
+    reset_local_counters()
 
-    Features:
-    - Progressive deepening: MAX_PAGES_PER_CYCLE (2) per creator per cycle
-    - Low concurrency (3) to avoid burst spikes
-    - Smooth rate limiting (8 req/sec)
-    - Retry with backoff on 429s
-    - Cursor persistence for pagination
-
-    Flow:
-    1. Get 1000 creators
-    2. Load all cursors in one batch read
-    3. For each creator, paginate MAX_PAGES_PER_CYCLE (progressive deepening)
-    4. Concurrently fetch signatures with rate limiting (3 in flight)
-    5. Batch parse new signatures via Helius Enhanced (100 sigs/request)
-    6. Extract outgoing SOL transfers
-    7. Write rows fast
-    8. Save pagination cursors for next cycle
-    9. Update all cursors in one batch
-    10. Build chains
-    """
     creators = get_creators(limit=1000)
     if not creators:
         print("[OUTGOING] ℹ️ No creators found", flush=True)
         return
 
     creator_set = set(creators)
-
     print(f"[OUTGOING] 🔍 Scanning {len(creators)} creators...", flush=True)
 
-    # Preload all cursors at once (reduces lock pressure)
     cursors = load_all_cursors(creators)
+    before_cursors = load_all_before_cursors(creators)
 
-    # Concurrent signature fetches + safe result collection
-    async with aiohttp.ClientSession() as session:
+    # Reuse ONE session for both RPC + Enhanced (less overhead)
+    connector = aiohttp.TCPConnector(limit=OUTGOING_CONCURRENCY * 4)
+    async with aiohttp.ClientSession(connector=connector) as session:
         sem = asyncio.Semaphore(concurrency)
 
         async def handle_creator(c: str) -> Tuple[List[str], Optional[Tuple[str, int]], Optional[str]]:
-            """
-            Returns (fresh_sigs, (newest_sig, newest_slot), next_before_cursor)
-
-            Implements progressive deepening: fetch MAX_PAGES_PER_CYCLE pages per creator per cycle.
-            Uses 'before' cursor to resume from where we left off last cycle.
-            """
             async with sem:
                 last_sig, _ = cursors.get(c, (None, None))
-                before = load_before_cursor(c)  # Load pagination cursor
+                before = before_cursors.get(c)
 
-                all_fresh = []
-                newest_sig = None
-                newest_slot = None
-                final_before = None
+                # ===== Page 1 (always fetch) =====
+                sigs = await rpc_get_signatures(session, c, limit=25, before=before)
+                if not sigs:
+                    return ([], None, before)
 
-                # Progressive deepening: MAX_PAGES_PER_CYCLE per creator per cycle
-                for page_num in range(MAX_PAGES_PER_CYCLE):
-                    sigs = await rpc_get_signatures(session, c, limit=25, before=before)
-                    if not sigs:
+                fresh = []
+                page_newest_sig = None
+                page_newest_slot = None
+                hit_last_sig = False
+
+                for item in sigs:
+                    s = item.get("signature")
+                    if not s:
+                        continue
+
+                    if page_newest_sig is None:
+                        page_newest_sig = s
+                        page_newest_slot = item.get("slot")
+
+                    if last_sig and s == last_sig:
+                        hit_last_sig = True
                         break
 
-                    fresh = []
-                    page_newest_sig = None
-                    page_newest_slot = None
+                    if item.get("err") is None:
+                        fresh.append(s)
 
-                    for item in sigs:
-                        s = item.get("signature")
-                        if not s:
-                            continue
+                all_fresh = list(fresh)
 
-                        if page_newest_sig is None:
-                            page_newest_sig = s
-                            page_newest_slot = item.get("slot")
+                newest_sig = page_newest_sig
+                newest_slot = page_newest_slot
+                final_before = sigs[-1].get("signature")
 
-                        # Stop at last known signature (old cursor position)
-                        if last_sig and s == last_sig:
-                            # We've reached previously scanned data, stop here
-                            break
+                # ===== Optional adaptive Page 2 =====
+                should_fetch_page2 = (
+                    MAX_PAGES_PER_CYCLE >= 2 and
+                    len(sigs) == 25 and
+                    not hit_last_sig and
+                    len(fresh) > 0 and
+                    final_before is not None
+                )
 
-                        # Only include successful txs
-                        if item.get("err") is None:
-                            fresh.append(s)
+                if should_fetch_page2:
+                    sigs2 = await rpc_get_signatures(session, c, limit=25, before=final_before)
+                    if sigs2:
+                        for item in sigs2:
+                            s = item.get("signature")
+                            if not s:
+                                continue
+                            if last_sig and s == last_sig:
+                                break
+                            if item.get("err") is None:
+                                all_fresh.append(s)
+                        final_before = sigs2[-1].get("signature") or final_before
 
-                    all_fresh.extend(fresh)
-
-                    # Update newest from this page
-                    if page_newest_sig and newest_sig is None:
-                        newest_sig = page_newest_sig
-                        newest_slot = page_newest_slot
-
-                    # Save cursor for next cycle (last sig on this page)
-                    if sigs:
-                        final_before = sigs[-1].get("signature")
-
-                    # If we hit a stopping condition, don't fetch next page
-                    if last_sig and any(item.get("signature") == last_sig for item in sigs):
-                        break
-
-                    # Move to next page
-                    before = final_before
-
-                creator_update = None
-                if newest_sig:
-                    creator_update = (newest_sig, int(newest_slot or 0))
-
+                creator_update = (newest_sig, int(newest_slot or 0)) if newest_sig else None
                 return (all_fresh, creator_update, final_before)
 
-        # Concurrent signature fetches (1000 RPC calls)
-        tasks = [handle_creator(c) for c in creators]
-        results = await asyncio.gather(*tasks)
+        results = await asyncio.gather(*[handle_creator(c) for c in creators])
 
-    # Safely merge results from concurrent tasks
-    new_sigs: List[str] = []
-    cursor_updates: List[Tuple[str, str, int]] = []
-    before_cursor_updates: List[Tuple[str, Optional[str]]] = []
+        new_sigs: List[str] = []
+        cursor_updates: List[Tuple[str, str, int]] = []
+        before_cursor_updates: List[Tuple[str, Optional[str]]] = []
 
-    for c, result in zip(creators, results):
-        fresh, creator_update, final_before = result
-        new_sigs.extend(fresh)
-        if creator_update:
-            newest_sig, newest_slot = creator_update
-            cursor_updates.append((c, newest_sig, newest_slot))
-        # Save pagination cursor for next cycle
-        if final_before:
-            before_cursor_updates.append((c, final_before))
+        for c, result in zip(creators, results):
+            fresh, creator_update, final_before = result
+            new_sigs.extend(fresh)
+            if creator_update:
+                newest_sig, newest_slot = creator_update
+                cursor_updates.append((c, newest_sig, newest_slot))
+            if final_before:
+                before_cursor_updates.append((c, final_before))
 
-    print(f"[OUTGOING] 📋 Collected {len(new_sigs)} new signatures", flush=True)
+        print(f"[OUTGOING] 📋 Collected {len(new_sigs)} new signatures", flush=True)
 
-    # Batch enhanced parse (100 sigs/request)
-    rows_all = []
-    async with aiohttp.ClientSession() as session:
+        new_sigs = list(dict.fromkeys(new_sigs))
+        print(f"[OUTGOING] 🔄 After dedup: {len(new_sigs)} signatures", flush=True)
+
+        # Enhanced parse (100 sigs/request)
+        rows_all: List[Tuple] = []
         for i in range(0, len(new_sigs), 100):
             chunk = new_sigs[i:i+100]
             txs = await helius_enhanced_parse(session, chunk)
@@ -1344,45 +1157,47 @@ async def scan_once(concurrency: int = OUTGOING_CONCURRENCY):
 
     print(f"[OUTGOING] ✍️ Extracted {len(rows_all)} outgoing transfers", flush=True)
 
-    # Write rows (fast)
     insert_outgoing_rows(rows_all)
-
-    # Update cursors (one batch, not 1000 individual commits)
     batch_update_cursors(cursor_updates)
+    batch_save_before_cursors(before_cursor_updates)
 
-    # Save pagination cursors for next cycle (progressive deepening)
-    for creator, before_sig in before_cursor_updates:
-        save_before_cursor(creator, before_sig)
-
-    # Build chains incrementally from only new outgoing transfers (keeps lock short)
     build_funding_chains_incremental()
     build_coordinated_edges_incremental()
-
-    # Detect and update network membership based on outgoing transfers
     detect_and_update_networks_from_outgoing()
-
-    # Calculate and store self-funding metrics for all creators
     calculate_and_store_self_funding()
 
-    # Get actual metrics from recorder
+    # Recorder credits (if present)
     try:
         from rpc_metrics_recorder import get_recorder
         recorder = get_recorder()
         summary = recorder.get_summary()
-        actual_credits = summary.get("credits_total", 0)
-    except:
-        actual_credits = 0
+        recorder_credits = int(summary.get("credits_total", 0) or 0)
+    except Exception:
+        recorder_credits = 0
 
-    # Calculate estimated cost for reference
-    cost_estimate = calculate_scan_cost_estimate()
+    local = local_credits_summary()
 
-    print(f"[OUTGOING] ✅ Scan complete: creators={len(creators)} new_sigs={len(new_sigs)} new_rows={len(rows_all)}", flush=True)
-    print(f"[OUTGOING] 💰 Credits this scan: {actual_credits:.0f} (Estimate: {cost_estimate['total_credits_estimate']:.0f})", flush=True)
-    print(f"[OUTGOING] 📊 Scan breakdown: {cost_estimate['total_rpc_calls']} RPC calls ({cost_estimate['total_rpc_credits']:.0f} cr) + {cost_estimate['enhanced_calls']} enhanced ({cost_estimate['total_enhanced_credits']:.0f} cr)", flush=True)
+    print(
+        "[OUTGOING] ✅ Scan complete: "
+        f"creators={len(creators)} new_sigs={len(new_sigs)} new_rows={len(rows_all)}",
+        flush=True
+    )
+    print(
+        "[OUTGOING] 🧾 Local counters: "
+        f"GSFA attempts={local['gsfa_attempts']} success={local['gsfa_success']} | "
+        f"ENH attempts={local['enh_attempts']} success={local['enh_success']}",
+        flush=True
+    )
+    print(
+        "[OUTGOING] 💰 Credits: "
+        f"local_success_based={local['credits_total_local']} "
+        f"(rpc={local['credits_rpc']} enh={local['credits_enhanced']}) "
+        f"| recorder={recorder_credits}",
+        flush=True
+    )
 
 
 async def run_forever(interval_seconds: int = 3600):
-    """Run scanner loop forever"""
     ensure_tables()
 
     while True:
@@ -1401,6 +1216,5 @@ async def run_forever(interval_seconds: int = 3600):
 
 
 if __name__ == "__main__":
-    # Run every 12 hours to ensure all creators scanned once per day
-    # With 1453 creators and 1000 per scan, 2 scans cover all creators daily
-    asyncio.run(run_forever(43200))  # 43200 seconds = 12 hours
+    # Run every 2 minutes
+    asyncio.run(run_forever(120))

@@ -118,7 +118,7 @@ def get_creator_recent_checks_enriched(limit: int = 15):
             # Distribution pattern
             if outgoing_count > 0:
                 cursor.execute("""
-                    SELECT COUNT(DISTINCT recipient_address) as recipient_count
+                    SELECT COUNT(DISTINCT destination) as recipient_count
                     FROM sol_transfers
                     WHERE source = ?
                 """, (creator,))

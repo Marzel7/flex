@@ -17642,6 +17642,46 @@ def metrics_helius_capture_proxy():
         return {'error': str(e)}, 503
 
 
+@app.route('/metrics/rpc/comparison', methods=['POST'])
+def metrics_rpc_comparison_proxy():
+    """Proxy /metrics/rpc/comparison requests to the RPC Metrics API"""
+    try:
+        import requests
+        from flask import request
+
+        # Support both starting new tests and polling existing tests
+        test_id = request.args.get('test_id')
+        duration_seconds = request.args.get('duration_seconds', '120')
+
+        # Build URL with optional test_id parameter
+        url = f'http://localhost:8001/metrics/rpc/comparison?duration_seconds={duration_seconds}'
+        if test_id:
+            url += f'&test_id={test_id}'
+
+        response = requests.post(url, timeout=180)
+        return response.json(), response.status_code
+    except Exception as e:
+        return {'error': str(e)}, 503
+
+
+@app.route('/restart', methods=['POST'])
+def restart_services():
+    """Kill and restart Flask, listener, and all services"""
+    try:
+        from pumpfun_curve_listener import cleanup_and_restart
+        # Run in background so response can be sent
+        import threading
+        thread = threading.Thread(target=cleanup_and_restart, daemon=True)
+        thread.start()
+        return {
+            "status": "restarting",
+            "message": "Services are being cleaned up and restarted",
+            "details": "Flask (5002) and listener will restart momentarily"
+        }, 202
+    except Exception as e:
+        return {'error': str(e), 'status': 'failed'}, 500
+
+
 # =========================================================================
 # MAIN
 # =========================================================================

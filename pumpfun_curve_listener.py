@@ -277,17 +277,22 @@ load_dotenv()
 
 # === Config ===
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
+HELIUS_MONITORING_API_KEY = os.getenv("HELIUS_MONITORING_API_KEY", "")
+
+# Use monitoring key if available, fall back to regular key
+_RPC_KEY = HELIUS_MONITORING_API_KEY or HELIUS_API_KEY
+
 # RPC Configuration: Use Helius + Public Solana only (QuickNode removed)
 # WebSocket: Try Helius first, fall back to public Solana
-HELIUS_RPC_WS = f"wss://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "wss://api.mainnet-beta.solana.com/"
+HELIUS_RPC_WS = f"wss://mainnet.helius-rpc.com/?api-key={_RPC_KEY}" if _RPC_KEY else "wss://api.mainnet-beta.solana.com/"
 
 # HTTP: Use Helius if available, otherwise public Solana
-RPC_HTTP = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com"
+RPC_HTTP = f"https://mainnet.helius-rpc.com/?api-key={_RPC_KEY}" if _RPC_KEY else "https://api.mainnet-beta.solana.com"
 
 # RPC failover chain: Helius -> Public Solana
 RPC_URLS = []
-if HELIUS_API_KEY:
-    RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}")
+if _RPC_KEY:
+    RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={_RPC_KEY}")
 RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
 
 PUMPFUN_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
@@ -2104,5 +2109,97 @@ async def main():
     await listener.listen()
 
 
+def cleanup_and_restart():
+    """Kill Flask (5002) and listener, then restart both"""
+    import subprocess
+    import os
+    import time
+
+    print("[CLEANUP] 🔄 Cleaning up and restarting services...", flush=True)
+
+    try:
+        # Kill Flask on port 5002
+        os.system("lsof -i :5002 | tail -1 | awk '{print $2}' | xargs kill -9 2>/dev/null || true")
+        time.sleep(1)
+        print("[CLEANUP] ✓ Flask (port 5002) killed", flush=True)
+    except:
+        pass
+
+    try:
+        # Kill listener
+        os.system("pkill -f 'python.*pumpfun_curve_listener.py' 2>/dev/null || true")
+        time.sleep(1)
+        print("[CLEANUP] ✓ Listener killed", flush=True)
+    except:
+        pass
+
+    try:
+        # Restart listener
+        print("[CLEANUP] 🚀 Starting listener...", flush=True)
+        listener_process = subprocess.Popen(
+            ["python", "pumpfun_curve_listener.py"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True
+        )
+        time.sleep(4)
+        print("[CLEANUP] ✓ Listener restarted", flush=True)
+    except Exception as e:
+        print(f"[CLEANUP] ⚠️ Could not restart listener: {e}", flush=True)
+
+    try:
+        # Restart Flask
+        print("[CLEANUP] 🚀 Starting Flask...", flush=True)
+        flask_process = subprocess.Popen(
+            ["python", "main.py"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True
+        )
+        time.sleep(3)
+        print("[CLEANUP] ✓ Flask restarted", flush=True)
+    except Exception as e:
+        print(f"[CLEANUP] ⚠️ Could not restart Flask: {e}", flush=True)
+
+
+def start_rpc_metrics_api():
+    """Start RPC Metrics API in background subprocess"""
+    import subprocess
+    import time
+
+    try:
+        # Check if API is already running
+        import requests
+        try:
+            requests.get("http://localhost:8001/health", timeout=2)
+            print("[INIT] ✓ RPC Metrics API already running on port 8001", flush=True)
+            return
+        except:
+            pass
+
+        # Start API server
+        print("[INIT] 🚀 Starting RPC Metrics API on port 8001...", flush=True)
+        api_process = subprocess.Popen(
+            ["python", "rpc_metrics_api.py"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True
+        )
+        time.sleep(2)
+
+        # Verify it started
+        try:
+            requests.get("http://localhost:8001/health", timeout=2)
+            print("[INIT] ✓ RPC Metrics API started successfully", flush=True)
+        except:
+            print("[INIT] ⚠️ RPC Metrics API may not have started properly", flush=True)
+    except Exception as e:
+        print(f"[INIT] ⚠️ Could not start RPC Metrics API: {e}", flush=True)
+
+
 if __name__ == "__main__":
+    # Start RPC Metrics API before listener
+    start_rpc_metrics_api()
+
+    # Start listener
     asyncio.run(main())

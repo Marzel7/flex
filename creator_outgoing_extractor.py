@@ -550,6 +550,7 @@ async def helius_enhanced_parse(session: aiohttp.ClientSession, sigs: List[str])
                     status_code=resp.status,
                     latency_ms=latency_ms,
                     mode="background",
+                    source_file="creator_outgoing_extractor",
                 )
 
                 # Log the batch call

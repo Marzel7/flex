@@ -1,0 +1,228 @@
+================================================================================
+                        WORKER QUEUE FLOW DIAGRAM
+================================================================================
+
+WEBHOOK ARRIVAL
+===============
+    Helius sends SOL transfer
+            │
+            ↓
+    /helius/webhook endpoint
+            │
+            ├─→ Extract source & destination
+            │
+            ├─→ Save to sol_transfers table
+            │
+            └─→ Add to work_queue (priority=20, reason="new_transfer")
+                    │
+                    └─ INSERT INTO work_queue (address, priority, reason, ...)
+
+
+WORKER LOOP (Background Thread)
+===============================
+
+┌─────────────────────────────────────────────────────────────────┐
+│ Every 1 second:                                                 │
+│                                                                 │
+│  1. Fetch next batch from work_queue                           │
+│     ├─ WHERE locked_until < now() AND next_run_at <= now()    │
+│     ├─ ORDER BY priority DESC                                 │
+│     └─ LIMIT 10                                               │
+│                                                                 │
+│  2. If no work items: sleep 1s, retry                         │
+│                                                                 │
+│  3. For each address in batch:                                │
+│     ├─ Lock: UPDATE locked_until = now + 120s                │
+│     ├─ Recompute priority (may have changed)                 │
+│     ├─ Decide: should_rpc?                                   │
+│     ├─ Score: compute_creator_risk_score()                   │
+│     ├─ Reschedule: next_run_at = now + adaptive_delay        │
+│     └─ Unlock: locked_until = 0                              │
+│                                                                 │
+│  4. Sleep 1s, go back to step 1                              │
+└─────────────────────────────────────────────────────────────────┘
+
+
+PRIORITY COMPUTATION
+====================
+
+    Input: address (from work_queue)
+            │
+            ↓
+    Query address_activity table:
+    ├─ last_seen_at (when address last had activity)
+    ├─ tx_5m, tx_1h, tx_24h (transaction counts)
+    ├─ sol_in_1h, sol_out_1h (SOL amounts)
+    └─ last_processed_at (when worker last analyzed)
+            │
+            ↓
+    Calculate score:
+    ├─ Activity: +50 if active 5m, +30 if 1h, +10 if 24h
+    ├─ Size: +20 if sol_in > 10, +20 if sol_out > 10
+    ├─ Network: +15 if in creator network, +10 if multiple creators
+    ├─ Cooldown: -5 if processed < 1h ago
+    └─ priority = score (range: 0-100)
+            │
+            ↓
+    Output: priority score, reason string
+
+
+RPC DECISION GATE
+=================
+
+    Input: computed_priority
+            │
+            ├─ Is priority >= 80?
+            │  ├─ NO  → BLOCK_RPC (priority too low)
+            │  └─ YES → Continue to next check
+            │
+            ├─ Is (now - last_rpc_fetch) > 30 minutes?
+            │  ├─ NO  → BLOCK_RPC (cooldown)
+            │  └─ YES → Continue to next check
+            │
+            ├─ Have we made < 100 RPC calls this hour?
+            │  ├─ NO  → BLOCK_RPC (rate limit)
+            │  └─ YES → ALLOW_RPC ✅
+            │
+            ↓
+    Output: should_rpc = True/False
+
+
+RISK SCORING
+============
+
+    Input: address
+            │
+            ↓
+    Call: webhook_creator_ranker.compute_creator_risk_score(address)
+            │
+            ├─ Analyzes funding patterns
+            ├─ Checks creator connections
+            ├─ Scores suspicious behavior
+            └─ Returns: {score: 0-100, risk_level: 'low'|'moderate'|'high'|'critical'}
+            │
+            ↓
+    Log: [WORKER] address... risk_score=X level=Y
+
+
+ADAPTIVE RESCHEDULING
+=====================
+
+    Input: computed_priority
+            │
+            ├─ If priority >= 80  → next_run_at = now + 60s
+            ├─ If priority >= 60  → next_run_at = now + 5m
+            ├─ If priority >= 40  → next_run_at = now + 15m
+            └─ If priority < 40   → next_run_at = now + 1h
+            │
+            ↓
+    Update: work_queue.next_run_at
+            │
+            └─ Will be picked up again at next scheduled time
+
+
+COMPLETE WORKER CYCLE EXAMPLE
+==============================
+
+Time: 19:00:00
+    Webhook arrives: 0.5 SOL transfer from Sender → Address A
+    │
+    ├─ Stored in sol_transfers
+    ├─ Added to work_queue: (Address A, priority=20, reason=new_transfer)
+    └─ Added to work_queue: (Sender, priority=20, reason=new_transfer)
+
+Time: 19:00:01
+    [WORKER] Fetched 2 work items
+    
+    Processing Address A:
+    ├─ Recompute priority: 50 (active_5m)
+    ├─ Should RPC? NO (50 < 80)
+    ├─ Risk score: moderate (40)
+    └─ Reschedule: next_run_at = 19:00:15 (15 minutes, moderate priority)
+
+    Processing Sender:
+    ├─ Recompute priority: 85 (active_5m, large_inbound)
+    ├─ Should RPC? YES (85 >= 80, rate limits ok)
+    ├─ Risk score: high (72)
+    └─ Reschedule: next_run_at = 19:01:01 (1 minute, high priority)
+
+Time: 19:01:00
+    [WORKER] Fetched 1 work item (only Sender, Address A not yet due)
+    
+    Processing Sender (again):
+    ├─ Recompute priority: 88 (more activity detected)
+    ├─ Should RPC? YES (88 >= 80)
+    ├─ Risk score: critical (85) - worse than before!
+    └─ Reschedule: next_run_at = 19:01:01 (recheck in 1 minute)
+
+Time: 19:01:01, 19:01:02, ... (Sender stays high priority, rechecked every minute)
+
+Time: 19:15:00
+    [WORKER] Now processing Address A again (scheduled for 19:00:15)
+    (May have lower priority by now if no new activity)
+
+
+QUEUE STATE VISUALIZATION
+==========================
+
+work_queue table at 19:00:01:
+
+    address            priority  reason          next_run_at      locked_until
+    ─────────────────────────────────────────────────────────────────────────
+    Sender             85        new_transfer    19:01:01         0
+    Address A          50        new_transfer    19:00:15         0
+    Creator123         45        active         19:15:30         0
+    FundingAddr        20        new_transfer    19:20:00         0
+
+
+Worker processes in priority order:
+    1. Sender (85) ✓
+    2. Address A (50) ✓
+    3. Creator123 (45) - not due yet
+    4. FundingAddr (20) - not due yet
+
+
+DATA TABLES INVOLVED
+====================
+
+sol_transfers
+  ├─ Stores raw webhook data (sender, receiver, amount, sig, block_time)
+  └─ Used to populate address_activity
+
+address_activity
+  ├─ Rolling stats per address (tx counts, SOL amounts, last seen)
+  └─ Used for priority computation
+
+work_queue
+  ├─ Queue of addresses to analyze
+  ├─ Persistent scheduling (auto-reschedule)
+  └─ Central coordination point
+
+(No direct writes to these, but used for risk scoring)
+  ├─ creator_watch - Watches which creators
+  ├─ creator_tags - Tags/classifications
+  └─ creator_networks - Network relationships
+
+
+KEY DESIGN PRINCIPLES
+====================
+
+1. DB-only signals
+   └─ Don't call RPC unless absolutely necessary
+
+2. Priority gating
+   └─ RPC is expensive ($), so gate it heavily
+
+3. Adaptive scheduling
+   └─ High-risk addresses get faster rechecks
+
+4. Concurrent safety
+   └─ Locking prevents duplicate work
+
+5. Rate limiting
+   └─ Global 100 RPC/hour limit prevents abuse
+
+6. Infinite loop
+   └─ Continuously processes addresses as they arrive
+
+================================================================================

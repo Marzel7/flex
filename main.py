@@ -2317,6 +2317,13 @@ HTML_TEMPLATE = """
                 </div>
                 <span class="status-indicator" id="autoExtractFundersStatus"></span>
             </div>
+            <div class="control-group" style="border-left: 1px solid rgba(59, 130, 246, 0.3); margin-left: 12px; padding-left: 12px;">
+                <span class="control-label">Auto Scan Creators</span>
+                <div class="toggle-switch" id="autoScanCreatorsToggle" onclick="toggleAutoScanCreators()">
+                    <div class="toggle-slider"></div>
+                </div>
+                <span class="status-indicator" id="autoScanCreatorsStatus"></span>
+            </div>
             <div class="control-group" style="border-left: 1px solid rgba(124, 58, 237, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button class="action-button" id="tokensTabBtn" onclick="switchToTokensTab()" title="View tokens" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Tokens</button>
                 <button class="action-button" onclick="window.location.href = '/networks'" title="View atomic funder networks" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Networks</button>
@@ -3811,6 +3818,30 @@ HTML_TEMPLATE = """
             }).catch(e => console.error('❌ Error updating listener settings:', e));
         }
 
+        let autoScanCreatorsEnabled = false;
+
+        function toggleAutoScanCreators() {
+            autoScanCreatorsEnabled = !autoScanCreatorsEnabled;
+            const toggle = document.getElementById('autoScanCreatorsToggle');
+            const status = document.getElementById('autoScanCreatorsStatus');
+            toggle.classList.toggle('active');
+            status.classList.toggle('active');
+
+            const state = autoScanCreatorsEnabled ? 'ENABLED' : 'DISABLED';
+            console.log('🔄 [LISTENER] Auto Scan Creators: ' + state);
+
+            // Send to backend
+            fetch('/api/listener-settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    auto_scan_creators: autoScanCreatorsEnabled
+                })
+            }).then(resp => resp.json()).then(data => {
+                console.log('✅ [LISTENER] Updated - Auto Scan: ' + state);
+            }).catch(e => console.error('❌ Error updating listener settings:', e));
+        }
+
         // Toggle funder transfer extraction (incoming/outgoing)
 // Toggle between token table and CEX view
         function toggleFundingNetworkView() {
@@ -3943,6 +3974,7 @@ function switchToTokensTab() {
 
                 listenLaunchesEnabled = listenerSettings.listen_to_launches;
                 autoExtractFundersEnabled = listenerSettings.auto_extract_funders;
+                autoScanCreatorsEnabled = listenerSettings.auto_scan_creators;
 
                 // Update migration toggle switch states
                 const tokenHistoryToggle = document.getElementById('tokenHistoryToggle');
@@ -3971,12 +4003,23 @@ function switchToTokensTab() {
                     autoExtractFundersStatus.classList.add('active');
                 }
 
+                // Update auto scan creators toggle switch states
+                const autoScanCreatorsToggle = document.getElementById('autoScanCreatorsToggle');
+                const autoScanCreatorsStatus = document.getElementById('autoScanCreatorsStatus');
+
+                if (autoScanCreatorsEnabled) {
+                    autoScanCreatorsToggle.classList.add('active');
+                    autoScanCreatorsStatus.classList.add('active');
+                }
+
                 const historyState = tokenHistoryEnabled ? '✅ ON' : '❌ OFF';
                 const launchState = listenLaunchesEnabled ? '✅ ON' : '❌ OFF';
                 const extractState = autoExtractFundersEnabled ? '✅ ON' : '❌ OFF';
+                const scanState = autoScanCreatorsEnabled ? '✅ ON' : '❌ OFF';
                 console.log('📋 [SETTINGS LOADED] Migration - Token History: ' + historyState);
                 console.log('📋 [SETTINGS LOADED] Listener - Token Launch: ' + launchState);
                 console.log('📋 [SETTINGS LOADED] Listener - Auto Extract Funders: ' + extractState);
+                console.log('📋 [SETTINGS LOADED] Listener - Auto Scan Creators: ' + scanState);
             } catch (e) {
                 console.error('❌ Error loading settings:', e);
             }
@@ -8355,6 +8398,28 @@ def api_listener_settings():
                     status = '✅ ON' if data['auto_extract_funders'] else '❌ OFF'
                     print(f"[LISTENER] TOGGLED - Auto Extract Funders: {status}", flush=True)
 
+            # Update auto_scan_creators setting
+            if 'auto_scan_creators' in data:
+                old_val = None
+                try:
+                    cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('auto_scan_creators',))
+                    row = cursor.fetchone()
+                    if row:
+                        old_val = row['setting_value'] == 'true'
+                except:
+                    pass
+
+                new_val = 'true' if data['auto_scan_creators'] else 'false'
+                cursor.execute("""
+                    INSERT OR REPLACE INTO listener_settings
+                    (setting_key, setting_value, last_updated)
+                    VALUES (?, ?, CURRENT_TIMESTAMP)
+                """, ('auto_scan_creators', new_val))
+
+                if old_val is not None and old_val != data['auto_scan_creators']:
+                    status = '✅ ON' if data['auto_scan_creators'] else '❌ OFF'
+                    print(f"[LISTENER] TOGGLED - Auto Scan Creators: {status}", flush=True)
+
             conn.commit()
 
             # Get current settings
@@ -8366,11 +8431,16 @@ def api_listener_settings():
             row = cursor.fetchone()
             auto_extract_funders = row['setting_value'] == 'true' if row else False
 
+            cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('auto_scan_creators',))
+            row = cursor.fetchone()
+            auto_scan_creators = row['setting_value'] == 'true' if row else False
+
             conn.close()
             return jsonify({
                 'status': 'updated',
                 'listen_to_launches': listen_launches,
-                'auto_extract_funders': auto_extract_funders
+                'auto_extract_funders': auto_extract_funders,
+                'auto_scan_creators': auto_scan_creators
             })
 
         else:  # GET
@@ -8382,10 +8452,15 @@ def api_listener_settings():
             row = cursor.fetchone()
             auto_extract_funders = row['setting_value'] == 'true' if row else False
 
+            cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('auto_scan_creators',))
+            row = cursor.fetchone()
+            auto_scan_creators = row['setting_value'] == 'true' if row else False
+
             conn.close()
             return jsonify({
                 'listen_to_launches': listen_launches,
-                'auto_extract_funders': auto_extract_funders
+                'auto_extract_funders': auto_extract_funders,
+                'auto_scan_creators': auto_scan_creators
             })
 
     except Exception as e:

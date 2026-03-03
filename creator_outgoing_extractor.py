@@ -470,7 +470,6 @@ async def rpc_get_signatures(
                     mode="background",
                     source_file=source_file,
                     retries=attempt,
-                    retry_after_ms=(retry_after_s * 1000) if retry_after_s else None,
                 )
 
                 if resp.status == 200:
@@ -544,7 +543,7 @@ async def helius_enhanced_parse(session: aiohttp.ClientSession, sigs: List[str])
 
                 ENH_SUCCESS += 1
                 data = await resp.json()
-                record_request(
+                credits = record_request(
                     section="creator_outgoing_scan",
                     provider="helius_enhanced",
                     method="helius_enhanced_transactions_batch",
@@ -552,6 +551,9 @@ async def helius_enhanced_parse(session: aiohttp.ClientSession, sigs: List[str])
                     latency_ms=latency_ms,
                     mode="background",
                 )
+
+                # Log the batch call
+                print(f"[OUTGOING] Helius enhanced batch: {len(sigs)} txs ({credits} credits) - Status: {resp.status} - {latency_ms:.0f}ms", flush=True)
 
                 if isinstance(data, dict) and "result" in data:
                     data = data["result"]

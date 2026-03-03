@@ -2,6 +2,7 @@
 RPC Metrics Recorder - Production-grade credit accounting and metrics collection.
 
 Tracks Helius credit usage by section, provider, and method.
+Persists all RPC calls to database for cross-process metrics aggregation.
 Maintains rolling counters and exposes metrics via HTTP endpoint.
 """
 
@@ -12,16 +13,18 @@ from datetime import datetime, timedelta
 from threading import RLock
 from typing import Dict, List, Optional, Tuple
 import json
+import sqlite3
+import os
 
 # ============================================================================
-# CREDIT SCHEDULE (configurable)
-# Based on official Helius documentation:
-# https://www.helius.dev/docs/billing/credits
-# https://www.helius.dev/docs/billing/rate-limits
-# Last updated: 2026-03-02
+# CREDIT SCHEDULE (from rpc_metrics_config.py)
 # ============================================================================
 
-CREDIT_SCHEDULE = {
+try:
+    from rpc_metrics_config import CREDIT_SCHEDULE
+except ImportError:
+    # Fallback if config module not available
+    CREDIT_SCHEDULE = {
     # --------
     # Standard RPC Methods (1 credit each)
     # --------
@@ -77,7 +80,9 @@ CREDIT_SCHEDULE = {
     # --------
     # "laserstream_bytes": Calculated as bytes * STREAMING_CREDITS_PER_BYTE
     # "enhanced_ws_bytes": Calculated as bytes * STREAMING_CREDITS_PER_BYTE
-}
+    }
+except ImportError:
+    pass  # Use fallback from rpc_metrics_config if available
 
 # Streaming credits: 3 credits per 0.1MB = 3 credits per 102400 bytes
 STREAMING_CREDITS_PER_BYTE = 3.0 / (0.1 * 1024 * 1024)
@@ -132,6 +137,87 @@ class SectionStats:
 
 
 # ============================================================================
+# DATABASE PERSISTENCE FOR CROSS-PROCESS METRICS AGGREGATION
+# ============================================================================
+
+DB_PATH = os.getenv("RPC_METRICS_DB", "flex_complete_database.db")
+
+def _ensure_rpc_metrics_table():
+    """Create rpc_metrics table if it doesn't exist"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS rpc_metrics (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp REAL NOT NULL,
+                section TEXT NOT NULL,
+                provider TEXT NOT NULL,
+                method TEXT NOT NULL,
+                status_code INTEGER,
+                latency_ms REAL,
+                credits INTEGER,
+                mode TEXT DEFAULT 'realtime',
+                retries INTEGER DEFAULT 0,
+                source_file TEXT DEFAULT 'unknown',
+                error TEXT,
+                process_pid INTEGER,
+                recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        # Create index for common queries
+        conn.execute("""
+            CREATE INDEX IF NOT EXISTS idx_rpc_metrics_timestamp
+            ON rpc_metrics(timestamp DESC)
+        """)
+        conn.execute("""
+            CREATE INDEX IF NOT EXISTS idx_rpc_metrics_source_file
+            ON rpc_metrics(source_file, timestamp DESC)
+        """)
+        conn.execute("""
+            CREATE INDEX IF NOT EXISTS idx_rpc_metrics_method
+            ON rpc_metrics(method, timestamp DESC)
+        """)
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"[WARNING] Could not ensure RPC metrics table: {e}", flush=True)
+
+def _persist_rpc_metric(
+    timestamp: float,
+    section: str,
+    provider: str,
+    method: str,
+    status_code: int,
+    latency_ms: float,
+    credits: int,
+    mode: str = "realtime",
+    retries: int = 0,
+    source_file: str = "unknown",
+    error: Optional[str] = None,
+):
+    """Write RPC metric to database for persistent cross-process tracking"""
+    try:
+        import os as os_module
+        pid = os_module.getpid()
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn.execute(
+            """
+            INSERT INTO rpc_metrics
+            (timestamp, section, provider, method, status_code, latency_ms, credits,
+             mode, retries, source_file, error, process_pid)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (timestamp, section, provider, method, status_code, latency_ms, credits,
+             mode, retries, source_file, error, pid),
+        )
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        # Fail silently to not disrupt normal operation
+        pass
+
+# ============================================================================
 # RPC METRICS RECORDER
 # ============================================================================
 
@@ -174,6 +260,9 @@ class RPCMetricsRecorder:
         self._daily_errors = 0
         self._daily_429s = 0
 
+        # Ensure database table exists for persistent cross-process metrics
+        _ensure_rpc_metrics_table()
+
     def record_request(
         self,
         section: str,
@@ -210,10 +299,11 @@ class RPCMetricsRecorder:
         with self._lock:
             # Compute credits
             credits = self._compute_credits(method, status_code)
+            ts = time.time()
 
             # Create record
             record = RequestRecord(
-                timestamp=time.time(),
+                timestamp=ts,
                 section=section,
                 provider=provider,
                 method=method,
@@ -252,6 +342,12 @@ class RPCMetricsRecorder:
             self._total_requests += 1
             self._total_credits += credits
             self._daily_credits += credits
+
+            # Persist to database for cross-process aggregation (non-blocking)
+            _persist_rpc_metric(
+                ts, section, provider, method, status_code, latency_ms,
+                credits, mode, retries, source_file, error
+            )
 
             return credits
 

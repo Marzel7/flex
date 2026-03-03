@@ -1,330 +1,226 @@
+[INIT] ✓ RPC Metrics API already running on port 8001
 [INIT] Pump.Fun → PumpSwap Migration Listener ready
 [INIT] Monitoring PumpSwap program: pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA
-[INIT] WebSocket: wss://mainnet.helius-rpc.com/?api-key=f8521fb3-f483-44dd-869...
-[INIT] HTTP RPC: https://mainnet.helius-rpc.com/?api-key=f8521fb3-f483-44dd-8...
+[INIT] WebSocket: wss://mainnet.helius-rpc.com/?api-key=16f1a5fc-2592-466c-a5d...
+[INIT] HTTP RPC: https://mainnet.helius-rpc.com/?api-key=16f1a5fc-2592-466c-a...
+[LISTENER] 🔄 Starting creator outgoing transfer extractor (background scan every 12 hours)...
 
 [WEBSOCKET] Connecting to PumpSwap program...
-[CREATOR_WATCH] 🚀 Starting polling loop (interval: 30s)
+[OUTGOING] ✅ Tables ensured
+Actual getSignaturesForAddress calls: 0
+[OUTGOING] 🔍 Scanning 1000 creators...
 [WEBSOCKET] ✓ Connected to PumpSwap program via Helius
 [WEBSOCKET] Subscribed to PumpSwap migrations
-[WEBSOCKET] ✓ Subscription confirmed (ID: 5510953)
+[WEBSOCKET] ✓ Subscription confirmed (ID: 20943591)
 
-[WEBSOCKET] ✓ Connected to PumpSwap program via Helius
-[WEBSOCKET] Subscribed to PumpSwap migrations
-[WEBSOCKET] ✓ Subscription confirmed (ID: 3950703)
-
-[WEBSOCKET] ✓ Connected to PumpSwap program via Helius
-[WEBSOCKET] Subscribed to PumpSwap migrations
-[WEBSOCKET] ✓ Subscription confirmed (ID: 3954797)
-
-[WEBSOCKET] 🚨 Migration #1 detected: 5fvgzNTRbMpprfWNCcZuvAKaUAf3idakJ4ustQd7d8Jt1ZAgZppcMJHsjbf8xmA6qfShGHfhZNyumUS6RaDtcvF3
-[MINT] 📝 Transaction indexing delay, retry 1/12...
-[EVENT] 🚀 MIGRATION DETECTED: 2nKNuDniEeAs44oCT1niwzXGNNiEh4N7pfZJJ3t4pump
-[EVENT] Migration signature: 5fvgzNTRbMpprfWNCcZuvAKaUAf3idakJ4ustQd7d8Jt1ZAgZppcMJHsjbf8xmA6qfShGHfhZNyumUS6RaDtcvF3
-[DB] ✅ Created minimal token entry for 2nKNuDniEeAs44oCT1niwzXGNNiEh4N7pfZJJ3t4pump
-[POOL] ✅ Extracted pool from PumpSwap instruction: 7uTypNdpowwDrL7ciGGEUPcjUTGrAEuPoZH5nH8iBJAJ
-[EVENT] ✅ Pool extracted from transaction: 7uTypNdpowwDrL7ciGGEUPcjUTGrAEuPoZH5nH8iBJAJ
-[POOL] Checking 20 token accounts to find pool...
-[POOL]   Checking 6QZvbPiXyTKKMxDbfXhRhPY7GaubCWmcKV27B9KxbENU (balance: 11846854)
-[POOL]     Owner: 3m1uDcEftFvadKbeEPMM4njc3hv4752pGJfdEvu3zQjN
-[PRICE] ✅ Initial price fetched: $3.36e-05 | Market Cap: $3.36e+04 | Source: dexscreener
-[ANALYZER_INIT] Token: 2nKNuDniEeAs44oCT1niwzXGNNiEh4N7pfZJJ3t4pump
-[ANALYZER_INIT] RPC: https://mainnet.helius-rpc.com/?api-key=f8521fb3-f483-44dd-869a-9be91f38803b
-[CREATOR] Extracting bonding curve from *strict* CREATE tx for 2nKNuDniEeAs44oCT1ni...
-[CREATOR] Page 1: prefilter candidates=840 (checking first 80), skipped_post_migration=0, skipped_errored=160
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499183 blockTime=1771186589 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR] Oldest#1 4WZ7atv5rzXHTePh... strict_create=False mint_create=False mint_init=False bonding_curve=no
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499187 blockTime=1771186591 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR] Oldest#2 594eK81vQBxMjZ5P... strict_create=False mint_create=False mint_init=False bonding_curve=no
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499189 blockTime=1771186592 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR] Oldest#3 57HA4X6B682yRmpD... strict_create=False mint_create=False mint_init=False bonding_curve=no
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499189 blockTime=1771186592 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR] Oldest#4 2s17wKHnqcswJ23Y... strict_create=False mint_create=False mint_init=False bonding_curve=no
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499190 blockTime=1771186592 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR] Oldest#5 gGyerzNYYTK15m2h... strict_create=False mint_create=False mint_init=False bonding_curve=no
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499190 blockTime=1771186592 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499195 blockTime=1771186594 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499195 blockTime=1771186594 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499197 blockTime=1771186595 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499277 blockTime=1771186626 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499279 blockTime=1771186627 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499296 blockTime=1771186634 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499296 blockTime=1771186634 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499301 blockTime=1771186635 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499304 blockTime=1771186637 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499316 blockTime=1771186642 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499575 blockTime=1771186744 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499576 blockTime=1771186745 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499576 blockTime=1771186745 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499686 blockTime=1771186788 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499944 blockTime=1771186887 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499945 blockTime=1771186888 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400499945 blockTime=1771186888 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400501478 blockTime=1771187487 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400501478 blockTime=1771187487 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[WEBSOCKET] ✓ Connected to PumpSwap program via Helius
-[WEBSOCKET] Subscribed to PumpSwap migrations
-[WEBSOCKET] ✓ Subscription confirmed (ID: 4041838)
-
-[CREATOR][DEBUG] bonding_curve=no context: slot=400501506 blockTime=1771187498 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400501506 blockTime=1771187498 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502118 blockTime=1771187739 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502258 blockTime=1771187794 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502375 blockTime=1771187839 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502442 blockTime=1771187865 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502518 blockTime=1771187894 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502519 blockTime=1771187894 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502519 blockTime=1771187894 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502519 blockTime=1771187894 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502519 blockTime=1771187894 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502519 blockTime=1771187894 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502519 blockTime=1771187894 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502519 blockTime=1771187894 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502519 blockTime=1771187894 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502519 blockTime=1771187894 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502519 blockTime=1771187894 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502519 blockTime=1771187894 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502524 blockTime=1771187896 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502525 blockTime=1771187896 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502525 blockTime=1771187896 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502525 blockTime=1771187896 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502539 blockTime=1771187902 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502539 blockTime=1771187902 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502539 blockTime=1771187902 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502539 blockTime=1771187902 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502539 blockTime=1771187902 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[WEBSOCKET] 🚨 Migration #2 detected: aA73MGiBSDz2PoLqqySeTEvy1pSPfep5mV3e7vCGwQ98EYWG9jcBAXpLopLBXPsNU4NSv7nsYhX3xjUxoCJwzjg
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502539 blockTime=1771187902 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[MINT] 📝 Transaction indexing delay, retry 1/12...
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502539 blockTime=1771187902 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502542 blockTime=1771187903 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502555 blockTime=1771187908 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[MINT] 📝 Transaction indexing delay, retry 2/12...
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502560 blockTime=1771187910 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502579 blockTime=1771187917 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502600 blockTime=1771187926 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502600 blockTime=1771187926 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502600 blockTime=1771187926 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[MINT] 📝 Transaction indexing delay, retry 3/12...
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502600 blockTime=1771187926 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502601 blockTime=1771187926 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502601 blockTime=1771187926 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502602 blockTime=1771187926 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502602 blockTime=1771187926 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502608 blockTime=1771187929 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[MINT] 📝 Transaction indexing delay, retry 4/12...
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502617 blockTime=1771187932 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502691 blockTime=1771187961 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502691 blockTime=1771187961 err=None
-[CREATOR][DEBUG] validation_notes=['could not scope create_outer_index; scanning top-level only', 'mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502692 blockTime=1771187962 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502692 blockTime=1771187962 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502692 blockTime=1771187962 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502692 blockTime=1771187962 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502692 blockTime=1771187962 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502692 blockTime=1771187962 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[MINT] 📝 Transaction indexing delay, retry 5/12...
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502692 blockTime=1771187962 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502692 blockTime=1771187962 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502692 blockTime=1771187962 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR][DEBUG] bonding_curve=no context: slot=400502693 blockTime=1771187962 err=None
-[CREATOR][DEBUG] validation_notes=['mint not created/initialized in this tx (likely pool-init or swap)']
-[CREATOR] Page 1: checked=80/840 candidates (budget=80), no strict CREATE yet
-[CREATOR] ✓ Found initializemint2 for mint=2nKNuDniEeAs44oCT1niwzXGNNiEh4N7pfZJJ3t4pump via program_id=TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb program=spl-token
-[CREATOR] ✅ Found STRICT Pump.fun CREATE tx: 2dBSfPTekSMMvmZP9VSxgCkkYWG5RGAkn7sxVeoDruh1fE81i4fQ6Hhe1rWgRWGUe4R2aw6T3T1HKSnSGBk3ouGT
-[CREATOR] ✓ CREATE fee payer (creator): FZavwxi1onq7ZYJuZ9HsDi8y3SwjbZirZEnZEJ6kCNaP
-[CREATOR] ✓ Bonding curve: E3DAt7RdJCFvd49QSpUzwK6gHyU7C78QBbegoBrpPUYY (proven_end=False)
-[CREATOR] 🕐 Using on-chain time from earliest tx: 2026-02-15T20:16:27Z
-[CREATOR] ✅ Extracted from earliest tx: FZavwxi1onq7ZYJuZ9HsDi8y3SwjbZirZEnZEJ6kCNaP (confirmed) | CREATE tx validated: 2dBSfPTekSMMvmZP9VSx...
-[DB] ✅ Updated token entry with creator: FZavwxi1... | Created: 2026-02-15T20:16:27Z | CREATE tx: 2dBSfPTekSMMvmZP9VSx...
-[CREATOR_WATCH] 👁️ Now watching creator FZavwxi1onq7ZYJu...
-[SETTINGS] Token history ❌ OFF - skipping token history analysis
-[FUNDING] Extraction task created for new creator FZavwxi1...
-[FUNDER_EXTRACTION] DEBUG: Checking toggle... toggle_enabled=True
-[FUNDER_EXTRACTION] Toggle enabled - extracting funder transfers for FZavwxi1...
-[FUNDER_EXTRACTION] Task successfully created for FZavwxi1...
-[SETTINGS] Creator analysis ❌ OFF - skipping creator network clustering
-[REALTIME_FUNDING] 🔍 Extracting creator funding for FZavwxi1onq7ZYJu...
-[REALTIME_FUNDING]    Migration timestamp: 2026-02-15T20:16:27Z
-[REALTIME_FUNDING]    Will fetch up to 1 month of history
-[REALTIME_FUNDING]    Excluding 2 addresses (creator's tokens & bonding curves)
-[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...
-[REALTIME_FUNDING]    [PAGE 1] RPC CALL #1...
-
-================================================================================
-[START] Extracting funder transfers (IN/OUT) for creator: FZavwxi1onq7ZYJuZ9HsDi8y3SwjbZirZEnZEJ6kCNaP
-================================================================================
-[DB] Found 0 funder(s) for this creator
-[RESULT] No funders found for creator
-[FUNDER_EXTRACTION] Completed for FZavwxi1...: {'error': 'no_funders'}
-[REALTIME_FUNDING]    [PAGE 1] fetched=12 txs
-[DOMAIN] 📝 Found 1 domain(s) in tx 36ZwXe7iyAvMgAiH... {'👻ghostswap-exchange🚀.sol'}
-[FUNDING] 🏛️ CEX FUNDER DETECTED: Unknown Exchange Exchange Wallet → FZavwxi1onq7ZYJu... (0.26 SOL total)
-[DOMAIN] 📝 Found 1 domain(s) in tx GSo136QZsCzbmUHv... {'Get 3 Free Lootbox 👉 Flip.gg🎁-24989.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 4u2b8MwxpECDnzAp... {'Flip.gg | #1 Lootbox Casino🎰🍀-24988.flipgg.sol'}
-[SERVICES] 🏷️ Tagged creator with 1 service(s): FZavwxi1onq7ZYJuZ9HsDi8y3SwjbZirZEnZEJ6kCNaP.
-[FUNDING] 🏛️ CEX FUNDER DETECTED: Unknown Exchange Exchange Wallet → FZavwxi1onq7ZYJu... (0.66 SOL total)
-[DOMAIN] 📝 Found 1 domain(s) in tx 4Gn6WiaQpfHLSSDs... {'👻ghostswap-exchange🚀.sol'}
-[FUNDING] 🏛️ CEX FUNDER DETECTED: Unknown Exchange Exchange Wallet → FZavwxi1onq7ZYJu... (3.66 SOL total)
-[REALTIME_FUNDING]    [PAGE 1] ✓ 3 new funders | 🚫 44 dust | 🔄 1 excluded | 🪙 3 token ops
-[REALTIME_FUNDING]    [PAGE 2] RPC CALL #2...
-[EVENT] 🚀 MIGRATION DETECTED: GkDY92hamTR9Vv8QDHhq548KgoSb5fpCXTjFdNAVpump
-[EVENT] Migration signature: aA73MGiBSDz2PoLqqySeTEvy1pSPfep5mV3e7vCGwQ98EYWG9jcBAXpLopLBXPsNU4NSv7nsYhX3xjUxoCJwzjg
-[DB] ✅ Created minimal token entry for GkDY92hamTR9Vv8QDHhq548KgoSb5fpCXTjFdNAVpump
-[REALTIME_FUNDING]    [PAGE 2] No more transactions
-[REALTIME_FUNDING]    Total transactions fetched: 12
-[REALTIME_FUNDING]    ✓ Inbound: 3 funders (4.80 SOL)
-[REALTIME_FUNDING]    ✓ Outbound: 6 recipients (0.03 SOL)
-[REALTIME_FUNDING]    ℹ Filtered 44 dust transfers
-[REALTIME_FUNDING]    ℹ Filtered 1 internal transfers (token/curve)
-[REALTIME_FUNDING]    ℹ Filtered 3 token operations (swaps, migrations)
-[REALTIME_FUNDING]    Funder #1: 5tzFkiKscXHK5ZXC... → 3.66 SOL
-[REALTIME_FUNDING]    Funder #2: AFS4ciWaq4hPwG99... → 1.13 SOL
-[REALTIME_FUNDING]    Funder #3: 5v3fAXUtvAaZCK4q... → 0.00 SOL
-[BLOCKSEC] Found 95 active addresses (used 2+ times)
-[BLOCKSEC] Found 95 unlabeled addresses, preparing batch...
-[BLOCKSEC] Submitting batch 0c69d071... (93 addresses)
-[POOL] ✅ Extracted pool from PumpSwap instruction: 8rDyk2nAAtYs6sCsPaNK2HMokJ2p3zwZi4ULeAYZX2Hm
-[EVENT] ✅ Pool extracted from transaction: 8rDyk2nAAtYs6sCsPaNK2HMokJ2p3zwZi4ULeAYZX2Hm
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-[BLOCKSEC] API error 429: {"request_id":"cfb268eda93b4124","code":400012,"message":"Daily request limit exceeded. Please try again tomorrow."}
-[BLOCKSEC] Batch failed: API returned 429
-[BLOCKSEC] Batch warning: API returned 429
-[REALTIME_FUNDING]    🔍 Checking for Meteora DLMM program calls...
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-[AUTO-CEX] Classification complete: 2 classified, 0 confirmed, 0 likely (from 2 addresses)
-[POOL] Checking 20 token accounts to find pool...
-[POOL]   Checking 9METWhpQu1yfUn5DxF3ahB7avZYGWXADkchCt3F1CqL2 (balance: 8288159)
-[POOL]     Owner: 25kPWpa6ggmDAzW6uyKzEgXqNFbSsZ7ZvAgczhvkktRF
-[PRICE] ✅ Initial price fetched: $1.50e-08 | Market Cap: $1.50e+01 | Source: onchain
-[ANALYZER_INIT] Token: GkDY92hamTR9Vv8QDHhq548KgoSb5fpCXTjFdNAVpump
-[ANALYZER_INIT] RPC: https://mainnet.helius-rpc.com/?api-key=f8521fb3-f483-44dd-869a-9be91f38803b
-[CREATOR] Extracting bonding curve from *strict* CREATE tx for GkDY92hamTR9Vv8QDHhq...
-[REALTIME_FUNDING]    🔍 Searching for OUTGOING transfers after migration...
-[CREATOR] Page 1: prefilter candidates=197 (checking first 80), skipped_post_migration=0, skipped_errored=40
-[CREATOR] ✓ Found initializemint2 for mint=GkDY92hamTR9Vv8QDHhq548KgoSb5fpCXTjFdNAVpump via program_id=TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb program=spl-token
-[CREATOR] Oldest#1 4pVBiqdmzCcrG2sL... strict_create=True mint_create=False mint_init=True bonding_curve=yes
-[CREATOR] ✅ Found STRICT Pump.fun CREATE tx: 4pVBiqdmzCcrG2sL6j17SgTxSLrLxCjQqz26Dzn3rXA8xw5C3AeNM9JVGeVoDSXestn1uPaieHQGaaLjzKJrfwu6
-[CREATOR] ✓ CREATE fee payer (creator): HwWXrNYDrxFQgFVE8dfUtDeSbm1H8P8Bq5peR9aNGZWz
-[CREATOR] ✓ Bonding curve: 8KZ7bWe72YErMYB9zKuA7gPLKN4ry3oAkM33pkrHMdCs (proven_end=False)
-[CREATOR] 🕐 Using on-chain time from earliest tx: 2026-02-16T13:18:55Z
-[CREATOR] ✅ Extracted from earliest tx: HwWXrNYDrxFQgFVE8dfUtDeSbm1H8P8Bq5peR9aNGZWz (confirmed) | CREATE tx validated: 4pVBiqdmzCcrG2sL6j17...
-[DB] ✅ Updated token entry with creator: HwWXrNYD... | Created: 2026-02-16T13:18:55Z | CREATE tx: 4pVBiqdmzCcrG2sL6j17...
-[CREATOR_WATCH] 👁️ Now watching creator HwWXrNYDrxFQgFVE...
-[SETTINGS] Token history ❌ OFF - skipping token history analysis
-[FUNDING] Extraction task created for new creator HwWXrNYD...
-[FUNDER_EXTRACTION] DEBUG: Checking toggle... toggle_enabled=True
-[FUNDER_EXTRACTION] Toggle enabled - extracting funder transfers for HwWXrNYD...
-[FUNDER_EXTRACTION] Task successfully created for HwWXrNYD...
-[SETTINGS] Creator analysis ❌ OFF - skipping creator network clustering
-[REALTIME_FUNDING] 🔍 Extracting creator funding for HwWXrNYDrxFQgFVE...
-[REALTIME_FUNDING]    Migration timestamp: 2026-02-16T13:18:55Z
-[REALTIME_FUNDING]    Will fetch up to 1 month of history
-[REALTIME_FUNDING]    Excluding 2 addresses (creator's tokens & bonding curves)
-[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...
-[REALTIME_FUNDING]    [PAGE 1] RPC CALL #1...
-
-================================================================================
-[START] Extracting funder transfers (IN/OUT) for creator: HwWXrNYDrxFQgFVE8dfUtDeSbm1H8P8Bq5peR9aNGZWz
-================================================================================
-[DB] Found 0 funder(s) for this creator
-[RESULT] No funders found for creator
-[FUNDER_EXTRACTION] Completed for HwWXrNYD...: {'error': 'no_funders'}
-[REALTIME_FUNDING]    [PAGE 1] fetched=3 txs
-[SERVICES] 🏷️ Tagged creator with 1 service(s): HwWXrNYDrxFQgFVE8dfUtDeSbm1H8P8Bq5peR9aNGZWz.
-[REALTIME_FUNDING]    [PAGE 1] ✓ 1 new funders | 🚫 3 dust | 🔄 4 excluded
-[REALTIME_FUNDING]    [PAGE 2] RPC CALL #2...
-[REALTIME_FUNDING]    [PAGE 2] No more transactions
-[REALTIME_FUNDING]    Total transactions fetched: 3
-[REALTIME_FUNDING]    ✓ Inbound: 1 funders (26.00 SOL)
-[REALTIME_FUNDING]    ✓ Outbound: 5 recipients (0.31 SOL)
-[REALTIME_FUNDING]    ℹ Filtered 3 dust transfers
-[REALTIME_FUNDING]    ℹ Filtered 4 internal transfers (token/curve)
-[REALTIME_FUNDING]    Funder #1: GE7Fy7tpmctoAEh3... → 26.00 SOL
-[BLOCKSEC] Found 95 active addresses (used 2+ times)
-[BLOCKSEC] Found 95 unlabeled addresses, preparing batch...
-[BLOCKSEC] Batch failed: Rate limited. Next batch in 143 minutes
-[REALTIME_FUNDING] ✅ Extracted outgoing transfers for FZavwxi1onq7ZYJu...
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-[AUTO-CEX] Classification complete: 1 classified, 0 confirmed, 0 likely (from 1 addresses)
-[REALTIME_FUNDING]    🔍 Checking for Meteora DLMM program calls...
-[REALTIME_FUNDING]    🔍 Searching for OUTGOING transfers after migration...
-[REALTIME_FUNDING] ✅ Extracted outgoing transfers for HwWXrNYDrxFQgFVE...
+[OUTGOING] 📋 Collected 20467 new signatures
+[OUTGOING] 🔄 After dedup: 20116 signatures
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1282ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1492ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1073ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1062ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1255ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1823ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1383ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1184ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1052ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 968ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1258ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1530ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 852ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 858ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1793ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1278ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 848ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1790ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 2454ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1327ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1270ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1131ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1012ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1539ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 908ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1588ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 845ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 934ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 897ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 941ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1389ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1724ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1106ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 916ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 2144ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 877ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1129ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1193ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 970ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1034ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1289ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1507ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1216ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 952ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 846ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 770ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 2170ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1190ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 956ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1246ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 915ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1586ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1206ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1299ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1107ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1288ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1833ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1198ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1409ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 997ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1351ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1363ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 990ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1420ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1390ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1166ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1509ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 942ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1203ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1267ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 2247ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 2545ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1169ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1603ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1158ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1199ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1481ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1008ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 700ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1780ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1333ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1809ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 966ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1435ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1040ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1079ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1002ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1239ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1177ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1018ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1044ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 998ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1990ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1866ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 976ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1719ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1030ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1691ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1302ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1944ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 997ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1595ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 860ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1019ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1549ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 840ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1211ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1108ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1080ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1122ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 2051ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1399ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1173ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1136ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1839ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 2059ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1392ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 903ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 888ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1518ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1541ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1112ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 919ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 930ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1130ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1055ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1861ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1629ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1541ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1705ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1246ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1011ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1071ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1275ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1485ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1746ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1273ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1136ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1043ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1726ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1375ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1071ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1018ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1009ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 867ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1087ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1136ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1018ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1226ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1200ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1463ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 997ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1717ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1110ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1031ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 888ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1318ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1483ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1129ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1675ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1410ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1319ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1901ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1689ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 950ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1158ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1077ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1139ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1188ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1297ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1321ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1017ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1031ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1519ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 999ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1035ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 2345ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1994ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 933ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1500ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1208ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1572ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1610ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 982ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1377ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 956ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1788ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1430ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 962ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1505ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1578ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1201ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 2437ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 2030ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1110ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 867ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1232ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 995ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1683ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1893ms
+[OUTGOING] Helius enhanced batch: 100 txs (100 credits) - Status: 200 - 1926ms
+[OUTGOING] Helius enhanced batch: 16 txs (100 credits) - Status: 200 - 891ms
+[OUTGOING] ✍️ Extracted 19831 outgoing transfers
+[OUTGOING] ✅ Network detection complete
+[OUTGOING] ✅ Recalculated self-funding for 1263 creators
+[OUTGOING] ✅ Scan complete: creators=1000 new_sigs=20116 new_rows=19831
+[OUTGOING] 🧾 Local counters: GSFA attempts=1000 success=1000 | ENH attempts=202 success=202
+[OUTGOING] 💰 Credits: local_success_based=30200 (rpc=10000 enh=20200) | recorder=21200
+[OUTGOING] ⏰ Next scan in 42795s

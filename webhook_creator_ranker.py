@@ -269,52 +269,64 @@ def score_network_membership(conn: sqlite3.Connection, address: str) -> Tuple[in
 
     cur = conn.cursor()
 
-    # Check coordinated edges
-    cur.execute("""
-        SELECT COUNT(*) as coordinated_count
-        FROM coordinated_creator_edges
-        WHERE creator_a = ? OR creator_b = ?
-    """, (address, address))
+    # Check coordinated edges (optional - may not exist in webhook-only systems)
+    try:
+        cur.execute("""
+            SELECT COUNT(*) as coordinated_count
+            FROM coordinated_creator_edges
+            WHERE creator_a = ? OR creator_b = ?
+        """, (address, address))
 
-    coordinated_count = cur.fetchone()[0] or 0
-    if coordinated_count > 0:
-        score += SCORING_WEIGHTS["coordinated_edge"]
-        reasons.append(f"coordinated({coordinated_count}edges)")
+        coordinated_count = cur.fetchone()[0] or 0
+        if coordinated_count > 0:
+            score += SCORING_WEIGHTS["coordinated_edge"]
+            reasons.append(f"coordinated({coordinated_count}edges)")
+    except:
+        pass
 
-    # Check C2C networks
-    cur.execute("""
-        SELECT COUNT(DISTINCT network_name) as network_count
-        FROM creator_to_creator_networks
-        WHERE creator_address = ?
-    """, (address,))
+    # Check C2C networks (optional - may not exist in webhook-only systems)
+    try:
+        cur.execute("""
+            SELECT COUNT(DISTINCT network_name) as network_count
+            FROM creator_to_creator_networks
+            WHERE creator_address = ?
+        """, (address,))
 
-    c2c_count = cur.fetchone()[0] or 0
-    if c2c_count > 0:
-        score += SCORING_WEIGHTS["c2c_network"]
-        reasons.append(f"c2c_network({c2c_count})")
+        c2c_count = cur.fetchone()[0] or 0
+        if c2c_count > 0:
+            score += SCORING_WEIGHTS["c2c_network"]
+            reasons.append(f"c2c_network({c2c_count})")
+    except:
+        pass
 
-    # Check funding network membership
-    cur.execute("""
-        SELECT COUNT(DISTINCT network_id) as network_count
-        FROM funding_network_members
-        WHERE funder_address = ?
-    """, (address,))
+    # Check funding network membership (optional - may not exist in webhook-only systems)
+    try:
+        cur.execute("""
+            SELECT COUNT(DISTINCT network_id) as network_count
+            FROM funding_network_members
+            WHERE funder_address = ?
+        """, (address,))
 
-    funding_net_count = cur.fetchone()[0] or 0
-    if funding_net_count > 0:
-        score += SCORING_WEIGHTS["network_member"]
-        reasons.append(f"funding_network({funding_net_count})")
+        funding_net_count = cur.fetchone()[0] or 0
+        if funding_net_count > 0:
+            score += SCORING_WEIGHTS["network_member"]
+            reasons.append(f"funding_network({funding_net_count})")
+    except:
+        pass
 
-    # Check funding chains
-    cur.execute("""
-        SELECT COUNT(*) as chain_count FROM funding_chains
-        WHERE source_creator = ? OR dest_creator = ?
-    """, (address, address))
+    # Check funding chains (optional - may not exist in webhook-only systems)
+    try:
+        cur.execute("""
+            SELECT COUNT(*) as chain_count FROM funding_chains
+            WHERE source_creator = ? OR dest_creator = ?
+        """, (address, address))
 
-    chain_count = cur.fetchone()[0] or 0
-    if chain_count > 0:
-        score += SCORING_WEIGHTS["funding_chain"]
-        reasons.append(f"funding_chain({chain_count})")
+        chain_count = cur.fetchone()[0] or 0
+        if chain_count > 0:
+            score += SCORING_WEIGHTS["funding_chain"]
+            reasons.append(f"funding_chain({chain_count})")
+    except:
+        pass
 
     return (score, reasons)
 

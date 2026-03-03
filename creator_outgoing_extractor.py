@@ -504,13 +504,14 @@ async def rpc_get_signatures(
     return []
 
 
-async def helius_enhanced_parse(session: aiohttp.ClientSession, sigs: List[str]) -> List[dict]:
+async def helius_enhanced_parse(session: aiohttp.ClientSession, sigs: List[str], source_file: str = "creator_outgoing_extractor") -> List[dict]:
     """
     Batch parse transaction signatures via Helius Enhanced API (max 100/request).
 
     Instrumentation:
     - ENH_ATTEMPTS increments per HTTP attempt
     - ENH_SUCCESS increments only for HTTP 200 (closest to billable)
+    - source_file: Module/script calling this function (defaults to creator_outgoing_extractor)
     """
     global ENH_ATTEMPTS, ENH_SUCCESS
 
@@ -550,7 +551,7 @@ async def helius_enhanced_parse(session: aiohttp.ClientSession, sigs: List[str])
                     status_code=resp.status,
                     latency_ms=latency_ms,
                     mode="background",
-                    source_file="creator_outgoing_extractor",
+                    source_file=source_file,
                 )
 
                 # Log the batch call

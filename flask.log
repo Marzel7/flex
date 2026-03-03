@@ -1,3 +1,11 @@
+[WEBHOOK_INIT] Tables created/verified
+[WEBHOOK_INTEGRATION] Routes registered: /helius/webhook, /api/webhook/status
+[WORKER] Starting webhook worker...
+[WEBHOOK_INTEGRATION] Worker thread started
+[WEBHOOK_INTEGRATION] Webhook system initialized
+[WEBHOOK_API] Enriched routes registered: /creator-recent-checks/enriched, /creators/top-risk, /creator/<>/risk-details
+[WEBHOOK] M5 Webhook-First Low-RPC Architecture initialized successfully
+[WORKER] No work items, sleeping 1s
 [FLASK] Starting Migration Tracker UI...
 [FLASK] Dashboard available at http://localhost:5002
 [FLASK] Database: flex_complete_database.db
@@ -8,5 +16,781 @@
  * Running on http://127.0.0.1:5002
  * Running on http://192.168.0.123:5002
 [33mPress CTRL+C to quit[0m
-127.0.0.1 - - [03/Mar/2026 15:42:43] "GET /api/webhook-status HTTP/1.1" 200 -
-127.0.0.1 - - [03/Mar/2026 15:42:47] "GET /api/webhook-status HTTP/1.1" 200 -
+[CAPABILITY_CHECK] Phase 2A networks_release: ENABLED
+[WEBHOOK] 2026-03-03 17:54:18 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:18 - STORED: GRF7VqE7... → HombGzno... (0.000000001 SOL)
+[WEBHOOK] 2026-03-03 17:54:18 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:18 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:18] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:18 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:18 - STORED: HfGkmenA... → axmQTWU6... (0.001000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:18 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:18 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:18] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:18 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:18 - STORED: B32QbbdD... → axmMdWvg... (0.008000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:18 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:18 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:18] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:54:18 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:18 - STORED: HfGkmenA... → axmMdWvg... (0.001000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:18 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:18 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:19] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] Fetched 1 work items
+[WORKER] Processing B32QbbdD... (priority=20.0, reason=new_transfer)
+[WORKER] B32QbbdD... computed_priority=50.0 (active_5m)
+[WORKER] B32QbbdD... priority too low for RPC (50.0 < 80)
+[WORKER] B32QbbdD... risk_score=-65 level=low
+[WORKER] No work items, sleeping 1s
+127.0.0.1 - - [03/Mar/2026 17:54:21] "GET /api/webhook-status HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:54:21] "GET /api/creator-queue-status HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:21 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:21 - STORED: A8Cemumo... → BtDaZUqH... (9.903694335 SOL)
+[WEBHOOK] 2026-03-03 17:54:21 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:21 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:21] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:54:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:22 - STORED: A79Hx1U7... → Mihso7kX... (0.420000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:22 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:22 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:22 - STORED: A79Hx1U7... → Mihso7kX... (0.410000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:22 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:22 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:22 - STORED: CtuNuKoe... → Mihso7kX... (0.480000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:22 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:22 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:22 - STORED: CtuNuKoe... → Mihso7kX... (0.430000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:22 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:22 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:22 - STORED: A79Hx1U7... → Mihso7kX... (0.420000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:22 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:22 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:22 - STORED: CtuNuKoe... → Mihso7kX... (0.450000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:22 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:22 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:22 - STORED: A79Hx1U7... → Mihso7kX... (0.470000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:22 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:22 - STORED: A79Hx1U7... → Mihso7kX... (0.400000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:22 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:22 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:22 - STORED: CtuNuKoe... → Mihso7kX... (0.400000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:22 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:22 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:22 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:22 - STORED: A79Hx1U7... → Mihso7kX... (0.460000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:22 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:22 - STORED: CtuNuKoe... → Mihso7kX... (0.470000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:22 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:22 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:22 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] Fetched 2 work items
+[WORKER] Processing BtDaZUqH... (priority=20.0, reason=new_transfer)
+[WORKER] BtDaZUqH... computed_priority=50.0 (active_5m)
+[WORKER] BtDaZUqH... priority too low for RPC (50.0 < 80)
+[WORKER] BtDaZUqH... risk_score=40 level=moderate
+[WORKER] Processing A8Cemumo... (priority=20.0, reason=new_transfer)
+[WORKER] A8Cemumo... computed_priority=50.0 (active_5m)
+[WORKER] A8Cemumo... priority too low for RPC (50.0 < 80)
+[WORKER] A8Cemumo... risk_score=-40 level=low
+[WEBHOOK] 2026-03-03 17:54:23 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:23 - STORED: HUgpmqL6... → astraEJ2... (0.001000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:23 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:23 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:23] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:54:24 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:24 - STORED: GPqGAgqt... → 4sz7Szz2... (0.000000001 SOL)
+[WEBHOOK] 2026-03-03 17:54:24 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:24 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:24] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:54:25 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:25 - STORED: HUgpmqL6... → rapidXMV... (0.024742268 SOL)
+[WEBHOOK] 2026-03-03 17:54:25 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:25 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:25] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] Fetched 1 work items
+[WORKER] Processing 4sz7Szz2... (priority=20.0, reason=new_transfer)
+[WORKER] 4sz7Szz2... computed_priority=50.0 (active_5m)
+[WORKER] 4sz7Szz2... priority too low for RPC (50.0 < 80)
+[WORKER] 4sz7Szz2... risk_score=40 level=moderate
+127.0.0.1 - - [03/Mar/2026 17:54:26] "GET /api/webhook-status HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:54:26] "GET /api/creator-queue-status HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:54:27 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:27 - STORED: CyaE1Vxv... → axmWxBPq... (0.004000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:27 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:27 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:27] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:27 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:27 - STORED: CyaE1Vxv... → axmWxBPq... (0.015000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:27 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:27 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:27] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:54:28 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:28 - STORED: CZutgB7w... → 4ACfpUFo... (0.002000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:28 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:28 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:28] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:28 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:28 - STORED: 7kGAXsa7... → devAAvkx... (0.065000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:28 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:28 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:28] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] Fetched 2 work items
+[WORKER] Processing CZutgB7w... (priority=20.0, reason=new_transfer)
+[WORKER] CZutgB7w... computed_priority=50.0 (active_5m)
+[WORKER] CZutgB7w... priority too low for RPC (50.0 < 80)
+[WORKER] CZutgB7w... risk_score=-40 level=low
+[WORKER] Processing 4ACfpUFo... (priority=20.0, reason=new_transfer)
+[WORKER] 4ACfpUFo... computed_priority=50.0 (active_5m)
+[WORKER] 4ACfpUFo... priority too low for RPC (50.0 < 80)
+[WORKER] 4ACfpUFo... risk_score=40 level=moderate
+[WEBHOOK] 2026-03-03 17:54:29 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:29 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:54:29 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:54:29] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+127.0.0.1 - - [03/Mar/2026 17:54:31] "GET /api/webhook-status HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:54:31] "GET /api/creator-queue-status HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:31 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:31 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:54:31 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:54:31] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:31 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:31 - STORED: CtuNuKoe... → Mihso7kX... (0.440000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:31 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:31 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:31 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:31] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:31 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:31 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:31 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:54:31 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:54:31 - STORED: A79Hx1U7... → Mihso7kX... (0.430000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:31 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:54:31] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:31 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:54:31] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:31 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:31 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:31] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:31 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:31 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:31 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:31 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:54:31 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:54:31] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:31 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:31 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:31 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:31 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:54:31 - STORED: A79Hx1U7... → Mihso7kX... (0.460000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:31 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:54:31] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:31 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:31 - STORED: CtuNuKoe... → Mihso7kX... (0.480000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:31 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:31 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:31] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:31 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:31] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:31 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:31 - STORED: CtuNuKoe... → Mihso7kX... (0.470000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:31 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:31 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:54:31 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:31 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:31 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:54:31] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:31 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:31] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:31 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:54:31 - STORED: A79Hx1U7... → Mihso7kX... (0.480000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:31 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:54:31] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:31 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:31 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:31] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:31 - STORED: A79Hx1U7... → Mihso7kX... (0.400000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:31 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:31 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:31] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:31 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:31 - STORED: CtuNuKoe... → Mihso7kX... (0.470000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:31 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:31 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:31] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:54:32 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:32 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:54:32 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:54:32] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:54:33 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:33 - STORED: A79Hx1U7... → Mihso7kX... (0.400000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:33 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:33 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:33] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:33 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:33 - STORED: CtuNuKoe... → Mihso7kX... (0.440000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:33 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:33 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:33] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+127.0.0.1 - - [03/Mar/2026 17:54:35] "GET /api/creator-queue-status HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:35 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:35 - STORED: CZutgB7w... → astra4ue... (0.001000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:35 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:35 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:35] "POST /helius/webhook HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:54:35] "GET /api/webhook-status HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:54:35] "GET /api/creator-queue-status HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:54:37 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:37 - STORED: 8XwBR8WJ... → GQPFicsy... (0.000200000 SOL)
+[WEBHOOK] 2026-03-03 17:54:37 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:37 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:37] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:38 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:38 - STORED: 7kGAXsa7... → astra4ue... (0.001000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:38 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:38 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:38] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] Fetched 1 work items
+[WORKER] Processing 8XwBR8WJ... (priority=20.0, reason=new_transfer)
+[WORKER] 8XwBR8WJ... computed_priority=50.0 (active_5m)
+[WORKER] 8XwBR8WJ... priority too low for RPC (50.0 < 80)
+[WORKER] 8XwBR8WJ... risk_score=20 level=low
+[WEBHOOK] 2026-03-03 17:54:38 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:38 - STORED: B32QbbdD... → axmWxBPq... (0.005000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:38 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:38 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:38] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:54:40 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:40 - STORED: 5DDEaV8f... → 5ns48kTr... (10.000000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:40 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:40 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:40] "POST /helius/webhook HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:54:41] "GET /api/webhook-status HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:54:41] "GET /api/creator-queue-status HTTP/1.1" 200 -
+[WORKER] Fetched 1 work items
+[WORKER] Processing 5ns48kTr... (priority=20.0, reason=new_transfer)
+[WORKER] 5ns48kTr... computed_priority=50.0 (active_5m)
+[WORKER] 5ns48kTr... priority too low for RPC (50.0 < 80)
+[WORKER] 5ns48kTr... risk_score=20 level=low
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+127.0.0.1 - - [03/Mar/2026 17:54:46] "GET /api/webhook-status HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:54:46] "GET /api/creator-queue-status HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+127.0.0.1 - - [03/Mar/2026 17:54:51] "GET /api/webhook-status HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:54:51] "GET /api/creator-queue-status HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:54:52 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:52 - STORED: CyaE1Vxv... → axmD4LFJ... (0.004750000 SOL)
+[WEBHOOK] 2026-03-03 17:54:52 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:52 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:52] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:53 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:53 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:54:53 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:54:53] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:54:55 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:55 - STORED: GPqGAgqt... → 5Qk8g4cw... (0.000000001 SOL)
+[WEBHOOK] 2026-03-03 17:54:55 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:55 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:55] "POST /helius/webhook HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:54:56] "GET /api/webhook-status HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:54:56] "GET /api/creator-queue-status HTTP/1.1" 200 -
+[WORKER] Fetched 1 work items
+[WORKER] Processing 5Qk8g4cw... (priority=20.0, reason=new_transfer)
+[WORKER] 5Qk8g4cw... computed_priority=50.0 (active_5m)
+[WORKER] 5Qk8g4cw... priority too low for RPC (50.0 < 80)
+[WORKER] 5Qk8g4cw... risk_score=40 level=moderate
+[WEBHOOK] 2026-03-03 17:54:56 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:56 - STORED: CyaE1Vxv... → 6fQaVhYZ... (0.015000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:56 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:56 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:56] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:54:57 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:57 - STORED: CyaE1Vxv... → TpdxgNJB... (0.004000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:57 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:57 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:57] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:54:57 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:57 - STORED: CyaE1Vxv... → ENxTEjSQ... (0.015000000 SOL)
+[WEBHOOK] 2026-03-03 17:54:57 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:57 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:57] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] Fetched 1 work items
+[WORKER] Processing TpdxgNJB... (priority=20.0, reason=new_transfer)
+[WORKER] TpdxgNJB... computed_priority=50.0 (active_5m)
+[WORKER] TpdxgNJB... priority too low for RPC (50.0 < 80)
+[WORKER] TpdxgNJB... risk_score=40 level=moderate
+[WEBHOOK] 2026-03-03 17:54:58 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:54:58 - STORED: 5ns4uznM... → 5DDEaV8f... (0.000010000 SOL)
+[WEBHOOK] 2026-03-03 17:54:58 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:54:58 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:54:58] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] Fetched 1 work items
+[WORKER] Processing 5ns4uznM... (priority=20.0, reason=new_transfer)
+[WORKER] 5ns4uznM... computed_priority=50.0 (active_5m)
+[WORKER] 5ns4uznM... priority too low for RPC (50.0 < 80)
+[WORKER] 5ns4uznM... risk_score=20 level=low
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:55:00 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:00 - STORED: CyaE1Vxv... → axmYVq9b... (0.004750000 SOL)
+[WEBHOOK] 2026-03-03 17:55:00 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:00 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:00] "POST /helius/webhook HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:55:01] "GET /api/webhook-status HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:55:01] "GET /api/creator-queue-status HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:55:02 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:02 - STORED: HUgpmqL6... → rapidXMV... (0.024742268 SOL)
+[WEBHOOK] 2026-03-03 17:55:02 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:02 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:02] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:55:03 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:03 - STORED: HUgpmqL6... → astra9xW... (0.001000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:03 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:03 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:03] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+127.0.0.1 - - [03/Mar/2026 17:55:06] "GET /api/webhook-status HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:55:06] "GET /api/creator-queue-status HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:55:07 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:07 - STORED: Cyep2mcc... → dASwmUjy... (0.000000001 SOL)
+[WEBHOOK] 2026-03-03 17:55:07 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:07 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:07] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+127.0.0.1 - - [03/Mar/2026 17:55:10] "GET /api/webhook-status HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:55:10] "GET /api/creator-queue-status HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+127.0.0.1 - - [03/Mar/2026 17:55:15] "GET /webhook-monitor HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:15 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:15 - STORED: 7E9jfxCc... → astrawVN... (0.001000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:15 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:15 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:15] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+127.0.0.1 - - [03/Mar/2026 17:55:16] "GET /api/webhook-status HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:55:16] "GET /api/creator-queue-status HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:16 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:16 - STORED: FM1YCKED... → AstRaL1T... (0.000010000 SOL)
+[WEBHOOK] 2026-03-03 17:55:16 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:16 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:16] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] Fetched 1 work items
+[WORKER] Processing 7E9jfxCc... (priority=20.0, reason=new_transfer)
+[WORKER] 7E9jfxCc... computed_priority=50.0 (active_5m)
+[WORKER] 7E9jfxCc... priority too low for RPC (50.0 < 80)
+[WORKER] 7E9jfxCc... risk_score=-90 level=low
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:55:18 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:18 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:18 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:18 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:18 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:18] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:18 - STORED: 7E9jfxCc... → noz3jAjP... (0.010000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:18 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:18 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:18] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:18 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:18 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:18] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:55:18 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:18 - STORED: BiurByem... → FEaTqsGB... (0.000100000 SOL)
+[WEBHOOK] 2026-03-03 17:55:18 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:18 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:18] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:19 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:19 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:19 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:19] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] Fetched 1 work items
+[WORKER] Processing noz3jAjP... (priority=20.0, reason=new_transfer)
+[WORKER] noz3jAjP... computed_priority=50.0 (active_5m)
+[WORKER] noz3jAjP... priority too low for RPC (50.0 < 80)
+[WORKER] noz3jAjP... risk_score=40 level=moderate
+[WEBHOOK] 2026-03-03 17:55:19 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:19 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:19 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:19] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:19 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:19 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:19 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:19] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:19 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:19 - STORED: HugksxcS... → 3CfPD6ZZ... (0.002157600 SOL)
+[WEBHOOK] 2026-03-03 17:55:19 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:19 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:19] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:20 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:20 - STORED: 7E9jfxCc... → noz3jAjP... (0.010000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:20 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:20 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:20] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:20 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:20 - STORED: BXuVCK84... → 6MgjyQU7... (0.000100000 SOL)
+[WEBHOOK] 2026-03-03 17:55:20 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:20 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:20] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] Fetched 1 work items
+[WORKER] Processing 3CfPD6ZZ... (priority=20.0, reason=new_transfer)
+[WORKER] 3CfPD6ZZ... computed_priority=50.0 (active_5m)
+[WORKER] 3CfPD6ZZ... priority too low for RPC (50.0 < 80)
+[WORKER] 3CfPD6ZZ... risk_score=40 level=moderate
+[WEBHOOK] 2026-03-03 17:55:21 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:21 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:21 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:21 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:21 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:21 - STORED: CtuNuKoe... → Mihso7kX... (0.490000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:21 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:21 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:21] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:21 - STORED: A79Hx1U7... → Mihso7kX... (0.460000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:21 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:21 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:21] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:21 - STORED: A79Hx1U7... → Mihso7kX... (0.430000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:21 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:21 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:21] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:21 - STORED: A79Hx1U7... → Mihso7kX... (0.420000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:21 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:21 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:21] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:21 - STORED: A79Hx1U7... → Mihso7kX... (0.450000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:21 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:21 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:21] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:21 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:21 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:21 - STORED: CtuNuKoe... → Mihso7kX... (0.480000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:21 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:21 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:21 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:21 - STORED: CtuNuKoe... → Mihso7kX... (0.430000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:21 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:21] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:21 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:21 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:21] "POST /helius/webhook HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:55:21] "GET /api/webhook-status HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:21 - STORED: CtuNuKoe... → Mihso7kX... (0.450000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:21 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:21 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:21] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:21 - STORED: A79Hx1U7... → Mihso7kX... (0.410000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:21 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:21 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:21] "POST /helius/webhook HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:55:21] "GET /api/creator-queue-status HTTP/1.1" 200 -
+[WORKER] Fetched 2 work items
+[WORKER] Processing BXuVCK84... (priority=20.0, reason=new_transfer)
+[WORKER] BXuVCK84... computed_priority=50.0 (active_5m)
+[WORKER] BXuVCK84... priority too low for RPC (50.0 < 80)
+[WORKER] BXuVCK84... risk_score=-40 level=low
+[WORKER] Processing 6MgjyQU7... (priority=20.0, reason=new_transfer)
+[WORKER] 6MgjyQU7... computed_priority=50.0 (active_5m)
+[WORKER] 6MgjyQU7... priority too low for RPC (50.0 < 80)
+[WORKER] 6MgjyQU7... risk_score=40 level=moderate
+[WEBHOOK] 2026-03-03 17:55:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:22 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:22 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:22 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:22 - STORED: 7E9jfxCc... → ste11p5x... (0.010000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:22 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:22 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:22 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:22 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:22 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:22 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:22 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:22 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:22 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:22 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:22 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:22 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:22 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:22 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:22 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:55:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:22 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:22 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:22 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:22 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:22 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:22] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:23 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:23 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:23 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:23] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:23 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:23 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:23 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:23 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:23 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:23] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:23 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:23] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:23 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:23 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:23 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:23] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:23 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:23 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:23 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:23 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:23 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:23 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:23] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:23 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:23] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:23 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:23 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:23] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] Fetched 1 work items
+[WORKER] Processing ste11p5x... (priority=20.0, reason=new_transfer)
+[WORKER] ste11p5x... computed_priority=50.0 (active_5m)
+[WORKER] ste11p5x... priority too low for RPC (50.0 < 80)
+[WORKER] ste11p5x... risk_score=40 level=moderate
+[WEBHOOK] 2026-03-03 17:55:24 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:24 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:24 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:24] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:24 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:24 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:24 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:24] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:24 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:24 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:24 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:24 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:24 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:24] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:24 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:24 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:24 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:24] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:24 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:24] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+127.0.0.1 - - [03/Mar/2026 17:55:26] "GET /api/webhook-status HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:55:26] "GET /api/creator-queue-status HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:55:26 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:26 - STORED: Cyep2mcc... → DrkZkSfU... (0.000000001 SOL)
+[WEBHOOK] 2026-03-03 17:55:26 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:26 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:26] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:55:28 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:28 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:28 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:28] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:28 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:28 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:28 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:28 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:28] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:28 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:28 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:28] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:28 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:28 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:28 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:28] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:28 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:28 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:28 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:28] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:55:30 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:30 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:30 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:30] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:30 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:30 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:30 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:30 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:30] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:30 - STORED: HugksxcS... → DttWaMuV... (0.000110000 SOL)
+[WEBHOOK] 2026-03-03 17:55:30 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:30 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:30] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:30 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:30 - STORED: CyaE1Vxv... → 6rYLG55Q... (0.015000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:30 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:30 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:30] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:30 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:30 - STORED: CyaE1Vxv... → ForLDu55... (0.015000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:30 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:30 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:30] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:30 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:30 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:30 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:30] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+127.0.0.1 - - [03/Mar/2026 17:55:30] "GET /api/webhook-status HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:55:30] "GET /api/creator-queue-status HTTP/1.1" 200 -
+[WORKER] Fetched 3 work items
+[WORKER] Processing DttWaMuV... (priority=20.0, reason=new_transfer)
+[WORKER] DttWaMuV... computed_priority=50.0 (active_5m)
+[WORKER] DttWaMuV... priority too low for RPC (50.0 < 80)
+[WORKER] DttWaMuV... risk_score=40 level=moderate
+[WORKER] Processing 6rYLG55Q... (priority=20.0, reason=new_transfer)
+[WORKER] 6rYLG55Q... computed_priority=50.0 (active_5m)
+[WORKER] 6rYLG55Q... priority too low for RPC (50.0 < 80)
+[WORKER] 6rYLG55Q... risk_score=40 level=moderate
+[WORKER] Processing ForLDu55... (priority=20.0, reason=new_transfer)
+[WORKER] ForLDu55... computed_priority=50.0 (active_5m)
+[WORKER] ForLDu55... priority too low for RPC (50.0 < 80)
+[WORKER] ForLDu55... risk_score=40 level=moderate
+[WEBHOOK] 2026-03-03 17:55:32 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:32 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:32 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:32] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:32 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:32 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:32 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:32 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:32 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:32] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:32 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:32] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:32 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:32 - STORED: GTheBZRW... → pfnntQ8j... (0.005000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:32 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:32 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:32] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:55:33 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:33 - STORED: CEz58zHG... → CgBqWVBh... (0.000000001 SOL)
+[WEBHOOK] 2026-03-03 17:55:33 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:33 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:33] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:33 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:33 - STORED: CyaE1Vxv... → 6SiVU5WE... (0.004000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:33 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:33 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:33] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] Fetched 2 work items
+[WORKER] Processing GTheBZRW... (priority=20.0, reason=new_transfer)
+[WORKER] GTheBZRW... computed_priority=50.0 (active_5m)
+[WORKER] GTheBZRW... priority too low for RPC (50.0 < 80)
+[WORKER] GTheBZRW... risk_score=-65 level=low
+[WORKER] Processing pfnntQ8j... (priority=20.0, reason=new_transfer)
+[WORKER] pfnntQ8j... computed_priority=50.0 (active_5m)
+[WORKER] pfnntQ8j... priority too low for RPC (50.0 < 80)
+[WORKER] pfnntQ8j... risk_score=40 level=moderate
+[WEBHOOK] 2026-03-03 17:55:33 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:33 - STORED: 9be8w7td... → axm2JQY1... (0.010000000 SOL)
+[WEBHOOK] 2026-03-03 17:55:33 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:33 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:33] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] Fetched 2 work items
+[WORKER] Processing CgBqWVBh... (priority=20.0, reason=new_transfer)
+[WORKER] CgBqWVBh... computed_priority=50.0 (active_5m)
+[WORKER] CgBqWVBh... priority too low for RPC (50.0 < 80)
+[WORKER] CgBqWVBh... risk_score=40 level=moderate
+[WORKER] Processing 6SiVU5WE... (priority=20.0, reason=new_transfer)
+[WORKER] 6SiVU5WE... computed_priority=50.0 (active_5m)
+[WORKER] 6SiVU5WE... priority too low for RPC (50.0 < 80)
+[WORKER] 6SiVU5WE... risk_score=40 level=moderate
+[WEBHOOK] 2026-03-03 17:55:34 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:34 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:34 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:34] "POST /helius/webhook HTTP/1.1" 200 -
+[WEBHOOK] 2026-03-03 17:55:35 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:35 - STORED: FM1YCKED... → ASTrARNV... (0.000010000 SOL)
+[WEBHOOK] 2026-03-03 17:55:35 - Queued 2 addresses
+[WEBHOOK] 2026-03-03 17:55:35 - SUMMARY: stored=1, duplicates=?, skipped=0
+127.0.0.1 - - [03/Mar/2026 17:55:35] "POST /helius/webhook HTTP/1.1" 200 -
+[WORKER] No work items, sleeping 1s
+[WEBHOOK] 2026-03-03 17:55:36 - Received 1 transaction(s)
+[WEBHOOK] 2026-03-03 17:55:36 - TX 0: No SOL transfers found
+[WEBHOOK] 2026-03-03 17:55:36 - SUMMARY: stored=0, duplicates=?, skipped=1
+127.0.0.1 - - [03/Mar/2026 17:55:36] "POST /helius/webhook HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:55:36] "GET /api/webhook-status HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2026 17:55:36] "GET /api/creator-queue-status HTTP/1.1" 200 -

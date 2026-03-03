@@ -57,15 +57,19 @@ RETRY_DELAYS = [0.5, 1.0, 2.0, 3.0, 5.0, 10.0, 15.0, 20.0, 30.0, 60.0]
 BATCH_DELAY = 0.2
 
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
+HELIUS_MONITORING_API_KEY = os.getenv("HELIUS_MONITORING_API_KEY", "")
+
+# Use monitoring key if available, fall back to regular key
+_RPC_KEY = HELIUS_MONITORING_API_KEY or HELIUS_API_KEY
 
 RPC_URLS: List[str] = []
-if HELIUS_API_KEY:
-    RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}")
+if _RPC_KEY:
+    RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={_RPC_KEY}")
 RPC_URLS.append("https://api.mainnet-beta.solana.com")
 
 HISTORY_RPC_URLS: List[str] = []
-if HELIUS_API_KEY:
-    HISTORY_RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}")
+if _RPC_KEY:
+    HISTORY_RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={_RPC_KEY}")
 HISTORY_RPC_URLS.append("https://api.mainnet-beta.solana.com")
 
 

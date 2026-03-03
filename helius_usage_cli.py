@@ -39,6 +39,7 @@ except ImportError:
 DB_PATH = os.getenv("DB_PATH", "flex_complete_database.db")
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()
 HELIUS_PROJECT_ID = os.getenv("HELIUS_PROJECT_ID", "").strip()
+HELIUS_MONITORING_API_KEY = os.getenv("HELIUS_MONITORING_API_KEY", "").strip()
 
 
 def _connect():
@@ -77,7 +78,9 @@ def ensure_table():
 def validate_api_key() -> bool:
     """Check if API key works by making a test RPC call"""
     try:
-        rpc_url = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
+        # Use monitoring key if available, fall back to regular key
+        api_key = HELIUS_MONITORING_API_KEY or HELIUS_API_KEY
+        rpc_url = f"https://mainnet.helius-rpc.com/?api-key={api_key}"
         payload = {
             "jsonrpc": "2.0",
             "id": 1,

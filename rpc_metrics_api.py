@@ -323,6 +323,8 @@ def run_comparison_background(test_id: str, duration_seconds: int):
     
     Captures explicit Helius snapshots BEFORE and AFTER the test window
     to ensure accurate delta measurement.
+    
+    Also tracks RPC method calls during test and waits for Helius to update.
     """
     DB_PATH = "flex_complete_database.db"
 
@@ -359,6 +361,23 @@ def run_comparison_background(test_id: str, duration_seconds: int):
         finally:
             conn.close()
 
+    def get_rpc_methods_during_test(start_time: float, end_time: float):
+        """Get unique RPC methods called during test window"""
+        conn = _connect()
+        cur = conn.cursor()
+        try:
+            cur.execute("""
+                SELECT DISTINCT method, COUNT(*) as count, SUM(credits) as total_credits
+                FROM rpc_metrics
+                WHERE timestamp >= ? AND timestamp <= ?
+                GROUP BY method
+                ORDER BY total_credits DESC
+            """, (start_time, end_time))
+            rows = cur.fetchall()
+            return [dict(row) for row in rows]
+        finally:
+            conn.close()
+
     def trigger_helius_snapshot():
         """Trigger a fresh Helius CLI snapshot capture"""
         try:
@@ -377,12 +396,29 @@ def run_comparison_background(test_id: str, duration_seconds: int):
         print(f"[COMPARISON] Capturing BEFORE snapshot...", flush=True)
         trigger_helius_snapshot()
         time.sleep(2)  # Brief pause for snapshot to complete
-        
-        # Get initial state from RPC recorder (instrumented credits)
-        recorder = get_recorder()
-        summary = recorder.get_summary()
-        local_start = summary.get('credits_instrumented_today', 0)
-        print(f"[COMPARISON] Initial local baseline: {local_start} credits (instrumented)", flush=True)
+
+        # Get initial state from DATABASE (cross-process accurate)
+        # Query total credits from rpc_metrics table for today
+        def get_daily_credits_from_db():
+            """Get sum of credits from database for today"""
+            conn = _connect()
+            try:
+                cur = conn.cursor()
+                # Get midnight timestamp for today (use datetime format that SQLite understands)
+                today_midnight = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).strftime('%Y-%m-%d 00:00:00')
+                cur.execute("""
+                    SELECT COALESCE(SUM(credits), 0) as total_credits
+                    FROM rpc_metrics
+                    WHERE recorded_at >= ?
+                """, (today_midnight,))
+                row = cur.fetchone()
+                return row[0] if row else 0
+            finally:
+                conn.close()
+
+        local_start = get_daily_credits_from_db()
+        test_start_time = time.time()
+        print(f"[COMPARISON] Initial local baseline: {local_start} credits (from database)", flush=True)
 
         # Get BEFORE Helius snapshot (freshly captured)
         helius_snapshot_before = get_latest_helius_snapshot()
@@ -407,11 +443,9 @@ def run_comparison_background(test_id: str, duration_seconds: int):
                 print(f"[COMPARISON] Test duration reached ({elapsed}s), stopping", flush=True)
                 break
 
-            # Fetch current LOCAL metrics
+            # Fetch current LOCAL metrics (from database for cross-process accuracy)
             try:
-                recorder = get_recorder()
-                summary = recorder.get_summary()
-                local_total = summary.get('credits_instrumented_today', 0)
+                local_total = get_daily_credits_from_db()
             except:
                 local_total = local_start
 
@@ -467,8 +501,49 @@ def run_comparison_background(test_id: str, duration_seconds: int):
 
             time.sleep(5)  # Update every 5 seconds
 
-        # AFTER TEST: Trigger fresh Helius snapshot
-        print(f"[COMPARISON] Test complete, capturing AFTER snapshot...", flush=True)
+        test_end_time = time.time()
+
+        # WAIT FOR HELIUS TO UPDATE (up to 50 seconds)
+        print(f"[COMPARISON] Test complete, waiting for Helius to update...", flush=True)
+        helius_updated = False
+        wait_start = time.time()
+        max_wait = 50  # Wait up to 50 seconds for Helius to update
+
+        while time.time() - wait_start < max_wait:
+            helius_snapshot = get_latest_helius_snapshot()
+            current_helius = helius_snapshot.get('credits_used', 0) if helius_snapshot else helius_start
+            
+            if current_helius > last_helius_value:
+                print(f"[COMPARISON] Helius updated! New value: {current_helius}", flush=True)
+                helius_updated = True
+                helius_end = current_helius
+                break
+            
+            wait_time = int(time.time() - wait_start)
+            print(f"[COMPARISON] Waiting for Helius ({wait_time}s)... Currently: {current_helius}", flush=True)
+            
+            # Update UI with waiting status
+            with comparison_lock:
+                comparison_results[test_id] = {
+                    "status": "waiting_for_helius",
+                    "duration": duration_seconds,
+                    "wait_time": wait_time,
+                    "updates": len(measurements),
+                    "summary": {
+                        "local_credits_used": local_delta,
+                        "helius_credits_used": helius_delta,
+                        "difference": diff,
+                        "difference_pct": round(diff_pct, 1),
+                        "status": status
+                    },
+                    "measurements": measurements[-5:],
+                    "notes": [f"Waiting for Helius to update ({wait_time}s)...", "Local: Per-request instrumentation", "Helius: Account-level billing (explicit snapshots)"]
+                }
+            
+            time.sleep(5)
+
+        # Capture final Helius snapshot
+        print(f"[COMPARISON] Capturing AFTER snapshot...", flush=True)
         trigger_helius_snapshot()
         time.sleep(2)  # Brief pause for snapshot to complete
 
@@ -477,6 +552,10 @@ def run_comparison_background(test_id: str, duration_seconds: int):
         helius_end_final = helius_snapshot_after.get('credits_used', 0) if helius_snapshot_after else helius_end
         helius_timestamp_after = helius_snapshot_after.get('timestamp', 'unknown') if helius_snapshot_after else 'unknown'
         print(f"[COMPARISON] AFTER Helius snapshot: {helius_end_final} credits at {helius_timestamp_after}", flush=True)
+
+        # Get RPC methods called during test
+        rpc_methods = get_rpc_methods_during_test(test_start_time, test_end_time)
+        print(f"[COMPARISON] RPC methods called: {len(rpc_methods)}", flush=True)
 
         # Recalculate final deltas using explicit before/after snapshots
         local_delta = max(0, local_total - local_start)
@@ -501,6 +580,7 @@ def run_comparison_background(test_id: str, duration_seconds: int):
                     "status": status
                 },
                 "measurements": measurements[-5:],  # Last 5
+                "rpc_methods": rpc_methods,  # RPC methods called during test
                 "snapshots": {
                     "before": {
                         "timestamp": helius_timestamp_before,
@@ -523,15 +603,15 @@ def run_comparison_background(test_id: str, duration_seconds: int):
 
 
 @app.post("/metrics/rpc/comparison")
-async def run_rpc_comparison(duration_seconds: int = Query(300), test_id: Optional[str] = Query(None)):
+async def run_rpc_comparison(duration_seconds: int = Query(60), test_id: Optional[str] = Query(None)):
     """
-    Start or check status of a 2-minute comparison test.
+    Start or check status of a 1-minute comparison test.
 
     If test_id is provided, returns status/results of that test.
     If test_id is not provided, starts a new test and returns the test_id for polling.
 
     Args:
-        duration_seconds: How long to run the test (default 120 = 2 minutes)
+        duration_seconds: How long to run the test (default 60 = 1 minute)
         test_id: Test ID to check status (if None, starts new test)
 
     Returns:
@@ -1076,7 +1156,7 @@ DASHBOARD_HTML = """
                 <div style="display: flex; gap: 10px;">
                     <button class="reset-btn" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); box-shadow: 0 4px 6px rgba(6, 182, 212, 0.3);" id="refreshBtn" onclick="refreshHelius()">💎 Refresh Helius</button>
                     <button class="reset-btn" style="background: linear-gradient(135deg, #a78bfa 0%, #9333ea 100%); box-shadow: 0 4px 6px rgba(167, 139, 250, 0.3);" onclick="showComparisonModal()">📊 Local vs Helius</button>
-                    <button class="reset-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);" onclick="runLiveComparison()">🔬 Run Live Test (5 min)</button>
+                    <button class="reset-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);" onclick="runLiveComparison()">🔬 Run Live Test (1 min)</button>
                     <button class="reset-btn" onclick="showResetConfirm()">🔄 Reset Metrics</button>
                 </div>
             </div>
@@ -1493,7 +1573,7 @@ DASHBOARD_HTML = """
                 // Step 2: Poll for results with live updates
                 let isComplete = false;
                 let pollCount = 0;
-                const maxPolls = 160; // ~320 seconds of polling with 2-second intervals (allows for 5min test + overhead)
+                const maxPolls = 90; // ~180 seconds of polling (60s test + 50s wait for Helius + 70s buffer)
                 let allMeasurements = []; // Track all measurements for live display
 
                 while (!isComplete && pollCount < maxPolls) {
@@ -1521,7 +1601,7 @@ DASHBOARD_HTML = """
 
                     // Display live progress with current measurements
                     const elapsed = pollCount * 2;
-                    const remaining = Math.max(0, 300 - elapsed);
+                    const remaining = Math.max(0, 60 - Math.min(elapsed, 60));
 
                     let html = `
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
@@ -1617,6 +1697,37 @@ DASHBOARD_HTML = """
                             </div>
                         </div>
 
+                        ${pollData.rpc_methods && pollData.rpc_methods.length > 0 ? `
+                        <div style="background: rgba(100, 116, 139, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                            <h4 style="color: #cbd5e1; margin-bottom: 10px;">🔌 RPC Methods Called (${pollData.rpc_methods.length})</h4>
+                            <div style="max-height: 250px; overflow-y: auto;">
+                                <table style="width: 100%; font-size: 11px;">
+                                    <thead style="position: sticky; top: 0;">
+                                        <tr style="background: rgba(15, 23, 42, 0.8);">
+                                            <th style="text-align: left; padding: 8px; border-bottom: 1px solid #334155;">Method</th>
+                                            <th style="text-align: right; padding: 8px; border-bottom: 1px solid #334155;">Count</th>
+                                            <th style="text-align: right; padding: 8px; border-bottom: 1px solid #334155;">Credits</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${pollData.rpc_methods.slice(0, 15).map(m => `
+                                            <tr style="border-bottom: 1px solid rgba(100, 116, 139, 0.3);">
+                                                <td style="padding: 8px; color: #60a5fa; font-family: monospace;">${m.method || 'unknown'}</td>
+                                                <td style="text-align: right; padding: 8px; color: #cbd5e1;">${m.count || 0}</td>
+                                                <td style="text-align: right; padding: 8px; color: #10b981;">${formatNumber(m.total_credits || 0)}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            ${pollData.rpc_methods.length > 15 ? `
+                            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(100, 116, 139, 0.3); color: #94a3b8; font-size: 10px;">
+                                Showing top 15 of ${pollData.rpc_methods.length} methods
+                            </div>
+                            ` : ''}
+                        </div>
+                        ` : ''}
+
                         <div style="background: rgba(100, 116, 139, 0.15); border-radius: 8px; padding: 12px; font-size: 11px; color: #cbd5e1;">
                             <strong>ℹ️ Interpretation:</strong><br/>
                             • Local = Per-request RPC instrumentation (more accurate)<br/>
@@ -1631,6 +1742,19 @@ DASHBOARD_HTML = """
                         isComplete = true;
                         statusDiv.textContent = "✅ Test complete!";
                         statusDiv.classList.add("success", "show");
+                    } else if (pollData.status === "waiting_for_helius") {
+                        // Still waiting, show waiting indicator
+                        contentDiv.innerHTML = html.replace(
+                            '<strong>ℹ️ Interpretation:</strong>',
+                            `<div style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.5); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                                <div style="color: #fbbf24; font-weight: bold; margin-bottom: 10px;">⏳ Waiting for Helius to Update</div>
+                                <div style="color: #cbd5e1; font-size: 12px;">
+                                    Test complete, waiting for Helius billing snapshot to update (typically 30-40 seconds)...
+                                    <br/>Wait time: ${pollData.wait_time || 0}s
+                                </div>
+                            </div>
+                            <strong>ℹ️ Interpretation:</strong>`
+                        );
                     }
                 }
 
@@ -1644,7 +1768,7 @@ DASHBOARD_HTML = """
                 statusDiv.classList.add("error", "show");
             } finally {
                 btn.disabled = false;
-                btn.textContent = "🔬 Run Live Test (5 min)";
+                btn.textContent = "🔬 Run Live Test (1 min)";
             }
         }
 

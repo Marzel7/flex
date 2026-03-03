@@ -36,6 +36,8 @@ def setup_webhook_routes(app):
         """GET /api/webhook/status - Webhook health and stats"""
         import sqlite3
         import os
+        import time
+        from datetime import datetime
 
         db_path = os.getenv("FLEX_DB_PATH", "flex_complete_database.db")
         conn = sqlite3.connect(db_path)
@@ -43,15 +45,51 @@ def setup_webhook_routes(app):
 
         cur = conn.cursor()
 
+        # Count unique signatures (webhooks received)
+        cur.execute("SELECT COUNT(DISTINCT signature) as cnt FROM sol_transfers")
+        total_signatures = cur.fetchone()[0]
+
         # Stats from sol_transfers
         cur.execute("SELECT COUNT(*) as cnt FROM sol_transfers")
         total_transfers = cur.fetchone()[0]
 
+        # Transfers from last 24 hours
+        now_timestamp = int(time.time())
+        one_day_ago = now_timestamp - 86400
         cur.execute("""
             SELECT COUNT(*) as cnt FROM sol_transfers
-            WHERE block_time > (strftime('%s', 'now') - 3600)
+            WHERE block_time > ?
+        """, (one_day_ago,))
+        transfers_today = cur.fetchone()[0]
+
+        # Last webhook timestamp
+        cur.execute("""
+            SELECT MAX(block_time) as last_time FROM sol_transfers
         """)
-        transfers_1h = cur.fetchone()[0]
+        last_block_time = cur.fetchone()[0]
+
+        last_webhook = None
+        if last_block_time:
+            last_webhook = datetime.utcfromtimestamp(last_block_time).strftime('%Y-%m-%dT%H:%M:%S')
+
+        # Recent transfers (last 10)
+        cur.execute("""
+            SELECT source, destination, amount_sol, signature, block_time
+            FROM sol_transfers
+            ORDER BY block_time DESC
+            LIMIT 10
+        """)
+        recent_rows = cur.fetchall()
+        recent_transfers = [
+            {
+                "sender": row[0],
+                "receiver": row[1],
+                "amount_sol": round(row[2], 9),
+                "signature": row[3],
+                "timestamp": row[4]
+            }
+            for row in recent_rows
+        ]
 
         # Stats from work_queue
         cur.execute("SELECT COUNT(*) as cnt FROM work_queue")
@@ -67,8 +105,12 @@ def setup_webhook_routes(app):
 
         return jsonify({
             "ok": True,
+            "total_signatures": total_signatures,
             "total_transfers": total_transfers,
-            "transfers_1h": transfers_1h,
+            "transfers_today": transfers_today,
+            "last_webhook": last_webhook,
+            "recent_transfers": recent_transfers,
+            "transfers_1h": 0,  # Kept for compatibility
             "queue_size": queue_size,
             "high_priority_count": high_priority,
         }), 200

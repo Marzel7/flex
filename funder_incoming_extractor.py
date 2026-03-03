@@ -296,7 +296,7 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
 
             # Record metrics for all responses
             provider = "helius_rpc" if "helius" in url else "solana_rpc"
-            record_request(
+            credits = record_request(
                 section="funder_incoming",
                 provider=provider,
                 method=rpc_method,
@@ -305,6 +305,9 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
                 mode="realtime",
                 retries=attempt,
             )
+
+            # Log the RPC call for debugging
+            print(f"[FUNDER_INCOMING] RPC: {rpc_method} ({credits} credits) - Status: {resp.status_code} - {latency_ms:.0f}ms", flush=True)
 
             if resp.status_code == 429:
                 ra = resp.headers.get("Retry-After")
@@ -505,6 +508,7 @@ def helius_batch_get_transactions(tx_sigs: List[str]) -> Dict[str, Optional[dict
 
     for i in range(0, len(tx_sigs), 100):
         batch = tx_sigs[i:i + 100]
+        print(f"[FUNDER_INCOMING] Processing batch of {len(batch)} transactions", flush=True)
         data = _request_json("POST", url, json_body={"transactions": batch}, timeout=35.0)
         if not isinstance(data, list):
             # mark batch unknown

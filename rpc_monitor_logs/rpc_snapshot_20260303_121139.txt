@@ -1,0 +1,11 @@
+
+Total Calls: 6202
+Total Credits: 51445
+Source Files: 2
+Unique Methods: 2
+
+========================================================================================================================
+METHOD                                   SOURCE                         CALLS    CREDITS   
+------------------------------------------------------------------------------------------------------------------------
+helius_enhanced_transactions_batch       unknown                        457      45700     
+getSignaturesForAddress                  creator_outgoing_extractor     5745     5745      

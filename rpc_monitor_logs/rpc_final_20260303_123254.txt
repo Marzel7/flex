@@ -1,0 +1,6 @@
+========================================================================================================================
+METHOD                                   SOURCE                         CALLS    CREDITS   
+------------------------------------------------------------------------------------------------------------------------
+helius_enhanced_transactions_batch       unknown                        457      45700     
+getSignaturesForAddress                  creator_outgoing_extractor     7735     7735      
+helius_enhanced_transactions_batch       creator_outgoing_extractor     39       3900      

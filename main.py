@@ -20,6 +20,15 @@ import os
 import time
 from infra_mapping import highlight_infra_in_funding
 
+# Webhook system - M5 webhook-first low-RPC architecture
+try:
+    from webhook_integration import init_webhook_system
+    from webhook_api_enriched import setup_enriched_routes
+    WEBHOOK_ENABLED = True
+except ImportError as e:
+    WEBHOOK_ENABLED = False
+    print(f"[WARNING] Webhook system not available: {e}")
+
 # Database
 DB_PATH = "flex_complete_database.db"
 
@@ -31,6 +40,18 @@ app.funder_analysis_cache = {}
 
 # Database capability flags (checked on app startup)
 app.has_networks_release = None  # Set to True/False on first request
+
+# =========================================================================
+# WEBHOOK SYSTEM INITIALIZATION (M5)
+# =========================================================================
+if WEBHOOK_ENABLED:
+    try:
+        init_webhook_system(app)
+        setup_enriched_routes(app)
+        print("[WEBHOOK] M5 Webhook-First Low-RPC Architecture initialized successfully")
+    except Exception as e:
+        print(f"[ERROR] Failed to initialize webhook system: {e}")
+        WEBHOOK_ENABLED = False
 
 # =========================================================================
 # DATABASE CAPABILITY CHECK
@@ -2331,6 +2352,7 @@ HTML_TEMPLATE = """
                 <button class="action-button" onclick="window.location.href = '/coordinated-funders'" title="Analyze funders supporting multiple creators" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Coordinated Funders</button>
                 <button class="action-button" onclick="window.location.href = '/top-funding-hubs'" title="View top funding distribution hubs" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Hubs</button>
                 <button class="action-button" onclick="window.location.href = '/creator-analysis'" title="Analyze creator outgoing transfers and funding chains" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Creator Analysis</button>
+                <button class="action-button" onclick="window.location.href = '/webhook-monitor'" title="Monitor real-time webhook activity and transfers" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">📡 Webhook</button>
                 <button class="action-button" onclick="window.location.href = 'http://localhost:5002/rpc-metrics'" title="View RPC credit usage and cost monitoring in real-time" style="background: rgba(16, 185, 129, 0.2); color: var(--color-low); border: 1px solid rgba(16, 185, 129, 0.5); margin-left: 8px;">💰 RPC Metrics</button>
             </div>
         </div>
@@ -17873,54 +17895,727 @@ def restart_services():
 # HELIUS WEBHOOK (Real-time transaction updates)
 # =========================================================================
 
+def _webhook_db():
+    """
+    Create optimized database connection for webhook processing.
+    WAL mode + NORMAL sync for high-throughput batch inserts.
+    """
+    conn = sqlite3.connect(DB_PATH, timeout=30)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
+    conn.execute("PRAGMA busy_timeout=30000")
+    return conn
+
+
+def _ensure_webhook_tables():
+    """Create webhook deduplication table if it doesn't exist."""
+    conn = _webhook_db()
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS webhook_seen_signatures (
+            signature TEXT PRIMARY KEY,
+            first_seen_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+
+# Initialize webhook dedup table on module load
+_ensure_webhook_tables()
+
+
+def extract_raw_system_transfers(tx: dict) -> list:
+    """
+    Extract SOL transfers from Helius webhook transaction format.
+    
+    Handles both:
+    1. Raw format: preBalances/postBalances at meta root
+    2. Full format: blockTime, complete transaction object with accountKeys
+    
+    Returns list of (sender, receiver, amount_sol, signature, timestamp) tuples.
+    """
+    MIN_SOL = 0.000001  # 1 lamport
+    transfers = []
+    
+    # Get signature - could be at root or need to extract
+    sig = tx.get("signature")
+    if not sig:
+        # Try to get from transaction.signatures array
+        try:
+            sigs = tx.get("transaction", {}).get("signatures", [])
+            sig = sigs[0] if sigs else None
+        except:
+            sig = None
+    
+    if not sig:
+        return []
+    
+    # Get timestamp - try blockTime first, then timestamp
+    ts = tx.get("blockTime") or tx.get("timestamp") or 0
+    ts = int(ts)
+    
+    # Extract account keys and balances
+    message = tx.get("transaction", {}).get("message", {})
+    meta = tx.get("meta", {})
+    
+    # Try to get balances - could be at meta root or in meta.preBalances
+    pre = meta.get("preBalances", [])
+    post = meta.get("postBalances", [])
+    keys = message.get("accountKeys", [])
+    
+    # Validate we have matching lengths
+    if not keys or not pre or not post or len(keys) != len(pre) or len(keys) != len(post):
+        print(f"[EXTRACT_TRANSFERS] {sig[:16]}... - Missing/mismatched data: keys={len(keys)}, pre={len(pre)}, post={len(post)}", flush=True)
+        return []
+    
+    # Find all accounts with balance changes
+    changes = []  # (address, delta_lamports)
+    
+    for i, key_obj in enumerate(keys):
+        # Handle both dict format {"pubkey": "..."} and string format
+        if isinstance(key_obj, dict):
+            addr = key_obj.get("pubkey")
+        else:
+            addr = str(key_obj)
+        
+        if not addr:
+            continue
+        
+        pre_balance = pre[i]
+        post_balance = post[i]
+        delta = post_balance - pre_balance
+        
+        if delta != 0:
+            changes.append((addr, delta))
+    
+    # Simple approach: pair largest sender with largest receiver
+    # This assumes most transactions are just 2-party transfers
+    senders = [(addr, -delta) for addr, delta in changes if delta < 0]
+    receivers = [(addr, delta) for addr, delta in changes if delta > 0]
+    
+    if not senders or not receivers:
+        print(f"[EXTRACT_TRANSFERS] {sig[:16]}... - No senders or receivers found: senders={len(senders)}, receivers={len(receivers)}", flush=True)
+        return []
+    
+    # Sort by magnitude (largest first)
+    senders.sort(key=lambda x: x[1], reverse=True)
+    receivers.sort(key=lambda x: x[1], reverse=True)
+    
+    # Match top sender with top receiver
+    sender_addr, sent_lamports = senders[0]
+    receiver_addr, recv_lamports = receivers[0]
+    
+    # Amount is the minimum of what was sent/received
+    transfer_lamports = min(sent_lamports, recv_lamports)
+    transfer_sol = transfer_lamports / 1e9
+    
+    if transfer_sol >= MIN_SOL:
+        transfers.append((sender_addr, receiver_addr, transfer_sol, sig, ts))
+        print(f"[EXTRACT_TRANSFERS] {sig[:16]}... - Extracted: {sender_addr[:16]}... → {receiver_addr[:16]}... ({transfer_sol:.9f} SOL)", flush=True)
+    else:
+        print(f"[EXTRACT_TRANSFERS] {sig[:16]}... - Transfer too small: {transfer_sol:.9f} SOL < {MIN_SOL:.9f} SOL", flush=True)
+    
+    return transfers
+
+
 @app.route('/helius/webhook', methods=['POST'])
 def helius_webhook():
     """
-    Receive real-time transaction updates from Helius webhook.
-
-    Helius can push transactions as they occur, eliminating polling delays.
-    Authorization is enforced via the HELIUS_WEBHOOK_AUTH environment variable.
+    Helius webhook handler using raw transaction format.
+    
+    - Logs raw payload before parsing
+    - Parses raw transaction data with preBalances/postBalances
+    - Dedupes by signature (PRIMARY KEY)
+    - Extracts SOL transfers from balance deltas
+    - Stores in creator_outgoing_transfers table
     """
-    import os
-
-    # Enforce authorization if configured
-    helius_auth = os.getenv("HELIUS_WEBHOOK_AUTH", "")
-    if helius_auth:
-        auth_header = request.headers.get("Authorization", "")
-        if auth_header != helius_auth:
-            print(f"[HELIUS_WEBHOOK] ⚠️ Unauthorized request: expected '{helius_auth[:20]}...', got '{auth_header[:20]}...'", flush=True)
-            abort(401)
-
-    # Parse payload (Helius sends a list of transactions)
+    import time
+    import json
+    now = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+    
+    # Log raw request data BEFORE parsing
+    print(f"\n[HELIUS_WEBHOOK] {now} - ═══════════════════════════════════════", flush=True)
+    print(f"[HELIUS_WEBHOOK] INCOMING WEBHOOK REQUEST", flush=True)
+    print(f"[HELIUS_WEBHOOK] Content-Type: {request.content_type}", flush=True)
+    print(f"[HELIUS_WEBHOOK] Content-Length: {request.content_length}", flush=True)
+    
+    # Try to get raw body
     try:
-        payload = request.get_json(silent=True)
+        raw_body = request.get_data(as_text=True)
+        print(f"[HELIUS_WEBHOOK] Raw body length: {len(raw_body)} chars", flush=True)
+        
+        # Save full payload to file for inspection
+        with open("last_webhook_payload.json", "w") as f:
+            f.write(raw_body)
+        
+        if len(raw_body) < 500:  # Only log if small
+            print(f"[HELIUS_WEBHOOK] Raw payload: {raw_body}", flush=True)
+        else:
+            print(f"[HELIUS_WEBHOOK] Raw payload saved to: last_webhook_payload.json", flush=True)
     except Exception as e:
-        print(f"[HELIUS_WEBHOOK] ⚠️ Failed to parse JSON: {e}", flush=True)
-        return {"ok": False, "error": "Invalid JSON"}, 400
-
-    if not payload:
-        return {"ok": True}, 200
-
-    # Helius sends a list of tx objects
+        print(f"[HELIUS_WEBHOOK] Error reading raw body: {e}", flush=True)
+    
+    # Now parse as JSON
+    payload = request.get_json(silent=True)
+    
     if not isinstance(payload, list):
-        print(f"[HELIUS_WEBHOOK] ℹ️ Payload is not a list, wrapping: {type(payload)}", flush=True)
-        payload = [payload]
+        print(f"[HELIUS_WEBHOOK] {now} - Non-list payload received", flush=True)
+        if payload:
+            print(f"[HELIUS_WEBHOOK] Payload type: {type(payload)}", flush=True)
+            print(f"[HELIUS_WEBHOOK] Payload: {str(payload)[:200]}", flush=True)
+        print(f"[HELIUS_WEBHOOK] ═══════════════════════════════════════\n", flush=True)
+        return ("ok", 200)
 
-    # Debug: Log first transaction
-    if payload:
-        print(f"[HELIUS_WEBHOOK] 📨 Received {len(payload)} transaction(s)", flush=True)
-        if len(payload) > 0:
-            first_tx = payload[0]
-            sig = first_tx.get("signature", "unknown")[:8]
-            print(f"[HELIUS_WEBHOOK] First tx: {sig}... | {json.dumps(first_tx)[:300]}", flush=True)
+    print(f"[HELIUS_WEBHOOK] {now} - Received {len(payload)} transactions", flush=True)
 
-    # TODO: Process transactions
-    # - Extract nativeTransfers
-    # - Match to creators
-    # - Update creator_outgoing_transfers table
-    # - Trigger coordinated edge detection if needed
+    conn = _webhook_db()
+    cur = conn.cursor()
 
-    return {"ok": True, "processed": len(payload)}, 200
+    inserted = 0
+    skipped = 0
+    duplicates = 0
+
+    for i, tx in enumerate(payload):
+        if not isinstance(tx, dict):
+            print(f"[HELIUS_WEBHOOK] TX {i} - Not a dict, skipping", flush=True)
+            skipped += 1
+            continue
+
+        # DEBUG: Log all top-level keys
+        print(f"[HELIUS_WEBHOOK] TX {i} - Keys in payload: {list(tx.keys())[:10]}", flush=True)
+        
+        sig = tx.get("signature")
+        if not sig:
+            # Try to get from transaction.signatures
+            try:
+                sigs = tx.get("transaction", {}).get("signatures", [])
+                sig = sigs[0] if sigs else None
+                if sig:
+                    print(f"[HELIUS_WEBHOOK] TX {i} - Found signature in transaction.signatures", flush=True)
+            except Exception as e:
+                print(f"[HELIUS_WEBHOOK] TX {i} - Error extracting from transaction.signatures: {e}", flush=True)
+        else:
+            print(f"[HELIUS_WEBHOOK] TX {i} - Found signature at root level", flush=True)
+        
+        if not sig:
+            print(f"[HELIUS_WEBHOOK] TX {i} - No signature found, skipping", flush=True)
+            skipped += 1
+            continue
+
+        # ---- dedupe by signature ----
+        try:
+            cur.execute("INSERT INTO webhook_seen_signatures(signature) VALUES (?)", (sig,))
+            print(f"[HELIUS_WEBHOOK] {sig[:16]}... - NEW signature", flush=True)
+        except sqlite3.IntegrityError:
+            # already processed
+            print(f"[HELIUS_WEBHOOK] {sig[:16]}... - DUPLICATE (skipped)", flush=True)
+            duplicates += 1
+            continue
+
+        # Extract transfers from raw transaction
+        transfers = extract_raw_system_transfers(tx)
+        
+        if not transfers:
+            print(f"[HELIUS_WEBHOOK] {sig[:16]}... - No transfers extracted from TX", flush=True)
+        
+        for sender, receiver, amount_sol, sig_out, ts in transfers:
+            try:
+                cur.execute("""
+                    INSERT OR IGNORE INTO creator_outgoing_transfers
+                      (creator_address, recipient_address, amount_sol, transaction_signature, block_time)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (sender, receiver, amount_sol, sig_out, ts))
+                inserted += 1
+                print(f"[HELIUS_WEBHOOK] {sig_out[:16]}... - STORED: {sender[:16]}... → {receiver[:16]}... ({amount_sol:.9f} SOL)", flush=True)
+            except Exception as e:
+                print(f"[HELIUS_WEBHOOK] {sig_out[:16]}... - Error inserting: {e}", flush=True)
+                continue
+
+    conn.commit()
+    conn.close()
+
+    print(f"[HELIUS_WEBHOOK] {now} - SUMMARY: inserted={inserted}, duplicates={duplicates}, skipped={skipped}", flush=True)
+    print(f"[HELIUS_WEBHOOK] ═══════════════════════════════════════\n", flush=True)
+    return ("ok", 200)
+
+
+@app.route('/api/webhook-status')
+def api_webhook_status():
+    """
+    Get webhook monitoring metrics.
+    
+    Returns:
+    - total_signatures: Total unique signatures received
+    - total_transfers: Total transfers inserted into database
+    - last_webhook: Last webhook timestamp (from actual transfer block_time, not server time)
+    - transfers_today: Count from last 24 hours
+    - recent_transfers: Last 10 transfers recorded
+    """
+    conn = _webhook_db()
+    cur = conn.cursor()
+    
+    try:
+        # Get signature count (unique webhooks)
+        cur.execute("SELECT COUNT(*) FROM webhook_seen_signatures")
+        total_sigs = cur.fetchone()[0]
+        
+        # Get last webhook timestamp from actual transfers (use block_time, not server time)
+        cur.execute("""
+            SELECT MAX(block_time) FROM creator_outgoing_transfers 
+            WHERE transaction_signature IS NOT NULL
+        """)
+        last_block_time = cur.fetchone()[0]
+        
+        # Convert unix timestamp to readable format
+        if last_block_time:
+            from datetime import datetime
+            last_webhook = datetime.utcfromtimestamp(last_block_time).strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            last_webhook = None
+        
+        # Get total transfers from creator_outgoing_transfers
+        cur.execute("SELECT COUNT(*) FROM creator_outgoing_transfers WHERE transaction_signature IS NOT NULL")
+        total_transfers = cur.fetchone()[0]
+        
+        # Get transfers from last 24 hours (using block_time, not server time)
+        now_timestamp = int(__import__('time').time())
+        one_day_ago = now_timestamp - 86400
+        
+        cur.execute("""
+            SELECT COUNT(*) FROM creator_outgoing_transfers 
+            WHERE block_time > ? AND transaction_signature IS NOT NULL
+        """, (one_day_ago,))
+        transfers_today = cur.fetchone()[0]
+        
+        # Get recent transfers (last 10)
+        cur.execute("""
+            SELECT creator_address, recipient_address, amount_sol, 
+                   transaction_signature, block_time
+            FROM creator_outgoing_transfers
+            WHERE transaction_signature IS NOT NULL
+            ORDER BY block_time DESC
+            LIMIT 10
+        """)
+        recent = cur.fetchall()
+        
+        recent_transfers = [
+            {
+                "sender": row[0],  # Full address
+                "receiver": row[1],  # Full address
+                "amount_sol": round(row[2], 9),  # More decimal places
+                "signature": row[3] if row[3] else "unknown",  # Full signature
+                "timestamp": row[4]
+            }
+            for row in recent
+        ]
+        
+        conn.close()
+        
+        return {
+            "ok": True,
+            "total_signatures": total_sigs,
+            "total_transfers": total_transfers,
+            "last_webhook": last_webhook,
+            "transfers_today": transfers_today,
+            "recent_transfers": recent_transfers
+        }
+    
+    except Exception as e:
+        conn.close()
+        print(f"[WEBHOOK_STATUS] Error: {e}", flush=True)
+        return {"ok": False, "error": str(e)}, 500
+
+
+@app.route('/webhook-monitor')
+def webhook_monitor():
+    """
+    Webhook monitoring dashboard page.
+    Shows real-time metrics about webhook activity.
+    """
+    html = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Webhook Monitor</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Courier New', monospace;
+                background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
+                color: #e5e7eb;
+                min-height: 100vh;
+                padding: 20px;
+            }
+
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+            }
+
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid rgba(167, 139, 250, 0.3);
+            }
+
+            .header h1 {
+                font-size: 28px;
+                color: #a78bfa;
+            }
+
+            .back-btn {
+                background: rgba(59, 130, 246, 0.2);
+                color: #06b6d4;
+                border: 1px solid rgba(59, 130, 246, 0.5);
+                padding: 8px 16px;
+                border-radius: 6px;
+                cursor: pointer;
+                text-decoration: none;
+                font-size: 14px;
+                transition: all 0.2s;
+            }
+
+            .back-btn:hover {
+                background: rgba(59, 130, 246, 0.3);
+                border-color: rgba(59, 130, 246, 0.8);
+            }
+
+            .metrics-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+
+            .metric-card {
+                background: rgba(30, 30, 40, 0.8);
+                border: 1px solid rgba(167, 139, 250, 0.3);
+                border-radius: 8px;
+                padding: 20px;
+                transition: all 0.2s;
+            }
+
+            .metric-card:hover {
+                border-color: rgba(167, 139, 250, 0.6);
+                background: rgba(30, 30, 40, 0.95);
+            }
+
+            .metric-label {
+                color: #a78bfa;
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 8px;
+            }
+
+            .metric-value {
+                font-size: 32px;
+                font-weight: bold;
+                color: #06b6d4;
+                margin-bottom: 8px;
+            }
+
+            .metric-subtext {
+                font-size: 12px;
+                color: #9ca3af;
+            }
+
+            .metric-status {
+                display: inline-block;
+                padding: 4px 12px;
+                border-radius: 4px;
+                font-size: 11px;
+                margin-top: 10px;
+                font-weight: bold;
+            }
+
+            .status-active {
+                background: rgba(34, 197, 94, 0.2);
+                color: #22c55e;
+                border: 1px solid rgba(34, 197, 94, 0.5);
+            }
+
+            .status-idle {
+                background: rgba(156, 163, 175, 0.2);
+                color: #d1d5db;
+                border: 1px solid rgba(156, 163, 175, 0.5);
+            }
+
+            .section-title {
+                color: #a78bfa;
+                font-size: 18px;
+                margin-top: 30px;
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+                border-bottom: 2px solid rgba(167, 139, 250, 0.2);
+            }
+
+            .transfers-table {
+                background: rgba(30, 30, 40, 0.6);
+                border: 1px solid rgba(167, 139, 250, 0.3);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            .transfers-table table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .transfers-table th {
+                background: rgba(167, 139, 250, 0.1);
+                color: #a78bfa;
+                padding: 12px;
+                text-align: left;
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                border-bottom: 2px solid rgba(167, 139, 250, 0.3);
+            }
+
+            .transfers-table td {
+                padding: 12px;
+                border-bottom: 1px solid rgba(167, 139, 250, 0.15);
+                font-size: 13px;
+            }
+
+            .transfers-table tr:hover {
+                background: rgba(167, 139, 250, 0.05);
+            }
+
+            .amount-positive {
+                color: #22c55e;
+                font-weight: bold;
+            }
+
+            .address {
+                color: #a78bfa;
+                font-family: 'Courier New', monospace;
+                font-size: 11px;
+                word-break: break-all;
+                max-width: 300px;
+            }
+
+            .timestamp {
+                color: #9ca3af;
+                font-size: 11px;
+            }
+
+            .loading {
+                color: #9ca3af;
+                padding: 20px;
+                text-align: center;
+            }
+
+            .error {
+                background: rgba(239, 68, 68, 0.1);
+                border: 1px solid rgba(239, 68, 68, 0.5);
+                color: #ef4444;
+                padding: 15px;
+                border-radius: 6px;
+                margin-bottom: 20px;
+            }
+
+            .auto-refresh {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+
+            .refresh-btn {
+                background: rgba(59, 130, 246, 0.2);
+                color: #06b6d4;
+                border: 1px solid rgba(59, 130, 246, 0.5);
+                padding: 8px 16px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 13px;
+                transition: all 0.2s;
+            }
+
+            .refresh-btn:hover {
+                background: rgba(59, 130, 246, 0.3);
+            }
+
+            .last-updated {
+                color: #9ca3af;
+                font-size: 12px;
+            }
+
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+
+            .spinner {
+                display: inline-block;
+                width: 14px;
+                height: 14px;
+                border: 2px solid rgba(6, 182, 212, 0.3);
+                border-top-color: #06b6d4;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>📡 Webhook Monitor</h1>
+                <a class="back-btn" href="/">← Back</a>
+            </div>
+
+            <div class="auto-refresh">
+                <button class="refresh-btn" onclick="loadStatus()">🔄 Refresh Now</button>
+                <span class="last-updated">Auto-refreshing every 5 seconds</span>
+            </div>
+
+            <div id="error-container"></div>
+
+            <div class="metrics-grid" id="metrics">
+                <div class="metric-card">
+                    <div class="metric-label">Webhooks Received</div>
+                    <div class="metric-value loading">
+                        <span class="spinner"></span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Transfers Processed</div>
+                    <div class="metric-value loading">
+                        <span class="spinner"></span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Transfers (24h)</div>
+                    <div class="metric-value loading">
+                        <span class="spinner"></span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Last Activity</div>
+                    <div class="metric-value loading">
+                        <span class="spinner"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title">Recent Transfers</div>
+            <div class="transfers-table" id="transfers">
+                <div class="loading">Loading transfers...</div>
+            </div>
+        </div>
+
+        <script>
+            function formatTime(timestamp) {
+                if (!timestamp) return 'Never';
+                const date = new Date(timestamp);
+                return date.toLocaleString();
+            }
+
+            function timeSinceNow(timestamp) {
+                if (!timestamp) return 'Never';
+                const now = new Date();
+                const then = new Date(timestamp);
+                const seconds = Math.floor((now - then) / 1000);
+                
+                if (seconds < 60) return seconds + 's ago';
+                if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+                if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+                return Math.floor(seconds / 86400) + 'd ago';
+            }
+
+            async function loadStatus() {
+                try {
+                    const response = await fetch('/api/webhook-status');
+                    const data = await response.json();
+
+                    if (!data.ok) {
+                        document.getElementById('error-container').innerHTML = 
+                            '<div class="error">Error loading status: ' + (data.error || 'Unknown error') + '</div>';
+                        return;
+                    }
+
+                    document.getElementById('error-container').innerHTML = '';
+
+                    // Update metrics
+                    const metricsHtml = `
+                        <div class="metric-card">
+                            <div class="metric-label">Webhooks Received</div>
+                            <div class="metric-value">${data.total_signatures}</div>
+                            <div class="metric-subtext">Unique transaction signatures</div>
+                            <div class="metric-status ${data.total_signatures > 0 ? 'status-active' : 'status-idle'}">
+                                ${data.total_signatures > 0 ? '● Active' : '● Idle'}
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Transfers Processed</div>
+                            <div class="metric-value">${data.total_transfers}</div>
+                            <div class="metric-subtext">Total SOL movements recorded</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Transfers (24h)</div>
+                            <div class="metric-value">${data.transfers_today}</div>
+                            <div class="metric-subtext">From last 24 hours</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Last Activity</div>
+                            <div class="metric-value">${data.last_webhook ? timeSinceNow(data.last_webhook) : 'Never'}</div>
+                            <div class="metric-subtext">${formatTime(data.last_webhook)}</div>
+                        </div>
+                    `;
+                    document.getElementById('metrics').innerHTML = metricsHtml;
+
+                    // Update transfers table
+                    if (data.recent_transfers && data.recent_transfers.length > 0) {
+                        let tableHtml = '<table><thead><tr><th>Sender</th><th>Receiver</th><th>Amount</th><th>TX Hash</th><th>Time</th></tr></thead><tbody>';
+                        
+                        for (const transfer of data.recent_transfers) {
+                            tableHtml += `
+                                <tr>
+                                    <td><span class="address">${transfer.sender}</span></td>
+                                    <td><span class="address">${transfer.receiver}</span></td>
+                                    <td><span class="amount-positive">◆ ${transfer.amount_sol} SOL</span></td>
+                                    <td><span class="address">${transfer.signature}</span></td>
+                                    <td><span class="timestamp">${timeSinceNow(transfer.timestamp * 1000)}</span></td>
+                                </tr>
+                            `;
+                        }
+                        
+                        tableHtml += '</tbody></table>';
+                        document.getElementById('transfers').innerHTML = tableHtml;
+                    } else {
+                        document.getElementById('transfers').innerHTML = '<div class="loading">No transfers yet</div>';
+                    }
+
+                } catch (error) {
+                    document.getElementById('error-container').innerHTML = 
+                        '<div class="error">Connection error: ' + error.message + '</div>';
+                }
+            }
+
+            // Initial load
+            loadStatus();
+
+            // Auto-refresh every 5 seconds
+            setInterval(loadStatus, 5000);
+        </script>
+    </body>
+    </html>
+    """
+    
+    return html
 
 
 # =========================================================================

@@ -419,30 +419,65 @@ if __name__ == "__main__":
 
     # Check for test/mock mode
     test_mode = "--test" in sys.argv or "--mock" in sys.argv
+    continuous_mode = "--continuous" in sys.argv or len(sys.argv) == 1  # Default to continuous
 
     # Capture usage
     print("[HELIUS] 🌐 Helius CLI Usage Monitor", flush=True)
 
-    if test_mode:
-        # Mock mode for testing without CLI (for dev environments)
-        print("[HELIUS] 🧪 TEST MODE - Using mock data", flush=True)
-        usage = {
-            "credits_remaining": 975318,
-            "credits_used": 24682,
-            "credits_used_month": 24682,
-            "project_id": "test-project",
-            "raw_json": '{"creditsRemaining": 975318, "creditsUsed": 24682}',
-            "timestamp": datetime.now().isoformat(),
-        }
-    else:
-        usage = get_helius_usage_cli()
+    if continuous_mode:
+        # Run continuously, capturing every 30 seconds
+        import time
+        print("[HELIUS] 🔄 Running in continuous mode (capture every 30s)", flush=True)
+        try:
+            while True:
+                if test_mode:
+                    # Mock mode for testing without CLI (for dev environments)
+                    print("[HELIUS] 🧪 TEST MODE - Using mock data", flush=True)
+                    usage = {
+                        "credits_remaining": 975318,
+                        "credits_used": 24682,
+                        "credits_used_month": 24682,
+                        "project_id": "test-project",
+                        "raw_json": '{"creditsRemaining": 975318, "creditsUsed": 24682}',
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                else:
+                    usage = get_helius_usage_cli()
 
-    if usage:
-        print_usage(usage)
-        record_usage_snapshot(usage)
-        sync_helius_to_config(usage)
-        print("[HELIUS] ✅ Done", flush=True)
+                if usage:
+                    print_usage(usage)
+                    record_usage_snapshot(usage)
+                    sync_helius_to_config(usage)
+                    print("[HELIUS] ✅ Snapshot captured", flush=True)
+                else:
+                    print("[HELIUS] ⚠️ Failed to retrieve usage, retrying in 30s", flush=True)
+
+                time.sleep(30)  # Wait 30 seconds before next capture
+        except KeyboardInterrupt:
+            print("[HELIUS] ⛔ Continuous monitor stopped", flush=True)
+            sys.exit(0)
     else:
-        print("[HELIUS] ❌ Failed to retrieve usage", flush=True)
-        print("[HELIUS] 💡 Hint: Use --test flag for mock data", flush=True)
-        sys.exit(1)
+        # One-time capture
+        if test_mode:
+            # Mock mode for testing without CLI (for dev environments)
+            print("[HELIUS] 🧪 TEST MODE - Using mock data", flush=True)
+            usage = {
+                "credits_remaining": 975318,
+                "credits_used": 24682,
+                "credits_used_month": 24682,
+                "project_id": "test-project",
+                "raw_json": '{"creditsRemaining": 975318, "creditsUsed": 24682}',
+                "timestamp": datetime.now().isoformat(),
+            }
+        else:
+            usage = get_helius_usage_cli()
+
+        if usage:
+            print_usage(usage)
+            record_usage_snapshot(usage)
+            sync_helius_to_config(usage)
+            print("[HELIUS] ✅ Done", flush=True)
+        else:
+            print("[HELIUS] ❌ Failed to retrieve usage", flush=True)
+            print("[HELIUS] 💡 Hint: Use --test flag for mock data", flush=True)
+            sys.exit(1)

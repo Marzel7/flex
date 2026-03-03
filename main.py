@@ -14,7 +14,7 @@ import json
 import requests
 import threading
 from datetime import datetime
-from flask import Flask, jsonify, render_template, render_template_string, request, Response
+from flask import Flask, jsonify, render_template, render_template_string, request, Response, abort
 from typing import Dict, List, Optional
 import os
 import time
@@ -17838,7 +17838,7 @@ def metrics_rpc_comparison_proxy():
 
         # Support both starting new tests and polling existing tests
         test_id = request.args.get('test_id')
-        duration_seconds = request.args.get('duration_seconds', '120')
+        duration_seconds = request.args.get('duration_seconds', '60')
 
         # Build URL with optional test_id parameter
         url = f'http://localhost:8001/metrics/rpc/comparison?duration_seconds={duration_seconds}'
@@ -17867,6 +17867,60 @@ def restart_services():
         }, 202
     except Exception as e:
         return {'error': str(e), 'status': 'failed'}, 500
+
+
+# =========================================================================
+# HELIUS WEBHOOK (Real-time transaction updates)
+# =========================================================================
+
+@app.route('/helius/webhook', methods=['POST'])
+def helius_webhook():
+    """
+    Receive real-time transaction updates from Helius webhook.
+
+    Helius can push transactions as they occur, eliminating polling delays.
+    Authorization is enforced via the HELIUS_WEBHOOK_AUTH environment variable.
+    """
+    import os
+
+    # Enforce authorization if configured
+    helius_auth = os.getenv("HELIUS_WEBHOOK_AUTH", "")
+    if helius_auth:
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header != helius_auth:
+            print(f"[HELIUS_WEBHOOK] ⚠️ Unauthorized request: expected '{helius_auth[:20]}...', got '{auth_header[:20]}...'", flush=True)
+            abort(401)
+
+    # Parse payload (Helius sends a list of transactions)
+    try:
+        payload = request.get_json(silent=True)
+    except Exception as e:
+        print(f"[HELIUS_WEBHOOK] ⚠️ Failed to parse JSON: {e}", flush=True)
+        return {"ok": False, "error": "Invalid JSON"}, 400
+
+    if not payload:
+        return {"ok": True}, 200
+
+    # Helius sends a list of tx objects
+    if not isinstance(payload, list):
+        print(f"[HELIUS_WEBHOOK] ℹ️ Payload is not a list, wrapping: {type(payload)}", flush=True)
+        payload = [payload]
+
+    # Debug: Log first transaction
+    if payload:
+        print(f"[HELIUS_WEBHOOK] 📨 Received {len(payload)} transaction(s)", flush=True)
+        if len(payload) > 0:
+            first_tx = payload[0]
+            sig = first_tx.get("signature", "unknown")[:8]
+            print(f"[HELIUS_WEBHOOK] First tx: {sig}... | {json.dumps(first_tx)[:300]}", flush=True)
+
+    # TODO: Process transactions
+    # - Extract nativeTransfers
+    # - Match to creators
+    # - Update creator_outgoing_transfers table
+    # - Trigger coordinated edge detection if needed
+
+    return {"ok": True, "processed": len(payload)}, 200
 
 
 # =========================================================================

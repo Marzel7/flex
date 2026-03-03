@@ -11897,13 +11897,26 @@ def api_analyze_all_coordinated_funders():
 
     This runs in background threads and returns immediately with status.
     Each funder's incoming/outgoing transfers are fetched and saved to DB.
+    Respects the 'auto_extract_funders' toggle - returns error if toggle is OFF.
     """
     try:
-        from funder_incoming_extractor import extract_for_creator
-        import threading
-
+        # Check if auto extraction is enabled
         conn = sqlite3.connect(DB_PATH, timeout=5)
         cursor = conn.cursor()
+        cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('auto_extract_funders',))
+        row = cursor.fetchone()
+        auto_extract_enabled = row[0] == 'true' if row else False
+
+        if not auto_extract_enabled:
+            conn.close()
+            return jsonify({
+                'error': 'Auto Extract Funders toggle is OFF',
+                'message': 'Enable the toggle on the main dashboard to allow funder extraction',
+                'status': 'blocked'
+            }), 403
+
+        from funder_incoming_extractor import extract_for_creator
+        import threading
 
         # Get all funders funding multiple creators
         cursor.execute("""
@@ -11959,6 +11972,7 @@ def api_analyze_funder_transfers():
 
     First checks if data already exists in database, returns immediately if found.
     Only extracts from Helius if no data exists.
+    Respects the 'auto_extract_funders' toggle - returns error if toggle is OFF.
     """
     import sys
 
@@ -11968,6 +11982,21 @@ def api_analyze_funder_transfers():
 
         if not funder_address:
             return jsonify({'error': 'No funder address provided'}), 400
+
+        # Check if auto extraction is enabled
+        conn_check = sqlite3.connect(DB_PATH, timeout=5)
+        cursor_check = conn_check.cursor()
+        cursor_check.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('auto_extract_funders',))
+        row = cursor_check.fetchone()
+        auto_extract_enabled = row[0] == 'true' if row else False
+        conn_check.close()
+
+        if not auto_extract_enabled:
+            return jsonify({
+                'error': 'Auto Extract Funders toggle is OFF',
+                'message': 'Enable the toggle on the main dashboard to allow funder extraction',
+                'status': 'blocked'
+            }), 403
 
         # Check if we already have data for this funder in the database
         print(f"[ANALYZE] Checking database for {funder_address[:16]}...", flush=True)

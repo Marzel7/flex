@@ -132,37 +132,6 @@ async def metrics_alerts(
     }
 
 
-@app.post("/metrics/rpc/aggregate")
-async def aggregate_metric(data: dict):
-    """Aggregate metrics from other processes WITHOUT double-recording.
-
-    This endpoint receives pre-computed metrics from other processes
-    and aggregates them without calling record_request() (which would double-count).
-    """
-    recorder = get_recorder()
-
-    # Extract data that was already computed by the calling process
-    section = data.get("section", "unknown")
-    credits = data.get("credits", 0)  # Already computed by caller
-    method = data.get("method", "unknown")
-    provider = data.get("provider", "unknown")
-
-    # Aggregate without re-recording to avoid double-counting
-    with recorder._lock:
-        recorder._total_credits += credits
-        recorder._daily_credits += credits
-        recorder._total_requests += 1
-
-        if section in recorder._section_stats:
-            section_stats = recorder._section_stats[section]
-            section_stats.credits_total += credits
-            section_stats.requests += 1
-            section_stats.credits_by_method[method] = section_stats.credits_by_method.get(method, 0) + credits
-            section_stats.credits_by_provider[provider] = section_stats.credits_by_provider.get(provider, 0) + credits
-
-    return {"credits": credits, "status": "aggregated"}
-
-
 @app.post("/metrics/rpc/record")
 async def record_metric(data: dict):
     """Record a single RPC metric (called by instrumented code in other processes)"""

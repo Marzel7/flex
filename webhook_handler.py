@@ -348,6 +348,42 @@ def update_address_activity(conn: sqlite3.Connection, address: str, is_source: b
         """, (block_time, row_stats[1], row_stats[3], row_stats[4], address))
 
 
+def save_creator_signatures(conn: sqlite3.Connection, dest: str, sig: str, block_time: int, amount_lamports: int):
+    """
+    Save transaction signature to creator_tx_ledger if destination is a watched creator.
+
+    Args:
+        conn: Database connection
+        dest: Destination address (potential creator)
+        sig: Transaction signature
+        block_time: Block timestamp
+        amount_lamports: Amount transferred in lamports
+    """
+    cur = conn.cursor()
+
+    try:
+        # Check if destination is in creator_watch
+        cur.execute("SELECT creator_pubkey FROM creator_watch WHERE creator_pubkey = ?", (dest,))
+        creator = cur.fetchone()
+
+        if creator:
+            # Try to insert into creator_tx_ledger
+            try:
+                cur.execute("""
+                    INSERT OR IGNORE INTO creator_tx_ledger
+                    (creator_pubkey, signature, blockTime, delta_sol_lamports, tx_type, source)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (dest, sig, block_time, amount_lamports, "transfer_in", "webhook"))
+
+                if cur.rowcount > 0:
+                    print(f"[WEBHOOK_CREATOR] {sig[:16]}... - Saved tx for creator {dest[:8]}...", flush=True)
+            except Exception as e:
+                # Signature already exists or other constraint violation - ignore
+                pass
+    except Exception as e:
+        print(f"[WEBHOOK_CREATOR] Error checking creator {dest[:8]}...: {e}", flush=True)
+
+
 def enqueue_work(conn: sqlite3.Connection, addresses: List[str], reason: str):
     """
     Add addresses to work queue with initial priority.
@@ -459,6 +495,9 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
                     # Update activity for both addresses
                     update_address_activity(conn, source, True, amount_sol, block_time)
                     update_address_activity(conn, dest, False, amount_sol, block_time)
+
+                    # Save to creator_tx_ledger if destination is a watched creator
+                    save_creator_signatures(conn, dest, sig_out, block_time, lamports)
 
                     # Track for queueing
                     all_addresses.add(source)

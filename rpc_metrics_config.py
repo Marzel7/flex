@@ -51,13 +51,13 @@ CREDIT_SCHEDULE = {
     "getTokenAccountsByOwner": 1,
     "getTokenLargestAccounts": 1,
     "getTokenSupply": 1,
-    "getTransaction": 10,  # Historical transaction (archival)
+    "getTransaction": 1,  # Standard RPC method
     "getTransactionCount": 1,
     "getAccountInfo": 1,                        # Account lookup (newly added)
     "getBalance": 1,                            # SOL balance check (newly added)
     "getTokenAccountBalance": 1,                # Token balance check (newly added)
     "getBlock": 1,                              # Block data (newly added)
-    "getSignaturesForAddress": 10,              # Transaction history for address
+    "getSignaturesForAddress": 1,              # Transaction history for address (NOT 10!)
 
     # Helius-exclusive RPC methods (high cost)
     "getTransactionsForAddress": 100,
@@ -77,8 +77,8 @@ CREDIT_SCHEDULE = {
     "helius_enhanced_transactions_batch": 100,       # Per request (official docs)
 
     # Fallback RPC methods
-    "fallback_getTransaction": 10,
-    "fallback_getSignaturesForAddress": 10,
+    "fallback_getTransaction": 1,
+    "fallback_getSignaturesForAddress": 1,
 }
 
 # Streaming credits: 3 credits per 0.1MB
@@ -106,8 +106,8 @@ class PlanConfig:
     # ACTUAL USAGE FROM HELIUS DASHBOARD (as of 2026-03-02 after reset)
     # This is synced from your Helius account via helius_cli_monitor.py
     CURRENT_USAGE = {
-        "credits_used_today": 26092,             # Total credits consumed today
-        "credits_remaining": 9973908_000_000,     # Remaining monthly budget (10M tier)
+        "credits_used_today": 26884,             # Total credits consumed today
+        "credits_remaining": 9973116_000_000,     # Remaining monthly budget (10M tier)
         "budget_start_date": "2026-03-03",   # Start of billing period
     }
 

@@ -26,25 +26,38 @@ def _connect():
     conn.execute("PRAGMA busy_timeout=30000")
     return conn
 
+def trigger_helius_snapshot():
+    """Trigger a fresh Helius CLI snapshot capture"""
+    try:
+        import subprocess
+        subprocess.run(
+            ["python", "helius_cli_monitor.py"],
+            capture_output=True,
+            timeout=15
+        )
+        time.sleep(2)  # Wait for snapshot to be recorded
+    except Exception:
+        pass  # Fail silently
+
 def get_initial_state() -> Tuple[int, int]:
     """Get initial credits state from database"""
+    # Capture fresh Helius snapshot before test
+    print("📸 Capturing initial Helius snapshot...")
+    trigger_helius_snapshot()
+
     conn = _connect()
     cur = conn.cursor()
 
     try:
-        # Get last local metrics
-        cur.execute("""
-            SELECT credits_total FROM rpc_requests_summary
-            WHERE timestamp = (SELECT MAX(timestamp) FROM rpc_requests_summary)
-            LIMIT 1
-        """)
-        row = cur.fetchone()
-        local_start = row[0] if row else 0
+        # Get last local metrics (from API which tracks real-time)
+        resp = requests.get(API_URL, timeout=5)
+        metrics = resp.json()
+        local_start = metrics.get('summary', {}).get('credits_instrumented_today', 0)
     except:
         local_start = 0
 
     try:
-        # Get last Helius snapshot
+        # Get latest Helius snapshot (just captured)
         cur.execute("""
             SELECT credits_used FROM helius_usage_snapshots
             WHERE timestamp IS NOT NULL
@@ -189,7 +202,8 @@ def run_comparison_monitor(duration_seconds: int = 120, update_interval: int = 5
             # Fetch current metrics
             summary, helius_snapshot = get_current_metrics()
 
-            local_total = summary.get('credits_total', 0)
+            # Use instrumented_today (what we actually recorded) not total (cumulative)
+            local_total = summary.get('credits_instrumented_today', summary.get('credits_total', 0))
             helius_total = helius_snapshot.get('credits_used', 0)
 
             local_delta = max(0, local_total - local_start)
@@ -219,9 +233,12 @@ def run_comparison_monitor(duration_seconds: int = 120, update_interval: int = 5
     except KeyboardInterrupt:
         print("\n\n⛔ Monitoring stopped by user")
 
-    # Final summary
+    # Final summary - capture fresh Helius snapshot at end
+    print("\n📸 Capturing final Helius snapshot...")
+    trigger_helius_snapshot()
+
     summary, helius_snapshot = get_current_metrics()
-    local_total = summary.get('credits_total', 0)
+    local_total = summary.get('credits_instrumented_today', 0)
     helius_total = helius_snapshot.get('credits_used', 0)
     local_delta = max(0, local_total - local_start)
     helius_delta = max(0, helius_total - helius_start)

@@ -148,11 +148,11 @@ def format_comparison(
 │ Method: Account-level billing                                         │
 └──────────────────────────────────────────────────────────────────────┘
 
-┌─ COMPARISON ─────────────────────────────────────────────────────────┐
-│ Absolute Difference:          {diff:,} credits                        │
-│ Relative Difference:          {diff_pct:.1f}%                          │
-│ Status:                        {status}                         │
-│ Expected Range:               ±1-2% (clean)                           │
+┌─ NOTE ───────────────────────────────────────────────────────────────┐
+│ Local metrics ≠ Helius billing (different measurement methods)       │
+│ Local: What we recorded in code (may miss some calls)               │
+│ Helius: What Helius actually charged (authoritative)                │
+│ Use Helius as source of truth for cost tracking.                    │
 └──────────────────────────────────────────────────────────────────────┘
 
 📊 Last Updated: {datetime.now().strftime('%H:%M:%S')}
@@ -254,24 +254,22 @@ def run_comparison_monitor(duration_seconds: int = 120, update_interval: int = 5
     diff = abs(local_delta - helius_delta)
     diff_pct = (diff / max(helius_delta, 1) * 100) if helius_delta > 0 else 0
 
-    print(f"\nDifference: {diff:,} credits ({diff_pct:.1f}%)")
+    print(f"\n📊 HELIUS IS THE SOURCE OF TRUTH: {helius_delta:,} credits charged")
+    print(f"Local metrics showed: {local_delta:,} credits (discrepancy: {diff_pct:.1f}%)")
 
-    if diff_pct <= 2:
-        print("Result: ✅ CLEAN (within acceptable range)")
-    elif diff_pct <= 5:
-        print("Result: ⚠️ MINOR DRIFT (acceptable but investigate)")
-    else:
-        print("Result: ❌ SIGNIFICANT DRIFT")
-        print("        (Large diff expected if Helius reports account-wide usage)")
-
-    print("\nDIAGNOSTICS:")
-    print(f"  • Helius includes ALL account activity (listener, all extractors, etc.)")
-    print(f"  • Local metrics only show ACTIVE processes during test")
-    print(f"  • If you only ran getSignaturesForAddress, large diff is normal")
-    print("\nIf credits are 10x off on getSignaturesForAddress (10 cr each):")
-    print("  → Check if batch transaction calls are being double-recorded")
-    print("\nIf credits match for simple RPC methods:")
-    print("  → Batch transaction fix is working correctly ✅")
+    print("\n⚠️  IMPORTANT:")
+    print("  Local metrics and Helius charges are fundamentally different:")
+    print("  • Helius: Actual charges from their account-level billing")
+    print("  • Local: Recorded RPC calls in instrumentation (may be incomplete)")
+    print("")
+    print("  Expected differences:")
+    print("    - Retries and failed calls (Helius charges, local may not record)")
+    print("    - WebSocket streaming (Helius charges by data, local charges by request)")
+    print("    - API network overhead (Helius includes, local doesn't)")
+    print("    - Background activity (Helius includes, local may miss)")
+    print("")
+    print("  Use HELIUS charges for cost tracking. Use LOCAL metrics for")
+    print("  debugging which RPC methods are most expensive.")
     print("="*75 + "\n")
 
 if __name__ == "__main__":

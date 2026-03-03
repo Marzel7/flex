@@ -480,6 +480,13 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
         for source, dest, lamports, sig_out, slot, block_time in transfers:
             amount_sol = lamports / 1e9
 
+            # Filter out dust transfers (< 0.001 SOL)
+            MIN_SOL = 0.001
+            if amount_sol < MIN_SOL:
+                print(f"[WEBHOOK] {now} - DUST: {sig_out[:16]}... ({amount_sol:.9f} SOL < {MIN_SOL} SOL)", flush=True)
+                skipped += 1
+                continue
+
             # Insert into sol_transfers (dedupe by signature)
             try:
                 cur.execute("""

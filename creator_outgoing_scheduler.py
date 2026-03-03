@@ -139,7 +139,7 @@ async def scan_creator_with_change_detection(
     if sigs_for_batch:
         batches = [sigs_for_batch[i : i + 100] for i in range(0, len(sigs_for_batch), 100)]
         for batch_sigs in batches:
-            parsed = await helius_enhanced_parse(session, batch_sigs)
+            parsed = await helius_enhanced_parse(session, batch_sigs, source_file="creator_outgoing_scheduler")
             credits_used += 100  # 1 enhanced call per 100 sigs
 
             if parsed:

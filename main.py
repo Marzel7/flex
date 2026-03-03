@@ -16451,7 +16451,7 @@ def api_scan_creator(creator_address: str):
                     return {"status": "no_new_transfers", "fresh_sigs": 0}
 
                 # Parse signatures
-                parsed = await helius_enhanced_parse(session, fresh_sigs)
+                parsed = await helius_enhanced_parse(session, fresh_sigs, source_file="main")
 
                 # Extract outgoing SOL transfers
                 transfers = extract_outgoing_sol(parsed, {creator_address})

@@ -1,0 +1,37 @@
+{
+  "timestamp": "2026-03-03T12:29:44.911553",
+  "iteration": 35,
+  "summary": {
+    "total_calls": 8231,
+    "total_credits": 57335,
+    "source_files": 2,
+    "unique_methods": 2
+  },
+  "metrics": [
+    {
+      "method": "helius_enhanced_transactions_batch",
+      "source_file": "unknown",
+      "calls": 457,
+      "total_credits": 45700,
+      "first_seen": "2026-03-03 10:38:30",
+      "last_seen": "2026-03-03 11:39:48"
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "source_file": "creator_outgoing_extractor",
+      "calls": 7735,
+      "total_credits": 7735,
+      "first_seen": "2026-03-03 10:36:19",
+      "last_seen": "2026-03-03 12:20:45"
+    },
+    {
+      "method": "helius_enhanced_transactions_batch",
+      "source_file": "creator_outgoing_extractor",
+      "calls": 39,
+      "total_credits": 3900,
+      "first_seen": "2026-03-03 12:21:01",
+      "last_seen": "2026-03-03 12:21:45"
+    }
+  ],
+  "formatted": "\nTotal Calls: 8231\nTotal Credits: 57335\nSource Files: 2\nUnique Methods: 2\n\n========================================================================================================================\nMETHOD                                   SOURCE                         CALLS    CREDITS   \n------------------------------------------------------------------------------------------------------------------------\nhelius_enhanced_transactions_batch       unknown                        457      45700     \ngetSignaturesForAddress                  creator_outgoing_extractor     7735     7735      \nhelius_enhanced_transactions_batch       creator_outgoing_extractor     39       3900      \n"
+}

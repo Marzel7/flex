@@ -304,6 +304,7 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
                 latency_ms=latency_ms,
                 mode="realtime",
                 retries=attempt,
+                source_file="funder_incoming_extractor",
             )
 
             # Log the RPC call for debugging

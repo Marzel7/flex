@@ -72,24 +72,73 @@ def setup_webhook_routes(app):
         if last_block_time:
             last_webhook = datetime.utcfromtimestamp(last_block_time).strftime('%Y-%m-%dT%H:%M:%S')
 
-        # Recent transfers (last 10)
+        # Recent transfers (last 10) with creator status and labels
         cur.execute("""
-            SELECT source, destination, amount_sol, signature, block_time
-            FROM sol_transfers
-            ORDER BY block_time DESC
+            SELECT st.source, st.destination, st.amount_sol, st.signature, st.block_time,
+                   CASE WHEN EXISTS (
+                       SELECT 1 FROM helius_webhook_assignments hwa
+                       WHERE hwa.creator_address = st.source
+                   ) THEN 1 ELSE 0 END as sender_is_creator,
+                   CASE WHEN EXISTS (
+                       SELECT 1 FROM helius_webhook_assignments hwa
+                       WHERE hwa.creator_address = st.destination
+                   ) THEN 1 ELSE 0 END as receiver_is_creator
+            FROM sol_transfers st
+            ORDER BY st.block_time DESC
             LIMIT 10
         """)
         recent_rows = cur.fetchall()
-        recent_transfers = [
-            {
-                "sender": row[0],
-                "receiver": row[1],
+
+        recent_transfers = []
+        for row in recent_rows:
+            source = row[0]
+            dest = row[1]
+
+            # Look up labels for sender (priority: custom > CEX > INFRA)
+            sender_label = None
+            cur.execute("SELECT label_name FROM address_labels WHERE address = ? LIMIT 1", (source,))
+            r = cur.fetchone()
+            if r:
+                sender_label = r[0]
+            else:
+                cur.execute("SELECT exchange_name FROM cex_wallets WHERE cex_address = ? LIMIT 1", (source,))
+                r = cur.fetchone()
+                if r:
+                    sender_label = f"{r[0]} (CEX)"
+                else:
+                    cur.execute("SELECT 1 FROM infra_funders_observed WHERE funder_address = ? LIMIT 1", (source,))
+                    if cur.fetchone():
+                        sender_label = "INFRA"
+
+            # Look up labels for receiver (same priority)
+            receiver_label = None
+            cur.execute("SELECT label_name FROM address_labels WHERE address = ? LIMIT 1", (dest,))
+            r = cur.fetchone()
+            if r:
+                receiver_label = r[0]
+            else:
+                cur.execute("SELECT exchange_name FROM cex_wallets WHERE cex_address = ? LIMIT 1", (dest,))
+                r = cur.fetchone()
+                if r:
+                    receiver_label = f"{r[0]} (CEX)"
+                else:
+                    cur.execute("SELECT 1 FROM infra_funders_observed WHERE funder_address = ? LIMIT 1", (dest,))
+                    if cur.fetchone():
+                        receiver_label = "INFRA"
+
+            recent_transfers.append({
+                "sender": sender_label or source,
+                "receiver": receiver_label or dest,
+                "sender_address": source,
+                "receiver_address": dest,
                 "amount_sol": round(row[2], 9),
                 "signature": row[3],
-                "timestamp": row[4]
-            }
-            for row in recent_rows
-        ]
+                "timestamp": row[4],
+                "sender_is_creator": bool(row[5]),
+                "receiver_is_creator": bool(row[6]),
+                "sender_has_label": bool(sender_label),
+                "receiver_has_label": bool(receiver_label)
+            })
 
         # Stats from work_queue
         cur.execute("SELECT COUNT(*) as cnt FROM work_queue")
@@ -115,7 +164,62 @@ def setup_webhook_routes(app):
             "high_priority_count": high_priority,
         }), 200
 
-    print("[WEBHOOK_INTEGRATION] Routes registered: /helius/webhook, /api/webhook/status", flush=True)
+    @app.route("/api/webhook/usage-snapshot", methods=["GET"])
+    def webhook_usage_snapshot_route():
+        """GET /api/webhook/usage-snapshot - Helius webhook usage metrics"""
+        import sqlite3
+        import os
+        from datetime import datetime
+
+        db_path = os.getenv("FLEX_DB_PATH", "flex_complete_database.db")
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+
+        cur = conn.cursor()
+
+        # Get latest usage snapshot from helius_usage_snapshots table
+        cur.execute("""
+            SELECT timestamp, credits_remaining, credits_used, credits_used_month, project_id
+            FROM helius_usage_snapshots
+            ORDER BY timestamp DESC
+            LIMIT 1
+        """)
+        usage_row = cur.fetchone()
+
+        # Get webhook stats
+        cur.execute("SELECT COUNT(DISTINCT signature) as cnt FROM sol_transfers")
+        total_webhooks = cur.fetchone()[0]
+
+        conn.close()
+
+        response = {
+            "ok": True,
+            "timestamp": datetime.utcnow().isoformat(),
+            "project_id": os.getenv("HELIUS_PROJECT_ID", "unknown"),
+            "webhook_usage": {
+                "total_webhooks_received": total_webhooks,
+            }
+        }
+
+        if usage_row:
+            response["credits"] = {
+                "remaining": usage_row["credits_remaining"],
+                "used": usage_row["credits_used"],
+                "used_this_month": usage_row["credits_used_month"],
+                "snapshot_timestamp": usage_row["timestamp"]
+            }
+        else:
+            response["credits"] = {
+                "remaining": None,
+                "used": None,
+                "used_this_month": None,
+                "snapshot_timestamp": None,
+                "note": "No usage snapshots recorded yet. Run: python helius_usage_cli.py update <remaining> <used> <used_month>"
+            }
+
+        return jsonify(response), 200
+
+    print("[WEBHOOK_INTEGRATION] Routes registered: /helius/webhook, /api/webhook/status, /api/webhook/usage-snapshot", flush=True)
 
 
 def start_webhook_worker(daemon=True):

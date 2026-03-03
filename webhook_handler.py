@@ -104,6 +104,25 @@ def ensure_webhook_tables():
     cur.execute("CREATE INDEX IF NOT EXISTS idx_work_queue_priority ON work_queue(priority DESC)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_work_queue_next_run ON work_queue(next_run_at ASC)")
 
+    # creator_analysis_queue - Background analysis of creator addresses from webhooks
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS creator_analysis_queue (
+            creator_address TEXT PRIMARY KEY,
+            priority REAL DEFAULT 0.0,
+            status TEXT DEFAULT 'pending',
+            last_analyzed_at INTEGER,
+            next_analysis_at INTEGER DEFAULT 0,
+            locked_until INTEGER DEFAULT 0,
+            attempts INTEGER DEFAULT 0,
+            findings_cached TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_creator_analysis_status ON creator_analysis_queue(status)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_creator_analysis_priority ON creator_analysis_queue(priority DESC)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_creator_analysis_next ON creator_analysis_queue(next_analysis_at ASC)")
+
     conn.commit()
     conn.close()
 
@@ -414,6 +433,36 @@ def enqueue_work(conn: sqlite3.Connection, addresses: List[str], reason: str):
 # WEBHOOK HANDLER (Flask Route)
 # ============================================================================
 
+def queue_for_creator_analysis(conn: sqlite3.Connection, addresses: List[str], priority: float = 10.0):
+    """
+    Queue addresses for background creator analysis.
+    
+    Called whenever new addresses are detected from webhooks.
+    Analysis includes malicious activity detection, funding networks, etc.
+    
+    Args:
+        conn: Database connection
+        addresses: List of creator addresses to analyze
+        priority: Priority score (higher = analyze sooner)
+    """
+    cur = conn.cursor()
+    now = int(time.time())
+    
+    for addr in addresses:
+        try:
+            cur.execute("""
+                INSERT INTO creator_analysis_queue 
+                (creator_address, priority, status, next_analysis_at, updated_at)
+                VALUES (?, ?, 'pending', ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(creator_address) DO UPDATE SET
+                    priority = MAX(priority, ?),
+                    status = CASE WHEN status = 'analyzing' THEN status ELSE 'pending' END,
+                    updated_at = CURRENT_TIMESTAMP
+            """, (addr, priority, now, priority))
+        except Exception as e:
+            print(f"[WEBHOOK_ANALYSIS_QUEUE] Error queueing {addr[:8]}...: {e}", flush=True)
+
+
 def handle_helius_webhook(request_obj) -> Tuple[str, int]:
     """
     Flask route handler for POST /helius/webhook
@@ -429,17 +478,20 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
     """
     now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
+    # Log webhook received IMMEDIATELY - before any processing
+    print(f"[WEBHOOK_RECEIVED] {now} - Event received from Helius", flush=True)
+
     # Validate auth if required
     if not validate_auth_header(request_obj):
-        print(f"[WEBHOOK] {now} - Auth validation failed", flush=True)
+        print(f"[WEBHOOK] {now} - Auth failed", flush=True)
         return ("unauthorized", 401)
 
     # Parse payload (list or dict)
     try:
         payload = request_obj.get_json(silent=True)
     except Exception as e:
-        print(f"[WEBHOOK] {now} - JSON parse error: {e}", flush=True)
-        return ("ok", 200)  # Don't retry on bad JSON
+        print(f"[WEBHOOK] {now} - Parse error: {e}", flush=True)
+        return ("ok", 200)
 
     if not payload:
         print(f"[WEBHOOK] {now} - Empty payload", flush=True)
@@ -452,7 +504,7 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
         print(f"[WEBHOOK] {now} - Invalid payload type: {type(payload)}", flush=True)
         return ("ok", 200)
 
-    print(f"[WEBHOOK] {now} - Received {len(payload)} transaction(s)", flush=True)
+    print(f"[WEBHOOK] {now} - Processing {len(payload)} transaction(s)", flush=True)
 
     # Process all transactions
     conn = get_webhook_db()
@@ -471,7 +523,6 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
         transfers = extract_system_transfers(tx)
 
         if not transfers:
-            print(f"[WEBHOOK] {now} - TX {i}: No SOL transfers found", flush=True)
             skipped += 1
             continue
 
@@ -483,7 +534,22 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
             # Filter out dust transfers (< 0.001 SOL)
             MIN_SOL = 0.001
             if amount_sol < MIN_SOL:
-                print(f"[WEBHOOK] {now} - DUST: {sig_out[:16]}... ({amount_sol:.9f} SOL < {MIN_SOL} SOL)", flush=True)
+                print(f"[WEBHOOK_DUST] {now} - DUST: {sig_out[:16]}... ({amount_sol:.9f} SOL < {MIN_SOL} SOL)", flush=True)
+                skipped += 1
+                continue
+
+            # Accept both inbound and outbound transfers involving creators
+            # (source = creator OR destination = creator)
+            cur.execute("""
+                SELECT 1 FROM helius_webhook_assignments
+                WHERE creator_address = ? OR creator_address = ?
+                LIMIT 1
+            """, (source, dest))
+
+            is_creator_involved = cur.fetchone() is not None
+
+            if not is_creator_involved:
+                print(f"[WEBHOOK_SKIP_NON_CREATOR] {now} - SKIP: {source[:8]}... → {dest[:8]}... (no creators involved)", flush=True)
                 skipped += 1
                 continue
 
@@ -497,7 +563,7 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
 
                 if cur.rowcount > 0:
                     stored += 1
-                    print(f"[WEBHOOK] {now} - STORED: {source[:8]}... → {dest[:8]}... ({amount_sol:.9f} SOL)", flush=True)
+                    print(f"[WEBHOOK_STORED] {now} - STORED: {source[:8]}... → {dest[:8]}... ({amount_sol:.9f} SOL)", flush=True)
 
                     # Update activity for both addresses
                     update_address_activity(conn, source, True, amount_sol, block_time)
@@ -506,26 +572,40 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
                     # Save to creator_tx_ledger if destination is a watched creator
                     save_creator_signatures(conn, dest, sig_out, block_time, lamports)
 
-                    # Track for queueing
-                    all_addresses.add(source)
-                    all_addresses.add(dest)
+                    # Queue creators involved in the transfer
+                    # If source is a creator, queue them (outbound)
+                    # If destination is a creator, queue them (inbound)
+                    cur.execute("""
+                        SELECT 1 FROM helius_webhook_assignments
+                        WHERE creator_address = ?
+                    """, (source,))
+                    if cur.fetchone():
+                        all_addresses.add(source)
+
+                    cur.execute("""
+                        SELECT 1 FROM helius_webhook_assignments
+                        WHERE creator_address = ?
+                    """, (dest,))
+                    if cur.fetchone():
+                        all_addresses.add(dest)
                 else:
-                    print(f"[WEBHOOK] {now} - DUPLICATE: {sig_out[:16]}...", flush=True)
+                    print(f"[WEBHOOK_DUPLICATE] {now} - DUPLICATE: {sig_out[:16]}...", flush=True)
 
             except Exception as e:
-                print(f"[WEBHOOK] {now} - Insert error for {sig_out[:16]}...: {e}", flush=True)
+                print(f"[WEBHOOK] {now} - Error: {e}", flush=True)
                 continue
 
-    # Enqueue all touched addresses
+    # Enqueue only destination addresses (creators) for background analysis
     if all_addresses:
         enqueue_work(conn, list(all_addresses), "new_transfer")
-        print(f"[WEBHOOK] {now} - Queued {len(all_addresses)} addresses", flush=True)
+        queue_for_creator_analysis(conn, list(all_addresses), priority=15.0)
 
     # Commit and close
     conn.commit()
     conn.close()
 
-    print(f"[WEBHOOK] {now} - SUMMARY: stored={stored}, duplicates=?, skipped={skipped}", flush=True)
+    print(f"[WEBHOOK_SUMMARY] {now} - stored={stored}, skipped={skipped}, queued={len(all_addresses)}", flush=True)
+
     return ("ok", 200)
 
 

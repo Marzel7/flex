@@ -544,17 +544,14 @@ async def helius_enhanced_parse(session: aiohttp.ClientSession, sigs: List[str])
 
                 ENH_SUCCESS += 1
                 data = await resp.json()
-                # Record request with batch multiplier (Helius charges per-transaction)
-                batch_size = len(sigs)
-                for i in range(batch_size):
-                    record_request(
-                        section="creator_outgoing_scan",
-                        provider="helius_enhanced",
-                        method="helius_enhanced_transactions_batch",
-                        status_code=resp.status,
-                        latency_ms=latency_ms,
-                        mode="background",
-                    )
+                record_request(
+                    section="creator_outgoing_scan",
+                    provider="helius_enhanced",
+                    method="helius_enhanced_transactions_batch",
+                    status_code=resp.status,
+                    latency_ms=latency_ms,
+                    mode="background",
+                )
 
                 if isinstance(data, dict) and "result" in data:
                     data = data["result"]

@@ -44,7 +44,11 @@ except ImportError:
 DB_PATH = "flex_complete_database.db"
 # FIX #6: Remove hardcoded API key fallback — fail safe instead
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()
-USE_HELIUS = bool(HELIUS_API_KEY)
+HELIUS_MONITORING_API_KEY = os.getenv("HELIUS_MONITORING_API_KEY", "").strip()
+
+# Use monitoring key if available, fall back to regular key
+_RPC_KEY = HELIUS_MONITORING_API_KEY or HELIUS_API_KEY
+USE_HELIUS = bool(_RPC_KEY)
 
 # SNS Domain Resolver Configuration
 SNS_API_BASE = "https://sns-api.bonfida.com"
@@ -55,7 +59,7 @@ DOMAIN_CACHE_TTL_SECS = 7 * 24 * 60 * 60  # 7 days local TTL
 # RPC Configuration: Use Helius + Public Solana only (QuickNode removed)
 RPC_URLS = []
 if USE_HELIUS:
-    RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}")
+    RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={_RPC_KEY}")
 RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
 
 MAX_CONCURRENT_RPC = 8  # FIX #8: Bound RPC concurrency (was unused BATCH_SIZE = 10)
@@ -1536,7 +1540,7 @@ class RealTimeCreatorFundingExtractor:
 
             # Try Helius RPC first (more reliable), then fallback to public RPC
             rpc_urls = [
-                f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}",  # Helius first
+                f"https://mainnet.helius-rpc.com/?api-key={_RPC_KEY}",  # Helius first
                 "https://api.mainnet-beta.solana.com"  # Public fallback
             ]
 

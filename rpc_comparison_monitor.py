@@ -49,10 +49,15 @@ def get_initial_state() -> Tuple[int, int]:
     cur = conn.cursor()
 
     try:
-        # Get last local metrics (from API which tracks real-time)
-        resp = requests.get(API_URL, timeout=5)
-        metrics = resp.json()
-        local_start = metrics.get('summary', {}).get('credits_instrumented_today', 0)
+        # Get local metrics from DATABASE (persistent cross-process)
+        # Query rpc_metrics table directly to get accurate credits
+        cur.execute("""
+            SELECT SUM(credits) as total_credits
+            FROM rpc_metrics
+            WHERE timestamp IS NOT NULL
+        """)
+        row = cur.fetchone()
+        local_start = int(row[0]) if row and row[0] else 0
     except:
         local_start = 0
 
@@ -72,38 +77,40 @@ def get_initial_state() -> Tuple[int, int]:
     return local_start, helius_start
 
 def get_current_metrics() -> Tuple[Dict, Dict]:
-    """Fetch current metrics from API"""
-    try:
-        resp = requests.get(API_URL, timeout=5)
-        metrics = resp.json()
-        summary = metrics.get('summary', {})
-    except:
-        summary = {}
+    """Fetch current metrics from database (persistent)"""
+    conn = _connect()
+    cur = conn.cursor()
 
+    # Get local metrics from DATABASE (persistent cross-process tracking)
+    local_total = 0
     try:
-        resp = requests.get(HELIUS_API_URL, timeout=5)
-        helius_data = resp.json()
-        # Get the latest snapshot from the database instead of from API
-        # because the API returns a single snapshot, but we need to track deltas
-        conn = _connect()
-        cur = conn.cursor()
-        try:
-            cur.execute("""
-                SELECT credits_used FROM helius_usage_snapshots
-                WHERE timestamp IS NOT NULL
-                ORDER BY timestamp DESC LIMIT 1
-            """)
-            row = cur.fetchone()
-            helius_snapshot = helius_data.get('helius_snapshot', {})
-            if row:
-                helius_snapshot['credits_used'] = row[0]
-        except:
-            helius_snapshot = helius_data.get('helius_snapshot', {})
-        finally:
-            conn.close()
+        cur.execute("""
+            SELECT SUM(credits) as total_credits
+            FROM rpc_metrics
+            WHERE timestamp IS NOT NULL
+        """)
+        row = cur.fetchone()
+        local_total = int(row[0]) if row and row[0] else 0
     except:
-        helius_snapshot = {}
+        local_total = 0
 
+    summary = {'credits_instrumented_today': local_total}
+
+    # Get Helius snapshot from database
+    helius_snapshot = {}
+    try:
+        cur.execute("""
+            SELECT credits_used FROM helius_usage_snapshots
+            WHERE timestamp IS NOT NULL
+            ORDER BY timestamp DESC LIMIT 1
+        """)
+        row = cur.fetchone()
+        if row:
+            helius_snapshot['credits_used'] = row[0]
+    except:
+        pass
+
+    conn.close()
     return summary, helius_snapshot
 
 def format_comparison(

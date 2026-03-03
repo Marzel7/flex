@@ -1,0 +1,5 @@
+#!/bin/bash
+# Kill the Flask application
+
+pkill -f "python.*main.py" || echo "No Flask process found"
+echo "Flask app terminated"

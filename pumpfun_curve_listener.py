@@ -49,7 +49,7 @@ def get_migration_setting(key: str, default=True) -> bool:
     try:
         # Try database first (listener_settings table)
         import sqlite3
-        if key in ['listen_to_launches', 'listen_to_price_updates', 'auto_extract_funding']:
+        if key in ['listen_to_launches', 'listen_to_price_updates', 'auto_extract_funding', 'auto_extract_funders']:
             conn = sqlite3.connect('flex_complete_database.db', timeout=5)
             cursor = conn.cursor()
             try:
@@ -1924,11 +1924,14 @@ class PumpFunCurveListener:
                     except Exception as e:
                         print(f"[FUNDING] ⚠️ Error in creator funding extraction: {e}", flush=True)
 
-                    # Extract funder transfers
+                    # Extract funder transfers (respects auto_extract_funders toggle)
                     try:
-                        print(f"[FUNDER_EXTRACTION] ⏳ Starting funder transfer extraction for {earliest_creator[:8]}...", flush=True)
-                        await extract_funder_transfers_async(earliest_creator)
-                        print(f"[FUNDER_EXTRACTION] ✅ Funder transfer extraction complete", flush=True)
+                        if get_migration_setting('auto_extract_funders', False):
+                            print(f"[FUNDER_EXTRACTION] ⏳ Starting funder transfer extraction for {earliest_creator[:8]}...", flush=True)
+                            await extract_funder_transfers_async(earliest_creator)
+                            print(f"[FUNDER_EXTRACTION] ✅ Funder transfer extraction complete", flush=True)
+                        else:
+                            print(f"[FUNDER_EXTRACTION] ⏭️ Skipped (auto_extract_funders toggle is OFF)", flush=True)
                     except Exception as e:
                         print(f"[FUNDER_EXTRACTION] ⚠️ Error in funder extraction: {e}", flush=True)
 

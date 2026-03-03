@@ -18227,6 +18227,83 @@ def api_webhook_status():
         return {"ok": False, "error": str(e)}, 500
 
 
+@app.route('/api/creator-queue-status')
+def api_creator_queue_status():
+    """
+    Get creator queue monitoring metrics.
+
+    Returns:
+    - total_in_queue: Total creators in work_queue
+    - critical_count: Creators with priority >= 80
+    - currently_processing: Creators currently locked
+    - never_checked: Creators with attempts = 0
+    - top_creators: Top 10 highest priority creators
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cur = conn.cursor()
+
+        # Get queue overview stats
+        now = int(__import__('time').time())
+
+        cur.execute("SELECT COUNT(*) FROM work_queue")
+        total_in_queue = cur.fetchone()[0]
+
+        cur.execute("SELECT COUNT(*) FROM work_queue WHERE priority >= 80")
+        critical_count = cur.fetchone()[0]
+
+        cur.execute(f"SELECT COUNT(*) FROM work_queue WHERE locked_until > {now}")
+        currently_processing = cur.fetchone()[0]
+
+        cur.execute("SELECT COUNT(*) FROM work_queue WHERE attempts = 0")
+        never_checked = cur.fetchone()[0]
+
+        # Get top 10 priority creators
+        cur.execute("""
+            SELECT address, ROUND(priority, 1),
+                   CASE
+                       WHEN locked_until > ? THEN 'PROCESSING'
+                       WHEN next_run_at <= ? THEN 'READY'
+                       ELSE 'WAITING'
+                   END as status,
+                   attempts, reason, locked_until, next_run_at
+            FROM work_queue
+            ORDER BY priority DESC
+            LIMIT 10
+        """, (now, now))
+
+        top_creators = []
+        for row in cur.fetchall():
+            top_creators.append({
+                "address": row[0],
+                "priority": row[1],
+                "status": row[2],
+                "attempts": row[3],
+                "reason": row[4],
+                "locked_until": row[5],
+                "next_run_at": row[6]
+            })
+
+        conn.close()
+
+        return {
+            "ok": True,
+            "total_in_queue": total_in_queue,
+            "critical_count": critical_count,
+            "currently_processing": currently_processing,
+            "never_checked": never_checked,
+            "top_creators": top_creators
+        }
+
+    except Exception as e:
+        try:
+            conn.close()
+        except:
+            pass
+        print(f"[QUEUE_STATUS] Error: {e}", flush=True)
+        return {"ok": False, "error": str(e)}, 500
+
+
 @app.route('/webhook-monitor')
 def webhook_monitor():
     """
@@ -18515,6 +18592,39 @@ def webhook_monitor():
             <div class="transfers-table" id="transfers">
                 <div class="loading">Loading transfers...</div>
             </div>
+
+            <div class="section-title">📋 Creator Queue Status</div>
+            <div class="metrics-grid" id="queue-metrics">
+                <div class="metric-card">
+                    <div class="metric-label">Total in Queue</div>
+                    <div class="metric-value loading">
+                        <span class="spinner"></span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Critical Priority</div>
+                    <div class="metric-value loading">
+                        <span class="spinner"></span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Currently Processing</div>
+                    <div class="metric-value loading">
+                        <span class="spinner"></span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Never Checked</div>
+                    <div class="metric-value loading">
+                        <span class="spinner"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title">Top Priority Creators</div>
+            <div class="transfers-table" id="queue-table">
+                <div class="loading">Loading queue...</div>
+            </div>
         </div>
 
         <script>
@@ -18542,7 +18652,7 @@ def webhook_monitor():
                     const data = await response.json();
 
                     if (!data.ok) {
-                        document.getElementById('error-container').innerHTML = 
+                        document.getElementById('error-container').innerHTML =
                             '<div class="error">Error loading status: ' + (data.error || 'Unknown error') + '</div>';
                         return;
                     }
@@ -18580,7 +18690,7 @@ def webhook_monitor():
                     // Update transfers table
                     if (data.recent_transfers && data.recent_transfers.length > 0) {
                         let tableHtml = '<table><thead><tr><th>Sender</th><th>Receiver</th><th>Amount</th><th>TX Hash</th><th>Time</th></tr></thead><tbody>';
-                        
+
                         for (const transfer of data.recent_transfers) {
                             tableHtml += `
                                 <tr>
@@ -18592,16 +18702,96 @@ def webhook_monitor():
                                 </tr>
                             `;
                         }
-                        
+
                         tableHtml += '</tbody></table>';
                         document.getElementById('transfers').innerHTML = tableHtml;
                     } else {
                         document.getElementById('transfers').innerHTML = '<div class="loading">No transfers yet</div>';
                     }
 
+                    // Load queue status
+                    await loadQueueStatus();
+
                 } catch (error) {
-                    document.getElementById('error-container').innerHTML = 
+                    document.getElementById('error-container').innerHTML =
                         '<div class="error">Connection error: ' + error.message + '</div>';
+                }
+            }
+
+            async function loadQueueStatus() {
+                try {
+                    const response = await fetch('/api/creator-queue-status');
+                    const data = await response.json();
+
+                    if (!data.ok) {
+                        console.error('Queue status error:', data.error);
+                        return;
+                    }
+
+                    // Update queue metrics
+                    const queueMetricsHtml = `
+                        <div class="metric-card">
+                            <div class="metric-label">Total in Queue</div>
+                            <div class="metric-value">${data.total_in_queue}</div>
+                            <div class="metric-subtext">Creators awaiting processing</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Critical Priority</div>
+                            <div class="metric-value">${data.critical_count}</div>
+                            <div class="metric-subtext">Priority ≥ 80</div>
+                            <div class="metric-status ${data.critical_count > 0 ? 'status-active' : 'status-idle'}">
+                                ${data.critical_count > 0 ? '🔴 Active' : '⚪ None'}
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Currently Processing</div>
+                            <div class="metric-value">${data.currently_processing}</div>
+                            <div class="metric-subtext">Locked by worker</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Never Checked</div>
+                            <div class="metric-value">${data.never_checked}</div>
+                            <div class="metric-subtext">Attempts = 0</div>
+                        </div>
+                    `;
+                    document.getElementById('queue-metrics').innerHTML = queueMetricsHtml;
+
+                    // Update queue table
+                    if (data.top_creators && data.top_creators.length > 0) {
+                        let tableHtml = '<table><thead><tr><th>Creator Address</th><th>Priority</th><th>Status</th><th>Attempts</th><th>Reason</th></tr></thead><tbody>';
+
+                        for (const creator of data.top_creators) {
+                            let statusBadge = '⚪ WAITING';
+                            let statusColor = '#9ca3af';
+
+                            if (creator.locked_until > Date.now() / 1000) {
+                                statusBadge = '🔒 PROCESSING';
+                                statusColor = '#f59e0b';
+                            } else if (creator.next_run_at <= Date.now() / 1000) {
+                                statusBadge = '✅ READY';
+                                statusColor = '#22c55e';
+                            }
+
+                            tableHtml += `
+                                <tr>
+                                    <td><span class="address">${creator.address.substring(0, 12)}...</span></td>
+                                    <td><span style="color: ${creator.priority >= 80 ? '#ef4444' : creator.priority >= 60 ? '#f59e0b' : '#22c55e'}; font-weight: bold;">${creator.priority.toFixed(1)}</span></td>
+                                    <td><span style="color: ${statusColor};">${statusBadge}</span></td>
+                                    <td>${creator.attempts}</td>
+                                    <td><span style="color: #9ca3af; font-size: 11px;">${creator.reason}</span></td>
+                                </tr>
+                            `;
+                        }
+
+                        tableHtml += '</tbody></table>';
+                        document.getElementById('queue-table').innerHTML = tableHtml;
+                    } else {
+                        document.getElementById('queue-table').innerHTML = '<div class="loading">Queue is empty</div>';
+                    }
+
+                } catch (error) {
+                    console.error('Queue status fetch error:', error);
+                    document.getElementById('queue-table').innerHTML = '<div class="loading">Could not load queue status</div>';
                 }
             }
 

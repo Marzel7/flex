@@ -114,12 +114,11 @@ def ensure_webhook_tables():
 
 def extract_system_transfers(tx: Dict) -> List[Tuple[str, str, int, str, int, int]]:
     """
-    Extract native SOL transfers from a Solana transaction object.
+    Extract native SOL transfers from RAW Helius webhooks.
 
-    Parses System Program transfer instructions from the transaction.
-
-    Returns:
-        List of tuples: (source, destination, lamports, signature, slot, block_time)
+    Supports:
+    1. Parsed format (enhanced webhooks)
+    2. RAW format with preBalances/postBalances (raw webhooks)
     """
     transfers = []
 
@@ -152,7 +151,54 @@ def extract_system_transfers(tx: Dict) -> List[Tuple[str, str, int, str, int, in
     if not account_keys:
         return []
 
-    # Parse each instruction
+    # For RAW webhooks: parse System Program transfer instructions
+    meta = tx.get("meta", {})
+    pre_balances = meta.get("preBalances", [])
+    post_balances = meta.get("postBalances", [])
+
+    # Look for System Program transfer instructions
+    for instr in instructions:
+        if not isinstance(instr, dict):
+            continue
+
+        program_idx = instr.get("programIdIndex")
+        if program_idx is None or program_idx >= len(account_keys):
+            continue
+
+        # Check if System Program
+        program = account_keys[program_idx]
+        if program != "11111111111111111111111111111111":
+            continue
+
+        # Get accounts involved in this instruction
+        instr_accounts = instr.get("accounts", [])
+        if len(instr_accounts) < 2:
+            continue
+
+        # For System Program transfer: accounts[0] = source, accounts[1] = destination
+        source_idx = instr_accounts[0]
+        dest_idx = instr_accounts[1]
+
+        if source_idx >= len(account_keys) or dest_idx >= len(account_keys):
+            continue
+
+        source = account_keys[source_idx]
+        destination = account_keys[dest_idx]
+
+        # Get balance change
+        if pre_balances and post_balances and len(pre_balances) > source_idx:
+            source_sent = pre_balances[source_idx] - post_balances[source_idx]
+            dest_received = post_balances[dest_idx] - pre_balances[dest_idx]
+
+            # Use the amount that matches (receiver's increase is more reliable)
+            if dest_received > 0:
+                transfers.append((source, destination, dest_received, sig, slot, block_time))
+                break  # Got the transfer instruction
+
+    if transfers:
+        return transfers
+
+    # Fallback to parsed format (enhanced webhooks)
     for instr in instructions:
         if not isinstance(instr, dict):
             continue
@@ -162,7 +208,7 @@ def extract_system_transfers(tx: Dict) -> List[Tuple[str, str, int, str, int, in
         if program_idx is None:
             continue
 
-        # System Program is usually at index 0
+        # System Program is usually at index 0 or 2
         if program_idx < len(account_keys):
             program = account_keys[program_idx]
             # System program address
@@ -171,7 +217,7 @@ def extract_system_transfers(tx: Dict) -> List[Tuple[str, str, int, str, int, in
         else:
             continue
 
-        # Look for parsed format (preferred)
+        # Look for parsed format (enhanced)
         parsed = instr.get("parsed", {})
         if parsed:
             instr_type = parsed.get("type")

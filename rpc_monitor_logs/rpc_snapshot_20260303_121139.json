@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-03-03T12:11:39.355126",
+  "iteration": 15,
+  "summary": {
+    "total_calls": 6202,
+    "total_credits": 51445,
+    "source_files": 2,
+    "unique_methods": 2
+  },
+  "metrics": [
+    {
+      "method": "helius_enhanced_transactions_batch",
+      "source_file": "unknown",
+      "calls": 457,
+      "total_credits": 45700,
+      "first_seen": "2026-03-03 10:38:30",
+      "last_seen": "2026-03-03 11:39:48"
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "source_file": "creator_outgoing_extractor",
+      "calls": 5745,
+      "total_credits": 5745,
+      "first_seen": "2026-03-03 10:36:19",
+      "last_seen": "2026-03-03 12:11:39"
+    }
+  ],
+  "formatted": "\nTotal Calls: 6202\nTotal Credits: 51445\nSource Files: 2\nUnique Methods: 2\n\n========================================================================================================================\nMETHOD                                   SOURCE                         CALLS    CREDITS   \n------------------------------------------------------------------------------------------------------------------------\nhelius_enhanced_transactions_batch       unknown                        457      45700     \ngetSignaturesForAddress                  creator_outgoing_extractor     5745     5745      \n"
+}

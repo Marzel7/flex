@@ -652,29 +652,6 @@ def record_request(
         section, provider, method, status_code, latency_ms, mode, retries, bytes_in, bytes_out, source_file, error
     )
 
-    # Also POST to API if running on localhost:8001 (for multi-process support)
-    try:
-        import requests
-        requests.post(
-            'http://localhost:8001/metrics/rpc/record',
-            json={
-                'section': section,
-                'provider': provider,
-                'method': method,
-                'status_code': status_code,
-                'latency_ms': latency_ms,
-                'mode': mode,
-                'retries': retries,
-                'source_file': source_file,
-                'bytes_in': bytes_in,
-                'bytes_out': bytes_out,
-                'error': error,
-            },
-            timeout=1
-        )
-    except Exception:
-        pass  # Fail silently if API not available
-
     return credits
 
 

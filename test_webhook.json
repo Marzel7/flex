@@ -1,0 +1,36 @@
+[{
+  "blockTime": 1772552700,
+  "indexWithinBlock": 1,
+  "meta": {
+    "err": null,
+    "fee": 5000,
+    "innerInstructions": [],
+    "loadedAddresses": {"readonly": [], "writable": []},
+    "logMessages": [],
+    "postBalances": [1000000000, 500000000, 1, 1],
+    "postTokenBalances": [],
+    "preBalances": [1000005000, 0, 1, 1],
+    "preTokenBalances": [],
+    "rewards": []
+  },
+  "slot": 403967423,
+  "transaction": {
+    "message": {
+      "accountKeys": [
+        "TestCreatorXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+        "TestRecipientXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+        "11111111111111111111111111111111",
+        "ComputeBudget111111111111111111111111111111"
+      ],
+      "addressTableLookups": null,
+      "header": {"numReadonlySignedAccounts": 0, "numReadonlyUnsignedAccounts": 2, "numRequiredSignatures": 1},
+      "instructions": [
+        {"accounts": [], "data": "3b1H8Rq1T3d1", "programIdIndex": 3},
+        {"accounts": [0, 1], "data": "3Bxs4Ba2u7BkmhYB", "programIdIndex": 2}
+      ],
+      "recentBlockhash": "TestHashXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    "signatures": ["TestSigXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"]
+  },
+  "version": "legacy"
+}]

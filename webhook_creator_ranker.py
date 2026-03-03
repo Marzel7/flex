@@ -193,7 +193,7 @@ def score_distribution_pattern(conn: sqlite3.Connection, address: str) -> Tuple[
     cur.execute("""
         SELECT
             COUNT(*) as outgoing_count,
-            COUNT(DISTINCT recipient_address) as recipient_count
+            COUNT(DISTINCT destination) as recipient_count
         FROM sol_transfers
         WHERE source = ?
     """, (address,))
@@ -227,11 +227,11 @@ def score_concentration_risk(conn: sqlite3.Connection, address: str) -> Tuple[in
     # Find concentration of transfers
     cur.execute("""
         SELECT
-            recipient_address,
+            destination,
             SUM(amount_sol) as total_sent
         FROM sol_transfers
         WHERE source = ?
-        GROUP BY recipient_address
+        GROUP BY destination
         ORDER BY total_sent DESC
         LIMIT 1
     """, (address,))

@@ -18319,7 +18319,7 @@ def webhook_monitor():
 
             async function loadStatus() {
                 try {
-                    const response = await fetch('/api/webhook-status');
+                    const response = await fetch('/api/webhook/status');
                     const data = await response.json();
 
                     if (!data.ok) {

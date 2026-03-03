@@ -273,12 +273,8 @@ def process_work_item(conn: sqlite3.Connection, address: str, priority: float, r
     cur = conn.cursor()
     now = int(time.time())
 
-    print(f"[WORKER] Processing {address[:8]}... (priority={priority:.1f}, reason={reason})", flush=True)
-
     # Recompute priority with latest DB signals
     computed_priority, reasons = compute_priority(conn, address)
-
-    print(f"[WORKER] {address[:8]}... computed_priority={computed_priority:.1f} ({reasons})", flush=True)
 
     # Apply RPC guardrails
     should_rpc = False
@@ -301,13 +297,6 @@ def process_work_item(conn: sqlite3.Connection, address: str, priority: float, r
             if RPC_CALLS_THIS_HOUR < MAX_RPC_CALLS_PER_HOUR:
                 should_rpc = True
                 RPC_CALLS_THIS_HOUR += 1
-                print(f"[WORKER] {address[:8]}... RPC ALLOWED (calls_hour={RPC_CALLS_THIS_HOUR})", flush=True)
-            else:
-                print(f"[WORKER] {address[:8]}... RPC rate limit hit", flush=True)
-        else:
-            print(f"[WORKER] {address[:8]}... RPC cooldown (last was {now - last_rpc}s ago)", flush=True)
-    else:
-        print(f"[WORKER] {address[:8]}... priority too low for RPC ({computed_priority:.1f} < {RPC_MIN_PRIORITY})", flush=True)
 
     # ---- DO NOT CALL ENHANCED TRANSACTIONS ----
     # If RPC needed, would call something like:
@@ -315,13 +304,7 @@ def process_work_item(conn: sqlite3.Connection, address: str, priority: float, r
     #   - simple getAccountInfo
     # Never call /v0/transactions
 
-    # For now, just log what we would do
     if should_rpc:
-        print(f"[WORKER] {address[:8]}... [RPC] Would call getSignaturesForAddress", flush=True)
-        # In real implementation:
-        # results = rpc_client.get_signatures_for_address(address, limit=100)
-        # ... process results ...
-
         cur.execute("""
             UPDATE address_activity
             SET last_rpc_fetch_at = ?
@@ -333,9 +316,8 @@ def process_work_item(conn: sqlite3.Connection, address: str, priority: float, r
     try:
         from webhook_creator_ranker import compute_creator_risk_score
         risk_score = compute_creator_risk_score(conn, address)
-        print(f"[WORKER] {address[:8]}... risk_score={risk_score['score']} level={risk_score['risk_level']}", flush=True)
     except Exception as e:
-        print(f"[WORKER] {address[:8]}... error computing risk score: {e}", flush=True)
+        pass
 
     # Adaptive requeue: Higher priority = sooner recheck
     # Reduces DB churn on low-value addresses
@@ -365,52 +347,298 @@ def process_work_item(conn: sqlite3.Connection, address: str, priority: float, r
     return True
 
 
+# ============================================================================
+# CREATOR ANALYSIS QUEUE
+# ============================================================================
+
+def fetch_next_creator_analysis(conn: sqlite3.Connection, batch_size: int = 5) -> list:
+    """
+    Fetch next batch of creators to analyze from queue.
+    
+    Selects unlocked, due items by highest priority.
+    Locks them for LOCK_DURATION seconds.
+    
+    Args:
+        conn: Database connection
+        batch_size: Number of items to fetch
+        
+    Returns:
+        List of creator_analysis_queue rows
+    """
+    cur = conn.cursor()
+    now = int(time.time())
+    
+    cur.execute("""
+        SELECT creator_address, priority, status, locked_until
+        FROM creator_analysis_queue
+        WHERE locked_until < ?
+            AND next_analysis_at < ?
+            AND status IN ('pending', 'retry')
+        ORDER BY priority DESC
+        LIMIT ?
+    """, (now, now, batch_size))
+    
+    rows = cur.fetchall()
+    
+    if not rows:
+        return []
+    
+    # Lock these rows
+    addresses = [row[0] for row in rows]
+    lock_until = now + LOCK_DURATION
+    
+    cur.execute(f"""
+        UPDATE creator_analysis_queue
+        SET locked_until = ?, status = 'analyzing'
+        WHERE creator_address IN ({','.join('?' * len(addresses))})
+    """, [lock_until] + addresses)
+    
+    conn.commit()
+    
+    return rows
+
+
+def process_creator_analysis(conn: sqlite3.Connection, creator_address: str) -> bool:
+    """
+    Analyze a creator address for malicious activity patterns.
+    
+    Uses only database queries - no RPC calls.
+    Caches findings in creator_analysis_queue.findings_cached
+    
+    Args:
+        conn: Database connection
+        creator_address: Creator address to analyze
+        
+    Returns:
+        True if analysis succeeded, False otherwise
+    """
+    cur = conn.cursor()
+    now = int(time.time())
+    
+    try:
+        # Query creator analysis endpoint logic from main.py
+        # This computes all malicious activity signals
+        
+        # Get outgoing transfers
+        cur.execute("""
+            SELECT COUNT(*) as count, 
+                   SUM(amount_sol) as total_sol,
+                   COUNT(DISTINCT destination) as unique_recipients,
+                   MAX(block_time) as last_transaction_time
+            FROM sol_transfers
+            WHERE source = ?
+        """, (creator_address,))
+        
+        tx_row = cur.fetchone()
+        if not tx_row or not tx_row[0]:
+            # No transfers from this creator, mark complete
+            cur.execute("""
+                UPDATE creator_analysis_queue
+                SET status = 'complete', last_analyzed_at = ?, 
+                    next_analysis_at = ?, locked_until = 0,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE creator_address = ?
+            """, (now, now + 86400, creator_address))  # Next check in 24h
+            conn.commit()
+            return True
+        
+        outgoing_count = tx_row[0]
+        total_sol = tx_row[1] or 0
+        recipients = tx_row[2] or 0
+        last_tx = tx_row[3]
+        
+        # Check for self-funding scheme
+        # Self-funded if: sends to many addresses that only send back
+        cur.execute("""
+            SELECT COUNT(DISTINCT destination) as self_funded_count
+            FROM sol_transfers st
+            WHERE st.source = ?
+                AND NOT EXISTS (
+                    SELECT 1 FROM sol_transfers st2
+                    WHERE st2.source = st.destination
+                    AND st2.destination != ?
+                )
+                AND EXISTS (
+                    SELECT 1 FROM sol_transfers st3
+                    WHERE st3.source = st.destination
+                    AND st3.destination = ?
+                )
+        """, (creator_address, creator_address, creator_address))
+        
+        self_funded_row = cur.fetchone()
+        self_funded_count = self_funded_row[0] if self_funded_row else 0
+        
+        # Check circular funding (creator receives from their own funders)
+        cur.execute("""
+            SELECT COUNT(DISTINCT st2.source) as circular_funders
+            FROM sol_transfers st1
+            JOIN sol_transfers st2 ON st1.destination = st2.source
+            WHERE st1.source = ?
+                AND st2.destination = ?
+                AND st1.destination != st2.destination
+        """, (creator_address, creator_address))
+        
+        circular_row = cur.fetchone()
+        circular_count = circular_row[0] if circular_row else 0
+        
+        # Check for suspicious cross-funding patterns
+        # Creator sends to many addresses, and those addresses fund many other creators
+        cur.execute("""
+            SELECT COUNT(DISTINCT st2.destination) as cross_funded_creators
+            FROM sol_transfers st1
+            JOIN sol_transfers st2 ON st1.destination = st2.source
+            WHERE st1.source = ?
+                AND st2.destination IN (
+                    SELECT DISTINCT destination FROM sol_transfers
+                    WHERE destination != ?
+                )
+        """, (creator_address, creator_address))
+        
+        cross_row = cur.fetchone()
+        cross_funded = cross_row[0] if cross_row else 0
+        
+        # Check funding chain depth (how many hops to reach this creator)
+        cur.execute("""
+            SELECT COUNT(DISTINCT st2.source) as direct_funders
+            FROM sol_transfers st2
+            WHERE st2.destination = ?
+        """, (creator_address,))
+        
+        funder_row = cur.fetchone()
+        direct_funders = funder_row[0] if funder_row else 0
+        
+        # Build findings summary
+        findings = {
+            "outgoing_transfers": outgoing_count,
+            "total_sol_sent": round(total_sol, 9),
+            "unique_recipients": recipients,
+            "self_funded_intermediates": self_funded_count,
+            "circular_funding_sources": circular_count,
+            "cross_funded_creators": cross_funded,
+            "direct_funders": direct_funders,
+            "last_transaction_time": last_tx,
+            "analyzed_at": now
+        }
+        
+        # Risk score: sum of suspicious signals
+        risk_score = 0
+        if self_funded_count > 0:
+            risk_score += min(self_funded_count * 5, 50)  # Self-funding cap at 50
+        if circular_count > 0:
+            risk_score += min(circular_count * 10, 40)    # Circular funding cap at 40
+        if cross_funded > 10:
+            risk_score += 30  # Cross-funding many creators
+        if outgoing_count > 100:
+            risk_score += 20  # Many transfers
+        if recipients > 50:
+            risk_score += 15  # Distributing to many addresses
+            
+        findings["risk_score"] = min(risk_score, 100)
+        
+        # Determine risk level
+        if findings["risk_score"] >= 70:
+            findings["risk_level"] = "HIGH"
+        elif findings["risk_score"] >= 40:
+            findings["risk_level"] = "MEDIUM"
+        else:
+            findings["risk_level"] = "LOW"
+        
+        # Cache findings as JSON
+        import json
+        cached_json = json.dumps(findings)
+        
+        # Adaptive requeue: Reanalyze frequent actors sooner
+        if outgoing_count >= 100:
+            next_analysis = now + 3600      # High activity: reanalyze in 1h
+        elif outgoing_count >= 20:
+            next_analysis = now + 21600     # Moderate: reanalyze in 6h
+        else:
+            next_analysis = now + 86400     # Low activity: reanalyze in 24h
+        
+        cur.execute("""
+            UPDATE creator_analysis_queue
+            SET status = 'complete', 
+                last_analyzed_at = ?,
+                next_analysis_at = ?,
+                findings_cached = ?,
+                locked_until = 0,
+                attempts = 0,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE creator_address = ?
+        """, (now, next_analysis, cached_json, creator_address))
+        
+        conn.commit()
+        return True
+        
+    except Exception as e:
+        print(f"[CREATOR_ANALYSIS] Error analyzing {creator_address[:8]}...: {e}", flush=True)
+        
+        # Mark as retry for next attempt
+        cur.execute("""
+            UPDATE creator_analysis_queue
+            SET status = 'retry',
+                attempts = attempts + 1,
+                locked_until = 0,
+                next_analysis_at = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE creator_address = ?
+        """, (now + 300, creator_address))  # Retry in 5 minutes
+        
+        conn.commit()
+        return False
+
+
 def run_worker(max_iterations: Optional[int] = None):
     """
     Main worker loop.
 
-    Continuously processes work queue items in priority order.
+    Continuously processes work queue items and creator analysis queue in priority order.
 
     Args:
         max_iterations: Stop after N iterations (for testing), None = infinite
     """
-    print("[WORKER] Starting webhook worker...", flush=True)
+    print("[WORKER] Started", flush=True)
 
     iteration = 0
 
     try:
         while True:
             if max_iterations and iteration >= max_iterations:
-                print(f"[WORKER] Reached max_iterations={max_iterations}, stopping", flush=True)
+                print(f"[WORKER] Stopped after {max_iterations} iterations", flush=True)
                 break
 
             conn = get_worker_db()
 
-            # Fetch next batch
+            # Process creator analysis queue (5 at a time)
+            creator_items = fetch_next_creator_analysis(conn, batch_size=5)
+            for creator_address, priority, status, locked_until in creator_items:
+                try:
+                    process_creator_analysis(conn, creator_address)
+                except Exception as e:
+                    print(f"[CREATOR_ANALYSIS] Error: {creator_address[:8]}... - {e}", flush=True)
+
+            # Fetch next batch of regular work queue
             work_items = fetch_next_work(conn, BATCH_SIZE)
 
-            if not work_items:
-                print(f"[WORKER] No work items, sleeping {WORKER_SLEEP}s", flush=True)
+            if not work_items and not creator_items:
                 conn.close()
                 time.sleep(WORKER_SLEEP)
                 iteration += 1
                 continue
 
-            print(f"[WORKER] Fetched {len(work_items)} work items", flush=True)
-
-            # Process each item
+            # Process each work queue item
             for address, priority, reason, locked_until in work_items:
                 try:
                     process_work_item(conn, address, priority, reason)
                 except Exception as e:
-                    print(f"[WORKER] Error processing {address[:8]}...: {e}", flush=True)
+                    print(f"[WORKER] Error: {address[:8]}... - {e}", flush=True)
 
             conn.close()
             iteration += 1
             time.sleep(WORKER_SLEEP)
 
     except KeyboardInterrupt:
-        print("[WORKER] Interrupted by user", flush=True)
+        print("[WORKER] Stopped by user", flush=True)
     except Exception as e:
         print(f"[WORKER] Fatal error: {e}", flush=True)
         raise

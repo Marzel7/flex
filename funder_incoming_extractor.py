@@ -268,7 +268,7 @@ def _is_rpc_error_retryable(error_obj: dict) -> bool:
     return True
 
 
-def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, timeout: float = 20.0) -> Optional[object]:
+def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, timeout: float = 20.0, batch_size: int = 1) -> Optional[object]:
     """
     Reliable HTTP call with retry/backoff on 429/5xx and network errors.
 
@@ -276,13 +276,17 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
     • Retryable 4xx: 408, 409, 423, 425 (timeout, conflict, locked, too early)
     • 429 rate-limit: handled separately with Retry-After header support
     • Non-retryable 4xx: 400, 401, 403, 404, etc. (client responsibility)
+
+    Args:
+        batch_size: For batch requests (e.g., Helius batch transactions), number of items in batch.
+                   This multiplies the recorded credits since Helius charges per-item.
     """
     for attempt in range(MAX_HTTP_RETRIES):
         try:
             # Determine RPC method from URL or payload
             rpc_method = "unknown"
             if "helius" in url:
-                rpc_method = "helius_addresses_transactions"
+                rpc_method = "helius_enhanced_transactions_batch" if batch_size > 1 else "helius_addresses_transactions"
             elif method.upper() == "POST" and json_body:
                 rpc_method = json_body.get("method", "unknown")
 
@@ -296,7 +300,8 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
 
             # Record metrics for all responses
             provider = "helius_rpc" if "helius" in url else "solana_rpc"
-            record_request(
+            # For batch requests, multiply credits by batch size (Helius charges per-item)
+            credits = record_request(
                 section="funder_incoming",
                 provider=provider,
                 method=rpc_method,
@@ -305,6 +310,19 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
                 mode="realtime",
                 retries=attempt,
             )
+            # Apply batch multiplier (e.g., 100 txs in batch = 100x credit cost)
+            if batch_size > 1 and credits > 0:
+                # Already recorded once, need to add (batch_size - 1) more times
+                for _ in range(batch_size - 1):
+                    record_request(
+                        section="funder_incoming",
+                        provider=provider,
+                        method=rpc_method,
+                        status_code=resp.status_code,
+                        latency_ms=latency_ms,
+                        mode="realtime",
+                        retries=attempt,
+                    )
 
             if resp.status_code == 429:
                 ra = resp.headers.get("Retry-After")
@@ -505,7 +523,7 @@ def helius_batch_get_transactions(tx_sigs: List[str]) -> Dict[str, Optional[dict
 
     for i in range(0, len(tx_sigs), 100):
         batch = tx_sigs[i:i + 100]
-        data = _request_json("POST", url, json_body={"transactions": batch}, timeout=35.0)
+        data = _request_json("POST", url, json_body={"transactions": batch}, timeout=35.0, batch_size=len(batch))
         if not isinstance(data, list):
             # mark batch unknown
             for s in batch:

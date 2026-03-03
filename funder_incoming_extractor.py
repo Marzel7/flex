@@ -346,7 +346,7 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
         except (requests.Timeout, requests.ConnectionError) as e:
             rpc_method = "unknown"
             if "helius" in url:
-                rpc_method = "helius_addresses_transactions"
+                rpc_method = "helius_enhanced_transactions_batch"
             elif method.upper() == "POST" and json_body:
                 rpc_method = json_body.get("method", "unknown")
             provider = "helius_rpc" if "helius" in url else "solana_rpc"

@@ -2310,6 +2310,13 @@ HTML_TEMPLATE = """
                 </div>
                 <span class="status-indicator active" id="listenLaunchesStatus"></span>
             </div>
+            <div class="control-group" style="border-left: 1px solid rgba(239, 68, 68, 0.3); margin-left: 12px; padding-left: 12px;">
+                <span class="control-label">Auto Extract Funders</span>
+                <div class="toggle-switch" id="autoExtractFundersToggle" onclick="toggleAutoExtractFunders()">
+                    <div class="toggle-slider"></div>
+                </div>
+                <span class="status-indicator" id="autoExtractFundersStatus"></span>
+            </div>
             <div class="control-group" style="border-left: 1px solid rgba(124, 58, 237, 0.3); margin-left: 12px; padding-left: 12px;">
                 <button class="action-button" id="tokensTabBtn" onclick="switchToTokensTab()" title="View tokens" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Tokens</button>
                 <button class="action-button" onclick="window.location.href = '/networks'" title="View atomic funder networks" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Networks</button>
@@ -3758,6 +3765,7 @@ HTML_TEMPLATE = """
 
 // Listener feature toggles
         let listenLaunchesEnabled = true;
+        let autoExtractFundersEnabled = false;
 
         function toggleListenLaunches() {
             listenLaunchesEnabled = !listenLaunchesEnabled;
@@ -3778,6 +3786,28 @@ HTML_TEMPLATE = """
                 })
             }).then(resp => resp.json()).then(data => {
                 console.log('✅ [LISTENER] Updated - Launches: ' + state);
+            }).catch(e => console.error('❌ Error updating listener settings:', e));
+        }
+
+        function toggleAutoExtractFunders() {
+            autoExtractFundersEnabled = !autoExtractFundersEnabled;
+            const toggle = document.getElementById('autoExtractFundersToggle');
+            const status = document.getElementById('autoExtractFundersStatus');
+            toggle.classList.toggle('active');
+            status.classList.toggle('active');
+
+            const state = autoExtractFundersEnabled ? 'ENABLED' : 'DISABLED';
+            console.log('🔄 [LISTENER] Auto Extract Funders: ' + state);
+
+            // Send to backend
+            fetch('/api/listener-settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    auto_extract_funders: autoExtractFundersEnabled
+                })
+            }).then(resp => resp.json()).then(data => {
+                console.log('✅ [LISTENER] Updated - Auto Extract: ' + state);
             }).catch(e => console.error('❌ Error updating listener settings:', e));
         }
 
@@ -3912,6 +3942,7 @@ function switchToTokensTab() {
                 const listenerSettings = await respListener.json();
 
                 listenLaunchesEnabled = listenerSettings.listen_to_launches;
+                autoExtractFundersEnabled = listenerSettings.auto_extract_funders;
 
                 // Update migration toggle switch states
                 const tokenHistoryToggle = document.getElementById('tokenHistoryToggle');
@@ -3931,10 +3962,21 @@ function switchToTokensTab() {
                     listenLaunchesStatus.classList.remove('active');
                 }
 
+                // Update auto extract funders toggle switch states
+                const autoExtractFundersToggle = document.getElementById('autoExtractFundersToggle');
+                const autoExtractFundersStatus = document.getElementById('autoExtractFundersStatus');
+
+                if (autoExtractFundersEnabled) {
+                    autoExtractFundersToggle.classList.add('active');
+                    autoExtractFundersStatus.classList.add('active');
+                }
+
                 const historyState = tokenHistoryEnabled ? '✅ ON' : '❌ OFF';
                 const launchState = listenLaunchesEnabled ? '✅ ON' : '❌ OFF';
+                const extractState = autoExtractFundersEnabled ? '✅ ON' : '❌ OFF';
                 console.log('📋 [SETTINGS LOADED] Migration - Token History: ' + historyState);
                 console.log('📋 [SETTINGS LOADED] Listener - Token Launch: ' + launchState);
+                console.log('📋 [SETTINGS LOADED] Listener - Auto Extract Funders: ' + extractState);
             } catch (e) {
                 console.error('❌ Error loading settings:', e);
             }
@@ -8260,7 +8302,7 @@ def api_cex_wallets():
 
 @app.route('/api/listener-settings', methods=['GET', 'POST'])
 def api_listener_settings():
-    """Get or update listener settings (token launch listening)"""
+    """Get or update listener settings (token launch listening, auto funder extraction)"""
     try:
         conn = sqlite3.connect(DB_PATH, timeout=30)
         conn.row_factory = sqlite3.Row
@@ -8291,6 +8333,28 @@ def api_listener_settings():
                     status = '✅ ON' if data['listen_to_launches'] else '❌ OFF'
                     print(f"[LISTENER] TOGGLED - Token Launch: {status}", flush=True)
 
+            # Update auto_extract_funders setting
+            if 'auto_extract_funders' in data:
+                old_val = None
+                try:
+                    cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('auto_extract_funders',))
+                    row = cursor.fetchone()
+                    if row:
+                        old_val = row['setting_value'] == 'true'
+                except:
+                    pass
+
+                new_val = 'true' if data['auto_extract_funders'] else 'false'
+                cursor.execute("""
+                    INSERT OR REPLACE INTO listener_settings
+                    (setting_key, setting_value, last_updated)
+                    VALUES (?, ?, CURRENT_TIMESTAMP)
+                """, ('auto_extract_funders', new_val))
+
+                if old_val is not None and old_val != data['auto_extract_funders']:
+                    status = '✅ ON' if data['auto_extract_funders'] else '❌ OFF'
+                    print(f"[LISTENER] TOGGLED - Auto Extract Funders: {status}", flush=True)
+
             conn.commit()
 
             # Get current settings
@@ -8298,15 +8362,31 @@ def api_listener_settings():
             row = cursor.fetchone()
             listen_launches = row['setting_value'] == 'true' if row else True
 
+            cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('auto_extract_funders',))
+            row = cursor.fetchone()
+            auto_extract_funders = row['setting_value'] == 'true' if row else False
+
             conn.close()
-            return jsonify({'status': 'updated', 'listen_to_launches': listen_launches})
+            return jsonify({
+                'status': 'updated',
+                'listen_to_launches': listen_launches,
+                'auto_extract_funders': auto_extract_funders
+            })
 
         else:  # GET
             cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('listen_to_launches',))
             row = cursor.fetchone()
             listen_launches = row['setting_value'] == 'true' if row else True
+
+            cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('auto_extract_funders',))
+            row = cursor.fetchone()
+            auto_extract_funders = row['setting_value'] == 'true' if row else False
+
             conn.close()
-            return jsonify({'listen_to_launches': listen_launches})
+            return jsonify({
+                'listen_to_launches': listen_launches,
+                'auto_extract_funders': auto_extract_funders
+            })
 
     except Exception as e:
         print(f"[LISTENER_API] Error: {e}", flush=True)
@@ -8826,6 +8906,9 @@ def coordinated_funders_view():
         for funder in multi_funders:
             html_rows += f"""
             <tr>
+                <td style="padding: 12px; text-align: center;">
+                    <input type="checkbox" class="funder-checkbox" value="{funder['funder_address']}" style="width: 18px; height: 18px; cursor: pointer;">
+                </td>
                 <td style="padding: 12px; font-family: monospace; font-size: 11px; word-break: break-all;">
                     <a href="/funding-hub/{funder['funder_address']}" style="color: #3b82f6; text-decoration: none;">
                         {funder['funder_address']}

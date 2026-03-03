@@ -14,7 +14,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from datetime import datetime
 import json
-from typing import Optional
+from typing import Optional, Dict
 import threading
 import time
 import sqlite3
@@ -39,6 +39,91 @@ app = FastAPI(
     description="Monitor Helius credit usage by component section",
     version="1.0.0",
 )
+
+DB_PATH = "flex_complete_database.db"
+
+# ============================================================================
+# DATABASE HELPERS FOR CROSS-PROCESS METRICS AGGREGATION
+# ============================================================================
+
+def _query_rpc_metrics_from_db(since_timestamp: Optional[float] = None) -> Dict:
+    """
+    Query RPC metrics from database for all processes.
+
+    Returns aggregated stats from rpc_metrics table.
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn.row_factory = sqlite3.Row
+
+        # Get summary stats
+        where_clause = ""
+        params = []
+        if since_timestamp:
+            where_clause = "WHERE timestamp > ?"
+            params = [since_timestamp]
+
+        cursor = conn.execute(f"""
+            SELECT
+                COUNT(*) as total_requests,
+                SUM(credits) as total_credits,
+                COUNT(CASE WHEN status_code >= 400 THEN 1 END) as total_errors,
+                COUNT(CASE WHEN status_code = 429 THEN 1 END) as total_429s,
+                MIN(timestamp) as first_timestamp,
+                MAX(timestamp) as last_timestamp
+            FROM rpc_metrics
+            {where_clause}
+        """, params)
+
+        summary = dict(cursor.fetchone() or {})
+
+        # Get by method
+        cursor = conn.execute(f"""
+            SELECT method, COUNT(*) as requests, SUM(credits) as credits
+            FROM rpc_metrics
+            {where_clause}
+            GROUP BY method
+            ORDER BY credits DESC
+        """, params)
+
+        by_method = {row['method']: {'requests': row['requests'], 'credits': row['credits']}
+                     for row in cursor.fetchall()}
+
+        # Get by source file
+        cursor = conn.execute(f"""
+            SELECT source_file, COUNT(*) as requests, SUM(credits) as credits
+            FROM rpc_metrics
+            {where_clause}
+            GROUP BY source_file
+            ORDER BY credits DESC
+        """, params)
+
+        by_source = {row['source_file']: {'requests': row['requests'], 'credits': row['credits']}
+                     for row in cursor.fetchall()}
+
+        # Get by section
+        cursor = conn.execute(f"""
+            SELECT section, COUNT(*) as requests, SUM(credits) as credits
+            FROM rpc_metrics
+            {where_clause}
+            GROUP BY section
+            ORDER BY credits DESC
+        """, params)
+
+        by_section = {row['section']: {'requests': row['requests'], 'credits': row['credits']}
+                      for row in cursor.fetchall()}
+
+        conn.close()
+
+        return {
+            "summary": summary,
+            "by_method": by_method,
+            "by_source_file": by_source,
+            "by_section": by_section,
+        }
+    except Exception as e:
+        print(f"[WARNING] Error querying RPC metrics from DB: {e}", flush=True)
+        return {"summary": {}, "by_method": {}, "by_source_file": {}, "by_section": {}}
 
 
 @app.on_event("startup")
@@ -118,6 +203,73 @@ async def metrics_methods(limit: int = Query(10, ge=1, le=50)):
         "timestamp": datetime.now().isoformat(),
         "top_methods": recorder.get_top_methods(limit=limit),
     }
+
+
+@app.get("/metrics/rpc/database")
+async def metrics_database(since_hours: int = Query(24, ge=1, le=720)):
+    """
+    Get RPC metrics aggregated from database (cross-process).
+
+    This shows metrics from ALL processes combined (listener, extractors, etc).
+    Unlike in-memory metrics, this persists across process restarts.
+
+    Args:
+        since_hours: Only include metrics from last N hours
+    """
+    since_timestamp = time.time() - (since_hours * 3600)
+    db_metrics = _query_rpc_metrics_from_db(since_timestamp)
+
+    return {
+        "timestamp": datetime.now().isoformat(),
+        "query_window_hours": since_hours,
+        "database_metrics": db_metrics,
+        "note": "Aggregated from rpc_metrics table (all processes)",
+    }
+
+
+@app.get("/metrics/rpc/untracked")
+async def metrics_untracked():
+    """
+    Compare Helius actual charges vs what we're tracking locally.
+
+    This endpoint helps identify which RPC calls are NOT being instrumented.
+    Large discrepancies indicate untracked processes or RPC calls.
+    """
+    try:
+        from helius_cli_monitor import get_latest_snapshot
+
+        # Get Helius actual usage
+        helius_snapshot = get_latest_snapshot()
+        helius_credits = helius_snapshot.get("credits_used", 0) if helius_snapshot else 0
+
+        # Get instrumented metrics from database
+        db_metrics = _query_rpc_metrics_from_db()
+        instrumented_summary = db_metrics.get("summary", {})
+        instrumented_credits = instrumented_summary.get("total_credits", 0)
+
+        untracked_credits = max(0, helius_credits - instrumented_credits)
+        tracked_percentage = (instrumented_credits / helius_credits * 100) if helius_credits > 0 else 0
+
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "summary": {
+                "helius_total": helius_credits,
+                "tracked_locally": instrumented_credits,
+                "untracked": untracked_credits,
+                "tracking_coverage_percent": round(tracked_percentage, 2),
+            },
+            "tracked_calls": db_metrics.get("by_method", {}),
+            "tracked_by_source": db_metrics.get("by_source_file", {}),
+            "tracked_by_section": db_metrics.get("by_section", {}),
+            "recommendations": [
+                "✓ Good: Creator outgoing extractor is fully tracked",
+                "? Unknown: Check listener for untracked RPC calls",
+                "? Unknown: Check other background processes",
+                "? Action: Add record_request() calls to untracked RPC methods",
+            ] if tracked_percentage < 50 else [],
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not analyze untracked metrics: {str(e)}")
 
 
 @app.get("/metrics/rpc/alerts")
@@ -461,34 +613,63 @@ async def helius_account_status():
     Get Helius account status with full comparison
 
     Returns:
-    - Account usage (credits used, remaining, budget)
-    - Instrumented metrics (our RPC tracking)
+    - Account usage (credits used, remaining, budget) from Helius CLI
+    - Instrumented metrics (our RPC tracking from database)
     - Comparison and discrepancy analysis
     - Alerts if usage is high
     """
     try:
-        from helius_account_monitor import get_account_status, get_alerts
+        from helius_cli_monitor import get_latest_snapshot
 
-        status = get_account_status()
-        if not status:
+        # Get Helius actual usage
+        helius_snapshot = get_latest_snapshot()
+        if not helius_snapshot:
             return {
                 "status": "error",
-                "message": "Could not fetch account status",
+                "message": "Could not fetch Helius account status",
                 "timestamp": datetime.now().isoformat(),
             }
 
-        # Get alerts
-        alerts = get_alerts()
+        # Get instrumented metrics from database (all processes)
+        db_metrics = _query_rpc_metrics_from_db()
+        instrumented_summary = db_metrics.get("summary", {})
+        instrumented_credits = instrumented_summary.get("total_credits", 0)
+        instrumented_requests = instrumented_summary.get("total_requests", 0)
+
+        # Get Helius usage
+        helius_credits = helius_snapshot.get("credits_used", 0)
+        helius_remaining = helius_snapshot.get("credits_remaining", 0)
+
+        # Calculate discrepancy
+        difference = helius_credits - instrumented_credits
+        percent_diff = (difference / helius_credits * 100) if helius_credits > 0 else 0
 
         return {
-            "timestamp": status["timestamp"],
-            "helius_account": status["helius_account"],
-            "instrumented_metrics": status["instrumented_metrics"],
-            "discrepancy": status["discrepancy"],
-            "alerts": alerts,
-            "source": "config",  # Using rpc_metrics_config.py (manually synced)
+            "timestamp": datetime.now().isoformat(),
+            "helius_account": {
+                "credits_used": helius_credits,
+                "credits_remaining": helius_remaining,
+                "rpc_usage": helius_snapshot.get("rpc_usage", 0),
+            },
+            "instrumented_metrics": {
+                "credits_used": instrumented_credits,
+                "requests": instrumented_requests,
+                "by_method": db_metrics.get("by_method", {}),
+                "by_source_file": db_metrics.get("by_source_file", {}),
+                "by_section": db_metrics.get("by_section", {}),
+            },
+            "comparison": {
+                "helius_used": helius_credits,
+                "instrumented_used": instrumented_credits,
+                "difference": difference,
+                "percent_difference": round(percent_diff, 2),
+                "note": "Helius is source of truth. Difference may be due to other processes, retries, or failed requests."
+            },
+            "source": "database",  # Using persistent rpc_metrics table
         }
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Could not fetch Helius status: {str(e)}")
 
 

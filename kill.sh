@@ -25,15 +25,17 @@ pkill -f "python.*helius_cli_monitor.py" 2>/dev/null || true
 sleep 1
 echo "✓ Helius CLI monitor killed"
 
-# Kill all remaining Python processes (excluding mcp server)
-pkill -9 -f "python" --inverse -f "mpc" 2>/dev/null || true
+# Kill all remaining Python processes (excluding serena mcp server and essential tools)
+# Note: Using grep to properly exclude mcp/serena/pyright/pylance processes
+pgrep -f "python" | grep -v "serena\|mcp\|pyright\|pylance" | xargs kill -9 2>/dev/null || true
 sleep 1
-echo "✓ Remaining Python processes killed (mpc server preserved)"
+echo "✓ Remaining Python processes killed (serena/mcp server preserved)"
 
-# Kill all remaining Node processes (excluding mcp server)
-pkill -9 -f "node" --inverse -f "mcp" 2>/dev/null || true
+# Kill all remaining Node processes (excluding VSCode and essential tools)
+# Note: Only kill Node if it's from our project, not VSCode
+pgrep -f "node" | grep -v "VSCode\|Code Helper\|Chromium\|Electron\|pyright" | xargs kill -9 2>/dev/null || true
 sleep 1
-echo "✓ Remaining Node processes killed (mcp server preserved)"
+echo "✓ Remaining Node processes killed (VSCode/IDE preserved)"
 
 echo ""
 echo "✅ All services stopped!"

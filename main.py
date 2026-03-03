@@ -14496,6 +14496,77 @@ def funding_hub(hub_address):
         return f"<h1>Error</h1><p>{str(e)}</p>", 500
 
 
+@app.route('/api/creator-analysis-queue-status')
+def api_creator_analysis_queue_status():
+    """Get status of creator analysis queue"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Get queue status breakdown (exclude completed)
+        cursor.execute("""
+            SELECT
+                status,
+                COUNT(*) as count,
+                ROUND(AVG(priority), 1) as avg_priority
+            FROM creator_analysis_queue
+            WHERE status != 'complete'
+            GROUP BY status
+        """)
+
+        status_rows = cursor.fetchall()
+        status_breakdown = {}
+        for row in status_rows:
+            status_breakdown[row['status']] = {
+                'count': row['count'],
+                'avg_priority': row['avg_priority']
+            }
+
+        # Get top priority items (exclude completed, show analyzing first, then pending)
+        cursor.execute("""
+            SELECT creator_address, priority, status,
+                   json_extract(findings_cached, '$.risk_level') as risk_level,
+                   last_analyzed_at
+            FROM creator_analysis_queue
+            WHERE status IN ('pending', 'analyzing', 'retry')
+            ORDER BY CASE status
+                WHEN 'analyzing' THEN 0
+                WHEN 'pending' THEN 1
+                WHEN 'retry' THEN 2
+            END, priority DESC
+            LIMIT 5
+        """)
+
+        top_items = []
+        for row in cursor.fetchall():
+            top_items.append({
+                'creator_address': row['creator_address'],
+                'priority': row['priority'],
+                'status': row['status'],
+                'risk_level': row['risk_level'],
+                'last_analyzed_at': row['last_analyzed_at']
+            })
+
+        # Get active queue size (pending + analyzing + retry only)
+        cursor.execute("""
+            SELECT COUNT(*) as count FROM creator_analysis_queue
+            WHERE status IN ('pending', 'analyzing', 'retry')
+        """)
+        total_queued = cursor.fetchone()['count'] or 0
+
+        conn.close()
+
+        return jsonify({
+            'ok': True,
+            'total_queued': total_queued,
+            'status_breakdown': status_breakdown,
+            'top_priority': top_items
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/creator-analysis')
 def creator_analysis_page():
     """Display creator scan history, findings, and network impacts"""
@@ -15119,6 +15190,113 @@ def creator_analysis_page():
                     color: var(--text-secondary);
                     text-align: right;
                 }
+
+                .queue-status-section {
+                    background: var(--bg-secondary);
+                    border-radius: 8px;
+                    border: 1px solid rgba(124, 58, 237, 0.2);
+                    padding: 20px;
+                    margin-bottom: 20px;
+                }
+                .queue-status-title {
+                    color: var(--accent-purple);
+                    font-size: 16px;
+                    font-weight: 700;
+                    margin-bottom: 15px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                .queue-stats-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                    gap: 12px;
+                    margin-bottom: 15px;
+                }
+                .queue-stat-box {
+                    background: rgba(124, 58, 237, 0.1);
+                    border: 1px solid rgba(124, 58, 237, 0.2);
+                    border-radius: 6px;
+                    padding: 12px;
+                    text-align: center;
+                }
+                .queue-stat-value {
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: var(--accent-cyan);
+                }
+                .queue-stat-label {
+                    font-size: 11px;
+                    color: var(--text-secondary);
+                    margin-top: 6px;
+                    text-transform: uppercase;
+                    font-weight: 600;
+                }
+                .queue-top-items {
+                    margin-top: 15px;
+                }
+                .queue-top-title {
+                    color: var(--accent-purple);
+                    font-size: 12px;
+                    font-weight: 700;
+                    margin-bottom: 10px;
+                    text-transform: uppercase;
+                }
+                .queue-item {
+                    background: rgba(20, 20, 32, 0.5);
+                    border: 1px solid rgba(124, 58, 237, 0.15);
+                    border-radius: 4px;
+                    padding: 10px;
+                    margin-bottom: 8px;
+                    font-size: 12px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                .queue-item-address {
+                    color: var(--accent-cyan);
+                    font-family: 'Courier New', monospace;
+                    flex: 1;
+                    margin-right: 10px;
+                }
+                .queue-item-status {
+                    padding: 3px 8px;
+                    border-radius: 3px;
+                    font-size: 10px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                }
+                .queue-item-status.pending {
+                    background: rgba(59, 130, 246, 0.15);
+                    color: #3b82f6;
+                }
+                .queue-item-status.analyzing {
+                    background: rgba(234, 179, 8, 0.15);
+                    color: #eab308;
+                    animation: pulse 1s infinite;
+                }
+                .queue-item-status.complete {
+                    background: rgba(34, 197, 94, 0.15);
+                    color: #22c55e;
+                }
+                .queue-item-risk {
+                    padding: 3px 8px;
+                    border-radius: 3px;
+                    font-size: 10px;
+                    font-weight: 600;
+                    margin-left: 8px;
+                }
+                .queue-item-risk.HIGH {
+                    background: rgba(239, 68, 68, 0.15);
+                    color: #ef4444;
+                }
+                .queue-item-risk.MEDIUM {
+                    background: rgba(251, 146, 60, 0.15);
+                    color: #f97316;
+                }
+                .queue-item-risk.LOW {
+                    background: rgba(34, 197, 94, 0.15);
+                    color: #22c55e;
+                }
             </style>
         </head>
         <body>
@@ -15158,7 +15336,41 @@ def creator_analysis_page():
                         const statsResponse = await fetch('/api/creator-scan-stats');
                         const statsData = await statsResponse.json();
 
+                        // Load queue status
+                        const queueResponse = await fetch('/api/creator-analysis-queue-status');
+                        const queueData = await queueResponse.json();
+
                         let html = `
+                            ${queueData.total_queued > 0 ? `
+                            <div class="queue-status-section">
+                                <div class="queue-status-title">⚙️ Analysis Queue Status</div>
+                                <div class="queue-stats-grid">
+                                    <div class="queue-stat-box">
+                                        <div class="queue-stat-value">${queueData.total_queued || 0}</div>
+                                        <div class="queue-stat-label">Active Items</div>
+                                    </div>
+                                    ${Object.entries(queueData.status_breakdown || {}).map(([status, info]) => `
+                                        <div class="queue-stat-box">
+                                            <div class="queue-stat-value">${info.count}</div>
+                                            <div class="queue-stat-label">${status}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                ${queueData.top_priority && queueData.top_priority.length > 0 ? `
+                                    <div class="queue-top-items">
+                                        <div class="queue-top-title">🔝 Top Priority</div>
+                                        ${queueData.top_priority.map(item => `
+                                            <div class="queue-item">
+                                                <div class="queue-item-address">${item.creator_address}</div>
+                                                <span class="queue-item-status ${item.status.toLowerCase()}">${item.status}</span>
+                                                ${item.risk_level ? `<span class="queue-item-risk ${item.risk_level}">${item.risk_level}</span>` : ''}
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            ` : ''}
+
                             <div class="scan-stats-section" style="background: var(--bg-secondary); border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.2); padding: 20px; margin-bottom: 20px;">
                                 <div style="color: var(--accent-purple); font-size: 16px; font-weight: 700; margin-bottom: 15px;">📊 Coverage</div>
                                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
@@ -15667,6 +15879,58 @@ def creator_analysis_page():
 
                     document.getElementById('content').innerHTML = html;
                 }
+
+                // Auto-refresh queue status every 5 seconds
+                let autoRefreshInterval = setInterval(() => {
+                    fetch('/api/creator-analysis-queue-status')
+                        .then(r => r.json())
+                        .then(queueData => {
+                            // Update only the queue section if it exists
+                            const queueSection = document.querySelector('.queue-status-section');
+                            if (!queueSection) return; // Skip if not on main view
+
+                            // If queue became empty, reload the whole page
+                            if (queueData.total_queued === 0 && queueSection) {
+                                loadRecentChecks();
+                                return;
+                            }
+
+                            // Update stats grid
+                            const statsBoxes = queueSection.querySelectorAll('.queue-stat-box');
+                            let boxIndex = 0;
+
+                            // Update "Active Items" count
+                            if (statsBoxes[boxIndex]) {
+                                statsBoxes[boxIndex].querySelector('.queue-stat-value').textContent = queueData.total_queued;
+                                boxIndex++;
+                            }
+
+                            // Update status counts
+                            Object.entries(queueData.status_breakdown || {}).forEach(([status, info]) => {
+                                if (statsBoxes[boxIndex]) {
+                                    statsBoxes[boxIndex].querySelector('.queue-stat-value').textContent = info.count;
+                                    boxIndex++;
+                                }
+                            });
+
+                            // Update top priority items
+                            const topPriorityDiv = queueSection.querySelector('.queue-top-items');
+                            if (topPriorityDiv && queueData.top_priority) {
+                                const itemsHtml = queueData.top_priority.map(item => `
+                                    <div class="queue-item">
+                                        <div class="queue-item-address">${item.creator_address}</div>
+                                        <span class="queue-item-status ${item.status.toLowerCase()}">${item.status}</span>
+                                        ${item.risk_level ? `<span class="queue-item-risk ${item.risk_level}">${item.risk_level}</span>` : ''}
+                                    </div>
+                                `).join('');
+                                topPriorityDiv.innerHTML = '<div class="queue-top-title">🔝 Top Priority</div>' + itemsHtml;
+                            }
+                        })
+                        .catch(err => console.log('Queue refresh failed:', err));
+                }, 5000); // Refresh every 5 seconds
+
+                // Clean up interval when user leaves page
+                window.addEventListener('beforeunload', () => clearInterval(autoRefreshInterval));
             </script>
         </body>
         </html>
@@ -15678,26 +15942,33 @@ def creator_analysis_page():
 
 @app.route('/api/creator-outgoing-analysis/<creator_address>')
 def api_creator_outgoing_analysis(creator_address: str):
-    """Get comprehensive creator outgoing transfer analysis"""
+    """Get comprehensive creator outgoing transfer analysis from webhook data"""
     try:
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
-        # Get creator scan state
+        # Get last webhook timestamp for this creator (most recent activity)
         cursor.execute("""
-            SELECT updated_at
-            FROM creator_sig_cursors
-            WHERE creator_address = ?
+            SELECT MAX(block_time) as last_activity
+            FROM sol_transfers
+            WHERE source = ?
         """, (creator_address,))
-        cursor_row = cursor.fetchone()
-        last_scanned = cursor_row['updated_at'] if cursor_row else None
+        last_activity_row = cursor.fetchone()
+        last_scanned = None
+        if last_activity_row and last_activity_row['last_activity']:
+            from datetime import datetime
+            last_scanned = datetime.utcfromtimestamp(last_activity_row['last_activity']).isoformat()
 
-        # Get creator outgoing transfers
+        # Get creator outgoing transfers from WEBHOOK DATA (sol_transfers)
         cursor.execute("""
-            SELECT COUNT(*) as count, SUM(amount_sol) as total_sol, COUNT(DISTINCT recipient_address) as unique_recipients, MAX(block_time) as last_transaction_time
-            FROM creator_outgoing_transfers
-            WHERE creator_address = ?
+            SELECT 
+                COUNT(*) as count, 
+                SUM(amount_sol) as total_sol, 
+                COUNT(DISTINCT destination) as unique_recipients, 
+                MAX(block_time) as last_transaction_time
+            FROM sol_transfers
+            WHERE source = ?
         """, (creator_address,))
         row = cursor.fetchone()
         transfers = {
@@ -15793,7 +16064,6 @@ def api_creator_outgoing_analysis(creator_address: str):
 
         # For backward compatibility, keep single network_name and network_type for primary network
         # Prioritize by risk level: CEX > MIXED > INFRA > ORGANIC
-        # This ensures findings show the most important network when there are multiple
         priority_order = {'cex_connected': 0, 'mixed': 1, 'infra_connected': 2, 'organic': 3}
         sorted_networks = sorted(networks_with_types, key=lambda x: priority_order.get(x['type'], 999))
 
@@ -15858,10 +16128,8 @@ def api_creator_outgoing_analysis(creator_address: str):
             cursor.execute("SELECT label_name, category FROM address_labels WHERE address = ?", (funder['funder_address'],))
             label_row = cursor.fetchone()
             if label_row and label_row['label_name']:
-                # If we don't have a display name yet, use the label
                 if not funder_info['display_name']:
                     funder_info['display_name'] = label_row['label_name']
-                # Add category if it's an infrastructure/service type
                 if label_row['category'] and label_row['category'].upper() in ['INFRASTRUCTURE', 'SERVICE', 'BRIDGE', 'DEX', 'ROUTER']:
                     if 'INFRA' not in funder_info['labels']:
                         funder_info['labels'].append(f'INFRA({label_row["category"]})')
@@ -15880,14 +16148,13 @@ def api_creator_outgoing_analysis(creator_address: str):
             if creator_fund_count > 1:
                 funder_info['labels'].append(f'MULTI_CREATOR_FUNDER({creator_fund_count})')
             elif is_creator and creator_fund_count >= 1:
-                # Creator funding other creators (even just 1) is CREATOR_FUNDING_CHAIN pattern
                 funder_info['labels'].append('CREATOR_FUNDING_CHAIN')
 
             # Check for DIRECT circular funding: funder received from creator AND sent back to creator
             cursor.execute("""
                 SELECT COUNT(*) as direct_circular FROM (
-                    SELECT recipient_address FROM creator_outgoing_transfers
-                    WHERE creator_address = ? AND recipient_address = ?
+                    SELECT destination FROM sol_transfers
+                    WHERE source = ? AND destination = ?
                     INTERSECT
                     SELECT funder_address FROM creator_funders
                     WHERE creator_address = ? AND funder_address = ?
@@ -15914,7 +16181,6 @@ def api_creator_outgoing_analysis(creator_address: str):
                 # Circular if same set of creators appear as both sources and targets
                 is_circular = False
                 if creator_stats and creator_stats['sources'] == creator_stats['targets'] and creator_stats['sources'] <= 5:
-                    # Check if source creators match target creators
                     cursor.execute("""
                         SELECT COUNT(*) as overlap FROM (
                             SELECT source_creator FROM funding_chains WHERE bridge_funder = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'
@@ -15936,7 +16202,6 @@ def api_creator_outgoing_analysis(creator_address: str):
             net = cursor.fetchone()
             if net:
                 funder_info['network'] = net['network_name']
-                # Get network type
                 cursor.execute("SELECT network_type FROM network_cex_infra_flags WHERE network_name = ?", (net['network_name'],))
                 net_type_row = cursor.fetchone()
                 if net_type_row:
@@ -15944,7 +16209,7 @@ def api_creator_outgoing_analysis(creator_address: str):
 
             funders_with_info.append(funder_info)
 
-        # Get tokens created by this creator with their SOL funding info
+        # Get tokens created by this creator
         cursor.execute("""
             SELECT
                 ta.mint,
@@ -15959,17 +16224,17 @@ def api_creator_outgoing_analysis(creator_address: str):
         """, (creator_address,))
         tokens = cursor.fetchall()
 
-        # For each token, get the outgoing transfers and recipient addresses
+        # For each token, get the outgoing transfers and recipient addresses from webhooks
         tokens_with_transfers = []
         for token in tokens:
             cursor.execute("""
                 SELECT
-                    cot.recipient_address,
-                    SUM(cot.amount_sol) as amount_sol,
-                    MAX(cot.block_time) as last_transaction_time
-                FROM creator_outgoing_transfers cot
-                WHERE cot.creator_address = ?
-                GROUP BY cot.recipient_address
+                    destination,
+                    SUM(amount_sol) as amount_sol,
+                    MAX(block_time) as last_transaction_time
+                FROM sol_transfers
+                WHERE source = ?
+                GROUP BY destination
                 ORDER BY amount_sol DESC
             """, (creator_address,))
             recipients = cursor.fetchall()
@@ -15982,37 +16247,37 @@ def api_creator_outgoing_analysis(creator_address: str):
 
                 # Check what role the RECIPIENT ADDRESS itself plays
                 # 1. Is it a CREATOR (has created tokens)?
-                cursor.execute("SELECT COUNT(*) as count FROM token_analysis WHERE earliest_tx_creator = ?", (recipient['recipient_address'],))
+                cursor.execute("SELECT COUNT(*) as count FROM token_analysis WHERE earliest_tx_creator = ?", (recipient['destination'],))
                 r = cursor.fetchone()
                 creator_token_count = r['count'] if r else 0
                 if creator_token_count > 0:
                     recipient_labels.append(f'CREATOR({creator_token_count})')
 
                 # 2. Is it a FUNDER (funds creators)?
-                cursor.execute("SELECT COUNT(DISTINCT creator_address) as count FROM creator_funders WHERE funder_address = ?", (recipient['recipient_address'],))
+                cursor.execute("SELECT COUNT(DISTINCT creator_address) as count FROM creator_funders WHERE funder_address = ?", (recipient['destination'],))
                 r = cursor.fetchone()
                 funder_creator_count = r['count'] if r else 0
                 if funder_creator_count > 0:
                     recipient_labels.append(f'FUNDER({funder_creator_count})')
 
                 # 3. Is it a SENDER (sends SOL to other addresses)?
-                cursor.execute("SELECT COUNT(DISTINCT recipient_address) as count FROM creator_outgoing_transfers WHERE creator_address = ?", (recipient['recipient_address'],))
+                cursor.execute("SELECT COUNT(DISTINCT destination) as count FROM sol_transfers WHERE source = ?", (recipient['destination'],))
                 r = cursor.fetchone()
                 sender_count = r['count'] if r else 0
                 if sender_count > 0:
                     recipient_labels.append(f'SENDER({sender_count})')
 
                 # 4. Is it MULTI_FUNDED (funded by multiple sources)?
-                cursor.execute("SELECT COUNT(DISTINCT funder_address) as count FROM creator_funders WHERE creator_address = ?", (recipient['recipient_address'],))
+                cursor.execute("SELECT COUNT(DISTINCT funder_address) as count FROM creator_funders WHERE creator_address = ?", (recipient['destination'],))
                 r = cursor.fetchone()
                 multi_funder_count = r['count'] if r else 0
                 if multi_funder_count > 1:
                     recipient_labels.append(f'MULTI_FUNDED({multi_funder_count})')
 
-                # 5. Check for infrastructure FIRST (Padre, etc.) - takes priority over CEX_WALLETS
+                # 5. Check for infrastructure FIRST (Padre, etc.)
                 recipient_display_name = None
                 from infra_mapping import get_account_info
-                acct_info = get_account_info(recipient['recipient_address'])
+                acct_info = get_account_info(recipient['destination'])
                 if acct_info:
                     recipient_display_name = acct_info.get('name', '')
                     if acct_info.get('category'):
@@ -16020,74 +16285,64 @@ def api_creator_outgoing_analysis(creator_address: str):
 
                 # 6. If not in infra_mapping, check if it's a CEX wallet
                 if not acct_info:
-                    cursor.execute("SELECT COUNT(*) as count FROM cex_wallets WHERE cex_address = ?", (recipient['recipient_address'],))
+                    cursor.execute("SELECT COUNT(*) as count FROM cex_wallets WHERE cex_address = ?", (recipient['destination'],))
                     r = cursor.fetchone()
                     if r and r['count'] > 0:
                         recipient_labels.append('CEX')
-                        # Get CEX name
-                        cursor.execute("SELECT exchange_name FROM cex_wallets WHERE cex_address = ?", (recipient['recipient_address'],))
+                        cursor.execute("SELECT exchange_name FROM cex_wallets WHERE cex_address = ?", (recipient['destination'],))
                         cex_row = cursor.fetchone()
                         if cex_row:
                             recipient_display_name = cex_row['exchange_name']
 
                 # Check if recipient is in a network
                 recipient_network = None
-                cursor.execute("SELECT network_name FROM creator_networks WHERE creator_address = ?", (recipient['recipient_address'],))
+                cursor.execute("SELECT network_name FROM creator_networks WHERE creator_address = ?", (recipient['destination'],))
                 network = cursor.fetchone()
                 if network:
                     recipient_network = network['network_name']
 
                 # Get details about funded creators
-                cursor.execute("SELECT DISTINCT creator_address FROM creator_funders WHERE funder_address = ?", (recipient['recipient_address'],))
+                cursor.execute("SELECT DISTINCT creator_address FROM creator_funders WHERE funder_address = ?", (recipient['destination'],))
                 funded = cursor.fetchall()
                 if funded:
                     funded_creators = [f['creator_address'] for f in funded]
 
-                    # For each funded creator, get enriched details
                     for fc in funded_creators:
                         creator_info = {'address': fc, 'labels': [], 'display_name': None}
 
-                        # Check for infrastructure FIRST (Padre, etc.)
-                        from infra_mapping import get_account_info
                         acct_info = get_account_info(fc)
                         if acct_info:
                             creator_info['display_name'] = acct_info.get('name', '')
                             if acct_info.get('category'):
                                 creator_info['labels'].append(f'INFRA({acct_info["category"]})')
 
-                        # If not in infra_mapping, check if it's a CEX wallet
                         if not acct_info:
                             cursor.execute("SELECT COUNT(*) as count FROM cex_wallets WHERE cex_address = ?", (fc,))
                             r = cursor.fetchone()
                             if r and r['count'] > 0:
                                 creator_info['labels'].append('CEX')
-                                # Get CEX name
                                 cursor.execute("SELECT exchange_name FROM cex_wallets WHERE cex_address = ?", (fc,))
                                 cex_row = cursor.fetchone()
                                 if cex_row:
                                     creator_info['display_name'] = cex_row['exchange_name']
 
-                        # Check if funded creator is in a network
                         cursor.execute("SELECT network_name FROM creator_networks WHERE creator_address = ?", (fc,))
                         net = cursor.fetchone()
                         if net:
                             creator_info['network'] = net['network_name']
 
-                        # Check if funded creator has created tokens
                         cursor.execute("SELECT COUNT(*) as count FROM token_analysis WHERE earliest_tx_creator = ?", (fc,))
                         r = cursor.fetchone()
                         token_count = r['count'] if r else 0
                         if token_count > 0:
                             creator_info['labels'].append(f'CREATOR({token_count})')
 
-                        # Check if funded creator sends SOL to other funders/creators
-                        cursor.execute("SELECT COUNT(DISTINCT recipient_address) as count FROM creator_outgoing_transfers WHERE creator_address = ?", (fc,))
+                        cursor.execute("SELECT COUNT(DISTINCT destination) as count FROM sol_transfers WHERE source = ?", (fc,))
                         r = cursor.fetchone()
                         outgoing_count = r['count'] if r else 0
                         if outgoing_count > 0:
                             creator_info['labels'].append(f'SENDER({outgoing_count})')
 
-                        # Check if funded creator receives from multiple funders
                         cursor.execute("SELECT COUNT(DISTINCT funder_address) as count FROM creator_funders WHERE creator_address = ?", (fc,))
                         r = cursor.fetchone()
                         funder_count = r['count'] if r else 0
@@ -16097,7 +16352,7 @@ def api_creator_outgoing_analysis(creator_address: str):
                         funded_creators_data.append(creator_info)
 
                 recipients_with_flags.append({
-                    'address': recipient['recipient_address'],
+                    'address': recipient['destination'],
                     'amount_sol': recipient['amount_sol'],
                     'last_transaction_time': recipient['last_transaction_time'],
                     'labels': recipient_labels,
@@ -16111,11 +16366,11 @@ def api_creator_outgoing_analysis(creator_address: str):
                 'recipients': recipients_with_flags
             })
 
-        # Check for circular funding BEFORE closing connection
+        # Check for circular funding from webhooks
         cursor.execute("""
-            SELECT COUNT(*) as count FROM creator_outgoing_transfers cot
-            WHERE cot.creator_address = ?
-            AND cot.recipient_address IN (
+            SELECT COUNT(*) as count FROM sol_transfers st
+            WHERE st.source = ?
+            AND st.destination IN (
                 SELECT funder_address FROM creator_funders
                 WHERE creator_address = ?
             )
@@ -16136,15 +16391,15 @@ def api_creator_outgoing_analysis(creator_address: str):
 
         for token_data in tokens_with_transfers:
             for recipient in token_data['recipients']:
-                flags = recipient.get('flags', [])
-                for flag in flags:
-                    if 'CROSS_FUNDER' in str(flag):
+                labels = recipient.get('labels', [])
+                for label in labels:
+                    if 'CROSS_FUNDER' in str(label):
                         cross_funder_count += 1
-                    elif 'MULTI_FUNDED' in str(flag):
+                    elif 'MULTI_FUNDED' in str(label):
                         multi_funded_count += 1
-                    elif 'FUNDS_' in str(flag) and 'CROSS' not in str(flag):
+                    elif 'FUNDS_' in str(label) and 'CROSS' not in str(label):
                         funds_count += 1
-                    elif 'SENDER_' in str(flag):
+                    elif 'SENDER_' in str(label):
                         sender_count += 1
 
         if cross_funder_count > 0:
@@ -16192,7 +16447,6 @@ def api_creator_outgoing_analysis(creator_address: str):
             if network_name:
                 affected_networks.add(network_name)
 
-            # Find networks of target creators
             conn = sqlite3.connect(DB_PATH, timeout=5)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
@@ -16232,36 +16486,32 @@ def api_creator_outgoing_analysis(creator_address: str):
                 'networks': [network_name] if network_name else []
             })
 
-        # Check for distribution pattern: isolated funders + broad recipient distribution
-        # Pattern: small group of funders (all only fund this creator) sending to many unrelated recipients
+        # Check for distribution pattern
         if (len(incoming_funders) > 0 and transfers['count'] > 0 and
             len(incoming_funders) <= 10 and transfers['unique_recipients'] > len(incoming_funders) * 1.5):
-            # Check if most incoming funders only fund this creator (isolated group)
-            isolated_funders = sum(1 for f in incoming_funders for _ in [True])  # All in incoming_funders are isolated
-            if isolated_funders >= 5:  # At least 5 isolated funders
+            isolated_funders = sum(1 for f in incoming_funders for _ in [True])
+            if isolated_funders >= 5:
                 findings.append({
                     'type': '⚠️ DISTRIBUTION_PATTERN',
                     'description': f'Creator receives from {len(incoming_funders)} isolated funders (only support this creator) but distributes to {transfers["unique_recipients"]} separate addresses. Pattern suggests fund distribution/intermediary activity rather than organic token creation support.',
                     'networks': []
                 })
 
-        # Check for self-funding WITH circular funding (creator sends money back to funders)
-        # Only flag as SELF-FUNDING SCHEME if we see circular money flow
+        # Check for self-funding WITH circular funding
         if is_self_funding and self_funding_intermediates > 0:
-            if self_funding_percentage >= 50 and has_circular_funding:  # If 50%+ of funders only fund this creator AND money flows back
+            if self_funding_percentage >= 50 and has_circular_funding:
                 findings.insert(0, {
                     'type': '🚩 SELF-FUNDING SCHEME',
                     'description': f'{int(self_funding_percentage)}% of this creator\'s funders ({self_funding_intermediates}/{total_funders}) only fund them, AND the creator sends money back to these funders. Circular funding pattern proves self-funding through intermediaries.',
                     'networks': []
                 })
 
-        # Add network membership findings (always, not just when no other findings)
+        # Add network membership findings
         if networks_with_types:
             for net_info in networks_with_types:
                 net_name = net_info['name']
                 net_type = net_info['type']
 
-                # Determine network type descriptor and finding type
                 network_type_desc = "coordinated funding network"
                 finding_type = '⚠️ NETWORK_MEMBER'
 
@@ -16284,24 +16534,22 @@ def api_creator_outgoing_analysis(creator_address: str):
                     'networks': [net_name]
                 })
         elif not findings:
-            # Only show CLEAN if creator has no networks AND no other findings
             findings.append({
                 'type': 'CLEAN',
                 'description': 'No suspicious activity detected. Creator operates independently.',
                 'networks': []
             })
 
-        # Always check if this address received SOL (is a recipient/funder)
+        # Check if this address received SOL
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(DISTINCT creator_address) as count FROM creator_outgoing_transfers WHERE recipient_address = ?", (creator_address,))
+        cursor.execute("SELECT COUNT(DISTINCT source) as count FROM sol_transfers WHERE destination = ?", (creator_address,))
         result = cursor.fetchone()
         received_from_count = result['count'] if result else 0
         conn.close()
 
         if received_from_count > 0 and not any('RECIPIENT' in f.get('type', '') for f in findings):
-            # Add recipient finding if not already added
             findings.append({
                 'type': 'ℹ️ RECIPIENT',
                 'description': f'This address received SOL from {received_from_count} creator(s). It functions as a recipient/intermediate address in the funding network.',
@@ -16344,7 +16592,6 @@ def api_creator_outgoing_analysis(creator_address: str):
                 'timestamp': fc['source_block_time']
             }
 
-            # Enrich source creator
             acct_info = get_account_info(fc['source_creator'])
             if acct_info:
                 chain_data['source_creator_display'] = acct_info.get('name', '')
@@ -16354,7 +16601,6 @@ def api_creator_outgoing_analysis(creator_address: str):
                 if cex_row:
                     chain_data['source_creator_display'] = cex_row['exchange_name']
 
-            # Enrich bridge funder
             acct_info = get_account_info(fc['bridge_funder'])
             if acct_info:
                 chain_data['bridge_funder_display'] = acct_info.get('name', '')
@@ -16364,7 +16610,6 @@ def api_creator_outgoing_analysis(creator_address: str):
                 if cex_row:
                     chain_data['bridge_funder_display'] = cex_row['exchange_name']
 
-            # Enrich target creator
             acct_info = get_account_info(fc['target_creator'])
             if acct_info:
                 chain_data['target_creator_display'] = acct_info.get('name', '')
@@ -16381,7 +16626,7 @@ def api_creator_outgoing_analysis(creator_address: str):
         return jsonify({
             'creator_address': creator_address,
             'last_scanned': last_scanned,
-            'scan_status': 'Recently scanned' if last_scanned else 'Not yet scanned',
+            'scan_status': 'Real-time webhook data' if transfers['count'] > 0 else 'No webhook activity',
             'network_name': network_name,
             'network_type': network_type,
             'networks': networks_with_types,
@@ -16404,7 +16649,7 @@ def api_creator_outgoing_analysis(creator_address: str):
                 }
                 for t in tokens_with_transfers
             ],
-            'funding_chains': enriched_funding_chains[:20]  # Limit to 20 most recent
+            'funding_chains': enriched_funding_chains[:20]
         })
     except Exception as e:
         import traceback
@@ -16681,22 +16926,22 @@ def detect_network_cex_infra_connections():
 
 @app.route('/api/creator-recent-checks')
 def api_creator_recent_checks():
-    """Get the most recently scanned creators with their findings"""
+    """Get the most recently active creators from webhook data with their findings"""
     try:
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
-        # Get creators from creator_outgoing_transfers (most recently extracted by the scanner)
-        # Order by MAX(block_time) to get most recently scanned creators
+        # Get creators from WEBHOOK DATA (sol_transfers) - most recently active
+        # Order by MAX(block_time) to get most recent webhook activity
         cursor.execute("""
-            SELECT creator_address, MAX(block_time) as latest_block_time
-            FROM creator_outgoing_transfers
-            GROUP BY creator_address
+            SELECT source, MAX(block_time) as latest_block_time
+            FROM sol_transfers
+            GROUP BY source
             ORDER BY MAX(block_time) DESC
             LIMIT 15
         """)
-        recent_creators = [row['creator_address'] for row in cursor.fetchall()]
+        recent_creators = [row['source'] for row in cursor.fetchall()]
 
         recent_checks = []
         for creator in recent_creators:
@@ -16722,11 +16967,11 @@ def api_creator_recent_checks():
             """, (creator,))
             chain_count = cursor.fetchone()['chain_count'] or 0
 
-            # Get outgoing transfer count and latest scan time
+            # Get outgoing transfer count and latest activity time from WEBHOOKS
             cursor.execute("""
                 SELECT COUNT(*) as outgoing_count, MAX(block_time) as latest_scan
-                FROM creator_outgoing_transfers
-                WHERE creator_address = ?
+                FROM sol_transfers
+                WHERE source = ?
             """, (creator,))
             result = cursor.fetchone()
             outgoing_count = result['outgoing_count'] or 0
@@ -16752,16 +16997,16 @@ def api_creator_recent_checks():
             self_fund_row = cursor.fetchone()
             if self_fund_row and self_fund_row['is_self_funding']:
                 self_fund_count = self_fund_row['self_funding_intermediates'] or 0
-                total_funders = self_fund_row['total_funders'] or 1  # Avoid division by zero
+                total_funders = self_fund_row['total_funders'] or 1
                 pct = (self_fund_count / total_funders * 100) if total_funders > 0 else 0
                 findings.append(f'🚩 SELF-FUNDING ({pct:.0f}%)')
 
-            # Check for distribution pattern (many recipients, few funders)
+            # Check for distribution pattern (many recipients, few funders) from webhooks
             if outgoing_count > 0:
                 cursor.execute("""
-                    SELECT COUNT(DISTINCT recipient_address) as recipient_count
-                    FROM creator_outgoing_transfers
-                    WHERE creator_address = ?
+                    SELECT COUNT(DISTINCT destination) as recipient_count
+                    FROM sol_transfers
+                    WHERE source = ?
                 """, (creator,))
                 recipient_row = cursor.fetchone()
                 recipient_count = recipient_row['recipient_count'] if recipient_row else 0
@@ -17929,30 +18174,80 @@ def api_creator_queue_status():
         cur.execute("SELECT COUNT(*) FROM work_queue WHERE attempts = 0")
         never_checked = cur.fetchone()[0]
 
-        # Get top 10 priority creators
+        # Get top 20 priority creators
         cur.execute("""
             SELECT address, ROUND(priority, 1),
-                   CASE
-                       WHEN locked_until > ? THEN 'PROCESSING'
-                       WHEN next_run_at <= ? THEN 'READY'
-                       ELSE 'WAITING'
-                   END as status,
-                   attempts, reason, locked_until, next_run_at
+                   locked_until, next_run_at,
+                   attempts, reason
             FROM work_queue
             ORDER BY priority DESC
-            LIMIT 10
-        """, (now, now))
+            LIMIT 20
+        """)
 
         top_creators = []
         for row in cur.fetchall():
+            address = row[0]
+            priority = row[1]
+            locked_until = row[2]
+            next_run_at = row[3]
+            attempts = row[4]
+            reason = row[5]
+
+            # Determine status
+            status = 'WAITING'
+            if locked_until > now:
+                status = 'PROCESSING'
+            elif next_run_at <= now:
+                status = 'READY'
+
+            # Get activity stats for this creator
+            cur.execute("""
+                SELECT
+                    COUNT(DISTINCT CASE WHEN source = ? THEN signature END) as outbound,
+                    COUNT(DISTINCT CASE WHEN destination = ? THEN signature END) as inbound
+                FROM sol_transfers
+            """, (address, address))
+
+            activity_row = cur.fetchone()
+            outbound = activity_row[0] if activity_row[0] else 0
+            inbound = activity_row[1] if activity_row[1] else 0
+            total_activity = outbound + inbound
+
+            # Look up label from multiple sources (priority order)
+            label = None
+
+            # 1. Check custom labels first
+            cur.execute("SELECT label_name FROM address_labels WHERE address = ? LIMIT 1", (address,))
+            row = cur.fetchone()
+            if row:
+                label = row[0]
+
+            # 2. Check CEX wallets
+            if not label:
+                cur.execute("SELECT exchange_name FROM cex_wallets WHERE cex_address = ? LIMIT 1", (address,))
+                row = cur.fetchone()
+                if row:
+                    label = f"{row[0]} (CEX)"
+
+            # 3. Check INFRA funders
+            if not label:
+                cur.execute("SELECT funder_address FROM infra_funders_observed WHERE funder_address = ? LIMIT 1", (address,))
+                if cur.fetchone():
+                    label = "INFRA"
+
             top_creators.append({
-                "address": row[0],
-                "priority": row[1],
-                "status": row[2],
-                "attempts": row[3],
-                "reason": row[4],
-                "locked_until": row[5],
-                "next_run_at": row[6]
+                "address": address,
+                "label": label,
+                "display_name": label or address,
+                "priority": priority,
+                "status": status,
+                "attempts": attempts,
+                "reason": reason,
+                "locked_until": locked_until,
+                "next_run_at": next_run_at,
+                "outbound_tx": outbound,
+                "inbound_tx": inbound,
+                "total_activity": total_activity
             })
 
         conn.close()
@@ -18360,15 +18655,27 @@ def webhook_monitor():
 
                     // Update transfers table
                     if (data.recent_transfers && data.recent_transfers.length > 0) {
-                        let tableHtml = '<table><thead><tr><th>Sender</th><th>Receiver</th><th>Amount</th><th>TX Hash</th><th>Time</th></tr></thead><tbody>';
+                        let tableHtml = '<table><thead><tr><th>Sender</th><th>Receiver</th><th>Amount</th><th>Time</th></tr></thead><tbody>';
 
                         for (const transfer of data.recent_transfers) {
+                            // Color code: creator (yellow), labeled/CEX (cyan), others (purple)
+                            const senderColor = transfer.sender_is_creator ? '#fbbf24' : transfer.sender_has_label ? '#06b6d4' : '#a78bfa';
+                            const receiverColor = transfer.receiver_is_creator ? '#fbbf24' : transfer.receiver_has_label ? '#06b6d4' : '#a78bfa';
+
+                            // Create display with tooltip for full address if labeled
+                            const senderDisplay = transfer.sender_has_label
+                                ? `<span title="${transfer.sender_address}" style="cursor: help;">${transfer.sender}</span>`
+                                : transfer.sender;
+
+                            const receiverDisplay = transfer.receiver_has_label
+                                ? `<span title="${transfer.receiver_address}" style="cursor: help;">${transfer.receiver}</span>`
+                                : transfer.receiver;
+
                             tableHtml += `
                                 <tr>
-                                    <td><span class="address">${transfer.sender}</span></td>
-                                    <td><span class="address">${transfer.receiver}</span></td>
+                                    <td><span class="address" style="color: ${senderColor};">${senderDisplay}</span></td>
+                                    <td><span class="address" style="color: ${receiverColor};">${receiverDisplay}</span></td>
                                     <td><span class="amount-positive">◆ ${transfer.amount_sol} SOL</span></td>
-                                    <td><span class="address">${transfer.signature}</span></td>
                                     <td><span class="timestamp">${timeSinceNow(transfer.timestamp * 1000)}</span></td>
                                 </tr>
                             `;
@@ -18429,7 +18736,7 @@ def webhook_monitor():
 
                     // Update queue table
                     if (data.top_creators && data.top_creators.length > 0) {
-                        let tableHtml = '<table><thead><tr><th>Creator Address</th><th>Priority</th><th>Status</th><th>Attempts</th><th>Reason</th></tr></thead><tbody>';
+                        let tableHtml = '<table><thead><tr><th>Creator Address</th><th>Outbound TX</th><th>Inbound TX</th><th>Total Activity</th><th>Priority</th><th>Status</th><th>Attempts</th></tr></thead><tbody>';
 
                         for (const creator of data.top_creators) {
                             let statusBadge = '⚪ WAITING';
@@ -18443,13 +18750,22 @@ def webhook_monitor():
                                 statusColor = '#22c55e';
                             }
 
+                            let activityEmoji = creator.total_activity > 50 ? '⭐' : '';
+
+                            // Display label if available, otherwise address with tooltip
+                            const creatorDisplay = creator.label
+                                ? `<span style="color: #06b6d4; font-weight: bold;" title="${creator.address}" style="cursor: help;">${creator.label}</span>`
+                                : `<span class="address">${creator.address}</span>`;
+
                             tableHtml += `
                                 <tr>
-                                    <td><span class="address">${creator.address.substring(0, 12)}...</span></td>
+                                    <td>${creatorDisplay}</td>
+                                    <td style="color: #06b6d4; font-weight: bold;">${creator.outbound_tx}</td>
+                                    <td style="color: #22c55e; font-weight: bold;">${creator.inbound_tx}</td>
+                                    <td style="color: #fbbf24; font-weight: bold;">${creator.total_activity} ${activityEmoji}</td>
                                     <td><span style="color: ${creator.priority >= 80 ? '#ef4444' : creator.priority >= 60 ? '#f59e0b' : '#22c55e'}; font-weight: bold;">${creator.priority.toFixed(1)}</span></td>
                                     <td><span style="color: ${statusColor};">${statusBadge}</span></td>
                                     <td>${creator.attempts}</td>
-                                    <td><span style="color: #9ca3af; font-size: 11px;">${creator.reason}</span></td>
                                 </tr>
                             `;
                         }

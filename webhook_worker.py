@@ -337,7 +337,18 @@ def process_work_item(conn: sqlite3.Connection, address: str, priority: float, r
     except Exception as e:
         print(f"[WORKER] {address[:8]}... error computing risk score: {e}", flush=True)
 
-    # Update attempt count and next_run_at
+    # Adaptive requeue: Higher priority = sooner recheck
+    # Reduces DB churn on low-value addresses
+    if computed_priority >= 80:
+        next_run_delay = 60      # Critical: recheck in 1 minute
+    elif computed_priority >= 60:
+        next_run_delay = 300     # Elevated: recheck in 5 minutes
+    elif computed_priority >= 40:
+        next_run_delay = 900     # Moderate: recheck in 15 minutes
+    else:
+        next_run_delay = 3600    # Low: recheck in 1 hour
+
+    # Update attempt count and next_run_at with adaptive delay
     cur.execute("""
         UPDATE work_queue
         SET
@@ -347,7 +358,7 @@ def process_work_item(conn: sqlite3.Connection, address: str, priority: float, r
             next_run_at = ?,
             updated_at = CURRENT_TIMESTAMP
         WHERE address = ?
-    """, (computed_priority, now + 300, address))  # Requeue in 5 minutes
+    """, (computed_priority, now + next_run_delay, address))
 
     conn.commit()
 

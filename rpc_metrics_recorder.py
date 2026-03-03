@@ -652,30 +652,6 @@ def record_request(
         section, provider, method, status_code, latency_ms, mode, retries, bytes_in, bytes_out, source_file, error
     )
 
-    # POST to API for centralized aggregation (API will NOT re-record to avoid double-counting)
-    try:
-        import requests
-        requests.post(
-            'http://localhost:8001/metrics/rpc/aggregate',
-            json={
-                'section': section,
-                'provider': provider,
-                'method': method,
-                'status_code': status_code,
-                'latency_ms': latency_ms,
-                'mode': mode,
-                'retries': retries,
-                'source_file': source_file,
-                'bytes_in': bytes_in,
-                'bytes_out': bytes_out,
-                'error': error,
-                'credits': credits,
-            },
-            timeout=1
-        )
-    except Exception:
-        pass  # Fail silently if API not available
-
     return credits
 
 

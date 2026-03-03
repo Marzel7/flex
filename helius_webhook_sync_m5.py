@@ -28,19 +28,21 @@ DB_PATH = os.getenv("DB_PATH", "flex_complete_database.db")
 
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "").strip()
-WEBHOOK_TYPE = os.getenv("WEBHOOK_TYPE", "enhanced").strip()
+WEBHOOK_TYPE = os.getenv("WEBHOOK_TYPE", "raw").strip()
 CREATE_MISSING = os.getenv("CREATE_MISSING", "0").strip() == "1"
 
 CREATOR_LIMIT = int(os.getenv("CREATOR_LIMIT", "1000"))
 SHARD_SIZE = int(os.getenv("SHARD_SIZE", "100000"))
 
-_TX_TYPES_RAW = os.getenv("TX_TYPES", "[]").strip()
+_TX_TYPES_RAW = os.getenv("TX_TYPES", '["TRANSFER"]').strip()
 try:
     TX_TYPES = json.loads(_TX_TYPES_RAW)
     if not isinstance(TX_TYPES, list):
         raise ValueError("TX_TYPES must be a JSON array string")
+    if not TX_TYPES:
+        TX_TYPES = ["TRANSFER"]
 except Exception:
-    TX_TYPES = []
+    TX_TYPES = ["TRANSFER"]
 
 def _connect() -> sqlite3.Connection:
     conn = sqlite3.connect(DB_PATH, timeout=30)
@@ -142,7 +144,7 @@ def api_create_webhook(account_addresses: List[str]) -> dict:
     }
     url = f"{helius_base()}?api-key={HELIUS_API_KEY}"
     r = requests.post(url, json=payload, timeout=30)
-    if r.status_code != 200:
+    if r.status_code not in (200, 201):
         raise RuntimeError(f"POST create webhook failed: {r.status_code} {r.text[:200]}")
     return r.json()
 

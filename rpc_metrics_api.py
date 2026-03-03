@@ -9,18 +9,25 @@ Provides HTTP endpoints:
 - POST /metrics/rpc/reset - Reset daily counters (admin only)
 """
 
-from fastapi import FastAPI, HTTPException, Query, Body
+from fastapi import FastAPI, HTTPException, Query, Body, BackgroundTasks
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from datetime import datetime
 import json
 from typing import Optional
+import threading
+import time
+import sqlite3
 
 from rpc_metrics_recorder import (
     get_recorder,
     initialize_recorder,
     RPCMetricsRecorder,
 )
+
+# Global state for background comparison tests
+comparison_results = {}
+comparison_lock = threading.Lock()
 
 
 # ============================================================================
@@ -157,6 +164,258 @@ async def metrics_reset(request: dict = Body(None)):
         return {"status": "success", "message": "All RPC metrics reset to 0 (requests, errors, sections, methods)"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Reset failed: {str(e)}")
+
+
+def run_comparison_background(test_id: str, duration_seconds: int):
+    """Run comparison test in background thread
+    
+    Captures explicit Helius snapshots BEFORE and AFTER the test window
+    to ensure accurate delta measurement.
+    """
+    DB_PATH = "flex_complete_database.db"
+
+    def _connect():
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
+        conn.execute("PRAGMA busy_timeout=30000")
+        return conn
+
+    def get_latest_helius_snapshot():
+        """Get the latest Helius snapshot from database"""
+        conn = _connect()
+        cur = conn.cursor()
+        try:
+            cur.execute("""
+                SELECT
+                  credits_remaining,
+                  credits_used,
+                  credits_used_month,
+                  prepaid_credits_used,
+                  overage_credits_used,
+                  overage_cost,
+                  timestamp
+                FROM helius_usage_snapshots
+                ORDER BY timestamp DESC
+                LIMIT 1
+            """)
+            row = cur.fetchone()
+            if row:
+                return dict(row)
+            return None
+        finally:
+            conn.close()
+
+    def trigger_helius_snapshot():
+        """Trigger a fresh Helius CLI snapshot capture"""
+        try:
+            import subprocess
+            subprocess.run(
+                ["python", "helius_cli_monitor.py"],
+                capture_output=True,
+                timeout=15
+            )
+            print(f"[COMPARISON] Triggered Helius snapshot capture", flush=True)
+        except Exception as e:
+            print(f"[COMPARISON] Warning: Could not trigger Helius snapshot: {str(e)[:100]}", flush=True)
+
+    try:
+        # BEFORE TEST: Trigger fresh Helius snapshot
+        print(f"[COMPARISON] Capturing BEFORE snapshot...", flush=True)
+        trigger_helius_snapshot()
+        time.sleep(2)  # Brief pause for snapshot to complete
+        
+        # Get initial state from RPC recorder (instrumented credits)
+        recorder = get_recorder()
+        summary = recorder.get_summary()
+        local_start = summary.get('credits_instrumented_today', 0)
+        print(f"[COMPARISON] Initial local baseline: {local_start} credits (instrumented)", flush=True)
+
+        # Get BEFORE Helius snapshot (freshly captured)
+        helius_snapshot_before = get_latest_helius_snapshot()
+        helius_start = helius_snapshot_before.get('credits_used', 0) if helius_snapshot_before else 0
+        helius_timestamp_before = helius_snapshot_before.get('timestamp', 'unknown') if helius_snapshot_before else 'unknown'
+        print(f"[COMPARISON] BEFORE Helius snapshot: {helius_start} credits at {helius_timestamp_before}", flush=True)
+
+        # Run comparison loop
+        start_time = time.time()
+        measurements = []
+        local_delta = 0
+        helius_delta = 0
+        diff = 0
+        diff_pct = 0
+        status = "CLEAN"
+        last_helius_value = helius_start
+
+        while True:
+            elapsed = int(time.time() - start_time)
+
+            if elapsed > duration_seconds:
+                print(f"[COMPARISON] Test duration reached ({elapsed}s), stopping", flush=True)
+                break
+
+            # Fetch current LOCAL metrics
+            try:
+                recorder = get_recorder()
+                summary = recorder.get_summary()
+                local_total = summary.get('credits_instrumented_today', 0)
+            except:
+                local_total = local_start
+
+            # Fetch current HELIUS metrics from DB (updates every 30s from CLI monitor)
+            try:
+                helius_snapshot = get_latest_helius_snapshot()
+                current_helius = helius_snapshot.get('credits_used', 0) if helius_snapshot else helius_start
+                
+                # Track if Helius updated
+                if current_helius > last_helius_value:
+                    print(f"[COMPARISON] @{elapsed}s: Helius updated to {current_helius} (was {last_helius_value})", flush=True)
+                    last_helius_value = current_helius
+                helius_end = current_helius
+            except Exception as e:
+                print(f"[COMPARISON] Error reading Helius snapshot: {str(e)}", flush=True)
+                helius_end = helius_start
+
+            # Calculate deltas (using latest known values)
+            local_delta = max(0, local_total - local_start)
+            helius_delta = max(0, helius_end - helius_start)
+
+            # Calculate comparison
+            diff = abs(local_delta - helius_delta)
+            diff_pct = (diff / max(helius_delta, 1) * 100) if helius_delta > 0 else 0
+
+            status = "CLEAN" if diff_pct <= 2 else "MINOR" if diff_pct <= 5 else "DRIFT"
+
+            measurements.append({
+                "elapsed": elapsed,
+                "local_credits": local_delta,
+                "helius_credits": helius_delta,
+                "difference": diff,
+                "difference_pct": round(diff_pct, 1) if helius_delta > 0 else 0,
+                "status": status
+            })
+
+            # Update results immediately (for live polling)
+            with comparison_lock:
+                comparison_results[test_id] = {
+                    "status": "running",
+                    "duration": elapsed,
+                    "updates": len(measurements),
+                    "summary": {
+                        "local_credits_used": local_delta,
+                        "helius_credits_used": helius_delta,
+                        "difference": diff,
+                        "difference_pct": round(diff_pct, 1),
+                        "status": status
+                    },
+                    "measurements": measurements[-5:],  # Last 5
+                    "notes": ["Test running...", "Local: Per-request instrumentation", "Helius: Account-level billing (explicit snapshots)"]
+                }
+
+            time.sleep(5)  # Update every 5 seconds
+
+        # AFTER TEST: Trigger fresh Helius snapshot
+        print(f"[COMPARISON] Test complete, capturing AFTER snapshot...", flush=True)
+        trigger_helius_snapshot()
+        time.sleep(2)  # Brief pause for snapshot to complete
+
+        # Get AFTER Helius snapshot (freshly captured)
+        helius_snapshot_after = get_latest_helius_snapshot()
+        helius_end_final = helius_snapshot_after.get('credits_used', 0) if helius_snapshot_after else helius_end
+        helius_timestamp_after = helius_snapshot_after.get('timestamp', 'unknown') if helius_snapshot_after else 'unknown'
+        print(f"[COMPARISON] AFTER Helius snapshot: {helius_end_final} credits at {helius_timestamp_after}", flush=True)
+
+        # Recalculate final deltas using explicit before/after snapshots
+        local_delta = max(0, local_total - local_start)
+        helius_delta = max(0, helius_end_final - helius_start)
+        diff = abs(local_delta - helius_delta)
+        diff_pct = (diff / max(helius_delta, 1) * 100) if helius_delta > 0 else 0
+        status = "CLEAN" if diff_pct <= 2 else "MINOR" if diff_pct <= 5 else "DRIFT"
+
+        print(f"[COMPARISON] FINAL DELTA: Local={local_delta}, Helius={helius_delta}, Diff={diff} ({diff_pct:.1f}%)", flush=True)
+
+        # Store final results
+        with comparison_lock:
+            comparison_results[test_id] = {
+                "status": "complete",
+                "duration": elapsed,
+                "updates": len(measurements),
+                "summary": {
+                    "local_credits_used": local_delta,
+                    "helius_credits_used": helius_delta,
+                    "difference": diff,
+                    "difference_pct": round(diff_pct, 1),
+                    "status": status
+                },
+                "measurements": measurements[-5:],  # Last 5
+                "snapshots": {
+                    "before": {
+                        "timestamp": helius_timestamp_before,
+                        "credits_used": helius_start
+                    },
+                    "after": {
+                        "timestamp": helius_timestamp_after,
+                        "credits_used": helius_end_final
+                    }
+                },
+                "notes": ["Test completed with explicit before/after snapshots", "Local: Per-request instrumentation", "Helius: Account-level billing (explicit snapshots)"]
+            }
+    except Exception as e:
+        print(f"[COMPARISON] Error in background test: {str(e)}", flush=True)
+        with comparison_lock:
+            comparison_results[test_id] = {
+                "status": "error",
+                "error": str(e)
+            }
+
+
+@app.post("/metrics/rpc/comparison")
+async def run_rpc_comparison(duration_seconds: int = Query(300), test_id: Optional[str] = Query(None)):
+    """
+    Start or check status of a 2-minute comparison test.
+
+    If test_id is provided, returns status/results of that test.
+    If test_id is not provided, starts a new test and returns the test_id for polling.
+
+    Args:
+        duration_seconds: How long to run the test (default 120 = 2 minutes)
+        test_id: Test ID to check status (if None, starts new test)
+
+    Returns:
+        New test: {test_id, status: "running"}
+        Status check: {status: "running"|"complete"|"error", ...results}
+    """
+    import uuid
+
+    if test_id:
+        # Check existing test status
+        with comparison_lock:
+            if test_id in comparison_results:
+                return comparison_results[test_id]
+            else:
+                return {"status": "not_found"}
+
+    # Start new background test
+    new_test_id = str(uuid.uuid4())[:8]
+
+    # Start background thread
+    thread = threading.Thread(
+        target=run_comparison_background,
+        args=(new_test_id, duration_seconds),
+        daemon=True
+    )
+    thread.start()
+
+    with comparison_lock:
+        comparison_results[new_test_id] = {"status": "running"}
+
+    return {
+        "test_id": new_test_id,
+        "status": "running",
+        "message": "Test started, poll with test_id to get results",
+        "duration_seconds": duration_seconds
+    }
 
 
 @app.get("/metrics/rpc/scan-cost")
@@ -635,6 +894,8 @@ DASHBOARD_HTML = """
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <button class="reset-btn" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); box-shadow: 0 4px 6px rgba(6, 182, 212, 0.3);" id="refreshBtn" onclick="refreshHelius()">💎 Refresh Helius</button>
+                    <button class="reset-btn" style="background: linear-gradient(135deg, #a78bfa 0%, #9333ea 100%); box-shadow: 0 4px 6px rgba(167, 139, 250, 0.3);" onclick="showComparisonModal()">📊 Local vs Helius</button>
+                    <button class="reset-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);" onclick="runLiveComparison()">🔬 Run Live Test (5 min)</button>
                     <button class="reset-btn" onclick="showResetConfirm()">🔄 Reset Metrics</button>
                 </div>
             </div>
@@ -652,6 +913,28 @@ DASHBOARD_HTML = """
         <div class="reset-confirm-buttons">
             <button class="reset-confirm-btn cancel" onclick="hideResetConfirm()">Cancel</button>
             <button class="reset-confirm-btn confirm" onclick="confirmReset()">Reset All</button>
+        </div>
+    </div>
+
+    <div id="comparisonOverlay" class="reset-overlay" onclick="hideComparisonModal()"></div>
+    <div id="comparisonModal" class="reset-confirm" style="display: none; max-width: 900px; max-height: 80vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3>📊 Local vs Helius Comparison</h3>
+            <button style="background: none; border: none; color: #e2e8f0; font-size: 24px; cursor: pointer;" onclick="hideComparisonModal()">✕</button>
+        </div>
+        <div id="comparisonContent" style="color: #cbd5e1;">
+            <p>Loading comparison data...</p>
+        </div>
+    </div>
+
+    <div id="testResultsOverlay" class="reset-overlay" onclick="hideTestResults()"></div>
+    <div id="testResultsModal" class="reset-confirm" style="display: none; max-width: 900px; max-height: 80vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3>🔬 Live Test Results</h3>
+            <button style="background: none; border: none; color: #e2e8f0; font-size: 24px; cursor: pointer;" onclick="hideTestResults()">✕</button>
+        </div>
+        <div id="testResultsContent" style="color: #cbd5e1;">
+            <p>Running test...</p>
         </div>
     </div>
 
@@ -990,6 +1273,334 @@ DASHBOARD_HTML = """
             } finally {
                 btn.disabled = false;
                 btn.textContent = "💎 Refresh Helius";
+            }
+        }
+
+        async function runLiveComparison() {
+            const btn = event.target;
+            const statusDiv = document.getElementById("resetStatus");
+
+            btn.disabled = true;
+            btn.textContent = "⏳ Starting test...";
+
+            // Show test results modal
+            const overlay = document.getElementById("testResultsOverlay");
+            const modal = document.getElementById("testResultsModal");
+            overlay.classList.add("show");
+            modal.style.display = "block";
+
+            const contentDiv = document.getElementById("testResultsContent");
+
+            try {
+                // Step 1: Start the background test
+                const startResponse = await fetch("/metrics/rpc/comparison", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                if (!startResponse.ok) {
+                    throw new Error(`Failed to start test: ${startResponse.status}`);
+                }
+
+                const startData = await startResponse.json();
+                const testId = startData.test_id;
+
+                if (!testId) {
+                    throw new Error("No test_id returned from server");
+                }
+
+                // Step 2: Poll for results with live updates
+                let isComplete = false;
+                let pollCount = 0;
+                const maxPolls = 160; // ~320 seconds of polling with 2-second intervals (allows for 5min test + overhead)
+                let allMeasurements = []; // Track all measurements for live display
+
+                while (!isComplete && pollCount < maxPolls) {
+                    pollCount++;
+
+                    // Wait before polling
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+
+                    // Poll for test status
+                    const pollResponse = await fetch(`/metrics/rpc/comparison?test_id=${testId}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" }
+                    });
+
+                    if (!pollResponse.ok) {
+                        throw new Error(`Poll failed: ${pollResponse.status}`);
+                    }
+
+                    const pollData = await pollResponse.json();
+                    const summary = pollData.summary || {};
+                    const measurements = pollData.measurements || [];
+
+                    // Keep track of all measurements
+                    allMeasurements = measurements;
+
+                    // Display live progress with current measurements
+                    const elapsed = pollCount * 2;
+                    const remaining = Math.max(0, 300 - elapsed);
+
+                    let html = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 8px; padding: 15px;">
+                                <h4 style="color: #60a5fa; margin-bottom: 10px;">📊 Local Instrumentation</h4>
+                                <div style="font-size: 28px; font-weight: bold; color: #60a5fa; margin-bottom: 5px;">
+                                    ${formatNumber(summary.local_credits_used !== undefined ? summary.local_credits_used : 0)}
+                                </div>
+                                <div style="font-size: 12px; color: #cbd5e1;">
+                                    Credits used in test period<br/>
+                                    <span style="color: #94a3b8;">Per-request attribution</span>
+                                </div>
+                            </div>
+
+                            <div style="background: rgba(167, 139, 250, 0.1); border: 1px solid rgba(167, 139, 250, 0.5); border-radius: 8px; padding: 15px;">
+                                <h4 style="color: #d8b4fe; margin-bottom: 10px;">💎 Helius Billing</h4>
+                                <div style="font-size: 28px; font-weight: bold; color: #d8b4fe; margin-bottom: 5px;">
+                                    ${formatNumber(summary.helius_credits_used !== undefined ? summary.helius_credits_used : 0)}
+                                </div>
+                                <div style="font-size: 12px; color: #cbd5e1;">
+                                    Credits used in test period<br/>
+                                    <span style="color: #94a3b8;">Account-level billing</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: rgba(100, 116, 139, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                            <h4 style="color: #cbd5e1; margin-bottom: 10px;">📈 Test Results</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                                <div>
+                                    <div style="color: #94a3b8; font-size: 12px; margin-bottom: 5px;">Difference</div>
+                                    <div style="font-size: 20px; font-weight: bold; color: #60a5fa;">
+                                        ${formatNumber(summary.difference !== undefined ? summary.difference : 0)}
+                                    </div>
+                                    <div style="font-size: 11px; color: #94a3b8;">credits</div>
+                                </div>
+                                <div>
+                                    <div style="color: #94a3b8; font-size: 12px; margin-bottom: 5px;">Difference %</div>
+                                    <div style="font-size: 20px; font-weight: bold; color: #60a5fa;">
+                                        ${(summary.difference_pct !== undefined ? summary.difference_pct : 0).toFixed(1)}%
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="color: #94a3b8; font-size: 12px; margin-bottom: 5px;">Status</div>
+                                    <div style="font-size: 20px; font-weight: bold; color: ${summary.status === 'CLEAN' ? '#10b981' : summary.status === 'MINOR' ? '#fbbf24' : '#ef4444'};">
+                                        ${summary.status === 'CLEAN' ? '✅ Clean' : summary.status === 'MINOR' ? '⚠️ Minor' : '❌ Drift'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${pollData.snapshots ? `
+                        <div style="background: rgba(100, 116, 139, 0.15); border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 11px; color: #cbd5e1;">
+                            <h4 style="color: #cbd5e1; margin-bottom: 10px;">🔍 Helius Snapshot Points</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div style="background: rgba(34, 197, 94, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid #22c55e;">
+                                    <div style="color: #22c55e; font-weight: bold;">BEFORE Test</div>
+                                    <div style="color: #cbd5e1; font-size: 10px; margin-top: 3px;">
+                                        ${formatNumber(pollData.snapshots.before.credits_used)} credits
+                                    </div>
+                                    <div style="color: #94a3b8; font-size: 9px; margin-top: 2px;">
+                                        ${new Date(pollData.snapshots.before.timestamp).toLocaleTimeString()}
+                                    </div>
+                                </div>
+                                <div style="background: rgba(34, 197, 94, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid #22c55e;">
+                                    <div style="color: #22c55e; font-weight: bold;">AFTER Test</div>
+                                    <div style="color: #cbd5e1; font-size: 10px; margin-top: 3px;">
+                                        ${formatNumber(pollData.snapshots.after.credits_used)} credits
+                                    </div>
+                                    <div style="color: #94a3b8; font-size: 9px; margin-top: 2px;">
+                                        ${new Date(pollData.snapshots.after.timestamp).toLocaleTimeString()}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        <div style="background: rgba(100, 116, 139, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                            <h4 style="color: #cbd5e1; margin-bottom: 10px;">📊 Live Measurements (${measurements.length} samples)
+                            ${!pollData.status || pollData.status === 'running' ? ' <span style="color: #fbbf24;">⏳ Test running...</span>' : ''}</h4>
+                            <div style="max-height: 300px; overflow-y: auto; font-size: 11px;">
+                                ${measurements.map(m => `
+                                    <div style="display: grid; grid-template-columns: 60px 100px 100px 70px; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(100, 116, 139, 0.3);">
+                                        <div><span style="color: #94a3b8;">+${m.elapsed}s</span></div>
+                                        <div>Local: <span style="color: #60a5fa;">${formatNumber(m.local_credits)}</span></div>
+                                        <div>Helius: <span style="color: #a78bfa;">${formatNumber(m.helius_credits)}</span></div>
+                                        <div><span style="color: ${m.status === 'CLEAN' ? '#10b981' : m.status === 'MINOR' ? '#fbbf24' : '#ef4444'};">${m.status}</span></div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(100, 116, 139, 0.3); color: #94a3b8; font-size: 10px;">
+                                ${!pollData.status || pollData.status === 'running' ? `⏱️ ${remaining}s remaining` : ''}
+                            </div>
+                        </div>
+
+                        <div style="background: rgba(100, 116, 139, 0.15); border-radius: 8px; padding: 12px; font-size: 11px; color: #cbd5e1;">
+                            <strong>ℹ️ Interpretation:</strong><br/>
+                            • Local = Per-request RPC instrumentation (more accurate)<br/>
+                            • Helius = Account-level billing (includes all usage)<br/>
+                            • Streaming subscriptions & webhooks are Helius-only (expected drift)
+                        </div>
+                    `;
+
+                    document.getElementById("testResultsContent").innerHTML = html;
+
+                    if (pollData.status === "complete") {
+                        isComplete = true;
+                        statusDiv.textContent = "✅ Test complete!";
+                        statusDiv.classList.add("success", "show");
+                    }
+                }
+
+                if (!isComplete) {
+                    throw new Error("Test did not complete within timeout");
+                }
+
+            } catch (error) {
+                contentDiv.innerHTML = '<p style="color: #ef4444;">❌ Error: ' + error.message + '</p>';
+                statusDiv.textContent = "❌ Error: " + error.message;
+                statusDiv.classList.add("error", "show");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "🔬 Run Live Test (5 min)";
+            }
+        }
+
+        function showComparisonModal() {
+            const overlay = document.getElementById("comparisonOverlay");
+            const modal = document.getElementById("comparisonModal");
+            overlay.classList.add("show");
+            modal.style.display = "block";
+            loadComparisonData();
+        }
+
+        function hideComparisonModal() {
+            const overlay = document.getElementById("comparisonOverlay");
+            const modal = document.getElementById("comparisonModal");
+            overlay.classList.remove("show");
+            modal.style.display = "none";
+        }
+
+        function hideTestResults() {
+            const overlay = document.getElementById("testResultsOverlay");
+            const modal = document.getElementById("testResultsModal");
+            overlay.classList.remove("show");
+            modal.style.display = "none";
+        }
+
+        async function loadComparisonData() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const data = await response.json();
+
+                // Safely extract data with defensive checks
+                const summary = (data && data.summary) ? data.summary : {};
+                const helius = (data && data.helius_snapshot) ? data.helius_snapshot : {};
+
+                // Fallback chain for local credits
+                const localCredits = summary.credits_instrumented_today !== undefined ? summary.credits_instrumented_today :
+                                    (summary.credits_total !== undefined ? summary.credits_total : 0);
+                const heliusCredits = helius.credits_used !== undefined ? helius.credits_used : 0;
+                const prepaidCredits = helius.prepaid_credits_used !== undefined ? helius.prepaid_credits_used : 0;
+                const overageCredits = helius.overage_credits_used !== undefined ? helius.overage_credits_used : 0;
+                const totalHelius = heliusCredits;
+
+                const diff = Math.abs(localCredits - totalHelius);
+                const diffPercent = totalHelius > 0 ? (diff / totalHelius * 100).toFixed(1) : 0;
+
+                let html = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 8px; padding: 15px;">
+                            <h4 style="color: #60a5fa; margin-bottom: 10px;">📊 Local Instrumentation</h4>
+                            <div style="font-size: 28px; font-weight: bold; color: #60a5fa; margin-bottom: 5px;">
+                                ${formatNumber(localCredits)}
+                            </div>
+                            <div style="font-size: 12px; color: #cbd5e1;">
+                                Credits used since last reset<br/>
+                                <span style="color: #94a3b8;">Per-request attribution</span>
+                            </div>
+                        </div>
+
+                        <div style="background: rgba(167, 139, 250, 0.1); border: 1px solid rgba(167, 139, 250, 0.5); border-radius: 8px; padding: 15px;">
+                            <h4 style="color: #d8b4fe; margin-bottom: 10px;">💎 Helius Billing</h4>
+                            <div style="font-size: 28px; font-weight: bold; color: #d8b4fe; margin-bottom: 5px;">
+                                ${formatNumber(totalHelius)}
+                            </div>
+                            <div style="font-size: 12px; color: #cbd5e1;">
+                                Total credits used (prepaid + overage)<br/>
+                                <span style="color: #94a3b8;">Account-level billing</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(100, 116, 139, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                        <h4 style="color: #cbd5e1; margin-bottom: 10px;">📈 Difference</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                            <div>
+                                <div style="color: #94a3b8; font-size: 12px; margin-bottom: 5px;">Absolute Difference</div>
+                                <div style="font-size: 20px; font-weight: bold; color: ${diff > 100 ? '#f97316' : '#10b981'};">
+                                    ${formatNumber(Math.round(diff))}
+                                </div>
+                            </div>
+                            <div>
+                                <div style="color: #94a3b8; font-size: 12px; margin-bottom: 5px;">Relative Difference</div>
+                                <div style="font-size: 20px; font-weight: bold; color: ${parseFloat(diffPercent) > 5 ? '#f97316' : '#10b981'};">
+                                    ${diffPercent}%
+                                </div>
+                            </div>
+                            <div>
+                                <div style="color: #94a3b8; font-size: 12px; margin-bottom: 5px;">Status</div>
+                                <div style="font-size: 20px; font-weight: bold; color: ${Math.abs(parseFloat(diffPercent)) <= 2 ? '#10b981' : Math.abs(parseFloat(diffPercent)) <= 5 ? '#fbbf24' : '#ef4444'};">
+                                    ${Math.abs(parseFloat(diffPercent)) <= 2 ? '✅ Clean' : Math.abs(parseFloat(diffPercent)) <= 5 ? '⚠️ Minor' : '❌ Drift'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(100, 116, 139, 0.2); border-radius: 8px; padding: 15px;">
+                        <h4 style="color: #cbd5e1; margin-bottom: 10px;">💰 Helius Breakdown</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 12px;">
+                            <div>
+                                <span style="color: #94a3b8;">Prepaid Used:</span>
+                                <span style="color: #10b981; float: right; font-weight: bold;">${formatNumber(prepaidCredits)}</span>
+                            </div>
+                            <div>
+                                <span style="color: #94a3b8;">Overage Used:</span>
+                                <span style="color: #ef4444; float: right; font-weight: bold;">${formatNumber(overageCredits)}</span>
+                            </div>
+                            <div>
+                                <span style="color: #94a3b8;">Overage Cost:</span>
+                                <span style="color: #f59e0b; float: right; font-weight: bold;">$${(helius.overage_cost || 0).toFixed(2)}</span>
+                            </div>
+                            <div>
+                                <span style="color: #94a3b8;">Remaining (10M):</span>
+                                <span style="color: #60a5fa; float: right; font-weight: bold;">${formatNumber(helius.credits_remaining || 0)}</span>
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <span style="color: #94a3b8;">RPC Usage:</span>
+                                <span style="color: #06b6d4; float: right; font-weight: bold;">${formatNumber(helius.rpc_usage || 0)} calls</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(100, 116, 139, 0.3); font-size: 12px; color: #94a3b8;">
+                        <strong>Note:</strong> Local credits are from per-request instrumentation. Helius shows project-level account usage. Small differences are normal due to:
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Streaming/webhook usage (if tracked in Helius but not locally)</li>
+                            <li>Uninstrumented RPC endpoints</li>
+                            <li>Timing differences between resets and billing cycles</li>
+                        </ul>
+                    </div>
+                `;
+
+                document.getElementById("comparisonContent").innerHTML = html;
+            } catch (error) {
+                document.getElementById("comparisonContent").innerHTML =
+                    `<p style="color: #ef4444;">Error loading comparison data: ${error.message}</p>`;
             }
         }
 

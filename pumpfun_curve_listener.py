@@ -520,7 +520,7 @@ class PumpFunCurveListener:
                 "jsonrpc": "2.0",
                 "id": 1,
                 "method": "getTransaction",
-                "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
+                "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 1}]
             }
 
             print(f"[TX_CACHE] 🌐 MISS: fetching {signature[:16]}...", flush=True)

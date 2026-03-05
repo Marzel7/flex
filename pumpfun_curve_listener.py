@@ -2249,10 +2249,12 @@ class PumpFunCurveListener:
 
                     # Record websocket connection (Helius charges for LaserStream connections)
                     record_request(
+                        section='listener',
+                        provider='helius_rpc',
                         method='logsSubscribe',  # WebSocket subscription method
-                        credits=1,  # Helius charges credits for active subscriptions
-                        source_file='pumpfun_curve_listener',
-                        section='listener'
+                        status_code=200,
+                        latency_ms=0,
+                        source_file='pumpfun_curve_listener'
                     )
 
                     # Subscribe to PumpSwap program logs

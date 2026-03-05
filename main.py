@@ -18305,18 +18305,29 @@ def metrics_rpc_reset_proxy():
             from helius_cli_monitor import get_latest_snapshot
             helius_snapshot = get_latest_snapshot()
             if helius_snapshot:
+                # Store current usage as the reset baseline
+                baseline_credits = helius_snapshot.get('credits_used_month', 0)
+                cursor.execute('''
+                    INSERT INTO listener_settings (setting_key, setting_value, description)
+                    VALUES (?, ?, ?)
+                ''', (
+                    'helius_credits_at_reset',
+                    str(baseline_credits),
+                    f'Helius credits snapshot at reset (baseline for calculating usage since reset)'
+                ))
+                # Also capture full snapshot for archival
                 cursor.execute('''
                     INSERT INTO helius_usage_snapshots
                     (captured_at, credits_used_month, webhook_usage, api_usage, rpc_usage,
                      credits_remaining, total_credits_used, rpc_gpa_usage)
                     VALUES (datetime('now'), ?, ?, ?, ?, ?, ?, ?)
                 ''', (
-                    helius_snapshot.get('credits_used_month', 0),
+                    baseline_credits,
                     helius_snapshot.get('webhook_usage', 0),
                     helius_snapshot.get('api_usage', 0),
                     helius_snapshot.get('rpc_usage', 0),
                     helius_snapshot.get('credits_remaining', 0),
-                    helius_snapshot.get('credits_used_month', 0),
+                    baseline_credits,
                     helius_snapshot.get('rpc_gpa_usage', 0),
                 ))
         except:
@@ -18328,8 +18339,8 @@ def metrics_rpc_reset_proxy():
 
         # Update config to mark reset time
         cursor.execute('''
-            INSERT OR REPLACE INTO listener_settings (setting_key, setting_value)
-            VALUES ('last_metrics_reset_at', datetime('now'))
+            INSERT OR REPLACE INTO listener_settings (setting_key, setting_value, description)
+            VALUES ('last_metrics_reset_at', datetime('now'), 'Timestamp of last RPC metrics reset')
         ''')
 
         conn.commit()
@@ -18367,19 +18378,14 @@ def api_rpc_metrics_verify():
         request_count = row[0] if row else 0
 
         # Get Helius usage SINCE last reset
-        # Find the reset baseline (oldest snapshot after last reset marker)
+        # Get the baseline (credits at reset time)
         cursor.execute('''
-            SELECT credits_used_month FROM helius_usage_snapshots
-            WHERE captured_at >= (
-                SELECT setting_value FROM listener_settings
-                WHERE setting_key = 'last_metrics_reset_at'
-                LIMIT 1
-            )
-            ORDER BY captured_at ASC
+            SELECT setting_value FROM listener_settings
+            WHERE setting_key = 'helius_credits_at_reset'
             LIMIT 1
         ''')
         reset_baseline_row = cursor.fetchone()
-        reset_baseline = reset_baseline_row[0] if reset_baseline_row else 0
+        reset_baseline = int(reset_baseline_row[0]) if reset_baseline_row else 0
 
         # Get current Helius usage
         try:

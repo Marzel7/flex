@@ -49,7 +49,7 @@ def get_migration_setting(key: str, default=True) -> bool:
     try:
         # Try database first (listener_settings table)
         import sqlite3
-        if key in ['listen_to_launches', 'listen_to_price_updates', 'auto_extract_funding', 'auto_extract_funders', 'auto_scan_creators']:
+        if key in ['listen_to_launches', 'listen_to_price_updates', 'auto_extract_funding', 'auto_extract_funders']:
             conn = sqlite3.connect('flex_complete_database.db', timeout=5)
             cursor = conn.cursor()
             try:
@@ -2099,12 +2099,8 @@ class PumpFunCurveListener:
         # Start live price updater in background
         asyncio.create_task(self.update_live_prices_background())
 
-        # Start creator outgoing transfer extractor in background (scans all creators every 12 hours)
-        if get_migration_setting('auto_scan_creators', False):
-            print("[LISTENER] 🔄 Starting creator outgoing transfer extractor (background scan every 12 hours)...", flush=True)
-            asyncio.create_task(run_outgoing_extractor(interval_seconds=43200))  # 12 hours
-        else:
-            print("[LISTENER] ⏭️ Creator outgoing scan disabled (auto_scan_creators toggle is OFF)", flush=True)
+        # Creator outgoing transfer extraction is now handled by Helius webhook (real-time monitoring)
+        print("[LISTENER] ✅ Creator outgoing transfers monitored via Helius webhook (real-time)", flush=True)
 
         # Start WebSocket listener
         await self.listen_websocket()

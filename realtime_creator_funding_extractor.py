@@ -25,14 +25,6 @@ import os
 import time
 from typing import Optional, Dict, List, Set, Iterable, Tuple
 from datetime import datetime
-
-# Load environment variables
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except Exception:
-    pass
-
 from db_locking import DB_WRITE_LOCK
 from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
 from dust_addresses import DUST_ADDRESSES
@@ -965,9 +957,6 @@ class RealTimeCreatorFundingExtractor:
         # Mark as processed to prevent duplicate API calls in same session
         self.processed_creators.add(creator)
 
-        # Initialize session if not already done
-        await self.init_session()
-
         # FIX #6: Fail safe if no Helius API key
         if not USE_HELIUS:
             print("[REALTIME_FUNDING] ⚠ No HELIUS_API_KEY set — skipping enriched extraction", flush=True)
@@ -1087,23 +1076,18 @@ class RealTimeCreatorFundingExtractor:
             try:
                 url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{creator}/transactions"
 
-                # DIAGNOSTIC: Log endpoint details once per run
-                api_key_set = bool(_RPC_KEY)
-                print(f"[REALTIME_FUNDING]    🔍 DIAGNOSTIC: Endpoint={url} | API-Key={'SET' if api_key_set else 'EMPTY'}", flush=True)
-
                 page_num = 0
                 before_signature = None
                 total_fetched = 0
                 found_pre_migration = False
                 empty_inbound_pages = 0
-                headers_dumped = False
 
                 while True:
                     page_num += 1
 
                     # Build URL with query parameters directly
                     # Note: Helius Enhanced API max limit is 100, not 1000
-                    query_url = f"{url}?api-key={_RPC_KEY}&limit=100&sort-order=desc&commitment=finalized"
+                    query_url = f"{url}?api-key={HELIUS_API_KEY}&limit=100&sort-order=desc&commitment=finalized"
                     if before_signature:
                         query_url += f"&before={before_signature}"
 
@@ -1111,35 +1095,10 @@ class RealTimeCreatorFundingExtractor:
                         # Log the RPC call
                         print(f"[REALTIME_FUNDING]    [PAGE {page_num}] RPC CALL #{page_num}...", flush=True)
 
-                        start_time = time.time()
                         async with self.session.get(
                                 query_url,
                                 timeout=aiohttp.ClientTimeout(total=30)
                             ) as resp:
-                                latency_ms = (time.time() - start_time) * 1000
-
-                                # DIAGNOSTIC: Dump response headers on first page (check for credit headers)
-                                if page_num == 1 and not headers_dumped:
-                                    headers_dumped = True
-                                    print(f"[REALTIME_FUNDING]    📋 Response headers:", flush=True)
-                                    for key, value in resp.headers.items():
-                                        if 'credit' in key.lower() or 'usage' in key.lower() or 'x-' in key.lower():
-                                            print(f"[REALTIME_FUNDING]      {key}: {value}", flush=True)
-
-                                # Record metrics for Helius address transactions call
-                                try:
-                                    record_request(
-                                        section="creator_funding",
-                                        provider="helius_rpc",
-                                        method="helius_enhanced_addresses_transactions",
-                                        status_code=resp.status,
-                                        latency_ms=latency_ms,
-                                        mode="realtime",
-                                        source_file="realtime_creator_funding_extractor",
-                                    )
-                                except Exception as metrics_err:
-                                    print(f"[REALTIME_FUNDING]    ⚠ Metrics recording error: {metrics_err}", flush=True)
-
                                 if resp.status == 429:
                                     print(f"[REALTIME_FUNDING]    ⚠ Rate limited (429) on page {page_num}", flush=True)
                                     break
@@ -1150,13 +1109,7 @@ class RealTimeCreatorFundingExtractor:
                                     break
 
                                 page = await resp.json()
-                                if page is None:
-                                    print(f"[REALTIME_FUNDING]    ⚠ Response JSON was None on page {page_num}", flush=True)
-                                    break
-                                if not isinstance(page, list):
-                                    print(f"[REALTIME_FUNDING]    ⚠ Response JSON is {type(page)} (expected list) on page {page_num}: {str(page)[:200]}", flush=True)
-                                    break
-                                if len(page) == 0:
+                                if not isinstance(page, list) or len(page) == 0:
                                     print(f"[REALTIME_FUNDING]    [PAGE {page_num}] No more transactions", flush=True)
                                     break
 
@@ -1435,9 +1388,7 @@ class RealTimeCreatorFundingExtractor:
                         print(f"[REALTIME_FUNDING]    ⚠ Timeout on page {page_num}", flush=True)
                         break
                     except Exception as e:
-                        import traceback
                         print(f"[REALTIME_FUNDING]    ⚠ Error on page {page_num}: {e}", flush=True)
-                        print(f"[REALTIME_FUNDING]    Traceback: {traceback.format_exc()}", flush=True)
                         break
 
                     print(f"[REALTIME_FUNDING]    Total transactions fetched: {total_fetched}", flush=True)
@@ -1993,7 +1944,7 @@ class RealTimeCreatorFundingExtractor:
                                 
                                 if signatures_to_check:
                                     # Fetch full transaction details
-                                    tx_url = f"https://api.helius.xyz/v0/transactions?api-key={_RPC_KEY}"
+                                    tx_url = f"https://api.helius.xyz/v0/transactions?api-key={HELIUS_API_KEY}"
                                     tx_payload = {
                                         "transactions": signatures_to_check
                                     }
@@ -2114,11 +2065,12 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
         await extractor.check_create_tx_for_jitotip(creator, create_tx_signature, mint)
 
     # Check inbound/outbound transfers for infrastructure usage
-    # DISABLED: Meteora checks use batch endpoint (100 credits) - skip for cost savings
-    # await extractor.check_transfers_for_meteora(creator)
-    # await extractor.check_transactions_for_meteora_programs(creator)
+    await extractor.check_transfers_for_meteora(creator)
     await extractor.check_transfers_for_debridge(creator)
     await extractor.check_transfers_for_axiom(creator)
+
+    # Check for program-level calls to Meteora DLMM
+    await extractor.check_transactions_for_meteora_programs(creator)
 
     # Extract post-migration outgoing transfers (token sales to recipients/exchanges)
     try:

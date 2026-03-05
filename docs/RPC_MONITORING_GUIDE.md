@@ -91,21 +91,19 @@ watch -n 5 "./check_rpc_activity.sh"
 ## Understanding the Output
 
 ### Source Files
-- **creator_outgoing_extractor**: Background job that scans creator outgoing transfers (respects `auto_scan_creators` toggle)
+- **webhook_handler**: Real-time creator outgoing transfer monitoring via Helius webhook (replaced background scanning)
 - **main**: Manual API calls from `/api/scan-creator` endpoint
-- **creator_outgoing_scheduler**: Scheduler job (if running separately)
 - **unknown**: RPC calls not properly attributed (code issue)
 
 ### Methods
 - **getSignaturesForAddress**: 10 credits each - fetch transaction signatures for an account
 - **helius_enhanced_transactions_batch**: 100 credits each - parse transaction details in batch
 
-### Expected Pattern
-When listener starts with `auto_scan_creators=ON`:
-1. Initial scan starts immediately
-2. getSignaturesForAddress calls: ~1 per second per creator
-3. helius_enhanced_transactions_batch: ~1 per 1-2 seconds for batching
-4. Pattern repeats every 12 hours
+### Note: Real-Time Webhook Monitoring
+Creator outgoing transfers are now monitored in **real-time via Helius webhook** instead of periodic background scanning. This provides:
+- **Real-time detection** of creator transfers (immediate vs 12-hour delay)
+- **Lower RPC costs** (webhook-based instead of continuous polling)
+- **Always-on monitoring** without manual toggle configuration
 
 ## Database Monitoring
 
@@ -224,21 +222,6 @@ ls -lt rpc_monitor_logs/ | head -20
 ```
 
 ## Key Configuration Toggles
-
-### auto_scan_creators (Default: OFF)
-```bash
-# Check current setting
-sqlite3 flex_complete_database.db "SELECT * FROM listener_settings WHERE setting_key='auto_scan_creators';"
-
-# Turn ON (enables background job)
-curl -X POST http://localhost:5000/api/listener-settings/auto_scan_creators/true
-
-# Turn OFF (disables background job)
-curl -X POST http://localhost:5000/api/listener-settings/auto_scan_creators/false
-```
-
-When ON: Expect continuous RPC calls
-When OFF: Only manual API calls from clicking buttons
 
 ### listen_to_launches (Default: OFF)
 ```bash

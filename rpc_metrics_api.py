@@ -1208,10 +1208,29 @@ DASHBOARD_HTML = """
                 const response = await fetch(API_URL);
                 const data = await response.json();
 
+                // Also fetch database metrics (cross-process)
+                const dbResponse = await fetch("/metrics/rpc/database?since_hours=24");
+                const dbData = await dbResponse.json();
+
                 // Also fetch source file stats
                 const sourceResponse = await fetch("/metrics/rpc/source-files");
                 const sourceData = await sourceResponse.json();
                 data.source_files = sourceData.source_files;
+
+                // Merge database metrics into display
+                if (dbData.database_metrics && dbData.database_metrics.by_section) {
+                    data.sections = dbData.database_metrics.by_section;
+                }
+                if (dbData.database_metrics && dbData.database_metrics.by_source_file) {
+                    data.source_files = dbData.database_metrics.by_source_file;
+                }
+                if (dbData.database_metrics && dbData.database_metrics.summary) {
+                    // Update summary with database totals
+                    data.summary.requests_total = dbData.database_metrics.summary.total_requests || 0;
+                    data.summary.credits_total = dbData.database_metrics.summary.total_credits || 0;
+                    data.summary.errors_total = dbData.database_metrics.summary.total_errors || 0;
+                    data.summary.sections_active = Object.keys(data.sections || {}).length;
+                }
 
                 renderDashboard(data);
             } catch (error) {

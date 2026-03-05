@@ -24,11 +24,16 @@ import sys
 import time
 import sqlite3
 import asyncio
+import logging
 from typing import Dict, List, Tuple, Optional, Iterable
 from functools import lru_cache
 import requests
 
 sys.path.insert(0, "/Users/kevinkeaveney/Dev/claude/flex")
+
+# Configure logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 from db_locking import DB_WRITE_LOCK
 from infra_mapping import get_account_info, get_cex_info  # type: ignore
@@ -41,6 +46,13 @@ except ImportError:
     def record_request(*args, **kwargs):
         pass  # No-op if metrics recorder not available
 
+# Import wallet fingerprint clustering for cross-creator deduplication
+try:
+    from wallet_fingerprint_clustering import WalletFingerprintCluster, FingerprintAction
+except ImportError:
+    WalletFingerprintCluster = None
+    FingerprintAction = None
+
 # Env
 try:
     from dotenv import load_dotenv  # type: ignore
@@ -50,14 +62,20 @@ except Exception:
 
 DB_PATH = "flex_complete_database.db"
 SOLANA_RPC = "https://api.mainnet-beta.solana.com"
-HELIUS_MONITORING_API_KEY = os.getenv("HELIUS_MONITORING_API_KEY", "").strip()
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()
 
-# Use monitoring key if available, fall back to regular key
-_HELIUS_API_KEY = HELIUS_MONITORING_API_KEY or HELIUS_API_KEY
-
 LAMPORTS_PER_SOL = 1_000_000_000
-USE_HELIUS = bool(_HELIUS_API_KEY)
+USE_HELIUS = bool(HELIUS_API_KEY)
+
+# Initialize wallet fingerprint clustering (global, reused across all funders)
+FINGERPRINT_ENABLED = os.getenv("FINGERPRINT_ENABLED", "1").strip() in ("1", "true", "yes")
+FINGERPRINT_CLUSTER = None
+if FINGERPRINT_ENABLED and WalletFingerprintCluster is not None:
+    try:
+        FINGERPRINT_CLUSTER = WalletFingerprintCluster(DB_PATH)
+        logger.info("[FINGERPRINT] Clustering enabled and initialized")
+    except Exception as e:
+        logger.warning(f"[FINGERPRINT] Failed to initialize: {e}")
 
 # Reliability defaults
 MIN_SOL = 0.001
@@ -152,6 +170,79 @@ def _ensure_tables_and_indexes() -> None:
 # -------------------------
 # Classification (cached)
 # -------------------------
+
+def _fingerprint_wallet_type_and_confidence(wallet_address: str, txs: Optional[List[dict]] = None) -> Tuple[str, float]:
+    """
+    Classify wallet fingerprint and assign confidence score based on account metadata + transaction patterns.
+    
+    Confidence scoring (0.0-1.0):
+    - 0.95: CEX address (high confidence)
+    - 0.90: Infrastructure address (high confidence)
+    - 0.75: Bot-like patterns (many transfers, no diversity)
+    - 0.80: Hub-like patterns (concentrator/distributor)
+    - 0.60: Unknown pattern (no clear signal)
+    - 0.50: Minimal activity (low confidence)
+    
+    Returns: (wallet_type, confidence)
+    """
+    try:
+        # Fast account-based check first (CEX/INFRA)
+        cex_info = get_cex_info(wallet_address)
+        if cex_info:
+            return ("cex", 0.95)
+        
+        infra_info = get_account_info(wallet_address)
+        if infra_info:
+            return ("infra", 0.90)
+    except Exception:
+        pass
+    
+    # If unknown, analyze transactions for pattern-based classification
+    if not txs:
+        return ("unknown", 0.60)
+    
+    try:
+        # Count transfer patterns from transaction list
+        native_transfers = 0
+        unique_counterparties = set()
+        
+        for tx in txs:
+            if not isinstance(tx, dict):
+                continue
+            
+            # Count native transfers from this transaction
+            transfers = tx.get("nativeTransfers", [])
+            if isinstance(transfers, list):
+                native_transfers += len(transfers)
+                
+                # Track unique counterparties
+                for nt in transfers:
+                    if isinstance(nt, dict):
+                        sender = nt.get("fromUserAccount")
+                        recipient = nt.get("toUserAccount")
+                        if isinstance(sender, str):
+                            unique_counterparties.add(sender)
+                        if isinstance(recipient, str):
+                            unique_counterparties.add(recipient)
+        
+        # Pattern-based classification
+        if native_transfers == 0:
+            # No transfers = bot, inactive, or holding account
+            return ("bot", 0.75)
+        elif native_transfers > 50:
+            # Many transfers = hub, aggregator, or distributor
+            return ("hub", 0.80)
+        elif len(unique_counterparties) > 30:
+            # Many different counterparties = active trader
+            return ("active_trader", 0.70)
+        else:
+            # Moderate activity = unknown
+            return ("unknown", 0.60)
+    
+    except Exception as e:
+        logger.debug(f"[FINGERPRINT] Pattern analysis failed for {wallet_address}: {e}")
+        return ("unknown", 0.60)
+
 
 @lru_cache(maxsize=50000)
 def classify_sender(address: str) -> Tuple[str, Optional[str], Optional[str]]:
@@ -404,7 +495,7 @@ def get_transactions_helius(address: str, limit: int = DEFAULT_HELIUS_LIMIT, max
     for _ in range(max_pages):
         url = (
             f"https://api.helius.xyz/v0/addresses/{address}/transactions"
-            f"?api-key={_HELIUS_API_KEY}&limit={lim}&before={all_txs[-1].get('signature', '') if all_txs else ''}"
+            f"?api-key={HELIUS_API_KEY}&limit={lim}&before={all_txs[-1].get('signature', '') if all_txs else ''}"
         )
         data = _request_json("GET", url, timeout=25.0)
         if not isinstance(data, list) or not data:
@@ -509,7 +600,7 @@ def helius_batch_get_transactions(tx_sigs: List[str]) -> Dict[str, Optional[dict
     if not USE_HELIUS or not tx_sigs:
         return out
 
-    url = f"https://api.helius.xyz/v0/transactions?api-key={_HELIUS_API_KEY}"
+    url = f"https://api.helius.xyz/v0/transactions?api-key={HELIUS_API_KEY}"
 
     for i in range(0, len(tx_sigs), 100):
         batch = tx_sigs[i:i + 100]
@@ -584,24 +675,71 @@ def extract_transfers_for_funder(
     incoming_rows: List[Tuple] = []
     outgoing_rows: List[Tuple] = []
 
+    # Initialize fingerprint tracking variables
+    action = None
+    cached_type = None
+    cached_conf = None
+    helius_pages = 1
+    fingerprint_cache_hit = 0
+    fingerprint_refresh = 0
+
+    # Check fingerprint cache first (SKIP/REFRESH/FULL_SCAN decision)
+    if FINGERPRINT_CLUSTER is not None:
+        try:
+            action, cached_type, cached_conf = FINGERPRINT_CLUSTER.lookup_wallet(funder_address)
+            if action == FingerprintAction.SKIP:
+                logger.info(f"[FINGERPRINT] ✅ SKIP {funder_address[:16]}... type={cached_type} conf={cached_conf:.2f}")
+                fingerprint_cache_hit = 1
+                # Check if we have DB cache first (from prior scan)
+                inc_count, out_count, total_sol = _has_cached_funder_transfers(funder_address)
+                if inc_count or out_count:
+                    return {
+                        "incoming_count": inc_count,
+                        "outgoing_count": out_count,
+                        "total_sol": total_sol,
+                        "source": "fingerprint_skip_with_cache",
+                        "funder": funder_address,
+                    }
+                else:
+                    # No DB cache, return empty (wallet already analyzed before)
+                    return {
+                        "incoming_count": 0,
+                        "outgoing_count": 0,
+                        "total_sol": 0.0,
+                        "source": "fingerprint_skip",
+                        "funder": funder_address,
+                    }
+            elif action == FingerprintAction.REFRESH:
+                logger.info(f"[FINGERPRINT] 🔄 REFRESH {funder_address[:16]}... type={cached_type} conf={cached_conf:.2f}")
+                fingerprint_refresh = 1
+                helius_pages = 1  # Light refresh: only 1 page
+            else:  # FULL_SCAN
+                logger.info(f"[FINGERPRINT] 🔍 FULL_SCAN {funder_address[:16]}... (confidence too low or unknown)")
+                helius_pages = 1  # Standard scan
+        except Exception as e:
+            logger.warning(f"[FINGERPRINT] Lookup failed for {funder_address}: {e}")
+            action = None
+            helius_pages = 1
+
     # 1) Prefer Helius address tx feed
-    txs = get_transactions_helius(funder_address, limit=helius_limit) if USE_HELIUS else None
+    txs = get_transactions_helius(funder_address, limit=helius_limit, max_pages=helius_pages) if USE_HELIUS else None
     source = "helius_address_feed"
 
     # 2) Fallback: RPC signatures → batch tx details (Helius) → last resort pure RPC getTransaction
     if not txs:
-        sigs = get_signatures_for_address_rpc(funder_address, limit=rpc_sig_limit)
+        try:
+            sigs = get_signatures_for_address_rpc(funder_address, limit=rpc_sig_limit)
+        except Exception as e:
+            logger.warning(f"[HELIUS] Address feed failed: {e}")
+            sigs = None
+
         if not sigs:
             return {"incoming_count": 0, "outgoing_count": 0, "total_sol": 0.0, "source": "no_data", "funder": funder_address}
 
         if USE_HELIUS:
-            # DISABLED: Batch endpoint costs 100 credits per call
-            # Address feed already includes nativeTransfers, so batch is redundant
-            # batch = helius_batch_get_transactions(sigs)
-            # txs = [t for t in batch.values() if isinstance(t, dict)]
-            # source = "helius_batch_from_rpc_sigs"
-            txs = []  # Skip batch, rely on address feed only
-            source = "rpc_only"  # Fallback to RPC since we skipped batch
+            batch = helius_batch_get_transactions(sigs)
+            txs = [t for t in batch.values() if isinstance(t, dict)]
+            source = "helius_batch_from_rpc_sigs"
         else:
             # Pure RPC last resort: extremely slow + less accurate
             source = "rpc_only"
@@ -764,6 +902,36 @@ def extract_transfers_for_funder(
 
     total_sol = float(sum(r[2] for r in incoming_rows) + sum(r[2] for r in outgoing_rows))
     print(f"[SUMMARY] {funder_address[:16]}... | {incoming_saved} IN, {outgoing_saved} OUT | {total_sol:.4f} SOL | source={source}")
+
+    # Save fingerprint after scan completes (with transaction pattern analysis)
+    if FINGERPRINT_CLUSTER is not None and txs:
+        try:
+            wallet_type, conf = _fingerprint_wallet_type_and_confidence(funder_address, txs)
+            # If we have cached confidence and it's higher, keep it
+            if cached_type and cached_conf is not None and cached_conf >= conf:
+                wallet_type, conf = cached_type, float(cached_conf)
+            FINGERPRINT_CLUSTER.save_fingerprint(
+                funder_address,
+                wallet_type=wallet_type,
+                confidence=float(conf),
+                pages_scanned=int(helius_pages),
+                skip_reason=str(source),
+            )
+            logger.debug(f"[FINGERPRINT] Saved fingerprint for {funder_address[:16]}... type={wallet_type} conf={conf:.2f}")
+        except Exception as e:
+            logger.warning(f"[FINGERPRINT] Save failed: {e}")
+
+    # Record fingerprint metrics
+    try:
+        record_request(
+            funder_address=funder_address,
+            section="funder_incoming",
+            source=source,
+            fingerprint_cache_hit=fingerprint_cache_hit,
+            fingerprint_refresh=fingerprint_refresh,
+        )
+    except Exception as e:
+        logger.debug(f"[METRICS] Recording failed: {e}")
 
     return {
         "incoming_count": incoming_saved,

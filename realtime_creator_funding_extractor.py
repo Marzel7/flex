@@ -42,6 +42,12 @@ except ImportError:
         pass  # No-op if metrics recorder not available
 
 DB_PATH = "flex_complete_database.db"
+# Initialize creator funding cache for Layer 6 optimization
+try:
+    from creator_funding_graph_cache import CreatorFundingGraphCache
+    CREATOR_CACHE = CreatorFundingGraphCache(DB_PATH)
+except ImportError:
+    CREATOR_CACHE = None
 # FIX #6: Remove hardcoded API key fallback — fail safe instead
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()
 HELIUS_MONITORING_API_KEY = os.getenv("HELIUS_MONITORING_API_KEY", "").strip()
@@ -230,6 +236,7 @@ class DomainResolver:
                         status_code=resp.status,
                         latency_ms=latency_ms,
                         mode="realtime",
+                        source_file="realtime_creator_funding_extractor",
                     )
                     if resp.status != 200:
                         # Mark as unknown but cache locally
@@ -345,7 +352,8 @@ class RealTimeCreatorFundingExtractor:
                                     mode="realtime",
                                     retries=attempt,
                                     source_file="realtime_creator_funding_extractor",
-
+                                    cache_action=cache_action,
+                                    credits_saved=credits_saved,
                                     error=f"HTTP {resp.status}",
                                 )
                                 if resp.status == 429:
@@ -384,7 +392,8 @@ class RealTimeCreatorFundingExtractor:
                                     mode="realtime",
                                     retries=attempt,
                                     source_file="realtime_creator_funding_extractor",
-
+                                    cache_action=cache_action,
+                                    credits_saved=credits_saved,
                                     error=f"RPC error {error_code}",
                                 )
                                 # Retryable RPC errors
@@ -404,6 +413,8 @@ class RealTimeCreatorFundingExtractor:
                                     mode="realtime",
                                     retries=attempt,
                                     source_file="realtime_creator_funding_extractor",
+                                    cache_action=cache_action,
+                                    credits_saved=credits_saved,
                                 )
                                 return data
 
@@ -954,6 +965,23 @@ class RealTimeCreatorFundingExtractor:
         if creator in self.processed_creators:
             return {"status": "already_processed"}
 
+        # Check creator funding cache (Layer 6 optimization)
+        cache_action = "full_scan"
+        credits_saved = 0
+        if CREATOR_CACHE is not None:
+            cached_result = CREATOR_CACHE.lookup_creator(creator)
+            if cached_result is not None:
+                # Creator already cached, skip extraction
+                cache_action = "skip"
+                credits_saved = 150  # Saved full extraction cost
+                print(f"[REALTIME_FUNDING] ✅ SKIP {creator[:16]}... (cached)", flush=True)
+                return {
+                    "status": "cached",
+                    "creator": creator,
+                    "funders": cached_result.get("funders", []),
+                    "cache_action": cache_action,
+                }
+
         # Mark as processed to prevent duplicate API calls in same session
         self.processed_creators.add(creator)
 
@@ -1432,6 +1460,19 @@ class RealTimeCreatorFundingExtractor:
             # ✅ MARK EXTRACTION AS COMPLETE — signals to UI that extraction is done
             self._mark_extraction_complete(creator, len(funders), len(recipients), total_inbound, total_outbound)
 
+            # Cache creator funding results (Layer 6 optimization)
+            if CREATOR_CACHE is not None and funders:
+                try:
+                    CREATOR_CACHE.store_creator(creator, {
+                        "funders": list(funders.keys()),
+                        "funder_count": len(funders),
+                        "total_sol": total_inbound,
+                        "timestamp": int(time.time()),
+                    })
+                    print(f"[REALTIME_FUNDING] ✅ Cached creator funding for {creator[:16]}...", flush=True)
+                except Exception as cache_err:
+                    print(f"[REALTIME_FUNDING] ⚠ Could not cache creator: {cache_err}", flush=True)
+
             # 🚀 TRIGGER POST-LAUNCH AUTOMATION — networks, clustering, coordinated funder detection, UI updates
             if funders:
                 # Run async without blocking extraction return
@@ -1451,6 +1492,8 @@ class RealTimeCreatorFundingExtractor:
                 "total_inbound": total_inbound,
                 "outgoing_transfers": len(recipients),
                 "total_outbound": total_outbound,
+                "cache_action": cache_action,
+                "credits_saved": credits_saved,
                 "funders": {k: v for k, v in sorted(funders.items(), key=lambda x: x[1], reverse=True)[:10]} if funders else {}
             }
 
@@ -2065,12 +2108,12 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
         await extractor.check_create_tx_for_jitotip(creator, create_tx_signature, mint)
 
     # Check inbound/outbound transfers for infrastructure usage
-    await extractor.check_transfers_for_meteora(creator)
+    # await extractor.check_transfers_for_meteora(creator)  # DISABLED: costs 100 credits (batch endpoint)
     await extractor.check_transfers_for_debridge(creator)
     await extractor.check_transfers_for_axiom(creator)
 
     # Check for program-level calls to Meteora DLMM
-    await extractor.check_transactions_for_meteora_programs(creator)
+    # await extractor.check_transactions_for_meteora_programs(creator)  # DISABLED: costs 100 credits (batch endpoint)
 
     # Extract post-migration outgoing transfers (token sales to recipients/exchanges)
     try:

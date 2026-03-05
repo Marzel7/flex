@@ -89,17 +89,49 @@ def _query_rpc_metrics_from_db(since_timestamp: Optional[float] = None) -> Dict:
         by_method = {row['method']: {'requests': row['requests'], 'credits': row['credits']}
                      for row in cursor.fetchall()}
 
-        # Get by source file
+        # Get by source file (with detailed stats)
         cursor = conn.execute(f"""
-            SELECT source_file, COUNT(*) as requests, SUM(credits) as credits
+            SELECT
+                source_file,
+                COUNT(*) as requests,
+                SUM(credits) as credits,
+                COUNT(CASE WHEN status_code >= 400 THEN 1 END) as errors,
+                COUNT(CASE WHEN status_code = 429 THEN 1 END) as rate_limits_429,
+                AVG(latency_ms) as avg_latency_ms,
+                section
             FROM rpc_metrics
             {where_clause}
-            GROUP BY source_file
-            ORDER BY credits DESC
+            GROUP BY source_file, section
+            ORDER BY source_file, credits DESC
         """, params)
 
-        by_source = {row['source_file']: {'requests': row['requests'], 'credits': row['credits']}
-                     for row in cursor.fetchall()}
+        # Aggregate by source file with sections breakdown
+        by_source = {}
+        for row in cursor.fetchall():
+            source_file = row['source_file']
+            if source_file not in by_source:
+                by_source[source_file] = {
+                    'requests': 0,
+                    'credits': 0,
+                    'errors': 0,
+                    'rate_limits_429': 0,
+                    'latencies': [],
+                    'sections': {},
+                    'avg_latency_ms': 0,
+                }
+
+            by_source[source_file]['requests'] += row['requests']
+            by_source[source_file]['credits'] += row['credits']
+            by_source[source_file]['errors'] += row['errors']
+            by_source[source_file]['rate_limits_429'] += row['rate_limits_429']
+            by_source[source_file]['latencies'].append(row['avg_latency_ms'] or 0)
+            by_source[source_file]['sections'][row['section']] = row['requests']
+
+        # Calculate final stats for each source file
+        for source_file, stats in by_source.items():
+            if stats['latencies']:
+                stats['avg_latency_ms'] = round(sum(stats['latencies']) / len(stats['latencies']), 2)
+            del stats['latencies']  # Remove temp array
 
         # Get by section
         cursor = conn.execute(f"""
@@ -1423,22 +1455,70 @@ DASHBOARD_HTML = """
                     </thead>
                     <tbody>`;
 
+            // Map source files to human-readable labels
+            const sourceFileLabels = {
+                'pumpfun_curve_listener': '🎵 Token Launch Listener',
+                'realtime_creator_funding_extractor': '💰 Creator Funding Extraction (realtime_creator_funding_extractor.py)',
+                'funder_incoming_extractor': '💸 Funder Incoming Extraction (funder_incoming_extractor.py)',
+                'funder_helius_extractor': '🔍 Helius Funder Analysis',
+                'creator_outgoing_extractor': '📤 Creator Outgoing Transfers',
+                'cross_funding_network_analyzer': '🕸️ Network Clustering',
+                'blocksec_aml_batcher': '🔐 AML Verification',
+                'automatic_cex_detection': '💱 CEX Detection',
+                'unknown': '⚙️ UI API & Other Processes'
+            };
+
+            // Always show these key extractors even if they have 0 metrics
+            const keyExtractors = [
+                'realtime_creator_funding_extractor',
+                'funder_incoming_extractor'
+            ];
+
             const sourceFileEntries = Object.entries(sourceFiles);
-            if (sourceFileEntries.length > 0) {
-                sourceFileEntries.forEach(([sourceFile, stats]) => {
-                    const sections = stats.sections ? Object.entries(stats.sections)
+
+            // Add entries for extractors with 0 metrics
+            keyExtractors.forEach(extractor => {
+                if (!sourceFiles[extractor]) {
+                    sourceFiles[extractor] = {
+                        requests: 0,
+                        credits: 0,
+                        errors: 0,
+                        rate_limits_429: 0,
+                        sections: {},
+                        avg_latency_ms: 0
+                    };
+                }
+            });
+
+            const allSourceFileEntries = Object.entries(sourceFiles);
+            if (allSourceFileEntries.length > 0) {
+                allSourceFileEntries.forEach(([sourceFile, stats]) => {
+                    // Skip the listener - only show extractors
+                    if (sourceFile === 'pumpfun_curve_listener') {
+                        return;
+                    }
+
+                    const displayLabel = sourceFileLabels[sourceFile] || sourceFile;
+                    const sections = stats.sections && Object.keys(stats.sections).length > 0 ? Object.entries(stats.sections)
                         .sort((a, b) => b[1] - a[1])
                         .map(([s, count]) => `${s} (${count})`)
                         .join(", ")
-                        .substring(0, 50) + (Object.entries(stats.sections).length > 2 ? "..." : "") : 'N/A';
+                        .substring(0, 50) + (Object.entries(stats.sections).length > 2 ? "..." : "") : '(inactive)';
 
-                    const avgLatency = stats.avg_latency_ms ? stats.avg_latency_ms.toFixed(1) : 'N/A';
+                    const avgLatency = stats.avg_latency_ms && stats.avg_latency_ms > 0 ? stats.avg_latency_ms.toFixed(1) : 'N/A';
                     const errors = stats.errors || 0;
                     const rateLimits = stats.rate_limits_429 || 0;
 
+                    // Highlight inactive extractors
+                    const inactiveStyle = stats.requests === 0 ? 'style="opacity: 0.6;"' : '';
+
                     html += `
-                        <tr>
-                            <td><strong>${sourceFile}</strong></td>
+                        <tr ${inactiveStyle}>
+                            <td>
+                                <strong>${displayLabel}</strong><br>
+                                <small style="color: #94a3b8; font-size: 11px;">${sourceFile}</small>
+                                ${stats.requests === 0 ? '<br><small style="color: #ef4444; font-size: 10px;">⏸️ Waiting for tokens...</small>' : ''}
+                            </td>
                             <td>${formatNumber(stats.credits || 0)}</td>
                             <td>${formatNumber(stats.requests || 0)}</td>
                             <td style="color: ${errors > 0 ? '#f59e0b' : '#10b981'};">${formatNumber(errors)}</td>

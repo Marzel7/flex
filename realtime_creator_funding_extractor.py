@@ -25,6 +25,14 @@ import os
 import time
 from typing import Optional, Dict, List, Set, Iterable, Tuple
 from datetime import datetime
+
+# Load environment variables
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
+
 from db_locking import DB_WRITE_LOCK
 from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
 from dust_addresses import DUST_ADDRESSES
@@ -1087,7 +1095,7 @@ class RealTimeCreatorFundingExtractor:
 
                     # Build URL with query parameters directly
                     # Note: Helius Enhanced API max limit is 100, not 1000
-                    query_url = f"{url}?api-key={HELIUS_API_KEY}&limit=100&sort-order=desc&commitment=finalized"
+                    query_url = f"{url}?api-key={_RPC_KEY}&limit=100&sort-order=desc&commitment=finalized"
                     if before_signature:
                         query_url += f"&before={before_signature}"
 
@@ -1095,10 +1103,24 @@ class RealTimeCreatorFundingExtractor:
                         # Log the RPC call
                         print(f"[REALTIME_FUNDING]    [PAGE {page_num}] RPC CALL #{page_num}...", flush=True)
 
+                        start_time = time.time()
                         async with self.session.get(
                                 query_url,
                                 timeout=aiohttp.ClientTimeout(total=30)
                             ) as resp:
+                                latency_ms = (time.time() - start_time) * 1000
+
+                                # Record metrics for Helius address transactions call
+                                record_request(
+                                    section="creator_funding",
+                                    provider="helius_rpc",
+                                    method="helius_address_transactions",
+                                    status_code=resp.status,
+                                    latency_ms=latency_ms,
+                                    mode="realtime",
+                                    source_file="realtime_creator_funding_extractor",
+                                )
+
                                 if resp.status == 429:
                                     print(f"[REALTIME_FUNDING]    ⚠ Rate limited (429) on page {page_num}", flush=True)
                                     break

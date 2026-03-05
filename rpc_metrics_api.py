@@ -1493,11 +1493,6 @@ DASHBOARD_HTML = """
             const allSourceFileEntries = Object.entries(sourceFiles);
             if (allSourceFileEntries.length > 0) {
                 allSourceFileEntries.forEach(([sourceFile, stats]) => {
-                    // Skip the listener - only show extractors
-                    if (sourceFile === 'pumpfun_curve_listener') {
-                        return;
-                    }
-
                     const displayLabel = sourceFileLabels[sourceFile] || sourceFile;
                     const sections = stats.sections && Object.keys(stats.sections).length > 0 ? Object.entries(stats.sections)
                         .sort((a, b) => b[1] - a[1])

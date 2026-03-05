@@ -18043,7 +18043,7 @@ def rpc_metrics_dashboard():
                     <h3>💾 Database Tracking Verification</h3>
                     <div class="verification-content">
                         <div class="metric">
-                            <span class="label">Helius Account Total:</span>
+                            <span class="label">Helius (Since Reset):</span>
                             <span class="value">{helius_actual:,} credits</span>
                         </div>
                         <div class="metric">
@@ -18300,9 +18300,37 @@ def metrics_rpc_reset_proxy():
         conn.execute("PRAGMA journal_mode=WAL")
         cursor = conn.cursor()
 
+        # Capture current Helius snapshot as reset baseline
+        try:
+            from helius_cli_monitor import get_latest_snapshot
+            helius_snapshot = get_latest_snapshot()
+            if helius_snapshot:
+                cursor.execute('''
+                    INSERT INTO helius_usage_snapshots
+                    (captured_at, credits_used_month, webhook_usage, api_usage, rpc_usage,
+                     credits_remaining, total_credits_used, rpc_gpa_usage)
+                    VALUES (datetime('now'), ?, ?, ?, ?, ?, ?, ?)
+                ''', (
+                    helius_snapshot.get('credits_used_month', 0),
+                    helius_snapshot.get('webhook_usage', 0),
+                    helius_snapshot.get('api_usage', 0),
+                    helius_snapshot.get('rpc_usage', 0),
+                    helius_snapshot.get('credits_remaining', 0),
+                    helius_snapshot.get('credits_used_month', 0),
+                    helius_snapshot.get('rpc_gpa_usage', 0),
+                ))
+        except:
+            pass  # Continue even if snapshot capture fails
+
         # Delete all records to clear component/section and source file/process aggregations
         cursor.execute("DELETE FROM rpc_metrics")
         deleted_count = cursor.rowcount
+
+        # Update config to mark reset time
+        cursor.execute('''
+            INSERT OR REPLACE INTO listener_settings (key, value)
+            VALUES ('last_metrics_reset_at', datetime('now'))
+        ''')
 
         conn.commit()
         conn.close()
@@ -18320,47 +18348,69 @@ def metrics_rpc_reset_proxy():
 def api_rpc_metrics_verify():
     """
     Compare Helius actual usage vs computed usage from database.
-    Returns both values and percentage match.
+    Shows credits used SINCE the last database reset.
     """
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
 
-        # Get computed usage from database (last 24 hours)
+        # Get computed usage from database (all records, no time limit)
         cursor.execute('''
             SELECT
               COUNT(*) as request_count,
               SUM(COALESCE(credits, 0)) as computed_credits
             FROM rpc_metrics
-            WHERE recorded_at >= datetime('now', '-24 hours')
         ''')
 
         row = cursor.fetchone()
         computed_credits = row[1] or 0 if row else 0
         request_count = row[0] if row else 0
+
+        # Get Helius usage SINCE last reset
+        # Find the reset baseline (oldest snapshot after last reset marker)
+        cursor.execute('''
+            SELECT credits_used_month FROM helius_usage_snapshots
+            WHERE captured_at >= (
+                SELECT value FROM listener_settings
+                WHERE key = 'last_metrics_reset_at'
+                LIMIT 1
+            )
+            ORDER BY captured_at ASC
+            LIMIT 1
+        ''')
+        reset_baseline_row = cursor.fetchone()
+        reset_baseline = reset_baseline_row[0] if reset_baseline_row else 0
+
+        # Get current Helius usage
+        try:
+            from helius_cli_monitor import get_latest_snapshot
+            latest_snapshot = get_latest_snapshot()
+            current_helius_usage = latest_snapshot.get('credits_used_month', 0) if latest_snapshot else 0
+        except:
+            # Fallback to latest database snapshot
+            cursor.execute('SELECT credits_used_month FROM helius_usage_snapshots ORDER BY captured_at DESC LIMIT 1')
+            row = cursor.fetchone()
+            current_helius_usage = row[0] if row else 0
+
+        # Calculate credits used SINCE reset
+        helius_since_reset = current_helius_usage - reset_baseline
+
         conn.close()
 
-        # Get actual Helius usage from config
-        try:
-            from rpc_metrics_config import PlanConfig
-            helius_credits_used_today = PlanConfig.CURRENT_USAGE.get('credits_used_today', 0)
-        except:
-            helius_credits_used_today = 0
-
         # Calculate percentage match
-        if helius_credits_used_today > 0:
-            percentage_match = (computed_credits / helius_credits_used_today) * 100
+        if helius_since_reset > 0:
+            percentage_match = (computed_credits / helius_since_reset) * 100
         else:
             percentage_match = 0
 
         return {
             'status': 'success',
-            'helius_actual': helius_credits_used_today,
+            'helius_actual': helius_since_reset,  # Credits used since last reset
             'computed_from_db': computed_credits,
-            'difference': helius_credits_used_today - computed_credits,
+            'difference': helius_since_reset - computed_credits,
             'percentage_match': round(percentage_match, 1),
             'request_count': request_count,
-            'notes': 'Helius actual may be higher due to other processes not recording metrics'
+            'notes': 'Shows credits used since last database reset. Helius actual may be higher due to other processes not recording metrics'
         }, 200
     except Exception as e:
         return {'status': 'error', 'message': str(e)}, 500

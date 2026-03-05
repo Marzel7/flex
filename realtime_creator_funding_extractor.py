@@ -1131,7 +1131,7 @@ class RealTimeCreatorFundingExtractor:
                                     record_request(
                                         section="creator_funding",
                                         provider="helius_rpc",
-                                        method="helius_address_transactions",
+                                        method="helius_enhanced_addresses_transactions",
                                         status_code=resp.status,
                                         latency_ms=latency_ms,
                                         mode="realtime",

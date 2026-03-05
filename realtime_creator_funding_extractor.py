@@ -1085,7 +1085,7 @@ class RealTimeCreatorFundingExtractor:
             print(f"[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...", flush=True)
 
             try:
-                url = f"https://api.helius.xyz/v0/addresses/{creator}/transactions"
+                url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{creator}/transactions"
 
                 # DIAGNOSTIC: Log endpoint details once per run
                 api_key_set = bool(_RPC_KEY)
@@ -1979,7 +1979,7 @@ class RealTimeCreatorFundingExtractor:
             print(f"[REALTIME_FUNDING]    🔍 Checking for Meteora DLMM program calls...", flush=True)
 
             try:
-                url = f"https://api.helius.xyz/v0/addresses/{creator}/transactions"
+                url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{creator}/transactions"
                 query_url = f"{url}?api-key={HELIUS_API_KEY}&limit=50&sort-order=desc&commitment=finalized"
 
                 # First get address transactions to find signatures

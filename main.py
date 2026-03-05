@@ -18328,7 +18328,7 @@ def metrics_rpc_reset_proxy():
 
         # Update config to mark reset time
         cursor.execute('''
-            INSERT OR REPLACE INTO listener_settings (key, value)
+            INSERT OR REPLACE INTO listener_settings (setting_key, setting_value)
             VALUES ('last_metrics_reset_at', datetime('now'))
         ''')
 
@@ -18371,8 +18371,8 @@ def api_rpc_metrics_verify():
         cursor.execute('''
             SELECT credits_used_month FROM helius_usage_snapshots
             WHERE captured_at >= (
-                SELECT value FROM listener_settings
-                WHERE key = 'last_metrics_reset_at'
+                SELECT setting_value FROM listener_settings
+                WHERE setting_key = 'last_metrics_reset_at'
                 LIMIT 1
             )
             ORDER BY captured_at ASC

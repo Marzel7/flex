@@ -2247,6 +2247,14 @@ class PumpFunCurveListener:
                     reconnect_delay = 5  # Reset delay on successful connection
                     print(f"[WEBSOCKET] ✓ Connected to PumpSwap program via {name}", flush=True)
 
+                    # Record websocket connection (Helius charges for LaserStream connections)
+                    record_request(
+                        method='logsSubscribe',  # WebSocket subscription method
+                        credits=1,  # Helius charges credits for active subscriptions
+                        source_file='pumpfun_curve_listener',
+                        section='listener'
+                    )
+
                     # Subscribe to PumpSwap program logs
                     subscribe_msg = {
                         "jsonrpc": "2.0",

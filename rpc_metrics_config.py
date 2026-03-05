@@ -59,6 +59,12 @@ CREDIT_SCHEDULE = {
     "getBlock": 10,                             # Block data (historical, 10 credits)
     "getSignaturesForAddress": 10,              # Transaction history for address (10 credits per Helius docs)
 
+    # WebSocket subscription methods (for LaserStream monitoring)
+    "logsSubscribe": 1,                         # WebSocket subscription for logs/program changes
+    "programSubscribe": 1,                      # WebSocket subscription for program data
+    "accountSubscribe": 1,                      # WebSocket subscription for account changes
+    "slotSubscribe": 1,                         # WebSocket subscription for slot updates
+
     # Helius-exclusive RPC methods (high cost)
     "getTransactionsForAddress": 100,
 
@@ -106,8 +112,8 @@ class PlanConfig:
     # ACTUAL USAGE FROM HELIUS DASHBOARD (as of 2026-03-02 after reset)
     # This is synced from your Helius account via helius_cli_monitor.py
     CURRENT_USAGE = {
-        "credits_used_today": 133727,             # Total credits consumed today
-        "credits_remaining": 9866273_000_000,     # Remaining monthly budget (10M tier)
+        "credits_used_today": 133751,             # Total credits consumed today
+        "credits_remaining": 9866249_000_000,     # Remaining monthly budget (10M tier)
         "budget_start_date": "2026-03-05",   # Start of billing period
     }
 

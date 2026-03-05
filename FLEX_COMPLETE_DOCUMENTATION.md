@@ -2591,3 +2591,146 @@ To implement cost savings immediately:
 - HELIUS_SETUP_SUMMARY.md (quick start)
 - analyze_rpc_accuracy.py (diagnostic tool)
 - helius_usage_cli.py (CLI management)
+
+---
+
+## UI & Design System
+
+### Color Scheme (2026-03-05)
+
+The application uses a unified color scheme inspired by the webhook monitor design for consistency across all pages.
+
+#### Primary Colors
+
+| Color | Hex | Usage |
+|-------|-----|-------|
+| **Purple** | `#a78bfa` | Headers, section titles, labels, addresses |
+| **Cyan** | `#06b6d4` | Links, buttons, active elements, interactive components |
+| **Dark Green** | `#16a34a` | Positive values, amounts, success status, active badges |
+| **Yellow** | `#fbbf24` | Creator highlights, special emphasis |
+
+#### Supporting Colors
+
+| Color | Hex | Usage |
+|-------|-----|-------|
+| Text Primary | `#e5e7eb` | Main text |
+| Text Secondary | `#9ca3af` | Secondary text, timestamps |
+| Background | `linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%)` | Main background |
+| Card Background | `rgba(30, 30, 40, 0.8)` | Cards, tables, panels |
+| Border | `rgba(167, 139, 250, 0.3)` | Card borders, dividers |
+| Border Hover | `rgba(167, 139, 250, 0.6)` | On hover |
+| Hover Background | `rgba(167, 139, 250, 0.05)` | Row hover |
+
+#### Risk/Status Colors
+
+| Level | Background | Text | Usage |
+|-------|-----------|------|-------|
+| Low | `rgba(21, 128, 61, 0.2)` | `#16a34a` | Low risk, success |
+| Medium | `rgba(234, 179, 8, 0.2)` | `#eab308` | Medium risk, warning |
+| High | `rgba(239, 68, 68, 0.2)` | `#ef4444` | High risk, error |
+
+### CSS Variables Pattern
+
+All pages use these CSS variables in their `:root` block:
+
+```css
+:root {
+    --color-purple: #a78bfa;
+    --color-cyan: #06b6d4;
+    --color-green: #16a34a;
+    --color-yellow: #fbbf24;
+
+    --text-primary: #e5e7eb;
+    --text-secondary: #9ca3af;
+
+    --bg-dark: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
+    --bg-card: rgba(30, 30, 40, 0.8);
+    --bg-hover: rgba(167, 139, 250, 0.05);
+
+    --border-color: rgba(167, 139, 250, 0.3);
+    --border-hover: rgba(167, 139, 250, 0.6);
+}
+```
+
+### Pages with Color Scheme Applied
+
+✅ **Complete**:
+- `/webhook-monitor` - Real-time webhook monitoring dashboard
+- Main dashboard HTML_TEMPLATE - CSS variables updated
+
+📋 **Pending** (See COLOR_SCHEME_GUIDE.md for implementation):
+- `/coordinated-funders` - Coordinated funders analysis
+- `/clusters` - Cluster dashboard
+- `/networks` - Networks dashboard
+- `/top-funding-hubs` - Top funding hubs
+- `/funder-details/<address>` - Individual funder details
+- `/funding-hub/<address>` - Individual hub details
+
+### Font & Typography
+
+- **Code/Addresses**: `'Courier New', monospace` - 11px for addresses, 13px for tables
+- **Body**: 'Courier New' monospace throughout for consistency
+- **Headers**: Uppercase with letter-spacing for emphasis
+- **Labels**: 12px, uppercase, letter-spacing: 1px
+
+### Implementation Resources
+
+**Files**:
+- `global_styles.css` - Reusable CSS classes
+- `COLOR_SCHEME_GUIDE.md` - Complete migration guide for remaining pages
+- Template pattern in COLOR_SCHEME_GUIDE.md for quick implementation
+
+### Webhook Monitor UI
+
+The `/webhook-monitor` page at `http://localhost:5002/webhook-monitor` provides:
+
+#### Real-Time Metrics Cards
+- **Webhooks Received** - Unique transaction signatures
+- **Transfers Processed** - Total SOL movements recorded
+- **Transfers (24h)** - From last 24 hours
+- **Last Activity** - Relative and absolute time
+
+#### Recent Transfers Table
+- Sender/Receiver (color-coded: yellow=creator, cyan=labeled, purple=unknown)
+- Amount (SOL) - Limited to 4 decimal places
+- Time - Relative timestamp (e.g., "5m ago")
+
+#### Creator Queue Status
+- Total in Queue - Creators awaiting processing
+- Critical Priority - Count with priority ≥ 80
+- Currently Processing - Locked by worker
+- Never Checked - Attempts = 0
+
+#### Top Priority Creators Table
+- Creator Address - With label support
+- Outbound/Inbound TX - Activity counts
+- Total Activity - Star emoji if > 50
+- Priority Score - Color-coded (red ≥ 80, orange ≥ 60, green < 60)
+- Status - WAITING, PROCESSING, READY
+- Attempts - Number of analysis attempts
+
+### Design Principles
+
+1. **Consistency** - Use CSS variables across all components
+2. **Clarity** - Color coding indicates status and type
+3. **Contrast** - Dark backgrounds with light text for readability
+4. **Hierarchy** - Purple for headers, cyan for interactive, green for values
+5. **Accessibility** - Monospace fonts for addresses, sufficient color contrast
+
+---
+
+## Recent Updates (2026-03-05)
+
+✅ Established unified color scheme across application
+✅ Created global_styles.css for reusable components
+✅ Created COLOR_SCHEME_GUIDE.md with implementation templates
+✅ Updated main dashboard CSS variables
+✅ Cleaned up redundant m5 files and old iteration documentation
+✅ Consolidated documentation strategy
+
+**Key Files**:
+- FLEX_COMPLETE_DOCUMENTATION.md (master reference)
+- COLOR_SCHEME_GUIDE.md (UI implementation guide)
+- global_styles.css (reusable CSS)
+- WEBHOOK_MONITOR_GUIDE.md (webhook UI documentation)
+

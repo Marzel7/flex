@@ -403,6 +403,7 @@ class RealTimeCreatorFundingExtractor:
                                     latency_ms=latency_ms,
                                     mode="realtime",
                                     retries=attempt,
+                                    source_file="realtime_creator_funding_extractor",
                                 )
                                 return data
 
@@ -2052,7 +2053,10 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
 
     Call from pumpfun_curve_listener.py in handle_migration():
         await extract_funding_for_new_token(creator, migration_time, create_tx_sig, mint)
+
+    RPC metrics are automatically recorded for all RPC calls in this flow.
     """
+    print(f"[REALTIME_FUNDING] 📊 Recording RPC metrics for creator funding extraction: {creator[:16]}...", flush=True)
     extractor = await get_extractor()
     result = await extractor.process_new_token(creator, migration_timestamp_str)
 

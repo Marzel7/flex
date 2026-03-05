@@ -1993,7 +1993,7 @@ class RealTimeCreatorFundingExtractor:
                                 
                                 if signatures_to_check:
                                     # Fetch full transaction details
-                                    tx_url = f"https://api.helius.xyz/v0/transactions?api-key={HELIUS_API_KEY}"
+                                    tx_url = f"https://api.helius.xyz/v0/transactions?api-key={_RPC_KEY}"
                                     tx_payload = {
                                         "transactions": signatures_to_check
                                     }

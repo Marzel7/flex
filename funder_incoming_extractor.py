@@ -595,9 +595,13 @@ def extract_transfers_for_funder(
             return {"incoming_count": 0, "outgoing_count": 0, "total_sol": 0.0, "source": "no_data", "funder": funder_address}
 
         if USE_HELIUS:
-            batch = helius_batch_get_transactions(sigs)
-            txs = [t for t in batch.values() if isinstance(t, dict)]
-            source = "helius_batch_from_rpc_sigs"
+            # DISABLED: Batch endpoint costs 100 credits per call
+            # Address feed already includes nativeTransfers, so batch is redundant
+            # batch = helius_batch_get_transactions(sigs)
+            # txs = [t for t in batch.values() if isinstance(t, dict)]
+            # source = "helius_batch_from_rpc_sigs"
+            txs = []  # Skip batch, rely on address feed only
+            source = "rpc_only"  # Fallback to RPC since we skipped batch
         else:
             # Pure RPC last resort: extremely slow + less accurate
             source = "rpc_only"

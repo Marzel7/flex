@@ -18,7 +18,7 @@ import websockets
 import aiohttp
 import requests
 from datetime import datetime
-from typing import Set, Optional, List
+from typing import Set, Optional, List, Dict
 from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
 from realtime_creator_funding_extractor import extract_funding_for_new_token
 from funder_incoming_extractor import extract_for_creator as extract_funder_transfers

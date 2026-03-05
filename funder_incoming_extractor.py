@@ -455,7 +455,8 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
                 mode="realtime",
                 retries=attempt,
                 source_file="funder_incoming_extractor",
-
+                cache_action="none",
+                credits_saved=0,
                 error=str(e),
             )
             print(f"[HTTP] Network error: {e}. Backing off (attempt {attempt+1}/{MAX_HTTP_RETRIES})")
@@ -528,6 +529,8 @@ def _rpc_call(payload: dict, timeout: float = 20.0) -> Optional[dict]:
                 latency_ms=latency_ms,
                 mode="realtime",
                 retries=attempt,
+                cache_action=cache_action,
+                credits_saved=credits_saved,
             )
 
             if resp.status_code == 429:
@@ -564,7 +567,8 @@ def _rpc_call(payload: dict, timeout: float = 20.0) -> Optional[dict]:
                 mode="realtime",
                 retries=attempt,
                 source_file="funder_incoming_extractor",
-
+                cache_action="none",
+                credits_saved=0,
                 error=str(e),
             )
             print(f"[RPC] Network error: {e}. Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
@@ -682,6 +686,8 @@ def extract_transfers_for_funder(
     helius_pages = 1
     fingerprint_cache_hit = 0
     fingerprint_refresh = 0
+    cache_action = "none"  # Track cache action for metrics (skip, refresh, full_scan, or none)
+    credits_saved = 0  # Track credits saved by this cache action
 
     # Check fingerprint cache first (SKIP/REFRESH/FULL_SCAN decision)
     if FINGERPRINT_CLUSTER is not None:
@@ -690,6 +696,8 @@ def extract_transfers_for_funder(
             if action == FingerprintAction.SKIP:
                 logger.info(f"[FINGERPRINT] ✅ SKIP {funder_address[:16]}... type={cached_type} conf={cached_conf:.2f}")
                 fingerprint_cache_hit = 1
+                cache_action = "skip"
+                credits_saved = 200  # Saved full scan cost
                 # Check if we have DB cache first (from prior scan)
                 inc_count, out_count, total_sol = _has_cached_funder_transfers(funder_address)
                 if inc_count or out_count:
@@ -712,9 +720,13 @@ def extract_transfers_for_funder(
             elif action == FingerprintAction.REFRESH:
                 logger.info(f"[FINGERPRINT] 🔄 REFRESH {funder_address[:16]}... type={cached_type} conf={cached_conf:.2f}")
                 fingerprint_refresh = 1
+                cache_action = "refresh"
+                credits_saved = 150  # Saved partial scan cost
                 helius_pages = 1  # Light refresh: only 1 page
             else:  # FULL_SCAN
                 logger.info(f"[FINGERPRINT] 🔍 FULL_SCAN {funder_address[:16]}... (confidence too low or unknown)")
+                cache_action = "full_scan"
+                credits_saved = 0  # No cache benefit
                 helius_pages = 1  # Standard scan
         except Exception as e:
             logger.warning(f"[FINGERPRINT] Lookup failed for {funder_address}: {e}")

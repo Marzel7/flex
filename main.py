@@ -14030,6 +14030,7 @@ def top_funding_hubs():
         return html
 
     except Exception as e:
+        return f"<html><body style='background: var(--bg-dark); color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
 
 
 @app.route('/funding-hub/<hub_address>')
@@ -14429,6 +14430,9 @@ def funding_hub(hub_address):
         """
 
         return html
+
+    except Exception as e:
+        return f"<html><body style='background: var(--bg-dark); color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
 
 
 @app.route('/api/creator-analysis-queue-status')

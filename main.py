@@ -18037,6 +18037,15 @@ def rpc_metrics_dashboard():
                 computed = verify_data.get('computed_from_db', 0)
                 percentage = verify_data.get('percentage_match', 0)
                 request_count = verify_data.get('request_count', 0)
+                method_breakdown = verify_data.get('method_breakdown', {})
+
+                # Build method breakdown HTML
+                method_html = ''
+                if method_breakdown:
+                    method_html = '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(148, 163, 184, 0.2);"><small style="color: #94a3b8;"><strong>RPC Calls:</strong></small>'
+                    for method, data in sorted(method_breakdown.items(), key=lambda x: x[1]['credits'], reverse=True):
+                        method_html += f'<br/><small style="color: #cbd5e1;">• <strong>{method}</strong>: {data["count"]} calls, {data["credits"]} credits</small>'
+                    method_html += '</div>'
 
                 verification_widget = f'''
                 <div class="card verification-card">
@@ -18058,8 +18067,9 @@ def rpc_metrics_dashboard():
                             <span class="label">Match Percentage:</span>
                             <span class="value percentage">{percentage}%</span>
                         </div>
+                        {method_html}
                         <div class="note">
-                            <small><strong>Helius Account Total</strong> = Total credits used on Helius account (independent of database reset).<br/>
+                            <small><strong>Helius (Since Reset)</strong> = Total credits used on Helius account since last reset.<br/>
                             <strong>Computed from DB</strong> = What we've tracked and recorded in our database.<br/>
                             <strong>Match %</strong> = How much of Helius usage is being recorded. Higher % means better instrumentation.</small>
                         </div>
@@ -18401,6 +18411,17 @@ def api_rpc_metrics_verify():
         # Calculate credits used SINCE reset
         helius_since_reset = current_helius_usage - reset_baseline
 
+        # Get breakdown by RPC method
+        cursor.execute('''
+            SELECT method, COUNT(*) as count, SUM(credits) as total
+            FROM rpc_metrics
+            GROUP BY method
+            ORDER BY total DESC
+        ''')
+        method_breakdown = {}
+        for method, count, total in cursor.fetchall():
+            method_breakdown[method] = {'count': count, 'credits': total}
+
         conn.close()
 
         # Calculate percentage match
@@ -18416,6 +18437,7 @@ def api_rpc_metrics_verify():
             'difference': helius_since_reset - computed_credits,
             'percentage_match': round(percentage_match, 1),
             'request_count': request_count,
+            'method_breakdown': method_breakdown,
             'notes': 'Shows credits used since last database reset. Helius actual may be higher due to other processes not recording metrics'
         }, 200
     except Exception as e:

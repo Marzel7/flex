@@ -403,7 +403,7 @@ def get_transactions_helius(address: str, limit: int = DEFAULT_HELIUS_LIMIT, max
 
     for _ in range(max_pages):
         url = (
-            f"https://api-mainnet.helius-rpc.com/v0/addresses/{address}/transactions"
+            f"https://api.helius.xyz/v0/addresses/{address}/transactions"
             f"?api-key={_HELIUS_API_KEY}&limit={lim}&before={all_txs[-1].get('signature', '') if all_txs else ''}"
         )
         data = _request_json("GET", url, timeout=25.0)

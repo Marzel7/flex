@@ -981,10 +981,11 @@ class PumpFunCurveListener:
                 return account
 
         # Debug: log what we found
-        if not post_balances and not accounts:
-            print(f"[MINT_EXTRACT] ⚠ No postTokenBalances or accountKeys found in tx", flush=True)
-            print(f"[MINT_EXTRACT] tx_data keys: {list(tx_data.keys())}", flush=True)
-            print(f"[MINT_EXTRACT] meta keys: {list(meta.keys())}", flush=True)
+        print(f"[MINT_EXTRACT] postTokenBalances count: {len(post_balances)}, accountKeys count: {len(accounts)}", flush=True)
+        if post_balances:
+            print(f"[MINT_EXTRACT] First postTokenBalance: {post_balances[0] if post_balances else 'None'}", flush=True)
+        if accounts:
+            print(f"[MINT_EXTRACT] First 5 accountKeys: {accounts[:5]}", flush=True)
 
         return None
 

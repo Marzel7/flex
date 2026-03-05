@@ -18043,7 +18043,7 @@ def rpc_metrics_dashboard():
                     <h3>💾 Database Tracking Verification</h3>
                     <div class="verification-content">
                         <div class="metric">
-                            <span class="label">Helius Actual (24h):</span>
+                            <span class="label">Helius Account Total:</span>
                             <span class="value">{helius_actual:,} credits</span>
                         </div>
                         <div class="metric">
@@ -18059,8 +18059,9 @@ def rpc_metrics_dashboard():
                             <span class="value percentage">{percentage}%</span>
                         </div>
                         <div class="note">
-                            <small>Percentage indicates how much RPC usage is being recorded to the database.<br/>
-                            Higher % means more processes are calling record_request().</small>
+                            <small><strong>Helius Account Total</strong> = Total credits used on Helius account (independent of database reset).<br/>
+                            <strong>Computed from DB</strong> = What we've tracked and recorded in our database.<br/>
+                            <strong>Match %</strong> = How much of Helius usage is being recorded. Higher % means better instrumentation.</small>
                         </div>
                     </div>
                 </div>

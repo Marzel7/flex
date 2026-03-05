@@ -312,8 +312,20 @@ class PumpFunCurveListener:
         self.websocket_connected = False
         self.websocket_msg_count = 0  # Track message receipt
         self.websocket_migration_count = 0  # Track migrations detected
+
+        # === NEW: Transaction caching ===
+        self.tx_cache = {}  # {signature: (tx_data, timestamp)}
+        self.tx_cache_ttl_seconds = 1800  # 30 minutes TTL
+        self.tx_inflight_locks = {}  # {signature: asyncio.Lock()} for singleflight
+        self.tx_cache_stats = {
+            'hit': 0,
+            'miss': 0,
+            'wait': 0,
+        }
+
         self._ensure_db()
         print(f"[INIT] Pump.Fun → PumpSwap Migration Listener ready", flush=True)
+        print(f"[INIT] ✅ TX Cache initialized (TTL: {self.tx_cache_ttl_seconds}s)", flush=True)
         print(f"[INIT] Monitoring PumpSwap program: {PUMPSWAP_PROGRAM}", flush=True)
         print(f"[INIT] WebSocket: {HELIUS_RPC_WS[:60]}...", flush=True)
         print(f"[INIT] HTTP RPC: {RPC_HTTP[:60]}...", flush=True)
@@ -456,6 +468,89 @@ class PumpFunCurveListener:
             )
             return None
 
+    async def _get_transaction_cached(self, signature: str, timeout: int = 10) -> Optional[Dict]:
+        """
+        Fetch transaction with TTL cache + singleflight deduplication.
+
+        Deduplicates concurrent requests for the same signature.
+        Cache TTL is 30 minutes (1800 seconds).
+
+        Returns tx_data dict from "result" field, or None if not found.
+        """
+        import time
+        current_time = time.time()
+
+        # === Check cache hit ===
+        if signature in self.tx_cache:
+            cached_data, cached_time = self.tx_cache[signature]
+            age = current_time - cached_time
+            if age < self.tx_cache_ttl_seconds:
+                self.tx_cache_stats['hit'] += 1
+                print(f"[TX_CACHE] 💾 HIT: {signature[:16]}... (age: {age:.1f}s)", flush=True)
+                return cached_data
+            else:
+                # Expired, remove from cache
+                del self.tx_cache[signature]
+
+        # === Check if already in-flight (singleflight pattern) ===
+        if signature in self.tx_inflight_locks:
+            # Another coroutine is already fetching this
+            self.tx_cache_stats['wait'] += 1
+            lock = self.tx_inflight_locks[signature]
+            await lock.acquire()
+            lock.release()
+
+            # After lock released, tx should be in cache
+            if signature in self.tx_cache:
+                cached_data, _ = self.tx_cache[signature]
+                print(f"[TX_CACHE] ⏳ WAIT: {signature[:16]}... (shared fetch completed)", flush=True)
+                return cached_data
+            return None
+
+        # === Cache miss: fetch it ===
+        self.tx_cache_stats['miss'] += 1
+
+        # Create lock for this signature (singleflight)
+        lock = asyncio.Lock()
+        self.tx_inflight_locks[signature] = lock
+        await lock.acquire()
+
+        try:
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getTransaction",
+                "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
+            }
+
+            print(f"[TX_CACHE] 🌐 MISS: fetching {signature[:16]}...", flush=True)
+            tx_data = await asyncio.wait_for(
+                self._post_rpc_with_fallback(payload),
+                timeout=timeout
+            )
+
+            if tx_data and "result" in tx_data and tx_data["result"]:
+                result = tx_data["result"]
+                # Cache it
+                self.tx_cache[signature] = (result, current_time)
+                print(f"[TX_CACHE] 💾 CACHED: {signature[:16]}... ({len(str(result))} bytes)", flush=True)
+                return result
+
+            return None
+
+        except asyncio.TimeoutError:
+            print(f"[TX_CACHE] ⏱️  Timeout fetching {signature[:16]}...", flush=True)
+            return None
+
+        except Exception as e:
+            print(f"[TX_CACHE] ⚠ Error fetching {signature[:16]}...: {e}", flush=True)
+            return None
+
+        finally:
+            # Release lock for other waiters
+            lock.release()
+            del self.tx_inflight_locks[signature]
+
     # --- Database ---
     def _ensure_db(self):
         conn = sqlite3.connect(DB_PATH)
@@ -568,6 +663,53 @@ class PumpFunCurveListener:
                 print("[DB] ✅ Added network_members column to creator_blocklist", flush=True)
         except Exception as e:
             pass  # Columns likely already exist
+
+        # === NEW: Funder webhook tables (Task A) ===
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS funder_watchlist (
+                funder_address TEXT PRIMARY KEY,
+                risk_score INTEGER DEFAULT 0,
+                risk_reasons TEXT,
+                first_added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                last_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                is_active INTEGER DEFAULT 1,
+                webhook_group_id TEXT
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS funder_webhook_groups (
+                webhook_group_id TEXT PRIMARY KEY,
+                description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                is_active INTEGER DEFAULT 1,
+                helius_webhook_id TEXT
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS funder_webhook_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                funder_address TEXT NOT NULL,
+                signature TEXT NOT NULL,
+                slot INTEGER,
+                block_time INTEGER,
+                direction TEXT,
+                counterparty TEXT,
+                amount_sol REAL,
+                mint TEXT,
+                raw_payload TEXT,
+                ingested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(signature, funder_address)
+            )
+        """)
+
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_funder_watchlist_active ON funder_watchlist(is_active)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_funder_watchlist_group ON funder_watchlist(webhook_group_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_funder_webhook_events_funder ON funder_webhook_events(funder_address)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_funder_webhook_events_block_time ON funder_webhook_events(block_time DESC)")
+
+        print("[DB] ✅ Funder webhook tables ensured", flush=True)
 
         conn.commit()
         conn.close()
@@ -800,6 +942,46 @@ class PumpFunCurveListener:
         
         return None
 
+    async def _extract_mint_from_tx(self, tx_data: Dict) -> Optional[str]:
+        """
+        Extract token mint from transaction data (no RPC call needed).
+
+        Strategies:
+        1. Try postTokenBalances first (most reliable)
+        2. Fall back to accountKeys if postTokenBalances missing
+        3. Filter out system programs
+        """
+        if not tx_data:
+            return None
+
+        meta = tx_data.get("meta", {})
+
+        # Strategy 1: Try postTokenBalances first
+        post_balances = meta.get("postTokenBalances", [])
+        for balance in post_balances:
+            mint = balance.get("mint", "")
+            if mint and len(mint) in (43, 44) and mint != "So11111111111111111111111111111111111111112":
+                return mint
+
+        # Strategy 2: Fall back to accountKeys
+        message = tx_data.get("transaction", {}).get("message", {})
+        accounts = message.get("accountKeys", [])
+
+        system_programs = {
+            "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+            "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",
+            "11111111111111111111111111111111",
+            "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "So11111111111111111111111111111111111111112",
+        }
+
+        for account in accounts[:10]:
+            if len(account) in (43, 44) and account not in system_programs:
+                return account
+
+        return None
+
     async def _extract_pool_from_migration_tx(self, signature: str) -> Optional[str]:
         """
         Extract the PumpSwap pool address from a migration transaction.
@@ -882,6 +1064,57 @@ class PumpFunCurveListener:
                 else:
                     print(f"[POOL_ERROR] Failed to extract pool address after {max_retries} attempts: {e}", flush=True)
                     return None
+
+        return None
+
+    async def _extract_pool_from_tx(self, tx_data: Dict) -> Optional[str]:
+        """
+        Extract PumpSwap pool address from transaction data (no RPC call needed).
+
+        The pool is the account that is OWNED BY the PumpSwap program.
+
+        Strategy:
+        1. Look through all accounts in innerInstructions
+        2. Find accounts used by the PumpSwap program
+        3. Return the first writable PDA (index 0 of PumpSwap instruction accounts)
+        """
+        if not tx_data:
+            return None
+
+        message = tx_data.get("transaction", {}).get("message", {})
+        account_keys = message.get("accountKeys", [])
+
+        if not account_keys:
+            return None
+
+        meta = tx_data.get("meta", {})
+        inner_instructions = meta.get("innerInstructions", [])
+
+        PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+
+        # Find PumpSwap program index in accountKeys
+        pumpswap_idx = -1
+        for i, acc in enumerate(account_keys):
+            if acc == PUMPSWAP_PROGRAM:
+                pumpswap_idx = i
+                break
+
+        if pumpswap_idx < 0:
+            return None
+
+        # Search innerInstructions for PumpSwap calls
+        for ix_group in inner_instructions:
+            instructions = ix_group.get("instructions", [])
+            for ix in instructions:
+                program_id_idx = ix.get("programIdIndex")
+                if program_id_idx == pumpswap_idx:
+                    accounts = ix.get("accounts", [])
+                    if accounts and len(accounts) > 0:
+                        pool_idx = accounts[0]
+                        if isinstance(pool_idx, int) and pool_idx < len(account_keys):
+                            pool_address = account_keys[pool_idx]
+                            print(f"[POOL] ✅ Extracted pool from cached tx: {pool_address}", flush=True)
+                            return pool_address
 
         return None
 
@@ -1795,11 +2028,17 @@ class PumpFunCurveListener:
 
             self.detected_migrations.add(signature)
 
-            # Extract mint from transaction (more reliable than logs)
-            mint = await self._fetch_mint_from_transaction(signature)
+            # === CRITICAL OPTIMIZATION: Cache TX fetch ===
+            # Fetch TX once and reuse for mint, pool, blockTime extraction
+            tx_data = await self._get_transaction_cached(signature)
+
+            if tx_data:
+                mint = await self._extract_mint_from_tx(tx_data)
+            else:
+                mint = None
 
             if not mint:
-                print(f"[MIGRATION] ⚠ Failed to extract mint from postTokenBalances, trying logs fallback", flush=True)
+                print(f"[MIGRATION] ⚠ Failed to extract mint from cached tx, trying logs fallback", flush=True)
                 mint = self._extract_mint_from_logs(logs)
 
             if not mint:
@@ -1818,10 +2057,12 @@ class PumpFunCurveListener:
             # Create minimal token entry immediately (so token appears in UI right away)
             await self._create_minimal_token_entry(mint)
 
-            # Extract pool address from migration transaction for on-chain price queries
-            pool_address = await self._extract_pool_from_migration_tx(signature)
-            if pool_address:
-                print(f"[EVENT] ✅ Pool extracted from transaction: {pool_address}", flush=True)
+            # === Extract pool from cached tx (no RPC call!) ===
+            pool_address = None
+            if tx_data:
+                pool_address = await self._extract_pool_from_tx(tx_data)
+                if pool_address:
+                    print(f"[EVENT] ✅ Pool extracted from cached tx: {pool_address}", flush=True)
 
             # Trigger immediate price fetch (don't wait for background task)
             # This ensures market cap appears quickly in UI regardless of analysis settings
@@ -1852,19 +2093,14 @@ class PumpFunCurveListener:
                     print(f"[CREATOR] 🕐 Using on-chain time from earliest tx: {created_at}", flush=True)
 
                 # Fallback: Get migration block time if provenance doesn't have blockTime
+                # Try cached TX first (no RPC call!)
                 if not created_at and signature:
                     try:
-                        payload = {
-                            "jsonrpc": "2.0",
-                            "id": 1,
-                            "method": "getTransaction",
-                            "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
-                        }
-                        tx_data = await self._post_rpc_with_fallback(payload, timeout=10)
-                        if tx_data and tx_data.get("result"):
-                            block_time = tx_data["result"].get("blockTime")
+                        if tx_data:
+                            block_time = tx_data.get("blockTime")
                             if block_time:
                                 created_at = datetime.utcfromtimestamp(block_time).isoformat() + "Z"
+                        # If no cached tx, skip (provenance check will use current time as fallback)
                     except Exception as ts_err:
                         pass  # Fall back to current time if we can't get block time
 
@@ -1968,6 +2204,21 @@ class PumpFunCurveListener:
             traceback.print_exc()
 
     # --- WebSocket Listener ---
+    def get_tx_cache_stats(self) -> Dict:
+        """Return current transaction cache statistics."""
+        total = sum(self.tx_cache_stats.values())
+        hit_rate = (self.tx_cache_stats['hit'] / total * 100) if total > 0 else 0
+
+        return {
+            'tx_cache_hit': self.tx_cache_stats['hit'],
+            'tx_cache_miss': self.tx_cache_stats['miss'],
+            'tx_cache_wait': self.tx_cache_stats['wait'],
+            'tx_cache_size': len(self.tx_cache),
+            'tx_cache_hit_rate_pct': round(hit_rate, 2),
+            'rpc_calls_avoided': self.tx_cache_stats['hit'],
+            'credits_saved': self.tx_cache_stats['hit'] * 10,
+        }
+
     async def listen_websocket(self):
         """Listen to PumpSwap program via WebSocket for live migration events"""
         print(f"\n[WEBSOCKET] Connecting to PumpSwap program...", flush=True)

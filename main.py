@@ -19089,6 +19089,218 @@ def webhook_monitor():
 
 
 # =========================================================================
+# TASK B: TX CACHE & TASK A: FUNDER WEBHOOKS
+# =========================================================================
+
+@app.route('/api/listener/tx-cache-stats')
+def listener_tx_cache_stats():
+    """
+    Expose listener transaction cache statistics to UI.
+    Returns cache hit/miss/wait stats and estimated credits saved.
+    """
+    try:
+        global listener
+        if 'listener' in globals() and listener:
+            stats = listener.get_tx_cache_stats()
+            return jsonify(stats)
+
+        return jsonify({
+            "tx_cache_hit": 0,
+            "tx_cache_miss": 0,
+            "tx_cache_wait": 0,
+            "tx_cache_size": 0,
+            "tx_cache_hit_rate_pct": 0.0,
+            "rpc_calls_avoided": 0,
+            "credits_saved": 0,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/webhook/funder', methods=['POST'])
+def webhook_funder_event():
+    """
+    Receive funder webhook events from Helius.
+    Dedupes by (signature, funder_address) and stores in database.
+    """
+    try:
+        payload = request.get_json()
+
+        if not payload:
+            return jsonify({"error": "empty payload"}), 400
+
+        signature = payload.get("signature")
+        slot = payload.get("slot")
+        block_time = payload.get("blockTime")
+        source = payload.get("source")
+        destination = payload.get("destination")
+        mint = payload.get("mint")
+
+        if not signature or not source or not destination:
+            return jsonify({"error": "missing required fields"}), 400
+
+        direction = None
+        counterparty = None
+        amount_sol = 0
+
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        # Check if source is a watched funder (transfer OUT)
+        cursor.execute("""
+            SELECT 1 FROM funder_watchlist
+            WHERE funder_address = ? AND is_active = 1
+        """, (source,))
+
+        if cursor.fetchone():
+            direction = "OUT"
+            counterparty = destination
+            native_transfers = payload.get("nativeTransfers", [])
+            if native_transfers:
+                amount_sol = sum(t.get("amount", 0) for t in native_transfers) / 1e9
+
+        # Check if destination is a watched funder (transfer IN)
+        cursor.execute("""
+            SELECT 1 FROM funder_watchlist
+            WHERE funder_address = ? AND is_active = 1
+        """, (destination,))
+
+        if cursor.fetchone():
+            direction = "IN"
+            counterparty = source
+            native_transfers = payload.get("nativeTransfers", [])
+            if native_transfers:
+                amount_sol = sum(t.get("amount", 0) for t in native_transfers) / 1e9
+
+        if not direction:
+            conn.close()
+            return jsonify({"status": "ok"}), 200
+
+        # Insert event (dedupe by UNIQUE constraint)
+        funder = source if direction == "OUT" else destination
+        try:
+            cursor.execute("""
+                INSERT INTO funder_webhook_events
+                (funder_address, signature, slot, block_time, direction, counterparty, amount_sol, mint, raw_payload)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (funder, signature, slot, block_time, direction, counterparty, amount_sol, mint, json.dumps(payload)))
+            conn.commit()
+            print(f"[WEBHOOK_FUNDER] ✅ {direction}: {funder[:8]}... <-> {counterparty[:8]}... ({amount_sol:.4f} SOL)", flush=True)
+        except sqlite3.IntegrityError:
+            pass  # Duplicate event
+        finally:
+            conn.close()
+
+        return jsonify({"status": "ok"}), 200
+
+    except Exception as e:
+        print(f"[WEBHOOK_FUNDER] ⚠ Error: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/funder-watchlist/summary')
+def funder_watchlist_summary():
+    """Get summary of funder watchlist by risk tier."""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        summary = {}
+        for tier in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
+            cursor.execute("""
+                SELECT COUNT(*) as count, COALESCE(SUM(risk_score), 0) as total_risk
+                FROM funder_watchlist
+                WHERE webhook_group_id = ? AND is_active = 1
+            """, (tier,))
+            row = cursor.fetchone()
+            summary[tier] = {
+                "count": row[0] if row else 0,
+                "total_risk_score": row[1] if row else 0,
+            }
+
+        conn.close()
+        return jsonify(summary)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/funder-watchlist/top-risky')
+def funder_watchlist_top_risky():
+    """Get top 20 most risky funders."""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT funder_address, risk_score, webhook_group_id, risk_reasons
+            FROM funder_watchlist
+            WHERE is_active = 1
+            ORDER BY risk_score DESC
+            LIMIT 20
+        """)
+
+        rows = cursor.fetchall()
+        result = []
+        for row in rows:
+            risk_reasons = json.loads(row[3]) if row[3] else []
+            result.append({
+                "funder_address": row[0],
+                "risk_score": row[1],
+                "risk_tier": row[2],
+                "risk_reasons": risk_reasons,
+            })
+
+        conn.close()
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/funder-webhook-events')
+def funder_webhook_events():
+    """Get recent funder webhook events (paginated)."""
+    try:
+        limit = request.args.get('limit', 50, type=int)
+        offset = request.args.get('offset', 0, type=int)
+
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT id, funder_address, signature, block_time, direction,
+                   counterparty, amount_sol, mint, ingested_at
+            FROM funder_webhook_events
+            ORDER BY ingested_at DESC
+            LIMIT ? OFFSET ?
+        """, (limit, offset))
+
+        rows = cursor.fetchall()
+        result = []
+        for row in rows:
+            result.append({
+                "id": row[0],
+                "funder_address": row[1],
+                "signature": row[2],
+                "block_time": row[3],
+                "direction": row[4],
+                "counterparty": row[5],
+                "amount_sol": row[6],
+                "mint": row[7],
+                "ingested_at": row[8],
+            })
+
+        conn.close()
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# =========================================================================
 # MAIN
 # =========================================================================
 

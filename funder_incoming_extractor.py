@@ -50,10 +50,14 @@ except Exception:
 
 DB_PATH = "flex_complete_database.db"
 SOLANA_RPC = "https://api.mainnet-beta.solana.com"
+HELIUS_MONITORING_API_KEY = os.getenv("HELIUS_MONITORING_API_KEY", "").strip()
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()
 
+# Use monitoring key if available, fall back to regular key
+_HELIUS_API_KEY = HELIUS_MONITORING_API_KEY or HELIUS_API_KEY
+
 LAMPORTS_PER_SOL = 1_000_000_000
-USE_HELIUS = bool(HELIUS_API_KEY)
+USE_HELIUS = bool(_HELIUS_API_KEY)
 
 # Reliability defaults
 MIN_SOL = 0.001
@@ -400,7 +404,7 @@ def get_transactions_helius(address: str, limit: int = DEFAULT_HELIUS_LIMIT, max
     for _ in range(max_pages):
         url = (
             f"https://api.helius.xyz/v0/addresses/{address}/transactions"
-            f"?api-key={HELIUS_API_KEY}&limit={lim}&before={all_txs[-1].get('signature', '') if all_txs else ''}"
+            f"?api-key={_HELIUS_API_KEY}&limit={lim}&before={all_txs[-1].get('signature', '') if all_txs else ''}"
         )
         data = _request_json("GET", url, timeout=25.0)
         if not isinstance(data, list) or not data:
@@ -505,7 +509,7 @@ def helius_batch_get_transactions(tx_sigs: List[str]) -> Dict[str, Optional[dict
     if not USE_HELIUS or not tx_sigs:
         return out
 
-    url = f"https://api.helius.xyz/v0/transactions?api-key={HELIUS_API_KEY}"
+    url = f"https://api.helius.xyz/v0/transactions?api-key={_HELIUS_API_KEY}"
 
     for i in range(0, len(tx_sigs), 100):
         batch = tx_sigs[i:i + 100]

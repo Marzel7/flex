@@ -195,6 +195,8 @@ def _persist_rpc_metric(
     retries: int = 0,
     source_file: str = "unknown",
     error: Optional[str] = None,
+    cache_action: str = "none",
+    credits_saved: int = 0,
 ):
     """Write RPC metric to database for persistent cross-process tracking"""
     try:
@@ -205,11 +207,11 @@ def _persist_rpc_metric(
             """
             INSERT INTO rpc_metrics
             (timestamp, section, provider, method, status_code, latency_ms, credits,
-             mode, retries, source_file, error, process_pid)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             mode, retries, source_file, error, process_pid, cache_action, credits_saved)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (timestamp, section, provider, method, status_code, latency_ms, credits,
-             mode, retries, source_file, error, pid),
+             mode, retries, source_file, error, pid, cache_action, credits_saved),
         )
         conn.commit()
         conn.close()
@@ -276,6 +278,8 @@ class RPCMetricsRecorder:
         bytes_out: int = 0,
         source_file: str = "unknown",
         error: Optional[str] = None,
+        cache_action: str = "none",
+        credits_saved: int = 0,
     ) -> int:
         """
         Record a single RPC request.
@@ -292,6 +296,8 @@ class RPCMetricsRecorder:
             bytes_out: Response body bytes
             source_file: File/process making the call (e.g., pumpfun_curve_listener, creator_outgoing_extractor)
             error: Error message if failed
+            cache_action: Cache action (skip, refresh, full_scan, or none)
+            credits_saved: Credits saved by cache action
 
         Returns:
             Credits consumed for this request
@@ -346,7 +352,7 @@ class RPCMetricsRecorder:
             # Persist to database for cross-process aggregation (non-blocking)
             _persist_rpc_metric(
                 ts, section, provider, method, status_code, latency_ms,
-                credits, mode, retries, source_file, error
+                credits, mode, retries, source_file, error, cache_action, credits_saved
             )
 
             return credits
@@ -742,10 +748,13 @@ def record_request(
     bytes_out: int = 0,
     source_file: str = "unknown",
     error: Optional[str] = None,
+    cache_action: str = "none",
+    credits_saved: int = 0,
 ) -> int:
     """Convenience function to record request with global instance"""
     credits = get_recorder().record_request(
-        section, provider, method, status_code, latency_ms, mode, retries, bytes_in, bytes_out, source_file, error
+        section, provider, method, status_code, latency_ms, mode, retries, bytes_in, bytes_out, source_file, error,
+        cache_action, credits_saved
     )
 
     return credits

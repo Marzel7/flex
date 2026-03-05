@@ -54,6 +54,139 @@ if WEBHOOK_ENABLED:
         WEBHOOK_ENABLED = False
 
 # =========================================================================
+# HELIUS OPTIMIZATION API INITIALIZATION
+# =========================================================================
+try:
+    from http_instrumentation.optimization_api import register_optimization_routes
+    register_optimization_routes(app, db_path=DB_PATH)
+    print("[OPTIMIZATION] Helius optimization metrics API routes registered successfully")
+except ImportError as e:
+    print(f"[WARNING] Optimization API not available: {e}")
+except Exception as e:
+    print(f"[ERROR] Failed to initialize optimization API: {e}")
+
+# =========================================================================
+# RPC SAVINGS & EFFICIENCY DASHBOARD APIS (Phase 2 & 3)
+# =========================================================================
+try:
+    from rpc_savings_api import (
+        get_dashboard_data,
+        query_daily_savings,
+        query_dashboard_24h,
+        query_section_breakdown,
+    )
+    from rpc_efficiency_api import (
+        query_daily_efficiency,
+        query_efficiency_24h,
+        query_efficiency_all_time,
+        query_efficiency_by_section,
+        query_health_status,
+        get_efficiency_dashboard,
+    )
+    from dataclasses import asdict
+
+    # RPC Savings Dashboard Routes
+    @app.route('/api/rpc-savings/dashboard')
+    def api_rpc_savings_dashboard():
+        try:
+            days = request.args.get('days', 30, type=int)
+            data = get_dashboard_data(days)
+            return jsonify(data)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/rpc-savings/24h')
+    def api_rpc_savings_24h():
+        try:
+            data = query_dashboard_24h()
+            if data:
+                return jsonify(asdict(data))
+            return jsonify({})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/rpc-savings/daily')
+    def api_rpc_savings_daily():
+        try:
+            days = request.args.get('days', 30, type=int)
+            metrics = query_daily_savings(days)
+            return jsonify([asdict(m) for m in metrics])
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/rpc-savings/by-section')
+    def api_rpc_savings_by_section():
+        try:
+            days = request.args.get('days', 30, type=int)
+            breakdown = query_section_breakdown(days)
+            return jsonify([asdict(b) for b in breakdown])
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    # RPC Efficiency Score Routes
+    @app.route('/api/rpc-efficiency/dashboard')
+    def api_rpc_efficiency_dashboard():
+        try:
+            days = request.args.get('days', 30, type=int)
+            data = get_efficiency_dashboard(days)
+            return jsonify(data)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/rpc-efficiency/24h')
+    def api_rpc_efficiency_24h():
+        try:
+            data = query_efficiency_24h()
+            if data:
+                return jsonify(asdict(data))
+            return jsonify({})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/rpc-efficiency/daily')
+    def api_rpc_efficiency_daily():
+        try:
+            days = request.args.get('days', 30, type=int)
+            metrics = query_daily_efficiency(days)
+            return jsonify([asdict(m) for m in metrics])
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/rpc-efficiency/all-time')
+    def api_rpc_efficiency_all_time():
+        try:
+            data = query_efficiency_all_time()
+            if data:
+                return jsonify(asdict(data))
+            return jsonify({})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/rpc-efficiency/by-section')
+    def api_rpc_efficiency_by_section():
+        try:
+            days = request.args.get('days', 30, type=int)
+            metrics = query_efficiency_by_section(days)
+            return jsonify([asdict(m) for m in metrics])
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/rpc-efficiency/health')
+    def api_rpc_efficiency_health():
+        try:
+            days = request.args.get('days', 7, type=int)
+            reports = query_health_status(days)
+            return jsonify([asdict(r) for r in reports])
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    print("[RPC_SAVINGS] RPC savings and efficiency dashboard APIs registered successfully")
+except ImportError as e:
+    print(f"[WARNING] RPC savings/efficiency APIs not available: {e}")
+except Exception as e:
+    print(f"[ERROR] Failed to initialize RPC savings/efficiency APIs: {e}")
+
+# =========================================================================
 # DATABASE CAPABILITY CHECK
 # =========================================================================
 
@@ -2346,6 +2479,7 @@ HTML_TEMPLATE = """
                 <button class="action-button" onclick="window.location.href = '/top-funding-hubs'" title="View top funding distribution hubs" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Hubs</button>
                 <button class="action-button" onclick="window.location.href = '/creator-analysis'" title="Analyze creator outgoing transfers and funding chains" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Creator Analysis</button>
                 <button class="action-button" onclick="window.location.href = '/webhook-monitor'" title="Monitor real-time webhook activity and transfers" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">📡 Webhook</button>
+                <button class="action-button" onclick="window.location.href = '/rpc-savings-dashboard'" title="Monitor RPC optimization and credit savings" style="background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.5); margin-left: 8px;">💰 RPC Savings</button>
                 <button class="action-button" onclick="window.location.href = 'http://localhost:5002/rpc-metrics'" title="View RPC credit usage and cost monitoring in real-time" style="background: rgba(16, 185, 129, 0.2); color: var(--color-low); border: 1px solid rgba(16, 185, 129, 0.5); margin-left: 8px;">💰 RPC Metrics</button>
             </div>
         </div>
@@ -17866,13 +18000,118 @@ def unsuppress_alert(alert_id):
 def rpc_metrics_dashboard():
     """
     Proxy to RPC Metrics Dashboard.
-    Returns the HTML dashboard from rpc_metrics_api.
+    Returns the HTML dashboard from rpc_metrics_api with "Remaining" section removed
+    and verification percentage added.
     """
     try:
         import requests
+        import re
+        import json
+
+        # Fetch verification data
+        verify_response = requests.get('http://localhost:5002/api/rpc-metrics/verify', timeout=5)
+        verify_data = {}
+        if verify_response.status_code == 200:
+            verify_data = verify_response.json()
+
         response = requests.get('http://localhost:8001/dashboard', timeout=5)
         if response.status_code == 200:
-            return response.text, 200, {'Content-Type': 'text/html'}
+            html = response.text
+            # Remove the "Monthly Remaining" card section
+            html = re.sub(
+                r'<div class="card[^>]*>\s*<h3>Monthly Remaining</h3>.*?</div>\s*</div>',
+                '',
+                html,
+                flags=re.DOTALL
+            )
+            # Also remove "Remaining (10M)" line if present
+            html = re.sub(
+                r'<[^>]*>Remaining \(10M\)[^<]*</[^>]*>',
+                '',
+                html
+            )
+
+            # Add verification widget if data is available
+            if verify_data.get('status') == 'success':
+                helius_actual = verify_data.get('helius_actual', 0)
+                computed = verify_data.get('computed_from_db', 0)
+                percentage = verify_data.get('percentage_match', 0)
+                request_count = verify_data.get('request_count', 0)
+
+                verification_widget = f'''
+                <div class="card verification-card">
+                    <h3>💾 Database Tracking Verification</h3>
+                    <div class="verification-content">
+                        <div class="metric">
+                            <span class="label">Helius Actual (24h):</span>
+                            <span class="value">{helius_actual:,} credits</span>
+                        </div>
+                        <div class="metric">
+                            <span class="label">Computed from DB:</span>
+                            <span class="value">{computed:,} credits</span>
+                        </div>
+                        <div class="metric">
+                            <span class="label">Tracked Requests:</span>
+                            <span class="value">{request_count}</span>
+                        </div>
+                        <div class="metric verification-percentage">
+                            <span class="label">Match Percentage:</span>
+                            <span class="value percentage">{percentage}%</span>
+                        </div>
+                        <div class="note">
+                            <small>Percentage indicates how much RPC usage is being recorded to the database.<br/>
+                            Higher % means more processes are calling record_request().</small>
+                        </div>
+                    </div>
+                </div>
+                <style>
+                    .verification-card {{
+                        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+                        border: 1px solid rgba(34, 197, 94, 0.3);
+                    }}
+                    .verification-content {{
+                        display: flex;
+                        flex-direction: column;
+                        gap: 12px;
+                    }}
+                    .verification-content .metric {{
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 8px 0;
+                        border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+                    }}
+                    .verification-content .metric:last-child {{
+                        border-bottom: none;
+                    }}
+                    .verification-content .label {{
+                        color: #cbd5e1;
+                        font-size: 13px;
+                    }}
+                    .verification-content .value {{
+                        color: #e2e8f0;
+                        font-weight: 600;
+                        font-size: 14px;
+                    }}
+                    .verification-content .percentage {{
+                        font-size: 18px;
+                        color: {('#22c55e' if percentage >= 50 else '#f59e0b' if percentage >= 10 else '#ef4444')};
+                    }}
+                    .verification-content .note {{
+                        color: #94a3b8;
+                        margin-top: 8px;
+                        padding-top: 8px;
+                        border-top: 1px solid rgba(148, 163, 184, 0.2);
+                    }}
+                    .verification-content .note small {{
+                        font-size: 12px;
+                    }}
+                </style>
+                '''
+                # Inject verification widget before closing body tag
+                html = html.replace('</body>', verification_widget + '</body>')
+
+            return html, 200, {'Content-Type': 'text/html'}
         else:
             return f'''
             <!DOCTYPE html>
@@ -17939,6 +18178,47 @@ def rpc_metrics_dashboard():
         </body>
         </html>
         ''', 503, {'Content-Type': 'text/html'}
+
+
+@app.route('/rpc-savings-dashboard')
+def rpc_savings_dashboard():
+    """
+    RPC Savings Dashboard - Visualizes real savings from optimization.
+    Displays KPI cards, trends, and efficiency metrics.
+    """
+    return render_template('rpc_savings_dashboard.html')
+
+
+@app.route('/api/rpc-savings/reset', methods=['POST'])
+def api_rpc_savings_reset():
+    """
+    Reset RPC savings metrics in the database.
+    Clears cache_action and credits_saved columns for all records.
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        # Reset cache_action and credits_saved columns
+        cursor.execute('''
+            UPDATE rpc_metrics
+            SET cache_action = 'none', credits_saved = 0
+        ''')
+
+        rows_affected = cursor.rowcount
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            'status': 'success',
+            'message': f'Reset {rows_affected} RPC metrics records',
+            'rows_affected': rows_affected
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
 
 
 @app.route('/metrics/rpc')
@@ -18013,12 +18293,86 @@ def metrics_rpc_source_files_proxy():
 
 @app.route('/metrics/rpc/reset', methods=['POST'])
 def metrics_rpc_reset_proxy():
-    """Proxy /metrics/rpc/reset requests to the RPC Metrics API"""
+    """Reset RPC metrics: Clear Component/Section and Source File/Process data"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=10)
+        conn.execute("PRAGMA journal_mode=WAL")
+        cursor = conn.cursor()
+
+        # Delete all records to clear component/section and source file/process aggregations
+        cursor.execute("DELETE FROM rpc_metrics")
+        deleted_count = cursor.rowcount
+
+        conn.commit()
+        conn.close()
+
+        return {
+            'status': 'success',
+            'message': 'RPC metrics reset successfully',
+            'records_deleted': deleted_count
+        }, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+
+@app.route('/api/rpc-metrics/verify', methods=['GET'])
+def api_rpc_metrics_verify():
+    """
+    Compare Helius actual usage vs computed usage from database.
+    Returns both values and percentage match.
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        # Get computed usage from database (last 24 hours)
+        cursor.execute('''
+            SELECT
+              COUNT(*) as request_count,
+              SUM(COALESCE(credits, 0)) as computed_credits
+            FROM rpc_metrics
+            WHERE recorded_at >= datetime('now', '-24 hours')
+        ''')
+
+        row = cursor.fetchone()
+        computed_credits = row[1] or 0 if row else 0
+        request_count = row[0] if row else 0
+        conn.close()
+
+        # Get actual Helius usage from config
+        try:
+            from rpc_metrics_config import PlanConfig
+            helius_credits_used_today = PlanConfig.CURRENT_USAGE.get('credits_used_today', 0)
+        except:
+            helius_credits_used_today = 0
+
+        # Calculate percentage match
+        if helius_credits_used_today > 0:
+            percentage_match = (computed_credits / helius_credits_used_today) * 100
+        else:
+            percentage_match = 0
+
+        return {
+            'status': 'success',
+            'helius_actual': helius_credits_used_today,
+            'computed_from_db': computed_credits,
+            'difference': helius_credits_used_today - computed_credits,
+            'percentage_match': round(percentage_match, 1),
+            'request_count': request_count,
+            'notes': 'Helius actual may be higher due to other processes not recording metrics'
+        }, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+
+@app.route('/metrics/rpc/database')
+def metrics_rpc_database_proxy():
+    """Proxy /metrics/rpc/database requests to the RPC Metrics API"""
     try:
         import requests
         from flask import request
-        admin_token = request.args.get('admin_token', '')
-        response = requests.post(f'http://localhost:8001/metrics/rpc/reset?admin_token={admin_token}', timeout=5)
+        since_hours = request.args.get('since_hours', '24')
+        response = requests.get(f'http://localhost:8001/metrics/rpc/database?since_hours={since_hours}', timeout=5)
         return response.json(), response.status_code
     except Exception as e:
         return {'error': str(e)}, 503
@@ -18739,6 +19093,10 @@ def webhook_monitor():
 # =========================================================================
 
 if __name__ == '__main__':
+    import logging
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+
     print("[FLASK] Starting Migration Tracker UI...")
     print("[FLASK] Dashboard available at http://localhost:5002")
     print("[FLASK] Database: " + DB_PATH)

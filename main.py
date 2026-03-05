@@ -9007,12 +9007,12 @@ def coordinated_funders_view():
                     <input type="checkbox" class="funder-checkbox" value="{funder['funder_address']}" style="width: 18px; height: 18px; cursor: pointer;">
                 </td>
                 <td style="padding: 12px; font-family: monospace; font-size: 11px; word-break: break-all;">
-                    <a href="/funding-hub/{funder['funder_address']}" style="color: #3b82f6; text-decoration: none;">
+                    <a href="/funding-hub/{funder['funder_address']}" style="color: var(--color-cyan); text-decoration: none;">
                         {funder['funder_address']}
                     </a>
                 </td>
-                <td style="padding: 12px; text-align: right; color: #fbbf24; font-weight: 600;">{funder['creator_count']}</td>
-                <td style="padding: 12px; text-align: right; color: #a855f7; font-weight: 600;">{funder['total_sol_sent']:.2f} SOL</td>
+                <td style="padding: 12px; text-align: right; color: var(--color-yellow); font-weight: 600;">{funder['creator_count']}</td>
+                <td style="padding: 12px; text-align: right; color: var(--color-green); font-weight: 600;">{funder['total_sol_sent']:.2f} SOL</td>
             </tr>
             """
 
@@ -9022,21 +9022,20 @@ def coordinated_funders_view():
             <title>Coordinated Funders</title>
             <style>
                 :root {{
-                    --bg-primary: #0f0f1e;
-                    --bg-secondary: #1a1a2e;
-                    --primary: #7c3aed;
-                    --accent-cyan: #06b6d4;
-                    --accent-purple: #a78bfa;
-                    --color-critical: #ef4444;
-                    --color-high: #f97316;
-                    --color-medium: #eab308;
-                    --color-low: #22c55e;
-                    --color-none: #3b82f6;
+                    --color-purple: #a78bfa;
+                    --color-cyan: #06b6d4;
+                    --color-green: #16a34a;
+                    --color-yellow: #fbbf24;
                     --text-primary: #e5e7eb;
                     --text-secondary: #9ca3af;
+                    --bg-dark: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
+                    --bg-card: rgba(30, 30, 40, 0.8);
+                    --bg-hover: rgba(167, 139, 250, 0.05);
+                    --border-color: rgba(167, 139, 250, 0.3);
+                    --border-hover: rgba(167, 139, 250, 0.6);
                 }}
                 body {{
-                    background: var(--bg-primary);
+                    background: var(--bg-dark);
                     color: var(--text-primary);
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
                     padding: 30px;
@@ -9047,7 +9046,7 @@ def coordinated_funders_view():
                     margin: 0 auto;
                 }}
                 h1 {{
-                    color: #a78bfa;
+                    color: var(--color-purple);
                     margin-bottom: 10px;
                 }}
                 .subtitle {{
@@ -9058,44 +9057,44 @@ def coordinated_funders_view():
                 table {{
                     width: 100%;
                     border-collapse: collapse;
-                    background: var(--bg-secondary);
-                    border: 1px solid rgba(124, 58, 237, 0.3);
+                    background: var(--bg-card);
+                    border: 1px solid var(--border-color);
                     border-radius: 8px;
                     overflow: hidden;
                 }}
                 thead {{
-                    background: var(--bg-secondary);
-                    border-bottom: 2px solid rgba(124, 58, 237, 0.3);
-                    border-left: 3px solid rgba(124, 58, 237, 0.5);
+                    background: var(--bg-card);
+                    border-bottom: 2px solid var(--border-color);
+                    border-left: 3px solid var(--border-hover);
                 }}
                 th {{
                     padding: 15px;
                     text-align: left;
-                    color: #a78bfa;
+                    color: var(--color-purple);
                     font-weight: 600;
                     font-size: 13px;
                     text-transform: uppercase;
                 }}
                 td {{
-                    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+                    border-bottom: 1px solid rgba(167, 139, 250, 0.2);
                 }}
                 tr:hover {{
-                    background: rgba(124, 58, 237, 0.08);
+                    background: var(--bg-hover);
                 }}
                 .back-link {{
                     display: inline-block;
                     margin-bottom: 20px;
-                    color: var(--accent-cyan);
+                    color: var(--color-cyan);
                     text-decoration: none;
                     font-size: 13px;
                 }}
                 .back-link:hover {{
-                    color: var(--accent-purple);
+                    color: var(--color-purple);
                     text-decoration: underline;
                 }}
                 .button {{
-                    background: rgba(124, 58, 237, 0.2);
-                    color: #a78bfa;
+                    background: rgba(167, 139, 250, 0.2);
+                    color: var(--color-purple);
                     padding: 10px 20px;
                     border: none;
                     border-radius: 6px;
@@ -9104,7 +9103,7 @@ def coordinated_funders_view():
                     font-weight: bold;
                 }}
                 .button:hover {{
-                    background: rgba(124, 58, 237, 0.3);
+                    background: rgba(167, 139, 250, 0.3);
                 }}
             </style>
         </head>
@@ -9135,7 +9134,7 @@ def coordinated_funders_view():
         return html
 
     except Exception as e:
-        return f"<html><body style='background: #0f0f1e; color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
+        return f"<html><body style='background: var(--bg-dark); color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
 
 
 @app.route('/clusters')
@@ -9240,20 +9239,20 @@ def clusters_dashboard():
                 'CRITICAL': '#EF4444',
                 'HIGH': '#F97316',
                 'MEDIUM': '#EAB308',
-                'CLEAN': '#22C55E'
+                'CLEAN': '#16A34A'
             }.get(cluster['risk_level'], '#8B5CF6')
 
-            rug_risk_color = '#EF4444' if cluster['rug_probability'] > 0.7 else ('#F97316' if cluster['rug_probability'] > 0.4 else '#22C55E')
+            rug_risk_color = '#EF4444' if cluster['rug_probability'] > 0.7 else ('#F97316' if cluster['rug_probability'] > 0.4 else '#16A34A')
 
             cluster_rows += f"""
-            <tr style="cursor: pointer; transition: background-color 0.2s;" onclick="showClusterDetails('{cluster['cluster_id']}')" onmouseover="this.style.backgroundColor='rgba(124, 58, 237, 0.1)'" onmouseout="this.style.backgroundColor='transparent'">
-                <td style="padding: 12px; color: var(--primary); font-weight: bold;">{cluster['cluster_name']}</td>
-                <td style="padding: 12px; text-align: center; color: var(--accent-cyan);">{cluster['funder_count']}</td>
-                <td style="padding: 12px; text-align: center; color: var(--accent-purple);">{cluster['creator_count']}</td>
-                <td style="padding: 12px; text-align: center; color: var(--accent-purple);">{cluster['token_count']}</td>
-                <td style="padding: 12px; text-align: right; color: var(--color-none);">${cluster['total_volume_sol']:.2f}</td>
+            <tr style="cursor: pointer; transition: background-color 0.2s;" onclick="showClusterDetails('{cluster['cluster_id']}')" onmouseover="this.style.backgroundColor='rgba(167, 139, 250, 0.05)'" onmouseout="this.style.backgroundColor='transparent'">
+                <td style="padding: 12px; color: var(--color-purple); font-weight: bold;">{cluster['cluster_name']}</td>
+                <td style="padding: 12px; text-align: center; color: var(--color-cyan);">{cluster['funder_count']}</td>
+                <td style="padding: 12px; text-align: center; color: var(--color-yellow);">{cluster['creator_count']}</td>
+                <td style="padding: 12px; text-align: center; color: var(--color-purple);">{cluster['token_count']}</td>
+                <td style="padding: 12px; text-align: right; color: var(--color-green);">${cluster['total_volume_sol']:.2f}</td>
                 <td style="padding: 12px; text-align: center; color: {rug_risk_color};">{cluster['rug_probability']:.1%}</td>
-                <td style="padding: 12px; text-align: center; color: var(--color-critical);">{cluster['rug_count']}</td>
+                <td style="padding: 12px; text-align: center; color: #ef4444;">{cluster['rug_count']}</td>
                 <td style="padding: 12px; text-align: center;">
                     <span style="background: rgba(255, 0, 0, 0.1); color: {color}; padding: 6px 12px; border-radius: 4px; font-weight: bold;">
                         {cluster['risk_multiplier']:.1f}x
@@ -9269,21 +9268,20 @@ def clusters_dashboard():
             <title>Cross-Funding Clusters Dashboard</title>
             <style>
                 :root {{
-                    --bg-primary: #0f0f1e;
-                    --bg-secondary: #1a1a2e;
-                    --primary: #7c3aed;
-                    --accent-cyan: #06b6d4;
-                    --accent-purple: #a78bfa;
-                    --color-critical: #ef4444;
-                    --color-high: #f97316;
-                    --color-medium: #eab308;
-                    --color-low: #22c55e;
-                    --color-none: #3b82f6;
+                    --color-purple: #a78bfa;
+                    --color-cyan: #06b6d4;
+                    --color-green: #16a34a;
+                    --color-yellow: #fbbf24;
                     --text-primary: #e5e7eb;
                     --text-secondary: #9ca3af;
+                    --bg-dark: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
+                    --bg-card: rgba(30, 30, 40, 0.8);
+                    --bg-hover: rgba(167, 139, 250, 0.05);
+                    --border-color: rgba(167, 139, 250, 0.3);
+                    --border-hover: rgba(167, 139, 250, 0.6);
                 }}
                 body {{
-                    background: var(--bg-primary);
+                    background: var(--bg-dark);
                     color: var(--text-primary);
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
                     padding: 30px;
@@ -9294,8 +9292,12 @@ def clusters_dashboard():
                     margin: 0 auto;
                 }}
                 h1 {{
-                    color: var(--color-critical);
+                    color: var(--color-purple);
                     margin-bottom: 10px;
+                }}
+                h2 {{
+                    color: var(--color-purple);
+                    margin-bottom: 20px;
                 }}
                 .subtitle {{
                     color: var(--text-secondary);
@@ -9309,22 +9311,22 @@ def clusters_dashboard():
                     margin-bottom: 40px;
                 }}
                 .stat-box {{
-                    background: var(--bg-secondary);
+                    background: var(--bg-card);
                     padding: 20px;
                     border-radius: 8px;
                     border-left: 3px solid;
                 }}
                 .stat-box.funders {{
-                    border-left-color: rgba(34, 197, 94, 0.5);
+                    border-left-color: rgba(22, 163, 74, 0.5);
                 }}
                 .stat-box.creators {{
                     border-left-color: rgba(251, 191, 36, 0.5);
                 }}
                 .stat-box.tokens {{
-                    border-left-color: rgba(124, 58, 237, 0.5);
+                    border-left-color: rgba(167, 139, 250, 0.5);
                 }}
                 .stat-box.volume {{
-                    border-left-color: rgba(168, 85, 247, 0.5);
+                    border-left-color: rgba(22, 163, 74, 0.5);
                 }}
                 .stat-label {{
                     color: var(--text-secondary);
@@ -9338,50 +9340,50 @@ def clusters_dashboard():
                     font-weight: bold;
                 }}
                 .stat-box.funders .stat-value {{
-                    color: #22c55e;
+                    color: var(--color-green);
                 }}
                 .stat-box.creators .stat-value {{
-                    color: #fbbf24;
+                    color: var(--color-yellow);
                 }}
                 .stat-box.tokens .stat-value {{
-                    color: #a78bfa;
+                    color: var(--color-purple);
                 }}
                 .stat-box.volume .stat-value {{
-                    color: #a855f7;
+                    color: var(--color-green);
                 }}
                 table {{
                     width: 100%;
                     border-collapse: collapse;
-                    background: rgba(26, 26, 46, 0.5);
-                    border: 1px solid rgba(124, 58, 237, 0.2);
+                    background: var(--bg-card);
+                    border: 1px solid var(--border-color);
                     border-radius: 8px;
                     overflow: hidden;
                 }}
                 thead {{
-                    background: var(--bg-secondary);
-                    border-bottom: 2px solid rgba(124, 58, 237, 0.3);
-                    border-left: 3px solid rgba(124, 58, 237, 0.5);
+                    background: var(--bg-card);
+                    border-bottom: 2px solid var(--border-color);
+                    border-left: 3px solid var(--border-hover);
                 }}
                 th {{
                     padding: 15px 12px;
                     text-align: left;
-                    color: #a78bfa;
+                    color: var(--color-purple);
                     font-weight: bold;
                     font-size: 13px;
                     text-transform: uppercase;
                 }}
                 tr:hover {{
-                    background: rgba(124, 58, 237, 0.08);
+                    background: var(--bg-hover);
                 }}
                 .back-link {{
                     display: inline-block;
                     margin-bottom: 20px;
-                    color: var(--accent-cyan);
+                    color: var(--color-cyan);
                     text-decoration: none;
                     font-size: 13px;
                 }}
                 .back-link:hover {{
-                    color: var(--accent-purple);
+                    color: var(--color-purple);
                     text-decoration: underline;
                 }}
             </style>
@@ -9415,7 +9417,7 @@ def clusters_dashboard():
                     </div>
                 </div>
 
-                <h2 style="color: var(--primary); margin-bottom: 20px;">Cluster Details</h2>
+                <h2>Cluster Details</h2>
                 <table>
                     <thead>
                         <tr>
@@ -9437,32 +9439,32 @@ def clusters_dashboard():
 
                 <!-- Cluster Details Modal -->
                 <div id="clusterModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000;">
-                    <div class="modal-content" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-primary); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 40px; max-width: 900px; max-height: 80vh; overflow-y: auto; width: 90%;">
+                    <div class="modal-content" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 12px; padding: 40px; max-width: 900px; max-height: 80vh; overflow-y: auto; width: 90%;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                            <h2 id="modalTitle" style="color: var(--primary); margin: 0;"></h2>
-                            <button onclick="closeClusterModal()" style="background: none; border: none; color: var(--accent-cyan); font-size: 24px; cursor: pointer;">✕</button>
+                            <h2 id="modalTitle" style="color: var(--color-purple); margin: 0;"></h2>
+                            <button onclick="closeClusterModal()" style="background: none; border: none; color: var(--color-cyan); font-size: 24px; cursor: pointer;">✕</button>
                         </div>
 
                         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;">
-                            <div style="background: rgba(6, 182, 212, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent-cyan);">
+                            <div style="background: rgba(6, 182, 212, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-cyan);">
                                 <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">FUNDERS</div>
-                                <div id="modalFunders" style="color: var(--accent-cyan); font-size: 20px; font-weight: bold;"></div>
+                                <div id="modalFunders" style="color: var(--color-cyan); font-size: 20px; font-weight: bold;"></div>
                             </div>
-                            <div style="background: rgba(167, 139, 250, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent-purple);">
+                            <div style="background: rgba(251, 191, 36, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-yellow);">
                                 <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">CREATORS</div>
-                                <div id="modalCreators" style="color: var(--accent-purple); font-size: 20px; font-weight: bold;"></div>
+                                <div id="modalCreators" style="color: var(--color-yellow); font-size: 20px; font-weight: bold;"></div>
                             </div>
-                            <div style="background: rgba(34, 197, 94, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #22C55E;">
+                            <div style="background: rgba(22, 163, 74, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-green);">
                                 <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">VOLUME (SOL)</div>
-                                <div id="modalVolume" style="color: #22C55E; font-size: 20px; font-weight: bold;"></div>
+                                <div id="modalVolume" style="color: var(--color-green); font-size: 20px; font-weight: bold;"></div>
                             </div>
-                            <div style="background: rgba(249, 115, 22, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #F97316;">
+                            <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #F97316;">
                                 <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">RISK LEVEL</div>
                                 <div id="modalRiskLevel" style="color: #F97316; font-size: 20px; font-weight: bold;"></div>
                             </div>
                         </div>
 
-                        <h3 style="color: var(--accent-purple); margin-top: 30px; margin-bottom: 15px;">Creators in this Cluster</h3>
+                        <h3 style="color: var(--color-yellow); margin-top: 30px; margin-bottom: 15px;">Creators in this Cluster</h3>
                         <div id="creatorsList" style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; max-height: 300px; overflow-y: auto;">
                             <p style="color: var(--text-secondary);">Loading...</p>
                         </div>
@@ -9484,7 +9486,7 @@ def clusters_dashboard():
                         const creatorsList = document.getElementById('creatorsList');
                         if (data.creators && data.creators.length > 0) {{
                             creatorsList.innerHTML = data.creators.map(c => `
-                                <div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: monospace; font-size: 12px; color: var(--accent-cyan); word-break: break-all;">
+                                <div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: monospace; font-size: 12px; color: var(--color-cyan); word-break: break-all;">
                                     ${{c.substring(0, 12)}}...${{c.substring(c.length - 8)}}
                                 </div>
                             `).join('');
@@ -9517,7 +9519,7 @@ def clusters_dashboard():
         return html
 
     except Exception as e:
-        return f"<html><body style='background: #0f0f1e; color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
+        return f"<html><body style='background: var(--bg-dark); color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
 
 # Original coordinated_funders_view (with syntax issues):
 def coordinated_funders_view_old():
@@ -10668,7 +10670,7 @@ def funder_details_view(funder_address: str):
         funder = dict(cursor.fetchone() or {})
         if not funder:
             conn.close()
-            return f"<html><body style='background: #0a0e27; color: var(--text-primary);'><h1>Funder Not Found</h1><p>No funding data for {funder_address}</p><p><a href='/' style='color: var(--accent-cyan);'>← Back to Dashboard</a></p></body></html>", 404
+            return f"<html><body style='background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%); color: var(--text-primary);'><h1>Funder Not Found</h1><p>No funding data for {funder_address}</p><p><a href='/' style='color: var(--color-cyan);'>← Back to Dashboard</a></p></body></html>", 404
 
         # Get detailed transfers to creators
         cursor.execute("""
@@ -10736,8 +10738,8 @@ def funder_details_view(funder_address: str):
         for transfer in transfers:
             transfers_html += f"""
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: var(--accent-cyan); cursor: pointer;" onclick="window.location.href = '/creator/{transfer['creator_address']}'"><u>{transfer['creator_address'][:16]}...{transfer['creator_address'][-4:]}</u></td>
-                <td style="padding: 12px; color: var(--color-low);">{transfer['amount_sol']:.2f} SOL</td>
+                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: var(--color-cyan); cursor: pointer;" onclick="window.location.href = '/creator/{transfer['creator_address']}'"><u>{transfer['creator_address'][:16]}...{transfer['creator_address'][-4:]}</u></td>
+                <td style="padding: 12px; color: var(--color-green);">{transfer['amount_sol']:.2f} SOL</td>
                 <td style="padding: 12px; color: var(--text-secondary); font-size: 11px;">{transfer['first_detected_at'][:10] if transfer['first_detected_at'] else 'N/A'}</td>
             </tr>
             """
@@ -10749,15 +10751,15 @@ def funder_details_view(funder_address: str):
             category = transfer.get('category', '')
             badge = ''
             if category == 'CEX':
-                badge = '<span style="background: rgba(239, 68, 68, 0.2); color: var(--color-critical); padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">🚨 CEX</span>'
+                badge = '<span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">🚨 CEX</span>'
             elif category == 'Infrastructure':
-                badge = '<span style="background: rgba(76, 175, 80, 0.2); color: var(--color-low); padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">✅ INFRA</span>'
+                badge = '<span style="background: rgba(22, 163, 74, 0.2); color: var(--color-green); padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">✅ INFRA</span>'
 
             incoming_html += f"""
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                 <td style="padding: 12px; font-family: monospace; font-size: 12px; color: var(--text-secondary);">{transfer['address'][:20]}...</td>
-                <td style="padding: 12px; color: var(--color-medium);">{label}{badge}</td>
-                <td style="padding: 12px; text-align: right; color: var(--color-low);">{transfer['amount_sol']:.2f} SOL</td>
+                <td style="padding: 12px; color: var(--color-yellow);">{label}{badge}</td>
+                <td style="padding: 12px; text-align: right; color: var(--color-green);">{transfer['amount_sol']:.2f} SOL</td>
                 <td style="padding: 12px; text-align: center; color: var(--text-secondary);">{transfer['transaction_count']}</td>
             </tr>
             """
@@ -10769,34 +10771,46 @@ def funder_details_view(funder_address: str):
             category = transfer.get('category', '')
             badge = ''
             if category == 'CEX':
-                badge = '<span style="background: rgba(239, 68, 68, 0.2); color: var(--color-critical); padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">🚨 CEX</span>'
+                badge = '<span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">🚨 CEX</span>'
             elif category == 'Infrastructure':
-                badge = '<span style="background: rgba(76, 175, 80, 0.2); color: var(--color-low); padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">✅ INFRA</span>'
+                badge = '<span style="background: rgba(22, 163, 74, 0.2); color: var(--color-green); padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 8px;">✅ INFRA</span>'
 
             outgoing_html += f"""
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                 <td style="padding: 12px; font-family: monospace; font-size: 12px; color: var(--text-secondary);">{transfer['address'][:20]}...</td>
-                <td style="padding: 12px; color: var(--color-medium);">{label}{badge}</td>
-                <td style="padding: 12px; text-align: right; color: var(--color-low);">{transfer['amount_sol']:.2f} SOL</td>
+                <td style="padding: 12px; color: var(--color-yellow);">{label}{badge}</td>
+                <td style="padding: 12px; text-align: right; color: var(--color-green);">{transfer['amount_sol']:.2f} SOL</td>
                 <td style="padding: 12px; text-align: center; color: var(--text-secondary);">{transfer['transaction_count']}</td>
             </tr>
             """
 
         classification = ''
         if is_cex:
-            classification = '<span style="background: rgba(239, 68, 68, 0.2); color: var(--color-critical); padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">🚨 CEX Hot Wallet</span>'
+            classification = '<span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">🚨 CEX Hot Wallet</span>'
         elif is_infra:
-            classification = '<span style="background: rgba(76, 175, 80, 0.2); color: var(--color-low); padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">✅ Infrastructure</span>'
+            classification = '<span style="background: rgba(22, 163, 74, 0.2); color: var(--color-green); padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">✅ Infrastructure</span>'
         else:
-            classification = '<span style="background: rgba(251, 191, 36, 0.2); color: var(--color-medium); padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">❓ Unknown</span>'
+            classification = '<span style="background: rgba(251, 191, 36, 0.2); color: var(--color-yellow); padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">❓ Unknown</span>'
 
         html = f"""
         <html>
             <head>
                 <title>Funder Details - {funder_address[:16]}...</title>
                 <style>
+                    :root {{
+                        --color-purple: #a78bfa;
+                        --color-cyan: #06b6d4;
+                        --color-green: #16a34a;
+                        --color-yellow: #fbbf24;
+                        --text-primary: #e5e7eb;
+                        --text-secondary: #9ca3af;
+                        --bg-dark: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
+                        --bg-card: rgba(30, 30, 40, 0.8);
+                        --bg-hover: rgba(167, 139, 250, 0.05);
+                        --border-color: rgba(167, 139, 250, 0.3);
+                    }}
                     body {{
-                        background: #0a0e27;
+                        background: var(--bg-dark);
                         color: var(--text-primary);
                         font-family: 'Segoe UI', sans-serif;
                         margin: 0;
@@ -10807,13 +10821,13 @@ def funder_details_view(funder_address: str):
                         margin: 0 auto;
                     }}
                     h1 {{
-                        color: var(--accent-cyan);
+                        color: var(--color-cyan);
                         word-break: break-all;
                         margin: 0 0 10px 0;
                         font-size: 18px;
                     }}
                     h2 {{
-                        color: var(--accent-cyan);
+                        color: var(--color-cyan);
                         font-size: 14px;
                         margin-top: 30px;
                         margin-bottom: 15px;
@@ -10828,7 +10842,7 @@ def funder_details_view(funder_address: str):
                         margin-bottom: 20px;
                     }}
                     .back-link a {{
-                        color: var(--accent-cyan);
+                        color: var(--color-cyan);
                         text-decoration: none;
                     }}
                     .back-link a:hover {{
@@ -10844,7 +10858,7 @@ def funder_details_view(funder_address: str):
                         background: rgba(0, 0, 0, 0.3);
                         padding: 15px;
                         border-radius: 8px;
-                        border-left: 3px solid var(--accent-cyan);
+                        border-left: 3px solid var(--color-cyan);
                     }}
                     .stat-label {{
                         color: var(--text-secondary);
@@ -10855,20 +10869,20 @@ def funder_details_view(funder_address: str):
                     .stat-value {{
                         font-size: 20px;
                         font-weight: bold;
-                        color: var(--accent-cyan);
+                        color: var(--color-cyan);
                     }}
                     .section {{
-                        background: var(--bg-secondary);
+                        background: var(--bg-card);
                         border-radius: 8px;
                         margin-bottom: 20px;
                         overflow: hidden;
                     }}
                     .section-title {{
-                        background: var(--bg-secondary);
+                        background: var(--bg-card);
                         padding: 12px 15px;
                         border-bottom: 1px solid rgba(6, 182, 212, 0.2);
                         font-weight: 600;
-                        color: var(--accent-cyan);
+                        color: var(--color-cyan);
                         font-size: 13px;
                     }}
                     .section-content {{
@@ -10894,7 +10908,7 @@ def funder_details_view(funder_address: str):
                         padding: 10px;
                     }}
                     tr:hover {{
-                        background: rgba(6, 182, 212, 0.05);
+                        background: var(--bg-hover);
                     }}
                 </style>
             </head>
@@ -10996,7 +11010,7 @@ def funder_details_view(funder_address: str):
 
     except Exception as e:
         import traceback
-        return f"<html><body style='background: #0a0e27; color: var(--text-primary);'><h1>Error</h1><p>{str(e)}</p><pre>{traceback.format_exc()}</pre></body></html>", 500
+        return f"<html><body style='background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%); color: var(--text-primary);'><h1>Error</h1><p>{str(e)}</p><pre>{traceback.format_exc()}</pre></body></html>", 500
 
 
 @app.route('/api/duplicate-senders')
@@ -13455,35 +13469,35 @@ def networks_dashboard():
             score_badge_html = f"""<span style="display: inline-block; background-color: {badge_color}; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-left: 8px;">{net['score']}</span>"""
 
         network_cards += f"""
-        <div data-is-cex="{is_cex}" data-token-count="{net['token_count']}" data-creators-funded="{net['creators_funded']}" data-sol-amount="{net['sol_amount']:.0f}" style="background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 8px; padding: 20px; cursor: pointer; transition: all 0.2s ease;" onclick="showNetworkDetails('{network_name_escaped}')" onmouseover="this.style.borderColor='rgba(124, 58, 237, 0.6)'; this.style.background='rgba(124, 58, 237, 0.15)';" onmouseout="this.style.borderColor='rgba(124, 58, 237, 0.3)'; this.style.background='rgba(124, 58, 237, 0.08)';">
+        <div data-is-cex="{is_cex}" data-token-count="{net['token_count']}" data-creators-funded="{net['creators_funded']}" data-sol-amount="{net['sol_amount']:.0f}" style="background: rgba(167, 139, 250, 0.08); border: 1px solid rgba(167, 139, 250, 0.3); border-radius: 8px; padding: 20px; cursor: pointer; transition: all 0.2s ease;" onclick="showNetworkDetails('{network_name_escaped}')" onmouseover="this.style.borderColor='rgba(167, 139, 250, 0.6)'; this.style.background='rgba(167, 139, 250, 0.15)';" onmouseout="this.style.borderColor='rgba(167, 139, 250, 0.3)'; this.style.background='rgba(167, 139, 250, 0.08)';">
             <h3 style="margin: 0 0 20px 0; color: var(--text-primary); font-size: 16px;">{net['name']}{score_badge_html}</h3>
 
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
                 <!-- Network Members -->
-                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(34, 197, 94, 0.5);">
+                <div style="background: rgba(30, 30, 40, 0.8); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(22, 163, 74, 0.5);">
                     <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Members</div>
-                    <div style="font-weight: bold; font-size: 18px; color: #22c55e;">{net.get('network_size', 0)}</div>
+                    <div style="font-weight: bold; font-size: 18px; color: var(--color-green);">{net.get('network_size', 0)}</div>
                 </div>
 
                 <!-- Creators -->
-                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(251, 191, 36, 0.5);">
+                <div style="background: rgba(30, 30, 40, 0.8); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(251, 191, 36, 0.5);">
                     <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Creators</div>
-                    <div style="font-weight: bold; font-size: 18px; color: #fbbf24;">{net.get('creators_funded', 0)}</div>
+                    <div style="font-weight: bold; font-size: 18px; color: var(--color-yellow);">{net.get('creators_funded', 0)}</div>
                 </div>
 
                 <!-- Tokens -->
-                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(34, 197, 94, 0.5);">
+                <div style="background: rgba(30, 30, 40, 0.8); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(22, 163, 74, 0.5);">
                     <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">💰 Tokens</div>
-                    <div style="font-weight: bold; font-size: 18px; color: #22c55e;">{net.get('token_count', 0)}</div>
+                    <div style="font-weight: bold; font-size: 18px; color: var(--color-green);">{net.get('token_count', 0)}</div>
                 </div>
 
                 <!-- SOL -->
-                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(168, 85, 247, 0.5);">
+                <div style="background: rgba(30, 30, 40, 0.8); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(167, 139, 250, 0.5);">
                     <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">SOL</div>
-                    <div style="font-weight: bold; font-size: 18px; color: #a855f7;">{net.get('sol_amount', 0):.0f}</div>
+                    <div style="font-weight: bold; font-size: 18px; color: var(--color-purple);">{net.get('sol_amount', 0):.0f}</div>
                 </div>
 
-                {f'<!-- CEX/INFRA Label --><div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(167, 139, 250, 0.5); grid-column: span 2;"><div style="font-weight: bold; font-size: 12px; color: #a78bfa;">{net["cex_label"]}</div></div>' if net['cex_label'] else ''}
+                {f'<!-- CEX/INFRA Label --><div style="background: rgba(30, 30, 40, 0.8); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(167, 139, 250, 0.5); grid-column: span 2;"><div style="font-weight: bold; font-size: 12px; color: var(--color-purple);">{net["cex_label"]}</div></div>' if net['cex_label'] else ''}
             </div>
         </div>
         """
@@ -13495,16 +13509,19 @@ def networks_dashboard():
         <title>Atomic Funder Networks Dashboard</title>
         <style>
             :root {{
-                --bg-primary: #0f0f1e;
-                --bg-secondary: #1a1a2e;
-                --primary: #7c3aed;
-                --accent-cyan: #06b6d4;
-                --accent-purple: #a78bfa;
+                --color-purple: #a78bfa;
+                --color-cyan: #06b6d4;
+                --color-green: #16a34a;
+                --color-yellow: #fbbf24;
                 --text-primary: #e5e7eb;
                 --text-secondary: #9ca3af;
+                --bg-dark: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
+                --bg-card: rgba(30, 30, 40, 0.8);
+                --bg-hover: rgba(167, 139, 250, 0.05);
+                --border-color: rgba(167, 139, 250, 0.3);
             }}
             body {{
-                background: var(--bg-primary);
+                background: var(--bg-dark);
                 color: var(--text-primary);
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
                 padding: 30px;
@@ -13515,7 +13532,7 @@ def networks_dashboard():
                 margin: 0 auto;
             }}
             h1 {{
-                color: var(--primary);
+                color: var(--color-purple);
                 margin-bottom: 10px;
             }}
             .subtitle {{
@@ -13526,12 +13543,12 @@ def networks_dashboard():
             .back-link {{
                 display: inline-block;
                 margin-bottom: 20px;
-                color: var(--accent-cyan);
+                color: var(--color-cyan);
                 text-decoration: none;
                 font-size: 13px;
             }}
             .back-link:hover {{
-                color: var(--accent-purple);
+                color: var(--color-purple);
                 text-decoration: underline;
             }}
             .stats-grid {{
@@ -13541,15 +13558,15 @@ def networks_dashboard():
                 margin-bottom: 30px;
             }}
             .stat-card {{
-                background: var(--bg-secondary);
-                border: 1px solid rgba(124, 58, 237, 0.3);
+                background: var(--bg-card);
+                border: 1px solid var(--border-color);
                 border-radius: 8px;
                 padding: 20px;
             }}
             .stat-value {{
                 font-size: 28px;
                 font-weight: bold;
-                color: var(--primary);
+                color: var(--color-purple);
                 margin-bottom: 5px;
             }}
             .stat-label {{
@@ -13563,16 +13580,16 @@ def networks_dashboard():
                 gap: 20px;
             }}
             .network-card {{
-                background: rgba(124, 58, 237, 0.08);
-                border: 1px solid rgba(124, 58, 237, 0.3);
+                background: rgba(167, 139, 250, 0.08);
+                border: 1px solid var(--border-color);
                 border-radius: 8px;
                 padding: 20px;
                 cursor: pointer;
                 transition: all 0.2s ease;
             }}
             .network-card:hover {{
-                border-color: rgba(124, 58, 237, 0.6);
-                background: rgba(124, 58, 237, 0.15);
+                border-color: rgba(167, 139, 250, 0.6);
+                background: rgba(167, 139, 250, 0.15);
             }}
             .network-card h3 {{
                 margin: 0 0 20px 0;
@@ -13585,10 +13602,10 @@ def networks_dashboard():
                 gap: 15px;
             }}
             .stat-box {{
-                background: var(--bg-secondary);
+                background: var(--bg-card);
                 padding: 12px;
                 border-radius: 6px;
-                border-left: 3px solid rgba(124, 58, 237, 0.5);
+                border-left: 3px solid var(--border-color);
             }}
             .stat-box-label {{
                 color: var(--text-secondary);
@@ -13599,7 +13616,7 @@ def networks_dashboard():
             .stat-box-value {{
                 font-weight: bold;
                 font-size: 18px;
-                color: #a78bfa;
+                color: var(--color-purple);
             }}
             #networkModal {{
                 display: none;
@@ -13618,7 +13635,7 @@ def networks_dashboard():
                 display: flex;
             }}
             .modal-content {{
-                background: var(--bg-primary);
+                background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
                 border-radius: 12px;
                 max-width: 1000px;
                 width: 100%;
@@ -13626,7 +13643,7 @@ def networks_dashboard():
                 overflow-y: auto;
                 padding: 30px;
                 position: relative;
-                border: 1px solid rgba(124, 58, 237, 0.3);
+                border: 1px solid var(--border-color);
             }}
             .modal-close {{
                 position: absolute;
@@ -13668,10 +13685,10 @@ def networks_dashboard():
             </div>
 
             <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 30px; margin-bottom: 20px;">
-                <h2 style="color: var(--accent-purple); margin: 0;">All Networks</h2>
+                <h2 style="color: var(--color-purple); margin: 0;">All Networks</h2>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <span style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; font-weight: bold;">Filter CEX:</span>
-                    <button id="networksToggleCex" onclick="toggleNetworksCex()" style="padding: 6px 12px; border-radius: 4px; border: 1px solid rgba(124, 58, 237, 0.5); background: rgba(124, 58, 237, 0.1); color: var(--primary); font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
+                    <button id="networksToggleCex" onclick="toggleNetworksCex()" style="padding: 6px 12px; border-radius: 4px; border: 1px solid rgba(167, 139, 250, 0.5); background: rgba(167, 139, 250, 0.1); color: var(--color-purple); font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
                         ✓ ON
                     </button>
                 </div>
@@ -13702,13 +13719,13 @@ def networks_dashboard():
 
                 if (showCexNetworks) {{
                     button.textContent = '✓ ON';
-                    button.style.background = 'rgba(124, 58, 237, 0.1)';
-                    button.style.color = 'var(--primary)';
-                    button.style.borderColor = 'rgba(124, 58, 237, 0.5)';
+                    button.style.background = 'rgba(167, 139, 250, 0.1)';
+                    button.style.color = 'var(--color-purple)';
+                    button.style.borderColor = 'rgba(167, 139, 250, 0.5)';
                 }} else {{
                     button.textContent = '✗ OFF';
                     button.style.background = 'rgba(239, 68, 68, 0.1)';
-                    button.style.color = 'var(--color-critical)';
+                    button.style.color = '#ef4444';
                     button.style.borderColor = 'rgba(239, 68, 68, 0.5)';
                 }}
 
@@ -13747,27 +13764,27 @@ def networks_dashboard():
                         let html = '<div style="padding: 20px;">';
 
                         // Show network info
-                        html += '<div style="background: var(--bg-secondary); padding: 15px; border-radius: 6px; margin-bottom: 20px;">';
-                        html += '<div style="color: #a78bfa; font-size: 11px; text-transform: uppercase; margin-bottom: 10px; font-weight: 600;">Network Composition</div>';
+                        html += '<div style="background: var(--bg-card); padding: 15px; border-radius: 6px; margin-bottom: 20px;">';
+                        html += '<div style="color: var(--color-purple); font-size: 11px; text-transform: uppercase; margin-bottom: 10px; font-weight: 600;">Network Composition</div>';
                         if (data.network_type) html += '<div style="margin-bottom: 8px;"><strong>Type:</strong> ' + data.network_type + '</div>';
                         if (data.network_size) html += '<div style="margin-bottom: 8px; padding: 8px; background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6; border-radius: 3px;"><strong>👥 Network Members (Funders):</strong> ' + data.network_size + '</div>';
                         html += '</div>';
 
                         // Show stats
-                        html += '<div style="background: var(--bg-secondary); padding: 15px; border-radius: 6px; margin-bottom: 15px;">';
-                        html += '<div style="color: #fbbf24; font-size: 11px; text-transform: uppercase; margin-bottom: 10px; font-weight: 600;">Funding Impact</div>';
+                        html += '<div style="background: var(--bg-card); padding: 15px; border-radius: 6px; margin-bottom: 15px;">';
+                        html += '<div style="color: var(--color-yellow); font-size: 11px; text-transform: uppercase; margin-bottom: 10px; font-weight: 600;">Funding Impact</div>';
                         html += '<div style="margin-bottom: 8px;"><strong>👤 Creators Funded:</strong> ' + ((data.creators_count !== undefined) ? data.creators_count : 0) + '</div>';
                         html += '<div style="margin-bottom: 8px;"><strong>🎯 Creators with Tokens:</strong> ' + ((data.creators_with_tokens !== undefined) ? data.creators_with_tokens : 0) + '</div>';
-                        html += '<div style="margin-bottom: 8px; padding: 8px; background: rgba(34, 197, 94, 0.1); border-left: 3px solid #22c55e; border-radius: 3px;"><strong>💰 Tokens Launched:</strong> ' + ((data.token_count !== undefined) ? data.token_count : 0) + '</div>';
+                        html += '<div style="margin-bottom: 8px; padding: 8px; background: rgba(22, 163, 74, 0.1); border-left: 3px solid var(--color-green); border-radius: 3px;"><strong>💰 Tokens Launched:</strong> ' + ((data.token_count !== undefined) ? data.token_count : 0) + '</div>';
                         html += '</div>';
 
                         // Show tokens if available
                         if (data.tokens && data.tokens.length > 0) {{
                             html += '<div style="margin-top: 20px;">';
-                            html += '<h3 style="color: #a78bfa; margin-top: 0;">Tokens (' + data.tokens.length + ')</h3>';
+                            html += '<h3 style="color: var(--color-purple); margin-top: 0;">Tokens (' + data.tokens.length + ')</h3>';
                             html += '<div style="max-height: 400px; overflow-y: auto;">';
                             for (let token of data.tokens.slice(0, 20)) {{
-                                html += '<div style="padding: 10px; background: rgba(124, 58, 237, 0.1); border-radius: 6px; margin-bottom: 10px; font-size: 12px;">';
+                                html += '<div style="padding: 10px; background: rgba(167, 139, 250, 0.1); border-radius: 6px; margin-bottom: 10px; font-size: 12px;">';
                                 html += '<div style="font-family: monospace; word-break: break-all; color: #3b82f6; margin-bottom: 5px;">Mint: ' + token.mint + '</div>';
                                 if (token.creator) html += '<div>Creator: ' + token.creator.substring(0, 8) + '...</div>';
                                 if (token.market_cap) html += '<div>Market Cap: $' + (token.market_cap / 1000000).toFixed(2) + 'M</div>';
@@ -13888,18 +13905,17 @@ def top_funding_hubs():
             <title>Top Funding Hubs</title>
             <style>
                 :root {
-                    --bg-primary: #0f0f1e;
-                    --bg-secondary: #1a1a2e;
+                    --color-purple: #a78bfa;
+                    --color-cyan: #06b6d4;
+                    --color-green: #16a34a;
+                    --color-yellow: #fbbf24;
                     --text-primary: #e5e7eb;
                     --text-secondary: #9ca3af;
-                    --primary: #7c3aed;
-                    --accent-cyan: #06b6d4;
-                    --accent-purple: #a78bfa;
-                    --green: #22c55e;
-                    --yellow: #fbbf24;
+                    --bg-dark: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
+                    --bg-card: rgba(30, 30, 40, 0.8);
+                    --bg-hover: rgba(167, 139, 250, 0.05);
+                    --border-color: rgba(167, 139, 250, 0.3);
                     --blue: #3b82f6;
-                    --purple: #a78bfa;
-                    --red: #ef4444;
                 }
 
                 * {
@@ -13909,7 +13925,7 @@ def top_funding_hubs():
                 }
 
                 body {
-                    background: var(--bg-primary);
+                    background: var(--bg-dark);
                     color: var(--text-primary);
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
                     padding: 30px;
@@ -13921,7 +13937,7 @@ def top_funding_hubs():
                 }
 
                 h1 {
-                    color: var(--accent-purple);
+                    color: var(--color-purple);
                     margin-bottom: 10px;
                     font-size: 32px;
                 }
@@ -13935,35 +13951,35 @@ def top_funding_hubs():
                 .back-link {
                     display: inline-block;
                     margin-bottom: 20px;
-                    color: var(--accent-cyan);
+                    color: var(--color-cyan);
                     text-decoration: none;
                     font-size: 13px;
                 }
 
                 .back-link:hover {
-                    color: var(--accent-purple);
+                    color: var(--color-purple);
                     text-decoration: underline;
                 }
 
                 table {
                     width: 100%;
                     border-collapse: collapse;
-                    background: var(--bg-secondary);
-                    border: 1px solid rgba(124, 58, 237, 0.3);
+                    background: var(--bg-card);
+                    border: 1px solid var(--border-color);
                     border-radius: 8px;
                     overflow: hidden;
                 }
 
                 thead {
-                    background: var(--bg-secondary);
-                    border-bottom: 2px solid rgba(124, 58, 237, 0.3);
-                    border-left: 3px solid rgba(124, 58, 237, 0.5);
+                    background: var(--bg-card);
+                    border-bottom: 2px solid var(--border-color);
+                    border-left: 3px solid rgba(167, 139, 250, 0.5);
                 }
 
                 th {
                     padding: 15px;
                     text-align: left;
-                    color: var(--accent-purple);
+                    color: var(--color-purple);
                     font-weight: 600;
                     font-size: 13px;
                     text-transform: uppercase;
@@ -13971,7 +13987,7 @@ def top_funding_hubs():
 
                 td {
                     padding: 15px;
-                    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+                    border-bottom: 1px solid rgba(167, 139, 250, 0.2);
                     font-size: 13px;
                 }
 
@@ -13980,7 +13996,7 @@ def top_funding_hubs():
                 }
 
                 tbody tr:hover {
-                    background: rgba(124, 58, 237, 0.08);
+                    background: var(--bg-hover);
                 }
 
                 .address {
@@ -13996,7 +14012,7 @@ def top_funding_hubs():
                 }
 
                 .address-link:hover {
-                    color: var(--accent-purple);
+                    color: var(--color-purple);
                     text-decoration: underline;
                 }
 
@@ -14009,15 +14025,15 @@ def top_funding_hubs():
                 }
 
                 .stat-creators {
-                    color: var(--yellow);
+                    color: var(--color-yellow);
                 }
 
                 .stat-tokens {
-                    color: var(--purple);
+                    color: var(--color-purple);
                 }
 
                 .stat-sol {
-                    color: var(--accent-cyan);
+                    color: var(--color-cyan);
                 }
 
                 .badge {
@@ -14026,13 +14042,13 @@ def top_funding_hubs():
                     border-radius: 4px;
                     font-size: 11px;
                     font-weight: 600;
-                    background-color: rgba(34, 197, 94, 0.2);
-                    color: var(--green);
+                    background-color: rgba(22, 163, 74, 0.2);
+                    color: var(--color-green);
                 }
 
                 .rank {
                     font-weight: bold;
-                    color: var(--accent-purple);
+                    color: var(--color-purple);
                     font-size: 14px;
                     text-align: center;
                 }
@@ -14090,7 +14106,6 @@ def top_funding_hubs():
         return html
 
     except Exception as e:
-        return f"<h1>Error</h1><p>{str(e)}</p>", 500
 
 
 @app.route('/funding-hub/<hub_address>')
@@ -14216,18 +14231,17 @@ def funding_hub(hub_address):
             <title>Funding Hub: """ + hub_address + """</title>
             <style>
                 :root {
-                    --bg-primary: #0f0f1e;
-                    --bg-secondary: #1a1a2e;
+                    --color-purple: #a78bfa;
+                    --color-cyan: #06b6d4;
+                    --color-green: #16a34a;
+                    --color-yellow: #fbbf24;
                     --text-primary: #e5e7eb;
                     --text-secondary: #9ca3af;
-                    --primary: #7c3aed;
-                    --accent-cyan: #06b6d4;
-                    --accent-purple: #a78bfa;
-                    --green: #22c55e;
-                    --yellow: #fbbf24;
+                    --bg-dark: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
+                    --bg-card: rgba(30, 30, 40, 0.8);
+                    --bg-hover: rgba(167, 139, 250, 0.05);
+                    --border-color: rgba(167, 139, 250, 0.3);
                     --blue: #3b82f6;
-                    --purple: #a78bfa;
-                    --red: #ef4444;
                 }
 
                 * {
@@ -14237,7 +14251,7 @@ def funding_hub(hub_address):
                 }
 
                 body {
-                    background: var(--bg-primary);
+                    background: var(--bg-dark);
                     color: var(--text-primary);
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
                     padding: 30px;
@@ -14249,13 +14263,13 @@ def funding_hub(hub_address):
                 }
 
                 h1 {
-                    color: var(--accent-purple);
+                    color: var(--color-purple);
                     margin-bottom: 8px;
                     font-size: 28px;
                 }
 
                 h2 {
-                    color: var(--accent-purple);
+                    color: var(--color-purple);
                 }
 
                 .hub-address {
@@ -14274,14 +14288,14 @@ def funding_hub(hub_address):
                 }
 
                 .stat-box {
-                    background: var(--bg-secondary);
-                    border: 1px solid rgba(124, 58, 237, 0.3);
+                    background: var(--bg-card);
+                    border: 1px solid var(--border-color);
                     border-radius: 8px;
                     padding: 16px;
                 }
 
                 .stat-box.hub {
-                    border-left: 3px solid rgba(124, 58, 237, 0.5);
+                    border-left: 3px solid rgba(167, 139, 250, 0.5);
                 }
 
                 .stat-label {
@@ -14294,28 +14308,28 @@ def funding_hub(hub_address):
                 .stat-value {
                     font-size: 24px;
                     font-weight: bold;
-                    color: var(--accent-purple);
+                    color: var(--color-purple);
                 }
 
                 table {
                     width: 100%;
                     border-collapse: collapse;
-                    background: var(--bg-secondary);
-                    border: 1px solid rgba(124, 58, 237, 0.3);
+                    background: var(--bg-card);
+                    border: 1px solid var(--border-color);
                     border-radius: 8px;
                     overflow: hidden;
                 }
 
                 thead {
-                    background: var(--bg-secondary);
-                    border-bottom: 2px solid rgba(124, 58, 237, 0.3);
-                    border-left: 3px solid rgba(124, 58, 237, 0.5);
+                    background: var(--bg-card);
+                    border-bottom: 2px solid var(--border-color);
+                    border-left: 3px solid rgba(167, 139, 250, 0.5);
                 }
 
                 th {
                     padding: 15px;
                     text-align: left;
-                    color: var(--accent-purple);
+                    color: var(--color-purple);
                     font-weight: 600;
                     font-size: 13px;
                     text-transform: uppercase;
@@ -14323,7 +14337,7 @@ def funding_hub(hub_address):
 
                 td {
                     padding: 15px;
-                    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+                    border-bottom: 1px solid rgba(167, 139, 250, 0.2);
                     font-size: 13px;
                 }
 
@@ -14332,7 +14346,7 @@ def funding_hub(hub_address):
                 }
 
                 tbody tr:hover {
-                    background: rgba(124, 58, 237, 0.08);
+                    background: var(--bg-hover);
                 }
 
                 .address {
@@ -14344,25 +14358,25 @@ def funding_hub(hub_address):
                 }
 
                 .address:hover {
-                    color: var(--accent-purple);
+                    color: var(--color-purple);
                     text-decoration: underline;
                 }
 
                 .stat-number {
                     font-weight: bold;
-                    color: var(--green);
+                    color: var(--color-green);
                 }
 
                 .back-link {
                     display: inline-block;
                     margin-bottom: 20px;
-                    color: var(--accent-cyan);
+                    color: var(--color-cyan);
                     text-decoration: none;
                     font-size: 13px;
                 }
 
                 .back-link:hover {
-                    color: var(--accent-purple);
+                    color: var(--color-purple);
                     text-decoration: underline;
                 }
             </style>
@@ -14414,7 +14428,7 @@ def funding_hub(hub_address):
                     </div>
                     <div class="stat-box hub">
                         <div class="stat-label">Multi-Creator Funder</div>
-                        <div class="stat-value" style="color: #fbbf24;">⚠️ YES</div>
+                        <div class="stat-value" style="color: var(--color-yellow);">⚠️ YES</div>
                     </div>
             """
 
@@ -14463,7 +14477,7 @@ def funding_hub(hub_address):
                             <tr>
                                 <td><span class="address">{funder['address']}</span></td>
                                 <td style="text-align: center;"><span class="stat-number">{funder['token_count']}</span></td>
-                                <td style="text-align: center;"><span style="color: #fbbf24; font-weight: 600;">Multi-Creator</span></td>
+                                <td style="text-align: center;"><span style="color: var(--color-yellow); font-weight: 600;">Multi-Creator</span></td>
                                 <td><small style="color: #94a3b8;">Funded by {hub_address[:8]}...</small></td>
                             </tr>
                     """
@@ -14491,9 +14505,6 @@ def funding_hub(hub_address):
         """
 
         return html
-
-    except Exception as e:
-        return f"<h1>Error</h1><p>{str(e)}</p>", 500
 
 
 @app.route('/api/creator-analysis-queue-status')

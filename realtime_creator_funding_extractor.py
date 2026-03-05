@@ -2114,12 +2114,11 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
         await extractor.check_create_tx_for_jitotip(creator, create_tx_signature, mint)
 
     # Check inbound/outbound transfers for infrastructure usage
-    await extractor.check_transfers_for_meteora(creator)
+    # DISABLED: Meteora checks use batch endpoint (100 credits) - skip for cost savings
+    # await extractor.check_transfers_for_meteora(creator)
+    # await extractor.check_transactions_for_meteora_programs(creator)
     await extractor.check_transfers_for_debridge(creator)
     await extractor.check_transfers_for_axiom(creator)
-
-    # Check for program-level calls to Meteora DLMM
-    await extractor.check_transactions_for_meteora_programs(creator)
 
     # Extract post-migration outgoing transfers (token sales to recipients/exchanges)
     try:

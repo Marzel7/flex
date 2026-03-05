@@ -1247,18 +1247,23 @@ DASHBOARD_HTML = """
         }
 
         function renderDashboard(data) {
-            const summary = data.summary;
-            const sections = data.sections;
+            const summary = data.summary || {};
+            const sections = data.sections || {};
             const sourceFiles = data.source_files || {};
-            const topMethods = data.top_methods;
-            const alerts = data.alerts;
-            const heliusSnapshot = data.helius_snapshot;
+            const topMethods = data.top_methods || [];
+            const alerts = data.alerts || [];
+            const heliusSnapshot = data.helius_snapshot || {};
 
             let html = "";
 
             // Summary cards
-            const creditsUsedSinceReset = summary.credits_instrumented_today;
+            const creditsUsedSinceReset = summary.credits_instrumented_today || summary.credits_total || 0;
             const creditsUsedAlert = creditsUsedSinceReset > 100000 ? 'alert' : '';
+
+            // Calculate burn rate if not provided
+            const burnRate = summary.credits_burn_rate_per_minute || 0;
+            const monthlyEstimate = summary.credits_monthly_estimate || (creditsUsedSinceReset * 1440);
+            const monthlyRemaining = summary.credits_monthly_remaining !== undefined ? summary.credits_monthly_remaining : null;
 
             html += `<div class="grid">
                 <div class="card ${creditsUsedAlert}">
@@ -1268,17 +1273,17 @@ DASHBOARD_HTML = """
                 </div>
                 <div class="card">
                     <h3>Daily Burn Rate</h3>
-                    <div class="value">${summary.credits_burn_rate_per_minute.toFixed(2)}</div>
+                    <div class="value">${(burnRate || 0).toFixed(2)}</div>
                     <div class="unit">credits/min</div>
                 </div>
                 <div class="card">
                     <h3>Monthly Estimate</h3>
-                    <div class="value">${formatNumber(summary.credits_monthly_estimate)}</div>
+                    <div class="value">${formatNumber(monthlyEstimate)}</div>
                 </div>
-                ${summary.credits_monthly_remaining !== null ? `
-                <div class="card ${summary.credits_monthly_remaining < summary.credits_monthly_estimate * 0.2 ? 'alert' : ''}">
+                ${monthlyRemaining !== null ? `
+                <div class="card ${monthlyRemaining < monthlyEstimate * 0.2 ? 'alert' : ''}">
                     <h3>Monthly Remaining</h3>
-                    <div class="value">${formatNumber(summary.credits_monthly_remaining)}</div>
+                    <div class="value">${formatNumber(monthlyRemaining)}</div>
                 </div>
                 ` : ''}
                 <div class="card">
@@ -1292,7 +1297,7 @@ DASHBOARD_HTML = """
             </div>`;
 
             // Helius breakdown
-            if (heliusSnapshot) {
+            if (data.helius_snapshot) {
                 html += `<div class="section">
                     <h2>💎 Helius Usage Breakdown</h2>
                     <div class="grid">
@@ -1372,19 +1377,29 @@ DASHBOARD_HTML = """
                     </thead>
                     <tbody>`;
 
-            Object.entries(sections).forEach(([section, stats]) => {
-                html += `
-                    <tr>
-                        <td><strong>${section}</strong></td>
-                        <td>${formatNumber(stats.credits)}</td>
-                        <td>${formatNumber(stats.requests)}</td>
-                        <td style="color: ${stats.errors > 0 ? '#f59e0b' : '#10b981'};">${formatNumber(stats.errors)}</td>
-                        <td style="color: ${stats.rate_limits_429 > 0 ? '#ef4444' : '#10b981'};">${formatNumber(stats.rate_limits_429)}</td>
-                        <td>${stats.avg_latency_ms.toFixed(1)}</td>
-                        <td>${stats.p95_latency_ms.toFixed(1)}</td>
-                    </tr>
-                `;
-            });
+            const sectionEntries = Object.entries(sections);
+            if (sectionEntries.length > 0) {
+                sectionEntries.forEach(([section, stats]) => {
+                    const errors = stats.errors || 0;
+                    const rateLimits = stats.rate_limits_429 || 0;
+                    const avgLatency = stats.avg_latency_ms ? stats.avg_latency_ms.toFixed(1) : 'N/A';
+                    const p95Latency = stats.p95_latency_ms ? stats.p95_latency_ms.toFixed(1) : 'N/A';
+
+                    html += `
+                        <tr>
+                            <td><strong>${section}</strong></td>
+                            <td>${formatNumber(stats.credits || 0)}</td>
+                            <td>${formatNumber(stats.requests || 0)}</td>
+                            <td style="color: ${errors > 0 ? '#f59e0b' : '#10b981'};">${formatNumber(errors)}</td>
+                            <td style="color: ${rateLimits > 0 ? '#ef4444' : '#10b981'};">${formatNumber(rateLimits)}</td>
+                            <td>${avgLatency}</td>
+                            <td>${p95Latency}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                html += `<tr><td colspan="7" style="text-align: center; color: #94a3b8;">No section data available</td></tr>`;
+            }
 
             html += `</tbody>
                 </table>
@@ -1407,25 +1422,34 @@ DASHBOARD_HTML = """
                     </thead>
                     <tbody>`;
 
-            Object.entries(sourceFiles).forEach(([sourceFile, stats]) => {
-                const sections = Object.entries(stats.sections)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([s, count]) => `${s} (${count})`)
-                    .join(", ")
-                    .substring(0, 50) + (Object.entries(stats.sections).length > 2 ? "..." : "");
+            const sourceFileEntries = Object.entries(sourceFiles);
+            if (sourceFileEntries.length > 0) {
+                sourceFileEntries.forEach(([sourceFile, stats]) => {
+                    const sections = stats.sections ? Object.entries(stats.sections)
+                        .sort((a, b) => b[1] - a[1])
+                        .map(([s, count]) => `${s} (${count})`)
+                        .join(", ")
+                        .substring(0, 50) + (Object.entries(stats.sections).length > 2 ? "..." : "") : 'N/A';
 
-                html += `
-                    <tr>
-                        <td><strong>${sourceFile}</strong></td>
-                        <td>${formatNumber(stats.credits)}</td>
-                        <td>${formatNumber(stats.requests)}</td>
-                        <td style="color: ${stats.errors > 0 ? '#f59e0b' : '#10b981'};">${formatNumber(stats.errors)}</td>
-                        <td style="color: ${stats.rate_limits_429 > 0 ? '#ef4444' : '#10b981'};">${formatNumber(stats.rate_limits_429)}</td>
-                        <td>${sections}</td>
-                        <td>${stats.avg_latency_ms.toFixed(1)}</td>
-                    </tr>
-                `;
-            });
+                    const avgLatency = stats.avg_latency_ms ? stats.avg_latency_ms.toFixed(1) : 'N/A';
+                    const errors = stats.errors || 0;
+                    const rateLimits = stats.rate_limits_429 || 0;
+
+                    html += `
+                        <tr>
+                            <td><strong>${sourceFile}</strong></td>
+                            <td>${formatNumber(stats.credits || 0)}</td>
+                            <td>${formatNumber(stats.requests || 0)}</td>
+                            <td style="color: ${errors > 0 ? '#f59e0b' : '#10b981'};">${formatNumber(errors)}</td>
+                            <td style="color: ${rateLimits > 0 ? '#ef4444' : '#10b981'};">${formatNumber(rateLimits)}</td>
+                            <td>${sections}</td>
+                            <td>${avgLatency}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                html += `<tr><td colspan="7" style="text-align: center; color: #94a3b8;">No source file data available</td></tr>`;
+            }
 
             html += `</tbody>
                 </table>
@@ -1445,17 +1469,21 @@ DASHBOARD_HTML = """
                     </thead>
                     <tbody>`;
 
-            topMethods.forEach(method => {
-                const creditsPerReq = (method.credits / method.requests).toFixed(1);
-                html += `
-                    <tr>
-                        <td class="method-cell">${method.method}</td>
-                        <td>${formatNumber(method.credits)}</td>
-                        <td>${formatNumber(method.requests)}</td>
-                        <td>${creditsPerReq}</td>
-                    </tr>
-                `;
-            });
+            if (topMethods && topMethods.length > 0) {
+                topMethods.forEach(method => {
+                    const creditsPerReq = (method.credits / method.requests).toFixed(1);
+                    html += `
+                        <tr>
+                            <td class="method-cell">${method.method}</td>
+                            <td>${formatNumber(method.credits)}</td>
+                            <td>${formatNumber(method.requests)}</td>
+                            <td>${creditsPerReq}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                html += `<tr><td colspan="4" style="text-align: center; color: #94a3b8;">No data available</td></tr>`;
+            }
 
             html += `</tbody>
                 </table>

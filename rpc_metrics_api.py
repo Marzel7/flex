@@ -1234,7 +1234,8 @@ DASHBOARD_HTML = """
 
                 renderDashboard(data);
             } catch (error) {
-                document.getElementById("content").innerHTML = `<p style="color: #ef4444;">Error loading metrics: ${error.message}</p>`;
+                console.error("Dashboard error:", error);
+                document.getElementById("content").innerHTML = `<p style="color: #ef4444;">Error loading metrics: ${error.message} (${error.name})</p><pre style="color: #cbd5e1; font-size: 10px;">${error.stack || ''}</pre>`;
             }
         }
 

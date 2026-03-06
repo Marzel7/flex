@@ -619,9 +619,18 @@ class RPCMetricsRecorder:
             return 0
 
     def _get_coverage_pct_24h(self) -> float:
-        """Get tracking coverage for last 24 hours (local tracked vs Helius actual)"""
+        """
+        Get tracking coverage estimate for 24h (local tracked vs Helius actual).
+        
+        NOTE: This is an approximation. It compares:
+        - Local tracked credits: DB SUM for last 24h (exact)
+        - Helius credits: credits_used_today from config (may be "today" not full 24h)
+        
+        Only accurate if Helius config provides a true 24h metric.
+        Otherwise use as a rough estimate of instrumentation coverage.
+        """
         try:
-            # Get Helius actual credits from config (assumes "today" includes last 24h)
+            # Get Helius actual credits from config (labeled as "today" - may not be full 24h)
             try:
                 from rpc_metrics_config import PlanConfig
                 helius_total = int(PlanConfig.CURRENT_USAGE.get("credits_used_today", 0))
@@ -631,7 +640,7 @@ class RPCMetricsRecorder:
             if helius_total <= 0:
                 return 0.0
 
-            # Get locally tracked credits for last 24 hours
+            # Get locally tracked credits for last 24 hours (exact)
             local_tracked = self._get_credits_24h()
             
             coverage = (local_tracked / helius_total) * 100 if helius_total > 0 else 0
@@ -742,9 +751,10 @@ class RPCMetricsRecorder:
                 "comparison_coverage_pct": round(coverage_pct, 2),
                 "comparison_diff": comparison_diff,
                 "comparison_reset_at": self._comparison_reset_time.isoformat(),
-                # Backward-compatible aliases now pointing to reset-based values
+                # Backward-compatible aliases (since-reset DB-backed values)
                 "credits_today": helius_credits_since_reset,
                 "credits_instrumented_today": local_credits_since_reset,
+                "credits_total": local_credits_since_reset,  # Stable alias for total locally tracked since reset
                 # ====================================================================
                 # DASHBOARD CARD FIELDS (24h DB-backed for cross-process consistency)
                 # ====================================================================
@@ -971,6 +981,10 @@ class RPCMetricsRecorder:
         
         This allows accurate comparison of Helius-billed credits vs
         locally-instrumented credits from a known reset point.
+        
+        Implementation note: Uses timestamp-based DB query (WHERE timestamp > reset_ts).
+        Minor clock skew between processes may cause tiny discrepancies at reset boundary.
+        This is expected and acceptable.
         """
         with self._lock:
             self._baseline_helius_credits_today = self._get_actual_helius_usage()

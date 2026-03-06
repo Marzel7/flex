@@ -317,6 +317,7 @@ class PumpFunCurveListener:
         self.tx_cache = {}  # {signature: (tx_data, timestamp)}
         self.tx_cache_ttl_seconds = 1800  # 30 minutes TTL
         self.tx_inflight_locks = {}  # {signature: asyncio.Lock()} for singleflight
+        self.tx_cache_pending_retries = {}  # {signature: retry_task} for delayed re-checks
         self.tx_cache_stats = {
             'hit': 0,
             'miss': 0,
@@ -471,6 +472,7 @@ class PumpFunCurveListener:
     async def _get_transaction_cached(self, signature: str, timeout: int = 10) -> Optional[Dict]:
         """
         Fetch transaction with TTL cache + singleflight deduplication.
+        Includes retry/backoff for indexing delays.
 
         Deduplicates concurrent requests for the same signature.
         Cache TTL is 30 minutes (1800 seconds).
@@ -491,6 +493,9 @@ class PumpFunCurveListener:
             else:
                 # Expired, remove from cache
                 del self.tx_cache[signature]
+                # Also remove pending retry task if exists
+                if signature in self.tx_cache_pending_retries:
+                    del self.tx_cache_pending_retries[signature]
 
         # === Check if already in-flight (singleflight pattern) ===
         if signature in self.tx_inflight_locks:
@@ -507,7 +512,7 @@ class PumpFunCurveListener:
                 return cached_data
             return None
 
-        # === Cache miss: fetch it ===
+        # === Cache miss: fetch with retry/backoff ===
         self.tx_cache_stats['miss'] += 1
 
         # Create lock for this signature (singleflight)
@@ -516,26 +521,46 @@ class PumpFunCurveListener:
         await lock.acquire()
 
         try:
-            payload = {
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "getTransaction",
-                "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 1}]
-            }
-
             print(f"[TX_CACHE] 🌐 MISS: fetching {signature[:16]}...", flush=True)
-            tx_data = await asyncio.wait_for(
-                self._post_rpc_with_fallback(payload),
-                timeout=timeout
-            )
 
-            if tx_data and "result" in tx_data and tx_data["result"]:
-                result = tx_data["result"]
-                # Cache it
-                self.tx_cache[signature] = (result, current_time)
-                print(f"[TX_CACHE] 💾 CACHED: {signature[:16]}... ({len(str(result))} bytes)", flush=True)
-                return result
+            # Retry with backoff for indexing delays
+            retry_delays = [0.5, 1.0, 2.0, 3.0, 5.0, 8.0]
+            for attempt in range(len(retry_delays) + 1):  # +1 for initial attempt
+                if attempt > 0:
+                    print(f"[TX_CACHE] ⏳ Retry {attempt}/{len(retry_delays)} after {retry_delays[attempt-1]}s for {signature[:16]}...", flush=True)
+                    await asyncio.sleep(retry_delays[attempt - 1])
 
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getTransaction",
+                    "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 1}]
+                }
+
+                tx_data = await asyncio.wait_for(
+                    self._post_rpc_with_fallback(payload),
+                    timeout=timeout
+                )
+
+                # Check if we got a real result
+                if tx_data and "result" in tx_data and tx_data["result"]:
+                    result = tx_data["result"]
+                    # Cache it
+                    self.tx_cache[signature] = (result, current_time)
+                    print(f"[TX_CACHE] 💾 CACHED: {signature[:16]}... ({len(str(result))} bytes)", flush=True)
+                    return result
+
+                # Log what we got (for debugging indexing delays)
+                if tx_data is None:
+                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/7: RPC returned None", flush=True)
+                elif "result" not in tx_data:
+                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/7: No 'result' field in response", flush=True)
+                elif tx_data["result"] is None:
+                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/7: result is None (indexing delay)", flush=True)
+                else:
+                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/7: result is empty/falsy", flush=True)
+
+            print(f"[TX_CACHE] ❌ All 7 attempts exhausted for {signature[:16]}... - giving up", flush=True)
             return None
 
         except asyncio.TimeoutError:
@@ -1726,6 +1751,19 @@ class PumpFunCurveListener:
                 print(f"[PRICE_BG] Error in background task: {e}", flush=True)
                 await asyncio.sleep(5)
 
+    def _prune_tx_cache(self):
+        """Remove expired entries from TX cache to prevent unbounded growth"""
+        import time
+        now = time.time()
+        expired = [sig for sig, (_, ts) in self.tx_cache.items() if (now - ts) >= self.tx_cache_ttl_seconds]
+        for sig in expired:
+            self.tx_cache.pop(sig, None)
+            # Also clean up pending retry tasks for expired entries
+            if sig in self.tx_cache_pending_retries:
+                self.tx_cache_pending_retries.pop(sig, None)
+        if expired:
+            print(f"[TX_CACHE] 🧹 Pruned {len(expired)} expired entries (cache size: {len(self.tx_cache)})", flush=True)
+
     def _get_tokens_needing_price_update(self) -> List[str]:
         """Get tokens that need live price updates (prioritize newer)"""
         try:
@@ -2049,8 +2087,29 @@ class PumpFunCurveListener:
                 mint = self._extract_mint_from_logs(logs)
 
             if not mint:
-                print(f"[MIGRATION] ⚠ Could not extract mint from {signature} - SKIPPED", flush=True)
-                return  # Silent skip - not a pump.fun token migration
+                print(f"[MIGRATION] ⚠ Could not extract mint from {signature}, scheduling delayed re-check...", flush=True)
+
+                # Schedule delayed re-check (fire-and-forget)
+                async def delayed_mint_recheck():
+                    """Re-attempt mint extraction after 45 seconds for delayed indexing"""
+                    await asyncio.sleep(45)
+                    try:
+                        tx_data_retry = await self._get_transaction_cached(signature)
+                        if tx_data_retry:
+                            mint_retry = await self._extract_mint_from_tx(tx_data_retry)
+                            if mint_retry and not self._token_exists_in_db(mint_retry):
+                                print(f"[MIGRATION] ✅ Delayed re-check succeeded for {signature}: {mint_retry}", flush=True)
+                                await self.handle_migration(signature, logs)
+                                return
+                    except Exception as e:
+                        print(f"[MIGRATION] ⚠ Delayed re-check failed: {e}", flush=True)
+                    print(f"[MIGRATION] ⚠ Could not extract mint from {signature} after delayed re-check - SKIPPED", flush=True)
+
+                # Fire-and-forget task, track to avoid duplicates
+                if signature not in self.tx_cache_pending_retries:
+                    task = asyncio.create_task(delayed_mint_recheck())
+                    self.tx_cache_pending_retries[signature] = task
+                return  # Skip for now, delayed re-check will process if successful
 
             # Skip if already analyzed
             if self._token_exists_in_db(mint):

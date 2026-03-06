@@ -350,6 +350,25 @@ async def metrics_reset(request: dict = Body(None)):
         raise HTTPException(status_code=500, detail=f"Reset failed: {str(e)}")
 
 
+
+@app.post("/metrics/rpc/reset-comparison-baseline")
+async def reset_comparison_baseline():
+    """Reset comparison baseline so Helius and local metrics both start from 0"""
+    try:
+        recorder = get_recorder()
+        recorder.reset_comparison_baseline()
+        
+        summary = recorder.get_summary()
+        return {
+            "status": "success",
+            "message": "Comparison baseline reset",
+            "helius_credits_baseline": summary.get("helius_credits_today_raw", 0),
+            "local_credits_baseline": summary.get("local_credits_today_raw", 0),
+            "reset_at": summary.get("comparison_reset_at"),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Comparison reset failed: {str(e)}")
+
 def run_comparison_background(test_id: str, duration_seconds: int):
     """Run comparison test in background thread
     
@@ -848,6 +867,148 @@ async def get_helius_snapshots(limit: int = Query(20, ge=1, le=100)):
         raise HTTPException(
             status_code=500, detail=f"Could not fetch snapshots: {str(e)}"
         )
+
+
+@app.get("/metrics/rpc/optimizations")
+async def metrics_rpc_optimizations(hours: int = Query(24, ge=1, le=720)):
+    """
+    Get RPC optimization layer statistics and KPI summary.
+    
+    Returns:
+    - KPI fields: actual_credits, saved_credits, estimated_without_optimizations, savings_pct
+    - Breakdown: by_optimization_layer dict with layer stats
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn.row_factory = sqlite3.Row
+        
+        # Calculate timestamp threshold
+        current_time = time.time()
+        since_timestamp = current_time - (hours * 3600)
+        
+        # Get summary stats: total credits spent + total credits saved
+        cursor = conn.execute("""
+            SELECT
+                SUM(credits) as total_actual_credits,
+                SUM(credits_saved) as total_credits_saved,
+                COUNT(*) as total_requests
+            FROM rpc_metrics
+            WHERE timestamp > ?
+        """, [since_timestamp])
+        
+        summary = dict(cursor.fetchone() or {})
+        actual_credits = summary.get('total_actual_credits') or 0
+        saved_credits = summary.get('total_credits_saved') or 0
+        
+        # Calculate estimated (actual + saved)
+        estimated = actual_credits + saved_credits
+        
+        # Calculate savings percentage
+        savings_pct = 0.0
+        if estimated > 0:
+            savings_pct = (saved_credits / estimated) * 100
+        
+        # Get optimization layer breakdown
+        cursor = conn.execute("""
+            SELECT
+                optimization_layer,
+                COUNT(*) as skip_count,
+                SUM(credits_saved) as credits_saved,
+                SUM(credits) as total_credits
+            FROM rpc_metrics
+            WHERE timestamp > ? AND optimization_layer != 'none'
+            GROUP BY optimization_layer
+            ORDER BY credits_saved DESC
+        """, [since_timestamp])
+        
+        by_optimization_layer = {}
+        
+        for row in cursor.fetchall():
+            layer = row['optimization_layer']
+            saved = row['credits_saved'] or 0
+            by_optimization_layer[layer] = {
+                'skip_count': row['skip_count'],
+                'credits_saved': saved,
+                'total_credits': row['total_credits'] or 0,
+            }
+        
+        conn.close()
+        
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "hours": hours,
+            # KPI fields
+            "actual_credits": actual_credits,
+            "saved_credits": saved_credits,
+            "estimated_without_optimizations": estimated,
+            "savings_pct": savings_pct,
+            # Breakdown
+            "by_optimization_layer": by_optimization_layer,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching optimizations: {str(e)}")
+
+
+@app.get("/metrics/rpc/component-breakdown")
+async def metrics_rpc_component_breakdown(hours: int = Query(24, ge=1, le=720)):
+    """
+    Get RPC component (process/source file) breakdown.
+    
+    Returns credits usage by component (process/extractor) for the last N hours.
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn.row_factory = sqlite3.Row
+        
+        # Calculate timestamp threshold
+        current_time = time.time()
+        since_timestamp = current_time - (hours * 3600)
+        
+        # Map source files to component names
+        component_map = {
+            'pumpfun_curve_listener.py': 'pumpfun_curve_listener',
+            'realtime_creator_funding_extractor.py': 'creator_funding_extractor',
+            'funder_incoming_extractor.py': 'funder_incoming_extractor',
+            'creator_outgoing_extractor.py': 'creator_outgoing_extractor',
+            'creator_watch_manager.py': 'creator_watch_manager',
+            'cross_funding_network_analyzer.py': 'cross_funding_network_analyzer',
+            'cluster_risk_checker.py': 'cluster_risk_checker',
+        }
+        
+        # Get component breakdown by source file
+        cursor = conn.execute("""
+            SELECT
+                source_file,
+                COUNT(*) as requests,
+                SUM(credits) as credits,
+                SUM(credits_saved) as credits_saved
+            FROM rpc_metrics
+            WHERE timestamp > ?
+            GROUP BY source_file
+            ORDER BY credits DESC
+        """, [since_timestamp])
+        
+        components = {}
+        
+        for row in cursor.fetchall():
+            source_file = row['source_file'] or 'unknown'
+            component_name = component_map.get(source_file, source_file.replace('.py', ''))
+            
+            components[component_name] = {
+                'requests': row['requests'],
+                'credits': row['credits'] or 0,
+                'credits_saved': row['credits_saved'] or 0,
+            }
+        
+        conn.close()
+        
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "hours": hours,
+            "components": components,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching component breakdown: {str(e)}")
 
 
 @app.get("/dashboard")

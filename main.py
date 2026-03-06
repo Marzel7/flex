@@ -18031,6 +18031,62 @@ def rpc_metrics_dashboard():
                 html
             )
 
+            # Add refresh and reset button scripts BEFORE verification widget
+            refresh_script = '''
+            <script>
+            // Auto-update verification card every 5 seconds
+            setInterval(async () => {
+                try {
+                    const response = await fetch('/api/rpc-metrics/verify');
+                    const data = await response.json();
+
+                    if (data.status === 'success') {
+                        const card = document.querySelector('.verification-card');
+                        if (card) {
+                            // Update Helius credits
+                            const heliusSpan = card.querySelector('.metric:nth-child(1) .value');
+                            if (heliusSpan) heliusSpan.textContent = data.helius_actual.toLocaleString() + ' credits';
+
+                            // Update computed credits
+                            const computedSpan = card.querySelector('.metric:nth-child(2) .value');
+                            if (computedSpan) computedSpan.textContent = data.computed_from_db.toLocaleString() + ' credits';
+
+                            // Update request count
+                            const countSpan = card.querySelector('.metric:nth-child(3) .value');
+                            if (countSpan) countSpan.textContent = data.request_count;
+
+                            // Update percentage
+                            const percentageSpan = card.querySelector('.metric.verification-percentage .value');
+                            if (percentageSpan) {
+                                percentageSpan.textContent = data.percentage_match + '%';
+                                percentageSpan.style.color = data.percentage_match >= 95 ? '#22c55e' : data.percentage_match >= 80 ? '#fbbf24' : '#ef4444';
+                            }
+
+                            // Update RPC Calls breakdown
+                            const methodDiv = card.querySelector('div[style*="margin-top: 12px"]');
+                            if (methodDiv) {
+                                if (data.method_breakdown && Object.keys(data.method_breakdown).length > 0) {
+                                    let html = '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(148, 163, 184, 0.2);"><small style="color: #94a3b8;"><strong>RPC Calls:</strong></small>';
+                                    const methods = Object.entries(data.method_breakdown).sort((a, b) => b[1].credits - a[1].credits);
+                                    methods.forEach(([method, info]) => {
+                                        html += '<br/><small style="color: #cbd5e1;">• <strong>' + method + '</strong>: ' + info.count + ' calls, ' + info.credits + ' credits</small>';
+                                    });
+                                    html += '</div>';
+                                    methodDiv.innerHTML = html;
+                                } else {
+                                    methodDiv.innerHTML = '';
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error updating metrics:', e);
+                }
+            }, 5000);
+            </script>
+            '''
+            html = html.replace('</head>', refresh_script + '</head>')
+
             # Add verification widget if data is available
             if verify_data.get('status') == 'success':
                 helius_actual = verify_data.get('helius_actual', 0)
@@ -18291,6 +18347,32 @@ def metrics_rpc_alerts_proxy():
         return {'error': str(e)}, 503
 
 
+@app.route('/metrics/rpc/optimizations')
+def metrics_rpc_optimizations_proxy():
+    """Proxy /metrics/rpc/optimizations requests to the RPC Metrics API"""
+    try:
+        import requests
+        from flask import request
+        hours = request.args.get('hours', '24')
+        response = requests.get(f'http://localhost:8001/metrics/rpc/optimizations?hours={hours}', timeout=5)
+        return response.json(), response.status_code
+    except Exception as e:
+        return {'error': str(e)}, 503
+
+
+@app.route('/metrics/rpc/component-breakdown')
+def metrics_rpc_component_breakdown_proxy():
+    """Proxy /metrics/rpc/component-breakdown requests to the RPC Metrics API"""
+    try:
+        import requests
+        from flask import request
+        hours = request.args.get('hours', '24')
+        response = requests.get(f'http://localhost:8001/metrics/rpc/component-breakdown?hours={hours}', timeout=5)
+        return response.json(), response.status_code
+    except Exception as e:
+        return {'error': str(e)}, 503
+
+
 @app.route('/metrics/rpc/source-files')
 def metrics_rpc_source_files_proxy():
     """Proxy /metrics/rpc/source-files requests to the RPC Metrics API"""
@@ -18365,6 +18447,17 @@ def metrics_rpc_reset_proxy():
         return {'status': 'error', 'message': str(e)}, 500
 
 
+@app.route('/metrics/rpc/reset-comparison-baseline', methods=['POST'])
+def metrics_rpc_reset_comparison_proxy():
+    """Proxy comparison baseline reset to RPC Metrics API"""
+    try:
+        import requests
+        response = requests.post('http://localhost:8001/metrics/rpc/reset-comparison-baseline', timeout=5)
+        return response.json(), response.status_code
+    except Exception as e:
+        return {'error': str(e)}, 503
+
+
 @app.route('/api/rpc-metrics/verify', methods=['GET'])
 def api_rpc_metrics_verify():
     """
@@ -18375,13 +18468,41 @@ def api_rpc_metrics_verify():
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
 
-        # Get computed usage from database (all records, no time limit)
+        # Get reset timestamp to only count metrics AFTER reset
         cursor.execute('''
-            SELECT
-              COUNT(*) as request_count,
-              SUM(COALESCE(credits, 0)) as computed_credits
-            FROM rpc_metrics
+            SELECT setting_value FROM listener_settings
+            WHERE setting_key = 'last_metrics_reset_at'
+            LIMIT 1
         ''')
+        reset_time_row = cursor.fetchone()
+        reset_time = reset_time_row[0] if reset_time_row else None
+
+        # Parse reset timestamp (datetime string) and convert to Unix timestamp
+        reset_unix = None
+        if reset_time:
+            try:
+                reset_dt = datetime.strptime(reset_time, "%Y-%m-%d %H:%M:%S")
+                reset_unix = reset_dt.timestamp()
+            except:
+                reset_unix = None
+
+        # Get computed usage from database (only metrics recorded AFTER reset)
+        if reset_unix:
+            # Only count metrics recorded after reset (using Unix timestamp)
+            cursor.execute('''
+                SELECT
+                  COUNT(*) as request_count,
+                  SUM(COALESCE(credits, 0)) as computed_credits
+                FROM rpc_metrics
+                WHERE timestamp > ?
+            ''', (reset_unix,))
+        else:
+            cursor.execute('''
+                SELECT
+                  COUNT(*) as request_count,
+                  SUM(COALESCE(credits, 0)) as computed_credits
+                FROM rpc_metrics
+            ''')
 
         row = cursor.fetchone()
         computed_credits = row[1] or 0 if row else 0
@@ -18398,26 +18519,83 @@ def api_rpc_metrics_verify():
         reset_baseline = int(reset_baseline_row[0]) if reset_baseline_row else 0
 
         # Get current Helius usage
-        try:
-            from helius_cli_monitor import get_latest_snapshot
-            latest_snapshot = get_latest_snapshot()
-            current_helius_usage = latest_snapshot.get('credits_used_month', 0) if latest_snapshot else 0
-        except:
-            # Fallback to latest database snapshot
-            cursor.execute('SELECT credits_used_month FROM helius_usage_snapshots ORDER BY captured_at DESC LIMIT 1')
-            row = cursor.fetchone()
-            current_helius_usage = row[0] if row else 0
+        # Strategy: Check if reset just happened (metrics table is empty and reset_time is recent)
+        # If so, use the snapshot that was recorded at reset time (already in DB)
+        # Otherwise, fetch fresh from CLI
+        current_helius_usage = 0
+        reset_time_obj = None
+        if reset_time:
+            try:
+                reset_time_obj = datetime.strptime(reset_time, "%Y-%m-%d %H:%M:%S")
+            except:
+                pass
 
-        # Calculate credits used SINCE reset
-        helius_since_reset = current_helius_usage - reset_baseline
+        # If reset happened very recently (within last 10 seconds) and table is empty, use DB snapshot
+        use_db_snapshot = False
+        if reset_time_obj and request_count == 0:
+            time_since_reset = datetime.now() - reset_time_obj
+            if time_since_reset.total_seconds() < 10:
+                use_db_snapshot = True
+                print(f"[VERIFY] Reset happened {time_since_reset.total_seconds():.1f}s ago, using DB snapshot", flush=True)
 
-        # Get breakdown by RPC method
-        cursor.execute('''
-            SELECT method, COUNT(*) as count, SUM(credits) as total
-            FROM rpc_metrics
-            GROUP BY method
-            ORDER BY total DESC
-        ''')
+        if use_db_snapshot:
+            # Use the snapshot recorded at reset time (already in DB)
+            try:
+                cursor.execute('SELECT credits_used_month FROM helius_usage_snapshots ORDER BY captured_at DESC LIMIT 1')
+                row = cursor.fetchone()
+                if row and row[0]:
+                    current_helius_usage = row[0]
+                    print(f"[VERIFY] Using DB snapshot: {current_helius_usage}, baseline={reset_baseline}", flush=True)
+            except Exception as e:
+                print(f"[VERIFY] Could not get Helius snapshot from DB: {e}, fetching fresh", flush=True)
+                use_db_snapshot = False
+
+        # If not using DB snapshot, fetch fresh from CLI
+        if not use_db_snapshot:
+            try:
+                from helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
+                usage = get_helius_usage_cli()
+                if usage:
+                    # Record this snapshot
+                    record_usage_snapshot(usage)
+                    # Use credits_used_month if available, fallback to credits_used
+                    current_helius_usage = usage.get('credits_used_month', 0) or usage.get('credits_used', 0)
+                    print(f"[VERIFY] Got fresh Helius: {current_helius_usage}, baseline={reset_baseline}", flush=True)
+            except Exception as e:
+                # If CLI fails, fall back to latest snapshot from database
+                print(f"[VERIFY] Could not get fresh Helius usage: {e}, falling back to DB", flush=True)
+                try:
+                    cursor.execute('SELECT credits_used_month FROM helius_usage_snapshots ORDER BY captured_at DESC LIMIT 1')
+                    row = cursor.fetchone()
+                    if row and row[0]:
+                        current_helius_usage = row[0]
+                        print(f"[VERIFY] Got Helius from DB: {current_helius_usage}, baseline={reset_baseline}", flush=True)
+                except Exception as e2:
+                    print(f"[VERIFY] Could not get Helius usage from DB: {e2}", flush=True)
+
+        # Calculate credits used SINCE reset from both sources
+        # Helius actual = current Helius - baseline (from API)
+        # Computed = what we've tracked in database
+        helius_actual_since_reset = max(0, current_helius_usage - reset_baseline) if current_helius_usage and reset_baseline else 0
+
+        print(f"[VERIFY] current_helius={current_helius_usage}, baseline={reset_baseline}, helius_actual_since_reset={helius_actual_since_reset}, computed={computed_credits}", flush=True)
+
+        # Get breakdown by RPC method (only post-reset)
+        if reset_unix:
+            cursor.execute('''
+                SELECT method, COUNT(*) as count, SUM(credits) as total
+                FROM rpc_metrics
+                WHERE timestamp > ?
+                GROUP BY method
+                ORDER BY total DESC
+            ''', (reset_unix,))
+        else:
+            cursor.execute('''
+                SELECT method, COUNT(*) as count, SUM(credits) as total
+                FROM rpc_metrics
+                GROUP BY method
+                ORDER BY total DESC
+            ''')
         method_breakdown = {}
         for method, count, total in cursor.fetchall():
             method_breakdown[method] = {'count': count, 'credits': total}
@@ -18425,22 +18603,70 @@ def api_rpc_metrics_verify():
         conn.close()
 
         # Calculate percentage match
-        if helius_since_reset > 0:
-            percentage_match = (computed_credits / helius_since_reset) * 100
+        if helius_actual_since_reset > 0:
+            percentage_match = (computed_credits / helius_actual_since_reset) * 100
         else:
             percentage_match = 0
 
         return {
             'status': 'success',
-            'helius_actual': helius_since_reset,  # Credits used since last reset
-            'computed_from_db': computed_credits,
-            'difference': helius_since_reset - computed_credits,
+            'helius_actual': helius_actual_since_reset,  # Credits used since last reset (from Helius API)
+            'computed_from_db': computed_credits,  # What we've tracked in database
+            'difference': helius_actual_since_reset - computed_credits,
             'percentage_match': round(percentage_match, 1),
             'request_count': request_count,
             'method_breakdown': method_breakdown,
-            'notes': 'Shows credits used since last database reset. Helius actual may be higher due to other processes not recording metrics'
+            'notes': 'Helius (Since Reset) = Actual Helius API usage since reset. Computed from DB = Our tracked metrics.'
         }, 200
     except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+
+@app.route('/api/rpc-metrics/reset', methods=['POST'])
+def api_rpc_metrics_reset():
+    """Reset RPC metrics: clear database and reset Helius baseline"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=60)
+        cursor = conn.cursor()
+
+        # Get current Helius usage to set as new baseline
+        current_helius = 0
+        try:
+            from helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
+            usage = get_helius_usage_cli()
+            if usage:
+                current_helius = usage.get('credits_used_month', 0) or usage.get('credits_used', 0)
+                # Record this snapshot IMMEDIATELY (before any more RPC calls)
+                record_usage_snapshot(usage)
+
+                # Clear all RPC metrics BEFORE updating baseline (so no gap)
+                cursor.execute("DELETE FROM rpc_metrics")
+                print(f"[RESET] Cleared all RPC metrics", flush=True)
+
+                # Now update reset baseline to match the snapshot we just recorded
+                cursor.execute(
+                    "UPDATE listener_settings SET setting_value = ? WHERE setting_key = 'helius_credits_at_reset'",
+                    (str(current_helius),)
+                )
+                print(f"[RESET] Updated baseline to {current_helius}", flush=True)
+        except Exception as e:
+            print(f"[RESET] Could not get fresh Helius usage: {e}", flush=True)
+            # Still clear metrics even if Helius fetch fails
+            cursor.execute("DELETE FROM rpc_metrics")
+            print(f"[RESET] Cleared all RPC metrics (Helius unavailable)", flush=True)
+
+        # Update reset timestamp
+        cursor.execute(
+            "UPDATE listener_settings SET setting_value = ? WHERE setting_key = 'last_metrics_reset_at'",
+            (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),)
+        )
+
+        conn.commit()
+        conn.close()
+
+        return {'status': 'success', 'message': 'Metrics reset successfully'}, 200
+    except Exception as e:
+        print(f"[RESET] Error: {e}", flush=True)
         return {'status': 'error', 'message': str(e)}, 500
 
 
@@ -18463,6 +18689,17 @@ def metrics_helius_capture_proxy():
     try:
         import requests
         response = requests.post('http://localhost:8001/metrics/helius/capture', timeout=10)
+        return response.json(), response.status_code
+    except Exception as e:
+        return {'error': str(e)}, 503
+
+
+@app.route('/metrics/helius')
+def metrics_helius_proxy():
+    """Proxy /metrics/helius requests to the RPC Metrics API"""
+    try:
+        import requests
+        response = requests.get('http://localhost:8001/metrics/helius', timeout=5)
         return response.json(), response.status_code
     except Exception as e:
         return {'error': str(e)}, 503

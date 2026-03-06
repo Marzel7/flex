@@ -190,11 +190,21 @@ def get_helius_usage_cli() -> Optional[Dict]:
         # Extract credits usage details
         credits_usage = usage_data.get("creditsUsage", {})
 
+        # Debug: log available fields
+        print(f"[HELIUS] Available fields in creditsUsage: {list(credits_usage.keys())}", flush=True)
+
         # Extract fields (structure may vary, handle gracefully)
+        # Try to find monthly credits - Helius may call it different things
+        credits_used_month = (
+            credits_usage.get("monthlyCreditsUsed", 0) or
+            credits_usage.get("creditsUsedThisMonth", 0) or
+            credits_usage.get("totalCreditsUsed", 0)
+        )
+
         return {
             "credits_remaining": credits_usage.get("remainingCredits", 0),
             "credits_used": credits_usage.get("totalCreditsUsed", 0),
-            "credits_used_month": credits_usage.get("totalCreditsUsed", 0),
+            "credits_used_month": credits_used_month,
             "prepaid_credits_used": credits_usage.get("prepaidCreditsUsed", 0),
             "overage_credits_used": credits_usage.get("overageCreditsUsed", 0),
             "overage_cost": credits_usage.get("overageCost", 0.0),

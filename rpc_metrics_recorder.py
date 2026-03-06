@@ -302,6 +302,9 @@ class RPCMetricsRecorder:
         self._daily_errors = 0
         self._daily_429s = 0
 
+        # Comparison reset baseline - timestamp-based for DB-backed queries
+        self._comparison_reset_timestamp = time.time()
+
         # Baselines for comparison reset (allows 0 vs 0 starting point)
         self._baseline_helius_credits_today = 0
         self._baseline_local_credits_today = 0
@@ -636,6 +639,26 @@ class RPCMetricsRecorder:
         except Exception:
             return 0.0
 
+    def _get_tracked_credits_since_reset(self) -> int:
+        """Get tracked credits since comparison reset (DB-backed, cross-process)"""
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=30)
+            cursor = conn.execute("""
+                SELECT COALESCE(SUM(credits), 0)
+                FROM rpc_metrics
+                WHERE timestamp > ?
+            """, (self._comparison_reset_timestamp,))
+            value = cursor.fetchone()[0] or 0
+            conn.close()
+            return int(value)
+        except Exception:
+            # Fallback to in-memory history
+            return sum(
+                record.credits
+                for record in self._history
+                if record.timestamp > self._comparison_reset_timestamp
+            )
+
     def get_summary(self) -> Dict:
         """Get high-level summary of credit usage"""
         with self._lock:
@@ -656,16 +679,23 @@ class RPCMetricsRecorder:
                 credits_total_budget = self._plan_monthly_credits
                 credits_remaining_budget = max(0, credits_total_budget - credits_used_today_raw) if credits_total_budget > 0 else None
 
-            # Calculate deltas since reset (for accurate Helius vs local comparison)
+            # Calculate Helius deltas since reset (Helius is global/process-wide)
             helius_credits_since_reset = max(
                 0, credits_used_today_raw - self._baseline_helius_credits_today
             )
-            local_credits_since_reset = max(
-                0, self._daily_credits - self._baseline_local_credits_today
+            
+            # Calculate local deltas since reset using DB (cross-process, timestamp-based)
+            local_credits_since_reset = self._get_tracked_credits_since_reset()
+            
+            # Calculate untracked usage (Helius billed but not instrumented)
+            untracked_usage = max(0, helius_credits_since_reset - local_credits_since_reset)
+            
+            # Calculate coverage percentage
+            coverage_pct = (
+                (local_credits_since_reset / helius_credits_since_reset) * 100
+                if helius_credits_since_reset > 0 else 0
             )
-            total_credits_since_reset = max(
-                0, self._total_credits - self._baseline_total_credits
-            )
+            
             comparison_diff = helius_credits_since_reset - local_credits_since_reset
 
             # Calculate elapsed time since comparison reset for accurate estimates
@@ -705,16 +735,16 @@ class RPCMetricsRecorder:
                 # Raw values (for debugging)
                 "helius_credits_today_raw": credits_used_today_raw,
                 "local_credits_today_raw": self._daily_credits,
-                # Since-reset values (for comparison)
+                # Since-reset values (DB-backed for cross-process consistency)
                 "helius_credits_since_reset": helius_credits_since_reset,
                 "local_credits_since_reset": local_credits_since_reset,
-                "local_total_credits_since_reset": total_credits_since_reset,
+                "untracked_usage": untracked_usage,
+                "comparison_coverage_pct": round(coverage_pct, 2),
                 "comparison_diff": comparison_diff,
                 "comparison_reset_at": self._comparison_reset_time.isoformat(),
                 # Backward-compatible aliases now pointing to reset-based values
                 "credits_today": helius_credits_since_reset,
                 "credits_instrumented_today": local_credits_since_reset,
-                "credits_total": total_credits_since_reset,
                 # ====================================================================
                 # DASHBOARD CARD FIELDS (24h DB-backed for cross-process consistency)
                 # ====================================================================
@@ -947,6 +977,7 @@ class RPCMetricsRecorder:
             self._baseline_local_credits_today = self._daily_credits
             self._baseline_total_credits = self._total_credits
             self._comparison_reset_time = datetime.now()
+            self._comparison_reset_timestamp = time.time()
 
     def reset_credits_today(self):
         """Reset all local metrics to 0 and snapshot Helius for comparison"""
@@ -968,6 +999,7 @@ class RPCMetricsRecorder:
             self._baseline_local_credits_today = 0
             self._baseline_total_credits = 0
             self._comparison_reset_time = datetime.now()
+            self._comparison_reset_timestamp = time.time()
             self._daily_reset_time = datetime.now()
             self._start_time = datetime.now().timestamp()
 

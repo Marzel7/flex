@@ -429,320 +429,369 @@
     </div>
 
     <script>
-        // Color scheme
-        const colors = {
-            green: '#22c55e',
-            red: '#ef4444',
-            blue: '#3b82f6',
-            yellow: '#fbbf24',
-            purple: '#a78bfa',
-            gray: '#64748b',
-        };
+    const colors = {
+        green: '#22c55e',
+        red: '#ef4444',
+        blue: '#3b82f6',
+        yellow: '#fbbf24',
+        purple: '#a78bfa',
+        gray: '#64748b',
+    };
 
-        let trendChart;
+    let trendChart;
 
-        // Format large numbers
-        function formatNumber(num) {
-            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-            return num.toFixed(0);
-        }
+    function formatNumber(num) {
+        const n = Number(num || 0);
+        if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+        if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+        return n.toFixed(0);
+    }
 
-        // Update KPI cards (6 cards per specification)
-        async function updateKPIs() {
-            try {
-                // Get summary for all KPI fields
-                const summaryResponse = await fetch('/metrics/rpc/summary?window=last_24h');
-                const summaryData = await summaryResponse.json();
-                const summary = summaryData?.summary || summaryData || {};
+    async function fetchJson(url) {
+        // Add timestamp to prevent caching
+        const sep = url.includes('?') ? '&' : '?';
+        const urlWithTs = `${url}${sep}_ts=${Date.now()}`;
 
-                if (summary) {
-                    // Actual credits (from Helius or local instrumentation)
-                    document.getElementById('actual-credits').textContent = formatNumber(summary.actual_rpc_credits || 0);
-
-                    // Saved credits (from cache/optimization stats)
-                    document.getElementById('saved-credits').textContent = formatNumber(summary.saved_credits || 0);
-
-                    // Estimated without optimizations
-                    document.getElementById('estimated-credits').textContent = formatNumber(summary.estimated_without_opts || 0);
-
-                    // Savings percentage
-                    const savedCr = summary.saved_credits || 0;
-                    const estimatedCr = summary.estimated_without_opts || 0;
-                    const savingsPct = estimatedCr > 0 ? (savedCr / estimatedCr * 100).toFixed(1) : 0;
-                    document.getElementById('savings-pct').textContent = savingsPct + '%';
-
-                    // Tracked calls
-                    document.getElementById('tracked-calls').textContent = formatNumber(summary.tracked_calls || 0);
-
-                    // Tracking coverage (percentage of Helius credits we instrumented locally)
-                    document.getElementById('coverage-pct').textContent = (summary.tracking_coverage_pct || 0).toFixed(1) + '%';
-
-                    // Set coverage status
-                    const coverage = summary.tracking_coverage_pct || 0;
-                    let status = '🟠 Warning';
-                    if (coverage >= 90) status = '🟢 Good';
-                    else if (coverage >= 50) status = '🟡 Fair';
-                    else status = '🔴 Low';
-                    document.getElementById('coverage-status').textContent = status;
-                }
-            } catch (error) {
-                console.error('Error updating KPIs:', error);
+        const response = await fetch(urlWithTs, {
+            cache: 'no-store',
+            headers: {
+                'Cache-Control': 'no-cache'
             }
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status} for ${url}`);
         }
+        return response.json();
+    }
 
-        // Update optimization layer table
-        async function updateOptimizationLayerTable() {
-            try {
-                const response = await fetch('/metrics/rpc/optimizations?hours=24');
-                const data = await response.json();
+    function unwrapSummary(data) {
+        return data?.summary ?? data ?? {};
+    }
 
-                const tbody = document.getElementById('layer-table-body');
-                tbody.innerHTML = '';
+    function setText(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    }
 
-                if (data.by_optimization_layer && Object.keys(data.by_optimization_layer).length > 0) {
-                    const totalSaved = data.saved_credits || 1;
-                    Object.entries(data.by_optimization_layer).forEach(([layer, stats]) => {
-                        const pct = totalSaved > 0 ? (stats.credits_saved / totalSaved * 100).toFixed(1) : 0;
-                        const avg = stats.skip_count > 0 ? (stats.credits_saved / stats.skip_count).toFixed(1) : 0;
-                        tbody.innerHTML += `<tr>
-                            <td>${layer}</td>
-                            <td>${stats.skip_count}</td>
-                            <td class="value-green">${formatNumber(stats.credits_saved)}</td>
-                            <td class="value-amber">${pct}%</td>
-                            <td>${avg}</td>
-                        </tr>`;
-                    });
-                }
-            } catch (error) {
-                console.error('Error updating optimization layer table:', error);
+    async function updateKPIs() {
+        try {
+            const raw = await fetchJson('/metrics/rpc/summary');
+            const summary = unwrapSummary(raw);
+
+            const actualCredits = Number(summary.actual_rpc_credits || 0);
+            const savedCredits = Number(summary.saved_credits || 0);
+            const estimatedCredits = Number(summary.estimated_without_opts || 0);
+            const trackedCalls = Number(summary.tracked_calls || 0);
+            const coveragePct = Number(summary.tracking_coverage_pct || 0);
+
+            const savingsPct = estimatedCredits > 0
+                ? ((savedCredits / estimatedCredits) * 100).toFixed(1)
+                : '0.0';
+
+            setText('actual-credits', formatNumber(actualCredits));
+            setText('saved-credits', formatNumber(savedCredits));
+            setText('estimated-credits', formatNumber(estimatedCredits));
+            setText('savings-pct', `${savingsPct}%`);
+            setText('tracked-calls', formatNumber(trackedCalls));
+            setText('coverage-pct', `${coveragePct.toFixed(1)}%`);
+
+            let status = '🔴 Low';
+            if (coveragePct >= 90) status = '🟢 Good';
+            else if (coveragePct >= 50) status = '🟡 Fair';
+            else if (coveragePct > 0) status = '🟠 Warning';
+
+            setText('coverage-status', status);
+        } catch (error) {
+            console.error('Error updating KPIs:', error);
+        }
+    }
+
+    async function updateOptimizationLayerTable() {
+        try {
+            const data = await fetchJson('/metrics/rpc/optimizations?hours=24');
+            const tbody = document.getElementById('layer-table-body');
+            tbody.innerHTML = '';
+
+            const layers = data?.by_optimization_layer || {};
+            const totalSaved = Number(data?.saved_credits || 0);
+
+            if (Object.keys(layers).length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#94a3b8;">No data</td></tr>`;
+                return;
             }
+
+            Object.entries(layers).forEach(([layer, stats]) => {
+                const creditsSaved = Number(stats?.credits_saved || 0);
+                const skipCount = Number(stats?.skip_count || 0);
+                const pct = totalSaved > 0 ? ((creditsSaved / totalSaved) * 100).toFixed(1) : '0.0';
+                const avg = skipCount > 0 ? (creditsSaved / skipCount).toFixed(1) : '0.0';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${layer}</td>
+                        <td>${skipCount}</td>
+                        <td class="value-green">${formatNumber(creditsSaved)}</td>
+                        <td class="value-amber">${pct}%</td>
+                        <td>${avg}</td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            console.error('Error updating optimization layer table:', error);
         }
+    }
 
-        // Update component breakdown table (which process/component calls RPC)
-        async function updateComponentTable() {
-            try {
-                const response = await fetch('/metrics/rpc/component-breakdown?hours=24');
-                const data = await response.json();
+    async function updateComponentTable() {
+        try {
+            const breakdown = await fetchJson('/metrics/rpc/component-breakdown?hours=24');
+            const optimizations = await fetchJson('/metrics/rpc/optimizations?hours=24');
 
-                const tbody = document.getElementById('component-table-body');
-                tbody.innerHTML = '';
+            const tbody = document.getElementById('component-table-body');
+            tbody.innerHTML = '';
 
-                // Component name mapping for clearer labels
-                const componentLabels = {
-                    'funder_incoming_extractor': 'Funder Incoming Extraction',
-                    'pumpfun_curve_listener': 'Pumpfun Curve Listener',
-                    'creator_funding_extractor': 'Creator Funding Extraction',
-                    'creator_outgoing_extractor': 'Creator Outgoing Extraction',
-                    'creator_watch_manager': 'Creator Watch Manager',
-                    'cross_funding_network_analyzer': 'Cross Funding Network',
-                    'cluster_risk_checker': 'Cluster Risk Checker',
-                    'unknown': 'Unknown/UI API'
-                };
+            const components = breakdown?.components || {};
+            const savedBySection = optimizations?.by_section || {};
 
-                if (data.components && Object.keys(data.components).length > 0) {
-                    Object.entries(data.components).forEach(([component, stats]) => {
-                        // Use mapped label or generate from source_file name
-                        const componentName = componentLabels[component] ||
-                            component.replace('_extractor', '').replace('_listener', '')
-                                    .replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            const componentLabels = {
+                'funder_incoming_extractor': 'Funder Incoming Extraction',
+                'pumpfun_curve_listener': 'Pumpfun Curve Listener',
+                'creator_funding_extractor': 'Creator Funding Extraction',
+                'creator_outgoing_extractor': 'Creator Outgoing Extraction',
+                'creator_watch_manager': 'Creator Watch Manager',
+                'cross_funding_network_analyzer': 'Cross Funding Network',
+                'cluster_risk_checker': 'Cluster Risk Checker',
+                'unknown': 'Unknown/UI API'
+            };
 
-                        const creditsSaved = stats.credits_saved || 0;
-                        const estimatedTotal = stats.credits + creditsSaved;
-                        const savingsPct = estimatedTotal > 0 ? (creditsSaved / estimatedTotal * 100).toFixed(1) : 0;
-
-                        tbody.innerHTML += `<tr>
-                            <td><strong>${componentName}</strong></td>
-                            <td class="value-blue">${formatNumber(stats.credits)}</td>
-                            <td class="value-green">${formatNumber(creditsSaved)}</td>
-                            <td class="value-amber">${formatNumber(estimatedTotal)}</td>
-                            <td>${savingsPct}%</td>
-                        </tr>`;
-                    });
-                }
-            } catch (error) {
-                console.error('Error updating component table:', error);
+            if (Object.keys(components).length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#94a3b8;">No data</td></tr>`;
+                return;
             }
+
+            Object.entries(components).forEach(([component, stats]) => {
+                const componentName = componentLabels[component] ||
+                    component.replace('_extractor', '')
+                             .replace('_listener', '')
+                             .replace(/_/g, ' ')
+                             .replace(/\b\w/g, l => l.toUpperCase());
+
+                const creditsUsed = Number(stats?.credits || 0);
+
+                // Best-effort mapping: source_file names often align closely with section names, but not always.
+                // Since backend does not return per-component saved credits directly, this is conservative.
+                const creditsSaved = 0;
+                const estimatedTotal = creditsUsed + creditsSaved;
+                const savingsPct = estimatedTotal > 0 ? ((creditsSaved / estimatedTotal) * 100).toFixed(1) : '0.0';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${componentName}</strong></td>
+                        <td class="value-blue">${formatNumber(creditsUsed)}</td>
+                        <td class="value-green">${formatNumber(creditsSaved)}</td>
+                        <td class="value-amber">${formatNumber(estimatedTotal)}</td>
+                        <td>${savingsPct}%</td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            console.error('Error updating component table:', error);
         }
+    }
 
-        // Update daily trend chart (3 series: actual, saved, estimated)
-        async function updateTrendChart() {
-            try {
-                const response = await fetch('/metrics/rpc/optimizations?hours=24');
-                const data = await response.json();
+    async function updateTrendChart() {
+        try {
+            const data = await fetchJson('/metrics/rpc/optimizations?hours=24');
 
-                // For demo, create simple data
-                const actual = [data.actual_credits || 0];
-                const saved = [data.saved_credits || 0];
-                const estimated = [data.estimated_without_optimizations || 0];
+            const actual = [Number(data?.actual_credits || 0)];
+            const saved = [Number(data?.saved_credits || 0)];
+            const estimated = [Number(data?.estimated_without_optimizations || 0)];
 
-                if (trendChart) trendChart.destroy();
+            if (trendChart) trendChart.destroy();
 
-                const ctx = document.getElementById('trendChart').getContext('2d');
-                trendChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Today'],
-                        datasets: [
-                            {
-                                label: 'Actual Credits',
-                                data: actual,
-                                borderColor: colors.blue,
-                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                fill: true,
-                                tension: 0.4,
-                            },
-                            {
-                                label: 'Credits Saved',
-                                data: saved,
-                                borderColor: colors.green,
-                                backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                                fill: true,
-                                tension: 0.4,
-                            },
-                            {
-                                label: 'Estimated Without Opts',
-                                data: estimated,
-                                borderColor: colors.yellow,
-                                backgroundColor: 'rgba(251, 191, 36, 0.05)',
-                                fill: true,
-                                tension: 0.4,
-                                borderDash: [5, 5],
-                            },
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {
-                                labels: { color: '#e2e8f0' }
-                            }
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Last 24h'],
+                    datasets: [
+                        {
+                            label: 'Actual Credits',
+                            data: actual,
+                            borderColor: colors.blue,
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true,
+                            tension: 0.4,
                         },
-                        scales: {
-                            y: {
-                                ticks: { color: '#94a3b8' },
-                                grid: { color: 'rgba(148, 163, 184, 0.1)' }
-                            },
-                            x: {
-                                ticks: { color: '#94a3b8' },
-                                grid: { color: 'rgba(148, 163, 184, 0.1)' }
-                            }
+                        {
+                            label: 'Credits Saved',
+                            data: saved,
+                            borderColor: colors.green,
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                        },
+                        {
+                            label: 'Estimated Without Opts',
+                            data: estimated,
+                            borderColor: colors.yellow,
+                            backgroundColor: 'rgba(251, 191, 36, 0.05)',
+                            fill: true,
+                            tension: 0.4,
+                            borderDash: [5, 5],
+                        },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#e2e8f0' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' }
                         }
                     }
-                });
-            } catch (error) {
-                console.error('Error updating trend chart:', error);
-            }
-        }
-
-        // Update cache efficiency panel
-        async function updateCachePanel() {
-            try {
-                const response = await fetch('/metrics/rpc/summary?window=last_24h');
-                const data = await response.json();
-
-                if (data.tracked_local) {
-                    const skips = data.tracked_local.cache_skip_count || 0;
-                    const refreshes = data.tracked_local.cache_refresh_count || 0;
-                    const scans = data.tracked_local.cache_full_scan_count || 0;
-                    const saved = data.tracked_local.credits_saved_total || 0;
-                    const avg = skips > 0 ? (saved / skips).toFixed(1) : 0;
-                    const total = skips + refreshes + scans || 1;
-                    const eff = ((skips + refreshes) / total * 100).toFixed(1);
-
-                    document.getElementById('cache-skips').textContent = skips;
-                    document.getElementById('cache-refreshes').textContent = refreshes;
-                    document.getElementById('cache-scans').textContent = scans;
-                    document.getElementById('cache-credits').textContent = formatNumber(saved);
-                    document.getElementById('cache-avg').textContent = avg;
-                    document.getElementById('cache-eff').textContent = eff + '%';
                 }
-            } catch (error) {
-                console.error('Error updating cache panel:', error);
-            }
+            });
+        } catch (error) {
+            console.error('Error updating trend chart:', error);
         }
+    }
 
-        // Update top methods table
-        async function updateTopMethodsTable() {
-            try {
-                const response = await fetch('/metrics/rpc/methods?limit=8&window=last_24h');
-                const data = await response.json();
+    async function updateCachePanel() {
+        try {
+            const raw = await fetchJson('/metrics/rpc/summary');
+            const data = unwrapSummary(raw);
 
-                const tbody = document.getElementById('methods-table-body');
-                tbody.innerHTML = '';
+            const skips = Number(data.cache_skip_count || 0);
+            const refreshes = Number(data.cache_refresh_count || 0);
+            const scans = Number(data.cache_full_scan_count || 0);
+            const saved = Number(data.credits_saved_total || 0);
+            const avg = skips > 0 ? (saved / skips).toFixed(1) : '0.0';
+            const total = skips + refreshes + scans;
+            const eff = total > 0 ? (((skips + refreshes) / total) * 100).toFixed(1) : '0.0';
 
-                // API returns top_methods as object: { "methodName": { credits, requests } }
-                if (data.top_methods && Object.keys(data.top_methods).length > 0) {
-                    // Convert to array and sort by credits descending
-                    const methods = Object.entries(data.top_methods)
-                        .map(([method, stats]) => ({ method, ...stats }))
-                        .sort((a, b) => (b.credits || 0) - (a.credits || 0))
-                        .slice(0, 8);
+            setText('cache-skips', skips);
+            setText('cache-refreshes', refreshes);
+            setText('cache-scans', scans);
+            setText('cache-credits', formatNumber(saved));
+            setText('cache-avg', avg);
+            setText('cache-eff', `${eff}%`);
+        } catch (error) {
+            console.error('Error updating cache panel:', error);
+        }
+    }
 
-                    methods.forEach(method => {
-                        const opp = method.credits > 500 ? 'High' : method.credits > 200 ? 'Med' : 'Low';
-                        tbody.innerHTML += `<tr>
+    async function updateTopMethodsTable() {
+        try {
+            const data = await fetchJson('/metrics/rpc/methods?limit=8&window=last_24h');
+            const tbody = document.getElementById('methods-table-body');
+            tbody.innerHTML = '';
+
+            let methods = [];
+
+            if (Array.isArray(data)) {
+                methods = data;
+            } else if (Array.isArray(data?.top_methods)) {
+                methods = data.top_methods;
+            } else if (data?.top_methods && typeof data.top_methods === 'object') {
+                methods = Object.entries(data.top_methods).map(([method, stats]) => ({
+                    method,
+                    credits: stats?.credits || 0,
+                    requests: stats?.requests || 0
+                }));
+            }
+
+            if (methods.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#94a3b8;">No data</td></tr>`;
+                return;
+            }
+
+            methods
+                .sort((a, b) => Number(b.credits || 0) - Number(a.credits || 0))
+                .slice(0, 8)
+                .forEach(method => {
+                    const credits = Number(method.credits || 0);
+                    const requests = Number(method.requests || 0);
+                    const opp = credits > 500 ? 'High' : credits > 200 ? 'Med' : 'Low';
+
+                    tbody.innerHTML += `
+                        <tr>
                             <td>${method.method}</td>
-                            <td class="value-blue">${formatNumber(method.credits)}</td>
-                            <td>${method.requests}</td>
+                            <td class="value-blue">${formatNumber(credits)}</td>
+                            <td>${requests}</td>
                             <td class="value-green">—</td>
                             <td>${opp}</td>
-                        </tr>`;
-                    });
-                }
-            } catch (error) {
-                console.error('Error updating methods table:', error);
-            }
+                        </tr>
+                    `;
+                });
+        } catch (error) {
+            console.error('Error updating methods table:', error);
         }
+    }
 
-        // Update tracked vs untracked
-        async function updateTrackedVsUntracked() {
-            try {
-                const response = await fetch('/metrics/helius');
-                const data = await response.json();
+    async function updateTrackedVsUntracked() {
+        try {
+            const raw = await fetchJson('/metrics/rpc/summary');
+            const summary = unwrapSummary(raw);
 
-                if (data) {
-                    const heliusBilled = data.helius_billed?.total_credits || 0;
-                    const trackedLocal = data.tracked_local?.total_credits || 0;
-                    const untracked = data.untracked_usage?.total_credits || 0;
-                    const coverage = heliusBilled > 0 ? (trackedLocal / heliusBilled * 100) : 0;
+            const heliusBilled = Number(summary.helius_billed || 0);
+            const trackedLocal = Number(summary.tracked_locally || 0);
+            const untracked = Number(summary.untracked_usage || 0);
+            const coverage = Number(summary.coverage_pct || 0);
 
-                    document.getElementById('helius-billed').textContent = formatNumber(heliusBilled);
-                    document.getElementById('tracked-locally').textContent = formatNumber(trackedLocal);
-                    document.getElementById('untracked').textContent = formatNumber(untracked);
-                    document.getElementById('coverage').textContent = coverage.toFixed(1) + '%';
-                }
-            } catch (error) {
-                console.error('Error updating tracked vs untracked:', error);
-            }
+            setText('helius-billed', formatNumber(heliusBilled));
+            setText('tracked-locally', formatNumber(trackedLocal));
+            setText('untracked', formatNumber(untracked));
+            setText('coverage', `${coverage.toFixed(1)}%`);
+        } catch (error) {
+            console.error('Error updating tracked vs untracked:', error);
         }
+    }
 
-        // Initialize and refresh
-        async function updateDashboard() {
-            await updateKPIs();
-            await updateOptimizationLayerTable();
-            await updateComponentTable();
-            await updateTrendChart();
-            await updateCachePanel();
-            await updateTopMethodsTable();
-            await updateTrackedVsUntracked();
-        }
-
-        // Initial load
-        updateDashboard();
-
-        // Auto-refresh every 5 minutes
-        setInterval(updateDashboard, 5 * 60 * 1000);
-
-        // Update refresh time
-        function updateRefreshTime() {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('refresh-info').textContent = `⚡ Last updated: ${timeStr} | Auto-refreshing every 5 minutes`;
-        }
+    async function updateDashboard() {
+        await Promise.all([
+            updateKPIs(),
+            updateOptimizationLayerTable(),
+            updateComponentTable(),
+            updateTrendChart(),
+            updateCachePanel(),
+            updateTopMethodsTable(),
+            updateTrackedVsUntracked()
+        ]);
         updateRefreshTime();
-        setInterval(updateRefreshTime, 60000);
-    </script>
+    }
+
+    function updateRefreshTime() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        setText('refresh-info', `⚡ Last updated: ${timeStr} | Auto-refreshing every 30 seconds`);
+    }
+
+    updateDashboard();
+    setInterval(updateDashboard, 30 * 1000);
+    setInterval(updateRefreshTime, 60 * 1000);
+
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            updateDashboard();
+        }
+    });
+
+    window.addEventListener('focus', () => {
+        updateDashboard();
+    });
+</script>
 </body>
 </html>

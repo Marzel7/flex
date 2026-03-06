@@ -283,6 +283,18 @@ def _set_state(key: str, value: str) -> None:
         print(f"[RPC_METRICS] Failed to persist state {key}: {e}", flush=True)
 
 
+
+def _get_earliest_metric_timestamp() -> float:
+    """Get the earliest recorded metric timestamp from database"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        cursor = conn.execute("SELECT MIN(timestamp) FROM rpc_metrics")
+        row = cursor.fetchone()
+        conn.close()
+        return float(row[0]) if row and row[0] is not None else 0.0
+    except Exception:
+        return 0.0
+
 def _get_state(key: str, default: Optional[str] = None) -> Optional[str]:
     """Retrieve a recorder state value from database"""
     try:
@@ -347,16 +359,29 @@ class RPCMetricsRecorder:
         _ensure_rpc_metrics_table()
 
         # Comparison reset baseline - timestamp-based for DB-backed queries
-        # Load persisted values first, then fallback to defaults
+        # Load persisted values first, then fallback to earliest DB metric
         persisted_reset_ts = _get_state("comparison_reset_timestamp")
         persisted_helius_baseline = _get_state("baseline_helius_credits_today")
         persisted_reset_time = _get_state("comparison_reset_time")
 
-        self._comparison_reset_timestamp = float(persisted_reset_ts) if persisted_reset_ts else time.time()
-        self._baseline_helius_credits_today = int(persisted_helius_baseline) if persisted_helius_baseline else 0
+        # If no persisted reset timestamp, use earliest metric in DB (includes all history)
+        # If no metrics exist yet, use 0.0 (will include future metrics as they arrive)
+        self._comparison_reset_timestamp = (
+            float(persisted_reset_ts)
+            if persisted_reset_ts
+            else _get_earliest_metric_timestamp()
+        )
+
+        self._baseline_helius_credits_today = (
+            int(persisted_helius_baseline)
+            if persisted_helius_baseline
+            else 0
+        )
+
         self._comparison_reset_time = (
             datetime.fromisoformat(persisted_reset_time)
-            if persisted_reset_time else datetime.now()
+            if persisted_reset_time
+            else datetime.now()
         )
 
     def _get_actual_helius_usage(self) -> int:

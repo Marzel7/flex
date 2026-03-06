@@ -835,6 +835,7 @@ class RPCMetricsRecorder:
                     COALESCE(SUM(credits), 0) as credits
                 FROM rpc_metrics
                 WHERE timestamp > ?
+                  AND credits > 0
                 GROUP BY method
                 ORDER BY credits DESC, requests DESC
                 LIMIT ?
@@ -859,6 +860,8 @@ class RPCMetricsRecorder:
                 cutoff_timestamp = time.time() - (hours * 3600)
                 for record in self._history:
                     if record.timestamp <= cutoff_timestamp:
+                        continue
+                    if record.credits == 0:
                         continue
                     method_credits[record.method] += record.credits
                     method_requests[record.method] += 1
@@ -1113,13 +1116,13 @@ class RPCMetricsRecorder:
             cutoff_timestamp = time.time() - (hours * 3600)
             conn = sqlite3.connect(DB_PATH, timeout=30)
             
-            # Query 1: Aggregate by source_file (component)
+            # Query 1: Aggregate by source_file (component), only counting actual RPC calls
             cursor = conn.execute("""
                 SELECT 
                     source_file,
-                    COUNT(*) as calls,
+                    SUM(CASE WHEN credits > 0 THEN 1 ELSE 0 END) as calls,
                     COALESCE(SUM(credits), 0) as credits,
-                    ROUND(AVG(credits), 2) as avg_credits
+                    ROUND(AVG(CASE WHEN credits > 0 THEN credits ELSE NULL END), 2) as avg_credits
                 FROM rpc_metrics
                 WHERE timestamp > ?
                   AND source_file IS NOT NULL
@@ -1133,7 +1136,7 @@ class RPCMetricsRecorder:
             total_credits = 0
             total_calls = 0
             
-            # Query 2: Get top 5 methods per component
+            # Query 2: Get top 5 methods per component (only actual RPC calls)
             for source_file, calls, credits, avg_credits in components_data:
                 total_credits += credits
                 total_calls += calls
@@ -1142,12 +1145,13 @@ class RPCMetricsRecorder:
                 cursor = conn.execute("""
                     SELECT 
                         method,
-                        COUNT(*) as method_calls,
+                        SUM(CASE WHEN credits > 0 THEN 1 ELSE 0 END) as method_calls,
                         COALESCE(SUM(credits), 0) as method_credits,
-                        ROUND(AVG(credits), 2) as method_avg
+                        ROUND(AVG(CASE WHEN credits > 0 THEN credits ELSE NULL END), 2) as method_avg
                     FROM rpc_metrics
                     WHERE timestamp > ?
                       AND source_file = ?
+                      AND credits > 0
                     GROUP BY method
                     ORDER BY method_credits DESC
                     LIMIT 5

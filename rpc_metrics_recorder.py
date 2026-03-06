@@ -745,18 +745,22 @@ class RPCMetricsRecorder:
             uptime_seconds = now - self._start_time
             uptime_minutes = uptime_seconds / 60.0
 
-            # Get actual Helius usage from config
+            # Get actual Helius usage from config (reload to get fresh values from disk)
             try:
-                from rpc_metrics_config import PlanConfig
-                actual_usage = PlanConfig.CURRENT_USAGE
+                import importlib
+                import rpc_metrics_config
+                importlib.reload(rpc_metrics_config)  # Force reload from disk
+                actual_usage = rpc_metrics_config.PlanConfig.CURRENT_USAGE
                 credits_used_today_raw = actual_usage["credits_used_today"]
                 credits_remaining_budget = actual_usage["credits_remaining"]
                 credits_total_budget = credits_used_today_raw + credits_remaining_budget
+                print(f"[RPC_METRICS] CURRENT_USAGE = {actual_usage}", flush=True)
             except Exception:
                 # Fallback if config not available
                 credits_used_today_raw = self._daily_credits
                 credits_total_budget = self._plan_monthly_credits
                 credits_remaining_budget = max(0, credits_total_budget - credits_used_today_raw) if credits_total_budget > 0 else None
+                print(f"[RPC_METRICS] Failed to read CURRENT_USAGE, using fallback", flush=True)
 
             # Calculate Helius deltas since reset (Helius is global/process-wide)
             helius_credits_since_reset = max(
@@ -769,7 +773,7 @@ class RPCMetricsRecorder:
             # Calculate untracked usage (Helius billed but not instrumented)
             untracked_usage = max(0, helius_credits_since_reset - local_credits_since_reset)
             
-            # Calculate coverage percentage
+            # Calculate coverage percentage (can exceed 100% if local tracking includes calls not billed by Helius)
             coverage_pct = (
                 (local_credits_since_reset / helius_credits_since_reset) * 100
                 if helius_credits_since_reset > 0 else 0
@@ -808,7 +812,7 @@ class RPCMetricsRecorder:
             estimated_without_opts_24h = actual_credits_24h + saved_credits_24h
             tracking_coverage_pct = self._get_coverage_pct_24h()
 
-            return {
+            result = {
                 "timestamp": datetime.now().isoformat(),
                 "uptime_minutes": round(uptime_minutes, 2),
                 # Raw values (for debugging)
@@ -853,6 +857,7 @@ class RPCMetricsRecorder:
                 "cache_full_scan_count": cache_stats_24h["cache_full_scan_count"],
                 "credits_saved_total": cache_stats_24h["credits_saved_total"],
             }
+            return result
 
     def get_section_stats(self) -> Dict[str, Dict]:
         """Get detailed stats per section"""

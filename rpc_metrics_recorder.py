@@ -335,9 +335,10 @@ class RPCMetricsRecorder:
         cache_action: str = "none",
         credits_saved: int = 0,
         optimization_layer: str = "none",
+        credits_override: Optional[int] = None,
     ) -> int:
         """
-        Record a single RPC request.
+        Record a single RPC request or cache optimization event.
 
         Args:
             section: Component section (listener, creator_funding, funder_incoming, etc.)
@@ -354,13 +355,18 @@ class RPCMetricsRecorder:
             cache_action: Cache action (skip, refresh, full_scan, or none)
             credits_saved: Credits saved by cache action
             optimization_layer: Optimization that caused the skip (tx_cache, wallet_cache, etc.)
+            credits_override: Override computed credits (e.g., 0 for cache events). If None, computes from method.
 
         Returns:
-            Credits consumed for this request
+            Credits consumed for this request (0 if cache event with override)
         """
         with self._lock:
-            # Compute credits
-            credits = self._compute_credits(method, status_code)
+            # Compute credits (unless overridden)
+            if credits_override is not None:
+                credits = credits_override
+            else:
+                credits = self._compute_credits(method, status_code)
+            
             ts = time.time()
 
             # Create record
@@ -575,7 +581,7 @@ class RPCMetricsRecorder:
             return 0
 
     def _get_tracked_calls(self, hours: int = 24) -> int:
-        """Get count of tracked calls from database for time window"""
+        """Get count of actual RPC calls (not cache events) from database for time window"""
         try:
             conn = sqlite3.connect(DB_PATH, timeout=30)
             cutoff_timestamp = time.time() - (hours * 3600)
@@ -583,6 +589,7 @@ class RPCMetricsRecorder:
                 SELECT COUNT(*)
                 FROM rpc_metrics
                 WHERE timestamp > ?
+                  AND credits > 0
             """, (cutoff_timestamp,))
             value = cursor.fetchone()[0] or 0
             conn.close()
@@ -590,7 +597,7 @@ class RPCMetricsRecorder:
         except Exception:
             # Fallback to in-memory history
             cutoff_timestamp = time.time() - (hours * 3600)
-            return sum(1 for record in self._history if record.timestamp > cutoff_timestamp)
+            return sum(1 for record in self._history if record.timestamp > cutoff_timestamp and record.credits > 0)
 
     def _get_credits_24h(self) -> int:
         """Get actual credits from database for last 24 hours"""
@@ -1229,6 +1236,7 @@ def record_request(
     cache_action: str = "none",
     credits_saved: int = 0,
     optimization_layer: str = "none",
+    credits_override: Optional[int] = None,
 ) -> int:
     """Convenience function to record request with global instance"""
     return get_recorder().record_request(
@@ -1246,6 +1254,7 @@ def record_request(
         cache_action=cache_action,
         credits_saved=credits_saved,
         optimization_layer=optimization_layer,
+        credits_override=credits_override,
     )
 
 
@@ -1324,4 +1333,5 @@ def record_cache_event(
         cache_action=cache_action,
         credits_saved=credits_saved,
         optimization_layer=optimization_layer,
+        credits_override=0,  # Cache events consume 0 credits (they prevent RPC calls)
     )

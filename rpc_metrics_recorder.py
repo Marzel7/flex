@@ -1272,3 +1272,56 @@ def get_component_breakdown(hours: int = 24) -> Dict:
 def reset_comparison_baseline():
     """Convenience function to reset actual vs local comparison baseline"""
     get_recorder().reset_comparison_baseline()
+
+
+def record_cache_event(
+    section: str,
+    provider: str,
+    method: str,
+    source_file: str,
+    cache_action: str,
+    credits_saved: int,
+    optimization_layer: str,
+) -> None:
+    """
+    Record a cache optimization event (cache hit, refresh, etc).
+    
+    Call this whenever a cache layer prevents an RPC call.
+    
+    Args:
+        section: Component section (e.g., "funder_incoming", "creator_funding")
+        provider: Provider (e.g., "helius_rpc", "public_rpc")
+        method: RPC method that was skipped/refreshed
+        source_file: File/process that triggered the cache event
+        cache_action: Action type (skip, refresh, full_scan)
+        credits_saved: Credits that would have been spent
+        optimization_layer: Layer that triggered skip (tx_cache, wallet_cache, etc)
+    
+    Example:
+        # Transaction was in cache, skip getTransaction RPC
+        record_cache_event(
+            section="funder_incoming",
+            provider="helius_rpc",
+            method="getTransaction",
+            source_file="funder_incoming_extractor.py",
+            cache_action="skip",
+            credits_saved=10,
+            optimization_layer="tx_cache",
+        )
+    """
+    get_recorder().record_request(
+        section=section,
+        provider=provider,
+        method=method,
+        status_code=200,
+        latency_ms=0.0,
+        mode="realtime",
+        retries=0,
+        bytes_in=0,
+        bytes_out=0,
+        source_file=source_file,
+        error=None,
+        cache_action=cache_action,
+        credits_saved=credits_saved,
+        optimization_layer=optimization_layer,
+    )

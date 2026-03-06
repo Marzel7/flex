@@ -1,0 +1,35 @@
+/Users/kevinkeaveney/Dev/claude/flex/rpc_metrics_api.py:290: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+INFO:     Started server process [42671]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     127.0.0.1:49883 - "GET /metrics/helius HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49909 - "GET /metrics/helius HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50140 - "GET /metrics/rpc/optimizations?hours=24 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50144 - "GET /metrics/rpc/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50148 - "GET /metrics/helius HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50152 - "GET /metrics/rpc/optimizations?hours=24 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50156 - "GET /metrics/rpc/component-breakdown?hours=24 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50160 - "GET /metrics/rpc/optimizations?hours=24 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50164 - "GET /metrics/rpc/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50168 - "GET /metrics/rpc/methods?limit=8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50172 - "GET /metrics/helius HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51463 - "GET /metrics/rpc/optimizations?hours=24 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51467 - "GET /metrics/rpc/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51471 - "GET /metrics/helius HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51476 - "GET /metrics/rpc/optimizations?hours=24 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51480 - "GET /metrics/rpc/component-breakdown?hours=24 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51484 - "GET /metrics/rpc/optimizations?hours=24 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51488 - "GET /metrics/rpc/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51492 - "GET /metrics/rpc/methods?limit=8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51496 - "GET /metrics/helius HTTP/1.1" 404 Not Found
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [42671]

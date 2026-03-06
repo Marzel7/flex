@@ -9,9 +9,9 @@ Maintains rolling counters and exposes metrics via HTTP endpoint.
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from threading import RLock
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 import json
 import sqlite3
 import os
@@ -81,8 +81,6 @@ except ImportError:
     # "laserstream_bytes": Calculated as bytes * STREAMING_CREDITS_PER_BYTE
     # "enhanced_ws_bytes": Calculated as bytes * STREAMING_CREDITS_PER_BYTE
     }
-except ImportError:
-    pass  # Use fallback from rpc_metrics_config if available
 
 # Streaming credits: 3 credits per 0.1MB = 3 credits per 102400 bytes
 STREAMING_CREDITS_PER_BYTE = 3.0 / (0.1 * 1024 * 1024)
@@ -108,6 +106,8 @@ class RequestRecord:
     bytes_out: int = 0
     credits: int = 0
     error: Optional[str] = None
+    cache_action: str = "none"
+    credits_saved: int = 0
 
 
 @dataclass
@@ -143,7 +143,7 @@ class SectionStats:
 DB_PATH = os.getenv("RPC_METRICS_DB", "flex_complete_database.db")
 
 def _ensure_rpc_metrics_table():
-    """Create rpc_metrics table if it doesn't exist"""
+    """Create rpc_metrics table if it doesn't exist, and migrate columns if needed"""
     try:
         conn = sqlite3.connect(DB_PATH, timeout=30)
         conn.execute("PRAGMA journal_mode=WAL")
@@ -162,9 +162,38 @@ def _ensure_rpc_metrics_table():
                 source_file TEXT DEFAULT 'unknown',
                 error TEXT,
                 process_pid INTEGER,
+                cache_action TEXT DEFAULT 'none',
+                credits_saved INTEGER DEFAULT 0,
+                optimization_layer TEXT DEFAULT 'none',
                 recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+
+        # Migrate existing tables: add missing columns if they don't exist
+        cursor = conn.execute("PRAGMA table_info(rpc_metrics)")
+        existing_columns = {row[1] for row in cursor.fetchall()}
+
+        if 'cache_action' not in existing_columns:
+            try:
+                conn.execute("ALTER TABLE rpc_metrics ADD COLUMN cache_action TEXT DEFAULT 'none'")
+                print(f"[RPC_METRICS] Added cache_action column to rpc_metrics table", flush=True)
+            except Exception as e:
+                print(f"[RPC_METRICS] Failed to add cache_action column: {e}", flush=True)
+
+        if 'credits_saved' not in existing_columns:
+            try:
+                conn.execute("ALTER TABLE rpc_metrics ADD COLUMN credits_saved INTEGER DEFAULT 0")
+                print(f"[RPC_METRICS] Added credits_saved column to rpc_metrics table", flush=True)
+            except Exception as e:
+                print(f"[RPC_METRICS] Failed to add credits_saved column: {e}", flush=True)
+
+        if 'optimization_layer' not in existing_columns:
+            try:
+                conn.execute("ALTER TABLE rpc_metrics ADD COLUMN optimization_layer TEXT DEFAULT 'none'")
+                print(f"[RPC_METRICS] Added optimization_layer column to rpc_metrics table", flush=True)
+            except Exception as e:
+                print(f"[RPC_METRICS] Failed to add optimization_layer column: {e}", flush=True)
+
         # Create index for common queries
         conn.execute("""
             CREATE INDEX IF NOT EXISTS idx_rpc_metrics_timestamp
@@ -177,6 +206,14 @@ def _ensure_rpc_metrics_table():
         conn.execute("""
             CREATE INDEX IF NOT EXISTS idx_rpc_metrics_method
             ON rpc_metrics(method, timestamp DESC)
+        """)
+        conn.execute("""
+            CREATE INDEX IF NOT EXISTS idx_rpc_metrics_cache_action
+            ON rpc_metrics(cache_action, timestamp DESC)
+        """)
+        conn.execute("""
+            CREATE INDEX IF NOT EXISTS idx_rpc_metrics_optimization_layer
+            ON rpc_metrics(optimization_layer, timestamp DESC)
         """)
         conn.commit()
         conn.close()
@@ -197,6 +234,7 @@ def _persist_rpc_metric(
     error: Optional[str] = None,
     cache_action: str = "none",
     credits_saved: int = 0,
+    optimization_layer: str = "none",
 ):
     """Write RPC metric to database for persistent cross-process tracking"""
     try:
@@ -207,17 +245,17 @@ def _persist_rpc_metric(
             """
             INSERT INTO rpc_metrics
             (timestamp, section, provider, method, status_code, latency_ms, credits,
-             mode, retries, source_file, error, process_pid, cache_action, credits_saved)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             mode, retries, source_file, error, process_pid, cache_action, credits_saved, optimization_layer)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (timestamp, section, provider, method, status_code, latency_ms, credits,
-             mode, retries, source_file, error, pid, cache_action, credits_saved),
+             mode, retries, source_file, error, pid, cache_action, credits_saved, optimization_layer),
         )
         conn.commit()
         conn.close()
     except Exception as e:
-        # Fail silently to not disrupt normal operation
-        pass
+        # Log persistence failures (but don't disrupt normal operation)
+        print(f"[RPC_METRICS] DB write failed: {e}", flush=True)
 
 # ============================================================================
 # RPC METRICS RECORDER
@@ -244,9 +282,11 @@ class RPCMetricsRecorder:
         # Per-section stats
         self._section_stats: Dict[str, SectionStats] = defaultdict(SectionStats)
 
-        # Source file and method stats (initialized lazily but set here for reset)
-        self._source_file_stats = {}
-        self._method_stats = {}
+        # Note: In-memory caches for potential future optimization
+        # Currently all reporting derives from _history and database
+        # These are maintained for backward compatibility and reset operations
+        self._source_file_stats = {}  # Not actively updated; get_source_file_stats() rebuilds from _history
+        self._method_stats = {}  # Not actively updated; get_top_methods() rebuilds from _history
 
         # Global tracking
         self._start_time = time.time()
@@ -262,8 +302,22 @@ class RPCMetricsRecorder:
         self._daily_errors = 0
         self._daily_429s = 0
 
+        # Baselines for comparison reset (allows 0 vs 0 starting point)
+        self._baseline_helius_credits_today = 0
+        self._baseline_local_credits_today = 0
+        self._baseline_total_credits = 0
+        self._comparison_reset_time = datetime.now()
+
         # Ensure database table exists for persistent cross-process metrics
         _ensure_rpc_metrics_table()
+
+    def _get_actual_helius_usage(self) -> int:
+        """Safely read current Helius credits_used_today"""
+        try:
+            from rpc_metrics_config import PlanConfig
+            return int(PlanConfig.CURRENT_USAGE.get("credits_used_today", 0))
+        except Exception:
+            return 0
 
     def record_request(
         self,
@@ -280,6 +334,7 @@ class RPCMetricsRecorder:
         error: Optional[str] = None,
         cache_action: str = "none",
         credits_saved: int = 0,
+        optimization_layer: str = "none",
     ) -> int:
         """
         Record a single RPC request.
@@ -298,6 +353,7 @@ class RPCMetricsRecorder:
             error: Error message if failed
             cache_action: Cache action (skip, refresh, full_scan, or none)
             credits_saved: Credits saved by cache action
+            optimization_layer: Optimization that caused the skip (tx_cache, wallet_cache, etc.)
 
         Returns:
             Credits consumed for this request
@@ -322,6 +378,8 @@ class RPCMetricsRecorder:
                 bytes_out=bytes_out,
                 credits=credits,
                 error=error,
+                cache_action=cache_action,
+                credits_saved=credits_saved,
             )
 
             # Store in history
@@ -335,24 +393,27 @@ class RPCMetricsRecorder:
             section_stats.credits_by_method[method] = section_stats.credits_by_method.get(method, 0) + credits
             section_stats.credits_by_provider[provider] = section_stats.credits_by_provider.get(provider, 0) + credits
 
-            # Track errors
+            # Track errors and daily counters
             if status_code >= 400:
                 section_stats.errors += 1
                 self._total_errors += 1
+                self._daily_errors += 1
 
             if status_code == 429:
                 section_stats.rate_limits_429 += 1
                 self._total_429s += 1
+                self._daily_429s += 1
 
             # Update global totals
             self._total_requests += 1
             self._total_credits += credits
+            self._daily_requests += 1
             self._daily_credits += credits
 
             # Persist to database for cross-process aggregation (non-blocking)
             _persist_rpc_metric(
                 ts, section, provider, method, status_code, latency_ms,
-                credits, mode, retries, source_file, error, cache_action, credits_saved
+                credits, mode, retries, source_file, error, cache_action, credits_saved, optimization_layer
             )
 
             return credits
@@ -379,10 +440,11 @@ class RPCMetricsRecorder:
         with self._lock:
             # Compute credits from bytes (3 credits per 0.1MB)
             credits = int(bytes_count * STREAMING_CREDITS_PER_BYTE) + (1 if (bytes_count * STREAMING_CREDITS_PER_BYTE) % 1 > 0 else 0)
+            ts = time.time()
 
             # Record as pseudo-request
             record = RequestRecord(
-                timestamp=time.time(),
+                timestamp=ts,
                 section=section,
                 provider=provider,
                 method=f"{stream_name}_bytes",
@@ -390,6 +452,7 @@ class RPCMetricsRecorder:
                 status_code=200,
                 latency_ms=0,
                 retries=0,
+                source_file="streaming",
                 bytes_out=bytes_count,
                 credits=credits,
             )
@@ -405,9 +468,77 @@ class RPCMetricsRecorder:
 
             self._total_requests += 1
             self._total_credits += credits
+            self._daily_requests += 1
             self._daily_credits += credits
 
+            # Persist to database for cross-process aggregation
+            _persist_rpc_metric(
+                ts, section, provider, f"{stream_name}_bytes", 200, 0.0,
+                credits, mode="streaming", retries=0, source_file="streaming",
+                error=None, cache_action="none", credits_saved=0
+            )
+
             return credits
+
+    def _get_cache_stats(self, hours: int = 24) -> Dict[str, int]:
+        """Calculate cache-related stats from history (optionally time-windowed)"""
+        cache_skip_count = 0
+        cache_refresh_count = 0
+        cache_full_scan_count = 0
+        credits_saved_total = 0
+
+        # Try database first (accurate cross-process view), fall back to in-memory history
+        try:
+            import sqlite3
+            conn = sqlite3.connect(DB_PATH, timeout=30)
+            
+            # Add time filter if hours specified
+            where_clause = ""
+            params = []
+            if hours > 0:
+                cutoff_timestamp = time.time() - (hours * 3600)
+                where_clause = "AND timestamp > ?"
+                params = [cutoff_timestamp]
+            
+            cursor = conn.execute(f"""
+                SELECT
+                    SUM(CASE WHEN cache_action='skip' THEN 1 ELSE 0 END) as skip_count,
+                    SUM(CASE WHEN cache_action='refresh' THEN 1 ELSE 0 END) as refresh_count,
+                    SUM(CASE WHEN cache_action='full_scan' THEN 1 ELSE 0 END) as full_scan_count,
+                    SUM(credits_saved) as total_saved
+                FROM rpc_metrics
+                WHERE cache_action != 'none' {where_clause}
+            """, params)
+            row = cursor.fetchone()
+            conn.close()
+
+            if row:
+                cache_skip_count = row[0] or 0
+                cache_refresh_count = row[1] or 0
+                cache_full_scan_count = row[2] or 0
+                credits_saved_total = row[3] or 0
+        except Exception:
+            # Fallback: use in-memory history if database unavailable
+            cutoff_timestamp = time.time() - (hours * 3600) if hours > 0 else 0
+            for record in self._history:
+                if hours > 0 and record.timestamp < cutoff_timestamp:
+                    continue
+                if hasattr(record, 'cache_action'):
+                    if record.cache_action == 'skip':
+                        cache_skip_count += 1
+                        credits_saved_total += getattr(record, 'credits_saved', 0)
+                    elif record.cache_action == 'refresh':
+                        cache_refresh_count += 1
+                        credits_saved_total += getattr(record, 'credits_saved', 0)
+                    elif record.cache_action == 'full_scan':
+                        cache_full_scan_count += 1
+
+        return {
+            "cache_skip_count": cache_skip_count,
+            "cache_refresh_count": cache_refresh_count,
+            "cache_full_scan_count": cache_full_scan_count,
+            "credits_saved_total": credits_saved_total,
+        }
 
     def _compute_credits(self, method: str, status_code: int) -> int:
         """
@@ -443,6 +574,61 @@ class RPCMetricsRecorder:
         except (ValueError, TypeError):
             return 0
 
+    def _get_tracked_calls(self, hours: int = 24) -> int:
+        """Get count of tracked calls from database for time window"""
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=30)
+            cutoff_timestamp = time.time() - (hours * 3600)
+            cursor = conn.execute("""
+                SELECT COUNT(*)
+                FROM rpc_metrics
+                WHERE timestamp > ?
+            """, (cutoff_timestamp,))
+            value = cursor.fetchone()[0] or 0
+            conn.close()
+            return value
+        except Exception:
+            # Fallback to in-memory history
+            cutoff_timestamp = time.time() - (hours * 3600)
+            return sum(1 for record in self._history if record.timestamp > cutoff_timestamp)
+
+    def _get_credits_24h(self) -> int:
+        """Get actual credits from database for last 24 hours"""
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=30)
+            cutoff_timestamp = time.time() - (24 * 3600)
+            cursor = conn.execute("""
+                SELECT COALESCE(SUM(credits), 0)
+                FROM rpc_metrics
+                WHERE timestamp > ?
+            """, (cutoff_timestamp,))
+            value = cursor.fetchone()[0] or 0
+            conn.close()
+            return value
+        except Exception:
+            return 0
+
+    def _get_coverage_pct_24h(self) -> float:
+        """Get tracking coverage for last 24 hours (local tracked vs Helius actual)"""
+        try:
+            # Get Helius actual credits from config (assumes "today" includes last 24h)
+            try:
+                from rpc_metrics_config import PlanConfig
+                helius_total = int(PlanConfig.CURRENT_USAGE.get("credits_used_today", 0))
+            except Exception:
+                helius_total = 0
+
+            if helius_total <= 0:
+                return 0.0
+
+            # Get locally tracked credits for last 24 hours
+            local_tracked = self._get_credits_24h()
+            
+            coverage = (local_tracked / helius_total) * 100 if helius_total > 0 else 0
+            return coverage
+        except Exception:
+            return 0.0
+
     def get_summary(self) -> Dict:
         """Get high-level summary of credit usage"""
         with self._lock:
@@ -454,39 +640,97 @@ class RPCMetricsRecorder:
             try:
                 from rpc_metrics_config import PlanConfig
                 actual_usage = PlanConfig.CURRENT_USAGE
-                credits_used_today = actual_usage["credits_used_today"]
+                credits_used_today_raw = actual_usage["credits_used_today"]
                 credits_remaining_budget = actual_usage["credits_remaining"]
-                credits_total_budget = credits_used_today + credits_remaining_budget
+                credits_total_budget = credits_used_today_raw + credits_remaining_budget
             except Exception:
                 # Fallback if config not available
-                credits_used_today = self._daily_credits
+                credits_used_today_raw = self._daily_credits
                 credits_total_budget = self._plan_monthly_credits
-                credits_remaining_budget = max(0, credits_total_budget - credits_used_today) if credits_total_budget > 0 else None
+                credits_remaining_budget = max(0, credits_total_budget - credits_used_today_raw) if credits_total_budget > 0 else None
 
-            # Daily credit estimate (from our instrumentation)
-            hours_elapsed = uptime_seconds / 3600.0
-            daily_estimate = (self._daily_credits / hours_elapsed * 24) if hours_elapsed > 0 else 0
+            # Calculate deltas since reset (for accurate Helius vs local comparison)
+            helius_credits_since_reset = max(
+                0, credits_used_today_raw - self._baseline_helius_credits_today
+            )
+            local_credits_since_reset = max(
+                0, self._daily_credits - self._baseline_local_credits_today
+            )
+            total_credits_since_reset = max(
+                0, self._total_credits - self._baseline_total_credits
+            )
+            comparison_diff = helius_credits_since_reset - local_credits_since_reset
+
+            # Calculate elapsed time since comparison reset for accurate estimates
+            comparison_elapsed_seconds = max(
+                (datetime.now() - self._comparison_reset_time).total_seconds(), 1
+            )
+            comparison_elapsed_hours = comparison_elapsed_seconds / 3600.0
+            comparison_elapsed_minutes = comparison_elapsed_seconds / 60.0
+
+            # Daily credit estimate (based on since-reset values and time)
+            daily_estimate = (
+                local_credits_since_reset / comparison_elapsed_hours * 24
+                if comparison_elapsed_hours > 0 else 0
+            )
 
             # Monthly estimate
             monthly_estimate = daily_estimate * 30
 
-            # Burn rate (credits per minute)
-            burn_rate = self._total_credits / max(uptime_minutes, 1)
+            # Burn rate (credits per minute, based on since-reset)
+            burn_rate = local_credits_since_reset / max(comparison_elapsed_minutes, 1)
+
+            # ========================================================================
+            # DASHBOARD CARD VALUES (24-hour DB-backed, for consistency)
+            # ========================================================================
+            
+            # Get 24h metrics from database (cross-process, consistent)
+            actual_credits_24h = self._get_credits_24h()
+            tracked_calls_24h = self._get_tracked_calls(hours=24)
+            cache_stats_24h = self._get_cache_stats(hours=24)
+            saved_credits_24h = cache_stats_24h["credits_saved_total"]
+            estimated_without_opts_24h = actual_credits_24h + saved_credits_24h
+            tracking_coverage_pct = self._get_coverage_pct_24h()
 
             return {
                 "timestamp": datetime.now().isoformat(),
                 "uptime_minutes": round(uptime_minutes, 2),
-                "credits_today": credits_used_today,                    # From Helius dashboard
-                "credits_instrumented_today": self._daily_credits,      # From our instrumentation
-                "credits_total": self._total_credits,
+                # Raw values (for debugging)
+                "helius_credits_today_raw": credits_used_today_raw,
+                "local_credits_today_raw": self._daily_credits,
+                # Since-reset values (for comparison)
+                "helius_credits_since_reset": helius_credits_since_reset,
+                "local_credits_since_reset": local_credits_since_reset,
+                "local_total_credits_since_reset": total_credits_since_reset,
+                "comparison_diff": comparison_diff,
+                "comparison_reset_at": self._comparison_reset_time.isoformat(),
+                # Backward-compatible aliases now pointing to reset-based values
+                "credits_today": helius_credits_since_reset,
+                "credits_instrumented_today": local_credits_since_reset,
+                "credits_total": total_credits_since_reset,
+                # ====================================================================
+                # DASHBOARD CARD FIELDS (24h DB-backed for cross-process consistency)
+                # ====================================================================
+                "actual_rpc_credits": actual_credits_24h,
+                "tracked_calls": tracked_calls_24h,
+                "tracking_coverage_pct": round(tracking_coverage_pct, 2),
+                "saved_credits": saved_credits_24h,
+                "estimated_without_opts": estimated_without_opts_24h,
+                # Estimates and burn rate
                 "credits_monthly_estimate": int(monthly_estimate),
                 "credits_monthly_budget": credits_total_budget,
                 "credits_monthly_remaining": credits_remaining_budget,
                 "credits_burn_rate_per_minute": round(burn_rate, 2),
+                # Request counts (in-memory, for since-reset comparison)
                 "requests_total": self._total_requests,
                 "errors_total": self._total_errors,
                 "rate_limits_total": self._total_429s,
                 "sections_active": len(self._section_stats),
+                # Cache details (24h)
+                "cache_skip_count": cache_stats_24h["cache_skip_count"],
+                "cache_refresh_count": cache_stats_24h["cache_refresh_count"],
+                "cache_full_scan_count": cache_stats_24h["cache_full_scan_count"],
+                "credits_saved_total": cache_stats_24h["credits_saved_total"],
             }
 
     def get_section_stats(self) -> Dict[str, Dict]:
@@ -571,31 +815,61 @@ class RPCMetricsRecorder:
             
             return dict(sorted(result.items(), key=lambda x: x[1]['credits'], reverse=True))
 
-    def get_top_methods(self, limit: int = 10) -> List[Dict]:
-        """Get top methods by credits across all sections"""
-        with self._lock:
-            method_credits = defaultdict(int)
-            method_requests = defaultdict(int)
-
-            for stats in self._section_stats.values():
-                for method, credits in stats.credits_by_method.items():
-                    method_credits[method] += credits
-                    method_requests[method] += 1
-
-            sorted_methods = sorted(
-                method_credits.items(),
-                key=lambda x: x[1],
-                reverse=True
-            )[:limit]
+    def get_top_methods(self, limit: int = 10, hours: int = 24) -> List[Dict]:
+        """Get top methods by credits across all processes (DB-backed)"""
+        try:
+            # Try database first (cross-process, accurate)
+            cutoff_timestamp = time.time() - (hours * 3600)
+            conn = sqlite3.connect(DB_PATH, timeout=30)
+            cursor = conn.execute("""
+                SELECT
+                    method,
+                    COUNT(*) as requests,
+                    COALESCE(SUM(credits), 0) as credits
+                FROM rpc_metrics
+                WHERE timestamp > ?
+                GROUP BY method
+                ORDER BY credits DESC, requests DESC
+                LIMIT ?
+            """, (cutoff_timestamp, limit))
+            rows = cursor.fetchall()
+            conn.close()
 
             return [
                 {
                     "method": method,
                     "credits": credits,
-                    "requests": method_requests[method],
+                    "requests": requests,
                 }
-                for method, credits in sorted_methods
+                for method, requests, credits in rows
             ]
+        except Exception:
+            # Fallback to in-memory history
+            with self._lock:
+                method_credits = defaultdict(int)
+                method_requests = defaultdict(int)
+
+                cutoff_timestamp = time.time() - (hours * 3600)
+                for record in self._history:
+                    if record.timestamp <= cutoff_timestamp:
+                        continue
+                    method_credits[record.method] += record.credits
+                    method_requests[record.method] += 1
+
+                sorted_methods = sorted(
+                    method_credits.items(),
+                    key=lambda x: x[1],
+                    reverse=True
+                )[:limit]
+
+                return [
+                    {
+                        "method": method,
+                        "credits": credits,
+                        "requests": method_requests[method],
+                    }
+                    for method, credits in sorted_methods
+                ]
 
     def get_alerts(self, burn_rate_threshold: float = 100.0) -> List[Dict]:
         """Check for alerts (budget, burn rate, etc.)"""
@@ -612,14 +886,16 @@ class RPCMetricsRecorder:
                     "message": f"Burn rate {summary['credits_burn_rate_per_minute']:.2f} credits/min exceeds threshold {burn_rate_threshold}",
                 })
 
-            # Budget depletion alert
-            if summary["credits_monthly_remaining"] is not None:
-                remaining_pct = (summary["credits_monthly_remaining"] / self._plan_monthly_credits * 100) if self._plan_monthly_credits > 0 else 100
+            # Budget depletion alert (use same budget source as get_summary())
+            budget = summary.get("credits_monthly_budget") or 0
+            remaining = summary.get("credits_monthly_remaining")
+            if budget > 0 and remaining is not None:
+                remaining_pct = (remaining / budget * 100)
                 if remaining_pct < 20:
                     alerts.append({
                         "level": "warning" if remaining_pct > 5 else "critical",
                         "type": "budget_depletion",
-                        "message": f"Only {remaining_pct:.1f}% of monthly budget remaining ({summary['credits_monthly_remaining']} credits)",
+                        "message": f"Only {remaining_pct:.1f}% of monthly budget remaining ({remaining} credits)",
                     })
 
             # High error rate
@@ -641,46 +917,34 @@ class RPCMetricsRecorder:
             self._daily_requests = 0
             self._daily_errors = 0
             self._daily_429s = 0
-            # Reset section stats
-            for section in self._section_stats:
-                self._section_stats[section] = {
-                    "credits": 0,
-                    "requests": 0,
-                    "errors": 0,
-                    "rate_limits_429": 0,
-                    "latencies": [],
-                    "error_types": {},
-                }
+            # Reset section stats by clearing and letting defaultdict recreate as SectionStats
+            self._section_stats.clear()
             # Reset source file stats
-            for source_file in self._source_file_stats:
-                self._source_file_stats[source_file] = {
-                    "credits": 0,
-                    "requests": 0,
-                    "errors": 0,
-                    "rate_limits_429": 0,
-                    "latencies": [],
-                    "sections": {},
-                }
+            self._source_file_stats.clear()
             # Reset method stats
-            for method in self._method_stats:
-                self._method_stats[method] = {
-                    "credits": 0,
-                    "requests": 0,
-                }
+            self._method_stats.clear()
+
+    def reset_comparison_baseline(self):
+        """
+        Reset comparison baselines so both Helius and local metrics
+        start from 0 for reporting purposes.
+        
+        This allows accurate comparison of Helius-billed credits vs
+        locally-instrumented credits from a known reset point.
+        """
+        with self._lock:
+            self._baseline_helius_credits_today = self._get_actual_helius_usage()
+            self._baseline_local_credits_today = self._daily_credits
+            self._baseline_total_credits = self._total_credits
+            self._comparison_reset_time = datetime.now()
 
     def reset_credits_today(self):
-        """Reset all local metrics to 0 (for dashboard reset button)"""
+        """Reset all local metrics to 0 and snapshot Helius for comparison"""
         with self._lock:
-            try:
-                from rpc_metrics_config import PlanConfig
-                # Reset credits_used_today to 0, keep credits_remaining as is
-                monthly_budget = PlanConfig.CURRENT_USAGE.get("credits_remaining", 0) + PlanConfig.CURRENT_USAGE.get("credits_used_today", 0)
-                PlanConfig.CURRENT_USAGE["credits_used_today"] = 0
-                PlanConfig.CURRENT_USAGE["credits_remaining"] = monthly_budget
-            except Exception:
-                pass
+            # Snapshot current Helius usage as baseline
+            self._baseline_helius_credits_today = self._get_actual_helius_usage()
 
-            # Reset all total counters
+            # Reset local counters
             self._total_credits = 0
             self._total_requests = 0
             self._total_errors = 0
@@ -689,13 +953,18 @@ class RPCMetricsRecorder:
             self._daily_requests = 0
             self._daily_errors = 0
             self._daily_429s = 0
+
+            # Reset comparison baselines
+            self._baseline_local_credits_today = 0
+            self._baseline_total_credits = 0
+            self._comparison_reset_time = datetime.now()
             self._daily_reset_time = datetime.now()
             self._start_time = datetime.now().timestamp()
 
-            # Clear history buffer (this is what get_source_file_stats rebuilds from)
+            # Clear history buffer
             self._history.clear()
 
-            # Reset section stats (clear all entries, keep as defaultdict)
+            # Reset section stats
             self._section_stats.clear()
 
             # Reset source file stats if they exist
@@ -706,13 +975,222 @@ class RPCMetricsRecorder:
             if hasattr(self, '_method_stats'):
                 self._method_stats.clear()  # Config may not be available
 
+    def get_optimization_savings(self, hours: int = 24) -> Dict:
+        """
+        Calculate RPC credit savings from optimizations.
+
+        Args:
+            hours: Time window (default 24 hours)
+
+        Returns:
+            {
+                "actual_credits": int,
+                "saved_credits": int,
+                "estimated_without_optimizations": int,
+                "savings_pct": float,
+                "by_optimization_layer": {...},
+                "by_section": {...}
+            }
+        """
+        try:
+            import sqlite3
+            from datetime import datetime, timedelta
+            
+            cutoff_timestamp = time.time() - (hours * 3600)
+            
+            conn = sqlite3.connect(DB_PATH, timeout=30)
+            
+            # Query 1: Actual credits consumed
+            cursor = conn.execute("""
+                SELECT SUM(credits)
+                FROM rpc_metrics
+                WHERE timestamp > ?
+            """, (cutoff_timestamp,))
+            actual_credits = cursor.fetchone()[0] or 0
+            
+            # Query 2: Credits saved by optimizations
+            cursor = conn.execute("""
+                SELECT SUM(credits_saved)
+                FROM rpc_metrics
+                WHERE timestamp > ? AND credits_saved > 0
+            """, (cutoff_timestamp,))
+            saved_credits = cursor.fetchone()[0] or 0
+            
+            # Query 3: Savings by optimization layer
+            cursor = conn.execute("""
+                SELECT optimization_layer, SUM(credits_saved), COUNT(*)
+                FROM rpc_metrics
+                WHERE timestamp > ? AND credits_saved > 0
+                GROUP BY optimization_layer
+                ORDER BY SUM(credits_saved) DESC
+            """, (cutoff_timestamp,))
+            by_optimization_layer = {}
+            for layer, credits, count in cursor.fetchall():
+                by_optimization_layer[layer] = {
+                    "credits_saved": credits or 0,
+                    "skip_count": count
+                }
+            
+            # Query 4: Savings by section
+            cursor = conn.execute("""
+                SELECT section, SUM(credits_saved), COUNT(*)
+                FROM rpc_metrics
+                WHERE timestamp > ? AND credits_saved > 0
+                GROUP BY section
+                ORDER BY SUM(credits_saved) DESC
+            """, (cutoff_timestamp,))
+            by_section = {}
+            for section, credits, count in cursor.fetchall():
+                by_section[section] = {
+                    "credits_saved": credits or 0,
+                    "skip_count": count
+                }
+            
+            conn.close()
+            
+            # Calculate percentages
+            estimated_total = actual_credits + saved_credits
+            savings_pct = (saved_credits / estimated_total * 100) if estimated_total > 0 else 0
+            
+            return {
+                "actual_credits": actual_credits,
+                "saved_credits": saved_credits,
+                "estimated_without_optimizations": estimated_total,
+                "savings_pct": round(savings_pct, 2),
+                "by_optimization_layer": by_optimization_layer,
+                "by_section": by_section,
+                "window_hours": hours,
+            }
+        except Exception as e:
+            print(f"[RPC_METRICS] Error calculating optimization savings: {e}", flush=True)
+            return {
+                "actual_credits": 0,
+                "saved_credits": 0,
+                "estimated_without_optimizations": 0,
+                "savings_pct": 0,
+                "by_optimization_layer": {},
+                "by_section": {},
+                "window_hours": hours,
+                "error": str(e),
+            }
+
+    def get_component_breakdown(self, hours: int = 24) -> Dict:
+        """
+        Get RPC usage breakdown by component (source_file).
+        
+        This is the primary way to view component attribution, as source_file
+        reliably identifies which process made each RPC call.
+        
+        Args:
+            hours: Time window (default 24 hours)
+            
+        Returns:
+            {
+                "components": {
+                    "funder_incoming_extractor": {
+                        "credits": 2600,
+                        "calls": 26,
+                        "avg_credits_per_call": 100.0,
+                        "top_methods": [...]
+                    },
+                    ...
+                },
+                "window_hours": 24,
+                "total_credits": 917,
+                "total_calls": 28
+            }
+        """
+        try:
+            import sqlite3
+            
+            cutoff_timestamp = time.time() - (hours * 3600)
+            conn = sqlite3.connect(DB_PATH, timeout=30)
+            
+            # Query 1: Aggregate by source_file (component)
+            cursor = conn.execute("""
+                SELECT 
+                    source_file,
+                    COUNT(*) as calls,
+                    COALESCE(SUM(credits), 0) as credits,
+                    ROUND(AVG(credits), 2) as avg_credits
+                FROM rpc_metrics
+                WHERE timestamp > ?
+                  AND source_file IS NOT NULL
+                  AND source_file != ''
+                GROUP BY source_file
+                ORDER BY credits DESC
+            """, (cutoff_timestamp,))
+            
+            components_data = cursor.fetchall()
+            components = {}
+            total_credits = 0
+            total_calls = 0
+            
+            # Query 2: Get top 5 methods per component
+            for source_file, calls, credits, avg_credits in components_data:
+                total_credits += credits
+                total_calls += calls
+                
+                # Get top methods for this component
+                cursor = conn.execute("""
+                    SELECT 
+                        method,
+                        COUNT(*) as method_calls,
+                        COALESCE(SUM(credits), 0) as method_credits,
+                        ROUND(AVG(credits), 2) as method_avg
+                    FROM rpc_metrics
+                    WHERE timestamp > ?
+                      AND source_file = ?
+                    GROUP BY method
+                    ORDER BY method_credits DESC
+                    LIMIT 5
+                """, (cutoff_timestamp, source_file))
+                
+                top_methods = []
+                for method, method_calls, method_credits, method_avg in cursor.fetchall():
+                    top_methods.append({
+                        "method": method,
+                        "calls": method_calls,
+                        "credits": method_credits,
+                        "avg_credits_per_call": method_avg,
+                    })
+                
+                components[source_file] = {
+                    "credits": credits,
+                    "calls": calls,
+                    "avg_credits_per_call": avg_credits,
+                    "top_methods": top_methods,
+                }
+            
+            conn.close()
+            
+            return {
+                "timestamp": datetime.now().isoformat(),
+                "window_hours": hours,
+                "total_credits": total_credits,
+                "total_calls": total_calls,
+                "components": components,
+            }
+        except Exception as e:
+            import traceback
+            print(f"[RPC_METRICS] Error calculating component breakdown: {e}", flush=True)
+            traceback.print_exc()
+            return {
+                "timestamp": datetime.now().isoformat(),
+                "window_hours": hours,
+                "total_credits": 0,
+                "total_calls": 0,
+                "components": {},
+                "error": str(e),
+            }
+
     def export_json(self) -> str:
         """Export full metrics as JSON"""
         with self._lock:
             return json.dumps({
                 "summary": self.get_summary(),
                 "sections": self.get_section_stats(),
-                "top_methods": self.get_top_methods(),
+                "top_methods": self.get_top_methods(hours=24),
                 "alerts": self.get_alerts(),
             }, indent=2)
 
@@ -750,14 +1228,25 @@ def record_request(
     error: Optional[str] = None,
     cache_action: str = "none",
     credits_saved: int = 0,
+    optimization_layer: str = "none",
 ) -> int:
     """Convenience function to record request with global instance"""
-    credits = get_recorder().record_request(
-        section, provider, method, status_code, latency_ms, mode, retries, bytes_in, bytes_out, source_file, error,
-        cache_action, credits_saved
+    return get_recorder().record_request(
+        section=section,
+        provider=provider,
+        method=method,
+        status_code=status_code,
+        latency_ms=latency_ms,
+        mode=mode,
+        retries=retries,
+        bytes_in=bytes_in,
+        bytes_out=bytes_out,
+        source_file=source_file,
+        error=error,
+        cache_action=cache_action,
+        credits_saved=credits_saved,
+        optimization_layer=optimization_layer,
     )
-
-    return credits
 
 
 def record_stream_bytes(
@@ -768,3 +1257,18 @@ def record_stream_bytes(
 ) -> int:
     """Convenience function to record streaming bytes with global instance"""
     return get_recorder().record_stream_bytes(section, provider, stream_name, bytes_count)
+
+
+def get_optimization_savings(hours: int = 24) -> Dict:
+    """Convenience function to get optimization savings with global instance"""
+    return get_recorder().get_optimization_savings(hours)
+
+
+def get_component_breakdown(hours: int = 24) -> Dict:
+    """Convenience function to get component breakdown with global instance"""
+    return get_recorder().get_component_breakdown(hours)
+
+
+def reset_comparison_baseline():
+    """Convenience function to reset actual vs local comparison baseline"""
+    get_recorder().reset_comparison_baseline()

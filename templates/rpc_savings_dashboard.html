@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPC Savings Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1a202c 100%);
+            color: #e2e8f0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            color: #22c55e;
+        }
+
+        .header p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .kpi-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            border-color: rgba(148, 163, 184, 0.4);
+            background: rgba(30, 41, 59, 1);
+        }
+
+        .kpi-card.efficiency {
+            border-left: 4px solid #22c55e;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #22c55e;
+            margin-bottom: 4px;
+        }
+
+        .kpi-sublabel {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .kpi-status {
+            font-size: 11px;
+            margin-top: 8px;
+            padding: 4px 8px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 4px;
+            color: #22c55e;
+            width: fit-content;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #e2e8f0;
+        }
+
+        .table-container {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #e2e8f0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: rgba(15, 23, 42, 0.5);
+            color: #94a3b8;
+            text-align: left;
+            padding: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: rgba(148, 163, 184, 0.05);
+        }
+
+        .value-green {
+            color: #22c55e;
+            font-weight: 600;
+        }
+
+        .value-blue {
+            color: #3b82f6;
+        }
+
+        .value-amber {
+            color: #fbbf24;
+        }
+
+        .two-column-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .cache-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .cache-card {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .cache-card-label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .cache-card-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #22c55e;
+        }
+
+        .chart-canvas {
+            max-height: 300px;
+            position: relative;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            color: #ef4444;
+            margin: 20px 0;
+        }
+
+        .refresh-info {
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .kpi-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 RPC Savings Dashboard</h1>
+            <p>Real-time monitoring of RPC optimization effectiveness</p>
+        </div>
+
+        <!-- KPI Cards (6 cards per specification) -->
+        <div class="kpi-section">
+            <div class="kpi-card">
+                <div class="kpi-label">Actual RPC Credits</div>
+                <div class="kpi-value" id="actual-credits">—</div>
+                <div class="kpi-sublabel">Last 24h</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Credits Saved</div>
+                <div class="kpi-value" id="saved-credits">—</div>
+                <div class="kpi-sublabel">Last 24h</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Est. Without Opts</div>
+                <div class="kpi-value" id="estimated-credits">—</div>
+                <div class="kpi-sublabel">actual + saved</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Savings %</div>
+                <div class="kpi-value" id="savings-pct">—</div>
+                <div class="kpi-sublabel">of potential spend</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Tracked Calls</div>
+                <div class="kpi-value" id="tracked-calls">—</div>
+                <div class="kpi-sublabel">Last 24h</div>
+            </div>
+
+            <div class="kpi-card efficiency">
+                <div class="kpi-label">Tracking Coverage</div>
+                <div class="kpi-value" id="coverage-pct">—</div>
+                <div class="kpi-sublabel">vs Helius billed</div>
+                <div class="kpi-status" id="coverage-status">—</div>
+            </div>
+        </div>
+
+        <!-- Savings by Optimization Layer & Component (Side by Side) -->
+        <div class="two-column-grid">
+            <div class="table-container">
+                <div class="table-title">Savings by Optimization Layer</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Layer</th>
+                            <th>Events</th>
+                            <th>Credits Saved</th>
+                            <th>% of Total</th>
+                            <th>Avg/Event</th>
+                        </tr>
+                    </thead>
+                    <tbody id="layer-table-body">
+                        <tr><td colspan="5" style="text-align: center; color: #94a3b8;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-container">
+                <div class="table-title">RPC Usage by Process/Component</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Process</th>
+                            <th>Credits Used</th>
+                            <th>Saved</th>
+                            <th>Est. Total</th>
+                            <th>Savings %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="component-table-body">
+                        <tr><td colspan="5" style="text-align: center; color: #94a3b8;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Daily Trend Chart (Full Width) -->
+        <div class="chart-container">
+            <div class="chart-title">Daily Trend (3 Series)</div>
+            <div class="chart-canvas">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Cache Efficiency Panel & Top Methods (Side by Side) -->
+        <div class="two-column-grid">
+            <div class="table-container">
+                <div class="table-title">Cache Efficiency Panel</div>
+                <div class="cache-panel">
+                    <div class="cache-card">
+                        <div class="cache-card-label">Cache Skips</div>
+                        <div class="cache-card-value" id="cache-skips">—</div>
+                    </div>
+                    <div class="cache-card">
+                        <div class="cache-card-label">Refreshes</div>
+                        <div class="cache-card-value" id="cache-refreshes">—</div>
+                    </div>
+                    <div class="cache-card">
+                        <div class="cache-card-label">Full Scans</div>
+                        <div class="cache-card-value" id="cache-scans">—</div>
+                    </div>
+                    <div class="cache-card">
+                        <div class="cache-card-label">Credits Saved</div>
+                        <div class="cache-card-value" id="cache-credits">—</div>
+                    </div>
+                    <div class="cache-card">
+                        <div class="cache-card-label">Avg/Skip</div>
+                        <div class="cache-card-value" id="cache-avg">—</div>
+                    </div>
+                    <div class="cache-card">
+                        <div class="cache-card-label">Efficiency %</div>
+                        <div class="cache-card-value" id="cache-eff">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-title">Top Expensive Methods</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Credits</th>
+                            <th>Calls</th>
+                            <th>Possible Saved</th>
+                            <th>Opp.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="methods-table-body">
+                        <tr><td colspan="5" style="text-align: center; color: #94a3b8;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tracked vs Untracked -->
+        <div class="table-container">
+            <div class="table-title">Tracked vs Untracked</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">Helius Billed</div>
+                    <div style="font-size: 24px; font-weight: bold; color: #fbbf24;" id="helius-billed">—</div>
+                    <div style="font-size: 12px; color: #64748b;">credits</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">Tracked Locally</div>
+                    <div style="font-size: 24px; font-weight: bold; color: #3b82f6;" id="tracked-locally">—</div>
+                    <div style="font-size: 12px; color: #64748b;">credits</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">Untracked Usage</div>
+                    <div style="font-size: 24px; font-weight: bold; color: #ef4444;" id="untracked">—</div>
+                    <div style="font-size: 12px; color: #64748b;">credits</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">Coverage %</div>
+                    <div style="font-size: 24px; font-weight: bold; color: #22c55e;" id="coverage">—</div>
+                    <div style="font-size: 12px; color: #64748b;">tracked / billed</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="refresh-info" id="refresh-info">
+            ⚡ Auto-refreshing every 5 minutes
+        </div>
+    </div>
+
+    <script>
+        // Color scheme
+        const colors = {
+            green: '#22c55e',
+            red: '#ef4444',
+            blue: '#3b82f6',
+            yellow: '#fbbf24',
+            purple: '#a78bfa',
+            gray: '#64748b',
+        };
+
+        let trendChart;
+
+        // Format large numbers
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toFixed(0);
+        }
+
+        // Update KPI cards (6 cards per specification)
+        async function updateKPIs() {
+            try {
+                // Get summary for all KPI fields
+                const summaryResponse = await fetch('/metrics/rpc/summary?window=last_24h');
+                const summaryData = await summaryResponse.json();
+                const summary = summaryData?.summary || summaryData || {};
+
+                if (summary) {
+                    // Actual credits (from Helius or local instrumentation)
+                    document.getElementById('actual-credits').textContent = formatNumber(summary.actual_rpc_credits || 0);
+
+                    // Saved credits (from cache/optimization stats)
+                    document.getElementById('saved-credits').textContent = formatNumber(summary.saved_credits || 0);
+
+                    // Estimated without optimizations
+                    document.getElementById('estimated-credits').textContent = formatNumber(summary.estimated_without_opts || 0);
+
+                    // Savings percentage
+                    const savedCr = summary.saved_credits || 0;
+                    const estimatedCr = summary.estimated_without_opts || 0;
+                    const savingsPct = estimatedCr > 0 ? (savedCr / estimatedCr * 100).toFixed(1) : 0;
+                    document.getElementById('savings-pct').textContent = savingsPct + '%';
+
+                    // Tracked calls
+                    document.getElementById('tracked-calls').textContent = formatNumber(summary.tracked_calls || 0);
+
+                    // Tracking coverage (percentage of Helius credits we instrumented locally)
+                    document.getElementById('coverage-pct').textContent = (summary.tracking_coverage_pct || 0).toFixed(1) + '%';
+
+                    // Set coverage status
+                    const coverage = summary.tracking_coverage_pct || 0;
+                    let status = '🟠 Warning';
+                    if (coverage >= 90) status = '🟢 Good';
+                    else if (coverage >= 50) status = '🟡 Fair';
+                    else status = '🔴 Low';
+                    document.getElementById('coverage-status').textContent = status;
+                }
+            } catch (error) {
+                console.error('Error updating KPIs:', error);
+            }
+        }
+
+        // Update optimization layer table
+        async function updateOptimizationLayerTable() {
+            try {
+                const response = await fetch('/metrics/rpc/optimizations?hours=24');
+                const data = await response.json();
+
+                const tbody = document.getElementById('layer-table-body');
+                tbody.innerHTML = '';
+
+                if (data.by_optimization_layer && Object.keys(data.by_optimization_layer).length > 0) {
+                    const totalSaved = data.saved_credits || 1;
+                    Object.entries(data.by_optimization_layer).forEach(([layer, stats]) => {
+                        const pct = totalSaved > 0 ? (stats.credits_saved / totalSaved * 100).toFixed(1) : 0;
+                        const avg = stats.skip_count > 0 ? (stats.credits_saved / stats.skip_count).toFixed(1) : 0;
+                        tbody.innerHTML += `<tr>
+                            <td>${layer}</td>
+                            <td>${stats.skip_count}</td>
+                            <td class="value-green">${formatNumber(stats.credits_saved)}</td>
+                            <td class="value-amber">${pct}%</td>
+                            <td>${avg}</td>
+                        </tr>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error updating optimization layer table:', error);
+            }
+        }
+
+        // Update component breakdown table (which process/component calls RPC)
+        async function updateComponentTable() {
+            try {
+                const response = await fetch('/metrics/rpc/component-breakdown?hours=24');
+                const data = await response.json();
+
+                const tbody = document.getElementById('component-table-body');
+                tbody.innerHTML = '';
+
+                // Component name mapping for clearer labels
+                const componentLabels = {
+                    'funder_incoming_extractor': 'Funder Incoming Extraction',
+                    'pumpfun_curve_listener': 'Pumpfun Curve Listener',
+                    'creator_funding_extractor': 'Creator Funding Extraction',
+                    'creator_outgoing_extractor': 'Creator Outgoing Extraction',
+                    'creator_watch_manager': 'Creator Watch Manager',
+                    'cross_funding_network_analyzer': 'Cross Funding Network',
+                    'cluster_risk_checker': 'Cluster Risk Checker',
+                    'unknown': 'Unknown/UI API'
+                };
+
+                if (data.components && Object.keys(data.components).length > 0) {
+                    Object.entries(data.components).forEach(([component, stats]) => {
+                        // Use mapped label or generate from source_file name
+                        const componentName = componentLabels[component] ||
+                            component.replace('_extractor', '').replace('_listener', '')
+                                    .replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                        const creditsSaved = stats.credits_saved || 0;
+                        const estimatedTotal = stats.credits + creditsSaved;
+                        const savingsPct = estimatedTotal > 0 ? (creditsSaved / estimatedTotal * 100).toFixed(1) : 0;
+
+                        tbody.innerHTML += `<tr>
+                            <td><strong>${componentName}</strong></td>
+                            <td class="value-blue">${formatNumber(stats.credits)}</td>
+                            <td class="value-green">${formatNumber(creditsSaved)}</td>
+                            <td class="value-amber">${formatNumber(estimatedTotal)}</td>
+                            <td>${savingsPct}%</td>
+                        </tr>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error updating component table:', error);
+            }
+        }
+
+        // Update daily trend chart (3 series: actual, saved, estimated)
+        async function updateTrendChart() {
+            try {
+                const response = await fetch('/metrics/rpc/optimizations?hours=24');
+                const data = await response.json();
+
+                // For demo, create simple data
+                const actual = [data.actual_credits || 0];
+                const saved = [data.saved_credits || 0];
+                const estimated = [data.estimated_without_optimizations || 0];
+
+                if (trendChart) trendChart.destroy();
+
+                const ctx = document.getElementById('trendChart').getContext('2d');
+                trendChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Today'],
+                        datasets: [
+                            {
+                                label: 'Actual Credits',
+                                data: actual,
+                                borderColor: colors.blue,
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                            },
+                            {
+                                label: 'Credits Saved',
+                                data: saved,
+                                borderColor: colors.green,
+                                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                            },
+                            {
+                                label: 'Estimated Without Opts',
+                                data: estimated,
+                                borderColor: colors.yellow,
+                                backgroundColor: 'rgba(251, 191, 36, 0.05)',
+                                fill: true,
+                                tension: 0.4,
+                                borderDash: [5, 5],
+                            },
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#e2e8f0' }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                ticks: { color: '#94a3b8' },
+                                grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                            },
+                            x: {
+                                ticks: { color: '#94a3b8' },
+                                grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error updating trend chart:', error);
+            }
+        }
+
+        // Update cache efficiency panel
+        async function updateCachePanel() {
+            try {
+                const response = await fetch('/metrics/rpc/summary?window=last_24h');
+                const data = await response.json();
+
+                if (data.tracked_local) {
+                    const skips = data.tracked_local.cache_skip_count || 0;
+                    const refreshes = data.tracked_local.cache_refresh_count || 0;
+                    const scans = data.tracked_local.cache_full_scan_count || 0;
+                    const saved = data.tracked_local.credits_saved_total || 0;
+                    const avg = skips > 0 ? (saved / skips).toFixed(1) : 0;
+                    const total = skips + refreshes + scans || 1;
+                    const eff = ((skips + refreshes) / total * 100).toFixed(1);
+
+                    document.getElementById('cache-skips').textContent = skips;
+                    document.getElementById('cache-refreshes').textContent = refreshes;
+                    document.getElementById('cache-scans').textContent = scans;
+                    document.getElementById('cache-credits').textContent = formatNumber(saved);
+                    document.getElementById('cache-avg').textContent = avg;
+                    document.getElementById('cache-eff').textContent = eff + '%';
+                }
+            } catch (error) {
+                console.error('Error updating cache panel:', error);
+            }
+        }
+
+        // Update top methods table
+        async function updateTopMethodsTable() {
+            try {
+                const response = await fetch('/metrics/rpc/methods?limit=8&window=last_24h');
+                const data = await response.json();
+
+                const tbody = document.getElementById('methods-table-body');
+                tbody.innerHTML = '';
+
+                // API returns top_methods as object: { "methodName": { credits, requests } }
+                if (data.top_methods && Object.keys(data.top_methods).length > 0) {
+                    // Convert to array and sort by credits descending
+                    const methods = Object.entries(data.top_methods)
+                        .map(([method, stats]) => ({ method, ...stats }))
+                        .sort((a, b) => (b.credits || 0) - (a.credits || 0))
+                        .slice(0, 8);
+
+                    methods.forEach(method => {
+                        const opp = method.credits > 500 ? 'High' : method.credits > 200 ? 'Med' : 'Low';
+                        tbody.innerHTML += `<tr>
+                            <td>${method.method}</td>
+                            <td class="value-blue">${formatNumber(method.credits)}</td>
+                            <td>${method.requests}</td>
+                            <td class="value-green">—</td>
+                            <td>${opp}</td>
+                        </tr>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error updating methods table:', error);
+            }
+        }
+
+        // Update tracked vs untracked
+        async function updateTrackedVsUntracked() {
+            try {
+                const response = await fetch('/metrics/helius');
+                const data = await response.json();
+
+                if (data) {
+                    const heliusBilled = data.helius_billed?.total_credits || 0;
+                    const trackedLocal = data.tracked_local?.total_credits || 0;
+                    const untracked = data.untracked_usage?.total_credits || 0;
+                    const coverage = heliusBilled > 0 ? (trackedLocal / heliusBilled * 100) : 0;
+
+                    document.getElementById('helius-billed').textContent = formatNumber(heliusBilled);
+                    document.getElementById('tracked-locally').textContent = formatNumber(trackedLocal);
+                    document.getElementById('untracked').textContent = formatNumber(untracked);
+                    document.getElementById('coverage').textContent = coverage.toFixed(1) + '%';
+                }
+            } catch (error) {
+                console.error('Error updating tracked vs untracked:', error);
+            }
+        }
+
+        // Initialize and refresh
+        async function updateDashboard() {
+            await updateKPIs();
+            await updateOptimizationLayerTable();
+            await updateComponentTable();
+            await updateTrendChart();
+            await updateCachePanel();
+            await updateTopMethodsTable();
+            await updateTrackedVsUntracked();
+        }
+
+        // Initial load
+        updateDashboard();
+
+        // Auto-refresh every 5 minutes
+        setInterval(updateDashboard, 5 * 60 * 1000);
+
+        // Update refresh time
+        function updateRefreshTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('refresh-info').textContent = `⚡ Last updated: ${timeStr} | Auto-refreshing every 5 minutes`;
+        }
+        updateRefreshTime();
+        setInterval(updateRefreshTime, 60000);
+    </script>
+</body>
+</html>

@@ -1123,10 +1123,26 @@ class RealTimeCreatorFundingExtractor:
                         # Log the RPC call
                         print(f"[REALTIME_FUNDING]    [PAGE {page_num}] RPC CALL #{page_num}...", flush=True)
 
+                        start_time = time.time()
                         async with self.session.get(
                                 query_url,
                                 timeout=aiohttp.ClientTimeout(total=30)
                             ) as resp:
+                                latency_ms = (time.time() - start_time) * 1000
+
+                                # Record RPC metric
+                                record_request(
+                                    section="creator_funding",
+                                    provider="helius_rpc",
+                                    method="helius_enhanced_addresses_transactions",
+                                    status_code=resp.status,
+                                    latency_ms=latency_ms,
+                                    mode="realtime",
+                                    source_file="realtime_creator_funding_extractor",
+                                    cache_action=cache_action,
+                                    credits_saved=credits_saved,
+                                )
+
                                 if resp.status == 429:
                                     print(f"[REALTIME_FUNDING]    ⚠ Rate limited (429) on page {page_num}", flush=True)
                                     break

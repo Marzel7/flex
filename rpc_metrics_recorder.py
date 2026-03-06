@@ -821,6 +821,10 @@ class RPCMetricsRecorder:
                 "comparison_coverage_pct": round(coverage_pct, 2),
                 "comparison_diff": comparison_diff,
                 "comparison_reset_at": self._comparison_reset_time.isoformat(),
+                # UI-friendly aliases for comparison panel
+                "helius_billed": helius_credits_since_reset,
+                "tracked_locally": local_credits_since_reset,
+                "coverage_pct": round(coverage_pct, 2),
                 # Backward-compatible aliases (since-reset DB-backed values)
                 "credits_today": helius_credits_since_reset,
                 "credits_instrumented_today": local_credits_since_reset,

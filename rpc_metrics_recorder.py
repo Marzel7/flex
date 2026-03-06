@@ -169,6 +169,15 @@ def _ensure_rpc_metrics_table():
             )
         """)
 
+        # Create state table for recorder persistence
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS rpc_metrics_state (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
         # Migrate existing tables: add missing columns if they don't exist
         cursor = conn.execute("PRAGMA table_info(rpc_metrics)")
         existing_columns = {row[1] for row in cursor.fetchall()}
@@ -257,6 +266,38 @@ def _persist_rpc_metric(
         # Log persistence failures (but don't disrupt normal operation)
         print(f"[RPC_METRICS] DB write failed: {e}", flush=True)
 
+def _set_state(key: str, value: str) -> None:
+    """Persist a recorder state value to database"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn.execute("""
+            INSERT INTO rpc_metrics_state(key, value, updated_at)
+            VALUES(?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(key) DO UPDATE SET
+                value=excluded.value,
+                updated_at=CURRENT_TIMESTAMP
+        """, (key, value))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"[RPC_METRICS] Failed to persist state {key}: {e}", flush=True)
+
+
+def _get_state(key: str, default: Optional[str] = None) -> Optional[str]:
+    """Retrieve a recorder state value from database"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        cursor = conn.execute("""
+            SELECT value
+            FROM rpc_metrics_state
+            WHERE key = ?
+        """, (key,))
+        row = cursor.fetchone()
+        conn.close()
+        return row[0] if row else default
+    except Exception:
+        return default
+
 # ============================================================================
 # RPC METRICS RECORDER
 # ============================================================================
@@ -302,17 +343,21 @@ class RPCMetricsRecorder:
         self._daily_errors = 0
         self._daily_429s = 0
 
-        # Comparison reset baseline - timestamp-based for DB-backed queries
-        self._comparison_reset_timestamp = time.time()
-
-        # Baselines for comparison reset (allows 0 vs 0 starting point)
-        self._baseline_helius_credits_today = 0
-        self._baseline_local_credits_today = 0
-        self._baseline_total_credits = 0
-        self._comparison_reset_time = datetime.now()
-
         # Ensure database table exists for persistent cross-process metrics
         _ensure_rpc_metrics_table()
+
+        # Comparison reset baseline - timestamp-based for DB-backed queries
+        # Load persisted values first, then fallback to defaults
+        persisted_reset_ts = _get_state("comparison_reset_timestamp")
+        persisted_helius_baseline = _get_state("baseline_helius_credits_today")
+        persisted_reset_time = _get_state("comparison_reset_time")
+
+        self._comparison_reset_timestamp = float(persisted_reset_ts) if persisted_reset_ts else time.time()
+        self._baseline_helius_credits_today = int(persisted_helius_baseline) if persisted_helius_baseline else 0
+        self._comparison_reset_time = (
+            datetime.fromisoformat(persisted_reset_time)
+            if persisted_reset_time else datetime.now()
+        )
 
     def _get_actual_helius_usage(self) -> int:
         """Safely read current Helius credits_used_today"""
@@ -988,10 +1033,13 @@ class RPCMetricsRecorder:
         """
         with self._lock:
             self._baseline_helius_credits_today = self._get_actual_helius_usage()
-            self._baseline_local_credits_today = self._daily_credits
-            self._baseline_total_credits = self._total_credits
             self._comparison_reset_time = datetime.now()
             self._comparison_reset_timestamp = time.time()
+
+            # Persist to database so all processes see the same reset point
+            _set_state("baseline_helius_credits_today", str(self._baseline_helius_credits_today))
+            _set_state("comparison_reset_time", self._comparison_reset_time.isoformat())
+            _set_state("comparison_reset_timestamp", str(self._comparison_reset_timestamp))
 
     def reset_credits_today(self):
         """Reset all local metrics to 0 and snapshot Helius for comparison"""
@@ -1010,12 +1058,15 @@ class RPCMetricsRecorder:
             self._daily_429s = 0
 
             # Reset comparison baselines
-            self._baseline_local_credits_today = 0
-            self._baseline_total_credits = 0
             self._comparison_reset_time = datetime.now()
             self._comparison_reset_timestamp = time.time()
             self._daily_reset_time = datetime.now()
             self._start_time = datetime.now().timestamp()
+
+            # Persist comparison reset to database so all processes see the same baseline
+            _set_state("baseline_helius_credits_today", str(self._baseline_helius_credits_today))
+            _set_state("comparison_reset_time", self._comparison_reset_time.isoformat())
+            _set_state("comparison_reset_timestamp", str(self._comparison_reset_timestamp))
 
             # Clear history buffer
             self._history.clear()

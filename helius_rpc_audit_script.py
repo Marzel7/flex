@@ -1,0 +1,399 @@
+#!/usr/bin/env python3
+"""
+Helius vs Local RPC Metrics Audit Script
+
+Compares Helius billed RPC credits against locally tracked RPC metrics.
+Runs creator and funder extraction jobs, capturing before/after metrics and deltas.
+"""
+
+import sqlite3
+import json
+import csv
+import subprocess
+import time
+import sys
+from datetime import datetime
+from typing import Dict, List, Optional, Tuple
+
+# Configuration
+FLEX_DB = "flex_complete_database.db"
+METRICS_DB = FLEX_DB  # Same database
+HELIUS_API_TIMEOUT = 10
+WAIT_TIME_SECONDS = 60
+CREATOR_ITERATIONS = 3
+FUNDER_ITERATIONS = 3
+
+# Output files
+AUDIT_JSON = "helius_audit_results.json"
+AUDIT_CSV = "helius_audit_results.csv"
+
+
+class HeliusAudit:
+    """Audit script for comparing Helius vs local RPC metrics"""
+
+    def __init__(self):
+        self.results: List[Dict] = []
+        self.selected_creator: Optional[str] = None
+        self.start_time = datetime.now()
+
+    def get_helius_usage(self) -> Optional[int]:
+        """Fetch current Helius usage from config"""
+        try:
+            import importlib
+            import rpc_metrics_config
+            importlib.reload(rpc_metrics_config)
+            usage = rpc_metrics_config.PlanConfig.CURRENT_USAGE
+            return usage.get("credits_used_today", 0)
+        except Exception as e:
+            print(f"❌ Failed to fetch Helius usage: {e}", file=sys.stderr)
+            return None
+
+    def get_local_metrics_summary(self) -> Dict:
+        """Get local RPC metrics from database"""
+        try:
+            conn = sqlite3.connect(METRICS_DB, timeout=5)
+            cursor = conn.cursor()
+
+            # Total credits
+            cursor.execute("SELECT SUM(credits) FROM rpc_metrics")
+            total_credits = cursor.fetchone()[0] or 0
+
+            # Total RPC calls
+            cursor.execute("SELECT COUNT(*) FROM rpc_metrics")
+            total_calls = cursor.fetchone()[0] or 0
+
+            # Credits by cache action
+            cursor.execute("""
+                SELECT cache_action, COUNT(*), SUM(credits)
+                FROM rpc_metrics
+                GROUP BY cache_action
+            """)
+            by_action = {row[0]: {"calls": row[1], "credits": row[2]} for row in cursor.fetchall()}
+
+            conn.close()
+
+            return {
+                "total_credits": total_credits,
+                "total_calls": total_calls,
+                "by_cache_action": by_action,
+            }
+
+        except Exception as e:
+            print(f"❌ Failed to fetch local metrics: {e}", file=sys.stderr)
+            return {"total_credits": 0, "total_calls": 0, "by_cache_action": {}}
+
+    def select_random_creator(self) -> Optional[str]:
+        """Select a random creator from the database"""
+        try:
+            conn = sqlite3.connect(FLEX_DB, timeout=5)
+            cursor = conn.cursor()
+
+            # Get a random creator with funding
+            cursor.execute("""
+                SELECT DISTINCT creator_address
+                FROM creator_funders
+                WHERE creator_address IS NOT NULL
+                ORDER BY RANDOM()
+                LIMIT 1
+            """)
+
+            result = cursor.fetchone()
+            conn.close()
+
+            if result:
+                return result[0]
+            return None
+
+        except Exception as e:
+            print(f"❌ Failed to select creator: {e}", file=sys.stderr)
+            return None
+
+    def run_creator_extraction(self, creator: str) -> Tuple[int, str, float]:
+        """Run creator extraction for a given creator"""
+        start = time.time()
+        try:
+            # Use the extraction function directly (async)
+            import asyncio
+            from realtime_creator_funding_extractor import extract_funding_for_new_token
+
+            # Run the async function
+            migration_timestamp = str(int(time.time()))
+            result = asyncio.run(extract_funding_for_new_token(
+                creator=creator,
+                migration_timestamp_str=migration_timestamp,
+                create_tx_signature="audit_test",
+                mint="audit_test_mint"
+            ))
+
+            elapsed = time.time() - start
+            return 0, "Creator extraction completed", elapsed
+
+        except Exception as e:
+            elapsed = time.time() - start
+            return 1, f"Creator extraction failed: {str(e)}", elapsed
+
+    def run_funder_extraction(self, creator: str) -> Tuple[int, str, float]:
+        """Run funder extraction for a given creator's funders"""
+        start = time.time()
+        try:
+            # Query for funders of this creator
+            conn = sqlite3.connect(FLEX_DB, timeout=5)
+            cursor = conn.cursor()
+
+            cursor.execute("""
+                SELECT DISTINCT funder_address
+                FROM creator_funders
+                WHERE creator_address = ?
+                LIMIT 5
+            """, (creator,))
+
+            funders = [row[0] for row in cursor.fetchall()]
+            conn.close()
+
+            if not funders:
+                elapsed = time.time() - start
+                return 0, "No funders found for creator", elapsed
+
+            # Import and run extraction (async)
+            import asyncio
+            from funder_incoming_extractor import extract_for_creator
+
+            async def run_extractions():
+                for funder in funders:
+                    try:
+                        await extract_for_creator(funder)
+                    except Exception as e:
+                        pass  # Log errors silently
+
+            asyncio.run(run_extractions())
+
+            elapsed = time.time() - start
+            return 0, f"Funder extraction completed for {len(funders)} funders", elapsed
+
+        except Exception as e:
+            elapsed = time.time() - start
+            return 1, f"Funder extraction failed: {str(e)}", elapsed
+
+    def record_audit_phase(
+        self,
+        phase: str,
+        iteration: int,
+        helius_before: int,
+        helius_after: int,
+        local_before: Dict,
+        local_after: Dict,
+        duration: float,
+        returncode: int,
+        output: str
+    ):
+        """Record results for one audit phase"""
+        helius_delta = helius_after - helius_before
+        local_credits_before = local_before.get("total_credits", 0)
+        local_credits_after = local_after.get("total_credits", 0)
+        local_calls_before = local_before.get("total_calls", 0)
+        local_calls_after = local_after.get("total_calls", 0)
+
+        local_credits_delta = local_credits_after - local_credits_before
+        local_calls_delta = local_calls_after - local_calls_before
+
+        result = {
+            "timestamp": datetime.now().isoformat(),
+            "phase": phase,
+            "iteration": iteration,
+            "creator": self.selected_creator,
+            "duration_seconds": round(duration, 2),
+            "helius_before": helius_before,
+            "helius_after": helius_after,
+            "helius_delta": helius_delta,
+            "local_credits_before": local_credits_before,
+            "local_credits_after": local_credits_after,
+            "local_credits_delta": local_credits_delta,
+            "local_calls_before": local_calls_before,
+            "local_calls_after": local_calls_after,
+            "local_calls_delta": local_calls_delta,
+            "helius_vs_local_diff": helius_delta - local_credits_delta,
+            "returncode": returncode,
+            "output": output,
+        }
+
+        self.results.append(result)
+
+        # Print summary
+        status = "✅" if returncode == 0 else "❌"
+        print(
+            f"{status} {phase.upper()} #{iteration}: "
+            f"Helius Δ={helius_delta} | Local Δ={local_credits_delta} | "
+            f"Diff={result['helius_vs_local_diff']} | "
+            f"Calls Δ={local_calls_delta}"
+        )
+
+    def write_results(self):
+        """Write audit results to JSON and CSV"""
+        # JSON
+        with open(AUDIT_JSON, "w") as f:
+            json.dump(self.results, f, indent=2)
+        print(f"\n✅ Results written to {AUDIT_JSON}")
+
+        # CSV
+        if self.results:
+            keys = self.results[0].keys()
+            with open(AUDIT_CSV, "w", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=keys)
+                writer.writeheader()
+                writer.writerows(self.results)
+            print(f"✅ Results written to {AUDIT_CSV}")
+
+    def print_summary(self):
+        """Print audit summary"""
+        if not self.results:
+            return
+
+        print("\n" + "=" * 80)
+        print("AUDIT SUMMARY")
+        print("=" * 80)
+
+        # Group by phase
+        by_phase = {}
+        for result in self.results:
+            phase = result["phase"]
+            if phase not in by_phase:
+                by_phase[phase] = {"helius_deltas": [], "local_deltas": [], "diffs": []}
+            by_phase[phase]["helius_deltas"].append(result["helius_delta"])
+            by_phase[phase]["local_deltas"].append(result["local_credits_delta"])
+            by_phase[phase]["diffs"].append(result["helius_vs_local_diff"])
+
+        for phase, data in by_phase.items():
+            helius_total = sum(data["helius_deltas"])
+            local_total = sum(data["local_deltas"])
+            diff_total = sum(data["diffs"])
+            avg_diff = diff_total / len(data["diffs"]) if data["diffs"] else 0
+
+            print(f"\n{phase.upper()}:")
+            print(f"  Helius Total Δ:  {helius_total} credits")
+            print(f"  Local Total Δ:   {local_total} credits")
+            print(f"  Total Diff:      {diff_total} credits")
+            print(f"  Avg Diff/Run:    {avg_diff:.1f} credits")
+
+            if abs(diff_total) < 10:
+                print(f"  Status: ✅ GOOD MATCH (within 10 credits)")
+            elif diff_total > 0:
+                print(f"  Status: ⚠️  HELIUS HIGHER - {diff_total} untracked credits")
+            else:
+                print(f"  Status: ⚠️  LOCAL HIGHER - {abs(diff_total)} over-estimated credits")
+
+        # Overall
+        overall_helius = sum(r["helius_delta"] for r in self.results)
+        overall_local = sum(r["local_credits_delta"] for r in self.results)
+        overall_diff = overall_helius - overall_local
+
+        print(f"\nOVERALL:")
+        print(f"  Total Helius Δ:  {overall_helius} credits")
+        print(f"  Total Local Δ:   {overall_local} credits")
+        print(f"  Net Difference:  {overall_diff} credits")
+        print(f"  Accuracy:        {(overall_local / overall_helius * 100):.1f}%" if overall_helius > 0 else "  Accuracy:        N/A")
+
+    def run_audit(self):
+        """Execute the full audit"""
+        print("=" * 80)
+        print("HELIUS vs LOCAL RPC METRICS AUDIT")
+        print("=" * 80)
+        print(f"Started: {self.start_time.isoformat()}\n")
+
+        # Step 1: Fetch initial Helius usage
+        print("📊 Fetching initial Helius usage...")
+        helius_initial = self.get_helius_usage()
+        if helius_initial is None:
+            print("❌ Cannot proceed without Helius data")
+            return
+
+        print(f"   Helius credits today: {helius_initial}")
+
+        # Step 2: Wait 60 seconds
+        print(f"\n⏳ Waiting {WAIT_TIME_SECONDS} seconds for baseline...")
+        for i in range(WAIT_TIME_SECONDS):
+            print(f"  {i+1}/{WAIT_TIME_SECONDS}", end="\r")
+            time.sleep(1)
+        print(f"✅ Baseline wait complete{' ' * 20}\n")
+
+        # Step 3: Select random creator
+        print("🎲 Selecting random creator from database...")
+        self.selected_creator = self.select_random_creator()
+        if not self.selected_creator:
+            print("❌ Could not find a valid creator")
+            return
+
+        print(f"   Selected creator: {self.selected_creator}\n")
+
+        # Step 4: Run creator extraction iterations
+        print(f"🔄 Running {CREATOR_ITERATIONS} creator extraction iterations...")
+        for i in range(CREATOR_ITERATIONS):
+            helius_before = self.get_helius_usage()
+            local_before = self.get_local_metrics_summary()
+
+            returncode, output, duration = self.run_creator_extraction(self.selected_creator)
+
+            time.sleep(2)  # Brief wait for metrics to be recorded
+
+            helius_after = self.get_helius_usage()
+            local_after = self.get_local_metrics_summary()
+
+            self.record_audit_phase(
+                phase="creator",
+                iteration=i + 1,
+                helius_before=helius_before,
+                helius_after=helius_after,
+                local_before=local_before,
+                local_after=local_after,
+                duration=duration,
+                returncode=returncode,
+                output=output,
+            )
+
+        # Step 5: Run funder extraction iterations
+        print(f"\n🔄 Running {FUNDER_ITERATIONS} funder extraction iterations...")
+        for i in range(FUNDER_ITERATIONS):
+            helius_before = self.get_helius_usage()
+            local_before = self.get_local_metrics_summary()
+
+            returncode, output, duration = self.run_funder_extraction(self.selected_creator)
+
+            time.sleep(2)  # Brief wait for metrics to be recorded
+
+            helius_after = self.get_helius_usage()
+            local_after = self.get_local_metrics_summary()
+
+            self.record_audit_phase(
+                phase="funder",
+                iteration=i + 1,
+                helius_before=helius_before,
+                helius_after=helius_after,
+                local_before=local_before,
+                local_after=local_after,
+                duration=duration,
+                returncode=returncode,
+                output=output,
+            )
+
+        # Step 6: Write results
+        self.write_results()
+        self.print_summary()
+
+        print("\n" + "=" * 80)
+        print(f"Audit completed: {datetime.now().isoformat()}")
+        print("=" * 80)
+
+
+if __name__ == "__main__":
+    audit = HeliusAudit()
+    try:
+        audit.run_audit()
+    except KeyboardInterrupt:
+        print("\n\n⚠️  Audit interrupted by user")
+        audit.write_results()
+        audit.print_summary()
+        sys.exit(1)
+    except Exception as e:
+        print(f"\n❌ Audit failed: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)

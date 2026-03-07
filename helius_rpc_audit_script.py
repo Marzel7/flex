@@ -48,39 +48,112 @@ class HeliusAudit:
             print(f"❌ Failed to fetch Helius usage: {e}", file=sys.stderr)
             return None
 
-    def get_local_metrics_summary(self) -> Dict:
-        """Get local RPC metrics from database"""
+    def get_local_metrics_summary(self, since_timestamp: Optional[float] = None) -> Dict:
+        """Get local RPC metrics from database, optionally since a timestamp"""
         try:
             conn = sqlite3.connect(METRICS_DB, timeout=5)
             cursor = conn.cursor()
 
-            # Total credits
-            cursor.execute("SELECT SUM(credits) FROM rpc_metrics")
+            # Build query with optional timestamp filter
+            where_clause = ""
+            params = []
+            if since_timestamp is not None:
+                where_clause = "WHERE timestamp > ? - 0.5"  # Account for small time drift
+                params = [since_timestamp]
+
+            # Total credits - use whole table if no filter, avoids timestamp drift issues
+            if since_timestamp is None:
+                cursor.execute("SELECT SUM(credits) FROM rpc_metrics")
+            else:
+                cursor.execute("SELECT SUM(credits) FROM rpc_metrics WHERE timestamp > ?", params)
             total_credits = cursor.fetchone()[0] or 0
 
             # Total RPC calls
-            cursor.execute("SELECT COUNT(*) FROM rpc_metrics")
+            if since_timestamp is None:
+                cursor.execute("SELECT COUNT(*) FROM rpc_metrics")
+            else:
+                cursor.execute("SELECT COUNT(*) FROM rpc_metrics WHERE timestamp > ?", params)
             total_calls = cursor.fetchone()[0] or 0
 
-            # Credits by cache action
-            cursor.execute("""
-                SELECT cache_action, COUNT(*), SUM(credits)
+            # Credits by source_file
+            if since_timestamp is None:
+                cursor.execute("""
+                    SELECT source_file, COUNT(*), SUM(credits)
+                    FROM rpc_metrics
+                    GROUP BY source_file
+                    ORDER BY SUM(credits) DESC
+                """)
+            else:
+                cursor.execute("""
+                    SELECT source_file, COUNT(*), SUM(credits)
+                    FROM rpc_metrics
+                    WHERE timestamp > ?
+                    GROUP BY source_file
+                    ORDER BY SUM(credits) DESC
+                """, params)
+            by_source_file = {row[0]: {"calls": row[1], "credits": row[2]} for row in cursor.fetchall()}
+
+            # Credits by method
+            cursor.execute(f"""
+                SELECT method, COUNT(*), SUM(credits)
                 FROM rpc_metrics
-                GROUP BY cache_action
-            """)
-            by_action = {row[0]: {"calls": row[1], "credits": row[2]} for row in cursor.fetchall()}
+                {where_clause}
+                GROUP BY method
+                ORDER BY SUM(credits) DESC
+                LIMIT 10
+            """, params)
+            by_method = {row[0]: {"calls": row[1], "credits": row[2]} for row in cursor.fetchall()}
 
             conn.close()
 
             return {
                 "total_credits": total_credits,
                 "total_calls": total_calls,
-                "by_cache_action": by_action,
+                "by_source_file": by_source_file,
+                "by_method": by_method,
             }
 
         except Exception as e:
             print(f"❌ Failed to fetch local metrics: {e}", file=sys.stderr)
-            return {"total_credits": 0, "total_calls": 0, "by_cache_action": {}}
+            return {"total_credits": 0, "total_calls": 0, "by_source_file": {}, "by_method": {}}
+
+    def get_raw_rpc_calls(self, since_timestamp: Optional[float] = None, limit: int = 50) -> List[Dict]:
+        """Get raw RPC call details from metrics database"""
+        try:
+            conn = sqlite3.connect(METRICS_DB, timeout=5)
+            cursor = conn.cursor()
+
+            where_clause = ""
+            params = []
+            if since_timestamp is not None:
+                where_clause = "WHERE timestamp > ?"
+                params = [since_timestamp]
+
+            cursor.execute(f"""
+                SELECT timestamp, source_file, method, provider, credits, cache_action
+                FROM rpc_metrics
+                {where_clause}
+                ORDER BY timestamp DESC
+                LIMIT ?
+            """, params + [limit])
+
+            results = []
+            for row in cursor.fetchall():
+                results.append({
+                    "timestamp": row[0],
+                    "source_file": row[1],
+                    "method": row[2],
+                    "provider": row[3],
+                    "credits": row[4],
+                    "cache_action": row[5],
+                })
+
+            conn.close()
+            return results
+
+        except Exception as e:
+            print(f"❌ Failed to fetch raw RPC calls: {e}", file=sys.stderr)
+            return []
 
     def select_random_creator(self) -> Optional[str]:
         """Select a random creator from the database"""
@@ -184,7 +257,8 @@ class HeliusAudit:
         local_after: Dict,
         duration: float,
         returncode: int,
-        output: str
+        output: str,
+        phase_start_timestamp: Optional[float] = None
     ):
         """Record results for one audit phase"""
         helius_delta = helius_after - helius_before
@@ -195,6 +269,22 @@ class HeliusAudit:
 
         local_credits_delta = local_credits_after - local_credits_before
         local_calls_delta = local_calls_after - local_calls_before
+
+        # Get source_file breakdown for this phase
+        by_source_file = local_after.get("by_source_file", {})
+        by_source_file_before = local_before.get("by_source_file", {})
+
+        # Calculate deltas per source file
+        source_file_deltas = {}
+        for source_file, after_stats in by_source_file.items():
+            before_stats = by_source_file_before.get(source_file, {"credits": 0, "calls": 0})
+            source_file_deltas[source_file] = {
+                "credits": after_stats["credits"] - before_stats["credits"],
+                "calls": after_stats["calls"] - before_stats["calls"],
+            }
+
+        # Get raw RPC calls (last few recorded, regardless of phase timing)
+        raw_calls = self.get_raw_rpc_calls(limit=10)
 
         result = {
             "timestamp": datetime.now().isoformat(),
@@ -212,19 +302,25 @@ class HeliusAudit:
             "local_calls_after": local_calls_after,
             "local_calls_delta": local_calls_delta,
             "helius_vs_local_diff": helius_delta - local_credits_delta,
+            "source_file_breakdown": source_file_deltas,
+            "raw_rpc_calls": raw_calls,
             "returncode": returncode,
             "output": output,
         }
 
         self.results.append(result)
 
-        # Print summary
+        # Print summary with source file info
         status = "✅" if returncode == 0 else "❌"
+        source_info = " | ".join([f"{sf}:{d['credits']}" for sf, d in source_file_deltas.items()])
+        if source_info:
+            source_info = f" | {source_info}"
+
         print(
             f"{status} {phase.upper()} #{iteration}: "
             f"Helius Δ={helius_delta} | Local Δ={local_credits_delta} | "
             f"Diff={result['helius_vs_local_diff']} | "
-            f"Calls Δ={local_calls_delta}"
+            f"Calls Δ={local_calls_delta}{source_info}"
         )
 
     def write_results(self):
@@ -257,10 +353,27 @@ class HeliusAudit:
         for result in self.results:
             phase = result["phase"]
             if phase not in by_phase:
-                by_phase[phase] = {"helius_deltas": [], "local_deltas": [], "diffs": []}
+                by_phase[phase] = {
+                    "helius_deltas": [],
+                    "local_deltas": [],
+                    "diffs": [],
+                    "source_files": {},
+                    "raw_calls_sample": [],
+                }
             by_phase[phase]["helius_deltas"].append(result["helius_delta"])
             by_phase[phase]["local_deltas"].append(result["local_credits_delta"])
             by_phase[phase]["diffs"].append(result["helius_vs_local_diff"])
+
+            # Collect source_file info
+            for source_file, deltas in result.get("source_file_breakdown", {}).items():
+                if source_file not in by_phase[phase]["source_files"]:
+                    by_phase[phase]["source_files"][source_file] = {"credits": 0, "calls": 0}
+                by_phase[phase]["source_files"][source_file]["credits"] += deltas.get("credits", 0)
+                by_phase[phase]["source_files"][source_file]["calls"] += deltas.get("calls", 0)
+
+            # Collect sample of raw calls
+            if result.get("raw_rpc_calls"):
+                by_phase[phase]["raw_calls_sample"].extend(result["raw_rpc_calls"])
 
         for phase, data in by_phase.items():
             helius_total = sum(data["helius_deltas"])
@@ -274,12 +387,37 @@ class HeliusAudit:
             print(f"  Total Diff:      {diff_total} credits")
             print(f"  Avg Diff/Run:    {avg_diff:.1f} credits")
 
+            # Source file breakdown
+            if data["source_files"]:
+                print(f"\n  Source File Breakdown:")
+                for source_file, stats in sorted(
+                    data["source_files"].items(),
+                    key=lambda x: x[1]["credits"],
+                    reverse=True
+                ):
+                    print(f"    {source_file}: {stats['credits']} credits ({stats['calls']} calls)")
+
+            # Raw calls sample
+            if data["raw_calls_sample"]:
+                print(f"\n  Sample RPC Calls (most recent):")
+                seen = set()
+                for call in data["raw_calls_sample"][:5]:
+                    # Show unique method calls
+                    key = f"{call['source_file']}:{call['method']}"
+                    if key not in seen:
+                        seen.add(key)
+                        print(
+                            f"    {call['method']} ({call['provider']}) "
+                            f"- {call['credits']} credits "
+                            f"from {call['source_file']}"
+                        )
+
             if abs(diff_total) < 10:
-                print(f"  Status: ✅ GOOD MATCH (within 10 credits)")
+                print(f"\n  Status: ✅ GOOD MATCH (within 10 credits)")
             elif diff_total > 0:
-                print(f"  Status: ⚠️  HELIUS HIGHER - {diff_total} untracked credits")
+                print(f"\n  Status: ⚠️  HELIUS HIGHER - {diff_total} untracked credits")
             else:
-                print(f"  Status: ⚠️  LOCAL HIGHER - {abs(diff_total)} over-estimated credits")
+                print(f"\n  Status: ⚠️  LOCAL HIGHER - {abs(diff_total)} over-estimated credits")
 
         # Overall
         overall_helius = sum(r["helius_delta"] for r in self.results)
@@ -335,7 +473,7 @@ class HeliusAudit:
             time.sleep(2)  # Brief wait for metrics to be recorded
 
             helius_after = self.get_helius_usage()
-            local_after = self.get_local_metrics_summary()
+            local_after = self.get_local_metrics_summary()  # Get full total again
 
             self.record_audit_phase(
                 phase="creator",
@@ -360,7 +498,7 @@ class HeliusAudit:
             time.sleep(2)  # Brief wait for metrics to be recorded
 
             helius_after = self.get_helius_usage()
-            local_after = self.get_local_metrics_summary()
+            local_after = self.get_local_metrics_summary()  # Get full total again
 
             self.record_audit_phase(
                 phase="funder",

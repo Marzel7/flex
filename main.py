@@ -18304,8 +18304,13 @@ def metrics_rpc_summary_proxy():
     """Proxy /metrics/rpc/summary requests to the RPC Metrics API"""
     try:
         import requests
+        from flask import make_response
         response = requests.get('http://localhost:8001/metrics/rpc/summary', timeout=5)
-        return response.json(), response.status_code
+        flask_response = make_response(response.json())
+        flask_response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        flask_response.headers["Pragma"] = "no-cache"
+        flask_response.headers["Expires"] = "0"
+        return flask_response, response.status_code
     except Exception as e:
         return {'error': str(e)}, 503
 

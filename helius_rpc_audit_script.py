@@ -37,13 +37,19 @@ class HeliusAudit:
         self.start_time = datetime.now()
 
     def get_helius_usage(self) -> Optional[int]:
-        """Fetch current Helius usage from config"""
+        """Fetch current Helius usage from CLI"""
         try:
-            import importlib
-            import rpc_metrics_config
-            importlib.reload(rpc_metrics_config)
-            usage = rpc_metrics_config.PlanConfig.CURRENT_USAGE
-            return usage.get("credits_used_today", 0)
+            from helius_cli_monitor import get_helius_usage_cli
+
+            usage_data = get_helius_usage_cli()
+            if not usage_data:
+                print(f"❌ Failed to get usage from CLI", file=sys.stderr)
+                return None
+
+            credits_used = usage_data.get("credits_used", 0)
+            print(f"  ✅ Helius credits_used: {credits_used}")
+            return credits_used
+
         except Exception as e:
             print(f"❌ Failed to fetch Helius usage: {e}", file=sys.stderr)
             return None

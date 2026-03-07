@@ -162,12 +162,13 @@ class HeliusAudit:
             return []
 
     def select_random_creator(self) -> Optional[str]:
-        """Select a random creator from the database, preferring unanalyzed ones"""
+        """Select a random creator, always picking unanalyzed ones (fully_analyzed = 0)"""
         try:
             conn = sqlite3.connect(FLEX_DB, timeout=5)
             cursor = conn.cursor()
 
-            # First, try to get an unanalyzed creator (fully_analyzed = 0)
+            # Always get an unanalyzed creator (fully_analyzed = 0)
+            # This ensures fresh RPC calls, not cached results
             cursor.execute("""
                 SELECT DISTINCT creator_address
                 FROM creator_funders
@@ -178,10 +179,10 @@ class HeliusAudit:
             """)
 
             result = cursor.fetchone()
-            
-            # If no unanalyzed creators, fall back to any creator
+
+            # If no unanalyzed creators, reset one and use it
             if not result:
-                print("  ℹ  No unanalyzed creators found, will reset analysis flag for one...")
+                print("  ℹ  No unanalyzed creators found, resetting one...")
                 cursor.execute("""
                     SELECT DISTINCT creator_address
                     FROM creator_funders
@@ -190,7 +191,7 @@ class HeliusAudit:
                     LIMIT 1
                 """)
                 result = cursor.fetchone()
-                
+
                 # Reset the fully_analyzed flag to force re-extraction
                 if result:
                     creator = result[0]
@@ -484,22 +485,23 @@ class HeliusAudit:
             time.sleep(1)
         print(f"✅ Baseline wait complete{' ' * 20}\n")
 
-        # Step 3: Select random creator
-        print("🎲 Selecting random creator from database...")
-        self.selected_creator = self.select_random_creator()
-        if not self.selected_creator:
-            print("❌ Could not find a valid creator")
-            return
-
-        print(f"   Selected creator: {self.selected_creator}\n")
-
-        # Step 4: Run creator extraction iterations
+        # Step 3 & 4: Run creator extraction iterations (fresh creator each time to avoid cache)
         print(f"🔄 Running {CREATOR_ITERATIONS} creator extraction iterations...")
         for i in range(CREATOR_ITERATIONS):
+            # Select a fresh unanalyzed creator for each iteration (no cached results)
+            creator = self.select_random_creator()
+            if not creator:
+                print("❌ Could not find a valid creator")
+                break
+
+            print(f"   Creator {i+1}: {creator}")
+            if i == 0:
+                self.selected_creator = creator  # Store first creator for funder extraction
+
             helius_before = self.get_helius_usage()
             local_before = self.get_local_metrics_summary()
 
-            returncode, output, duration = self.run_creator_extraction(self.selected_creator)
+            returncode, output, duration = self.run_creator_extraction(creator)
 
             # Wait for Helius to update (60 seconds for config file sync)
             print(f"  ⏳ Waiting 60 seconds for Helius to update...")

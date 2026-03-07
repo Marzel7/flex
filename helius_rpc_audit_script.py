@@ -522,27 +522,34 @@ class HeliusAudit:
                 output=output,
             )
 
-        # Step 5: Run funder extraction iterations (reset funders between iterations to avoid cache)
+        # Step 5: Run funder extraction iterations (use different creators each time for fresh funders)
         print(f"\n🔄 Running {FUNDER_ITERATIONS} funder extraction iterations...")
         for i in range(FUNDER_ITERATIONS):
-            # Reset fully_analyzed flag for all funders of this creator (force fresh extraction)
+            # Select a different creator for each iteration to get different funders
+            funder_test_creator = self.select_random_creator()
+            if not funder_test_creator:
+                print(f"  ❌ Could not find a creator for funder iteration {i+1}")
+                break
+
+            # Reset fully_analyzed flag for funders of this creator (force fresh extraction)
             try:
                 conn = sqlite3.connect(FLEX_DB, timeout=5)
                 cursor = conn.cursor()
                 cursor.execute(
                     "UPDATE creator_funders SET fully_analyzed = 0 WHERE creator_address = ?",
-                    (self.selected_creator,)
+                    (funder_test_creator,)
                 )
                 conn.commit()
                 conn.close()
-                print(f"  ✅ Reset fully_analyzed for funders of {self.selected_creator[:16]}...")
+                print(f"   Funder Iteration {i+1}: {funder_test_creator[:16]}...")
+                print(f"  ✅ Reset fully_analyzed for funders of {funder_test_creator[:16]}...")
             except Exception as e:
                 print(f"  ⚠️  Could not reset funders: {e}")
 
             helius_before = self.get_helius_usage()
             local_before = self.get_local_metrics_summary()
 
-            returncode, output, duration = self.run_funder_extraction(self.selected_creator)
+            returncode, output, duration = self.run_funder_extraction(funder_test_creator)
 
             # Wait for Helius to update (60 seconds for config file sync)
             print(f"  ⏳ Waiting 60 seconds for Helius to update...")

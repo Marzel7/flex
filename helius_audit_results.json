@@ -1,0 +1,716 @@
+[
+  {
+    "timestamp": "2026-03-07T10:14:05.984286",
+    "phase": "creator",
+    "iteration": 1,
+    "creator": "D8XJF3tCB4UngsS8sV2nyfBmEx6KKCkym57Lx7Y2ZTXH",
+    "duration_seconds": 14.22,
+    "helius_before": 164583,
+    "helius_after": 164789,
+    "helius_delta": 206,
+    "local_credits_before": 27754,
+    "local_credits_after": 27954,
+    "local_credits_delta": 200,
+    "local_calls_before": 3860,
+    "local_calls_after": 3875,
+    "local_calls_delta": 15,
+    "helius_vs_local_diff": 6,
+    "source_file_breakdown": {
+      "pumpfun_curve_listener": {
+        "credits": 0,
+        "calls": 0
+      },
+      "unknown": {
+        "credits": 0,
+        "calls": 0
+      },
+      "funder_incoming_extractor": {
+        "credits": 0,
+        "calls": 0
+      },
+      "realtime_creator_funding_extractor": {
+        "credits": 200,
+        "calls": 15
+      }
+    },
+    "raw_rpc_calls": [
+      {
+        "timestamp": 1772878372.023061,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "helius_enhanced_addresses_transactions",
+        "provider": "helius_rpc",
+        "credits": 100,
+        "cache_action": "full_scan"
+      },
+      {
+        "timestamp": 1772878371.263419,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878371.1017542,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.959842,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.825021,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.638165,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.471499,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.325119,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.18237,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.035279,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      }
+    ],
+    "returncode": 0,
+    "output": "Creator extraction completed"
+  },
+  {
+    "timestamp": "2026-03-07T10:15:21.280390",
+    "phase": "creator",
+    "iteration": 2,
+    "creator": "D8XJF3tCB4UngsS8sV2nyfBmEx6KKCkym57Lx7Y2ZTXH",
+    "duration_seconds": 7.68,
+    "helius_before": 164789,
+    "helius_after": 164789,
+    "helius_delta": 0,
+    "local_credits_before": 27954,
+    "local_credits_after": 27954,
+    "local_credits_delta": 0,
+    "local_calls_before": 3875,
+    "local_calls_after": 3875,
+    "local_calls_delta": 0,
+    "helius_vs_local_diff": 0,
+    "source_file_breakdown": {
+      "pumpfun_curve_listener": {
+        "credits": 0,
+        "calls": 0
+      },
+      "unknown": {
+        "credits": 0,
+        "calls": 0
+      },
+      "funder_incoming_extractor": {
+        "credits": 0,
+        "calls": 0
+      },
+      "realtime_creator_funding_extractor": {
+        "credits": 0,
+        "calls": 0
+      }
+    },
+    "raw_rpc_calls": [
+      {
+        "timestamp": 1772878372.023061,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "helius_enhanced_addresses_transactions",
+        "provider": "helius_rpc",
+        "credits": 100,
+        "cache_action": "full_scan"
+      },
+      {
+        "timestamp": 1772878371.263419,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878371.1017542,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.959842,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.825021,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.638165,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.471499,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.325119,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.18237,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.035279,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      }
+    ],
+    "returncode": 0,
+    "output": "Creator extraction completed"
+  },
+  {
+    "timestamp": "2026-03-07T10:16:37.464845",
+    "phase": "creator",
+    "iteration": 3,
+    "creator": "D8XJF3tCB4UngsS8sV2nyfBmEx6KKCkym57Lx7Y2ZTXH",
+    "duration_seconds": 7.69,
+    "helius_before": 164789,
+    "helius_after": 164789,
+    "helius_delta": 0,
+    "local_credits_before": 27954,
+    "local_credits_after": 27954,
+    "local_credits_delta": 0,
+    "local_calls_before": 3875,
+    "local_calls_after": 3875,
+    "local_calls_delta": 0,
+    "helius_vs_local_diff": 0,
+    "source_file_breakdown": {
+      "pumpfun_curve_listener": {
+        "credits": 0,
+        "calls": 0
+      },
+      "unknown": {
+        "credits": 0,
+        "calls": 0
+      },
+      "funder_incoming_extractor": {
+        "credits": 0,
+        "calls": 0
+      },
+      "realtime_creator_funding_extractor": {
+        "credits": 0,
+        "calls": 0
+      }
+    },
+    "raw_rpc_calls": [
+      {
+        "timestamp": 1772878372.023061,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "helius_enhanced_addresses_transactions",
+        "provider": "helius_rpc",
+        "credits": 100,
+        "cache_action": "full_scan"
+      },
+      {
+        "timestamp": 1772878371.263419,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878371.1017542,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.959842,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.825021,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.638165,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.471499,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.325119,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.18237,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.035279,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      }
+    ],
+    "returncode": 0,
+    "output": "Creator extraction completed"
+  },
+  {
+    "timestamp": "2026-03-07T10:17:44.902244",
+    "phase": "funder",
+    "iteration": 1,
+    "creator": "D8XJF3tCB4UngsS8sV2nyfBmEx6KKCkym57Lx7Y2ZTXH",
+    "duration_seconds": 0.1,
+    "helius_before": 164789,
+    "helius_after": 164789,
+    "helius_delta": 0,
+    "local_credits_before": 27954,
+    "local_credits_after": 27954,
+    "local_credits_delta": 0,
+    "local_calls_before": 3875,
+    "local_calls_after": 3875,
+    "local_calls_delta": 0,
+    "helius_vs_local_diff": 0,
+    "source_file_breakdown": {
+      "pumpfun_curve_listener": {
+        "credits": 0,
+        "calls": 0
+      },
+      "unknown": {
+        "credits": 0,
+        "calls": 0
+      },
+      "funder_incoming_extractor": {
+        "credits": 0,
+        "calls": 0
+      },
+      "realtime_creator_funding_extractor": {
+        "credits": 0,
+        "calls": 0
+      }
+    },
+    "raw_rpc_calls": [
+      {
+        "timestamp": 1772878372.023061,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "helius_enhanced_addresses_transactions",
+        "provider": "helius_rpc",
+        "credits": 100,
+        "cache_action": "full_scan"
+      },
+      {
+        "timestamp": 1772878371.263419,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878371.1017542,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.959842,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.825021,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.638165,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.471499,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.325119,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.18237,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.035279,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      }
+    ],
+    "returncode": 0,
+    "output": "Funder extraction completed for 5 funders"
+  },
+  {
+    "timestamp": "2026-03-07T10:18:52.188545",
+    "phase": "funder",
+    "iteration": 2,
+    "creator": "D8XJF3tCB4UngsS8sV2nyfBmEx6KKCkym57Lx7Y2ZTXH",
+    "duration_seconds": 0.01,
+    "helius_before": 164789,
+    "helius_after": 164789,
+    "helius_delta": 0,
+    "local_credits_before": 27954,
+    "local_credits_after": 27954,
+    "local_credits_delta": 0,
+    "local_calls_before": 3875,
+    "local_calls_after": 3875,
+    "local_calls_delta": 0,
+    "helius_vs_local_diff": 0,
+    "source_file_breakdown": {
+      "pumpfun_curve_listener": {
+        "credits": 0,
+        "calls": 0
+      },
+      "unknown": {
+        "credits": 0,
+        "calls": 0
+      },
+      "funder_incoming_extractor": {
+        "credits": 0,
+        "calls": 0
+      },
+      "realtime_creator_funding_extractor": {
+        "credits": 0,
+        "calls": 0
+      }
+    },
+    "raw_rpc_calls": [
+      {
+        "timestamp": 1772878372.023061,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "helius_enhanced_addresses_transactions",
+        "provider": "helius_rpc",
+        "credits": 100,
+        "cache_action": "full_scan"
+      },
+      {
+        "timestamp": 1772878371.263419,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878371.1017542,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.959842,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.825021,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.638165,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.471499,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.325119,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.18237,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.035279,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      }
+    ],
+    "returncode": 0,
+    "output": "Funder extraction completed for 5 funders"
+  },
+  {
+    "timestamp": "2026-03-07T10:19:59.657236",
+    "phase": "funder",
+    "iteration": 3,
+    "creator": "D8XJF3tCB4UngsS8sV2nyfBmEx6KKCkym57Lx7Y2ZTXH",
+    "duration_seconds": 0.0,
+    "helius_before": 164789,
+    "helius_after": 164789,
+    "helius_delta": 0,
+    "local_credits_before": 27954,
+    "local_credits_after": 27954,
+    "local_credits_delta": 0,
+    "local_calls_before": 3875,
+    "local_calls_after": 3875,
+    "local_calls_delta": 0,
+    "helius_vs_local_diff": 0,
+    "source_file_breakdown": {
+      "pumpfun_curve_listener": {
+        "credits": 0,
+        "calls": 0
+      },
+      "unknown": {
+        "credits": 0,
+        "calls": 0
+      },
+      "funder_incoming_extractor": {
+        "credits": 0,
+        "calls": 0
+      },
+      "realtime_creator_funding_extractor": {
+        "credits": 0,
+        "calls": 0
+      }
+    },
+    "raw_rpc_calls": [
+      {
+        "timestamp": 1772878372.023061,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "helius_enhanced_addresses_transactions",
+        "provider": "helius_rpc",
+        "credits": 100,
+        "cache_action": "full_scan"
+      },
+      {
+        "timestamp": 1772878371.263419,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878371.1017542,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.959842,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.825021,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.638165,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.471499,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.325119,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.18237,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      },
+      {
+        "timestamp": 1772878370.035279,
+        "source_file": "realtime_creator_funding_extractor",
+        "method": "sns_primary_domains",
+        "provider": "bonfida_sns",
+        "credits": 0,
+        "cache_action": "none"
+      }
+    ],
+    "returncode": 0,
+    "output": "Funder extraction completed for 5 funders"
+  }
+]

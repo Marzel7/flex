@@ -522,9 +522,23 @@ class HeliusAudit:
                 output=output,
             )
 
-        # Step 5: Run funder extraction iterations
+        # Step 5: Run funder extraction iterations (reset funders between iterations to avoid cache)
         print(f"\n🔄 Running {FUNDER_ITERATIONS} funder extraction iterations...")
         for i in range(FUNDER_ITERATIONS):
+            # Reset fully_analyzed flag for all funders of this creator (force fresh extraction)
+            try:
+                conn = sqlite3.connect(FLEX_DB, timeout=5)
+                cursor = conn.cursor()
+                cursor.execute(
+                    "UPDATE creator_funders SET fully_analyzed = 0 WHERE creator_address = ?",
+                    (self.selected_creator,)
+                )
+                conn.commit()
+                conn.close()
+                print(f"  ✅ Reset fully_analyzed for funders of {self.selected_creator[:16]}...")
+            except Exception as e:
+                print(f"  ⚠️  Could not reset funders: {e}")
+
             helius_before = self.get_helius_usage()
             local_before = self.get_local_metrics_summary()
 

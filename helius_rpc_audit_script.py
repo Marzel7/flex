@@ -156,21 +156,45 @@ class HeliusAudit:
             return []
 
     def select_random_creator(self) -> Optional[str]:
-        """Select a random creator from the database"""
+        """Select a random creator from the database, preferring unanalyzed ones"""
         try:
             conn = sqlite3.connect(FLEX_DB, timeout=5)
             cursor = conn.cursor()
 
-            # Get a random creator with funding
+            # First, try to get an unanalyzed creator (fully_analyzed = 0)
             cursor.execute("""
                 SELECT DISTINCT creator_address
                 FROM creator_funders
                 WHERE creator_address IS NOT NULL
+                AND fully_analyzed = 0
                 ORDER BY RANDOM()
                 LIMIT 1
             """)
 
             result = cursor.fetchone()
+            
+            # If no unanalyzed creators, fall back to any creator
+            if not result:
+                print("  ℹ  No unanalyzed creators found, will reset analysis flag for one...")
+                cursor.execute("""
+                    SELECT DISTINCT creator_address
+                    FROM creator_funders
+                    WHERE creator_address IS NOT NULL
+                    ORDER BY RANDOM()
+                    LIMIT 1
+                """)
+                result = cursor.fetchone()
+                
+                # Reset the fully_analyzed flag to force re-extraction
+                if result:
+                    creator = result[0]
+                    cursor.execute(
+                        "UPDATE creator_funders SET fully_analyzed = 0 WHERE creator_address = ?",
+                        (creator,)
+                    )
+                    conn.commit()
+                    print(f"  ✅ Reset fully_analyzed flag for {creator[:16]}...")
+            
             conn.close()
 
             if result:
@@ -188,9 +212,10 @@ class HeliusAudit:
             # Use the extraction function directly (async)
             import asyncio
             from realtime_creator_funding_extractor import extract_funding_for_new_token
+            from datetime import datetime
 
-            # Run the async function
-            migration_timestamp = str(int(time.time()))
+            # Run the async function with ISO format timestamp
+            migration_timestamp = datetime.utcnow().isoformat()
             result = asyncio.run(extract_funding_for_new_token(
                 creator=creator,
                 migration_timestamp_str=migration_timestamp,
@@ -470,7 +495,9 @@ class HeliusAudit:
 
             returncode, output, duration = self.run_creator_extraction(self.selected_creator)
 
-            time.sleep(2)  # Brief wait for metrics to be recorded
+            # Wait for Helius to update (60 seconds for config file sync)
+            print(f"  ⏳ Waiting 60 seconds for Helius to update...")
+            time.sleep(60)
 
             helius_after = self.get_helius_usage()
             local_after = self.get_local_metrics_summary()  # Get full total again
@@ -495,7 +522,9 @@ class HeliusAudit:
 
             returncode, output, duration = self.run_funder_extraction(self.selected_creator)
 
-            time.sleep(2)  # Brief wait for metrics to be recorded
+            # Wait for Helius to update (60 seconds for config file sync)
+            print(f"  ⏳ Waiting 60 seconds for Helius to update...")
+            time.sleep(60)
 
             helius_after = self.get_helius_usage()
             local_after = self.get_local_metrics_summary()  # Get full total again

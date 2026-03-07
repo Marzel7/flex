@@ -969,7 +969,7 @@ class RealTimeCreatorFundingExtractor:
         cache_action = "full_scan"
         credits_saved = 0
         if CREATOR_CACHE is not None:
-            cached_result = CREATOR_CACHE.lookup_creator(creator)
+            cached_result = CREATOR_CACHE.get_cached_funders(creator)
             if cached_result is not None:
                 # Creator already cached, skip extraction
                 cache_action = "skip"
@@ -1115,7 +1115,7 @@ class RealTimeCreatorFundingExtractor:
 
                     # Build URL with query parameters directly
                     # Note: Helius Enhanced API max limit is 100, not 1000
-                    query_url = f"{url}?api-key={HELIUS_API_KEY}&limit=100&sort-order=desc&commitment=finalized"
+                    query_url = f"{url}?api-key={_RPC_KEY}&limit=100&sort-order=desc&commitment=finalized"
                     if before_signature:
                         query_url += f"&before={before_signature}"
 
@@ -1479,7 +1479,7 @@ class RealTimeCreatorFundingExtractor:
             # Cache creator funding results (Layer 6 optimization)
             if CREATOR_CACHE is not None and funders:
                 try:
-                    CREATOR_CACHE.store_creator(creator, {
+                    CREATOR_CACHE.store_funders(creator, {
                         "funders": list(funders.keys()),
                         "funder_count": len(funders),
                         "total_sol": total_inbound,
@@ -1990,7 +1990,7 @@ class RealTimeCreatorFundingExtractor:
 
             try:
                 url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{creator}/transactions"
-                query_url = f"{url}?api-key={HELIUS_API_KEY}&limit=50&sort-order=desc&commitment=finalized"
+                query_url = f"{url}?api-key={_RPC_KEY}&limit=50&sort-order=desc&commitment=finalized"
 
                 # First get address transactions to find signatures
                 async with self.session.get(query_url, timeout=aiohttp.ClientTimeout(total=30)) as resp:
@@ -2003,7 +2003,7 @@ class RealTimeCreatorFundingExtractor:
                                 
                                 if signatures_to_check:
                                     # Fetch full transaction details
-                                    tx_url = f"https://api.helius.xyz/v0/transactions?api-key={HELIUS_API_KEY}"
+                                    tx_url = f"https://api.helius.xyz/v0/transactions?api-key={_RPC_KEY}"
                                     tx_payload = {
                                         "transactions": signatures_to_check
                                     }

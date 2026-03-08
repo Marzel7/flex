@@ -1065,7 +1065,6 @@ async def extract_for_creator_async(
         "no_data": 0,
     }
 
-    results: List[Dict] = []
     total_sol = 0.0
     total_incoming = 0
     total_outgoing = 0
@@ -1074,14 +1073,6 @@ async def extract_for_creator_async(
     # Fast-path: cached funders (0 API cost, instant DB lookup)
     for cached_addr, _ in cached_funders:
         inc_count, out_count, cached_sol = _has_cached_funder_transfers(cached_addr)
-        result = {
-            "incoming_count": inc_count,
-            "outgoing_count": out_count,
-            "total_sol": cached_sol,
-            "source": "database_cache",
-            "funder": cached_addr,
-        }
-        results.append(result)
         total_sol += cached_sol
         total_incoming += inc_count
         total_outgoing += out_count
@@ -1107,7 +1098,6 @@ async def extract_for_creator_async(
             error_count += 1
             continue
         if isinstance(r, dict):
-            results.append(r)
             total_sol += float(r.get("total_sol", 0.0))
             total_incoming += int(r.get("incoming_count", 0))
             total_outgoing += int(r.get("outgoing_count", 0))
@@ -1164,7 +1154,7 @@ async def extract_for_creator_async(
         "cached_funders": len(cached_funders),
         "fresh_funders_selected": fresh_funders_selected,
         "fresh_funders_skipped_budget": fresh_funders_skipped_budget,
-        "source_breakdown": source_counts,
+        "source_breakdown": {k: v for k, v in source_counts.items() if v > 0},
     }
 
 

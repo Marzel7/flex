@@ -719,10 +719,6 @@ def extract_transfers_for_funder(
     cached_type = None
     cached_conf = None
     helius_pages = 1
-    fingerprint_cache_hit = 0
-    fingerprint_refresh = 0
-    cache_action = "none"  # Track cache action for metrics (skip, refresh, full_scan, or none)
-    credits_saved = 0  # Track credits saved by this cache action
 
     # Check fingerprint cache first (SKIP/REFRESH/FULL_SCAN decision)
     if FINGERPRINT_CLUSTER is not None:
@@ -730,9 +726,6 @@ def extract_transfers_for_funder(
             action, cached_type, cached_conf = FINGERPRINT_CLUSTER.lookup_wallet(funder_address)
             if action == FingerprintAction.SKIP:
                 logger.info(f"[FINGERPRINT] ✅ SKIP {funder_address[:16]}... type={cached_type} conf={cached_conf:.2f}")
-                fingerprint_cache_hit = 1
-                cache_action = "skip"
-                credits_saved = 200  # Saved full scan cost
                 # Check if we have DB cache first (from prior scan)
                 inc_count, out_count, total_sol = _has_cached_funder_transfers(funder_address)
                 if inc_count or out_count:
@@ -744,24 +737,27 @@ def extract_transfers_for_funder(
                         "funder": funder_address,
                     }
                 else:
-                    # No DB cache, return empty (wallet already analyzed before)
-                    return {
-                        "incoming_count": 0,
-                        "outgoing_count": 0,
-                        "total_sol": 0.0,
-                        "source": "fingerprint_skip",
-                        "funder": funder_address,
-                    }
+                    # No DB cache: only hard-skip known deferred wallets, otherwise refresh
+                    if cached_type == "high_activity":
+                        # Deferred large-history wallet - safe to return empty
+                        logger.debug(f"[FINGERPRINT] Hard-skipping deferred high_activity wallet {funder_address[:16]}...")
+                        return {
+                            "incoming_count": 0,
+                            "outgoing_count": 0,
+                            "total_sol": 0.0,
+                            "source": "fingerprint_skip_deferred",
+                            "funder": funder_address,
+                        }
+                    else:
+                        # SKIP without cache data is risky - downgrade to REFRESH
+                        logger.info(f"[FINGERPRINT] No DB cache for SKIP wallet; downgrading to REFRESH")
+                        action = FingerprintAction.REFRESH
+                        helius_pages = 1
             elif action == FingerprintAction.REFRESH:
                 logger.info(f"[FINGERPRINT] 🔄 REFRESH {funder_address[:16]}... type={cached_type} conf={cached_conf:.2f}")
-                fingerprint_refresh = 1
-                cache_action = "refresh"
-                credits_saved = 150  # Saved partial scan cost
                 helius_pages = 1  # Light refresh: only 1 page
             else:  # FULL_SCAN
                 logger.info(f"[FINGERPRINT] 🔍 FULL_SCAN {funder_address[:16]}... (confidence too low or unknown)")
-                cache_action = "full_scan"
-                credits_saved = 0  # No cache benefit
                 helius_pages = 1  # Standard scan
         except Exception as e:
             logger.warning(f"[FINGERPRINT] Lookup failed for {funder_address}: {e}")

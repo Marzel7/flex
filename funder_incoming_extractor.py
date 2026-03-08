@@ -772,7 +772,7 @@ def extract_transfers_for_funder(
 
     # Cost control: defer large-history wallets to avoid expensive deep scans
     is_refresh = FINGERPRINT_CLUSTER is not None and action == FingerprintAction.REFRESH
-    if txs and len(txs) == helius_limit and not is_refresh:
+    if txs and len(txs) >= helius_limit and not is_refresh:
         logger.info(f"[BUDGET] Deferring large-history wallet {funder_address[:16]}... ({len(txs)} txs, at page limit)")
 
         # Persist fingerprint so this wallet is not re-billed on next run
@@ -1100,11 +1100,18 @@ async def extract_for_creator_async(
     except Exception as e:
         print(f"[DB] Error marking completion: {e}")
 
+    # Calculate explicit counters for auditing
+    fresh_funders_processed = len(fresh_funders)
+    fresh_funders_skipped = max(0, len(funders) - len(funders_to_process))
+
     print(f"\n{'='*80}")
     print(f"[COMPLETE] {creator_address}")
     print(f"  Total incoming transfers: {total_incoming}")
     print(f"  Total outgoing transfers: {total_outgoing}")
     print(f"  Total SOL traced: {total_sol:.4f}")
+    print(f"  Cached funders processed: {len(cached_funders)}")
+    print(f"  Fresh funders processed: {fresh_funders_processed}")
+    print(f"  Fresh funders skipped (budget): {fresh_funders_skipped}")
     if error_count:
         print(f"  ⚠ {error_count} errors during processing")
     print(f"{'='*80}\n")
@@ -1116,6 +1123,9 @@ async def extract_for_creator_async(
         "total_sol": total_sol,
         "errors": error_count,
         "status": "complete",
+        "cached_funders": len(cached_funders),
+        "fresh_funders_processed": fresh_funders_processed,
+        "fresh_funders_skipped_budget": fresh_funders_skipped,
     }
 
 

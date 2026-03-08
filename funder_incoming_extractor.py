@@ -1127,6 +1127,17 @@ async def extract_for_creator_async(
     # Calculate explicit counters for auditing
     fresh_funders_selected = len(fresh_funders)
     fresh_funders_skipped_budget = max(0, len(funders) - len(cached_funders) - len(fresh_funders))
+    fresh_funders_completed = sum(
+        source_counts.get(k, 0)
+        for k in (
+            "helius_address_feed",
+            "helius_batch_from_rpc_sigs",
+            "rpc_only",
+            "no_data",
+            "deferred_large_history",
+            "fingerprint_skip_deferred",
+        )
+    )
 
     print(f"\n{'='*80}")
     print(f"[COMPLETE] {creator_address}")
@@ -1135,6 +1146,7 @@ async def extract_for_creator_async(
     print(f"  Total SOL traced: {total_sol:.4f}")
     print(f"  Cached funders: {len(cached_funders)}")
     print(f"  Fresh funders selected: {fresh_funders_selected}")
+    print(f"  Fresh funders completed: {fresh_funders_completed}")
     print(f"  Fresh funders skipped (budget): {fresh_funders_skipped_budget}")
     if error_count:
         print(f"  ⚠ {error_count} errors during processing")
@@ -1153,6 +1165,7 @@ async def extract_for_creator_async(
         "status": "complete",
         "cached_funders": len(cached_funders),
         "fresh_funders_selected": fresh_funders_selected,
+        "fresh_funders_completed": fresh_funders_completed,
         "fresh_funders_skipped_budget": fresh_funders_skipped_budget,
         "source_breakdown": {k: v for k, v in source_counts.items() if v > 0},
     }

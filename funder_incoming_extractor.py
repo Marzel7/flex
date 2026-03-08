@@ -25,7 +25,7 @@ import time
 import sqlite3
 import asyncio
 import logging
-from typing import Dict, List, Tuple, Optional, Iterable
+from typing import Dict, List, Tuple, Optional
 from functools import lru_cache
 import requests
 
@@ -35,7 +35,6 @@ sys.path.insert(0, "/Users/kevinkeaveney/Dev/claude/flex")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-from db_locking import DB_WRITE_LOCK
 from infra_mapping import get_account_info, get_cex_info  # type: ignore
 
 # Import RPC metrics recorder for monitoring
@@ -44,7 +43,7 @@ try:
     initialize_recorder(plan_monthly_credits=50_000_000)
 except ImportError:
     def record_request(*args, **kwargs):
-        pass  # No-op if metrics recorder not available
+        return 0  # No-op if metrics recorder not available
 
 # Import wallet fingerprint clustering for cross-creator deduplication
 try:
@@ -80,13 +79,17 @@ if FINGERPRINT_ENABLED and WalletFingerprintCluster is not None:
 # Reliability defaults
 MIN_SOL = 0.001
 DEFAULT_HELIUS_LIMIT = 100        # Helius endpoint commonly maxes at 100
-DEFAULT_RPC_SIG_LIMIT = 200       # keep bounded
+DEFAULT_RPC_SIG_LIMIT = 100       # Cap signatures per funder (was 200)
 MAX_HTTP_RETRIES = 5
 MAX_RPC_RETRIES = 4
 BASE_BACKOFF_SECS = 0.5
 
-# Concurrency: reliable but still fast
-DEFAULT_CONCURRENCY = 4
+# Cost control: fresh funder limits
+MAX_FRESH_FUNDERS_PER_CREATOR = int(os.getenv("MAX_FRESH_FUNDERS_PER_CREATOR", "10"))
+MAX_TX_SIGS_PER_FUNDER = int(os.getenv("MAX_TX_SIGS_PER_FUNDER", "100"))
+
+# Concurrency: reduced for cost stability
+DEFAULT_CONCURRENCY = 2  # Was 4, reduced to stabilize billing
 
 # HARDENING FIX #2: Transient HTTP error codes (selective retry on 4xx)
 # Note: 429 is handled separately with Retry-After header support in _request_json()
@@ -363,7 +366,7 @@ def _is_rpc_error_retryable(error_obj: dict) -> bool:
     return True
 
 
-def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, timeout: float = 20.0) -> Optional[object]:
+def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, timeout: float = 20.0, rpc_method: Optional[str] = None) -> Optional[object]:
     """
     Reliable HTTP call with retry/backoff on 429/5xx and network errors.
 
@@ -374,12 +377,20 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
     """
     for attempt in range(MAX_HTTP_RETRIES):
         try:
-            # Determine RPC method from URL or payload
-            rpc_method = "unknown"
-            if "helius" in url:
-                rpc_method = "helius_enhanced_transactions_batch"
-            elif method.upper() == "POST" and json_body:
-                rpc_method = json_body.get("method", "unknown")
+            # Determine RPC method from parameter or infer from URL/payload
+            if rpc_method is None:
+                method_inferred = "unknown"
+                if "/v0/transactions" in url and method.upper() == "POST":
+                    # Endpoint: POST /v0/transactions (enhanced tx batch details)
+                    method_inferred = "helius_enhanced_transactions_batch"
+                elif "/v0/addresses" in url and method.upper() == "GET":
+                    # Endpoint: GET /v0/addresses/{addr}/transactions (enhanced address feed)
+                    method_inferred = "helius_enhanced_addresses_transactions"
+                elif "helius" in url:
+                    method_inferred = "helius_rpc"
+                elif method.upper() == "POST" and json_body:
+                    method_inferred = json_body.get("method", "unknown")
+                rpc_method = method_inferred
 
             start_time = time.time()
             if method.upper() == "GET":
@@ -389,21 +400,40 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
 
             latency_ms = (time.time() - start_time) * 1000
 
-            # Record metrics for all responses
-            provider = "helius_rpc" if "helius" in url else "solana_rpc"
-            credits = record_request(
-                section="funder_incoming",
-                provider=provider,
-                method=rpc_method,
-                status_code=resp.status_code,
-                latency_ms=latency_ms,
-                mode="realtime",
-                retries=attempt,
-                source_file="funder_incoming_extractor",
-            )
+            # Only record metrics for billable responses (not 429 rate-limited retries)
+            if resp.status_code != 429:
+                provider = "helius_rpc" if "helius" in url else "solana_rpc"
+                credits = record_request(
+                    section="funder_incoming",
+                    provider=provider,
+                    method=rpc_method,
+                    status_code=resp.status_code,
+                    latency_ms=latency_ms,
+                    mode="realtime",
+                    retries=attempt,
+                    source_file="funder_incoming_extractor",
+                )
 
-            # Log the RPC call for debugging
-            print(f"[FUNDER_INCOMING] RPC: {rpc_method} ({credits} credits) - Status: {resp.status_code} - {latency_ms:.0f}ms", flush=True)
+                # Log the RPC call for debugging
+                print(f"[FUNDER_INCOMING] RPC: {rpc_method} ({credits} credits) - Status: {resp.status_code} - {latency_ms:.0f}ms", flush=True)
+            else:
+                # Log rate limit without recording as billable
+                print(f"[FUNDER_INCOMING] RPC: {rpc_method} (retry) - Status: {resp.status_code} - {latency_ms:.0f}ms", flush=True)
+
+            # Diagnostic logging for rate limits and errors
+            if resp.status_code == 429:
+                try:
+                    body = resp.text[:200] if resp.text else "(empty)"
+                    retry_after = resp.headers.get("Retry-After", "not set")
+                    print(f"[FUNDER_INCOMING] 429 RATE-LIMITED | Retry-After: {retry_after} | Body: {body}", flush=True)
+                except:
+                    pass
+            elif resp.status_code >= 400:
+                try:
+                    body = resp.text[:200] if resp.text else "(empty)"
+                    print(f"[FUNDER_INCOMING] {resp.status_code} ERROR | Body: {body}", flush=True)
+                except:
+                    pass
 
             if resp.status_code == 429:
                 ra = resp.headers.get("Retry-After")
@@ -455,8 +485,6 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
                 mode="realtime",
                 retries=attempt,
                 source_file="funder_incoming_extractor",
-                cache_action="none",
-                credits_saved=0,
                 error=str(e),
             )
             print(f"[HTTP] Network error: {e}. Backing off (attempt {attempt+1}/{MAX_HTTP_RETRIES})")
@@ -520,7 +548,7 @@ def _rpc_call(payload: dict, timeout: float = 20.0) -> Optional[dict]:
             resp = SESSION.post(SOLANA_RPC, json=payload, timeout=timeout)
             latency_ms = (time.time() - start_time) * 1000
             rpc_method = payload.get("method", "unknown")
-            # Record metric  for all RPC responses
+            # Record metric for all RPC responses
             record_request(
                 section="funder_incoming",
                 provider="solana_rpc",
@@ -529,8 +557,7 @@ def _rpc_call(payload: dict, timeout: float = 20.0) -> Optional[dict]:
                 latency_ms=latency_ms,
                 mode="realtime",
                 retries=attempt,
-                cache_action=cache_action,
-                credits_saved=credits_saved,
+                source_file="funder_incoming_extractor",
             )
 
             if resp.status_code == 429:
@@ -567,8 +594,6 @@ def _rpc_call(payload: dict, timeout: float = 20.0) -> Optional[dict]:
                 mode="realtime",
                 retries=attempt,
                 source_file="funder_incoming_extractor",
-                cache_action="none",
-                credits_saved=0,
                 error=str(e),
             )
             print(f"[RPC] Network error: {e}. Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
@@ -609,12 +634,22 @@ def helius_batch_get_transactions(tx_sigs: List[str]) -> Dict[str, Optional[dict
     for i in range(0, len(tx_sigs), 100):
         batch = tx_sigs[i:i + 100]
         print(f"[FUNDER_INCOMING] Processing batch of {len(batch)} transactions", flush=True)
-        data = _request_json("POST", url, json_body={"transactions": batch}, timeout=35.0)
-        if not isinstance(data, list):
+        # Diagnostic: log which API key and request details
+        print(f"[FUNDER_INCOMING] Batch request | Key suffix: {HELIUS_API_KEY[-8:] if HELIUS_API_KEY else 'NONE'}", flush=True)
+
+        data = _request_json("POST", url, json_body={"transactions": batch}, timeout=35.0, rpc_method="helius_enhanced_transactions_batch")
+
+        # Diagnostic: log batch response
+        if data is None:
+            print(f"[FUNDER_INCOMING] ⚠️  Batch returned None (failed request)", flush=True)
+        elif not isinstance(data, list):
+            print(f"[FUNDER_INCOMING] ⚠️  Batch returned non-list: {type(data)}", flush=True)
             # mark batch unknown
             for s in batch:
                 out[s] = None
             continue
+        else:
+            print(f"[FUNDER_INCOMING] ✅ Batch returned {len(data)} transactions", flush=True)
 
         for tx in data:
             if not isinstance(tx, dict):
@@ -736,11 +771,42 @@ def extract_transfers_for_funder(
     # 1) Prefer Helius address tx feed
     txs = get_transactions_helius(funder_address, limit=helius_limit, max_pages=helius_pages) if USE_HELIUS else None
     source = "helius_address_feed"
+    # Diagnostic logging
+    print(f"[FUNDER_INCOMING] Address feed returned {len(txs) if txs else 0} transactions", flush=True)
+
+    # Cost control: defer large-history wallets to avoid expensive deep scans
+    is_refresh = FINGERPRINT_CLUSTER is not None and action == FingerprintAction.REFRESH
+    if txs and len(txs) == helius_limit and not is_refresh:
+        logger.info(f"[BUDGET] Deferring large-history wallet {funder_address[:16]}... ({len(txs)} txs, at page limit)")
+
+        # Persist fingerprint so this wallet is not re-billed on next run
+        if FINGERPRINT_CLUSTER is not None:
+            try:
+                FINGERPRINT_CLUSTER.save_fingerprint(
+                    funder_address,
+                    wallet_type="high_activity",
+                    confidence=0.85,
+                    pages_scanned=1,
+                    skip_reason="deferred_large_history",
+                )
+                logger.debug(f"[FINGERPRINT] Marked {funder_address[:16]}... as deferred")
+            except Exception as e:
+                logger.warning(f"[FINGERPRINT] Save failed for deferred wallet: {e}")
+
+        return {
+            "incoming_count": 0,
+            "outgoing_count": 0,
+            "total_sol": 0.0,
+            "source": "deferred_large_history",
+            "funder": funder_address,
+        }
 
     # 2) Fallback: RPC signatures → batch tx details (Helius) → last resort pure RPC getTransaction
     if not txs:
         try:
-            sigs = get_signatures_for_address_rpc(funder_address, limit=rpc_sig_limit)
+            # Cap signatures to control batch costs
+            sig_limit = min(rpc_sig_limit, MAX_TX_SIGS_PER_FUNDER)
+            sigs = get_signatures_for_address_rpc(funder_address, limit=sig_limit)
         except Exception as e:
             logger.warning(f"[HELIUS] Address feed failed: {e}")
             sigs = None
@@ -749,8 +815,10 @@ def extract_transfers_for_funder(
             return {"incoming_count": 0, "outgoing_count": 0, "total_sol": 0.0, "source": "no_data", "funder": funder_address}
 
         if USE_HELIUS:
+            print(f"[FUNDER_INCOMING] About to call helius_batch for {len(sigs)} signatures", flush=True)
             batch = helius_batch_get_transactions(sigs)
             txs = [t for t in batch.values() if isinstance(t, dict)]
+            print(f"[FUNDER_INCOMING] Batch call completed, got {len(txs)} transactions from {len(batch)} signatures", flush=True)
             source = "helius_batch_from_rpc_sigs"
         else:
             # Pure RPC last resort: extremely slow + less accurate
@@ -933,18 +1001,6 @@ def extract_transfers_for_funder(
         except Exception as e:
             logger.warning(f"[FINGERPRINT] Save failed: {e}")
 
-    # Record fingerprint metrics
-    try:
-        record_request(
-            funder_address=funder_address,
-            section="funder_incoming",
-            source=source,
-            fingerprint_cache_hit=fingerprint_cache_hit,
-            fingerprint_refresh=fingerprint_refresh,
-        )
-    except Exception as e:
-        logger.debug(f"[METRICS] Recording failed: {e}")
-
     return {
         "incoming_count": incoming_saved,
         "outgoing_count": outgoing_saved,
@@ -981,6 +1037,28 @@ async def extract_for_creator_async(
     if not funders:
         return {"error": "no_funders", "creator": creator_address}
 
+    # Cost control: separate fresh vs cached funders
+    fresh_funders = []
+    cached_funders = []
+
+    for addr, amt in funders:
+        inc_count, out_count, _ = _has_cached_funder_transfers(addr)
+        if inc_count or out_count:
+            cached_funders.append((addr, amt))
+        else:
+            fresh_funders.append((addr, amt))
+
+    # Prioritize largest fresh funders first (most likely to have useful data)
+    fresh_funders = sorted(fresh_funders, key=lambda x: x[1], reverse=True)[:MAX_FRESH_FUNDERS_PER_CREATOR]
+
+    # Combine: process all cached, then up to MAX_FRESH_FUNDERS fresh
+    funders_to_process = cached_funders + fresh_funders
+
+    print(f"[BUDGET] Processing: {len(cached_funders)} cached + {len(fresh_funders)} fresh (limited to {MAX_FRESH_FUNDERS_PER_CREATOR} max fresh)")
+    if len(funders) > len(funders_to_process):
+        skipped = len(funders) - len(funders_to_process)
+        print(f"[BUDGET] Skipped {skipped} fresh funders (cost control)")
+
     sem = asyncio.Semaphore(max(1, int(concurrency)))
 
     async def _process_one(funder_addr: str, _amount: float) -> Dict:
@@ -992,7 +1070,7 @@ async def extract_for_creator_async(
                 rpc_sig_limit=rpc_sig_limit,
             )
 
-    tasks = [_process_one(addr, amt) for addr, amt in funders]
+    tasks = [_process_one(addr, amt) for addr, amt in funders_to_process]
     results = await asyncio.gather(*tasks, return_exceptions=True)
 
     total_sol = 0.0

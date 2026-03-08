@@ -6,7 +6,7 @@ SAFEST/RELIABLE (but still fast) version:
 - Prefer Helius enriched tx feed when available (nativeTransfers already parsed)
 - Fall back to Solana RPC only if Helius unavailable/fails
 - Shared HTTP session w/ retries + exponential backoff
-- Bounded concurrency for multi-funder processing (default 4)
+- Bounded concurrency for multi-funder processing (default 2)
 - Batch DB inserts + WAL pragmas + required indexes
 - Async-safe entrypoints (no asyncio.run() inside running event loop)
 
@@ -1047,14 +1047,47 @@ async def extract_for_creator_async(
     # Prioritize largest fresh funders first (most likely to have useful data)
     fresh_funders = sorted(fresh_funders, key=lambda x: x[1], reverse=True)[:MAX_FRESH_FUNDERS_PER_CREATOR]
 
-    # Combine: process all cached, then up to MAX_FRESH_FUNDERS fresh
-    funders_to_process = cached_funders + fresh_funders
-
+    # Process cached funders directly (no threading needed - instant DB lookup)
     print(f"[BUDGET] Processing: {len(cached_funders)} cached + {len(fresh_funders)} fresh (limited to {MAX_FRESH_FUNDERS_PER_CREATOR} max fresh)")
-    if len(funders) > len(funders_to_process):
-        skipped = len(funders) - len(funders_to_process)
+    if len(funders) > len(cached_funders) + len(fresh_funders):
+        skipped = len(funders) - len(cached_funders) - len(fresh_funders)
         print(f"[BUDGET] Skipped {skipped} fresh funders (cost control)")
 
+    # Initialize source-level audit tracking
+    source_counts = {
+        "database_cache": 0,
+        "fingerprint_skip_with_cache": 0,
+        "fingerprint_skip_deferred": 0,
+        "deferred_large_history": 0,
+        "helius_address_feed": 0,
+        "helius_batch_from_rpc_sigs": 0,
+        "rpc_only": 0,
+        "no_data": 0,
+    }
+
+    results: List[Dict] = []
+    total_sol = 0.0
+    total_incoming = 0
+    total_outgoing = 0
+    error_count = 0
+
+    # Fast-path: cached funders (0 API cost, instant DB lookup)
+    for cached_addr, _ in cached_funders:
+        inc_count, out_count, cached_sol = _has_cached_funder_transfers(cached_addr)
+        result = {
+            "incoming_count": inc_count,
+            "outgoing_count": out_count,
+            "total_sol": cached_sol,
+            "source": "database_cache",
+            "funder": cached_addr,
+        }
+        results.append(result)
+        total_sol += cached_sol
+        total_incoming += inc_count
+        total_outgoing += out_count
+        source_counts["database_cache"] += 1
+
+    # Thread pool: fresh funders (API calls required)
     sem = asyncio.Semaphore(max(1, int(concurrency)))
 
     async def _process_one(funder_addr: str, _amount: float) -> Dict:
@@ -1066,22 +1099,23 @@ async def extract_for_creator_async(
                 rpc_sig_limit=rpc_sig_limit,
             )
 
-    tasks = [_process_one(addr, amt) for addr, amt in funders_to_process]
-    results = await asyncio.gather(*tasks, return_exceptions=True)
+    tasks = [_process_one(addr, amt) for addr, amt in fresh_funders]
+    fresh_results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    total_sol = 0.0
-    total_incoming = 0
-    total_outgoing = 0
-    error_count = 0
-
-    for r in results:
+    for r in fresh_results:
         if isinstance(r, Exception):
             error_count += 1
             continue
         if isinstance(r, dict):
+            results.append(r)
             total_sol += float(r.get("total_sol", 0.0))
             total_incoming += int(r.get("incoming_count", 0))
             total_outgoing += int(r.get("outgoing_count", 0))
+
+            # Track source for audit
+            src = r.get("source")
+            if src in source_counts:
+                source_counts[src] += 1
 
     # Mark completion (best-effort)
     try:
@@ -1101,19 +1135,23 @@ async def extract_for_creator_async(
         print(f"[DB] Error marking completion: {e}")
 
     # Calculate explicit counters for auditing
-    fresh_funders_processed = len(fresh_funders)
-    fresh_funders_skipped = max(0, len(funders) - len(funders_to_process))
+    fresh_funders_selected = len(fresh_funders)
+    fresh_funders_skipped_budget = max(0, len(funders) - len(cached_funders) - len(fresh_funders))
 
     print(f"\n{'='*80}")
     print(f"[COMPLETE] {creator_address}")
     print(f"  Total incoming transfers: {total_incoming}")
     print(f"  Total outgoing transfers: {total_outgoing}")
     print(f"  Total SOL traced: {total_sol:.4f}")
-    print(f"  Cached funders processed: {len(cached_funders)}")
-    print(f"  Fresh funders processed: {fresh_funders_processed}")
-    print(f"  Fresh funders skipped (budget): {fresh_funders_skipped}")
+    print(f"  Cached funders: {len(cached_funders)}")
+    print(f"  Fresh funders selected: {fresh_funders_selected}")
+    print(f"  Fresh funders skipped (budget): {fresh_funders_skipped_budget}")
     if error_count:
         print(f"  ⚠ {error_count} errors during processing")
+    print(f"\n  Source breakdown:")
+    for source, count in sorted(source_counts.items()):
+        if count > 0:
+            print(f"    {source}: {count}")
     print(f"{'='*80}\n")
 
     return {
@@ -1124,8 +1162,9 @@ async def extract_for_creator_async(
         "errors": error_count,
         "status": "complete",
         "cached_funders": len(cached_funders),
-        "fresh_funders_processed": fresh_funders_processed,
-        "fresh_funders_skipped_budget": fresh_funders_skipped,
+        "fresh_funders_selected": fresh_funders_selected,
+        "fresh_funders_skipped_budget": fresh_funders_skipped_budget,
+        "source_breakdown": source_counts,
     }
 
 

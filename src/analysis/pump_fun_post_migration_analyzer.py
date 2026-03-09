@@ -36,7 +36,7 @@ from dotenv import load_dotenv
 import base58
 import struct
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), '../../config/.env'))
 
 # Import RPC metrics recorder for monitoring
 try:

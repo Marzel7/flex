@@ -1168,6 +1168,118 @@ def get_token_price(token_mint: str) -> Optional[float]:
         return None
 
 
+def get_sidebar_css() -> str:
+    """Generate sidebar CSS styling"""
+    return """
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 180px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            padding: 0 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 12px 0;
+            gap: 2px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 6px;
+            margin: 0 8px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.15s, color 0.15s;
+            border: none;
+            background: none;
+            width: calc(100% - 16px);
+            text-align: left;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(255,255,255,0.07);
+            color: var(--text-primary);
+        }
+
+        .sidebar-item.active {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent-cyan);
+            border-left: 3px solid var(--accent-cyan);
+            padding-left: 13px;
+        }
+
+        .sidebar-item.green {
+            color: #22c55e;
+        }
+
+        .sidebar-item.green:hover {
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        /* Push main content right of sidebar */
+        body {
+            padding-left: 196px;
+        }
+    """
+
+
+def get_sidebar_html(active_page: str = "tokens") -> str:
+    """Generate the left sidebar navigation HTML"""
+    pages = {
+        "tokens": ("Tokens", "/"),
+        "networks": ("Networks", "/networks"),
+        "clusters": ("Clusters", "/clusters"),
+        "coordinated-funders": ("Coordinated Funders", "/coordinated-funders"),
+        "hubs": ("Hubs", "/top-funding-hubs"),
+        "creator-analysis": ("Creator Analysis", "/creator-analysis"),
+        "webhook": ("📡 Webhook", "/webhook-monitor"),
+        "rpc-savings": ("💰 RPC Savings", "/rpc-savings-dashboard"),
+    }
+
+    items = ""
+    for page_key, (label, url) in pages.items():
+        is_active = "active" if page_key == active_page else ""
+        style_class = "green" if page_key == "rpc-savings" else ""
+        extra_class = f"{is_active} {style_class}".strip()
+        items += f'<a class="sidebar-item {extra_class}" href="{url}">{label}</a>\n            '
+
+    return f"""
+    <!-- Left Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-logo">FLEX</div>
+        <nav class="sidebar-nav">
+            {items}
+        </nav>
+    </div>
+    """
+
+
 # =========================================================================
 # FLASK ROUTES
 # =========================================================================
@@ -13668,6 +13780,8 @@ def networks_dashboard():
                 --bg-card: rgba(30, 30, 40, 0.8);
                 --bg-hover: rgba(167, 139, 250, 0.05);
                 --border-color: rgba(167, 139, 250, 0.3);
+                --bg-secondary: rgba(20, 20, 30, 0.9);
+                --accent-cyan: #06b6d4;
             }}
             body {{
                 background: var(--bg-dark);
@@ -13675,7 +13789,9 @@ def networks_dashboard():
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
                 padding: 30px;
                 margin: 0;
+                padding-left: 196px;
             }}
+            {get_sidebar_css()}
             .container {{
                 max-width: 1400px;
                 margin: 0 auto;
@@ -13808,6 +13924,7 @@ def networks_dashboard():
         </style>
     </head>
     <body>
+        {get_sidebar_html("networks")}
         <div class="container">
             <a href="/" class="back-link">← Back to Dashboard</a>
 

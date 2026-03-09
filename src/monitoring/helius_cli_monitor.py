@@ -180,7 +180,14 @@ def get_helius_usage_cli() -> Optional[Dict]:
         )
 
         if result.returncode != 0:
-            print(f"[HELIUS] ❌ CLI error: {result.stderr[:200]}", flush=True)
+            stderr = result.stderr[:200] if result.stderr else result.stdout[:200]
+            # Check for common issues
+            if "NO_PROJECTS" in stderr or "no projects found" in stderr.lower():
+                print(f"[HELIUS] ⚠️ No projects found. Helius account may need setup.", flush=True)
+            elif "access denied" in stderr.lower() or "403" in stderr:
+                print(f"[HELIUS] ⚠️ Access denied to project. Check wallet authentication.", flush=True)
+            else:
+                print(f"[HELIUS] ⚠️ CLI error: {stderr}", flush=True)
             return None
 
         # Parse JSON output

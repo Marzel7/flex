@@ -37,6 +37,10 @@ except ImportError:
 
 DB_PATH = os.getenv("DB_PATH", "flex_complete_database.db")
 KEYPAIR_PATH = os.getenv("SOLANA_KEYPAIR", os.path.expanduser("~/.config/solana/id.json"))
+# Use Helius project owner keypair (5ZpgwwHAxs5kuer3dwwJQxjxvWaXHaLvchZJCRqigPtJ)
+HELIUS_KEYPAIR_PATH = os.path.expanduser("~/.config/solana/flex_helius_keypair.json")
+HELIUS_API_KEY = os.getenv("HELIUS_API_KEY")
+HELIUS_PROJECT_ID = os.getenv("HELIUS_PROJECT_ID")
 
 
 def _connect():
@@ -155,10 +159,8 @@ def get_helius_usage_cli() -> Optional[Dict]:
     try:
         print("[HELIUS] 📊 Capturing usage via CLI...", flush=True)
 
-        # Get or create keypair file
-        keypair_path = _get_or_create_keypair_file()
-        if keypair_path != KEYPAIR_PATH:
-            temp_keypair = keypair_path
+        # Use Helius project owner keypair if it exists, otherwise use default
+        keypair_path = HELIUS_KEYPAIR_PATH if os.path.exists(HELIUS_KEYPAIR_PATH) else KEYPAIR_PATH
 
         # Authenticate with keypair if not already done
         auth_result = subprocess.run(

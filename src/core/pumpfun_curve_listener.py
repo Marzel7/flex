@@ -20,15 +20,15 @@ import requests
 from datetime import datetime
 from typing import Set, Optional, List, Dict
 from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
-from realtime_creator_funding_extractor import extract_funding_for_new_token
-from funder_incoming_extractor import extract_for_creator as extract_funder_transfers
+from src.extractors.realtime_creator_funding_extractor import extract_funding_for_new_token
+from src.extractors.funder_incoming_extractor import extract_for_creator as extract_funder_transfers
 from clustering_task_queue import enqueue_clustering
 from creator_outgoing_extractor import run_forever as run_outgoing_extractor
 from dotenv import load_dotenv
 
 # Import RPC metrics recorder for monitoring
 try:
-    from rpc_metrics_recorder import initialize_recorder, record_request
+    from src.metrics.rpc_metrics_recorder import initialize_recorder, record_request
     initialize_recorder(plan_monthly_credits=50_000_000)
 except ImportError:
     def record_request(*args, **kwargs):
@@ -2248,7 +2248,7 @@ class PumpFunCurveListener:
                     # Capture Helius account usage snapshot
                     try:
                         print(f"[HELIUS] ⏳ Capturing Helius account usage snapshot...", flush=True)
-                        from helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
+                        from src.monitoring.helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
                         usage = get_helius_usage_cli()
                         if usage:
                             record_usage_snapshot(usage)

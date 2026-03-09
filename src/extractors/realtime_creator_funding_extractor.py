@@ -25,17 +25,17 @@ import os
 import time
 from typing import Optional, Dict, List, Set, Iterable, Tuple
 from datetime import datetime
-from db_locking import DB_WRITE_LOCK
-from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
-from dust_addresses import DUST_ADDRESSES
-from domain_extraction import extract_from_helius_transaction_async
-from domain_mapping import register_domain, link_domain_to_address
-from automatic_cex_detection import classify_addresses_from_funding
-from post_launch_automation import run_post_launch_automation
+from src.utils.db_locking import DB_WRITE_LOCK
+from src.utils.infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
+from src.utils.dust_addresses import DUST_ADDRESSES
+from src.utils.domain_extraction import extract_from_helius_transaction_async
+from src.utils.domain_mapping import register_domain, link_domain_to_address
+from src.analysis.automatic_cex_detection import classify_addresses_from_funding
+from src.analysis.post_launch_automation import run_post_launch_automation
 
 # Import RPC metrics recorder for monitoring
 try:
-    from rpc_metrics_recorder import record_request, initialize_recorder
+    from src.metrics.rpc_metrics_recorder import record_request, initialize_recorder
     initialize_recorder(plan_monthly_credits=50_000_000)
 except ImportError:
     def record_request(*args, **kwargs):
@@ -44,7 +44,7 @@ except ImportError:
 DB_PATH = "flex_complete_database.db"
 # Initialize creator funding cache for Layer 6 optimization
 try:
-    from creator_funding_graph_cache import CreatorFundingGraphCache
+    from src.utils.creator_funding_graph_cache import CreatorFundingGraphCache
     CREATOR_CACHE = CreatorFundingGraphCache(DB_PATH)
 except ImportError:
     CREATOR_CACHE = None
@@ -299,7 +299,7 @@ class RealTimeCreatorFundingExtractor:
             self.domain_resolver = DomainResolver(DB_PATH, self.session)
 
         # Initialize domain registry
-        from domain_mapping import init_domain_registry
+        from src.utils.domain_mapping import init_domain_registry
         init_domain_registry()
 
         # Setup SQLite optimizations for performance
@@ -605,7 +605,7 @@ class RealTimeCreatorFundingExtractor:
         - Batch resolve domains
         - Insert Jito events
         """
-        from infra_mapping import is_infrastructure_account, is_cex_account
+        from src.utils.infra_mapping import is_infrastructure_account, is_cex_account
 
         try:
             cursor = conn.cursor()
@@ -709,7 +709,7 @@ class RealTimeCreatorFundingExtractor:
         3. address_classification table (auto-detected with confidence)
         """
         try:
-            from infra_mapping import is_cex_account, CEX_ACCOUNTS
+            from src.utils.infra_mapping import is_cex_account, CEX_ACCOUNTS
 
             conn = sqlite3.connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
@@ -1192,7 +1192,7 @@ class RealTimeCreatorFundingExtractor:
 
                                     # Extract service names from transaction description and tag creator
                                     try:
-                                        from solscan_address_tagger import extract_service_names_from_description, tag_creator_with_services
+                                        from src.utils.solscan_address_tagger import extract_service_names_from_description, tag_creator_with_services
                                         tx_description = tx.get("description", "")
                                         services = extract_service_names_from_description(tx_description)
                                         if services:
@@ -1558,7 +1558,7 @@ class RealTimeCreatorFundingExtractor:
         Runs non-blocking to avoid delaying token processing.
         """
         try:
-            from blocksec_aml_batcher import BlockSecAMLBatcher, auto_batch_new_addresses
+            from src.monitoring.blocksec_aml_batcher import BlockSecAMLBatcher, auto_batch_new_addresses
             
             # Just trigger the auto-batch function
             # It will check rate limits internally and only submit if ready

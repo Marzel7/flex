@@ -434,7 +434,7 @@ class BlockSecAMLBatcher:
             is_cex = category.lower() in ('exchange', 'cex', 'trading')
 
             if is_cex:
-                from infra_mapping import add_cex_account
+                from src.utils.infra_mapping import add_cex_account
 
                 # Extract exchange name from label (e.g., "Binance Hot Wallet" -> "Binance")
                 exchange_name = label_name.split()[0] if label_name else "Unknown"
@@ -450,7 +450,7 @@ class BlockSecAMLBatcher:
                 print(f"[BLOCKSEC] ✓ Added to CEX mapping: {label_name}", flush=True)
 
             else:
-                from infra_mapping import add_infrastructure_account
+                from src.utils.infra_mapping import add_infrastructure_account
 
                 add_infrastructure_account(
                     address=address,
@@ -463,7 +463,7 @@ class BlockSecAMLBatcher:
                 print(f"[BLOCKSEC] ✓ Added to Infrastructure mapping: {label_name}", flush=True)
 
         except ImportError:
-            print(f"[BLOCKSEC] Warning: Could not import infra_mapping", flush=True)
+            print(f"[BLOCKSEC] Warning: Could not import src.utils.infra_mapping", flush=True)
         except Exception as e:
             print(f"[BLOCKSEC] Error adding to mappings: {e}", flush=True)
 

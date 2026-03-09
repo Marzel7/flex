@@ -16,7 +16,7 @@ import aiohttp
 from typing import Dict, List, Optional
 from datetime import datetime
 import json
-from cross_funding_network_analyzer import CrossFundingClusterAnalyzer
+from src.analysis.cross_funding_network_analyzer import CrossFundingClusterAnalyzer
 
 DB_PATH = "flex_complete_database.db"
 

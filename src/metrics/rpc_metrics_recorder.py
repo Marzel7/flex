@@ -21,7 +21,7 @@ import os
 # ============================================================================
 
 try:
-    from rpc_metrics_config import CREDIT_SCHEDULE
+    from src.apis.rpc_metrics_config import CREDIT_SCHEDULE
 except ImportError:
     # Fallback if config module not available
     CREDIT_SCHEDULE = {
@@ -387,7 +387,7 @@ class RPCMetricsRecorder:
     def _get_actual_helius_usage(self) -> int:
         """Safely read current Helius credits_used_today"""
         try:
-            from rpc_metrics_config import PlanConfig
+            from src.apis.rpc_metrics_config import PlanConfig
             return int(PlanConfig.CURRENT_USAGE.get("credits_used_today", 0))
         except Exception:
             return 0
@@ -702,7 +702,7 @@ class RPCMetricsRecorder:
         try:
             # Get Helius actual credits from config (labeled as "today" - may not be full 24h)
             try:
-                from rpc_metrics_config import PlanConfig
+                from src.apis.rpc_metrics_config import PlanConfig
                 helius_total = int(PlanConfig.CURRENT_USAGE.get("credits_used_today", 0))
             except Exception:
                 helius_total = 0
@@ -748,7 +748,7 @@ class RPCMetricsRecorder:
             # Get actual Helius usage from config (reload to get fresh values from disk)
             try:
                 import importlib
-                import rpc_metrics_config
+                import src.apis.rpc_metrics_config
                 importlib.reload(rpc_metrics_config)  # Force reload from disk
                 actual_usage = rpc_metrics_config.PlanConfig.CURRENT_USAGE
                 credits_used_today_raw = actual_usage["credits_used_today"]

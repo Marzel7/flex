@@ -3,7 +3,7 @@ FastAPI endpoints for reconciliation system.
 Integrate into your existing rpc_metrics_api.py or serve separately.
 
 Usage in rpc_metrics_api.py:
-    from reconciliation_api import router as reconciliation_router
+    from src.apis.reconciliation_api import router as reconciliation_router
     app.include_router(reconciliation_router, prefix="/reconciliation", tags=["reconciliation"])
 """
 
@@ -12,7 +12,7 @@ from typing import Optional, Dict, Any
 from datetime import datetime
 
 from reconciliation_collectors import HeliusCliCollector, InternalMetricsCollector
-from reconciliation_engine import ReconciliationEngine
+from src.utils.reconciliation_engine import ReconciliationEngine
 from reconciliation_reporter import ReconciliationReporter
 
 router = APIRouter()

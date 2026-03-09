@@ -38,11 +38,11 @@ except ImportError:
 # Try to load environment variables from .env file
 try:
     from dotenv import load_dotenv
-    load_dotenv()
+    load_dotenv(os.path.join(os.path.dirname(__file__), '../../config/.env'))
 except ImportError:
     pass  # dotenv not required, env vars can be set directly
 
-DB_PATH = "flex_complete_database.db"
+DB_PATH = os.environ.get('DB_PATH', os.getenv('RPC_METRICS_DB', 'flex_complete_database.db'))
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()
 LAMPORTS_PER_SOL = 1_000_000_000
 

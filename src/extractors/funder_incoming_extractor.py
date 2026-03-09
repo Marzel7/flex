@@ -55,11 +55,11 @@ except ImportError:
 # Env
 try:
     from dotenv import load_dotenv  # type: ignore
-    load_dotenv()
+    load_dotenv(os.path.join(os.path.dirname(__file__), '../../config/.env'))
 except Exception:
     pass
 
-DB_PATH = "flex_complete_database.db"
+DB_PATH = os.environ.get('DB_PATH', os.getenv('RPC_METRICS_DB', 'flex_complete_database.db'))
 SOLANA_RPC = "https://api.mainnet-beta.solana.com"
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()
 

@@ -273,7 +273,7 @@ def check_if_cex_funding(cex_address: str) -> dict:
             'flag': None
         }
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), '../../config/.env'))
 
 # === Config ===
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
@@ -306,7 +306,8 @@ class PumpFunCurveListener:
 
     def __init__(self):
         self.seen_mints: Set[str] = set()
-        self.detected_migrations: Set[str] = set()
+        self.processing_migrations: Set[str] = set()
+        self.completed_migrations: Set[str] = set()
         self.analyzed_tokens = {}
         self.db_lock = asyncio.Lock()
         self.websocket_connected = False
@@ -469,13 +470,10 @@ class PumpFunCurveListener:
             )
             return None
 
-    async def _get_transaction_cached(self, signature: str, timeout: int = 10) -> Optional[Dict]:
+    async def _get_transaction_cached(self, signature: str, timeout: int = 15) -> Optional[Dict]:
         """
         Fetch transaction with TTL cache + singleflight deduplication.
         Includes retry/backoff for indexing delays.
-
-        Deduplicates concurrent requests for the same signature.
-        Cache TTL is 30 minutes (1800 seconds).
 
         Returns tx_data dict from "result" field, or None if not found.
         """
@@ -524,43 +522,55 @@ class PumpFunCurveListener:
             print(f"[TX_CACHE] 🌐 MISS: fetching {signature[:16]}...", flush=True)
 
             # Retry with backoff for indexing delays
-            retry_delays = [0.5, 1.0, 2.0, 3.0, 5.0, 8.0]
-            for attempt in range(len(retry_delays) + 1):  # +1 for initial attempt
+            retry_delays = [1, 2, 4, 6, 10, 15, 20, 30]
+            total_attempts = len(retry_delays) + 1
+
+            for attempt in range(total_attempts):
                 if attempt > 0:
-                    print(f"[TX_CACHE] ⏳ Retry {attempt}/{len(retry_delays)} after {retry_delays[attempt-1]}s for {signature[:16]}...", flush=True)
-                    await asyncio.sleep(retry_delays[attempt - 1])
+                    delay = retry_delays[attempt - 1]
+                    print(f"[TX_CACHE] ⏳ Retry {attempt + 1}/{total_attempts} after {delay}s for {signature[:16]}...", flush=True)
+                    await asyncio.sleep(delay)
 
                 payload = {
                     "jsonrpc": "2.0",
                     "id": 1,
                     "method": "getTransaction",
-                    "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 1}]
+                    "params": [
+                        signature,
+                        {
+                            "encoding": "jsonParsed",
+                            "commitment": "confirmed",
+                            "maxSupportedTransactionVersion": 0,
+                        },
+                    ],
                 }
 
                 tx_data = await asyncio.wait_for(
                     self._post_rpc_with_fallback(payload),
-                    timeout=timeout
+                    timeout=timeout,
                 )
 
                 # Check if we got a real result
                 if tx_data and "result" in tx_data and tx_data["result"]:
                     result = tx_data["result"]
                     # Cache it
-                    self.tx_cache[signature] = (result, current_time)
+                    self.tx_cache[signature] = (result, time.time())
                     print(f"[TX_CACHE] 💾 CACHED: {signature[:16]}... ({len(str(result))} bytes)", flush=True)
                     return result
 
                 # Log what we got (for debugging indexing delays)
                 if tx_data is None:
-                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/7: RPC returned None", flush=True)
+                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: _post_rpc_with_fallback returned None", flush=True)
+                elif "error" in tx_data:
+                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: RPC error: {tx_data['error']}", flush=True)
                 elif "result" not in tx_data:
-                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/7: No 'result' field in response", flush=True)
+                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: No 'result' field in response", flush=True)
                 elif tx_data["result"] is None:
-                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/7: result is None (indexing delay)", flush=True)
+                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: result is None (indexing delay)", flush=True)
                 else:
-                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/7: result is empty/falsy", flush=True)
+                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: result is empty/falsy", flush=True)
 
-            print(f"[TX_CACHE] ❌ All 7 attempts exhausted for {signature[:16]}... - giving up", flush=True)
+            print(f"[TX_CACHE] ❌ All {total_attempts} attempts exhausted for {signature[:16]}...", flush=True)
             return None
 
         except asyncio.TimeoutError:
@@ -574,7 +584,7 @@ class PumpFunCurveListener:
         finally:
             # Release lock for other waiters
             lock.release()
-            del self.tx_inflight_locks[signature]
+            self.tx_inflight_locks.pop(signature, None)
 
     # --- Database ---
     def _ensure_db(self):
@@ -657,6 +667,40 @@ class PumpFunCurveListener:
             )
         """)
 
+        # Creator funders - tracks funding sources for each creator
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS creator_funders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                creator_address TEXT NOT NULL,
+                funder_address TEXT NOT NULL,
+                amount_sol REAL DEFAULT 0,
+                transfer_count INTEGER DEFAULT 0,
+                first_detected_at TIMESTAMP,
+                last_detected_at TIMESTAMP,
+                fully_analyzed INTEGER DEFAULT 0,
+                is_cex INTEGER DEFAULT 0,
+                cex_name TEXT,
+                detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(creator_address, funder_address)
+            )
+        """)
+
+        # Creator funding graph - relationship graph for network analysis
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS creator_funding_graph (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                creator_address TEXT NOT NULL,
+                funding_source_address TEXT NOT NULL,
+                total_amount_sol REAL DEFAULT 0,
+                relationship_type TEXT,  -- direct, indirect, etc
+                first_detected_at TIMESTAMP,
+                last_detected_at TIMESTAMP,
+                is_suspicious INTEGER DEFAULT 0,
+                detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(creator_address, funding_source_address)
+            )
+        """)
+
         # Add columns if they don't exist (for backward compatibility)
         try:
             cursor.execute("PRAGMA table_info(token_analysis)")
@@ -734,7 +778,15 @@ class PumpFunCurveListener:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_funder_webhook_events_funder ON funder_webhook_events(funder_address)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_funder_webhook_events_block_time ON funder_webhook_events(block_time DESC)")
 
+        # Create indexes for creator_funders and creator_funding_graph
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funders_creator ON creator_funders(creator_address)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funders_funder ON creator_funders(funder_address)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funders_analyzed ON creator_funders(fully_analyzed)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funding_graph_creator ON creator_funding_graph(creator_address)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funding_graph_source ON creator_funding_graph(funding_source_address)")
+
         print("[DB] ✅ Funder webhook tables ensured", flush=True)
+        print("[DB] ✅ Creator funders and funding graph tables ensured", flush=True)
 
         conn.commit()
         conn.close()
@@ -2064,14 +2116,144 @@ class PumpFunCurveListener:
                         print(f"[DB_ERROR] Failed to update token entry with creator: {e}", flush=True)
                         return
 
-    async def handle_migration(self, signature: str, logs: list):
-        """Process detected migration"""
-        try:
-            # Skip if already processing this signature
-            if signature in self.detected_migrations:
-                return
+    async def _process_migration_with_mint(self, signature: str, logs: list, mint: str, tx_data: Optional[Dict] = None):
+        """Continue migration pipeline once mint is known."""
+        if self._token_exists_in_db(mint):
+            print(f"[MIGRATION] ⏭️  Token {mint} already analyzed - SKIPPED", flush=True)
+            return
 
-            self.detected_migrations.add(signature)
+        self.seen_mints.add(mint)
+        print(f"[EVENT] 🚀 MIGRATION DETECTED: {mint}", flush=True)
+        print(f"[EVENT] Migration signature: {signature}", flush=True)
+
+        # Create minimal token entry immediately (so token appears in UI right away)
+        await self._create_minimal_token_entry(mint)
+
+        # === Extract pool from cached tx (no RPC call!) ===
+        pool_address = None
+        if tx_data:
+            pool_address = await self._extract_pool_from_tx(tx_data)
+            if pool_address:
+                print(f"[EVENT] ✅ Pool extracted from cached tx: {pool_address}", flush=True)
+
+        # Trigger immediate price fetch (don't wait for background task)
+        # This ensures market cap appears quickly in UI regardless of analysis settings
+        try:
+            result = await self._extract_price_from_transaction(signature, mint)
+            if result is not None:
+                price, market_cap, source = result
+                await self._update_price_in_db(mint, price, market_cap, source)
+                print(f"[PRICE] ✅ Initial price fetched: ${price:.2e} | Market Cap: ${market_cap:.2e} | Source: {source}", flush=True)
+        except Exception as price_err:
+            print(f"[PRICE] ⚠ Initial price fetch failed: {price_err}", flush=True)
+
+        # Extract earliest creator and creation date (always, regardless of analysis toggles)
+        # This ensures creator and date are always visible in the UI
+        earliest_creator = None
+        created_at = None
+        analyzer = None
+        try:
+            from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
+            analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
+            provenance = await analyzer.get_creator_from_earliest_tx()
+            earliest_creator = provenance.get('creator') if provenance else None
+
+            # Prefer on-chain blockTime from provenance over migration tx blockTime
+            if provenance and provenance.get('blockTime'):
+                block_time = provenance.get('blockTime')
+                created_at = datetime.utcfromtimestamp(block_time).isoformat() + "Z"
+                print(f"[CREATOR] 🕐 Using on-chain time from earliest tx: {created_at}", flush=True)
+
+            # Fallback: Get migration block time if provenance doesn't have blockTime
+            if not created_at and signature and tx_data:
+                try:
+                    block_time = tx_data.get("blockTime")
+                    if block_time:
+                        created_at = datetime.utcfromtimestamp(block_time).isoformat() + "Z"
+                except Exception:
+                    pass
+
+            created_at = created_at or (datetime.utcnow().isoformat() + "Z")
+
+            if earliest_creator:
+                provenance_status = provenance.get('status', 'unknown') if provenance else 'unknown'
+                bonding_curve_pda = provenance.get('bonding_curve_pda') if provenance else None
+
+                # CRITICAL: Only accept create_tx_signature if it's a validated Pump.Fun CREATE transaction
+                is_pumpfun_create = provenance.get('is_pumpfun_create', False) if provenance else False
+                create_tx_signature = analyzer._create_tx_signature if (analyzer and hasattr(analyzer, '_create_tx_signature') and is_pumpfun_create) else None
+
+                if create_tx_signature:
+                    print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status}) | CREATE tx validated: {create_tx_signature[:20]}...", flush=True)
+                else:
+                    analyzer_sig = analyzer._create_tx_signature if (analyzer and hasattr(analyzer, '_create_tx_signature')) else None
+                    print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status}) | CREATE tx validation: {'FAILED' if analyzer_sig else 'NOT_SET'}", flush=True)
+
+                # Update minimal entry with creator, date, bonding curve, and CREATE tx signature (only if validated)
+                await self._update_token_entry_with_creator(mint, earliest_creator, created_at, bonding_curve_pda, create_tx_signature)
+
+                # Creator tracking now handled by creator_outgoing_extractor (background job)
+        except Exception as creator_err:
+            print(f"[CREATOR] ⚠ Could not extract creator: {creator_err}", flush=True)
+
+        # Analyze token history (includes creator behavior from all token transactions) asynchronously (if enabled)
+        if get_migration_setting('token_history_check', True):
+            print(f"[SETTINGS] Token history ✅ ON - analyzing creator behavior from token history", flush=True)
+            asyncio.create_task(self.analyze_post_migration(mint, signature, pool_address))
+        else:
+            print(f"[SETTINGS] Token history ❌ OFF - skipping token history analysis", flush=True)
+
+        print(f"[MIGRATION] ✅ CRITICAL PATH COMPLETE - Token {mint[:8]}... with creator {earliest_creator[:8] if earliest_creator else 'unknown'}... is now visible in UI", flush=True)
+
+        # Background Task: Extract creator funding and clustering
+        if earliest_creator:
+            create_tx_sig = analyzer._create_tx_signature if analyzer and hasattr(analyzer, '_create_tx_signature') else None
+
+            async def background_funding_and_clustering():
+                """Background: funding extraction, funder extraction, and clustering"""
+                print(f"[BACKGROUND] 🚀 Starting background funding and clustering tasks...", flush=True)
+
+                # Extract creator funding
+                try:
+                    print(f"[FUNDING] ⏳ Starting creator funding extraction for {earliest_creator[:8]}...", flush=True)
+                    await extract_funding_for_new_token(earliest_creator, created_at, create_tx_sig, mint)
+                    print(f"[FUNDING] ✅ Creator funding extraction complete", flush=True)
+                except Exception as e:
+                    print(f"[FUNDING] ⚠️ Error in creator funding extraction: {e}", flush=True)
+
+                # Extract funder transfers (respects auto_extract_funders toggle)
+                try:
+                    if get_migration_setting('auto_extract_funders', False):
+                        print(f"[FUNDER_EXTRACTION] ⏳ Starting funder transfer extraction for {earliest_creator[:8]}...", flush=True)
+                        await extract_funder_transfers_async(earliest_creator)
+                        print(f"[FUNDER_EXTRACTION] ✅ Funder transfer extraction complete", flush=True)
+                    else:
+                        print(f"[FUNDER_EXTRACTION] ⏭️ Skipped (auto_extract_funders toggle is OFF)", flush=True)
+                except Exception as e:
+                    print(f"[FUNDER_EXTRACTION] ⚠️ Error in funder extraction: {e}", flush=True)
+
+                # Queue clustering (now that funding is extracted)
+                try:
+                    print(f"[CLUSTERING] ⏳ Queueing network clustering task...", flush=True)
+                    await enqueue_clustering(rebuild_super_clusters_from_funding, "super_clusters_rebuild")
+                    print(f"[CLUSTERING] ✅ Clustering task enqueued for processing", flush=True)
+                except Exception as e:
+                    print(f"[CLUSTERING] ⚠️ Error queueing clustering: {e}", flush=True)
+
+            # Fire-and-forget: don't wait for background tasks
+            asyncio.create_task(background_funding_and_clustering())
+            print(f"[BACKGROUND] 📤 Background tasks spawned (fire-and-forget)", flush=True)
+        else:
+            print(f"[BACKGROUND] ⏭️ Skipping background tasks (no creator found)", flush=True)
+
+    async def handle_migration(self, signature: str, logs: list):
+        """Process detected migration."""
+        if signature in self.processing_migrations or signature in self.completed_migrations:
+            return
+
+        self.processing_migrations.add(signature)
+
+        try:
 
             # === CRITICAL OPTIMIZATION: Cache TX fetch ===
             # Fetch TX once and reuse for mint, pool, blockTime extraction
@@ -2094,180 +2276,67 @@ class PumpFunCurveListener:
                     """Re-attempt mint extraction after 45 seconds for delayed indexing"""
                     await asyncio.sleep(45)
                     try:
-                        tx_data_retry = await self._get_transaction_cached(signature)
-                        if tx_data_retry:
-                            mint_retry = await self._extract_mint_from_tx(tx_data_retry)
-                            if mint_retry and not self._token_exists_in_db(mint_retry):
-                                print(f"[MIGRATION] ✅ Delayed re-check succeeded for {signature}: {mint_retry}", flush=True)
-                                await self.handle_migration(signature, logs)
-                                return
+                        payload = {
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": "getTransaction",
+                            "params": [
+                                signature,
+                                {
+                                    "encoding": "jsonParsed",
+                                    "commitment": "finalized",
+                                    "maxSupportedTransactionVersion": 0,
+                                },
+                            ],
+                        }
+
+                        raw = await self._post_rpc_with_fallback(payload, timeout=20)
+                        tx_data_retry = raw.get("result") if raw and "result" in raw else None
+
+                        if not tx_data_retry:
+                            print(f"[MIGRATION] ⚠ Delayed re-check still has no tx: {signature}", flush=True)
+                            return
+
+                        mint_retry = await self._extract_mint_from_tx(tx_data_retry)
+                        if not mint_retry:
+                            mint_retry = self._extract_mint_from_logs(logs)
+
+                        if not mint_retry:
+                            print(f"[MIGRATION] ⚠ Could not extract mint from {signature} after delayed re-check - SKIPPED", flush=True)
+                            return
+
+                        print(f"[MIGRATION] ✅ Delayed re-check succeeded for {signature}: {mint_retry}", flush=True)
+                        await self._process_migration_with_mint(signature, logs, mint_retry, tx_data_retry)
+                        self.completed_migrations.add(signature)
+
                     except Exception as e:
                         print(f"[MIGRATION] ⚠ Delayed re-check failed: {e}", flush=True)
-                    print(f"[MIGRATION] ⚠ Could not extract mint from {signature} after delayed re-check - SKIPPED", flush=True)
+                    finally:
+                        self.processing_migrations.discard(signature)
+                        self.tx_cache_pending_retries.pop(signature, None)
 
                 # Fire-and-forget task, track to avoid duplicates
                 if signature not in self.tx_cache_pending_retries:
                     task = asyncio.create_task(delayed_mint_recheck())
                     self.tx_cache_pending_retries[signature] = task
-                return  # Skip for now, delayed re-check will process if successful
-
-            # Skip if already analyzed
-            if self._token_exists_in_db(mint):
-                print(f"[MIGRATION] ⏭️  Token {mint} already analyzed - SKIPPED", flush=True)
                 return
 
-            self.seen_mints.add(mint)
-            print(f"[EVENT] 🚀 MIGRATION DETECTED: {mint}", flush=True)
-            print(f"[EVENT] Migration signature: {signature}", flush=True)
+            # Mint found immediately - continue with normal pipeline
+            await self._process_migration_with_mint(signature, logs, mint, tx_data)
+            self.completed_migrations.add(signature)
 
-            # Create minimal token entry immediately (so token appears in UI right away)
-            await self._create_minimal_token_entry(mint)
-
-            # === Extract pool from cached tx (no RPC call!) ===
-            pool_address = None
-            if tx_data:
-                pool_address = await self._extract_pool_from_tx(tx_data)
-                if pool_address:
-                    print(f"[EVENT] ✅ Pool extracted from cached tx: {pool_address}", flush=True)
-
-            # Trigger immediate price fetch (don't wait for background task)
-            # This ensures market cap appears quickly in UI regardless of analysis settings
-            try:
-                result = await self._extract_price_from_transaction(signature, mint)
-                if result is not None:
-                    price, market_cap, source = result
-                    await self._update_price_in_db(mint, price, market_cap, source)
-                    print(f"[PRICE] ✅ Initial price fetched: ${price:.2e} | Market Cap: ${market_cap:.2e} | Source: {source}", flush=True)
-            except Exception as price_err:
-                print(f"[PRICE] ⚠ Initial price fetch failed: {price_err}", flush=True)
-
-            # Extract earliest creator and creation date (always, regardless of analysis toggles)
-            # This ensures creator and date are always visible in the UI
-            earliest_creator = None
-            created_at = None
-            analyzer = None  # Initialize early to prevent UnboundLocalError if try block fails
-            try:
-                from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
-                analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
-                provenance = await analyzer.get_creator_from_earliest_tx()
-                earliest_creator = provenance.get('creator') if provenance else None
-
-                # Prefer on-chain blockTime from provenance over migration tx blockTime
-                if provenance and provenance.get('blockTime'):
-                    block_time = provenance.get('blockTime')
-                    created_at = datetime.utcfromtimestamp(block_time).isoformat() + "Z"
-                    print(f"[CREATOR] 🕐 Using on-chain time from earliest tx: {created_at}", flush=True)
-
-                # Fallback: Get migration block time if provenance doesn't have blockTime
-                # Try cached TX first (no RPC call!)
-                if not created_at and signature:
-                    try:
-                        if tx_data:
-                            block_time = tx_data.get("blockTime")
-                            if block_time:
-                                created_at = datetime.utcfromtimestamp(block_time).isoformat() + "Z"
-                        # If no cached tx, skip (provenance check will use current time as fallback)
-                    except Exception as ts_err:
-                        pass  # Fall back to current time if we can't get block time
-
-                created_at = created_at or (datetime.utcnow().isoformat() + "Z")
-
-                if earliest_creator:
-                    provenance_status = provenance.get('status', 'unknown') if provenance else 'unknown'
-                    bonding_curve_pda = provenance.get('bonding_curve_pda') if provenance else None
-
-                    # CRITICAL: Only accept create_tx_signature if it's a validated Pump.Fun CREATE transaction
-                    is_pumpfun_create = provenance.get('is_pumpfun_create', False) if provenance else False
-                    create_tx_signature = analyzer._create_tx_signature if (analyzer and hasattr(analyzer, '_create_tx_signature') and is_pumpfun_create) else None
-
-                    if create_tx_signature:
-                        print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status}) | CREATE tx validated: {create_tx_signature[:20]}...", flush=True)
-                    else:
-                        analyzer_sig = analyzer._create_tx_signature if (analyzer and hasattr(analyzer, '_create_tx_signature')) else None
-                        print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status}) | CREATE tx validation: {'FAILED' if analyzer_sig else 'NOT_SET'}", flush=True)
-
-                    # Update minimal entry with creator, date, bonding curve, and CREATE tx signature (only if validated)
-                    await self._update_token_entry_with_creator(mint, earliest_creator, created_at, bonding_curve_pda, create_tx_signature)
-
-                    # Creator tracking now handled by creator_outgoing_extractor (background job)
-            except Exception as creator_err:
-                print(f"[CREATOR] ⚠ Could not extract creator: {creator_err}", flush=True)
-
-            # Analyze token history (includes creator behavior from all token transactions) asynchronously (if enabled)
-            # Note: Analyzer fetches all token signatures (before and after migration) to analyze creator behavior
-            if get_migration_setting('token_history_check', True):
-                print(f"[SETTINGS] Token history ✅ ON - analyzing creator behavior from token history", flush=True)
-                asyncio.create_task(self.analyze_post_migration(mint, signature, pool_address))
-            else:
-                print(f"[SETTINGS] Token history ❌ OFF - skipping token history analysis", flush=True)
-
-            # ==================================================================================
-            # 🎯 CRITICAL PATH COMPLETE - UI HAS TOKEN + CREATOR
-            # ==================================================================================
-            # Everything from here on is BACKGROUND - fire-and-forget async tasks
-            # The user sees the token and creator immediately; analysis happens in background
-            # ==================================================================================
-
-            print(f"[MIGRATION] ✅ CRITICAL PATH COMPLETE - Token {mint[:8]}... with creator {earliest_creator[:8] if earliest_creator else 'unknown'}... is now visible in UI", flush=True)
-
-            # Background Task 1: Extract creator funding (for UI updates on funding tab)
-            if earliest_creator:
-                create_tx_sig = analyzer._create_tx_signature if hasattr(analyzer, '_create_tx_signature') else None
-
-                async def background_funding_and_clustering():
-                    """Background: funding extraction, funder extraction, and clustering"""
-                    print(f"[BACKGROUND] 🚀 Starting background funding and clustering tasks...", flush=True)
-
-                    # Extract creator funding
-                    try:
-                        print(f"[FUNDING] ⏳ Starting creator funding extraction for {earliest_creator[:8]}...", flush=True)
-                        await extract_funding_for_new_token(earliest_creator, created_at, create_tx_sig, mint)
-                        print(f"[FUNDING] ✅ Creator funding extraction complete", flush=True)
-                    except Exception as e:
-                        print(f"[FUNDING] ⚠️ Error in creator funding extraction: {e}", flush=True)
-
-                    # Extract funder transfers (respects auto_extract_funders toggle)
-                    try:
-                        if get_migration_setting('auto_extract_funders', False):
-                            print(f"[FUNDER_EXTRACTION] ⏳ Starting funder transfer extraction for {earliest_creator[:8]}...", flush=True)
-                            await extract_funder_transfers_async(earliest_creator)
-                            print(f"[FUNDER_EXTRACTION] ✅ Funder transfer extraction complete", flush=True)
-                        else:
-                            print(f"[FUNDER_EXTRACTION] ⏭️ Skipped (auto_extract_funders toggle is OFF)", flush=True)
-                    except Exception as e:
-                        print(f"[FUNDER_EXTRACTION] ⚠️ Error in funder extraction: {e}", flush=True)
-
-                    # Queue clustering (now that funding is extracted)
-                    try:
-                        print(f"[CLUSTERING] ⏳ Queueing network clustering task...", flush=True)
-                        await enqueue_clustering(rebuild_super_clusters_from_funding, "super_clusters_rebuild")
-                        print(f"[CLUSTERING] ✅ Clustering task enqueued for processing", flush=True)
-                    except Exception as e:
-                        print(f"[CLUSTERING] ⚠️ Error queueing clustering: {e}", flush=True)
-
-                    # Capture Helius account usage snapshot
-                    try:
-                        print(f"[HELIUS] ⏳ Capturing Helius account usage snapshot...", flush=True)
-                        from src.monitoring.helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
-                        usage = get_helius_usage_cli()
-                        if usage:
-                            record_usage_snapshot(usage)
-                            print(f"[HELIUS] ✅ Helius snapshot captured: {usage.get('credits_used_month', 'N/A')} credits used this month", flush=True)
-                        else:
-                            print(f"[HELIUS] ⚠️ Could not retrieve Helius usage data", flush=True)
-                    except Exception as e:
-                        print(f"[HELIUS] ⚠️ Error capturing Helius snapshot: {e}", flush=True)
-
-                # Fire-and-forget: don't wait for background tasks
-                asyncio.create_task(background_funding_and_clustering())
-                print(f"[BACKGROUND] 📤 Background tasks spawned (fire-and-forget)", flush=True)
-            else:
-                print(f"[BACKGROUND] ⏭️ Skipping background tasks (no creator found)", flush=True)
+            # Cancel any pending delayed retry since migration succeeded
+            pending = self.tx_cache_pending_retries.pop(signature, None)
+            if pending and not pending.done():
+                pending.cancel()
 
         except Exception as e:
             print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)
             import traceback
             traceback.print_exc()
+        finally:
+            if signature in self.completed_migrations:
+                self.processing_migrations.discard(signature)
 
     # --- WebSocket Listener ---
     def get_tx_cache_stats(self) -> Dict:

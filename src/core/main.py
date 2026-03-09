@@ -1159,6 +1159,20 @@ def get_token_price(token_mint: str) -> Optional[float]:
             f"https://api.jup.ag/price/v2?ids={token_mint}",
             timeout=10
         )
+
+        # Track Jupiter API calls in metrics
+        try:
+            from src.metrics.rpc_metrics_recorder import record_request
+            record_request(
+                section='price_api',
+                provider='jupiter_api',
+                method='get_price_v2',
+                status_code=response.status_code,
+                credits_override=0
+            )
+        except Exception as e:
+            pass  # Don't fail price fetch if metrics recording fails
+
         data = response.json()
 
         if "data" in data and token_mint in data["data"]:
@@ -2579,11 +2593,11 @@ HTML_TEMPLATE = """
         }
 
         .sidebar-item.green {
-            color: #22c55e;
+            color: var(--text-secondary);
         }
 
         .sidebar-item.green:hover {
-            background: rgba(34, 197, 94, 0.1);
+            background: rgba(255,255,255,0.07);
         }
 
 
@@ -3713,6 +3727,7 @@ HTML_TEMPLATE = """
                             <th></th>
                             <th onclick="sortBy('network_name')" class="sortable ${sortConfig.column === 'network_name' ? 'sorted-' + sortConfig.direction : ''}">Network</th>
                             <th onclick="sortBy('cluster_name')" class="sortable ${sortConfig.column === 'cluster_name' ? 'sorted-' + sortConfig.direction : ''}">Cluster</th>
+                            <th>Live Price</th>
                             <th onclick="sortBy('market_cap_current')" class="sortable ${sortConfig.column === 'market_cap_current' ? 'sorted-' + sortConfig.direction : ''}">Market Cap</th>
                             <th onclick="sortBy('market_cap_highest')" class="sortable ${sortConfig.column === 'market_cap_highest' ? 'sorted-' + sortConfig.direction : ''}">Peak MC</th>
                             <th onclick="sortBy('market_cap_highest_at')" class="sortable ${sortConfig.column === 'market_cap_highest_at' ? 'sorted-' + sortConfig.direction : ''}">Peak Timing</th>
@@ -3935,10 +3950,11 @@ HTML_TEMPLATE = """
                                     <td class="cluster-name">
                                         ${token.cluster_name ? `<span style="color: var(--accent-orange); font-size: 12px;" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : ''}
                                     </td>
-                                    <td>
+                                    <td id="price-${token.mint}" style="color: var(--accent-cyan); font-size: 12px; transition: opacity 0.3s ease;">—</td>
+                                    <td id="mc-${token.mint}" style="transition: opacity 0.3s ease;">
                                         ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : ''}
                                     </td>
-                                    <td>
+                                    <td id="peak-mc-${token.mint}" style="transition: opacity 0.3s ease;">
                                         ${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : ''}
                                     </td>
                                     <td>
@@ -3962,25 +3978,58 @@ HTML_TEMPLATE = """
 
             document.getElementById('tokens-container').innerHTML = html;
 
-            // Load prices in background with delays to avoid network saturation
+            // Load prices in background with minimal stagger on initial load
             tokens.forEach((token, index) => {
                 setTimeout(() => {
                     loadPrice(token.mint);
-                }, index * 50);  // Stagger requests 50ms apart
+                }, index * 20);  // Minimal stagger (20ms) for smoother initial load
             });
+
+            // Set up 30-second price refresh for all tokens
+            if (priceRefreshInterval) clearInterval(priceRefreshInterval);
+            priceRefreshInterval = setInterval(() => {
+                // Batch all price refreshes with minimal stagger for cleaner updates
+                tokens.forEach((token, index) => {
+                    setTimeout(() => {
+                        loadPrice(token.mint);
+                    }, index * 15);  // Even less stagger (15ms) on refreshes
+                });
+            }, 30000);  // Refresh every 30 seconds
         }
 
         async function loadPrice(mint) {
             try {
-                const response = await fetch(`/api/token-price/${mint}`, {
+                const response = await fetch(`/api/token-price-hybrid/${mint}`, {
                     signal: priceLoadController.signal
                 });
                 const data = await response.json();
 
-                if (data.price !== null) {
+                if (data.price !== null && data.price > 0) {
                     const priceElement = document.getElementById(`price-${mint}`);
                     if (priceElement) {
                         priceElement.innerHTML = `$${data.price.toFixed(8)}`;
+                    }
+
+                    // Use market cap from API response if available, otherwise calculate from price
+                    let marketCap = data.market_cap;
+                    if (!marketCap || marketCap === 0) {
+                        marketCap = data.price * 1_000_000_000;  // Pump.Fun tokens have 1B supply
+                    }
+
+                    const mcElement = document.getElementById(`mc-${mint}`);
+                    if (mcElement) {
+                        mcElement.innerHTML = formatMarketCap(marketCap);
+                    }
+
+                    // Update peak market cap if it's a new high
+                    const peakMcElement = document.getElementById(`peak-mc-${mint}`);
+                    if (peakMcElement && marketCap) {
+                        const currentText = peakMcElement.innerHTML;
+                        // Extract current peak value for comparison (remove $ and formatting)
+                        const currentPeak = parseFloat(currentText.replace(/[^0-9.]/g, ''));
+                        if (!currentPeak || marketCap > currentPeak) {
+                            peakMcElement.innerHTML = formatMarketCap(marketCap);
+                        }
                     }
                 }
             } catch (error) {
@@ -4111,6 +4160,7 @@ HTML_TEMPLATE = """
 
         // Abort controller for price loading - allows canceling requests when modal opens
         let priceLoadController = new AbortController();
+        let priceRefreshInterval = null;
 
         // Migration feature toggles
         let tokenHistoryEnabled = true;
@@ -6915,7 +6965,6 @@ def coordinated_funder_analysis_view(creator_address: str):
                 </head>
                 <body>
                     <div class="container">
-                        <div class="back-link"><a href="/">← Back to Dashboard</a></div>
                         <h1>Coordinated Funder Analysis</h1>
                         <div class="not-analyzed">
                             <h2 style="color: var(--color-medium);">Not Yet Analyzed</h2>
@@ -7072,7 +7121,6 @@ def coordinated_funder_analysis_view(creator_address: str):
             </head>
             <body>
                 <div class="container">
-                    <div class="back-link"><a href="/">← Back to Dashboard</a></div>
                     <h1>Coordinated Funder Analysis</h1>
                     <div class="creator-addr">Creator: {creator_address}</div>
 
@@ -7140,6 +7188,108 @@ def api_token_price(token_mint: str):
     """Get current price for a specific token"""
     price = get_token_price(token_mint)
     return jsonify({'mint': token_mint, 'price': price})
+
+
+@app.route('/api/token-price-hybrid/<token_mint>')
+def api_token_price_hybrid(token_mint: str):
+    """Get current price using hybrid approach: RPC pool query first, fallback to Jupiter API"""
+    price = None
+    market_cap = None
+    source = 'unknown'
+
+    try:
+        import asyncio
+        from src.core.pumpfun_curve_listener import PumpFunCurveListener
+
+        # Try RPC-based pool price first
+        listener = PumpFunCurveListener()
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        try:
+            # Try DexScreener first (most reliable for current prices)
+            result = loop.run_until_complete(listener._fetch_dexscreener_price(token_mint))
+            if result:
+                price, market_cap = result
+                source = 'dexscreener'
+                print(f"[PRICE] Got price for {token_mint[:20]} from DexScreener", flush=True)
+
+            # Fallback to on-chain RPC if DexScreener not available (and records Helius credits)
+            if price is None:
+                pool_address = loop.run_until_complete(listener._find_pool_account(token_mint))
+                if pool_address:
+                    result = loop.run_until_complete(listener._get_price_from_pool_account(pool_address, token_mint))
+                    if result:
+                        price, market_cap = result
+                        source = 'onchain_rpc'
+                        print(f"[PRICE] Got on-chain price for {token_mint[:20]} from RPC", flush=True)
+
+        except Exception as e:
+            print(f"[PRICE_HYBRID] DexScreener/RPC attempt failed: {e}")
+        finally:
+            loop.close()
+
+        # Fallback to Jupiter API if RPC and DexScreener failed
+        if price is None:
+            price = get_token_price(token_mint)
+            source = 'jupiter_api'
+            # Calculate market cap for Jupiter price (1B supply)
+            if price and price > 0:
+                market_cap = price * 1_000_000_000
+
+    except Exception as e:
+        print(f"[PRICE_HYBRID] Error: {e}")
+        # Final fallback to Jupiter
+        price = get_token_price(token_mint)
+        source = 'jupiter_api'
+        if price and price > 0:
+            market_cap = price * 1_000_000_000
+
+    # Update database with current price and track peak market cap
+    if price and price > 0:
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=5)
+            cursor = conn.cursor()
+
+            # Get current peak market cap
+            cursor.execute(
+                "SELECT market_cap_highest, market_cap_highest_at FROM token_analysis WHERE mint = ?",
+                (token_mint,)
+            )
+            row = cursor.fetchone()
+            peak_mc = row[0] if row and row[0] else None
+            peak_mc_at = row[1] if row and row[1] else None
+
+            # Update if this is a new peak
+            if market_cap and (peak_mc is None or market_cap > peak_mc):
+                from datetime import datetime
+                now = datetime.now().isoformat(sep=' ')
+                cursor.execute("""
+                    UPDATE token_analysis
+                    SET price_current = ?, market_cap_current = ?, market_cap_highest = ?, market_cap_highest_at = ?, price_source = ?
+                    WHERE mint = ?
+                """, (price, market_cap, market_cap, now, source, token_mint))
+                conn.commit()
+                print(f"[PRICE] Updated peak MC for {token_mint[:20]}: ${market_cap:,.0f}", flush=True)
+            elif market_cap:
+                # Just update current price/market cap, keep existing peak
+                cursor.execute("""
+                    UPDATE token_analysis
+                    SET price_current = ?, market_cap_current = ?, price_source = ?
+                    WHERE mint = ?
+                """, (price, market_cap, source, token_mint))
+                conn.commit()
+
+            conn.close()
+        except Exception as e:
+            print(f"[PRICE] Error updating database: {e}")
+
+    return jsonify({
+        'mint': token_mint,
+        'price': price,
+        'market_cap': market_cap,
+        'source': source
+    })
 
 
 @app.route('/api/token-metrics/<token_mint>')
@@ -8725,7 +8875,9 @@ def api_listener_settings():
         cursor = conn.cursor()
 
         if request.method == 'POST':
+            from datetime import datetime
             data = request.json or {}
+            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
             # Update listen_to_launches setting
             if 'listen_to_launches' in data:
@@ -8735,15 +8887,22 @@ def api_listener_settings():
                     row = cursor.fetchone()
                     if row:
                         old_val = row['setting_value'] == 'true'
-                except:
-                    pass
+                except Exception as e:
+                    print(f"[LISTENER] Error reading old listen_to_launches: {e}", flush=True)
 
                 new_val = 'true' if data['listen_to_launches'] else 'false'
-                cursor.execute("""
-                    INSERT OR REPLACE INTO listener_settings
-                    (setting_key, setting_value, last_updated)
-                    VALUES (?, ?, CURRENT_TIMESTAMP)
-                """, ('listen_to_launches', new_val))
+                try:
+                    cursor.execute("""
+                        UPDATE listener_settings
+                        SET setting_value = ?, last_updated = ?
+                        WHERE setting_key = ?
+                    """, (new_val, now, 'listen_to_launches'))
+                    rows_affected = cursor.rowcount
+                    print(f"[LISTENER] Executed update for listen_to_launches = {new_val} (rows affected: {rows_affected})", flush=True)
+                except Exception as e:
+                    print(f"[LISTENER] Error executing update for listen_to_launches: {e}", flush=True)
+                    import traceback
+                    traceback.print_exc()
 
                 if old_val is not None and old_val != data['listen_to_launches']:
                     status = '✅ ON' if data['listen_to_launches'] else '❌ OFF'
@@ -8757,21 +8916,35 @@ def api_listener_settings():
                     row = cursor.fetchone()
                     if row:
                         old_val = row['setting_value'] == 'true'
-                except:
-                    pass
+                except Exception as e:
+                    print(f"[LISTENER] Error reading old auto_extract_funders: {e}", flush=True)
 
                 new_val = 'true' if data['auto_extract_funders'] else 'false'
-                cursor.execute("""
-                    INSERT OR REPLACE INTO listener_settings
-                    (setting_key, setting_value, last_updated)
-                    VALUES (?, ?, CURRENT_TIMESTAMP)
-                """, ('auto_extract_funders', new_val))
+                try:
+                    cursor.execute("""
+                        UPDATE listener_settings
+                        SET setting_value = ?, last_updated = ?
+                        WHERE setting_key = ?
+                    """, (new_val, now, 'auto_extract_funders'))
+                    print(f"[LISTENER] Executed update for auto_extract_funders = {new_val}", flush=True)
+                except Exception as e:
+                    print(f"[LISTENER] Error executing update for auto_extract_funders: {e}", flush=True)
 
                 if old_val is not None and old_val != data['auto_extract_funders']:
                     status = '✅ ON' if data['auto_extract_funders'] else '❌ OFF'
                     print(f"[LISTENER] TOGGLED - Auto Extract Funders: {status}", flush=True)
 
-            conn.commit()
+            try:
+                conn.commit()
+                print(f"[LISTENER] Database commit successful", flush=True)
+            except Exception as e:
+                print(f"[LISTENER] ERROR - Database commit failed: {e}", flush=True)
+
+            # Verify the update worked
+            cursor.execute("SELECT setting_value, last_updated FROM listener_settings WHERE setting_key = ?", ('listen_to_launches',))
+            verify_row = cursor.fetchone()
+            if verify_row:
+                print(f"[LISTENER] VERIFY: listen_to_launches = {verify_row[0]}, updated at {verify_row[1]}", flush=True)
 
             # Get current settings
             cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('listen_to_launches',))
@@ -9284,8 +9457,6 @@ coordinated_funders_html = '''
                 <li>Analyze sender patterns and funding relationships</li>
             </ol>
         </div>
-
-        <button class="button" onclick="window.location.href = '/'">← Back to Dashboard</button>
     </div>
 </body>
 </html>
@@ -9438,8 +9609,6 @@ def coordinated_funders_view():
         <body>
             {get_sidebar_html("coordinated-funders")}
             <div class="container">
-                <a href="/" class="back-link">← Back to Dashboard</a>
-
                 <h1>🔗 Coordinated Funders ({len(multi_funders)} total)</h1>
                 <p class="subtitle">Wallets that fund multiple creators, indicating coordination or network relationships</p>
 
@@ -9730,8 +9899,6 @@ def clusters_dashboard():
         <body>
             {get_sidebar_html("clusters")}
             <div class="container">
-                <a href="/" class="back-link">← Back to Dashboard</a>
-
                 <h1>🚨 Cross-Funding Clusters</h1>
                 <p class="subtitle">
                     Coordinated funder networks detected by the cross-funding analyzer.
@@ -10159,7 +10326,6 @@ def coordinated_funders_view_old():
             </head>
             <body>
                 <div class="container">
-                    <div class="back-link"><a href="/">← Back to Dashboard</a></div>
                     <h1>Coordinated Funders Analysis</h1>
                     <div class="subtitle">Funders supporting multiple token creators (potential coordination risk)</div>
 
@@ -14022,8 +14188,6 @@ def networks_dashboard():
     <body>
         {get_sidebar_html("networks")}
         <div class="container">
-            <a href="/" class="back-link">← Back to Dashboard</a>
-
             <h1>🔗 Funding Networks</h1>
             <p class="subtitle">Coordinated funding groups across {total_networks} networks.</p>
 
@@ -14428,8 +14592,6 @@ def top_funding_hubs():
         <body>
             """ + get_sidebar_html("hubs") + """
             <div class="container">
-                <a href="/" class="back-link">← Back to Dashboard</a>
-
                 <h1>Top Funding Distribution Senders</h1>
                 <p class="subtitle">Wallets that send funds to the most funders. These represent major coordination hubs distributing capital.</p>
 
@@ -18994,7 +19156,6 @@ def webhook_monitor():
         <div class="container">
             <div class="header">
                 <h1>📡 Webhook Monitor</h1>
-                <a class="back-btn" href="/">← Back</a>
             </div>
 
             <div class="auto-refresh">

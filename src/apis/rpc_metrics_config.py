@@ -49,6 +49,7 @@ CREDIT_SCHEDULE = {
     "getSupply": 1,
     "getTokenAccountsByDelegate": 1,
     "getTokenAccountsByOwner": 1,
+    "getTokenAccountsByMint": 1,  # Token accounts by mint (1 credit)
     "getTokenLargestAccounts": 1,
     "getTokenSupply": 1,
     "getTransaction": 10,  # Historical RPC method (10 credits per Helius docs)
@@ -109,12 +110,12 @@ class PlanConfig:
     # Your current plan (set in environment or here)
     CURRENT_PLAN = "business"  # Change to your plan
 
-    # ACTUAL USAGE FROM HELIUS DASHBOARD (as of 2026-03-02 after reset)
+    # ACTUAL USAGE FROM HELIUS DASHBOARD (synced via helius_cli_monitor.py)
     # This is synced from your Helius account via helius_cli_monitor.py
     CURRENT_USAGE = {
-        "credits_used_today": 316078,             # Total credits consumed today
-        "credits_remaining": 9683922_000_000,     # Remaining monthly budget (10M tier)
-        "budget_start_date": "2026-03-08",   # Start of billing period
+        "credits_used_today": 320812,             # Total credits consumed today
+        "credits_remaining": 9679188,             # Remaining monthly budget (10M tier)
+        "budget_start_date": "2026-03-09",   # Start of billing period
     }
 
     @classmethod

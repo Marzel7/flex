@@ -18,6 +18,7 @@ from flask import Flask, jsonify, render_template, render_template_string, reque
 from typing import Dict, List, Optional
 import os
 import time
+import logging
 from src.utils.infra_mapping import highlight_infra_in_funding
 
 # Webhook system - M5 webhook-first low-RPC architecture
@@ -32,8 +33,12 @@ except ImportError as e:
 # Database
 DB_PATH = os.environ.get('DB_PATH', 'database/flex_complete_database.db')
 
-# Flask app
-app = Flask(__name__)
+# Flask app - set template folder to project root templates/
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+app = Flask(__name__, template_folder=os.path.join(PROJECT_ROOT, 'templates'))
+
+# Suppress Werkzeug request logging
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 # Analysis result cache for background operations
 app.funder_analysis_cache = {}
@@ -50,7 +55,9 @@ if WEBHOOK_ENABLED:
         setup_enriched_routes(app)
         print("[WEBHOOK] M5 Webhook-First Low-RPC Architecture initialized successfully")
     except Exception as e:
+        import traceback
         print(f"[ERROR] Failed to initialize webhook system: {e}")
+        traceback.print_exc()
         WEBHOOK_ENABLED = False
 
 # =========================================================================
@@ -2480,7 +2487,6 @@ HTML_TEMPLATE = """
                 <button class="action-button" onclick="window.location.href = '/creator-analysis'" title="Analyze creator outgoing transfers and funding chains" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Creator Analysis</button>
                 <button class="action-button" onclick="window.location.href = '/webhook-monitor'" title="Monitor real-time webhook activity and transfers" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">📡 Webhook</button>
                 <button class="action-button" onclick="window.location.href = '/rpc-savings-dashboard'" title="Monitor RPC optimization and credit savings" style="background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.5); margin-left: 8px;">💰 RPC Savings</button>
-                <button class="action-button" onclick="window.location.href = 'http://localhost:5002/rpc-metrics'" title="View RPC credit usage and cost monitoring in real-time" style="background: rgba(16, 185, 129, 0.2); color: var(--color-low); border: 1px solid rgba(16, 185, 129, 0.5); margin-left: 8px;">💰 RPC Metrics</button>
             </div>
         </div>
 
@@ -17995,256 +18001,6 @@ def unsuppress_alert(alert_id):
         return {'success': False, 'error': str(e)}, 500
 
 
-@app.route('/rpc-metrics')
-def rpc_metrics_dashboard():
-    """
-    Proxy to RPC Metrics Dashboard.
-    Returns the HTML dashboard from rpc_metrics_api with "Remaining" section removed
-    and verification percentage added.
-    """
-    try:
-        import requests
-        import re
-        import json
-
-        # Fetch verification data
-        verify_response = requests.get('http://localhost:5002/api/rpc-metrics/verify', timeout=5)
-        verify_data = {}
-        if verify_response.status_code == 200:
-            verify_data = verify_response.json()
-
-        response = requests.get('http://localhost:8001/dashboard', timeout=5)
-        if response.status_code == 200:
-            html = response.text
-            # Remove the "Monthly Remaining" card section
-            html = re.sub(
-                r'<div class="card[^>]*>\s*<h3>Monthly Remaining</h3>.*?</div>\s*</div>',
-                '',
-                html,
-                flags=re.DOTALL
-            )
-            # Also remove "Remaining (10M)" line if present
-            html = re.sub(
-                r'<[^>]*>Remaining \(10M\)[^<]*</[^>]*>',
-                '',
-                html
-            )
-
-            # Add refresh and reset button scripts BEFORE verification widget
-            refresh_script = '''
-            <script>
-            // Auto-update verification card every 5 seconds
-            setInterval(async () => {
-                try {
-                    const response = await fetch('/api/rpc-metrics/verify');
-                    const data = await response.json();
-
-                    if (data.status === 'success') {
-                        const card = document.querySelector('.verification-card');
-                        if (card) {
-                            // Update Helius credits
-                            const heliusSpan = card.querySelector('.metric:nth-child(1) .value');
-                            if (heliusSpan) heliusSpan.textContent = data.helius_actual.toLocaleString() + ' credits';
-
-                            // Update computed credits
-                            const computedSpan = card.querySelector('.metric:nth-child(2) .value');
-                            if (computedSpan) computedSpan.textContent = data.computed_from_db.toLocaleString() + ' credits';
-
-                            // Update request count
-                            const countSpan = card.querySelector('.metric:nth-child(3) .value');
-                            if (countSpan) countSpan.textContent = data.request_count;
-
-                            // Update percentage
-                            const percentageSpan = card.querySelector('.metric.verification-percentage .value');
-                            if (percentageSpan) {
-                                percentageSpan.textContent = data.percentage_match + '%';
-                                percentageSpan.style.color = data.percentage_match >= 95 ? '#22c55e' : data.percentage_match >= 80 ? '#fbbf24' : '#ef4444';
-                            }
-
-                            // Update RPC Calls breakdown
-                            const methodDiv = card.querySelector('div[style*="margin-top: 12px"]');
-                            if (methodDiv) {
-                                if (data.method_breakdown && Object.keys(data.method_breakdown).length > 0) {
-                                    let html = '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(148, 163, 184, 0.2);"><small style="color: #94a3b8;"><strong>RPC Calls:</strong></small>';
-                                    const methods = Object.entries(data.method_breakdown).sort((a, b) => b[1].credits - a[1].credits);
-                                    methods.forEach(([method, info]) => {
-                                        html += '<br/><small style="color: #cbd5e1;">• <strong>' + method + '</strong>: ' + info.count + ' calls, ' + info.credits + ' credits</small>';
-                                    });
-                                    html += '</div>';
-                                    methodDiv.innerHTML = html;
-                                } else {
-                                    methodDiv.innerHTML = '';
-                                }
-                            }
-                        }
-                    }
-                } catch (e) {
-                    console.error('Error updating metrics:', e);
-                }
-            }, 5000);
-            </script>
-            '''
-            html = html.replace('</head>', refresh_script + '</head>')
-
-            # Add verification widget if data is available
-            if verify_data.get('status') == 'success':
-                helius_actual = verify_data.get('helius_actual', 0)
-                computed = verify_data.get('computed_from_db', 0)
-                percentage = verify_data.get('percentage_match', 0)
-                request_count = verify_data.get('request_count', 0)
-                method_breakdown = verify_data.get('method_breakdown', {})
-
-                # Build method breakdown HTML
-                method_html = ''
-                if method_breakdown:
-                    method_html = '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(148, 163, 184, 0.2);"><small style="color: #94a3b8;"><strong>RPC Calls:</strong></small>'
-                    for method, data in sorted(method_breakdown.items(), key=lambda x: x[1]['credits'], reverse=True):
-                        method_html += f'<br/><small style="color: #cbd5e1;">• <strong>{method}</strong>: {data["count"]} calls, {data["credits"]} credits</small>'
-                    method_html += '</div>'
-
-                verification_widget = f'''
-                <div class="card verification-card">
-                    <h3>💾 Database Tracking Verification</h3>
-                    <div class="verification-content">
-                        <div class="metric">
-                            <span class="label">Helius (Since Reset):</span>
-                            <span class="value">{helius_actual:,} credits</span>
-                        </div>
-                        <div class="metric">
-                            <span class="label">Computed from DB:</span>
-                            <span class="value">{computed:,} credits</span>
-                        </div>
-                        <div class="metric">
-                            <span class="label">Tracked Requests:</span>
-                            <span class="value">{request_count}</span>
-                        </div>
-                        <div class="metric verification-percentage">
-                            <span class="label">Match Percentage:</span>
-                            <span class="value percentage">{percentage}%</span>
-                        </div>
-                        {method_html}
-                        <div class="note">
-                            <small><strong>Helius (Since Reset)</strong> = Total credits used on Helius account since last reset.<br/>
-                            <strong>Computed from DB</strong> = What we've tracked and recorded in our database.<br/>
-                            <strong>Match %</strong> = How much of Helius usage is being recorded. Higher % means better instrumentation.</small>
-                        </div>
-                    </div>
-                </div>
-                <style>
-                    .verification-card {{
-                        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
-                        border: 1px solid rgba(34, 197, 94, 0.3);
-                    }}
-                    .verification-content {{
-                        display: flex;
-                        flex-direction: column;
-                        gap: 12px;
-                    }}
-                    .verification-content .metric {{
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        padding: 8px 0;
-                        border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-                    }}
-                    .verification-content .metric:last-child {{
-                        border-bottom: none;
-                    }}
-                    .verification-content .label {{
-                        color: #cbd5e1;
-                        font-size: 13px;
-                    }}
-                    .verification-content .value {{
-                        color: #e2e8f0;
-                        font-weight: 600;
-                        font-size: 14px;
-                    }}
-                    .verification-content .percentage {{
-                        font-size: 18px;
-                        color: {('#22c55e' if percentage >= 50 else '#f59e0b' if percentage >= 10 else '#ef4444')};
-                    }}
-                    .verification-content .note {{
-                        color: #94a3b8;
-                        margin-top: 8px;
-                        padding-top: 8px;
-                        border-top: 1px solid rgba(148, 163, 184, 0.2);
-                    }}
-                    .verification-content .note small {{
-                        font-size: 12px;
-                    }}
-                </style>
-                '''
-                # Inject verification widget before closing body tag
-                html = html.replace('</body>', verification_widget + '</body>')
-
-            return html, 200, {'Content-Type': 'text/html'}
-        else:
-            return f'''
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>RPC Metrics Dashboard</title>
-                <style>
-                    body {{
-                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-                        background: #0f172a;
-                        color: #e2e8f0;
-                        padding: 40px;
-                        text-align: center;
-                    }}
-                    .error {{
-                        color: #ef4444;
-                        font-size: 18px;
-                        margin-bottom: 20px;
-                    }}
-                    .info {{
-                        color: #94a3b8;
-                        font-size: 14px;
-                        margin-top: 20px;
-                    }}
-                </style>
-            </head>
-            <body>
-                <div class="error">⚠️ RPC Metrics Dashboard Not Available</div>
-                <p>The RPC Metrics service (localhost:8001) is not running.</p>
-                <p class="info">Start it with: <code>python rpc_metrics_api.py</code></p>
-            </body>
-            </html>
-            ''', 503, {'Content-Type': 'text/html'}
-    except Exception as e:
-        return f'''
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>RPC Metrics Dashboard</title>
-            <style>
-                body {{
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-                    background: #0f172a;
-                    color: #e2e8f0;
-                    padding: 40px;
-                    text-align: center;
-                }}
-                .error {{
-                    color: #ef4444;
-                    font-size: 18px;
-                    margin-bottom: 20px;
-                }}
-                .info {{
-                    color: #94a3b8;
-                    font-size: 14px;
-                    margin-top: 20px;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="error">⚠️ Error Loading RPC Metrics Dashboard</div>
-            <p>{str(e)}</p>
-            <p class="info">Make sure the RPC Metrics service is running: <code>python rpc_metrics_api.py</code></p>
-        </body>
-        </html>
-        ''', 503, {'Content-Type': 'text/html'}
-
 
 @app.route('/rpc-savings-dashboard')
 def rpc_savings_dashboard():
@@ -18390,65 +18146,17 @@ def metrics_rpc_source_files_proxy():
 
 @app.route('/metrics/rpc/reset', methods=['POST'])
 def metrics_rpc_reset_proxy():
-    """Reset RPC metrics: Clear Component/Section and Source File/Process data"""
+    """Reset RPC metrics: proxy to FastAPI metrics API"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=10)
-        conn.execute("PRAGMA journal_mode=WAL")
-        cursor = conn.cursor()
-
-        # Capture current Helius snapshot as reset baseline
-        try:
-            from src.monitoring.helius_cli_monitor import get_latest_snapshot
-            helius_snapshot = get_latest_snapshot()
-            if helius_snapshot:
-                # Store current usage as the reset baseline
-                baseline_credits = helius_snapshot.get('credits_used_month', 0)
-                cursor.execute('''
-                    INSERT INTO listener_settings (setting_key, setting_value, description)
-                    VALUES (?, ?, ?)
-                ''', (
-                    'helius_credits_at_reset',
-                    str(baseline_credits),
-                    f'Helius credits snapshot at reset (baseline for calculating usage since reset)'
-                ))
-                # Also capture full snapshot for archival
-                cursor.execute('''
-                    INSERT INTO helius_usage_snapshots
-                    (captured_at, credits_used_month, webhook_usage, api_usage, rpc_usage,
-                     credits_remaining, total_credits_used, rpc_gpa_usage)
-                    VALUES (datetime('now'), ?, ?, ?, ?, ?, ?, ?)
-                ''', (
-                    baseline_credits,
-                    helius_snapshot.get('webhook_usage', 0),
-                    helius_snapshot.get('api_usage', 0),
-                    helius_snapshot.get('rpc_usage', 0),
-                    helius_snapshot.get('credits_remaining', 0),
-                    baseline_credits,
-                    helius_snapshot.get('rpc_gpa_usage', 0),
-                ))
-        except:
-            pass  # Continue even if snapshot capture fails
-
-        # Delete all records to clear component/section and source file/process aggregations
-        cursor.execute("DELETE FROM rpc_metrics")
-        deleted_count = cursor.rowcount
-
-        # Update config to mark reset time
-        cursor.execute('''
-            INSERT OR REPLACE INTO listener_settings (setting_key, setting_value, description)
-            VALUES ('last_metrics_reset_at', datetime('now'), 'Timestamp of last RPC metrics reset')
-        ''')
-
-        conn.commit()
-        conn.close()
-
-        return {
-            'status': 'success',
-            'message': 'RPC metrics reset successfully',
-            'records_deleted': deleted_count
-        }, 200
+        import requests
+        response = requests.post('http://localhost:8001/metrics/rpc/reset', timeout=5)
+        return response.json(), response.status_code
     except Exception as e:
-        return {'status': 'error', 'message': str(e)}, 500
+        return {
+            'success': False,
+            'status': 'error',
+            'message': str(e)
+        }, 503
 
 
 @app.route('/metrics/rpc/reset-comparison-baseline', methods=['POST'])
@@ -18460,170 +18168,6 @@ def metrics_rpc_reset_comparison_proxy():
         return response.json(), response.status_code
     except Exception as e:
         return {'error': str(e)}, 503
-
-
-@app.route('/api/rpc-metrics/verify', methods=['GET'])
-def api_rpc_metrics_verify():
-    """
-    Compare Helius actual usage vs computed usage from database.
-    Shows credits used SINCE the last database reset.
-    """
-    try:
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-
-        # Get reset timestamp to only count metrics AFTER reset
-        cursor.execute('''
-            SELECT setting_value FROM listener_settings
-            WHERE setting_key = 'last_metrics_reset_at'
-            LIMIT 1
-        ''')
-        reset_time_row = cursor.fetchone()
-        reset_time = reset_time_row[0] if reset_time_row else None
-
-        # Parse reset timestamp (datetime string) and convert to Unix timestamp
-        reset_unix = None
-        if reset_time:
-            try:
-                reset_dt = datetime.strptime(reset_time, "%Y-%m-%d %H:%M:%S")
-                reset_unix = reset_dt.timestamp()
-            except:
-                reset_unix = None
-
-        # Get computed usage from database (only metrics recorded AFTER reset)
-        if reset_unix:
-            # Only count metrics recorded after reset (using Unix timestamp)
-            cursor.execute('''
-                SELECT
-                  COUNT(*) as request_count,
-                  SUM(COALESCE(credits, 0)) as computed_credits
-                FROM rpc_metrics
-                WHERE timestamp > ?
-            ''', (reset_unix,))
-        else:
-            cursor.execute('''
-                SELECT
-                  COUNT(*) as request_count,
-                  SUM(COALESCE(credits, 0)) as computed_credits
-                FROM rpc_metrics
-            ''')
-
-        row = cursor.fetchone()
-        computed_credits = row[1] or 0 if row else 0
-        request_count = row[0] if row else 0
-
-        # Get Helius usage SINCE last reset
-        # Get the baseline (credits at reset time)
-        cursor.execute('''
-            SELECT setting_value FROM listener_settings
-            WHERE setting_key = 'helius_credits_at_reset'
-            LIMIT 1
-        ''')
-        reset_baseline_row = cursor.fetchone()
-        reset_baseline = int(reset_baseline_row[0]) if reset_baseline_row else 0
-
-        # Get current Helius usage
-        # Strategy: Check if reset just happened (metrics table is empty and reset_time is recent)
-        # If so, use the snapshot that was recorded at reset time (already in DB)
-        # Otherwise, fetch fresh from CLI
-        current_helius_usage = 0
-        reset_time_obj = None
-        if reset_time:
-            try:
-                reset_time_obj = datetime.strptime(reset_time, "%Y-%m-%d %H:%M:%S")
-            except:
-                pass
-
-        # If reset happened very recently (within last 10 seconds) and table is empty, use DB snapshot
-        use_db_snapshot = False
-        if reset_time_obj and request_count == 0:
-            time_since_reset = datetime.now() - reset_time_obj
-            if time_since_reset.total_seconds() < 10:
-                use_db_snapshot = True
-                print(f"[VERIFY] Reset happened {time_since_reset.total_seconds():.1f}s ago, using DB snapshot", flush=True)
-
-        if use_db_snapshot:
-            # Use the snapshot recorded at reset time (already in DB)
-            try:
-                cursor.execute('SELECT credits_used_month FROM helius_usage_snapshots ORDER BY captured_at DESC LIMIT 1')
-                row = cursor.fetchone()
-                if row and row[0]:
-                    current_helius_usage = row[0]
-                    print(f"[VERIFY] Using DB snapshot: {current_helius_usage}, baseline={reset_baseline}", flush=True)
-            except Exception as e:
-                print(f"[VERIFY] Could not get Helius snapshot from DB: {e}, fetching fresh", flush=True)
-                use_db_snapshot = False
-
-        # If not using DB snapshot, fetch fresh from CLI
-        if not use_db_snapshot:
-            try:
-                from src.monitoring.helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
-                usage = get_helius_usage_cli()
-                if usage:
-                    # Record this snapshot
-                    record_usage_snapshot(usage)
-                    # Use credits_used_month if available, fallback to credits_used
-                    current_helius_usage = usage.get('credits_used_month', 0) or usage.get('credits_used', 0)
-                    print(f"[VERIFY] Got fresh Helius: {current_helius_usage}, baseline={reset_baseline}", flush=True)
-            except Exception as e:
-                # If CLI fails, fall back to latest snapshot from database
-                print(f"[VERIFY] Could not get fresh Helius usage: {e}, falling back to DB", flush=True)
-                try:
-                    cursor.execute('SELECT credits_used_month FROM helius_usage_snapshots ORDER BY captured_at DESC LIMIT 1')
-                    row = cursor.fetchone()
-                    if row and row[0]:
-                        current_helius_usage = row[0]
-                        print(f"[VERIFY] Got Helius from DB: {current_helius_usage}, baseline={reset_baseline}", flush=True)
-                except Exception as e2:
-                    print(f"[VERIFY] Could not get Helius usage from DB: {e2}", flush=True)
-
-        # Calculate credits used SINCE reset from both sources
-        # Helius actual = current Helius - baseline (from API)
-        # Computed = what we've tracked in database
-        helius_actual_since_reset = max(0, current_helius_usage - reset_baseline) if current_helius_usage and reset_baseline else 0
-
-        print(f"[VERIFY] current_helius={current_helius_usage}, baseline={reset_baseline}, helius_actual_since_reset={helius_actual_since_reset}, computed={computed_credits}", flush=True)
-
-        # Get breakdown by RPC method (only post-reset)
-        if reset_unix:
-            cursor.execute('''
-                SELECT method, COUNT(*) as count, SUM(credits) as total
-                FROM rpc_metrics
-                WHERE timestamp > ?
-                GROUP BY method
-                ORDER BY total DESC
-            ''', (reset_unix,))
-        else:
-            cursor.execute('''
-                SELECT method, COUNT(*) as count, SUM(credits) as total
-                FROM rpc_metrics
-                GROUP BY method
-                ORDER BY total DESC
-            ''')
-        method_breakdown = {}
-        for method, count, total in cursor.fetchall():
-            method_breakdown[method] = {'count': count, 'credits': total}
-
-        conn.close()
-
-        # Calculate percentage match
-        if helius_actual_since_reset > 0:
-            percentage_match = (computed_credits / helius_actual_since_reset) * 100
-        else:
-            percentage_match = 0
-
-        return {
-            'status': 'success',
-            'helius_actual': helius_actual_since_reset,  # Credits used since last reset (from Helius API)
-            'computed_from_db': computed_credits,  # What we've tracked in database
-            'difference': helius_actual_since_reset - computed_credits,
-            'percentage_match': round(percentage_match, 1),
-            'request_count': request_count,
-            'method_breakdown': method_breakdown,
-            'notes': 'Helius (Since Reset) = Actual Helius API usage since reset. Computed from DB = Our tracked metrics.'
-        }, 200
-    except Exception as e:
-        return {'status': 'error', 'message': str(e)}, 500
 
 
 @app.route('/api/rpc-metrics/reset', methods=['POST'])
@@ -18881,7 +18425,6 @@ def api_creator_queue_status():
             pass
         print(f"[QUEUE_STATUS] Error: {e}", flush=True)
         return {"ok": False, "error": str(e)}, 500
-
 
 @app.route('/webhook-monitor')
 def webhook_monitor():

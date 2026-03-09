@@ -783,7 +783,7 @@ class PumpFunCurveListener:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funders_funder ON creator_funders(funder_address)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funders_analyzed ON creator_funders(fully_analyzed)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funding_graph_creator ON creator_funding_graph(creator_address)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funding_graph_source ON creator_funding_graph(funding_source_address)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funding_graph_funder ON creator_funding_graph(funder_address)")
 
         print("[DB] ✅ Funder webhook tables ensured", flush=True)
         print("[DB] ✅ Creator funders and funding graph tables ensured", flush=True)

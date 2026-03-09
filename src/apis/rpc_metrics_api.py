@@ -24,6 +24,7 @@ from src.metrics.rpc_metrics_recorder import (
     get_recorder,
     initialize_recorder,
     RPCMetricsRecorder,
+    _get_state,
 )
 
 # Global state for background comparison tests
@@ -41,7 +42,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
-DB_PATH = os.environ.get('DB_PATH', 'database/flex_complete_database.db')
+DB_PATH = os.environ.get('DB_PATH', os.getenv('RPC_METRICS_DB', 'flex_complete_database.db'))
 
 # ============================================================================
 # DATABASE HELPERS FOR CROSS-PROCESS METRICS AGGREGATION
@@ -159,6 +160,18 @@ def _query_rpc_metrics_from_db(since_timestamp: Optional[float] = None) -> Dict:
         return {"summary": {}, "by_method": {}, "by_source_file": {}, "by_section": {}}
 
 
+def _get_reset_timestamp_for_dashboard(hours: int) -> float:
+    """Use manual reset timestamp for default dashboard window, otherwise rolling hours."""
+    if hours == 24:
+        reset_ts = _get_state("comparison_reset_timestamp")
+        if reset_ts:
+            try:
+                return float(reset_ts)
+            except (ValueError, TypeError):
+                pass
+    return time.time() - (hours * 3600)
+
+
 @app.on_event("startup")
 async def startup_event():
     """Initialize recorder on startup (with 10M credits/month plan)"""
@@ -183,7 +196,7 @@ async def metrics_full():
     # Try to get latest Helius snapshot for display
     helius_snapshot = None
     try:
-        from helius_cli_monitor import get_latest_snapshot
+        from src.monitoring.helius_cli_monitor import get_latest_snapshot
         helius_snapshot = get_latest_snapshot()
     except:
         pass
@@ -269,7 +282,7 @@ async def metrics_untracked():
     Large discrepancies indicate untracked processes or RPC calls.
     """
     try:
-        from helius_cli_monitor import get_latest_snapshot
+        from src.monitoring.helius_cli_monitor import get_latest_snapshot
 
         # Get Helius actual usage
         helius_snapshot = get_latest_snapshot()
@@ -346,7 +359,12 @@ async def metrics_reset(request: dict = Body(None)):
         recorder = get_recorder()
         recorder.reset_daily()
         recorder.reset_credits_today()
-        return {"status": "success", "message": "All RPC metrics reset to 0 (requests, errors, sections, methods)"}
+        return {
+            "success": True,
+            "status": "success",
+            "message": "RPC monitoring session reset successfully.",
+            "reset_at": recorder._comparison_reset_time.isoformat(),
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Reset failed: {str(e)}")
 
@@ -378,7 +396,7 @@ def run_comparison_background(test_id: str, duration_seconds: int):
     
     Also tracks RPC method calls during test and waits for Helius to update.
     """
-    DB_PATH = os.environ.get('DB_PATH', 'database/flex_complete_database.db')
+    DB_PATH = os.environ.get('DB_PATH', os.getenv('RPC_METRICS_DB', 'flex_complete_database.db'))
 
     def _connect():
         conn = sqlite3.connect(DB_PATH, timeout=30)
@@ -751,7 +769,7 @@ async def helius_account_status():
     - Alerts if usage is high
     """
     try:
-        from helius_cli_monitor import get_latest_snapshot
+        from src.monitoring.helius_cli_monitor import get_latest_snapshot
 
         # Get Helius actual usage
         helius_snapshot = get_latest_snapshot()
@@ -817,7 +835,7 @@ async def capture_helius_snapshot():
     Returns: Latest snapshot from CLI
     """
     try:
-        from helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
+        from src.monitoring.helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
 
         usage = get_helius_usage_cli()
         if not usage:
@@ -856,7 +874,7 @@ async def get_helius_snapshots(limit: int = Query(20, ge=1, le=100)):
     Returns the last N snapshots in reverse chronological order.
     """
     try:
-        from helius_cli_monitor import get_snapshot_history
+        from src.monitoring.helius_cli_monitor import get_snapshot_history
 
         snapshots = get_snapshot_history(limit=limit)
         return {
@@ -884,9 +902,8 @@ async def metrics_rpc_optimizations(hours: int = Query(24, ge=1, le=720)):
         conn.row_factory = sqlite3.Row
         
         # Calculate timestamp threshold
-        current_time = time.time()
-        since_timestamp = current_time - (hours * 3600)
-        
+        since_timestamp = _get_reset_timestamp_for_dashboard(hours)
+
         # Get summary stats: total credits spent + total credits saved
         cursor = conn.execute("""
             SELECT
@@ -917,7 +934,9 @@ async def metrics_rpc_optimizations(hours: int = Query(24, ge=1, le=720)):
                 SUM(credits_saved) as credits_saved,
                 SUM(credits) as total_credits
             FROM rpc_metrics
-            WHERE timestamp > ? AND optimization_layer != 'none'
+            WHERE timestamp > ?
+              AND optimization_layer != 'none'
+              AND credits_saved > 0
             GROUP BY optimization_layer
             ORDER BY credits_saved DESC
         """, [since_timestamp])
@@ -962,18 +981,19 @@ async def metrics_rpc_component_breakdown(hours: int = Query(24, ge=1, le=720)):
         conn.row_factory = sqlite3.Row
         
         # Calculate timestamp threshold
-        current_time = time.time()
-        since_timestamp = current_time - (hours * 3600)
-        
+        since_timestamp = _get_reset_timestamp_for_dashboard(hours)
+
         # Map source files to component names
         component_map = {
-            'pumpfun_curve_listener.py': 'pumpfun_curve_listener',
-            'realtime_creator_funding_extractor.py': 'creator_funding_extractor',
-            'funder_incoming_extractor.py': 'funder_incoming_extractor',
-            'creator_outgoing_extractor.py': 'creator_outgoing_extractor',
-            'creator_watch_manager.py': 'creator_watch_manager',
-            'cross_funding_network_analyzer.py': 'cross_funding_network_analyzer',
-            'cluster_risk_checker.py': 'cluster_risk_checker',
+            'pumpfun_curve_listener': 'Token Launch Listener',
+            'realtime_creator_funding_extractor': 'Creator Funding Extractor',
+            'funder_incoming_extractor': 'Funder Incoming Extractor',
+            'creator_outgoing_extractor': 'Creator Outgoing Extractor',
+            'creator_watch_manager': 'Creator Watch Manager',
+            'cross_funding_network_analyzer': 'Cross-Funding Analyzer',
+            'cluster_risk_checker': 'Cluster Risk Checker',
+            'ui_api': 'UI API',
+            'unknown': 'Unknown',
         }
         
         # Get component breakdown by source file
@@ -993,7 +1013,7 @@ async def metrics_rpc_component_breakdown(hours: int = Query(24, ge=1, le=720)):
         
         for row in cursor.fetchall():
             source_file = row['source_file'] or 'unknown'
-            component_name = component_map.get(source_file, source_file.replace('.py', ''))
+            component_name = component_map.get(source_file, source_file.replace('.py', '').replace('_', ' ').title())
             
             components[component_name] = {
                 'requests': row['requests'],
@@ -1770,7 +1790,7 @@ DASHBOARD_HTML = """
 
                 if (response.ok) {
                     const data = await response.json();
-                    statusDiv.textContent = "✅ All RPC metrics reset to 0 (requests, errors, sections, methods). Helius account data preserved.";
+                    statusDiv.textContent = `✅ Monitoring session reset at ${data.reset_at}. Starting fresh baseline.`;
                     statusDiv.classList.add("success", "show");
 
                     // Refresh dashboard after reset
@@ -2207,6 +2227,123 @@ DASHBOARD_HTML = """
 </html>
 """
 
+
+@app.get("/webhook-metrics")
+async def webhook_metrics():
+    """Get webhook event and credit metrics from RPC metrics and sol_transfers"""
+    import subprocess
+    import json
+    import time
+    from datetime import datetime, timedelta
+
+    # Get metrics from RPC metrics table (new events since tracking started)
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        cur = conn.cursor()
+        
+        # Get metrics for last 5 minutes from RPC metrics table
+        cutoff_5m = time.time() - (5 * 60)
+        cur.execute("""
+            SELECT COUNT(*) as event_count, SUM(credits) as credits_used
+            FROM rpc_metrics
+            WHERE section='webhooks' AND method='webhook_event' AND timestamp > ?
+        """, (cutoff_5m,))
+        rpc_metrics_5m = cur.fetchone()
+        metrics_5m = {
+            'event_count': rpc_metrics_5m[0] or 0,
+            'unique_creators': 0,
+            'unique_signatures': 0,
+            'credits_used': rpc_metrics_5m[1] or 0
+        }
+        
+        # Get metrics for last 60 minutes from RPC metrics table
+        cutoff_60m = time.time() - (60 * 60)
+        cur.execute("""
+            SELECT COUNT(*) as event_count, SUM(credits) as credits_used
+            FROM rpc_metrics
+            WHERE section='webhooks' AND method='webhook_event' AND timestamp > ?
+        """, (cutoff_60m,))
+        rpc_metrics_60m = cur.fetchone()
+        metrics_60m = {
+            'event_count': rpc_metrics_60m[0] or 0,
+            'unique_creators': 0,
+            'unique_signatures': 0,
+            'credits_used': rpc_metrics_60m[1] or 0
+        }
+        
+        # Get total webhook events from sol_transfers (all time, for cost per event calculation)
+        cur.execute("SELECT COUNT(*) as total_count FROM sol_transfers")
+        total_webhook_events = cur.fetchone()[0] or 0
+        
+        conn.close()
+    except Exception as e:
+        print(f"[WEBHOOK_METRICS] Error querying metrics: {e}", flush=True)
+        metrics_5m = {'event_count': 0, 'unique_creators': 0, 'unique_signatures': 0, 'credits_used': 0}
+        metrics_60m = {'event_count': 0, 'unique_creators': 0, 'unique_signatures': 0, 'credits_used': 0}
+        total_webhook_events = 0
+
+    # Get creator activity from sol_transfers (historical data)
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        cur = conn.cursor()
+        
+        cutoff = int((datetime.now() - timedelta(hours=24)).timestamp())
+        cur.execute("""
+            SELECT source as creator, COUNT(*) as event_count, SUM(amount_sol) as total_sol
+            FROM sol_transfers
+            WHERE block_time > ?
+            GROUP BY source
+            ORDER BY event_count DESC
+            LIMIT 5
+        """, (cutoff,))
+        
+        rows = cur.fetchall()
+        top_creators = [
+            {
+                'creator': r[0],
+                'event_count': r[1],
+                'total_sol': r[2]
+            }
+            for r in rows
+        ]
+        conn.close()
+    except Exception as e:
+        print(f"[WEBHOOK_METRICS] Error getting top creators: {e}", flush=True)
+        top_creators = []
+
+    # Get Helius billing
+    try:
+        result = subprocess.run(["helius", "usage", "--json"], capture_output=True, text=True, timeout=10)
+        if result.returncode == 0:
+            helius_data = json.loads(result.stdout).get("creditsUsage", {})
+        else:
+            helius_data = {}
+    except:
+        helius_data = {}
+
+    # Calculate burn rate based on actual Helius data
+    total_credits = helius_data.get("totalCreditsUsed", 0)
+    webhook_credits = helius_data.get("webhookUsage", 0)
+    
+    cost_per_event = webhook_credits / total_webhook_events if total_webhook_events > 0 else 0
+    events_per_minute = metrics_5m.get('event_count', 0) / 5.0 if metrics_5m.get('event_count', 0) > 0 else 0
+
+    return {
+        "metrics_5m": metrics_5m,
+        "metrics_60m": metrics_60m,
+        "top_creators": top_creators,
+        "helius_billing": {
+            "webhook_credits": webhook_credits,
+            "total_credits": total_credits,
+            "cost_per_event": cost_per_event,
+            "total_webhook_events": total_webhook_events
+        },
+        "burn_rate": {
+            "events_per_minute": events_per_minute,
+            "credits_per_hour": events_per_minute * 60 * cost_per_event if cost_per_event > 0 else 0,
+            "credits_per_day": events_per_minute * 60 * 24 * cost_per_event if cost_per_event > 0 else 0
+        }
+    }
 
 if __name__ == "__main__":
     import uvicorn

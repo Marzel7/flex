@@ -13,7 +13,7 @@ import re
 import sqlite3
 import asyncio
 from typing import Set, Optional, Tuple, List
-from address_tags import add_tag
+from src.utils.address_tags import add_tag
 from src.utils.domain_mapping import register_domain, link_domain_to_address
 
 # Try to import label resolver; skip if not available

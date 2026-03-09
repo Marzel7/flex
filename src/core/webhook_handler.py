@@ -123,6 +123,17 @@ def ensure_webhook_tables():
     cur.execute("CREATE INDEX IF NOT EXISTS idx_creator_analysis_priority ON creator_analysis_queue(priority DESC)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_creator_analysis_next ON creator_analysis_queue(next_analysis_at ASC)")
 
+    # helius_webhook_assignments - Track which creators are monitored by the webhook
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS helius_webhook_assignments (
+            creator_address TEXT PRIMARY KEY,
+            assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            status TEXT DEFAULT 'active'
+        )
+    """)
+
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_helius_webhook_status ON helius_webhook_assignments(status)")
+
     conn.commit()
     conn.close()
 

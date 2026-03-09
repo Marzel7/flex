@@ -2509,7 +2509,7 @@ def start_rpc_metrics_api():
         # Start API server
         print("[INIT] 🚀 Starting RPC Metrics API on port 8001...", flush=True)
         api_process = subprocess.Popen(
-            ["python", "rpc_metrics_api.py"],
+            ["python", "-m", "src.apis.rpc_metrics_api"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             start_new_session=True

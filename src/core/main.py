@@ -2377,6 +2377,82 @@ HTML_TEMPLATE = """
             background-color: rgba(239, 68, 68, 0.5);
         }
 
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 180px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            padding: 0 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 12px 0;
+            gap: 2px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 6px;
+            margin: 0 8px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.15s, color 0.15s;
+            border: none;
+            background: none;
+            width: calc(100% - 16px);
+            text-align: left;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(255,255,255,0.07);
+            color: var(--text-primary);
+        }
+
+        .sidebar-item.active {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent-cyan);
+            border-left: 3px solid var(--accent-cyan);
+            padding-left: 13px;
+        }
+
+        .sidebar-item.green {
+            color: #22c55e;
+        }
+
+        .sidebar-item.green:hover {
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        /* Push main content right of sidebar */
+        body {
+            padding-left: 196px;
+        }
+
         /* CEX View Styles */
         .cex-grid {
             display: grid;
@@ -2428,6 +2504,21 @@ HTML_TEMPLATE = """
     </style>
 </head>
 <body>
+    <!-- Left Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-logo">FLEX</div>
+        <nav class="sidebar-nav">
+            <button class="sidebar-item active" id="tokensTabBtn" onclick="switchToTokensTab()">Tokens</button>
+            <a class="sidebar-item" href="/networks">Networks</a>
+            <a class="sidebar-item" href="/clusters">Clusters</a>
+            <a class="sidebar-item" href="/coordinated-funders">Coordinated Funders</a>
+            <a class="sidebar-item" href="/top-funding-hubs">Hubs</a>
+            <a class="sidebar-item" href="/creator-analysis">Creator Analysis</a>
+            <a class="sidebar-item" href="/webhook-monitor">📡 Webhook</a>
+            <a class="sidebar-item green" href="/rpc-savings-dashboard">💰 RPC Savings</a>
+        </nav>
+    </div>
+
     <div class="container">
         <div class="stats" id="stats">
             <div class="stat-card">
@@ -2477,16 +2568,6 @@ HTML_TEMPLATE = """
                     <div class="toggle-slider"></div>
                 </div>
                 <span class="status-indicator" id="autoExtractFundersStatus"></span>
-            </div>
-            <div class="control-group" style="border-left: 1px solid rgba(124, 58, 237, 0.3); margin-left: 12px; padding-left: 12px;">
-                <button class="action-button" id="tokensTabBtn" onclick="switchToTokensTab()" title="View tokens" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Tokens</button>
-                <button class="action-button" onclick="window.location.href = '/networks'" title="View atomic funder networks" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Networks</button>
-                <button class="action-button" onclick="window.location.href = '/clusters'" title="View cross-funding cluster analysis" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Clusters</button>
-                <button class="action-button" onclick="window.location.href = '/coordinated-funders'" title="Analyze funders supporting multiple creators" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Coordinated Funders</button>
-                <button class="action-button" onclick="window.location.href = '/top-funding-hubs'" title="View top funding distribution hubs" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Hubs</button>
-                <button class="action-button" onclick="window.location.href = '/creator-analysis'" title="Analyze creator outgoing transfers and funding chains" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">Creator Analysis</button>
-                <button class="action-button" onclick="window.location.href = '/webhook-monitor'" title="Monitor real-time webhook activity and transfers" style="background: rgba(59, 130, 246, 0.2); color: var(--color-none); border: 1px solid rgba(59, 130, 246, 0.5); margin-left: 8px;">📡 Webhook</button>
-                <button class="action-button" onclick="window.location.href = '/rpc-savings-dashboard'" title="Monitor RPC optimization and credit savings" style="background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.5); margin-left: 8px;">💰 RPC Savings</button>
             </div>
         </div>
 
@@ -3994,6 +4075,10 @@ HTML_TEMPLATE = """
 function switchToTokensTab() {
             const tokensContainer = document.getElementById('tokens-container');
             tokensContainer.style.display = 'block';
+
+            // Update sidebar active state
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+            document.getElementById('tokensTabBtn').classList.add('active');
         }
 
         function toggleCEXView() {

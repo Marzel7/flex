@@ -18,13 +18,13 @@ from typing import Optional, Dict
 import threading
 import time
 import sqlite3
+import os
 
 from src.metrics.rpc_metrics_recorder import (
     get_recorder,
     initialize_recorder,
     RPCMetricsRecorder,
 )
-import os
 
 # Global state for background comparison tests
 comparison_results = {}
@@ -183,7 +183,7 @@ async def metrics_full():
     # Try to get latest Helius snapshot for display
     helius_snapshot = None
     try:
-        from src.monitoring.helius_cli_monitor import get_latest_snapshot
+        from helius_cli_monitor import get_latest_snapshot
         helius_snapshot = get_latest_snapshot()
     except:
         pass
@@ -269,7 +269,7 @@ async def metrics_untracked():
     Large discrepancies indicate untracked processes or RPC calls.
     """
     try:
-        from src.monitoring.helius_cli_monitor import get_latest_snapshot
+        from helius_cli_monitor import get_latest_snapshot
 
         # Get Helius actual usage
         helius_snapshot = get_latest_snapshot()
@@ -714,7 +714,7 @@ async def scan_cost_estimate():
     - Estimated duration with rate limiting
     """
     try:
-        from src.extractors.creator_outgoing_extractor import calculate_scan_cost_estimate
+        from creator_outgoing_extractor import calculate_scan_cost_estimate
         cost = calculate_scan_cost_estimate()
         return {
             "timestamp": datetime.now().isoformat(),
@@ -751,7 +751,7 @@ async def helius_account_status():
     - Alerts if usage is high
     """
     try:
-        from src.monitoring.helius_cli_monitor import get_latest_snapshot
+        from helius_cli_monitor import get_latest_snapshot
 
         # Get Helius actual usage
         helius_snapshot = get_latest_snapshot()
@@ -817,7 +817,7 @@ async def capture_helius_snapshot():
     Returns: Latest snapshot from CLI
     """
     try:
-        from src.monitoring.helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
+        from helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
 
         usage = get_helius_usage_cli()
         if not usage:
@@ -856,7 +856,7 @@ async def get_helius_snapshots(limit: int = Query(20, ge=1, le=100)):
     Returns the last N snapshots in reverse chronological order.
     """
     try:
-        from src.monitoring.helius_cli_monitor import get_snapshot_history
+        from helius_cli_monitor import get_snapshot_history
 
         snapshots = get_snapshot_history(limit=limit)
         return {

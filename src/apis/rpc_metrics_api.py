@@ -353,34 +353,33 @@ async def record_metric(data: dict):
 
 @app.post("/metrics/rpc/reset")
 async def metrics_reset(request: dict = Body(None)):
-    """Reset all RPC instrumentation metrics to 0, including webhook baseline tracking"""
+    """Reset all RPC instrumentation metrics to 0, and set webhook baseline for delta tracking"""
     # Reset is available for local/trusted access
     # In production, add authentication if exposed to untrusted networks
     try:
+        # Reset RPC metrics (this sets everything to 0, starting fresh)
         recorder = get_recorder()
         recorder.reset_daily()
         recorder.reset_credits_today()
         
-        # Capture current Helius webhook credits as baseline for next session
+        # ALSO capture current Helius webhook credits as baseline for delta tracking
+        # This allows webhook metrics to show "amount since reset" not total
         baseline_webhook_credits = 0
         try:
             result = subprocess.run(["helius", "usage", "--json"], capture_output=True, text=True, timeout=10, env=os.environ.copy())
             if result.returncode == 0:
                 helius_data = json.loads(result.stdout).get("creditsUsage", {})
                 baseline_webhook_credits = helius_data.get("webhookUsage", 0)
-            else:
-                print(f"[WEBHOOK_RESET] helius CLI returned {result.returncode}: {result.stderr[:200]}", flush=True)
         except Exception as e:
-            print(f"[WEBHOOK_RESET] Error calling helius CLI: {e}", flush=True)
+            print(f"[RESET] Error getting Helius baseline: {e}", flush=True)
         
-        # Clear old webhook records and set new baseline
+        # Set webhook baseline (for delta tracking)
         try:
             conn = sqlite3.connect(DB_PATH, timeout=30)
             cur = conn.cursor()
             
-            # Delete old webhook event records and baselines
-            cur.execute("DELETE FROM rpc_metrics WHERE section='webhooks'")
-            deleted_count = cur.rowcount
+            # Delete old webhook baselines (keep only one)
+            cur.execute("DELETE FROM rpc_metrics WHERE section='webhooks' AND method='baseline'")
             
             # Insert new baseline record
             cur.execute("""
@@ -401,16 +400,15 @@ async def metrics_reset(request: dict = Body(None)):
             conn.commit()
             conn.close()
             
-            print(f"[WEBHOOK_RESET] Cleared {deleted_count} webhook records, set baseline to {baseline_webhook_credits}", flush=True)
+            print(f"[RESET] Webhook baseline set to {baseline_webhook_credits}", flush=True)
         except Exception as e:
-            print(f"[WEBHOOK_RESET] Error managing webhook baseline: {e}", flush=True)
+            print(f"[RESET] Error setting webhook baseline: {e}", flush=True)
         
         return {
             "success": True,
             "status": "success",
-            "message": "RPC monitoring session reset successfully. Webhook baseline set.",
+            "message": "RPC monitoring session reset to 0. Webhook baseline captured for delta tracking.",
             "reset_at": recorder._comparison_reset_time.isoformat(),
-            "webhook_baseline": baseline_webhook_credits,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Reset failed: {str(e)}")

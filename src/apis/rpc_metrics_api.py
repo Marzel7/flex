@@ -19,7 +19,6 @@ import threading
 import time
 import sqlite3
 import os
-import subprocess
 
 from src.metrics.rpc_metrics_recorder import (
     get_recorder,
@@ -353,7 +352,7 @@ async def record_metric(data: dict):
 
 @app.post("/metrics/rpc/reset")
 async def metrics_reset(request: dict = Body(None)):
-    """Reset all RPC instrumentation metrics to 0, including webhook events with baseline tracking"""
+    """Reset all RPC instrumentation metrics to 0, including webhook events"""
     # Reset is available for local/trusted access
     # In production, add authentication if exposed to untrusted networks
     try:
@@ -361,17 +360,7 @@ async def metrics_reset(request: dict = Body(None)):
         recorder.reset_daily()
         recorder.reset_credits_today()
         
-        # Capture current Helius webhook credits as baseline for next session
-        baseline_webhook_credits = 0
-        try:
-            result = subprocess.run(["helius", "usage", "--json"], capture_output=True, text=True, timeout=10)
-            if result.returncode == 0:
-                helius_data = json.loads(result.stdout).get("creditsUsage", {})
-                baseline_webhook_credits = helius_data.get("webhookUsage", 0)
-        except:
-            pass
-        
-        # Store webhook baseline in database
+        # Also reset webhook metrics from the database
         try:
             conn = sqlite3.connect(DB_PATH, timeout=30)
             cur = conn.cursor()
@@ -380,37 +369,18 @@ async def metrics_reset(request: dict = Body(None)):
             cur.execute("DELETE FROM rpc_metrics WHERE section='webhooks' AND method='webhook_event'")
             deleted_count = cur.rowcount
             
-            # Create a baseline record for webhook credits
-            # Use a special marker to track baseline
-            cur.execute("""
-                INSERT INTO rpc_metrics 
-                (timestamp, section, provider, method, status_code, latency_ms, credits, source_file, error)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                time.time(),
-                'webhooks',
-                'helius_rpc',
-                'webhook_baseline',
-                200,
-                0,
-                baseline_webhook_credits,
-                'webhook_reset',
-                None
-            ))
-            
             conn.commit()
             conn.close()
             
-            print(f"[WEBHOOK_METRICS_RESET] Deleted {deleted_count} webhook event records, set baseline to {baseline_webhook_credits}", flush=True)
+            print(f"[WEBHOOK_METRICS_RESET] Deleted {deleted_count} webhook event records", flush=True)
         except Exception as e:
             print(f"[WEBHOOK_METRICS_RESET] Error clearing webhook metrics: {e}", flush=True)
         
         return {
             "success": True,
             "status": "success",
-            "message": "RPC monitoring session reset successfully. Webhook metrics cleared and baseline set.",
+            "message": "RPC monitoring session reset successfully. Webhook metrics cleared.",
             "reset_at": recorder._comparison_reset_time.isoformat(),
-            "webhook_credits_baseline": baseline_webhook_credits,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Reset failed: {str(e)}")
@@ -2277,53 +2247,21 @@ DASHBOARD_HTML = """
 
 @app.get("/webhook-metrics")
 async def webhook_metrics():
-    """Get webhook event and credit metrics using baseline tracking (1 credit per event)"""
+    """Get webhook event and credit metrics from RPC metrics and sol_transfers"""
+    import subprocess
+    import json
     import time
     from datetime import datetime, timedelta
 
-    # Get baseline and current webhook credits
-    baseline_webhook_credits = 0
+    # Get metrics from RPC metrics table (new events since tracking started)
     try:
         conn = sqlite3.connect(DB_PATH, timeout=30)
         cur = conn.cursor()
         
-        # Get most recent webhook_baseline record
-        cur.execute("""
-            SELECT credits FROM rpc_metrics
-            WHERE section='webhooks' AND method='webhook_baseline'
-            ORDER BY timestamp DESC
-            LIMIT 1
-        """)
-        row = cur.fetchone()
-        if row:
-            baseline_webhook_credits = row[0] or 0
-        
-        conn.close()
-    except Exception as e:
-        print(f"[WEBHOOK_METRICS] Error getting baseline: {e}", flush=True)
-
-    # Get current Helius webhook credits
-    current_webhook_credits = 0
-    try:
-        result = subprocess.run(["helius", "usage", "--json"], capture_output=True, text=True, timeout=10)
-        if result.returncode == 0:
-            helius_data = json.loads(result.stdout).get("creditsUsage", {})
-            current_webhook_credits = helius_data.get("webhookUsage", 0)
-    except:
-        pass
-
-    # Calculate webhook events since baseline (1 credit per event)
-    webhook_events_since_baseline = max(0, current_webhook_credits - baseline_webhook_credits)
-    
-    # Get metrics for time windows
-    try:
-        conn = sqlite3.connect(DB_PATH, timeout=30)
-        cur = conn.cursor()
-        
-        # Get metrics for last 5 minutes
+        # Get metrics for last 5 minutes from RPC metrics table
         cutoff_5m = time.time() - (5 * 60)
         cur.execute("""
-            SELECT COUNT(*) as event_count
+            SELECT COUNT(*) as event_count, SUM(credits) as credits_used
             FROM rpc_metrics
             WHERE section='webhooks' AND method='webhook_event' AND timestamp > ?
         """, (cutoff_5m,))
@@ -2331,13 +2269,14 @@ async def webhook_metrics():
         metrics_5m = {
             'event_count': rpc_metrics_5m[0] or 0,
             'unique_creators': 0,
-            'unique_signatures': 0
+            'unique_signatures': 0,
+            'credits_used': rpc_metrics_5m[1] or 0
         }
         
-        # Get metrics for last 60 minutes
+        # Get metrics for last 60 minutes from RPC metrics table
         cutoff_60m = time.time() - (60 * 60)
         cur.execute("""
-            SELECT COUNT(*) as event_count
+            SELECT COUNT(*) as event_count, SUM(credits) as credits_used
             FROM rpc_metrics
             WHERE section='webhooks' AND method='webhook_event' AND timestamp > ?
         """, (cutoff_60m,))
@@ -2345,14 +2284,20 @@ async def webhook_metrics():
         metrics_60m = {
             'event_count': rpc_metrics_60m[0] or 0,
             'unique_creators': 0,
-            'unique_signatures': 0
+            'unique_signatures': 0,
+            'credits_used': rpc_metrics_60m[1] or 0
         }
+        
+        # Get total webhook events from sol_transfers (all time, for cost per event calculation)
+        cur.execute("SELECT COUNT(*) as total_count FROM sol_transfers")
+        total_webhook_events = cur.fetchone()[0] or 0
         
         conn.close()
     except Exception as e:
         print(f"[WEBHOOK_METRICS] Error querying metrics: {e}", flush=True)
-        metrics_5m = {'event_count': 0, 'unique_creators': 0, 'unique_signatures': 0}
-        metrics_60m = {'event_count': 0, 'unique_creators': 0, 'unique_signatures': 0}
+        metrics_5m = {'event_count': 0, 'unique_creators': 0, 'unique_signatures': 0, 'credits_used': 0}
+        metrics_60m = {'event_count': 0, 'unique_creators': 0, 'unique_signatures': 0, 'credits_used': 0}
+        total_webhook_events = 0
 
     # Get creator activity from sol_transfers (historical data)
     try:
@@ -2383,18 +2328,21 @@ async def webhook_metrics():
         print(f"[WEBHOOK_METRICS] Error getting top creators: {e}", flush=True)
         top_creators = []
 
-    # Get full Helius billing data
-    total_credits = 0
+    # Get Helius billing
     try:
         result = subprocess.run(["helius", "usage", "--json"], capture_output=True, text=True, timeout=10)
         if result.returncode == 0:
             helius_data = json.loads(result.stdout).get("creditsUsage", {})
-            total_credits = helius_data.get("totalCreditsUsed", 0)
+        else:
+            helius_data = {}
     except:
-        pass
+        helius_data = {}
 
-    # Calculate metrics: 1 credit per webhook event
-    cost_per_event = 1.0  # Fixed: 1 credit per event
+    # Calculate burn rate based on actual Helius data
+    total_credits = helius_data.get("totalCreditsUsed", 0)
+    webhook_credits = helius_data.get("webhookUsage", 0)
+    
+    cost_per_event = webhook_credits / total_webhook_events if total_webhook_events > 0 else 0
     events_per_minute = metrics_5m.get('event_count', 0) / 5.0 if metrics_5m.get('event_count', 0) > 0 else 0
 
     return {
@@ -2402,11 +2350,10 @@ async def webhook_metrics():
         "metrics_60m": metrics_60m,
         "top_creators": top_creators,
         "helius_billing": {
-            "webhook_credits": webhook_events_since_baseline,
-            "webhook_credits_total_helius": current_webhook_credits,
-            "baseline_credits": baseline_webhook_credits,
+            "webhook_credits": webhook_credits,
             "total_credits": total_credits,
             "cost_per_event": cost_per_event,
+            "total_webhook_events": total_webhook_events
         },
         "burn_rate": {
             "events_per_minute": events_per_minute,

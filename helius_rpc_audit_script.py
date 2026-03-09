@@ -241,39 +241,19 @@ class HeliusAudit:
         """Run funder extraction for a given creator's funders"""
         start = time.time()
         try:
-            # Query for funders of this creator
-            conn = sqlite3.connect(FLEX_DB, timeout=5)
-            cursor = conn.cursor()
-
-            cursor.execute("""
-                SELECT DISTINCT funder_address
-                FROM creator_funders
-                WHERE creator_address = ?
-                LIMIT 5
-            """, (creator,))
-
-            funders = [row[0] for row in cursor.fetchall()]
-            conn.close()
-
-            if not funders:
-                elapsed = time.time() - start
-                return 0, "No funders found for creator", elapsed
-
-            # Import and run extraction (async)
+            # Import and run extraction for this creator's funders
             import asyncio
-            from funder_incoming_extractor import extract_for_creator
+            from funder_incoming_extractor import extract_for_creator_async
 
-            async def run_extractions():
-                for funder in funders:
-                    try:
-                        await extract_for_creator(funder)
-                    except Exception as e:
-                        pass  # Log errors silently
+            async def run_extraction():
+                # Extract_for_creator_async handles all funders for the creator internally
+                return await extract_for_creator_async(creator)
 
-            asyncio.run(run_extractions())
+            result = asyncio.run(run_extraction())
 
             elapsed = time.time() - start
-            return 0, f"Funder extraction completed for {len(funders)} funders", elapsed
+            funder_count = result.get("incoming_found", 0) + result.get("outgoing_found", 0)
+            return 0, f"Funder extraction completed: {funder_count} transfers found", elapsed
 
         except Exception as e:
             elapsed = time.time() - start

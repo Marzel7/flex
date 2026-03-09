@@ -70,8 +70,8 @@ except ImportError:
     # Used by funder_incoming_extractor.py and similar
     # Source: https://www.helius.dev/docs/billing/credits
     # --------
-    "helius_enhanced_addresses_transactions": 100,  # Batch addresses endpoint: 100 credits per request
-    "helius_enhanced_transactions_batch": 100,      # Batch transactions endpoint: 100 credits per request
+    "helius_enhanced_addresses_transactions": 100,  # Address feed endpoint: 100 credits per request
+    "helius_enhanced_transactions": 10,             # Batch transactions endpoint (POST /v0/transactions): 10 credits per request
     "helius_enhanced_single_transaction": 10,       # Single transaction endpoint: 10 credits
 
     # --------

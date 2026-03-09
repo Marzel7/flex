@@ -90,6 +90,7 @@ try:
         query_health_status,
         get_efficiency_dashboard,
     )
+    import src.apis.rpc_metrics_api
     from dataclasses import asdict
 
     # RPC Savings Dashboard Routes
@@ -1168,47 +1169,47 @@ def get_token_price(token_mint: str) -> Optional[float]:
         return None
 
 
-def get_sidebar_css() -> str:
-    """Generate sidebar CSS styling"""
-    return """
+def get_sidebar_css(bg_color: str = "rgba(20, 20, 30, 0.9)") -> str:
+    """Generate sidebar CSS styling with matching background color"""
+    return f"""
         /* Sidebar Navigation */
-        .sidebar {
+        .sidebar {{
             position: fixed;
             top: 0;
             left: 0;
             width: 180px;
             height: 100vh;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border-color);
+            background: {bg_color};
+            border-right: 1px solid var(--border-color, rgba(167, 139, 250, 0.3));
             display: flex;
             flex-direction: column;
             padding: 20px 0;
             z-index: 100;
-        }
+        }}
 
-        .sidebar-logo {
+        .sidebar-logo {{
             padding: 0 16px 20px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color, rgba(167, 139, 250, 0.3));
             font-size: 16px;
             font-weight: 700;
-            color: var(--accent-cyan);
+            color: var(--accent-cyan, #06b6d4);
             letter-spacing: 1px;
-        }
+        }}
 
-        .sidebar-nav {
+        .sidebar-nav {{
             flex: 1;
             display: flex;
             flex-direction: column;
             padding: 12px 0;
             gap: 2px;
-        }
+        }}
 
-        .sidebar-item {
+        .sidebar-item {{
             display: flex;
             align-items: center;
             gap: 10px;
             padding: 10px 16px;
-            color: var(--text-secondary);
+            color: var(--text-secondary, #9ca3af);
             cursor: pointer;
             border-radius: 6px;
             margin: 0 8px;
@@ -1220,32 +1221,42 @@ def get_sidebar_css() -> str:
             background: none;
             width: calc(100% - 16px);
             text-align: left;
-        }
+        }}
 
-        .sidebar-item:hover {
+        .sidebar-item:hover {{
             background: rgba(255,255,255,0.07);
-            color: var(--text-primary);
-        }
+            color: var(--text-primary, #e5e7eb);
+        }}
 
-        .sidebar-item.active {
+        .sidebar-item.active {{
             background: rgba(6, 182, 212, 0.15);
-            color: var(--accent-cyan);
-            border-left: 3px solid var(--accent-cyan);
+            color: var(--accent-cyan, #06b6d4);
+            border-left: 3px solid var(--accent-cyan, #06b6d4);
             padding-left: 13px;
-        }
+        }}
 
-        .sidebar-item.green {
+        .sidebar-item.green {{
             color: #22c55e;
-        }
+        }}
 
-        .sidebar-item.green:hover {
+        .sidebar-item.green:hover {{
             background: rgba(34, 197, 94, 0.1);
-        }
+        }}
 
         /* Push main content right of sidebar */
-        body {
+        body {{
             padding-left: 196px;
-        }
+            margin: 0;
+        }}
+
+        /* Consistent content container alignment */
+        .container {{
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }}
     """
 
 
@@ -1258,8 +1269,8 @@ def get_sidebar_html(active_page: str = "tokens") -> str:
         "coordinated-funders": ("Coordinated Funders", "/coordinated-funders"),
         "hubs": ("Hubs", "/top-funding-hubs"),
         "creator-analysis": ("Creator Analysis", "/creator-analysis"),
-        "webhook": ("📡 Webhook", "/webhook-monitor"),
-        "rpc-savings": ("💰 RPC Savings", "/rpc-savings-dashboard"),
+        "webhook": ("Transfers", "/webhook-monitor"),
+        "rpc-savings": ("RPC", "/rpc-savings-dashboard"),
     }
 
     items = ""
@@ -1306,16 +1317,16 @@ HTML_TEMPLATE = """
 
             /* Text Colors - Professional Gray Scale */
             --text-primary: #e5e7eb;
-            --text-secondary: var(--text-secondary);
-            --text-dark: var(--text-dark);
+            --text-secondary: #9ca3af;
+            --text-dark: #1f2937;
             --text-light: #f3f4f6;
 
             /* Risk & Reuse Levels - Professional Palette */
-            --color-critical: var(--color-critical);
-            --color-high: var(--color-high);
-            --color-medium: var(--color-medium);
-            --color-low: var(--color-low);
-            --color-none: var(--color-none);
+            --color-critical: #ef4444;
+            --color-high: #f97316;
+            --color-medium: #eab308;
+            --color-low: #22c55e;
+            --color-none: #6b7280;
 
             /* Backgrounds - SolanaFM Dark Navy/Purple */
             --bg-primary: #1a1a24;
@@ -1323,25 +1334,40 @@ HTML_TEMPLATE = """
             --bg-overlay: rgba(124, 58, 237, 0.08);
 
             /* Accents - SolanaFM Vibrant */
-            --accent-cyan: var(--accent-cyan);
-            --accent-green: var(--color-low);
-            --accent-purple: var(--accent-purple);
+            --accent-cyan: #06b6d4;
+            --accent-green: #22c55e;
+            --accent-purple: #a78bfa;
+            --color-purple: #a78bfa;
 
             /* Address/Mint Colors - Light Purple */
             --address-color: #a78bfa;
+            --border-color: rgba(167, 139, 250, 0.3);
+        }
+
+        html {
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            overflow-y: scroll;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+            background: transparent;
             color: var(--text-primary);
-            padding: 20px;
+            padding: 30px;
+            margin: 0;
+            padding-left: 196px;
             min-height: 100vh;
         }
 
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .header {
@@ -1350,12 +1376,13 @@ HTML_TEMPLATE = """
             border-radius: 12px;
             margin-bottom: 30px;
             border-left: 4px solid var(--accent-cyan);
+            margin-left: 0;
         }
 
         .header h1 {
             font-size: 28px;
             margin-bottom: 10px;
-            color: var(--accent-cyan);
+            color: #a78bfa;
         }
 
         .header p {
@@ -1387,7 +1414,7 @@ HTML_TEMPLATE = """
         .stat-value {
             font-size: 28px;
             font-weight: bold;
-            color: var(--accent-cyan);
+            color: #06b6d4;
         }
 
         .tokens-table {
@@ -1406,10 +1433,9 @@ HTML_TEMPLATE = """
         .tokens-table th {
             padding: 15px;
             text-align: left;
-            font-size: 12px;
-            text-transform: uppercase;
-            color: var(--accent-cyan);
-            font-weight: 600;
+            font-size: 13px;
+            color: #a78bfa;
+            font-weight: bold;
         }
 
         .tokens-table th.sortable {
@@ -1438,7 +1464,7 @@ HTML_TEMPLATE = """
         .tokens-table td {
             padding: 15px;
             border-bottom: 1px solid rgba(6, 182, 212, 0.1);
-            font-size: 13px;
+            font-size: 12px;
         }
 
 
@@ -2560,10 +2586,6 @@ HTML_TEMPLATE = """
             background: rgba(34, 197, 94, 0.1);
         }
 
-        /* Push main content right of sidebar */
-        body {
-            padding-left: 196px;
-        }
 
         /* CEX View Styles */
         .cex-grid {
@@ -2626,8 +2648,8 @@ HTML_TEMPLATE = """
             <a class="sidebar-item" href="/coordinated-funders">Coordinated Funders</a>
             <a class="sidebar-item" href="/top-funding-hubs">Hubs</a>
             <a class="sidebar-item" href="/creator-analysis">Creator Analysis</a>
-            <a class="sidebar-item" href="/webhook-monitor">📡 Webhook</a>
-            <a class="sidebar-item green" href="/rpc-savings-dashboard">💰 RPC Savings</a>
+            <a class="sidebar-item" href="/webhook-monitor">Transfers</a>
+            <a class="sidebar-item green" href="/rpc-savings-dashboard">RPC</a>
         </nav>
     </div>
 
@@ -2662,17 +2684,17 @@ HTML_TEMPLATE = """
         <div class="controls-panel">
             <div class="control-group">
                 <span class="control-label">Token History Check</span>
-                <div class="toggle-switch active" id="tokenHistoryToggle" onclick="toggleTokenHistory()">
+                <div class="toggle-switch" id="tokenHistoryToggle" onclick="toggleTokenHistory()">
                     <div class="toggle-slider"></div>
                 </div>
-                <span class="status-indicator active" id="tokenHistoryStatus"></span>
+                <span class="status-indicator" id="tokenHistoryStatus"></span>
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(6, 182, 212, 0.3); margin-left: 12px; padding-left: 12px;">
                 <span class="control-label">Token Launch</span>
-                <div class="toggle-switch active" id="listenLaunchesToggle" onclick="toggleListenLaunches()">
+                <div class="toggle-switch" id="listenLaunchesToggle" onclick="toggleListenLaunches()">
                     <div class="toggle-slider"></div>
                 </div>
-                <span class="status-indicator active" id="listenLaunchesStatus"></span>
+                <span class="status-indicator" id="listenLaunchesStatus"></span>
             </div>
             <div class="control-group" style="border-left: 1px solid rgba(239, 68, 68, 0.3); margin-left: 12px; padding-left: 12px;">
                 <span class="control-label">Auto Extract Funders</span>
@@ -4119,7 +4141,7 @@ HTML_TEMPLATE = """
         }
 
 // Listener feature toggles
-        let listenLaunchesEnabled = true;
+        let listenLaunchesEnabled = false;  // Will be overridden by initializeSettings()
         let autoExtractFundersEnabled = false;
 
         function toggleListenLaunches() {
@@ -4309,6 +4331,9 @@ function switchToTokensTab() {
                 if (!tokenHistoryEnabled) {
                     tokenHistoryToggle.classList.remove('active');
                     tokenHistoryStatus.classList.remove('active');
+                } else {
+                    tokenHistoryToggle.classList.add('active');
+                    tokenHistoryStatus.classList.add('active');
                 }
 
                 // Update listener toggle switch states
@@ -4318,6 +4343,9 @@ function switchToTokensTab() {
                 if (!listenLaunchesEnabled) {
                     listenLaunchesToggle.classList.remove('active');
                     listenLaunchesStatus.classList.remove('active');
+                } else {
+                    listenLaunchesToggle.classList.add('active');
+                    listenLaunchesStatus.classList.add('active');
                 }
 
                 // Update auto extract funders toggle switch states
@@ -4341,9 +4369,11 @@ function switchToTokensTab() {
         }
 
         // Load tokens immediately and then every 10 seconds
-        initializeSettings();
-        loadTokens();
-        setInterval(loadTokens, 10000);
+        (async () => {
+            await initializeSettings();
+            loadTokens();
+            setInterval(loadTokens, 10000);
+        })();
 
         // Metrics Modal Functions
         async function showTokenMetrics(mint) {
@@ -4469,12 +4499,18 @@ function switchToTokensTab() {
                 const data = await response.json();
 
                 if (data.error) {
-                    alert('Creator details not found');
+                    console.error('Creator details error:', data);
+                    let errorMsg = 'Creator details not found';
+                    if (data.details) {
+                        console.error('Details:', data.details);
+                        errorMsg = errorMsg + ' - Server error, check console for details';
+                    }
+                    alert(errorMsg);
                     return;
                 }
 
                 // Display creator address with domain tag
-                let creatorDisplay = creatorAddress;
+                creatorDisplay = creatorAddress;
                 if (data.creator_address_tags && data.creator_address_tags.domain) {
                     const domains = data.creator_address_tags.domain;
                     creatorDisplay = `<div style="word-break: break-all;">${creatorAddress} <span class="domain-tag" style="font-size: 11px; margin-left: 8px;">🌐 ${domains[0]}</span></div>`;
@@ -6774,7 +6810,7 @@ def highlight_infra_in_funding(funders_list):
     Enrich each funder with is_infrastructure, category, tags, display_name, and address_tags.
     """
     from src.utils.infra_mapping import get_account_info, get_cex_info
-    from address_tags import get_address_tags, get_domain_tag
+    from src.utils.address_tags import get_address_tags, get_domain_tag
     
     enriched_funders = []
     
@@ -7181,8 +7217,12 @@ def api_token_metrics(token_mint: str):
 def api_creator_details(creator_address: str):
     """Get detailed information about a creator"""
     try:
-        from address_tags import get_address_tags
-        
+        # Validate creator address format
+        if not creator_address or len(creator_address) < 30:
+            return jsonify({'error': 'Invalid creator address format'}), 400
+
+        from src.utils.address_tags import get_address_tags
+
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
@@ -7373,6 +7413,10 @@ def api_creator_details(creator_address: str):
         # 6. Check blocklist status
         is_blocked = bool(tokens[0]['creator_is_blocked']) if tokens else False
 
+        # If no data found for this creator, still return basic info rather than error
+        if not tokens and not funding['total_funders'] and not funding['total_recipients']:
+            print(f"[CREATOR_DETAILS] No creator data found for {creator_address}", flush=True)
+
         # 7. Get creator tags (from creator_tags table)
         cursor.execute("""
             SELECT tag, description, amount_sol
@@ -7527,7 +7571,10 @@ def api_creator_details(creator_address: str):
         })
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        print(f"[CREATOR_DETAILS_ERROR] {creator_address}: {str(e)}", flush=True)
+        print(traceback.format_exc(), flush=True)
+        return jsonify({'error': str(e), 'details': traceback.format_exc()}), 500
 
 
 @app.route('/api/funder-tokens/<funder_address>')
@@ -8153,6 +8200,7 @@ def api_transaction(signature: str):
     try:
         import aiohttp
         import asyncio
+        from src.metrics.rpc_metrics_recorder import record_request
 
         async def fetch_tx():
             payload = {
@@ -8169,6 +8217,16 @@ def api_transaction(signature: str):
 
         # Run async function
         data = asyncio.run(fetch_tx())
+
+        # Record RPC call
+        record_request(
+            section="transaction_lookup",
+            provider="solana",
+            method="getTransaction",
+            status_code=200 if data.get("result") else 400,
+            latency_ms=0,  # Already completed
+            source_file="main"
+        )
 
         # Check for RPC errors
         if data.get("error"):
@@ -9294,26 +9352,35 @@ def coordinated_funders_view():
                     --bg-hover: rgba(167, 139, 250, 0.05);
                     --border-color: rgba(167, 139, 250, 0.3);
                     --border-hover: rgba(167, 139, 250, 0.6);
+                    --bg-secondary: rgba(20, 20, 30, 0.9);
+                    --accent-cyan: #06b6d4;
                 }}
                 body {{
                     background: var(--bg-dark);
                     color: var(--text-primary);
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
                     padding: 30px;
+                    padding-left: 196px;
                     margin: 0;
                 }}
+                {get_sidebar_css("rgba(30, 30, 40, 0.8)")}
                 .container {{
-                    max-width: 1000px;
-                    margin: 0 auto;
+                    max-width: 100%;
+                    margin: 0;
+                    padding: 0;
+                    width: 100%;
+                    box-sizing: border-box;
                 }}
                 h1 {{
                     color: var(--color-purple);
                     margin-bottom: 10px;
+                    margin-left: 0;
                 }}
                 .subtitle {{
                     color: var(--text-secondary);
                     font-size: 14px;
                     margin-bottom: 30px;
+                    margin-left: 0;
                 }}
                 table {{
                     width: 100%;
@@ -9369,6 +9436,7 @@ def coordinated_funders_view():
             </style>
         </head>
         <body>
+            {get_sidebar_html("coordinated-funders")}
             <div class="container">
                 <a href="/" class="back-link">← Back to Dashboard</a>
 
@@ -9551,23 +9619,29 @@ def clusters_dashboard():
                     margin: 0;
                     padding-left: 196px;
                 }}
-                {get_sidebar_css()}
+                {get_sidebar_css("rgba(30, 30, 40, 0.8)")}
                 .container {{
-                    max-width: 1200px;
-                    margin: 0 auto;
+                    max-width: 100%;
+                    margin: 0;
+                    padding: 0;
+                    width: 100%;
+                    box-sizing: border-box;
                 }}
                 h1 {{
                     color: var(--color-purple);
                     margin-bottom: 10px;
+                    margin-left: 0;
                 }}
                 h2 {{
                     color: var(--color-purple);
                     margin-bottom: 20px;
+                    margin-left: 0;
                 }}
                 .subtitle {{
                     color: var(--text-secondary);
                     font-size: 14px;
                     margin-bottom: 30px;
+                    margin-left: 0;
                 }}
                 .stats-grid {{
                     display: grid;
@@ -10936,7 +11010,7 @@ def funder_details_view(funder_address: str):
         funder = dict(cursor.fetchone() or {})
         if not funder:
             conn.close()
-            return f"<html><body style='background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%); color: var(--text-primary);'><h1>Funder Not Found</h1><p>No funding data for {funder_address}</p><p><a href='/' style='color: var(--color-cyan);'>← Back to Dashboard</a></p></body></html>", 404
+            return f"<html><body style='background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%); background-attachment: fixed; color: var(--text-primary);'><h1>Funder Not Found</h1><p>No funding data for {funder_address}</p><p><a href='/' style='color: var(--color-cyan);'>← Back to Dashboard</a></p></body></html>", 404
 
         # Get detailed transfers to creators
         cursor.execute("""
@@ -11276,7 +11350,7 @@ def funder_details_view(funder_address: str):
 
     except Exception as e:
         import traceback
-        return f"<html><body style='background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%); color: var(--text-primary);'><h1>Error</h1><p>{str(e)}</p><pre>{traceback.format_exc()}</pre></body></html>", 500
+        return f"<html><body style='background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%); background-attachment: fixed; color: var(--text-primary);'><h1>Error</h1><p>{str(e)}</p><pre>{traceback.format_exc()}</pre></body></html>", 500
 
 
 @app.route('/api/duplicate-senders')
@@ -13031,6 +13105,7 @@ def api_validate_transaction():
 
         # Fetch transaction from RPC
         import requests
+        from src.metrics.rpc_metrics_recorder import record_request
         rpc_url = "https://api.mainnet-beta.solana.com"
 
         payload = {
@@ -13042,6 +13117,16 @@ def api_validate_transaction():
 
         response = requests.post(rpc_url, json=payload, timeout=10)
         result = response.json()
+
+        # Record RPC call
+        record_request(
+            section="transaction_validation",
+            provider="solana",
+            method="getTransaction",
+            status_code=response.status_code,
+            latency_ms=0,  # Already completed
+            source_file="main"
+        )
 
         if "result" not in result or not result["result"]:
             return jsonify({'error': 'Transaction not found on-chain'}), 404
@@ -13796,22 +13881,28 @@ def networks_dashboard():
                 margin: 0;
                 padding-left: 196px;
             }}
-            {get_sidebar_css()}
+            {get_sidebar_css("rgba(30, 30, 40, 0.8)")}
             .container {{
-                max-width: 1400px;
-                margin: 0 auto;
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                box-sizing: border-box;
             }}
             h1 {{
                 color: var(--color-purple);
                 margin-bottom: 10px;
+                margin-left: 0;
             }}
             .subtitle {{
                 color: var(--text-secondary);
                 font-size: 14px;
                 margin-bottom: 30px;
+                margin-left: 0;
             }}
             .back-link {{
                 display: inline-block;
+                margin-left: 0;
                 margin-bottom: 20px;
                 color: var(--color-cyan);
                 text-decoration: none;
@@ -14187,6 +14278,8 @@ def top_funding_hubs():
                     --bg-hover: rgba(167, 139, 250, 0.05);
                     --border-color: rgba(167, 139, 250, 0.3);
                     --blue: #3b82f6;
+                    --bg-secondary: rgba(20, 20, 30, 0.9);
+                    --accent-cyan: #06b6d4;
                 }
 
                 * {
@@ -14200,15 +14293,22 @@ def top_funding_hubs():
                     color: var(--text-primary);
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
                     padding: 30px;
+                    padding-left: 196px;
+                    margin: 0;
                 }
+                """ + get_sidebar_css("rgba(30, 30, 40, 0.8)") + """
 
                 .container {
-                    max-width: 1200px;
-                    margin: 0 auto;
+                    max-width: 100%;
+                    margin: 0;
+                    padding: 0;
+                    width: 100%;
+                    box-sizing: border-box;
                 }
 
                 h1 {
                     color: var(--color-purple);
+                    margin-left: 0;
                     margin-bottom: 10px;
                     font-size: 32px;
                 }
@@ -14326,6 +14426,7 @@ def top_funding_hubs():
             </style>
         </head>
         <body>
+            """ + get_sidebar_html("hubs") + """
             <div class="container">
                 <a href="/" class="back-link">← Back to Dashboard</a>
 
@@ -14880,15 +14981,19 @@ def creator_analysis_page():
                     --color-none: #3b82f6;
                 }
                 body {
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
                     background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
                     color: var(--text-primary);
                     padding: 20px;
+                    padding-left: 196px;
+                    margin: 0;
                 }
-                .container { max-width: 1400px; margin: 0 auto; }
+                """ + get_sidebar_css("rgba(20, 20, 32, 0.85)") + """
+                .container { max-width: 100%; margin: 0; padding: 0; width: 100%; box-sizing: border-box; }
                 header {
                     display: flex;
                     justify-content: space-between;
+                    margin-left: 0;
                     align-items: center;
                     margin-bottom: 30px;
                     padding: 20px;
@@ -15586,6 +15691,7 @@ def creator_analysis_page():
             </style>
         </head>
         <body>
+            """ + get_sidebar_html("creator-analysis") + """
             <div class="container">
                 <header>
                     <h1>🔍 Creator Outgoing Transfer Analysis</h1>
@@ -18654,16 +18760,22 @@ def webhook_monitor():
             }
 
             body {
-                font-family: 'Courier New', monospace;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
                 background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
                 color: #e5e7eb;
                 min-height: 100vh;
                 padding: 20px;
+                padding-left: 196px;
+                margin: 0;
             }
+            """ + get_sidebar_css("rgba(20, 20, 32, 0.9)") + """
 
             .container {
-                max-width: 1400px;
-                margin: 0 auto;
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                box-sizing: border-box;
             }
 
             .header {
@@ -18671,6 +18783,7 @@ def webhook_monitor():
                 justify-content: space-between;
                 align-items: center;
                 margin-bottom: 30px;
+                margin-left: 0;
                 padding-bottom: 20px;
                 border-bottom: 2px solid rgba(167, 139, 250, 0.3);
             }
@@ -18877,6 +18990,7 @@ def webhook_monitor():
         </style>
     </head>
     <body>
+        """ + get_sidebar_html("webhook") + """
         <div class="container">
             <div class="header">
                 <h1>📡 Webhook Monitor</h1>
@@ -19154,8 +19268,105 @@ def webhook_monitor():
     </body>
     </html>
     """
-    
+
     return html
+
+
+@app.route('/webhook-metrics')
+def webhook_metrics_proxy():
+    """
+    Proxy endpoint that fetches webhook metrics from the RPC metrics API.
+    This allows the dashboard HTML to fetch from the same port.
+    """
+    import requests
+    try:
+        # Forward request to RPC metrics API on port 8001
+        response = requests.get('http://localhost:8001/webhook-metrics', timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        print(f"[WEBHOOK_METRICS] Proxy error: {e}", flush=True)
+        # Return empty metrics on error
+        return {
+            "metrics_5m": {'event_count': 0, 'unique_creators': 0, 'unique_signatures': 0, 'credits_used': 0},
+            "metrics_60m": {'event_count': 0, 'unique_creators': 0, 'unique_signatures': 0, 'credits_used': 0},
+            "top_creators": [],
+            "helius_billing": {'webhook_credits': 0, 'total_credits': 0, 'cost_per_event': 0, 'total_webhook_events': 0},
+            "burn_rate": {'events_per_minute': 0, 'credits_per_hour': 0, 'credits_per_day': 0}
+        }
+
+
+@app.route('/api/webhook/status')
+def api_webhook_status():
+    """
+    Get webhook monitor status data.
+    Returns metrics about webhooks received, transfers processed, etc.
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get total signatures (webhooks received)
+        cursor.execute("SELECT COUNT(DISTINCT signature) as total FROM funder_incoming_transfers")
+        total_signatures = cursor.fetchone()['total'] or 0
+
+        # Get total transfers
+        cursor.execute("SELECT COUNT(*) as total FROM funder_incoming_transfers")
+        total_transfers = cursor.fetchone()['total'] or 0
+
+        # Get transfers from last 24 hours
+        cursor.execute("""
+            SELECT COUNT(*) as total FROM funder_incoming_transfers
+            WHERE timestamp >= datetime('now', '-1 day')
+        """)
+        transfers_today = cursor.fetchone()['total'] or 0
+
+        # Get last webhook timestamp
+        cursor.execute("SELECT MAX(timestamp) as last_ts FROM funder_incoming_transfers")
+        last_webhook_row = cursor.fetchone()
+        last_webhook = last_webhook_row['last_ts'] if last_webhook_row['last_ts'] else None
+
+        # Get recent transfers (last 20)
+        cursor.execute("""
+            SELECT
+                sender_address,
+                funder_address as receiver,
+                amount_sol as amount,
+                timestamp as time
+            FROM funder_incoming_transfers
+            ORDER BY timestamp DESC
+            LIMIT 20
+        """)
+        recent_transfers = [
+            {
+                'sender': row['sender_address'][:16] + '...' if len(row['sender_address']) > 16 else row['sender_address'],
+                'sender_full': row['sender_address'],
+                'receiver': row['receiver'][:16] + '...' if len(row['receiver']) > 16 else row['receiver'],
+                'receiver_full': row['receiver'],
+                'amount': f"{row['amount']:.2f}" if row['amount'] else "0",
+                'time': row['time'],
+                'sender_is_creator': False,
+                'sender_has_label': False,
+            }
+            for row in cursor.fetchall()
+        ]
+
+        conn.close()
+
+        return jsonify({
+            'ok': True,
+            'total_signatures': total_signatures,
+            'total_transfers': total_transfers,
+            'transfers_today': transfers_today,
+            'last_webhook': last_webhook,
+            'recent_transfers': recent_transfers
+        })
+
+    except Exception as e:
+        print(f"[WEBHOOK_STATUS] Error: {e}", flush=True)
+        return jsonify({'ok': False, 'error': str(e)}), 500
 
 
 # =========================================================================

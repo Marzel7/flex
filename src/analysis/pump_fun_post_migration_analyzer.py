@@ -223,6 +223,12 @@ class PostMigrationAnalyzer:
         self._create_tx_signature: Optional[str] = None
         self._create_tx_creator: Optional[str] = None
 
+        # Fallback creator inference from earliest scanned candidate
+        self._fallback_creator_sig: Optional[str] = None
+        self._fallback_creator_tx: Optional[dict] = None
+        self._oldest_scanned_sig: Optional[str] = None
+        self._oldest_scanned_tx: Optional[dict] = None
+
         print(f"[ANALYZER_INIT] Token: {token_mint}", flush=True)
         print(f"[ANALYZER_INIT] RPC: {rpc_url[:80]}{'...' if len(rpc_url) > 80 else ''}", flush=True)
 
@@ -1061,6 +1067,61 @@ class PostMigrationAnalyzer:
 
         return result
 
+    def _infer_creator_from_tx(self, tx_data: dict) -> Optional[str]:
+        """
+        Fallback creator inference when strict CREATE validation fails.
+
+        Tier 2: STRONG INFERENCE
+        - Extract signer accounts from tx message
+        - Remove known program/system accounts
+        - Prefer a single writable signer if present
+        - Otherwise accept a single remaining signer
+        """
+        try:
+            message = tx_data.get("transaction", {}).get("message", {})
+            account_keys = message.get("accountKeys", []) or []
+
+            excluded = {
+                SYSTEM_PROGRAM,
+                TOKEN_PROGRAM,
+                TOKEN_2022,
+                "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+                "So11111111111111111111111111111111111111112",
+                PUMPFUN_AMM_PROGRAM,
+                PUMPFUN_BONDING_CURVE_PROGRAM,
+                TOKEN_METADATA_PROGRAM,
+            }
+
+            candidates = []
+
+            for acc in account_keys:
+                if isinstance(acc, dict):
+                    pubkey = acc.get("pubkey")
+                    signer = acc.get("signer", False)
+                    writable = acc.get("writable", False)
+                else:
+                    pubkey = str(acc)
+                    signer = False
+                    writable = False
+
+                if signer and pubkey and pubkey not in excluded:
+                    candidates.append((pubkey, writable))
+
+            # Prefer a single writable signer
+            writable_candidates = [pubkey for pubkey, writable in candidates if writable]
+            if len(writable_candidates) == 1:
+                return writable_candidates[0]
+
+            # Otherwise accept a single signer (deduped)
+            unique_candidates = list(dict.fromkeys(pubkey for pubkey, _ in candidates))
+            if len(unique_candidates) == 1:
+                return unique_candidates[0]
+
+            return None
+        except Exception as e:
+            print(f"[CREATOR] ⚠ Error in creator inference fallback: {e}", flush=True)
+            return None
+
     # -----------------------------
     # Creator extraction flow
     # -----------------------------
@@ -1170,6 +1231,8 @@ class PostMigrationAnalyzer:
         earliest_create_sig = None
         earliest_create_tx = None
         earliest_create_validation = None
+        fallback_sig = None
+        fallback_tx = None
         pages_checked = 0
         proven_end = False
         oldest_logged = 0
@@ -1282,6 +1345,16 @@ class PostMigrationAnalyzer:
                         # hard skip: post-migration
                         continue
 
+                    # Track the oldest scanned transaction
+                    if self._oldest_scanned_sig is None:
+                        self._oldest_scanned_sig = sig
+                        self._oldest_scanned_tx = tx
+
+                    # Capture earliest fallback candidate for inference if strict validation fails
+                    if fallback_sig is None and fallback_tx is None:
+                        fallback_sig = sig
+                        fallback_tx = tx
+
                     validation = self._validate_pumpfun_create_tx(tx)
 
                     # extra debug when bonding_curve=no
@@ -1327,6 +1400,15 @@ class PostMigrationAnalyzer:
 
         if not earliest_create_sig or not earliest_create_tx or not earliest_create_validation:
             print(f"[CREATOR] ❌ No STRICT CREATE transaction found for mint", flush=True)
+
+            self._fallback_creator_sig = fallback_sig
+            self._fallback_creator_tx = fallback_tx
+
+            if fallback_sig:
+                print(f"[CREATOR] ⚠ Stored fallback candidate tx: {fallback_sig}", flush=True)
+            else:
+                print(f"[CREATOR] ⚠ No fallback candidate tx was captured during strict scan", flush=True)
+
             return None
 
         # store
@@ -1436,6 +1518,51 @@ class PostMigrationAnalyzer:
         bonding_curve_pda = await self.extract_bonding_curve_from_creation_tx(migration_blocktime=migration_blocktime)
         if not bonding_curve_pda:
             provenance["validation_notes"].append("Could not extract bonding curve from strict CREATE tx")
+            print(f"[CREATOR] ⚠ Fallback inference triggered", flush=True)
+
+            # Tier 2A: Prefer fallback candidate captured during strict CREATE scan
+            fallback_sig = self._fallback_creator_sig
+            fallback_tx = self._fallback_creator_tx
+
+            if fallback_tx:
+                try:
+                    inferred_creator = self._infer_creator_from_tx(fallback_tx)
+                    if inferred_creator:
+                        print(f"[CREATOR] ⚠ Using inferred creator fallback from scanned candidate: {inferred_creator}", flush=True)
+                        provenance["creator"] = inferred_creator
+                        provenance["create_sig"] = fallback_sig
+                        provenance["status"] = "inferred_create"
+                        provenance["blockTime"] = fallback_tx.get("blockTime")
+                        provenance["slot"] = fallback_tx.get("slot")
+                        provenance["validation_notes"].append("Creator inferred from earliest scanned candidate transaction (Tier 2)")
+                        return provenance
+                except Exception as e:
+                    print(f"[CREATOR] ⚠ Error during scanned-candidate inference: {e}", flush=True)
+
+            # Tier 2B: Fallback to earliest mint transaction lookup
+            earliest_sig, reached_end, rpc_used = await self.get_true_earliest_signature()
+            if earliest_sig:
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        earliest_tx = await self.fetch_tx_with_retry(session, earliest_sig)
+
+                    if earliest_tx:
+                        inferred_creator = self._infer_creator_from_tx(earliest_tx)
+                        if inferred_creator:
+                            print(f"[CREATOR] ⚠ Using inferred creator fallback from earliest mint tx: {inferred_creator}", flush=True)
+                            provenance["creator"] = inferred_creator
+                            provenance["create_sig"] = earliest_sig
+                            provenance["status"] = "inferred_create"
+                            provenance["blockTime"] = earliest_tx.get("blockTime")
+                            provenance["slot"] = earliest_tx.get("slot")
+                            provenance["validation_notes"].append("Creator inferred from earliest mint transaction (Tier 2)")
+                            return provenance
+                except Exception as e:
+                    print(f"[CREATOR] ⚠ Error during earliest-tx fallback inference: {e}", flush=True)
+
+            print(f"[CREATOR] ❌ Fallback inference failed - no creator found", flush=True)
+            provenance["status"] = "no_create_found"
+            provenance["validation_notes"].append("No creator found - neither strict CREATE nor inference succeeded")
             return provenance
 
         provenance["bonding_curve_pda"] = bonding_curve_pda

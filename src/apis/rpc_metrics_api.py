@@ -24,6 +24,7 @@ from src.metrics.rpc_metrics_recorder import (
     initialize_recorder,
     RPCMetricsRecorder,
 )
+import os
 
 # Global state for background comparison tests
 comparison_results = {}
@@ -40,7 +41,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
-DB_PATH = "flex_complete_database.db"
+DB_PATH = os.environ.get('DB_PATH', 'database/flex_complete_database.db')
 
 # ============================================================================
 # DATABASE HELPERS FOR CROSS-PROCESS METRICS AGGREGATION
@@ -377,7 +378,7 @@ def run_comparison_background(test_id: str, duration_seconds: int):
     
     Also tracks RPC method calls during test and waits for Helius to update.
     """
-    DB_PATH = "flex_complete_database.db"
+    DB_PATH = os.environ.get('DB_PATH', 'database/flex_complete_database.db')
 
     def _connect():
         conn = sqlite3.connect(DB_PATH, timeout=30)
@@ -713,7 +714,7 @@ async def scan_cost_estimate():
     - Estimated duration with rate limiting
     """
     try:
-        from creator_outgoing_extractor import calculate_scan_cost_estimate
+        from src.extractors.creator_outgoing_extractor import calculate_scan_cost_estimate
         cost = calculate_scan_cost_estimate()
         return {
             "timestamp": datetime.now().isoformat(),

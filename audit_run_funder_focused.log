@@ -1,301 +1,0 @@
-================================================================================
-HELIUS vs LOCAL RPC METRICS AUDIT
-================================================================================
-Started: 2026-03-07T10:46:33.015727
-
-📊 Fetching initial Helius usage...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 165501
-   Helius credits today: 165501
-
-⏳ Waiting 60 seconds for baseline...
-  1/60  2/60  3/60  4/60  5/60  6/60  7/60  8/60  9/60  10/60  11/60  12/60  13/60  14/60  15/60  16/60  17/60  18/60  19/60  20/60  21/60  22/60  23/60  24/60  25/60  26/60  27/60  28/60  29/60  30/60  31/60  32/60  33/60  34/60  35/60  36/60  37/60  38/60  39/60  40/60  41/60  42/60  43/60  44/60  45/60  46/60  47/60  48/60  49/60  50/60  51/60  52/60  53/60  54/60  55/60  56/60  57/60  58/60  59/60  60/60✅ Baseline wait complete                    
-
-🔄 Running 3 creator extraction iterations...
-   Creator 1: F8PaLmNEBs4Ksn1bpPStvqpzBPDrn54HytEksQu6APR1
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 165701
-[REALTIME_FUNDING] 📊 Recording RPC metrics for creator funding extraction: F8PaLmNEBs4Ksn1b...
-[PERF] SQLite optimizations applied (WAL mode, 50MB cache, 60s busy timeout)
-[PERF] SQLite optimizations applied (WAL mode, 50MB cache, 60s busy timeout)
-[REALTIME_FUNDING] 🔍 Extracting creator funding for F8PaLmNEBs4Ksn1b...
-[REALTIME_FUNDING]    Migration timestamp: 2026-03-07T10:47:42.738755
-[REALTIME_FUNDING]    Will fetch up to 1 month of history
-[REALTIME_FUNDING]    Excluding 2 addresses (creator's tokens & bonding curves)
-[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...
-[REALTIME_FUNDING]    [PAGE 1] RPC CALL #1...
-[REALTIME_FUNDING]    [PAGE 1] fetched=92 txs
-[DOMAIN] 📝 Found 1 domain(s) in tx 5wy6Arn1WxuTozi6... {'Flip.gg | #1 Lootbox Casino🎰🍀-24818.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 5CzCQGzCnhbzrZ8K... {'Get 3 Free Lootbox 👉 Flip.gg🎁-24819.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 2aAKgbhWJC7EZw5G... {'trumpgamecoin.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 4yVTXdaQRT8x2CHs... {'⚡boostlegends-volumebot⚡.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 4p1DZHuLhMH6o3QZ... {'trumpgamecoin.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 65CUhRVUYbCT6sAi... {'⚡boostlegends-volumebot⚡.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx qb43cLdvwW2WrSVM... {'⚡boostlegends-volumebot⚡.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 3bQAmPYdL71JYtDU... {'Get 3 Free Lootbox 👉 Flip.gg🎁-24801.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 2GJGcD1hVzgYt2Qv... {'Get 3 Free Lootbox 👉 Flip.gg🎁-24801.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 5X1mSS8XfPqyZxGN... {'Flip.gg | #1 Lootbox Casino🎰🍀-24800.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 3pDiBvrNmqqgV7M4... {'Flip.gg | #1 Lootbox Casino🎰🍀-24800.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 5kdt6QT6jX9gaADg... {'Flip.gg | #1 Lootbox Casino🎰🍀-24800.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 5F8kJjhgLdCsPHsL... {'Get 3 Free Lootbox 👉 Flip.gg🎁-24801.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 2CyxUeh16DrqESPG... {'Get 3 Free Lootbox 👉 Flip.gg🎁-24763.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 4NtBXLkNxqCB3DKQ... {'⚡boostlegends-volumebot⚡.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx Bq2uwtx1FGuXPQKz... {'⚡boostlegends-volumebot⚡.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 2TTkPLHEcVBju9JP... {'⚡boostlegends-volumebot⚡.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx JUKJAKAq8TQUHDwk... {'Flip.gg | #1 Lootbox Casino🎰🍀-24556.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 5zKiazj3mAdUeSPN... {'Get 3 Free Lootbox 👉 Flip.gg🎁-24557.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 5k3yVX5ymDyAFHRC... {'Flip.gg | #1 Lootbox Casino🎰🍀-24556.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 7jjXfNY5pmnGy464... {'Get 3 Free Lootbox 👉 Flip.gg🎁-24557.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 2cdqzVBszR7u4Ypw... {'Flip.gg | #1 Lootbox Casino🎰🍀-24542.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 58Nriiigkxuehq2r... {'Get 3 Free Lootbox 👉 Flip.gg🎁-24543.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 4Gd8f9UEhLr5LVub... {'trumpgamecoin.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 437rhGKzsR4TdkEs... {'trumpgamecoin.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 3mgfZfTHKdoiRVg6... {'Flip.gg | #1 Lootbox Casino🎰🍀-24506.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 2ha6VNC5bGwAHtjK... {'Get 3 Free Lootbox 👉 Flip.gg🎁-24507.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 2wS8NaWxRjZbgY63... {'trumpgamecoin.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 56cdqNZsESwjPj8H... {'Flip.gg | #1 Lootbox Casino🎰🍀-24488.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 3JCYgY4pTSdWdZDM... {'Get 3 Free Lootbox 👉 Flip.gg🎁-24489.flipgg.sol'}
-[FUNDING] 🏛️ CEX FUNDER: KuCoin Hot Wallet → F8PaLmNEBs4Ksn1b... (37.19 SOL)
-[REALTIME_FUNDING]    [PAGE 1] ✓ 5 new funders | 🚫 682 dust | 🔄 4 excluded
-[REALTIME_FUNDING]    Total transactions fetched: 92
-[REALTIME_FUNDING]    [PAGE 2] RPC CALL #2...
-[REALTIME_FUNDING]    [PAGE 2] No more transactions
-[REALTIME_FUNDING]    ✓ Inbound: 5 funders (61.13 SOL)
-[REALTIME_FUNDING]    ✓ Outbound: 51 recipients (68.47 SOL)
-[REALTIME_FUNDING]    ℹ Filtered 682 dust transfers
-[REALTIME_FUNDING]    ℹ Filtered 4 internal transfers (token/curve)
-[REALTIME_FUNDING]    Funder #1: BmFdpraQhkiDQE6S... → 37.19 SOL
-[REALTIME_FUNDING]    Funder #2: 4fHbDFguktFRYHxs... → 13.26 SOL
-[REALTIME_FUNDING]    Funder #3: 7vDfHMnhSpAn7pXh... → 7.78 SOL
-[EXTRACTION] ✅ COMPLETED for F8PaLmNEBs4Ksn1b... | Funders: 5, Recipients: 51
-[REALTIME_FUNDING] ✅ Cached creator funding for F8PaLmNEBs4Ksn1b...
-[REALTIME_FUNDING] 🚀 Post-launch automation triggered
-[BLOCKSEC] Found 100 active addresses (used 2+ times)
-[BLOCKSEC] Found 100 unlabeled addresses, preparing batch...
-[BLOCKSEC] Batch failed: Rate limited. Next batch in 60 minutes
-[BLOCKSEC] Rate limited. Next batch in 60 minutes
-[POST_LAUNCH] 🚀 Starting automation for creator F8PaLmNEBs4Ksn1b...
-[NETWORK] ⚠ Error assigning network: no such column: ccf.creator_addresses
-[METRICS] 📊 Updating metrics for 5 funders
-[METRICS] ⚠ Error updating metrics: no such table: funder_distribution_metrics
-[COORDINATION] 🔴 Found 1 coordinated funders
-[COORDINATION] ⚠ Error detecting coordinated funders: table coordinated_funders has no column named creator_count
-[NETWORK_ANALYSIS] 🔍 Analyzing creator F8PaLmNEBs4Ksn1b... with CrossFundingClusterAnalyzer
-[ANALYZER] Loaded 1573 unique creators
-[NETWORK_ANALYSIS] 📊 Building atomic funder networks...
-[ANALYZER] Atomic funder networks saved: 154 (creator_count>=2)
-[ANALYZER]  └─ of which CEX/infra (excluded from clustering): 27
-[NETWORK_ANALYSIS] 🔗 Building funder clusters...
-[ANALYZER] Atomic funder networks saved: 154 (creator_count>=2)
-[ANALYZER]  └─ of which CEX/infra (excluded from clustering): 27
-[ANALYZER] Funder clusters built: 18 (non-CEX topology)
-[NETWORK_ANALYSIS] 👥 Building creator clusters...
-[NETWORK_ANALYSIS] 🌐 Detecting network coordinators...
-[NETWORK_ANALYSIS] 📈 Analyzing unified cluster for F8PaLmNEBs4Ksn1b...
-[NETWORK_ANALYSIS] ✅ Network analysis complete for F8PaLmNEBs4Ksn1b...
-[CLUSTERS] ✅ Rebuilt clusters for F8PaLmNEBs4Ksn1b... (members: 52 addresses)
-[UI] ℹ No WebSocket manager - skipping WebSocket broadcast
-[UI] 📝 Updated: metrics, clusters
-[POST_LAUNCH] ✅ Automation complete for F8PaLmNEBs4Ksn1b...
-Solscan API error: Cannot connect to host api.solscan.io:443 ssl:default [nodename nor servname provided, or not known]
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-Solscan API error: Cannot connect to host api.solscan.io:443 ssl:default [nodename nor servname provided, or not known]
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-Solscan API error: Cannot connect to host api.solscan.io:443 ssl:default [nodename nor servname provided, or not known]
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-Solscan API error: Cannot connect to host api.solscan.io:443 ssl:default [nodename nor servname provided, or not known]
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-Solscan API error: Cannot connect to host api.solscan.io:443 ssl:default [nodename nor servname provided, or not known]
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-[REALTIME_FUNDING]    🔍 Searching for OUTGOING transfers after migration...
-Solscan API error: Cannot connect to host api.solscan.io:443 ssl:default [nodename nor servname provided, or not known]
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-Solscan API error: Cannot connect to host api.solscan.io:443 ssl:default [nodename nor servname provided, or not known]
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-Solscan API error: Cannot connect to host api.solscan.io:443 ssl:default [nodename nor servname provided, or not known]
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-Solscan API error: Cannot connect to host api.solscan.io:443 ssl:default [nodename nor servname provided, or not known]
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-Solscan API error: Cannot connect to host api.solscan.io:443 ssl:default [nodename nor servname provided, or not known]
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-Solscan API error: Cannot connect to host api.solscan.io:443 ssl:default [nodename nor servname provided, or not known]
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-Solscan API error: Cannot connect to host api.solscan.io:443 ssl:default [nodename nor servname provided, or not known]
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-[AUTO-CEX] Classification complete: 12 classified, 0 confirmed, 0 likely (from 12 addresses)
-[REALTIME_FUNDING] ✅ Extracted outgoing transfers for F8PaLmNEBs4Ksn1b...
-  ⏳ Waiting 60 seconds for Helius to update...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 165913
-✅ CREATOR #1: Helius Δ=212 | Local Δ=700 | Diff=-488 | Calls Δ=178 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:700
-   Creator 2: 4x8L843uLk4LwUE2PbSBbqG7e7kCpv9nN8q16gxDHnuX
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 166513
-[REALTIME_FUNDING] 📊 Recording RPC metrics for creator funding extraction: 4x8L843uLk4LwUE2...
-[PERF] SQLite optimizations applied (WAL mode, 50MB cache, 60s busy timeout)
-[REALTIME_FUNDING] 🔍 Extracting creator funding for 4x8L843uLk4LwUE2...
-[REALTIME_FUNDING]    Migration timestamp: 2026-03-07T10:49:07.077050
-[REALTIME_FUNDING]    Will fetch up to 1 month of history
-[REALTIME_FUNDING]    Excluding 2 addresses (creator's tokens & bonding curves)
-[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...
-[REALTIME_FUNDING]    [PAGE 1] RPC CALL #1...
-[REALTIME_FUNDING]    ⚠ Error on page 1: Event loop is closed
-[REALTIME_FUNDING]    ✓ Inbound: 0 funders (0.00 SOL)
-[REALTIME_FUNDING]    ✓ Outbound: 0 recipients (0.00 SOL)
-[EXTRACTION] ✅ COMPLETED for 4x8L843uLk4LwUE2... | Funders: 0, Recipients: 0
-[REALTIME_FUNDING]    🔍 Searching for OUTGOING transfers after migration...
-[BLOCKSEC] Found 100 active addresses (used 2+ times)
-[BLOCKSEC] Found 100 unlabeled addresses, preparing batch...
-[BLOCKSEC] Batch failed: Rate limited. Next batch in 59 minutes
-[BLOCKSEC] Rate limited. Next batch in 59 minutes
-[REALTIME_FUNDING] ✅ Extracted outgoing transfers for 4x8L843uLk4LwUE2...
-  ⏳ Waiting 60 seconds for Helius to update...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 166513
-✅ CREATOR #2: Helius Δ=0 | Local Δ=0 | Diff=0 | Calls Δ=0 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:0
-   Creator 3: 5Q42cb7Je6iGodoyqLgZtP3LmwJ6nXUEFyKiaTEF7KTV
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 166513
-[REALTIME_FUNDING] 📊 Recording RPC metrics for creator funding extraction: 5Q42cb7Je6iGodoy...
-[PERF] SQLite optimizations applied (WAL mode, 50MB cache, 60s busy timeout)
-[REALTIME_FUNDING] 🔍 Extracting creator funding for 5Q42cb7Je6iGodoy...
-[REALTIME_FUNDING]    Migration timestamp: 2026-03-07T10:50:22.743292
-[REALTIME_FUNDING]    Will fetch up to 1 month of history
-[REALTIME_FUNDING]    Excluding 5 addresses (creator's tokens & bonding curves)
-[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...
-[REALTIME_FUNDING]    [PAGE 1] RPC CALL #1...
-[REALTIME_FUNDING]    ⚠ Error on page 1: Event loop is closed
-[REALTIME_FUNDING]    ✓ Inbound: 0 funders (0.00 SOL)
-[REALTIME_FUNDING]    ✓ Outbound: 0 recipients (0.00 SOL)
-[EXTRACTION] ✅ COMPLETED for 5Q42cb7Je6iGodoy... | Funders: 0, Recipients: 0
-[REALTIME_FUNDING]    🔍 Searching for OUTGOING transfers after migration...
-[BLOCKSEC] Found 100 active addresses (used 2+ times)
-[BLOCKSEC] Found 100 unlabeled addresses, preparing batch...
-[BLOCKSEC] Batch failed: Rate limited. Next batch in 57 minutes
-[BLOCKSEC] Rate limited. Next batch in 57 minutes
-[REALTIME_FUNDING] ✅ Extracted outgoing transfers for 5Q42cb7Je6iGodoy...
-  ⏳ Waiting 60 seconds for Helius to update...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 166513
-✅ CREATOR #3: Helius Δ=0 | Local Δ=0 | Diff=0 | Calls Δ=0 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:0
-
-🔄 Running 3 funder extraction iterations...
-   Funder Iteration 1: 8vYghuua9zcAvsBU...
-  ✅ Reset fully_analyzed for funders of 8vYghuua9zcAvsBU...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 166513
-  ⏳ Waiting 60 seconds for Helius to update...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 166513
-✅ FUNDER #1: Helius Δ=0 | Local Δ=0 | Diff=0 | Calls Δ=0 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:0
-   Funder Iteration 2: H41TE7EbiyqRgcrp...
-  ✅ Reset fully_analyzed for funders of H41TE7EbiyqRgcrp...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 166513
-  ⏳ Waiting 60 seconds for Helius to update...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 166513
-✅ FUNDER #2: Helius Δ=0 | Local Δ=0 | Diff=0 | Calls Δ=0 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:0
-   Funder Iteration 3: 7ThvPtPijDcvuTN5...
-  ✅ Reset fully_analyzed for funders of 7ThvPtPijDcvuTN5...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 166513
-  ⏳ Waiting 60 seconds for Helius to update...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 166513
-✅ FUNDER #3: Helius Δ=0 | Local Δ=0 | Diff=0 | Calls Δ=0 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:0
-
-✅ Results written to helius_audit_results.json
-✅ Results written to helius_audit_results.csv
-
-================================================================================
-AUDIT SUMMARY
-================================================================================
-
-CREATOR:
-  Helius Total Δ:  212 credits
-  Local Total Δ:   700 credits
-  Total Diff:      -488 credits
-  Avg Diff/Run:    -162.7 credits
-
-  Source File Breakdown:
-    realtime_creator_funding_extractor: 700 credits (178 calls)
-    pumpfun_curve_listener: 0 credits (0 calls)
-    unknown: 0 credits (0 calls)
-    funder_incoming_extractor: 0 credits (0 calls)
-
-  Sample RPC Calls (most recent):
-    sns_primary_domains (bonfida_sns) - 0 credits from realtime_creator_funding_extractor
-
-  Status: ⚠️  LOCAL HIGHER - 488 over-estimated credits
-
-FUNDER:
-  Helius Total Δ:  0 credits
-  Local Total Δ:   0 credits
-  Total Diff:      0 credits
-  Avg Diff/Run:    0.0 credits
-
-  Source File Breakdown:
-    pumpfun_curve_listener: 0 credits (0 calls)
-    unknown: 0 credits (0 calls)
-    funder_incoming_extractor: 0 credits (0 calls)
-    realtime_creator_funding_extractor: 0 credits (0 calls)
-
-  Sample RPC Calls (most recent):
-    sns_primary_domains (bonfida_sns) - 0 credits from realtime_creator_funding_extractor
-
-  Status: ✅ GOOD MATCH (within 10 credits)
-
-OVERALL:
-  Total Helius Δ:  212 credits
-  Total Local Δ:   700 credits
-  Net Difference:  -488 credits
-  Accuracy:        330.2%
-
-================================================================================
-Audit completed: 2026-03-07T10:54:57.643559
-================================================================================
-Unclosed client session
-client_session: <aiohttp.client.ClientSession object at 0x107dc1fd0>
-Unclosed connector
-connections: ['[(<aiohttp.client_proto.ResponseHandler object at 0x108106820>, 3151474.280749041)]', '[(<aiohttp.client_proto.ResponseHandler object at 0x1081064a0>, 3151475.278016708)]', '[(<aiohttp.client_proto.ResponseHandler object at 0x1081077e0>, 3151484.986856)]']
-connector: <aiohttp.connector.TCPConnector object at 0x107dc2010>

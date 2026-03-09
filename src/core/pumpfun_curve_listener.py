@@ -49,28 +49,30 @@ def get_migration_setting(key: str, default=True) -> bool:
     try:
         # Try database first (listener_settings table)
         import sqlite3
+        import json
         if key in ['listen_to_launches', 'listen_to_price_updates', 'auto_extract_funding', 'auto_extract_funders']:
-            conn = sqlite3.connect('flex_complete_database.db', timeout=5)
+            # Use DB_PATH if available, otherwise fall back to default location
+            db_path = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), '../../database/flex_complete_database.db'))
+            conn = sqlite3.connect(db_path, timeout=5)
             cursor = conn.cursor()
             try:
                 cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", (key,))
                 row = cursor.fetchone()
                 if row:
+                    result = row[0] == 'true'
                     conn.close()
-                    return row[0] == 'true'
-            except:
+                    return result
+            except Exception as e:
                 pass
             conn.close()
 
         # Fall back to migration_settings.json for migration-specific settings
-        import json
-        import os
         settings_file = "migration_settings.json"
         if os.path.exists(settings_file):
             with open(settings_file) as f:
                 settings = json.load(f)
                 return settings.get(key, default)
-    except:
+    except Exception as e:
         pass
     return default
 
@@ -298,7 +300,11 @@ RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
 PUMPFUN_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
 PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
 
-DB_PATH = "flex_complete_database.db"
+# Use DB_PATH from environment or construct it relative to project root
+DB_PATH = os.getenv("DB_PATH")
+if not DB_PATH:
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    DB_PATH = os.path.join(PROJECT_ROOT, 'database', 'flex_complete_database.db')
 
 
 class PumpFunCurveListener:
@@ -2356,6 +2362,12 @@ class PumpFunCurveListener:
 
     async def listen_websocket(self):
         """Listen to PumpSwap program via WebSocket for live migration events"""
+        # Check if token launch listening is enabled - keep checking periodically so toggle works at runtime
+        while not get_migration_setting('listen_to_launches', True):
+            print(f"[WEBSOCKET] ⏸ Token Launch listening is DISABLED - websocket idle (checking every 30s)", flush=True)
+            await asyncio.sleep(30)
+            continue
+
         print(f"\n[WEBSOCKET] Connecting to PumpSwap program...", flush=True)
 
         # Try Helius first, fall back to public Solana
@@ -2443,7 +2455,10 @@ class PumpFunCurveListener:
                                 # Check if this is a migration
                                 if self._is_migration_transaction(logs):
                                     # Check if listening to launches is enabled
-                                    if not get_migration_setting('listen_to_launches', True):
+                                    listen_enabled = get_migration_setting('listen_to_launches', True)
+                                    print(f"[WEBSOCKET] 🔍 Migration found. listen_to_launches={listen_enabled}", flush=True)
+
+                                    if not listen_enabled:
                                         print(f"[WEBSOCKET] ⏸ Migration detected but launch listening disabled: {signature}", flush=True)
                                         continue
 
@@ -2492,8 +2507,15 @@ class PumpFunCurveListener:
 
     async def listen(self):
         """Main entry point - start WebSocket listener with live price updater"""
-        # Start live price updater in background
-        asyncio.create_task(self.update_live_prices_background())
+        # HARDCODED: Price updater is OFF for now
+        PRICE_UPDATER_ENABLED = False
+
+        if PRICE_UPDATER_ENABLED:
+            # Start live price updater in background
+            asyncio.create_task(self.update_live_prices_background())
+            print("[LISTENER] ✅ Price updater started", flush=True)
+        else:
+            print("[LISTENER] ⏸ Price updater disabled (HARDCODED OFF)", flush=True)
 
         # Creator outgoing transfer extraction is now handled by Helius webhook (real-time monitoring)
         print("[LISTENER] ✅ Creator outgoing transfers monitored via Helius webhook (real-time)", flush=True)
@@ -2503,6 +2525,25 @@ class PumpFunCurveListener:
 
 
 async def main():
+    # Ensure only one instance runs at a time
+    import os
+    import time
+    from pathlib import Path
+    
+    lock_file = Path("/tmp/pumpfun_curve_listener.lock")
+    
+    # Kill any existing listener instances that might be hanging
+    max_retries = 3
+    for attempt in range(max_retries):
+        result = os.system("pkill -9 -f 'python.*-m src.core.pumpfun_curve_listener' 2>/dev/null || true")
+        time.sleep(0.5)
+        # Check if there are still instances running
+        check = os.popen("pgrep -f 'python.*-m src.core.pumpfun_curve_listener' | wc -l").read().strip()
+        if check == "1":  # Only this instance
+            break
+        if attempt < max_retries - 1:
+            time.sleep(0.5)
+    
     listener = PumpFunCurveListener()
     await listener.listen()
 
@@ -2524,18 +2565,18 @@ def cleanup_and_restart():
         pass
 
     try:
-        # Kill listener
-        os.system("pkill -f 'python.*pumpfun_curve_listener.py' 2>/dev/null || true")
+        # Kill ALL listener instances (both module and direct script forms)
+        os.system("pkill -9 -f 'pumpfun_curve_listener' 2>/dev/null || true")
         time.sleep(1)
-        print("[CLEANUP] ✓ Listener killed", flush=True)
+        print("[CLEANUP] ✓ All listener instances killed", flush=True)
     except:
         pass
 
     try:
-        # Restart listener
+        # Restart listener using module form (matches actual process)
         print("[CLEANUP] 🚀 Starting listener...", flush=True)
         listener_process = subprocess.Popen(
-            ["python", "pumpfun_curve_listener.py"],
+            ["python", "-m", "src.core.pumpfun_curve_listener"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             start_new_session=True
@@ -2549,7 +2590,7 @@ def cleanup_and_restart():
         # Restart Flask
         print("[CLEANUP] 🚀 Starting Flask...", flush=True)
         flask_process = subprocess.Popen(
-            ["python", "main.py"],
+            ["python", "run.py"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             start_new_session=True

@@ -35,11 +35,11 @@ sys.path.insert(0, "/Users/kevinkeaveney/Dev/claude/flex")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-from infra_mapping import get_account_info, get_cex_info  # type: ignore
+from src.utils.infra_mapping import get_account_info, get_cex_info  # type: ignore
 
 # Import RPC metrics recorder for monitoring
 try:
-    from rpc_metrics_recorder import record_request, initialize_recorder
+    from src.metrics.rpc_metrics_recorder import record_request, initialize_recorder
     initialize_recorder(plan_monthly_credits=50_000_000)
 except ImportError:
     def record_request(*args, **kwargs):

@@ -18,7 +18,7 @@ from flask import Flask, jsonify, render_template, render_template_string, reque
 from typing import Dict, List, Optional
 import os
 import time
-from infra_mapping import highlight_infra_in_funding
+from src.utils.infra_mapping import highlight_infra_in_funding
 
 # Webhook system - M5 webhook-first low-RPC architecture
 try:
@@ -69,13 +69,13 @@ except Exception as e:
 # RPC SAVINGS & EFFICIENCY DASHBOARD APIS (Phase 2 & 3)
 # =========================================================================
 try:
-    from rpc_savings_api import (
+    from src.apis.rpc_savings_api import (
         get_dashboard_data,
         query_daily_savings,
         query_dashboard_24h,
         query_section_breakdown,
     )
-    from rpc_efficiency_api import (
+    from src.apis.rpc_efficiency_api import (
         query_daily_efficiency,
         query_efficiency_24h,
         query_efficiency_all_time,
@@ -655,7 +655,7 @@ def route_phase2c(endpoint_name, new_fn, legacy_fn):
 def get_migrated_tokens() -> List[Dict]:
     """Get all analyzed post-migration tokens"""
     try:
-        from infra_mapping import CEX_ACCOUNTS
+        from src.utils.infra_mapping import CEX_ACCOUNTS
         
         conn = sqlite3.connect(DB_PATH, timeout=30)
         conn.row_factory = sqlite3.Row
@@ -6570,7 +6570,7 @@ def highlight_infra_in_funding(funders_list):
     Add infrastructure/CEX/tag information to funders list.
     Enrich each funder with is_infrastructure, category, tags, display_name, and address_tags.
     """
-    from infra_mapping import get_account_info, get_cex_info
+    from src.utils.infra_mapping import get_account_info, get_cex_info
     from address_tags import get_address_tags, get_domain_tag
     
     enriched_funders = []
@@ -7539,7 +7539,7 @@ def api_creator_sol_stats(creator_address: str):
 def api_infrastructure_mapping():
     """Get infrastructure account mapping for UI highlighting (infrastructure + CEX separate)"""
     try:
-        from infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
+        from src.utils.infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS
 
         mapping = {
             "infrastructure": {},
@@ -7666,7 +7666,7 @@ def api_funding_network_3tier(creator_address: str):
             funder_label = None
             is_cex_or_infra = False
             try:
-                from infra_mapping import get_cex_info, get_account_info
+                from src.utils.infra_mapping import get_cex_info, get_account_info
 
                 # Check if funder is CEX
                 cex_info = get_cex_info(funder_addr)
@@ -7718,7 +7718,7 @@ def api_funding_network_3tier(creator_address: str):
             senders = cursor.fetchall()
 
             # Enrich senders with labels and sort known accounts first
-            from infra_mapping import get_account_info, get_cex_info
+            from src.utils.infra_mapping import get_account_info, get_cex_info
 
             enriched_senders = []
             for s in senders:
@@ -8047,7 +8047,7 @@ def api_creators_batch():
         return jsonify({})
 
     try:
-        from infra_mapping import CEX_ACCOUNTS, INFRASTRUCTURE_ACCOUNTS
+        from src.utils.infra_mapping import CEX_ACCOUNTS, INFRASTRUCTURE_ACCOUNTS
         
         conn = sqlite3.connect(DB_PATH, timeout=30)
         conn.row_factory = sqlite3.Row
@@ -8754,7 +8754,7 @@ def api_creator_funding_history(creator_address: str):
             address = transfer.get('address')
 
             if address:
-                from infra_mapping import get_account_info, get_cex_info
+                from src.utils.infra_mapping import get_account_info, get_cex_info
 
                 # Check infrastructure first
                 infra_info = get_account_info(address)
@@ -8799,7 +8799,7 @@ def api_multi_creator_funders():
     Shows all multi-creator funders with flags for infrastructure/CEX accounts.
     """
     try:
-        from infra_mapping import get_account_info, get_cex_info, get_pumpfun_creator_info, get_suspicious_wallet_info
+        from src.utils.infra_mapping import get_account_info, get_cex_info, get_pumpfun_creator_info, get_suspicious_wallet_info
 
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
@@ -9583,7 +9583,7 @@ def clusters_dashboard():
 def coordinated_funders_view_old():
     """Serve a full webview for coordinated funders analysis"""
     try:
-        from infra_mapping import get_account_info, get_cex_info, get_pumpfun_creator_info, get_suspicious_wallet_info
+        from src.utils.infra_mapping import get_account_info, get_cex_info, get_pumpfun_creator_info, get_suspicious_wallet_info
 
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
@@ -10702,7 +10702,7 @@ def coordinated_funders_view_old():
 def funder_details_view(funder_address: str):
     """Serve a full webview for detailed funder analysis with transfer details"""
     try:
-        from infra_mapping import get_account_info, get_cex_info
+        from src.utils.infra_mapping import get_account_info, get_cex_info
         import requests
 
         conn = sqlite3.connect(DB_PATH, timeout=5)
@@ -12084,7 +12084,7 @@ def api_analyze_all_coordinated_funders():
                 'status': 'blocked'
             }), 403
 
-        from funder_incoming_extractor import extract_for_creator
+        from src.extractors.funder_incoming_extractor import extract_for_creator
         import threading
 
         # Get all funders funding multiple creators
@@ -12224,7 +12224,7 @@ def api_analyze_funder_transfers():
         print(f"[ANALYZE] No data in DB, will extract from Helius", flush=True)
 
         # Import here to avoid circular imports
-        from funder_helius_extractor import extract_transfers_for_funder
+        from src.extractors.funder_helius_extractor import extract_transfers_for_funder
         import threading
 
         # Run extraction in background thread
@@ -12313,7 +12313,7 @@ def api_funder_senders(funder_address: str):
     Prioritizes known accounts (infrastructure, CEX, blocklisted) first.
     """
     try:
-        from infra_mapping import get_account_info, get_cex_info
+        from src.utils.infra_mapping import get_account_info, get_cex_info
 
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
@@ -12413,7 +12413,7 @@ def api_funder_senders(funder_address: str):
 def api_funder_transfer_details(funder_address: str):
     """Get complete funder transfer details (IN and OUT) with summaries"""
     try:
-        from infra_mapping import get_account_info, get_cex_info
+        from src.utils.infra_mapping import get_account_info, get_cex_info
 
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
@@ -16190,7 +16190,7 @@ def api_creator_outgoing_analysis(creator_address: str):
 
             # Check for infrastructure in infra_mapping (Padre, etc.)
             if not funder_info['display_name']:
-                from infra_mapping import get_account_info
+                from src.utils.infra_mapping import get_account_info
                 acct_info = get_account_info(funder['funder_address'])
                 if acct_info:
                     funder_info['display_name'] = acct_info.get('name', '')
@@ -16349,7 +16349,7 @@ def api_creator_outgoing_analysis(creator_address: str):
 
                 # 5. Check for infrastructure FIRST (Padre, etc.)
                 recipient_display_name = None
-                from infra_mapping import get_account_info
+                from src.utils.infra_mapping import get_account_info
                 acct_info = get_account_info(recipient['destination'])
                 if acct_info:
                     recipient_display_name = acct_info.get('name', '')
@@ -16651,7 +16651,7 @@ def api_creator_outgoing_analysis(creator_address: str):
 
         # Enrich funding chains with display names
         enriched_funding_chains = []
-        from infra_mapping import get_account_info
+        from src.utils.infra_mapping import get_account_info
         for fc in funding_chains:
             chain_data = {
                 'source_creator': fc['source_creator'],
@@ -18399,7 +18399,7 @@ def metrics_rpc_reset_proxy():
 
         # Capture current Helius snapshot as reset baseline
         try:
-            from helius_cli_monitor import get_latest_snapshot
+            from src.monitoring.helius_cli_monitor import get_latest_snapshot
             helius_snapshot = get_latest_snapshot()
             if helius_snapshot:
                 # Store current usage as the reset baseline
@@ -18558,7 +18558,7 @@ def api_rpc_metrics_verify():
         # If not using DB snapshot, fetch fresh from CLI
         if not use_db_snapshot:
             try:
-                from helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
+                from src.monitoring.helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
                 usage = get_helius_usage_cli()
                 if usage:
                     # Record this snapshot
@@ -18637,7 +18637,7 @@ def api_rpc_metrics_reset():
         # Get current Helius usage to set as new baseline
         current_helius = 0
         try:
-            from helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
+            from src.monitoring.helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
             usage = get_helius_usage_cli()
             if usage:
                 current_helius = usage.get('credits_used_month', 0) or usage.get('credits_used', 0)
@@ -18736,7 +18736,7 @@ def metrics_rpc_comparison_proxy():
 def restart_services():
     """Kill and restart Flask, listener, and all services"""
     try:
-        from pumpfun_curve_listener import cleanup_and_restart
+        from src.core.pumpfun_curve_listener import cleanup_and_restart
         # Run in background so response can be sent
         import threading
         thread = threading.Thread(target=cleanup_and_restart, daemon=True)

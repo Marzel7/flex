@@ -14,7 +14,7 @@ import sqlite3
 import asyncio
 from typing import Set, Optional, Tuple, List
 from address_tags import add_tag
-from domain_mapping import register_domain, link_domain_to_address
+from src.utils.domain_mapping import register_domain, link_domain_to_address
 
 # Try to import label resolver; skip if not available
 try:
@@ -115,7 +115,7 @@ async def resolve_domains_for_addresses_async(addresses: Set[str], creator_addre
     if not domain_resolver:
         try:
             # Try to import from the global extractor if available
-            from realtime_creator_funding_extractor import _extractor
+            from src.extractors.realtime_creator_funding_extractor import _extractor
             if _extractor and _extractor.domain_resolver:
                 domain_resolver = _extractor.domain_resolver
             else:

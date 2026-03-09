@@ -5,7 +5,7 @@ All processes writing to pumpswap_tokens.db (listener, extractor, clustering)
 must use this lock to prevent "database is locked" errors.
 
 Usage:
-    from db_global_lock import db_write_lock_global
+    from src.utils.db_global_lock import db_write_lock_global
     
     with db_write_lock_global():
         conn = sqlite3.connect(DB_PATH)

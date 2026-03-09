@@ -1435,7 +1435,7 @@ def highlight_infra_in_funding(funders: List[Dict]) -> List[Dict]:
 """
 # In main.py, when retrieving funders:
 
-from infra_mapping import highlight_infra_in_funding
+from src.utils.infra_mapping import highlight_infra_in_funding
 
 # Get raw funders from DB
 cursor.execute('''

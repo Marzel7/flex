@@ -32,6 +32,8 @@ MAX_RPC_CALLS_PER_HOUR = 100  # Global rate limit
 # DATABASE UTILITIES
 # ============================================================================
 
+from src.metrics.rpc_metrics_recorder import record_request
+
 def get_webhook_db():
     """Create optimized database connection for webhook processing."""
     conn = sqlite3.connect(DB_PATH, timeout=30)
@@ -592,6 +594,17 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
                     """, (dest,))
                     if cur.fetchone():
                         all_addresses.add(dest)
+
+                    # Record webhook event in RPC metrics
+                    record_request(
+                        section='webhooks',
+                        provider='helius_rpc',
+                        method='webhook_event',
+                        status_code=200,
+                        latency_ms=0,
+                        source_file='webhook_handler',
+                        credits_override=0
+                    )
                 else:
                     print(f"[WEBHOOK_DUPLICATE] {now} - DUPLICATE: {sig_out[:16]}...", flush=True)
 

@@ -9540,6 +9540,8 @@ def clusters_dashboard():
                     --bg-hover: rgba(167, 139, 250, 0.05);
                     --border-color: rgba(167, 139, 250, 0.3);
                     --border-hover: rgba(167, 139, 250, 0.6);
+                    --bg-secondary: rgba(20, 20, 30, 0.9);
+                    --accent-cyan: #06b6d4;
                 }}
                 body {{
                     background: var(--bg-dark);
@@ -9547,7 +9549,9 @@ def clusters_dashboard():
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
                     padding: 30px;
                     margin: 0;
+                    padding-left: 196px;
                 }}
+                {get_sidebar_css()}
                 .container {{
                     max-width: 1200px;
                     margin: 0 auto;
@@ -9650,6 +9654,7 @@ def clusters_dashboard():
             </style>
         </head>
         <body>
+            {get_sidebar_html("clusters")}
             <div class="container">
                 <a href="/" class="back-link">← Back to Dashboard</a>
 

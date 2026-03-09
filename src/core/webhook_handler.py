@@ -19,7 +19,7 @@ from datetime import datetime
 # CONFIGURATION
 # ============================================================================
 
-DB_PATH = os.getenv("FLEX_DB_PATH", "flex_complete_database.db")
+DB_PATH = os.getenv("DB_PATH", "database/flex_complete_database.db")
 HELIUS_AUTH_HEADER = os.getenv("HELIUS_WEBHOOK_AUTH", None)
 
 # RPC Guardrails
@@ -127,12 +127,11 @@ def ensure_webhook_tables():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS helius_webhook_assignments (
             creator_address TEXT PRIMARY KEY,
-            assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            status TEXT DEFAULT 'active'
+            shard_index INTEGER NOT NULL,
+            webhook_id TEXT NOT NULL,
+            assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
-
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_helius_webhook_status ON helius_webhook_assignments(status)")
 
     conn.commit()
     conn.close()
@@ -489,9 +488,6 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
     """
     now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Log webhook received IMMEDIATELY - before any processing
-    print(f"[WEBHOOK_RECEIVED] {now} - Event received from Helius", flush=True)
-
     # Validate auth if required
     if not validate_auth_header(request_obj):
         print(f"[WEBHOOK] {now} - Auth failed", flush=True)
@@ -514,8 +510,6 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
     elif not isinstance(payload, list):
         print(f"[WEBHOOK] {now} - Invalid payload type: {type(payload)}", flush=True)
         return ("ok", 200)
-
-    print(f"[WEBHOOK] {now} - Processing {len(payload)} transaction(s)", flush=True)
 
     # Process all transactions
     conn = get_webhook_db()
@@ -545,7 +539,7 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
             # Filter out dust transfers (< 0.001 SOL)
             MIN_SOL = 0.001
             if amount_sol < MIN_SOL:
-                print(f"[WEBHOOK_DUST] {now} - DUST: {sig_out[:16]}... ({amount_sol:.9f} SOL < {MIN_SOL} SOL)", flush=True)
+                # print(f"[WEBHOOK_DUST] {now} - DUST: {sig_out[:16]}... ({amount_sol:.9f} SOL < {MIN_SOL} SOL)", flush=True)
                 skipped += 1
                 continue
 
@@ -560,7 +554,6 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
             is_creator_involved = cur.fetchone() is not None
 
             if not is_creator_involved:
-                print(f"[WEBHOOK_SKIP_NON_CREATOR] {now} - SKIP: {source[:8]}... → {dest[:8]}... (no creators involved)", flush=True)
                 skipped += 1
                 continue
 
@@ -574,7 +567,7 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
 
                 if cur.rowcount > 0:
                     stored += 1
-                    print(f"[WEBHOOK_STORED] {now} - STORED: {source[:8]}... → {dest[:8]}... ({amount_sol:.9f} SOL)", flush=True)
+                    # print(f"[WEBHOOK_STORED] {now} - STORED: {source[:8]}... → {dest[:8]}... ({amount_sol:.9f} SOL)", flush=True)
 
                     # Update activity for both addresses
                     update_address_activity(conn, source, True, amount_sol, block_time)
@@ -615,7 +608,9 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
     conn.commit()
     conn.close()
 
-    print(f"[WEBHOOK_SUMMARY] {now} - stored={stored}, skipped={skipped}, queued={len(all_addresses)}", flush=True)
+    # Only log when we actually stored or queued something
+    if stored > 0 or len(all_addresses) > 0:
+        print(f"[WEBHOOK_SUMMARY] {now} - stored={stored}, skipped={skipped}, queued={len(all_addresses)}", flush=True)
 
     return ("ok", 200)
 

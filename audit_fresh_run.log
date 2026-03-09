@@ -1,255 +1,0 @@
-================================================================================
-HELIUS vs LOCAL RPC METRICS AUDIT
-================================================================================
-Started: 2026-03-07T10:11:38.518128
-
-📊 Fetching initial Helius usage...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 164583
-   Helius credits today: 164583
-
-⏳ Waiting 60 seconds for baseline...
-  1/60  2/60  3/60  4/60  5/60  6/60  7/60  8/60  9/60  10/60  11/60  12/60  13/60  14/60  15/60  16/60  17/60  18/60  19/60  20/60  21/60  22/60  23/60  24/60  25/60  26/60  27/60  28/60  29/60  30/60  31/60  32/60  33/60  34/60  35/60  36/60  37/60  38/60  39/60  40/60  41/60  42/60  43/60  44/60  45/60  46/60  47/60  48/60  49/60  50/60  51/60  52/60  53/60  54/60  55/60  56/60  57/60  58/60  59/60  60/60✅ Baseline wait complete                    
-
-🔄 Running 3 creator extraction iterations...
-   Creator 1: D8XJF3tCB4UngsS8sV2nyfBmEx6KKCkym57Lx7Y2ZTXH
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 164583
-[REALTIME_FUNDING] 📊 Recording RPC metrics for creator funding extraction: D8XJF3tCB4UngsS8...
-[PERF] SQLite optimizations applied (WAL mode, 50MB cache, 60s busy timeout)
-[PERF] SQLite optimizations applied (WAL mode, 50MB cache, 60s busy timeout)
-[REALTIME_FUNDING] 🔍 Extracting creator funding for D8XJF3tCB4UngsS8...
-[REALTIME_FUNDING]    Migration timestamp: 2026-03-07T10:12:48.228016
-[REALTIME_FUNDING]    Will fetch up to 1 month of history
-[REALTIME_FUNDING]    Excluding 2 addresses (creator's tokens & bonding curves)
-[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...
-[REALTIME_FUNDING]    [PAGE 1] RPC CALL #1...
-[REALTIME_FUNDING]    [PAGE 1] fetched=29 txs
-[DOMAIN] 📝 Found 1 domain(s) in tx 2ov5eHBQTXGuH3Q3... {'Get 3 Free Lootbox 👉 Flip.gg🎁-23939.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx LvzU7hbXodt38viz... {'Flip.gg | #1 Lootbox Casino🎰🍀-23938.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 2CnH3Jk2vds7328t... {'Get 3 Free Lootbox 👉 Flip.gg🎁-23939.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx 4ukRAYxJgxV11vJw... {'trumpgamecoin.sol'}
-[REALTIME_FUNDING]    [PAGE 1] ✓ 5 new funders | 🚫 187 dust | 🔄 4 excluded
-[REALTIME_FUNDING]    Total transactions fetched: 29
-[REALTIME_FUNDING]    [PAGE 2] RPC CALL #2...
-[REALTIME_FUNDING]    [PAGE 2] No more transactions
-[REALTIME_FUNDING]    ✓ Inbound: 5 funders (165.15 SOL)
-[REALTIME_FUNDING]    ✓ Outbound: 13 recipients (80.41 SOL)
-[REALTIME_FUNDING]    ℹ Filtered 187 dust transfers
-[REALTIME_FUNDING]    ℹ Filtered 4 internal transfers (token/curve)
-[REALTIME_FUNDING]    Funder #1: EfrH7g9dsaJkGWjw... → 78.85 SOL
-[REALTIME_FUNDING]    Funder #2: HTATV93wbXWzhT7d... → 43.00 SOL
-[REALTIME_FUNDING]    Funder #3: 8jxNyGCPapK9FPky... → 43.00 SOL
-[EXTRACTION] ✅ COMPLETED for D8XJF3tCB4UngsS8... | Funders: 5, Recipients: 13
-[REALTIME_FUNDING] ✅ Cached creator funding for D8XJF3tCB4UngsS8...
-[REALTIME_FUNDING] 🚀 Post-launch automation triggered
-[BLOCKSEC] Found 100 active addresses (used 2+ times)
-[BLOCKSEC] Found 100 unlabeled addresses, preparing batch...
-[BLOCKSEC] Batch failed: Rate limited. Next batch in 95 minutes
-[BLOCKSEC] Rate limited. Next batch in 95 minutes
-[POST_LAUNCH] 🚀 Starting automation for creator D8XJF3tCB4UngsS8...
-[NETWORK] ⚠ Error assigning network: no such column: ccf.creator_addresses
-[METRICS] 📊 Updating metrics for 5 funders
-[METRICS] ⚠ Error updating metrics: no such table: funder_distribution_metrics
-[COORDINATION] 🔴 Found 2 coordinated funders
-[COORDINATION] ⚠ Error detecting coordinated funders: table coordinated_funders has no column named creator_count
-[NETWORK_ANALYSIS] 🔍 Analyzing creator D8XJF3tCB4UngsS8... with CrossFundingClusterAnalyzer
-[ANALYZER] Loaded 1573 unique creators
-[NETWORK_ANALYSIS] 📊 Building atomic funder networks...
-[ANALYZER] Atomic funder networks saved: 154 (creator_count>=2)
-[ANALYZER]  └─ of which CEX/infra (excluded from clustering): 26
-[NETWORK_ANALYSIS] 🔗 Building funder clusters...
-[ANALYZER] Atomic funder networks saved: 154 (creator_count>=2)
-[ANALYZER]  └─ of which CEX/infra (excluded from clustering): 26
-[ANALYZER] Funder clusters built: 19 (non-CEX topology)
-[NETWORK_ANALYSIS] 👥 Building creator clusters...
-[NETWORK_ANALYSIS] 🌐 Detecting network coordinators...
-[NETWORK_ANALYSIS] 📈 Analyzing unified cluster for D8XJF3tCB4UngsS8...
-[NETWORK_ANALYSIS] ✅ Network analysis complete for D8XJF3tCB4UngsS8...
-[CLUSTERS] ✅ Rebuilt clusters for D8XJF3tCB4UngsS8... (members: 15 addresses)
-[UI] ℹ No WebSocket manager - skipping WebSocket broadcast
-[UI] 📝 Updated: metrics, clusters
-[POST_LAUNCH] ✅ Automation complete for D8XJF3tCB4UngsS8...
-Solscan API error: Cannot connect to host api.solscan.io:443 ssl:default [nodename nor servname provided, or not known]
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-Solscan API error: Cannot connect to host api.solscan.io:443 ssl:default [nodename nor servname provided, or not known]
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-Solscan API error: Cannot connect to host api.solscan.io:443 ssl:default [nodename nor servname provided, or not known]
-Bonfida API error: Cannot connect to host api.bonfida.com:443 ssl:default [nodename nor servname provided, or not known]
-[REALTIME_FUNDING]    🔍 Searching for OUTGOING transfers after migration...
-[AUTO-CEX] Classification complete: 3 classified, 0 confirmed, 0 likely (from 3 addresses)
-[REALTIME_FUNDING] ✅ Extracted outgoing transfers for D8XJF3tCB4UngsS8...
-  ⏳ Waiting 60 seconds for Helius to update...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 164789
-✅ CREATOR #1: Helius Δ=206 | Local Δ=200 | Diff=6 | Calls Δ=15 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:200
-   Creator 2: D1GL1T66mkeYpbzgtw1BJSKfoHVsAXbXecmZZUja88xG
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 164789
-[REALTIME_FUNDING] 📊 Recording RPC metrics for creator funding extraction: D1GL1T66mkeYpbzg...
-[PERF] SQLite optimizations applied (WAL mode, 50MB cache, 60s busy timeout)
-[REALTIME_FUNDING] 🔍 Extracting creator funding for D1GL1T66mkeYpbzg...
-[REALTIME_FUNDING]    Migration timestamp: 2026-03-07T10:14:09.374666
-[REALTIME_FUNDING]    Will fetch up to 1 month of history
-[REALTIME_FUNDING]    Excluding 2 addresses (creator's tokens & bonding curves)
-[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...
-[REALTIME_FUNDING]    [PAGE 1] RPC CALL #1...
-[REALTIME_FUNDING]    ⚠ Error on page 1: Event loop is closed
-[REALTIME_FUNDING]    ✓ Inbound: 0 funders (0.00 SOL)
-[REALTIME_FUNDING]    ✓ Outbound: 0 recipients (0.00 SOL)
-[EXTRACTION] ✅ COMPLETED for D1GL1T66mkeYpbzg... | Funders: 0, Recipients: 0
-[REALTIME_FUNDING]    🔍 Searching for OUTGOING transfers after migration...
-[BLOCKSEC] Found 100 active addresses (used 2+ times)
-[BLOCKSEC] Found 100 unlabeled addresses, preparing batch...
-[BLOCKSEC] Batch failed: Rate limited. Next batch in 94 minutes
-[BLOCKSEC] Rate limited. Next batch in 94 minutes
-[REALTIME_FUNDING] ✅ Extracted outgoing transfers for D1GL1T66mkeYpbzg...
-  ⏳ Waiting 60 seconds for Helius to update...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 164789
-✅ CREATOR #2: Helius Δ=0 | Local Δ=0 | Diff=0 | Calls Δ=0 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:0
-   Creator 3: 8HeDT75s5g4CtCimH5B5nySqCiQhtWii8UnZhxBtFo38
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 164789
-[REALTIME_FUNDING] 📊 Recording RPC metrics for creator funding extraction: 8HeDT75s5g4CtCim...
-[PERF] SQLite optimizations applied (WAL mode, 50MB cache, 60s busy timeout)
-[REALTIME_FUNDING] 🔍 Extracting creator funding for 8HeDT75s5g4CtCim...
-[REALTIME_FUNDING]    Migration timestamp: 2026-03-07T10:15:25.588518
-[REALTIME_FUNDING]    Will fetch up to 1 month of history
-[REALTIME_FUNDING]    Excluding 14 addresses (creator's tokens & bonding curves)
-[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...
-[REALTIME_FUNDING]    [PAGE 1] RPC CALL #1...
-[REALTIME_FUNDING]    ⚠ Error on page 1: Event loop is closed
-[REALTIME_FUNDING]    ✓ Inbound: 0 funders (0.00 SOL)
-[REALTIME_FUNDING]    ✓ Outbound: 0 recipients (0.00 SOL)
-[EXTRACTION] ✅ COMPLETED for 8HeDT75s5g4CtCim... | Funders: 0, Recipients: 0
-[REALTIME_FUNDING]    🔍 Searching for OUTGOING transfers after migration...
-[BLOCKSEC] Found 100 active addresses (used 2+ times)
-[BLOCKSEC] Found 100 unlabeled addresses, preparing batch...
-[BLOCKSEC] Batch failed: Rate limited. Next batch in 92 minutes
-[BLOCKSEC] Rate limited. Next batch in 92 minutes
-[REALTIME_FUNDING] ✅ Extracted outgoing transfers for 8HeDT75s5g4CtCim...
-  ⏳ Waiting 60 seconds for Helius to update...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 164789
-✅ CREATOR #3: Helius Δ=0 | Local Δ=0 | Diff=0 | Calls Δ=0 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:0
-
-🔄 Running 3 funder extraction iterations...
-  ✅ Reset fully_analyzed for funders of D8XJF3tCB4UngsS8...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 164789
-  ⏳ Waiting 60 seconds for Helius to update...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 164789
-✅ FUNDER #1: Helius Δ=0 | Local Δ=0 | Diff=0 | Calls Δ=0 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:0
-  ✅ Reset fully_analyzed for funders of D8XJF3tCB4UngsS8...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 164789
-  ⏳ Waiting 60 seconds for Helius to update...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 164789
-✅ FUNDER #2: Helius Δ=0 | Local Δ=0 | Diff=0 | Calls Δ=0 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:0
-  ✅ Reset fully_analyzed for funders of D8XJF3tCB4UngsS8...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 164789
-  ⏳ Waiting 60 seconds for Helius to update...
-[HELIUS] 📊 Capturing usage via CLI...
-[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var
-[HELIUS] ✅ Got usage data from CLI
-[HELIUS] Available fields in creditsUsage: ['totalCreditsUsed', 'remainingCredits', 'remainingPrepaidCredits', 'prepaidCreditsUsed', 'overageCreditsUsed', 'overageCost', 'webhookUsage', 'apiUsage', 'rpcUsage', 'rpcGPAUsage']
-  ✅ Helius credits_used: 164789
-✅ FUNDER #3: Helius Δ=0 | Local Δ=0 | Diff=0 | Calls Δ=0 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:0
-
-✅ Results written to helius_audit_results.json
-✅ Results written to helius_audit_results.csv
-
-================================================================================
-AUDIT SUMMARY
-================================================================================
-
-CREATOR:
-  Helius Total Δ:  206 credits
-  Local Total Δ:   200 credits
-  Total Diff:      6 credits
-  Avg Diff/Run:    2.0 credits
-
-  Source File Breakdown:
-    realtime_creator_funding_extractor: 200 credits (15 calls)
-    pumpfun_curve_listener: 0 credits (0 calls)
-    unknown: 0 credits (0 calls)
-    funder_incoming_extractor: 0 credits (0 calls)
-
-  Sample RPC Calls (most recent):
-    helius_enhanced_addresses_transactions (helius_rpc) - 100 credits from realtime_creator_funding_extractor
-    sns_primary_domains (bonfida_sns) - 0 credits from realtime_creator_funding_extractor
-
-  Status: ✅ GOOD MATCH (within 10 credits)
-
-FUNDER:
-  Helius Total Δ:  0 credits
-  Local Total Δ:   0 credits
-  Total Diff:      0 credits
-  Avg Diff/Run:    0.0 credits
-
-  Source File Breakdown:
-    pumpfun_curve_listener: 0 credits (0 calls)
-    unknown: 0 credits (0 calls)
-    funder_incoming_extractor: 0 credits (0 calls)
-    realtime_creator_funding_extractor: 0 credits (0 calls)
-
-  Sample RPC Calls (most recent):
-    helius_enhanced_addresses_transactions (helius_rpc) - 100 credits from realtime_creator_funding_extractor
-    sns_primary_domains (bonfida_sns) - 0 credits from realtime_creator_funding_extractor
-
-  Status: ✅ GOOD MATCH (within 10 credits)
-
-OVERALL:
-  Total Helius Δ:  206 credits
-  Total Local Δ:   200 credits
-  Net Difference:  6 credits
-  Accuracy:        97.1%
-
-================================================================================
-Audit completed: 2026-03-07T10:19:59.662149
-================================================================================
-Unclosed client session
-client_session: <aiohttp.client.ClientSession object at 0x102d661d0>
-Unclosed connector
-connections: ['[(<aiohttp.client_proto.ResponseHandler object at 0x1030ba890>, 3149377.457002083)]', '[(<aiohttp.client_proto.ResponseHandler object at 0x100d9ff50>, 3149378.216516666)]', '[(<aiohttp.client_proto.ResponseHandler object at 0x1030bb7e0>, 3149388.213050041)]']
-connector: <aiohttp.connector.TCPConnector object at 0x102d66210>

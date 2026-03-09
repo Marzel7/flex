@@ -1,172 +1,0 @@
-================================================================================
-HELIUS vs LOCAL RPC METRICS AUDIT
-================================================================================
-Started: 2026-03-07T09:34:19.776235
-
-📊 Fetching initial Helius usage...
-   Helius credits today: 163661
-
-⏳ Waiting 60 seconds for baseline...
-  1/60  2/60  3/60  4/60  5/60  6/60  7/60  8/60  9/60  10/60  11/60  12/60  13/60  14/60  15/60  16/60  17/60  18/60  19/60  20/60  21/60  22/60  23/60  24/60  25/60  26/60  27/60  28/60  29/60  30/60  31/60  32/60  33/60  34/60  35/60  36/60  37/60  38/60  39/60  40/60  41/60  42/60  43/60  44/60  45/60  46/60  47/60  48/60  49/60  50/60  51/60  52/60  53/60  54/60  55/60  56/60  57/60  58/60  59/60  60/60✅ Baseline wait complete                    
-
-🎲 Selecting random creator from database...
-   Selected creator: D3nx8NKx5g4HPoiLH4hNTfiBrx3DaJLc18mhvw1C5igs
-
-🔄 Running 3 creator extraction iterations...
-[REALTIME_FUNDING] 📊 Recording RPC metrics for creator funding extraction: D3nx8NKx5g4HPoiL...
-[PERF] SQLite optimizations applied (WAL mode, 50MB cache, 60s busy timeout)
-[PERF] SQLite optimizations applied (WAL mode, 50MB cache, 60s busy timeout)
-[REALTIME_FUNDING] 🔍 Extracting creator funding for D3nx8NKx5g4HPoiL...
-[REALTIME_FUNDING]    Migration timestamp: 2026-03-07T09:35:20.601989
-[REALTIME_FUNDING]    Will fetch up to 1 month of history
-[REALTIME_FUNDING]    Excluding 2 addresses (creator's tokens & bonding curves)
-[REALTIME_FUNDING]    Fetching all pre-migration transactions from Helius API...
-[REALTIME_FUNDING]    [PAGE 1] RPC CALL #1...
-[REALTIME_FUNDING]    [PAGE 1] fetched=42 txs
-[REALTIME_FUNDING]      ✅ Jito tip (0.000012 SOL, 36.5%) detected in  tx 4rGW3h67T3w8ZRzWAPkh...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000018 SOL, 46.1%) detected in  tx 48LkEzhv3JGbqjnGeN8e...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000018 SOL, 46.1%) detected in  tx 5azv27QG4Ns4wmXyNJjX...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000020 SOL, 48.8%) detected in  tx 64T9cvv5aeKQ3ciQjtNq...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000020 SOL, 48.8%) detected in  tx 2iyb5oJDgGhmdao6peVC...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000020 SOL, 48.8%) detected in  tx 5D8oWs5X5dFSTrH31cM3...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000010 SOL, 32.3%) detected in  tx 5HcVNvPNxc2WhVW58DwZ...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000010 SOL, 32.3%) detected in  tx 3MsfUeCjvysWTdjmaNhx...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000010 SOL, 32.3%) detected in  tx 5UduvWVibUXJHMNH2qVE...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000010 SOL, 32.3%) detected in  tx 3vRAUkABJh5qodgZrCnx...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000020 SOL, 48.8%) detected in  tx cNgu9xhiju37Nq4oyBHb...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000020 SOL, 48.8%) detected in  tx 25F3TXzvt3yXJdWY66S9...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000020 SOL, 48.8%) detected in  tx 5WGMjiBPzQZpe4tAseuW...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000035 SOL, 62.5%) detected in  tx 5RwKPhRdtVqW2J5FqqfA...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000020 SOL, 48.8%) detected in  tx 32zaEB9HVwqjxoSjhdWB...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000020 SOL, 48.8%) detected in  tx 4xctcdrkHtKcar1Qnk25...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000101 SOL, 82.8%) detected in  tx 2p33qyxaDLYZiqWZUmKy...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000101 SOL, 82.8%) detected in  tx 5Pk8XXq9tsHJKcA8PDPT...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000020 SOL, 48.8%) detected in  tx pi1xcXDTBUKj8fKHKUPP...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000020 SOL, 48.8%) detected in  tx 5mCLyBp9r1tU1kHGpjgA...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000010 SOL, 32.3%) detected in  tx 4bEebUBc1ZNnDU1d2bKS...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000022 SOL, 50.8%) detected in  tx 3QcwNsG6kdxQmXYdCu6i...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000022 SOL, 50.8%) detected in  tx pCsvrcy148E93NG7mGJ5...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000022 SOL, 50.8%) detected in  tx 2zJER7xaE2MehXGofoRy...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000011 SOL, 34.2%) detected in  tx 2UVw42GdGRg7FpPGF2cc...
-[REALTIME_FUNDING]      ✅ Jito tip (0.000016 SOL, 42.6%) detected in  tx 4yBQ6zr8hxHpUaXMJJsM...
-[DOMAIN] 📝 Found 1 domain(s) in tx 3ozFZm8ieyRgNKe7... {'Flip.gg | #1 Lootbox Casino🎰🍀-24350.flipgg.sol'}
-[DOMAIN] 📝 Found 1 domain(s) in tx f17pYzVhZ124AGdm... {'Get 3 Free Lootbox 👉 Flip.gg🎁-24351.flipgg.sol'}
-[JITO] 🪂 Batch inserted 26 Jito events
-[REALTIME_FUNDING]    [PAGE 1] ✓ 5 new funders | 🚫 68 dust | 🔄 4 excluded
-[REALTIME_FUNDING]    Total transactions fetched: 42
-[REALTIME_FUNDING]    [PAGE 2] RPC CALL #2...
-[REALTIME_FUNDING]    [PAGE 2] No more transactions
-[REALTIME_FUNDING]    ✓ Inbound: 5 funders (121.81 SOL)
-[REALTIME_FUNDING]    ✓ Outbound: 11 recipients (110.32 SOL)
-[REALTIME_FUNDING]    ℹ Filtered 68 dust transfers
-[REALTIME_FUNDING]    ℹ Filtered 4 internal transfers (token/curve)
-[REALTIME_FUNDING]    Funder #1: A2fs8gMKv3kPUDn8... → 117.92 SOL
-[REALTIME_FUNDING]    Funder #2: CZFvJvxRRKJYi6uf... → 3.63 SOL
-[REALTIME_FUNDING]    Funder #3: EE7XKKuZWUfXWQvi... → 0.26 SOL
-[EXTRACTION] ✅ COMPLETED for D3nx8NKx5g4HPoiL... | Funders: 5, Recipients: 11
-[REALTIME_FUNDING] ✅ Cached creator funding for D3nx8NKx5g4HPoiL...
-[REALTIME_FUNDING] 🚀 Post-launch automation triggered
-[BLOCKSEC] Found 100 active addresses (used 2+ times)
-[BLOCKSEC] Found 100 unlabeled addresses, preparing batch...
-[BLOCKSEC] Batch failed: Rate limited. Next batch in 132 minutes
-[BLOCKSEC] Rate limited. Next batch in 132 minutes
-[POST_LAUNCH] 🚀 Starting automation for creator D3nx8NKx5g4HPoiL...
-[NETWORK] ⚠ Error assigning network: no such column: ccf.creator_addresses
-[METRICS] 📊 Updating metrics for 5 funders
-[METRICS] ⚠ Error updating metrics: no such table: funder_distribution_metrics
-[COORDINATION] ✅ Creator D3nx8NKx5g4HPoiL... has unique funders (no coordination detected)
-[NETWORK_ANALYSIS] 🔍 Analyzing creator D3nx8NKx5g4HPoiL... with CrossFundingClusterAnalyzer
-[ANALYZER] Loaded 1573 unique creators
-[NETWORK_ANALYSIS] 📊 Building atomic funder networks...
-[ANALYZER] Atomic funder networks saved: 154 (creator_count>=2)
-[ANALYZER]  └─ of which CEX/infra (excluded from clustering): 26
-[NETWORK_ANALYSIS] 🔗 Building funder clusters...
-[ANALYZER] Atomic funder networks saved: 154 (creator_count>=2)
-[ANALYZER]  └─ of which CEX/infra (excluded from clustering): 26
-[ANALYZER] Funder clusters built: 19 (non-CEX topology)
-[NETWORK_ANALYSIS] 👥 Building creator clusters...
-[NETWORK_ANALYSIS] 🌐 Detecting network coordinators...
-[NETWORK_ANALYSIS] 📈 Analyzing unified cluster for D3nx8NKx5g4HPoiL...
-[NETWORK_ANALYSIS] ✅ Network analysis complete for D3nx8NKx5g4HPoiL...
-[CLUSTERS] ✅ Rebuilt clusters for D3nx8NKx5g4HPoiL... (members: 14 addresses)
-[UI] ℹ No WebSocket manager - skipping WebSocket broadcast
-[UI] 📝 Updated: metrics, clusters
-[POST_LAUNCH] ✅ Automation complete for D3nx8NKx5g4HPoiL...
-[REALTIME_FUNDING]    🔍 Searching for OUTGOING transfers after migration...
-[AUTO-CEX] Classification complete: 7 classified, 0 confirmed, 0 likely (from 7 addresses)
-[REALTIME_FUNDING] ✅ Extracted outgoing transfers for D3nx8NKx5g4HPoiL...
-  ⏳ Waiting 60 seconds for Helius to update...
-✅ CREATOR #1: Helius Δ=0 | Local Δ=200 | Diff=-200 | Calls Δ=15 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:200
-[REALTIME_FUNDING] 📊 Recording RPC metrics for creator funding extraction: D3nx8NKx5g4HPoiL...
-[PERF] SQLite optimizations applied (WAL mode, 50MB cache, 60s busy timeout)
-[REALTIME_FUNDING]    🔍 Searching for OUTGOING transfers after migration...
-[REALTIME_FUNDING] ✅ Extracted outgoing transfers for D3nx8NKx5g4HPoiL...
-  ⏳ Waiting 60 seconds for Helius to update...
-✅ CREATOR #2: Helius Δ=0 | Local Δ=0 | Diff=0 | Calls Δ=0 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:0
-[REALTIME_FUNDING] 📊 Recording RPC metrics for creator funding extraction: D3nx8NKx5g4HPoiL...
-[PERF] SQLite optimizations applied (WAL mode, 50MB cache, 60s busy timeout)
-[REALTIME_FUNDING]    🔍 Searching for OUTGOING transfers after migration...
-[REALTIME_FUNDING] ✅ Extracted outgoing transfers for D3nx8NKx5g4HPoiL...
-  ⏳ Waiting 60 seconds for Helius to update...
-✅ CREATOR #3: Helius Δ=0 | Local Δ=0 | Diff=0 | Calls Δ=0 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:0
-
-🔄 Running 3 funder extraction iterations...
-  ⏳ Waiting 60 seconds for Helius to update...
-✅ FUNDER #1: Helius Δ=0 | Local Δ=0 | Diff=0 | Calls Δ=0 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:0
-  ⏳ Waiting 60 seconds for Helius to update...
-✅ FUNDER #2: Helius Δ=0 | Local Δ=0 | Diff=0 | Calls Δ=0 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:0
-  ⏳ Waiting 60 seconds for Helius to update...
-✅ FUNDER #3: Helius Δ=0 | Local Δ=0 | Diff=0 | Calls Δ=0 | pumpfun_curve_listener:0 | unknown:0 | funder_incoming_extractor:0 | realtime_creator_funding_extractor:0
-
-✅ Results written to helius_audit_results.json
-✅ Results written to helius_audit_results.csv
-
-================================================================================
-AUDIT SUMMARY
-================================================================================
-
-CREATOR:
-  Helius Total Δ:  0 credits
-  Local Total Δ:   200 credits
-  Total Diff:      -200 credits
-  Avg Diff/Run:    -66.7 credits
-
-  Source File Breakdown:
-    realtime_creator_funding_extractor: 200 credits (15 calls)
-    pumpfun_curve_listener: 0 credits (0 calls)
-    unknown: 0 credits (0 calls)
-    funder_incoming_extractor: 0 credits (0 calls)
-
-  Sample RPC Calls (most recent):
-    helius_enhanced_addresses_transactions (helius_rpc) - 100 credits from realtime_creator_funding_extractor
-    sns_primary_domains (bonfida_sns) - 0 credits from realtime_creator_funding_extractor
-
-  Status: ⚠️  LOCAL HIGHER - 200 over-estimated credits
-
-FUNDER:
-  Helius Total Δ:  0 credits
-  Local Total Δ:   0 credits
-  Total Diff:      0 credits
-  Avg Diff/Run:    0.0 credits
-
-  Source File Breakdown:
-    pumpfun_curve_listener: 0 credits (0 calls)
-    unknown: 0 credits (0 calls)
-    funder_incoming_extractor: 0 credits (0 calls)
-    realtime_creator_funding_extractor: 0 credits (0 calls)
-
-  Sample RPC Calls (most recent):
-    helius_enhanced_addresses_transactions (helius_rpc) - 100 credits from realtime_creator_funding_extractor
-    sns_primary_domains (bonfida_sns) - 0 credits from realtime_creator_funding_extractor
-
-  Status: ✅ GOOD MATCH (within 10 credits)
-
-OVERALL:
-  Total Helius Δ:  0 credits
-  Total Local Δ:   200 credits
-  Net Difference:  -200 credits
-  Accuracy:        N/A
-
-================================================================================
-Audit completed: 2026-03-07T09:41:51.007439
-================================================================================

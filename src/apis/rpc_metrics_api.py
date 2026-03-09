@@ -352,17 +352,34 @@ async def record_metric(data: dict):
 
 @app.post("/metrics/rpc/reset")
 async def metrics_reset(request: dict = Body(None)):
-    """Reset all RPC instrumentation metrics to 0"""
+    """Reset all RPC instrumentation metrics to 0, including webhook event records"""
     # Reset is available for local/trusted access
     # In production, add authentication if exposed to untrusted networks
     try:
         recorder = get_recorder()
         recorder.reset_daily()
         recorder.reset_credits_today()
+        
+        # Also clear webhook event records from metrics table (not the Helius billing data)
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=30)
+            cur = conn.cursor()
+            
+            # Delete webhook event records from rpc_metrics table
+            cur.execute("DELETE FROM rpc_metrics WHERE section='webhooks' AND method='webhook_event'")
+            deleted_count = cur.rowcount
+            
+            conn.commit()
+            conn.close()
+            
+            print(f"[WEBHOOK_RESET] Cleared {deleted_count} webhook event records", flush=True)
+        except Exception as e:
+            print(f"[WEBHOOK_RESET] Error clearing webhook records: {e}", flush=True)
+        
         return {
             "success": True,
             "status": "success",
-            "message": "RPC monitoring session reset successfully.",
+            "message": "RPC monitoring session reset successfully. Webhook events cleared.",
             "reset_at": recorder._comparison_reset_time.isoformat(),
         }
     except Exception as e:

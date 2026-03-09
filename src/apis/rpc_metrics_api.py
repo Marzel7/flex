@@ -373,29 +373,23 @@ async def metrics_reset(request: dict = Body(None)):
         except Exception as e:
             print(f"[RESET] Error getting Helius baseline: {e}", flush=True)
         
-        # Set webhook baseline (for delta tracking)
+        # Set webhook baseline in a separate table (NOT in rpc_metrics to avoid counting as RPC credits)
         try:
             conn = sqlite3.connect(DB_PATH, timeout=30)
             cur = conn.cursor()
             
-            # Delete old webhook baselines (keep only one)
-            cur.execute("DELETE FROM rpc_metrics WHERE section='webhooks' AND method='baseline'")
-            
-            # Insert new baseline record
+            # Create webhook_baseline table if it doesn't exist
             cur.execute("""
-                INSERT INTO rpc_metrics 
-                (timestamp, section, provider, method, status_code, latency_ms, credits, source_file)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                time.time(),
-                'webhooks',
-                'helius_rpc',
-                'baseline',
-                200,
-                0,
-                baseline_webhook_credits,
-                'webhook_reset'
-            ))
+                CREATE TABLE IF NOT EXISTS webhook_baseline (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    credits INTEGER NOT NULL
+                )
+            """)
+            
+            # Clear old baselines and set new one
+            cur.execute("DELETE FROM webhook_baseline")
+            cur.execute("INSERT INTO webhook_baseline (credits) VALUES (?)", (baseline_webhook_credits,))
             
             conn.commit()
             conn.close()
@@ -2279,22 +2273,17 @@ async def webhook_metrics():
     import time
     from datetime import datetime, timedelta
 
-    # Get baseline from most recent webhook baseline record
+    # Get baseline from webhook_baseline table
     baseline_webhook_credits = 0
     try:
         conn = sqlite3.connect(DB_PATH, timeout=30)
         cur = conn.cursor()
-        
-        cur.execute("""
-            SELECT credits FROM rpc_metrics
-            WHERE section='webhooks' AND method='baseline'
-            ORDER BY timestamp DESC
-            LIMIT 1
-        """)
+
+        cur.execute("SELECT credits FROM webhook_baseline LIMIT 1")
         row = cur.fetchone()
         if row:
             baseline_webhook_credits = row[0] or 0
-        
+
         conn.close()
     except Exception as e:
         print(f"[WEBHOOK_METRICS] Error getting baseline: {e}", flush=True)

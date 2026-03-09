@@ -22,15 +22,15 @@ from src.utils.infra_mapping import highlight_infra_in_funding
 
 # Webhook system - M5 webhook-first low-RPC architecture
 try:
-    from webhook_integration import init_webhook_system
-    from webhook_api_enriched import setup_enriched_routes
+    from src.apis.webhook_integration import init_webhook_system
+    from src.apis.webhook_api_enriched import setup_enriched_routes
     WEBHOOK_ENABLED = True
 except ImportError as e:
     WEBHOOK_ENABLED = False
     print(f"[WARNING] Webhook system not available: {e}")
 
 # Database
-DB_PATH = "flex_complete_database.db"
+DB_PATH = os.environ.get('DB_PATH', 'database/flex_complete_database.db')
 
 # Flask app
 app = Flask(__name__)
@@ -16741,8 +16741,7 @@ def api_scan_creator(creator_address: str):
         import datetime
 
         # Import the extraction module
-        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-        from creator_outgoing_extractor import (
+        from src.extractors.creator_outgoing_extractor import (
             rpc_get_signatures, helius_enhanced_parse, extract_outgoing_sol,
             detect_and_update_networks_from_outgoing, calculate_and_store_self_funding
         )

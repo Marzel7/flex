@@ -19,11 +19,11 @@ import aiohttp
 import requests
 from datetime import datetime
 from typing import Set, Optional, List, Dict
-from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
+from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
 from src.extractors.realtime_creator_funding_extractor import extract_funding_for_new_token
 from src.extractors.funder_incoming_extractor import extract_for_creator as extract_funder_transfers
-from clustering_task_queue import enqueue_clustering
-from creator_outgoing_extractor import run_forever as run_outgoing_extractor
+from src.analysis.clustering_task_queue import enqueue_clustering
+from src.extractors.creator_outgoing_extractor import run_forever as run_outgoing_extractor
 from dotenv import load_dotenv
 
 # Import RPC metrics recorder for monitoring
@@ -2147,7 +2147,7 @@ class PumpFunCurveListener:
             created_at = None
             analyzer = None  # Initialize early to prevent UnboundLocalError if try block fails
             try:
-                from pump_fun_post_migration_analyzer import PostMigrationAnalyzer
+                from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
                 analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
                 provenance = await analyzer.get_creator_from_earliest_tx()
                 earliest_creator = provenance.get('creator') if provenance else None

@@ -23,6 +23,14 @@ CREATE TABLE IF NOT EXISTS farm_clusters (
     total_transfers     INTEGER DEFAULT 0,                 -- Total edge count
     total_volume_sol    REAL DEFAULT 0,                    -- Total SOL transferred
 
+    -- NEW: Weighted edge metrics for cluster strength
+    avg_edge_weight     REAL DEFAULT 0,                    -- Average transfer count per edge
+    max_edge_weight     REAL DEFAULT 0,                    -- Maximum transfer count on any edge
+    avg_composite_weight REAL DEFAULT 0,                   -- Average weighted strength (0-100)
+    max_composite_weight REAL DEFAULT 0,                   -- Peak weighted strength (0-100)
+    avg_time_concentration REAL DEFAULT 0,                 -- 0-1 (how burst-like the transfers are)
+    cluster_strength    REAL DEFAULT 0,                    -- 0-100 (overall coordination strength)
+
     -- Classification metrics
     classification_confidence REAL DEFAULT 0,              -- 0-1 (how clear are funders vs creators)
     pattern_regularity  REAL DEFAULT 0,                    -- 0-1 (regularity of transfer timing)
@@ -30,6 +38,7 @@ CREATE TABLE IF NOT EXISTS farm_clusters (
     -- Risk assessment
     farm_risk_score     REAL DEFAULT 0,                    -- 0-100 (dev farm confidence)
     risk_level          TEXT DEFAULT 'LOW',                -- LOW|MEDIUM|HIGH|CRITICAL
+    strength_score      REAL DEFAULT 0,                    -- 0-100 (edge-weighted coordination score)
 
     -- Metadata
     detection_method    TEXT DEFAULT 'graph_clustering',   -- How cluster was found
@@ -88,6 +97,10 @@ CREATE TABLE IF NOT EXISTS farm_cluster_edges (
     total_amount_sol    REAL DEFAULT 0,                    -- Total SOL transferred
     avg_amount_sol      REAL DEFAULT 0,
 
+    -- NEW: Weighted edge attributes
+    time_concentration  REAL DEFAULT 0,                    -- 0-1 (how burst-like is this edge?)
+    composite_weight    REAL DEFAULT 0,                    -- 0-100 (combined strength metric)
+
     first_transfer_ts   INTEGER,
     last_transfer_ts    INTEGER,
 
@@ -100,6 +113,10 @@ CREATE TABLE IF NOT EXISTS farm_cluster_edges (
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_farm_clusters_risk_score
     ON farm_clusters(farm_risk_score DESC);
+CREATE INDEX IF NOT EXISTS idx_farm_clusters_strength_score
+    ON farm_clusters(strength_score DESC);
+CREATE INDEX IF NOT EXISTS idx_farm_clusters_cluster_strength
+    ON farm_clusters(cluster_strength DESC);
 CREATE INDEX IF NOT EXISTS idx_farm_clusters_risk_level
     ON farm_clusters(risk_level);
 CREATE INDEX IF NOT EXISTS idx_farm_clusters_funder_count
@@ -134,13 +151,17 @@ SELECT
     total_wallets,
     farm_risk_score,
     risk_level,
+    strength_score,
+    cluster_strength,
+    avg_composite_weight,
+    avg_time_concentration,
     total_volume_sol,
     cluster_density
 FROM farm_clusters
 WHERE farm_risk_score >= 70
   AND funder_count >= 2
   AND creator_count >= 3
-ORDER BY farm_risk_score DESC;
+ORDER BY strength_score DESC, farm_risk_score DESC;
 
 -- All funders in detected farms
 CREATE VIEW IF NOT EXISTS vw_farm_funders AS

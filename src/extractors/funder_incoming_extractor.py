@@ -104,6 +104,15 @@ TRANSIENT_HTTP_CODES = {
 SESSION = requests.Session()
 SESSION.headers.update({"User-Agent": "funder-transfer-extractor/2.3"})
 
+# Phase 2b: Initialize RPCCache for response-level caching
+RPC_CACHE = None
+try:
+    from src.core.rpc_cache import RPCCache
+    RPC_CACHE = RPCCache(DB_PATH)
+    logger.info("[PHASE2B] RPCCache initialized for funder_incoming_extractor", flush=True)
+except Exception as e:
+    logger.warning(f"[PHASE2B] RPCCache initialization failed: {e} (caching disabled)", flush=True)
+
 # -------------------------
 # DB helpers
 # -------------------------
@@ -521,12 +530,38 @@ def get_transactions_helius(address: str, limit: int = DEFAULT_HELIUS_LIMIT, max
     max_pages = max(1, int(max_pages))
     all_txs: List[dict] = []
 
-    for _ in range(max_pages):
+    for page in range(max_pages):
+        before = all_txs[-1].get('signature', '') if all_txs else ''
+        
+        # Phase 2b: Check cache for first page only (most valuable)
+        cache_result = None
+        cache_key = None
+        if RPC_CACHE is not None and page == 0:  # Only cache first page
+            cache_key = RPC_CACHE.make_key_helius_addr_txs(address, before, lim)
+            cache_result = RPC_CACHE.get(cache_key)
+        
+        if cache_result is not None:
+            # Cache hit
+            record_request(
+                section="creator_funding", provider="helius_rpc",
+                method="helius_enhanced_addresses_transactions", status_code=200, latency_ms=0.1,
+                mode="realtime", retries=0,
+                source_file="funder_incoming_extractor",
+                cache_action="hit", credits_saved=100,
+            )
+            all_txs.extend(cache_result)
+            continue
+        
         url = (
             f"https://api.helius.xyz/v0/addresses/{address}/transactions"
-            f"?api-key={HELIUS_API_KEY}&limit={lim}&before={all_txs[-1].get('signature', '') if all_txs else ''}"
+            f"?api-key={HELIUS_API_KEY}&limit={lim}&before={before}"
         )
-        data = _request_json("GET", url, timeout=25.0)
+        data = _request_json("GET", url, timeout=25.0, rpc_method="helius_enhanced_addresses_transactions")
+        
+        # Phase 2b: Cache first page result
+        if data and isinstance(data, list) and cache_key and RPC_CACHE is not None and page == 0:
+            RPC_CACHE.set(cache_key, data, "helius_enhanced_addresses_transactions")
+        
         if not isinstance(data, list) or not data:
             break
         all_txs.extend(data)
@@ -637,7 +672,39 @@ def helius_batch_get_transactions(tx_sigs: List[str]) -> Dict[str, Optional[dict
         # Diagnostic: log which API key and request details
         print(f"[FUNDER_INCOMING] Batch request | Key suffix: {HELIUS_API_KEY[-8:] if HELIUS_API_KEY else 'NONE'}", flush=True)
 
+        # Phase 2b: Check cache for entire batch
+        cache_result = None
+        cache_key = None
+        if RPC_CACHE is not None:
+            cache_key = RPC_CACHE.make_key_helius_batch(batch)
+            cache_result = RPC_CACHE.get(cache_key)
+        
+        if cache_result is not None:
+            # Cache hit - reconstruct output from cached data
+            print(f"[FUNDER_INCOMING] ✅ Batch cache hit - {len(batch)} transactions from cache", flush=True)
+            record_request(
+                section="creator_funding", provider="helius_rpc",
+                method="helius_enhanced_transactions_batch", status_code=200, latency_ms=0.1,
+                mode="realtime", retries=0,
+                source_file="funder_incoming_extractor",
+                cache_action="hit", credits_saved=10,
+            )
+            # Cache stores list of txs; reconstruct the signature map
+            for tx in cache_result:
+                if isinstance(tx, dict):
+                    sig = tx.get("signature")
+                    if isinstance(sig, str) and sig:
+                        out[sig] = tx
+            # Mark any missing in batch as None
+            for s in batch:
+                out.setdefault(s, None)
+            continue
+
         data = _request_json("POST", url, json_body={"transactions": batch}, timeout=35.0, rpc_method="helius_enhanced_transactions_batch")
+
+        # Phase 2b: Cache successful batch result
+        if data and isinstance(data, list) and cache_key and RPC_CACHE is not None:
+            RPC_CACHE.set(cache_key, data, "helius_enhanced_transactions_batch")
 
         # Diagnostic: log batch response
         if data is None:

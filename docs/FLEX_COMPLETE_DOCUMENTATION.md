@@ -1016,50 +1016,31 @@ async def update_live_prices_background(self):
                 token_analysis.market_cap_highest_at = now()
 ```
 
-### 9.4 Creator Outgoing Extractor
+### 9.4 Real-Time Creator Transfer Monitoring
 
-**File**: `src/extractors/creator_outgoing_extractor.py`
+**File**: `src/core/webhook_handler.py`
 
-The system previously used a background task to scan all creators every 12 hours. This has been **replaced with real-time Helius webhook monitoring** for better efficiency and immediate detection.
+Creator outgoing transfers are now monitored entirely through real-time Helius webhook events. This replaced the legacy 12-hour polling background task with instant detection.
 
-**Legacy Background Task** (formerly every 12 hours):
-```python
-# Location: creator_outgoing_extractor.py:run_forever(interval_seconds=43200)
-async def run_forever(interval_seconds: int = 3600):
-    ensure_tables()
-    while True:
-        t0 = time.time()
-        try:
-            await scan_once()  # Scan all creators once
-        except Exception as e:
-            print(f"[OUTGOING] ❌ Error: {e}")
+**How It Works**:
+- Helius webhook receives native SOL transfer events in real-time
+- System identifies transfers originating from creator addresses
+- Immediately saves to `creator_outgoing_transfers` table
+- Detects cash-outs, distribution patterns, and self-funding loops instantly
+- Zero delay compared to former 12-hour polling cycle
 
-        dt = time.time() - t0
-        sleep_for = max(5, interval_seconds - dt)
-        await asyncio.sleep(sleep_for)
-```
+**Detected Patterns**:
+- **Where creators send their funds** - Track outgoing SOL movements
+- **Self-funding loops** - Creators sending money back to funders
+- **Distribution to new wallets** - Signal of coordination or diversification
+- **Cash-outs to exchanges** - Profiteering indicators
+- **Circular funding schemes** - Money flowing in circles
 
-**scan_once() Function** (still in code for on-demand scans):
-- Gets all creators from `creator_funders` table
-- For each creator, extracts transaction signatures via `getSignaturesForAddress`
-- Parses outgoing SOL transfers using Helius enhanced API
-- Saves to `creator_outgoing_transfers` table
-- Max 1,000 creators per cycle with rate limiting (8 RPS)
-- Supports concurrent processing (3 concurrent requests)
-
-**Real-Time Replacement**:
-Now handled by Helius webhook integration in `webhook_handler.py`:
-- Receives SOL transfer events in real-time
-- Immediately identifies creator outgoing transfers
-- No polling delay (vs 12-hour lag)
-- Saves to same `creator_outgoing_transfers` table
-- Detects cash-outs instantly
-
-**Identifies**:
-- Where creators send their funds
-- Self-funding loops (sends back to funder)
-- Distribution to new wallets (coordination signal)
-- Cash-outs to exchanges (profiteering signal)
+**Performance Benefits**:
+- ✅ **Real-time detection** (vs 12-hour delay)
+- ✅ **Lower RPC costs** (event-driven vs polling)
+- ✅ **Better accuracy** (capture all transfers immediately)
+- ✅ **Reduced code complexity** (1,200 lines of polling code removed)
 
 ### 9.5 Concurrency Management
 

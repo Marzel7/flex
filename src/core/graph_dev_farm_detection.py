@@ -58,7 +58,14 @@ class WalletGraphBuilder:
                                    max_amount: float = 10.0,
                                    days_back: int = 90) -> nx.DiGraph:
         """
-        Build wallet graph from transfer_index.
+        Build wallet graph from transfer_index with enhanced edge weighting.
+
+        Edge Weights Include:
+        - weight: transfer_count (number of transfers on this edge)
+        - total_amount: total SOL transferred
+        - avg_amount: average per transfer
+        - time_concentration: 0-1 (how clustered transfers are in time)
+        - composite_weight: 0-100 (combined metric for cluster strength)
 
         Args:
             min_amount: Minimum transfer amount (SOL)
@@ -66,7 +73,7 @@ class WalletGraphBuilder:
             days_back: How far back to look (days)
 
         Returns:
-            NetworkX directed graph with edge attributes
+            NetworkX directed graph with comprehensive edge attributes
         """
         conn = self._get_conn()
         cursor = conn.cursor()
@@ -98,12 +105,48 @@ class WalletGraphBuilder:
             self.edge_weights[key]['total_sol'] += amount
             self.edge_weights[key]['timestamps'].append(ts)
 
-            # Update edge weight (transfer count)
+            # Update edge attributes
             self.graph[source][dest]['weight'] = self.edge_weights[key]['count']
             self.graph[source][dest]['total_amount'] = self.edge_weights[key]['total_sol']
             self.graph[source][dest]['avg_amount'] = (
                 self.edge_weights[key]['total_sol'] / self.edge_weights[key]['count']
             )
+            
+            # Compute time_concentration: how clustered transfers are in time
+            timestamps = sorted(self.edge_weights[key]['timestamps'])
+            if len(timestamps) > 1:
+                # Time span in seconds
+                time_span = timestamps[-1] - timestamps[0]
+                # If span is 0 (all same second), concentration = 1.0
+                if time_span == 0:
+                    time_concentration = 1.0
+                else:
+                    # Measure variance from uniform distribution
+                    # Lower variance = higher concentration (transfers bunched together)
+                    time_diffs = [timestamps[i+1] - timestamps[i] for i in range(len(timestamps)-1)]
+                    if time_diffs:
+                        mean_diff = sum(time_diffs) / len(time_diffs)
+                        variance = sum((d - mean_diff) ** 2 for d in time_diffs) / len(time_diffs)
+                        # Normalize: high variance = low concentration, low variance = high concentration
+                        # Use exponential decay to map to 0-1 range
+                        time_concentration = max(0, 1.0 - (variance / (time_span + 1)))
+                    else:
+                        time_concentration = 1.0
+            else:
+                time_concentration = 1.0
+            
+            self.graph[source][dest]['time_concentration'] = time_concentration
+            
+            # Composite weight: 0-100 scale combining all factors
+            # transfer_count (0-30): heavily weighted, indicates active relationship
+            # total_amount (0-30): heavily weighted, indicates significant coordination
+            # time_concentration (0-40): indicates bursts/coordinated timing
+            count_score = min(self.edge_weights[key]['count'] / 10 * 30, 30)
+            amount_score = min(self.edge_weights[key]['total_sol'] / 50 * 30, 30)  # ~50 SOL = max
+            time_score = time_concentration * 40
+            
+            composite_weight = count_score + amount_score + time_score
+            self.graph[source][dest]['composite_weight'] = composite_weight
 
         conn.close()
         logger.info(f"Graph built: {self.graph.number_of_nodes()} nodes, {self.graph.number_of_edges()} edges")
@@ -272,7 +315,7 @@ class ClusterRanker:
         self.clusters = clusters
 
     def compute_cluster_metrics(self, cluster_id: int) -> Dict:
-        """Compute metrics for a cluster."""
+        """Compute metrics for a cluster including weighted edge strength."""
         cluster_nodes = self.clusters[cluster_id]
         subgraph = self.graph.subgraph(cluster_nodes).copy()
 
@@ -293,6 +336,36 @@ class ClusterRanker:
 
         # Density
         density = edges / possible_edges if possible_edges > 0 else 0
+        
+        # NEW: Cluster Strength from Weighted Edges
+        # Combines transfer count + amount + time concentration
+        edge_weights = []
+        for _, _, data in subgraph.edges(data=True):
+            edge_weights.append(data.get('weight', 1))  # transfer count
+        
+        avg_edge_weight = np.mean(edge_weights) if edge_weights else 0
+        max_edge_weight = np.max(edge_weights) if edge_weights else 0
+        
+        # Composite edge strength (0-100 scale)
+        composite_weights = []
+        for _, _, data in subgraph.edges(data=True):
+            composite_weights.append(data.get('composite_weight', 0))
+        
+        avg_composite_weight = np.mean(composite_weights) if composite_weights else 0
+        max_composite_weight = np.max(composite_weights) if composite_weights else 0
+        
+        # Time concentration analysis
+        time_concentrations = []
+        for _, _, data in subgraph.edges(data=True):
+            time_concentrations.append(data.get('time_concentration', 0.5))
+        
+        avg_time_concentration = np.mean(time_concentrations) if time_concentrations else 0.5
+        
+        # Cluster strength: how tightly coordinated are the edges?
+        # Higher avg_composite_weight = stronger cluster
+        # Higher avg_time_concentration = more burst-like (coordinated timing)
+        cluster_strength = (avg_composite_weight / 100 * 0.6) + (avg_time_concentration * 0.4)
+        cluster_strength = min(cluster_strength * 100, 100)  # Normalize to 0-100
 
         return {
             'cluster_id': cluster_id,
@@ -304,10 +377,17 @@ class ClusterRanker:
             'total_volume': total_volume,
             'avg_transfers': avg_transfers,
             'avg_volume_per_edge': total_volume / edges if edges > 0 else 0,
+            # NEW: Weighted edge metrics
+            'avg_edge_weight': avg_edge_weight,
+            'max_edge_weight': max_edge_weight,
+            'avg_composite_weight': avg_composite_weight,
+            'max_composite_weight': max_composite_weight,
+            'avg_time_concentration': avg_time_concentration,
+            'cluster_strength': cluster_strength,
         }
 
     def rank_clusters(self) -> List[Dict]:
-        """Rank clusters by coordination strength."""
+        """Rank clusters by coordination strength using weighted edges."""
         scores = []
 
         for cluster_id in self.clusters.keys():
@@ -317,11 +397,24 @@ class ClusterRanker:
             density_score = metrics['density'] * 100  # 0-100
             size_score = np.log1p(metrics['size']) * 10
             volume_score = np.log1p(metrics['total_volume']) * 5
+            
+            # NEW: Cluster strength from weighted edges (0-100 scale)
+            strength_score = metrics['cluster_strength']  # Already 0-100
 
-            # Composite score
-            total_score = (density_score * 0.4) + (size_score * 0.3) + (volume_score * 0.3)
+            # Composite score: weighted by different factors
+            # - Density (structural coordination): 30%
+            # - Size (network scale): 20%
+            # - Volume (capital commitment): 20%
+            # - Strength (edge weight + timing): 30%
+            total_score = (
+                (density_score * 0.30) +
+                (size_score * 0.20) +
+                (volume_score * 0.20) +
+                (strength_score * 0.30)
+            )
 
             metrics['coordination_score'] = total_score
+            metrics['strength_score'] = strength_score
             scores.append(metrics)
 
         # Sort by score (highest first)
@@ -417,6 +510,7 @@ class FarmIdentifier:
 
     def identify_farm_clusters(self,
                                clusters: Dict[int, Set],
+                               cluster_metrics: Dict = None,
                                min_funders: int = 2,
                                min_creators: int = 3) -> List[Dict]:
         """
@@ -426,8 +520,12 @@ class FarmIdentifier:
         - Multiple funders (2+)
         - Multiple creators (3+)
         - Clear coordination patterns
+
+        Args:
+            cluster_metrics: Optional dict of cluster_id -> metrics (from ClusterRanker)
         """
         farms = []
+        cluster_metrics = cluster_metrics or {}
 
         for cluster_id, cluster_nodes in clusters.items():
             # Skip small clusters
@@ -442,6 +540,9 @@ class FarmIdentifier:
             # Check if it's a farm
             if len(funders) >= min_funders and len(creators) >= min_creators:
                 subgraph = self.graph.subgraph(cluster_nodes).copy()
+
+                # Get metrics from ranker if available
+                metrics = cluster_metrics.get(cluster_id, {})
 
                 # Compute farm-specific metrics
                 farm_data = {
@@ -464,6 +565,14 @@ class FarmIdentifier:
                         data.get('total_amount', 0)
                         for _, _, data in subgraph.edges(data=True)
                     ),
+                    # NEW: Weighted edge metrics from ClusterRanker
+                    'avg_edge_weight': metrics.get('avg_edge_weight', 0),
+                    'max_edge_weight': metrics.get('max_edge_weight', 0),
+                    'avg_composite_weight': metrics.get('avg_composite_weight', 0),
+                    'max_composite_weight': metrics.get('max_composite_weight', 0),
+                    'avg_time_concentration': metrics.get('avg_time_concentration', 0.5),
+                    'cluster_strength': metrics.get('cluster_strength', 0),
+                    'strength_score': metrics.get('strength_score', 0),
                 }
 
                 # Compute farm risk score
@@ -472,8 +581,8 @@ class FarmIdentifier:
 
                 farms.append(farm_data)
 
-        # Sort by risk score
-        farms.sort(key=lambda x: x['farm_risk_score'], reverse=True)
+        # Sort by strength_score (weighted), then by risk score
+        farms.sort(key=lambda x: (x.get('strength_score', 0), x['farm_risk_score']), reverse=True)
         logger.info(f"Dev farms identified: {len(farms)}")
         return farms
 
@@ -690,12 +799,25 @@ class GraphDevFarmDetectionEngine:
         return detector.detect_by_weakly_connected_components()
 
     def _identify_farms(self, graph: nx.DiGraph, clusters: Dict[int, Set]) -> List[Dict]:
-        """Identify dev farms from clusters."""
+        """Identify dev farms from clusters using weighted edge metrics."""
+        # Step 1: Rank clusters by coordination strength
+        ranker = ClusterRanker(graph, clusters)
+        ranked_clusters = ranker.rank_clusters()
+        
+        # Convert to dict for lookup: cluster_id -> metrics
+        cluster_metrics = {m['cluster_id']: m for m in ranked_clusters}
+        
+        # Step 2: Identify farms with cluster metrics
         farm_id = FarmIdentifier(graph)
-        return farm_id.identify_farm_clusters(clusters, min_funders=2, min_creators=3)
+        return farm_id.identify_farm_clusters(
+            clusters,
+            cluster_metrics=cluster_metrics,
+            min_funders=2,
+            min_creators=3
+        )
 
     def _store_results(self, graph: nx.DiGraph, farms: List[Dict]) -> Tuple[int, int, int]:
-        """Store farms, members, and edges to database."""
+        """Store farms, members, and edges to database with weighted metrics."""
         conn = self._get_conn()
         cursor = conn.cursor()
         now = time.time()
@@ -705,15 +827,17 @@ class GraphDevFarmDetectionEngine:
         edge_count = 0
 
         for farm in farms:
-            # Store farm cluster
+            # Store farm cluster with NEW: weighted edge metrics
             cursor.execute("""
                 INSERT OR REPLACE INTO farm_clusters (
                     graph_cluster_id, funder_count, creator_count, ambiguous_count,
                     total_wallets, funder_list, creator_list, ambiguous_list, all_wallets,
                     cluster_density, total_transfers, total_volume_sol,
-                    classification_confidence, farm_risk_score, risk_level,
+                    avg_edge_weight, max_edge_weight, avg_composite_weight, max_composite_weight,
+                    avg_time_concentration, cluster_strength,
+                    classification_confidence, farm_risk_score, risk_level, strength_score,
                     detected_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 farm['cluster_id'],
                 farm['funder_count'],
@@ -727,9 +851,16 @@ class GraphDevFarmDetectionEngine:
                 farm['density'],
                 farm['total_transfers'],
                 farm['total_volume_sol'],
+                farm.get('avg_edge_weight', 0),
+                farm.get('max_edge_weight', 0),
+                farm.get('avg_composite_weight', 0),
+                farm.get('max_composite_weight', 0),
+                farm.get('avg_time_concentration', 0.5),
+                farm.get('cluster_strength', 0),
                 farm['classification_confidence'],
                 farm['farm_risk_score'],
                 farm['risk_level'],
+                farm.get('strength_score', 0),
                 now,
                 now
             ))
@@ -760,15 +891,16 @@ class GraphDevFarmDetectionEngine:
                 ))
                 member_count += 1
 
-            # Store edges
+            # Store edges with NEW: time_concentration and composite_weight
             subgraph = farm['subgraph']
             for source, dest, data in subgraph.edges(data=True):
                 cursor.execute("""
                     INSERT OR REPLACE INTO farm_cluster_edges (
                         cluster_id, source_wallet, dest_wallet,
                         transfer_count, total_amount_sol, avg_amount_sol,
+                        time_concentration, composite_weight,
                         detected_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     cluster_id,
                     source,
@@ -776,6 +908,8 @@ class GraphDevFarmDetectionEngine:
                     data.get('weight', 0),
                     data.get('total_amount', 0.0),
                     data.get('total_amount', 0.0) / max(data.get('weight', 1), 1),
+                    data.get('time_concentration', 0.5),
+                    data.get('composite_weight', 0),
                     now
                 ))
                 edge_count += 1

@@ -71,12 +71,12 @@ class Phase1AnomalyDetector:
             cursor.execute("""
                 WITH daily AS (
                   SELECT
-                    DATE(timestamp) AS day,
+                    DATE(recorded_at) AS day,
                     COUNT(*) AS rpc_calls
-                  FROM rpc_request_log
+                  FROM rpc_metrics
                   WHERE source_file = 'realtime_creator_funding_extractor'
-                  AND timestamp >= datetime('now', '-7 days')
-                  GROUP BY DATE(timestamp)
+                  AND recorded_at >= datetime('now', '-7 days')
+                  GROUP BY DATE(recorded_at)
                   ORDER BY day DESC
                 )
                 SELECT day, rpc_calls FROM daily LIMIT 2;

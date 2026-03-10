@@ -19856,6 +19856,173 @@ def api_storage_alerts():
 
 
 # =========================================================================
+# PHASE 3.3 — CLUSTER DETECTION ENDPOINTS
+# =========================================================================
+
+@app.route('/api/clusters/farms')
+def api_clusters_farms():
+    """List dev farm wallets sorted by confidence score."""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT cluster_id, funder_wallet, creator_count, confidence_score,
+                   avg_transfer_sol, days_active, has_burst, wallet_age_days,
+                   detected_at
+            FROM wallet_clusters
+            ORDER BY confidence_score DESC
+            LIMIT 100
+        """)
+
+        rows = cursor.fetchall()
+        result = []
+
+        for row in rows:
+            cluster_id, funder_wallet, creator_count, confidence_score, avg_transfer_sol, days_active, has_burst, wallet_age_days, detected_at = row
+            
+            # Get creator list
+            cursor.execute(
+                "SELECT creator_addresses FROM wallet_clusters WHERE cluster_id = ?",
+                (cluster_id,)
+            )
+            creator_row = cursor.fetchone()
+            creators = []
+            if creator_row:
+                try:
+                    creators = json.loads(creator_row[0])
+                except:
+                    creators = []
+
+            result.append({
+                'cluster_id': cluster_id,
+                'funder_wallet': funder_wallet,
+                'creator_count': creator_count,
+                'creators': creators,
+                'confidence_score': confidence_score,
+                'avg_transfer_sol': avg_transfer_sol,
+                'days_active': days_active,
+                'has_burst': bool(has_burst),
+                'wallet_age_days': wallet_age_days,
+                'detected_at': int(detected_at)
+            })
+
+        conn.close()
+        return jsonify(result)
+
+    except Exception as e:
+        print(f"[CLUSTERS_FARMS] Error: {e}", flush=True)
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/clusters/reputation/<wallet>')
+def api_clusters_reputation(wallet):
+    """Get developer reputation for a specific wallet."""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT wallet, tokens_launched, tokens_rugged, tokens_above_2x,
+                   tokens_above_10x, rug_rate, success_rate, reputation_score,
+                   wallet_age_days, cluster_id, last_updated
+            FROM dev_reputation
+            WHERE wallet = ?
+        """, (wallet,))
+
+        row = cursor.fetchone()
+
+        if not row:
+            conn.close()
+            return jsonify({"error": "Wallet not found"}), 404
+
+        result = {
+            'wallet': row[0],
+            'tokens_launched': row[1],
+            'tokens_rugged': row[2],
+            'tokens_above_2x': row[3],
+            'tokens_above_10x': row[4],
+            'rug_rate': row[5],
+            'success_rate': row[6],
+            'reputation_score': row[7],
+            'wallet_age_days': row[8],
+            'cluster_id': row[9],
+            'last_updated': int(row[10]),
+            'risk_level': _classify_risk(row[7])  # reputation_score
+        }
+
+        conn.close()
+        return jsonify(result)
+
+    except Exception as e:
+        print(f"[REPUTATION] Error: {e}", flush=True)
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/clusters/high-risk')
+def api_clusters_high_risk():
+    """Get all creators in high-confidence dev farms with reputation warnings."""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        # High-confidence farms (>75)
+        cursor.execute("""
+            SELECT DISTINCT json_each.value as creator, cluster_id, confidence_score
+            FROM wallet_clusters,
+            json_each(wallet_clusters.creator_addresses)
+            WHERE confidence_score > 75
+            ORDER BY confidence_score DESC
+        """)
+
+        farm_creators = cursor.fetchall()
+        result = []
+
+        for creator, cluster_id, farm_confidence in farm_creators:
+            # Get reputation for creator
+            cursor.execute("""
+                SELECT reputation_score, rug_rate, wallet_age_days
+                FROM dev_reputation
+                WHERE wallet = ?
+            """, (creator,))
+
+            rep_row = cursor.fetchone()
+
+            if rep_row:
+                reputation_score, rug_rate, wallet_age_days = rep_row
+            else:
+                reputation_score, rug_rate, wallet_age_days = 50, 0, 0
+
+            result.append({
+                'creator': creator,
+                'farm_cluster_id': cluster_id,
+                'farm_confidence': farm_confidence,
+                'reputation_score': reputation_score,
+                'rug_rate': rug_rate,
+                'wallet_age_days': wallet_age_days,
+                'risk_level': _classify_risk(reputation_score),
+                'warning': 'High-risk developer in high-confidence farm'
+            })
+
+        conn.close()
+        return jsonify(result)
+
+    except Exception as e:
+        print(f"[HIGH_RISK] Error: {e}", flush=True)
+        return jsonify({"error": str(e)}), 500
+
+
+def _classify_risk(reputation_score: float) -> str:
+    """Classify risk level from reputation score."""
+    if reputation_score < 30:
+        return 'HIGH_RISK'
+    elif reputation_score < 60:
+        return 'MEDIUM_RISK'
+    else:
+        return 'LOW_RISK'
+
+
+# =========================================================================
 # MAIN
 # =========================================================================
 

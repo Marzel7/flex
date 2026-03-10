@@ -22,8 +22,15 @@ from flask import Blueprint, request, jsonify
 launch_api = Blueprint('launch_api', __name__, url_prefix='/api')
 
 
-def get_db_conn(db_path: str) -> sqlite3.Connection:
+# Global database path (set by register_launch_api)
+_DB_PATH = None
+
+def get_db_conn(db_path: str = None) -> sqlite3.Connection:
     """Get database connection."""
+    if db_path is None:
+        db_path = _DB_PATH
+    if db_path is None:
+        raise ValueError("Database path not configured")
     conn = sqlite3.connect(db_path, timeout=60)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.row_factory = sqlite3.Row
@@ -65,8 +72,7 @@ def get_launch_watchlist():
         min_probability = max(0, min(100, min_probability))
         limit = max(1, min(1000, limit))
 
-        db_path = request.app.config.get('DB_PATH', 'database/flex_complete_database.db')
-        conn = get_db_conn(db_path)
+        conn = get_db_conn()
         cursor = conn.cursor()
 
         # Build query
@@ -155,8 +161,7 @@ def get_launch_prediction(creator):
     }
     """
     try:
-        db_path = request.app.config.get('DB_PATH', 'database/flex_complete_database.db')
-        conn = get_db_conn(db_path)
+        conn = get_db_conn()
         cursor = conn.cursor()
 
         # Get launch watchlist entry
@@ -258,8 +263,7 @@ def get_critical_risk_launches():
     }]
     """
     try:
-        db_path = request.app.config.get('DB_PATH', 'database/flex_complete_database.db')
-        conn = get_db_conn(db_path)
+        conn = get_db_conn()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -338,8 +342,7 @@ def get_launch_history():
 
         limit = max(1, min(500, limit))
 
-        db_path = request.app.config.get('DB_PATH', 'database/flex_complete_database.db')
-        conn = get_db_conn(db_path)
+        conn = get_db_conn()
         cursor = conn.cursor()
 
         query = """
@@ -416,8 +419,7 @@ def get_pumpfun_farms():
         min_confidence = max(0, min(100, min_confidence))
         limit = max(1, min(500, limit))
 
-        db_path = request.app.config.get('DB_PATH', 'database/flex_complete_database.db')
-        conn = get_db_conn(db_path)
+        conn = get_db_conn()
         cursor = conn.cursor()
 
         # Query creator_reuse for marked pump.fun targets
@@ -483,8 +485,7 @@ def get_creator_reuse():
         min_reuse_score = max(0, min(40, min_reuse_score))
         limit = max(1, min(1000, limit))
 
-        db_path = request.app.config.get('DB_PATH', 'database/flex_complete_database.db')
-        conn = get_db_conn(db_path)
+        conn = get_db_conn()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -551,5 +552,6 @@ def register_launch_api(app, db_path: str = 'database/flex_complete_database.db'
         from src.core.launch_prediction_api import register_launch_api
         register_launch_api(app, db_path)
     """
-    app.config['DB_PATH'] = db_path
+    global _DB_PATH
+    _DB_PATH = db_path
     app.register_blueprint(launch_api)

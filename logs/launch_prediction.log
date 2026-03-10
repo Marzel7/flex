@@ -1,0 +1,7 @@
+2026-03-10 19:48:55,630 - __main__ - INFO - Starting Phase 3.3+ launch prediction detection
+2026-03-10 19:48:55,637 - src.core.launch_prediction_engine - ERROR - Pump.fun detection failed: no such table: transfer_index
+2026-03-10 19:48:55,641 - src.core.launch_prediction_engine - ERROR - Creator reuse detection failed: no such table: transfer_index
+2026-03-10 19:48:55,644 - src.core.launch_prediction_engine - INFO - Updated 0 launch watchlist entries
+2026-03-10 19:48:55,644 - src.core.launch_prediction_engine - INFO - Phase 3.3+ detection: 0 pump.fun farms, 0 reused creators, 0 watchlist entries
+2026-03-10 19:48:55,645 - __main__ - INFO - Launch prediction completed: Phase 3.3+ detection: 0 pump.fun farms, 0 reused creators, 0 watchlist entries
+2026-03-10 19:48:55,645 - __main__ - INFO - Pump.fun farms: 0, Creator reuses: 0, Watchlist: 0, Duration: 14ms

@@ -1,0 +1,21 @@
+2026-03-10 21:59:09,564 - __main__ - INFO - Starting dev intelligence graph detection
+2026-03-10 21:59:09,564 - src.core.dev_intelligence_graph - INFO - Starting dev intelligence graph detection
+2026-03-10 21:59:09,568 - src.core.dev_intelligence_graph - INFO - Tables ensured: dev_organizations, dev_organization_members
+2026-03-10 21:59:09,568 - src.core.dev_intelligence_graph - INFO - Building extended graph (wallet → creator → token)
+2026-03-10 21:59:09,569 - src.core.dev_intelligence_graph - INFO - Loading base wallet graph from transfer_index
+2026-03-10 21:59:09,572 - src.core.dev_intelligence_graph - ERROR - Detection failed: no such table: transfer_index
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 434, in detect_and_store
+    graph = builder.build_extended_graph()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 64, in build_extended_graph
+    self.graph = self._load_wallet_graph(min_transfer, max_transfer, days_back)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 84, in _load_wallet_graph
+    return builder.build_graph_from_transfers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/graph_dev_farm_detection.py", line 90, in build_graph_from_transfers
+    cursor.execute(query, (min_amount, max_amount, days_back))
+sqlite3.OperationalError: no such table: transfer_index
+2026-03-10 21:59:09,574 - __main__ - INFO - Dev intelligence detection completed: no such table: transfer_index
+2026-03-10 21:59:09,574 - __main__ - INFO - Organizations: 0, Members: 0, Duration: 10ms

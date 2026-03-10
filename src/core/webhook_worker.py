@@ -17,7 +17,7 @@ from datetime import datetime
 # CONFIGURATION
 # ============================================================================
 
-DB_PATH = os.getenv("FLEX_DB_PATH", "flex_complete_database.db")
+DB_PATH = os.getenv("DB_PATH", "database/flex_complete_database.db")
 
 # RPC Guardrails
 RPC_MIN_PRIORITY = 80

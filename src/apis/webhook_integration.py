@@ -39,7 +39,7 @@ def setup_webhook_routes(app):
         import time
         from datetime import datetime
 
-        db_path = os.getenv("FLEX_DB_PATH", "flex_complete_database.db")
+        db_path = os.getenv("DB_PATH", "database/flex_complete_database.db")
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
 
@@ -171,7 +171,7 @@ def setup_webhook_routes(app):
         import os
         from datetime import datetime
 
-        db_path = os.getenv("FLEX_DB_PATH", "flex_complete_database.db")
+        db_path = os.getenv("DB_PATH", "database/flex_complete_database.db")
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
 
@@ -241,6 +241,66 @@ def start_webhook_worker(daemon=True):
 
     return worker_thread
 
+
+def get_webhook_event_metrics(minutes: int = 5):
+    """Get webhook event metrics for the last N minutes"""
+    import os
+    import sqlite3
+    from datetime import datetime, timedelta
+
+    db_path = os.getenv("DB_PATH", "database/flex_complete_database.db")
+    conn = sqlite3.connect(db_path, timeout=30)
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+
+    # Events in last N minutes
+    cutoff = int((datetime.now() - timedelta(minutes=minutes)).timestamp())
+    cur.execute("""
+        SELECT COUNT(*) as event_count,
+               COUNT(DISTINCT source) as unique_creators,
+               COUNT(DISTINCT signature) as unique_signatures
+        FROM sol_transfers
+        WHERE block_time > ?
+    """, (cutoff,))
+
+    row = cur.fetchone()
+    conn.close()
+
+    return {
+        'event_count': row[0] or 0,
+        'unique_creators': row[1] or 0,
+        'unique_signatures': row[2] or 0
+    }
+
+def get_top_webhook_creators(limit: int = 10, hours: int = 24):
+    """Get top creators by webhook event count"""
+    import os
+    import sqlite3
+    from datetime import datetime, timedelta
+
+    db_path = os.getenv("DB_PATH", "database/flex_complete_database.db")
+    conn = sqlite3.connect(db_path, timeout=30)
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+
+    cutoff = int((datetime.now() - timedelta(hours=hours)).timestamp())
+    cur.execute("""
+        SELECT source as creator, COUNT(*) as event_count, SUM(amount_sol) as total_sol
+        FROM sol_transfers
+        WHERE block_time > ?
+        GROUP BY source
+        ORDER BY event_count DESC
+        LIMIT ?
+    """, (cutoff, limit))
+
+    creators = [{
+        'address': row[0],
+        'event_count': row[1],
+        'total_sol': row[2] or 0
+    } for row in cur.fetchall()]
+
+    conn.close()
+    return creators
 
 def init_webhook_system(app):
     """

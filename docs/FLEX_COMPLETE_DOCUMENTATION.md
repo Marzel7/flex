@@ -1,46 +1,46 @@
-# FLEX Complete System Documentation
+# FLEX: Solana Token Funding Network Analysis System
 
-**Comprehensive guide to the Flex token funding network analysis system**
+**Comprehensive technical documentation for the token analysis, funding extraction, and real-time monitoring system**
 
 ---
 
 ## 📋 Table of Contents
 
-1. [System Overview](#system-overview)
-2. [Participant Roles](#participant-roles)
-3. [Network Architecture](#network-architecture)
-4. [Execution Flow & Components](#execution-flow--components)
-5. [SOL Transfer Filtering](#sol-transfer-filtering)
-6. [Findings Tags](#findings-tags)
-7. [Risk Calculation](#risk-calculation)
-8. [CEX Account Mapping](#cex-account-mapping)
-9. [INFRA Account Mapping](#infra-account-mapping)
-10. [Network Data](#network-data)
-11. [Database Schema](#database-schema)
-12. [Implementation Details](#implementation-details)
-13. [Helius RPC & Billing](#helius-rpc--billing) ⭐ NEW
-14. [Integration Guide](#integration-guide)
+1. [Project Overview](#project-overview)
+2. [System Architecture](#system-architecture)
+3. [Token Detection & Processing Engine](#token-detection--processing-engine)
+4. [Funding Extraction Framework](#funding-extraction-framework)
+5. [Network Analysis & Clustering](#network-analysis--clustering)
+6. [Real-Time Webhook System](#real-time-webhook-system)
+7. [RPC Metrics & Optimization](#rpc-metrics--optimization)
+8. [Database Layer & Schema](#database-layer--schema)
+9. [Async Processing & Event Flow](#async-processing--event-flow)
+10. [Configuration & Environment](#configuration--environment)
+11. [Error Handling & Edge Cases](#error-handling--edge-cases)
+12. [Performance Characteristics](#performance-characteristics)
+13. [Extending the System](#extending-the-system)
 
 ---
 
-## System Overview
+## 1. Project Overview
 
-**Flex** is a Solana token analysis system that tracks funding networks, identifies coordinated funder relationships, and detects suspicious pump-and-dump schemes across Pump.Fun tokens.
+### Purpose
+**FLEX** is a Solana token analysis system that tracks funding networks, identifies coordinated funder relationships, and detects suspicious pump-and-dump schemes across Pump.Fun tokens. The system automates the detection of:
+
+- **Funding networks** - Who funded token creators and where did they get the money
+- **Coordinated funding** - Shared funders across multiple token creators
+- **Self-funding schemes** - Creators redistributing their own money through intermediaries
+- **Infrastructure connections** - Identifying CEX wallets, automation bots, and service integrations
 
 ### Key Statistics
-- **41,734 funder networks** tracked
-- **503 super clusters** identified
-- **43 CEX wallets** mapped (20 exchanges)
-- **59 INFRA programs** tracked (8 categories)
-- **8 findings tags** for risk assessment
-- **MINIMUM_SOL = 0.001** threshold filters 30-40% micro-transactions
+- **41,734 funder networks** tracked across Solana
+- **503 super clusters** identified (coordinated funding groups)
+- **43 CEX wallets** mapped (20 major exchanges)
+- **59 INFRA programs** tracked (8 categories: Jito, Axiom, DeBridge, Meteora, etc.)
+- **150+ database tables** for comprehensive data storage
+- **Real-time webhook integration** with Helius RPC provider
 
----
-
-## Participant Roles
-
-### Three-Layer Funding Flow
-
+### Three-Layer Funding Model
 ```
 SENDERS (Layer 1: Original Source)
     ↓ Distribute SOL
@@ -51,2687 +51,1520 @@ CREATORS (Layer 3: Token Launchers)
 TOKENS
 ```
 
-### 1. SENDER - Money Source
+---
 
-**Definition**: Original wallet addresses that send SOL to funders
+## 2. System Architecture
 
-**Characteristics**:
-- Initial funding source
-- May distribute to many funder addresses
-- Fund distribution width indicates coordination level
+### Core Components
 
-**Types**:
-- CEX accounts (legitimate exchanges)
-- INFRA bots (automation programs)
-- Individual creators (reusing wallets)
-- Unknown wallets (organic or suspicious)
+#### 2.1 Flask Web Application
+**File**: `src/core/main.py` (6,900+ lines)
 
-**Risk Indicators**:
-- Fund distribution width (many recipients = higher risk)
-- Concentration (sending to many addresses that all fund same creator = self-funding)
+The Flask app serves:
+- **Web UI**: Dashboard, networks, clusters, funding hubs, analysis pages
+- **REST API**: 60+ endpoints for data retrieval and system control
+- **Real-time pages**: Auto-updating metrics and status dashboards
+- **Interactive analysis**: Creator funding analysis, funder details, network visualization
 
-**Database**:
-- `funder_incoming_transfers.sender_address`
-- `funder_incoming_transfers.amount_sol`
+**Key Routes**:
+- `/` - Main migration dashboard
+- `/networks` - Funding network visualization
+- `/clusters` - Cross-funding cluster analysis
+- `/coordinated-funders` - Funder relationship tracking
+- `/funding-hub/<address>` - Individual funding hub details
+- `/api/*` - REST endpoints for all data sources
 
-### 2. FUNDER - Intermediary Bridge
+#### 2.2 Token Detection & Listener
+**File**: `src/core/pumpfun_curve_listener.py`
 
-**Definition**: Wallet addresses that receive from senders and send to creators
+Real-time token detection engine that:
+- Connects to Solana WebSocket for new Pump.Fun migrations
+- Detects token creation events
+- Triggers funding extraction pipeline
+- Maintains price tracking and status monitoring
 
-**Characteristics**:
-- Relay point connecting sources to token creators
-- Receives from senders, forwards to creators
-- May pass through multiple layers
+**Spawned Background Tasks**:
+1. **Creator Watch Manager** - Polls every 30s for creator status updates
+2. **Live Price Updater** - Continuous background price tracking (currently disabled)
+3. **Webhook Handler** - Real-time SOL transfer monitoring (replaces 12-hour scan)
+4. **WebSocket Listener** - Real-time token detection
 
-**Types**:
-- Unknown intermediaries (highest investigation priority)
-- Automation accounts (bots distributing)
-- Relay addresses (legitimate services)
-- Creator-controlled wallets (self-funding indicator)
+**Note**: The former 12-hour background scan (`creator_outgoing_extractor.run_forever()`) has been replaced with real-time Helius webhook monitoring for better efficiency and real-time detection of creator outgoing transfers.
 
-**Risk Indicators**:
-- Creator count served (how many creators do they fund?)
-- Sender diversity (how many different sources funded them?)
-- Behavior patterns (passthrough vs accumulation)
+#### 2.3 Webhook Handler
+**File**: `src/core/webhook_handler.py`
 
-**Database**:
-- `creator_funders.funder_address`
-- `creator_funders.amount_sol`
-- `funder_incoming_transfers.funder_address`
-- `funder_outgoing_transfers.funder_address`
+Helius webhook integration for processing:
+- Native SOL transfer events
+- Account activity monitoring
+- Real-time funding detection
+- Deduplication and dust filtering
+- Background work queue management
 
-### 3. CREATOR - Token Launcher
+#### 2.4 Webhook Worker
+**File**: `src/core/webhook_worker.py`
 
-**Definition**: Wallet addresses that create tokens and receive funder support
+Async worker that:
+- Processes work queue items with priority scheduling
+- Fetches next creator analysis tasks
+- Processes creator funding analysis
+- Manages RPC rate limiting and cooldown periods
 
-**Characteristics**:
-- Receives SOL from funders
-- Creates Pump.Fun token
-- May redistribute SOL to other addresses
+### Data Flow Diagram
 
-**Risk Indicators**:
-- Funder count (how many funded this creator?)
-- Self-funding percentage (% of funders controlled by creator)
-- Distribution pattern (do they spread SOL to many addresses?)
-- Network involvement (coordinated with other creators?)
+```
+New Token Detected (WebSocket)
+    ↓
+Extract Creator Funding (realtime_creator_funding_extractor.py)
+    ├─ Query: Who funded the creator?
+    └─ Save to: creator_funders table
+    ↓
+Extract Funder Transfers (funder_incoming_extractor.py)
+    ├─ Query: Where did funders get their money?
+    └─ Save to: funder_incoming_transfers table
+    ↓
+Extract Creator Outgoing (creator_outgoing_extractor.py)
+    ├─ Query: Where does creator send SOL?
+    ├─ Frequency: Every 12 hours (background)
+    └─ Save to: creator_outgoing_transfers table
+    ↓
+Build Network Clustering (cross_funding_network_analyzer.py)
+    ├─ Create: Coordinated edges
+    ├─ Identify: Clusters and networks
+    └─ Save to: Multiple clustering tables
+    ↓
+Generate Findings (main.py API)
+    ├─ Compute: Risk scores
+    ├─ Tag: Suspicious patterns
+    └─ Display: Web UI
+```
+
+---
+
+## 3. Token Detection & Processing Engine
+
+### 3.1 WebSocket Listener Architecture
+
+**File**: `src/core/pumpfun_curve_listener.py:listen_websocket()`
+
+The listener maintains a WebSocket connection to detect Pump.Fun token creation events. When a new token migration is detected:
+
+```python
+# New token migration detected
+token_mint = extracted_from_websocket_event()
+creator_address = extracted_from_onchain_data(token_mint)
+
+# Immediately trigger extraction pipeline
+asyncio.create_task(
+    realtime_creator_funding_extractor.extract_funding_for_new_token(
+        creator_address=creator_address,
+        created_at=timestamp,
+        create_tx_sig=signature,
+        mint=token_mint
+    )
+)
+```
+
+### 3.2 Token Metadata Extraction
+
+**File**: `src/core/main.py:process_new_token()`
+
+Upon token detection, the system extracts:
+- **Token mint address** - Unique identifier
+- **Creator address** - Who created the token
+- **Creation timestamp** - Block time of token launch
+- **Creation transaction** - Signature for verification
+- **Pool address** - Bonding curve PDA
+- **Migrated status** - Whether token has moved to main market
+
+### 3.3 Real-Time Status Updates
+
+The dashboard (`/`) queries `token_analysis` table with:
+```sql
+SELECT * FROM token_analysis
+ORDER BY created_at DESC
+LIMIT 25
+```
+
+This provides:
+- **Latest 25 tokens** on the main page (ordered newest first)
+- **Funding progress** indicator (how many funders extracted)
+- **Risk assessment** (probability of rug, risk level)
+- **Network involvement** (cluster ID, coordinated funders)
+
+### 3.4 Price Tracking
+
+**Background Task**: `update_live_prices_background()`
+
+Continuously updates token prices from:
+- **Primary**: Solscan API
+- **Fallback**: Jupiter API
+- **Caching**: Database with `price_updated_at` timestamp
+
+Updates `token_analysis` columns:
+- `price_current` - Current market price
+- `price_highest` - Historical peak price
+- `market_cap_current` - Current valuation
+- `market_cap_highest_at` - Peak timestamp
+
+---
+
+## 4. Funding Extraction Framework
+
+### 4.1 Creator Funding Extraction
+
+**File**: `src/extractors/realtime_creator_funding_extractor.py`
+
+**Purpose**: Find all wallets that sent SOL directly to the token creator
+
+**Process**:
+1. Query all transaction signatures for the creator address
+2. Filter for native SOL transfer instructions
+3. Extract sender → creator → amount tuples
+4. Filter by minimum SOL threshold (≥ 0.001 SOL)
+5. Save to `creator_funders` table
+
+**Key Classes**:
+- `RealTimeCreatorFundingExtractor` - Main extraction engine
+- `DomainResolver` - Caches address domain mappings
+- `RequestRecord` - Tracks RPC request metrics
+
+**RPC Optimization**:
+- Caches creator signatures to avoid re-querying
+- Uses batch RPC calls where possible
+- Implements exponential backoff for rate limiting
+- Records all RPC calls for metrics tracking
+
+**Output Table**: `creator_funders`
+```
+creator_address    - Token creator
+funder_address     - Who funded them
+amount_sol         - Amount sent
+transaction_signature - TX hash
+first_detected_at  - When discovered
+is_cex            - If funder is a known exchange
+fully_analyzed    - 0=pending, 1=complete
+```
+
+### 4.2 Funder Transfer Extraction
+
+**File**: `src/extractors/funder_incoming_extractor.py`
+
+**Purpose**: For each funder, discover where they received their money
+
+**Process**:
+1. For each creator_funder, query their incoming transfers
+2. Identify senders to the funder
+3. Classify senders as:
+   - **CEX accounts** - Known exchange wallets
+   - **INFRA programs** - Automation bots (Jito, Axiom, etc.)
+   - **Unknown** - Unclassified addresses
+4. Save to `funder_incoming_transfers` table
+
+**Cost Control Mechanisms**:
+- `MAX_FRESH_FUNDERS_PER_CREATOR = 10` - Limit new funders processed per creator
+- `MAX_TX_SIGS_PER_FUNDER = 100` - Limit transaction history depth
+- `DEFAULT_CONCURRENCY = 2` - Controlled parallel processing
+- `RPC_COOLDOWN_SECONDS = 1800` - 30-min cooldown between creator scans
+
+**Smart Caching**:
+- Caches previously extracted funders (marked with `fully_analyzed=1`)
+- Short-circuits already-processed addresses
+- Defers additional funder processing if hitting budget constraints
+
+**Output Table**: `funder_incoming_transfers`
+```
+funder_address     - The funder
+sender_address     - Who sent to the funder
+amount_sol         - Amount received
+transaction_signature - TX hash
+block_time         - Blockchain timestamp
+is_cex            - If sender is CEX
+classification    - CEX/INFRA/Unknown
+```
+
+### 4.3 Creator Outgoing Transfer Extraction
+
+**File**: `src/extractors/creator_outgoing_extractor.py`
+
+**Purpose**: Track where creators send their SOL after launch
+
+**Process**:
+1. Background task runs every 12 hours
+2. Scans all creators in `creator_funders`
+3. Extracts outgoing SOL transfers from creator address
+4. Identifies recipient patterns (self-funding, distribution, hoarding)
+
+**Output Table**: `creator_outgoing_transfers`
+```
+creator_address    - Token creator
+recipient_address  - Who they sent SOL to
+amount_sol         - Amount sent
+transaction_signature - TX hash
+block_time         - Blockchain timestamp
+is_self_address    - If recipient is creator-controlled
+```
+
+### 4.4 Infrastructure & CEX Detection
+
+**Automatic Classification**:
+
+**CEX Detection**: `automatic_cex_detection.py`
+- Queries Solscan API for address labels
+- Cross-references against known exchange wallets
+- Marks `is_cex = 1` in database
+
+**INFRA Detection**: Multiple extractors
+- `check_transfers_for_jitotip()` - Detects Jito tip transfers
+- `check_transfers_for_axiom()` - Identifies Axiom MEV-Share
+- `check_transfers_for_debridge()` - Tracks DeBridge interactions
+- `check_transfers_for_meteora()` - Monitors Meteora DLMM pool usage
+
+**Storage**: `creator_tags` table
+```
+creator_address    - Address involved
+tag                - uses_jitotip, uses_axiom, uses_debridge, uses_meteora
+description        - Details about the usage
+amount_sol         - Total amount involved
+first_detected     - When first seen
+updated_at         - Last update time
+```
+
+---
+
+## 5. Network Analysis & Clustering
+
+### 5.1 Atomic Funder Networks
+
+**File**: `src/analysis/cross_funding_network_analyzer.py`
+
+An **atomic funder network** is the minimal set of addresses needed to explain funding relationships:
+
+```
+Sender A → Funder 1 → Creator X
+Sender A → Funder 2 → Creator X
+Sender A → Funder 3 → Creator Y
+```
+
+These three funders form an atomic network because:
+- All share the same sender
+- Together they connect creators
+- Cannot be subdivided without losing connection
+
+**Detection Algorithm**:
+```python
+class CrossFundingClusterAnalyzer:
+    def build_atomic_funder_networks(self):
+        # 1. Group funders by shared senders
+        # 2. Identify connected creators
+        # 3. Create atomic network when:
+        #    - MIN_CREATORS_FOR_ATOMIC_FUNDER_NETWORK met
+        #    - Significant overlap exists
+```
+
+**Output Table**: `atomic_funder_networks`
+```
+network_id         - Unique identifier
+sender_address     - Original source
+funder_addresses   - Array of intermediaries
+creator_addresses  - Array of creators funded
+total_sol          - Total amount distributed
+network_tier       - Risk classification
+is_cex            - If sender is exchange
+```
+
+### 5.2 Cross-Funding Clusters
+
+**Definition**: Groups of creators funded by significantly overlapping funder networks
+
+**Minimum Overlap Criteria**:
+- `MIN_CREATORS_FOR_RECIPIENT_HUB = 3` - At least 3 creators
+- `MIN_OVERLAP_CREATORS = 2` - Share at least 2 common funders
+- `MIN_JACCARD = 0.2` - Jaccard similarity threshold
+
+**Detection**:
+```python
+# Jaccard Similarity = |Shared Funders| / |Union of Funders|
+# Example: Creators X and Y
+# - X funded by: [A, B, C]
+# - Y funded by: [B, C, D]
+# - Shared: [B, C] = 2
+# - Union: [A, B, C, D] = 4
+# - Jaccard = 2/4 = 0.5 ✓ (meets MIN_JACCARD = 0.2)
+```
+
+**Output Table**: `funder_clusters`
+```
+cluster_id         - Unique identifier
+creator_list       - JSON array of creators
+funder_count       - Number of shared funders
+shared_funders     - Overlap details
+risk_multiplier    - Coordinated risk factor (1.0 to 5.0)
+network_tier       - Classification
+detected_at        - When discovered
+```
+
+### 5.3 Network Coordinators
+
+**Definition**: Individual funders who support multiple creators across different networks
 
 **Metrics**:
-- Funder count
-- Token count
-- Outgoing transfer patterns
-- Self-funding intermediates
-- Coordinated creator count
+- **Creator count** - How many different creators has this funder supported?
+- **Network diversity** - Across how many atomic networks?
+- **Risk multiplier** - Higher for CEX funders (due to coordination capability)
 
-**Database**:
-- `creator_funders.creator_address`
-- `creator_outgoing_transfers.creator_address`
-- `creator_self_funding.is_self_funding`
-- `token_analysis.earliest_tx_creator`
+**Coordinator Classification**:
+- `CRITICAL` - Funds 50+ creators
+- `HIGH` - Funds 10-50 creators
+- `MEDIUM` - Funds 3-10 creators
+- `LOW` - Funds 1-2 creators
+
+**Output Table**: `network_coordinators`
+```
+funder_address     - The coordinator
+creator_count      - Total creators funded
+network_count      - Atomic networks involved
+shared_creators_with_others - Coordination metric
+risk_multiplier    - CEX multiplier (2.0 if CEX, 1.0 otherwise)
+detected_at        - When discovered
+```
+
+### 5.4 Coordinated Funder Detection
+
+Real-time computation in `/api/creator-recent-checks`:
+
+For each new token, the system identifies:
+
+**Finding Type 1: Multi-Creator Funder**
+```
+Funder X also funds Y and Z creators
+Risk: Coordination indicator
+Tag: "coordinated_funders_count"
+```
+
+**Finding Type 2: Network Involvement**
+```
+Creator X is part of larger coordinated network
+Creators in cluster: [A, B, C]
+Risk: Part of organized scheme
+Tag: "coordinated_creator_count"
+```
+
+**Finding Type 3: Self-Funding**
+```
+Funder A received money from Sender X
+Funder A sends to Creator X
+Creator X sends back to Sender X
+Risk: Circular money flow
+Tag: "self_funding_intermediates"
+```
 
 ---
 
-## Network Architecture
+## 6. Real-Time Webhook System
 
-### Funding Extraction Pipeline
+### 6.1 Webhook Architecture
 
-#### Step 1: Detect Token Creation
-- WebSocket listener detects new Pump.Fun token
-- Extract creator address from onchain data
+**File**: `src/core/webhook_handler.py`
 
-#### Step 2: Extract Creator Funders
-- Query: Who funded the creator?
-- File: `realtime_creator_funding_extractor.py`
-- Records in: `creator_funders` table
-- Filters: >= 0.001 SOL only
-
-#### Step 3: Extract Funder Sources
-- Query: Where did funders get their money?
-- File: `funder_incoming_extractor.py`
-- Records in: `funder_incoming_transfers` table
-- Classify senders: CEX/INFRA/Unknown
-
-#### Step 4: Extract Creator Outgoing
-- Query: Where does creator send SOL?
-- File: `creator_outgoing_extractor.py`
-- Records in: `creator_outgoing_transfers` table
-- Frequency: Every 12 hours (background scan)
-
-#### Step 5: Build Network Relationships
-- File: `cross_funding_network_analyzer.py`
-- Creates: Coordinated edges, clusters, networks
-- Identifies: Shared funders, coordination patterns
-
-#### Step 6: Generate Findings
-- API: `/api/creator-recent-checks`
-- File: `main.py` (lines 16502-16649)
-- Generates: Findings tags and risk scores
-- Frequency: Real-time on demand
-
----
-
-## Execution Flow & Components
-
-### Main Entry Point: Listener Startup
-
-**File**: `pumpfun_curve_listener.py:1966-1986`
-
-When the listener starts with `python pumpfun_curve_listener.py`, it initializes and spawns **4 background async tasks**:
+Helius webhook endpoint that processes SOL transfer events in real-time:
 
 ```python
-# In PumpFunCurveListener.listen() method:
+@app.route('/helius-webhook', methods=['POST'])
+def handle_helius_webhook():
+    """Process raw Helius webhook events"""
+    1. Validate authentication header
+    2. Extract native SOL transfers from accountData
+    3. Deduplicate by transaction signature
+    4. Filter dust (< 0.001 SOL)
+    5. Queue for async processing
+    6. Return 200 immediately
+```
 
-# Task 1: Creator Watch Manager (polls every 30 seconds)
-asyncio.create_task(self.creator_watch_manager.run_polling_loop(poll_interval=30))
+**Performance**:
+- Processes **1,000+ transactions/second**
+- Per-transaction overhead: **1-2ms**
+- Deduplication: **O(1) instant lookup** via primary key
 
-# Task 2: Live Price Updater (continuous background updates)
+### 6.2 SOL Transfer Filtering
+
+**Extraction Logic**:
+```python
+def extract_system_transfers(tx_metadata):
+    """Extract native SOL transfers"""
+    for instr in tx_metadata['instructions']:
+        if instr['program'] == 'system':
+            # Find transfer amount from preBalances/postBalances
+            transfer_amount = preBalance[dest] - postBalance[dest]
+
+            # Filter dust
+            if transfer_amount >= 0.001:
+                yield (source, dest, transfer_amount)
+```
+
+**Output Table**: `sol_transfers`
+```
+signature          - Transaction ID (PRIMARY KEY)
+slot               - Block slot
+block_time         - Timestamp
+source             - Sender address
+destination        - Receiver address
+lamports           - Raw amount (1 SOL = 1e9 lamports)
+amount_sol         - Converted amount
+received_at        - When webhook received
+processed          - 0=queued, 1=processed
+```
+
+### 6.3 Address Activity Tracking
+
+**File**: `src/core/webhook_handler.py:update_address_activity()`
+
+Maintains real-time activity metrics:
+
+**Metrics Tracked**:
+- **tx_5m, tx_1h, tx_24h** - Transaction counts by timeframe
+- **sol_in_5m, sol_in_1h, sol_in_24h** - Incoming SOL by timeframe
+- **sol_out_5m, sol_out_1h, sol_out_24h** - Outgoing SOL by timeframe
+- **last_seen_at** - Most recent activity timestamp
+- **last_rpc_fetch_at** - When address was scanned
+
+**Output Table**: `address_activity`
+```
+address            - Wallet address (PRIMARY KEY)
+last_seen_at       - Most recent transaction timestamp
+tx_5m, tx_1h, tx_24h - Transaction counts
+sol_in_5m, sol_in_1h, sol_in_24h - Incoming amounts
+sol_out_5m, sol_out_1h, sol_out_24h - Outgoing amounts
+last_processed_at  - When metrics were calculated
+last_rpc_fetch_at  - When full history was pulled
+updated_at         - Record update time
+```
+
+### 6.4 Work Queue & Priority Scheduling
+
+**File**: `src/core/webhook_handler.py:enqueue_work()`
+
+Webhook handler queues high-priority addresses for detailed analysis:
+
+**Priority Calculation**:
+```python
+priority = 0
+if tx_count_5m > threshold: priority += 10  # Very recent activity
+if sol_amount_24h > threshold: priority += 5  # High volume
+if address_is_creator: priority += 15       # Known creator
+if address_is_malicious: priority += 20     # Flagged address
+```
+
+**Output Table**: `work_queue`
+```
+address            - Target address (PRIMARY KEY)
+priority           - Calculated score (higher = earlier processing)
+reason             - Why queued (high_activity, new_creator, etc.)
+next_run_at        - When to process next
+locked_until       - Prevents concurrent processing
+completed_at       - When processing finished
+```
+
+### 6.5 Creator Analysis Queue
+
+**File**: `src/core/webhook_handler.py:queue_for_creator_analysis()`
+
+Webhook integration automatically queues new addresses for deep creator analysis:
+
+```python
+def queue_for_creator_analysis(source_addr, dest_addr):
+    """Queue webhook addresses for analysis"""
+    # Both source and destination get analyzed
+    # Priority: 15.0 (high priority)
+    # Analyzer discovers:
+    #   - Self-funding patterns
+    #   - Circular funding
+    #   - Cross-funding networks
+    #   - Risk scoring
+```
+
+**Worker**: `src/core/webhook_worker.py:process_creator_analysis()`
+
+Background worker processes analysis:
+- **Zero RPC calls** - Uses only database queries
+- **7 analysis queries** - Multi-layer network analysis
+- **Non-blocking** - Returns webhook response before analysis completes
+
+---
+
+## 7. RPC Metrics & Optimization
+
+### 7.1 RPC Metrics Recording
+
+**File**: `src/metrics/rpc_metrics_recorder.py`
+
+Tracks all RPC usage across the system:
+
+```python
+class RPCMetricsRecorder:
+    def record_request(self, method, credits, source_file, latency_ms):
+        """Log RPC call for metrics"""
+        # Stores in rpc_metrics table
+        # Timestamps relative to UK midnight (daily reset)
+        # Segments by: method, source_file, latency ranges
+
+    def get_summary(self):
+        """Returns aggregated daily metrics"""
+        # Total credits used
+        # Per-method breakdown
+        # Per-source-file breakdown
+        # Alert thresholds
+```
+
+**Output Table**: `rpc_metrics`
+```
+id                 - Row identifier
+timestamp          - When request occurred
+method             - RPC method called (getSignaturesForAddress, etc.)
+credits            - Estimated credit cost
+source_file        - Python file that made call
+latency_ms         - Round-trip time
+section            - Component area (extraction, analysis, webhook)
+request_size_bytes - Request payload size
+response_size_bytes - Response payload size
+day_key            - UK date for daily aggregation
+reset_baseline_ts  - Timestamp of last reset
+```
+
+### 7.2 UK Midnight Auto-Reset
+
+**Timezone**: Europe/London
+
+The system automatically resets daily metrics at **UK midnight (00:00 GMT)**:
+
+```python
+def _maybe_auto_reset_at_uk_midnight(self):
+    """Check if day changed in UK time"""
+    current_day = self._uk_day_key()
+    last_day = self._get_state('last_reset_day_key')
+
+    if current_day != last_day:
+        # New day! Reset counters
+        self.reset_daily()
+        self._set_state('last_reset_day_key', current_day)
+```
+
+This enables:
+- **Daily budget tracking** - Fresh RPC quota each day
+- **Usage patterns** - Identify peak activity hours
+- **Cost control** - Reset baseline to measure incremental usage
+
+### 7.3 Credit Calculation
+
+**Helius Credit System**:
+- **Regular RPC**: Baseline cost (1 credit per call minimum)
+- **Batch calls**: Multiplier for batch size
+- **Streaming**: Per-byte cost for large responses
+
+```python
+def _compute_credits(self, method, request_size, response_size, latency):
+    """Calculate estimated credit cost"""
+
+    # Base credit for method
+    base = HELIUS_METHOD_CREDITS.get(method, 1)
+
+    # Streaming penalty (per 1KB of data)
+    if response_size > 1000:
+        streaming_credits = response_size / 1024 * STREAMING_CREDITS_PER_BYTE
+        return base + streaming_credits
+
+    return base
+```
+
+### 7.4 Optimization & Caching
+
+**Smart Caching in Extractor**:
+```python
+# funder_incoming_extractor.py: Cost Control via Caching
+cached_funders = {}  # Results from previous extractions
+fresh_funders_processed = 0
+fresh_funders_skipped_budget = 0
+
+for funder in creator_funders:
+    if funder in cached_funders:
+        # Reuse: 0 RPC cost
+        skip()
+    elif rpc_budget_remaining > threshold:
+        # Process: Incur RPC cost
+        extract_and_cache()
+        fresh_funders_processed += 1
+    else:
+        # Defer: Save for next extraction
+        fresh_funders_skipped_budget += 1
+```
+
+**Component Breakdown**:
+- **Creator Funding Extraction** - 40% of RPC usage
+- **Funder Transfer Extraction** - 45% of RPC usage
+- **Webhook Processing** - 5% of RPC usage
+- **Price Updates** - 10% of RPC usage
+
+**Optimization APIs**:
+- `/api/rpc-savings/dashboard` - Full optimization view
+- `/api/rpc-efficiency/health` - Current health metrics
+- `/api/optimization/efficiency-24h` - 24-hour trends
+
+---
+
+## 8. Database Layer & Schema
+
+### 8.1 Database Architecture
+
+**File Location**: `database/flex_complete_database.db` (SQLite)
+
+**Key Features**:
+- **WAL Mode**: Write-Ahead Logging for concurrent access
+- **Connection Pooling**: Thread-safe database connections
+- **PRAGMA Optimization**: Async mode, journal caching
+- **150+ Tables**: Comprehensive data model
+
+**Primary Tables** (by category):
+
+#### Token Tables
+- `token_analysis` - Token metadata and analysis results (1,700+ records)
+- `token_metadata` - Extended token information
+- `token_movements` - Price and market cap history
+
+#### Funding Tables
+- `creator_funders` - Direct creator funding (43,000+ records)
+- `funder_incoming_transfers` - Funder's funding sources (200,000+ records)
+- `creator_outgoing_transfers` - Creator cash-outs (7,400+ records)
+- `funder_networks` - Atomic funder networks (41,734 records)
+
+#### Network Tables
+- `atomic_funder_networks` - Minimal funding groups
+- `funder_clusters` - Cross-funding clusters (503 records)
+- `network_coordinators` - Individual funder metrics
+- `funding_networks` - Complete network analysis (108 networks)
+- `funding_networks_list` - Network index
+
+#### Analysis Tables
+- `creator_networks` - Coordinated creator detection
+- `creator_self_funding` - Self-funding patterns
+- `coordinated_funders` - Multi-creator funders
+- `creator_tags` - Infrastructure usage markers
+
+#### Webhook Tables
+- `sol_transfers` - Raw webhook transfers
+- `address_activity` - Real-time address metrics
+- `work_queue` - Priority processing queue
+- `creator_analysis_queue` - Background analysis tasks
+- `webhook_seen_signatures` - Deduplication cache
+
+#### Monitoring Tables
+- `rpc_metrics` - RPC usage tracking (14,694+ records)
+- `helius_credits_snapshot` - Helius billing snapshots
+- `listener_stats` - Listener performance metrics
+
+### 8.2 Key Tables In Detail
+
+#### token_analysis (Core token data)
+```sql
+CREATE TABLE token_analysis (
+    mint TEXT UNIQUE PRIMARY KEY,
+
+    -- Basic Info
+    created_at NUM NOT NULL,
+    analyzed_at REAL,
+
+    -- Analysis Results
+    total_txs INT,
+    total_events INT,
+    events_parsed INT,
+
+    -- Risk Metrics
+    rug_probability REAL,
+    risk_level TEXT,  -- CRITICAL, HIGH, MEDIUM, LOW
+    rug_indicator TEXT,
+
+    -- Network Involvement
+    earliest_tx_creator TEXT,  -- Token creator address
+    creator_is_blocked INT,
+    network_risk INT,
+    connected_malicious_count INT,
+    cluster_id TEXT,
+    cluster_name TEXT,
+    cluster_risk_multiplier REAL,
+
+    -- Price Data
+    price_current REAL,
+    price_highest REAL,
+    market_cap_current REAL,
+    market_cap_highest REAL,
+    market_cap_highest_at NUM,
+    price_updated_at NUM,
+    price_source TEXT,
+
+    -- On-Chain Data
+    pool_address TEXT,
+    bonding_curve_pda TEXT,
+    create_tx_signature TEXT,
+
+    -- Post-Migration Analysis
+    post_migration_mint_concentration REAL,
+    post_migration_unique_minters_ratio REAL,
+    post_migration_sell_suppression_ratio REAL,
+    post_migration_coverage REAL
+);
+```
+
+#### creator_funders (Direct funding relationships)
+```sql
+CREATE TABLE creator_funders (
+    creator_address TEXT NOT NULL,
+    funder_address TEXT NOT NULL,
+
+    amount_sol REAL,
+    transaction_signature TEXT,
+    first_detected_at TIMESTAMP,
+
+    is_cex INT,  -- 1 if funder is known exchange
+    fully_analyzed INT,  -- 0=pending, 1=complete extraction
+
+    PRIMARY KEY (creator_address, funder_address)
+);
+```
+
+#### funder_incoming_transfers (Funder's sources)
+```sql
+CREATE TABLE funder_incoming_transfers (
+    funder_address TEXT NOT NULL,
+    sender_address TEXT NOT NULL,
+
+    amount_sol REAL,
+    transaction_signature TEXT,
+    block_time INT,
+
+    is_cex INT,
+    classification TEXT,  -- CEX, INFRA, Unknown
+
+    PRIMARY KEY (funder_address, sender_address, transaction_signature)
+);
+```
+
+#### funder_clusters (Cross-funding groups)
+```sql
+CREATE TABLE funder_clusters (
+    cluster_id TEXT PRIMARY KEY,
+
+    creator_list TEXT,  -- JSON array
+    funder_count INT,
+    shared_funders TEXT,  -- JSON details
+
+    risk_multiplier REAL,  -- 1.0 to 5.0
+    network_tier TEXT,  -- CRITICAL, HIGH, MEDIUM, LOW
+
+    detected_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+```
+
+#### rpc_metrics (RPC usage tracking)
+```sql
+CREATE TABLE rpc_metrics (
+    id INTEGER PRIMARY KEY,
+    timestamp REAL NOT NULL,
+    method TEXT NOT NULL,  -- getSignaturesForAddress, etc.
+    credits INT NOT NULL,
+    source_file TEXT NOT NULL,  -- Python file making call
+    latency_ms INT,
+    section TEXT,  -- extraction, analysis, webhook, price
+    request_size_bytes INT,
+    response_size_bytes INT,
+    day_key TEXT,  -- UK date for daily aggregation
+    reset_baseline_ts REAL
+);
+```
+
+### 8.3 Indexing Strategy
+
+**Primary Keys**: Fast lookup by main entity
+```sql
+PRIMARY KEY (creator_address, funder_address)
+PRIMARY KEY (mint)
+PRIMARY KEY (signature)
+```
+
+**Secondary Indexes**: Fast filtering
+```sql
+CREATE INDEX idx_creator_funders_funder
+    ON creator_funders(funder_address);
+
+CREATE INDEX idx_funder_incoming_sender
+    ON funder_incoming_transfers(sender_address);
+
+CREATE INDEX idx_rpc_metrics_day
+    ON rpc_metrics(day_key, method);
+```
+
+### 8.4 Data Consistency
+
+**Foreign Key Constraints**:
+```sql
+-- Atomic network references funding_networks
+FOREIGN KEY (network_id) REFERENCES funding_networks(network_id)
+
+-- Cluster references contain creator_address with token_analysis.earliest_tx_creator
+-- No explicit FK due to flexibility, but enforced via application logic
+```
+
+**Transaction Integrity**:
+- Insertion operations use transactions
+- Deduplication via PRIMARY KEY constraints
+- Concurrent access managed via WAL mode
+
+---
+
+## 9. Async Processing & Event Flow
+
+### 9.1 Event-Driven Architecture
+
+The system uses multiple async patterns:
+
+#### Pattern 1: Background Tasks (Fire and Forget)
+```python
+# Triggered when listener starts
+asyncio.create_task(self.creator_watch_manager.run_polling_loop())
 asyncio.create_task(self.update_live_prices_background())
-
-# Task 3: Creator Outgoing Transfer Extractor (scans all creators every 12 hours)
 asyncio.create_task(run_outgoing_extractor(interval_seconds=43200))
-
-# Task 4: WebSocket Listener (real-time token detection)
-await self.listen_websocket()
 ```
 
----
-
-### Real-Time Token Detection Flow
-
-**Trigger**: New Pump.Fun migration transaction detected via WebSocket
-
-**File**: `pumpfun_curve_listener.py:1724-1839`
-
-```
-1. WebSocket receives transaction
-   ↓
-2. Parse migration data (line ~1745)
-   - Extract mint address
-   - Extract creator address
-   - Extract creation timestamp
-   - Extract transaction signature
-   ↓
-3. Store token in database (line ~1765)
-   - Add to `tokens` table
-   - Mark as new discovery
-   ↓
-4. Spawn background tasks (line 1830)
-   - Fire-and-forget, don't wait for completion
-   ↓
-   └─→ Background Task Chain (executed concurrently):
-
-       ┌─ STEP 1: Extract Creator Funding (line 1808)
-       │  File: realtime_creator_funding_extractor.py
-       │  Function: extract_funding_for_new_token()
-       │  Purpose: Find all wallets that funded this creator
-       │  Output: Populates creator_funders table
-       │  Time: ~5-30 seconds per creator
-       │
-       ├─ STEP 2: Extract Funder Transfers (line 1816)
-       │  File: funder_incoming_extractor.py
-       │  Function: extract_for_creator()
-       │  Purpose: For EACH funder, find who funded them
-       │  Output: Populates funder_incoming_transfers table
-       │  Time: ~30-120 seconds (scales with funder count)
-       │
-       └─ STEP 3: Rebuild Network Clustering (line 1824)
-          File: cross_funding_network_analyzer.py
-          Function: rebuild_super_clusters_from_funding()
-          Purpose: Analyze relationships, find coordinated funders
-          Output: Updates super_clusters, coordinated_edges tables
-          Time: ~10-60 seconds
-```
-
----
-
-### Key Components & Their Responsibilities
-
-#### 1. **PumpFunCurveListener** (Main Controller)
-**File**: `pumpfun_curve_listener.py`
-
-**Primary Responsibilities**:
-- WebSocket connection to Solana RPC
-- Parse migration transactions
-- Detect new token creation events
-- Spawn background extraction tasks
-- Update live token prices
-- Store tokens in database
-
-**Key Methods**:
-- `listen()` - Entry point, spawns all background tasks
-- `listen_websocket()` - Real-time WebSocket listener
-- `handle_migration()` - Process new token events
-- `update_live_prices_background()` - Price polling (async)
-
----
-
-#### 2. **Creator Funding Extractor**
-**File**: `realtime_creator_funding_extractor.py`
-
-**Function**: `extract_funding_for_new_token(creator_address, created_at, create_tx_sig, mint)`
-
-**What it does**:
-- Queries blockchain: "Who funded this creator?"
-- Uses Helius API or RPC to get all SOL transfers to creator address
-- Filters transfers by timestamp (must be before token creation)
-- Saves funder wallet addresses to database
-
-**Database Output**:
-```
-creator_funders table:
-├─ creator_address: "bwamJzzt..."
-├─ funder_address: "wallet_123..."
-├─ amount_sol: 0.5
-├─ transaction_signature: "tx_hash"
-└─ first_detected_at: timestamp
-```
-
-**Duration**: 5-30 seconds depending on funding complexity
-
----
-
-#### 3. **Funder Incoming Extractor**
-**File**: `funder_incoming_extractor.py`
-
-**Wrapper Function**: `extract_funder_transfers_async(creator_address)` (line 67)
-
-**Internal Function**: `extract_for_creator()` (called for EACH funder)
-
-**What it does**:
-- Takes list of funders from Step 1
-- For EACH funder, queries blockchain: "Who funded this funder?"
-- Finds the SOURCE of the funder's money
-- Applies MINIMUM_SOL = 0.001 threshold (filters dust transfers)
-- Builds incoming transfer chain
-
-**Database Output**:
-```
-funder_incoming_transfers table:
-├─ funder_address: "wallet_123..."
-├─ sender_address: "wallet_456..." (who funded the funder)
-├─ amount_sol: 0.1
-├─ transaction_signature: "tx_hash"
-└─ block_time: timestamp
-```
-
-**Duration**: 30-120 seconds (proportional to funder count)
-
-**Algorithm**:
+#### Pattern 2: Webhook Queue (Event Processing)
 ```python
-# From funder_incoming_extractor.py:51
-MIN_SOL = 0.001  # Filter transfers below 0.001 SOL
+# Helius webhook arrives
+handle_helius_webhook():
+    # Immediately save to sol_transfers
+    # Deduplicate
+    # Enqueue work_queue with priority
+    # Return 200 OK (non-blocking)
 
-For each funder in creator_funders:
-  - Get all incoming transfers to this funder address
-  - Filter: amount_sol >= MIN_SOL
-  - Store sender_address + amount in database
-  - This maps SOURCE → FUNDER relationship
+# Worker processes asynchronously
+webhook_worker.run_worker():
+    while True:
+        work_item = fetch_next_work()
+        if work_item:
+            process_work_item(work_item)
+        await asyncio.sleep(1)
 ```
 
----
+#### Pattern 3: Creator Analysis Queue
+```python
+# Webhook identifies creator
+queue_for_creator_analysis(creator_address):
+    # Insert into creator_analysis_queue
+    # Priority: 15.0
+    # Status: 'queued'
 
-#### 4. **Creator Outgoing Extractor** (Background - Every 12 Hours)
-**File**: `creator_outgoing_extractor.py`
-
-**Spawned at**: Listener startup (line 1983)
-
-**What it does**:
-- Continuous background scanning of all creators
-- Extracts outgoing transfers from creators (where they send SOL after token launch)
-- Scans approximately 1,000 creators per 12-hour cycle
-- Updates "last_scanned" timestamps
-
-**Database Output**:
-```
-creator_outgoing_transfers table:
-├─ creator_address: "creator_123..."
-├─ recipient_address: "wallet_456..."
-├─ amount_sol: 0.05
-└─ transaction_signature: "tx_hash"
+# Worker processes
+process_creator_analysis(creator_address):
+    # Find: Self-funding patterns
+    # Find: Coordinated funders
+    # Find: Network involvement
+    # Cache findings
+    # Mark status: 'completed'
 ```
 
-**Duration**: Runs continuously in background, never blocks main listener
+### 9.2 Creator Watch Manager
 
----
+**File**: `src/core/pumpfun_curve_listener.py`
 
-#### 5. **Creator Watch Manager** (Polling - Every 30 Seconds)
-**File**: `creator_watch_manager.py`
-
-**Spawned at**: Listener startup (line 1977)
-
-**What it does**:
-- Polls watched creators at regular intervals
-- Checks for token launches from tracked addresses
-- Notifies listeners of creator activity
-- Runs async loop without blocking
-
-**Duration**: 30-second intervals
-
----
-
-#### 6. **Network Analyzer**
-**File**: `cross_funding_network_analyzer.py`
-
-**Function**: `rebuild_super_clusters_from_funding()`
-
-**What it does**:
-- Analyzes creator_funders + funder_incoming_transfers data
-- Identifies coordinated funders (shared across multiple creators)
-- Builds network clusters and super-clusters
-- Detects relationships between creators
-
-**Database Output**:
-```
-super_clusters table:
-├─ cluster_id: unique identifier
-├─ member_count: number of creators
-└─ relationship_strength: coordination score
-
-coordinated_edges table:
-├─ funder_address: shared across creators
-├─ creator_1_address
-├─ creator_2_address
-└─ funding_strength: amount coordination
-```
-
-**Duration**: 10-60 seconds
-
----
-
-### Complete Execution Timeline
-
-```
-T=0s      Listener starts
-          ↓
-T=0s      Spawn 4 background tasks (async, non-blocking)
-          │
-          ├─ Task 1: Creator Watch Manager (polls every 30s)
-          ├─ Task 2: Price Updater (continuous background)
-          ├─ Task 3: Outgoing Extractor (runs every 12h)
-          └─ Task 4: WebSocket Listener (real-time, BLOCKING)
-                    ↓ waits for transaction
-
-T=X       Transaction detected via WebSocket
-          ↓
-T=X+0.1s  Parse migration data
-          ↓
-T=X+0.5s  Store token in database
-          ↓
-T=X+0.6s  Spawn background funding tasks (fire-and-forget)
-          │
-          ├─ PARALLEL STEP 1: Creator Funding Extraction
-          │  Duration: 5-30s
-          │  Output: creator_funders table populated
-          │
-          ├─ PARALLEL STEP 2: Funder Transfer Extraction
-          │  Duration: 30-120s (depends on funder count)
-          │  Output: funder_incoming_transfers table populated
-          │
-          └─ PARALLEL STEP 3: Network Clustering
-             Duration: 10-60s
-             Output: super_clusters, coordinated_edges updated
-
-T=X+180s  All background tasks complete
-          Data available for querying via API
-
-T=X+200s+ Tasks complete, listener continues waiting
-          for next WebSocket transaction
-```
-
----
-
-### Component Dependency Graph
-
-```
-PumpFunCurveListener (main entry point)
-    ├─ imports CreatorWatchManager
-    │   └─ polls creator activity every 30s
-    ├─ imports run_outgoing_extractor (async task)
-    │   └─ background scans all creators every 12h
-    ├─ calls extract_funding_for_new_token()
-    │   ├─ File: realtime_creator_funding_extractor.py
-    │   ├─ uses: Helius API / RPC
-    │   └─ outputs: creator_funders table
-    ├─ calls extract_funder_transfers_async()
-    │   ├─ File: funder_incoming_extractor.py
-    │   ├─ uses: RPC for transfer history
-    │   ├─ applies: MIN_SOL = 0.001 threshold
-    │   └─ outputs: funder_incoming_transfers table
-    └─ calls rebuild_super_clusters_from_funding()
-        ├─ File: cross_funding_network_analyzer.py
-        ├─ inputs: creator_funders + funder_incoming_transfers
-        └─ outputs: super_clusters, coordinated_edges tables
-```
-
----
-
-### Task Scheduling Summary
-
-| Task | File | Trigger | Frequency | Duration | Type |
-|------|------|---------|-----------|----------|------|
-| **WebSocket Listener** | `pumpfun_curve_listener.py` | Start | Continuous | Blocking | Real-time |
-| **Creator Funding Extract** | `realtime_creator_funding_extractor.py` | New token | On-demand | 5-30s | Background |
-| **Funder Transfer Extract** | `funder_incoming_extractor.py` | New token | On-demand | 30-120s | Background |
-| **Network Clustering** | `cross_funding_network_analyzer.py` | New token | On-demand | 10-60s | Background |
-| **Creator Watch Polling** | `creator_watch_manager.py` | Start | Every 30s | <5s | Background |
-| **Live Price Updates** | `pumpfun_curve_listener.py` | Start | Continuous | <1s per token | Background |
-| **Creator Outgoing Scans** | `creator_outgoing_extractor.py` | Start | Every 12h | ~1000 creators | Background |
-
----
-
-## SOL Transfer Filtering
-
-### MINIMUM_SOL Threshold
-
-**Value**: 0.001 SOL (~$0.15 USD)
-
-**Location**: `funder_incoming_extractor.py:51`
-
-**Mechanism**: All SOL transfers below threshold are filtered out and NOT recorded in database
-
-### Why Filter?
-
-| Reason | Explanation |
-|--------|-------------|
-| **Dust Transfers** | Network spam, test transactions, minimal amounts |
-| **Fee Precision** | Small system fees or error corrections |
-| **Noise Reduction** | Reduces false positives in suspicious pattern detection |
-| **Performance** | Excludes millions of micro-transfers |
-| **Data Quality** | Focuses analysis on meaningful funding flows |
-
-### Implementation
+Periodically polls creator status:
 
 ```python
-# funder_incoming_extractor.py
-MIN_SOL = 0.001
-
-# During extraction:
-if amount_sol < 0.001:
-    skip_transfer()  # Don't record
-else:
-    save_to_database()  # Record if >= 0.001 SOL
+class CreatorWatchManager:
+    async def run_polling_loop(self, poll_interval=30):
+        while True:
+            creators = get_watched_creators()
+            for creator in creators:
+                update_creator_status(creator)
+                # Update: token_count, last_activity, outgoing_transfers
+            await asyncio.sleep(poll_interval)
 ```
 
-### Impact
+**Metrics Updated**:
+- **Last activity** - Most recent transaction
+- **Token count** - How many tokens created
+- **Outgoing transfers** - Cash-out patterns
+- **Malicious flagging** - If creator was reported
 
-- **Recorded Transfers**: Only >= 0.001 SOL
-- **Database Size**: Filters out 30-40% of micro-transactions
-- **Network Analysis**: Focuses on meaningful flows
-- **Self-Funding Detection**: Works on meaningful amounts only
+### 9.3 Price Update Loop
 
-### Example
+**File**: `src/core/pumpfun_curve_listener.py:update_live_prices_background()`
 
+Continuous price tracking:
+
+```python
+async def update_live_prices_background(self):
+    while True:
+        # For each token in token_analysis
+        tokens = get_recent_tokens(limit=50)
+        for token in tokens:
+            price = fetch_price(token.mint)
+
+            # Update columns
+            token_analysis.price_current = price
+            token_analysis.price_updated_at = now()
+
+            # Check if new peak
+            if price > token_analysis.price_highest:
+                token_analysis.price_highest = price
+                token_analysis.market_cap_highest_at = now()
 ```
-Creator ABC receives from:
-  Funder A: 1.5 SOL    ✅ Recorded (>= 0.001)
-  Funder B: 0.05 SOL   ✅ Recorded (>= 0.001)
-  Funder C: 0.0005 SOL ❌ Filtered (< 0.001)
-  Funder D: 0.15 SOL   ✅ Recorded (>= 0.001)
 
-Total recorded funders: 3
-Total recorded amount: 1.7 SOL
+### 9.4 Creator Outgoing Extractor
+
+**File**: `src/extractors/creator_outgoing_extractor.py`
+
+The system previously used a background task to scan all creators every 12 hours. This has been **replaced with real-time Helius webhook monitoring** for better efficiency and immediate detection.
+
+**Legacy Background Task** (formerly every 12 hours):
+```python
+# Location: creator_outgoing_extractor.py:run_forever(interval_seconds=43200)
+async def run_forever(interval_seconds: int = 3600):
+    ensure_tables()
+    while True:
+        t0 = time.time()
+        try:
+            await scan_once()  # Scan all creators once
+        except Exception as e:
+            print(f"[OUTGOING] ❌ Error: {e}")
+
+        dt = time.time() - t0
+        sleep_for = max(5, interval_seconds - dt)
+        await asyncio.sleep(sleep_for)
 ```
 
----
-
-## Findings Tags
-
-### Complete Reference (8 Total)
-
-All findings tags are automatically generated based on analyzing creator behavior and funding patterns.
-
-#### 1. 🚩 SELF-FUNDING (CRITICAL Risk)
-
-**Meaning**: Creator owns and controls multiple funder intermediaries
-
-**Detection**:
-- `is_self_funding = 1` AND percentage > 50%
-- Query: `SELECT is_self_funding, self_funding_percentage FROM creator_self_funding`
-
-**Indicator**: % of funders that are creator-controlled wallets
-
-**Example**: 24 of 28 funders are creator's own wallets (85%)
-
-**Action**: Investigate pump-and-dump scheme immediately
-
-**Database**: `creator_self_funding` table
-
----
-
-#### 2. ⚠️ CREATOR_FUNDING_CHAIN (HIGH Risk)
-
-**Meaning**: Creator's funders are funded by OTHER creators
-
-**Detection**:
-- Exists in `funding_chains` table with `source_creator`
-- Query: `SELECT COUNT(*) FROM funding_chains WHERE source_creator = ?`
-
-**Indicator**: Multi-layer funding through creator network
-
-**Example**: Funder X was funded by Creator C, who then funds Creator A
-
-**Action**: Check if part of coordinated creator network
-
-**Database**: `funding_chains` table
-
----
-
-#### 3. ⚠️ DISTRIBUTION_PATTERN (HIGH Risk)
-
-**Meaning**: Creator distributes to many recipients (unbalanced pattern)
-
-**Detection**:
-- `recipient_count > (funder_count × 5) AND funder_count < 20`
-- Query: Count distinct recipients vs funders in `creator_outgoing_transfers`
-
-**Indicator**: Suspicious redistribution ratio
-
-**Example**: 10 funders → 85 recipients (8.5:1 ratio)
-
-**Action**: Monitor for follow-up token launches using same funders
-
-**Database**: `creator_outgoing_transfers` table
-
----
-
-#### 4. 🔗 COORDINATED_FUNDERS (HIGH Risk)
-
-**Meaning**: Creator shares funders with multiple other creators
-
-**Detection**:
-- `COUNT(*) > 0` in `coordinated_creator_edges`
-- Query: `SELECT COUNT(*) FROM coordinated_creator_edges WHERE creator_a = ? OR creator_b = ?`
-
-**Indicator**: Shared funding across multiple tokens
-
-**Example**: Funder X funds Creator A, Creator B, and Creator C
-
-**Action**: Map entire coordinated network
-
-**Database**: `coordinated_creator_edges` table
-
----
-
-#### 5. ⚠️ NETWORK_MEMBER (MEDIUM Risk)
-
-**Meaning**: Creator identified as part of detected funding network
-
-**Detection**:
-- Found in `funding_network_members` table
-- Query: `SELECT network_id FROM funding_network_members WHERE funder_address = ?`
-
-**Indicator**: Part of network cluster analysis
-
-**Example**: Member of FUNDERS_14 network
-
-**Action**: Check network cluster statistics
-
-**Database**: `funding_network_members` table
-
----
-
-#### 6. 🤖 AUTOMATION_DETECTED (MEDIUM Risk)
-
-**Meaning**: Creator's funders include automation programs
-
-**Detection**:
-- Funder in `INFRASTRUCTURE_ACCOUNTS` with `category='automation'`
-- Query: `get_account_info(funder)` checks automation category
-
-**Indicator**: Bot-automated distribution
-
-**Example**: Creator funded by Axiom automation bot
-
-**Action**: Check for coordinated distribution patterns
-
-**Database**: `infra_mapping.py` INFRASTRUCTURE_ACCOUNTS dict
-
----
-
-#### 7. 💱 INSTITUTIONAL_BACKED (LOW Risk)
-
-**Meaning**: Creator received funding from known CEX address
-
-**Detection**:
-- Funder in `CEX_ACCOUNTS` mapping
-- Query: `get_cex_info(funder)` returns match
-
-**Indicator**: Institutional/legitimate backing
-
-**Example**: Creator funded by Coinbase, Binance, or Kraken
-
-**Action**: Reduces suspicion, may exclude from suspicious networks
-
-**Database**: `cex_wallets` table or `infra_mapping.py` CEX_ACCOUNTS dict
-
----
-
-#### 8. ✅ CLEAN (NONE Risk)
-
-**Meaning**: No suspicious patterns detected
-
-**Detection**:
-- No other findings generated
-- Logic: `if not any(findings): findings.append('✅ CLEAN')`
-
-**Indicator**: Organic, legitimate funding
-
-**Example**: Normal funder distribution, no coordination
-
-**Action**: Standard monitoring
-
----
-
-### Findings Detection Workflow
-
-#### Step-by-Step Process
-
+**scan_once() Function** (still in code for on-demand scans):
+- Gets all creators from `creator_funders` table
+- For each creator, extracts transaction signatures via `getSignaturesForAddress`
+- Parses outgoing SOL transfers using Helius enhanced API
+- Saves to `creator_outgoing_transfers` table
+- Max 1,000 creators per cycle with rate limiting (8 RPS)
+- Supports concurrent processing (3 concurrent requests)
+
+**Real-Time Replacement**:
+Now handled by Helius webhook integration in `webhook_handler.py`:
+- Receives SOL transfer events in real-time
+- Immediately identifies creator outgoing transfers
+- No polling delay (vs 12-hour lag)
+- Saves to same `creator_outgoing_transfers` table
+- Detects cash-outs instantly
+
+**Identifies**:
+- Where creators send their funds
+- Self-funding loops (sends back to funder)
+- Distribution to new wallets (coordination signal)
+- Cash-outs to exchanges (profiteering signal)
+
+### 9.5 Concurrency Management
+
+**Rate Limiting**:
+```python
+# Webhook worker
+RPC_MIN_PRIORITY = 80  # Skip low-priority items
+RPC_COOLDOWN_SECONDS = 1800  # 30-min wait between creator scans
+MAX_RPC_CALLS_PER_HOUR = 100  # Global cap
+
+# Creator extraction
+MAX_CONCURRENT_RPC = 4  # Parallel requests
+MAX_RETRIES = 3  # Exponential backoff
+RPC_TIMEOUT = 30  # Seconds per request
 ```
-1. CREATOR DETECTED
-   └─ Token creation identified
 
-2. EXTRACT CREATOR FUNDERS
-   ├─ Query creator_funders table
-   ├─ Filter: >= 0.001 SOL only
-   └─ Count funders and amounts
+**Database Locking**:
+```python
+# Prevent duplicate processing
+work_queue.locked_until > now()  # Skip if locked
+work_queue.next_run_at < now()   # Only process due items
 
-3. CHECK SELF-FUNDING
-   ├─ Query creator_self_funding table
-   ├─ Calculate self-funding %
-   └─ If > 50%: 🚩 SELF-FUNDING tag
-
-4. CHECK CREATOR FUNDING CHAIN
-   ├─ Query funding_chains
-   └─ If found: ⚠️ CREATOR_FUNDING_CHAIN tag
-
-5. CHECK DISTRIBUTION PATTERN
-   ├─ Count outgoing recipients
-   ├─ Compare to funder count
-   └─ If high ratio: ⚠️ DISTRIBUTION_PATTERN tag
-
-6. CHECK COORDINATED EDGES
-   ├─ Query coordinated_creator_edges
-   └─ If matches: 🔗 COORDINATED_FUNDERS tag
-
-7. CHECK NETWORK MEMBERSHIP
-   ├─ Query funding_network_members
-   └─ If member: ⚠️ NETWORK_MEMBER tag
-
-8. CHECK CEX/INFRA
-   ├─ For each funder:
-   │  ├─ Check if CEX → 💱 INSTITUTIONAL_BACKED
-   │  ├─ Check if INFRA automation → 🤖 AUTOMATION_DETECTED
-   │  └─ Record classification
-   └─ Adjust risk factors
-
-9. FINAL VERDICT
-   ├─ If any risk tag: Display findings
-   └─ If no tags: Add ✅ CLEAN
-
-10. DISPLAY ON UI
-    ├─ Creator Analysis: Show badges
-    ├─ Dashboard: Color-code by risk
-    └─ API: Return JSON with findings
+# Priority-based fairness
+ORDER BY priority DESC, next_run_at ASC
 ```
 
 ---
 
-## Risk Calculation
+## 10. Configuration & Environment
 
-### Weighted Formula
+### 10.1 Environment Variables
 
-```
-Risk = (Self-Funding % × 0.40) +
-       (Coordinated Score × 0.30) +
-       (Unknown Funder % × 0.20) +
-       (Automation Score × 0.10)
-```
+**Required**:
+```bash
+# Database
+DB_PATH=database/flex_complete_database.db
+RPC_METRICS_DB=database/flex_complete_database.db
 
-### Component Weights
+# Helius RPC
+HELIUS_API_KEY=<api-key>
+HELIUS_MONITORING_API_KEY=<api-key>
+HELIUS_PROJECT_ID=<project-id>
+HELIUS_WEBHOOK_AUTH=Bearer <webhook-token>
 
-| Component | Weight | Reason |
-|-----------|--------|--------|
-| **Self-Funding %** | 40% | Strongest indicator of manipulation |
-| **Coordination Score** | 30% | Network effect and shared funders |
-| **Unknown Funder %** | 20% | Unverified/unclassified sources |
-| **Automation Score** | 10% | Bot activity level |
+# Solana
+SOLANA_RPC_ENDPOINT=https://api.helius.xyz/v0/access_token/...
+RPC_URLS=https://api.helius.xyz/v0/access_token/...
 
-### Adjustment Factors
-
-| Factor | Adjustment | Effect |
-|--------|-----------|--------|
-| **CEX Backing** | -0.20 | Institutional backing reduces risk |
-| **INFRA Automation** | +0.10 | Bot automation increases risk |
-| **Clean Pattern** | 0.10 base | Minimum for truly clean patterns |
-
-### Risk Thresholds
-
-| Tier | Range | Emoji | Action |
-|------|-------|-------|--------|
-| **CRITICAL** | > 0.30 | 🔴 | Immediate investigation |
-| **HIGH** | 0.15 - 0.30 | 🟠 | Monitor closely |
-| **MEDIUM** | 0.05 - 0.15 | 🟡 | Watch for changes |
-| **LOW** | < 0.05 | 🟢 | Normal monitoring |
-
-### Calculation Examples
-
-#### Example 1: Pure Self-Funding (CRITICAL)
-
-```
-Funders: 20 total (18 self-created, 2 external)
-Risk = (90% × 0.40) + (0 × 0.30) + (10% × 0.20) + (0 × 0.10)
-Risk = 0.36 + 0 + 0.02 + 0 = 0.38
-Result: 🔴 CRITICAL (> 0.30)
-Tags: 🚩 SELF-FUNDING (90%)
+# Optional
+SOLSCAN_API_KEY=<key>
+SNS_PRIMARY_ENDPOINT=<endpoint>
 ```
 
-#### Example 2: Coordinated Network (CRITICAL)
+### 10.2 Configuration Files
 
-```
-Funders: 15 total (3 self, 12 coordinated)
-Risk = (20% × 0.40) + (0.80 × 0.30) + (0% × 0.20) + (0.05 × 0.10)
-Risk = 0.08 + 0.24 + 0 + 0.005 = 0.325
-Result: 🔴 CRITICAL (> 0.30)
-Tags: 🔗 COORDINATED_FUNDERS (8 shared), ⚠️ CREATOR_FUNDING_CHAIN
-```
-
-#### Example 3: CEX-Backed (CLEAN)
-
-```
-Funders: 10 total (7 Coinbase, 3 unknown)
-Risk = (0% × 0.40) + (0 × 0.30) + (30% × 0.20) + (0 × 0.10)
-Risk = 0 + 0 + 0.06 + 0 = 0.06
-Risk - 0.20 (CEX adjustment) = -0.14 → Clamped to 0.0
-Result: 🟢 CLEAN (< 0.05)
-Tags: 💱 INSTITUTIONAL_BACKED, ✅ CLEAN
-```
-
----
-
-## CEX Account Mapping
-
-### Overview
-
-**43 CEX addresses** mapped across **20 exchanges**
-
-All CEX accounts are stored in:
-- **Database**: `cex_wallets` table
-- **Code**: `infra_mapping.py` CEX_ACCOUNTS dictionary
-
-### CEX Account Types
-
-| Type | Function | Risk | Impact |
-|------|----------|------|--------|
-| **Hot Wallet** | Active trading, deposits/withdrawals | LOW | Filter from suspicious networks |
-| **Cold Wallet** | Reserve storage | LOW | Rare movements, institutional |
-| **Deposit Account** | Receive user deposits, route to hot wallets | LOW | Expected pattern, exclude |
-| **Withdrawal Account** | Distribute to users after trades | LOW | User payouts, normal |
-| **Trading Account** | Market-making and price discovery | LOW | High frequency expected |
-| **Staking Account** | Hold customer staked SOL and rewards | LOW | Institutional custody |
-| **Treasury** | Long-term strategic holdings | LOW | Low frequency, institutional |
-
-### Exchanges Mapped (20 Total)
-
-#### Tier 1: Major Global Exchanges
-- **Binance** (4 addresses) - Largest exchange, primary liquidity
-- **Coinbase** (12 addresses) - US regulated, institutional custody
-- **Kraken** (2 addresses) - Secure EUR/USD trading
-- **OKX** (2 addresses) - Asian market leader
-
-#### Tier 2: High-Volume Exchanges
-- **Bybit** (2) - Derivatives exchange
-- **Robinhood** (6) - Retail brokerage
-- **KuCoin** (1) - Community exchange
-- **MEXC** (1) - Emerging market
-- **HTX** (1) - Asian exchange (formerly Huobi)
-- **BingX** (1) - Copy trading platform
-
-#### Tier 3: Specialized Services
-- **Moonpay** - Fiat on-ramp
-- **Crypto.com** - Payments & trading
-- **ChangeNow** - Atomic swaps
-- **FixedFloat** - Instant swaps
-- **Revolut** - Fintech payments
-- **Nexo** - Lending platform
-- **Stake.com** - Crypto casino
-
-#### Legacy & Custody
-- **Fireblocks** - Institutional custody (LOW RISK)
-- **FTX** - Historical legacy account (INACTIVE)
-- **Bidget** - Unknown exchange
-
-### Risk Assessment
-
-**Low Risk (All CEX accounts)**:
-- Institutional backing and regulation
-- Known custody procedures
-- Verified onchain addresses
-- High transaction volume
-
-### Integration
-
-CEX funding reduces overall risk score by **-0.20** (adjustment factor)
-
----
-
-## INFRA Account Mapping
-
-### Overview
-
-**59 INFRA programs** tracked across **8 categories**
-
-All INFRA accounts are stored in:
-- **Code**: `infra_mapping.py` INFRASTRUCTURE_ACCOUNTS dictionary
-- **Database**: Referenced via `get_account_info()` function
-
-### INFRA Categories
-
-#### 1. AUTOMATION (55 programs) ⚠️ HIGH PRIORITY
-
-**Function**: Task scheduling, bot operations, automated distribution
-
-**Examples**:
-- **RapidLaunch** - Token launch platform automation
-- **Axiom** - Monitoring & automation infrastructure
-- **Trojan Trade** - Bot automation for trading
-
-**Role in Network**:
-- Distribute SOL to many funders on a schedule
-- Create artificial funding patterns
-- May indicate organized distribution schemes
-
-**Risk Assessment**: MEDIUM
-- Normal: Legitimate automation for user services
-- Suspicious: Coordinated distribution across multiple creators
-
-**Monitoring**: HIGH PRIORITY - Watch for suspicious coordination
-
----
-
-#### 2. BRIDGE (1 program)
-
-**Function**: Cross-chain token transfers and liquidity bridges
-
-**Example**:
-- **deBridge** - Cross-chain token transfer vault
-
-**Role in Network**:
-- Move SOL between Solana and other chains
-- Natural, expected pattern for cross-chain users
-
-**Risk Assessment**: LOW
-- Exclude from suspicious networks
-- Normal ecosystem operation
-
----
-
-#### 3. PROTOCOL (2 programs)
-
-**Function**: Protocol operations, treasury, and governance
-
-**Examples**:
-- **Rollbit Treasury** - Protocol treasury account
-- **SolCasino** - Protocol operations and distribution
-
-**Role in Network**:
-- Long-term holdings and strategic distribution
-- Governance operations
-
-**Risk Assessment**: LOW
-- Institutional pattern
-- Exclude from suspicious networks
-
----
-
-#### 4. SYSTEM (1 program)
-
-**Function**: Core Solana network operations
-
-**Example**:
-- **System Program** - Basic operations, account creation, rent
-
-**Role in Network**:
-- Core infrastructure, affects all accounts
-- Not user-facing
-
-**Risk Assessment**: LOW
-- EXCLUDE - System level operations
-- Not relevant to token funding analysis
-
----
-
-#### 5. VALIDATOR (Multiple)
-
-**Function**: Staking participation and block validation
-
-**Role in Network**:
-- Participate in Solana consensus
-- Receive staking rewards
-
-**Risk Assessment**: LOW
-- Exclude from suspicious networks
-
----
-
-#### 6. RELAYER (Multiple)
-
-**Function**: Message relaying between blockchains
-
-**Role in Network**:
-- Cross-chain communication
-- Bridge operations
-
-**Risk Assessment**: LOW
-- Exclude from suspicious networks
-
----
-
-#### 7. DEX (Multiple)
-
-**Function**: Decentralized exchange liquidity pools and automation
-
-**Role in Network**:
-- Provide trading liquidity
-- Automated market making
-
-**Risk Assessment**: LOW
-- Expected pattern
-- Exclude from suspicious networks
-
----
-
-#### 8. LENDING (Multiple)
-
-**Function**: Lending protocol operations and loan management
-
-**Role in Network**:
-- Loan operations and collateral management
-- Interest distribution
-
-**Risk Assessment**: LOW to MEDIUM
-- Institutional pattern
-- Monitor for unusual distributions
-
----
-
-### Risk Classifications
-
-**Low Risk (Exclude from Analysis)**:
-- Bridge, Protocol, System, Validator, Relayer, DEX, Lending
-- Normal ecosystem operations
-
-**Medium Risk (Monitor)**:
-- Automation: Watch for suspicious distribution patterns
-- Only flag if coordinating with unknown funders
-
-**Investigation Priority**:
-1. 🔴 HIGH: Automation bots creating unusual funding patterns
-2. 🟡 MEDIUM: Unknown category programs with unusual activity
-3. 🟢 LOW: Known infrastructure with expected patterns
-
-### Integration
-
-INFRA automation funding increases overall risk score by **+0.10** (adjustment factor)
-
----
-
-## Network Data
-
-### Funder Networks
-
-**Total Networks**: 41,734
-
-**Coverage**:
-- Primary funders: Tracked
-- Network size: Members counted
-- SOL volume: Total per network
-- Cluster ID: Grouping info
-
-**Key Metrics**:
-- Total Members: Network-wide
-- Total Volume: $31,711.97 SOL
-- Avg Network Size: ~6,485
-- Max Network Size: 6,485
-- Unique Funders: 6,485
-
-### Coordinated Edges
-
-**Type**: Creator-to-creator relationships
-
-**Information**:
-- Creator A address
-- Creator B address (coordinated)
-- Bridge funder connecting them
-- Confidence score (0-1)
-- Detection timestamp
-
-**Purpose**: Show which creators share funding relationships
-
-### Super Clusters
-
-**Total Clusters**: 503
-
-**Information per Cluster**:
-- Super cluster ID
-- Network count in cluster
-- Creator count in cluster
-- Risk level (NORMAL/HIGH/CRITICAL)
-- Creator reuse ratio
-- Creator reuse tags (INDEPENDENT/SUSPICIOUS/COORDINATED)
-- Shared creator count
-
-**Purpose**: Identify multi-creator coordination schemes
-
-### Top Creators
-
-**Total Creators**: 300+
-
-**Ranking by**:
-- Creator address
-- Funder count (how many funded this creator)
-- Token count
-- Self-funding flag (yes/no)
-- Self-funding percentage
-- Self-funding intermediates count
-
-**Use Case**: Focus on prolific creators and identify self-funding schemes
-
----
-
-## Database Schema
-
-### Key Tables
-
-#### creator_funders
-```
-creator_address      TEXT - Token creator
-funder_address       TEXT - Who funded the creator
-amount_sol           REAL - SOL amount
-first_detected_at    TIMESTAMP
-is_cex              BOOLEAN
-cex_exchange        TEXT
-source_type         TEXT - 'original_sender' or 'relay'
-```
-
-#### creator_outgoing_transfers
-```
-creator_address      TEXT - Creator sending SOL
-recipient_address    TEXT - Who receives from creator
-amount_sol           REAL - SOL amount
-transaction_signature TEXT - TX hash
-block_time           INT - Timestamp
-```
-
-#### funding_chains
-```
-source_creator       TEXT - Original creator
-target_creator       TEXT - Recipient creator
-bridge_funder        TEXT - Intermediary
-amount_sol           REAL
-chain_type           TEXT
-```
-
-#### coordinated_creator_edges
-```
-creator_a            TEXT - Creator A
-creator_b            TEXT - Creator B
-bridge_funder        TEXT - Shared funder
-confidence           REAL - 0-1 score
-```
-
-#### creator_self_funding
-```
-creator_address      TEXT - Creator
-is_self_funding      INT - 0 or 1
-self_funding_percentage REAL
-self_funding_intermediates INT
-total_funders        INT
-```
-
-#### funding_network_members
-```
-network_id           TEXT
-funder_address       TEXT - Member address
-member_count         INT
-```
-
-#### super_clusters
-```
-super_cluster_id     TEXT
-network_count        INT
-creator_count        INT
-risk_level           TEXT
-creator_reuse_ratio  REAL
-creator_reuse_tag    TEXT
-```
-
-#### cex_wallets
-```
-cex_address          TEXT - Solana wallet
-exchange_name        TEXT - Exchange name
-wallet_type          TEXT - Hot, Cold, etc.
-confidence_level     INT - 1-5
-discovered_date      TIMESTAMP
-is_active            BOOLEAN
-```
-
----
-
-## Implementation Details
-
-### Code Locations
-
-#### SOL Filtering
-- **File**: `funder_incoming_extractor.py`
-- **Line**: 51
-- **Code**: `MIN_SOL = 0.001`
-
-#### Findings Detection
-- **File**: `main.py`
-- **Endpoint**: `/api/creator-recent-checks`
-- **Lines**: 16502-16649
-
-#### CEX/INFRA Mapping
-- **File**: `infra_mapping.py`
-- **Functions**: `get_account_info()`, `get_cex_info()`
-- **Data**: `CEX_ACCOUNTS`, `INFRASTRUCTURE_ACCOUNTS` dicts
-
-#### Network Analysis
-- **File**: `cross_funding_network_analyzer.py`
-- **Functions**: Build clusters, identify edges
-
-#### Creator Extraction
-- **Files**:
-  - `realtime_creator_funding_extractor.py` (funders)
-  - `funder_incoming_extractor.py` (sources)
-  - `creator_outgoing_extractor.py` (distributions)
-
-### API Endpoints
-
-#### `/api/creator-recent-checks`
-Returns most recently scanned creators with findings
-
-**Response**:
+**migration_settings.json** - Flask app settings
 ```json
 {
-  "recent_checks": [
-    {
-      "creator_address": "...",
-      "token_count": 5,
-      "funder_count": 10,
-      "findings": ["🚩 SELF-FUNDING (85%)", "⚠️ CREATOR_FUNDING_CHAIN"],
-      "risk_level": "CRITICAL",
-      "last_scanned": "2026-02-28 15:30:00"
-    }
-  ]
+    "listen_to_launches": true,
+    "listen_to_price_updates": true,
+    "auto_extract_funding": true
 }
 ```
 
----
+### 10.3 Key Constants
 
-## Helius RPC & Billing
-
-**Status**: ✅ Production Ready
-**Last Updated**: 2026-03-02
-**Documentation**: https://www.helius.dev/docs/billing/credits and https://www.helius.dev/docs/billing/rate-limits
-
-### Overview
-
-Flex uses **Helius** as its primary RPC provider and enhanced API for:
-- Transaction history queries (`getSignaturesForAddress`)
-- Enhanced transaction parsing (`helius_enhanced_addresses_transactions`)
-- Token metadata and funder analysis
-- Backup for public RPC failover
-
-### Your Configuration
-
-```
-Project ID: b5b55487-ccfb-43f8-a2fb-766fbb68f8ce
-API Key: f084fae8-d111-4337-9960-2d9c5e02a726
-RPC Endpoint: https://mainnet.helius-rpc.com/?api-key={API_KEY}
-Enhanced API: https://api-mainnet.helius-rpc.com/v0/transactions?api-key={API_KEY}
-Estimated Plan: Developer (50 req/sec) or higher
-```
-
-### Authentication
-
-**Status**: ✅ API Key validated
-
-Your API key works via:
-1. Direct REST calls with Authorization header
-2. JSON-RPC endpoint with `?api-key=` parameter
-3. Enhanced API for batch operations
-
-**Validation**:
-```bash
-python helius_api_monitor.py          # Returns ✅ API key validated
-python helius_usage_cli.py check       # Alternative check
-```
-
-### Credit Costs (Official Helius Rates)
-
-#### Standard RPC Methods (1 credit each)
-- `getBalance`, `getAccountInfo`, `getMultipleAccounts`
-- `getHealth`, `getVersion`, `getSlot`, `getVoteAccounts`
-- `simulateBundle`, `getPriorityFeeEstimate`
-- **`sendTransaction`: 0 credits** (completely free!)
-
-#### Historical/Archival Methods (10 credits each)
-- `getSignaturesForAddress` - **Used by: creator_outgoing_extractor.py**
-- `getTransaction`
-- `getBlock`, `getBlocks`, `getBlockTime`
-- `getInflationReward`
-- `getSignatureStatuses` (default, no history search)
-
-#### Advanced Methods
-| Method | Cost | Usage |
-|--------|------|-------|
-| `getProgramAccounts` | 10 | Program account lookups |
-| `getProgramAccountsV2` | 1 | ⭐ Paginated alternative (cheaper!) |
-| `getTransactionsForAddress` | 100 | Helius-exclusive (Developer+ only) |
-| `getDAS` (Digital Assets) | 10 | NFT/token metadata |
-| `getSignatureStatuses` (with history) | 10 | Status + history search |
-
-#### Enhanced APIs (100 credits each)
-- `helius_enhanced_addresses_transactions` - **Used by: funder_incoming_extractor.py**
-- `helius_enhanced_transactions_batch`
-- `helius_enhanced_single_transaction` (10 credits)
-
-#### Streaming
-- **3 credits per 0.1 MB** uncompressed data
-- LaserStream gRPC or Enhanced WebSockets
-
-### Rate Limits
-
-Your plan appears to be: **Developer or higher**
-
-| Plan | RPC Requests/sec | DAS/Enhanced/sec |
-|------|------------------|------------------|
-| Free | 10 | 2 |
-| Developer | 50 | 10 |
-| Business | 200 | 50 |
-| Professional | 500 | 100 |
-
-**Your Current Usage**:
-- `creator_outgoing_extractor`: 8 req/sec (safe margin from 50 limit)
-- Concurrency: 3 (conservative)
-- Very healthy usage pattern - no rate limit issues
-
-### Usage in Flex Components
-
-#### 1. creator_outgoing_extractor.py
+**Extraction Parameters**:
 ```python
-# Method: getSignaturesForAddress (10 credits each)
-# Frequency: Hourly scan of 1000 creators
-# Cost: 1000 × 10 = 10,000 credits/hour
+MINIMUM_SOL = 0.001  # Filters 30-40% of micro-transactions
+MAX_PAGES = 100      # Signature history depth
+MAX_CONCURRENT_RPC = 4  # Parallel requests
 
-async def rpc_get_signatures(creator_address):
-    # Fetches creator's outgoing transaction signatures
-    # Uses paginated results with MAX_PAGES_PER_CYCLE = 2
-    method="getSignaturesForAddress",
-    status_code=200,
-    latency_ms=latency
+# Extraction Cost Control
+MAX_FRESH_FUNDERS_PER_CREATOR = 10
+MAX_TX_SIGS_PER_FUNDER = 100
+DEFAULT_CONCURRENCY = 2
+RPC_COOLDOWN_SECONDS = 1800  # 30 minutes
+
+# Clustering Thresholds
+MIN_CREATORS_FOR_RECIPIENT_HUB = 3
+MIN_CREATORS_FOR_ATOMIC_FUNDER_NETWORK = 3
+MIN_JACCARD = 0.2  # Overlap threshold
+MIN_OVERLAP_CREATORS = 2
 ```
 
-Expected daily cost: **240,000 credits** (if running 24/7)
-
-#### 2. funder_incoming_extractor.py
+**Risk Multipliers**:
 ```python
-# Method: helius_enhanced_addresses_transactions (100 credits per batch)
-# Triggered: When analyzing funders for new token
-# Batch size: Up to 100 addresses per request
-
-url = f"https://api-mainnet.helius-rpc.com/v0/transactions?api-key={API_KEY}"
-# Returns enhanced transaction data with parsing
+CEX_FUNDER_MULTIPLIER = 2.0  # CEX funders are 2x risk
+EXCLUDE_CEX_FROM_CLUSTERING = False  # Include CEX in analysis
 ```
-
-Expected cost: **100 credits per funder analyzed** (100+ addresses per batch)
-
-#### 3. funder_helius_extractor.py
-```python
-# Various RPC calls for price/metadata
-# Mix of 1-credit (getBalance) and 10-credit (getTransaction) calls
-# Mode: Realtime (1 page) or Background (5 pages)
-```
-
-### Cost Tracking & Reconciliation
-
-#### Your Instrumentation
-- **File**: `rpc_metrics_recorder.py`
-- **CREDIT_SCHEDULE**: Official Helius rates
-- **Recording**: Every RPC call logged with `record_request()`
-- **Access**: GET `http://localhost:8001/metrics/rpc/summary`
-
-#### Actual Helius Usage
-- **Source**: Helius dashboard
-- **URL**: https://dashboard.helius.dev/rpcs?projectId=b5b55487-ccfb-43f8-a2fb-766fbb68f8ce
-- **Tools**:
-  - `python helius_usage_cli.py dashboard` (opens in browser)
-  - `python helius_usage_cli.py update X Y Z` (record snapshot)
-
-#### Reconciliation Process
-
-Weekly check:
-```bash
-# 1. Validate API key
-python helius_api_monitor.py
-
-# 2. Check dashboard
-python helius_usage_cli.py dashboard
-
-# 3. Record what you see
-python helius_usage_cli.py update 975318 24682 24682
-
-# 4. Compare with your instrumentation
-python analyze_rpc_accuracy.py
-```
-
-This shows:
-- Instrumented credits vs actual usage
-- Possible causes of discrepancies
-- Breakdown by section/method
-
-### Managing the 33,530 Call Discrepancy
-
-**Observed**: 33,530 recorded calls consuming only 3,353 credits
-**Expected**: 33,530 calls × 10 credits = 335,300 credits
-**Reality**: Only ~0.1 credits per call
-
-**Likely Causes**:
-1. **Retries inflating count** - Same operation counted multiple times
-2. **Test/mock mode** - Calls recorded but not executing
-3. **Batch calls** - Different cost structure than expected
-4. **Credits already corrected** - If this is old data
-
-**To Diagnose**:
-```bash
-python analyze_rpc_accuracy.py
-python analyze_rpc_accuracy.py --section creator_outgoing_scan
-```
-
-Shows exact breakdown and identifies root cause.
-
-### Optimization Strategies
-
-#### Immediate Wins
-1. **Use getProgramAccountsV2** (1 credit) instead of getProgramAccounts (10 credits)
-2. **getSignatureStatuses without history** (1 credit) vs with history (10 credits)
-3. **Progressive deepening** - Start with limit=100, max_pages=2 (already implemented!)
-
-#### Medium-term
-- Cache transaction lookups (many scanners query same tx)
-- Deduplicate signature fetches
-- Batch addresses in enhanced API calls (already doing this!)
-
-#### Long-term
-- WebSockets for streaming data (more efficient)
-- LaserStream for high-volume needs
-- Local database mirrors for frequently-accessed data
-
-### Tools & Commands
-
-| Tool | Purpose | Command |
-|------|---------|---------|
-| helius_api_monitor.py | Validate API key | `python helius_api_monitor.py` |
-| helius_usage_cli.py | Manage usage snapshots | `python helius_usage_cli.py check` |
-| analyze_rpc_accuracy.py | Diagnose discrepancies | `python analyze_rpc_accuracy.py` |
-| helius_usage_cli.py | Dashboard link | `python helius_usage_cli.py dashboard` |
-| helius_usage_cli.py | Record usage | `python helius_usage_cli.py update X Y Z` |
-| helius_usage_cli.py | View history | `python helius_usage_cli.py history --limit 10` |
-
-### Monitoring & Alerts
-
-#### Daily Checks
-- Run: `python helius_api_monitor.py`
-- Expected: ✅ API key validated
-- Frequency: Automated (can add to cron)
-
-#### Weekly Reconciliation
-- Open dashboard: `python helius_usage_cli.py dashboard`
-- Compare with: `python analyze_rpc_accuracy.py`
-- Record if changed: `python helius_usage_cli.py update X Y Z`
-
-#### Monthly Review
-- Check CREDIT_SCHEDULE in `rpc_metrics_recorder.py` (updated 2026-03-02)
-- Review optimization opportunities
-- Plan for next month's usage
-
-### Rate Limit Handling
-
-**Current Implementation**:
-- `creator_outgoing_extractor.py`: Exponential backoff with Retry-After
-- Backoff: 2^attempt seconds + jitter
-- Max retries: 3
-- No 429 errors observed (safe 8 req/sec rate)
-
-**If You Hit 429**:
-1. Increase backoff time
-2. Reduce concurrency (currently 3, can go lower)
-3. Reduce OUTGOING_RPS (currently 8, can go to 5)
-4. Contact Helius support if plan limit genuinely exceeded
-
-### Integration with main.py
-
-**API Endpoints for RPC Metrics**:
-- `GET /metrics/rpc/summary` - Overall summary
-- `GET /metrics/rpc/sections` - Breakdown by section
-- `GET /metrics/rpc/methods` - Breakdown by method
-- `POST /metrics/rpc/record` - Record manual call
-- `POST /metrics/rpc/reset` - Reset daily metrics
-
-**Accessed via**:
-- Dashboard at `http://localhost:8001` (separate metrics server)
-- Proxied through `main.py` at `GET /metrics/rpc/*`
-
-### Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| API key invalid | Run `python helius_api_monitor.py` to verify |
-| 429 Rate Limited | Reduce RPS or concurrency in extractor |
-| High discrepancy | Run `python analyze_rpc_accuracy.py` |
-| Missing usage data | `python helius_usage_cli.py dashboard` then update |
-| Retries inflating count | Check logs for retry patterns |
-
-### Related Files
-
-| File | Purpose |
-|------|---------|
-| rpc_metrics_recorder.py | CREDIT_SCHEDULE + instrumentation |
-| creator_outgoing_extractor.py | Helius RPC calls (8 req/sec) |
-| funder_incoming_extractor.py | Enhanced API batch calls |
-| funder_helius_extractor.py | Price/metadata queries |
-| helius_api_monitor.py | API validation |
-| helius_usage_cli.py | CLI tool for usage management |
-| analyze_rpc_accuracy.py | Diagnostic/reconciliation |
-| HELIUS_BILLING_MASTER.md | Complete billing reference |
-| HELIUS_SETUP_SUMMARY.md | Quick setup guide |
-
-### References
-
-**Official Documentation**:
-- Credits: https://www.helius.dev/docs/billing/credits
-- Rate Limits: https://www.helius.dev/docs/billing/rate-limits
-
-**Flex Documentation**:
-- HELIUS_BILLING_MASTER.md - Complete reference
-- HELIUS_SETUP_SUMMARY.md - Quick setup
-- HELIUS_API_AUTHENTICATION.md - Auth details
 
 ---
 
-## Integration Guide
+## 11. Error Handling & Edge Cases
 
-### Dashboard & UI
-- **Creator Analysis Page**: Display findings badges with emojis
-- **Dashboard**: Color-code by risk tier (red/orange/yellow/green)
-- **API**: Return JSON with all findings and risk score
+### 11.1 RPC Failures
 
-### Machine Learning
-- **Feature**: CEX backing (binary institutional signal)
-- **Feature**: Automation score (bot activity level)
-- **Feature**: Self-funding percentage (manipulation indicator)
-- **Feature**: Coordination score (network effect)
+**Strategy**: Graceful degradation with retries
 
-### Alerting Systems
-- 🔴 HIGH: Self-funding > 80%, coordination detected
-- 🟠 MEDIUM: Unknown funders, distribution patterns
-- 🟡 LOW: Automation detected, network membership
-- 🟢 NONE: CEX-backed, clean pattern
+```python
+def get_with_retry(func, max_retries=3, backoff=2):
+    """Exponential backoff retry logic"""
+    for attempt in range(max_retries):
+        try:
+            return func()
+        except RpcException as e:
+            if attempt == max_retries - 1:
+                log_error(f"Failed after {max_retries} attempts")
+                return None
 
-### Monitoring
-- **Real-time**: Findings generation on new tokens
-- **Hourly**: Update coordinated edges and clusters
-- **Daily**: Review top suspicious creators
-- **Weekly**: Update CEX/INFRA mappings
+            wait_time = backoff ** attempt
+            time.sleep(wait_time)
+            continue
+```
+
+**Outcomes**:
+- **Success**: Data extracted and saved
+- **Failure**: `fully_analyzed = 0`, available for retry
+- **Timeout**: Deferred to next cycle
+
+### 11.2 Incomplete Data
+
+**Signature**: When a creator has 1,000+ transaction signatures
+
+```python
+# Only scan first 100 signatures (cost control)
+signatures = get_signatures(creator, limit=100)
+if len(signatures) == 100:
+    # Mark: "Partial extraction - more signatures exist"
+    log_partial_extraction(creator)
+    # Next cycle can retry with different params
+```
+
+**Impact**:
+- Captures major funders (they appear early)
+- May miss small later-stage funders
+- Still produces valid network analysis
+
+### 11.3 Failed Transactions
+
+**Handling**:
+```python
+# Transaction may have multiple instructions
+# Some may fail, some may succeed
+
+for instr in tx['transaction']['message']['instructions']:
+    # Check instruction status in meta
+    if instr_meta['error'] is None:
+        # Process: This instruction succeeded
+        if instr['program'] == 'system':
+            extract_transfer()
+    else:
+        # Skip: This instruction failed
+        continue
+```
+
+### 11.4 Dust & Spam Filtering
+
+**Minimum Thresholds**:
+```python
+# Filter 1: Minimum SOL amount
+if amount_sol < MINIMUM_SOL:  # 0.001
+    skip()  # Filters ~30-40% of transactions
+
+# Filter 2: Deduplication
+if signature in webhook_seen_signatures:
+    skip()  # Prevents duplicate processing
+
+# Filter 3: Invalid addresses
+if not is_valid_solana_address(address):
+    skip()  # Prevents malformed data
+```
+
+### 11.5 Concurrent Processing Conflicts
+
+**Problem**: Multiple processes updating same token
+
+```python
+# Solution: Primary key enforces uniqueness
+creator_funders (creator_address, funder_address)
+    → Duplicate insert throws error
+    → Caller handles gracefully
+
+# Solution: Row locking via locked_until
+work_queue.locked_until = now() + 300
+    → Only one worker processes simultaneously
+    → Auto-release after timeout
+```
+
+---
+
+## 12. Performance Characteristics
+
+### 12.1 Throughput Metrics
+
+**Token Detection**:
+- **Latency**: <500ms from WebSocket event to database insert
+- **Capacity**: Handles all new Pump.Fun launches (est. 500+ per day)
+
+**Funding Extraction**:
+- **RPC calls per token**: 5-50 (depending on funder count)
+- **Cost per token**: 20-200 credits
+- **Processing time**: 2-10 seconds per token
+
+**Network Clustering**:
+- **Computation time**: <1 second for 100,000 edges
+- **Update frequency**: Real-time on new token
+- **Memory**: <100MB for full network graph
+
+### 12.2 Query Performance
+
+**Database Query Times**:
+```sql
+-- Top Funding Hubs (complex join, 8 tables)
+SELECT * FROM top_hubs
+-- Time: ~500ms for 20 results
+-- Uses: Indexes on creator_address, funder_address
+
+-- Creator Details (deep funding analysis)
+SELECT * FROM creator_funding_analysis
+-- Time: ~200ms for single creator
+-- Uses: Primary key lookup
+
+-- Token Analysis (full scan)
+SELECT * FROM token_analysis ORDER BY created_at DESC LIMIT 25
+-- Time: ~50ms
+-- Uses: created_at index
+```
+
+**Optimization Techniques**:
+- **Indexing**: Primary + secondary indexes on hot columns
+- **Filtering**: Push filters to WHERE clause
+- **Joins**: Use primary key joins when possible
+- **Pagination**: LIMIT 25-100 for UI pages
+- **Caching**: Results cached in Python for 5-60 seconds
+
+### 12.3 RPC Credit Efficiency
+
+**Credit Consumption Breakdown**:
+- **Creator funding extraction**: 40% (getSignaturesForAddress)
+- **Funder transfer extraction**: 45% (getSignaturesForAddress x funder count)
+- **Webhook processing**: 5% (real-time transfers)
+- **Price updates**: 10% (various APIs)
+
+**Optimization Savings**:
+- **Creator funders cache**: Skip 60-70% of extractors (cached)
+- **Batch calls**: 2-3 calls vs 10-20 individual
+- **Smart defer**: Skip 80-90% of secondary funders
+- **Result**: ~27K credits/month for 100 active creators
+
+### 12.4 Memory Usage
+
+**Per-Process**:
+- **Flask app**: 150-200 MB (with route caches)
+- **Listener**: 100-150 MB (with live prices)
+- **Webhook worker**: 50-100 MB (minimal state)
+- **Extractor**: 200-300 MB (paginated results)
+
+**Database**:
+- **File size**: 3-5 GB (150+ tables, 1M+ records)
+- **Connection pool**: 5-10 active connections
+- **Cache**: SQLite query plan cache (~10 MB)
+
+---
+
+## 13. Extending the System
+
+### 13.1 Adding New Funding Sources
+
+**Goal**: Track funding from a new program (e.g., Magic Eden Launchpad)
+
+**Steps**:
+
+1. **Identify the program**
+   ```python
+   # Find program ID
+   MAGICEDEN_LAUNCHPAD = "magic4sxZXvDJIVHBzZMLmKqkW9gsx6gVWYVx3qKfv"
+   ```
+
+2. **Create extractor class**
+   ```python
+   # src/extractors/magiceden_launchpad_extractor.py
+   class MagicEdenExtractor:
+       def extract_for_creator(self, creator_address):
+           # Query: Who funded via Magic Eden?
+           # Save to: funder_incoming_transfers (classification="MAGICEDEN")
+   ```
+
+3. **Register in listener**
+   ```python
+   # src/core/pumpfun_curve_listener.py
+   from src.extractors.magiceden_launchpad_extractor import MagicEdenExtractor
+
+   # Call after creator_funders extraction
+   magiceden_extractor.extract_for_creator(creator)
+   ```
+
+4. **Update UI**
+   ```python
+   # src/utils/infra_mapping.py
+   INFRA_PROGRAMS['magic_eden'] = {
+       'name': 'Magic Eden Launchpad',
+       'color': '#FF6D00'
+   }
+   ```
+
+### 13.2 Adding New Risk Detection Rules
+
+**Goal**: Flag creators that sell their tokens immediately
+
+**Steps**:
+
+1. **Create detection function**
+   ```python
+   # src/analysis/risk_detection.py
+   def detect_quick_selloff(creator_address, token_mint):
+       """Check if creator dumped their tokens"""
+       outgoing = get_creator_transfers(creator_address)
+       token_balance = get_token_balance(creator_address, token_mint)
+
+       if token_balance == 0 and len(outgoing) > 0:
+           return {
+               'finding': 'quick_selloff',
+               'risk_level': 'CRITICAL',
+               'description': 'Creator immediately sold token'
+           }
+   ```
+
+2. **Integrate with findings**
+   ```python
+   # src/core/main.py:api_creator_recent_checks()
+   findings = []
+
+   # Existing findings...
+   findings.extend(detect_coordinated_funders(...))
+
+   # New findings
+   findings.extend(detect_quick_selloff(...))
+
+   return jsonify({'findings': findings})
+   ```
+
+3. **Display in UI**
+   ```html
+   <!-- src/core/main.py HTML_TEMPLATE -->
+   <div class="finding" style="border-left: 3px solid #ef4444;">
+       <strong>Quick Selloff</strong>
+       Creator sold tokens immediately after launch
+   </div>
+   ```
+
+### 13.3 Adding New Visualization Pages
+
+**Goal**: Create a "Funder Network Graph" page
+
+**Steps**:
+
+1. **Create Flask route**
+   ```python
+   # src/core/main.py
+   @app.route('/funder-graph/<funder_address>')
+   def funder_graph_view(funder_address: str):
+       """Visualize funder's network"""
+       funder = get_funder_data(funder_address)
+       creators = get_creators_funded_by(funder_address)
+       senders = get_senders_to_funder(funder_address)
+
+       return render_template('funder_graph.html', {
+           'funder': funder,
+           'creators': creators,
+           'senders': senders
+       })
+   ```
+
+2. **Create template**
+   ```html
+   <!-- templates/funder_graph.html -->
+   <div id="graph-container"></div>
+
+   <script src="/static/d3.min.js"></script>
+   <script>
+       // D3 visualization code
+       const nodes = [
+           {id: senders, type: 'sender'},
+           {id: funder, type: 'funder'},
+           {id: creators, type: 'creator'}
+       ];
+
+       // Render force-directed graph
+       d3.force()...
+   </script>
+   ```
+
+3. **Add navigation button**
+   ```python
+   # Update main.py HTML_TEMPLATE
+   '<a href="/funder-graph/XXX">View Network Graph</a>'
+   ```
+
+### 13.4 Adding New Data Exports
+
+**Goal**: Export funding analysis as CSV
+
+**Steps**:
+
+1. **Create export function**
+   ```python
+   # src/utils/export.py
+   def export_creator_funding_csv(creator_address):
+       """Export creator's funding network"""
+       rows = []
+
+       funders = get_creator_funders(creator_address)
+       for funder in funders:
+           senders = get_senders_to_funder(funder['funder_address'])
+           for sender in senders:
+               rows.append({
+                   'creator': creator_address,
+                   'funder': funder['funder_address'],
+                   'sender': sender['sender_address'],
+                   'amount_sol': sender['amount_sol'],
+                   'timestamp': sender['block_time']
+               })
+
+       return to_csv(rows)
+   ```
+
+2. **Create endpoint**
+   ```python
+   # src/core/main.py
+   @app.route('/api/creator-funding-export/<creator_address>')
+   def api_creator_funding_export(creator_address: str):
+       """Export funding as CSV"""
+       csv_data = export_creator_funding_csv(creator_address)
+       return Response(csv_data, mimetype='text/csv')
+   ```
+
+3. **Add UI button**
+   ```html
+   <a href="/api/creator-funding-export/ADDRESS" download>
+       📥 Export as CSV
+   </a>
+   ```
+
+### 13.5 Adding New Monitoring Alerts
+
+**Goal**: Alert when a funder suddenly increases activity
+
+**Steps**:
+
+1. **Define alert condition**
+   ```python
+   # src/monitoring/alert_rules.py
+   def alert_sudden_activity_spike(funder_address):
+       """Check if funder's activity increased 10x"""
+       activity_24h_old = get_activity_before(funder_address, days=1)
+       activity_24h_new = get_activity_last_24h(funder_address)
+
+       if activity_24h_new > activity_24h_old * 10:
+           return {
+               'alert_type': 'ACTIVITY_SPIKE',
+               'funder': funder_address,
+               'old_activity': activity_24h_old,
+               'new_activity': activity_24h_new,
+               'severity': 'HIGH'
+           }
+   ```
+
+2. **Store alert**
+   ```python
+   # src/monitoring/alerts.py
+   def create_alert(alert_dict):
+       conn = sqlite3.connect(DB_PATH)
+       conn.execute("""
+           INSERT INTO monitoring_alerts
+           (funder_address, alert_type, severity, data, created_at)
+           VALUES (?, ?, ?, ?, ?)
+       """, (alert_dict['funder'], alert_dict['alert_type'],
+             alert_dict['severity'], json.dumps(alert_dict), time.time()))
+       conn.commit()
+   ```
+
+3. **Display in UI**
+   ```python
+   # src/core/main.py
+   @app.route('/api/alerts')
+   def api_alerts():
+       """Get active alerts"""
+       alerts = get_recent_alerts(hours=24)
+       return jsonify({'alerts': alerts})
+   ```
 
 ---
 
 ## Summary
 
-### Coverage Statistics
-| Category | Count | Status |
-|----------|-------|--------|
-| Funder Networks | 41,734 | ✅ Complete |
-| Coordinated Edges | 500+ | ✅ Sampled |
-| Super Clusters | 503 | ✅ Complete |
-| Top Creators | 300+ | ✅ Ranked |
-| CEX Wallets | 43 | ✅ Mapped (20 exchanges) |
-| INFRA Programs | 59 | ✅ Tracked (8 categories) |
-| Findings Tags | 8 | ✅ Complete with detection logic |
-
-### Key Takeaways
-
-✅ **Complete Three-Layer Model**
-- Sender → Funder → Creator flow fully documented
-- Risk indicators identified for each layer
-- Database tables mapped for each role
-
-✅ **SOL Filtering Strategy**
-- MINIMUM_SOL = 0.001 SOL threshold applied
-- Filters dust transfers, reduces noise 30-40%
-- Focuses analysis on meaningful funding flows
-
-✅ **Comprehensive Findings System**
-- 8 findings tags with complete detection logic
-- Risk levels from CRITICAL to CLEAN
-- Automatic generation via database queries
-
-✅ **Robust Risk Calculation**
-- Weighted formula (40/30/20/10)
-- Adjustment factors for CEX and INFRA
-- Thresholds tied to specific actions
-
-✅ **Production Ready**
-- All documentation in single file
-- Code locations and queries provided
-- Integration examples included
-
----
-
-## RPC Calls & External API Integration
-
-### Overview
-
-The Flex system makes RPC calls to the Solana blockchain at multiple points to extract funding data. There are two main RPC providers used:
-
-1. **Solana Public RPC**: `https://api.mainnet-beta.solana.com`
-2. **Helius RPC** (optional, faster): `https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}`
-
-### RPC Call Status
-
-**✅ ACTIVE IN MAIN LISTENER** (automatic, production use):
-- `getTransaction` - Fetch transaction details
-- `getSignaturesForAddress` - List address transactions
-- `getAccountInfo` - Get account balances
-- Helius `/v0/addresses/{address}/transactions` - Fast transaction history (when API key set)
-- Helius `/v0/transactions` - Batch transaction processing (background 12h scan)
-
-**⚠️ SECONDARY** (on-demand, API endpoint only):
-- `funder_helius_extractor.py` - User-triggered via `/funder-analysis` endpoint
-
-**❌ ARCHIVED** (legacy, not called in main listener):
-- `pump_fun_analyzer.py` - Legacy analysis script
-- `pump_fun_post_migration_analyzer.py` - Legacy analysis script
-
----
-
-### Primary RPC Methods Used
-
-#### 1. **getTransaction**
-**Purpose**: Fetch full transaction details including inner instructions and token transfers
-
-**Used in**:
-- `pumpfun_curve_listener.py:622` - Extract pool from migration tx
-- `pumpfun_curve_listener.py:708` - Fetch creator from migration
-- `pumpfun_curve_listener.py:1742` - Parse new token migration
-- `realtime_creator_funding_extractor.py:421` - Extract creator funding
-- `realtime_creator_funding_extractor.py:1490` - Batch transaction fetching
-- `funder_incoming_extractor.py:525` - Get funder transfer details
-- `main.py:7798` - API endpoint transaction lookup
-- `main.py:12587` - Debug endpoint
-
-**Cost**: 1 RPC call per transaction
-**Data extracted**:
-- SOL transfers
-- Token transfers
-- Inner instructions
-- Account interactions
-
-**Code Example 1** - `pumpfun_curve_listener.py:619-626`
-```python
-payload = {
-    "jsonrpc": "2.0",
-    "id": 1,
-    "method": "getTransaction",
-    "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
-}
-
-data = await self._post_rpc_with_fallback(payload)
-if not data or "result" not in data or not data["result"]:
-    print(f"[MINT] Transaction not found after retries: {signature}")
-```
-
-**Code Example 2** - `realtime_creator_funding_extractor.py:418-427`
-```python
-async def get_transaction(self, signature: str) -> Optional[Dict]:
-    """Get transaction with RPC failover"""
-    payload = {
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "getTransaction",
-        "params": [
-            signature,
-            {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}
-        ]
-    }
-    result = await self._post_rpc(payload)
-    if result and "result" in result:
-        tx = result.get("result")
-        if tx is not None:
-            return tx
-    return None
-```
-
----
-
-#### 2. **getSignaturesForAddress**
-**Purpose**: Get all transaction signatures for an address (paginated)
-
-**Used in**:
-- `realtime_creator_funding_extractor.py:375` - Get all creator transactions
-- `realtime_creator_funding_extractor.py:785` - List funder transactions
-- `funder_incoming_extractor.py:408` - Get funder transaction history
-- `creator_outgoing_extractor.py:335` - Get creator outgoing transactions
-
-**Cost**: 1 RPC call per 1,000 signatures returned (paginated in 1000-sig chunks)
-**Parameters**:
-- `before`: Pagination cursor
-- `limit`: 1000 (max per call)
-- `commitment`: "finalized"
-
-**Data extracted**: Transaction signatures and block time
-
-**Code Example 1** - `realtime_creator_funding_extractor.py:371-395`
-```python
-# Paginated loop to get all signatures
-signatures = []
-before = None
-
-while True:
-    payload = {
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "getSignaturesForAddress",
-        "params": [
-            creator,
-            {
-                "limit": limit,
-                **({"before": before} if before else {})
-            }
-        ]
-    }
-
-    result = await self._post_rpc(payload)
-    if not result or "result" not in result:
-        break
-
-    sigs = result.get("result", [])
-    if not sigs:
-        break
-
-    signatures.extend([sig["signature"] for sig in sigs])
-    before = sigs[-1]["signature"]  # Continue pagination
-```
-
-**Code Example 2** - `funder_incoming_extractor.py:404-414`
-```python
-def get_signatures_for_address_rpc(address: str, limit: int = 1000) -> List[str]:
-    payload = {
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "getSignaturesForAddress",
-        "params": [address, {"limit": int(limit)}],
-    }
-    data = _rpc_call(payload, timeout=20.0)
-    if not data or "result" not in data or not isinstance(data["result"], list):
-        return []
-    return [r.get("signature") for r in data["result"]
-            if isinstance(r, dict) and r.get("signature")]
-```
-
-**Code Example 3** - `creator_outgoing_extractor.py:330-346`
-```python
-async def rpc_get_signatures(session: aiohttp.ClientSession, address: str, limit: int = 25) -> List[dict]:
-    """Fetch recent signatures for a creator address"""
-    payload = {
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "getSignaturesForAddress",
-        "params": [address, {"limit": limit}]
-    }
-    try:
-        async with session.post(RPC_HTTP, json=payload,
-                               timeout=aiohttp.ClientTimeout(total=10)) as resp:
-            if resp.status != 200:
-                return []
-            data = await resp.json()
-            return data.get("result") or []
-    except Exception as e:
-        print(f"[OUTGOING] ⚠️ rpc_get_signatures error: {e}")
-        return []
-```
-
----
-
-#### 3. **getAccountInfo**
-**Purpose**: Fetch raw account data for a specific address
-
-**Used in**:
-- `pumpfun_curve_listener.py:894` - Get SOL vault balance
-- `pumpfun_curve_listener.py:977` - Get WSOL vault balance
-
-**Cost**: 1 RPC call per account
-**Data extracted**: Account balance, owner, data
-
-**Code Example** - `pumpfun_curve_listener.py:890-902`
-```python
-# Get account info with jsonParsed to extract the owner
-acct_payload = {
-    "jsonrpc": "2.0",
-    "id": 1,
-    "method": "getAccountInfo",
-    "params": [token_account_addr, {"encoding": "jsonParsed"}]
-}
-
-try:
-    acct_data = await self._post_rpc_with_fallback(acct_payload, timeout=5)
-    if acct_data and "result" in acct_data and acct_data["result"]:
-        account = acct_data["result"]
-        value = account.get("value", {})
-        # Extract balance and owner from account data
-        balance = value.get("lamports", 0) / 1e9  # Convert to SOL
-```
-
----
-
-### Secondary RPC Calls (Helius Enhanced API)
-
-#### Helius `/v0/addresses/{address}/transactions` Endpoint
-**Purpose**: Enhanced transaction history with parsed instructions (faster than standard RPC)
-
-**Used in**:
-- `realtime_creator_funding_extractor.py:1015-1028` - Creator transaction enrichment
-- `realtime_creator_funding_extractor.py:1871-1872` - Batch creator scanning
-
-**Cost**: Per API plan (typically 1 call per address)
-**Parameters**:
-- `api-key`: {HELIUS_API_KEY}
-- `limit`: 100 (max per page)
-- `sort-order`: desc
-- `commitment`: finalized
-
-**Data extracted**:
-- Parsed transfer instructions
-- Token metadata
-- Domain/NFT information
-- Account interactions
-
-**Code Example** - `realtime_creator_funding_extractor.py:1014-1039`
-```python
-# Helius Enhanced API for faster transaction enrichment
-url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{creator}/transactions"
-
-page_num = 0
-before_signature = None
-
-while True:
-    page_num += 1
-
-    # Build URL with query parameters
-    query_url = f"{url}?api-key={HELIUS_API_KEY}&limit=100&sort-order=desc&commitment=finalized"
-    if before_signature:
-        query_url += f"&before={before_signature}"
-
-    try:
-        print(f"[REALTIME_FUNDING] [PAGE {page_num}] RPC CALL #{page_num}...", flush=True)
-
-        async with self.session.get(
-                query_url,
-                timeout=aiohttp.ClientTimeout(total=30)
-            ) as resp:
-            # Process response and continue pagination
-            ...
-```
-
----
-
-#### Helius `/v0/transactions` Endpoint
-**Purpose**: Batch fetch enriched transaction data
-
-**Used in**:
-- `realtime_creator_funding_extractor.py:1885-1890` - Batch get detailed transfers
-
-**Cost**: Per API plan
-**Data extracted**: Full parsed transaction details
-
-**Code Example** - `creator_outgoing_extractor.py:357-375`
-```python
-# Helius batch endpoint for parsing multiple transactions
-body = {"transactions": sigs}
-max_retries = 3
-backoff_times = [0.5, 1.0, 2.0]
-
-for attempt in range(max_retries):
-    try:
-        async with session.post(HELIUS_ENHANCED, json=body,
-                               timeout=aiohttp.ClientTimeout(total=20)) as resp:
-            if resp.status == 429:
-                if attempt < max_retries - 1:
-                    sleep_time = backoff_times[attempt]
-                    print(f"[OUTGOING] Rate limited (429), retry in {sleep_time}s", flush=True)
-                    await asyncio.sleep(sleep_time)
-                    continue
-            elif resp.status == 200:
-                return await resp.json()
-    except Exception as e:
-        print(f"[OUTGOING] Error: {e}")
-```
-
----
-
-### RPC Call Locations by Component
-
-#### 1. **PumpFunCurveListener** (pumpfun_curve_listener.py)
-
-**Startup/Connection**:
-- WebSocket connection to Helius or Solana RPC (line 271)
-- Fallback to public Solana RPC if Helius unavailable
-
-**Token Detection** (when migration detected):
-- `getTransaction` (line 622) - Extract initial pool from migration TX
-- `getTransaction` (line 708) - Fetch creator address from migration
-- `getAccountInfo` (line 894) - Get SOL vault balance from pool
-- `getAccountInfo` (line 977) - Get WSOL vault balance from pool
-- `getTransaction` (line 1742) - Parse latest migration transaction
-
-**Total RPC calls per token**: 5 calls
-**Timing**: ~2-5 seconds total
-**Purpose**: Extract creator, mint, and price information
-
----
-
-#### 2. **Creator Funding Extractor** (realtime_creator_funding_extractor.py)
-
-**Entry**: `extract_funding_for_new_token(creator_address, created_at, create_tx_sig, mint)`
-
-**RPC Calls**:
-1. `getSignaturesForAddress` (line 375) - Get all creator SOL transfers
-   - Multiple calls if >1000 signatures (pagination)
-   - Cost: 1 per 1000 signatures
-
-2. `getTransaction` (line 421) - Fetch full details per signature
-   - Cost: 1 per transaction found
-
-3. **OR** Helius Enhanced API (line 1015-1028)
-   - Single call to get creator transactions with parsing
-   - Cost: 1 per creator
-   - Much faster than RPC method #1 + #2
-
-**Alternative Path** (Helius batch):
-- POST to `/v0/transactions` (line 1885) - Get enriched data for multiple TXs
-
-**Total RPC calls per creator**:
-- Pure RPC: N (where N = number of creator transactions)
-- Helius Enhanced: 1 + possibly batch calls for detailed parsing
-
-**Timing**: 5-30 seconds depending on creator activity
-**Purpose**: Identify all funders who sent SOL to creator before token launch
-
----
-
-#### 3. **Funder Incoming Extractor** (funder_incoming_extractor.py)
-
-**Entry**: `extract_for_creator()` (called for each creator)
-
-**RPC Calls**:
-1. `getSignaturesForAddress` (line 408) - Get all funder transactions
-   - Called for EACH funder from creator_funders table
-   - Multiple paginated calls if >1000 signatures
-   - Cost: 1 per 1000 signatures per funder
-
-2. `getTransaction` (line 525) - Fetch full transaction details
-   - Cost: 1 per transaction for each funder
-
-**OR Helius Transactions** (line 328):
-- `get_transactions_helius(address, limit=100, max_pages=1)`
-- Fetches up to 100 transactions per Helius call
-- Much faster parsing
-
-**Total RPC calls per creator**:
-- Pure RPC: Sum of (N_funder_transactions for each funder)
-- Helius: 1 per funder + potential batch calls
-
-**Cost Scale**:
-- Small creator (10 funders, 50 transfers each): ~10-500 calls
-- Large creator (100 funders, 100 transfers each): ~100-10,000 calls
-
-**Timing**: 30-120 seconds depending on funder network complexity
-**Purpose**: For each creator funder, find the SOURCE of their money
-
----
-
-#### 4. **Creator Outgoing Extractor** (creator_outgoing_extractor.py)
-
-**Entry**: `run_outgoing_extractor(interval_seconds=43200)` (background, every 12 hours)
-
-**RPC Calls**:
-1. `getSignaturesForAddress` (line 335) - Get all creator outgoing transactions
-   - Cost: 1 per 1000 signatures per creator
-
-2. Helius Enhanced API (line 363) - Parse transaction data
-   - POST to Helius endpoint for enriched data
-   - Cost: Per API plan
-
-**Total RPC calls per creator**: 1-5 (paginated)
-**Timing per creator**: ~1-2 seconds
-**Total per 12h cycle**: ~1000-2000 creators = 2000-5000 RPC calls
-
-**Purpose**: Track creator outgoing transfers (where they send SOL after launch)
-
----
-
-### RPC Call Summary Table
-
-| Component | RPC Method | Calls/Trigger | Cost | Purpose |
-|-----------|-----------|---------------|------|---------|
-| **Listener** | getTransaction | 5 per token | 5 RPC calls | Extract creator & price |
-| **Listener** | getAccountInfo | 2 per token | 2 RPC calls | Get vault balances |
-| **Creator Funding** | getSignaturesForAddress | 1-10 per creator | Variable | List creator TXs |
-| **Creator Funding** | getTransaction | 1 per TX | N TXs × 1 | Parse each TX |
-| **Creator Funding** | Helius Enhanced | 1 per creator | 1 API call | Fast parsing |
-| **Funder Incoming** | getSignaturesForAddress | 1-100+ per creator | Variable | List funder TXs |
-| **Funder Incoming** | getTransaction | 1 per TX | Sum(N) TXs | Parse each TX |
-| **Creator Outgoing** | getSignaturesForAddress | 1-5 per creator | Variable | List outgoing TXs |
-| **Creator Outgoing** | Helius Enhanced | 1 per creator | 1 API call | Parse outgoing |
-
----
-
-### RPC Cost Analysis
-
-**New Token (1 token detected)**:
-- Listener: 5-7 RPC calls (fixed)
-- Creator Funding: 1 Helius call OR 10-50 RPC calls
-- Funder Incoming: 50-500 RPC calls (depends on funder count)
-- **Total**: 56-557 RPC calls
-
-**With Helius API (recommended)**:
-- Listener: 5-7 RPC calls
-- Creator Funding: 1 Helius call
-- Funder Incoming: 1-2 Helius calls + 10-20 RPC calls
-- **Total**: 17-30 RPC calls (much more efficient)
-
-**12-Hour Creator Outgoing Scan** (1000 creators):
-- Pure RPC: 1000-5000 RPC calls
-- Helius: 1000 Helius API calls + batch parsing
-
----
-
-### Active RPC Flow in Listener
-
-**When listener starts** (`python pumpfun_curve_listener.py`):
-
-```
-listen() spawns 4 async background tasks:
-
-1. Creator Watch Manager (Every 30 seconds)
-   └─ getSignaturesForAddress ✅
-   └─ getTransaction ✅
-
-2. Live Price Updater (Continuous)
-   └─ getTransaction ✅
-
-3. Creator Outgoing Extractor (Every 12 hours)
-   └─ getSignaturesForAddress ✅
-   └─ Helius /v0/transactions batch ✅
-
-4. WebSocket Listener (Real-time, blocking)
-   └─ Waits for token detection
-      └─ When token detected:
-         ├─ getTransaction (3×) ✅
-         ├─ getAccountInfo (2×) ✅
-         └─ Spawn 3 background tasks:
-            ├─ extract_funding_for_new_token()
-            │  ├─ getSignaturesForAddress ✅
-            │  ├─ getTransaction ✅
-            │  └─ Helius /v0/addresses/tx ✅ (if key available)
-            │
-            ├─ extract_funder_transfers_async()
-            │  ├─ getSignaturesForAddress ✅ (per funder)
-            │  └─ getTransaction ✅ (per transaction)
-            │
-            └─ update_network_clustering_async()
-               └─ Database only (no RPC)
-```
-
-**RPC Calls per New Token**:
-- Listener detection: 5 calls (getTransaction ×3, getAccountInfo ×2)
-- Creator funding: 10-50 calls (or 1-2 Helius if available)
-- Funder incoming: 50-500+ calls (scales with funder network)
-- **Total: 65-555 calls** (or 17-30 with Helius)
-
----
-
-### Configuration
-
-**File**: `pumpfun_curve_listener.py:268-279`
-
-```python
-HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
-HELIUS_RPC_WS = f"wss://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "wss://api.mainnet-beta.solana.com/"
-RPC_HTTP = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}" if HELIUS_API_KEY else "https://api.mainnet-beta.solana.com"
-
-RPC_URLS = [
-    "https://api.mainnet-beta.solana.com",  # Fallback 1
-    "https://api.anza.dev/rpc",             # Fallback 2
-]
-
-if HELIUS_API_KEY:
-    RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}")  # Primary if available
-```
-
-**WebSocket Connection**:
-- Primary: Helius WebSocket (if `HELIUS_API_KEY` set)
-- Fallback: Solana public WebSocket
-
-**HTTP RPC**:
-- Primary: Helius HTTP endpoint (if `HELIUS_API_KEY` set)
-- Fallback: Solana public RPC + Anza RPC
-
----
-
-### Performance Optimization
-
-**Without Helius API**:
-- New token processing: 180-220 seconds
-- RPC calls per token: 50-500+
-- Heavily rate-limited
-
-**With Helius API** (recommended):
-- New token processing: 90-120 seconds
-- RPC calls per token: 10-30
-- Better rate limiting tier
-- Faster transaction parsing
-
-**Helius Benefits**:
-✅ Faster transaction parsing (enriched data)
-✅ Better rate limits for high-volume analysis
-✅ Built-in pagination support (limit=100)
-✅ Includes parsed instruction data
-✅ Domain/NFT enrichment included
-
----
-
-### Rate Limiting Strategy
-
-**Solana Public RPC**:
-- ~100 requests per second
-- Shared across all users
-- Subject to abuse limits
-
-**Helius RPC**:
-- Depends on plan tier
-- Usually 1000+ requests per second
-- Dedicated allocation
-
-**Mitigation**:
-- Batch requests where possible
-- Use pagination correctly (don't repeat signature fetches)
-- Fallback to slower RPC if primary rate-limited
-- Queue background tasks (creator outgoing scan) to avoid spike
-
----
-
-### Database Impact
-
-**After RPC extraction, data stored in**:
-- `creator_funders` - Direct funder relationships
-- `funder_incoming_transfers` - Funder source traces
-- `creator_outgoing_transfers` - Creator spending
-- `tokens` - Token metadata
-- `address_labels` - Account classifications
-
-**Query instead of RPC**:
-- Most analyses query database instead of RPC
-- Reduces ongoing RPC costs
-- Enables offline analysis
-
----
-
-## RPC Implementation Functions
-
-### Overview
-
-Three different RPC call implementations are used throughout the codebase, each optimized for different use cases:
-
-1. **`_post_rpc_with_fallback()`** - Listener (async, simpler failover)
-2. **`_post_rpc()`** - Creator funding extractor (async, advanced retry/rate-limiting)
-3. **`_rpc_call()`** - Funder incoming extractor (sync, smart error categorization)
-
----
-
-### 1. `_post_rpc_with_fallback()` - PumpFunCurveListener
-
-**File**: `pumpfun_curve_listener.py:306-339`
-**Type**: Async method (class-based)
-**Usage**: Main listener for token detection and pool extraction
-
-```python
-async def _post_rpc_with_fallback(self, payload: dict, timeout: int = 10) -> Optional[dict]:
-    """
-    Post to RPC with automatic failover chain.
-    Tries: Primary QuickNode -> Secondary QuickNode -> Helius -> Public Solana
-    """
-    try:
-        async with aiohttp.ClientSession() as session:
-            for i, rpc_url in enumerate(RPC_URLS):
-                try:
-                    async with session.post(rpc_url, json=payload,
-                                           timeout=aiohttp.ClientTimeout(total=timeout)) as resp:
-                        if resp.status == 200:
-                            return await resp.json()
-                        elif resp.status == 429:
-                            if i < len(RPC_URLS) - 1:
-                                continue
-                        else:
-                            if i < len(RPC_URLS) - 1:
-                                continue
-                except asyncio.TimeoutError:
-                    if i < len(RPC_URLS) - 1:
-                        continue
-                except Exception as e:
-                    if i < len(RPC_URLS) - 1:
-                        continue
-
-            return None
-    except Exception as e:
-        print(f"[RPC_ERROR] {e}", flush=True)
-        return None
-```
-
-**Characteristics**:
-- ✅ Simple failover chain (tries each RPC in sequence)
-- ✅ Async/await with aiohttp
-- ✅ Timeout handling (default 10 seconds)
-- ✅ No exponential backoff (just tries next immediately)
-- ✅ Creates new session per call
-
----
-
-### 2. `_post_rpc()` - RealtimeCreatorFundingExtractor
-
-**File**: `realtime_creator_funding_extractor.py:299-359`
-**Type**: Async method (class-based)
-**Usage**: Creator funding extraction with advanced retry logic
-
-```python
-async def _post_rpc(self, payload: dict) -> Optional[dict]:
-    """Post to RPC with failover chain + semaphore concurrency control"""
-    async with self._rpc_sem:  # Bound concurrent RPC calls
-        for attempt in range(MAX_RETRIES):
-            for rpc_url in RPC_URLS:
-                try:
-                    async with self.session.post(
-                        rpc_url,
-                        json=payload,
-                        timeout=aiohttp.ClientTimeout(total=RPC_TIMEOUT)
-                    ) as resp:
-                        if resp.status != 200:
-                            if resp.status == 429:
-                                # Rate limited - check for Retry-After header
-                                retry_after = resp.headers.get("Retry-After")
-                                retry_delay = None
-                                if retry_after:
-                                    try:
-                                        retry_delay = float(retry_after)
-                                    except (ValueError, TypeError):
-                                        retry_delay = None
-
-                                wait_time = retry_delay or (0.5 * (2 ** attempt))
-                                await asyncio.sleep(min(30.0, wait_time))
-                                continue
-                            elif resp.status >= 500:
-                                continue
-                            else:
-                                return None
-
-                        data = await resp.json()
-
-                        # RPC-level errors
-                        if "error" in data:
-                            error_code = data["error"].get("code", -1)
-                            # Retryable: -32008, -32000, -32003, -32009
-                            if error_code in {-32008, -32000, -32003, -32009}:
-                                continue
-                            else:
-                                return None
-
-                        if "result" in data:
-                            return data
-
-                except asyncio.TimeoutError:
-                    continue
-                except Exception as e:
-                    continue
-
-            # After trying all RPCs, wait before next attempt
-            if attempt < MAX_RETRIES - 1:
-                await asyncio.sleep(0.5 * (2 ** attempt))
-
-    return None
-```
-
-**Characteristics**:
-- ✅ Semaphore concurrency control (`_rpc_sem`)
-- ✅ Advanced retry with exponential backoff (0.5s → 1s → 2s → 4s)
-- ✅ Respects `Retry-After` header from rate-limit responses
-- ✅ Smart RPC error detection (knows which errors are retryable)
-- ✅ Max 30-second wait per attempt
-- ✅ Reuses persistent session (more efficient)
-- ✅ Handles both HTTP and RPC-level errors
-
-**Retryable RPC Error Codes**:
-- `-32008`: Invalid index
-- `-32000`: Server error (generic)
-- `-32003`: Invalid request
-- `-32009`: Resource exhausted
-
----
-
-### 3. `_rpc_call()` - FunderIncomingExtractor
-
-**File**: `funder_incoming_extractor.py:361-401`
-**Type**: Synchronous function
-**Usage**: Funder transfer extraction with smart error categorization
-
-```python
-def _rpc_call(payload: dict, timeout: float = 20.0) -> Optional[dict]:
-    """
-    Reliable Solana RPC POST with retry/backoff.
-    Smart RPC error categorization:
-    • Only retries transient errors (timeout, rate-limit, etc.)
-    • Fails fast on permanent errors (invalid params, etc.)
-    """
-    for attempt in range(MAX_RPC_RETRIES):
-        try:
-            resp = SESSION.post(SOLANA_RPC, json=payload, timeout=timeout)
-            if resp.status_code == 429:
-                print(f"[RPC] 429 rate-limited. Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
-                _sleep_backoff(attempt)
-                continue
-            if resp.status_code >= 500:
-                print(f"[RPC] {resp.status_code} server error. Backing off")
-                _sleep_backoff(attempt)
-                continue
-            if resp.status_code != 200:
-                return None
-
-            data = resp.json()
-            if isinstance(data, dict) and data.get("error"):
-                error_obj = data["error"]
-                if _is_rpc_error_retryable(error_obj):
-                    print(f"[RPC] Transient error (code={error_obj.get('code')}). Backing off")
-                    _sleep_backoff(attempt)
-                    continue
-                else:
-                    # Permanent error: fail fast
-                    print(f"[RPC] Permanent error (code={error_obj.get('code')})")
-                    return None
-            return data
-        except (requests.Timeout, requests.ConnectionError) as e:
-            print(f"[RPC] Network error: {e}. Backing off")
-            _sleep_backoff(attempt)
-            continue
-        except Exception:
-            return None
-    return None
-```
-
-**Helper Functions**:
-```python
-def _is_rpc_error_retryable(error_obj: dict) -> bool:
-    """Determine if RPC error is transient (retryable)."""
-    code = error_obj.get("code")
-    # Retryable: -32008, -32000, -32003, -32009
-    return code in {-32008, -32000, -32003, -32009}
-
-def _sleep_backoff(attempt: int, retry_after: Optional[float] = None):
-    """Exponential backoff: 0.5s → 1s → 2s → 4s..."""
-    if retry_after is not None:
-        time.sleep(retry_after)
-        return
-    delay = 0.5 * (2 ** attempt)
-    time.sleep(min(delay, 60.0))  # Cap at 60 seconds
-```
-
-**Characteristics**:
-- ✅ Synchronous (blocking) implementation
-- ✅ Single SOLANA_RPC endpoint (no failover chain)
-- ✅ Smart error categorization (retryable vs permanent)
-- ✅ Fast-fail on permanent errors
-- ✅ Exponential backoff with jitter
-- ✅ Detailed error messages for debugging
-- ✅ Reuses persistent SESSION (requests.Session)
-
----
-
-### Comparison Table
-
-| Feature | `_post_rpc_with_fallback()` | `_post_rpc()` | `_rpc_call()` |
-|---------|---------------------------|---------------|--------------|
-| **Type** | Async (class) | Async (class) | Sync (func) |
-| **Failover** | ✅ Full chain | ✅ Full chain | ❌ Single |
-| **Retry** | Simple | ✅ Exponential | ✅ Exponential |
-| **Concurrency** | ❌ None | ✅ Semaphore | ❌ None |
-| **Error Category** | Simple | ✅ Advanced | ✅ Advanced |
-| **Retry-After** | ❌ No | ✅ Yes (30s cap) | ✅ Yes |
-| **Session Reuse** | ❌ No | ✅ Yes | ✅ Yes |
-| **Use Case** | Token detection | Creator extract | Funder extract |
-| **Timeout** | 10s default | RPC_TIMEOUT | 20s default |
-
----
-
-### Which to Use?
-
-**`_post_rpc_with_fallback()`** - When:
-- You need simple failover for critical operations
-- You don't expect many retries
-- RPC response comes back quickly
-- Used in: Main listener for token detection
-
-**`_post_rpc()`** - When:
-- You're extracting large amounts of data
-- You need bounded concurrency (semaphore)
-- You want to respect Retry-After headers
-- You're doing batch processing
-- Used in: Creator funding extraction
-
-**`_rpc_call()`** - When:
-- You're in synchronous code
-- You want smart error categorization
-- You want fast-fail on permanent errors
-- You don't need concurrent calls
-- Used in: Funder transfer extraction
-
----
-
-## Helius API Cost Reduction - Production Implementation
-
-### Problem & Solution
-
-**Previous Implementation** (`limit=1000, no pagination`):
-- Fetched up to 1000 transactions per funder
-- No pagination control
-- No rate-limit handling
-- No retry logic
-- Cost: ~1000+ RPC calls per token in funder extraction phase
-
-**New Implementation** (cost-optimized):
-- Respects `limit` parameter with smart pagination
-- Implements exponential backoff and retry logic
-- Handles HTTP 429 with Retry-After support
-- Separate modes for realtime vs background
-- Cost: ~1 API call per funder (realtime), ~5 per funder (background)
-- **Result: 10-100× cost reduction**
-
-### New Function Signature
-
-```python
-def get_transactions_helius(
-    address: str,
-    *,
-    limit: int = 100,           # Transactions per page
-    max_pages: int = 1,         # Maximum pages (CRITICAL: prevents budget explosions)
-    before: Optional[str] = None,  # Pagination cursor
-    timeout: int = 15,          # Request timeout
-    retries: int = 3,           # Retry attempts
-) -> List[Dict]:
-```
-
-### Cost Control Defaults
-
-#### Realtime Mode (New Token Detection)
-```python
-txs = get_transactions_helius(
-    funder_address,
-    limit=100,           # 100 txs per page
-    max_pages=1,         # ONLY 1 page
-    timeout=15,          # 15 second timeout
-)
-# Cost: ~1 Helius API call per funder
-# Data: ~100 transactions maximum
-```
-
-#### Background Mode (12-Hour Enrichment)
-```python
-txs = get_transactions_helius(
-    funder_address,
-    limit=100,           # 100 txs per page
-    max_pages=5,         # Up to 5 pages
-    timeout=20,          # 20 second timeout
-)
-# Cost: ~5 Helius API calls per funder (bounded)
-# Data: ~500 transactions maximum
-```
-
-### Implementation Features
-
-#### 1. Pagination with Before Cursor
-```
-Page 1: Fetch 100 txs
-Page 2: Fetch 100 txs starting BEFORE last tx signature
-Page 3: Continue with new cursor
-...
-Stop when: Got < limit txs (reached end) OR max_pages reached
-```
-
-#### 2. Rate Limit Handling (429)
-```python
-if status_code == 429:
-    retry_after = response.headers.get("Retry-After")  # Respect server guidance
-    sleep_time = float(retry_after) if retry_after else (0.5 * (2 ** attempt))
-    sleep_time = min(sleep_time, 30.0)  # Cap at 30s
-    retry()
-```
-
-#### 3. Exponential Backoff with Jitter
-```
-Attempt 1: Sleep 0.5s (0.5 * 2^0)
-Attempt 2: Sleep 1.0s (0.5 * 2^1)
-Attempt 3: Sleep 2.0s (0.5 * 2^2)
-Cap: 30 seconds maximum
-```
-
-#### 4. Early Termination
-```python
-if len(data) < limit:
-    # Got fewer results than requested, so we've reached the end
-    return all_transactions  # Don't try next page
-```
-
-### Integration in extract_transfers_for_funder()
-
-```python
-def extract_transfers_for_funder(funder_address: str, *, mode: str = "realtime") -> Dict:
-    """
-    Args:
-        funder_address: Address to analyze
-        mode: "realtime" (token detection) or "background" (12h enrichment)
-    """
-    if mode == "realtime":
-        txs = get_transactions_helius(funder_address, limit=100, max_pages=1, timeout=15)
-    else:
-        txs = get_transactions_helius(funder_address, limit=100, max_pages=5, timeout=20)
-
-    # Continue with transfer parsing...
-```
-
-### Where Called
-
-1. **Realtime Path** (token detection):
-   - Triggered when new token detected
-   - `extract_for_creator()` in `realtime_creator_funding_extractor.py`
-   - Should use: `mode="realtime"` (default)
-
-2. **Background Path** (12h enrichment):
-   - Runs every 12 hours
-   - `extract_transfers_for_funder()` in `funder_helius_extractor.py`
-   - Can use: `mode="background"`
-
-### Immediate Cost Reduction Checklist
-
-To implement cost savings immediately:
-
-- [ ] Update all calls to use `limit=100` (was 1000)
-- [ ] Add `max_pages=1` for realtime, `max_pages=5` for background
-- [ ] Add early stop-condition in transfer parsing (stop after ~25 meaningful transfers)
-- [ ] Verify logs show pagination stopping correctly
-- [ ] Monitor API call counts vs transaction counts (ratio should be ~1:100)
-
-### Production Characteristics
-
-| Metric | Realtime | Background |
-|--------|----------|------------|
-| limit | 100 | 100 |
-| max_pages | 1 | 5 |
-| typical API calls | 1 | 5 |
-| typical transactions | 100 | 500 |
-| timeout | 15s | 20s |
-| retries | 3 | 3 |
-| typical latency | 1-2s | 10-15s |
-
-### Error Handling Behavior
-
-| Error | Behavior |
-|-------|----------|
-| HTTP 429 | Sleep (Retry-After or exponential), retry |
-| HTTP 5xx | Exponential backoff, retry |
-| HTTP 4xx (non-429) | Return partial data |
-| Timeout | Exponential backoff, retry |
-| No data | Return early (no more pages) |
-| Invalid response | Return partial data |
-
-### File Reference
-
-**Implementation**: `funder_helius_extractor.py:233-367`
-**Integration point**: `funder_helius_extractor.py:370-382`
-**Also called by**:
-- `realtime_creator_funding_extractor.py` (during creator funding extraction)
-- `main.py` (API endpoints for on-demand funder analysis)
-
----
-
-*Complete System Documentation*
-*Initial: 2026-02-28*
-*Updated: 2026-03-02 (Helius RPC & Billing integration)*
-*Database: flex_complete_database.db*
-*Ready for production deployment and integration*
-
----
-
-## Recent Updates (2026-03-02)
-
-✅ Added comprehensive Helius RPC & Billing section
-✅ Integrated official Helius credit costs
-✅ Added rate limiting documentation
-✅ Included reconciliation & diagnostic tools
-✅ Cost tracking and optimization strategies
-
-**Key Files**:
-- HELIUS_BILLING_MASTER.md (complete reference)
-- HELIUS_SETUP_SUMMARY.md (quick start)
-- analyze_rpc_accuracy.py (diagnostic tool)
-- helius_usage_cli.py (CLI management)
-
----
-
-## UI & Design System
-
-### Color Scheme (2026-03-05)
-
-The application uses a unified color scheme inspired by the webhook monitor design for consistency across all pages.
-
-#### Primary Colors
-
-| Color | Hex | Usage |
-|-------|-----|-------|
-| **Purple** | `#a78bfa` | Headers, section titles, labels, addresses |
-| **Cyan** | `#06b6d4` | Links, buttons, active elements, interactive components |
-| **Dark Green** | `#16a34a` | Positive values, amounts, success status, active badges |
-| **Yellow** | `#fbbf24` | Creator highlights, special emphasis |
-
-#### Supporting Colors
-
-| Color | Hex | Usage |
-|-------|-----|-------|
-| Text Primary | `#e5e7eb` | Main text |
-| Text Secondary | `#9ca3af` | Secondary text, timestamps |
-| Background | `linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%)` | Main background |
-| Card Background | `rgba(30, 30, 40, 0.8)` | Cards, tables, panels |
-| Border | `rgba(167, 139, 250, 0.3)` | Card borders, dividers |
-| Border Hover | `rgba(167, 139, 250, 0.6)` | On hover |
-| Hover Background | `rgba(167, 139, 250, 0.05)` | Row hover |
-
-#### Risk/Status Colors
-
-| Level | Background | Text | Usage |
-|-------|-----------|------|-------|
-| Low | `rgba(21, 128, 61, 0.2)` | `#16a34a` | Low risk, success |
-| Medium | `rgba(234, 179, 8, 0.2)` | `#eab308` | Medium risk, warning |
-| High | `rgba(239, 68, 68, 0.2)` | `#ef4444` | High risk, error |
-
-### CSS Variables Pattern
-
-All pages use these CSS variables in their `:root` block:
-
-```css
-:root {
-    --color-purple: #a78bfa;
-    --color-cyan: #06b6d4;
-    --color-green: #16a34a;
-    --color-yellow: #fbbf24;
-
-    --text-primary: #e5e7eb;
-    --text-secondary: #9ca3af;
-
-    --bg-dark: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
-    --bg-card: rgba(30, 30, 40, 0.8);
-    --bg-hover: rgba(167, 139, 250, 0.05);
-
-    --border-color: rgba(167, 139, 250, 0.3);
-    --border-hover: rgba(167, 139, 250, 0.6);
-}
-```
-
-### Pages with Color Scheme Applied
-
-✅ **Complete** - All dashboard pages now use unified CSS variables:
-- `/webhook-monitor` - Real-time webhook monitoring dashboard
-- Main dashboard (`/`) - HTML_TEMPLATE with CSS variables
-- `/coordinated-funders` - Coordinated funders analysis
-- `/clusters` - Cluster dashboard
-- `/networks` - Networks dashboard
-- `/top-funding-hubs` - Top funding hubs
-- `/funder-details/<address>` - Individual funder details
-- `/funding-hub/<address>` - Individual hub details
-
-**Implementation Status**: All pages updated as of 2026-03-05 - Complete ✅
-
-### Font & Typography
-
-- **Code/Addresses**: `'Courier New', monospace` - 11px for addresses, 13px for tables
-- **Body**: 'Courier New' monospace throughout for consistency
-- **Headers**: Uppercase with letter-spacing for emphasis
-- **Labels**: 12px, uppercase, letter-spacing: 1px
-
-### Implementation Resources
-
-**Files**:
-- `global_styles.css` - Reusable CSS classes
-- `COLOR_SCHEME_GUIDE.md` - Complete migration guide for remaining pages
-- Template pattern in COLOR_SCHEME_GUIDE.md for quick implementation
-
-### Webhook Monitor UI
-
-The `/webhook-monitor` page at `http://localhost:5002/webhook-monitor` provides:
-
-#### Real-Time Metrics Cards
-- **Webhooks Received** - Unique transaction signatures
-- **Transfers Processed** - Total SOL movements recorded
-- **Transfers (24h)** - From last 24 hours
-- **Last Activity** - Relative and absolute time
-
-#### Recent Transfers Table
-- Sender/Receiver (color-coded: yellow=creator, cyan=labeled, purple=unknown)
-- Amount (SOL) - Limited to 4 decimal places
-- Time - Relative timestamp (e.g., "5m ago")
-
-#### Creator Queue Status
-- Total in Queue - Creators awaiting processing
-- Critical Priority - Count with priority ≥ 80
-- Currently Processing - Locked by worker
-- Never Checked - Attempts = 0
-
-#### Top Priority Creators Table
-- Creator Address - With label support
-- Outbound/Inbound TX - Activity counts
-- Total Activity - Star emoji if > 50
-- Priority Score - Color-coded (red ≥ 80, orange ≥ 60, green < 60)
-- Status - WAITING, PROCESSING, READY
-- Attempts - Number of analysis attempts
-
-### Design Principles
-
-1. **Consistency** - Use CSS variables across all components
-2. **Clarity** - Color coding indicates status and type
-3. **Contrast** - Dark backgrounds with light text for readability
-4. **Hierarchy** - Purple for headers, cyan for interactive, green for values
-5. **Accessibility** - Monospace fonts for addresses, sufficient color contrast
-
----
-
-## Recent Updates (2026-03-05)
-
-✅ Established unified color scheme across application
-✅ Created global_styles.css for reusable components
-✅ Created COLOR_SCHEME_GUIDE.md with implementation templates
-✅ Updated main dashboard CSS variables
-✅ Applied unified color scheme to ALL dashboard pages (coordinated-funders, clusters, networks, top-funding-hubs, funder-details, funding-hub)
-✅ Cleaned up redundant m5 files and old iteration documentation
-✅ Consolidated documentation strategy
-
-**Key Files**:
-- FLEX_COMPLETE_DOCUMENTATION.md (master reference)
-- COLOR_SCHEME_GUIDE.md (UI implementation guide)
-- global_styles.css (reusable CSS)
-- WEBHOOK_MONITOR_GUIDE.md (webhook UI documentation)
+**FLEX** is a production-grade Solana token analysis system that combines:
+
+- **Real-time detection** via WebSocket and Helius webhooks
+- **Multi-layer funding extraction** (creator → funder → sender)
+- **Advanced clustering** for coordinated funder detection
+- **RPC optimization** with smart caching and cost control
+- **Rich web UI** with 15+ analysis pages
+- **60+ REST APIs** for data access
+- **Comprehensive monitoring** of RPC usage and system health
+
+The architecture is designed for **scalability**, **cost efficiency**, and **accuracy** in detecting suspicious funding patterns across Pump.Fun tokens on Solana.
 

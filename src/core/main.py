@@ -20047,6 +20047,17 @@ except ImportError as e:
 except Exception as e:
     print(f"[ERROR] Failed to initialize advanced farm intelligence API: {e}")
 
+# =========================================================================
+# DEV INTELLIGENCE GRAPH API (Multi-layer wallet/creator/token organizations)
+# =========================================================================
+try:
+    from src.core.dev_intelligence_api import register_dev_intelligence_api
+    register_dev_intelligence_api(app, db_path=DB_PATH)
+    print("[DEV_INTELLIGENCE] Dev intelligence graph API routes registered successfully")
+except ImportError as e:
+    print(f"[WARNING] Dev intelligence API not available: {e}")
+except Exception as e:
+    print(f"[ERROR] Failed to initialize dev intelligence API: {e}")
 
 # =========================================================================
 # MAIN

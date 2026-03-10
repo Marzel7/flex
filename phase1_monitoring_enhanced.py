@@ -76,16 +76,16 @@ class EnhancedPhase1Dashboard:
 
             # RPC calls last hour
             cursor.execute("""
-                SELECT COUNT(*) FROM rpc_request_log
-                WHERE timestamp >= datetime('now', '-1 hour')
+                SELECT COUNT(*) FROM rpc_metrics
+                WHERE recorded_at >= datetime('now', '-1 hour')
                 AND source_file = 'realtime_creator_funding_extractor'
             """)
             calls_last_hour = cursor.fetchone()[0]
 
             # RPC calls last 24 hours
             cursor.execute("""
-                SELECT COUNT(*) FROM rpc_request_log
-                WHERE timestamp >= datetime('now', '-1 day')
+                SELECT COUNT(*) FROM rpc_metrics
+                WHERE recorded_at >= datetime('now', '-1 day')
                 AND source_file = 'realtime_creator_funding_extractor'
             """)
             calls_last_24h = cursor.fetchone()[0]

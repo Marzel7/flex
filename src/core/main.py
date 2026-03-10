@@ -19743,6 +19743,119 @@ def funder_webhook_events():
 
 
 # =========================================================================
+# PHASE 3.2 — STORAGE MONITORING ENDPOINTS
+# =========================================================================
+
+@app.route('/api/storage/metrics')
+def api_storage_metrics():
+    """Get current storage metrics for transfer_index table."""
+    try:
+        from src.core.storage_monitoring import StorageMonitor
+
+        monitor = StorageMonitor(DB_PATH)
+        metrics = monitor.collect_metrics()
+
+        return jsonify({
+            'db_size_mb': metrics.db_size_mb,
+            'db_size_gb': metrics.db_size_mb / 1024,
+            'wal_size_mb': metrics.wal_size_mb,
+            'row_count': metrics.row_count,
+            'daily_growth_mb': metrics.daily_growth_mb,
+            'days_to_capacity': metrics.days_to_capacity if metrics.days_to_capacity != float('inf') else None,
+            'last_cleanup_ago_hours': metrics.last_cleanup_ago_hours if metrics.last_cleanup_ago_hours != float('inf') else None,
+            'last_cleanup_freed_mb': metrics.last_cleanup_freed_mb,
+            'timestamp': int(time.time())
+        })
+    except Exception as e:
+        print(f"[STORAGE_API] Error: {e}", flush=True)
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/storage/cleanup-history')
+def api_storage_cleanup_history():
+    """Get recent cleanup operations."""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT cleanup_timestamp, status, rows_actually_deleted, freed_mb,
+                   cleanup_duration_ms, db_size_before, db_size_after
+            FROM cleanup_log
+            ORDER BY cleanup_timestamp DESC
+            LIMIT 30
+        """)
+
+        rows = cursor.fetchall()
+        result = []
+
+        for row in rows:
+            result.append({
+                'timestamp': int(row[0]),
+                'status': row[1],
+                'rows_deleted': row[2],
+                'freed_mb': row[3],
+                'duration_ms': row[4],
+                'db_size_before_gb': row[5] / (1024**3) if row[5] else 0,
+                'db_size_after_gb': row[6] / (1024**3) if row[6] else 0
+            })
+
+        conn.close()
+        return jsonify(result)
+
+    except Exception as e:
+        print(f"[STORAGE_HISTORY] Error: {e}", flush=True)
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/storage/alerts')
+def api_storage_alerts():
+    """Check storage against alert thresholds."""
+    try:
+        from src.core.storage_monitoring import StorageMonitor, QueryLatencyMonitor, StorageAlerts
+
+        monitor = StorageMonitor(DB_PATH)
+        metrics = monitor.collect_metrics()
+
+        latency_monitor = QueryLatencyMonitor(DB_PATH)
+        query_latencies = latency_monitor.measure_key_queries()
+
+        # Get last cleanup result
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT rows_actually_deleted, cleanup_duration_ms, freed_mb
+            FROM cleanup_log
+            WHERE status = 'success'
+            ORDER BY cleanup_timestamp DESC
+            LIMIT 1
+        """)
+
+        last_cleanup = cursor.fetchone()
+        cleanup_result = {
+            'deleted': last_cleanup[0] if last_cleanup else 0,
+            'duration_ms': last_cleanup[1] if last_cleanup else 0,
+            'freed_mb': last_cleanup[2] if last_cleanup else 0
+        }
+        conn.close()
+
+        # Check alerts
+        alerts = StorageAlerts.check_alerts(metrics, cleanup_result, query_latencies)
+
+        return jsonify({
+            'has_alerts': len(alerts) > 0,
+            'alert_count': len(alerts),
+            'alerts': alerts,
+            'thresholds': StorageAlerts.THRESHOLDS
+        })
+
+    except Exception as e:
+        print(f"[STORAGE_ALERTS] Error: {e}", flush=True)
+        return jsonify({"error": str(e)}), 500
+
+
+# =========================================================================
 # MAIN
 # =========================================================================
 

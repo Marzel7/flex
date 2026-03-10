@@ -1,0 +1,27 @@
+2026-03-10 20:03:04,253 - __main__ - INFO - Starting Phase 4 advanced farm intelligence detection
+2026-03-10 20:03:04,259 - src.core.advanced_farm_intelligence_engine - ERROR - Ecosystem detection failed: no such table: transfer_index
+2026-03-10 20:03:04,263 - src.core.advanced_farm_intelligence_engine - ERROR - Launch wave detection failed: no such table: transfer_index
+2026-03-10 20:03:04,266 - src.core.advanced_farm_intelligence_engine - INFO - Analyzed 0 ecosystem members
+2026-03-10 20:03:04,269 - src.core.advanced_farm_intelligence_engine - INFO - Linked 0 creators to waves
+2026-03-10 20:03:04,273 - src.core.advanced_farm_intelligence_engine - ERROR - Watchlist enhancement failed: near "lw": syntax error
+2026-03-10 20:03:04,273 - src.core.advanced_farm_intelligence_engine - INFO - Phase 4: 0 ecosystems, 0 waves, 0 watchlist updates
+2026-03-10 20:03:04,273 - __main__ - INFO - Advanced farm intelligence completed: Phase 4: 0 ecosystems, 0 waves, 0 watchlist updates
+2026-03-10 20:03:04,273 - __main__ - INFO - Ecosystems: 0, Launch waves: 0, Members tracked: 0, Wave creators: 0, Duration: 20ms
+2026-03-10 20:03:15,552 - __main__ - INFO - Starting Phase 4 advanced farm intelligence detection
+2026-03-10 20:03:15,559 - src.core.advanced_farm_intelligence_engine - ERROR - Ecosystem detection failed: no such table: transfer_index
+2026-03-10 20:03:15,563 - src.core.advanced_farm_intelligence_engine - ERROR - Launch wave detection failed: no such table: transfer_index
+2026-03-10 20:03:15,566 - src.core.advanced_farm_intelligence_engine - INFO - Analyzed 0 ecosystem members
+2026-03-10 20:03:15,569 - src.core.advanced_farm_intelligence_engine - INFO - Linked 0 creators to waves
+2026-03-10 20:03:15,572 - src.core.advanced_farm_intelligence_engine - ERROR - Watchlist enhancement failed: no such column: ecosystem_id
+2026-03-10 20:03:15,573 - src.core.advanced_farm_intelligence_engine - INFO - Phase 4: 0 ecosystems, 0 waves, 0 watchlist updates
+2026-03-10 20:03:15,573 - __main__ - INFO - Advanced farm intelligence completed: Phase 4: 0 ecosystems, 0 waves, 0 watchlist updates
+2026-03-10 20:03:15,573 - __main__ - INFO - Ecosystems: 0, Launch waves: 0, Members tracked: 0, Wave creators: 0, Duration: 20ms
+2026-03-10 20:03:33,875 - __main__ - INFO - Starting Phase 4 advanced farm intelligence detection
+2026-03-10 20:03:33,881 - src.core.advanced_farm_intelligence_engine - ERROR - Ecosystem detection failed: no such table: transfer_index
+2026-03-10 20:03:33,884 - src.core.advanced_farm_intelligence_engine - ERROR - Launch wave detection failed: no such table: transfer_index
+2026-03-10 20:03:33,888 - src.core.advanced_farm_intelligence_engine - INFO - Analyzed 0 ecosystem members
+2026-03-10 20:03:33,891 - src.core.advanced_farm_intelligence_engine - INFO - Linked 0 creators to waves
+2026-03-10 20:03:33,894 - src.core.advanced_farm_intelligence_engine - INFO - ecosystem_id column not in launch_watchlist (Phase 3.3+ only)
+2026-03-10 20:03:33,895 - src.core.advanced_farm_intelligence_engine - INFO - Phase 4: 0 ecosystems, 0 waves, 0 watchlist updates
+2026-03-10 20:03:33,895 - __main__ - INFO - Advanced farm intelligence completed: Phase 4: 0 ecosystems, 0 waves, 0 watchlist updates
+2026-03-10 20:03:33,895 - __main__ - INFO - Ecosystems: 0, Launch waves: 0, Members tracked: 0, Wave creators: 0, Duration: 20ms

@@ -23,7 +23,6 @@ from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
 from src.extractors.realtime_creator_funding_extractor import extract_funding_for_new_token
 from src.extractors.funder_incoming_extractor import extract_for_creator as extract_funder_transfers
 from src.analysis.clustering_task_queue import enqueue_clustering
-from src.extractors.creator_outgoing_extractor import run_forever as run_outgoing_extractor
 from dotenv import load_dotenv
 
 # Import RPC metrics recorder for monitoring

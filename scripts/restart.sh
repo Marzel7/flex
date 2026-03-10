@@ -14,7 +14,7 @@ lsof -i :5002 | tail -1 | awk '{print $2}' | xargs kill -9 2>/dev/null || true
 sleep 1
 echo "✓ Port 5002 killed"
 
-pkill -f "src.core.pumpfun_curve_listener\|pumpfun_curve_listener.py" 2>/dev/null || true
+pkill -9 -f "pumpfun_curve_listener" 2>/dev/null || true
 sleep 1
 echo "✓ Listener killed"
 
@@ -22,6 +22,19 @@ pkill -f "src.monitoring.helius_cli_monitor\|helius_cli_monitor.py" 2>/dev/null 
 sleep 1
 echo "✓ Helius CLI monitor killed"
 
+echo ""
+echo "⏳ Verifying cleanup..."
+sleep 1
+
+# Verify all listener instances are killed
+remaining=$(pgrep -f "pumpfun_curve_listener" | wc -l)
+if [ "$remaining" -gt 0 ]; then
+    echo "⚠️  Still found $remaining listener instances, forcing hard kill..."
+    pkill -9 -f "pumpfun_curve_listener" 2>/dev/null || true
+    sleep 1
+fi
+
+echo "✓ Cleanup verified"
 echo ""
 cd "$PROJECT_ROOT"
 

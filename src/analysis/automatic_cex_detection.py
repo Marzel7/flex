@@ -273,6 +273,20 @@ class AutomaticCEXDetector:
             params = {"limit": 100, "type": "UNKNOWN"}  # Get mixed transaction types
 
             async with self.session.get(url, params=params, timeout=10) as resp:
+                # Record RPC call to Helius
+                try:
+                    from src.metrics.rpc_metrics_recorder import record_request
+                    record_request(
+                        section="cex_detection_analysis",
+                        provider="helius",
+                        method="getTransactionsForAddress",
+                        status_code=resp.status,
+                        latency_ms=0,  # Already completed
+                        source_file="automatic_cex_detection"
+                    )
+                except:
+                    pass  # Don't fail if metrics recording fails
+
                 if resp.status != 200:
                     return None
 

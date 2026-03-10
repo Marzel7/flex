@@ -194,13 +194,9 @@ def get_helius_usage_cli() -> Optional[Dict]:
 
         # Parse JSON output
         usage_data = json.loads(result.stdout)
-        print(f"[HELIUS] ✅ Got usage data from CLI", flush=True)
 
         # Extract credits usage details
         credits_usage = usage_data.get("creditsUsage", {})
-
-        # Debug: log available fields
-        print(f"[HELIUS] Available fields in creditsUsage: {list(credits_usage.keys())}", flush=True)
 
         # Extract fields (structure may vary, handle gracefully)
         # Try to find monthly credits - Helius may call it different things
@@ -291,7 +287,6 @@ def record_usage_snapshot(usage: Dict):
             ),
         )
         conn.commit()
-        print("[HELIUS] 💾 Recorded snapshot in database", flush=True)
     except Exception as e:
         print(f"[HELIUS] ⚠️ Recording error: {str(e)[:100]}", flush=True)
     finally:
@@ -350,20 +345,7 @@ def sync_helius_to_config(usage: Dict):
 
 def print_usage(usage: Dict):
     """Pretty print usage data"""
-    print("\n" + "=" * 80, flush=True)
-    print("[HELIUS] 📊 ACCOUNT USAGE (from CLI)", flush=True)
-    print("=" * 80, flush=True)
-    print(f"Credits Remaining:    {usage.get('credits_remaining', 0):>12,}", flush=True)
-    print(f"Credits Used:         {usage.get('credits_used', 0):>12,}", flush=True)
-    print(f"Prepaid Used:         {usage.get('prepaid_credits_used', 0):>12,}", flush=True)
-    print(f"Overage Used:         {usage.get('overage_credits_used', 0):>12,}", flush=True)
-    print(f"Overage Cost:         ${usage.get('overage_cost', 0.0):>11.2f}", flush=True)
-    print("-" * 80, flush=True)
-    print(f"RPC Usage:            {usage.get('rpc_usage', 0):>12,}", flush=True)
-    print(f"RPC GPA Usage:        {usage.get('rpc_gpa_usage', 0):>12,}", flush=True)
-    print(f"API Usage:            {usage.get('api_usage', 0):>12,}", flush=True)
-    print(f"Webhook Usage:        {usage.get('webhook_usage', 0):>12,}", flush=True)
-    print("=" * 80, flush=True)
+    pass  # Suppress output
     print(f"Project ID:         {usage.get('project_id', 'unknown')}", flush=True)
     print(f"Captured At:        {usage.get('timestamp', 'unknown')}", flush=True)
     print("=" * 80 + "\n", flush=True)
@@ -467,7 +449,7 @@ if __name__ == "__main__":
                     print_usage(usage)
                     record_usage_snapshot(usage)
                     sync_helius_to_config(usage)
-                    print("[HELIUS] ✅ Snapshot captured", flush=True)
+                    pass  # Snapshot captured successfully
                 else:
                     print("[HELIUS] ⚠️ Failed to retrieve usage, retrying in 30s", flush=True)
 

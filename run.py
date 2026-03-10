@@ -14,7 +14,9 @@ PROJECT_ROOT = Path(__file__).parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 # Set database path
-os.environ.setdefault('DB_PATH', os.path.join(PROJECT_ROOT, 'database', 'flex_complete_database.db'))
+db_path = os.path.join(PROJECT_ROOT, 'database', 'flex_complete_database.db')
+os.environ.setdefault('DB_PATH', db_path)
+os.environ.setdefault('RPC_METRICS_DB', db_path)
 
 # Import and run main app
 if __name__ == '__main__':

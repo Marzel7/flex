@@ -1,0 +1,19 @@
+2026-03-10 17:59:18,940 - __main__ - INFO - Starting wallet clustering job
+2026-03-10 17:59:18,946 - src.core.wallet_clustering - INFO - [CLUSTERING_DETECT] Found 0 farms
+2026-03-10 17:59:18,946 - src.core.wallet_clustering - INFO - [CLUSTERING] Found 0 potential dev farms
+2026-03-10 17:59:18,949 - src.core.wallet_clustering - INFO - [CLUSTERING_REPUTATION] Processing 0 creators
+2026-03-10 17:59:18,950 - src.core.wallet_clustering - INFO - [CLUSTERING_REPUTATION] Updated 0 reputation records
+2026-03-10 17:59:18,950 - src.core.wallet_clustering - INFO - [CLUSTERING] Detected 0 clusters, updated 0 reputations
+2026-03-10 17:59:18,954 - __main__ - INFO - Clustering completed: Detected 0 clusters, updated 0 reputations
+2026-03-10 17:59:18,954 - __main__ - INFO - Clusters found: 0, Reputations updated: 0, Duration: 10ms
+2026-03-10 17:59:32,564 - __main__ - INFO - Starting wallet clustering job
+2026-03-10 17:59:32,575 - src.core.wallet_clustering - ERROR - [CLUSTERING] Clustering failed: no such table: transfer_index
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/wallet_clustering.py", line 178, in detect_and_store
+    farms = self._detect_dev_farms()
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/wallet_clustering.py", line 276, in _detect_dev_farms
+    cursor.execute(
+sqlite3.OperationalError: no such table: transfer_index
+2026-03-10 17:59:32,585 - __main__ - INFO - Clustering completed: Clustering failed: no such table: transfer_index
+2026-03-10 17:59:32,585 - __main__ - INFO - Clusters found: 0, Reputations updated: 0, Duration: 16ms

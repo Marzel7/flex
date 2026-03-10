@@ -39,6 +39,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from src.core.dev_intelligence_graph import DevIntelligenceEngine
 from src.core.dev_intelligence_v2 import DevIntelligenceV2Engine
+from src.core.dev_intelligence_v3 import DevIntelligenceV3Engine
 
 
 def main():
@@ -75,11 +76,24 @@ def main():
             f"Duration: {result_v2.get('duration_ms', 0):.0f}ms"
         )
 
-        # Return success only if both phases succeeded
-        if result['status'] == 'success' and result_v2['status'] == 'success':
+        # Phase 3: V3 — Predictive analytics (multi-window, snapshots, risk, alerts)
+        logger.info("Starting dev intelligence v3 (predictive analytics)")
+        engine_v3 = DevIntelligenceV3Engine(db_path)
+        result_v3 = engine_v3.detect_and_store()
+
+        logger.info(f"Dev intelligence v3 completed: {result_v3['message']}")
+        logger.info(
+            f"Orgs processed: {result_v3.get('orgs_processed', 0)}, "
+            f"Tokens predicted: {result_v3.get('tokens_predicted', 0)}, "
+            f"Alerts fired: {result_v3.get('alerts_fired', 0)}, "
+            f"Duration: {result_v3.get('duration_ms', 0):.0f}ms"
+        )
+
+        # Return success only if all three phases succeeded
+        if result['status'] == 'success' and result_v2['status'] == 'success' and result_v3['status'] == 'success':
             return 0
         else:
-            logger.warning(f"One or more phases failed: v1={result['status']}, v2={result_v2['status']}")
+            logger.warning(f"One or more phases failed: v1={result['status']}, v2={result_v2['status']}, v3={result_v3['status']}")
             return 1
 
     except Exception as e:

@@ -148,17 +148,73 @@ class EnhancedPhase1Dashboard:
         except Exception as e:
             return {'error': str(e)}
 
+    def get_cache_stats(self) -> Dict:
+        """Get Phase 2 RPC cache statistics."""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+
+            # Total cache entries
+            cursor.execute("SELECT COUNT(*), COALESCE(SUM(hit_count), 0) FROM rpc_response_cache")
+            row = cursor.fetchone()
+            total_entries = row[0] or 0
+            total_hits = row[1] or 0
+
+            # Hits in the last hour from rpc_metrics
+            cursor.execute("""
+                SELECT COUNT(*), COALESCE(SUM(credits_saved), 0)
+                FROM rpc_metrics
+                WHERE recorded_at >= datetime('now', '-1 hour')
+                AND cache_action = 'hit'
+            """)
+            row = cursor.fetchone()
+            hits_last_hour = row[0] or 0
+            credits_saved_last_hour = row[1] or 0
+
+            # Total calls last hour (hits + misses + full_scan + skip)
+            cursor.execute("""
+                SELECT COUNT(*)
+                FROM rpc_metrics
+                WHERE recorded_at >= datetime('now', '-1 hour')
+            """)
+            total_calls_hour = cursor.fetchone()[0] or 0
+
+            hit_rate = (hits_last_hour / total_calls_hour * 100) if total_calls_hour > 0 else 0.0
+
+            # Credits saved last 24h
+            cursor.execute("""
+                SELECT COALESCE(SUM(credits_saved), 0)
+                FROM rpc_metrics
+                WHERE recorded_at >= datetime('now', '-24 hours')
+                AND cache_action = 'hit'
+            """)
+            credits_saved_24h = cursor.fetchone()[0] or 0
+
+            conn.close()
+            return {
+                'total_entries': total_entries,
+                'total_hits': int(total_hits),
+                'hits_last_hour': hits_last_hour,
+                'credits_saved_last_hour': credits_saved_last_hour,
+                'credits_saved_24h': credits_saved_24h,
+                'total_calls_hour': total_calls_hour,
+                'hit_rate_percent': hit_rate,
+            }
+        except Exception as e:
+            return {'error': str(e)}
+
     def print_dashboard(self, alerts_only=False):
         """Print formatted enhanced dashboard."""
         cursor_stats = self.get_cursor_stats()
         rpc_stats = self.get_rpc_stats()
         extraction_health = self.get_extraction_health()
+        cache_stats = self.get_cache_stats()
 
         # Run anomaly detection
         anomalies = self.detector.detect_all()
 
         print("\n" + "=" * 100)
-        print("PHASE 1 ENHANCED MONITORING DASHBOARD")
+        print("PHASE 1 ENHANCED MONITORING DASHBOARD (+ PHASE 2 RPC CACHE)")
         print("=" * 100)
         print(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}")
         print(f"Health Status: {self.detector.health_status()}")
@@ -227,6 +283,31 @@ class EnhancedPhase1Dashboard:
                 hours_since = minutes_since / 60
                 activity_color = "🟢" if hours_since < 1 else "🟡" if hours_since < extraction_health['activity_threshold_hours'] else "🔴"
                 print(f"  {activity_color} Last update:         {hours_since:.2f} hours ago")
+
+        print()
+
+        # Phase 2 Cache Statistics Section
+        print("💾 PHASE 2 RPC CACHE (Response-Level)")
+        print("-" * 100)
+        if 'error' in cache_stats:
+            print(f"  ⚠ Error: {cache_stats['error']}")
+        else:
+            entries = cache_stats['total_entries']
+            hits_hour = cache_stats['hits_last_hour']
+            rate = cache_stats['hit_rate_percent']
+            saved_hour = cache_stats['credits_saved_last_hour']
+            saved_24h = cache_stats['credits_saved_24h']
+            total_calls = cache_stats['total_calls_hour']
+
+            cache_color = "🟢" if entries > 100 else "🟡" if entries > 0 else "⚪"
+            rate_color = "🟢" if rate > 30 else "🟠" if rate > 10 else "🟡"
+
+            print(f"  {cache_color} Cache entries:       {entries} (accumulating over time)")
+            print(f"  {rate_color} Hit rate (1h):       {rate:.1f}% ({hits_hour}/{total_calls} calls)")
+            if saved_hour > 0:
+                print(f"     Credits saved (1h):  {saved_hour:,}")
+            if saved_24h > 0:
+                print(f"     Credits saved (24h): {saved_24h:,}")
 
         print()
 

@@ -20036,6 +20036,19 @@ except Exception as e:
 
 
 # =========================================================================
+# PHASE 4 ADVANCED FARM INTELLIGENCE API (Ecosystems, launch waves, coordination)
+# =========================================================================
+try:
+    from src.core.advanced_farm_intelligence_api import register_farm_intelligence_api
+    register_farm_intelligence_api(app, db_path=DB_PATH)
+    print("[ADVANCED_FARM_INTELLIGENCE] Phase 4 advanced farm intelligence API routes registered successfully")
+except ImportError as e:
+    print(f"[WARNING] Advanced farm intelligence API not available: {e}")
+except Exception as e:
+    print(f"[ERROR] Failed to initialize advanced farm intelligence API: {e}")
+
+
+# =========================================================================
 # MAIN
 # =========================================================================
 

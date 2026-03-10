@@ -5,7 +5,8 @@ FLEX Dev Intelligence Graph Detection — Daily Job
 Runs daily at 5:00 AM UTC (after graph detection at 4:30 AM) to detect
 developer organizations spanning wallet → creator → token relationships.
 
-Detects multi-layer developer organizations and computes organization scores.
+Phase 1 (v1): Detects multi-layer developer organizations and computes organization scores.
+Phase 2 (v2): Computes launch probability predictions and organization reputation.
 
 Exit codes:
 - 0: Success
@@ -37,6 +38,7 @@ logger = logging.getLogger(__name__)
 sys.path.insert(0, str(Path(__file__).parent))
 
 from src.core.dev_intelligence_graph import DevIntelligenceEngine
+from src.core.dev_intelligence_v2 import DevIntelligenceV2Engine
 
 
 def main():
@@ -50,18 +52,35 @@ def main():
         return 1
 
     try:
-        logger.info("Starting dev intelligence graph detection")
+        # Phase 1: V1 — Organization detection and scoring
+        logger.info("Starting dev intelligence graph detection (v1)")
         engine = DevIntelligenceEngine(db_path)
         result = engine.detect_and_store()
 
-        logger.info(f"Dev intelligence detection completed: {result['message']}")
+        logger.info(f"Dev intelligence v1 detection completed: {result['message']}")
         logger.info(
             f"Organizations: {result.get('orgs_detected', 0)}, "
             f"Members: {result.get('members_stored', 0)}, "
             f"Duration: {result.get('duration_ms', 0):.0f}ms"
         )
 
-        return 0 if result['status'] == 'success' else 1
+        # Phase 2: V2 — Launch probability predictions and reputation tracking
+        logger.info("Starting dev intelligence v2 (launch predictions + reputation)")
+        engine_v2 = DevIntelligenceV2Engine(db_path)
+        result_v2 = engine_v2.detect_and_store()
+
+        logger.info(f"Dev intelligence v2 completed: {result_v2['message']}")
+        logger.info(
+            f"Orgs processed: {result_v2.get('orgs_processed', 0)}, "
+            f"Duration: {result_v2.get('duration_ms', 0):.0f}ms"
+        )
+
+        # Return success only if both phases succeeded
+        if result['status'] == 'success' and result_v2['status'] == 'success':
+            return 0
+        else:
+            logger.warning(f"One or more phases failed: v1={result['status']}, v2={result_v2['status']}")
+            return 1
 
     except Exception as e:
         logger.error(f"Dev intelligence job failed: {e}", exc_info=True)

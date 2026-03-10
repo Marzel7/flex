@@ -3,12 +3,18 @@ Dev Intelligence Graph API
 
 REST API endpoints for querying developer organizations, members, and tokens.
 
-Endpoints:
+Endpoints (v1):
 - GET /api/orgs — all organizations
 - GET /api/orgs/<id>/members — organization members
 - GET /api/orgs/operator/<wallet> — organization by operator wallet
 - GET /api/orgs/<id>/tokens — tokens launched by organization
 - GET /api/wallets/<wallet>/org — which organization a wallet belongs to
+
+Endpoints (v2):
+- GET /api/orgs/predictions — all orgs by launch probability
+- GET /api/orgs/at-risk — orgs with high rug rate
+- GET /api/orgs/<id>/prediction — launch probability prediction for org
+- GET /api/orgs/<id>/reputation — reputation metrics for org
 """
 
 import sqlite3
@@ -76,6 +82,150 @@ def get_organizations():
 
     except Exception as e:
         logger.error(f"Error fetching organizations: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================================================
+# V2 ENDPOINTS: Launch Predictions & Organization Reputation
+# ============================================================================
+
+@dev_intelligence_api.route('/orgs/predictions', methods=['GET'])
+def get_org_predictions():
+    """
+    Get all organizations sorted by launch_probability DESC.
+    Returns the latest prediction for each org.
+
+    Query params:
+    - min_probability: minimum launch probability (0-100), default 30
+    - limit: max results, default 50
+    """
+    try:
+        min_prob = float(request.args.get('min_probability', 30))
+        limit = int(request.args.get('limit', 50))
+
+        conn = get_db_conn()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT olp.organization_id, do_.operator_wallet, do_.token_count,
+                   do_.creator_count, olp.launch_probability, olp.prediction_date,
+                   olp.signal_recency, olp.signal_scale, olp.signal_launch_rate,
+                   olp.days_since_last_funding, olp.avg_rug_probability
+            FROM org_launch_predictions olp
+            JOIN dev_organizations do_ ON olp.organization_id = do_.organization_id
+            WHERE olp.launch_probability >= ?
+              AND olp.prediction_date = (
+                  SELECT MAX(olp2.prediction_date)
+                  FROM org_launch_predictions olp2
+                  WHERE olp2.organization_id = olp.organization_id
+              )
+            ORDER BY olp.launch_probability DESC
+            LIMIT ?
+        """, (min_prob, limit))
+
+        rows = [dict(r) for r in cursor.fetchall()]
+        conn.close()
+
+        return jsonify(rows), 200
+
+    except Exception as e:
+        logger.error(f"Error fetching org predictions: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dev_intelligence_api.route('/orgs/at-risk', methods=['GET'])
+def get_at_risk_orgs():
+    """
+    Get organizations with high rug_rate, sorted by rug_rate DESC.
+
+    Query params:
+    - min_rug_rate: minimum rug rate (0-1), default 0.5
+    - limit: max results, default 50
+    """
+    try:
+        min_rug = float(request.args.get('min_rug_rate', 0.5))
+        limit = int(request.args.get('limit', 50))
+
+        conn = get_db_conn()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT orep.organization_id, do_.operator_wallet, do_.token_count,
+                   orep.total_tokens_launched, orep.rug_count, orep.rug_rate,
+                   orep.success_rate, orep.reputation_score, orep.computed_at
+            FROM org_reputation orep
+            JOIN dev_organizations do_ ON orep.organization_id = do_.organization_id
+            WHERE orep.rug_rate >= ?
+            ORDER BY orep.rug_rate DESC
+            LIMIT ?
+        """, (min_rug, limit))
+
+        rows = [dict(r) for r in cursor.fetchall()]
+        conn.close()
+
+        return jsonify(rows), 200
+
+    except Exception as e:
+        logger.error(f"Error fetching at-risk orgs: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dev_intelligence_api.route('/orgs/<int:org_id>/prediction', methods=['GET'])
+def get_org_prediction(org_id):
+    """
+    Get launch probability prediction for an organization with signal breakdown.
+    Returns the most recent prediction for the org.
+    """
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT olp.*, do_.operator_wallet, do_.token_count, do_.creator_count
+            FROM org_launch_predictions olp
+            JOIN dev_organizations do_ ON olp.organization_id = do_.organization_id
+            WHERE olp.organization_id = ?
+            ORDER BY olp.prediction_date DESC
+            LIMIT 1
+        """, (org_id,))
+
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            return jsonify({'error': 'Prediction not found for organization'}), 404
+
+        return jsonify(dict(row)), 200
+
+    except Exception as e:
+        logger.error(f"Error fetching org prediction: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dev_intelligence_api.route('/orgs/<int:org_id>/reputation', methods=['GET'])
+def get_org_reputation(org_id):
+    """Get reputation metrics for an organization."""
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT orep.*, do_.operator_wallet
+            FROM org_reputation orep
+            JOIN dev_organizations do_ ON orep.organization_id = do_.organization_id
+            WHERE orep.organization_id = ?
+        """, (org_id,))
+
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            return jsonify({'error': 'Reputation not found for organization'}), 404
+
+        return jsonify(dict(row)), 200
+
+    except Exception as e:
+        logger.error(f"Error fetching org reputation: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 

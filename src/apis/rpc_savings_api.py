@@ -6,6 +6,7 @@ Purpose: Query rpc_metrics and return dashboard data for frontend visualization
 
 import sqlite3
 import json
+import os
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
@@ -13,7 +14,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-DB_PATH = "flex_complete_database.db"
+DB_PATH = os.getenv("DB_PATH", "database/flex_complete_database.db")
 
 # ============================================================================
 # DATA CLASSES (for type safety and JSON serialization)

@@ -41,7 +41,7 @@ except ImportError:
     def record_request(*args, **kwargs):
         pass  # No-op if metrics recorder not available
 
-DB_PATH = "flex_complete_database.db"
+DB_PATH = os.environ.get('DB_PATH', os.getenv('RPC_METRICS_DB', 'flex_complete_database.db'))
 # Initialize creator funding cache for Layer 6 optimization
 try:
     from src.utils.creator_funding_graph_cache import CreatorFundingGraphCache

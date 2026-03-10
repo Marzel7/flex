@@ -15,6 +15,15 @@ Endpoints (v2):
 - GET /api/orgs/at-risk — orgs with high rug rate
 - GET /api/orgs/<id>/prediction — launch probability prediction for org
 - GET /api/orgs/<id>/reputation — reputation metrics for org
+
+Endpoints (v3):
+- GET /api/orgs/windows — all orgs with 3-window predictions
+- GET /api/orgs/<id>/windows — 3-window prediction for single org
+- GET /api/orgs/<id>/snapshots — time-series snapshots for org
+- GET /api/orgs/<id>/risk — risk score with components
+- GET /api/orgs/families — org family groupings
+- GET /api/orgs/<id>/alerts — alerts for org
+- GET /api/tokens/<mint>/outcome — token outcome prediction
 """
 
 import sqlite3
@@ -226,6 +235,253 @@ def get_org_reputation(org_id):
 
     except Exception as e:
         logger.error(f"Error fetching org reputation: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================================================
+# V3 ENDPOINTS: Multi-Window Predictions, Snapshots, Risk, Families, Alerts, Tokens
+# ============================================================================
+
+@dev_intelligence_api.route('/orgs/windows', methods=['GET'])
+def get_org_windows():
+    """
+    Get all organizations with 3-window launch predictions (24h, 72h, 7d).
+    Returns latest prediction for each org.
+
+    Query params:
+    - min_prob_24h: minimum 24h probability (0-100), default 30
+    - limit: max results, default 50
+    """
+    try:
+        min_prob = float(request.args.get('min_prob_24h', 30))
+        limit = int(request.args.get('limit', 50))
+
+        conn = get_db_conn()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT olw.organization_id, do_.operator_wallet, do_.token_count,
+                   do_.creator_count, olw.prob_launch_24h, olw.prob_launch_72h,
+                   olw.prob_launch_7d, olw.prediction_date,
+                   olw.signal_burst_24h, olw.signal_recency_24h, olw.signal_velocity_72h,
+                   olw.signal_coordination_72h, olw.signal_reputation_7d
+            FROM org_launch_windows olw
+            JOIN dev_organizations do_ ON olw.organization_id = do_.organization_id
+            WHERE olw.prob_launch_24h >= ?
+              AND olw.prediction_date = (SELECT MAX(olw2.prediction_date)
+                                         FROM org_launch_windows olw2
+                                         WHERE olw2.organization_id = olw.organization_id)
+            ORDER BY olw.prob_launch_24h DESC
+            LIMIT ?
+        """, (min_prob, limit))
+
+        rows = [dict(r) for r in cursor.fetchall()]
+        conn.close()
+
+        return jsonify(rows), 200
+
+    except Exception as e:
+        logger.error(f"Error fetching org windows: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dev_intelligence_api.route('/orgs/<int:org_id>/windows', methods=['GET'])
+def get_org_window(org_id):
+    """Get 3-window prediction for single organization."""
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT * FROM org_launch_windows
+            WHERE organization_id = ?
+            ORDER BY prediction_date DESC
+            LIMIT 1
+        """, (org_id,))
+
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            return jsonify({'error': 'Windows not found for organization'}), 404
+
+        return jsonify(dict(row)), 200
+
+    except Exception as e:
+        logger.error(f"Error fetching org window: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dev_intelligence_api.route('/orgs/<int:org_id>/snapshots', methods=['GET'])
+def get_org_snapshots(org_id):
+    """
+    Get time-series snapshots for organization.
+
+    Query params:
+    - days: number of past days, default 7
+    """
+    try:
+        days = int(request.args.get('days', 7))
+
+        conn = get_db_conn()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT snapshot_id, organization_id, snapshot_date, active_funders,
+                   active_creators, burst_count, weighted_volume, graph_density,
+                   launch_count, rug_count, computed_at
+            FROM org_snapshots
+            WHERE organization_id = ?
+              AND snapshot_date >= date('now', ?)
+            ORDER BY snapshot_date DESC
+        """, (org_id, f'-{days} days'))
+
+        rows = [dict(r) for r in cursor.fetchall()]
+        conn.close()
+
+        return jsonify(rows), 200
+
+    except Exception as e:
+        logger.error(f"Error fetching org snapshots: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dev_intelligence_api.route('/orgs/<int:org_id>/risk', methods=['GET'])
+def get_org_risk(org_id):
+    """Get composite risk score with components for organization."""
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT * FROM org_risk_scores
+            WHERE organization_id = ?
+        """, (org_id,))
+
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            return jsonify({'error': 'Risk not found for organization'}), 404
+
+        return jsonify(dict(row)), 200
+
+    except Exception as e:
+        logger.error(f"Error fetching org risk: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dev_intelligence_api.route('/orgs/families', methods=['GET'])
+def get_org_families():
+    """
+    Get organization family groupings (connected components on relationship graph).
+
+    Query params:
+    - min_family_score: minimum family score (0-100), default 10
+    - limit: max results, default 100
+    """
+    try:
+        min_score = float(request.args.get('min_family_score', 10))
+        limit = int(request.args.get('limit', 100))
+
+        conn = get_db_conn()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT family_id, GROUP_CONCAT(organization_id) AS org_ids,
+                   AVG(family_score) AS avg_family_score, MAX(family_score) AS max_family_score,
+                   MAX(CASE WHEN organization_id = hub_org_id THEN 1 ELSE 0 END) AS hub_present,
+                   MIN(hub_org_id) AS hub_org_id
+            FROM org_families
+            GROUP BY family_id
+            HAVING avg_family_score >= ?
+            ORDER BY max_family_score DESC
+            LIMIT ?
+        """, (min_score, limit))
+
+        families = []
+        for row in cursor.fetchall():
+            families.append({
+                'family_id': row[0],
+                'organization_ids': [int(x) for x in row[1].split(',')],
+                'avg_family_score': row[2],
+                'max_family_score': row[3],
+                'hub_org_id': row[5],
+            })
+
+        conn.close()
+
+        return jsonify(families), 200
+
+    except Exception as e:
+        logger.error(f"Error fetching org families: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dev_intelligence_api.route('/orgs/<int:org_id>/alerts', methods=['GET'])
+def get_org_alerts(org_id):
+    """
+    Get alerts for organization.
+
+    Query params:
+    - limit: max results, default 20
+    - unacked_only: return only unacknowledged alerts (true/false), default false
+    """
+    try:
+        limit = int(request.args.get('limit', 20))
+        unacked_only = request.args.get('unacked_only', 'false').lower() == 'true'
+
+        conn = get_db_conn()
+        cursor = conn.cursor()
+
+        if unacked_only:
+            cursor.execute("""
+                SELECT * FROM org_alerts
+                WHERE organization_id = ?
+                  AND acknowledged_at IS NULL
+                ORDER BY created_at DESC
+                LIMIT ?
+            """, (org_id, limit))
+        else:
+            cursor.execute("""
+                SELECT * FROM org_alerts
+                WHERE organization_id = ?
+                ORDER BY created_at DESC
+                LIMIT ?
+            """, (org_id, limit))
+
+        rows = [dict(r) for r in cursor.fetchall()]
+        conn.close()
+
+        return jsonify(rows), 200
+
+    except Exception as e:
+        logger.error(f"Error fetching org alerts: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dev_intelligence_api.route('/tokens/<mint>/outcome', methods=['GET'])
+def get_token_outcome(mint):
+    """Get outcome prediction for token (prob_rug, prob_2x, prob_10x)."""
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT * FROM token_outcome_predictions
+            WHERE mint = ?
+        """, (mint,))
+
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            return jsonify({'error': 'Token not found'}), 404
+
+        return jsonify(dict(row)), 200
+
+    except Exception as e:
+        logger.error(f"Error fetching token outcome: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 

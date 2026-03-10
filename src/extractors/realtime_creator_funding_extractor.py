@@ -295,9 +295,17 @@ class RealTimeCreatorFundingExtractor:
         try:
             from src.core.cursor_manager import CursorManager
             self.cursor_mgr = CursorManager(DB_PATH)
-            logger.info("✅ CursorManager initialized for Phase 1 deployment")
+            print("✅ CursorManager initialized for Phase 1 deployment", flush=True)
         except Exception as e:
-            logger.warning(f"⚠ CursorManager initialization failed: {e} (Phase 1 disabled)")  # FIX #8: Bound RPC concurrency
+            print(f"⚠ CursorManager initialization failed: {e} (Phase 1 disabled)", flush=True)
+        # Phase 2: Initialize RPCCache for response-level caching
+        self.rpc_cache = None
+        try:
+            from src.core.rpc_cache import RPCCache
+            self.rpc_cache = RPCCache(DB_PATH)
+            print("✅ RPCCache initialized for Phase 2 deployment", flush=True)
+        except Exception as e:
+            print(f"⚠ RPCCache initialization failed: {e} (Phase 2 disabled)", flush=True)  # FIX #8: Bound RPC concurrency
 
     async def init_session(self):
         """Initialize aiohttp session and domain resolver"""
@@ -333,7 +341,12 @@ class RealTimeCreatorFundingExtractor:
         if self.session:
             await self.session.close()
 
-    async def _post_rpc(self, payload: dict) -> Optional[dict]:
+    async def _post_rpc(
+        self,
+        payload: dict,
+        cache_action: str = "none",
+        credits_saved: int = 0,
+    ) -> Optional[dict]:
         """Post to RPC with failover chain + semaphore concurrency control - mirrors post_migration_analyzer approach"""
         async with self._rpc_sem:  # FIX #8: Bound concurrent RPC calls
             for attempt in range(MAX_RETRIES):
@@ -445,6 +458,7 @@ class RealTimeCreatorFundingExtractor:
         """
         Get signatures UNTIL a specific timestamp (Unix seconds).
         Returns list of (signature, blockTime) tuples.
+        (with Phase 2 cache for pagination pages)
         """
         signatures = []
         before = None
@@ -463,7 +477,35 @@ class RealTimeCreatorFundingExtractor:
                 ]
             }
 
-            result = await self._post_rpc(payload)
+            # Phase 2: Check cache before RPC call (getSignaturesForAddress = 10 credits)
+            cache_result = None
+            sig_cache_key = None
+            if self.rpc_cache is not None:
+                sig_cache_key = self.rpc_cache.make_key_get_signatures(creator, before, limit)
+                cache_result = self.rpc_cache.get(sig_cache_key)
+
+            if cache_result is not None:
+                # Cache hit
+                result = cache_result
+                record_request(
+                    section="creator_funding",
+                    provider="helius_rpc",
+                    method="getSignaturesForAddress",
+                    status_code=200,
+                    latency_ms=0.0,
+                    mode="realtime",
+                    retries=0,
+                    source_file="realtime_creator_funding_extractor",
+                    cache_action="hit",
+                    credits_saved=10,
+                )
+            else:
+                # Cache miss: make live RPC call
+                result = await self._post_rpc(payload, cache_action="miss", credits_saved=0)
+                # Cache the result for future pagination requests
+                if result and "result" in result and sig_cache_key and self.rpc_cache is not None:
+                    self.rpc_cache.set(sig_cache_key, result, "getSignaturesForAddress")
+
             if not result or "result" not in result:
                 break
 
@@ -495,7 +537,27 @@ class RealTimeCreatorFundingExtractor:
         return signatures
 
     async def get_transaction(self, signature: str) -> Optional[Dict]:
-        """Get transaction with RPC failover"""
+        """Get transaction with RPC failover (with Phase 2 cache)"""
+        # Phase 2: Check cache first (getTransaction = 10 credits, 24h TTL, immutable data)
+        if self.rpc_cache is not None:
+            cache_key = self.rpc_cache.make_key_get_transaction(signature)
+            cached = self.rpc_cache.get(cache_key)
+            if cached is not None:
+                # Cache hit: record metric
+                record_request(
+                    section="creator_funding",
+                    provider="helius_rpc",
+                    method="getTransaction",
+                    status_code=200,
+                    latency_ms=0.0,
+                    mode="realtime",
+                    retries=0,
+                    source_file="realtime_creator_funding_extractor",
+                    cache_action="hit",
+                    credits_saved=10,
+                )
+                return cached
+
         payload = {
             "jsonrpc": "2.0",
             "id": 1,
@@ -505,11 +567,15 @@ class RealTimeCreatorFundingExtractor:
                 {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}
             ]
         }
-        result = await self._post_rpc(payload)
+        result = await self._post_rpc(payload, cache_action="miss", credits_saved=0)
         if result and "result" in result:
             tx = result.get("result")
             # RPC may return null for old/pruned transactions
             if tx is not None:
+                # Phase 2: Cache the result for future requests
+                if self.rpc_cache is not None:
+                    cache_key = self.rpc_cache.make_key_get_transaction(signature)
+                    self.rpc_cache.set(cache_key, tx, "getTransaction")
                 return tx
         return None
 

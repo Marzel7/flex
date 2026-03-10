@@ -20023,6 +20023,19 @@ def _classify_risk(reputation_score: float) -> str:
 
 
 # =========================================================================
+# PHASE 3.3+ LAUNCH PREDICTION API (Launch watchlist, creator reuse, pumpfun)
+# =========================================================================
+try:
+    from src.core.launch_prediction_api import register_launch_api
+    register_launch_api(app, db_path=DB_PATH)
+    print("[LAUNCH_PREDICTION] Phase 3.3+ launch prediction API routes registered successfully")
+except ImportError as e:
+    print(f"[WARNING] Launch prediction API not available: {e}")
+except Exception as e:
+    print(f"[ERROR] Failed to initialize launch prediction API: {e}")
+
+
+# =========================================================================
 # MAIN
 # =========================================================================
 

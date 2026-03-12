@@ -2609,11 +2609,9 @@ def cleanup_and_restart():
 def start_rpc_metrics_api():
     """Start RPC Metrics API in background subprocess"""
     import subprocess
-    import time
 
     try:
         # Check if API is already running
-        import requests
         try:
             requests.get("http://localhost:8001/health", timeout=2)
             log_print("[INIT] ✓ RPC Metrics API already running on port 8001", flush=True)

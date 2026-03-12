@@ -53,7 +53,7 @@ echo "✓ Listener started (PID: $LISTENER_PID)"
 
 echo ""
 echo "🚀 Starting Flask app with Token Price System..."
-python src/core/main.py &
+PYTHONPATH="$PROJECT_ROOT" python src/core/main.py &
 FLASK_PID=$!
 sleep 3
 echo "✓ Flask started with Price System (PID: $FLASK_PID)"

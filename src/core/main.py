@@ -20060,6 +20060,18 @@ except Exception as e:
     print(f"[ERROR] Failed to initialize dev intelligence API: {e}")
 
 # =========================================================================
+# FLEX UI API (Dashboard endpoints for intelligence signals)
+# =========================================================================
+try:
+    from src.core.flex_ui_api import register_flex_ui_api
+    register_flex_ui_api(app, db_path=DB_PATH)
+    print("[FLEX_UI] FLEX UI API routes registered successfully")
+except ImportError as e:
+    print(f"[WARNING] FLEX UI API not available: {e}")
+except Exception as e:
+    print(f"[ERROR] Failed to initialize FLEX UI API: {e}")
+
+# =========================================================================
 # MAIN
 # =========================================================================
 

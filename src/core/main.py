@@ -2664,6 +2664,8 @@ HTML_TEMPLATE = """
             <a class="sidebar-item" href="/creator-analysis">Creator Analysis</a>
             <a class="sidebar-item" href="/webhook-monitor">Transfers</a>
             <a class="sidebar-item green" href="/rpc-savings-dashboard">RPC</a>
+            <hr style="margin: 10px 0; border: none; border-top: 1px solid rgba(255,255,255,0.1);">
+            <a class="sidebar-item" href="/launch-radar" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; font-weight: bold;">📊 Intelligence</a>
         </nav>
     </div>
 
@@ -20082,6 +20084,16 @@ except ImportError as e:
     print(f"[WARNING] FLEX Dashboard not available: {e}")
 except Exception as e:
     print(f"[ERROR] Failed to initialize FLEX Dashboard: {e}")
+
+# Price API
+try:
+    from src.apis.price_api import register_price_api
+    register_price_api(app)
+    print("[PRICE_API] Token Price API routes registered successfully")
+except ImportError as e:
+    print(f"[WARNING] Price API not available: {e}")
+except Exception as e:
+    print(f"[ERROR] Failed to initialize Price API: {e}")
 
 # =========================================================================
 # MAIN

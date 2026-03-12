@@ -150,6 +150,19 @@ def developer_fingerprint(org_id):
         return jsonify({'error': str(e)}), 500
 
 
+@dashboard_routes.route('/api-reference', methods=['GET'])
+def api_reference():
+    """
+    Render API Reference page.
+    Comprehensive documentation of all FLEX UI API endpoints with examples.
+    """
+    try:
+        return render_template('flex_dashboard.html', page='api_reference')
+    except Exception as e:
+        logger.error(f"Error rendering API reference: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
 def register_dashboard_routes(app):
     """Register dashboard routes with Flask app."""
     app.register_blueprint(dashboard_routes)

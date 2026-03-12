@@ -500,6 +500,239 @@
             background: rgba(34, 197, 94, 0.1);
             color: #86efac;
         }
+
+        /* Developer Tools */
+        .dev-tools-panel {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 500px;
+            max-height: 400px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem 0.5rem 0 0;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.5);
+            display: none;
+            flex-direction: column;
+            z-index: 999;
+            margin: 1rem;
+        }
+
+        .dev-tools-panel.active {
+            display: flex;
+        }
+
+        .dev-tools-header {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .dev-tools-header h5 {
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .dev-tools-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0;
+            font-size: 1.2rem;
+        }
+
+        .dev-tools-close:hover {
+            color: var(--text-primary);
+        }
+
+        .dev-tools-log {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.75rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.75rem;
+        }
+
+        .dev-tools-entry {
+            padding: 0.5rem;
+            margin-bottom: 0.25rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 0.25rem;
+            border-left: 2px solid var(--color-primary);
+        }
+
+        .dev-tools-entry.error {
+            border-left-color: var(--color-critical);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .dev-tools-entry.success {
+            border-left-color: var(--color-low);
+            background: rgba(132, 204, 22, 0.1);
+        }
+
+        .dev-tools-timestamp {
+            color: var(--text-secondary);
+            margin-right: 0.5rem;
+            font-weight: 600;
+        }
+
+        .dev-tools-method {
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-right: 0.5rem;
+        }
+
+        .dev-tools-endpoint {
+            color: var(--color-secondary);
+            font-family: monospace;
+        }
+
+        .dev-tools-status {
+            margin-left: 0.5rem;
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.2rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .dev-tools-status.status-200 {
+            background: rgba(132, 204, 22, 0.2);
+            color: #84cc16;
+        }
+
+        .dev-tools-status.status-400 {
+            background: rgba(249, 115, 22, 0.2);
+            color: #f97316;
+        }
+
+        .dev-tools-status.status-500 {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .api-reference-endpoint {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .api-reference-endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .api-method-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .api-method-get {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+
+        .api-endpoint-path {
+            font-family: monospace;
+            color: var(--color-secondary);
+            font-size: 1rem;
+        }
+
+        .api-endpoint-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .api-endpoint-section-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .api-example-code {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 0.25rem;
+            padding: 0.75rem;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--color-secondary);
+        }
+
+        .api-consuming-pages {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .api-page-badge {
+            background: rgba(139, 92, 246, 0.2);
+            color: #d8b4fe;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+        }
+
+        .api-reference-toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 280px;
+        }
+
+        .api-reference-toc-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .api-reference-toc-section {
+            margin-bottom: 1rem;
+        }
+
+        .api-reference-toc-section-title {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .api-reference-toc-link {
+            display: block;
+            padding: 0.25rem 0.75rem;
+            color: var(--color-primary);
+            text-decoration: none;
+            cursor: pointer;
+            border-radius: 0.25rem;
+            transition: background 0.2s;
+        }
+
+        .api-reference-toc-link:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -542,6 +775,17 @@
             <div class="nav-section-title">Tools</div>
             <a class="nav-link" onclick="showWalletSearch()">
                 <i class="fas fa-wallet"></i> <span>Wallet Search</span>
+            </a>
+        </div>
+
+        <!-- Developer Tools -->
+        <div class="nav-section">
+            <div class="nav-section-title">Developer</div>
+            <a class="nav-link" onclick="loadPage('api_reference')">
+                <i class="fas fa-code"></i> <span>API Reference</span>
+            </a>
+            <a class="nav-link" id="devtools-toggle" onclick="toggleDevTools()">
+                <i class="fas fa-terminal"></i> <span>Debug Panel</span>
             </a>
         </div>
     </nav>
@@ -592,6 +836,7 @@
                 'waves': loadLaunchWaves,
                 'clusters': loadClusterExplorer,
                 'signal_explorer': loadSignalExplorer,
+                'api_reference': loadAPIReference,
             };
             (routes[page] || loadDashboard)();
         };
@@ -1682,12 +1927,330 @@
             }
         }
 
+        // API REFERENCE PAGE
+        async function loadAPIReference() {
+            const content = document.getElementById('page-content');
+            content.innerHTML = `
+                <div class="page-header">
+                    <h1><i class="fas fa-code"></i> API Reference</h1>
+                    <p class="text-secondary">Comprehensive documentation of FLEX UI API endpoints</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 280px; gap: 2rem; margin-top: 2rem;">
+                    <div id="apiEndpoints"></div>
+                    <div class="api-reference-toc">
+                        <div class="api-reference-toc-title">Quick Navigation</div>
+                        <div class="api-reference-toc-section">
+                            <div class="api-reference-toc-section-title">Dashboard</div>
+                            <a class="api-reference-toc-link" onclick="document.getElementById('endpoint-dashboard').scrollIntoView()">GET /api/dashboard</a>
+                        </div>
+                        <div class="api-reference-toc-section">
+                            <div class="api-reference-toc-section-title">Organizations</div>
+                            <a class="api-reference-toc-link" onclick="document.getElementById('endpoint-orgs').scrollIntoView()">GET /api/organizations</a>
+                            <a class="api-reference-toc-link" onclick="document.getElementById('endpoint-org-detail').scrollIntoView()">GET /api/organization/:id</a>
+                        </div>
+                        <div class="api-reference-toc-section">
+                            <div class="api-reference-toc-section-title">Predictions</div>
+                            <a class="api-reference-toc-link" onclick="document.getElementById('endpoint-leaderboard').scrollIntoView()">GET /api/launch-leaderboard</a>
+                            <a class="api-reference-toc-link" onclick="document.getElementById('endpoint-signals').scrollIntoView()">GET /api/signals/:id</a>
+                        </div>
+                        <div class="api-reference-toc-section">
+                            <div class="api-reference-toc-section-title">Analysis</div>
+                            <a class="api-reference-toc-link" onclick="document.getElementById('endpoint-waves').scrollIntoView()">GET /api/launch-waves</a>
+                            <a class="api-reference-toc-link" onclick="document.getElementById('endpoint-clusters').scrollIntoView()">GET /api/dev-clusters</a>
+                        </div>
+                        <div class="api-reference-toc-section">
+                            <div class="api-reference-toc-section-title">Wallet</div>
+                            <a class="api-reference-toc-link" onclick="document.getElementById('endpoint-wallet').scrollIntoView()">GET /api/wallet/:address</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Render all endpoints
+            const endpoints = [
+                {
+                    id: 'endpoint-dashboard',
+                    route: '/api/dashboard',
+                    method: 'GET',
+                    purpose: 'Fetch system overview with critical alerts, organization count, and latest wave',
+                    params: 'None',
+                    response: '{ critical_alerts: number, high_alerts: number, organizations_monitored: number, latest_wave: number }',
+                    example: '{ "critical_alerts": 3, "high_alerts": 12, "organizations_monitored": 487, "latest_wave": 42 }',
+                    pages: ['Dashboard']
+                },
+                {
+                    id: 'endpoint-leaderboard',
+                    route: '/api/launch-leaderboard',
+                    method: 'GET',
+                    purpose: 'Ranked list of organizations by master launch score with all signal values',
+                    params: 'limit (default: 100), offset (default: 0), alert_level (optional: CRITICAL, HIGH, WATCH, LOW)',
+                    response: '{ organizations: [{ id, operator, master_launch_score, alert_level, all 8 signals, token_count, creator_count }] }',
+                    example: `{
+  "organizations": [{
+    "id": 1,
+    "operator": "8GhGLVhJhL...",
+    "master_launch_score": 0.92,
+    "alert_level": "CRITICAL",
+    "signals": { "launch_probability": 0.89, "wave_score": 0.85, ... },
+    "token_count": 23,
+    "creator_count": 12
+  }]
+}`,
+                    pages: ['Launch Radar', 'Dashboard']
+                },
+                {
+                    id: 'endpoint-orgs',
+                    route: '/api/organizations',
+                    method: 'GET',
+                    purpose: 'Browse all detected developer organizations with cluster and member information',
+                    params: 'limit (default: 500), offset (default: 0), min_score (optional: 0-1 filter)',
+                    response: '{ organizations: [{ id, operator, cluster_size, wallet_count, creator_count, token_count, org_score, master_score, alert_level }] }',
+                    example: `{
+  "organizations": [{
+    "id": 1,
+    "operator": "8GhGLVhJhL...",
+    "cluster_size": 48,
+    "wallet_count": 156,
+    "creator_count": 12,
+    "token_count": 28,
+    "org_score": 0.76,
+    "master_score": 0.92,
+    "alert_level": "CRITICAL"
+  }]
+}`,
+                    pages: ['Organizations', 'Org Explorer']
+                },
+                {
+                    id: 'endpoint-org-detail',
+                    route: '/api/organization/<organization_id>',
+                    method: 'GET',
+                    purpose: 'Complete organization profile including members, tokens, and analysis',
+                    params: 'organization_id (path parameter)',
+                    response: '{ id, operator, cluster_size, members: [], tokens: [], created_at, last_activity }',
+                    example: `{
+  "id": 1,
+  "operator": "8GhGLVhJhL...",
+  "cluster_size": 48,
+  "members": [{ "address": "...", "type": "creator" }, ...],
+  "tokens": [{ "mint": "...", "created_at": 1678...}],
+  "created_at": 1677123456,
+  "last_activity": 1678456789
+}`,
+                    pages: ['Organization Detail', 'Launch Radar']
+                },
+                {
+                    id: 'endpoint-signals',
+                    route: '/api/signals/<organization_id>',
+                    method: 'GET',
+                    purpose: 'All 8 predictive signals and master launch score for an organization',
+                    params: 'organization_id (path parameter)',
+                    response: '{ launch_probability, wave_score, seed_concentration, creator_reuse, funder_overlap, velocity_score, volatility_score, recency_score, master_launch_score }',
+                    example: `{
+  "launch_probability": 0.89,
+  "wave_score": 0.85,
+  "seed_concentration": 0.72,
+  "creator_reuse": 0.68,
+  "funder_overlap": 0.91,
+  "velocity_score": 0.79,
+  "volatility_score": 0.65,
+  "recency_score": 0.88,
+  "master_launch_score": 0.92
+}`,
+                    pages: ['Organization Detail', 'Signal Explorer']
+                },
+                {
+                    id: 'endpoint-waves',
+                    route: '/api/launch-waves',
+                    method: 'GET',
+                    purpose: 'Detected coordinated launch preparation waves',
+                    params: 'limit (default: 50), offset (default: 0)',
+                    response: '{ waves: [{ wave_id, type, org_count, creator_count, avg_score, detected_at }] }',
+                    example: `{
+  "waves": [{
+    "wave_id": 42,
+    "type": "pump_fun",
+    "org_count": 12,
+    "creator_count": 47,
+    "avg_score": 0.81,
+    "detected_at": 1678456789
+  }]
+}`,
+                    pages: ['Launch Waves', 'Dashboard']
+                },
+                {
+                    id: 'endpoint-clusters',
+                    route: '/api/dev-clusters',
+                    method: 'GET',
+                    purpose: 'Detected developer farm clusters with strength and risk metrics',
+                    params: 'limit (default: 50), offset (default: 0)',
+                    response: '{ clusters: [{ cluster_id, strength, rug_probability, wallet_count, creator_count, detected_at }] }',
+                    example: `{
+  "clusters": [{
+    "cluster_id": "abc123",
+    "strength": 0.87,
+    "rug_probability": 0.34,
+    "wallet_count": 156,
+    "creator_count": 12,
+    "detected_at": 1678456789
+  }]
+}`,
+                    pages: ['Dev Clusters', 'Dashboard']
+                },
+                {
+                    id: 'endpoint-wallet',
+                    route: '/api/wallet/<wallet_address>',
+                    method: 'GET',
+                    purpose: 'Wallet-level intelligence including organization membership and token history',
+                    params: 'wallet_address (path parameter)',
+                    response: '{ address, member_type, organization_id, tokens_launched, rug_count, success_rate, reputation_score, tokens: [] }',
+                    example: `{
+  "address": "8GhGLVhJhL...",
+  "member_type": "creator",
+  "organization_id": 1,
+  "tokens_launched": 23,
+  "rug_count": 2,
+  "success_rate": 0.91,
+  "reputation_score": 0.78,
+  "tokens": [{ "mint": "...", "rug_probability": 0.05, "created_at": 1678...}]
+}`,
+                    pages: ['Wallet Intelligence', 'Organization Detail']
+                }
+            ];
+
+            const endpointsContainer = document.getElementById('apiEndpoints');
+            endpointsContainer.innerHTML = endpoints.map(ep => `
+                <div class="api-reference-endpoint" id="${ep.id}">
+                    <div class="api-reference-endpoint-header">
+                        <span class="api-method-badge api-method-get">${ep.method}</span>
+                        <code class="api-endpoint-path">${ep.route}</code>
+                    </div>
+                    <div class="api-endpoint-section">
+                        <div class="api-endpoint-section-title">Purpose</div>
+                        <p>${ep.purpose}</p>
+                    </div>
+                    <div class="api-endpoint-section">
+                        <div class="api-endpoint-section-title">Request Parameters</div>
+                        <p><code>${ep.params}</code></p>
+                    </div>
+                    <div class="api-endpoint-section">
+                        <div class="api-endpoint-section-title">Response Schema</div>
+                        <div class="api-example-code">${escapeHtml(ep.response)}</div>
+                    </div>
+                    <div class="api-endpoint-section">
+                        <div class="api-endpoint-section-title">Example Response</div>
+                        <div class="api-example-code">${escapeHtml(ep.example)}</div>
+                    </div>
+                    <div class="api-endpoint-section">
+                        <div class="api-endpoint-section-title">Consuming Pages</div>
+                        <div class="api-consuming-pages">
+                            ${ep.pages.map(p => `<span class="api-page-badge">${p}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // DEVELOPER TOOLS
+        const APILog = [];
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function logAPICall(method, endpoint, statusCode, duration, payloadSize, page) {
+            const entry = {
+                timestamp: new Date().toLocaleTimeString(),
+                method,
+                endpoint,
+                statusCode,
+                duration,
+                payloadSize,
+                page
+            };
+            APILog.unshift(entry);
+            if (APILog.length > 100) APILog.pop();
+            updateDevToolsPanel();
+        }
+
+        function toggleDevTools() {
+            const panel = document.getElementById('devToolsPanel');
+            if (!panel) createDevToolsPanel();
+            document.getElementById('devToolsPanel').classList.toggle('active');
+        }
+
+        function createDevToolsPanel() {
+            const panel = document.createElement('div');
+            panel.id = 'devToolsPanel';
+            panel.className = 'dev-tools-panel';
+            panel.innerHTML = `
+                <div class="dev-tools-header">
+                    <h5><i class="fas fa-terminal"></i> API Debug Log</h5>
+                    <button class="dev-tools-close" onclick="document.getElementById('devToolsPanel').classList.remove('active')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="dev-tools-log" id="devToolsLog">
+                    <div style="color: #94a3b8; font-size: 0.85rem;">API calls will appear here...</div>
+                </div>
+            `;
+            document.body.appendChild(panel);
+        }
+
+        function updateDevToolsPanel() {
+            const log = document.getElementById('devToolsLog');
+            if (!log) return;
+
+            log.innerHTML = APILog.map(entry => {
+                const statusClass = entry.statusCode >= 200 && entry.statusCode < 300 ? 'success' :
+                                   entry.statusCode >= 400 && entry.statusCode < 500 ? 'error' : 'error';
+                return `
+                    <div class="dev-tools-entry ${statusClass}">
+                        <span class="dev-tools-timestamp">${entry.timestamp}</span>
+                        <span class="dev-tools-method">${entry.method}</span>
+                        <span class="dev-tools-endpoint">${entry.endpoint}</span>
+                        <span class="dev-tools-status status-${entry.statusCode}">${entry.statusCode}</span>
+                        <span style="font-size: 0.7rem; color: #94a3b8; margin-left: 0.5rem;">${entry.duration}ms ${entry.payloadSize}B</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Intercept fetch calls
+        const originalFetch = window.fetch;
+        window.fetch = async function(...args) {
+            const startTime = performance.now();
+            const url = typeof args[0] === 'string' ? args[0] : args[0].url;
+            const method = (args[1]?.method || 'GET').toUpperCase();
+
+            try {
+                const response = await originalFetch.apply(this, args);
+                const duration = Math.round(performance.now() - startTime);
+                const clonedResponse = response.clone();
+                const text = await clonedResponse.text();
+                const payloadSize = new Blob([text]).size;
+
+                logAPICall(method, url.replace(API_BASE, ''), response.status, duration, payloadSize, currentPage);
+
+                return response;
+            } catch (error) {
+                const duration = Math.round(performance.now() - startTime);
+                logAPICall(method, url.replace(API_BASE, ''), 500, duration, 0, currentPage);
+                throw error;
+            }
+        };
+
         // PAGE ROUTING
         const PAGE = '{{ page }}';
         const PAGE_ORG_ID = '{{ org_id | default("") }}';
         const PAGE_WALLET = '{{ wallet_address | default("") }}';
 
         window.addEventListener('load', () => {
+            // Initialize dev tools panel
+            createDevToolsPanel();
+
             const routes = {
                 'dashboard': loadDashboard,
                 'radar': loadLaunchRadar,
@@ -1700,6 +2263,7 @@
                     loadWalletIntelligence(PAGE_WALLET);
                 },
                 'signal_explorer': loadSignalExplorer,
+                'api_reference': loadAPIReference,
             };
 
             (routes[PAGE] || routes['dashboard'])();

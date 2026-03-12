@@ -26,10 +26,10 @@ from src.analysis.clustering_task_queue import enqueue_clustering
 from dotenv import load_dotenv
 
 # === Logging Helper ===
-def log_log_print(*args, **kwargs):
+def log_print(*args, **kwargs):
     """Print with flush support across Python versions"""
     kwargs.pop('flush', None)  # Remove flush if present
-    log_print(*args, **kwargs)
+    print(*args, **kwargs)
     sys.stdout.flush()
 
 # === Global Database Write Lock ===

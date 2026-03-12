@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Restart Flex services
-# Uses reorganized src/ structure and run.py entry point
+# Uses reorganized src/ structure and main.py entry point with Price System
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
@@ -52,11 +52,11 @@ sleep 4
 echo "✓ Listener started (PID: $LISTENER_PID)"
 
 echo ""
-echo "🚀 Starting Flask app..."
-python run.py &
+echo "🚀 Starting Flask app with Token Price System..."
+python src/core/main.py &
 FLASK_PID=$!
 sleep 3
-echo "✓ Flask started (PID: $FLASK_PID)"
+echo "✓ Flask started with Price System (PID: $FLASK_PID)"
 
 echo ""
 echo "✅ All services started!"

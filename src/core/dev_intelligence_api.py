@@ -624,6 +624,325 @@ def get_wallet_org(wallet):
         return jsonify({'error': str(e)}), 500
 
 
+
+# ============================================================================
+# V3.1 Behavioral Modeling Endpoints
+# ============================================================================
+
+@dev_intelligence_api.route('/orgs/<int:org_id>/momentum', methods=['GET'])
+def get_org_momentum(org_id):
+    """Get momentum history for an organization."""
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT recorded_date, activity_24h, activity_7d_avg, momentum,
+                   momentum_signal, trend
+            FROM org_momentum_history
+            WHERE organization_id = ?
+            ORDER BY recorded_date DESC
+            LIMIT 30
+        """, (org_id,))
+        
+        records = []
+        for row in cursor.fetchall():
+            records.append({
+                'recorded_date': row[0],
+                'activity_24h': row[1],
+                'activity_7d_avg': row[2],
+                'momentum': row[3],
+                'momentum_signal': row[4],
+                'trend': row[5]
+            })
+        
+        conn.close()
+        
+        if not records:
+            return jsonify({'momentum_history': []}), 200
+        
+        return jsonify({'momentum_history': records}), 200
+    except Exception as e:
+        logger.error(f"Error fetching momentum: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@dev_intelligence_api.route('/orgs/<int:org_id>/cadence', methods=['GET'])
+def get_org_cadence(org_id):
+    """Get launch cadence analysis for an organization."""
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT analysis_date, launches_detected, average_interval,
+                   interval_variability, days_since_last_launch, cadence_score,
+                   due_for_launch, prediction_confidence
+            FROM org_launch_cadence
+            WHERE organization_id = ?
+            ORDER BY analysis_date DESC
+            LIMIT 10
+        """, (org_id,))
+        
+        records = []
+        for row in cursor.fetchall():
+            records.append({
+                'analysis_date': row[0],
+                'launches_detected': row[1],
+                'average_interval': row[2],
+                'interval_variability': row[3],
+                'days_since_last_launch': row[4],
+                'cadence_score': row[5],
+                'due_for_launch': bool(row[6]),
+                'prediction_confidence': row[7]
+            })
+        
+        conn.close()
+        
+        if not records:
+            return jsonify({'cadence_analysis': []}), 200
+        
+        return jsonify({'cadence_analysis': records}), 200
+    except Exception as e:
+        logger.error(f"Error fetching cadence: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@dev_intelligence_api.route('/orgs/<int:org_id>/expansion', methods=['GET'])
+def get_org_expansion(org_id):
+    """Get team expansion events for an organization."""
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT event_date, current_creator_count, creators_added_24h,
+                   creators_added_7d, expansion_rate, expansion_score,
+                   expansion_signal, team_size_change_7d
+            FROM org_expansion_events
+            WHERE organization_id = ?
+            ORDER BY event_date DESC
+            LIMIT 10
+        """, (org_id,))
+        
+        records = []
+        for row in cursor.fetchall():
+            records.append({
+                'event_date': row[0],
+                'current_creator_count': row[1],
+                'creators_added_24h': row[2],
+                'creators_added_7d': row[3],
+                'expansion_rate': row[4],
+                'expansion_score': row[5],
+                'expansion_signal': row[6],
+                'team_size_change_7d': row[7]
+            })
+        
+        conn.close()
+        
+        if not records:
+            return jsonify({'expansion_events': []}), 200
+        
+        return jsonify({'expansion_events': records}), 200
+    except Exception as e:
+        logger.error(f"Error fetching expansion: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@dev_intelligence_api.route('/orgs/<int:org_id>/enhanced-windows', methods=['GET'])
+def get_org_enhanced_windows(org_id):
+    """Get enhanced launch predictions combining base signals with behavioral signals."""
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT prediction_date, base_prob_launch_24h, enhanced_prob_launch_24h,
+                   momentum_signal, cadence_score, expansion_score,
+                   data_quality_score, enhancement_factor, combined_confidence
+            FROM org_enhanced_launch_windows
+            WHERE organization_id = ?
+            ORDER BY prediction_date DESC
+            LIMIT 30
+        """, (org_id,))
+        
+        records = []
+        for row in cursor.fetchall():
+            records.append({
+                'prediction_date': row[0],
+                'base_prob_launch_24h': row[1],
+                'enhanced_prob_launch_24h': row[2],
+                'momentum_signal': row[3],
+                'cadence_score': row[4],
+                'expansion_score': row[5],
+                'data_quality_score': row[6],
+                'enhancement_factor': row[7],
+                'combined_confidence': row[8]
+            })
+        
+        conn.close()
+        
+        if not records:
+            return jsonify({'enhanced_windows': []}), 200
+        
+        return jsonify({'enhanced_windows': records}), 200
+    except Exception as e:
+        logger.error(f"Error fetching enhanced windows: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@dev_intelligence_api.route('/orgs/v31/momentum-driven', methods=['GET'])
+def get_momentum_driven_launches():
+    """Get organizations with high positive momentum (accelerating)."""
+    limit = request.args.get('limit', 50, type=int)
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT do_.organization_id, do_.operator_wallet,
+                   olw.prob_launch_24h, omh.momentum_signal, omh.trend,
+                   omh.activity_24h, omh.activity_7d_avg
+            FROM org_launch_windows olw
+            JOIN org_momentum_history omh ON olw.organization_id = omh.organization_id
+              AND olw.prediction_date = omh.recorded_date
+            JOIN dev_organizations do_ ON olw.organization_id = do_.organization_id
+            WHERE omh.momentum > 0.3
+              AND omh.trend = 'accelerating'
+            ORDER BY omh.momentum_signal DESC
+            LIMIT ?
+        """, (limit,))
+        
+        records = []
+        for row in cursor.fetchall():
+            records.append({
+                'organization_id': row[0],
+                'operator_wallet': row[1],
+                'prob_launch_24h': row[2],
+                'momentum_signal': row[3],
+                'trend': row[4],
+                'activity_24h': row[5],
+                'activity_7d_avg': row[6]
+            })
+        
+        conn.close()
+        return jsonify({'momentum_driven_launches': records}), 200
+    except Exception as e:
+        logger.error(f"Error fetching momentum-driven launches: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@dev_intelligence_api.route('/orgs/v31/cadence-due', methods=['GET'])
+def get_cadence_due_launches():
+    """Get organizations that are due for launch based on cadence patterns."""
+    limit = request.args.get('limit', 50, type=int)
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT olc.organization_id, do_.operator_wallet,
+                   olc.days_since_last_launch, olc.average_interval,
+                   olc.cadence_score, olc.prediction_confidence
+            FROM org_launch_cadence olc
+            JOIN dev_organizations do_ ON olc.organization_id = do_.organization_id
+            WHERE olc.due_for_launch = 1
+              AND olc.prediction_confidence >= 0.6
+            ORDER BY olc.cadence_score DESC
+            LIMIT ?
+        """, (limit,))
+        
+        records = []
+        for row in cursor.fetchall():
+            records.append({
+                'organization_id': row[0],
+                'operator_wallet': row[1],
+                'days_since_last_launch': row[2],
+                'average_interval': row[3],
+                'cadence_score': row[4],
+                'prediction_confidence': row[5]
+            })
+        
+        conn.close()
+        return jsonify({'cadence_due_launches': records}), 200
+    except Exception as e:
+        logger.error(f"Error fetching cadence-due launches: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@dev_intelligence_api.route('/orgs/v31/expansion-driven', methods=['GET'])
+def get_expansion_driven_launches():
+    """Get organizations with rapid team expansion."""
+    limit = request.args.get('limit', 50, type=int)
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT oee.organization_id, do_.operator_wallet,
+                   oee.current_creator_count, oee.creators_added_7d,
+                   oee.expansion_score, oee.expansion_signal,
+                   oee.team_size_change_7d
+            FROM org_expansion_events oee
+            JOIN dev_organizations do_ ON oee.organization_id = do_.organization_id
+            WHERE oee.expansion_signal IN ('rapid', 'normal')
+              AND oee.creators_added_7d >= 2
+            ORDER BY oee.expansion_score DESC
+            LIMIT ?
+        """, (limit,))
+        
+        records = []
+        for row in cursor.fetchall():
+            records.append({
+                'organization_id': row[0],
+                'operator_wallet': row[1],
+                'current_creator_count': row[2],
+                'creators_added_7d': row[3],
+                'expansion_score': row[4],
+                'expansion_signal': row[5],
+                'team_size_change_7d': row[6]
+            })
+        
+        conn.close()
+        return jsonify({'expansion_driven_launches': records}), 200
+    except Exception as e:
+        logger.error(f"Error fetching expansion-driven launches: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@dev_intelligence_api.route('/orgs/v31/high-confidence', methods=['GET'])
+def get_high_confidence_launches():
+    """Get organizations with converging signals (high confidence predictions)."""
+    limit = request.args.get('limit', 50, type=int)
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT oelw.organization_id, do_.operator_wallet,
+                   oelw.enhanced_prob_launch_24h, oelw.momentum_signal,
+                   oelw.cadence_score, oelw.expansion_score,
+                   oelw.combined_confidence, oelw.enhancement_factor
+            FROM org_enhanced_launch_windows oelw
+            JOIN dev_organizations do_ ON oelw.organization_id = do_.organization_id
+            WHERE oelw.combined_confidence >= 0.7
+              AND oelw.enhanced_prob_launch_24h >= 70
+            ORDER BY oelw.combined_confidence DESC, oelw.enhanced_prob_launch_24h DESC
+            LIMIT ?
+        """, (limit,))
+        
+        records = []
+        for row in cursor.fetchall():
+            records.append({
+                'organization_id': row[0],
+                'operator_wallet': row[1],
+                'enhanced_prob_launch_24h': row[2],
+                'momentum_signal': row[3],
+                'cadence_score': row[4],
+                'expansion_score': row[5],
+                'combined_confidence': row[6],
+                'enhancement_factor': row[7]
+            })
+        
+        conn.close()
+        return jsonify({'high_confidence_launches': records}), 200
+    except Exception as e:
+        logger.error(f"Error fetching high-confidence launches: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 def register_dev_intelligence_api(app, db_path='database/flex_complete_database.db'):
     """Register the dev intelligence API blueprint with the Flask app."""
     global _DB_PATH

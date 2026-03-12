@@ -43,6 +43,7 @@ from src.core.dev_intelligence_v3 import DevIntelligenceV3Engine
 from src.core.creator_seed_metrics import CreatorSeedMetricsAnalyzer
 from src.core.funder_overlap_analysis import FunderOverlapAnalyzer
 from src.core.launch_wave_detection import LaunchWaveDetectionEngine
+from src.core.master_launch_score import MasterLaunchScoreEngine
 
 
 def main():
@@ -129,13 +130,28 @@ def main():
             f"Duration: {result_waves.get('duration_ms', 0):.0f}ms"
         )
 
+        # Phase 6: Master Launch Score — Unified alert scoring
+        logger.info("Starting master launch score computation (unified alerting)")
+        mls_engine = MasterLaunchScoreEngine(db_path)
+        result_mls = mls_engine.detect_and_store()
+
+        logger.info(f"Master launch score computation completed: {result_mls['message']}")
+        logger.info(
+            f"Orgs processed: {result_mls.get('orgs_processed', 0)}, "
+            f"CRITICAL: {result_mls.get('critical_count', 0)}, "
+            f"HIGH: {result_mls.get('high_count', 0)}, "
+            f"WATCH: {result_mls.get('watch_count', 0)}, "
+            f"Duration: {result_mls.get('duration_ms', 0):.0f}ms"
+        )
+
         # Return success only if all phases succeeded
         if (result['status'] == 'success' and result_v2['status'] == 'success' and
             result_v3['status'] == 'success' and result_seeds['status'] == 'success' and
-            result_overlap['status'] == 'success' and result_waves['status'] == 'success'):
+            result_overlap['status'] == 'success' and result_waves['status'] == 'success' and
+            result_mls['status'] == 'success'):
             return 0
         else:
-            logger.warning(f"One or more phases failed: v1={result['status']}, v2={result_v2['status']}, v3={result_v3['status']}, seeds={result_seeds['status']}, overlap={result_overlap['status']}, waves={result_waves['status']}")
+            logger.warning(f"One or more phases failed: v1={result['status']}, v2={result_v2['status']}, v3={result_v3['status']}, seeds={result_seeds['status']}, overlap={result_overlap['status']}, waves={result_waves['status']}, mls={result_mls['status']}")
             return 1
 
     except Exception as e:

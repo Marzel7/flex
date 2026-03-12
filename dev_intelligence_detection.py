@@ -40,6 +40,9 @@ sys.path.insert(0, str(Path(__file__).parent))
 from src.core.dev_intelligence_graph import DevIntelligenceEngine
 from src.core.dev_intelligence_v2 import DevIntelligenceV2Engine
 from src.core.dev_intelligence_v3 import DevIntelligenceV3Engine
+from src.core.creator_seed_metrics import CreatorSeedMetricsAnalyzer
+from src.core.funder_overlap_analysis import FunderOverlapAnalyzer
+from src.core.launch_wave_detection import LaunchWaveDetectionEngine
 
 
 def main():
@@ -89,11 +92,50 @@ def main():
             f"Duration: {result_v3.get('duration_ms', 0):.0f}ms"
         )
 
-        # Return success only if all three phases succeeded
-        if result['status'] == 'success' and result_v2['status'] == 'success' and result_v3['status'] == 'success':
+        # Phase 4: Creator Seed Metrics — Coordinated funding analysis
+        logger.info("Starting creator seed metrics analysis (seed concentration)")
+        seed_analyzer = CreatorSeedMetricsAnalyzer(db_path)
+        result_seeds = seed_analyzer.compute_and_store()
+
+        logger.info(f"Creator seed metrics completed: {result_seeds['message']}")
+        logger.info(
+            f"Metrics computed: {result_seeds.get('metrics_computed', 0)}, "
+            f"High concentration: {result_seeds.get('high_concentration_count', 0)}, "
+            f"Duration: {result_seeds.get('duration_ms', 0):.0f}ms"
+        )
+
+        # Phase 4.5: Funder Overlap Analysis — Wallet coordination detection
+        logger.info("Starting funder overlap analysis (wallet coordination)")
+        overlap_analyzer = FunderOverlapAnalyzer(db_path)
+        result_overlap = overlap_analyzer.analyze_and_store()
+
+        logger.info(f"Funder overlap analysis completed: {result_overlap['message']}")
+        logger.info(
+            f"Overlaps found: {result_overlap.get('overlaps_found', 0)}, "
+            f"High coordination: {result_overlap.get('high_coordination_count', 0)}, "
+            f"Very strong: {result_overlap.get('very_strong_count', 0)}, "
+            f"Duration: {result_overlap.get('duration_ms', 0):.0f}ms"
+        )
+
+        # Phase 5: Launch Wave Detection — Multi-token launch pattern recognition
+        logger.info("Starting launch wave detection (multi-launch patterns)")
+        wave_engine = LaunchWaveDetectionEngine(db_path)
+        result_waves = wave_engine.detect_and_store()
+
+        logger.info(f"Launch wave detection completed: {result_waves['message']}")
+        logger.info(
+            f"Orgs processed: {result_waves.get('orgs_processed', 0)}, "
+            f"Waves detected: {result_waves.get('waves_detected', 0)}, "
+            f"Duration: {result_waves.get('duration_ms', 0):.0f}ms"
+        )
+
+        # Return success only if all phases succeeded
+        if (result['status'] == 'success' and result_v2['status'] == 'success' and
+            result_v3['status'] == 'success' and result_seeds['status'] == 'success' and
+            result_overlap['status'] == 'success' and result_waves['status'] == 'success'):
             return 0
         else:
-            logger.warning(f"One or more phases failed: v1={result['status']}, v2={result_v2['status']}, v3={result_v3['status']}")
+            logger.warning(f"One or more phases failed: v1={result['status']}, v2={result_v2['status']}, v3={result_v3['status']}, seeds={result_seeds['status']}, overlap={result_overlap['status']}, waves={result_waves['status']}")
             return 1
 
     except Exception as e:

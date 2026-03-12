@@ -1,0 +1,113 @@
+"""
+FLEX Intelligence Dashboard Routes
+
+Flask routes for serving the dashboard UI pages.
+Provides rendered HTML templates that consume the FLEX UI API endpoints.
+
+Routes:
+- GET / → main dashboard
+- GET /launch-radar → launch prediction leaderboard
+- GET /organization/<id> → organization detail page
+- GET /launch-waves → wave detection timeline
+- GET /dev-clusters → cluster visualization
+- GET /wallet/<address> → wallet intelligence
+"""
+
+import logging
+from flask import Blueprint, render_template, jsonify, request
+
+logger = logging.getLogger(__name__)
+
+dashboard_routes = Blueprint('dashboard', __name__, url_prefix='')
+
+
+@dashboard_routes.route('/', methods=['GET'])
+def dashboard_home():
+    """
+    Render main FLEX Intelligence Dashboard.
+    Loads system overview and top alerts.
+    """
+    try:
+        return render_template('flex_dashboard.html', page='dashboard')
+    except Exception as e:
+        logger.error(f"Error rendering dashboard: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/launch-radar', methods=['GET'])
+def launch_radar():
+    """
+    Render Launch Radar page.
+    Shows organizations ranked by master launch score with all signals.
+    """
+    try:
+        return render_template('flex_dashboard.html', page='radar')
+    except Exception as e:
+        logger.error(f"Error rendering launch radar: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/organization/<int:org_id>', methods=['GET'])
+def organization_detail(org_id):
+    """
+    Render Organization Intelligence page.
+    Shows complete org profile with signals, members, risk scores.
+    """
+    try:
+        return render_template(
+            'flex_dashboard.html',
+            page='organization',
+            org_id=org_id
+        )
+    except Exception as e:
+        logger.error(f"Error rendering organization detail: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/launch-waves', methods=['GET'])
+def launch_waves_page():
+    """
+    Render Launch Waves page.
+    Shows detected coordinated launch preparation waves.
+    """
+    try:
+        return render_template('flex_dashboard.html', page='waves')
+    except Exception as e:
+        logger.error(f"Error rendering launch waves: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/dev-clusters', methods=['GET'])
+def dev_clusters_page():
+    """
+    Render Dev Clusters page.
+    Shows detected developer farm clusters.
+    """
+    try:
+        return render_template('flex_dashboard.html', page='clusters')
+    except Exception as e:
+        logger.error(f"Error rendering dev clusters: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/wallet/<wallet_address>', methods=['GET'])
+def wallet_intelligence(wallet_address):
+    """
+    Render Wallet Intelligence page.
+    Shows wallet-level intelligence including creators funded and org membership.
+    """
+    try:
+        return render_template(
+            'flex_dashboard.html',
+            page='wallet',
+            wallet_address=wallet_address
+        )
+    except Exception as e:
+        logger.error(f"Error rendering wallet intelligence: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+def register_dashboard_routes(app):
+    """Register dashboard routes with Flask app."""
+    app.register_blueprint(dashboard_routes)
+    logger.info("[DASHBOARD] Dashboard routes registered successfully")

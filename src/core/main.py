@@ -20072,6 +20072,18 @@ except Exception as e:
     print(f"[ERROR] Failed to initialize FLEX UI API: {e}")
 
 # =========================================================================
+# FLEX INTELLIGENCE DASHBOARD (Frontend UI with HTML templates)
+# =========================================================================
+try:
+    from src.core.flex_dashboard_routes import register_dashboard_routes
+    register_dashboard_routes(app)
+    print("[DASHBOARD] FLEX Intelligence Dashboard routes registered successfully")
+except ImportError as e:
+    print(f"[WARNING] FLEX Dashboard not available: {e}")
+except Exception as e:
+    print(f"[ERROR] Failed to initialize FLEX Dashboard: {e}")
+
+# =========================================================================
 # MAIN
 # =========================================================================
 

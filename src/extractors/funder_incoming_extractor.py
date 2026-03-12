@@ -35,6 +35,14 @@ sys.path.insert(0, "/Users/kevinkeaveney/Dev/claude/flex")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
+# Logging helper for flush compatibility
+def log_print(*args, **kwargs):
+    """Print with flush support across Python versions"""
+    kwargs.pop('flush', None)  # Remove flush if present
+    print(*args, **kwargs)
+    sys.stdout.flush()
+
 from src.utils.infra_mapping import get_account_info, get_cex_info  # type: ignore
 
 # Import RPC metrics recorder for monitoring
@@ -109,9 +117,9 @@ RPC_CACHE = None
 try:
     from src.core.rpc_cache import RPCCache
     RPC_CACHE = RPCCache(DB_PATH)
-    logger.info("[PHASE2B] RPCCache initialized for funder_incoming_extractor", flush=True)
+    logger.info("[PHASE2B] RPCCache initialized for funder_incoming_extractor")
 except Exception as e:
-    logger.warning(f"[PHASE2B] RPCCache initialization failed: {e} (caching disabled)", flush=True)
+    logger.warning(f"[PHASE2B] RPCCache initialization failed: {e} (caching disabled)")
 
 # -------------------------
 # DB helpers
@@ -296,7 +304,7 @@ def get_creator_funders(creator_address: str) -> List[Tuple[str, float]]:
         conn.close()
         return [(r["funder_address"], float(r["amount_sol"] or 0.0)) for r in rows]
     except Exception as e:
-        print(f"[DB] Error getting funders: {e}")
+        log_print(f"[DB] Error getting funders: {e}")
         return []
 
 
@@ -424,23 +432,23 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
                 )
 
                 # Log the RPC call for debugging
-                print(f"[FUNDER_INCOMING] RPC: {rpc_method} ({credits} credits) - Status: {resp.status_code} - {latency_ms:.0f}ms", flush=True)
+                log_print(f"[FUNDER_INCOMING] RPC: {rpc_method} ({credits} credits) - Status: {resp.status_code} - {latency_ms:.0f}ms")
             else:
                 # Log rate limit without recording as billable
-                print(f"[FUNDER_INCOMING] RPC: {rpc_method} (retry) - Status: {resp.status_code} - {latency_ms:.0f}ms", flush=True)
+                log_print(f"[FUNDER_INCOMING] RPC: {rpc_method} (retry) - Status: {resp.status_code} - {latency_ms:.0f}ms", flush=True)
 
             # Diagnostic logging for rate limits and errors
             if resp.status_code == 429:
                 try:
                     body = resp.text[:200] if resp.text else "(empty)"
                     retry_after = resp.headers.get("Retry-After", "not set")
-                    print(f"[FUNDER_INCOMING] 429 RATE-LIMITED | Retry-After: {retry_after} | Body: {body}", flush=True)
+                    log_print(f"[FUNDER_INCOMING] 429 RATE-LIMITED | Retry-After: {retry_after} | Body: {body}", flush=True)
                 except:
                     pass
             elif resp.status_code >= 400:
                 try:
                     body = resp.text[:200] if resp.text else "(empty)"
-                    print(f"[FUNDER_INCOMING] {resp.status_code} ERROR | Body: {body}", flush=True)
+                    log_print(f"[FUNDER_INCOMING] {resp.status_code} ERROR | Body: {body}", flush=True)
                 except:
                     pass
 
@@ -452,18 +460,18 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
                         retry_after = float(ra)
                     except (ValueError, TypeError):
                         retry_after = None
-                print(f"[HTTP] 429 rate-limited. Backing off (attempt {attempt+1}/{MAX_HTTP_RETRIES})")
+                log_print(f"[HTTP] 429 rate-limited. Backing off (attempt {attempt+1}/{MAX_HTTP_RETRIES})")
                 _sleep_backoff(attempt, retry_after=retry_after)
                 continue
 
             if resp.status_code >= 500:
-                print(f"[HTTP] {resp.status_code} server error. Backing off (attempt {attempt+1}/{MAX_HTTP_RETRIES})")
+                log_print(f"[HTTP] {resp.status_code} server error. Backing off (attempt {attempt+1}/{MAX_HTTP_RETRIES})")
                 _sleep_backoff(attempt)
                 continue
 
             # Selective transient 4xx retry
             if resp.status_code in TRANSIENT_HTTP_CODES:
-                print(f"[HTTP] {resp.status_code} transient error. Backing off (attempt {attempt+1}/{MAX_HTTP_RETRIES})")
+                log_print(f"[HTTP] {resp.status_code} transient error. Backing off (attempt {attempt+1}/{MAX_HTTP_RETRIES})")
                 _sleep_backoff(attempt)
                 continue
 
@@ -473,7 +481,7 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
                     txt = resp.text[:300]
                 except Exception:
                     txt = ""
-                print(f"[HTTP] Non-200 ({resp.status_code}). Body: {txt}")
+                log_print(f"[HTTP] Non-200 ({resp.status_code}). Body: {txt}")
                 return None
 
             return resp.json()
@@ -496,11 +504,11 @@ def _request_json(method: str, url: str, *, json_body: Optional[dict] = None, ti
                 source_file="funder_incoming_extractor",
                 error=str(e),
             )
-            print(f"[HTTP] Network error: {e}. Backing off (attempt {attempt+1}/{MAX_HTTP_RETRIES})")
+            log_print(f"[HTTP] Network error: {e}. Backing off (attempt {attempt+1}/{MAX_HTTP_RETRIES})")
             _sleep_backoff(attempt)
             continue
         except Exception as e:
-            print(f"[HTTP] Unexpected error: {e}")
+            log_print(f"[HTTP] Unexpected error: {e}")
             return None
 
     return None
@@ -596,11 +604,11 @@ def _rpc_call(payload: dict, timeout: float = 20.0) -> Optional[dict]:
             )
 
             if resp.status_code == 429:
-                print(f"[RPC] 429 rate-limited. Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
+                log_print(f"[RPC] 429 rate-limited. Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
                 _sleep_backoff(attempt)
                 continue
             if resp.status_code >= 500:
-                print(f"[RPC] {resp.status_code} server error. Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
+                log_print(f"[RPC] {resp.status_code} server error. Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
                 _sleep_backoff(attempt)
                 continue
             if resp.status_code != 200:
@@ -610,12 +618,12 @@ def _rpc_call(payload: dict, timeout: float = 20.0) -> Optional[dict]:
             if isinstance(data, dict) and data.get("error"):
                 error_obj = data["error"]
                 if _is_rpc_error_retryable(error_obj):
-                    print(f"[RPC] Transient error (code={error_obj.get('code')}). Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
+                    log_print(f"[RPC] Transient error (code={error_obj.get('code')}). Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
                     _sleep_backoff(attempt)
                     continue
                 else:
                     # Permanent error: fail fast
-                    print(f"[RPC] Permanent error (code={error_obj.get('code')}): {error_obj.get('message')}")
+                    log_print(f"[RPC] Permanent error (code={error_obj.get('code')}): {error_obj.get('message')}")
                     return None
             return data
         except (requests.Timeout, requests.ConnectionError) as e:
@@ -631,7 +639,7 @@ def _rpc_call(payload: dict, timeout: float = 20.0) -> Optional[dict]:
                 source_file="funder_incoming_extractor",
                 error=str(e),
             )
-            print(f"[RPC] Network error: {e}. Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
+            log_print(f"[RPC] Network error: {e}. Backing off (attempt {attempt+1}/{MAX_RPC_RETRIES})")
             _sleep_backoff(attempt)
             continue
         except Exception:
@@ -668,9 +676,9 @@ def helius_batch_get_transactions(tx_sigs: List[str]) -> Dict[str, Optional[dict
 
     for i in range(0, len(tx_sigs), 100):
         batch = tx_sigs[i:i + 100]
-        print(f"[FUNDER_INCOMING] Processing batch of {len(batch)} transactions", flush=True)
+        log_print(f"[FUNDER_INCOMING] Processing batch of {len(batch)} transactions", flush=True)
         # Diagnostic: log which API key and request details
-        print(f"[FUNDER_INCOMING] Batch request | Key suffix: {HELIUS_API_KEY[-8:] if HELIUS_API_KEY else 'NONE'}", flush=True)
+        log_print(f"[FUNDER_INCOMING] Batch request | Key suffix: {HELIUS_API_KEY[-8:] if HELIUS_API_KEY else 'NONE'}", flush=True)
 
         # Phase 2b: Check cache for entire batch
         cache_result = None
@@ -681,7 +689,7 @@ def helius_batch_get_transactions(tx_sigs: List[str]) -> Dict[str, Optional[dict
         
         if cache_result is not None:
             # Cache hit - reconstruct output from cached data
-            print(f"[FUNDER_INCOMING] ✅ Batch cache hit - {len(batch)} transactions from cache", flush=True)
+            log_print(f"[FUNDER_INCOMING] ✅ Batch cache hit - {len(batch)} transactions from cache", flush=True)
             record_request(
                 section="creator_funding", provider="helius_rpc",
                 method="helius_enhanced_transactions_batch", status_code=200, latency_ms=0.1,
@@ -708,15 +716,15 @@ def helius_batch_get_transactions(tx_sigs: List[str]) -> Dict[str, Optional[dict
 
         # Diagnostic: log batch response
         if data is None:
-            print(f"[FUNDER_INCOMING] ⚠️  Batch returned None (failed request)", flush=True)
+            log_print(f"[FUNDER_INCOMING] ⚠️  Batch returned None (failed request)", flush=True)
         elif not isinstance(data, list):
-            print(f"[FUNDER_INCOMING] ⚠️  Batch returned non-list: {type(data)}", flush=True)
+            log_print(f"[FUNDER_INCOMING] ⚠️  Batch returned non-list: {type(data)}", flush=True)
             # mark batch unknown
             for s in batch:
                 out[s] = None
             continue
         else:
-            print(f"[FUNDER_INCOMING] ✅ Batch returned {len(data)} transactions", flush=True)
+            log_print(f"[FUNDER_INCOMING] ✅ Batch returned {len(data)} transactions", flush=True)
 
         for tx in data:
             if not isinstance(tx, dict):
@@ -764,12 +772,12 @@ def extract_transfers_for_funder(
     • Eliminates redundant schema checks in hot loop (saves ~50-100ms per funder)
     """
 
-    print(f"\n[EXTRACT] Analyzing funder: {funder_address}")
+    log_print(f"\n[EXTRACT] Analyzing funder: {funder_address}")
 
     # Cache check
     inc_count, out_count, total_sol_cached = _has_cached_funder_transfers(funder_address)
     if inc_count or out_count:
-        print(f"[EXTRACT] ✅ Using cached DB data: {inc_count} IN, {out_count} OUT")
+        log_print(f"[EXTRACT] ✅ Using cached DB data: {inc_count} IN, {out_count} OUT")
         return {
             "incoming_count": inc_count,
             "outgoing_count": out_count,
@@ -835,7 +843,7 @@ def extract_transfers_for_funder(
     txs = get_transactions_helius(funder_address, limit=helius_limit, max_pages=helius_pages) if USE_HELIUS else None
     source = "helius_address_feed"
     # Diagnostic logging
-    print(f"[FUNDER_INCOMING] Address feed returned {len(txs) if txs else 0} transactions", flush=True)
+    log_print(f"[FUNDER_INCOMING] Address feed returned {len(txs) if txs else 0} transactions")
 
     # Cost control: defer large-history wallets to avoid expensive deep scans
     is_refresh = FINGERPRINT_CLUSTER is not None and action == FingerprintAction.REFRESH
@@ -845,7 +853,7 @@ def extract_transfers_for_funder(
         # Persist fingerprint so this wallet is not re-billed on next run
         if FINGERPRINT_CLUSTER is not None:
             try:
-                FINGERPRINT_CLUSTER.save_fingerprint(
+                FINGERPRINT_CLUSTER.save_fingerlog_print(
                     funder_address,
                     wallet_type="high_activity",
                     confidence=0.85,
@@ -878,10 +886,10 @@ def extract_transfers_for_funder(
             return {"incoming_count": 0, "outgoing_count": 0, "total_sol": 0.0, "source": "no_data", "funder": funder_address}
 
         if USE_HELIUS:
-            print(f"[FUNDER_INCOMING] About to call helius_batch for {len(sigs)} signatures", flush=True)
+            log_print(f"[FUNDER_INCOMING] About to call helius_batch for {len(sigs)} signatures")
             batch = helius_batch_get_transactions(sigs)
             txs = [t for t in batch.values() if isinstance(t, dict)]
-            print(f"[FUNDER_INCOMING] Batch call completed, got {len(txs)} transactions from {len(batch)} signatures", flush=True)
+            log_print(f"[FUNDER_INCOMING] Batch call completed, got {len(txs)} transactions from {len(batch)} signatures", flush=True)
             source = "helius_batch_from_rpc_sigs"
         else:
             # Pure RPC last resort: extremely slow + less accurate
@@ -1044,7 +1052,7 @@ def extract_transfers_for_funder(
         conn.close()
 
     total_sol = float(sum(r[2] for r in incoming_rows) + sum(r[2] for r in outgoing_rows))
-    print(f"[SUMMARY] {funder_address[:16]}... | {incoming_saved} IN, {outgoing_saved} OUT | {total_sol:.4f} SOL | source={source}")
+    log_print(f"[SUMMARY] {funder_address[:16]}... | {incoming_saved} IN, {outgoing_saved} OUT | {total_sol:.4f} SOL | source={source}")
 
     # Save fingerprint after scan completes (with transaction pattern analysis)
     if FINGERPRINT_CLUSTER is not None and txs:
@@ -1053,7 +1061,7 @@ def extract_transfers_for_funder(
             # If we have cached confidence and it's higher, keep it
             if cached_type and cached_conf is not None and cached_conf >= conf:
                 wallet_type, conf = cached_type, float(cached_conf)
-            FINGERPRINT_CLUSTER.save_fingerprint(
+            FINGERPRINT_CLUSTER.save_fingerlog_print(
                 funder_address,
                 wallet_type=wallet_type,
                 confidence=float(conf),
@@ -1090,12 +1098,12 @@ async def extract_for_creator_async(
     """
     _ensure_tables_and_indexes()
 
-    print(f"\n{'='*80}")
-    print(f"[START] Extracting funder transfers (IN/OUT) for creator: {creator_address}")
-    print(f"{'='*80}")
+    log_print(f"\n{'='*80}")
+    log_print(f"[START] Extracting funder transfers (IN/OUT) for creator: {creator_address}")
+    log_print(f"{'='*80}")
 
     funders = get_creator_funders(creator_address)
-    print(f"[DB] Found {len(funders)} funder(s) for this creator")
+    log_print(f"[DB] Found {len(funders)} funder(s) for this creator")
 
     if not funders:
         return {"error": "no_funders", "creator": creator_address}
@@ -1115,10 +1123,10 @@ async def extract_for_creator_async(
     fresh_funders = sorted(fresh_funders, key=lambda x: x[1], reverse=True)[:MAX_FRESH_FUNDERS_PER_CREATOR]
 
     # Process cached funders directly (no threading needed - instant DB lookup)
-    print(f"[BUDGET] Processing: {len(cached_funders)} cached + {len(fresh_funders)} fresh (limited to {MAX_FRESH_FUNDERS_PER_CREATOR} max fresh)")
+    log_print(f"[BUDGET] Processing: {len(cached_funders)} cached + {len(fresh_funders)} fresh (limited to {MAX_FRESH_FUNDERS_PER_CREATOR} max fresh)")
     if len(funders) > len(cached_funders) + len(fresh_funders):
         skipped = len(funders) - len(cached_funders) - len(fresh_funders)
-        print(f"[BUDGET] Skipped {skipped} fresh funders (cost control)")
+        log_print(f"[BUDGET] Skipped {skipped} fresh funders (cost control)")
 
     # Initialize source-level audit tracking
     source_counts = {
@@ -1189,7 +1197,7 @@ async def extract_for_creator_async(
         conn.commit()
         conn.close()
     except Exception as e:
-        print(f"[DB] Error marking completion: {e}")
+        log_print(f"[DB] Error marking completion: {e}")
 
     # Calculate explicit counters for auditing
     fresh_funders_selected = len(fresh_funders)
@@ -1206,22 +1214,22 @@ async def extract_for_creator_async(
         )
     )
 
-    print(f"\n{'='*80}")
-    print(f"[COMPLETE] {creator_address}")
-    print(f"  Total incoming transfers: {total_incoming}")
-    print(f"  Total outgoing transfers: {total_outgoing}")
-    print(f"  Total SOL traced: {total_sol:.4f}")
-    print(f"  Cached funders: {len(cached_funders)}")
-    print(f"  Fresh funders selected: {fresh_funders_selected}")
-    print(f"  Fresh funders completed: {fresh_funders_completed}")
-    print(f"  Fresh funders skipped (budget): {fresh_funders_skipped_budget}")
+    log_print(f"\n{'='*80}")
+    log_print(f"[COMPLETE] {creator_address}")
+    log_print(f"  Total incoming transfers: {total_incoming}")
+    log_print(f"  Total outgoing transfers: {total_outgoing}")
+    log_print(f"  Total SOL traced: {total_sol:.4f}")
+    log_print(f"  Cached funders: {len(cached_funders)}")
+    log_print(f"  Fresh funders selected: {fresh_funders_selected}")
+    log_print(f"  Fresh funders completed: {fresh_funders_completed}")
+    log_print(f"  Fresh funders skipped (budget): {fresh_funders_skipped_budget}")
     if error_count:
-        print(f"  ⚠ {error_count} errors during processing")
-    print(f"\n  Source breakdown:")
+        log_print(f"  ⚠ {error_count} errors during processing")
+    log_print(f"\n  Source breakdown:")
     for source, count in sorted(source_counts.items()):
         if count > 0:
-            print(f"    {source}: {count}")
-    print(f"{'='*80}\n")
+            log_print(f"    {source}: {count}")
+    log_print(f"{'='*80}\n")
 
     return {
         "creator": creator_address,
@@ -1265,9 +1273,9 @@ def extract_for_creator(creator_address: str) -> Dict:
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python3 funder_incoming_extractor.py <creator_address>")
+        log_print("Usage: python3 funder_incoming_extractor.py <creator_address>")
         sys.exit(1)
 
     creator = sys.argv[1].strip()
     result = extract_for_creator(creator)
-    print(result)
+    log_print(result)

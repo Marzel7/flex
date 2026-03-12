@@ -107,6 +107,49 @@ def wallet_intelligence(wallet_address):
         return jsonify({'error': str(e)}), 500
 
 
+@dashboard_routes.route('/org-explorer', methods=['GET'])
+def org_explorer():
+    """
+    Render Organization Explorer page.
+    Searchable table of all detected organizations.
+    """
+    try:
+        return render_template('flex_dashboard.html', page='org_explorer')
+    except Exception as e:
+        logger.error(f"Error rendering org explorer: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/signal-explorer', methods=['GET'])
+def signal_explorer():
+    """
+    Render Signal Explorer page.
+    Interactive visualization of all 8 predictive signals.
+    """
+    try:
+        return render_template('flex_dashboard.html', page='signal_explorer')
+    except Exception as e:
+        logger.error(f"Error rendering signal explorer: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/fingerprint/<int:org_id>', methods=['GET'])
+def developer_fingerprint(org_id):
+    """
+    Render Developer Fingerprint page.
+    Shows behavioral patterns and similar organizations.
+    """
+    try:
+        return render_template(
+            'flex_dashboard.html',
+            page='fingerprint',
+            org_id=org_id
+        )
+    except Exception as e:
+        logger.error(f"Error rendering developer fingerprint: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
 def register_dashboard_routes(app):
     """Register dashboard routes with Flask app."""
     app.register_blueprint(dashboard_routes)

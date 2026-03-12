@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLEX Intelligence Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <style>
+        :root {
+            --color-critical: #ef4444;
+            --color-high: #f97316;
+            --color-watch: #eab308;
+            --color-low: #84cc16;
+            --color-neutral: #6b7280;
+            --color-primary: #3b82f6;
+            --color-secondary: #6366f1;
+        }
+
+        body {
+            background: #0f172a;
+            color: #e2e8f0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid #334155;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dashboard-container {
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 1rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin: 0;
+        }
+
+        .page-header .subtitle {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Cards */
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+        }
+
+        .card-header {
+            background: #0f172a;
+            border-bottom: 1px solid #334155;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-critical .stat-value { color: var(--color-critical); }
+        .stat-high .stat-value { color: var(--color-high); }
+        .stat-watch .stat-value { color: var(--color-watch); }
+        .stat-low .stat-value { color: var(--color-low); }
+
+        /* Tables */
+        .table {
+            color: #e2e8f0;
+        }
+
+        .table thead th {
+            border-bottom: 2px solid #334155;
+            color: #cbd5e1;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .table tbody td {
+            border-bottom: 1px solid #334155;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        /* Alert Badges */
+        .badge-critical {
+            background: var(--color-critical);
+            color: white;
+        }
+
+        .badge-high {
+            background: var(--color-high);
+            color: white;
+        }
+
+        .badge-watch {
+            background: var(--color-watch);
+            color: #0f172a;
+        }
+
+        .badge-low {
+            background: var(--color-low);
+            color: #0f172a;
+        }
+
+        /* Score Bars */
+        .score-bar {
+            height: 20px;
+            background: #334155;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            transition: width 0.3s ease;
+        }
+
+        /* Signal Radar */
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .signal-item {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .signal-name {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .signal-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            color: #94a3b8;
+        }
+
+        .spinner-border {
+            color: var(--color-primary);
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: slideIn 0.3s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 1rem;
+            }
+
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Navigation Links */
+        nav.sidebar a {
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        nav.sidebar a:hover,
+        nav.sidebar a.active {
+            color: var(--color-primary);
+            border-left-color: var(--color-primary);
+            background: rgba(59, 130, 246, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-dark navbar-expand-lg sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-radar"></i> FLEX Intelligence
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="loadPage('dashboard')">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="loadPage('radar')">Launch Radar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="loadPage('waves')">Launch Waves</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="loadPage('clusters')">Dev Clusters</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="dashboard-container">
+        <div id="page-content">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global configuration
+        const API_BASE = '/api';
+        let currentPage = 'dashboard';
+
+        // Load page content
+        function loadPage(page) {
+            currentPage = page;
+            const content = document.getElementById('page-content');
+
+            switch(page) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'radar':
+                    loadLaunchRadar();
+                    break;
+                case 'waves':
+                    loadLaunchWaves();
+                    break;
+                case 'clusters':
+                    loadDevClusters();
+                    break;
+                default:
+                    loadDashboard();
+            }
+        }
+
+        // Dashboard Overview
+        async function loadDashboard() {
+            const content = document.getElementById('page-content');
+            content.innerHTML = `
+                <div class="page-header">
+                    <h1>FLEX Intelligence Dashboard</h1>
+                    <div class="subtitle">Real-time developer organization intelligence</div>
+                </div>
+                <div class="loading">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_BASE}/dashboard`);
+                const data = await response.json();
+
+                let html = `
+                    <div class="page-header">
+                        <h1>FLEX Intelligence Dashboard</h1>
+                        <div class="subtitle">Real-time developer organization intelligence</div>
+                    </div>
+
+                    <div class="stats-row">
+                        <div class="stat-card stat-critical">
+                            <div class="stat-value">${data.critical_alerts}</div>
+                            <div class="stat-label">Critical Alerts</div>
+                        </div>
+                        <div class="stat-card stat-high">
+                            <div class="stat-value">${data.high_alerts}</div>
+                            <div class="stat-label">High Alerts</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--color-primary);">${data.organizations_monitored}</div>
+                            <div class="stat-label">Organizations</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--color-secondary);">${data.latest_wave_detected || 'None'}</div>
+                            <div class="stat-label">Latest Wave</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Top Launch Candidates</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Organization</th>
+                                            <th>Master Score</th>
+                                            <th>Alert Level</th>
+                                            <th>Tokens</th>
+                                            <th>Creators</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                `;
+
+                data.top_launch_candidates.forEach(org => {
+                    const alertClass = `badge-${org.alert_level.toLowerCase()}`;
+                    const score = (org.master_launch_score * 100).toFixed(0);
+                    html += `
+                        <tr>
+                            <td><strong>${org.operator_wallet.substring(0, 8)}...</strong></td>
+                            <td>
+                                <div class="score-bar">
+                                    <div class="score-fill" style="width: ${score}%;"></div>
+                                </div>
+                                <small>${score}%</small>
+                            </td>
+                            <td><span class="badge ${alertClass}">${org.alert_level}</span></td>
+                            <td>${org.token_count}</td>
+                            <td>${org.creator_count}</td>
+                            <td>
+                                <a href="#" onclick="loadOrganizationDetail(${org.organization_id}); return false;"
+                                   class="btn btn-sm btn-primary">
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                content.innerHTML = html;
+            } catch (error) {
+                content.innerHTML = `<div class="alert alert-danger">Error loading dashboard: ${error.message}</div>`;
+            }
+        }
+
+        // Launch Radar
+        async function loadLaunchRadar() {
+            const content = document.getElementById('page-content');
+            content.innerHTML = `
+                <div class="page-header">
+                    <h1>Launch Radar</h1>
+                    <div class="subtitle">Organizations ranked by launch probability</div>
+                </div>
+                <div class="loading">
+                    <div class="spinner-border" role="status"></div>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_BASE}/launch-leaderboard?limit=50`);
+                const data = await response.json();
+
+                let html = `
+                    <div class="page-header">
+                        <h1>Launch Radar</h1>
+                        <div class="subtitle">Organizations ranked by master launch score (${data.length} total)</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Rank</th>
+                                            <th>Wallet</th>
+                                            <th>Master Score</th>
+                                            <th>Level</th>
+                                            <th>Launch Prob.</th>
+                                            <th>Wave Score</th>
+                                            <th>Seed Conc.</th>
+                                            <th>Funder Overlap</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                `;
+
+                data.forEach((org, index) => {
+                    const alertClass = `badge-${org.alert_level.toLowerCase()}`;
+                    const masterScore = (org.master_launch_score * 100).toFixed(1);
+                    const launchProb = (org.launch_probability * 100).toFixed(0);
+                    const waveScore = (org.launch_wave_score * 100).toFixed(0);
+                    const seedConc = (org.seed_concentration * 100).toFixed(0);
+                    const funderOverlap = (org.funder_overlap_score * 100).toFixed(0);
+
+                    html += `
+                        <tr>
+                            <td><strong>#${index + 1}</strong></td>
+                            <td><code>${org.operator_wallet.substring(0, 12)}...</code></td>
+                            <td>
+                                <div class="score-bar">
+                                    <div class="score-fill" style="width: ${masterScore}%;"></div>
+                                </div>
+                                <small>${masterScore}%</small>
+                            </td>
+                            <td><span class="badge ${alertClass}">${org.alert_level}</span></td>
+                            <td><small>${launchProb}%</small></td>
+                            <td><small>${waveScore}%</small></td>
+                            <td><small>${seedConc}%</small></td>
+                            <td><small>${funderOverlap}%</small></td>
+                            <td>
+                                <a href="#" onclick="loadOrganizationDetail(${org.organization_id}); return false;"
+                                   class="btn btn-sm btn-primary">
+                                    <i class="fas fa-magnifying-glass"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                content.innerHTML = html;
+            } catch (error) {
+                content.innerHTML = `<div class="alert alert-danger">Error loading radar: ${error.message}</div>`;
+            }
+        }
+
+        // Launch Waves
+        async function loadLaunchWaves() {
+            const content = document.getElementById('page-content');
+            content.innerHTML = `
+                <div class="page-header">
+                    <h1>Launch Waves</h1>
+                    <div class="subtitle">Coordinated launch preparation patterns</div>
+                </div>
+                <div class="loading">
+                    <div class="spinner-border" role="status"></div>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_BASE}/launch-waves?limit=20`);
+                const data = await response.json();
+
+                let html = `
+                    <div class="page-header">
+                        <h1>Launch Waves</h1>
+                        <div class="subtitle">Detected coordinated launch waves</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Wave ID</th>
+                                            <th>Type</th>
+                                            <th>Organizations</th>
+                                            <th>Creators</th>
+                                            <th>Wave Score</th>
+                                            <th>Detected</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                `;
+
+                data.forEach(wave => {
+                    const waveScore = (wave.avg_wave_score * 100).toFixed(0);
+                    const detected = new Date(wave.wave_detected_at * 1000).toLocaleDateString();
+
+                    html += `
+                        <tr>
+                            <td><strong>${wave.wave_id}</strong></td>
+                            <td><span class="badge bg-secondary">${wave.wave_type || 'unknown'}</span></td>
+                            <td>${wave.organization_count}</td>
+                            <td>${wave.creator_count}</td>
+                            <td>
+                                <div class="score-bar">
+                                    <div class="score-fill" style="width: ${waveScore}%;"></div>
+                                </div>
+                                <small>${waveScore}%</small>
+                            </td>
+                            <td>${detected}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                content.innerHTML = html;
+            } catch (error) {
+                content.innerHTML = `<div class="alert alert-danger">Error loading waves: ${error.message}</div>`;
+            }
+        }
+
+        // Dev Clusters
+        async function loadDevClusters() {
+            const content = document.getElementById('page-content');
+            content.innerHTML = `
+                <div class="page-header">
+                    <h1>Dev Clusters</h1>
+                    <div class="subtitle">Developer farm cluster analysis</div>
+                </div>
+                <div class="loading">
+                    <div class="spinner-border" role="status"></div>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_BASE}/dev-clusters?limit=30`);
+                const data = await response.json();
+
+                let html = `
+                    <div class="page-header">
+                        <h1>Dev Clusters</h1>
+                        <div class="subtitle">Detected developer farm clusters</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Cluster ID</th>
+                                            <th>Strength</th>
+                                            <th>Wallets</th>
+                                            <th>Creators</th>
+                                            <th>Tokens</th>
+                                            <th>Rug Probability</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                `;
+
+                data.forEach(cluster => {
+                    const strength = (cluster.cluster_strength * 100).toFixed(0);
+                    const rugProb = (cluster.average_rug_probability * 100).toFixed(0);
+
+                    html += `
+                        <tr>
+                            <td><strong>${cluster.cluster_id}</strong></td>
+                            <td>
+                                <div class="score-bar">
+                                    <div class="score-fill" style="width: ${strength}%;"></div>
+                                </div>
+                                <small>${strength}%</small>
+                            </td>
+                            <td>${cluster.wallet_count}</td>
+                            <td>${cluster.creator_count}</td>
+                            <td>${cluster.token_count}</td>
+                            <td><small class="text-warning">${rugProb}%</small></td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                content.innerHTML = html;
+            } catch (error) {
+                content.innerHTML = `<div class="alert alert-danger">Error loading clusters: ${error.message}</div>`;
+            }
+        }
+
+        // Organization Detail
+        async function loadOrganizationDetail(orgId) {
+            const content = document.getElementById('page-content');
+            content.innerHTML = `
+                <div class="loading">
+                    <div class="spinner-border" role="status"></div>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_BASE}/organization/${orgId}`);
+                const org = await response.json();
+
+                const signals = org.signals || {};
+                const risk = org.risk || {};
+
+                let html = `
+                    <div class="page-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h1>Organization ${orgId}</h1>
+                                <div class="subtitle"><code>${org.operator_wallet}</code></div>
+                            </div>
+                            <a href="#" onclick="loadLaunchRadar(); return false;" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--color-primary);">${org.cluster_size}</div>
+                            <div class="stat-label">Cluster Size</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--color-primary);">${org.wallet_count}</div>
+                            <div class="stat-label">Wallets</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--color-primary);">${org.creator_count}</div>
+                            <div class="stat-label">Creators</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--color-primary);">${org.token_count}</div>
+                            <div class="stat-label">Tokens</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Predictive Signals</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="signal-grid">
+                `;
+
+                const signalNames = {
+                    'launch_probability': 'Launch Probability',
+                    'launch_wave_score': 'Wave Score',
+                    'seed_concentration': 'Seed Concentration',
+                    'funder_overlap_score': 'Funder Overlap',
+                    'organization_momentum': 'Momentum',
+                    'creator_reuse_score': 'Creator Reuse',
+                    'operator_activity_score': 'Operator Activity',
+                    'reputation_adjustment': 'Reputation'
+                };
+
+                Object.entries(signalNames).forEach(([key, name]) => {
+                    const value = signals[key] !== undefined ? (signals[key] * 100).toFixed(0) : 'N/A';
+                    html += `
+                        <div class="signal-item">
+                            <div class="signal-name">${name}</div>
+                            <div class="signal-value">${value}%</div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Developer Fingerprint</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div style="font-size: 0.9rem;">
+                                        <div class="mb-3">
+                                            <div style="color: #94a3b8; font-size: 0.8rem; text-transform: uppercase;">Behavioral Pattern</div>
+                                            <div style="color: #f1f5f9; margin-top: 0.5rem;">
+                                                <strong>${org.cluster_size || 'N/A'}</strong> cluster members |
+                                                <strong>${org.creator_count || 'N/A'}</strong> creators |
+                                                <strong>${org.wallet_count || 'N/A'}</strong> wallets
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div style="color: #94a3b8; font-size: 0.8rem; text-transform: uppercase;">Activity Pattern</div>
+                                            <div style="color: #f1f5f9; margin-top: 0.5rem;">
+                                                <strong>${org.token_count || 'N/A'}</strong> tokens launched
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div style="color: #94a3b8; font-size: 0.8rem; text-transform: uppercase;">Organization Score</div>
+                                            <div style="color: var(--color-primary); font-size: 1.3rem; font-weight: 700; margin-top: 0.5rem;">
+                                                ${(org.organization_score * 100).toFixed(0)}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Members (${(org.members || []).length})</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div style="max-height: 400px; overflow-y: auto;">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Address</th>
+                                                    <th>Type</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                `;
+
+                (org.members || []).forEach(member => {
+                    const typeBadge = member.member_type === 'creator' ? 'badge-success' : 'badge-info';
+                    html += `
+                        <tr>
+                            <td><code style="font-size: 0.8rem;">${member.member_address.substring(0, 16)}...</code></td>
+                            <td><span class="badge ${typeBadge}">${member.member_type}</span></td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Master Score</h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div style="font-size: 3rem; font-weight: 700; color: var(--color-primary);">
+                                        ${(signals.master_launch_score * 100).toFixed(1)}%
+                                    </div>
+                                    <div class="mt-3">
+                                        <span class="badge badge-${(signals.alert_level || 'low').toLowerCase()} p-2">
+                                            ${signals.alert_level || 'LOW'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Risk Score</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div style="font-size: 2rem; font-weight: 700; color: var(--color-high);">
+                                        ${risk.risk_score !== undefined ? risk.risk_score.toFixed(0) : 'N/A'}
+                                    </div>
+                                    <div class="mt-2" style="font-size: 0.9rem;">
+                                        <div>Rug Probability: <strong>${risk.rug_probability !== undefined ? (risk.rug_probability * 100).toFixed(0) : 'N/A'}%</strong></div>
+                                        <div>Confidence: <strong>${risk.confidence !== undefined ? (risk.confidence * 100).toFixed(0) : 'N/A'}%</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                content.innerHTML = html;
+            } catch (error) {
+                content.innerHTML = `<div class="alert alert-danger">Error loading organization: ${error.message}</div>`;
+            }
+        }
+
+        // Load dashboard on page load
+        window.addEventListener('load', () => {
+            loadDashboard();
+        });
+    </script>
+</body>
+</html>

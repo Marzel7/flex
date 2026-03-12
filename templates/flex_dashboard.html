@@ -559,6 +559,131 @@
             font-size: 0.75rem;
         }
 
+        /* Signal Inspector */
+        .signal-inspector-panel {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            right: 520px;
+            width: 500px;
+            max-height: 600px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem 0.5rem 0 0;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.5);
+            flex-direction: column;
+            z-index: 999;
+            margin: 1rem;
+        }
+
+        .signal-inspector-panel.active {
+            display: flex;
+        }
+
+        .signal-inspector-header {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .signal-inspector-header h5 {
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-secondary);
+        }
+
+        .signal-inspector-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0;
+            font-size: 1.2rem;
+        }
+
+        .signal-inspector-close:hover {
+            color: var(--text-primary);
+        }
+
+        .signal-inspector-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .signal-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        .signal-name {
+            color: var(--text-secondary);
+        }
+
+        .signal-weight {
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+
+        .signal-value {
+            color: var(--color-primary);
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .signal-calculation {
+            color: var(--color-secondary);
+            font-family: monospace;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            padding-left: 0.5rem;
+        }
+
+        .master-score-box {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid var(--color-secondary);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .master-score-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .master-score-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-secondary);
+            font-family: monospace;
+        }
+
+        .master-score-bar {
+            height: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            margin-top: 0.75rem;
+            overflow: hidden;
+        }
+
+        .master-score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 4px;
+        }
+
         .dev-tools-entry {
             padding: 0.5rem;
             margin-bottom: 0.25rem;
@@ -1275,6 +1400,12 @@
                             <h5 class="mb-0">Predictive Signals</h5>
                         </div>
                         <div class="card-body">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h6 style="margin: 0; color: var(--text-primary);">Predictive Signals</h6>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="inspectSignals(${orgId})">
+                                    <i class="fas fa-microscope"></i> Inspect
+                                </button>
+                            </div>
                             <div class="signal-grid">
                                 ${[
                                     ['Launch Prob', signals.launch_probability],
@@ -2216,6 +2347,112 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        // SIGNAL INSPECTOR
+        const SignalWeights = {
+            'launch_probability': 0.22,
+            'wave_score': 0.18,
+            'seed_concentration': 0.12,
+            'funder_overlap': 0.12,
+            'velocity_score': 0.10,
+            'creator_reuse': 0.08,
+            'volatility_score': 0.08,
+            'recency_score': 0.10
+        };
+
+        async function inspectSignals(orgId) {
+            try {
+                const response = await fetch(`${API_BASE}/signals/${orgId}`);
+                const signals = await response.json();
+
+                // Create inspector panel if not exists
+                if (!document.getElementById('signalInspectorPanel')) {
+                    createSignalInspectorPanel();
+                }
+
+                // Calculate contributions
+                let calculations = [];
+                let totalScore = 0;
+
+                for (const [signal, weight] of Object.entries(SignalWeights)) {
+                    const value = signals[signal] || 0;
+                    const contribution = weight * value;
+                    totalScore += contribution;
+
+                    calculations.push({
+                        signal: signal.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                        weight: weight,
+                        value: value,
+                        contribution: contribution
+                    });
+                }
+
+                // Render inspector
+                renderSignalInspector(calculations, totalScore, signals.master_launch_score || totalScore);
+
+                // Show panel
+                document.getElementById('signalInspectorPanel').classList.add('active');
+
+            } catch (error) {
+                console.error('Error inspecting signals:', error);
+            }
+        }
+
+        function createSignalInspectorPanel() {
+            const panel = document.createElement('div');
+            panel.id = 'signalInspectorPanel';
+            panel.className = 'signal-inspector-panel';
+            panel.innerHTML = `
+                <div class="signal-inspector-header">
+                    <h5><i class="fas fa-microscope"></i> Signal Inspector</h5>
+                    <button class="signal-inspector-close" onclick="document.getElementById('signalInspectorPanel').classList.remove('active')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="signal-inspector-content" id="signalInspectorContent">
+                    <!-- Content inserted here -->
+                </div>
+            `;
+            document.body.appendChild(panel);
+        }
+
+        function renderSignalInspector(calculations, calculatedScore, masterScore) {
+            const content = document.getElementById('signalInspectorContent');
+
+            // Build signal rows
+            const signalRows = calculations.map(calc => `
+                <div class="signal-row">
+                    <div class="signal-name">${calc.signal}</div>
+                    <div class="signal-weight">${(calc.weight * 100).toFixed(0)}%</div>
+                    <div class="signal-value">${(calc.value * 100).toFixed(0)}%</div>
+                    <div class="signal-calculation">= ${(calc.weight * 100).toFixed(0)}% × ${(calc.value * 100).toFixed(0)}% = ${(calc.contribution * 100).toFixed(1)}%</div>
+                </div>
+            `).join('');
+
+            content.innerHTML = `
+                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                    <strong>Signal Weights & Values</strong>
+                </div>
+
+                ${signalRows}
+
+                <div class="master-score-box">
+                    <div class="master-score-label">Master Launch Score</div>
+                    <div class="master-score-value">${(masterScore * 100).toFixed(0)}%</div>
+                    <div class="master-score-bar">
+                        <div class="master-score-fill" style="width: ${masterScore * 100}%"></div>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        Calculated: ${(calculatedScore * 100).toFixed(1)}%
+                    </div>
+                </div>
+
+                <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                    <strong>How this score is calculated:</strong>
+                    <div style="margin-top: 0.5rem;">Each signal contributes a weighted percentage to the final master score. Higher values indicate higher probability of launch.</div>
+                </div>
+            `;
         }
 
         // Intercept fetch calls

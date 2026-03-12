@@ -25,7 +25,14 @@ from src.extractors.funder_incoming_extractor import extract_for_creator as extr
 from src.analysis.clustering_task_queue import enqueue_clustering
 from dotenv import load_dotenv
 
-# Import RPC metrics recorder for monitoring
+# === Logging Helper ===
+def log_log_print(*args, **kwargs):
+    """Print with flush support across Python versions"""
+    kwargs.pop('flush', None)  # Remove flush if present
+    log_print(*args, **kwargs)
+    sys.stdout.flush()
+
+# === Global Database Write Lock ===
 try:
     from src.metrics.rpc_metrics_recorder import initialize_recorder, record_request
     initialize_recorder(plan_monthly_credits=50_000_000)
@@ -33,11 +40,10 @@ except ImportError:
     def record_request(*args, **kwargs):
         pass  # No-op if metrics recorder not available
 except Exception as e:
-    print(f"[WARNING] Could not initialize RPC metrics: {e}", flush=True)
+    log_print(f"[WARNING] Could not initialize RPC metrics: {e}", flush=True)
     def record_request(*args, **kwargs):
         pass  # No-op fallback
 
-# === Global Database Write Lock ===
 # Serializes ALL database writes across threads/processes to prevent lock contention
 # Used by asyncio tasks (wrapped with self.db_lock THEN this), executor threads, and workers
 DB_WRITE_LOCK = threading.RLock()
@@ -82,11 +88,11 @@ async def extract_funder_transfers_async(creator_address: str):
         loop = asyncio.get_event_loop()
         result = await loop.run_in_executor(None, extract_funder_transfers, creator_address)
         if result.get('status') == 'complete':
-            print(f"[FUNDER_EXTRACTION] ✅ Funding complete for {creator_address[:8]}...: IN={result.get('incoming_found', 0)}, OUT={result.get('outgoing_found', 0)}, SOL={result.get('total_sol', 0):.4f}", flush=True)
+            log_print(f"[FUNDER_EXTRACTION] ✅ Funding complete for {creator_address[:8]}...: IN={result.get('incoming_found', 0)}, OUT={result.get('outgoing_found', 0)}, SOL={result.get('total_sol', 0):.4f}", flush=True)
         else:
-            print(f"[FUNDER_EXTRACTION] Completed for {creator_address[:8]}...: {result}", flush=True)
+            log_print(f"[FUNDER_EXTRACTION] Completed for {creator_address[:8]}...: {result}", flush=True)
     except Exception as e:
-        print(f"[FUNDER_EXTRACTION] Error extracting transfers for {creator_address[:8]}...: {e}", flush=True)
+        log_print(f"[FUNDER_EXTRACTION] Error extracting transfers for {creator_address[:8]}...: {e}", flush=True)
         import traceback
         traceback.print_exc()
 
@@ -97,9 +103,9 @@ async def update_network_clustering_async():
         loop = asyncio.get_event_loop()
         # Rebuild super_clusters table based on extracted funding relationships
         result = await loop.run_in_executor(None, rebuild_super_clusters_from_funding)
-        print(f"[CLUSTERING] ✅ Super-clusters updated from funding data", flush=True)
+        log_print(f"[CLUSTERING] ✅ Super-clusters updated from funding data", flush=True)
     except Exception as e:
-        print(f"[CLUSTERING] Error updating network clustering: {e}", flush=True)
+        log_print(f"[CLUSTERING] Error updating network clustering: {e}", flush=True)
         import traceback
         traceback.print_exc()
 
@@ -118,7 +124,7 @@ def rebuild_super_clusters_from_funding():
             # Note: BEGIN IMMEDIATE removed - WAL mode + busy_timeout handles serialization
             # Holding write lock for entire clustering operation starved other writers
             try:
-                print(f"[CLUSTERING] 🔄 Rebuilding super_clusters from funding data...", flush=True)
+                log_print(f"[CLUSTERING] 🔄 Rebuilding super_clusters from funding data...", flush=True)
 
                 # Get all creators with funding relationships
                 cursor.execute("""
@@ -127,7 +133,7 @@ def rebuild_super_clusters_from_funding():
                 """)
 
                 creators_to_process = [row[0] for row in cursor.fetchall()]
-                print(f"[CLUSTERING]    Found {len(creators_to_process)} creators with complete funding extraction", flush=True)
+                log_print(f"[CLUSTERING]    Found {len(creators_to_process)} creators with complete funding extraction", flush=True)
 
                 # Update cluster counts and metadata for existing clusters
                 cursor.execute("""
@@ -203,9 +209,9 @@ def rebuild_super_clusters_from_funding():
                                 funders_assigned += 1
 
                 conn.commit()
-                print(f"[CLUSTERING] ✅ Assigned {creators_assigned} creators to networks", flush=True)
-                print(f"[CLUSTERING] ✅ Assigned {funders_assigned} funders to networks (funding real addresses)", flush=True)
-                print(f"[CLUSTERING] ✅ Updated super_cluster metadata", flush=True)
+                log_print(f"[CLUSTERING] ✅ Assigned {creators_assigned} creators to networks", flush=True)
+                log_print(f"[CLUSTERING] ✅ Assigned {funders_assigned} funders to networks (funding real addresses)", flush=True)
+                log_print(f"[CLUSTERING] ✅ Updated super_cluster metadata", flush=True)
 
             except Exception as e:
                 conn.rollback()
@@ -217,7 +223,7 @@ def rebuild_super_clusters_from_funding():
         return {'status': 'success', 'creators_updated': len(creators_to_process), 'creators_assigned': creators_assigned, 'funders_assigned': funders_assigned}
 
     except Exception as e:
-        print(f"[CLUSTERING] ⚠ Error rebuilding super_clusters: {e}", flush=True)
+        log_print(f"[CLUSTERING] ⚠ Error rebuilding super_clusters: {e}", flush=True)
         import traceback
         traceback.print_exc()
         return {'status': 'error', 'error': str(e)}
@@ -265,7 +271,7 @@ def check_if_cex_funding(cex_address: str) -> dict:
                 'flag': None
             }
     except Exception as e:
-        print(f"[ERROR] Failed to check CEX wallet: {e}")
+        log_print(f"[ERROR] Failed to check CEX wallet: {e}")
         return {
             'is_cex': False,
             'exchange_name': None,
@@ -331,11 +337,11 @@ class PumpFunCurveListener:
         }
 
         self._ensure_db()
-        print(f"[INIT] Pump.Fun → PumpSwap Migration Listener ready", flush=True)
-        print(f"[INIT] ✅ TX Cache initialized (TTL: {self.tx_cache_ttl_seconds}s)", flush=True)
-        print(f"[INIT] Monitoring PumpSwap program: {PUMPSWAP_PROGRAM}", flush=True)
-        print(f"[INIT] WebSocket: {HELIUS_RPC_WS[:60]}...", flush=True)
-        print(f"[INIT] HTTP RPC: {RPC_HTTP[:60]}...", flush=True)
+        log_print(f"[INIT] Pump.Fun → PumpSwap Migration Listener ready", flush=True)
+        log_print(f"[INIT] ✅ TX Cache initialized (TTL: {self.tx_cache_ttl_seconds}s)", flush=True)
+        log_print(f"[INIT] Monitoring PumpSwap program: {PUMPSWAP_PROGRAM}", flush=True)
+        log_print(f"[INIT] WebSocket: {HELIUS_RPC_WS[:60]}...", flush=True)
+        log_print(f"[INIT] HTTP RPC: {RPC_HTTP[:60]}...", flush=True)
 
     async def _post_rpc_with_fallback(self, payload: dict, timeout: int = 10) -> Optional[dict]:
         """
@@ -458,7 +464,7 @@ class PumpFunCurveListener:
                 )
                 return None
         except Exception as e:
-            print(f"[RPC_ERROR] {e}", flush=True)
+            log_print(f"[RPC_ERROR] {e}", flush=True)
             # Record the outer exception too
             latency_ms = (time.time() - start_time) * 1000 if 'start_time' in locals() else 0
             record_request(
@@ -491,7 +497,7 @@ class PumpFunCurveListener:
             age = current_time - cached_time
             if age < self.tx_cache_ttl_seconds:
                 self.tx_cache_stats['hit'] += 1
-                print(f"[TX_CACHE] 💾 HIT: {signature[:16]}... (age: {age:.1f}s)", flush=True)
+                log_print(f"[TX_CACHE] 💾 HIT: {signature[:16]}... (age: {age:.1f}s)", flush=True)
                 return cached_data
             else:
                 # Expired, remove from cache
@@ -511,7 +517,7 @@ class PumpFunCurveListener:
             # After lock released, tx should be in cache
             if signature in self.tx_cache:
                 cached_data, _ = self.tx_cache[signature]
-                print(f"[TX_CACHE] ⏳ WAIT: {signature[:16]}... (shared fetch completed)", flush=True)
+                log_print(f"[TX_CACHE] ⏳ WAIT: {signature[:16]}... (shared fetch completed)", flush=True)
                 return cached_data
             return None
 
@@ -524,7 +530,7 @@ class PumpFunCurveListener:
         await lock.acquire()
 
         try:
-            print(f"[TX_CACHE] 🌐 MISS: fetching {signature[:16]}...", flush=True)
+            log_print(f"[TX_CACHE] 🌐 MISS: fetching {signature[:16]}...", flush=True)
 
             # Retry with backoff for indexing delays
             retry_delays = [1, 2, 4, 6, 10, 15, 20, 30]
@@ -533,7 +539,7 @@ class PumpFunCurveListener:
             for attempt in range(total_attempts):
                 if attempt > 0:
                     delay = retry_delays[attempt - 1]
-                    print(f"[TX_CACHE] ⏳ Retry {attempt + 1}/{total_attempts} after {delay}s for {signature[:16]}...", flush=True)
+                    log_print(f"[TX_CACHE] ⏳ Retry {attempt + 1}/{total_attempts} after {delay}s for {signature[:16]}...", flush=True)
                     await asyncio.sleep(delay)
 
                 payload = {
@@ -560,30 +566,30 @@ class PumpFunCurveListener:
                     result = tx_data["result"]
                     # Cache it
                     self.tx_cache[signature] = (result, time.time())
-                    print(f"[TX_CACHE] 💾 CACHED: {signature[:16]}... ({len(str(result))} bytes)", flush=True)
+                    log_print(f"[TX_CACHE] 💾 CACHED: {signature[:16]}... ({len(str(result))} bytes)", flush=True)
                     return result
 
                 # Log what we got (for debugging indexing delays)
                 if tx_data is None:
-                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: _post_rpc_with_fallback returned None", flush=True)
+                    log_print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: _post_rpc_with_fallback returned None", flush=True)
                 elif "error" in tx_data:
-                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: RPC error: {tx_data['error']}", flush=True)
+                    log_print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: RPC error: {tx_data['error']}", flush=True)
                 elif "result" not in tx_data:
-                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: No 'result' field in response", flush=True)
+                    log_print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: No 'result' field in response", flush=True)
                 elif tx_data["result"] is None:
-                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: result is None (indexing delay)", flush=True)
+                    log_print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: result is None (indexing delay)", flush=True)
                 else:
-                    print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: result is empty/falsy", flush=True)
+                    log_print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: result is empty/falsy", flush=True)
 
-            print(f"[TX_CACHE] ❌ All {total_attempts} attempts exhausted for {signature[:16]}...", flush=True)
+            log_print(f"[TX_CACHE] ❌ All {total_attempts} attempts exhausted for {signature[:16]}...", flush=True)
             return None
 
         except asyncio.TimeoutError:
-            print(f"[TX_CACHE] ⏱️  Timeout fetching {signature[:16]}...", flush=True)
+            log_print(f"[TX_CACHE] ⏱️  Timeout fetching {signature[:16]}...", flush=True)
             return None
 
         except Exception as e:
-            print(f"[TX_CACHE] ⚠ Error fetching {signature[:16]}...: {e}", flush=True)
+            log_print(f"[TX_CACHE] ⚠ Error fetching {signature[:16]}...: {e}", flush=True)
             return None
 
         finally:
@@ -713,15 +719,15 @@ class PumpFunCurveListener:
             
             if "creator_is_blocked" not in columns:
                 cursor.execute("ALTER TABLE token_analysis ADD COLUMN creator_is_blocked INTEGER DEFAULT 0")
-                print("[DB] ✅ Added creator_is_blocked column to token_analysis", flush=True)
+                log_print("[DB] ✅ Added creator_is_blocked column to token_analysis", flush=True)
             
             if "network_risk" not in columns:
                 cursor.execute("ALTER TABLE token_analysis ADD COLUMN network_risk INTEGER DEFAULT 0")
-                print("[DB] ✅ Added network_risk column to token_analysis", flush=True)
+                log_print("[DB] ✅ Added network_risk column to token_analysis", flush=True)
             
             if "connected_malicious_count" not in columns:
                 cursor.execute("ALTER TABLE token_analysis ADD COLUMN connected_malicious_count INTEGER")
-                print("[DB] ✅ Added connected_malicious_count column to token_analysis", flush=True)
+                log_print("[DB] ✅ Added connected_malicious_count column to token_analysis", flush=True)
         except Exception as e:
             pass  # Columns likely already exist
 
@@ -731,10 +737,10 @@ class PumpFunCurveListener:
             columns = [col[1] for col in cursor.fetchall()]
             if "connected_to_malicious" not in columns:
                 cursor.execute("ALTER TABLE creator_blocklist ADD COLUMN connected_to_malicious INTEGER DEFAULT 0")
-                print("[DB] ✅ Added connected_to_malicious column to creator_blocklist", flush=True)
+                log_print("[DB] ✅ Added connected_to_malicious column to creator_blocklist", flush=True)
             if "network_members" not in columns:
                 cursor.execute("ALTER TABLE creator_blocklist ADD COLUMN network_members TEXT")
-                print("[DB] ✅ Added network_members column to creator_blocklist", flush=True)
+                log_print("[DB] ✅ Added network_members column to creator_blocklist", flush=True)
         except Exception as e:
             pass  # Columns likely already exist
 
@@ -790,8 +796,8 @@ class PumpFunCurveListener:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funding_graph_creator ON creator_funding_graph(creator_address)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funding_graph_funder ON creator_funding_graph(funder_address)")
 
-        print("[DB] ✅ Funder webhook tables ensured", flush=True)
-        print("[DB] ✅ Creator funders and funding graph tables ensured", flush=True)
+        log_print("[DB] ✅ Funder webhook tables ensured", flush=True)
+        log_print("[DB] ✅ Creator funders and funding graph tables ensured", flush=True)
 
         conn.commit()
         conn.close()
@@ -822,7 +828,7 @@ class PumpFunCurveListener:
                             cluster_name = cluster_info.get('cluster_name', cluster_id)
                             cluster_risk_multiplier = cluster_info.get('risk_multiplier', 1.0)
                     except Exception as e:
-                        print(f"[CLUSTER] Error checking creator {creator_address}: {e}", flush=True)
+                        log_print(f"[CLUSTER] Error checking creator {creator_address}: {e}", flush=True)
 
                     # Look up creator's network immediately
                     try:
@@ -846,7 +852,7 @@ class PumpFunCurveListener:
                             if network_row:
                                 network_name = network_row[0]
                     except Exception as e:
-                        print(f"[NETWORK] Error looking up creator network {creator_address}: {e}", flush=True)
+                        log_print(f"[NETWORK] Error looking up creator network {creator_address}: {e}", flush=True)
 
                 # Store post-migration analysis with live price tracking
                 cursor.execute("""
@@ -892,9 +898,9 @@ class PumpFunCurveListener:
                 conn.commit()
                 conn.close()
                 pool_info = f"Pool: {pool_address[:16]}" if pool_address else "Pool: will discover at price-time"
-                print(f"[DB] ✅ Stored analysis {mint} | {pool_info}", flush=True)
+                log_print(f"[DB] ✅ Stored analysis {mint} | {pool_info}", flush=True)
             except Exception as e:
-                print(f"[DB] ❌ Failed to store analysis for {mint}: {e}", flush=True)
+                log_print(f"[DB] ❌ Failed to store analysis for {mint}: {e}", flush=True)
 
     def _token_exists_in_db(self, mint: str) -> bool:
         """Check if token exists in analysis table (previously analyzed)"""
@@ -906,7 +912,7 @@ class PumpFunCurveListener:
             conn.close()
             return bool(result)
         except Exception as e:
-            print(f"[DB] ⚠ Could not check if token exists: {e}", flush=True)
+            log_print(f"[DB] ⚠ Could not check if token exists: {e}", flush=True)
             return False
 
     # --- Migration Detection ---
@@ -970,10 +976,10 @@ class PumpFunCurveListener:
                 if not data or "result" not in data or not data["result"]:
                     # Transaction not indexed yet, retry with backoff
                     if attempt < max_retries - 1:
-                        print(f"[MINT] 📝 Transaction indexing delay, retry {attempt + 1}/{max_retries}...", flush=True)
+                        log_print(f"[MINT] 📝 Transaction indexing delay, retry {attempt + 1}/{max_retries}...", flush=True)
                         await asyncio.sleep(retry_delays[attempt])
                         continue
-                    print(f"[MINT] ⚠ Transaction not found after retries: {signature}", flush=True)
+                    log_print(f"[MINT] ⚠ Transaction not found after retries: {signature}", flush=True)
                     return None
 
                 tx_data = data["result"]
@@ -1004,22 +1010,22 @@ class PumpFunCurveListener:
                     if len(account) in (43, 44) and account not in system_programs:
                         return account
 
-                print(f"[MINT] ⚠ No valid mint found in {signature}", flush=True)
+                log_print(f"[MINT] ⚠ No valid mint found in {signature}", flush=True)
                 return None
 
             except asyncio.TimeoutError:
                 if attempt < max_retries - 1:
-                    print(f"[MINT] ⏱️  Timeout, retrying {attempt + 1}/{max_retries}...", flush=True)
+                    log_print(f"[MINT] ⏱️  Timeout, retrying {attempt + 1}/{max_retries}...", flush=True)
                     await asyncio.sleep(retry_delays[attempt])
                     continue
-                print(f"[MINT] ⚠ Timeout after retries: {signature}", flush=True)
+                log_print(f"[MINT] ⚠ Timeout after retries: {signature}", flush=True)
                 return None
             except Exception as e:
                 if attempt < max_retries - 1:
-                    print(f"[MINT] ⚠ Error on attempt {attempt + 1}, retrying: {e}", flush=True)
+                    log_print(f"[MINT] ⚠ Error on attempt {attempt + 1}, retrying: {e}", flush=True)
                     await asyncio.sleep(retry_delays[attempt])
                     continue
-                print(f"[MINT] ⚠ Error fetching {signature}: {e}", flush=True)
+                log_print(f"[MINT] ⚠ Error fetching {signature}: {e}", flush=True)
                 return None
         
         return None
@@ -1063,11 +1069,11 @@ class PumpFunCurveListener:
                 return account
 
         # Debug: log what we found
-        print(f"[MINT_EXTRACT] postTokenBalances count: {len(post_balances)}, accountKeys count: {len(accounts)}", flush=True)
+        log_print(f"[MINT_EXTRACT] postTokenBalances count: {len(post_balances)}, accountKeys count: {len(accounts)}", flush=True)
         if post_balances:
-            print(f"[MINT_EXTRACT] First postTokenBalance: {post_balances[0] if post_balances else 'None'}", flush=True)
+            log_print(f"[MINT_EXTRACT] First postTokenBalance: {post_balances[0] if post_balances else 'None'}", flush=True)
         if accounts:
-            print(f"[MINT_EXTRACT] First 5 accountKeys: {accounts[:5]}", flush=True)
+            log_print(f"[MINT_EXTRACT] First 5 accountKeys: {accounts[:5]}", flush=True)
 
         return None
 
@@ -1140,7 +1146,7 @@ class PumpFunCurveListener:
                                 pool_idx = accounts[0]
                                 if isinstance(pool_idx, int) and pool_idx < len(account_keys):
                                     pool_address = account_keys[pool_idx]
-                                    print(f"[POOL] ✅ Extracted pool from PumpSwap instruction: {pool_address}", flush=True)
+                                    log_print(f"[POOL] ✅ Extracted pool from PumpSwap instruction: {pool_address}", flush=True)
                                     return pool_address
 
 
@@ -1148,10 +1154,10 @@ class PumpFunCurveListener:
 
             except Exception as e:
                 if attempt < max_retries - 1:
-                    print(f"[POOL] ⚠ Error extracting pool (attempt {attempt + 1}/{max_retries}): {e}", flush=True)
+                    log_print(f"[POOL] ⚠ Error extracting pool (attempt {attempt + 1}/{max_retries}): {e}", flush=True)
                     await asyncio.sleep(retry_delays[attempt])
                 else:
-                    print(f"[POOL_ERROR] Failed to extract pool address after {max_retries} attempts: {e}", flush=True)
+                    log_print(f"[POOL_ERROR] Failed to extract pool address after {max_retries} attempts: {e}", flush=True)
                     return None
 
         return None
@@ -1202,7 +1208,7 @@ class PumpFunCurveListener:
                         pool_idx = accounts[0]
                         if isinstance(pool_idx, int) and pool_idx < len(account_keys):
                             pool_address = account_keys[pool_idx]
-                            print(f"[POOL] ✅ Extracted pool from cached tx: {pool_address}", flush=True)
+                            log_print(f"[POOL] ✅ Extracted pool from cached tx: {pool_address}", flush=True)
                             return pool_address
 
         return None
@@ -1268,7 +1274,7 @@ class PumpFunCurveListener:
             return None
                     
         except Exception as e:
-            print(f"[PRICE_ERROR] Failed to extract price for {token_mint}: {e}", flush=True)
+            log_print(f"[PRICE_ERROR] Failed to extract price for {token_mint}: {e}", flush=True)
             return None
 
     async def _find_pool_account(self, token_mint: str) -> Optional[str]:
@@ -1292,7 +1298,7 @@ class PumpFunCurveListener:
             data = await self._post_rpc_with_fallback(payload, timeout=10)
             if data and "result" in data and "value" in data["result"]:
                 accounts = data["result"]["value"]
-                print(f"[POOL] Found {len(accounts)} accounts via getTokenAccountsByMint", flush=True)
+                log_print(f"[POOL] Found {len(accounts)} accounts via getTokenAccountsByMint", flush=True)
 
             # Fallback to getTokenLargestAccounts
             if not accounts:
@@ -1312,7 +1318,7 @@ class PumpFunCurveListener:
             if not accounts:
                 return None
 
-            print(f"[POOL] Checking {len(accounts)} token accounts to find pool...", flush=True)
+            log_print(f"[POOL] Checking {len(accounts)} token accounts to find pool...", flush=True)
 
             # Sort by balance - smallest account is usually the active pool
             sorted_accounts = sorted(accounts, key=lambda x: float(x.get("uiAmount", 0)))
@@ -1325,7 +1331,7 @@ class PumpFunCurveListener:
                 if not token_account_addr:
                     continue
 
-                print(f"[POOL]   Checking {token_account_addr} (balance: {balance:.0f})", flush=True)
+                log_print(f"[POOL]   Checking {token_account_addr} (balance: {balance:.0f})", flush=True)
 
                 # Get account info with jsonParsed to extract the owner
                 acct_payload = {
@@ -1348,7 +1354,7 @@ class PumpFunCurveListener:
                             owner = info.get("owner")
 
                             if owner:
-                                print(f"[POOL]     Owner: {owner}", flush=True)
+                                log_print(f"[POOL]     Owner: {owner}", flush=True)
                                 return owner
                 except:
                     pass
@@ -1357,12 +1363,12 @@ class PumpFunCurveListener:
                 # (This is a fallback - smallest account is usually the pool)
                 smallest_account = sorted_accounts[0].get("address")
                 if smallest_account:
-                    print(f"[POOL] Using smallest account as pool: {smallest_account}", flush=True)
+                    log_print(f"[POOL] Using smallest account as pool: {smallest_account}", flush=True)
                     return smallest_account
                 
                 return None
         except Exception as e:
-            print(f"[POOL_ERROR] Failed to find pool: {e}", flush=True)
+            log_print(f"[POOL_ERROR] Failed to find pool: {e}", flush=True)
             return None
 
     async def _get_price_from_pool_account(self, pool_address: str, token_mint: str) -> Optional[tuple]:
@@ -1527,7 +1533,7 @@ class PumpFunCurveListener:
             return (price_usd, market_cap_usd)
 
         except Exception as e:
-            print(f"[PRICE_ERROR] Exception in on-chain extraction: {e}", flush=True)
+            log_print(f"[PRICE_ERROR] Exception in on-chain extraction: {e}", flush=True)
             return None
 
     async def _extract_onchain_pool_price(self, token_mint: str) -> Optional[tuple]:
@@ -1637,7 +1643,7 @@ class PumpFunCurveListener:
                     return (price_usd, market_cap_usd)
                     
         except Exception as e:
-            print(f"[PRICE_ERROR] DexScreener fetch failed {token_mint}: {e}", flush=True)
+            log_print(f"[PRICE_ERROR] DexScreener fetch failed {token_mint}: {e}", flush=True)
             return None
 
     def _extract_mint_from_logs(self, logs: list) -> Optional[str]:
@@ -1654,7 +1660,7 @@ class PumpFunCurveListener:
                 return matches[0] if matches else None
             return None
         except Exception as e:
-            print(f"[MINT] ⚠ Error extracting mint from logs: {e}", flush=True)
+            log_print(f"[MINT] ⚠ Error extracting mint from logs: {e}", flush=True)
             return None
 
     # --- Analyzer ---
@@ -1663,7 +1669,7 @@ class PumpFunCurveListener:
         if mint in self.analyzed_tokens:
             return
         try:
-            print(f"[ANALYZER] 🔍 Analyzing post-migration {mint}", flush=True)
+            log_print(f"[ANALYZER] 🔍 Analyzing post-migration {mint}", flush=True)
             analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
             await analyzer.fetch_curve_activity_async()
 
@@ -1692,7 +1698,7 @@ class PumpFunCurveListener:
             if earliest_creator:
                 summary["earliest_tx_creator"] = earliest_creator
                 provenance_status = provenance.get('status', 'unknown') if provenance else 'unknown'
-                print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status})", flush=True)
+                log_print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status})", flush=True)
 
                 # Check if creator is in blocklist
                 try:
@@ -1713,9 +1719,9 @@ class PumpFunCurveListener:
                         summary["creator_reputation"] = reputation
 
                         if rug_count >= 2:
-                            print(f"[BLOCKLIST] 🚨 MALICIOUS CREATOR DETECTED: {earliest_creator} | {rug_count} rugs", flush=True)
+                            log_print(f"[BLOCKLIST] 🚨 MALICIOUS CREATOR DETECTED: {earliest_creator} | {rug_count} rugs", flush=True)
                         else:
-                            print(f"[BLOCKLIST] 📝 SUSPICIOUS CREATOR: {earliest_creator} | on watch list", flush=True)
+                            log_print(f"[BLOCKLIST] 📝 SUSPICIOUS CREATOR: {earliest_creator} | on watch list", flush=True)
 
                         # Check if connected to other malicious creators
                         if connected_to_malicious:
@@ -1724,12 +1730,12 @@ class PumpFunCurveListener:
                                 network_risk = len(network_members)
                                 summary["network_risk"] = 1
                                 summary["connected_malicious_count"] = len(network_members)
-                                print(f"[NETWORK] 🔗 NETWORK RISK: Creator is connected to {len(network_members)} malicious creator(s)", flush=True)
+                                log_print(f"[NETWORK] 🔗 NETWORK RISK: Creator is connected to {len(network_members)} malicious creator(s)", flush=True)
                             except:
                                 pass
 
                 except Exception as e:
-                    print(f"[BLOCKLIST_CHECK] Error checking creator: {e}", flush=True)
+                    log_print(f"[BLOCKLIST_CHECK] Error checking creator: {e}", flush=True)
 
             self.analyzed_tokens[mint] = summary
             risk_level = summary.get("risk_level", "🟢 LOW RISK")
@@ -1743,9 +1749,9 @@ class PumpFunCurveListener:
                     risk_indicator = "🚨 MALICIOUS CREATOR"
                 else:
                     risk_indicator = "📝 SUSPICIOUS CREATOR"
-                print(f"[ANALYZER] {risk_indicator} | {risk_level} | Score: {score:.2%} | {mint}", flush=True)
+                log_print(f"[ANALYZER] {risk_indicator} | {risk_level} | Score: {score:.2%} | {mint}", flush=True)
             else:
-                print(f"[ANALYZER] {risk_level} | Score: {score:.2%} | {mint}", flush=True)
+                log_print(f"[ANALYZER] {risk_level} | Score: {score:.2%} | {mint}", flush=True)
 
             # Store analysis results (will be updated with live price in background)
             # Pass pool_address if available
@@ -1757,10 +1763,10 @@ class PumpFunCurveListener:
                     from main import update_networks_for_new_token
                     update_networks_for_new_token(mint, earliest_creator)
                 except Exception as e:
-                    print(f"[NETWORK_UPDATE] Error updating networks for {mint}: {e}", flush=True)
+                    log_print(f"[NETWORK_UPDATE] Error updating networks for {mint}: {e}", flush=True)
 
         except Exception as e:
-            print(f"[ANALYZER] ⚠ Analysis failed for {mint}: {e}", flush=True)
+            log_print(f"[ANALYZER] ⚠ Analysis failed for {mint}: {e}", flush=True)
 
     async def update_live_prices_background(self):
         """Background task: Update live prices and market caps continuously"""
@@ -1805,7 +1811,7 @@ class PumpFunCurveListener:
                 await asyncio.sleep(10)
                         
             except Exception as e:
-                print(f"[PRICE_BG] Error in background task: {e}", flush=True)
+                log_print(f"[PRICE_BG] Error in background task: {e}", flush=True)
                 await asyncio.sleep(5)
 
     def _prune_tx_cache(self):
@@ -1819,7 +1825,7 @@ class PumpFunCurveListener:
             if sig in self.tx_cache_pending_retries:
                 self.tx_cache_pending_retries.pop(sig, None)
         if expired:
-            print(f"[TX_CACHE] 🧹 Pruned {len(expired)} expired entries (cache size: {len(self.tx_cache)})", flush=True)
+            log_print(f"[TX_CACHE] 🧹 Pruned {len(expired)} expired entries (cache size: {len(self.tx_cache)})", flush=True)
 
     def _get_tokens_needing_price_update(self) -> List[str]:
         """Get tokens that need live price updates (prioritize newer)"""
@@ -1839,7 +1845,7 @@ class PumpFunCurveListener:
             conn.close()
             return tokens
         except Exception as e:
-            print(f"[DB_ERROR] Failed to fetch tokens: {e}", flush=True)
+            log_print(f"[DB_ERROR] Failed to fetch tokens: {e}", flush=True)
             return []
 
     async def _get_migration_tx_for_token(self, token_mint: str) -> Optional[str]:
@@ -1858,7 +1864,7 @@ class PumpFunCurveListener:
             
             return row[0] if row and row[0] else None
         except Exception as e:
-            print(f"[DB_ERROR] Failed to get tx for {token_mint}: {e}", flush=True)
+            log_print(f"[DB_ERROR] Failed to get tx for {token_mint}: {e}", flush=True)
             return None
 
     async def _add_rug_creator_to_blocklist(self, token_mint: str, earliest_tx_creator: str = None):
@@ -1915,12 +1921,12 @@ class PumpFunCurveListener:
 
                 # Log
                 if rug_count >= 2:
-                    print(f"[BLOCKLIST] 🚨 SERIAL RUGGER: {earliest_tx_creator} | {rug_count} rugs detected", flush=True)
+                    log_print(f"[BLOCKLIST] 🚨 SERIAL RUGGER: {earliest_tx_creator} | {rug_count} rugs detected", flush=True)
                 else:
-                    print(f"[BLOCKLIST] 📝 Added to watch list: {earliest_tx_creator} | {rug_count} rug", flush=True)
+                    log_print(f"[BLOCKLIST] 📝 Added to watch list: {earliest_tx_creator} | {rug_count} rug", flush=True)
 
             except Exception as e:
-                print(f"[BLOCKLIST_ERROR] Failed to update rug creator block list: {e}", flush=True)
+                log_print(f"[BLOCKLIST_ERROR] Failed to update rug creator block list: {e}", flush=True)
 
     async def _update_price_in_db(self, token_mint: str, current_price: float, current_market_cap: float, source: str = "onchain"):
         """
@@ -1983,7 +1989,7 @@ class PumpFunCurveListener:
                         # Peak in < 30 minutes AND peak market cap < $100k = classic rug pattern
                         if time_to_peak_minutes < 30 and market_cap_highest < 100000:
                             rug_indicator = 'quick_peak_low_mc'
-                            print(f"[RUG] 🚨 DETECTED: {token_mint} | Time to peak: {time_to_peak_minutes:.1f} min | Peak MC: ${market_cap_highest:,.0f}", flush=True)
+                            log_print(f"[RUG] 🚨 DETECTED: {token_mint} | Time to peak: {time_to_peak_minutes:.1f} min | Peak MC: ${market_cap_highest:,.0f}", flush=True)
 
                             # Get creator and add to block list
                             cursor.execute("SELECT earliest_tx_creator FROM token_analysis WHERE mint = ?", (token_mint,))
@@ -1994,13 +2000,13 @@ class PumpFunCurveListener:
                         elif time_to_peak_minutes < 30:
                             # Peaked fast but market cap was substantial - not a rug, just volatile
                             rug_indicator = None
-                            print(f"[PEAK] ⚡ Fast peak but legit size: {token_mint} | Time: {time_to_peak_minutes:.1f} min | MC: ${market_cap_highest:,.0f}", flush=True)
+                            log_print(f"[PEAK] ⚡ Fast peak but legit size: {token_mint} | Time: {time_to_peak_minutes:.1f} min | MC: ${market_cap_highest:,.0f}", flush=True)
                         else:
                             # Normal progression
                             rug_indicator = None
                             
                     except Exception as e:
-                        print(f"[RUG_CHECK] ⚠ Could not analyze rug pattern for {token_mint}: {e}", flush=True)
+                        log_print(f"[RUG_CHECK] ⚠ Could not analyze rug pattern for {token_mint}: {e}", flush=True)
 
                 cursor.execute("""
                     UPDATE token_analysis
@@ -2016,7 +2022,7 @@ class PumpFunCurveListener:
                 conn.close()
                 
             except Exception as e:
-                print(f"[DB_ERROR] Failed to update price for {token_mint}: {e}", flush=True)
+                log_print(f"[DB_ERROR] Failed to update price for {token_mint}: {e}", flush=True)
 
     async def _create_minimal_token_entry(self, mint: str):
         """Create a minimal token entry in database immediately when migration is detected"""
@@ -2046,20 +2052,20 @@ class PumpFunCurveListener:
                         conn.commit()
                         conn.close()
 
-                    print(f"[DB] ✅ Created minimal token entry for {mint}", flush=True)
+                    log_print(f"[DB] ✅ Created minimal token entry for {mint}", flush=True)
                     return
 
                 except sqlite3.OperationalError as e:
                     if "database is locked" in str(e).lower() and attempt < max_retries - 1:
                         wait = base_delay * (2 ** attempt)
-                        print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
+                        log_print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
                         # CRITICAL: Sleep OUTSIDE the lock
                         await asyncio.sleep(wait)
                         continue
-                    print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
+                    log_print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
                     return
                 except Exception as e:
-                    print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
+                    log_print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
                     return
 
     async def _update_token_entry_with_creator(self, mint: str, creator: str, created_at: str, bonding_curve_pda: str = None, create_tx_signature: str = None):
@@ -2077,11 +2083,11 @@ class PumpFunCurveListener:
                     cluster_id = cluster_info.get('cluster_id')
                     cluster_name = cluster_info.get('cluster_name', cluster_id)
                     cluster_risk_multiplier = cluster_info.get('risk_multiplier', 1.0)
-                    print(f"[CLUSTER] ✅ Creator {creator[:8]}... belongs to {cluster_name} ({cluster_id}) - Risk multiplier: {cluster_risk_multiplier}x", flush=True)
+                    log_print(f"[CLUSTER] ✅ Creator {creator[:8]}... belongs to {cluster_name} ({cluster_id}) - Risk multiplier: {cluster_risk_multiplier}x", flush=True)
                 else:
-                    print(f"[CLUSTER] ℹ Creator {creator[:8]}... not in any cluster", flush=True)
+                    log_print(f"[CLUSTER] ℹ Creator {creator[:8]}... not in any cluster", flush=True)
             except Exception as e:
-                print(f"[CLUSTER] Error checking creator {creator}: {e}", flush=True)
+                log_print(f"[CLUSTER] Error checking creator {creator}: {e}", flush=True)
 
         max_retries = 6
         base_delay = 0.25
@@ -2108,28 +2114,28 @@ class PumpFunCurveListener:
                         conn.close()
 
                     cluster_info_str = f" | Cluster: {cluster_name} ({cluster_risk_multiplier}x)" if cluster_id else ""
-                    print(f"[DB] ✅ Updated token entry with creator: {creator[:8]}... | Created: {created_at} | CREATE tx: {create_tx_signature[:20] if create_tx_signature else 'N/A'}...{cluster_info_str}", flush=True)
+                    log_print(f"[DB] ✅ Updated token entry with creator: {creator[:8]}... | Created: {created_at} | CREATE tx: {create_tx_signature[:20] if create_tx_signature else 'N/A'}...{cluster_info_str}", flush=True)
                     return
 
                 except sqlite3.OperationalError as e:
                     if "database is locked" in str(e).lower() and attempt < max_retries - 1:
                         wait = base_delay * (2 ** attempt)
-                        print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
+                        log_print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
                         # CRITICAL: Sleep OUTSIDE the lock
                         await asyncio.sleep(wait)
                     else:
-                        print(f"[DB_ERROR] Failed to update token entry with creator: {e}", flush=True)
+                        log_print(f"[DB_ERROR] Failed to update token entry with creator: {e}", flush=True)
                         return
 
     async def _process_migration_with_mint(self, signature: str, logs: list, mint: str, tx_data: Optional[Dict] = None):
         """Continue migration pipeline once mint is known."""
         if self._token_exists_in_db(mint):
-            print(f"[MIGRATION] ⏭️  Token {mint} already analyzed - SKIPPED", flush=True)
+            log_print(f"[MIGRATION] ⏭️  Token {mint} already analyzed - SKIPPED", flush=True)
             return
 
         self.seen_mints.add(mint)
-        print(f"[EVENT] 🚀 MIGRATION DETECTED: {mint}", flush=True)
-        print(f"[EVENT] Migration signature: {signature}", flush=True)
+        log_print(f"[EVENT] 🚀 MIGRATION DETECTED: {mint}", flush=True)
+        log_print(f"[EVENT] Migration signature: {signature}", flush=True)
 
         # Create minimal token entry immediately (so token appears in UI right away)
         await self._create_minimal_token_entry(mint)
@@ -2139,7 +2145,7 @@ class PumpFunCurveListener:
         if tx_data:
             pool_address = await self._extract_pool_from_tx(tx_data)
             if pool_address:
-                print(f"[EVENT] ✅ Pool extracted from cached tx: {pool_address}", flush=True)
+                log_print(f"[EVENT] ✅ Pool extracted from cached tx: {pool_address}", flush=True)
 
         # Trigger immediate price fetch (don't wait for background task)
         # This ensures market cap appears quickly in UI regardless of analysis settings
@@ -2148,9 +2154,9 @@ class PumpFunCurveListener:
             if result is not None:
                 price, market_cap, source = result
                 await self._update_price_in_db(mint, price, market_cap, source)
-                print(f"[PRICE] ✅ Initial price fetched: ${price:.2e} | Market Cap: ${market_cap:.2e} | Source: {source}", flush=True)
+                log_print(f"[PRICE] ✅ Initial price fetched: ${price:.2e} | Market Cap: ${market_cap:.2e} | Source: {source}", flush=True)
         except Exception as price_err:
-            print(f"[PRICE] ⚠ Initial price fetch failed: {price_err}", flush=True)
+            log_print(f"[PRICE] ⚠ Initial price fetch failed: {price_err}", flush=True)
 
         # Extract earliest creator and creation date (always, regardless of analysis toggles)
         # This ensures creator and date are always visible in the UI
@@ -2167,7 +2173,7 @@ class PumpFunCurveListener:
             if provenance and provenance.get('blockTime'):
                 block_time = provenance.get('blockTime')
                 created_at = datetime.utcfromtimestamp(block_time).isoformat() + "Z"
-                print(f"[CREATOR] 🕐 Using on-chain time from earliest tx: {created_at}", flush=True)
+                log_print(f"[CREATOR] 🕐 Using on-chain time from earliest tx: {created_at}", flush=True)
 
             # Fallback: Get migration block time if provenance doesn't have blockTime
             if not created_at and signature and tx_data:
@@ -2189,26 +2195,26 @@ class PumpFunCurveListener:
                 create_tx_signature = analyzer._create_tx_signature if (analyzer and hasattr(analyzer, '_create_tx_signature') and is_pumpfun_create) else None
 
                 if create_tx_signature:
-                    print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status}) | CREATE tx validated: {create_tx_signature[:20]}...", flush=True)
+                    log_print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status}) | CREATE tx validated: {create_tx_signature[:20]}...", flush=True)
                 else:
                     analyzer_sig = analyzer._create_tx_signature if (analyzer and hasattr(analyzer, '_create_tx_signature')) else None
-                    print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status}) | CREATE tx validation: {'FAILED' if analyzer_sig else 'NOT_SET'}", flush=True)
+                    log_print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status}) | CREATE tx validation: {'FAILED' if analyzer_sig else 'NOT_SET'}", flush=True)
 
                 # Update minimal entry with creator, date, bonding curve, and CREATE tx signature (only if validated)
                 await self._update_token_entry_with_creator(mint, earliest_creator, created_at, bonding_curve_pda, create_tx_signature)
 
                 # Creator tracking now handled by creator_outgoing_extractor (background job)
         except Exception as creator_err:
-            print(f"[CREATOR] ⚠ Could not extract creator: {creator_err}", flush=True)
+            log_print(f"[CREATOR] ⚠ Could not extract creator: {creator_err}", flush=True)
 
         # Analyze token history (includes creator behavior from all token transactions) asynchronously (if enabled)
         if get_migration_setting('token_history_check', True):
-            print(f"[SETTINGS] Token history ✅ ON - analyzing creator behavior from token history", flush=True)
+            log_print(f"[SETTINGS] Token history ✅ ON - analyzing creator behavior from token history", flush=True)
             asyncio.create_task(self.analyze_post_migration(mint, signature, pool_address))
         else:
-            print(f"[SETTINGS] Token history ❌ OFF - skipping token history analysis", flush=True)
+            log_print(f"[SETTINGS] Token history ❌ OFF - skipping token history analysis", flush=True)
 
-        print(f"[MIGRATION] ✅ CRITICAL PATH COMPLETE - Token {mint[:8]}... with creator {earliest_creator[:8] if earliest_creator else 'unknown'}... is now visible in UI", flush=True)
+        log_print(f"[MIGRATION] ✅ CRITICAL PATH COMPLETE - Token {mint[:8]}... with creator {earliest_creator[:8] if earliest_creator else 'unknown'}... is now visible in UI", flush=True)
 
         # Background Task: Extract creator funding and clustering
         if earliest_creator:
@@ -2216,40 +2222,40 @@ class PumpFunCurveListener:
 
             async def background_funding_and_clustering():
                 """Background: funding extraction, funder extraction, and clustering"""
-                print(f"[BACKGROUND] 🚀 Starting background funding and clustering tasks...", flush=True)
+                log_print(f"[BACKGROUND] 🚀 Starting background funding and clustering tasks...", flush=True)
 
                 # Extract creator funding
                 try:
-                    print(f"[FUNDING] ⏳ Starting creator funding extraction for {earliest_creator[:8]}...", flush=True)
+                    log_print(f"[FUNDING] ⏳ Starting creator funding extraction for {earliest_creator[:8]}...", flush=True)
                     await extract_funding_for_new_token(earliest_creator, created_at, create_tx_sig, mint)
-                    print(f"[FUNDING] ✅ Creator funding extraction complete", flush=True)
+                    log_print(f"[FUNDING] ✅ Creator funding extraction complete", flush=True)
                 except Exception as e:
-                    print(f"[FUNDING] ⚠️ Error in creator funding extraction: {e}", flush=True)
+                    log_print(f"[FUNDING] ⚠️ Error in creator funding extraction: {e}", flush=True)
 
                 # Extract funder transfers (respects auto_extract_funders toggle)
                 try:
                     if get_migration_setting('auto_extract_funders', False):
-                        print(f"[FUNDER_EXTRACTION] ⏳ Starting funder transfer extraction for {earliest_creator[:8]}...", flush=True)
+                        log_print(f"[FUNDER_EXTRACTION] ⏳ Starting funder transfer extraction for {earliest_creator[:8]}...", flush=True)
                         await extract_funder_transfers_async(earliest_creator)
-                        print(f"[FUNDER_EXTRACTION] ✅ Funder transfer extraction complete", flush=True)
+                        log_print(f"[FUNDER_EXTRACTION] ✅ Funder transfer extraction complete", flush=True)
                     else:
-                        print(f"[FUNDER_EXTRACTION] ⏭️ Skipped (auto_extract_funders toggle is OFF)", flush=True)
+                        log_print(f"[FUNDER_EXTRACTION] ⏭️ Skipped (auto_extract_funders toggle is OFF)", flush=True)
                 except Exception as e:
-                    print(f"[FUNDER_EXTRACTION] ⚠️ Error in funder extraction: {e}", flush=True)
+                    log_print(f"[FUNDER_EXTRACTION] ⚠️ Error in funder extraction: {e}", flush=True)
 
                 # Queue clustering (now that funding is extracted)
                 try:
-                    print(f"[CLUSTERING] ⏳ Queueing network clustering task...", flush=True)
+                    log_print(f"[CLUSTERING] ⏳ Queueing network clustering task...", flush=True)
                     await enqueue_clustering(rebuild_super_clusters_from_funding, "super_clusters_rebuild")
-                    print(f"[CLUSTERING] ✅ Clustering task enqueued for processing", flush=True)
+                    log_print(f"[CLUSTERING] ✅ Clustering task enqueued for processing", flush=True)
                 except Exception as e:
-                    print(f"[CLUSTERING] ⚠️ Error queueing clustering: {e}", flush=True)
+                    log_print(f"[CLUSTERING] ⚠️ Error queueing clustering: {e}", flush=True)
 
             # Fire-and-forget: don't wait for background tasks
             asyncio.create_task(background_funding_and_clustering())
-            print(f"[BACKGROUND] 📤 Background tasks spawned (fire-and-forget)", flush=True)
+            log_print(f"[BACKGROUND] 📤 Background tasks spawned (fire-and-forget)", flush=True)
         else:
-            print(f"[BACKGROUND] ⏭️ Skipping background tasks (no creator found)", flush=True)
+            log_print(f"[BACKGROUND] ⏭️ Skipping background tasks (no creator found)", flush=True)
 
     async def handle_migration(self, signature: str, logs: list):
         """Process detected migration."""
@@ -2270,11 +2276,11 @@ class PumpFunCurveListener:
                 mint = None
 
             if not mint:
-                print(f"[MIGRATION] ⚠ Failed to extract mint from cached tx, trying logs fallback", flush=True)
+                log_print(f"[MIGRATION] ⚠ Failed to extract mint from cached tx, trying logs fallback", flush=True)
                 mint = self._extract_mint_from_logs(logs)
 
             if not mint:
-                print(f"[MIGRATION] ⚠ Could not extract mint from {signature}, scheduling delayed re-check...", flush=True)
+                log_print(f"[MIGRATION] ⚠ Could not extract mint from {signature}, scheduling delayed re-check...", flush=True)
 
                 # Schedule delayed re-check (fire-and-forget)
                 async def delayed_mint_recheck():
@@ -2299,7 +2305,7 @@ class PumpFunCurveListener:
                         tx_data_retry = raw.get("result") if raw and "result" in raw else None
 
                         if not tx_data_retry:
-                            print(f"[MIGRATION] ⚠ Delayed re-check still has no tx: {signature}", flush=True)
+                            log_print(f"[MIGRATION] ⚠ Delayed re-check still has no tx: {signature}", flush=True)
                             return
 
                         mint_retry = await self._extract_mint_from_tx(tx_data_retry)
@@ -2307,15 +2313,15 @@ class PumpFunCurveListener:
                             mint_retry = self._extract_mint_from_logs(logs)
 
                         if not mint_retry:
-                            print(f"[MIGRATION] ⚠ Could not extract mint from {signature} after delayed re-check - SKIPPED", flush=True)
+                            log_print(f"[MIGRATION] ⚠ Could not extract mint from {signature} after delayed re-check - SKIPPED", flush=True)
                             return
 
-                        print(f"[MIGRATION] ✅ Delayed re-check succeeded for {signature}: {mint_retry}", flush=True)
+                        log_print(f"[MIGRATION] ✅ Delayed re-check succeeded for {signature}: {mint_retry}", flush=True)
                         await self._process_migration_with_mint(signature, logs, mint_retry, tx_data_retry)
                         self.completed_migrations.add(signature)
 
                     except Exception as e:
-                        print(f"[MIGRATION] ⚠ Delayed re-check failed: {e}", flush=True)
+                        log_print(f"[MIGRATION] ⚠ Delayed re-check failed: {e}", flush=True)
                     finally:
                         self.processing_migrations.discard(signature)
                         self.tx_cache_pending_retries.pop(signature, None)
@@ -2336,7 +2342,7 @@ class PumpFunCurveListener:
                 pending.cancel()
 
         except Exception as e:
-            print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)
+            log_print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)
             import traceback
             traceback.print_exc()
         finally:
@@ -2363,11 +2369,11 @@ class PumpFunCurveListener:
         """Listen to PumpSwap program via WebSocket for live migration events"""
         # Check if token launch listening is enabled - keep checking periodically so toggle works at runtime
         while not get_migration_setting('listen_to_launches', True):
-            print(f"[WEBSOCKET] ⏸ Token Launch listening is DISABLED - websocket idle (checking every 30s)", flush=True)
+            log_print(f"[WEBSOCKET] ⏸ Token Launch listening is DISABLED - websocket idle (checking every 30s)", flush=True)
             await asyncio.sleep(30)
             continue
 
-        print(f"\n[WEBSOCKET] Connecting to PumpSwap program...", flush=True)
+        log_print(f"\n[WEBSOCKET] Connecting to PumpSwap program...", flush=True)
 
         # Try Helius first, fall back to public Solana
         endpoints = [
@@ -2391,7 +2397,7 @@ class PumpFunCurveListener:
                 ) as ws:
                     self.websocket_connected = True
                     reconnect_delay = 5  # Reset delay on successful connection
-                    print(f"[WEBSOCKET] ✓ Connected to PumpSwap program via {name}", flush=True)
+                    log_print(f"[WEBSOCKET] ✓ Connected to PumpSwap program via {name}", flush=True)
 
                     # Record websocket connection (Helius charges for LaserStream connections)
                     record_request(
@@ -2414,7 +2420,7 @@ class PumpFunCurveListener:
                         ]
                     }
                     await ws.send(json.dumps(subscribe_msg))
-                    print(f"[WEBSOCKET] Subscribed to PumpSwap migrations", flush=True)
+                    log_print(f"[WEBSOCKET] Subscribed to PumpSwap migrations", flush=True)
 
                     # Wait for subscription confirmation before processing events
                     subscription_id = None
@@ -2426,10 +2432,10 @@ class PumpFunCurveListener:
                             # Check for subscription response
                             if "result" in data:
                                 subscription_id = data.get("result")
-                                print(f"[WEBSOCKET] ✓ Subscription confirmed (ID: {subscription_id})\n", flush=True)
+                                log_print(f"[WEBSOCKET] ✓ Subscription confirmed (ID: {subscription_id})\n", flush=True)
                                 break
                         except asyncio.TimeoutError:
-                            print(f"[WEBSOCKET] ⚠ No subscription confirmation after 10s", flush=True)
+                            log_print(f"[WEBSOCKET] ⚠ No subscription confirmation after 10s", flush=True)
                             break
                     
                     # Now listen for actual migration events
@@ -2455,14 +2461,14 @@ class PumpFunCurveListener:
                                 if self._is_migration_transaction(logs):
                                     # Check if listening to launches is enabled
                                     listen_enabled = get_migration_setting('listen_to_launches', True)
-                                    print(f"[WEBSOCKET] 🔍 Migration found. listen_to_launches={listen_enabled}", flush=True)
+                                    log_print(f"[WEBSOCKET] 🔍 Migration found. listen_to_launches={listen_enabled}", flush=True)
 
                                     if not listen_enabled:
-                                        print(f"[WEBSOCKET] ⏸ Migration detected but launch listening disabled: {signature}", flush=True)
+                                        log_print(f"[WEBSOCKET] ⏸ Migration detected but launch listening disabled: {signature}", flush=True)
                                         continue
 
                                     self.websocket_migration_count += 1
-                                    print(f"[WEBSOCKET] 🚨 Migration #{self.websocket_migration_count} detected: {signature}", flush=True)
+                                    log_print(f"[WEBSOCKET] 🚨 Migration #{self.websocket_migration_count} detected: {signature}", flush=True)
                                     asyncio.create_task(self.handle_migration(signature, logs))
 
                         except asyncio.TimeoutError:
@@ -2475,7 +2481,7 @@ class PumpFunCurveListener:
                             # Suppress keepalive ping timeout spam and close frame warnings
                             error_msg = str(e).lower()
                             if "keepalive" not in error_msg and "close frame" not in error_msg:
-                                print(f"[WEBSOCKET] ⚠ Error processing message: {e}", flush=True)
+                                log_print(f"[WEBSOCKET] ⚠ Error processing message: {e}", flush=True)
                             # Reconnect on serious errors
                             if "close frame" in error_msg or "connection closed" in error_msg:
                                 break
@@ -2487,15 +2493,15 @@ class PumpFunCurveListener:
 
                 # Check for specific auth issues
                 if "401" in str(e) or "unauthorized" in error_str:
-                    print(f"[WEBSOCKET] ⚠ Auth error (401) - falling back to public RPC", flush=True)
+                    log_print(f"[WEBSOCKET] ⚠ Auth error (401) - falling back to public RPC", flush=True)
                     current_endpoint_idx = 1  # Switch to public Solana
                     reconnect_delay = 5
                 elif "connection" in error_str or "refused" in error_str:
-                    print(f"[WEBSOCKET] ⚠ Connection refused, retrying in {reconnect_delay}s...", flush=True)
+                    log_print(f"[WEBSOCKET] ⚠ Connection refused, retrying in {reconnect_delay}s...", flush=True)
                 elif "close frame" not in error_str:
                     # Don't log close frame messages as errors
-                    print(f"[WEBSOCKET] ⚠ {name} connection error: {e}", flush=True)
-                    print(f"[WEBSOCKET] Retrying in {reconnect_delay}s...", flush=True)
+                    log_print(f"[WEBSOCKET] ⚠ {name} connection error: {e}", flush=True)
+                    log_print(f"[WEBSOCKET] Retrying in {reconnect_delay}s...", flush=True)
 
                 await asyncio.sleep(reconnect_delay)
                 # Exponential backoff with cap at 30s
@@ -2512,12 +2518,12 @@ class PumpFunCurveListener:
         if PRICE_UPDATER_ENABLED:
             # Start live price updater in background
             asyncio.create_task(self.update_live_prices_background())
-            print("[LISTENER] ✅ Price updater started", flush=True)
+            log_print("[LISTENER] ✅ Price updater started", flush=True)
         else:
-            print("[LISTENER] ⏸ Price updater disabled (HARDCODED OFF)", flush=True)
+            log_print("[LISTENER] ⏸ Price updater disabled (HARDCODED OFF)", flush=True)
 
         # Creator outgoing transfer extraction is now handled by Helius webhook (real-time monitoring)
-        print("[LISTENER] ✅ Creator outgoing transfers monitored via Helius webhook (real-time)", flush=True)
+        log_print("[LISTENER] ✅ Creator outgoing transfers monitored via Helius webhook (real-time)", flush=True)
 
         # Start WebSocket listener
         await self.listen_websocket()
@@ -2553,13 +2559,13 @@ def cleanup_and_restart():
     import os
     import time
 
-    print("[CLEANUP] 🔄 Cleaning up and restarting services...", flush=True)
+    log_print("[CLEANUP] 🔄 Cleaning up and restarting services...", flush=True)
 
     try:
         # Kill Flask on port 5002
         os.system("lsof -i :5002 | tail -1 | awk '{print $2}' | xargs kill -9 2>/dev/null || true")
         time.sleep(1)
-        print("[CLEANUP] ✓ Flask (port 5002) killed", flush=True)
+        log_print("[CLEANUP] ✓ Flask (port 5002) killed", flush=True)
     except:
         pass
 
@@ -2567,13 +2573,13 @@ def cleanup_and_restart():
         # Kill ALL listener instances (both module and direct script forms)
         os.system("pkill -9 -f 'pumpfun_curve_listener' 2>/dev/null || true")
         time.sleep(1)
-        print("[CLEANUP] ✓ All listener instances killed", flush=True)
+        log_print("[CLEANUP] ✓ All listener instances killed", flush=True)
     except:
         pass
 
     try:
         # Restart listener using module form (matches actual process)
-        print("[CLEANUP] 🚀 Starting listener...", flush=True)
+        log_print("[CLEANUP] 🚀 Starting listener...", flush=True)
         listener_process = subprocess.Popen(
             ["python", "-m", "src.core.pumpfun_curve_listener"],
             stdout=subprocess.DEVNULL,
@@ -2581,13 +2587,13 @@ def cleanup_and_restart():
             start_new_session=True
         )
         time.sleep(4)
-        print("[CLEANUP] ✓ Listener restarted", flush=True)
+        log_print("[CLEANUP] ✓ Listener restarted", flush=True)
     except Exception as e:
-        print(f"[CLEANUP] ⚠️ Could not restart listener: {e}", flush=True)
+        log_print(f"[CLEANUP] ⚠️ Could not restart listener: {e}", flush=True)
 
     try:
         # Restart Flask
-        print("[CLEANUP] 🚀 Starting Flask...", flush=True)
+        log_print("[CLEANUP] 🚀 Starting Flask...", flush=True)
         flask_process = subprocess.Popen(
             ["python", "run.py"],
             stdout=subprocess.DEVNULL,
@@ -2595,9 +2601,9 @@ def cleanup_and_restart():
             start_new_session=True
         )
         time.sleep(3)
-        print("[CLEANUP] ✓ Flask restarted", flush=True)
+        log_print("[CLEANUP] ✓ Flask restarted", flush=True)
     except Exception as e:
-        print(f"[CLEANUP] ⚠️ Could not restart Flask: {e}", flush=True)
+        log_print(f"[CLEANUP] ⚠️ Could not restart Flask: {e}", flush=True)
 
 
 def start_rpc_metrics_api():
@@ -2610,13 +2616,13 @@ def start_rpc_metrics_api():
         import requests
         try:
             requests.get("http://localhost:8001/health", timeout=2)
-            print("[INIT] ✓ RPC Metrics API already running on port 8001", flush=True)
+            log_print("[INIT] ✓ RPC Metrics API already running on port 8001", flush=True)
             return
         except:
             pass
 
         # Start API server
-        print("[INIT] 🚀 Starting RPC Metrics API on port 8001...", flush=True)
+        log_print("[INIT] 🚀 Starting RPC Metrics API on port 8001...", flush=True)
         api_process = subprocess.Popen(
             ["python", "-m", "src.apis.rpc_metrics_api"],
             stdout=subprocess.DEVNULL,
@@ -2628,11 +2634,11 @@ def start_rpc_metrics_api():
         # Verify it started
         try:
             requests.get("http://localhost:8001/health", timeout=2)
-            print("[INIT] ✓ RPC Metrics API started successfully", flush=True)
+            log_print("[INIT] ✓ RPC Metrics API started successfully", flush=True)
         except:
-            print("[INIT] ⚠️ RPC Metrics API may not have started properly", flush=True)
+            log_print("[INIT] ⚠️ RPC Metrics API may not have started properly", flush=True)
     except Exception as e:
-        print(f"[INIT] ⚠️ Could not start RPC Metrics API: {e}", flush=True)
+        log_print(f"[INIT] ⚠️ Could not start RPC Metrics API: {e}", flush=True)
 
 
 if __name__ == "__main__":

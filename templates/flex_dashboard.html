@@ -978,6 +978,104 @@
             loadDashboard();
         };
 
+        // ========== PRICE SYSTEM HELPERS ==========
+        // Fetch price for a token
+        const getTokenPrice = async (mint) => {
+            try {
+                const resp = await fetch(`${API_BASE}/price/${mint}/full`);
+                return resp.ok ? await resp.json() : null;
+            } catch (e) {
+                console.debug(`Price fetch failed for ${mint}:`, e);
+                return null;
+            }
+        };
+
+        // Fetch prices for multiple tokens in batch
+        const getTokenPricesBatch = async (mints) => {
+            try {
+                const resp = await fetch(`${API_BASE}/price/batch`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mints })
+                });
+                return resp.ok ? await resp.json() : {};
+            } catch (e) {
+                console.debug('Batch price fetch failed:', e);
+                return {};
+            }
+        };
+
+        // Fetch liquidity health for a token
+        const getLiquidityHealth = async (mint) => {
+            try {
+                const resp = await fetch(`${API_BASE}/price/${mint}/liquidity/health`);
+                return resp.ok ? await resp.json() : null;
+            } catch (e) {
+                console.debug(`Liquidity health fetch failed for ${mint}:`, e);
+                return null;
+            }
+        };
+
+        // Fetch anomaly detection for a token
+        const getAnomaly = async (mint) => {
+            try {
+                const resp = await fetch(`${API_BASE}/price/${mint}/anomaly`);
+                return resp.ok ? await resp.json() : null;
+            } catch (e) {
+                console.debug(`Anomaly fetch failed for ${mint}:`, e);
+                return null;
+            }
+        };
+
+        // Render price card
+        const renderPriceCard = (price) => {
+            if (!price) return '<div class="alert alert-info">Price data unavailable</div>';
+
+            const confidenceBadge = price.confidence_band === 'HIGH' ? 'badge-success' :
+                                     price.confidence_band === 'MEDIUM' ? 'badge-warning' : 'badge-danger';
+
+            const priceChange = price.price_change_24h ?
+                `<div style="color: ${price.price_change_24h > 0 ? 'var(--color-low)' : 'var(--color-critical)'};">
+                    ${price.price_change_24h > 0 ? '+' : ''}${(price.price_change_24h * 100).toFixed(2)}%
+                </div>` : '';
+
+            return `
+                <div style="padding: 0.75rem; background: rgba(59, 130, 246, 0.05); border-radius: 0.375rem; margin-bottom: 1rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Current Price</div>
+                            <div style="font-size: 1.25rem; font-weight: bold;">$${price.price_usd?.toFixed(8) || 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Liquidity</div>
+                            <div style="font-size: 1.25rem; font-weight: bold;">$${price.liquidity_usd ? formatNumber(price.liquidity_usd) : 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Confidence</div>
+                            <span class="badge ${confidenceBadge}">${price.confidence_band || 'N/A'}</span>
+                        </div>
+                    </div>
+                    ${priceChange ? `<div style="margin-top: 0.5rem; text-align: right;">24h Change: ${priceChange}</div>` : ''}
+                </div>
+            `;
+        };
+
+        // Render liquidity health badge
+        const renderHealthBadge = (health) => {
+            if (!health) return '';
+            const color = health.health_band === 'HEALTHY' ? 'var(--color-low)' :
+                         health.health_band === 'MODERATE' ? 'var(--color-watch)' : 'var(--color-critical)';
+            return `<span style="display: inline-block; padding: 0.25rem 0.75rem; background: ${color}33; color: ${color}; border-radius: 0.25rem; font-size: 0.85rem; font-weight: 600;">${health.health_band}</span>`;
+        };
+
+        // Render rug pull risk badge
+        const renderRugRisk = (risk) => {
+            if (!risk || risk.rug_pull_likelihood < 0.3) return '';
+            const color = risk.rug_pull_likelihood > 0.75 ? 'var(--color-critical)' :
+                         risk.rug_pull_likelihood > 0.5 ? 'var(--color-high)' : 'var(--color-watch)';
+            return `<span style="display: inline-block; padding: 0.25rem 0.75rem; background: ${color}33; color: ${color}; border-radius: 0.25rem; font-size: 0.85rem; font-weight: 600;">🚨 RUG RISK ${(risk.rug_pull_likelihood * 100).toFixed(0)}%</span>`;
+        };
+
         // Utility: Show loading spinner
         const showLoading = (title = 'Loading...') => {
             return `
@@ -1101,6 +1199,13 @@
                             </table>
                         </div>
                     </div>
+
+                    <div class="card mt-4" id="priceAnomaliesCard" style="display: none;">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-warning"></i> Price Anomalies & Rug Risks</h5>
+                        </div>
+                        <div class="card-body" id="priceAnomaliesContent"></div>
+                    </div>
                 `;
 
                 content.innerHTML = html;
@@ -1148,6 +1253,47 @@
                         plugins: { legend: { position: 'bottom' } }
                     }
                 });
+
+                // Fetch and display price anomalies
+                if (data.top_launch_candidates && data.top_launch_candidates.length > 0) {
+                    const topTokenMints = data.top_launch_candidates.slice(0, 5).map(org => org.tokens?.[0]?.mint).filter(m => m);
+                    if (topTokenMints.length > 0) {
+                        const anomalyCard = document.getElementById('priceAnomaliesCard');
+                        const anomalyContent = document.getElementById('priceAnomaliesContent');
+
+                        let anomalies = [];
+                        for (const mint of topTokenMints) {
+                            const anomaly = await getAnomaly(mint);
+                            if (anomaly && anomaly.is_anomaly) {
+                                anomalies.push({ mint, ...anomaly });
+                            }
+                        }
+
+                        if (anomalies.length > 0) {
+                            anomalyCard.style.display = 'block';
+                            anomalyContent.innerHTML = `
+                                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                    ${anomalies.map(a => `
+                                        <div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--color-critical); border-radius: 0.375rem;">
+                                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                                <div>
+                                                    <strong>${formatWallet(a.mint)}</strong>
+                                                    <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                                                        ${a.anomaly_type?.replace(/_/g, ' ').toUpperCase()}
+                                                    </div>
+                                                </div>
+                                                <span class="badge badge-danger">Score: ${a.anomaly_score.toFixed(0)}/100</span>
+                                            </div>
+                                            <div style="font-size: 0.85rem;">
+                                                ${a.reasons.slice(0, 2).map(r => `<div>• ${r}</div>`).join('')}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `;
+                        }
+                    }
+                }
 
             } catch (error) {
                 content.innerHTML = `
@@ -1203,12 +1349,14 @@
                                         <th>Seed Conc</th>
                                         <th>Funder Overlap</th>
                                         <th>Tokens</th>
+                                        <th>Price Confidence</th>
+                                        <th>Rug Risk</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     ${orgs.map((org, i) => `
-                                        <tr class="alert-filter" data-alert="${org.alert_level}">
+                                        <tr class="alert-filter" data-alert="${org.alert_level}" data-org-id="${org.organization_id}">
                                             <td><strong>${i + 1}</strong></td>
                                             <td>${formatWallet(org.operator_wallet)}</td>
                                             <td>
@@ -1224,6 +1372,8 @@
                                             <td>${formatPercent(org.seed_concentration)}</td>
                                             <td>${formatPercent(org.funder_overlap_score)}</td>
                                             <td>${org.token_count}</td>
+                                            <td><span class="badge badge-secondary">Loading...</span></td>
+                                            <td><span class="badge badge-secondary">Loading...</span></td>
                                             <td>
                                                 <button class="btn btn-sm btn-primary" onclick="loadOrgProfile(${org.organization_id})">
                                                     <i class="fas fa-arrow-right"></i>
@@ -1261,6 +1411,40 @@
                 document.getElementById('radarSearch').addEventListener('keyup', (e) => {
                     table.search(e.target.value).draw();
                 });
+
+                // Fetch price data for each org's first token
+                for (const org of orgs.slice(0, 20)) {
+                    if (org.tokens && org.tokens.length > 0) {
+                        const mint = org.tokens[0].mint;
+                        const row = document.querySelector(`tr[data-org-id="${org.organization_id}"]`);
+                        if (row) {
+                            const confidenceCell = row.querySelectorAll('td')[9];
+                            const rugCell = row.querySelectorAll('td')[10];
+
+                            // Fetch price confidence
+                            getTokenPrice(mint).then(price => {
+                                if (price) {
+                                    const badge = price.confidence_band === 'HIGH' ? 'badge-success' :
+                                                 price.confidence_band === 'MEDIUM' ? 'badge-warning' : 'badge-danger';
+                                    confidenceCell.innerHTML = `<span class="badge ${badge}">${price.confidence_band}</span>`;
+                                }
+                            });
+
+                            // Fetch rug risk
+                            fetch(`${API_BASE}/price/${mint}/liquidity/risk`)
+                                .then(r => r.ok ? r.json() : null)
+                                .then(risk => {
+                                    if (risk && risk.rug_pull_likelihood > 0.3) {
+                                        const color = risk.rug_pull_likelihood > 0.75 ? 'danger' :
+                                                     risk.rug_pull_likelihood > 0.5 ? 'warning' : 'info';
+                                        rugCell.innerHTML = `<span class="badge badge-${color}">🚨 ${(risk.rug_pull_likelihood * 100).toFixed(0)}%</span>`;
+                                    } else {
+                                        rugCell.innerHTML = '<span class="badge badge-success">Safe</span>';
+                                    }
+                                });
+                        }
+                    }
+                }
 
             } catch (error) {
                 content.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
@@ -1381,6 +1565,18 @@
                 const snapshots = await snapshotsResp.json();
                 const risk = await riskResp.json();
 
+                // Fetch price data for org's tokens
+                let tokenPrices = {};
+                if (org.tokens && org.tokens.length > 0) {
+                    const pricePromises = org.tokens.slice(0, 5).map(t =>
+                        getTokenPrice(t.mint).then(p => ({ mint: t.mint, price: p }))
+                    );
+                    const results = await Promise.all(pricePromises);
+                    results.forEach(r => {
+                        if (r.price) tokenPrices[r.mint] = r.price;
+                    });
+                }
+
                 let html = `
                     <div class="page-header">
                         <h1>Organization ${orgId}</h1>
@@ -1463,6 +1659,46 @@
                                     </div>
                                 </div>
                             `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Token Prices & Liquidity -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-coins"></i> Token Prices & Liquidity</h5>
+                        </div>
+                        <div class="card-body">
+                            ${org.tokens && org.tokens.length > 0 ? `
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Mint</th>
+                                            <th>Price</th>
+                                            <th>Liquidity</th>
+                                            <th>Confidence</th>
+                                            <th>Health</th>
+                                            <th>Rug Risk</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${org.tokens.slice(0, 5).map(t => {
+                                            const price = tokenPrices[t.mint];
+                                            const confidenceBadge = price?.confidence_band === 'HIGH' ? 'badge-success' :
+                                                                   price?.confidence_band === 'MEDIUM' ? 'badge-warning' : 'badge-danger';
+                                            return `
+                                                <tr>
+                                                    <td><code style="font-size: 0.8rem;">${t.mint.substring(0, 8)}...</code></td>
+                                                    <td>$${price?.price_usd?.toFixed(8) || 'N/A'}</td>
+                                                    <td>$${price?.liquidity_usd ? formatNumber(price.liquidity_usd) : 'N/A'}</td>
+                                                    <td>${price ? `<span class="badge ${confidenceBadge}">${price.confidence_band}</span>` : 'N/A'}</td>
+                                                    <td id="health-${t.mint}"><span class="badge badge-secondary">Loading...</span></td>
+                                                    <td id="rug-${t.mint}"><span class="badge badge-secondary">Loading...</span></td>
+                                                </tr>
+                                            `;
+                                        }).join('')}
+                                    </tbody>
+                                </table>
+                            ` : '<div class="alert alert-info">No tokens found for this organization</div>'}
                         </div>
                     </div>
 
@@ -1577,6 +1813,33 @@
                         plugins: { legend: { position: 'bottom' } },
                     }
                 });
+
+                // Fetch health and rug risk for tokens
+                if (org.tokens) {
+                    for (const token of org.tokens.slice(0, 5)) {
+                        getLiquidityHealth(token.mint).then(health => {
+                            const cell = document.getElementById(`health-${token.mint}`);
+                            if (cell && health) {
+                                const color = health.health_band === 'HEALTHY' ? 'badge-success' :
+                                             health.health_band === 'MODERATE' ? 'badge-warning' : 'badge-danger';
+                                cell.innerHTML = `<span class="badge ${color}">${health.health_band}</span>`;
+                            }
+                        });
+
+                        fetch(`${API_BASE}/price/${token.mint}/liquidity/risk`)
+                            .then(r => r.ok ? r.json() : null)
+                            .then(risk => {
+                                const cell = document.getElementById(`rug-${token.mint}`);
+                                if (cell && risk && risk.rug_pull_likelihood > 0.3) {
+                                    const color = risk.rug_pull_likelihood > 0.75 ? 'badge-danger' :
+                                                 risk.rug_pull_likelihood > 0.5 ? 'badge-warning' : 'badge-info';
+                                    cell.innerHTML = `<span class="badge ${color}">🚨 ${(risk.rug_pull_likelihood * 100).toFixed(0)}%</span>`;
+                                } else if (cell && risk) {
+                                    cell.innerHTML = '<span class="badge badge-success">Safe</span>';
+                                }
+                            });
+                    }
+                }
 
             } catch (error) {
                 content.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
@@ -1728,6 +1991,7 @@
                                         <th>Creators</th>
                                         <th>Tokens</th>
                                         <th>Rug Prob</th>
+                                        <th>Liquidity Health</th>
                                         <th>First Seen</th>
                                     </tr>
                                 </thead>
@@ -1740,9 +2004,11 @@
                                             <td>${c.creator_count}</td>
                                             <td>${c.token_count}</td>
                                             <td>
-                                                <span class="${c.average_rug_probability > 0.7 ? 'badge-critical' : c.average_rug_probability > 0.5 ? 'badge-high' : 'badge-low'}">
+                                                <span class="badge ${c.average_rug_probability > 0.7 ? 'badge-danger' : c.average_rug_probability > 0.5 ? 'badge-warning' : 'badge-success'}">
                                                     ${formatPercent(c.average_rug_probability)}
                                                 </span>
+                                            </td>
+                                            <td id="health-cluster-${c.cluster_id}"><span class="badge badge-secondary">Loading...</span>
                                             </td>
                                             <td>${formatDate(c.first_seen)}</td>
                                         </tr>
@@ -2045,14 +2311,18 @@
                                 <thead>
                                     <tr>
                                         <th>Mint</th>
+                                        <th>Price</th>
+                                        <th>Liquidity</th>
                                         <th>Rug Probability</th>
                                         <th>Created</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     ${(wallet.tokens || []).map(t => `
-                                        <tr>
+                                        <tr id="token-row-${t.mint}">
                                             <td><code>${t.mint?.substring(0, 8)}...</code></td>
+                                            <td id="price-${t.mint}"><span class="badge badge-secondary">Loading...</span></td>
+                                            <td id="liq-${t.mint}">-</td>
                                             <td>${formatPercent(t.rug_probability)}</td>
                                             <td>${formatDate(t.created_at)}</td>
                                         </tr>
@@ -2064,6 +2334,20 @@
                 `;
 
                 content.innerHTML = html;
+
+                // Fetch token prices
+                if (wallet.tokens) {
+                    for (const token of wallet.tokens) {
+                        getTokenPrice(token.mint).then(price => {
+                            const priceCell = document.getElementById(`price-${token.mint}`);
+                            const liqCell = document.getElementById(`liq-${token.mint}`);
+                            if (price && priceCell) {
+                                priceCell.innerHTML = `$${price.price_usd?.toFixed(8) || 'N/A'}`;
+                                if (liqCell) liqCell.innerHTML = `$${formatNumber(price.liquidity_usd)}`;
+                            }
+                        });
+                    }
+                }
 
             } catch (error) {
                 content.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;

@@ -1,291 +1,165 @@
-# RPC Metrics Optimization – Quick Reference Guide
+# FLEX Phase 4 - Quick Reference Card
 
-**Status**: ✅ PRODUCTION READY | **Date**: 2026-03-02 | **Branch**: rpc
+**Date**: March 12, 2026 | **Status**: ✅ Production Ready
 
----
+## 30-Second Overview
 
-## TL;DR
+**What**: Launch wave detection system detects organizations preparing multiple token launches simultaneously.
 
-### What Was Done
-- Implemented rate limiter to prevent HTTP 429 errors
-- Reset metrics and updated credit baseline
-- Added dashboard reset button and cost calculator
-- Achieved 0% error rate on first production scan
+**How**: Analyzes 5 behavioral signals (new creators, funding bursts, momentum, operator activity, creator reuse) with weighted scoring.
 
-### Key Results
-| Metric | Result |
-|--------|--------|
-| HTTP 429 Errors | **0** (target: <5%) |
-| Error Rate | **0%** (was 90.5%) |
-| Monthly Cost | **1.2M** credits (was 50M) |
-| Improvement | **40x more efficient** |
+**Result**: Daily wave_score (0-100) + wave_type (imminent/preparation/early/none) for each organization.
 
-### Files to Know
-| File | Purpose |
-|------|---------|
-| creator_outgoing_extractor.py | Rate limiter, retries, pagination |
-| rpc_metrics_api.py | Dashboard button, cost API |
-| SESSION_FINAL_SUMMARY.md | Complete project overview |
+**Where**: Runs as Phase 4 of daily pipeline (5:00 AM UTC after Phase 3).
 
----
-
-## Dashboard Access
-
-**URL**: http://localhost:5002/rpc-metrics
-
-**Features**:
-- Reset button (top-right) - Resets metrics except credits
-- Real-time metrics display
-- Cost calculator endpoint
-- Section/method breakdown
-
----
-
-## API Endpoints
+## 3 Steps to Deploy
 
 ```bash
-# Get full metrics
-curl http://localhost:8001/metrics/rpc | jq '.summary'
+# Step 1: Ensure migration applied (already done)
+sqlite3 database/flex_complete_database.db < database/migrations/launch_wave_detection.sql
 
-# Get scan cost estimate
-curl http://localhost:8001/metrics/rpc/scan-cost | jq '.scan_cost_estimate'
+# Step 2: Run daily pipeline
+python3 dev_intelligence_detection.py
 
-# Reset metrics (POST)
-curl -X POST http://localhost:8001/metrics/rpc/reset
-
-# Get sections breakdown
-curl http://localhost:8001/metrics/rpc/sections
+# Step 3: Query results
+sqlite3 database/flex_complete_database.db "SELECT * FROM vw_imminent_launch_waves;"
 ```
 
----
+## Wave Score Interpretation
 
-## Configuration (Optimal)
+| Score | Type | Meaning | Action |
+|-------|------|---------|--------|
+| 80+ | 🔴 Imminent | Multi-launch prep | ALERT |
+| 60-79 | 🟠 Preparation | Launch window opening | MONITOR |
+| 40-59 | 🟡 Early Signals | Potential activity | TRACK |
+| <40 | ⚪ No Wave | Standard activity | ROUTINE |
 
-**File**: creator_outgoing_extractor.py (lines 50-93)
+## 5 Signals (What Gets Detected)
 
-```python
-OUTGOING_RPS = 8.0              # 8 requests/second
-OUTGOING_MAX_RETRIES = 3        # Retry up to 3 times
-OUTGOING_CONCURRENCY = 3        # Max 3 in-flight requests
-MAX_PAGES_PER_CYCLE = 2         # Fetch 2 pages per creator per cycle
+```
+New Creator Addition (30%)    → Team growth surge
+Funding Burst (25%)           → Capital concentration spike
+Organization Momentum (20%)   → Activity acceleration
+Operator Activity Spike (15%) → Lead wallet engagement jump
+Creator Reuse (10%)           → Team member re-engagement
 ```
 
-**To adjust**: Edit constants and restart pumpfun_curve_listener
+Each signal independently scores 0-100, then weighted formula produces final wave_score.
 
----
+## Key Queries
 
-## Current Metrics (Live)
+**High-confidence imminent launches**:
+```sql
+SELECT organization_id, wave_score, wave_confidence
+FROM organization_launch_waves
+WHERE wave_score >= 80
+ORDER BY wave_score DESC;
+```
 
-**From Last Scan (09:36 UTC)**:
-- Requests: 905
-- Errors: 0 (0%)
-- Credits Used: 9,050
-- Avg Latency: 139.61 ms
-- Burn Rate: 895.91 cr/min
+**Wave distribution today**:
+```sql
+SELECT wave_type, COUNT(*), AVG(wave_score)
+FROM organization_launch_waves
+WHERE wave_date = date('now')
+GROUP BY wave_type;
+```
 
----
+**Confidence-filtered results**:
+```sql
+SELECT * FROM vw_imminent_launch_waves;
+```
 
-## Cost Breakdown
+## Performance
 
-### Per Scan
-| Component | Calls | Cost | Total |
-|-----------|-------|------|-------|
-| RPC Calls | 2,000 | 10 cr | 20,000 |
-| Enhanced | 500 | 100 cr | 50,000 |
-| **Total** | - | - | **70,000** |
+- **Processing**: 100-200 orgs/sec
+- **Daily runtime**: 30-60 seconds
+- **Database growth**: ~1-2 MB/day
+- **Accuracy baseline**: 70-75%
 
-### Daily (2 scans)
-- Base RPC: ~20,000 credits
-- With enrichment: ~70,000-100,000 credits
+## Files You Need
 
-### Monthly
-- Previous: ~50,000,000 (50% of budget)
-- Current: ~1,200,000 (1.2% of budget)
-- **Savings: 98% reduction**
+**Code**:
+- `src/core/launch_wave_detection.py` (648 lines)
+- `database/migrations/launch_wave_detection.sql` (applied)
+- `dev_intelligence_detection.py` (modified +30 lines)
 
----
+**Docs** (choose by role):
+- **Executive**: EXECUTIVE_SUMMARY.md
+- **Developer**: LAUNCH_WAVE_DETECTION_GUIDE.md
+- **Operations**: V3_DEPLOYMENT_CHECKLIST.md
+- **Architect**: FLEX_COMPLETE_IMPLEMENTATION_INDEX.md
 
 ## Common Tasks
 
-### Check if Scan is Running
+**Enable Phase 4**:
 ```bash
-ps aux | grep creator_outgoing | grep -v grep
+python3 dev_intelligence_detection.py
+```
+✓ Runs all 4 phases, Phase 4 is last
+
+**Check Phase 4 logs**:
+```bash
+tail -f logs/dev_intelligence.log | grep "launch wave"
+```
+✓ Shows Phase 4 execution status
+
+**Monitor imminent waves**:
+```bash
+sqlite3 database/flex_complete_database.db \
+  "SELECT COUNT(*) FROM vw_imminent_launch_waves;"
+```
+✓ Count organizations with score >= 80
+
+**Troubleshoot**:
+- Database issue? → `PRAGMA table_info(organization_launch_waves);`
+- Code issue? → `python3 -m py_compile src/core/launch_wave_detection.py`
+- Logic issue? → See LAUNCH_WAVE_DETECTION_GUIDE.md
+
+## Database Schema (Quick)
+
+```
+organization_launch_waves
+├─ organization_id: INT
+├─ wave_date: TEXT
+├─ wave_score: REAL (0-100)
+├─ wave_type: TEXT
+├─ wave_confidence: REAL (0-1)
+├─ 5 signal columns (new_creators_signal, funding_burst_signal, etc.)
+├─ 4 detail columns (counts, rates)
+└─ detected_at: REAL (timestamp)
+
+Views:
+└─ vw_imminent_launch_waves (where wave_score >= 80)
 ```
 
-### Monitor Metrics in Real-Time
-```bash
-watch -n 5 'curl -s http://localhost:8001/metrics/rpc | jq ".summary | {requests_total, errors_total, rate_limits_total}"'
+## Next Steps
+
+**This Week**: Deploy and collect baseline data
+**Next 2 Weeks**: Monitor accuracy, identify calibration needs
+**Month 2**: Finalize thresholds, integrate with alerts
+**Month 3+**: Plan V4 ML models
+
+## Support
+
+- **Technical**: Read LAUNCH_WAVE_DETECTION_GUIDE.md
+- **Deployment**: Read V3_DEPLOYMENT_CHECKLIST.md
+- **Architecture**: Read FLEX_COMPLETE_IMPLEMENTATION_INDEX.md
+- **Status**: Read PRODUCTION_READINESS_STATUS.md
+
+## Key Formula
+
+```
+wave_score = (0.30 × new_creators_signal)
+           + (0.25 × funding_burst_signal)
+           + (0.20 × organization_momentum)
+           + (0.15 × operator_spike_signal)
+           + (0.10 × creator_reuse_signal)
 ```
 
-### View Cost Estimate
-```bash
-curl -s http://localhost:8001/metrics/rpc/scan-cost | jq '.'
-```
-
-### Reset Metrics via API
-```bash
-curl -X POST http://localhost:8001/metrics/rpc/reset
-```
-
-### Check Pagination Cursors
-```bash
-sqlite3 flex_complete_database.db "SELECT COUNT(*) FROM creator_outgoing_cursor"
-```
-
-### View Section Metrics
-```bash
-curl -s http://localhost:8001/metrics/rpc | jq '.sections.creator_outgoing_scan'
-```
+Each signal independently: 0-100 scale  
+Final score: 0-100 (interpretable)  
+Confidence: 0-1 (signal agreement)
 
 ---
 
-## Troubleshooting
-
-### High Error Rate (>5%)
-**Check**: Is OUTGOING_RPS too high?
-```python
-# Reduce from 8 to 5
-OUTGOING_RPS = 5.0
-```
-Restart listener and monitor.
-
-### High Latency (>500ms)
-**Check**: Network or Helius API issues
-```bash
-# Test RPC endpoint
-curl -s -X POST -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"getHealth","params":[],"id":1}' \
-  https://mainnet.helius-rpc.com | jq '.result'
-```
-
-### Reset Button Not Working
-**Check**: Flask proxy running on port 5002
-```bash
-ps aux | grep "python main.py" | grep -v grep
-```
-If not running: `cd /Users/kevinkeaveney/Dev/claude/flex && python main.py`
-
-### Metrics Not Updating
-**Check**: FastAPI running on port 8001
-```bash
-curl http://localhost:8001/metrics/rpc/summary
-```
-If not running: `python rpc_metrics_api.py`
-
----
-
-## Important Files
-
-### Documentation
-- **SESSION_FINAL_SUMMARY.md** - Complete project overview (555 lines)
-- **SCAN_COMPLETION_REPORT.md** - Production validation (276 lines)
-- **RPC_METRICS_SESSION_SUMMARY.md** - Session details (467 lines)
-- **CREATOR_OUTGOING_EFFICIENCY_IMPLEMENTATION.md** - Implementation guide (335 lines)
-
-### Code
-- **creator_outgoing_extractor.py** - Rate limiter implementation (+290 lines)
-- **rpc_metrics_api.py** - Dashboard and API (+253 lines)
-- **rpc_metrics_config.py** - Configuration (credit baseline updated)
-
-### Database
-- **flex_complete_database.db** - Main database
-- **creator_outgoing_cursor** table - Pagination cursors (created by patch)
-
----
-
-## Git Information
-
-### Recent Commits
-```
-0ce8ffd - Add comprehensive final session summary document
-58a0c30 - Add scan completion report with efficiency patch validation
-c0089e3 - Add comprehensive RPC metrics session summary document
-9543aff - Add scan cost calculation
-266c9af - Add reset metrics button to RPC metrics dashboard
-91d935a - Implement creator_outgoing_extractor efficiency patch
-```
-
-### Branch
-```
-Current: rpc
-Main: main (use for merging when ready)
-```
-
-### How to Merge to Main
-```bash
-git checkout main
-git pull origin main
-git merge rpc
-git push origin main
-```
-
----
-
-## Monitoring Checklist
-
-- [ ] Monitor next scan cycle (12 hours)
-- [ ] Verify error rate stays <0.5%
-- [ ] Check pagination cursor table has 1,000+ entries
-- [ ] Confirm burn rate is 100-200 cr/min (not 1,200+)
-- [ ] Validate monthly cost trending toward 1.2M estimate
-- [ ] Test dashboard reset button
-- [ ] Review cost calculator API endpoint
-
----
-
-## Key Metrics Reference
-
-### Before Optimization
-- Error Rate: 90.5%
-- Success Rate: 9.5%
-- Monthly Cost: 50,000,000 credits
-- Burn Rate: 1,261 cr/min (spiky)
-
-### After Optimization
-- Error Rate: 0%
-- Success Rate: 100%
-- Monthly Cost: 1,200,000 credits
-- Burn Rate: 895 cr/min (stable)
-
-### Improvement
-- Error Reduction: ∞ (from 90.5% to 0%)
-- Cost Reduction: 98% (40x improvement)
-- Efficiency: Perfect rate control
-
----
-
-## Support & Next Steps
-
-### If Something Breaks
-1. Check /Users/kevinkeaveney/.claude/projects/-Users-kevinkeaveney-Dev-claude-flex/memory/ for context
-2. Review SESSION_FINAL_SUMMARY.md for full details
-3. Check rpc_metrics_api.py logs for API issues
-4. Monitor pumpfun_curve_listener for scan issues
-
-### Recommended Monitoring (Next 24h)
-1. Check dashboard every 2 hours
-2. Monitor burn rate (should be 100-200 cr/min)
-3. Verify error rate stays at 0%
-4. Track pagination cursor growth
-
-### Optional Optimizations
-1. Gradually increase OUTGOING_RPS (8 → 9 → 10) if stable
-2. Add cost alerts if burn rate exceeds thresholds
-3. Implement adaptive rate limiting
-4. Add circuit breaker pattern
-
----
-
-## Contact & Questions
-
-For detailed information, see:
-- **Complete Overview**: SESSION_FINAL_SUMMARY.md
-- **Production Validation**: SCAN_COMPLETION_REPORT.md
-- **Implementation Details**: CREATOR_OUTGOING_EFFICIENCY_IMPLEMENTATION.md
-- **Error Analysis**: RESTART_STATUS_AND_ERROR_ANALYSIS.md
-
----
-
-**Last Updated**: 2026-03-02 09:38 UTC
-**Status**: ✅ PRODUCTION READY
-**Next Action**: Monitor next scan cycle (12 hours from completion)
+**Status**: ✅ Ready | **Date**: March 12, 2026 | **Version**: 1.0

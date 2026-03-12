@@ -40,6 +40,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from src.core.dev_intelligence_graph import DevIntelligenceEngine
 from src.core.dev_intelligence_v2 import DevIntelligenceV2Engine
 from src.core.dev_intelligence_v3 import DevIntelligenceV3Engine
+from src.core.dev_intelligence_v3_enhancements import EnhancementEngine
 from src.core.creator_seed_metrics import CreatorSeedMetricsAnalyzer
 from src.core.funder_overlap_analysis import FunderOverlapAnalyzer
 from src.core.launch_wave_detection import LaunchWaveDetectionEngine
@@ -91,6 +92,20 @@ def main():
             f"Tokens predicted: {result_v3.get('tokens_predicted', 0)}, "
             f"Alerts fired: {result_v3.get('alerts_fired', 0)}, "
             f"Duration: {result_v3.get('duration_ms', 0):.0f}ms"
+        )
+
+        # Phase 3.1: V3 Enhancements — Behavioral modeling signals
+        logger.info("Starting dev intelligence v3.1 (behavioral modeling)")
+        engine_v31 = EnhancementEngine(db_path)
+        result_v31 = engine_v31.detect_and_store()
+
+        logger.info(f"Dev intelligence v3.1 completed: {result_v31['message']}")
+        logger.info(
+            f"Orgs enhanced: {result_v31.get('orgs_enhanced', 0)}, "
+            f"Momentum recorded: {result_v31.get('momentum_recorded', 0)}, "
+            f"Cadence analyzed: {result_v31.get('cadence_analyzed', 0)}, "
+            f"Expansion detected: {result_v31.get('expansion_detected', 0)}, "
+            f"Duration: {result_v31.get('duration_ms', 0):.0f}ms"
         )
 
         # Phase 4: Creator Seed Metrics — Coordinated funding analysis
@@ -146,12 +161,15 @@ def main():
 
         # Return success only if all phases succeeded
         if (result['status'] == 'success' and result_v2['status'] == 'success' and
-            result_v3['status'] == 'success' and result_seeds['status'] == 'success' and
-            result_overlap['status'] == 'success' and result_waves['status'] == 'success' and
-            result_mls['status'] == 'success'):
+            result_v3['status'] == 'success' and result_v31['status'] == 'success' and
+            result_seeds['status'] == 'success' and result_overlap['status'] == 'success' and
+            result_waves['status'] == 'success' and result_mls['status'] == 'success'):
             return 0
         else:
-            logger.warning(f"One or more phases failed: v1={result['status']}, v2={result_v2['status']}, v3={result_v3['status']}, seeds={result_seeds['status']}, overlap={result_overlap['status']}, waves={result_waves['status']}, mls={result_mls['status']}")
+            logger.warning(f"One or more phases failed: v1={result['status']}, v2={result_v2['status']}, "
+                          f"v3={result_v3['status']}, v3.1={result_v31['status']}, "
+                          f"seeds={result_seeds['status']}, overlap={result_overlap['status']}, "
+                          f"waves={result_waves['status']}, mls={result_mls['status']}")
             return 1
 
     except Exception as e:

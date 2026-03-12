@@ -863,7 +863,7 @@
 <body>
     <!-- Sidebar Navigation -->
     <nav class="sidebar">
-        <div class="sidebar-brand">
+        <div class="sidebar-brand" onclick="goHome()" style="cursor: pointer;">
             <i class="fas fa-bolt"></i> FLEX
         </div>
 
@@ -895,14 +895,6 @@
             </a>
         </div>
 
-        <!-- Tools -->
-        <div class="nav-section">
-            <div class="nav-section-title">Tools</div>
-            <a class="nav-link" onclick="showWalletSearch()">
-                <i class="fas fa-wallet"></i> <span>Wallet Search</span>
-            </a>
-        </div>
-
         <!-- Developer Tools -->
         <div class="nav-section">
             <div class="nav-section-title">Developer</div>
@@ -914,6 +906,14 @@
             </a>
             <a class="nav-link" id="signal-inspector-toggle" onclick="toggleSignalInspectorUI()">
                 <i class="fas fa-microscope"></i> <span>Signal Inspector</span>
+            </a>
+        </div>
+
+        <!-- Tools -->
+        <div class="nav-section">
+            <div class="nav-section-title">Tools</div>
+            <a class="nav-link" onclick="showWalletSearch()">
+                <i class="fas fa-wallet"></i> <span>Wallet Search</span>
             </a>
         </div>
     </nav>
@@ -967,6 +967,15 @@
                 'api_reference': loadAPIReference,
             };
             (routes[page] || loadDashboard)();
+        };
+
+        // Go home (from sidebar brand click)
+        const goHome = () => {
+            currentPage = 'dashboard';
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
+            const dashboardLink = document.querySelector('.nav-link[onclick*="dashboard"]');
+            if (dashboardLink) dashboardLink.classList.add('active');
+            loadDashboard();
         };
 
         // Utility: Show loading spinner
@@ -2061,6 +2070,245 @@
             }
         }
 
+        // PAGE 9: DEVELOPER FINGERPRINT
+        async function loadDeveloperFingerprint(orgId) {
+            const content = document.getElementById('page-content');
+            content.innerHTML = showLoading('Developer Fingerprint');
+
+            try {
+                // Parallel data fetches
+                const [org, cadence, momentum, expansion, windows, snapshots] = await Promise.all([
+                    fetch(`${API_BASE}/organization/${orgId}`).then(r => r.ok ? r.json() : null),
+                    fetch(`${API_BASE}/orgs/${orgId}/cadence`).then(r => r.ok ? r.json() : null),
+                    fetch(`${API_BASE}/orgs/${orgId}/momentum`).then(r => r.ok ? r.json() : null),
+                    fetch(`${API_BASE}/orgs/${orgId}/expansion`).then(r => r.ok ? r.json() : null),
+                    fetch(`${API_BASE}/orgs/${orgId}/windows`).then(r => r.ok ? r.json() : null),
+                    fetch(`${API_BASE}/orgs/${orgId}/snapshots?days=30`).then(r => r.ok ? r.json() : null)
+                ]);
+
+                if (!org) throw new Error('Organization not found');
+
+                // Compute behavioral metrics
+                const avgSeedSize = snapshots?.length > 0 ?
+                    snapshots.reduce((sum, s) => sum + (s.weighted_volume || 0), 0) / snapshots.length : 0;
+
+                const seedVariance = snapshots?.length > 1 ?
+                    Math.sqrt(snapshots.reduce((sum, s) => sum + Math.pow((s.weighted_volume || 0) - avgSeedSize, 2), 0) / snapshots.length) : 0;
+
+                const fundingCadence = cadence?.[0]?.average_interval || 0;
+                const creatorReuse = org.signals?.creator_reuse_score || 0;
+                const overlapPatterns = org.signals?.funder_overlap_score || 0;
+
+                // Compute fingerprint risk label
+                const fingerprint_signals = [
+                    creatorReuse,
+                    overlapPatterns,
+                    org.signals?.token_quality_score || 0,
+                    org.signals?.launch_velocity_score || 0,
+                    org.signals?.funding_sophistication_score || 0
+                ];
+                const avg_fingerprint = fingerprint_signals.reduce((a, b) => a + b, 0) / fingerprint_signals.length;
+                const fingerprint_label = avg_fingerprint > 0.7 ? 'HIGH RISK' : avg_fingerprint > 0.4 ? 'MEDIUM RISK' : 'LOW RISK';
+                const fingerprint_color = avg_fingerprint > 0.7 ? 'var(--color-critical)' : avg_fingerprint > 0.4 ? 'var(--color-watch)' : 'var(--color-low)';
+
+                // Get similar organizations
+                const leaderboard = await fetch(`${API_BASE}/launch-leaderboard?limit=100`).then(r => r.ok ? r.json() : []);
+                const orgSignals = [
+                    org.signals?.creator_reuse_score || 0,
+                    org.signals?.funder_overlap_score || 0,
+                    org.signals?.token_quality_score || 0,
+                    org.signals?.launch_velocity_score || 0,
+                    org.signals?.funding_sophistication_score || 0,
+                    org.signals?.wallet_cluster_score || 0,
+                    org.signals?.temporal_pattern_score || 0,
+                    org.signals?.master_launch_score || 0
+                ];
+
+                // Compute cosine similarity
+                function cosineSimilarity(a, b) {
+                    const dot = a.reduce((sum, x, i) => sum + x * b[i], 0);
+                    const magA = Math.sqrt(a.reduce((sum, x) => sum + x * x, 0));
+                    const magB = Math.sqrt(b.reduce((sum, x) => sum + x * x, 0));
+                    return magA && magB ? dot / (magA * magB) : 0;
+                }
+
+                const similarOrgs = leaderboard
+                    .filter(o => o.organization_id !== orgId && o.signals)
+                    .map(o => ({
+                        ...o,
+                        similarity: cosineSimilarity(orgSignals, [
+                            o.signals?.creator_reuse_score || 0,
+                            o.signals?.funder_overlap_score || 0,
+                            o.signals?.token_quality_score || 0,
+                            o.signals?.launch_velocity_score || 0,
+                            o.signals?.funding_sophistication_score || 0,
+                            o.signals?.wallet_cluster_score || 0,
+                            o.signals?.temporal_pattern_score || 0,
+                            o.signals?.master_launch_score || 0
+                        ])
+                    }))
+                    .sort((a, b) => b.similarity - a.similarity)
+                    .slice(0, 5);
+
+                let html = `
+                    <div class="page-header">
+                        <h1><i class="fas fa-fingerprint"></i> Developer Fingerprint</h1>
+                        <p class="subtitle">${org.operator_wallet || 'Organization'} Behavioral Analysis</p>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> Behavioral Metrics</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="metric-row">
+                                        <div class="metric-label">Avg Seed Size</div>
+                                        <div class="metric-value">$${formatNumber(avgSeedSize)}</div>
+                                    </div>
+                                    <div class="metric-row">
+                                        <div class="metric-label">Seed Variance</div>
+                                        <div class="metric-value">$${formatNumber(seedVariance)}</div>
+                                    </div>
+                                    <div class="metric-row">
+                                        <div class="metric-label">Funding Cadence</div>
+                                        <div class="metric-value">${fundingCadence ? fundingCadence.toFixed(2) + ' days' : 'N/A'}</div>
+                                    </div>
+                                    <div class="metric-row">
+                                        <div class="metric-label">Creator Reuse</div>
+                                        <div class="metric-value">${formatPercent(creatorReuse)}</div>
+                                    </div>
+                                    <div class="metric-row">
+                                        <div class="metric-label">Overlap Patterns</div>
+                                        <div class="metric-value">${formatPercent(overlapPatterns)}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-shield"></i> Fingerprint Summary</h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div style="font-size: 2rem; font-weight: bold; color: ${fingerprint_color}; margin: 1rem 0;">
+                                        ${fingerprint_label}
+                                    </div>
+                                    <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                                        ${avg_fingerprint > 0.7 ? 'Significant behavioral anomalies detected' : avg_fingerprint > 0.4 ? 'Some behavioral patterns of concern' : 'Low risk behavioral profile'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> 30-Day Momentum</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="fingerprintMomentumChart" height="200"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-rocket"></i> Launch Cadence</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="fingerprintCadenceChart" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-copy"></i> Similar Organizations</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Organization</th>
+                                        <th>Similarity</th>
+                                        <th>Score</th>
+                                        <th>Alert Level</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${similarOrgs.map(o => `
+                                        <tr style="cursor: pointer;" onclick="loadOrgProfile(${o.organization_id})">
+                                            <td><strong>${o.operator_name || 'Unknown'}</strong></td>
+                                            <td><div class="score-bar" style="width: ${Math.min(100, o.similarity * 100)}%"></div></td>
+                                            <td>${formatPercent(o.master_launch_score || 0)}</td>
+                                            <td><span class="badge bg-${o.alert_level === 'CRITICAL' ? 'danger' : o.alert_level === 'HIGH' ? 'warning' : o.alert_level === 'WATCH' ? 'info' : 'success'}">${o.alert_level}</span></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+
+                content.innerHTML = html;
+
+                // Create momentum chart
+                if (momentum && momentum.length > 0) {
+                    const ctx = document.getElementById('fingerprintMomentumChart');
+                    if (ctx) {
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: momentum.map(m => formatDate(m.timestamp)),
+                                datasets: [{
+                                    label: 'Momentum Signal',
+                                    data: momentum.map(m => m.momentum_signal || 0),
+                                    borderColor: 'var(--color-primary)',
+                                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                    tension: 0.4,
+                                    fill: true
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false } },
+                                scales: { y: { beginAtZero: true, max: 1 } }
+                            }
+                        });
+                    }
+                }
+
+                // Create cadence chart
+                if (cadence && cadence.length > 0) {
+                    const ctx = document.getElementById('fingerprintCadenceChart');
+                    if (ctx) {
+                        new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: cadence.map((_, i) => `Period ${i + 1}`),
+                                datasets: [{
+                                    label: 'Interval (Days)',
+                                    data: cadence.map(c => c.average_interval || 0),
+                                    backgroundColor: 'var(--color-secondary)'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false } },
+                                scales: { y: { beginAtZero: true } }
+                            }
+                        });
+                    }
+                }
+
+            } catch (error) {
+                content.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> Error: ${error.message}</div>`;
+            }
+        }
+
         // API REFERENCE PAGE
         async function loadAPIReference() {
             const content = document.getElementById('page-content');
@@ -2510,6 +2758,7 @@
                     loadWalletIntelligence(PAGE_WALLET);
                 },
                 'signal_explorer': loadSignalExplorer,
+                'fingerprint': () => loadDeveloperFingerprint(PAGE_ORG_ID),
                 'api_reference': loadAPIReference,
             };
 

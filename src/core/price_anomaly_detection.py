@@ -18,7 +18,7 @@ import sqlite3
 import logging
 import time
 import math
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Tuple
 from dataclasses import dataclass
 from statistics import mean, stdev
 

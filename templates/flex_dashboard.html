@@ -912,6 +912,9 @@
             <a class="nav-link" id="devtools-toggle" onclick="toggleDevTools()">
                 <i class="fas fa-terminal"></i> <span>Debug Panel</span>
             </a>
+            <a class="nav-link" id="signal-inspector-toggle" onclick="toggleSignalInspectorUI()">
+                <i class="fas fa-microscope"></i> <span>Signal Inspector</span>
+            </a>
         </div>
     </nav>
 
@@ -2360,6 +2363,13 @@
             'volatility_score': 0.08,
             'recency_score': 0.10
         };
+
+        function toggleSignalInspectorUI() {
+            const orgId = prompt('Enter Organization ID to inspect signals:');
+            if (orgId && orgId.trim() !== '') {
+                inspectSignals(parseInt(orgId));
+            }
+        }
 
         async function inspectSignals(orgId) {
             try {

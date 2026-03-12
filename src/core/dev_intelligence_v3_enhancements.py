@@ -478,3 +478,234 @@ def enhance_org_launch_window(org_id: int, window_data: Dict, cursor: sqlite3.Cu
         'expansion_score': enhanced['expansion']['expansion_score'],
         'enhancement_data': enhanced,
     }
+
+
+
+class EnhancementEngine:
+    """
+    Orchestrates V3.1 behavioral modeling enhancements.
+    
+    Runs after V3 engine to enhance launch predictions with:
+    - Organization momentum tracking
+    - Launch cadence analysis
+    - Team expansion detection
+    """
+    
+    def __init__(self, db_path: str):
+        self.db_path = db_path
+        self.momentum_tracker = OrganizationMomentumTracker(db_path)
+        self.cadence_detector = LaunchCadenceDetector(db_path)
+        self.expansion_detector = OrganizationExpansionDetector(db_path)
+        self.score_calculator = EnhancedLaunchScoreCalculator(db_path)
+        self.start_time = None
+    
+    def _get_conn(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(self.db_path, timeout=60)
+        conn.execute('PRAGMA journal_mode=WAL')
+        conn.row_factory = sqlite3.Row
+        return conn
+    
+    def detect_and_store(self) -> Dict:
+        """
+        Main entry point - enhances all existing v3 launch windows with v3.1 signals.
+        
+        Returns: {
+            'status': 'success'|'error',
+            'message': str,
+            'orgs_enhanced': int,
+            'momentum_recorded': int,
+            'cadence_analyzed': int,
+            'expansion_detected': int,
+            'duration_ms': float
+        }
+        """
+        import time
+        self.start_time = time.time()
+        
+        try:
+            conn = self._get_conn()
+            cursor = conn.cursor()
+            
+            # Get all organizations
+            cursor.execute("""
+                SELECT organization_id, operator_wallet, cluster_size, token_count
+                FROM dev_organizations
+                WHERE organization_id > 0
+            """)
+            orgs = [dict(row) for row in cursor.fetchall()]
+            
+            if not orgs:
+                conn.close()
+                return {
+                    'status': 'success',
+                    'message': 'No organizations to enhance',
+                    'orgs_enhanced': 0,
+                    'momentum_recorded': 0,
+                    'cadence_analyzed': 0,
+                    'expansion_detected': 0,
+                    'duration_ms': (time.time() - self.start_time) * 1000
+                }
+            
+            now = time.time()
+            momentum_count = 0
+            cadence_count = 0
+            expansion_count = 0
+            
+            # Process each org
+            for org in orgs:
+                org_id = org['organization_id']
+                
+                try:
+                    # 1. Record momentum
+                    momentum = self.momentum_tracker.compute_momentum(org_id, cursor)
+                    self._store_momentum(cursor, org_id, momentum, now)
+                    momentum_count += 1
+                    
+                    # 2. Analyze cadence
+                    cadence = self.cadence_detector.analyze_cadence(org_id, cursor)
+                    self._store_cadence(cursor, org_id, cadence, now)
+                    cadence_count += 1
+                    
+                    # 3. Detect expansion
+                    expansion = self.expansion_detector.detect_expansion(org_id, cursor)
+                    self._store_expansion(cursor, org_id, expansion, now)
+                    expansion_count += 1
+                    
+                    # 4. Enhance launch windows
+                    self._enhance_launch_windows(cursor, org_id, momentum, cadence, expansion, now)
+                    
+                except Exception as e:
+                    logger.warning(f"[V3.1] Error enhancing org {org_id}: {e}")
+                    continue
+            
+            conn.commit()
+            conn.close()
+            
+            duration_ms = (time.time() - self.start_time) * 1000
+            
+            logger.info(f"[V3.1] Enhancement complete: {momentum_count} momentum, "
+                       f"{cadence_count} cadence, {expansion_count} expansion")
+            
+            return {
+                'status': 'success',
+                'message': f'Enhanced {len(orgs)} organizations with behavioral signals',
+                'orgs_enhanced': len(orgs),
+                'momentum_recorded': momentum_count,
+                'cadence_analyzed': cadence_count,
+                'expansion_detected': expansion_count,
+                'duration_ms': duration_ms
+            }
+        
+        except Exception as e:
+            logger.error(f"[V3.1] Enhancement engine failed: {e}", exc_info=True)
+            return {
+                'status': 'error',
+                'message': f'Enhancement failed: {str(e)}',
+                'orgs_enhanced': 0,
+                'momentum_recorded': 0,
+                'cadence_analyzed': 0,
+                'expansion_detected': 0,
+                'duration_ms': (time.time() - self.start_time) * 1000 if self.start_time else 0
+            }
+    
+    def _store_momentum(self, cursor: sqlite3.Cursor, org_id: int, momentum: Dict, now: float) -> None:
+        """Store momentum history record."""
+        cursor.execute("""
+            INSERT OR REPLACE INTO org_momentum_history
+            (organization_id, recorded_date, activity_24h, activity_7d_avg, momentum,
+             momentum_signal, trend, recorded_at)
+            VALUES (?, date('now'), ?, ?, ?, ?, ?, ?)
+        """, (
+            org_id,
+            momentum['activity_24h'],
+            momentum['activity_7d_avg'],
+            momentum['momentum'],
+            momentum['momentum_signal'],
+            momentum['trend'],
+            now
+        ))
+    
+    def _store_cadence(self, cursor: sqlite3.Cursor, org_id: int, cadence: Dict, now: float) -> None:
+        """Store launch cadence record."""
+        cursor.execute("""
+            INSERT OR REPLACE INTO org_launch_cadence
+            (organization_id, analysis_date, launches_detected, launch_dates, intervals,
+             average_interval, interval_variability, days_since_last_launch,
+             cadence_score, due_for_launch, prediction_confidence, detected_at)
+            VALUES (?, date('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            org_id,
+            cadence.get('launches_detected', 0),
+            json.dumps(cadence.get('launch_dates', [])),
+            json.dumps(cadence.get('intervals', [])),
+            cadence.get('average_interval', 0),
+            cadence.get('interval_variability', 0),
+            cadence.get('days_since_last_launch', 0),
+            cadence.get('cadence_score', 0),
+            1 if cadence.get('due_for_launch', False) else 0,
+            cadence.get('prediction_confidence', 0),
+            now
+        ))
+    
+    def _store_expansion(self, cursor: sqlite3.Cursor, org_id: int, expansion: Dict, now: float) -> None:
+        """Store expansion events record."""
+        cursor.execute("""
+            INSERT OR REPLACE INTO org_expansion_events
+            (organization_id, event_date, current_creator_count, creators_added_24h,
+             creators_added_7d, expansion_rate, expansion_score, expansion_signal,
+             new_creators, first_activity_creators, team_size_change_7d, detected_at)
+            VALUES (?, date('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            org_id,
+            expansion.get('current_creator_count', 0),
+            expansion.get('creators_added_24h', 0),
+            expansion.get('creators_added_7d', 0),
+            expansion.get('expansion_rate', 0),
+            expansion.get('expansion_score', 0),
+            expansion.get('expansion_signal', 'stable'),
+            json.dumps(expansion.get('new_creators', [])),
+            json.dumps(expansion.get('first_activity_creators', [])),
+            expansion.get('team_size_change_7d', 0),
+            now
+        ))
+    
+    def _enhance_launch_windows(self, cursor: sqlite3.Cursor, org_id: int,
+                                momentum: Dict, cadence: Dict, expansion: Dict, now: float) -> None:
+        """Enhance existing launch windows with behavioral signals."""
+        # Get the latest base launch window
+        cursor.execute("""
+            SELECT prob_launch_24h, prob_launch_72h, prob_launch_7d
+            FROM org_launch_windows
+            WHERE organization_id = ?
+            ORDER BY prediction_date DESC
+            LIMIT 1
+        """, (org_id,))
+        
+        window_row = cursor.fetchone()
+        if not window_row:
+            return
+        
+        base_prob_24h = window_row[0]
+        
+        # Compute enhanced score
+        enhanced = self.score_calculator.compute_enhanced_score(org_id, base_prob_24h, cursor)
+        
+        # Store enhanced window
+        cursor.execute("""
+            INSERT OR REPLACE INTO org_enhanced_launch_windows
+            (organization_id, prediction_date, base_prob_launch_24h, enhanced_prob_launch_24h,
+             momentum_signal, cadence_score, expansion_score, data_quality_score,
+             enhancement_factor, combined_confidence, computed_at)
+            VALUES (?, date('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            org_id,
+            base_prob_24h,
+            enhanced['enhanced_launch_prob'],
+            momentum['momentum_signal'],
+            cadence['cadence_score'],
+            expansion['expansion_score'],
+            enhanced.get('data_quality_score', 80),
+            enhanced.get('enhancement_factor', 1.0),
+            enhanced.get('combined_confidence', 0.5),
+            now
+        ))

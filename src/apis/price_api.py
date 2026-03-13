@@ -246,6 +246,49 @@ def _on_warmup_complete(mint: str, price, task_type: str) -> None:
         _warmup_stats[f'{key}_failed'] = _warmup_stats.get(f'{key}_failed', 0) + 1
 
 
+def _register_pool_accounts(pool_accounts: list) -> int:
+    """Upsert pool account registrations into token_pool_accounts. Returns count inserted."""
+    now = int(time.time())
+    count = 0
+    try:
+        with sqlite3.connect(_db_path, timeout=5) as conn:
+            for pa in pool_accounts:
+                conn.execute("""
+                    INSERT OR REPLACE INTO token_pool_accounts
+                    (mint, base_account, quote_account, pool_program,
+                     base_token, quote_token, base_decimals, quote_decimals,
+                     is_active, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, COALESCE(
+                        (SELECT created_at FROM token_pool_accounts
+                         WHERE mint=? AND base_account=?), ?
+                    ), ?)
+                """, (
+                    pa['mint'], pa['base_account'], pa['quote_account'],
+                    pa.get('pool_program', 'raydium_amm'),
+                    pa.get('base_token', pa['mint']),
+                    pa.get('quote_token', 'So11111111111111111111111111111111111111112'),
+                    pa.get('base_decimals', 6), pa.get('quote_decimals', 9),
+                    pa['mint'], pa['base_account'], now, now,
+                ))
+                count += 1
+            conn.commit()
+        logger.info(f"Registered {count} pool accounts")
+    except Exception as e:
+        logger.error(f"Error registering pool accounts: {e}")
+    return count
+
+
+def _count_active_pools() -> int:
+    """Count active pool registrations."""
+    try:
+        with sqlite3.connect(_db_path, timeout=5) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM token_pool_accounts WHERE is_active=1")
+            return cursor.fetchone()[0]
+    except Exception:
+        return 0
+
+
 @price_api.route('/symbol/<mint>', methods=['GET'])
 def get_token_symbol(mint: str):
     """
@@ -388,17 +431,45 @@ def health():
         worker = get_price_worker()
         registry = PriceWorkerRegistry()
 
+        # Gather pool stats
+        pool_stats = {
+            'pools_registered': _count_active_pools(),
+            'pool_prices_cached': len(service.pool_price_cache) if hasattr(service, 'pool_price_cache') else 0,
+            'pool_prices_fetched_last_cycle': worker.stats.get('pool_prices_fetched', 0) if worker else 0,
+            'pool_attempted': service.stats.get('pool_attempted', 0) if hasattr(service, 'stats') else 0,
+            'pool_success': service.stats.get('pool_success', 0) if hasattr(service, 'stats') else 0,
+            'pool_fail': service.stats.get('pool_fail', 0) if hasattr(service, 'stats') else 0,
+        }
+
         return jsonify({
             'status': 'healthy',
             'cache_size': len(service.cache.cache),
             'worker_running': worker.running,
             'worker_stats': worker.get_stats(),
             'warm_up_stats': _warmup_stats.copy(),
+            'pool_stats': pool_stats,
             'rolling_window_stats': service.get_rolling_window_stats(),
             'timestamp': int(time.time())
         })
     except Exception as e:
         return jsonify({'status': 'unhealthy', 'error': str(e)}), 500
+
+
+@price_api.route('/pool/register', methods=['POST'])
+def register_pool_accounts():
+    """Register pool account mappings for pool-based pricing."""
+    try:
+        data = request.get_json(force=True) or {}
+        pool_accounts = data.get('pool_accounts', [])
+        
+        if not pool_accounts:
+            return jsonify({'error': 'pool_accounts required'}), 400
+        
+        count = _register_pool_accounts(pool_accounts)
+        return jsonify({'registered': count, 'status': 'ok'}), 200
+    except Exception as e:
+        logger.error(f"Error registering pool accounts: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 @price_api.route('/<mint>/confidence', methods=['GET'])

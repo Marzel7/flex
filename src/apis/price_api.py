@@ -394,6 +394,7 @@ def health():
             'worker_running': worker.running,
             'worker_stats': worker.get_stats(),
             'warm_up_stats': _warmup_stats.copy(),
+            'rolling_window_stats': service.get_rolling_window_stats(),
             'timestamp': int(time.time())
         })
     except Exception as e:

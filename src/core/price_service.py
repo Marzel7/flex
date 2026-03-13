@@ -204,6 +204,61 @@ class JupiterClient:
             return None
 
 
+class BirdeyeClient:
+    """Fetches prices from Birdeye API (final fallback)."""
+
+    BASE_URL = "https://public-api.birdeye.so/defi"
+
+    @staticmethod
+    async def get_price(mint: str) -> Optional[TokenPrice]:
+        """Fetch token price from Birdeye API."""
+        try:
+            url = f"{BirdeyeClient.BASE_URL}/token_price"
+            params = {'address': mint}
+
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=1.0)) as resp:
+                    if resp.status == 404:
+                        logger.debug(f"Birdeye 404 for {mint}")
+                        return None
+                    if resp.status == 429:
+                        logger.debug(f"Birdeye rate limited for {mint}")
+                        return None
+                    if resp.status != 200:
+                        logger.debug(f"Birdeye {resp.status} for {mint}")
+                        return None
+
+                    data = await resp.json()
+                    price_data = data.get('data', {})
+
+                    if not price_data or not price_data.get('price'):
+                        logger.debug(f"Birdeye no price for {mint}")
+                        return None
+
+                    price_usd = float(price_data.get('price', 0))
+                    if price_usd == 0:
+                        return None
+
+                    return TokenPrice(
+                        mint=mint,
+                        price_usd=price_usd,
+                        price_sol=float(price_data.get('priceInSOL', 0)),
+                        liquidity_usd=0,
+                        volume_24h=0,
+                        market_cap=0,
+                        source='birdeye',
+                        timestamp=int(time.time()),
+                        is_stale=False
+                    )
+
+        except asyncio.TimeoutError:
+            logger.debug(f"Birdeye timeout for {mint}")
+            return None
+        except Exception as e:
+            logger.debug(f"Birdeye error for {mint}: {e}")
+            return None
+
+
 class TokenPriceService:
     """Main token price service with fallback logic."""
     
@@ -321,40 +376,48 @@ class TokenPriceService:
     
     async def get_token_price(self, mint: str, cache_type: str = 'hot') -> TokenPrice:
         """
-        Get token price with fallback logic.
-        
+        Get token price with multi-source fallback logic.
+
         Priority:
         1. In-memory cache (hot)
         2. Dexscreener
         3. Jupiter
-        4. Database cache (stale)
-        5. Unavailable
+        4. Birdeye
+        5. Database cache (stale)
+        6. Unavailable
         """
         # Try in-memory cache
         cached = self.cache.get(mint, cache_type)
         if cached:
             return cached
-        
+
         # Try Dexscreener
         dex_price = await DexscreenerClient.get_price(mint)
         if dex_price:
             self.cache.set(mint, dex_price)
             self._store_snapshot(dex_price)
             return dex_price
-        
+
         # Try Jupiter
         jup_price = await JupiterClient.get_price(mint)
         if jup_price:
             self.cache.set(mint, jup_price)
             self._store_snapshot(jup_price)
             return jup_price
-        
+
+        # Try Birdeye (final fallback before stale cache)
+        birdeye_price = await BirdeyeClient.get_price(mint)
+        if birdeye_price:
+            self.cache.set(mint, birdeye_price)
+            self._store_snapshot(birdeye_price)
+            return birdeye_price
+
         # Try database cache (stale)
         db_price = self._get_cached_price(mint)
         if db_price:
             self.cache.set(mint, db_price)
             return db_price
-        
+
         # Unavailable
         unavailable = TokenPrice(
             mint=mint,

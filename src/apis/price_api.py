@@ -153,7 +153,7 @@ def get_token_symbol_cached(db_path: str, mint: str) -> dict:
     # 1. Check in-memory cache
     if mint in _metadata_cache:
         cached = _metadata_cache[mint]
-        if time.time() - _metadata_cache_time.get(mint, 0) < 300:
+        if time.time() - _metadata_cache_time.get(mint, 0) < 1800:
             return {
                 'symbol': cached['symbol'],
                 'name': cached['name'],
@@ -163,7 +163,7 @@ def get_token_symbol_cached(db_path: str, mint: str) -> dict:
             }
 
     # 2. Check SQLite cache
-    sqlite_result = _get_metadata_from_sqlite(db_path, mint, max_age=300)
+    sqlite_result = _get_metadata_from_sqlite(db_path, mint, max_age=1800)
     if sqlite_result:
         # Hydrate memory cache
         _metadata_cache[mint] = {
@@ -233,6 +233,7 @@ _warmup_stats = {
     'metadata_completed': 0,
     'metadata_failed': 0,
     'skipped_due_to_queue': 0,
+    'skipped_due_to_timeout': 0,
 }
 
 
@@ -391,6 +392,7 @@ def health():
             'cache_size': len(service.cache.cache),
             'worker_running': worker.running,
             'worker_stats': worker.get_stats(),
+            'warm_up_stats': _warmup_stats.copy(),
             'timestamp': int(time.time())
         })
     except Exception as e:
@@ -915,7 +917,7 @@ def register_tokens_batch():
                     logger.debug(f"Failed to enqueue metadata warmup for {mint}: {e}")
         else:
             warm_up_skipped = len(mints)
-            _warmup_stats['skipped_due_to_queue'] += 1
+            _warmup_stats['skipped_due_to_queue'] += len(mints)
             logger.info(
                 f"Queue busy (depth={queue_stats['queue_depth']}), "
                 f"skipping metadata warm-ups for {len(mints)} mints"

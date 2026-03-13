@@ -492,6 +492,7 @@ class PoolWebSocketClient:
         """Send accountSubscribe for each tracked pool account."""
         self._sub_id_to_account = {}
         req_id = 1
+        logger.info(f"Pool WS subscribing to {len(self._account_to_pool)} accounts")
         for pubkey in list(self._account_to_pool.keys()):
             msg = {
                 "jsonrpc": "2.0",
@@ -511,14 +512,16 @@ class PoolWebSocketClient:
             try:
                 raw = await asyncio.wait_for(ws.recv(), timeout=10)
                 data = json.loads(raw)
+                logger.debug(f"Subscription response: {json.dumps(data)}")
                 if "id" in data and "result" in data:
                     sub_id = data["result"]
                     pubkey = req_to_pubkey.get(data["id"])
                     if pubkey:
                         self._sub_id_to_account[sub_id] = pubkey
                         confirmed += 1
+                        logger.debug(f"Confirmed subscription {confirmed}/{needed}")
             except asyncio.TimeoutError:
-                logger.warning("Timeout waiting for accountSubscribe confirmations")
+                logger.warning(f"Timeout waiting for accountSubscribe confirmations ({confirmed}/{needed} confirmed so far)")
                 break
 
         self.stats["subscriptions"] = len(self._sub_id_to_account)

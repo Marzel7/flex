@@ -7,6 +7,7 @@ Includes price confidence scoring and launch outcome tracking.
 
 import logging
 import time
+import sqlite3
 from flask import Blueprint, request, jsonify
 from src.core.price_service import get_price_service, TokenPrice
 from src.core.price_confidence import get_confidence_scorer
@@ -25,60 +26,226 @@ price_api = Blueprint('price_api', __name__, url_prefix='/api/price')
 _metadata_cache = {}
 _metadata_cache_time = {}
 
+# Database path (will be initialized when register_price_api is called)
+_db_path = 'database/flex_complete_database.db'
+
+
+def _configure_sqlite_wal(db_path: str) -> None:
+    """Enable WAL mode for safer concurrent access."""
+    try:
+        conn = sqlite3.connect(db_path, timeout=5)
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA journal_mode=WAL;")
+        cursor.execute("PRAGMA busy_timeout=5000;")
+        conn.commit()
+        conn.close()
+        logger.info("SQLite WAL mode enabled for metadata cache")
+    except Exception as e:
+        logger.warning(f"Failed to enable WAL mode: {e}")
+
+
+def _ensure_metadata_cache_table(db_path: str) -> None:
+    """Create metadata_cache table if not exists."""
+    try:
+        conn = sqlite3.connect(db_path, timeout=5)
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS metadata_cache (
+                mint TEXT PRIMARY KEY,
+                symbol TEXT NOT NULL,
+                name TEXT NOT NULL,
+                cached_at INTEGER NOT NULL,
+                cached_source TEXT
+            )
+        """)
+        conn.commit()
+        conn.close()
+        logger.info("metadata_cache table ensured")
+    except Exception as e:
+        logger.error(f"Failed to ensure metadata_cache table: {e}")
+
+
+def _get_metadata_from_sqlite(db_path: str, mint: str, max_age: int = 300):
+    """Get metadata from SQLite if fresh."""
+    try:
+        conn = sqlite3.connect(db_path, timeout=2)
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT symbol, name, cached_at, cached_source
+            FROM metadata_cache
+            WHERE mint = ?
+        """, (mint,))
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            return None
+
+        symbol, name, cached_at, source = row
+        age = int(time.time()) - cached_at
+
+        if age <= max_age:
+            return {
+                'symbol': symbol,
+                'name': name,
+                'cached_at': cached_at,
+                'source': source,
+                'age': age
+            }
+
+        return None  # Stale
+
+    except Exception as e:
+        logger.debug(f"SQLite metadata lookup error for {mint}: {e}")
+        return None
+
+
+def _store_metadata_to_sqlite(db_path: str, mint: str, symbol: str, name: str, source: str):
+    """Store metadata in SQLite cache."""
+    try:
+        conn = sqlite3.connect(db_path, timeout=5)
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT OR REPLACE INTO metadata_cache
+            (mint, symbol, name, cached_at, cached_source)
+            VALUES (?, ?, ?, ?, ?)
+        """, (mint, symbol, name, int(time.time()), source))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        logger.warning(f"Failed to store metadata for {mint}: {e}")
+
+
+def _fetch_symbol_from_dexscreener(mint: str):
+    """Fetch token symbol and name from Dexscreener API."""
+    import requests
+
+    resp = requests.get(
+        f'https://api.dexscreener.com/latest/dex/tokens/{mint}',
+        timeout=5
+    )
+
+    if resp.status_code == 200:
+        data = resp.json()
+        if data.get('pairs') and len(data['pairs']) > 0:
+            base_token = data['pairs'][0].get('baseToken', {})
+            return (
+                base_token.get('symbol', mint[:8].upper()),
+                base_token.get('name', 'Token')
+            )
+
+    raise Exception(f"Failed to fetch metadata from Dexscreener: {resp.status_code}")
+
+
+def get_token_symbol_cached(db_path: str, mint: str) -> dict:
+    """
+    Get token symbol/name with multi-level caching.
+
+    Lookup order:
+    1. In-memory cache (fresh)
+    2. SQLite cache (fresh)
+    3. Upstream fetch
+    4. Stale SQLite cache
+    5. Default
+
+    Never returns 404. Always returns valid symbol/name.
+    """
+    # 1. Check in-memory cache
+    if mint in _metadata_cache:
+        cached = _metadata_cache[mint]
+        if time.time() - _metadata_cache_time.get(mint, 0) < 300:
+            return {
+                'symbol': cached['symbol'],
+                'name': cached['name'],
+                'source': 'memory_cache',
+                'is_fresh': True,
+                'is_stale': False
+            }
+
+    # 2. Check SQLite cache
+    sqlite_result = _get_metadata_from_sqlite(db_path, mint, max_age=300)
+    if sqlite_result:
+        # Hydrate memory cache
+        _metadata_cache[mint] = {
+            'symbol': sqlite_result['symbol'],
+            'name': sqlite_result['name']
+        }
+        _metadata_cache_time[mint] = time.time()
+        return {
+            'symbol': sqlite_result['symbol'],
+            'name': sqlite_result['name'],
+            'source': 'sqlite_cache',
+            'is_fresh': True,
+            'is_stale': False
+        }
+
+    # 3. Try upstream fetch
+    try:
+        symbol, name = _fetch_symbol_from_dexscreener(mint)
+
+        # Store in both caches
+        now = time.time()
+        _metadata_cache[mint] = {
+            'symbol': symbol,
+            'name': name
+        }
+        _metadata_cache_time[mint] = now
+        _store_metadata_to_sqlite(db_path, mint, symbol, name, 'dexscreener')
+
+        return {
+            'symbol': symbol,
+            'name': name,
+            'source': 'dexscreener',
+            'is_fresh': True,
+            'is_stale': False
+        }
+
+    except Exception as e:
+        logger.debug(f"Upstream fetch failed for {mint}: {e}")
+
+    # 4. Fall back to stale SQLite cache
+    stale_sqlite = _get_metadata_from_sqlite(db_path, mint, max_age=999999)
+    if stale_sqlite:
+        return {
+            'symbol': stale_sqlite['symbol'],
+            'name': stale_sqlite['name'],
+            'source': 'stale_sqlite',
+            'is_fresh': False,
+            'is_stale': True
+        }
+
+    # 5. Default (never 404)
+    return {
+        'symbol': 'UNKNOWN',
+        'name': 'Unknown Token',
+        'source': 'default',
+        'is_fresh': False,
+        'is_stale': True
+    }
+
 
 @price_api.route('/symbol/<mint>', methods=['GET'])
 def get_token_symbol(mint: str):
     """
-    Get token symbol and name via proxy to Dexscreener.
-    Avoids CORS issues and rate limiting.
+    Get token symbol and name with multi-level caching.
 
-    Returns: {symbol, name}
+    Never returns 404. Uses persistent SQLite cache + in-memory cache.
+
+    Returns: {symbol, name, source, is_fresh, is_stale}
     """
-    import requests
-
     try:
-        # Check cache validity (5 minute TTL)
-        cache_ttl = 300
-        now = time.time()
-        if mint in _metadata_cache and (now - _metadata_cache_time.get(mint, 0)) < cache_ttl:
-            return jsonify(_metadata_cache[mint])
-
-        # Always try to fetch fresh data from Dexscreener
-        resp = requests.get(
-            f'https://api.dexscreener.com/latest/dex/tokens/{mint}',
-            timeout=5
-        )
-
-        if resp.status_code == 200:
-            data = resp.json()
-            if data.get('pairs') and len(data['pairs']) > 0:
-                base_token = data['pairs'][0].get('baseToken', {})
-                result = {
-                    'symbol': base_token.get('symbol', mint[:8].upper()),
-                    'name': base_token.get('name', 'Token')
-                }
-                _metadata_cache[mint] = result
-                _metadata_cache_time[mint] = now
-                return jsonify(result)
-
-        # Fallback: use cached value if available, or default
-        if mint in _metadata_cache:
-            return jsonify(_metadata_cache[mint])
-
-        result = {'symbol': mint[:8].upper(), 'name': 'Token'}
-        _metadata_cache[mint] = result
-        _metadata_cache_time[mint] = now
+        result = get_token_symbol_cached(_db_path, mint)
         return jsonify(result), 200
-
     except Exception as e:
-        logger.debug(f"Error fetching metadata for {mint}: {e}")
-        # Use cached value if available on error
-        if mint in _metadata_cache:
-            return jsonify(_metadata_cache[mint])
-        result = {'symbol': mint[:8].upper(), 'name': 'Token'}
-        _metadata_cache[mint] = result
-        _metadata_cache_time[mint] = time.time()
-        return jsonify(result), 200
+        logger.error(f"Error in get_token_symbol for {mint}: {e}")
+        # Return safe default
+        return jsonify({
+            'symbol': 'UNKNOWN',
+            'name': 'Unknown Token',
+            'source': 'error',
+            'is_fresh': False,
+            'is_stale': True
+        }), 200
 
 
 @price_api.route('/<mint>', methods=['GET'])
@@ -732,5 +899,15 @@ def fetch_price_now(mint: str):
 
 def register_price_api(app):
     """Register price API with Flask app."""
+    global _db_path
+    
+    # Initialize database from app config if available
+    if hasattr(app, 'config') and 'DATABASE' in app.config:
+        _db_path = app.config['DATABASE']
+    
+    # Configure SQLite WAL mode and create metadata cache table
+    _configure_sqlite_wal(_db_path)
+    _ensure_metadata_cache_table(_db_path)
+    
     app.register_blueprint(price_api)
-    logger.info("Price API routes registered (extended with liquidity intelligence)")
+    logger.info("Price API routes registered (with Phase 4: Persistent metadata cache)")

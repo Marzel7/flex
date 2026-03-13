@@ -26,27 +26,36 @@ This folder contains comprehensive documentation for optimizing the token price 
 
 ---
 
-## Level 2: Advanced Optimizations (New)
+## Level 2: Advanced Optimizations (Phases 1-2 Complete ✓)
 
 **Documents:**
 - `ADVANCED_OPTIMIZATIONS_QUICK_REFERENCE.md` — Start here (5 min read)
 - `ADVANCED_OPTIMIZATIONS_PATCH.md` — Complete code changes (1500 lines)
 
-**What it adds (6 phases):**
+**Completed Phases:**
 
-1. **Request Queue** (4h) — Smooth bursts → 3 parallel + queue
-2. **Activity Scheduling** (3h) — Smart refresh based on volume/liquidity
+1. ✅ **Request Queue (Phase 1)** — Smooth bursts → 3 parallel + queue
+   - Status: Implemented and stable (2026-03-10)
+   - Metrics: 0 queue backlog, 90ms avg latency
+   - See: `PHASE1_REQUEST_QUEUE_SUMMARY.md`
+
+2. ✅ **Activity Scheduling (Phase 2)** — Smart refresh based on market activity
+   - Status: Implemented and verified (2026-03-13)
+   - Metrics: 26 tokens tracked, 27ms avg latency, 0 errors
+   - See: `PHASE2_IMPLEMENTATION_SUMMARY.md`
+
+**Planned Phases:**
+
 3. **Multi-Source** (3h) — Dex → Jupiter → Birdeye → cache fallback
 4. **Metadata Persistence** (2h) — SQLite cache survives restarts
 5. **Pre-Warm Cache** (1h) — Fetch on register, not on first view
 6. **WebSocket Streaming** (4h, optional) — Real-time instead of polling
 
-**Results:**
-- 60-70% fewer API calls (after core patch: 900→600)
-- 99%+ availability (vs 95%)
-- Real-time UI updates (optional)
-- No restart storms
-- 1-2s faster first load
+**Results So Far:**
+- 20-30% reduction in API calls (Phase 2 activity-based scheduling)
+- Queue processing smooth with zero backlog
+- Zero failed requests across 8 cycles
+- Expected total: 60-70% fewer API calls (after all phases: 900→200-300)
 
 ---
 
@@ -99,8 +108,14 @@ README_OPTIMIZATIONS.md (this file)
 ├── ADVANCED_OPTIMIZATIONS_QUICK_REFERENCE.md
 │   └── Quick overview of 6 phases, checklist, monitoring
 │
-└── ADVANCED_OPTIMIZATIONS_PATCH.md
-    └── Complete code changes for 6 phases, ~1500 lines
+├── ADVANCED_OPTIMIZATIONS_PATCH.md
+│   └── Complete code changes for 6 phases, ~1500 lines
+│
+├── PHASE2_ACTIVITY_SCHEDULING_PLAN.md
+│   └── Design document for activity-based refresh scheduling (detailed algorithm)
+│
+└── PHASE2_IMPLEMENTATION_SUMMARY.md
+    └── Phase 2 implementation report (scoring examples, test results, metrics)
 ```
 
 ---
@@ -119,17 +134,18 @@ README_OPTIMIZATIONS.md (this file)
 | **429s** | 95% reduction (10-50/day → 0-2) |
 | **UI Speed** | 100x faster metadata, no flicker |
 
-### Advanced Optimization (New)
+### Advanced Optimization (Phases 1-2 Complete)
 
 | | |
 |---|---|
-| **Effort** | 13-17 hours |
-| **Files** | 8 files, ~1500 lines |
+| **Effort** | 13-17 hours (7h done, 6-10h remaining) |
+| **Files** | 8 files, ~1500 lines (~100 lines implemented) |
 | **Risk** | Medium (low for most phases) |
-| **Phases** | 6 sequential phases |
-| **API Reduction** | Additional 30% (350→210 calls/hour) |
+| **Phases** | 6 sequential phases (2 complete) |
+| **API Reduction** | 20-30% already achieved (Phase 2) |
+| **Expected Total** | Additional 30-50% more (Phases 3-6) |
 | **429s** | Prevents future spikes |
-| **Availability** | 95% → 99%+ |
+| **Availability** | Smooth queue processing, 0 errors |
 | **Optional** | Phase 6 (WebSocket) is nice-to-have |
 
 ---

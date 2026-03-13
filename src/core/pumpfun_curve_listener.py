@@ -1246,30 +1246,34 @@ class PumpFunCurveListener:
 
     async def _extract_price_from_transaction(self, signature: str, token_mint: str) -> Optional[tuple]:
         """
-        Extract price from DexScreener (most reliable source).
-
-        DexScreener has real-time, verified pricing from multiple DEX sources.
-        On-chain extraction can have precision/rounding issues, so we prioritize DexScreener.
-
+        Extract on-chain price from pool vault balances.
+        
+        Strategy:
+        1. Get pool address (from DB or extract from transaction)
+        2. Try to query pool account balances (token and SOL)
+        3. If fails, use DexScreener (more reliable)
+        
         Returns: (price_usd, market_cap_usd, source) or None
         """
         try:
-            # Use DexScreener as primary source (most reliable)
-            result = await self._fetch_dexscreener_price(token_mint)
-            if result is not None:
-                price, market_cap = result
-                return (price, market_cap, "dexscreener")
-
-            # Fallback: try on-chain extraction if DexScreener fails
+            # Get or extract pool address
             pool_address = await self._get_pool_address(token_mint, signature)
+            
             if pool_address:
+                # Try to get price from pool balances
                 result = await self._get_price_from_pool_account(pool_address, token_mint)
                 if result is not None:
                     price, market_cap = result
                     return (price, market_cap, "onchain")
-
+            
+            # Fall back to DexScreener (more reliable and always available)
+            result = await self._fetch_dexscreener_price(token_mint)
+            if result is not None:
+                price, market_cap = result
+                return (price, market_cap, "dexscreener")
+            
             return None
-
+                    
         except Exception as e:
             log_print(f"[PRICE_ERROR] Failed to extract price for {token_mint}: {e}", flush=True)
             return None

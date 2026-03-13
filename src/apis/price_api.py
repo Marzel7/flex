@@ -153,7 +153,7 @@ def get_token_symbol_cached(db_path: str, mint: str) -> dict:
     # 1. Check in-memory cache
     if mint in _metadata_cache:
         cached = _metadata_cache[mint]
-        if time.time() - _metadata_cache_time.get(mint, 0) < 1800:
+        if time.time() - _metadata_cache_time.get(mint, 0) < 3600:
             return {
                 'symbol': cached['symbol'],
                 'name': cached['name'],
@@ -163,7 +163,7 @@ def get_token_symbol_cached(db_path: str, mint: str) -> dict:
             }
 
     # 2. Check SQLite cache
-    sqlite_result = _get_metadata_from_sqlite(db_path, mint, max_age=1800)
+    sqlite_result = _get_metadata_from_sqlite(db_path, mint, max_age=3600)
     if sqlite_result:
         # Hydrate memory cache
         _metadata_cache[mint] = {
@@ -274,14 +274,15 @@ def get_token_symbol(mint: str):
 def get_price(mint: str):
     """
     Get current price for a single token.
-    
+
     Query params:
-    - cache_type: 'hot' (10s), 'org' (30s), 'history' (5m). Default: 'hot'
-    
-    Example: GET /api/price/EPjFWaLb3odcccccccccccccccccccccccccccccccccc?cache_type=org
+    - cache_type: 'snapshot' (30s, no upstream), 'hot' (10s), 'org' (30s), 'history' (5m). Default: 'snapshot'
+
+    Dashboard should use default 'snapshot' to avoid triggering upstream calls.
+    Example: GET /api/price/EPjFWaLb3odcccccccccccccccccccccccccccccccccc?cache_type=hot
     """
     try:
-        cache_type = request.args.get('cache_type', 'hot')
+        cache_type = request.args.get('cache_type', 'snapshot')
         service = get_price_service()
         
         price = service.get_token_price_sync(mint, cache_type)

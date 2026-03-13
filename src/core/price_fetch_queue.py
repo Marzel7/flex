@@ -54,6 +54,11 @@ class PriceFetchQueue:
         self.queue = Queue()
         self.active_requests = 0
         self.lock = threading.Lock()
+
+        # EWMA latency tracking (0.8 weight to previous, 0.2 to new)
+        self.latency_ewma = 0.0
+        self.EWMA_ALPHA = 0.8
+
         self.stats = {
             'enqueued': 0,
             'processed': 0,
@@ -134,6 +139,13 @@ class PriceFetchQueue:
                     latency_ms = (time.time() - start_time) * 1000
 
                     with self.lock:
+                        # Update EWMA latency (smoother than arithmetic mean)
+                        if self.latency_ewma == 0.0:
+                            self.latency_ewma = latency_ms
+                        else:
+                            self.latency_ewma = (self.EWMA_ALPHA * self.latency_ewma) + \
+                                              ((1.0 - self.EWMA_ALPHA) * latency_ms)
+
                         self.stats['processed'] += 1
                         self.stats['total_latency_ms'] += latency_ms
                         if self.stats['processed'] > 0:
@@ -168,13 +180,16 @@ class PriceFetchQueue:
                 time.sleep(1)
 
     def get_stats(self) -> Dict:
-        """Return queue statistics."""
+        """Return queue statistics with EWMA-based wait estimate."""
         with self.lock:
             avg_latency = self.stats['avg_latency_ms']
             depth = self.stats['queue_depth']
             request_delay = int(self.request_delay_ms * 1000)
-            # Estimated time in ms a new task would wait if enqueued now
-            queue_wait_estimate_ms = depth * (avg_latency + self.request_delay_ms * 1000)
+
+            # Use EWMA latency for wait estimate (smoother, more responsive to spikes)
+            latency_for_estimate = self.latency_ewma if self.latency_ewma > 0 else avg_latency
+            queue_wait_estimate_ms = depth * (latency_for_estimate + self.request_delay_ms * 1000)
+
             return {
                 'enqueued': self.stats['enqueued'],
                 'processed': self.stats['processed'],
@@ -182,6 +197,7 @@ class PriceFetchQueue:
                 'queue_depth': depth,
                 'active_requests': self.active_requests,
                 'avg_latency_ms': round(avg_latency, 1),
+                'ewma_latency_ms': round(self.latency_ewma, 1),
                 'max_concurrent': self.max_concurrent,
                 'request_delay_ms': request_delay,
                 'queue_wait_estimate_ms': round(queue_wait_estimate_ms, 1),

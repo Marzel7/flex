@@ -2147,6 +2147,20 @@ class PumpFunCurveListener:
             if pool_address:
                 log_print(f"[EVENT] ✅ Pool extracted from cached tx: {pool_address}", flush=True)
 
+                # === AUTO-REGISTER POOL FOR WEBSOCKET PRICING ===
+                # Extract base/quote reserve accounts and register in token_pool_accounts
+                # This enables WebSocket subscriptions on next worker cycle
+                try:
+                    from src.core.pool_discovery import PoolDiscovery
+                    discovery = PoolDiscovery(self.database_path, RPC_HTTP)
+                    registered = await discovery.discover_and_register_pool(pool_address, mint)
+                    if registered:
+                        log_print(f"[POOL] 🚀 Auto-registered pool for WebSocket pricing", flush=True)
+                    else:
+                        log_print(f"[POOL] ⚠️  Could not auto-register pool reserves", flush=True)
+                except Exception as pool_err:
+                    log_print(f"[POOL] ⚠️  Pool auto-registration error: {pool_err}", flush=True)
+
         # Trigger immediate price fetch (don't wait for background task)
         # This ensures market cap appears quickly in UI regardless of analysis settings
         try:

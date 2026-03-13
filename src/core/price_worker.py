@@ -207,6 +207,16 @@ class BackgroundPriceWorker:
         self.running = False
         self.thread = None
         self.queue = get_price_queue()
+
+        # Pool WebSocket client lifecycle
+        from src.core.pool_price_engine import PoolStateStore, PoolWebSocketClient
+        self._pool_state = PoolStateStore()
+        self._ws_client: Optional[PoolWebSocketClient] = None
+        self._ws_started = False
+        self._last_fallback_poll = 0
+        self._sol_price_usd = 0.0
+        self._sol_price_cached_at = 0
+
         self.stats = {
             'cycles': 0,
             'tokens_prefetched': 0,
@@ -217,6 +227,7 @@ class BackgroundPriceWorker:
             'last_error': None,
             'queue_stats': {},
             'pool_prices_fetched': 0,
+            'ws_stats': {},
             'activity_distribution': {
                 'high': 0,
                 'medium': 0,
@@ -237,14 +248,35 @@ class BackgroundPriceWorker:
         self.running = True
         self.thread = threading.Thread(target=self._run_loop, daemon=True)
         self.thread.start()
+
+        # Start WebSocket client for pool subscriptions
+        self._start_ws_client()
+
         logger.info(f"Background price worker started (interval={self.interval}s, using request queue)")
 
     def stop(self) -> None:
         """Stop the background worker."""
+        if self._ws_client:
+            self._ws_client.stop()
         self.running = False
         if self.thread:
             self.thread.join(timeout=5)
         logger.info("Background price worker stopped")
+
+    def _start_ws_client(self) -> None:
+        """Start WebSocket client for registered pools."""
+        try:
+            from src.core.pool_price_engine import get_pool_fetcher
+            fetcher = get_pool_fetcher(self.db_path)
+            pools = fetcher.get_active_pools()
+            if not pools:
+                logger.info("No pools registered — skipping WebSocket client startup")
+                return
+            self._ws_client = self._ws_client or __import__('src.core.pool_price_engine', fromlist=['PoolWebSocketClient']).PoolWebSocketClient(self._pool_state, self.db_path)
+            self._ws_client.start(pools)
+            self._ws_started = True
+        except Exception as e:
+            logger.error(f"Failed to start pool WebSocket client: {e}")
 
     def _run_loop(self) -> None:
         """Main worker loop."""
@@ -350,14 +382,28 @@ class BackgroundPriceWorker:
 
     def _fetch_pool_prices(self) -> None:
         """
-        Batch-fetch all registered pool prices and populate pool_price_cache.
-        Called at start of each refresh cycle before other price fetches.
-        Runs in a new event loop (worker is synchronous).
+        Primary: compute prices from PoolStateStore (updated in real-time by WebSocket).
+        Fallback: run full getMultipleAccounts batch poll every 60s.
         """
-        try:
-            asyncio.run(self._fetch_pool_prices_async())
-        except Exception as e:
-            logger.error(f"Error fetching pool prices: {e}")
+        # Ensure WS client is started if pools were registered after startup
+        if not self._ws_started:
+            self._start_ws_client()
+
+        # Fallback poll: run every 60s regardless of WS state
+        now = time.time()
+        if now - self._last_fallback_poll >= 60:
+            try:
+                asyncio.run(self._fetch_pool_prices_async())
+            except Exception as e:
+                logger.error(f"Pool fallback poll error: {e}")
+            self._last_fallback_poll = now
+
+        # Primary: compute prices from WebSocket-maintained reserve state
+        self._recompute_prices_from_ws_state()
+
+        # Sync WS stats to worker stats
+        if self._ws_client:
+            self.stats['ws_stats'] = dict(self._ws_client.stats)
 
     async def _fetch_pool_prices_async(self) -> None:
         """Async implementation of pool price fetching."""
@@ -408,6 +454,74 @@ class BackgroundPriceWorker:
         self.price_service.pool_price_cache = new_cache
         self.stats["pool_prices_fetched"] = len(new_cache)
         logger.info(f"Pool prices fetched: {len(new_cache)}/{len(pools)} pools")
+
+    def _recompute_prices_from_ws_state(self) -> None:
+        """
+        Recompute pool_price_cache from current PoolStateStore reserves.
+        Called every refresh cycle (10s) — no RPC calls.
+        SOL price is fetched at most once per 30s (cached on self).
+        """
+        try:
+            from src.core.pool_price_engine import (
+                get_pool_fetcher,
+                PoolPriceCalculator,
+                PoolReserveFetcher,
+            )
+
+            fetcher = get_pool_fetcher(self.db_path)
+            pools = fetcher.get_active_pools()
+            if not pools:
+                return
+
+            pool_map = {p["mint"]: p for p in pools}
+
+            # Refresh SOL price at most once per 30s
+            now = time.time()
+            if now - self._sol_price_cached_at > 30:
+                try:
+                    self._sol_price_usd = asyncio.run(PoolPriceCalculator.fetch_sol_price_usd())
+                    self._sol_price_cached_at = now
+                except Exception:
+                    pass  # Keep cached value if fetch fails
+
+            if not self._sol_price_usd:
+                return
+
+            new_cache: Dict[str, TokenPrice] = {}
+
+            for mint in self._pool_state.get_all_mints():
+                reserves = self._pool_state.get_reserves(mint)
+                if not reserves:
+                    continue  # one side not yet received from WS
+
+                base_raw, quote_raw = reserves
+                pool = pool_map.get(mint)
+                if not pool:
+                    continue
+
+                last_price = self.price_service.pool_price_cache.get(mint)
+                last_price_usd = last_price.price_usd if last_price else None
+
+                token_price = PoolPriceCalculator.compute_price(
+                    mint=mint,
+                    base_reserve_raw=base_raw,
+                    quote_reserve_raw=quote_raw,
+                    base_decimals=pool["base_decimals"],
+                    quote_decimals=pool["quote_decimals"],
+                    quote_is_sol=(
+                        pool["quote_token"] == PoolReserveFetcher.SOL_MINT
+                    ),
+                    sol_price_usd=self._sol_price_usd,
+                    last_cached_price=last_price_usd,
+                )
+                if token_price:
+                    new_cache[mint] = token_price
+
+            self.price_service.pool_price_cache = new_cache
+            self.stats["pool_prices_fetched"] = len(new_cache)
+
+        except Exception as e:
+            logger.error(f"Error recomputing prices from WS state: {e}")
 
     def _sync_new_tokens(self) -> None:
         """

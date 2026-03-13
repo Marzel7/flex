@@ -214,7 +214,13 @@ class BackgroundPriceWorker:
             'errors': 0,
             'last_run': None,
             'last_error': None,
-            'queue_stats': {}
+            'queue_stats': {},
+            'activity_distribution': {
+                'high': 0,
+                'medium': 0,
+                'low': 0,
+                'dormant': 0
+            }
         }
 
     def start(self) -> None:
@@ -251,14 +257,22 @@ class BackgroundPriceWorker:
                 time.sleep(self.interval)
 
     def _refresh_cycle(self) -> None:
-        """One complete refresh cycle with request queue."""
+        """One complete refresh cycle with activity-based scheduling."""
         cycle_start = time.time()
         self.stats['cycles'] += 1
+
+        # Reset activity distribution for this cycle
+        self.stats['activity_distribution'] = {
+            'high': 0,
+            'medium': 0,
+            'low': 0,
+            'dormant': 0
+        }
 
         # First, sync new tokens from token_analysis to tracked_tokens
         self._sync_new_tokens()
 
-        # Get tokens to refresh
+        # Get tokens to refresh based on activity
         tokens_to_fetch = self._get_tokens_for_refresh()
 
         if not tokens_to_fetch:
@@ -285,8 +299,12 @@ class BackgroundPriceWorker:
 
         logger.debug(
             f"Prefetch cycle {self.stats['cycles']}: "
-            f"enqueued {len(tasks)} tokens, cycle time {duration:.2f}s, "
-            f"queue depth {self.queue.get_stats()['queue_depth']}"
+            f"enqueued {len(tasks)} tokens (activity-based), "
+            f"queue depth {self.queue.get_stats()['queue_depth']}, "
+            f"activity: high={self.stats['activity_distribution']['high']} "
+            f"medium={self.stats['activity_distribution']['medium']} "
+            f"low={self.stats['activity_distribution']['low']} "
+            f"dormant={self.stats['activity_distribution']['dormant']}"
         )
 
     def _sync_new_tokens(self) -> None:
@@ -305,32 +323,193 @@ class BackgroundPriceWorker:
 
     def _get_tokens_for_refresh(self) -> List[Dict]:
         """
-        Get tokens for refresh based on adaptive scheduling.
+        Get tokens for refresh based on computed activity scores.
 
-        Schedule:
-        - HIGH: every 5-10 seconds (every cycle)
-        - MEDIUM: every 30 seconds (every 3 cycles)
-        - LOW: every 2-5 minutes (every 20+ cycles)
+        Replaces static HIGH/MEDIUM/LOW scheduling with dynamic activity scoring.
+        Activity computed from volume, market cap, price movement, and age.
         """
         tokens_to_fetch = []
+        now = int(time.time())
 
-        # HIGH priority: every cycle (10s)
-        high_priority = self.registry.get_tracked_tokens('HIGH')
-        tokens_to_fetch.extend(high_priority)
+        try:
+            # Get all active tokens
+            all_tokens = self.registry.get_tracked_tokens(active_only=True)
 
-        # MEDIUM priority: every 3 cycles (30s)
-        if self.stats['cycles'] % 3 == 0:
-            medium_priority = self.registry.get_tracked_tokens('MEDIUM')
-            # Take half of medium tokens for load balancing
-            tokens_to_fetch.extend(medium_priority[:len(medium_priority)//2])
+            for token in all_tokens:
+                # Compute activity level
+                activity = self._compute_activity_score(token)
+                interval = self._get_refresh_interval_for_activity(activity)
 
-        # LOW priority: every 20 cycles (200s / ~3 minutes)
-        if self.stats['cycles'] % 20 == 0:
-            low_priority = self.registry.get_tracked_tokens('LOW')
-            # Take quarter of low tokens for load balancing
-            tokens_to_fetch.extend(low_priority[:len(low_priority)//4])
+                # Check if this token is due for refresh
+                last_update = token.get('last_price_update', 0)
+                time_since_update = now - last_update
 
-        return tokens_to_fetch
+                if time_since_update >= interval:
+                    tokens_to_fetch.append(token)
+
+                # Track activity distribution
+                self.stats['activity_distribution'][activity] += 1
+
+            # Limit batch size to prevent overload
+            return tokens_to_fetch[:20]
+
+        except Exception as e:
+            logger.error(f"Error getting tokens for refresh: {e}")
+            return []
+
+
+    def _compute_activity_score(self, token: Dict) -> str:
+        """
+        Compute activity level for a token.
+
+        Scores based on:
+        - Market cap (40% weight): Current vs peak
+        - Price (30% weight): Has current price fetched
+        - Price movement (20% weight): 1h price change %
+        - Age (10% weight): Token age
+
+        Returns: 'high', 'medium', 'low', or 'dormant'
+        """
+        try:
+            score = 0
+
+            # Market cap score (40% weight, 0-40 points)
+            # Higher score if close to peak (still active) vs far from peak (declining)
+            current_mc = token.get('market_cap_current', 0) or 0
+            peak_mc = token.get('market_cap_highest', 0) or 0
+            if peak_mc > 0:
+                ratio = current_mc / peak_mc
+                if ratio > 0.8:
+                    mc_score = 40
+                elif ratio > 0.5:
+                    mc_score = 28
+                elif ratio > 0.25:
+                    mc_score = 16
+                else:
+                    mc_score = 4
+            else:
+                mc_score = 4
+            score += mc_score
+
+            # Price score (30% weight, 0-30 points)
+            # Indicate if token has recent price data (active trading)
+            current_price = token.get('price_current', 0) or 0
+            if current_price > 0:
+                price_score = 30  # Has current price
+            else:
+                price_score = 5  # No current price
+            score += price_score
+
+            # Price movement score (20% weight, 0-20 points)
+            price_movement_score = self._compute_price_movement_score(token['mint'])
+            score += price_movement_score
+
+            # Age score (10% weight, 0-10 points)
+            created_at = token.get('created_at')
+            if created_at:
+                try:
+                    from datetime import datetime
+                    # created_at might be a timestamp (numeric) or ISO string
+                    if isinstance(created_at, (int, float)):
+                        created_time = datetime.fromtimestamp(created_at)
+                    else:
+                        created_time = datetime.fromisoformat(str(created_at))
+                    age_seconds = (datetime.now() - created_time).total_seconds()
+
+                    if age_seconds < 300:  # < 5 min
+                        age_score = 10
+                    elif age_seconds < 1800:  # < 30 min
+                        age_score = 8
+                    elif age_seconds < 3600:  # < 1 hour
+                        age_score = 6
+                    elif age_seconds < 86400:  # < 24 hours
+                        age_score = 4
+                    else:
+                        age_score = 1
+                except Exception:
+                    age_score = 1
+            else:
+                age_score = 1
+            score += age_score
+
+            # Map score to activity level
+            if score >= 75:
+                return 'high'
+            elif score >= 40:
+                return 'medium'
+            elif score >= 20:
+                return 'low'
+            else:
+                return 'dormant'
+
+        except Exception as e:
+            logger.warning(f"Error computing activity for {token.get('mint')}: {e}")
+            return 'medium'  # Safe default  # Safe default
+
+    def _compute_price_movement_score(self, mint: str) -> int:
+        """
+        Compute price movement in last hour.
+
+        Returns: 0-20 points
+        """
+        try:
+            import sqlite3
+            from datetime import datetime, timedelta
+
+            conn = sqlite3.connect(self.db_path, timeout=5)
+            cursor = conn.cursor()
+
+            # Get prices from last 1 hour
+            one_hour_ago = int((datetime.now() - timedelta(hours=1)).timestamp())
+            cursor.execute("""
+                SELECT price_usd FROM token_price_snapshots
+                WHERE mint = ? AND captured_at > ?
+                ORDER BY captured_at DESC
+                LIMIT 2
+            """, (mint, one_hour_ago))
+
+            rows = cursor.fetchall()
+            conn.close()
+
+            if len(rows) < 2:
+                return 5  # Not enough data, neutral score
+
+            current_price = rows[0][0] or 0
+            older_price = rows[-1][0] or 0
+
+            if older_price == 0:
+                return 5
+
+            change_pct = abs((current_price - older_price) / older_price) * 100
+
+            if change_pct > 50:
+                return 20
+            elif change_pct > 25:
+                return 15
+            elif change_pct > 10:
+                return 10
+            elif change_pct > 5:
+                return 5
+            else:
+                return 2
+
+        except Exception as e:
+            logger.debug(f"Error computing price movement for {mint}: {e}")
+            return 5
+
+    def _get_refresh_interval_for_activity(self, activity: str) -> int:
+        """
+        Get refresh interval in seconds for activity level.
+
+        Returns: seconds between refreshes
+        """
+        intervals = {
+            'high': 10,      # 10s for very active tokens
+            'medium': 30,    # 30s for moderately active
+            'low': 90,       # 90s for less active
+            'dormant': 180   # 3 min for dormant (conservative)
+        }
+        return intervals.get(activity, 30)
 
     def _batch_fetch_prices(self, mints: List[str]) -> None:
         """Fetch prices for a list of mints in batches and track peak market cap."""

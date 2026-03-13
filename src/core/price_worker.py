@@ -359,10 +359,10 @@ class BackgroundPriceWorker:
 
     def _get_tokens_for_refresh(self) -> List[Dict]:
         """
-        Get tokens for refresh based on computed activity scores.
+        Get tokens for refresh based on priority_level.
 
-        Replaces static HIGH/MEDIUM/LOW scheduling with dynamic activity scoring.
-        Activity computed from volume, market cap, price movement, and age.
+        Uses explicit priority tiers (HIGH/MEDIUM/LOW/DORMANT) for scheduling.
+        Each tier has a fixed refresh interval.
         """
         tokens_to_fetch = []
         now = int(time.time())
@@ -372,9 +372,9 @@ class BackgroundPriceWorker:
             all_tokens = self.registry.get_tracked_tokens(active_only=True)
 
             for token in all_tokens:
-                # Compute activity level
-                activity = self._compute_activity_score(token)
-                interval = self._get_refresh_interval_for_activity(activity)
+                # Use priority_level directly
+                priority = token.get('priority_level', 'LOW').upper()
+                interval = self._get_refresh_interval_for_activity(priority)
 
                 # Check if this token is due for refresh
                 last_update = token.get('last_price_update', 0)
@@ -383,8 +383,9 @@ class BackgroundPriceWorker:
                 if time_since_update >= interval:
                     tokens_to_fetch.append(token)
 
-                # Track activity distribution
-                self.stats['activity_distribution'][activity] += 1
+                # Track priority distribution
+                self.stats['activity_distribution'][priority.lower()] = \
+                    self.stats['activity_distribution'].get(priority.lower(), 0) + 1
 
             # Limit batch size to prevent overload
             return tokens_to_fetch[:20]

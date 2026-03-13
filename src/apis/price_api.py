@@ -846,7 +846,12 @@ def register_tokens_batch():
     - Price warm-up: HIGH priority (always)
     - Metadata warm-up: LOW priority (if queue not busy)
 
-    Body: {"mints": ["mint1", "mint2", ...]}
+    Body: {
+        "mints": ["mint1", "mint2", ...],
+        "priority_levels": {"mint1": "HIGH", "mint2": "MEDIUM"}  # Optional
+    }
+
+    If priority_levels not provided, defaults to MEDIUM for all.
 
     Returns: {
         "registered": count,
@@ -861,6 +866,7 @@ def register_tokens_batch():
 
         data = request.get_json()
         mints = data.get('mints', [])
+        priority_levels = data.get('priority_levels', {})  # Dict: {mint: priority_level}
 
         if not mints or not isinstance(mints, list):
             return jsonify({'error': 'mints must be a non-empty list'}), 400
@@ -872,9 +878,9 @@ def register_tokens_batch():
         registered = 0
 
         for mint in mints:
-            # Use MEDIUM priority (30s refresh) to avoid rate limiting with large token sets
-            # This still provides frequent updates while respecting API rate limits
-            if mint and registry.register_token(mint, priority_level='MEDIUM'):
+            # Use priority_levels if provided, otherwise default to MEDIUM
+            priority = priority_levels.get(mint, 'MEDIUM')
+            if mint and registry.register_token(mint, priority_level=priority):
                 registered += 1
 
         # Phase 5: Enqueue warm-ups (non-blocking)

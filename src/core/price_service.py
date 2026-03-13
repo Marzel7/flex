@@ -97,7 +97,7 @@ class DexscreenerClient:
             url = f"{DexscreenerClient.BASE_URL}/tokens/{mint}"
             
             async with aiohttp.ClientSession() as session:
-                async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as resp:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=1.5)) as resp:
                     if resp.status != 200:
                         logger.warning(f"Dexscreener {resp.status} for {mint}")
                         return None
@@ -170,7 +170,7 @@ class JupiterClient:
             }
             
             async with aiohttp.ClientSession() as session:
-                async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=5)) as resp:
+                async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=1.2)) as resp:
                     if resp.status != 200:
                         logger.debug(f"Jupiter {resp.status} for {mint}")
                         return None
@@ -266,6 +266,19 @@ class TokenPriceService:
     def __init__(self, db_path: str = 'database/flex_complete_database.db'):
         self.db_path = db_path
         self.cache = PriceCache()
+        self.stats = {
+            'dexscreener_attempted': 0,
+            'dexscreener_success': 0,
+            'dexscreener_fail': 0,
+            'jupiter_attempted': 0,
+            'jupiter_success': 0,
+            'jupiter_fail': 0,
+            'birdeye_attempted': 0,
+            'birdeye_success': 0,
+            'birdeye_fail': 0,
+            'stale_fallback': 0,
+            'unavailable': 0,
+        }
         self._ensure_tables()
         logger.info("TokenPriceService initialized")
     
@@ -377,49 +390,68 @@ class TokenPriceService:
     
     async def get_token_price(self, mint: str, cache_type: str = 'hot') -> TokenPrice:
         """
-        Get token price with multi-source fallback logic.
+        Get token price with multi-source fallback and 3-second budget.
 
         Priority:
         1. In-memory cache (hot)
-        2. Dexscreener
-        3. Jupiter
-        4. Birdeye
+        2. Dexscreener (1.5s timeout)
+        3. Jupiter (1.2s timeout)
+        4. Birdeye (1.0s timeout)
         5. Database cache (stale)
         6. Unavailable
+
+        Total budget: 3 seconds across all sources.
         """
-        # Try in-memory cache
+        TOTAL_BUDGET_SECS = 3.0
+        fetch_start = time.time()
+
+        # Try in-memory cache (no budget check — free)
         cached = self.cache.get(mint, cache_type)
         if cached:
             return cached
 
         # Try Dexscreener
-        dex_price = await DexscreenerClient.get_price(mint)
-        if dex_price:
-            self.cache.set(mint, dex_price)
-            self._store_snapshot(dex_price)
-            return dex_price
+        if time.time() - fetch_start < TOTAL_BUDGET_SECS:
+            self.stats['dexscreener_attempted'] += 1
+            dex_price = await DexscreenerClient.get_price(mint)
+            if dex_price:
+                self.stats['dexscreener_success'] += 1
+                self.cache.set(mint, dex_price)
+                self._store_snapshot(dex_price)
+                return dex_price
+            self.stats['dexscreener_fail'] += 1
 
         # Try Jupiter
-        jup_price = await JupiterClient.get_price(mint)
-        if jup_price:
-            self.cache.set(mint, jup_price)
-            self._store_snapshot(jup_price)
-            return jup_price
+        if time.time() - fetch_start < TOTAL_BUDGET_SECS:
+            self.stats['jupiter_attempted'] += 1
+            jup_price = await JupiterClient.get_price(mint)
+            if jup_price:
+                self.stats['jupiter_success'] += 1
+                self.cache.set(mint, jup_price)
+                self._store_snapshot(jup_price)
+                return jup_price
+            self.stats['jupiter_fail'] += 1
 
         # Try Birdeye (final fallback before stale cache)
-        birdeye_price = await BirdeyeClient.get_price(mint)
-        if birdeye_price:
-            self.cache.set(mint, birdeye_price)
-            self._store_snapshot(birdeye_price)
-            return birdeye_price
+        if time.time() - fetch_start < TOTAL_BUDGET_SECS:
+            self.stats['birdeye_attempted'] += 1
+            birdeye_price = await BirdeyeClient.get_price(mint)
+            if birdeye_price:
+                self.stats['birdeye_success'] += 1
+                self.cache.set(mint, birdeye_price)
+                self._store_snapshot(birdeye_price)
+                return birdeye_price
+            self.stats['birdeye_fail'] += 1
 
-        # Try database cache (stale)
+        # Try database cache (stale) — always attempt, no budget check
         db_price = self._get_cached_price(mint)
         if db_price:
+            self.stats['stale_fallback'] += 1
             self.cache.set(mint, db_price)
             return db_price
 
         # Unavailable
+        self.stats['unavailable'] += 1
         unavailable = TokenPrice(
             mint=mint,
             price_usd=0,

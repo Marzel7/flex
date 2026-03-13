@@ -383,20 +383,35 @@ class BackgroundPriceWorker:
     def _fetch_pool_prices(self) -> None:
         """
         Primary: compute prices from PoolStateStore (updated in real-time by WebSocket).
-        Fallback: run full getMultipleAccounts batch poll every 60s.
+        Fallback: run full getMultipleAccounts batch poll every 60s, or every 30s if WS is stale.
         """
         # Ensure WS client is started if pools were registered after startup
         if not self._ws_started:
             self._start_ws_client()
 
-        # Fallback poll: run every 60s regardless of WS state
         now = time.time()
-        if now - self._last_fallback_poll >= 60:
+
+        # Check for stale WS (no events >2 minutes) — force more frequent fallback poll
+        ws_is_stale = False
+        if self._ws_client:
+            time_since_last_event = now - self._ws_client._last_event_received
+            if time_since_last_event > self._ws_client.WS_STALE_THRESHOLD:
+                ws_is_stale = True
+                self._ws_client.stats["is_stale"] = True
+                if now - self._last_fallback_poll >= 30:
+                    logger.warning(f"WS stale for {time_since_last_event:.0f}s — triggering fallback poll")
+
+        # Fallback poll: every 60s normally, every 30s if WS is stale
+        poll_interval = 30 if ws_is_stale else 60
+        if now - self._last_fallback_poll >= poll_interval:
             try:
                 asyncio.run(self._fetch_pool_prices_async())
             except Exception as e:
                 logger.error(f"Pool fallback poll error: {e}")
             self._last_fallback_poll = now
+
+        # Check for pools marked as stale by PoolStateStore (no updates >5 min)
+        stale_mints = self._pool_state.mark_stale_pools(now)
 
         # Primary: compute prices from WebSocket-maintained reserve state
         self._recompute_prices_from_ws_state()

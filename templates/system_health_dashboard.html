@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Health Dashboard</title>
+
+    <!-- Bootstrap 5.3 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Font Awesome 6.4 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js 4.4 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        :root {
+            --color-critical: #ef4444;
+            --color-high: #f97316;
+            --color-watch: #eab308;
+            --color-low: #84cc16;
+            --color-success: #22c55e;
+            --color-neutral: #6b7280;
+            --color-primary: #3b82f6;
+            --color-secondary: #6366f1;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text-secondary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            padding: 1rem 0;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            padding: 1rem 1.5rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-section {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-section-title {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #94a3b8;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-link {
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .nav-link.active {
+            color: var(--color-primary);
+            background: rgba(59, 130, 246, 0.15);
+            border-left: 3px solid var(--color-primary);
+            padding-left: calc(1.5rem - 3px);
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn-refresh {
+            padding: 0.5rem 1rem;
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--color-primary);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .btn-refresh:hover {
+            background: rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-refresh.refreshing {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .status-healthy {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--color-success);
+        }
+
+        .status-warning {
+            background: rgba(234, 179, 8, 0.15);
+            color: var(--color-watch);
+        }
+
+        .status-critical {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--color-critical);
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.healthy { background: var(--color-success); }
+        .status-dot.warning { background: var(--color-watch); }
+        .status-dot.critical { background: var(--color-critical); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title i {
+            color: var(--color-primary);
+        }
+
+        .metric {
+            margin-bottom: 1.5rem;
+        }
+
+        .metric:last-child {
+            margin-bottom: 0;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .metric-value.small {
+            font-size: 1.25rem;
+        }
+
+        .metric-bar {
+            width: 100%;
+            height: 0.5rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 0.25rem;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .metric-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            border-radius: 0.25rem;
+            transition: width 0.3s ease;
+        }
+
+        .metric-bar-fill.warning {
+            background: linear-gradient(90deg, var(--color-watch), var(--color-high));
+        }
+
+        .metric-bar-fill.critical {
+            background: linear-gradient(90deg, var(--color-critical), var(--color-high));
+        }
+
+        .list-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-label {
+            color: var(--text-secondary);
+        }
+
+        .list-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-active {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--color-success);
+        }
+
+        .badge-inactive {
+            background: rgba(107, 114, 128, 0.2);
+            color: var(--color-neutral);
+        }
+
+        .badge-enabled {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--color-primary);
+        }
+
+        .wide-card {
+            grid-column: 1 / -1;
+        }
+
+        .pool-health-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .pool-health-table th {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .pool-health-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.05);
+        }
+
+        .pool-health-table tbody tr:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .refresh-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+            margin-top: 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-brand">FLEX</div>
+        <div class="nav-section">
+            <div class="nav-section-title">Analytics</div>
+            <a href="/" class="nav-link"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="/networks" class="nav-link"><i class="fas fa-project-diagram"></i> Networks</a>
+            <a href="/clusters" class="nav-link"><i class="fas fa-object-group"></i> Clusters</a>
+            <a href="/coordinated-funders" class="nav-link"><i class="fas fa-users"></i> Coordinated Funders</a>
+            <a href="/top-funding-hubs" class="nav-link"><i class="fas fa-tower-broadcast"></i> Top Hubs</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Operations</div>
+            <a href="/system-health" class="nav-link active"><i class="fas fa-heartbeat"></i> System Health</a>
+            <a href="/rpc-savings-dashboard" class="nav-link"><i class="fas fa-bolt"></i> RPC Savings</a>
+            <a href="/metrics/rpc" class="nav-link"><i class="fas fa-chart-bar"></i> RPC Metrics</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header>
+            <div>
+                <h1><i class="fas fa-heartbeat" style="color: var(--color-success);"></i> System Health</h1>
+                <p style="color: var(--text-secondary); margin: 0.5rem 0 0; font-size: 0.9rem;">Real-time monitoring of price service, WebSocket pools, and API health</p>
+            </div>
+            <div class="controls">
+                <button class="btn-refresh" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <div id="lastUpdate" style="font-size: 0.9rem; color: var(--text-secondary);">Fetching...</div>
+            </div>
+        </header>
+
+        <!-- Overall Status -->
+        <div class="grid">
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="card-title"><i class="fas fa-pulse"></i> Overall Service Status</div>
+                <div style="display: flex; gap: 2rem;">
+                    <div id="overallStatus"></div>
+                    <div id="workerStatus"></div>
+                    <div id="wsStatus"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WebSocket & Pool Stats -->
+        <div class="grid">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-wifi"></i> WebSocket Pool Stats</div>
+                <div id="wsPoolStats" class="loading"><span class="spinner"></span> Loading...</div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-layer-group"></i> Pool Pricing</div>
+                <div id="poolPricingStats" class="loading"><span class="spinner"></span> Loading...</div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-check-circle"></i> Aggregation Status</div>
+                <div id="aggregationStats" class="loading"><span class="spinner"></span> Loading...</div>
+            </div>
+        </div>
+
+        <!-- Worker & Cache -->
+        <div class="grid">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-cogs"></i> Worker Status</div>
+                <div id="workerDetails" class="loading"><span class="spinner"></span> Loading...</div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-database"></i> Cache Performance</div>
+                <div id="cacheStats" class="loading"><span class="spinner"></span> Loading...</div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-hourglass-half"></i> Queue Status</div>
+                <div id="queueStats" class="loading"><span class="spinner"></span> Loading...</div>
+            </div>
+        </div>
+
+        <!-- Source Health -->
+        <div class="grid">
+            <div class="card wide-card">
+                <div class="card-title"><i class="fas fa-heartbeat"></i> Price Source Health</div>
+                <div id="sourceHealth"></div>
+            </div>
+        </div>
+
+        <!-- Circuit Breaker -->
+        <div class="grid">
+            <div class="card wide-card">
+                <div class="card-title"><i class="fas fa-shield-alt"></i> Circuit Breaker Status</div>
+                <div id="circuitBreaker"></div>
+            </div>
+        </div>
+
+        <!-- Rolling Window Stats -->
+        <div class="grid">
+            <div class="card wide-card">
+                <div class="card-title"><i class="fas fa-window-maximize"></i> Rolling Window (5-min)</div>
+                <div id="rollingWindow"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+
+        async function fetchHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/price/health`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('Health fetch failed:', error);
+                return null;
+            }
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return 'Never';
+            const date = new Date(timestamp * 1000);
+            return date.toLocaleTimeString();
+        }
+
+        function formatDuration(seconds) {
+            if (seconds < 60) return `${Math.round(seconds)}s`;
+            if (seconds < 3600) return `${Math.round(seconds / 60)}m`;
+            return `${Math.round(seconds / 3600)}h`;
+        }
+
+        function getStatusColor(healthy) {
+            return healthy ? 'healthy' : 'critical';
+        }
+
+        function renderOverallStatus(data) {
+            const healthy = data?.status === 'healthy' && data?.worker_running;
+            const html = `
+                <div class="status-indicator status-${getStatusColor(healthy)}">
+                    <span class="status-dot ${getStatusColor(healthy)}"></span>
+                    Service: ${data?.status?.toUpperCase() || 'UNKNOWN'}
+                </div>
+            `;
+            document.getElementById('overallStatus').innerHTML = html;
+        }
+
+        function renderWorkerStatus(data) {
+            const running = data?.worker_running;
+            const html = `
+                <div class="status-indicator status-${getStatusColor(running)}">
+                    <span class="status-dot ${getStatusColor(running)}"></span>
+                    Worker: ${running ? 'RUNNING' : 'STOPPED'}
+                </div>
+            `;
+            document.getElementById('workerStatus').innerHTML = html;
+        }
+
+        function renderWSStatus(data) {
+            const connected = data?.pool_stats?.ws?.connected;
+            const html = `
+                <div class="status-indicator status-${getStatusColor(connected)}">
+                    <span class="status-dot ${getStatusColor(connected)}"></span>
+                    WebSocket: ${connected ? 'CONNECTED' : 'DISCONNECTED'}
+                </div>
+            `;
+            document.getElementById('wsStatus').innerHTML = html;
+        }
+
+        function renderWSPoolStats(data) {
+            const ws = data?.pool_stats?.ws || {};
+            const stale = ws.is_stale ? 'warning' : 'healthy';
+            const html = `
+                <div class="metric">
+                    <div class="metric-label">Connected</div>
+                    <div class="metric-value small">${ws.connected ? '✓ Yes' : '✗ No'}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Subscriptions</div>
+                    <div class="metric-value small">${ws.subscriptions || 0}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Events Received</div>
+                    <div class="metric-value small">${ws.events_received || 0}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Events Decoded</div>
+                    <div class="metric-value small">${ws.events_decoded || 0}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Deduplicated</div>
+                    <div class="metric-value small">${ws.events_deduplicated || 0}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Reconnects</div>
+                    <div class="metric-value small">${ws.reconnects || 0}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Status</div>
+                    <div style="margin-top: 0.5rem;">
+                        <span class="badge badge-${stale}">${ws.is_stale ? '⚠ STALE' : '✓ HEALTHY'}</span>
+                    </div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Last Event</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${formatTime(ws.last_event_at)}</div>
+                </div>
+            `;
+            document.getElementById('wsPoolStats').innerHTML = html;
+        }
+
+        function renderPoolPricingStats(data) {
+            const pool = data?.pool_stats || {};
+            const total = (pool.pool_attempted || 0) + 1; // avoid div by zero
+            const successRate = pool.pool_success ? Math.round((pool.pool_success / total) * 100) : 0;
+            const html = `
+                <div class="metric">
+                    <div class="metric-label">Pools Registered</div>
+                    <div class="metric-value small">${pool.pools_registered || 0}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Prices Cached</div>
+                    <div class="metric-value small">${pool.pool_prices_cached || 0}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Last Cycle Fetched</div>
+                    <div class="metric-value small">${pool.pool_prices_fetched_last_cycle || 0}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Success Rate</div>
+                    <div class="metric-value small">${successRate}%</div>
+                    <div class="metric-bar">
+                        <div class="metric-bar-fill" style="width: ${successRate}%;"></div>
+                    </div>
+                </div>
+                <div class="list-item">
+                    <span class="list-label">Attempted</span>
+                    <span class="list-value">${pool.pool_attempted || 0}</span>
+                </div>
+                <div class="list-item">
+                    <span class="list-label">Success</span>
+                    <span class="list-value" style="color: var(--color-success);">+${pool.pool_success || 0}</span>
+                </div>
+                <div class="list-item">
+                    <span class="list-label">Failed</span>
+                    <span class="list-value" style="color: var(--color-critical);">-${pool.pool_fail || 0}</span>
+                </div>
+            `;
+            document.getElementById('poolPricingStats').innerHTML = html;
+        }
+
+        function renderAggregationStats(data) {
+            const ws = data?.pool_stats?.ws || {};
+            const enabled = ws.multi_pool_enabled;
+            const subCount = ws.subscriptions || 0;
+            const poolCount = Math.floor(subCount / 2); // 2 accounts per pool
+            const html = `
+                <div class="metric">
+                    <div class="metric-label">Multi-Pool</div>
+                    <div style="margin-top: 0.5rem;">
+                        <span class="badge badge-${enabled ? 'enabled' : 'inactive'}">${enabled ? '✓ ENABLED' : '✗ DISABLED'}</span>
+                    </div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Active Pools</div>
+                    <div class="metric-value small">${poolCount}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Aggregation Strategy</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">Liquidity-Weighted Selection</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Price Source</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">pool(N) where N = pool count</div>
+                </div>
+            `;
+            document.getElementById('aggregationStats').innerHTML = html;
+        }
+
+        function renderWorkerDetails(data) {
+            const worker = data?.worker_stats?.worker || {};
+            const cycles = worker.cycles || 0;
+            const errors = worker.errors || 0;
+            const errorRate = cycles ? Math.round((errors / cycles) * 100) : 0;
+            const html = `
+                <div class="metric">
+                    <div class="metric-label">Cycles Completed</div>
+                    <div class="metric-value small">${cycles}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Errors</div>
+                    <div class="metric-value small" style="color: errors > 0 ? 'var(--color-critical)' : 'var(--text-primary)';">${errors}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Error Rate</div>
+                    <div class="metric-value small">${errorRate}%</div>
+                    <div class="metric-bar">
+                        <div class="metric-bar-fill ${errorRate > 5 ? 'critical' : errorRate > 2 ? 'warning' : ''}" style="width: ${Math.min(errorRate * 10, 100)}%;"></div>
+                    </div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Last Run</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${worker.last_run ? Math.round(worker.last_run * 1000) : 0}ms ago</div>
+                </div>
+            `;
+            document.getElementById('workerDetails').innerHTML = html;
+        }
+
+        function renderCacheStats(data) {
+            const cache = data?.cache_size || 0;
+            const hits = data?.worker_stats?.worker?.cache_hits || 0;
+            const total = hits + 1;
+            const hitRate = Math.round((hits / total) * 100);
+            const html = `
+                <div class="metric">
+                    <div class="metric-label">Cache Size</div>
+                    <div class="metric-value small">${cache}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Cache Hits</div>
+                    <div class="metric-value small">${hits}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Hit Rate</div>
+                    <div class="metric-value small">${hitRate}%</div>
+                    <div class="metric-bar">
+                        <div class="metric-bar-fill" style="width: ${hitRate}%;"></div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('cacheStats').innerHTML = html;
+        }
+
+        function renderQueueStats(data) {
+            const queue = data?.worker_stats?.worker?.queue_stats || {};
+            const depth = queue.queue_depth || 0;
+            const processed = queue.processed || 0;
+            const failed = queue.failed || 0;
+            const avgLatency = queue.avg_latency_ms || 0;
+            const html = `
+                <div class="metric">
+                    <div class="metric-label">Queue Depth</div>
+                    <div class="metric-value small">${depth}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Processed</div>
+                    <div class="metric-value small">${processed}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Failed</div>
+                    <div class="metric-value small" style="color: failed > 0 ? 'var(--color-critical)' : 'var(--text-primary)';">${failed}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Avg Latency</div>
+                    <div class="metric-value small">${avgLatency.toFixed(1)}ms</div>
+                    <div class="metric-bar">
+                        <div class="metric-bar-fill" style="width: ${Math.min(avgLatency / 5, 100)}%;"></div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('queueStats').innerHTML = html;
+        }
+
+        function renderSourceHealth(data) {
+            const stats = data?.worker_stats?.worker?.source_stats || {};
+            const sources = ['pool', 'dexscreener', 'jupiter', 'birdeye', 'stale_fallback', 'unavailable'];
+            let html = '<div style="overflow-x: auto;">';
+            html += '<table class="pool-health-table"><thead><tr><th>Source</th><th>Attempted</th><th>Success</th><th>Failed</th><th>Success Rate</th></tr></thead><tbody>';
+
+            sources.forEach(source => {
+                const attempted = stats[`${source}_attempted`] || 0;
+                const success = stats[`${source}_success`] || 0;
+                const failed = stats[`${source}_fail`] || 0;
+                const rate = attempted ? Math.round((success / attempted) * 100) : 0;
+                const color = rate >= 90 ? 'var(--color-success)' : rate >= 70 ? 'var(--color-watch)' : 'var(--color-critical)';
+
+                html += `<tr>
+                    <td><strong>${source.replace(/_/g, ' ').toUpperCase()}</strong></td>
+                    <td>${attempted}</td>
+                    <td style="color: var(--color-success);">+${success}</td>
+                    <td style="color: var(--color-critical);">-${failed}</td>
+                    <td><span style="color: ${color}; font-weight: 600;">${rate}%</span></td>
+                </tr>`;
+            });
+
+            html += '</tbody></table></div>';
+            document.getElementById('sourceHealth').innerHTML = html;
+        }
+
+        function renderCircuitBreaker(data) {
+            const cb = data?.worker_stats?.worker?.circuit_breaker || {};
+            const sources = ['pool', 'dexscreener', 'jupiter', 'birdeye'];
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">';
+
+            sources.forEach(source => {
+                const disabled = cb[source]?.disabled;
+                const cooldown = cb[source]?.cooldown_remaining_secs || 0;
+                const status = disabled ? 'DISABLED' : 'ACTIVE';
+                const statusClass = disabled ? 'critical' : 'healthy';
+
+                html += `<div style="padding: 1rem; background: rgba(59, 130, 246, 0.05); border: 1px solid var(--border-color); border-radius: 0.375rem;">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.85rem;">${source}</div>
+                    <div class="badge badge-${disabled ? 'inactive' : 'active'}">${status}</div>
+                    ${cooldown > 0 ? `<div style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--color-watch);">Cooldown: ${Math.round(cooldown)}s</div>` : ''}
+                </div>`;
+            });
+
+            html += '</div>';
+            document.getElementById('circuitBreaker').innerHTML = html;
+        }
+
+        function renderRollingWindow(data) {
+            const rw = data?.rolling_window_stats || {};
+            const sources = ['pool', 'dexscreener', 'jupiter', 'birdeye'];
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">';
+
+            sources.forEach(source => {
+                const stat = rw[source] || {};
+                const attempts = stat.attempts_in_window || 0;
+                const successRate = stat.success_rate ? Math.round(stat.success_rate * 100) : 0;
+                const failureRate = stat.failure_rate ? Math.round(stat.failure_rate * 100) : 0;
+
+                html += `<div style="padding: 1rem; background: rgba(59, 130, 246, 0.05); border: 1px solid var(--border-color); border-radius: 0.375rem;">
+                    <div style="font-weight: 600; margin-bottom: 1rem; text-transform: uppercase; font-size: 0.85rem;">${source}</div>
+                    <div class="metric">
+                        <div class="metric-label">Attempts</div>
+                        <div class="metric-value small">${attempts}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Success Rate</div>
+                        <div class="metric-value small" style="color: var(--color-success);">${successRate}%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Failure Rate</div>
+                        <div class="metric-value small" style="color: var(--color-critical);">${failureRate}%</div>
+                    </div>
+                </div>`;
+            });
+
+            html += '</div>';
+            document.getElementById('rollingWindow').innerHTML = html;
+        }
+
+        async function updateDashboard() {
+            const data = await fetchHealth();
+            if (!data) {
+                document.getElementById('overallStatus').innerHTML = '<div class="status-indicator status-critical">Unable to fetch health data</div>';
+                return;
+            }
+
+            renderOverallStatus(data);
+            renderWorkerStatus(data);
+            renderWSStatus(data);
+            renderWSPoolStats(data);
+            renderPoolPricingStats(data);
+            renderAggregationStats(data);
+            renderWorkerDetails(data);
+            renderCacheStats(data);
+            renderQueueStats(data);
+            renderSourceHealth(data);
+            renderCircuitBreaker(data);
+            renderRollingWindow(data);
+
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = `Last updated: ${now.toLocaleTimeString()}`;
+        }
+
+        document.getElementById('refreshBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('refreshBtn');
+            btn.classList.add('refreshing');
+            await updateDashboard();
+            btn.classList.remove('refreshing');
+        });
+
+        // Initial load
+        updateDashboard();
+
+        // Auto-refresh every 10 seconds
+        setInterval(updateDashboard, 10000);
+    </script>
+</body>
+</html>

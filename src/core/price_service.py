@@ -56,6 +56,7 @@ class PriceCache:
             'hot': 10,        # 10 seconds for dashboard
             'org': 30,        # 30 seconds for org pages
             'history': 300,   # 5 minutes for historical
+            'snapshot': 30,   # 30 seconds snapshot buffer for dashboard reads
         }
     
     def get(self, mint: str, cache_type: str = 'hot') -> Optional[TokenPrice]:

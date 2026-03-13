@@ -170,15 +170,21 @@ class PriceFetchQueue:
     def get_stats(self) -> Dict:
         """Return queue statistics."""
         with self.lock:
+            avg_latency = self.stats['avg_latency_ms']
+            depth = self.stats['queue_depth']
+            request_delay = int(self.request_delay_ms * 1000)
+            # Estimated time in ms a new task would wait if enqueued now
+            queue_wait_estimate_ms = depth * (avg_latency + self.request_delay_ms * 1000)
             return {
                 'enqueued': self.stats['enqueued'],
                 'processed': self.stats['processed'],
                 'failed': self.stats['failed'],
-                'queue_depth': self.stats['queue_depth'],
+                'queue_depth': depth,
                 'active_requests': self.active_requests,
-                'avg_latency_ms': round(self.stats['avg_latency_ms'], 1),
+                'avg_latency_ms': round(avg_latency, 1),
                 'max_concurrent': self.max_concurrent,
-                'request_delay_ms': int(self.request_delay_ms * 1000)
+                'request_delay_ms': request_delay,
+                'queue_wait_estimate_ms': round(queue_wait_estimate_ms, 1),
             }
 
     def wait_until_empty(self, timeout_seconds: int = 30) -> bool:

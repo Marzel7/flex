@@ -285,6 +285,28 @@ class TokenPriceService:
         # Shared Birdeye client: requests.Session per thread (thread-safe)
         self._birdeye_local = threading.local()
         self._executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix='birdeye-')
+
+        # Circuit breaker: track disabled sources and cooldown (600s)
+        self.circuit_breaker = {
+            'dexscreener': {'disabled': False, 'disabled_at': 0},
+            'jupiter': {'disabled': False, 'disabled_at': 0},
+            'birdeye': {'disabled': False, 'disabled_at': 0},
+        }
+
+        # EWMA latency per source (for adaptive ordering)
+        self.source_latency_ewma = {
+            'dexscreener': 0.0,
+            'jupiter': 0.0,
+            'birdeye': 0.0,
+        }
+
+        # Source attempt history for rolling failure rate (last 50 attempts per source)
+        self.source_attempts = {
+            'dexscreener': [],
+            'jupiter': [],
+            'birdeye': [],
+        }
+
         self._ensure_tables()
         logger.info("TokenPriceService initialized")
     
@@ -445,17 +467,106 @@ class TokenPriceService:
             logger.debug(f"Birdeye error for {mint}: {e}")
             return None
 
+    def _is_circuit_broken(self, source: str) -> bool:
+        """Check if source is currently circuit broken."""
+        cb = self.circuit_breaker.get(source, {})
+        if not cb.get('disabled'):
+            return False
+
+        # Check if cooldown expired (600 seconds = 10 minutes)
+        if time.time() - cb.get('disabled_at', 0) > 600:
+            cb['disabled'] = False
+            logger.info(f"Circuit breaker for {source} reset after cooldown")
+            return False
+
+        return True
+
+    def _update_source_stats(self, source: str, success: bool) -> None:
+        """
+        Track attempt success and update:
+        1. Source attempt history
+        2. Circuit breaker failure rate
+        """
+        now = time.time()
+        self.source_attempts[source].append((now, success))
+
+        # Keep only last 50 attempts (sliding window)
+        cutoff = now - 3600  # 1 hour
+        self.source_attempts[source] = [
+            (ts, s) for ts, s in self.source_attempts[source]
+            if ts > cutoff
+        ][-50:]  # Keep only last 50
+
+        # Check if circuit should break (>90% failure over 50+ attempts)
+        attempts = self.source_attempts[source]
+        if len(attempts) >= 50:
+            failures = sum(1 for _, s in attempts if not s)
+            failure_rate = failures / len(attempts)
+
+            if failure_rate > 0.9 and not self.circuit_breaker[source]['disabled']:
+                self.circuit_breaker[source]['disabled'] = True
+                self.circuit_breaker[source]['disabled_at'] = now
+                logger.warning(
+                    f"Circuit breaker triggered for {source}: "
+                    f"{failure_rate:.1%} failure rate over 50 attempts"
+                )
+
+    def _get_source_rank(self, source: str) -> float:
+        """
+        Rank source by success rate and latency.
+
+        Score = (success_rate × 0.7) + (1 - normalized_latency × 0.3)
+        Range: 0.0 to 1.0 (higher is better)
+        """
+        attempts = self.source_attempts[source]
+        if not attempts:
+            return 0.5  # Default score for uninitialized sources
+
+        successes = sum(1 for _, s in attempts if s)
+        success_rate = successes / len(attempts)
+
+        # Normalize latency to 0-1 (assume max 500ms = 1.0)
+        latency_ms = self.source_latency_ewma[source]
+        normalized_latency = min(latency_ms / 500.0, 1.0)
+
+        score = (success_rate * 0.7) + ((1.0 - normalized_latency) * 0.3)
+        return score
+
+    def _get_sources_ordered(self) -> list:
+        """
+        Return list of sources ranked by success rate and latency.
+
+        Excludes circuit-broken sources.
+        Always includes stale fallback (not in returned list).
+        """
+        active_sources = []
+
+        for source in ['dexscreener', 'jupiter', 'birdeye']:
+            if not self._is_circuit_broken(source):
+                rank = self._get_source_rank(source)
+                active_sources.append((source, rank))
+
+        # Sort by rank descending (highest score first)
+        active_sources.sort(key=lambda x: x[1], reverse=True)
+        return [source for source, _ in active_sources]
+
+    def _update_latency_ewma(self, source: str, latency_ms: float) -> None:
+        """Update EWMA latency for a source using 0.8 weight to previous."""
+        EWMA_ALPHA = 0.8
+        prev = self.source_latency_ewma[source]
+
+        if prev == 0.0:
+            # First measurement
+            self.source_latency_ewma[source] = latency_ms
+        else:
+            self.source_latency_ewma[source] = (EWMA_ALPHA * prev) + ((1.0 - EWMA_ALPHA) * latency_ms)
+
     async def get_token_price(self, mint: str, cache_type: str = 'hot') -> TokenPrice:
         """
         Get token price with multi-source fallback and 3-second budget.
 
-        Priority:
-        1. In-memory cache (hot)
-        2. Dexscreener (1.5s timeout)
-        3. Jupiter (1.2s timeout)
-        4. Birdeye (1.0s timeout)
-        5. Database cache (stale)
-        6. Unavailable
+        Sources ranked by success rate + latency (adaptive ordering).
+        Circuit breaker disables failing sources for 10 minutes.
 
         Total budget: 3 seconds across all sources.
         """
@@ -467,40 +578,69 @@ class TokenPriceService:
         if cached:
             return cached
 
-        # Try Dexscreener
-        if time.time() - fetch_start < TOTAL_BUDGET_SECS:
-            self.stats['dexscreener_attempted'] += 1
-            dex_price = await DexscreenerClient.get_price(mint)
-            if dex_price:
-                self.stats['dexscreener_success'] += 1
-                self.cache.set(mint, dex_price)
-                self._store_snapshot(dex_price)
-                return dex_price
-            self.stats['dexscreener_fail'] += 1
+        # Get sources ordered by current success rate + latency
+        sources_ordered = self._get_sources_ordered()
 
-        # Try Jupiter
-        if time.time() - fetch_start < TOTAL_BUDGET_SECS:
-            self.stats['jupiter_attempted'] += 1
-            jup_price = await JupiterClient.get_price(mint)
-            if jup_price:
-                self.stats['jupiter_success'] += 1
-                self.cache.set(mint, jup_price)
-                self._store_snapshot(jup_price)
-                return jup_price
-            self.stats['jupiter_fail'] += 1
+        # Try each active source in ranked order
+        for source in sources_ordered:
+            if time.time() - fetch_start >= TOTAL_BUDGET_SECS:
+                break
 
-        # Try Birdeye (final fallback before stale cache)
-        # Run synchronously off the event loop via executor to reuse HTTP connection
-        if time.time() - fetch_start < TOTAL_BUDGET_SECS:
-            self.stats['birdeye_attempted'] += 1
-            loop = asyncio.get_event_loop()
-            birdeye_price = await loop.run_in_executor(self._executor, self._fetch_birdeye_sync, mint)
-            if birdeye_price:
-                self.stats['birdeye_success'] += 1
-                self.cache.set(mint, birdeye_price)
-                self._store_snapshot(birdeye_price)
-                return birdeye_price
-            self.stats['birdeye_fail'] += 1
+            if source == 'dexscreener':
+                self.stats['dexscreener_attempted'] += 1
+                start = time.time()
+                dex_price = await DexscreenerClient.get_price(mint)
+                latency_ms = (time.time() - start) * 1000
+                self._update_latency_ewma('dexscreener', latency_ms)
+
+                if dex_price:
+                    self.stats['dexscreener_success'] += 1
+                    self._update_source_stats('dexscreener', True)
+                    self.cache.set(mint, dex_price)
+                    self._store_snapshot(dex_price)
+                    return dex_price
+
+                self.stats['dexscreener_fail'] += 1
+                self._update_source_stats('dexscreener', False)
+
+            elif source == 'jupiter':
+                self.stats['jupiter_attempted'] += 1
+                start = time.time()
+                jup_price = await JupiterClient.get_price(mint)
+                latency_ms = (time.time() - start) * 1000
+                self._update_latency_ewma('jupiter', latency_ms)
+
+                if jup_price:
+                    self.stats['jupiter_success'] += 1
+                    self._update_source_stats('jupiter', True)
+                    self.cache.set(mint, jup_price)
+                    self._store_snapshot(jup_price)
+                    return jup_price
+
+                self.stats['jupiter_fail'] += 1
+                self._update_source_stats('jupiter', False)
+
+            elif source == 'birdeye':
+                self.stats['birdeye_attempted'] += 1
+                start = time.time()
+                loop = asyncio.get_event_loop()
+                birdeye_price = await loop.run_in_executor(
+                    self._executor,
+                    self._fetch_birdeye_sync,
+                    mint
+                )
+                latency_ms = (time.time() - start) * 1000
+                self._update_latency_ewma('birdeye', latency_ms)
+
+                if birdeye_price:
+                    self.stats['birdeye_success'] += 1
+                    self._update_source_stats('birdeye', True)
+                    self.cache.set(mint, birdeye_price)
+                    self._store_snapshot(birdeye_price)
+                    return birdeye_price
+
+                self.stats['birdeye_fail'] += 1
+                self._update_source_stats('birdeye', False)
 
         # Try database cache (stale) — always attempt, no budget check
         db_price = self._get_cached_price(mint)

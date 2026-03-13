@@ -279,6 +279,9 @@ class TokenPriceService:
             'birdeye_attempted': 0,
             'birdeye_success': 0,
             'birdeye_fail': 0,
+            'pool_attempted': 0,
+            'pool_success': 0,
+            'pool_fail': 0,
             'stale_fallback': 0,
             'unavailable': 0,
         }
@@ -286,11 +289,15 @@ class TokenPriceService:
         self._birdeye_local = threading.local()
         self._executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix='birdeye-')
 
+        # Pool price cache: synchronous dict read, populated by worker each cycle
+        self.pool_price_cache: Dict[str, 'TokenPrice'] = {}
+
         # Circuit breaker: track disabled sources and cooldown with exponential backoff
         self.circuit_breaker = {
             'dexscreener': {'disabled': False, 'disabled_at': 0, 'break_count': 0},
             'jupiter': {'disabled': False, 'disabled_at': 0, 'break_count': 0},
             'birdeye': {'disabled': False, 'disabled_at': 0, 'break_count': 0},
+            'pool': {'disabled': False, 'disabled_at': 0, 'break_count': 0},
         }
 
         # EWMA latency per source (for adaptive ordering)
@@ -298,6 +305,7 @@ class TokenPriceService:
             'dexscreener': 0.0,
             'jupiter': 0.0,
             'birdeye': 0.0,
+            'pool': 0.0,
         }
 
         # Source attempt history for rolling failure rate (last 50 attempts per source)
@@ -305,6 +313,7 @@ class TokenPriceService:
             'dexscreener': [],
             'jupiter': [],
             'birdeye': [],
+            'pool': [],
         }
 
         # Provider timeout budgets (seconds) — per-source limits
@@ -312,6 +321,7 @@ class TokenPriceService:
             'dexscreener': 1.2,  # Reduce from 1.5 to 1.2
             'jupiter': 0.8,      # Reduce from 1.2 to 0.8
             'birdeye': 1.0,      # Keep at 1.0
+            'pool': 0,           # Pool is synchronous dict read, no HTTP timeout
         }
 
         self._ensure_tables()
@@ -371,9 +381,33 @@ class TokenPriceService:
             ON circuit_breaker_state(disabled, disabled_at)
         """)
 
+        # Pool accounts registration table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS token_pool_accounts (
+                mint              TEXT NOT NULL,
+                base_account      TEXT NOT NULL,
+                quote_account     TEXT NOT NULL,
+                pool_program      TEXT NOT NULL DEFAULT 'raydium_amm',
+                base_token        TEXT NOT NULL,
+                quote_token       TEXT NOT NULL DEFAULT 'So11111111111111111111111111111111111111112',
+                base_decimals     INTEGER NOT NULL DEFAULT 6,
+                quote_decimals    INTEGER NOT NULL DEFAULT 9,
+                last_reserve_fetch INTEGER DEFAULT 0,
+                is_active         BOOLEAN DEFAULT 1,
+                created_at        INTEGER NOT NULL,
+                updated_at        INTEGER NOT NULL,
+                PRIMARY KEY (mint, base_account)
+            )
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_tpa_mint_active
+            ON token_pool_accounts(mint, is_active)
+        """)
+
         conn.commit()
         conn.close()
-        logger.info("Database tables ensured (price snapshots + circuit breaker)")
+        logger.info("Database tables ensured (price snapshots + circuit breaker + pool accounts)")
     
     def _get_cached_price(self, mint: str) -> Optional[TokenPrice]:
         """Get most recent price from database cache."""
@@ -692,11 +726,17 @@ class TokenPriceService:
         """
         Return list of sources ranked by success rate and latency.
 
+        Pool is always first (if not circuit-broken) — fastest source (dict read, no HTTP).
         Excludes circuit-broken sources.
         Always includes stale fallback (not in returned list).
         """
         active_sources = []
 
+        # Pool: synchronous dict read, always first if available
+        if not self._is_circuit_broken('pool'):
+            active_sources.append(('pool', 1.0))
+
+        # Dex/Jupiter/Birdeye: ranked by success + latency
         for source in ['dexscreener', 'jupiter', 'birdeye']:
             if not self._is_circuit_broken(source):
                 rank = self._get_source_rank(source)
@@ -758,7 +798,19 @@ class TokenPriceService:
             if actual_timeout <= 0:
                 break  # No time left for this provider
 
-            if source == 'dexscreener':
+            if source == 'pool':
+                # Pool: synchronous dict read, no HTTP, no budget consumed
+                self.stats['pool_attempted'] += 1
+                pool_price = self.pool_price_cache.get(mint)
+                if pool_price:
+                    self.stats['pool_success'] += 1
+                    self._update_source_stats('pool', True)
+                    self.cache.set(mint, pool_price)
+                    return pool_price
+                self.stats['pool_fail'] += 1
+                self._update_source_stats('pool', False)
+
+            elif source == 'dexscreener':
                 self.stats['dexscreener_attempted'] += 1
                 start = time.time()
                 try:

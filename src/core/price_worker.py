@@ -17,6 +17,7 @@ import sqlite3
 import logging
 import time
 import threading
+import asyncio
 from typing import List, Dict, Optional
 from src.core.price_service import get_price_service, TokenPrice
 from src.core.price_fetch_queue import get_price_queue, FetchTask, start_price_queue_worker
@@ -215,6 +216,7 @@ class BackgroundPriceWorker:
             'last_run': None,
             'last_error': None,
             'queue_stats': {},
+            'pool_prices_fetched': 0,
             'activity_distribution': {
                 'high': 0,
                 'medium': 0,
@@ -269,7 +271,10 @@ class BackgroundPriceWorker:
             'dormant': 0
         }
 
-        # First, sync new tokens from token_analysis to tracked_tokens
+        # First, fetch all pool prices into cache (primary source)
+        self._fetch_pool_prices()
+
+        # Then, sync new tokens from token_analysis to tracked_tokens
         self._sync_new_tokens()
 
         # Get tokens to refresh based on activity
@@ -342,6 +347,67 @@ class BackgroundPriceWorker:
                 logger.debug(f"Snapshot cache warmed: {cache_warmed} tokens")
         except Exception as e:
             logger.error(f"Error warming snapshot cache: {e}")
+
+    def _fetch_pool_prices(self) -> None:
+        """
+        Batch-fetch all registered pool prices and populate pool_price_cache.
+        Called at start of each refresh cycle before other price fetches.
+        Runs in a new event loop (worker is synchronous).
+        """
+        try:
+            asyncio.run(self._fetch_pool_prices_async())
+        except Exception as e:
+            logger.error(f"Error fetching pool prices: {e}")
+
+    async def _fetch_pool_prices_async(self) -> None:
+        """Async implementation of pool price fetching."""
+        from src.core.pool_price_engine import (
+            get_pool_fetcher,
+            PoolPriceCalculator,
+            PoolReserveFetcher,
+        )
+
+        fetcher = get_pool_fetcher(self.db_path)
+        pools = fetcher.get_active_pools()
+        if not pools:
+            return
+
+        # Fetch SOL price once per cycle, shared across all compute_price() calls
+        sol_price_usd = await PoolPriceCalculator.fetch_sol_price_usd()
+        if sol_price_usd == 0:
+            logger.warning("Skipping pool price fetch — SOL price unavailable")
+            return
+
+        # Batch-fetch all reserves
+        reserves = await fetcher.fetch_reserves(pools)
+        pool_map = {p["mint"]: p for p in pools}
+        new_cache: Dict[str, TokenPrice] = {}
+
+        for mint, (base_raw, quote_raw) in reserves.items():
+            pool = pool_map[mint]
+            last_price = None
+            if mint in self.price_service.pool_price_cache:
+                last_price = self.price_service.pool_price_cache[mint].price_usd
+
+            token_price = PoolPriceCalculator.compute_price(
+                mint=mint,
+                base_reserve_raw=base_raw,
+                quote_reserve_raw=quote_raw,
+                base_decimals=pool["base_decimals"],
+                quote_decimals=pool["quote_decimals"],
+                quote_is_sol=(
+                    pool["quote_token"] == PoolReserveFetcher.SOL_MINT
+                ),
+                sol_price_usd=sol_price_usd,
+                last_cached_price=last_price,
+            )
+            if token_price:
+                new_cache[mint] = token_price
+
+        # Atomic swap — GIL-safe for dict reference reassignment
+        self.price_service.pool_price_cache = new_cache
+        self.stats["pool_prices_fetched"] = len(new_cache)
+        logger.info(f"Pool prices fetched: {len(new_cache)}/{len(pools)} pools")
 
     def _sync_new_tokens(self) -> None:
         """

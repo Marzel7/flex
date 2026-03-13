@@ -293,6 +293,9 @@ class BackgroundPriceWorker:
         ]
         self.queue.enqueue_batch(tasks)
 
+        # Warm snapshot cache with fresh prices for dashboard reads
+        self._warm_snapshot_cache(tokens_to_fetch)
+
         duration = time.time() - cycle_start
         self.stats['last_run'] = duration
         self.stats['queue_stats'] = self.queue.get_stats()
@@ -313,6 +316,32 @@ class BackgroundPriceWorker:
         """Sync source attempt metrics from price_service to worker stats."""
         if hasattr(self.price_service, 'stats'):
             self.stats['source_stats'] = self.price_service.stats.copy()
+
+    def _warm_snapshot_cache(self, tokens: list) -> None:
+        """
+        Pre-warm snapshot cache tier with fresh prices from hot cache.
+        
+        Dashboard requests can read snapshot tier to avoid triggering live price fetches
+        between worker refresh cycles.
+        """
+        cache_warmed = 0
+        try:
+            for token in tokens:
+                mint = token.get('mint')
+                if not mint:
+                    continue
+                
+                # Get price from hot cache (most recent)
+                price = self.price_service.cache.get(mint, 'hot')
+                if price and not price.is_stale:
+                    # Also store in snapshot cache
+                    self.price_service.cache.set(mint, price, cache_type='snapshot')
+                    cache_warmed += 1
+            
+            if cache_warmed > 0:
+                logger.debug(f"Snapshot cache warmed: {cache_warmed} tokens")
+        except Exception as e:
+            logger.error(f"Error warming snapshot cache: {e}")
 
     def _sync_new_tokens(self) -> None:
         """

@@ -867,9 +867,9 @@
             <i class="fas fa-bolt"></i> FLEX
         </div>
 
-        <!-- Main Navigation -->
+        <!-- Quick Links to All Pages -->
         <div class="nav-section">
-            <div class="nav-section-title">Intelligence</div>
+            <div class="nav-section-title">Dashboard Pages</div>
             <a class="nav-link active" onclick="loadPage('dashboard')">
                 <i class="fas fa-chart-line"></i> <span>Dashboard</span>
             </a>
@@ -879,19 +879,23 @@
             <a class="nav-link" onclick="loadPage('org_explorer')">
                 <i class="fas fa-list"></i> <span>Organizations</span>
             </a>
+            <a class="nav-link" onclick="loadPage('organization')">
+                <i class="fas fa-user"></i> <span>Org Detail</span>
+            </a>
             <a class="nav-link" onclick="loadPage('waves')">
                 <i class="fas fa-water"></i> <span>Launch Waves</span>
             </a>
-        </div>
-
-        <!-- Analytics -->
-        <div class="nav-section">
-            <div class="nav-section-title">Analytics</div>
             <a class="nav-link" onclick="loadPage('clusters')">
                 <i class="fas fa-network-wired"></i> <span>Dev Clusters</span>
             </a>
             <a class="nav-link" onclick="loadPage('signal_explorer')">
                 <i class="fas fa-sliders-h"></i> <span>Signals</span>
+            </a>
+            <a class="nav-link" onclick="loadPage('wallet')">
+                <i class="fas fa-wallet"></i> <span>Wallet Intelligence</span>
+            </a>
+            <a class="nav-link" onclick="loadPage('fingerprint')">
+                <i class="fas fa-fingerprint"></i> <span>Dev Fingerprint</span>
             </a>
         </div>
 
@@ -961,9 +965,12 @@
                 'dashboard': loadDashboard,
                 'radar': loadLaunchRadar,
                 'org_explorer': loadOrgExplorer,
+                'organization': () => loadOrgProfile(PAGE_ORG_ID),
                 'waves': loadLaunchWaves,
                 'clusters': loadClusterExplorer,
                 'signal_explorer': loadSignalExplorer,
+                'wallet': () => loadWalletIntelligence(PAGE_WALLET),
+                'fingerprint': () => loadDeveloperFingerprint(PAGE_ORG_ID),
                 'api_reference': loadAPIReference,
             };
             (routes[page] || loadDashboard)();
@@ -1348,7 +1355,8 @@
                                         <th>Wave Score</th>
                                         <th>Seed Conc</th>
                                         <th>Funder Overlap</th>
-                                        <th>Tokens</th>
+                                        <th>Token Mints</th>
+                                        <th>Token Count</th>
                                         <th>Price Confidence</th>
                                         <th>Rug Risk</th>
                                         <th>Action</th>
@@ -1371,6 +1379,13 @@
                                             <td>${formatPercent(org.launch_wave_score)}</td>
                                             <td>${formatPercent(org.seed_concentration)}</td>
                                             <td>${formatPercent(org.funder_overlap_score)}</td>
+                                            <td>
+                                                <div style="max-width: 250px; overflow-y: auto; max-height: 80px; font-size: 0.85em;">
+                                                    ${org.tokens && org.tokens.length > 0
+                                                        ? org.tokens.map(t => `<div><code>${t.mint.substring(0, 8)}...</code></div>`).join('')
+                                                        : '<span class="text-muted">No tokens</span>'}
+                                                </div>
+                                            </td>
                                             <td>${org.token_count}</td>
                                             <td><span class="badge badge-secondary">Loading...</span></td>
                                             <td><span class="badge badge-secondary">Loading...</span></td>

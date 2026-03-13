@@ -699,7 +699,7 @@ def get_migrated_tokens() -> List[Dict]:
             FROM token_analysis ta
             LEFT JOIN creator_networks cn ON ta.earliest_tx_creator = cn.creator_address
             ORDER BY ta.created_at DESC
-            LIMIT 25
+            LIMIT 200
         """)
 
         tokens = []
@@ -1152,37 +1152,6 @@ def get_network_key_for_funder(funder_address: str) -> tuple:
         print(f"[ERROR] get_network_key_for_funder: {e}")
         return build_network_key(funder_address, False)
 
-def get_token_price(token_mint: str) -> Optional[float]:
-    """Fetch current price for a token from Jupiter API"""
-    try:
-        response = requests.get(
-            f"https://api.jup.ag/price/v2?ids={token_mint}",
-            timeout=10
-        )
-
-        # Track Jupiter API calls in metrics
-        try:
-            from src.metrics.rpc_metrics_recorder import record_request
-            record_request(
-                section='price_api',
-                provider='jupiter_api',
-                method='get_price_v2',
-                status_code=response.status_code,
-                credits_override=0
-            )
-        except Exception as e:
-            pass  # Don't fail price fetch if metrics recording fails
-
-        data = response.json()
-
-        if "data" in data and token_mint in data["data"]:
-            return data["data"][token_mint].get("price", 0)
-        return None
-    except Exception as e:
-        print(f"[PRICE] Error fetching price for {token_mint[:30]}: {e}")
-        return None
-
-
 def get_sidebar_css(bg_color: str = "rgba(20, 20, 30, 0.9)") -> str:
     """Generate sidebar CSS styling with matching background color"""
     return f"""
@@ -1484,6 +1453,11 @@ HTML_TEMPLATE = """
 
         .tokens-table tbody tr:hover {
             background: rgba(6, 182, 212, 0.05);
+        }
+
+        .tokens-table td {
+            transition: opacity 0.2s ease;
+            opacity: 1;
         }
 
         .mint {
@@ -3646,14 +3620,37 @@ HTML_TEMPLATE = """
                     creatorData: creatorData[token.creator] || {}
                 }));
 
-                // Store tokens for sorting
-                window.currentTokens = enrichedTokens;
+                // Filter out tokens with market cap < $2000 entirely
+                const minMarketCap = 2000;
+                const filteredTokens = enrichedTokens.filter(t => {
+                    // Only display tokens with market cap >= $2k or unknown market cap
+                    return t.market_cap_current >= minMarketCap || !t.market_cap_current;
+                });
+
+                // Display only top 25 of the filtered tokens
+                const displayTokens = filteredTokens.slice(0, 25);
+                window.currentTokens = displayTokens;
+
+                // Register all displayed tokens for price tracking
+                const mints = displayTokens.map(t => t.mint).filter(m => m);
+
+                if (mints.length > 0) {
+                    fetch('/api/price/batch/register', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({mints: mints})
+                    }).then(r => r.json()).then(res => {
+                        console.log(`Registered ${res.registered}/${res.total} tokens with market cap >= $${minMarketCap}`);
+                    }).catch(e => {
+                        console.error('Error registering tokens for price tracking:', e);
+                    });
+                }
 
                 // Update stats
-                updateStats({tokens: enrichedTokens});
+                updateStats({tokens: displayTokens});
 
                 // Build table
-                buildTable(enrichedTokens);
+                buildTable(displayTokens);
             } catch (error) {
                 console.error('Error loading tokens:', error);
                 document.getElementById('tokens-container').innerHTML =
@@ -3688,7 +3685,7 @@ HTML_TEMPLATE = """
         }
 
         let sortConfig = {
-            column: 'analyzed_at',
+            column: 'created_at',
             direction: 'desc'
         };
 
@@ -3726,6 +3723,7 @@ HTML_TEMPLATE = """
                     <thead>
                         <tr>
                             <th onclick="sortBy('mint')" class="sortable ${sortConfig.column === 'mint' ? 'sorted-' + sortConfig.direction : ''}">Token Mint</th>
+                            <th style="min-width: 80px;">Symbol</th>
                             <th></th>
                             <th onclick="sortBy('network_name')" class="sortable ${sortConfig.column === 'network_name' ? 'sorted-' + sortConfig.direction : ''}">Network</th>
                             <th onclick="sortBy('cluster_name')" class="sortable ${sortConfig.column === 'cluster_name' ? 'sorted-' + sortConfig.direction : ''}">Cluster</th>
@@ -3945,6 +3943,9 @@ HTML_TEMPLATE = """
                                             ${infraTags}
                                         </div>
                                     </td>
+                                    <td id="symbol-${token.mint}" style="color: var(--accent-purple); font-weight: bold; font-size: 12px;">
+                                        <span style="opacity: 0.5;">...</span>
+                                    </td>
                                     <td class="creator-tags"><div style="display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">${columnTags.join('')}</div></td>
                                     <td class="network-name">
                                         ${token.atomic_network_name ? `<a href="/networks?network=${encodeURIComponent(token.atomic_network_name)}" style="color: var(--accent-purple); font-weight: bold; font-size: 12px; cursor: pointer; text-decoration: none; border-bottom: 1px dotted var(--accent-purple);" title="${token.atomic_network_tier || ''}">${token.atomic_network_name}</a>` : ''}
@@ -3952,12 +3953,14 @@ HTML_TEMPLATE = """
                                     <td class="cluster-name">
                                         ${token.cluster_name ? `<span style="color: var(--accent-orange); font-size: 12px;" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : ''}
                                     </td>
-                                    <td id="price-${token.mint}" style="color: var(--accent-cyan); font-size: 12px; transition: opacity 0.3s ease;">—</td>
-                                    <td id="mc-${token.mint}" style="transition: opacity 0.3s ease;">
-                                        ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : ''}
+                                    <td id="price-${token.mint}" style="color: var(--accent-cyan); font-size: 12px; transition: color 0.2s ease; min-width: 80px;">
+                                        ${token.price_current && token.price_current > 0 ? `$${token.price_current.toFixed(8)}` : '<span style="opacity: 0.5;">...</span>'}
                                     </td>
-                                    <td id="peak-mc-${token.mint}" style="transition: opacity 0.3s ease;">
-                                        ${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : ''}
+                                    <td id="mc-${token.mint}" style="transition: color 0.2s ease; min-width: 60px;">
+                                        ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">...</span>'}
+                                    </td>
+                                    <td id="peak-mc-${token.mint}" style="transition: color 0.2s ease; min-width: 60px;">
+                                        ${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '<span style="opacity: 0.5;">...</span>'}
                                     </td>
                                     <td>
                                         ${token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : ''}
@@ -3980,20 +3983,34 @@ HTML_TEMPLATE = """
 
             document.getElementById('tokens-container').innerHTML = html;
 
-            // Load prices in background with minimal stagger on initial load
+            // Load symbols once (don't reload on every refresh)
+            const minMarketCap = 2000;
             tokens.forEach((token, index) => {
                 setTimeout(() => {
-                    loadPrice(token.mint);
+                    loadSymbol(token.mint);
+                }, index * 20);  // Minimal stagger (20ms)
+            });
+
+            // Load initial prices
+            tokens.forEach((token, index) => {
+                setTimeout(() => {
+                    // Only fetch price if market cap >= $2k or unknown
+                    if (token.market_cap_current >= minMarketCap || !token.market_cap_current) {
+                        loadPrice(token.mint);
+                    }
                 }, index * 20);  // Minimal stagger (20ms) for smoother initial load
             });
 
-            // Set up 30-second price refresh for all tokens
+            // Set up 30-second price refresh for qualified tokens (symbols NOT reloaded)
             if (priceRefreshInterval) clearInterval(priceRefreshInterval);
             priceRefreshInterval = setInterval(() => {
                 // Batch all price refreshes with minimal stagger for cleaner updates
                 tokens.forEach((token, index) => {
                     setTimeout(() => {
-                        loadPrice(token.mint);
+                        // Only refresh prices for tokens with market cap >= $2k or unknown
+                        if (token.market_cap_current >= minMarketCap || !token.market_cap_current) {
+                            loadPrice(token.mint);
+                        }
                     }, index * 15);  // Even less stagger (15ms) on refreshes
                 });
             }, 30000);  // Refresh every 30 seconds
@@ -4001,42 +4018,113 @@ HTML_TEMPLATE = """
 
         async function loadPrice(mint) {
             try {
-                const response = await fetch(`/api/token-price-hybrid/${mint}`, {
+                // Try cached price first
+                let response = await fetch(`/api/price/${mint}/full`, {
                     signal: priceLoadController.signal
                 });
-                const data = await response.json();
+                let data = response.ok ? await response.json() : null;
 
-                if (data.price !== null && data.price > 0) {
+                // If no price data or error, fetch immediately for new tokens
+                if (!data || (!data.price_usd && !data.price_sol) || data.error) {
+                    response = await fetch(`/api/price/${mint}/fetch-now`, {
+                        method: 'POST',
+                        signal: priceLoadController.signal
+                    });
+                    if (response.ok) {
+                        data = await response.json();
+                    } else {
+                        // Token doesn't have price data available - this is normal for new/illiquid tokens
+                        return;
+                    }
+                }
+
+                // API returns price_usd, price_sol, or price_usdc
+                const price = data.price_usd || data.price_sol || data.price_usdc;
+                if (price !== null && price > 0) {
                     const priceElement = document.getElementById(`price-${mint}`);
                     if (priceElement) {
-                        priceElement.innerHTML = `$${data.price.toFixed(8)}`;
+                        // Use textContent for better performance and fade transition
+                        priceElement.style.opacity = '0.5';
+                        priceElement.textContent = `$${price.toFixed(8)}`;
+                        // Fade to full opacity
+                        setTimeout(() => {
+                            priceElement.style.opacity = '1';
+                        }, 10);
                     }
 
-                    // Use market cap from API response if available, otherwise calculate from price
-                    let marketCap = data.market_cap;
-                    if (!marketCap || marketCap === 0) {
-                        marketCap = data.price * 1_000_000_000;  // Pump.Fun tokens have 1B supply
-                    }
+                    // Use market cap from API response (from Dexscreener/Jupiter)
+                    // Don't calculate fallback - API already has correct market cap
+                    let marketCap = data.market_cap || data.market_cap_sol;
 
                     const mcElement = document.getElementById(`mc-${mint}`);
                     if (mcElement) {
-                        mcElement.innerHTML = formatMarketCap(marketCap);
+                        const formattedMC = '$' + formatMarketCap(marketCap);
+                        const currentText = mcElement.textContent;
+
+                        // Only update if value changed
+                        if (currentText !== formattedMC) {
+                            mcElement.style.opacity = '0.5';
+                            mcElement.textContent = formattedMC;
+                            // Fade to full opacity
+                            setTimeout(() => {
+                                mcElement.style.opacity = '1';
+                            }, 10);
+                        }
                     }
 
                     // Update peak market cap if it's a new high
                     const peakMcElement = document.getElementById(`peak-mc-${mint}`);
                     if (peakMcElement && marketCap) {
-                        const currentText = peakMcElement.innerHTML;
+                        const currentText = peakMcElement.textContent;
                         // Extract current peak value for comparison (remove $ and formatting)
                         const currentPeak = parseFloat(currentText.replace(/[^0-9.]/g, ''));
                         if (!currentPeak || marketCap > currentPeak) {
-                            peakMcElement.innerHTML = formatMarketCap(marketCap);
+                            const formattedPeakMC = '$' + formatMarketCap(marketCap);
+
+                            // Only update if value actually changed
+                            if (currentText !== formattedPeakMC) {
+                                peakMcElement.style.opacity = '0.5';
+                                peakMcElement.textContent = formattedPeakMC;
+                                // Fade to full opacity
+                                setTimeout(() => {
+                                    peakMcElement.style.opacity = '1';
+                                }, 10);
+                            }
                         }
                     }
                 }
             } catch (error) {
                 if (error.name !== 'AbortError') {
                     console.error(`Error loading price for ${mint}:`, error);
+                }
+            }
+        }
+
+        async function loadSymbol(mint) {
+            try {
+                const symbolElement = document.getElementById(`symbol-${mint}`);
+                if (!symbolElement) return;
+
+                // Fetch from backend proxy (avoids CORS and rate limiting)
+                const response = await fetch(`/api/price/symbol/${mint}`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    symbolElement.textContent = data.symbol || mint.substring(0, 8).toUpperCase();
+                    symbolElement.title = data.name || 'Token';
+                } else {
+                    // Fallback: show first 8 chars
+                    const fallbackSymbol = mint.substring(0, 8).toUpperCase();
+                    symbolElement.textContent = fallbackSymbol;
+                    symbolElement.title = 'Token';
+                }
+            } catch (error) {
+                // Silently ignore errors - use fallback
+                const fallbackSymbol = mint.substring(0, 8).toUpperCase();
+                const symbolElement = document.getElementById(`symbol-${mint}`);
+                if (symbolElement) {
+                    symbolElement.textContent = fallbackSymbol;
+                    symbolElement.title = 'Token';
                 }
             }
         }
@@ -7183,115 +7271,6 @@ def api_migrated_tokens():
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
     return response
-
-
-@app.route('/api/token-price/<token_mint>')
-def api_token_price(token_mint: str):
-    """Get current price for a specific token"""
-    price = get_token_price(token_mint)
-    return jsonify({'mint': token_mint, 'price': price})
-
-
-@app.route('/api/token-price-hybrid/<token_mint>')
-def api_token_price_hybrid(token_mint: str):
-    """Get current price using hybrid approach: RPC pool query first, fallback to Jupiter API"""
-    price = None
-    market_cap = None
-    source = 'unknown'
-
-    try:
-        import asyncio
-        from src.core.pumpfun_curve_listener import PumpFunCurveListener
-
-        # Try RPC-based pool price first
-        listener = PumpFunCurveListener()
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-
-        try:
-            # Try DexScreener first (most reliable for current prices)
-            result = loop.run_until_complete(listener._fetch_dexscreener_price(token_mint))
-            if result:
-                price, market_cap = result
-                source = 'dexscreener'
-                print(f"[PRICE] Got price for {token_mint[:20]} from DexScreener", flush=True)
-
-            # Fallback to on-chain RPC if DexScreener not available (and records Helius credits)
-            if price is None:
-                pool_address = loop.run_until_complete(listener._find_pool_account(token_mint))
-                if pool_address:
-                    result = loop.run_until_complete(listener._get_price_from_pool_account(pool_address, token_mint))
-                    if result:
-                        price, market_cap = result
-                        source = 'onchain_rpc'
-                        print(f"[PRICE] Got on-chain price for {token_mint[:20]} from RPC", flush=True)
-
-        except Exception as e:
-            print(f"[PRICE_HYBRID] DexScreener/RPC attempt failed: {e}")
-        finally:
-            loop.close()
-
-        # Fallback to Jupiter API if RPC and DexScreener failed
-        if price is None:
-            price = get_token_price(token_mint)
-            source = 'jupiter_api'
-            # Calculate market cap for Jupiter price (1B supply)
-            if price and price > 0:
-                market_cap = price * 1_000_000_000
-
-    except Exception as e:
-        print(f"[PRICE_HYBRID] Error: {e}")
-        # Final fallback to Jupiter
-        price = get_token_price(token_mint)
-        source = 'jupiter_api'
-        if price and price > 0:
-            market_cap = price * 1_000_000_000
-
-    # Update database with current price and track peak market cap
-    if price and price > 0:
-        try:
-            conn = sqlite3.connect(DB_PATH, timeout=5)
-            cursor = conn.cursor()
-
-            # Get current peak market cap
-            cursor.execute(
-                "SELECT market_cap_highest, market_cap_highest_at FROM token_analysis WHERE mint = ?",
-                (token_mint,)
-            )
-            row = cursor.fetchone()
-            peak_mc = row[0] if row and row[0] else None
-            peak_mc_at = row[1] if row and row[1] else None
-
-            # Update if this is a new peak
-            if market_cap and (peak_mc is None or market_cap > peak_mc):
-                from datetime import datetime
-                now = datetime.now().isoformat(sep=' ')
-                cursor.execute("""
-                    UPDATE token_analysis
-                    SET price_current = ?, market_cap_current = ?, market_cap_highest = ?, market_cap_highest_at = ?, price_source = ?
-                    WHERE mint = ?
-                """, (price, market_cap, market_cap, now, source, token_mint))
-                conn.commit()
-                print(f"[PRICE] Updated peak MC for {token_mint[:20]}: ${market_cap:,.0f}", flush=True)
-            elif market_cap:
-                # Just update current price/market cap, keep existing peak
-                cursor.execute("""
-                    UPDATE token_analysis
-                    SET price_current = ?, market_cap_current = ?, price_source = ?
-                    WHERE mint = ?
-                """, (price, market_cap, source, token_mint))
-                conn.commit()
-
-            conn.close()
-        except Exception as e:
-            print(f"[PRICE] Error updating database: {e}")
-
-    return jsonify({
-        'mint': token_mint,
-        'price': price,
-        'market_cap': market_cap,
-        'source': source
-    })
 
 
 @app.route('/api/token-metrics/<token_mint>')
@@ -20096,6 +20075,26 @@ except Exception as e:
     print(f"[ERROR] Failed to initialize Price API: {e}")
 
 # =========================================================================
+# START BACKGROUND WORKERS
+# =========================================================================
+
+def start_background_workers():
+    """Start price and liquidity workers in background threads"""
+    try:
+        from src.core.price_worker import start_price_worker
+        price_worker = start_price_worker(db_path=DB_PATH)
+        print("[PRICE_WORKER] Background price worker started - fetching prices every 10s (HIGH), 30s (MEDIUM), 200s (LOW)")
+    except Exception as e:
+        print(f"[WARNING] Price worker failed to start: {e}")
+
+    try:
+        from src.core.liquidity_worker import start_liquidity_worker
+        liquidity_worker = start_liquidity_worker(db_path=DB_PATH)
+        print("[LIQUIDITY_WORKER] Background liquidity worker started - updating every 60s")
+    except Exception as e:
+        print(f"[WARNING] Liquidity worker failed to start: {e}")
+
+# =========================================================================
 # MAIN
 # =========================================================================
 
@@ -20107,4 +20106,8 @@ if __name__ == '__main__':
     print("[FLASK] Starting Migration Tracker UI...")
     print("[FLASK] Dashboard available at http://localhost:5002")
     print("[FLASK] Database: " + DB_PATH)
+
+    # Start background workers before Flask
+    start_background_workers()
+
     app.run(host='0.0.0.0', port=5002, debug=False)

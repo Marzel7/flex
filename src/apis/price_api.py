@@ -21,6 +21,65 @@ logger = logging.getLogger(__name__)
 
 price_api = Blueprint('price_api', __name__, url_prefix='/api/price')
 
+# Simple in-memory cache for token metadata with TTL
+_metadata_cache = {}
+_metadata_cache_time = {}
+
+
+@price_api.route('/symbol/<mint>', methods=['GET'])
+def get_token_symbol(mint: str):
+    """
+    Get token symbol and name via proxy to Dexscreener.
+    Avoids CORS issues and rate limiting.
+
+    Returns: {symbol, name}
+    """
+    import requests
+
+    try:
+        # Check cache validity (5 minute TTL)
+        cache_ttl = 300
+        now = time.time()
+        if mint in _metadata_cache and (now - _metadata_cache_time.get(mint, 0)) < cache_ttl:
+            return jsonify(_metadata_cache[mint])
+
+        # Always try to fetch fresh data from Dexscreener
+        resp = requests.get(
+            f'https://api.dexscreener.com/latest/dex/tokens/{mint}',
+            timeout=5
+        )
+
+        if resp.status_code == 200:
+            data = resp.json()
+            if data.get('pairs') and len(data['pairs']) > 0:
+                base_token = data['pairs'][0].get('baseToken', {})
+                result = {
+                    'symbol': base_token.get('symbol', mint[:8].upper()),
+                    'name': base_token.get('name', 'Token')
+                }
+                _metadata_cache[mint] = result
+                _metadata_cache_time[mint] = now
+                return jsonify(result)
+
+        # Fallback: use cached value if available, or default
+        if mint in _metadata_cache:
+            return jsonify(_metadata_cache[mint])
+
+        result = {'symbol': mint[:8].upper(), 'name': 'Token'}
+        _metadata_cache[mint] = result
+        _metadata_cache_time[mint] = now
+        return jsonify(result), 200
+
+    except Exception as e:
+        logger.debug(f"Error fetching metadata for {mint}: {e}")
+        # Use cached value if available on error
+        if mint in _metadata_cache:
+            return jsonify(_metadata_cache[mint])
+        result = {'symbol': mint[:8].upper(), 'name': 'Token'}
+        _metadata_cache[mint] = result
+        _metadata_cache_time[mint] = time.time()
+        return jsonify(result), 200
+
 
 @price_api.route('/<mint>', methods=['GET'])
 def get_price(mint: str):
@@ -584,6 +643,90 @@ def get_liquidity_worker_stats():
         })
     except Exception as e:
         logger.error(f"Error getting liquidity worker stats: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@price_api.route('/batch/register', methods=['POST'])
+def register_tokens_batch():
+    """
+    Register multiple tokens for immediate price tracking.
+
+    Body: {"mints": ["mint1", "mint2", ...]}
+
+    Returns: {"registered": count, "total": count}
+    """
+    try:
+        data = request.get_json()
+        mints = data.get('mints', [])
+
+        if not mints or not isinstance(mints, list):
+            return jsonify({'error': 'mints must be a non-empty list'}), 400
+
+        if len(mints) > 500:
+            return jsonify({'error': 'Maximum 500 mints per request'}), 400
+
+        registry = PriceWorkerRegistry()
+        registered = 0
+
+        for mint in mints:
+            # Use MEDIUM priority (30s refresh) to avoid rate limiting with large token sets
+            # This still provides frequent updates while respecting API rate limits
+            if mint and registry.register_token(mint, priority_level='MEDIUM'):
+                registered += 1
+
+        return jsonify({
+            'registered': registered,
+            'total': len(mints),
+            'skipped': len(mints) - registered
+        })
+    except Exception as e:
+        logger.error(f"Error registering batch tokens: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@price_api.route('/<mint>/fetch-now', methods=['POST'])
+def fetch_price_now(mint: str):
+    """
+    Immediately fetch and cache price for a token.
+    Used for new token launches to get instant price data.
+    """
+    try:
+        service = get_price_service()
+        # Fetch price with 'hot' cache (5-15 seconds) to ensure fresh data
+        price = service.get_token_price_sync(mint, cache_type='hot')
+
+        if price.source == 'unavailable':
+            return jsonify({'error': 'Could not fetch price'}), 404
+
+        # Get confidence
+        scorer = get_confidence_scorer()
+        confidence = scorer.compute_confidence(price)
+
+        # Get anomaly detection
+        detector = get_anomaly_detector()
+        anomaly = detector.detect_anomaly(
+            mint=mint,
+            current_price=price.price_usd,
+            current_liquidity=price.liquidity_usd,
+            current_volume=price.volume_24h
+        )
+
+        return jsonify({
+            'mint': price.mint,
+            'price_usd': price.price_usd,
+            'price_sol': price.price_sol,
+            'liquidity_usd': price.liquidity_usd,
+            'volume_24h': price.volume_24h,
+            'market_cap': price.market_cap,
+            'source': price.source,
+            'freshness': 'live',
+            'confidence': {
+                'band': confidence.confidence_band,
+                'score': confidence.confidence_score
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error fetching price for {mint}: {e}")
         return jsonify({'error': str(e)}), 500
 
 

@@ -249,6 +249,9 @@ class BackgroundPriceWorker:
         cycle_start = time.time()
         self.stats['cycles'] += 1
 
+        # First, sync new tokens from token_analysis to tracked_tokens
+        self._sync_new_tokens()
+
         # Get tokens to refresh based on adaptive scheduling
         tokens_to_fetch = self._get_tokens_for_refresh()
 
@@ -271,6 +274,38 @@ class BackgroundPriceWorker:
             f"{len(mints)} tokens, {duration:.2f}s, "
             f"{self.stats['api_calls']} API calls"
         )
+
+    def _sync_new_tokens(self) -> None:
+        """Sync new tokens from token_analysis table to tracked_tokens."""
+        try:
+            import sqlite3
+            conn = sqlite3.connect(self.db_path, timeout=5)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+
+            # Get all tokens from token_analysis that aren't in tracked_tokens
+            cursor.execute("""
+                SELECT ta.mint
+                FROM token_analysis ta
+                LEFT JOIN tracked_tokens tt ON ta.mint = tt.mint
+                WHERE tt.mint IS NULL
+                LIMIT 100
+            """)
+
+            new_tokens = cursor.fetchall()
+            if not new_tokens:
+                conn.close()
+                return
+
+            # Register each new token
+            for row in new_tokens:
+                mint = row['mint']
+                self.registry.register_token(mint, priority_level='HIGH')
+
+            conn.close()
+            logger.info(f"Synced {len(new_tokens)} new tokens from token_analysis")
+        except Exception as e:
+            logger.warning(f"Error syncing new tokens: {e}")
 
     def _get_tokens_for_refresh(self) -> List[Dict]:
         """
@@ -302,7 +337,10 @@ class BackgroundPriceWorker:
         return tokens_to_fetch
 
     def _batch_fetch_prices(self, mints: List[str]) -> None:
-        """Fetch prices for a list of mints in batches."""
+        """Fetch prices for a list of mints in batches and track peak market cap."""
+        import sqlite3
+        from datetime import datetime
+
         for i in range(0, len(mints), self.batch_size):
             batch = mints[i:i + self.batch_size]
             try:
@@ -310,10 +348,70 @@ class BackgroundPriceWorker:
                 self.stats['tokens_prefetched'] += len(prices)
                 self.stats['api_calls'] += 1
 
-                # Count cache hits
-                for mint, price in prices.items():
-                    if price.source == 'cached':
-                        self.stats['cache_hits'] += 1
+                # Update peak market cap for each token
+                try:
+                    conn = sqlite3.connect(self.db_path, timeout=5)
+                    cursor = conn.cursor()
+
+                    for mint, price in prices.items():
+                        if price.source == 'cached':
+                            self.stats['cache_hits'] += 1
+
+                        # Use market cap from price service (already calculated by Dexscreener/Jupiter)
+                        market_cap = price.market_cap if price.market_cap else 0
+
+                        # Get current peak and creation time
+                        cursor.execute(
+                            "SELECT market_cap_highest, market_cap_highest_at, created_at FROM token_analysis WHERE mint = ?",
+                            (mint,)
+                        )
+                        row = cursor.fetchone()
+                        peak_mc = row[0] if row and row[0] else None
+                        peak_mc_at = row[1] if row and row[1] else None
+                        created_at = row[2] if row and row[2] else None
+
+                        now = datetime.now().isoformat(sep=' ')
+
+                        if market_cap > 0:
+                            # If this is first price fetch (no peak set yet), set it now
+                            if peak_mc is None and peak_mc_at is None:
+                                cursor.execute(
+                                    """UPDATE token_analysis
+                                       SET price_current = ?, market_cap_current = ?,
+                                           market_cap_highest = ?, market_cap_highest_at = ?
+                                       WHERE mint = ?""",
+                                    (price.price_usd, market_cap, market_cap, now, mint)
+                                )
+                            # Update if this is a higher market cap than previous peak
+                            elif market_cap > peak_mc:
+                                cursor.execute(
+                                    """UPDATE token_analysis
+                                       SET price_current = ?, market_cap_current = ?,
+                                           market_cap_highest = ?, market_cap_highest_at = ?
+                                       WHERE mint = ?""",
+                                    (price.price_usd, market_cap, market_cap, now, mint)
+                                )
+                            else:
+                                # Just update current price, keep existing peak
+                                cursor.execute(
+                                    """UPDATE token_analysis
+                                       SET price_current = ?, market_cap_current = ?
+                                       WHERE mint = ?""",
+                                    (price.price_usd, market_cap, mint)
+                                )
+                        else:
+                            # No price, but still update current market cap if we have it
+                            cursor.execute(
+                                """UPDATE token_analysis
+                                   SET price_current = ?, market_cap_current = ?
+                                   WHERE mint = ?""",
+                                (price.price_usd, market_cap, mint)
+                            )
+
+                    conn.commit()
+                    conn.close()
+                except Exception as db_err:
+                    logger.warning(f"Error updating peak market cap: {db_err}")
 
                 logger.debug(f"Prefetched {len(batch)} tokens: {list(prices.keys())[:3]}...")
             except Exception as e:

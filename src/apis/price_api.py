@@ -224,6 +224,27 @@ def get_token_symbol_cached(db_path: str, mint: str) -> dict:
     }
 
 
+# Phase 5: Warm-up metrics tracking
+_warmup_stats = {
+    'price_queued': 0,
+    'price_completed': 0,
+    'price_failed': 0,
+    'metadata_queued': 0,
+    'metadata_completed': 0,
+    'metadata_failed': 0,
+    'skipped_due_to_queue': 0,
+}
+
+
+def _on_warmup_complete(mint: str, price, task_type: str) -> None:
+    """Track warm-up completion."""
+    key = f'{task_type}'
+    if price:
+        _warmup_stats[f'{key}_completed'] = _warmup_stats.get(f'{key}_completed', 0) + 1
+    else:
+        _warmup_stats[f'{key}_failed'] = _warmup_stats.get(f'{key}_failed', 0) + 1
+
+
 @price_api.route('/symbol/<mint>', methods=['GET'])
 def get_token_symbol(mint: str):
     """
@@ -818,11 +839,23 @@ def register_tokens_batch():
     """
     Register multiple tokens for immediate price tracking.
 
+    Phase 5: Also enqueues warm-ups:
+    - Price warm-up: HIGH priority (always)
+    - Metadata warm-up: LOW priority (if queue not busy)
+
     Body: {"mints": ["mint1", "mint2", ...]}
 
-    Returns: {"registered": count, "total": count}
+    Returns: {
+        "registered": count,
+        "total": count,
+        "warm_up_queued": count,
+        "warm_up_skipped": count,
+        "queue_depth": int
+    }
     """
     try:
+        from src.core.price_fetch_queue import FetchTask, get_price_queue
+
         data = request.get_json()
         mints = data.get('mints', [])
 
@@ -841,10 +874,60 @@ def register_tokens_batch():
             if mint and registry.register_token(mint, priority_level='MEDIUM'):
                 registered += 1
 
+        # Phase 5: Enqueue warm-ups (non-blocking)
+        queue = get_price_queue()
+        queue_stats = queue.get_stats()
+
+        warm_up_queued = 0
+        warm_up_skipped = 0
+        queue_depth_threshold = 50
+
+        for mint in mints:
+            # Always enqueue price warm-up (HIGH priority)
+            try:
+                task = FetchTask(
+                    mint=mint,
+                    priority='HIGH',
+                    enqueued_at=time.time(),
+                    callback=lambda m, p, t='price': _on_warmup_complete(m, p, t)
+                )
+                queue.enqueue(task)
+                _warmup_stats['price_queued'] += 1
+                warm_up_queued += 1
+            except Exception as e:
+                logger.debug(f"Failed to enqueue price warmup for {mint}: {e}")
+
+        # Enqueue metadata warm-up only if queue not busy
+        if queue_stats['queue_depth'] < queue_depth_threshold:
+            for mint in mints:
+                try:
+                    # Metadata warm-up: fetch symbol in background (LOW priority)
+                    task = FetchTask(
+                        mint=mint,
+                        priority='LOW',
+                        enqueued_at=time.time(),
+                        callback=lambda m, p, t='metadata': _on_warmup_complete(m, p, t)
+                    )
+                    queue.enqueue(task)
+                    _warmup_stats['metadata_queued'] += 1
+                    warm_up_queued += 1
+                except Exception as e:
+                    logger.debug(f"Failed to enqueue metadata warmup for {mint}: {e}")
+        else:
+            warm_up_skipped = len(mints)
+            _warmup_stats['skipped_due_to_queue'] += 1
+            logger.info(
+                f"Queue busy (depth={queue_stats['queue_depth']}), "
+                f"skipping metadata warm-ups for {len(mints)} mints"
+            )
+
         return jsonify({
             'registered': registered,
             'total': len(mints),
-            'skipped': len(mints) - registered
+            'skipped': len(mints) - registered,
+            'warm_up_queued': warm_up_queued,
+            'warm_up_skipped': warm_up_skipped,
+            'queue_depth': queue_stats['queue_depth']
         })
     except Exception as e:
         logger.error(f"Error registering batch tokens: {e}")

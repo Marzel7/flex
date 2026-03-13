@@ -98,3 +98,423 @@ sqlite3.OperationalError: no such table: transfer_index
 2026-03-10 22:55:22,052 - __main__ - INFO - Dev intelligence v3 completed: No organizations to process
 2026-03-10 22:55:22,052 - __main__ - INFO - Orgs processed: 0, Tokens predicted: 0, Alerts fired: 0, Duration: 7ms
 2026-03-10 22:55:22,052 - __main__ - WARNING - One or more phases failed: v1=error, v2=success, v3=success
+2026-03-12 13:02:52,774 - __main__ - INFO - Starting dev intelligence graph detection (v1)
+2026-03-12 13:02:52,774 - src.core.dev_intelligence_graph - INFO - Starting dev intelligence graph detection
+2026-03-12 13:02:52,786 - src.core.dev_intelligence_graph - INFO - Tables ensured: dev_organizations, dev_organization_members
+2026-03-12 13:02:52,786 - src.core.dev_intelligence_graph - INFO - Building extended graph (wallet → creator → token)
+2026-03-12 13:02:52,786 - src.core.dev_intelligence_graph - INFO - Loading base wallet graph from transfer_index
+2026-03-12 13:02:52,818 - src.core.dev_intelligence_graph - ERROR - Detection failed: no such table: transfer_index
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 434, in detect_and_store
+    graph = builder.build_extended_graph()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 64, in build_extended_graph
+    self.graph = self._load_wallet_graph(min_transfer, max_transfer, days_back)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 84, in _load_wallet_graph
+    return builder.build_graph_from_transfers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/graph_dev_farm_detection.py", line 90, in build_graph_from_transfers
+    cursor.execute(query, (min_amount, max_amount, days_back))
+sqlite3.OperationalError: no such table: transfer_index
+2026-03-12 13:02:52,835 - __main__ - INFO - Dev intelligence v1 detection completed: no such table: transfer_index
+2026-03-12 13:02:52,835 - __main__ - INFO - Organizations: 0, Members: 0, Duration: 61ms
+2026-03-12 13:02:52,835 - __main__ - INFO - Starting dev intelligence v2 (launch predictions + reputation)
+2026-03-12 13:02:52,848 - __main__ - INFO - Dev intelligence v2 completed: No organizations found to process
+2026-03-12 13:02:52,848 - __main__ - INFO - Orgs processed: 0, Duration: 12ms
+2026-03-12 13:02:52,848 - __main__ - INFO - Starting dev intelligence v3 (predictive analytics)
+2026-03-12 13:02:52,858 - src.core.dev_intelligence_v3 - WARNING - No organizations found
+2026-03-12 13:02:52,859 - __main__ - INFO - Dev intelligence v3 completed: No organizations to process
+2026-03-12 13:02:52,859 - __main__ - INFO - Orgs processed: 0, Tokens predicted: 0, Alerts fired: 0, Duration: 10ms
+2026-03-12 13:02:52,859 - __main__ - INFO - Starting dev intelligence v3.1 (behavioral modeling)
+2026-03-12 13:02:52,863 - __main__ - INFO - Dev intelligence v3.1 completed: No organizations to enhance
+2026-03-12 13:02:52,863 - __main__ - INFO - Orgs enhanced: 0, Momentum recorded: 0, Cadence analyzed: 0, Expansion detected: 0, Duration: 4ms
+2026-03-12 13:02:52,863 - __main__ - INFO - Starting creator seed metrics analysis (seed concentration)
+2026-03-12 13:02:52,871 - src.core.creator_seed_metrics - WARNING - No organizations found
+2026-03-12 13:02:52,872 - __main__ - INFO - Creator seed metrics completed: No organizations to process
+2026-03-12 13:02:52,872 - __main__ - INFO - Metrics computed: 0, High concentration: 0, Duration: 8ms
+2026-03-12 13:02:52,872 - __main__ - INFO - Starting funder overlap analysis (wallet coordination)
+2026-03-12 13:02:52,872 - src.core.funder_overlap_analysis - INFO - Starting funder overlap analysis
+2026-03-12 13:02:52,876 - src.core.funder_overlap_analysis - ERROR - Funder overlap analysis failed: no such table: transfer_index
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 264, in analyze_and_store
+    overlaps = self.compute_funder_overlaps()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 161, in compute_funder_overlaps
+    funder_creators = self.extractor.extract_funder_creator_pairs(cursor)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 55, in extract_funder_creator_pairs
+    cursor.execute("""
+sqlite3.OperationalError: no such table: transfer_index
+2026-03-12 13:02:52,877 - __main__ - INFO - Funder overlap analysis completed: no such table: transfer_index
+2026-03-12 13:02:52,877 - __main__ - INFO - Overlaps found: 0, High coordination: 0, Very strong: 0, Duration: 4ms
+2026-03-12 13:02:52,877 - __main__ - INFO - Starting launch wave detection (multi-launch patterns)
+2026-03-12 13:02:52,885 - src.core.launch_wave_detection - WARNING - No organizations found
+2026-03-12 13:02:52,886 - __main__ - INFO - Launch wave detection completed: No organizations to process
+2026-03-12 13:02:52,886 - __main__ - INFO - Orgs processed: 0, Waves detected: 0, Duration: 8ms
+2026-03-12 13:02:52,886 - __main__ - INFO - Starting master launch score computation (unified alerting)
+2026-03-12 13:02:52,886 - src.core.master_launch_score - INFO - Starting master launch score computation
+2026-03-12 13:02:52,895 - src.core.master_launch_score - WARNING - No organizations found
+2026-03-12 13:02:52,895 - __main__ - INFO - Master launch score computation completed: No organizations to process
+2026-03-12 13:02:52,895 - __main__ - INFO - Orgs processed: 0, CRITICAL: 0, HIGH: 0, WATCH: 0, Duration: 9ms
+2026-03-12 13:02:52,895 - __main__ - WARNING - One or more phases failed: v1=error, v2=success, v3=success, v3.1=success, seeds=success, overlap=error, waves=success, mls=success
+2026-03-12 13:04:22,049 - __main__ - INFO - Starting dev intelligence graph detection (v1)
+2026-03-12 13:04:22,050 - src.core.dev_intelligence_graph - INFO - Starting dev intelligence graph detection
+2026-03-12 13:04:22,062 - src.core.dev_intelligence_graph - INFO - Tables ensured: dev_organizations, dev_organization_members
+2026-03-12 13:04:22,062 - src.core.dev_intelligence_graph - INFO - Building extended graph (wallet → creator → token)
+2026-03-12 13:04:22,063 - src.core.dev_intelligence_graph - INFO - Loading base wallet graph from transfer_index
+2026-03-12 13:04:22,066 - src.core.dev_intelligence_graph - ERROR - Detection failed: no such table: transfer_index
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 434, in detect_and_store
+    graph = builder.build_extended_graph()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 64, in build_extended_graph
+    self.graph = self._load_wallet_graph(min_transfer, max_transfer, days_back)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 84, in _load_wallet_graph
+    return builder.build_graph_from_transfers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/graph_dev_farm_detection.py", line 90, in build_graph_from_transfers
+    cursor.execute(query, (min_amount, max_amount, days_back))
+sqlite3.OperationalError: no such table: transfer_index
+2026-03-12 13:04:22,068 - __main__ - INFO - Dev intelligence v1 detection completed: no such table: transfer_index
+2026-03-12 13:04:22,068 - __main__ - INFO - Organizations: 0, Members: 0, Duration: 18ms
+2026-03-12 13:04:22,068 - __main__ - INFO - Starting dev intelligence v2 (launch predictions + reputation)
+2026-03-12 13:04:22,078 - __main__ - INFO - Dev intelligence v2 completed: No organizations found to process
+2026-03-12 13:04:22,078 - __main__ - INFO - Orgs processed: 0, Duration: 10ms
+2026-03-12 13:04:22,079 - __main__ - INFO - Starting dev intelligence v3 (predictive analytics)
+2026-03-12 13:04:22,088 - src.core.dev_intelligence_v3 - WARNING - No organizations found
+2026-03-12 13:04:22,089 - __main__ - INFO - Dev intelligence v3 completed: No organizations to process
+2026-03-12 13:04:22,089 - __main__ - INFO - Orgs processed: 0, Tokens predicted: 0, Alerts fired: 0, Duration: 10ms
+2026-03-12 13:04:22,089 - __main__ - INFO - Starting dev intelligence v3.1 (behavioral modeling)
+2026-03-12 13:04:22,094 - __main__ - INFO - Dev intelligence v3.1 completed: No organizations to enhance
+2026-03-12 13:04:22,094 - __main__ - INFO - Orgs enhanced: 0, Momentum recorded: 0, Cadence analyzed: 0, Expansion detected: 0, Duration: 5ms
+2026-03-12 13:04:22,094 - __main__ - INFO - Starting creator seed metrics analysis (seed concentration)
+2026-03-12 13:04:22,102 - src.core.creator_seed_metrics - WARNING - No organizations found
+2026-03-12 13:04:22,103 - __main__ - INFO - Creator seed metrics completed: No organizations to process
+2026-03-12 13:04:22,103 - __main__ - INFO - Metrics computed: 0, High concentration: 0, Duration: 8ms
+2026-03-12 13:04:22,103 - __main__ - INFO - Starting funder overlap analysis (wallet coordination)
+2026-03-12 13:04:22,103 - src.core.funder_overlap_analysis - INFO - Starting funder overlap analysis
+2026-03-12 13:04:22,106 - src.core.funder_overlap_analysis - ERROR - Funder overlap analysis failed: no such table: transfer_index
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 264, in analyze_and_store
+    overlaps = self.compute_funder_overlaps()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 161, in compute_funder_overlaps
+    funder_creators = self.extractor.extract_funder_creator_pairs(cursor)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 55, in extract_funder_creator_pairs
+    cursor.execute("""
+sqlite3.OperationalError: no such table: transfer_index
+2026-03-12 13:04:22,106 - __main__ - INFO - Funder overlap analysis completed: no such table: transfer_index
+2026-03-12 13:04:22,106 - __main__ - INFO - Overlaps found: 0, High coordination: 0, Very strong: 0, Duration: 3ms
+2026-03-12 13:04:22,107 - __main__ - INFO - Starting launch wave detection (multi-launch patterns)
+2026-03-12 13:04:22,113 - src.core.launch_wave_detection - WARNING - No organizations found
+2026-03-12 13:04:22,114 - __main__ - INFO - Launch wave detection completed: No organizations to process
+2026-03-12 13:04:22,114 - __main__ - INFO - Orgs processed: 0, Waves detected: 0, Duration: 7ms
+2026-03-12 13:04:22,114 - __main__ - INFO - Starting master launch score computation (unified alerting)
+2026-03-12 13:04:22,114 - src.core.master_launch_score - INFO - Starting master launch score computation
+2026-03-12 13:04:22,124 - src.core.master_launch_score - WARNING - No organizations found
+2026-03-12 13:04:22,124 - __main__ - INFO - Master launch score computation completed: No organizations to process
+2026-03-12 13:04:22,124 - __main__ - INFO - Orgs processed: 0, CRITICAL: 0, HIGH: 0, WATCH: 0, Duration: 10ms
+2026-03-12 13:04:22,124 - __main__ - WARNING - One or more phases failed: v1=error, v2=success, v3=success, v3.1=success, seeds=success, overlap=error, waves=success, mls=success
+2026-03-12 13:04:46,758 - __main__ - INFO - Starting dev intelligence graph detection (v1)
+2026-03-12 13:04:46,758 - src.core.dev_intelligence_graph - INFO - Starting dev intelligence graph detection
+2026-03-12 13:04:46,765 - src.core.dev_intelligence_graph - INFO - Tables ensured: dev_organizations, dev_organization_members
+2026-03-12 13:04:46,765 - src.core.dev_intelligence_graph - INFO - Building extended graph (wallet → creator → token)
+2026-03-12 13:04:46,766 - src.core.dev_intelligence_graph - INFO - Loading base wallet graph from transfer_index
+2026-03-12 13:04:46,769 - src.core.dev_intelligence_graph - ERROR - Detection failed: no such table: transfer_index
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 434, in detect_and_store
+    graph = builder.build_extended_graph()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 64, in build_extended_graph
+    self.graph = self._load_wallet_graph(min_transfer, max_transfer, days_back)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 84, in _load_wallet_graph
+    return builder.build_graph_from_transfers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/graph_dev_farm_detection.py", line 90, in build_graph_from_transfers
+    cursor.execute(query, (min_amount, max_amount, days_back))
+sqlite3.OperationalError: no such table: transfer_index
+2026-03-12 13:04:46,770 - __main__ - INFO - Dev intelligence v1 detection completed: no such table: transfer_index
+2026-03-12 13:04:46,771 - __main__ - INFO - Organizations: 0, Members: 0, Duration: 12ms
+2026-03-12 13:04:46,771 - __main__ - INFO - Starting dev intelligence v2 (launch predictions + reputation)
+2026-03-12 13:04:46,783 - __main__ - INFO - Dev intelligence v2 completed: No organizations found to process
+2026-03-12 13:04:46,783 - __main__ - INFO - Orgs processed: 0, Duration: 13ms
+2026-03-12 13:04:46,783 - __main__ - INFO - Starting dev intelligence v3 (predictive analytics)
+2026-03-12 13:04:46,791 - src.core.dev_intelligence_v3 - WARNING - No organizations found
+2026-03-12 13:04:46,792 - __main__ - INFO - Dev intelligence v3 completed: No organizations to process
+2026-03-12 13:04:46,792 - __main__ - INFO - Orgs processed: 0, Tokens predicted: 0, Alerts fired: 0, Duration: 8ms
+2026-03-12 13:04:46,792 - __main__ - INFO - Starting dev intelligence v3.1 (behavioral modeling)
+2026-03-12 13:04:46,796 - __main__ - INFO - Dev intelligence v3.1 completed: No organizations to enhance
+2026-03-12 13:04:46,796 - __main__ - INFO - Orgs enhanced: 0, Momentum recorded: 0, Cadence analyzed: 0, Expansion detected: 0, Duration: 4ms
+2026-03-12 13:04:46,796 - __main__ - INFO - Starting creator seed metrics analysis (seed concentration)
+2026-03-12 13:04:46,805 - src.core.creator_seed_metrics - WARNING - No organizations found
+2026-03-12 13:04:46,805 - __main__ - INFO - Creator seed metrics completed: No organizations to process
+2026-03-12 13:04:46,805 - __main__ - INFO - Metrics computed: 0, High concentration: 0, Duration: 9ms
+2026-03-12 13:04:46,805 - __main__ - INFO - Starting funder overlap analysis (wallet coordination)
+2026-03-12 13:04:46,805 - src.core.funder_overlap_analysis - INFO - Starting funder overlap analysis
+2026-03-12 13:04:46,811 - src.core.funder_overlap_analysis - ERROR - Funder overlap analysis failed: no such table: transfer_index
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 264, in analyze_and_store
+    overlaps = self.compute_funder_overlaps()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 161, in compute_funder_overlaps
+    funder_creators = self.extractor.extract_funder_creator_pairs(cursor)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 55, in extract_funder_creator_pairs
+    cursor.execute("""
+sqlite3.OperationalError: no such table: transfer_index
+2026-03-12 13:04:46,811 - __main__ - INFO - Funder overlap analysis completed: no such table: transfer_index
+2026-03-12 13:04:46,811 - __main__ - INFO - Overlaps found: 0, High coordination: 0, Very strong: 0, Duration: 5ms
+2026-03-12 13:04:46,811 - __main__ - INFO - Starting launch wave detection (multi-launch patterns)
+2026-03-12 13:04:46,818 - src.core.launch_wave_detection - WARNING - No organizations found
+2026-03-12 13:04:46,819 - __main__ - INFO - Launch wave detection completed: No organizations to process
+2026-03-12 13:04:46,819 - __main__ - INFO - Orgs processed: 0, Waves detected: 0, Duration: 7ms
+2026-03-12 13:04:46,819 - __main__ - INFO - Starting master launch score computation (unified alerting)
+2026-03-12 13:04:46,819 - src.core.master_launch_score - INFO - Starting master launch score computation
+2026-03-12 13:04:46,828 - src.core.master_launch_score - WARNING - No organizations found
+2026-03-12 13:04:46,828 - __main__ - INFO - Master launch score computation completed: No organizations to process
+2026-03-12 13:04:46,828 - __main__ - INFO - Orgs processed: 0, CRITICAL: 0, HIGH: 0, WATCH: 0, Duration: 9ms
+2026-03-12 13:04:46,828 - __main__ - WARNING - One or more phases failed: v1=error, v2=success, v3=success, v3.1=success, seeds=success, overlap=error, waves=success, mls=success
+2026-03-12 13:05:15,306 - __main__ - INFO - Starting dev intelligence graph detection (v1)
+2026-03-12 13:05:15,306 - src.core.dev_intelligence_graph - INFO - Starting dev intelligence graph detection
+2026-03-12 13:05:15,312 - src.core.dev_intelligence_graph - INFO - Tables ensured: dev_organizations, dev_organization_members
+2026-03-12 13:05:15,312 - src.core.dev_intelligence_graph - INFO - Building extended graph (wallet → creator → token)
+2026-03-12 13:05:15,313 - src.core.dev_intelligence_graph - INFO - Loading base wallet graph from transfer_index
+2026-03-12 13:05:15,318 - src.core.dev_intelligence_graph - ERROR - Detection failed: no such table: transfer_index
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 434, in detect_and_store
+    graph = builder.build_extended_graph()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 64, in build_extended_graph
+    self.graph = self._load_wallet_graph(min_transfer, max_transfer, days_back)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 84, in _load_wallet_graph
+    return builder.build_graph_from_transfers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/graph_dev_farm_detection.py", line 90, in build_graph_from_transfers
+    cursor.execute(query, (min_amount, max_amount, days_back))
+sqlite3.OperationalError: no such table: transfer_index
+2026-03-12 13:05:15,323 - __main__ - INFO - Dev intelligence v1 detection completed: no such table: transfer_index
+2026-03-12 13:05:15,323 - __main__ - INFO - Organizations: 0, Members: 0, Duration: 17ms
+2026-03-12 13:05:15,323 - __main__ - INFO - Starting dev intelligence v2 (launch predictions + reputation)
+2026-03-12 13:05:15,331 - __main__ - INFO - Dev intelligence v2 completed: No organizations found to process
+2026-03-12 13:05:15,331 - __main__ - INFO - Orgs processed: 0, Duration: 8ms
+2026-03-12 13:05:15,331 - __main__ - INFO - Starting dev intelligence v3 (predictive analytics)
+2026-03-12 13:05:15,340 - src.core.dev_intelligence_v3 - WARNING - No organizations found
+2026-03-12 13:05:15,340 - __main__ - INFO - Dev intelligence v3 completed: No organizations to process
+2026-03-12 13:05:15,340 - __main__ - INFO - Orgs processed: 0, Tokens predicted: 0, Alerts fired: 0, Duration: 9ms
+2026-03-12 13:05:15,341 - __main__ - INFO - Starting dev intelligence v3.1 (behavioral modeling)
+2026-03-12 13:05:15,344 - __main__ - INFO - Dev intelligence v3.1 completed: No organizations to enhance
+2026-03-12 13:05:15,344 - __main__ - INFO - Orgs enhanced: 0, Momentum recorded: 0, Cadence analyzed: 0, Expansion detected: 0, Duration: 4ms
+2026-03-12 13:05:15,344 - __main__ - INFO - Starting creator seed metrics analysis (seed concentration)
+2026-03-12 13:05:15,362 - src.core.creator_seed_metrics - WARNING - No organizations found
+2026-03-12 13:05:15,362 - __main__ - INFO - Creator seed metrics completed: No organizations to process
+2026-03-12 13:05:15,362 - __main__ - INFO - Metrics computed: 0, High concentration: 0, Duration: 17ms
+2026-03-12 13:05:15,362 - __main__ - INFO - Starting funder overlap analysis (wallet coordination)
+2026-03-12 13:05:15,362 - src.core.funder_overlap_analysis - INFO - Starting funder overlap analysis
+2026-03-12 13:05:15,366 - src.core.funder_overlap_analysis - ERROR - Funder overlap analysis failed: no such table: transfer_index
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 264, in analyze_and_store
+    overlaps = self.compute_funder_overlaps()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 161, in compute_funder_overlaps
+    funder_creators = self.extractor.extract_funder_creator_pairs(cursor)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 55, in extract_funder_creator_pairs
+    cursor.execute("""
+sqlite3.OperationalError: no such table: transfer_index
+2026-03-12 13:05:15,367 - __main__ - INFO - Funder overlap analysis completed: no such table: transfer_index
+2026-03-12 13:05:15,367 - __main__ - INFO - Overlaps found: 0, High coordination: 0, Very strong: 0, Duration: 4ms
+2026-03-12 13:05:15,367 - __main__ - INFO - Starting launch wave detection (multi-launch patterns)
+2026-03-12 13:05:15,374 - src.core.launch_wave_detection - WARNING - No organizations found
+2026-03-12 13:05:15,375 - __main__ - INFO - Launch wave detection completed: No organizations to process
+2026-03-12 13:05:15,375 - __main__ - INFO - Orgs processed: 0, Waves detected: 0, Duration: 7ms
+2026-03-12 13:05:15,375 - __main__ - INFO - Starting master launch score computation (unified alerting)
+2026-03-12 13:05:15,375 - src.core.master_launch_score - INFO - Starting master launch score computation
+2026-03-12 13:05:15,387 - src.core.master_launch_score - WARNING - No organizations found
+2026-03-12 13:05:15,387 - __main__ - INFO - Master launch score computation completed: No organizations to process
+2026-03-12 13:05:15,387 - __main__ - INFO - Orgs processed: 0, CRITICAL: 0, HIGH: 0, WATCH: 0, Duration: 11ms
+2026-03-12 13:05:15,387 - __main__ - WARNING - One or more phases failed: v1=error, v2=success, v3=success, v3.1=success, seeds=success, overlap=error, waves=success, mls=success
+2026-03-12 13:06:38,252 - __main__ - INFO - Starting dev intelligence graph detection (v1)
+2026-03-12 13:06:38,253 - src.core.dev_intelligence_graph - INFO - Starting dev intelligence graph detection
+2026-03-12 13:06:38,258 - src.core.dev_intelligence_graph - INFO - Tables ensured: dev_organizations, dev_organization_members
+2026-03-12 13:06:38,258 - src.core.dev_intelligence_graph - INFO - Building extended graph (wallet → creator → token)
+2026-03-12 13:06:38,258 - src.core.dev_intelligence_graph - INFO - Loading base wallet graph from transfer_index
+2026-03-12 13:06:38,262 - src.core.dev_intelligence_graph - ERROR - Detection failed: no such table: transfer_index
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 434, in detect_and_store
+    graph = builder.build_extended_graph()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 64, in build_extended_graph
+    self.graph = self._load_wallet_graph(min_transfer, max_transfer, days_back)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 84, in _load_wallet_graph
+    return builder.build_graph_from_transfers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/graph_dev_farm_detection.py", line 90, in build_graph_from_transfers
+    cursor.execute(query, (min_amount, max_amount, days_back))
+sqlite3.OperationalError: no such table: transfer_index
+2026-03-12 13:06:38,264 - __main__ - INFO - Dev intelligence v1 detection completed: no such table: transfer_index
+2026-03-12 13:06:38,264 - __main__ - INFO - Organizations: 0, Members: 0, Duration: 11ms
+2026-03-12 13:06:38,264 - __main__ - INFO - Starting dev intelligence v2 (launch predictions + reputation)
+2026-03-12 13:06:38,273 - __main__ - INFO - Dev intelligence v2 completed: No organizations found to process
+2026-03-12 13:06:38,273 - __main__ - INFO - Orgs processed: 0, Duration: 9ms
+2026-03-12 13:06:38,273 - __main__ - INFO - Starting dev intelligence v3 (predictive analytics)
+2026-03-12 13:06:38,282 - src.core.dev_intelligence_v3 - WARNING - No organizations found
+2026-03-12 13:06:38,283 - __main__ - INFO - Dev intelligence v3 completed: No organizations to process
+2026-03-12 13:06:38,283 - __main__ - INFO - Orgs processed: 0, Tokens predicted: 0, Alerts fired: 0, Duration: 9ms
+2026-03-12 13:06:38,283 - __main__ - INFO - Starting dev intelligence v3.1 (behavioral modeling)
+2026-03-12 13:06:38,288 - __main__ - INFO - Dev intelligence v3.1 completed: No organizations to enhance
+2026-03-12 13:06:38,288 - __main__ - INFO - Orgs enhanced: 0, Momentum recorded: 0, Cadence analyzed: 0, Expansion detected: 0, Duration: 5ms
+2026-03-12 13:06:38,288 - __main__ - INFO - Starting creator seed metrics analysis (seed concentration)
+2026-03-12 13:06:38,295 - src.core.creator_seed_metrics - WARNING - No organizations found
+2026-03-12 13:06:38,296 - __main__ - INFO - Creator seed metrics completed: No organizations to process
+2026-03-12 13:06:38,296 - __main__ - INFO - Metrics computed: 0, High concentration: 0, Duration: 7ms
+2026-03-12 13:06:38,296 - __main__ - INFO - Starting funder overlap analysis (wallet coordination)
+2026-03-12 13:06:38,296 - src.core.funder_overlap_analysis - INFO - Starting funder overlap analysis
+2026-03-12 13:06:38,299 - src.core.funder_overlap_analysis - ERROR - Funder overlap analysis failed: no such table: transfer_index
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 264, in analyze_and_store
+    overlaps = self.compute_funder_overlaps()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 161, in compute_funder_overlaps
+    funder_creators = self.extractor.extract_funder_creator_pairs(cursor)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 55, in extract_funder_creator_pairs
+    cursor.execute("""
+sqlite3.OperationalError: no such table: transfer_index
+2026-03-12 13:06:38,300 - __main__ - INFO - Funder overlap analysis completed: no such table: transfer_index
+2026-03-12 13:06:38,300 - __main__ - INFO - Overlaps found: 0, High coordination: 0, Very strong: 0, Duration: 4ms
+2026-03-12 13:06:38,300 - __main__ - INFO - Starting launch wave detection (multi-launch patterns)
+2026-03-12 13:06:38,310 - src.core.launch_wave_detection - WARNING - No organizations found
+2026-03-12 13:06:38,311 - __main__ - INFO - Launch wave detection completed: No organizations to process
+2026-03-12 13:06:38,311 - __main__ - INFO - Orgs processed: 0, Waves detected: 0, Duration: 10ms
+2026-03-12 13:06:38,311 - __main__ - INFO - Starting master launch score computation (unified alerting)
+2026-03-12 13:06:38,311 - src.core.master_launch_score - INFO - Starting master launch score computation
+2026-03-12 13:06:38,319 - src.core.master_launch_score - WARNING - No organizations found
+2026-03-12 13:06:38,319 - __main__ - INFO - Master launch score computation completed: No organizations to process
+2026-03-12 13:06:38,319 - __main__ - INFO - Orgs processed: 0, CRITICAL: 0, HIGH: 0, WATCH: 0, Duration: 8ms
+2026-03-12 13:06:38,319 - __main__ - WARNING - One or more phases failed: v1=error, v2=success, v3=success, v3.1=success, seeds=success, overlap=error, waves=success, mls=success
+2026-03-12 13:06:55,192 - __main__ - INFO - Starting dev intelligence graph detection (v1)
+2026-03-12 13:06:55,193 - src.core.dev_intelligence_graph - INFO - Starting dev intelligence graph detection
+2026-03-12 13:06:55,198 - src.core.dev_intelligence_graph - INFO - Tables ensured: dev_organizations, dev_organization_members
+2026-03-12 13:06:55,198 - src.core.dev_intelligence_graph - INFO - Building extended graph (wallet → creator → token)
+2026-03-12 13:06:55,198 - src.core.dev_intelligence_graph - INFO - Loading base wallet graph from transfer_index
+2026-03-12 13:06:55,204 - src.core.dev_intelligence_graph - ERROR - Detection failed: no such table: transfer_index
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 434, in detect_and_store
+    graph = builder.build_extended_graph()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 64, in build_extended_graph
+    self.graph = self._load_wallet_graph(min_transfer, max_transfer, days_back)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 84, in _load_wallet_graph
+    return builder.build_graph_from_transfers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/graph_dev_farm_detection.py", line 90, in build_graph_from_transfers
+    cursor.execute(query, (min_amount, max_amount, days_back))
+sqlite3.OperationalError: no such table: transfer_index
+2026-03-12 13:06:55,211 - __main__ - INFO - Dev intelligence v1 detection completed: no such table: transfer_index
+2026-03-12 13:06:55,211 - __main__ - INFO - Organizations: 0, Members: 0, Duration: 19ms
+2026-03-12 13:06:55,212 - __main__ - INFO - Starting dev intelligence v2 (launch predictions + reputation)
+2026-03-12 13:06:55,232 - __main__ - INFO - Dev intelligence v2 completed: No organizations found to process
+2026-03-12 13:06:55,232 - __main__ - INFO - Orgs processed: 0, Duration: 21ms
+2026-03-12 13:06:55,232 - __main__ - INFO - Starting dev intelligence v3 (predictive analytics)
+2026-03-12 13:06:55,244 - src.core.dev_intelligence_v3 - WARNING - No organizations found
+2026-03-12 13:06:55,245 - __main__ - INFO - Dev intelligence v3 completed: No organizations to process
+2026-03-12 13:06:55,245 - __main__ - INFO - Orgs processed: 0, Tokens predicted: 0, Alerts fired: 0, Duration: 12ms
+2026-03-12 13:06:55,245 - __main__ - INFO - Starting dev intelligence v3.1 (behavioral modeling)
+2026-03-12 13:06:55,250 - __main__ - INFO - Dev intelligence v3.1 completed: No organizations to enhance
+2026-03-12 13:06:55,250 - __main__ - INFO - Orgs enhanced: 0, Momentum recorded: 0, Cadence analyzed: 0, Expansion detected: 0, Duration: 5ms
+2026-03-12 13:06:55,250 - __main__ - INFO - Starting creator seed metrics analysis (seed concentration)
+2026-03-12 13:06:55,260 - src.core.creator_seed_metrics - WARNING - No organizations found
+2026-03-12 13:06:55,260 - __main__ - INFO - Creator seed metrics completed: No organizations to process
+2026-03-12 13:06:55,260 - __main__ - INFO - Metrics computed: 0, High concentration: 0, Duration: 10ms
+2026-03-12 13:06:55,260 - __main__ - INFO - Starting funder overlap analysis (wallet coordination)
+2026-03-12 13:06:55,260 - src.core.funder_overlap_analysis - INFO - Starting funder overlap analysis
+2026-03-12 13:06:55,264 - src.core.funder_overlap_analysis - ERROR - Funder overlap analysis failed: no such table: transfer_index
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 264, in analyze_and_store
+    overlaps = self.compute_funder_overlaps()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 161, in compute_funder_overlaps
+    funder_creators = self.extractor.extract_funder_creator_pairs(cursor)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 55, in extract_funder_creator_pairs
+    cursor.execute("""
+sqlite3.OperationalError: no such table: transfer_index
+2026-03-12 13:06:55,265 - __main__ - INFO - Funder overlap analysis completed: no such table: transfer_index
+2026-03-12 13:06:55,265 - __main__ - INFO - Overlaps found: 0, High coordination: 0, Very strong: 0, Duration: 4ms
+2026-03-12 13:06:55,265 - __main__ - INFO - Starting launch wave detection (multi-launch patterns)
+2026-03-12 13:06:55,274 - src.core.launch_wave_detection - WARNING - No organizations found
+2026-03-12 13:06:55,275 - __main__ - INFO - Launch wave detection completed: No organizations to process
+2026-03-12 13:06:55,275 - __main__ - INFO - Orgs processed: 0, Waves detected: 0, Duration: 9ms
+2026-03-12 13:06:55,275 - __main__ - INFO - Starting master launch score computation (unified alerting)
+2026-03-12 13:06:55,275 - src.core.master_launch_score - INFO - Starting master launch score computation
+2026-03-12 13:06:55,285 - src.core.master_launch_score - WARNING - No organizations found
+2026-03-12 13:06:55,285 - __main__ - INFO - Master launch score computation completed: No organizations to process
+2026-03-12 13:06:55,285 - __main__ - INFO - Orgs processed: 0, CRITICAL: 0, HIGH: 0, WATCH: 0, Duration: 10ms
+2026-03-12 13:06:55,286 - __main__ - WARNING - One or more phases failed: v1=error, v2=success, v3=success, v3.1=success, seeds=success, overlap=error, waves=success, mls=success
+2026-03-12 13:11:42,795 - __main__ - INFO - Starting dev intelligence graph detection (v1)
+2026-03-12 13:11:42,796 - src.core.dev_intelligence_graph - INFO - Starting dev intelligence graph detection
+2026-03-12 13:11:42,805 - src.core.dev_intelligence_graph - INFO - Tables ensured: dev_organizations, dev_organization_members
+2026-03-12 13:11:42,806 - src.core.dev_intelligence_graph - INFO - Building extended graph (wallet → creator → token)
+2026-03-12 13:11:42,806 - src.core.dev_intelligence_graph - INFO - Loading base wallet graph from transfer_index
+2026-03-12 13:11:42,810 - src.core.dev_intelligence_graph - ERROR - Detection failed: no such table: transfer_index
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 434, in detect_and_store
+    graph = builder.build_extended_graph()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 64, in build_extended_graph
+    self.graph = self._load_wallet_graph(min_transfer, max_transfer, days_back)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/dev_intelligence_graph.py", line 84, in _load_wallet_graph
+    return builder.build_graph_from_transfers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/graph_dev_farm_detection.py", line 90, in build_graph_from_transfers
+    cursor.execute(query, (min_amount, max_amount, days_back))
+sqlite3.OperationalError: no such table: transfer_index
+2026-03-12 13:11:42,812 - __main__ - INFO - Dev intelligence v1 detection completed: no such table: transfer_index
+2026-03-12 13:11:42,812 - __main__ - INFO - Organizations: 0, Members: 0, Duration: 16ms
+2026-03-12 13:11:42,812 - __main__ - INFO - Starting dev intelligence v2 (launch predictions + reputation)
+2026-03-12 13:11:42,820 - __main__ - INFO - Dev intelligence v2 completed: No organizations found to process
+2026-03-12 13:11:42,820 - __main__ - INFO - Orgs processed: 0, Duration: 8ms
+2026-03-12 13:11:42,820 - __main__ - INFO - Starting dev intelligence v3 (predictive analytics)
+2026-03-12 13:11:42,828 - src.core.dev_intelligence_v3 - WARNING - No organizations found
+2026-03-12 13:11:42,829 - __main__ - INFO - Dev intelligence v3 completed: No organizations to process
+2026-03-12 13:11:42,829 - __main__ - INFO - Orgs processed: 0, Tokens predicted: 0, Alerts fired: 0, Duration: 8ms
+2026-03-12 13:11:42,829 - __main__ - INFO - Starting dev intelligence v3.1 (behavioral modeling)
+2026-03-12 13:11:42,833 - __main__ - INFO - Dev intelligence v3.1 completed: No organizations to enhance
+2026-03-12 13:11:42,833 - __main__ - INFO - Orgs enhanced: 0, Momentum recorded: 0, Cadence analyzed: 0, Expansion detected: 0, Duration: 4ms
+2026-03-12 13:11:42,833 - __main__ - INFO - Starting creator seed metrics analysis (seed concentration)
+2026-03-12 13:11:42,871 - src.core.creator_seed_metrics - WARNING - No organizations found
+2026-03-12 13:11:42,874 - __main__ - INFO - Creator seed metrics completed: No organizations to process
+2026-03-12 13:11:42,874 - __main__ - INFO - Metrics computed: 0, High concentration: 0, Duration: 41ms
+2026-03-12 13:11:42,874 - __main__ - INFO - Starting funder overlap analysis (wallet coordination)
+2026-03-12 13:11:42,874 - src.core.funder_overlap_analysis - INFO - Starting funder overlap analysis
+2026-03-12 13:11:42,878 - src.core.funder_overlap_analysis - ERROR - Funder overlap analysis failed: no such table: transfer_index
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 264, in analyze_and_store
+    overlaps = self.compute_funder_overlaps()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 161, in compute_funder_overlaps
+    funder_creators = self.extractor.extract_funder_creator_pairs(cursor)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/funder_overlap_analysis.py", line 55, in extract_funder_creator_pairs
+    cursor.execute("""
+sqlite3.OperationalError: no such table: transfer_index
+2026-03-12 13:11:42,881 - __main__ - INFO - Funder overlap analysis completed: no such table: transfer_index
+2026-03-12 13:11:42,881 - __main__ - INFO - Overlaps found: 0, High coordination: 0, Very strong: 0, Duration: 6ms
+2026-03-12 13:11:42,883 - __main__ - INFO - Starting launch wave detection (multi-launch patterns)
+2026-03-12 13:11:42,893 - src.core.launch_wave_detection - WARNING - No organizations found
+2026-03-12 13:11:42,894 - __main__ - INFO - Launch wave detection completed: No organizations to process
+2026-03-12 13:11:42,894 - __main__ - INFO - Orgs processed: 0, Waves detected: 0, Duration: 11ms
+2026-03-12 13:11:42,894 - __main__ - INFO - Starting master launch score computation (unified alerting)
+2026-03-12 13:11:42,894 - src.core.master_launch_score - INFO - Starting master launch score computation
+2026-03-12 13:11:42,908 - src.core.master_launch_score - WARNING - No organizations found
+2026-03-12 13:11:42,908 - __main__ - INFO - Master launch score computation completed: No organizations to process
+2026-03-12 13:11:42,908 - __main__ - INFO - Orgs processed: 0, CRITICAL: 0, HIGH: 0, WATCH: 0, Duration: 13ms
+2026-03-12 13:11:42,908 - __main__ - WARNING - One or more phases failed: v1=error, v2=success, v3=success, v3.1=success, seeds=success, overlap=error, waves=success, mls=success

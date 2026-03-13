@@ -3622,12 +3622,12 @@ HTML_TEMPLATE = """
                 }));
 
                 // Filter out tokens with market cap < $2000 entirely
-                // But allow very new tokens (created in last 5 minutes) to display even if low market cap
+                // But allow very new tokens (created in last 10 minutes) to display even if low market cap
                 const minMarketCap = 2000;
                 const now = Math.floor(Date.now() / 1000);
                 const filteredTokens = enrichedTokens.filter(t => {
                     const tokenAgeSeconds = now - new Date(t.created_at).getTime() / 1000;
-                    const isNewToken = tokenAgeSeconds < 300; // Less than 5 minutes old
+                    const isNewToken = tokenAgeSeconds < 600; // Less than 10 minutes old
                     // Display if: market cap >= $2k OR unknown market cap OR very new token
                     return t.market_cap_current >= minMarketCap || !t.market_cap_current || isNewToken;
                 });

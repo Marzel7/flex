@@ -18025,6 +18025,12 @@ def creator_network_page(network_name: str):
     return html
 
 
+@app.route('/system-health')
+def system_health():
+    """System health dashboard with real-time monitoring."""
+    return render_template('system_health_dashboard.html')
+
+
 @app.route('/network-monitoring')
 def network_monitoring():
     """

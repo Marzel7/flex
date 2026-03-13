@@ -307,6 +307,13 @@ class TokenPriceService:
             'birdeye': [],
         }
 
+        # Provider timeout budgets (seconds) — per-source limits
+        self.provider_timeouts = {
+            'dexscreener': 1.2,  # Reduce from 1.5 to 1.2
+            'jupiter': 0.8,      # Reduce from 1.2 to 0.8
+            'birdeye': 1.0,      # Keep at 1.0
+        }
+
         self._ensure_tables()
 
         # NEW: Load persisted circuit breaker state from database
@@ -568,6 +575,17 @@ class TokenPriceService:
             logger.error(f"Failed to save circuit breaker state: {e}")
             # Non-fatal; state still in memory
 
+    async def _fetch_with_timeout(self, coro, timeout_secs: float, source: str):
+        """
+        Execute a coroutine with strict timeout enforcement.
+        Raises asyncio.TimeoutError if timeout exceeded.
+        """
+        try:
+            return await asyncio.wait_for(coro, timeout=timeout_secs)
+        except asyncio.TimeoutError:
+            logger.debug(f"{source} exceeded timeout budget ({timeout_secs:.1f}s)")
+            raise
+
     def _is_circuit_broken(self, source: str) -> bool:
         """Check if source is currently circuit broken with exponential cooldown."""
         cb = self.circuit_breaker.get(source, {})
@@ -680,12 +698,14 @@ class TokenPriceService:
 
     async def get_token_price(self, mint: str, cache_type: str = 'hot') -> TokenPrice:
         """
-        Get token price with multi-source fallback and 3-second budget.
+        Get token price with multi-source fallback and 3-second total budget.
 
         Sources ranked by success rate + latency (adaptive ordering).
-        Circuit breaker disables failing sources for 10 minutes.
+        Each source has its own timeout budget, and overall budget is capped at 3 seconds.
+        Circuit breaker disables failing sources.
 
         Total budget: 3 seconds across all sources.
+        Per-provider budgets: dexscreener=1.2s, jupiter=0.8s, birdeye=1.0s (capped by remaining)
         """
         TOTAL_BUDGET_SECS = 3.0
         fetch_start = time.time()
@@ -700,64 +720,106 @@ class TokenPriceService:
 
         # Try each active source in ranked order
         for source in sources_ordered:
-            if time.time() - fetch_start >= TOTAL_BUDGET_SECS:
+            elapsed = time.time() - fetch_start
+            if elapsed >= TOTAL_BUDGET_SECS:
                 break
+
+            # Skip if circuit breaker is disabled for this source
+            if self._is_circuit_broken(source):
+                continue
+
+            # Calculate remaining budget for this provider
+            remaining_budget = TOTAL_BUDGET_SECS - elapsed
+            provider_timeout = self.provider_timeouts.get(source, 1.0)
+            # Use the minimum of provider timeout and remaining budget
+            actual_timeout = min(provider_timeout, remaining_budget)
+
+            if actual_timeout <= 0:
+                break  # No time left for this provider
 
             if source == 'dexscreener':
                 self.stats['dexscreener_attempted'] += 1
                 start = time.time()
-                dex_price = await DexscreenerClient.get_price(mint)
-                latency_ms = (time.time() - start) * 1000
-                self._update_latency_ewma('dexscreener', latency_ms)
+                try:
+                    # Override timeout in DexscreenerClient with actual_timeout
+                    dex_price = await self._fetch_with_timeout(
+                        DexscreenerClient.get_price(mint),
+                        actual_timeout,
+                        source
+                    )
+                    latency_ms = (time.time() - start) * 1000
+                    self._update_latency_ewma('dexscreener', latency_ms)
 
-                if dex_price:
-                    self.stats['dexscreener_success'] += 1
-                    self._update_source_stats('dexscreener', True)
-                    self.cache.set(mint, dex_price)
-                    self._store_snapshot(dex_price)
-                    return dex_price
+                    if dex_price:
+                        self.stats['dexscreener_success'] += 1
+                        self._update_source_stats('dexscreener', True)
+                        self.cache.set(mint, dex_price)
+                        self._store_snapshot(dex_price)
+                        return dex_price
 
-                self.stats['dexscreener_fail'] += 1
-                self._update_source_stats('dexscreener', False)
+                    self.stats['dexscreener_fail'] += 1
+                    self._update_source_stats('dexscreener', False)
+                except asyncio.TimeoutError:
+                    self.stats['dexscreener_fail'] += 1
+                    self._update_source_stats('dexscreener', False)
+                    logger.debug(f"Dexscreener timeout ({actual_timeout:.1f}s) for {mint}")
 
             elif source == 'jupiter':
                 self.stats['jupiter_attempted'] += 1
                 start = time.time()
-                jup_price = await JupiterClient.get_price(mint)
-                latency_ms = (time.time() - start) * 1000
-                self._update_latency_ewma('jupiter', latency_ms)
+                try:
+                    jup_price = await self._fetch_with_timeout(
+                        JupiterClient.get_price(mint),
+                        actual_timeout,
+                        source
+                    )
+                    latency_ms = (time.time() - start) * 1000
+                    self._update_latency_ewma('jupiter', latency_ms)
 
-                if jup_price:
-                    self.stats['jupiter_success'] += 1
-                    self._update_source_stats('jupiter', True)
-                    self.cache.set(mint, jup_price)
-                    self._store_snapshot(jup_price)
-                    return jup_price
+                    if jup_price:
+                        self.stats['jupiter_success'] += 1
+                        self._update_source_stats('jupiter', True)
+                        self.cache.set(mint, jup_price)
+                        self._store_snapshot(jup_price)
+                        return jup_price
 
-                self.stats['jupiter_fail'] += 1
-                self._update_source_stats('jupiter', False)
+                    self.stats['jupiter_fail'] += 1
+                    self._update_source_stats('jupiter', False)
+                except asyncio.TimeoutError:
+                    self.stats['jupiter_fail'] += 1
+                    self._update_source_stats('jupiter', False)
+                    logger.debug(f"Jupiter timeout ({actual_timeout:.1f}s) for {mint}")
 
             elif source == 'birdeye':
                 self.stats['birdeye_attempted'] += 1
                 start = time.time()
-                loop = asyncio.get_event_loop()
-                birdeye_price = await loop.run_in_executor(
-                    self._executor,
-                    self._fetch_birdeye_sync,
-                    mint
-                )
-                latency_ms = (time.time() - start) * 1000
-                self._update_latency_ewma('birdeye', latency_ms)
+                try:
+                    loop = asyncio.get_event_loop()
+                    birdeye_price = await self._fetch_with_timeout(
+                        loop.run_in_executor(
+                            self._executor,
+                            self._fetch_birdeye_sync,
+                            mint
+                        ),
+                        actual_timeout,
+                        source
+                    )
+                    latency_ms = (time.time() - start) * 1000
+                    self._update_latency_ewma('birdeye', latency_ms)
 
-                if birdeye_price:
-                    self.stats['birdeye_success'] += 1
-                    self._update_source_stats('birdeye', True)
-                    self.cache.set(mint, birdeye_price)
-                    self._store_snapshot(birdeye_price)
-                    return birdeye_price
+                    if birdeye_price:
+                        self.stats['birdeye_success'] += 1
+                        self._update_source_stats('birdeye', True)
+                        self.cache.set(mint, birdeye_price)
+                        self._store_snapshot(birdeye_price)
+                        return birdeye_price
 
-                self.stats['birdeye_fail'] += 1
-                self._update_source_stats('birdeye', False)
+                    self.stats['birdeye_fail'] += 1
+                    self._update_source_stats('birdeye', False)
+                except asyncio.TimeoutError:
+                    self.stats['birdeye_fail'] += 1
+                    self._update_source_stats('birdeye', False)
+                    logger.debug(f"Birdeye timeout ({actual_timeout:.1f}s) for {mint}")
 
         # Try database cache (stale) — always attempt, no budget check
         db_price = self._get_cached_price(mint)

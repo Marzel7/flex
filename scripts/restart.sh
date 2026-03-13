@@ -10,25 +10,20 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 echo "🔄 Restarting services..."
 echo ""
 
-# Configure WebSocket pool subscription (optional — uses defaults if not set)
-# Set your Helius API key here or via environment
-if [ -z "$HELIUS_RPC_URL" ]; then
+# Configure WebSocket pool subscription with Helius API key
+if [ -z "$HELIUS_API_KEY" ] && [ -f "$PROJECT_ROOT/config/.env" ]; then
+    export HELIUS_API_KEY=$(grep "^HELIUS_API_KEY=" "$PROJECT_ROOT/config/.env" | cut -d'=' -f2)
+fi
+
+if [ -n "$HELIUS_API_KEY" ]; then
+    export HELIUS_RPC_URL="https://mainnet.helius-rpc.com/?api-key=$HELIUS_API_KEY"
+    export HELIUS_WS_URL="wss://mainnet.helius-rpc.com/?api-key=$HELIUS_API_KEY"
+    echo "✓ WebSocket configured with Helius API key"
+else
     export HELIUS_RPC_URL="https://mainnet.helius-rpc.com/?api-key="
-    echo "ℹ️  Using default HELIUS_RPC_URL (no API key set)"
-fi
-
-if [ -z "$HELIUS_WS_URL" ]; then
     export HELIUS_WS_URL="wss://mainnet.helius-rpc.com/?api-key="
-    echo "ℹ️  Using default HELIUS_WS_URL (no API key set)"
+    echo "⚠️  No Helius API key found — WebSocket will not authenticate"
 fi
-
-# Add your API key by setting it before running this script:
-# export HELIUS_API_KEY="your_api_key_here"
-# Then uncomment these lines:
-# if [ -n "$HELIUS_API_KEY" ]; then
-#     HELIUS_RPC_URL="https://mainnet.helius-rpc.com/?api-key=$HELIUS_API_KEY"
-#     HELIUS_WS_URL="wss://mainnet.helius-rpc.com/?api-key=$HELIUS_API_KEY"
-# fi
 
 echo "✓ WebSocket pool subscription ready"
 echo ""

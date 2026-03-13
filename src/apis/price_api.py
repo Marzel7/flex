@@ -878,11 +878,9 @@ def register_tokens_batch():
 
         # Phase 5: Enqueue warm-ups (non-blocking)
         queue = get_price_queue()
-        queue_stats = queue.get_stats()
 
         warm_up_queued = 0
         warm_up_skipped = 0
-        queue_depth_threshold = 50
 
         for mint in mints:
             # Always enqueue price warm-up (HIGH priority)
@@ -899,8 +897,12 @@ def register_tokens_batch():
             except Exception as e:
                 logger.debug(f"Failed to enqueue price warmup for {mint}: {e}")
 
-        # Enqueue metadata warm-up only if queue not busy
-        if queue_stats['queue_depth'] < queue_depth_threshold:
+        # Take fresh snapshot AFTER price warm-ups are enqueued
+        queue_stats = queue.get_stats()
+
+        QUEUE_WAIT_THRESHOLD_MS = 10_000  # ~38 tasks at 260ms average latency
+        # Enqueue metadata warm-up only if queue wait estimate < threshold
+        if queue_stats.get('queue_wait_estimate_ms', 0) < QUEUE_WAIT_THRESHOLD_MS:
             for mint in mints:
                 try:
                     # Metadata warm-up: fetch symbol in background (LOW priority)
@@ -919,7 +921,7 @@ def register_tokens_batch():
             warm_up_skipped = len(mints)
             _warmup_stats['skipped_due_to_queue'] += len(mints)
             logger.info(
-                f"Queue busy (depth={queue_stats['queue_depth']}), "
+                f"Queue busy (wait={queue_stats.get('queue_wait_estimate_ms', 0):.0f}ms), "
                 f"skipping metadata warm-ups for {len(mints)} mints"
             )
 
@@ -929,7 +931,8 @@ def register_tokens_batch():
             'skipped': len(mints) - registered,
             'warm_up_queued': warm_up_queued,
             'warm_up_skipped': warm_up_skipped,
-            'queue_depth': queue_stats['queue_depth']
+            'queue_depth': queue_stats['queue_depth'],
+            'queue_wait_estimate_ms': queue_stats.get('queue_wait_estimate_ms', 0)
         })
     except Exception as e:
         logger.error(f"Error registering batch tokens: {e}")

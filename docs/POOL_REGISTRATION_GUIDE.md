@@ -35,25 +35,47 @@ CREATE TABLE token_pool_accounts (
 
 ---
 
-## Quick Start: Register Test Pools
+## Quick Start: Register Real Pools
 
-For testing, use the provided script:
+⚠️ **Important**: The test pool script contains placeholder addresses. You must find and register **actual pools** that exist on the Solana blockchain.
+
+The system will connect to the WebSocket and subscribe to the addresses you provide, but no events will be received if the accounts don't exist on-chain.
+
+### Step 1: Find Real Pool Addresses
+
+See [Manual Registration](#manual-registration) below for detailed instructions on finding actual pool addresses using:
+- Raydium UI (raydium.io)
+- Solana Explorer (solscan.io)
+- DEX Screener or other analysis tools
+
+### Step 2: Register Pools via API
+
+Once you have real addresses, register them:
 
 ```bash
-./scripts/register-test-pools.sh
+curl -X POST http://localhost:5002/api/price/pool/register \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "pool_accounts": [{
+      "mint": "YOUR_ACTUAL_MINT",
+      "base_account": "YOUR_BASE_ACCOUNT_ADDRESS",
+      "quote_account": "YOUR_QUOTE_ACCOUNT_ADDRESS",
+      "base_token": "YOUR_ACTUAL_MINT",
+      "quote_token": "So11111111111111111111111111111111111111112",
+      "base_decimals": 6,
+      "quote_decimals": 9,
+      "pool_program": "raydium_amm"
+    }]
+  }'
 ```
 
-This registers 3 popular Raydium pools:
-- **USDC** — High liquidity stablecoin
-- **COPE** — Community token
-- **mSOL** — Marinade staking derivative
+### Step 3: Restart Services
 
-After registration:
 ```bash
 ./scripts/restart.sh
 ```
 
-WebSocket will **automatically connect** and start receiving events.
+WebSocket will **automatically connect** and start receiving events from the real pools.
 
 ---
 

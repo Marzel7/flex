@@ -45,10 +45,11 @@ class PoolReserveFetcher:
             ).fetchall()
         return [dict(r) for r in rows]
 
-    async def fetch_reserves(self, pools: List[Dict]) -> Dict[str, Tuple[int, int]]:
+    async def fetch_reserves(self, pools: List[Dict]) -> Dict[Tuple[str, str], Tuple[int, int]]:
         """
         Batch-fetch base+quote reserves for all pools via getMultipleAccounts.
-        Returns {mint: (base_reserve_raw, quote_reserve_raw)}.
+        Returns {(mint, base_account): (base_reserve_raw, quote_reserve_raw)}.
+        Keyed by (mint, base_account) to support multiple pools per token.
         Batches pubkeys into groups of MAX_PUBKEYS_PER_CALL.
         """
         if not pools:
@@ -78,8 +79,8 @@ class PoolReserveFetcher:
             result = await self._call_get_multiple_accounts(batch)
             balances.update(result)
 
-        # Pair up reserves by mint
-        reserves: Dict[str, Tuple[int, int]] = {}
+        # Pair up reserves by (mint, base_account) to support multiple pools per token
+        reserves: Dict[Tuple[str, str], Tuple[int, int]] = {}
         for pool in pools:
             base_key = pool["base_account"]
             quote_key = pool["quote_account"]
@@ -87,7 +88,7 @@ class PoolReserveFetcher:
             quote_balance = balances.get(quote_key)
 
             if base_balance is not None and quote_balance is not None:
-                reserves[pool["mint"]] = (base_balance, quote_balance)
+                reserves[(pool["mint"], pool["base_account"])] = (base_balance, quote_balance)
 
         return reserves
 
@@ -252,31 +253,33 @@ class PoolPriceCalculator:
 class PoolStateStore:
     """
     Thread-safe store for pool reserve state updated by WebSocket events.
-    Tracks base_reserve and quote_reserve for each registered pool.
+    Keyed by (mint, base_account) to support multiple pools per token.
+    Deduplicates rapid events from same slot (per pool).
     Detects stale pools (no updates >5 minutes).
-    Deduplicates rapid events from same slot.
     """
 
     STALE_POOL_THRESHOLD = 300  # 5 minutes in seconds
 
     def __init__(self):
         self._lock = threading.Lock()
-        # mint -> {
+        # (mint, base_account) -> {
         #   'base_reserve': int, 'quote_reserve': int,
         #   'last_update': float, 'last_slot': int,
         #   'is_stale': bool
         # }
-        self._state: Dict[str, Dict] = {}
+        self._state: Dict[Tuple[str, str], Dict] = {}
 
-    def update_reserve(self, mint: str, account_type: str, raw_balance: int, slot: Optional[int] = None) -> bool:
+    def update_reserve(self, mint: str, base_account: str, account_type: str, 
+                       raw_balance: int, slot: Optional[int] = None) -> bool:
         """
         Update one side of a pool's reserves (base or quote).
+        Pool identified by (mint, base_account) to support multiple pools per token.
         Returns True if update was applied, False if deduplicated.
-        Deduplicates if same slot seen recently (same block, multiple events).
         """
+        pool_id = (mint, base_account)
         with self._lock:
-            if mint not in self._state:
-                self._state[mint] = {
+            if pool_id not in self._state:
+                self._state[pool_id] = {
                     "base_reserve": None,
                     "quote_reserve": None,
                     "last_update": 0,
@@ -284,20 +287,21 @@ class PoolStateStore:
                     "is_stale": False,
                 }
 
-            # Deduplication: skip if same slot seen recently
-            if slot is not None and self._state[mint]["last_slot"] == slot:
+            # Deduplication: skip if same slot seen recently (per pool)
+            if slot is not None and self._state[pool_id]["last_slot"] == slot:
                 return False
 
-            self._state[mint][f"{account_type}_reserve"] = raw_balance
-            self._state[mint]["last_update"] = time.time()
-            self._state[mint]["last_slot"] = slot
-            self._state[mint]["is_stale"] = False
+            self._state[pool_id][f"{account_type}_reserve"] = raw_balance
+            self._state[pool_id]["last_update"] = time.time()
+            self._state[pool_id]["last_slot"] = slot
+            self._state[pool_id]["is_stale"] = False
             return True
 
-    def get_reserves(self, mint: str) -> Optional[Tuple[int, int]]:
-        """Return (base_raw, quote_raw) if both sides known and not stale, else None."""
+    def get_reserves(self, mint: str, base_account: str) -> Optional[Tuple[int, int]]:
+        """Return (base_raw, quote_raw) for a specific pool, or None if not both known/not stale."""
+        pool_id = (mint, base_account)
         with self._lock:
-            s = self._state.get(mint)
+            s = self._state.get(pool_id)
             if (
                 s
                 and s["base_reserve"] is not None
@@ -307,36 +311,91 @@ class PoolStateStore:
                 return (s["base_reserve"], s["quote_reserve"])
         return None
 
-    def get_all_mints(self) -> List[str]:
-        """Return list of all mints currently in store."""
+    def get_pools_for_mint(self, mint: str) -> List[Tuple[str, int, int]]:
+        """
+        Return [(base_account, base_raw, quote_raw), ...] for all valid pools of a mint.
+        Only includes pools with both reserves known and not stale.
+        """
+        results = []
         with self._lock:
-            return list(self._state.keys())
+            for (m, base_account), s in self._state.items():
+                if m == mint and not s["is_stale"]:
+                    if s["base_reserve"] is not None and s["quote_reserve"] is not None:
+                        results.append((base_account, s["base_reserve"], s["quote_reserve"]))
+        return results
+
+    def get_all_mints(self) -> List[str]:
+        """Return list of all distinct mints currently in store."""
+        with self._lock:
+            return list({m for (m, _) in self._state.keys()})
 
     def mark_stale_pools(self, now: Optional[float] = None) -> List[str]:
         """
         Mark pools with no updates >5 minutes as stale.
-        Returns list of mints that became stale.
+        Returns list of mints that have at least one pool marked stale.
         """
         if now is None:
             now = time.time()
 
-        stale_mints = []
+        stale_mints = set()
         with self._lock:
-            for mint, state in self._state.items():
+            for (mint, base_account), state in self._state.items():
                 if not state["is_stale"] and now - state["last_update"] > self.STALE_POOL_THRESHOLD:
                     state["is_stale"] = True
-                    stale_mints.append(mint)
+                    stale_mints.add(mint)
 
         if stale_mints:
-            logger.warning(f"Marked {len(stale_mints)} pools as stale (no updates >5 min): {stale_mints[:5]}")
+            logger.warning(f"Marked pools as stale (no updates >5 min): {list(stale_mints)[:5]}")
 
-        return stale_mints
+        return list(stale_mints)
 
     def clear(self, mint: str) -> None:
-        """Clear reserve state for a mint."""
+        """Clear reserve state for all pools of a mint."""
         with self._lock:
-            self._state.pop(mint, None)
+            keys = [(m, b) for (m, b) in list(self._state.keys()) if m == mint]
+            for k in keys:
+                del self._state[k]
 
+
+
+class PoolAggregator:
+    """
+    Aggregate prices from multiple pools for same token.
+    Strategy: highest liquidity pool wins (already filtered by MIN_LIQUIDITY_USD in compute_price).
+    Source annotated as "pool(N)" when N > 1 pools contributed.
+    """
+
+    @staticmethod
+    def aggregate(prices: List["TokenPrice"]) -> Optional["TokenPrice"]:
+        """
+        Given a list of TokenPrice objects (one per pool for a mint),
+        return the best price. Strategy: highest liquidity pool wins.
+        
+        Args:
+            prices: List of TokenPrice objects (may contain None values)
+            
+        Returns:
+            TokenPrice with aggregated price, or None if no valid prices.
+        """
+        valid = [p for p in prices if p is not None]
+        if not valid:
+            return None
+        
+        # Pick highest liquidity pool as most trusted price
+        best = max(valid, key=lambda p: p.liquidity_usd)
+        n = len(valid)
+        
+        # Annotate source with pool count
+        return TokenPrice(
+            mint=best.mint,
+            price_usd=best.price_usd,
+            price_sol=best.price_sol,
+            liquidity_usd=best.liquidity_usd,
+            volume_24h=best.volume_24h,
+            market_cap=best.market_cap,
+            source=f"pool({n})" if n > 1 else "pool",
+            is_stale=best.is_stale,
+        )
 
 class PoolWebSocketClient:
     """
@@ -514,7 +573,7 @@ class PoolWebSocketClient:
             slot = params.get("result", {}).get("context", {}).get("slot")
 
             # Update reserve; returns False if deduplicated
-            if not self._store.update_reserve(mint, account_type, balance, slot):
+            if not self._store.update_reserve(mint, pool["base_account"], account_type, balance, slot):
                 self.stats["events_deduplicated"] += 1
                 return
 

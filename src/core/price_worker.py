@@ -290,36 +290,18 @@ class BackgroundPriceWorker:
         )
 
     def _sync_new_tokens(self) -> None:
-        """Sync new tokens from token_analysis table to tracked_tokens."""
-        try:
-            import sqlite3
-            conn = sqlite3.connect(self.db_path, timeout=5)
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
+        """
+        Disabled: No longer auto-sync all tokens.
 
-            # Get all tokens from token_analysis that aren't in tracked_tokens
-            cursor.execute("""
-                SELECT ta.mint
-                FROM token_analysis ta
-                LEFT JOIN tracked_tokens tt ON ta.mint = tt.mint
-                WHERE tt.mint IS NULL
-                LIMIT 100
-            """)
+        Only tokens explicitly registered via /api/price/batch/register
+        will be tracked. This prevents wasteful fetching of 2000+ tokens
+        when we only display 25.
 
-            new_tokens = cursor.fetchall()
-            if not new_tokens:
-                conn.close()
-                return
-
-            # Register each new token
-            for row in new_tokens:
-                mint = row['mint']
-                self.registry.register_token(mint, priority_level='HIGH')
-
-            conn.close()
-            logger.info(f"Synced {len(new_tokens)} new tokens from token_analysis")
-        except Exception as e:
-            logger.warning(f"Error syncing new tokens: {e}")
+        Previously this method would sync all tokens from token_analysis,
+        causing the system to fetch prices for every token in the database.
+        Now only the 25 visible tokens are registered by the dashboard.
+        """
+        pass  # No-op: relying on explicit registration only
 
     def _get_tokens_for_refresh(self) -> List[Dict]:
         """

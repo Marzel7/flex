@@ -609,26 +609,47 @@ class TokenPriceService:
 
         return True
 
+    def get_rolling_window_stats(self) -> dict:
+        """
+        Get rolling window statistics for all sources.
+        Used for monitoring and debugging source health.
+        """
+        stats = {}
+        for source in self.source_attempts:
+            attempts = self.source_attempts[source]
+            if attempts:
+                failures = sum(1 for _, s in attempts if not s)
+                success_rate = (len(attempts) - failures) / len(attempts)
+            else:
+                success_rate = 0.0
+            
+            stats[source] = {
+                'attempts_in_window': len(self.source_attempts[source]),
+                'success_rate': round(success_rate, 3),
+                'failure_rate': round(1 - success_rate, 3),
+            }
+        return stats
+
     def _update_source_stats(self, source: str, success: bool) -> None:
         """
         Track attempt success and update:
-        1. Source attempt history
-        2. Circuit breaker failure rate
+        1. Source attempt history (1-hour rolling window)
+        2. Circuit breaker failure rate (>90% over 20+ attempts)
         3. Increment break_count and persist on circuit break
         """
         now = time.time()
         self.source_attempts[source].append((now, success))
 
-        # Keep only last 50 attempts (sliding window)
+        # Keep only last 1 hour of attempts (rolling window)
         cutoff = now - 3600  # 1 hour
         self.source_attempts[source] = [
             (ts, s) for ts, s in self.source_attempts[source]
             if ts > cutoff
-        ][-50:]  # Keep only last 50
+        ]
 
-        # Check if circuit should break (>90% failure over 50+ attempts)
+        # Check if circuit should break (>90% failure over 20+ attempts)
         attempts = self.source_attempts[source]
-        if len(attempts) >= 50:
+        if len(attempts) >= 20:
             failures = sum(1 for _, s in attempts if not s)
             failure_rate = failures / len(attempts)
 
@@ -641,7 +662,7 @@ class TokenPriceService:
                 cooldown_min = cooldown_secs / 60
                 logger.warning(
                     f"Circuit breaker triggered for {source}: "
-                    f"{failure_rate:.1%} failure rate over 50 attempts. "
+                    f"{failure_rate:.1%} failure rate over {len(attempts)} attempts. "
                     f"Break #{break_count}, cooldown {cooldown_min:.0f} min"
                 )
                 self._save_circuit_breaker_state(source)

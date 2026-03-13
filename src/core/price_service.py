@@ -284,7 +284,7 @@ class TokenPriceService:
         }
         # Shared Birdeye client: requests.Session per thread (thread-safe)
         self._birdeye_local = threading.local()
-        self._executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix='birdeye-')
+        self._executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix='birdeye-')
 
         # Circuit breaker: track disabled sources and cooldown (600s)
         self.circuit_breaker = {

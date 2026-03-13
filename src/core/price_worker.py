@@ -705,9 +705,34 @@ class BackgroundPriceWorker:
             self.stats['errors'] += 1
 
     def get_stats(self) -> Dict:
-        """Get worker statistics."""
+        """Get worker statistics including circuit breaker and source metrics."""
+        stats = self.stats.copy()
+
+        # Add circuit breaker state from price service
+        if hasattr(self.price_service, 'circuit_breaker'):
+            stats['circuit_breaker'] = {
+                k: {
+                    'disabled': v['disabled'],
+                    'cooldown_remaining_secs': max(0, 600 - (time.time() - v.get('disabled_at', 0)))
+                }
+                for k, v in self.price_service.circuit_breaker.items()
+            }
+
+        # Add source attempt metrics
+        if hasattr(self.price_service, 'source_attempts'):
+            stats['source_metrics'] = {
+                source: {
+                    'attempts_tracked': len(attempts),
+                    'recent_success_rate': (
+                        sum(1 for _, s in attempts if s) / len(attempts)
+                        if attempts else 0.0
+                    )
+                }
+                for source, attempts in self.price_service.source_attempts.items()
+            }
+
         return {
-            'worker': self.stats.copy(),
+            'worker': stats,
             'registry': self.registry.get_stats()
         }
 

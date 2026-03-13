@@ -421,11 +421,13 @@ class BackgroundPriceWorker:
             self.stats['ws_stats'] = dict(self._ws_client.stats)
 
     async def _fetch_pool_prices_async(self) -> None:
-        """Async implementation of pool price fetching."""
+        """Async implementation of pool price fetching with multi-pool aggregation."""
+        from collections import defaultdict
         from src.core.pool_price_engine import (
             get_pool_fetcher,
             PoolPriceCalculator,
             PoolReserveFetcher,
+            PoolAggregator,
         )
 
         fetcher = get_pool_fetcher(self.db_path)
@@ -439,41 +441,61 @@ class BackgroundPriceWorker:
             logger.warning("Skipping pool price fetch — SOL price unavailable")
             return
 
-        # Batch-fetch all reserves
+        # Batch-fetch all reserves: now keyed by (mint, base_account)
         reserves = await fetcher.fetch_reserves(pools)
-        pool_map = {p["mint"]: p for p in pools}
+        
+        # Key pool metadata by (mint, base_account)
+        pool_map = {(p["mint"], p["base_account"]): p for p in pools}
+        
+        # Group reserves by mint for aggregation
+        pools_by_mint = defaultdict(list)
+        for (mint, base_account), (base_raw, quote_raw) in reserves.items():
+            pools_by_mint[mint].append((base_account, base_raw, quote_raw))
+
         new_cache: Dict[str, TokenPrice] = {}
 
-        for mint, (base_raw, quote_raw) in reserves.items():
-            pool = pool_map[mint]
+        for mint, pool_list in pools_by_mint.items():
             last_price = None
             if mint in self.price_service.pool_price_cache:
                 last_price = self.price_service.pool_price_cache[mint].price_usd
 
-            token_price = PoolPriceCalculator.compute_price(
-                mint=mint,
-                base_reserve_raw=base_raw,
-                quote_reserve_raw=quote_raw,
-                base_decimals=pool["base_decimals"],
-                quote_decimals=pool["quote_decimals"],
-                quote_is_sol=(
-                    pool["quote_token"] == PoolReserveFetcher.SOL_MINT
-                ),
-                sol_price_usd=sol_price_usd,
-                last_cached_price=last_price,
-            )
-            if token_price:
-                new_cache[mint] = token_price
+            # Compute price for each pool
+            candidate_prices = []
+            for base_account, base_raw, quote_raw in pool_list:
+                pool = pool_map.get((mint, base_account))
+                if not pool:
+                    continue
+
+                token_price = PoolPriceCalculator.compute_price(
+                    mint=mint,
+                    base_reserve_raw=base_raw,
+                    quote_reserve_raw=quote_raw,
+                    base_decimals=pool["base_decimals"],
+                    quote_decimals=pool["quote_decimals"],
+                    quote_is_sol=(
+                        pool["quote_token"] == PoolReserveFetcher.SOL_MINT
+                    ),
+                    sol_price_usd=sol_price_usd,
+                    last_cached_price=last_price,
+                )
+                if token_price:
+                    candidate_prices.append(token_price)
+
+            # Aggregate prices from all pools for this mint
+            aggregated = PoolAggregator.aggregate(candidate_prices)
+            if aggregated:
+                new_cache[mint] = aggregated
 
         # Atomic swap — GIL-safe for dict reference reassignment
         self.price_service.pool_price_cache = new_cache
         self.stats["pool_prices_fetched"] = len(new_cache)
-        logger.info(f"Pool prices fetched: {len(new_cache)}/{len(pools)} pools")
+        logger.info(f"Pool prices fetched: {len(new_cache)} tokens from {len(pools)} pool registrations")
 
     def _recompute_prices_from_ws_state(self) -> None:
         """
         Recompute pool_price_cache from current PoolStateStore reserves.
         Called every refresh cycle (10s) — no RPC calls.
+        Handles multiple pools per mint via aggregation.
         SOL price is fetched at most once per 30s (cached on self).
         """
         try:
@@ -481,6 +503,7 @@ class BackgroundPriceWorker:
                 get_pool_fetcher,
                 PoolPriceCalculator,
                 PoolReserveFetcher,
+                PoolAggregator,
             )
 
             fetcher = get_pool_fetcher(self.db_path)
@@ -488,7 +511,11 @@ class BackgroundPriceWorker:
             if not pools:
                 return
 
-            pool_map = {p["mint"]: p for p in pools}
+            # Key by (mint, base_account) to support multiple pools per token
+            pool_map = {(p["mint"], p["base_account"]): p for p in pools}
+
+            # Get all distinct mints
+            mints = self._pool_state.get_all_mints()
 
             # Refresh SOL price at most once per 30s
             now = time.time()
@@ -504,33 +531,41 @@ class BackgroundPriceWorker:
 
             new_cache: Dict[str, TokenPrice] = {}
 
-            for mint in self._pool_state.get_all_mints():
-                reserves = self._pool_state.get_reserves(mint)
-                if not reserves:
-                    continue  # one side not yet received from WS
-
-                base_raw, quote_raw = reserves
-                pool = pool_map.get(mint)
-                if not pool:
+            for mint in mints:
+                # Get all pools for this mint
+                pool_reserves = self._pool_state.get_pools_for_mint(mint)
+                if not pool_reserves:
                     continue
 
                 last_price = self.price_service.pool_price_cache.get(mint)
                 last_price_usd = last_price.price_usd if last_price else None
 
-                token_price = PoolPriceCalculator.compute_price(
-                    mint=mint,
-                    base_reserve_raw=base_raw,
-                    quote_reserve_raw=quote_raw,
-                    base_decimals=pool["base_decimals"],
-                    quote_decimals=pool["quote_decimals"],
-                    quote_is_sol=(
-                        pool["quote_token"] == PoolReserveFetcher.SOL_MINT
-                    ),
-                    sol_price_usd=self._sol_price_usd,
-                    last_cached_price=last_price_usd,
-                )
-                if token_price:
-                    new_cache[mint] = token_price
+                # Compute price for each pool
+                candidate_prices = []
+                for base_account, base_raw, quote_raw in pool_reserves:
+                    pool = pool_map.get((mint, base_account))
+                    if not pool:
+                        continue
+
+                    token_price = PoolPriceCalculator.compute_price(
+                        mint=mint,
+                        base_reserve_raw=base_raw,
+                        quote_reserve_raw=quote_raw,
+                        base_decimals=pool["base_decimals"],
+                        quote_decimals=pool["quote_decimals"],
+                        quote_is_sol=(
+                            pool["quote_token"] == PoolReserveFetcher.SOL_MINT
+                        ),
+                        sol_price_usd=self._sol_price_usd,
+                        last_cached_price=last_price_usd,
+                    )
+                    if token_price:
+                        candidate_prices.append(token_price)
+
+                # Aggregate prices from all pools for this mint
+                aggregated = PoolAggregator.aggregate(candidate_prices)
+                if aggregated:
+                    new_cache[mint] = aggregated
 
             self.price_service.pool_price_cache = new_cache
             self.stats["pool_prices_fetched"] = len(new_cache)

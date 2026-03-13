@@ -447,6 +447,7 @@ def health():
                 'events_decoded': ws_stats.get('events_decoded', 0),
                 'reconnects': ws_stats.get('reconnects', 0),
                 'last_event_at': ws_stats.get('last_event_at', 0),
+                'multi_pool_enabled': True,
             }
         }
 

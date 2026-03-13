@@ -19,6 +19,7 @@ import time
 import threading
 from typing import List, Dict, Optional
 from src.core.price_service import get_price_service, TokenPrice
+from src.core.price_fetch_queue import get_price_queue, FetchTask, start_price_queue_worker
 
 logger = logging.getLogger(__name__)
 
@@ -195,15 +196,16 @@ class BackgroundPriceWorker:
         Args:
             db_path: Path to database
             interval: Refresh interval in seconds (default 10)
-            batch_size: Tokens to fetch per API call (default 20)
+            batch_size: Legacy parameter (no longer used; queue handles batching)
         """
         self.db_path = db_path
         self.interval = interval
-        self.batch_size = batch_size
+        self.batch_size = batch_size  # No longer used; for backwards compatibility
         self.price_service = get_price_service(db_path)
         self.registry = PriceWorkerRegistry(db_path)
         self.running = False
         self.thread = None
+        self.queue = get_price_queue()
         self.stats = {
             'cycles': 0,
             'tokens_prefetched': 0,
@@ -211,7 +213,8 @@ class BackgroundPriceWorker:
             'cache_hits': 0,
             'errors': 0,
             'last_run': None,
-            'last_error': None
+            'last_error': None,
+            'queue_stats': {}
         }
 
     def start(self) -> None:
@@ -220,10 +223,13 @@ class BackgroundPriceWorker:
             logger.warning("Worker already running")
             return
 
+        # Start the price fetch queue worker
+        start_price_queue_worker(self._fetch_single_price)
+
         self.running = True
         self.thread = threading.Thread(target=self._run_loop, daemon=True)
         self.thread.start()
-        logger.info(f"Background price worker started (interval={self.interval}s, batch={self.batch_size})")
+        logger.info(f"Background price worker started (interval={self.interval}s, using request queue)")
 
     def stop(self) -> None:
         """Stop the background worker."""
@@ -245,34 +251,42 @@ class BackgroundPriceWorker:
                 time.sleep(self.interval)
 
     def _refresh_cycle(self) -> None:
-        """One complete refresh cycle with adaptive scheduling."""
+        """One complete refresh cycle with request queue."""
         cycle_start = time.time()
         self.stats['cycles'] += 1
 
         # First, sync new tokens from token_analysis to tracked_tokens
         self._sync_new_tokens()
 
-        # Get tokens to refresh based on adaptive scheduling
+        # Get tokens to refresh
         tokens_to_fetch = self._get_tokens_for_refresh()
 
         if not tokens_to_fetch:
             logger.debug("No tracked tokens to refresh")
+            # Update queue stats even if nothing to fetch
+            self.stats['queue_stats'] = self.queue.get_stats()
             return
 
-        # Batch fetch prices
-        mints = [t['mint'] for t in tokens_to_fetch]
-        self._batch_fetch_prices(mints)
-
-        # Update timestamps
-        for mint in mints:
-            self.registry.update_price_timestamp(mint)
+        # Enqueue tokens to fetch (instead of batch fetching directly)
+        tasks = [
+            FetchTask(
+                mint=t['mint'],
+                priority=t['priority_level'],
+                enqueued_at=time.time(),
+                callback=self._on_price_fetched
+            )
+            for t in tokens_to_fetch
+        ]
+        self.queue.enqueue_batch(tasks)
 
         duration = time.time() - cycle_start
         self.stats['last_run'] = duration
+        self.stats['queue_stats'] = self.queue.get_stats()
+
         logger.debug(
             f"Prefetch cycle {self.stats['cycles']}: "
-            f"{len(mints)} tokens, {duration:.2f}s, "
-            f"{self.stats['api_calls']} API calls"
+            f"enqueued {len(tasks)} tokens, cycle time {duration:.2f}s, "
+            f"queue depth {self.queue.get_stats()['queue_depth']}"
         )
 
     def _sync_new_tokens(self) -> None:
@@ -417,6 +431,110 @@ class BackgroundPriceWorker:
             except Exception as e:
                 logger.error(f"Error fetching batch {batch[:3]}...: {e}")
                 self.stats['errors'] += 1
+
+    def _fetch_single_price(self, mint: str) -> TokenPrice:
+        """
+        Fetch price for a single token.
+
+        Called by the price fetch queue worker.
+
+        Returns TokenPrice object or unavailable placeholder.
+        """
+        try:
+            # Fetch from price service (which handles multi-source, caching, etc.)
+            prices = self.price_service.get_token_prices_sync([mint], cache_type='hot')
+            return prices.get(mint)
+        except Exception as e:
+            logger.error(f"Error fetching price for {mint}: {e}")
+            # Return unavailable placeholder
+            return TokenPrice(
+                mint=mint,
+                price_usd=0,
+                price_sol=0,
+                liquidity_usd=0,
+                volume_24h=0,
+                market_cap=0,
+                source='unavailable',
+                is_stale=True
+            )
+
+    def _on_price_fetched(self, mint: str, price: TokenPrice) -> None:
+        """
+        Callback when price is fetched from queue.
+
+        Updates database with price and market cap data.
+        """
+        try:
+            from datetime import datetime
+
+            # Track stats
+            self.stats['tokens_prefetched'] += 1
+            if price.source == 'cached':
+                self.stats['cache_hits'] += 1
+
+            # Update peak market cap
+            market_cap = price.market_cap if price.market_cap else 0
+
+            if market_cap > 0 or price.price_usd > 0:
+                conn = sqlite3.connect(self.db_path, timeout=5)
+                cursor = conn.cursor()
+
+                # Get current peak
+                cursor.execute(
+                    "SELECT market_cap_highest, market_cap_highest_at FROM token_analysis WHERE mint = ?",
+                    (mint,)
+                )
+                row = cursor.fetchone()
+                peak_mc = row[0] if row and row[0] else None
+                peak_mc_at = row[1] if row and row[1] else None
+
+                now = datetime.now().isoformat(sep=' ')
+
+                if market_cap > 0:
+                    if peak_mc is None:
+                        # First fetch: set peak
+                        cursor.execute(
+                            """UPDATE token_analysis
+                               SET price_current = ?, market_cap_current = ?,
+                                   market_cap_highest = ?, market_cap_highest_at = ?
+                               WHERE mint = ?""",
+                            (price.price_usd, market_cap, market_cap, now, mint)
+                        )
+                    elif market_cap > peak_mc:
+                        # New peak
+                        cursor.execute(
+                            """UPDATE token_analysis
+                               SET price_current = ?, market_cap_current = ?,
+                                   market_cap_highest = ?, market_cap_highest_at = ?
+                               WHERE mint = ?""",
+                            (price.price_usd, market_cap, market_cap, now, mint)
+                        )
+                    else:
+                        # Just update current
+                        cursor.execute(
+                            """UPDATE token_analysis
+                               SET price_current = ?, market_cap_current = ?
+                               WHERE mint = ?""",
+                            (price.price_usd, market_cap, mint)
+                        )
+                else:
+                    # No valid market cap, just update price
+                    cursor.execute(
+                        """UPDATE token_analysis
+                           SET price_current = ?
+                           WHERE mint = ?""",
+                        (price.price_usd, mint)
+                    )
+
+                conn.commit()
+                conn.close()
+
+                # Update timestamp
+                self.registry.update_price_timestamp(mint)
+
+        except Exception as e:
+            logger.error(f"Error in price fetch callback for {mint}: {e}")
+            self.stats['errors'] += 1
 
     def get_stats(self) -> Dict:
         """Get worker statistics."""

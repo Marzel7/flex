@@ -286,11 +286,11 @@ class TokenPriceService:
         self._birdeye_local = threading.local()
         self._executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix='birdeye-')
 
-        # Circuit breaker: track disabled sources and cooldown (600s)
+        # Circuit breaker: track disabled sources and cooldown with exponential backoff
         self.circuit_breaker = {
-            'dexscreener': {'disabled': False, 'disabled_at': 0},
-            'jupiter': {'disabled': False, 'disabled_at': 0},
-            'birdeye': {'disabled': False, 'disabled_at': 0},
+            'dexscreener': {'disabled': False, 'disabled_at': 0, 'break_count': 0},
+            'jupiter': {'disabled': False, 'disabled_at': 0, 'break_count': 0},
+            'birdeye': {'disabled': False, 'disabled_at': 0, 'break_count': 0},
         }
 
         # EWMA latency per source (for adaptive ordering)
@@ -308,6 +308,10 @@ class TokenPriceService:
         }
 
         self._ensure_tables()
+
+        # NEW: Load persisted circuit breaker state from database
+        self._load_circuit_breaker_state()
+
         logger.info("TokenPriceService initialized")
     
     def _get_conn(self) -> sqlite3.Connection:
@@ -317,10 +321,10 @@ class TokenPriceService:
         return conn
     
     def _ensure_tables(self) -> None:
-        """Create price snapshot table if not exists."""
+        """Create price snapshot and circuit breaker persistence tables."""
         conn = self._get_conn()
         cursor = conn.cursor()
-        
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS token_price_snapshots (
                 snapshot_id     INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -336,14 +340,33 @@ class TokenPriceService:
                 created_at      INTEGER NOT NULL
             )
         """)
-        
+
         cursor.execute("""
             CREATE INDEX IF NOT EXISTS idx_tps_mint_time
             ON token_price_snapshots(mint, captured_at DESC)
         """)
-        
+
+        # NEW: Circuit breaker persistence table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS circuit_breaker_state (
+                source TEXT PRIMARY KEY,
+                disabled INTEGER DEFAULT 0,
+                disabled_at INTEGER DEFAULT 0,
+                break_count INTEGER DEFAULT 0,
+                last_break_at INTEGER DEFAULT 0,
+                created_at INTEGER DEFAULT 0,
+                updated_at INTEGER DEFAULT 0
+            )
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_cb_disabled
+            ON circuit_breaker_state(disabled, disabled_at)
+        """)
+
         conn.commit()
         conn.close()
+        logger.info("Database tables ensured (price snapshots + circuit breaker)")
     
     def _get_cached_price(self, mint: str) -> Optional[TokenPrice]:
         """Get most recent price from database cache."""
@@ -467,16 +490,103 @@ class TokenPriceService:
             logger.debug(f"Birdeye error for {mint}: {e}")
             return None
 
+    def _get_exponential_cooldown(self, break_count: int) -> int:
+        """
+        Get cooldown in seconds based on break count (exponential backoff).
+
+        1st break:  10 min (600s)
+        2nd break:  30 min (1800s)
+        3rd break:  2 hours (7200s)
+        4th+ breaks: 4 hours (14400s)
+        """
+        BASE_COOLDOWN = 600  # 10 minutes
+        MAX_EXPONENT = 3     # Cap at 4 hours
+
+        if break_count <= 1:
+            return BASE_COOLDOWN
+
+        exponent = min(break_count - 1, MAX_EXPONENT)
+        cooldown = BASE_COOLDOWN * (2 ** exponent)
+        return int(cooldown)
+
+    def _load_circuit_breaker_state(self) -> None:
+        """Load persisted circuit breaker state from database."""
+        try:
+            conn = self._get_conn()
+            rows = conn.execute(
+                'SELECT source, disabled, disabled_at, break_count FROM circuit_breaker_state'
+            ).fetchall()
+
+            for source, disabled, disabled_at, break_count in rows:
+                if source in self.circuit_breaker:
+                    self.circuit_breaker[source] = {
+                        'disabled': bool(disabled),
+                        'disabled_at': disabled_at,
+                        'break_count': break_count or 0,
+                    }
+
+                    if disabled:
+                        elapsed = time.time() - disabled_at
+                        logger.info(
+                            f"Loaded circuit breaker state: {source} disabled "
+                            f"(elapsed {elapsed:.0f}s, break #{break_count})"
+                        )
+                    else:
+                        logger.info(f"Loaded circuit breaker state: {source} enabled")
+
+            conn.close()
+        except Exception as e:
+            logger.error(f"Failed to load circuit breaker state: {e}")
+            # Fall back to in-memory defaults (non-fatal)
+
+    def _save_circuit_breaker_state(self, source: str) -> None:
+        """Persist circuit breaker state to database."""
+        try:
+            conn = self._get_conn()
+            cb = self.circuit_breaker.get(source, {})
+            now = int(time.time())
+
+            conn.execute('''
+                INSERT OR REPLACE INTO circuit_breaker_state
+                (source, disabled, disabled_at, break_count, last_break_at, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, COALESCE((
+                    SELECT created_at FROM circuit_breaker_state WHERE source = ?
+                ), ?), ?)
+            ''', (
+                source,
+                int(cb.get('disabled', False)),
+                cb.get('disabled_at', 0),
+                cb.get('break_count', 0),
+                int(time.time()) if cb.get('disabled') else 0,
+                source,
+                now,
+                now
+            ))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            logger.error(f"Failed to save circuit breaker state: {e}")
+            # Non-fatal; state still in memory
+
     def _is_circuit_broken(self, source: str) -> bool:
-        """Check if source is currently circuit broken."""
+        """Check if source is currently circuit broken with exponential cooldown."""
         cb = self.circuit_breaker.get(source, {})
         if not cb.get('disabled'):
             return False
 
-        # Check if cooldown expired (600 seconds = 10 minutes)
-        if time.time() - cb.get('disabled_at', 0) > 600:
+        # Get cooldown based on break count (exponential backoff)
+        break_count = cb.get('break_count', 0)
+        cooldown_secs = self._get_exponential_cooldown(break_count)
+
+        elapsed = time.time() - cb.get('disabled_at', 0)
+        if elapsed > cooldown_secs:
             cb['disabled'] = False
-            logger.info(f"Circuit breaker for {source} reset after cooldown")
+            cooldown_min = cooldown_secs / 60
+            logger.info(
+                f"Circuit breaker for {source} reset after {cooldown_min:.0f}min cooldown "
+                f"(break #{break_count})"
+            )
+            self._save_circuit_breaker_state(source)
             return False
 
         return True
@@ -486,6 +596,7 @@ class TokenPriceService:
         Track attempt success and update:
         1. Source attempt history
         2. Circuit breaker failure rate
+        3. Increment break_count and persist on circuit break
         """
         now = time.time()
         self.source_attempts[source].append((now, success))
@@ -506,10 +617,16 @@ class TokenPriceService:
             if failure_rate > 0.9 and not self.circuit_breaker[source]['disabled']:
                 self.circuit_breaker[source]['disabled'] = True
                 self.circuit_breaker[source]['disabled_at'] = now
+                self.circuit_breaker[source]['break_count'] = self.circuit_breaker[source].get('break_count', 0) + 1
+                break_count = self.circuit_breaker[source]['break_count']
+                cooldown_secs = self._get_exponential_cooldown(break_count)
+                cooldown_min = cooldown_secs / 60
                 logger.warning(
                     f"Circuit breaker triggered for {source}: "
-                    f"{failure_rate:.1%} failure rate over 50 attempts"
+                    f"{failure_rate:.1%} failure rate over 50 attempts. "
+                    f"Break #{break_count}, cooldown {cooldown_min:.0f} min"
                 )
+                self._save_circuit_breaker_state(source)
 
     def _get_source_rank(self, source: str) -> float:
         """

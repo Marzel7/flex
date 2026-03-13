@@ -76,8 +76,8 @@ class PriceCache:
         
         return price
     
-    def set(self, mint: str, price: TokenPrice) -> None:
-        """Store price in cache."""
+    def set(self, mint: str, price: TokenPrice, cache_type: str = 'hot') -> None:
+        """Store price in cache (cache_type parameter for future multi-tier support)."""
         self.cache[mint] = (price, time.time())
     
     def clear(self, mint: Optional[str] = None) -> None:

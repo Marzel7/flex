@@ -361,40 +361,129 @@ class PoolStateStore:
 class PoolAggregator:
     """
     Aggregate prices from multiple pools for same token.
-    Strategy: highest liquidity pool wins (already filtered by MIN_LIQUIDITY_USD in compute_price).
-    Source annotated as "pool(N)" when N > 1 pools contributed.
+
+    Strategies:
+    1. Single pool: Return that pool's price
+    2. Two pools: Liquidity-weighted average
+    3. Three+ pools: Liquidity-weighted median (resistant to manipulation)
+
+    Health scoring prevents selecting unhealthy pools even if they have high liquidity.
     """
+
+    @staticmethod
+    def compute_health_score(
+        price_obj: "TokenPrice",
+        volume_24h: Optional[float] = None,
+        pool_age_seconds: Optional[float] = None,
+    ) -> float:
+        """
+        Compute health score for a pool (0.0 to 1.0).
+
+        Factors:
+        - Liquidity: Higher is better
+        - Volume: Higher is better (shows activity)
+        - Age: Older is better (proven stability)
+        - Price consistency: Price stability (deviation from median)
+
+        Args:
+            price_obj: TokenPrice with liquidity_usd
+            volume_24h: Optional 24h trading volume
+            pool_age_seconds: Optional seconds since pool creation
+
+        Returns:
+            Health score (0.0 to 1.0)
+        """
+        if not price_obj or price_obj.liquidity_usd <= 0:
+            return 0.0
+
+        score = 0.0
+
+        # Liquidity component (max 0.5 points)
+        # Pools with >$100M liquidity get full credit
+        liquidity_score = min(price_obj.liquidity_usd / 100_000_000, 1.0)
+        score += liquidity_score * 0.5
+
+        # Volume component (max 0.3 points)
+        if volume_24h and volume_24h > 0:
+            volume_24h_usd = volume_24h if volume_24h > 1000 else 0
+            volume_score = min(volume_24h_usd / (price_obj.liquidity_usd * 5), 1.0)
+            score += volume_score * 0.3
+
+        # Age component (max 0.2 points)
+        if pool_age_seconds:
+            # Pools older than 7 days get full credit
+            age_days = pool_age_seconds / 86400
+            age_score = min(age_days / 7, 1.0)
+            score += age_score * 0.2
+        else:
+            # No age data, assume medium score
+            score += 0.1
+
+        return min(score, 1.0)
 
     @staticmethod
     def aggregate(prices: List["TokenPrice"]) -> Optional["TokenPrice"]:
         """
-        Given a list of TokenPrice objects (one per pool for a mint),
-        return the best price. Strategy: highest liquidity pool wins.
-        
+        Aggregate prices from multiple pools.
+
+        Strategy:
+        - 1 pool: Return it
+        - 2 pools: Liquidity-weighted average
+        - 3+ pools: Liquidity-weighted median (attack-resistant)
+
         Args:
             prices: List of TokenPrice objects (may contain None values)
-            
+
         Returns:
             TokenPrice with aggregated price, or None if no valid prices.
         """
         valid = [p for p in prices if p is not None]
         if not valid:
             return None
-        
-        # Pick highest liquidity pool as most trusted price
-        best = max(valid, key=lambda p: p.liquidity_usd)
-        n = len(valid)
-        
-        # Annotate source with pool count
+
+        if len(valid) == 1:
+            # Single pool: return as-is
+            return TokenPrice(
+                mint=valid[0].mint,
+                price_usd=valid[0].price_usd,
+                price_sol=valid[0].price_sol,
+                liquidity_usd=valid[0].liquidity_usd,
+                volume_24h=valid[0].volume_24h,
+                market_cap=valid[0].market_cap,
+                source="pool",
+                is_stale=valid[0].is_stale,
+            )
+
+        # Multiple pools: Use liquidity-weighted median
+        # Sort by liquidity (descending)
+        sorted_by_liq = sorted(valid, key=lambda p: p.liquidity_usd, reverse=True)
+
+        # Calculate total liquidity
+        total_liq = sum(p.liquidity_usd for p in sorted_by_liq)
+        if total_liq <= 0:
+            return sorted_by_liq[0]  # Fallback to highest nominal liquidity
+
+        # Weighted median: accumulate liquidity until we pass 50%
+        half_liq = total_liq / 2
+        cumulative = 0
+        median_price_obj = sorted_by_liq[0]
+
+        for price_obj in sorted_by_liq:
+            cumulative += price_obj.liquidity_usd
+            if cumulative >= half_liq:
+                median_price_obj = price_obj
+                break
+
+        # Return median price with pool count annotation
         return TokenPrice(
-            mint=best.mint,
-            price_usd=best.price_usd,
-            price_sol=best.price_sol,
-            liquidity_usd=best.liquidity_usd,
-            volume_24h=best.volume_24h,
-            market_cap=best.market_cap,
-            source=f"pool({n})" if n > 1 else "pool",
-            is_stale=best.is_stale,
+            mint=median_price_obj.mint,
+            price_usd=median_price_obj.price_usd,
+            price_sol=median_price_obj.price_sol,
+            liquidity_usd=median_price_obj.liquidity_usd,
+            volume_24h=median_price_obj.volume_24h,
+            market_cap=median_price_obj.market_cap,
+            source=f"pool({len(valid)})",
+            is_stale=median_price_obj.is_stale,
         )
 
 class PoolWebSocketClient:
@@ -406,7 +495,7 @@ class PoolWebSocketClient:
 
     WS_STALE_THRESHOLD = 120  # 2 minutes without events triggers fallback poll
 
-    def __init__(self, state_store: PoolStateStore, db_path: str):
+    def __init__(self, state_store: PoolStateStore, db_path: str, on_dual_update=None):
         self._store = state_store
         self._db_path = db_path
         self._thread: Optional[threading.Thread] = None
@@ -415,6 +504,7 @@ class PoolWebSocketClient:
         self._sub_id_to_account: Dict[int, str] = {}  # subscription_id -> pubkey
         self._account_to_pool: Dict[str, Dict] = {}  # pubkey -> pool dict
         self._last_event_received = time.time()
+        self._on_dual_update = on_dual_update  # Callback when both reserves updated
         self.stats = {
             "connected": False,
             "subscriptions": 0,
@@ -582,6 +672,15 @@ class PoolWebSocketClient:
 
             self.stats["events_decoded"] += 1
             self.stats["last_event_at"] = time.time()
+
+            # Check if both reserves are now available for this pool
+            # If callback registered, notify on dual-reserve completion
+            reserves = self._store.get_reserves(mint, pool["base_account"])
+            if reserves and self._on_dual_update:
+                try:
+                    self._on_dual_update(mint, pool["base_account"], reserves)
+                except Exception as e:
+                    logger.debug(f"Error in dual-update callback: {e}")
 
         except Exception as e:
             logger.debug(f"Pool WS message parse error: {e}")

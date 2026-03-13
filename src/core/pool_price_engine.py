@@ -253,33 +253,56 @@ class PoolStateStore:
     """
     Thread-safe store for pool reserve state updated by WebSocket events.
     Tracks base_reserve and quote_reserve for each registered pool.
+    Detects stale pools (no updates >5 minutes).
+    Deduplicates rapid events from same slot.
     """
+
+    STALE_POOL_THRESHOLD = 300  # 5 minutes in seconds
 
     def __init__(self):
         self._lock = threading.Lock()
-        # mint -> {'base_reserve': int, 'quote_reserve': int, 'last_update': float}
+        # mint -> {
+        #   'base_reserve': int, 'quote_reserve': int,
+        #   'last_update': float, 'last_slot': int,
+        #   'is_stale': bool
+        # }
         self._state: Dict[str, Dict] = {}
 
-    def update_reserve(self, mint: str, account_type: str, raw_balance: int) -> None:
-        """Update one side of a pool's reserves (base or quote)."""
+    def update_reserve(self, mint: str, account_type: str, raw_balance: int, slot: Optional[int] = None) -> bool:
+        """
+        Update one side of a pool's reserves (base or quote).
+        Returns True if update was applied, False if deduplicated.
+        Deduplicates if same slot seen recently (same block, multiple events).
+        """
         with self._lock:
             if mint not in self._state:
                 self._state[mint] = {
                     "base_reserve": None,
                     "quote_reserve": None,
                     "last_update": 0,
+                    "last_slot": None,
+                    "is_stale": False,
                 }
+
+            # Deduplication: skip if same slot seen recently
+            if slot is not None and self._state[mint]["last_slot"] == slot:
+                return False
+
             self._state[mint][f"{account_type}_reserve"] = raw_balance
             self._state[mint]["last_update"] = time.time()
+            self._state[mint]["last_slot"] = slot
+            self._state[mint]["is_stale"] = False
+            return True
 
     def get_reserves(self, mint: str) -> Optional[Tuple[int, int]]:
-        """Return (base_raw, quote_raw) if both sides known, else None."""
+        """Return (base_raw, quote_raw) if both sides known and not stale, else None."""
         with self._lock:
             s = self._state.get(mint)
             if (
                 s
                 and s["base_reserve"] is not None
                 and s["quote_reserve"] is not None
+                and not s["is_stale"]
             ):
                 return (s["base_reserve"], s["quote_reserve"])
         return None
@@ -288,6 +311,26 @@ class PoolStateStore:
         """Return list of all mints currently in store."""
         with self._lock:
             return list(self._state.keys())
+
+    def mark_stale_pools(self, now: Optional[float] = None) -> List[str]:
+        """
+        Mark pools with no updates >5 minutes as stale.
+        Returns list of mints that became stale.
+        """
+        if now is None:
+            now = time.time()
+
+        stale_mints = []
+        with self._lock:
+            for mint, state in self._state.items():
+                if not state["is_stale"] and now - state["last_update"] > self.STALE_POOL_THRESHOLD:
+                    state["is_stale"] = True
+                    stale_mints.append(mint)
+
+        if stale_mints:
+            logger.warning(f"Marked {len(stale_mints)} pools as stale (no updates >5 min): {stale_mints[:5]}")
+
+        return stale_mints
 
     def clear(self, mint: str) -> None:
         """Clear reserve state for a mint."""
@@ -302,6 +345,8 @@ class PoolWebSocketClient:
     On account update: decode SPL balance → update PoolStateStore.
     """
 
+    WS_STALE_THRESHOLD = 120  # 2 minutes without events triggers fallback poll
+
     def __init__(self, state_store: PoolStateStore, db_path: str):
         self._store = state_store
         self._db_path = db_path
@@ -310,13 +355,16 @@ class PoolWebSocketClient:
         self._running = False
         self._sub_id_to_account: Dict[int, str] = {}  # subscription_id -> pubkey
         self._account_to_pool: Dict[str, Dict] = {}  # pubkey -> pool dict
+        self._last_event_received = time.time()
         self.stats = {
             "connected": False,
             "subscriptions": 0,
             "events_received": 0,
             "events_decoded": 0,
+            "events_deduplicated": 0,
             "reconnects": 0,
             "last_event_at": 0,
+            "is_stale": False,
         }
 
     def start(self, pools: List[Dict]) -> None:
@@ -428,7 +476,7 @@ class PoolWebSocketClient:
             self._handle_message(raw)
 
     def _handle_message(self, raw: str) -> None:
-        """Parse accountNotification and update PoolStateStore."""
+        """Parse accountNotification and update PoolStateStore. Deduplicates by slot."""
         try:
             msg = json.loads(raw)
             if msg.get("method") != "accountNotification":
@@ -441,6 +489,8 @@ class PoolWebSocketClient:
                 return
 
             self.stats["events_received"] += 1
+            self._last_event_received = time.time()
+            self.stats["is_stale"] = False
 
             account_data = params.get("result", {}).get("value", {})
             data_list = account_data.get("data", [])
@@ -459,7 +509,15 @@ class PoolWebSocketClient:
             account_type = (
                 "base" if pubkey == pool["base_account"] else "quote"
             )
-            self._store.update_reserve(mint, account_type, balance)
+
+            # Extract slot for deduplication (optional in notification)
+            slot = params.get("result", {}).get("context", {}).get("slot")
+
+            # Update reserve; returns False if deduplicated
+            if not self._store.update_reserve(mint, account_type, balance, slot):
+                self.stats["events_deduplicated"] += 1
+                return
+
             self.stats["events_decoded"] += 1
             self.stats["last_event_at"] = time.time()
 

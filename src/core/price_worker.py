@@ -296,6 +296,7 @@ class BackgroundPriceWorker:
         duration = time.time() - cycle_start
         self.stats['last_run'] = duration
         self.stats['queue_stats'] = self.queue.get_stats()
+        self.sync_source_metrics()
 
         logger.debug(
             f"Prefetch cycle {self.stats['cycles']}: "
@@ -306,6 +307,12 @@ class BackgroundPriceWorker:
             f"low={self.stats['activity_distribution']['low']} "
             f"dormant={self.stats['activity_distribution']['dormant']}"
         )
+
+
+    def sync_source_metrics(self) -> None:
+        """Sync source attempt metrics from price_service to worker stats."""
+        if hasattr(self.price_service, 'stats'):
+            self.stats['source_stats'] = self.price_service.stats.copy()
 
     def _sync_new_tokens(self) -> None:
         """

@@ -20,9 +20,12 @@ import logging
 import time
 import asyncio
 import aiohttp
+import requests
+import threading
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, asdict
 from datetime import datetime, timedelta
+from concurrent.futures import ThreadPoolExecutor
 import json
 
 logger = logging.getLogger(__name__)
@@ -279,6 +282,9 @@ class TokenPriceService:
             'stale_fallback': 0,
             'unavailable': 0,
         }
+        # Shared Birdeye client: requests.Session per thread (thread-safe)
+        self._birdeye_local = threading.local()
+        self._executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix='birdeye-')
         self._ensure_tables()
         logger.info("TokenPriceService initialized")
     
@@ -388,6 +394,57 @@ class TokenPriceService:
         except Exception as e:
             logger.error(f"Error storing price snapshot for {price.mint}: {e}")
     
+
+    def _fetch_birdeye_sync(self, mint: str) -> Optional[TokenPrice]:
+        """
+        Fetch Birdeye price synchronously using shared requests.Session per thread.
+        
+        Called via run_in_executor from get_token_price() to avoid blocking the event loop.
+        """
+        try:
+            # Get or create a shared session for this thread
+            if not hasattr(self._birdeye_local, 'session'):
+                self._birdeye_local.session = requests.Session()
+                self._birdeye_local.session.headers.update({'accept': 'application/json'})
+            
+            resp = self._birdeye_local.session.get(
+                f"{BirdeyeClient.BASE_URL}/token_price",
+                params={'address': mint},
+                timeout=1.0
+            )
+            
+            if resp.status_code != 200:
+                return None
+            
+            data = resp.json()
+            price_data = data.get('data', {})
+            
+            if not price_data or not price_data.get('price'):
+                return None
+            
+            price_usd = float(price_data.get('price', 0))
+            if price_usd == 0:
+                return None
+            
+            return TokenPrice(
+                mint=mint,
+                price_usd=price_usd,
+                price_sol=float(price_data.get('priceInSOL', 0)),
+                liquidity_usd=0,
+                volume_24h=0,
+                market_cap=0,
+                source='birdeye',
+                timestamp=int(time.time()),
+                is_stale=False
+            )
+        
+        except requests.Timeout:
+            logger.debug(f"Birdeye timeout for {mint}")
+            return None
+        except Exception as e:
+            logger.debug(f"Birdeye error for {mint}: {e}")
+            return None
+
     async def get_token_price(self, mint: str, cache_type: str = 'hot') -> TokenPrice:
         """
         Get token price with multi-source fallback and 3-second budget.
@@ -433,9 +490,11 @@ class TokenPriceService:
             self.stats['jupiter_fail'] += 1
 
         # Try Birdeye (final fallback before stale cache)
+        # Run synchronously off the event loop via executor to reuse HTTP connection
         if time.time() - fetch_start < TOTAL_BUDGET_SECS:
             self.stats['birdeye_attempted'] += 1
-            birdeye_price = await BirdeyeClient.get_price(mint)
+            loop = asyncio.get_event_loop()
+            birdeye_price = await loop.run_in_executor(self._executor, self._fetch_birdeye_sync, mint)
             if birdeye_price:
                 self.stats['birdeye_success'] += 1
                 self.cache.set(mint, birdeye_price)

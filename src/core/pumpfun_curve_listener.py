@@ -857,7 +857,7 @@ class PumpFunCurveListener:
                 # Store post-migration analysis with live price tracking
                 cursor.execute("""
                     INSERT OR REPLACE INTO token_analysis (
-                        mint, analyzed_at, events_parsed,
+                        mint, created_at, analyzed_at, events_parsed,
                         post_migration_mint_concentration, post_migration_unique_minters_ratio,
                         post_migration_sell_suppression_ratio, post_migration_mint_velocity_sec,
                         post_migration_buy_size_variance, post_migration_sell_volume_concentration,
@@ -865,10 +865,11 @@ class PumpFunCurveListener:
                         rug_probability, risk_level, post_migration_coverage,
                         migration_tx, price_current, price_highest, pool_address, earliest_tx_creator, creator_is_blocked, network_risk, connected_malicious_count,
                         cluster_id, cluster_name, cluster_risk_multiplier, network_funder_address, network_name
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     mint,
-                    time.time(),
+                    time.time(),  # created_at
+                    time.time(),  # analyzed_at
                     analysis.get("total_events", 0),
                     analysis.get("mint_concentration", 0),
                     analysis.get("unique_minters_ratio", 0),

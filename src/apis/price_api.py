@@ -432,6 +432,7 @@ def health():
         registry = PriceWorkerRegistry()
 
         # Gather pool stats
+        ws_stats = worker.stats.get('ws_stats', {}) if worker else {}
         pool_stats = {
             'pools_registered': _count_active_pools(),
             'pool_prices_cached': len(service.pool_price_cache) if hasattr(service, 'pool_price_cache') else 0,
@@ -439,6 +440,14 @@ def health():
             'pool_attempted': service.stats.get('pool_attempted', 0) if hasattr(service, 'stats') else 0,
             'pool_success': service.stats.get('pool_success', 0) if hasattr(service, 'stats') else 0,
             'pool_fail': service.stats.get('pool_fail', 0) if hasattr(service, 'stats') else 0,
+            'ws': {
+                'connected': ws_stats.get('connected', False),
+                'subscriptions': ws_stats.get('subscriptions', 0),
+                'events_received': ws_stats.get('events_received', 0),
+                'events_decoded': ws_stats.get('events_decoded', 0),
+                'reconnects': ws_stats.get('reconnects', 0),
+                'last_event_at': ws_stats.get('last_event_at', 0),
+            }
         }
 
         return jsonify({

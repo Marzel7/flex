@@ -1,6 +1,7 @@
 """
 Pool-based pricing engine: batch-fetch on-chain AMM reserves and compute token prices.
 Uses getMultipleAccounts RPC batching (max 100 pubkeys/call) to minimize RPC usage.
+Includes WebSocket subscription client for real-time reserve account updates.
 """
 
 import base64
@@ -9,6 +10,10 @@ import time
 import logging
 import os
 import aiohttp
+import asyncio
+import json
+import threading
+import websockets
 from typing import Dict, List, Optional, Tuple
 
 from .price_service import TokenPrice
@@ -17,6 +22,7 @@ from src.metrics.rpc_metrics_recorder import record_request
 logger = logging.getLogger(__name__)
 
 HELIUS_RPC_URL = os.getenv("HELIUS_RPC_URL", "https://mainnet.helius-rpc.com/?api-key=")
+HELIUS_WS_URL = os.getenv("HELIUS_WS_URL", "wss://mainnet.helius-rpc.com/?api-key=")
 
 
 class PoolReserveFetcher:
@@ -129,7 +135,7 @@ class PoolReserveFetcher:
         finally:
             latency_ms = time.time() * 1000 - start_ms
             record_request(
-                section="price",
+                section="pool_pricing",
                 provider="helius",
                 method="getMultipleAccounts",
                 status_code=status_code,
@@ -241,6 +247,224 @@ class PoolPriceCalculator:
         except Exception as e:
             logger.warning(f"SOL price fetch failed: {e}")
             return 0.0
+
+
+class PoolStateStore:
+    """
+    Thread-safe store for pool reserve state updated by WebSocket events.
+    Tracks base_reserve and quote_reserve for each registered pool.
+    """
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        # mint -> {'base_reserve': int, 'quote_reserve': int, 'last_update': float}
+        self._state: Dict[str, Dict] = {}
+
+    def update_reserve(self, mint: str, account_type: str, raw_balance: int) -> None:
+        """Update one side of a pool's reserves (base or quote)."""
+        with self._lock:
+            if mint not in self._state:
+                self._state[mint] = {
+                    "base_reserve": None,
+                    "quote_reserve": None,
+                    "last_update": 0,
+                }
+            self._state[mint][f"{account_type}_reserve"] = raw_balance
+            self._state[mint]["last_update"] = time.time()
+
+    def get_reserves(self, mint: str) -> Optional[Tuple[int, int]]:
+        """Return (base_raw, quote_raw) if both sides known, else None."""
+        with self._lock:
+            s = self._state.get(mint)
+            if (
+                s
+                and s["base_reserve"] is not None
+                and s["quote_reserve"] is not None
+            ):
+                return (s["base_reserve"], s["quote_reserve"])
+        return None
+
+    def get_all_mints(self) -> List[str]:
+        """Return list of all mints currently in store."""
+        with self._lock:
+            return list(self._state.keys())
+
+    def clear(self, mint: str) -> None:
+        """Clear reserve state for a mint."""
+        with self._lock:
+            self._state.pop(mint, None)
+
+
+class PoolWebSocketClient:
+    """
+    Persistent WebSocket subscription client for pool reserve accounts.
+    Runs in a daemon thread with its own asyncio event loop.
+    On account update: decode SPL balance → update PoolStateStore.
+    """
+
+    def __init__(self, state_store: PoolStateStore, db_path: str):
+        self._store = state_store
+        self._db_path = db_path
+        self._thread: Optional[threading.Thread] = None
+        self._loop: Optional[asyncio.AbstractEventLoop] = None
+        self._running = False
+        self._sub_id_to_account: Dict[int, str] = {}  # subscription_id -> pubkey
+        self._account_to_pool: Dict[str, Dict] = {}  # pubkey -> pool dict
+        self.stats = {
+            "connected": False,
+            "subscriptions": 0,
+            "events_received": 0,
+            "events_decoded": 0,
+            "reconnects": 0,
+            "last_event_at": 0,
+        }
+
+    def start(self, pools: List[Dict]) -> None:
+        """Spawn daemon thread running the async WebSocket loop."""
+        self._build_account_map(pools)
+        self._running = True
+        self._thread = threading.Thread(
+            target=self._run_thread, daemon=True, name="pool-ws"
+        )
+        self._thread.start()
+        logger.info(
+            f"PoolWebSocketClient started — subscribing to {len(self._account_to_pool)} accounts"
+        )
+
+    def stop(self) -> None:
+        """Stop the WebSocket client and wait for thread shutdown."""
+        self._running = False
+        if self._loop and self._loop.is_running():
+            self._loop.call_soon_threadsafe(self._loop.stop)
+        if self._thread:
+            self._thread.join(timeout=5)
+
+    def _build_account_map(self, pools: List[Dict]) -> None:
+        """Build pubkey->pool mapping from pool list."""
+        self._account_to_pool = {}
+        for pool in pools:
+            self._account_to_pool[pool["base_account"]] = pool
+            self._account_to_pool[pool["quote_account"]] = pool
+
+    def _run_thread(self) -> None:
+        """Entry point for daemon thread — owns its own event loop."""
+        self._loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self._loop)
+        try:
+            self._loop.run_until_complete(self._connect_loop())
+        finally:
+            self._loop.close()
+
+    async def _connect_loop(self) -> None:
+        """Outer reconnect loop with exponential backoff."""
+        reconnect_delay = 5
+        while self._running:
+            try:
+                async with websockets.connect(
+                    HELIUS_WS_URL,
+                    ping_interval=20,
+                    ping_timeout=10,
+                    close_timeout=10,
+                ) as ws:
+                    reconnect_delay = 5  # reset on success
+                    self.stats["connected"] = True
+                    if self.stats["reconnects"] > 0:
+                        self.stats["reconnects"] += 1
+                    logger.info("Pool WebSocket connected")
+                    await self._subscribe_all(ws)
+                    await self._receive_loop(ws)
+            except Exception as e:
+                logger.warning(f"Pool WebSocket disconnected: {e}")
+                self.stats["connected"] = False
+            if self._running:
+                logger.info(f"Pool WebSocket reconnecting in {reconnect_delay}s")
+                await asyncio.sleep(reconnect_delay)
+                reconnect_delay = min(reconnect_delay * 1.5, 60)
+
+    async def _subscribe_all(self, ws) -> None:
+        """Send accountSubscribe for each tracked pool account."""
+        self._sub_id_to_account = {}
+        req_id = 1
+        for pubkey in list(self._account_to_pool.keys()):
+            msg = {
+                "jsonrpc": "2.0",
+                "id": req_id,
+                "method": "accountSubscribe",
+                "params": [pubkey, {"encoding": "base64", "commitment": "confirmed"}],
+            }
+            await ws.send(json.dumps(msg))
+            req_id += 1
+
+        # Collect subscription confirmation responses
+        confirmed = 0
+        needed = len(self._account_to_pool)
+        # Map req_id -> pubkey so we can match confirmations
+        req_to_pubkey = {i + 1: pk for i, pk in enumerate(self._account_to_pool.keys())}
+        while confirmed < needed and self._running:
+            try:
+                raw = await asyncio.wait_for(ws.recv(), timeout=10)
+                data = json.loads(raw)
+                if "id" in data and "result" in data:
+                    sub_id = data["result"]
+                    pubkey = req_to_pubkey.get(data["id"])
+                    if pubkey:
+                        self._sub_id_to_account[sub_id] = pubkey
+                        confirmed += 1
+            except asyncio.TimeoutError:
+                logger.warning("Timeout waiting for accountSubscribe confirmations")
+                break
+
+        self.stats["subscriptions"] = len(self._sub_id_to_account)
+        logger.info(f"Pool WS subscribed to {confirmed}/{needed} accounts")
+
+    async def _receive_loop(self, ws) -> None:
+        """Process incoming account notification events."""
+        while self._running:
+            try:
+                raw = await asyncio.wait_for(ws.recv(), timeout=60)
+            except asyncio.TimeoutError:
+                # keepalive — no event in 60s is normal
+                continue
+            self._handle_message(raw)
+
+    def _handle_message(self, raw: str) -> None:
+        """Parse accountNotification and update PoolStateStore."""
+        try:
+            msg = json.loads(raw)
+            if msg.get("method") != "accountNotification":
+                return
+
+            params = msg.get("params", {})
+            sub_id = params.get("subscription")
+            pubkey = self._sub_id_to_account.get(sub_id)
+            if not pubkey:
+                return
+
+            self.stats["events_received"] += 1
+
+            account_data = params.get("result", {}).get("value", {})
+            data_list = account_data.get("data", [])
+            if not data_list:
+                return
+
+            balance = PoolReserveFetcher._decode_spl_token_balance(data_list[0])
+            if balance is None:
+                return
+
+            pool = self._account_to_pool.get(pubkey)
+            if not pool:
+                return
+
+            mint = pool["mint"]
+            account_type = (
+                "base" if pubkey == pool["base_account"] else "quote"
+            )
+            self._store.update_reserve(mint, account_type, balance)
+            self.stats["events_decoded"] += 1
+            self.stats["last_event_at"] = time.time()
+
+        except Exception as e:
+            logger.debug(f"Pool WS message parse error: {e}")
 
 
 _fetcher_instance: Optional[PoolReserveFetcher] = None

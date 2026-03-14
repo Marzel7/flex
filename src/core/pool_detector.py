@@ -94,6 +94,11 @@ class PoolDetector:
         """
         Detect pool PDA from migration transaction via program ownership.
 
+        Handles both regular and versioned (v0) transactions by merging:
+        - message.accountKeys (regular tx accounts)
+        - meta.loadedAddresses.writable (v0 tx writable accounts)
+        - meta.loadedAddresses.readonly (v0 tx readonly accounts)
+
         Args:
             tx_data: Transaction data from getTransaction RPC call
             token_mint: Token mint address for context
@@ -102,17 +107,26 @@ class PoolDetector:
             Pool account address (owned by AMM program) or None if not found
         """
         try:
+            # Extract account keys from both regular and versioned transactions
             message = tx_data.get("transaction", {}).get("message", {})
-            account_keys = message.get("accountKeys", [])
+            meta = tx_data.get("meta", {})
 
-            if not account_keys:
+            account_keys = message.get("accountKeys", []) or []
+            loaded_addresses = meta.get("loadedAddresses", {}) or {}
+            writable_accounts = loaded_addresses.get("writable", []) or []
+            readonly_accounts = loaded_addresses.get("readonly", []) or []
+
+            # Merge all accounts (v0 tx support)
+            all_accounts = account_keys + writable_accounts + readonly_accounts
+
+            if not all_accounts:
                 logger.warning(f"No account keys in transaction for {token_mint}")
                 return None
 
-            logger.info(f"[POOL_DETECT] Scanning {len(account_keys)} accounts for AMM ownership")
+            logger.info(f"[POOL_DETECT] Scanning {len(all_accounts)} accounts for AMM ownership ({len(account_keys)} base + {len(writable_accounts)} writable + {len(readonly_accounts)} readonly)")
 
             # Scan each account for AMM program ownership
-            for i, account_addr in enumerate(account_keys):
+            for i, account_addr in enumerate(all_accounts):
                 try:
                     account_info = await self._get_account_info_cached(account_addr)
 
@@ -120,12 +134,13 @@ class PoolDetector:
                         continue
 
                     owner = account_info["owner"]
+                    data_len = account_info.get("data_len", 0) if isinstance(account_info.get("data"), str) else len(account_info.get("data", []))
 
                     # Check if owner is a known AMM program
                     if owner in AMMPrograms.ALL:
                         program_name = AMMPrograms.identify_program(owner)
                         logger.info(
-                            f"[POOL_DETECT] ✅ Found {program_name} pool at index {i}: {account_addr[:16]}..."
+                            f"[POOL_DETECT] ✅ Found {program_name} pool at index {i}: {account_addr[:16]}... (data_len={data_len})"
                         )
                         return account_addr
 
@@ -133,7 +148,7 @@ class PoolDetector:
                     logger.debug(f"[POOL_DETECT] Error checking account {i}: {e}")
                     continue
 
-            logger.warning(f"[POOL_DETECT] No AMM-owned pool found in {len(account_keys)} accounts")
+            logger.warning(f"[POOL_DETECT] No AMM-owned pool found in {len(all_accounts)} accounts (searched {len(account_keys)} + {len(writable_accounts)} + {len(readonly_accounts)})")
             return None
 
         except Exception as e:

@@ -336,9 +336,15 @@ class PumpFunCurveListener:
             'wait': 0,
         }
 
+        # === NEW: Deferred pool detection retries ===
+        self.pool_detection_retries = {}  # {mint: (tx_data, signature, retry_count)}
+        self.pool_detection_max_retries = 3
+        self.pool_detection_retry_delay = 5  # seconds
+
         self._ensure_db()
         log_print(f"[INIT] Pump.Fun → PumpSwap Migration Listener ready", flush=True)
         log_print(f"[INIT] ✅ TX Cache initialized (TTL: {self.tx_cache_ttl_seconds}s)", flush=True)
+        log_print(f"[INIT] 🔄 Pool detection retries enabled (max {self.pool_detection_max_retries} retries, {self.pool_detection_retry_delay}s delay)", flush=True)
         log_print(f"[INIT] Monitoring PumpSwap program: {PUMPSWAP_PROGRAM}", flush=True)
         log_print(f"[INIT] WebSocket: {HELIUS_RPC_WS[:60]}...", flush=True)
         log_print(f"[INIT] HTTP RPC: {RPC_HTTP[:60]}...", flush=True)
@@ -1280,97 +1286,20 @@ class PumpFunCurveListener:
 
     async def _find_pool_account(self, token_mint: str) -> Optional[str]:
         """
-        Find the pool account that holds this token.
-        The smallest token account is typically the active pool/bonding curve.
+        DEPRECATED: Use PoolDetector.detect_pool_from_tx() instead.
+
+        This method was a legacy fallback before hardened pool detection.
+        It has fundamental issues:
+        - Returns token account owner, not pool PDA
+        - Doesn't validate with parser
+        - Causes "Unknown pool program owner" errors
+
+        Do not use.
         """
-        try:
-            # Query all token accounts for this mint
-            payload = {
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "getTokenAccountsByMint",
-                "params": [token_mint]
-            }
-
-            # Try to find accounts via getTokenAccountsByMint (if available)
-            # Use fallback chain for reliability
-            accounts = None
-
-            data = await self._post_rpc_with_fallback(payload, timeout=10)
-            if data and "result" in data and "value" in data["result"]:
-                accounts = data["result"]["value"]
-                log_print(f"[POOL] Found {len(accounts)} accounts via getTokenAccountsByMint", flush=True)
-
-            # Fallback to getTokenLargestAccounts
-            if not accounts:
-                payload = {
-                    "jsonrpc": "2.0",
-                    "id": 1,
-                    "method": "getTokenLargestAccounts",
-                    "params": [token_mint]
-                }
-
-                data = await self._post_rpc_with_fallback(payload, timeout=10)
-                if not data or "result" not in data or "value" not in data["result"]:
-                    return None
-
-                accounts = data["result"]["value"]
-                
-            if not accounts:
-                return None
-
-            log_print(f"[POOL] Checking {len(accounts)} token accounts to find pool...", flush=True)
-
-            # Sort by balance - smallest account is usually the active pool
-            sorted_accounts = sorted(accounts, key=lambda x: float(x.get("uiAmount", 0)))
-
-            # Check the smallest few accounts (they're most likely to be pools)
-            for account_info in sorted_accounts[:5]:
-                token_account_addr = account_info.get("address")
-                balance = float(account_info.get("uiAmount", 0))
-
-                if not token_account_addr:
-                    continue
-
-                log_print(f"[POOL]   Checking {token_account_addr} (balance: {balance:.0f})", flush=True)
-
-                # Get account info with jsonParsed to extract the owner
-                acct_payload = {
-                    "jsonrpc": "2.0",
-                    "id": 1,
-                    "method": "getAccountInfo",
-                    "params": [token_account_addr, {"encoding": "jsonParsed"}]
-                }
-
-                try:
-                    acct_data = await self._post_rpc_with_fallback(acct_payload, timeout=5)
-                    if acct_data and "result" in acct_data and acct_data["result"]:
-                        account = acct_data["result"]
-                        value = account.get("value", {})
-
-                        # For jsonParsed encoding, owner is in value.data.parsed.info.owner
-                        if "data" in value and isinstance(value["data"], dict):
-                            parsed = value["data"].get("parsed", {})
-                            info = parsed.get("info", {})
-                            owner = info.get("owner")
-
-                            if owner:
-                                log_print(f"[POOL]     Owner: {owner}", flush=True)
-                                return owner
-                except:
-                    pass
-                
-                # If we can't get owner via parsing, use the smallest account address as pool
-                # (This is a fallback - smallest account is usually the pool)
-                smallest_account = sorted_accounts[0].get("address")
-                if smallest_account:
-                    log_print(f"[POOL] Using smallest account as pool: {smallest_account}", flush=True)
-                    return smallest_account
-                
-                return None
-        except Exception as e:
-            log_print(f"[POOL_ERROR] Failed to find pool: {e}", flush=True)
-            return None
+        raise NotImplementedError(
+            "Legacy _find_pool_account() is deprecated. "
+            "Use PoolDetector.detect_pool_from_tx() for all pool discovery."
+        )
 
     async def _get_price_from_pool_account(self, pool_address: str, token_mint: str) -> Optional[tuple]:
         """
@@ -2141,40 +2070,77 @@ class PumpFunCurveListener:
         # Create minimal token entry immediately (so token appears in UI right away)
         await self._create_minimal_token_entry(mint)
 
-        # === Extract pool via program-ownership detection ===
+        # === Extract pool via hardened detection (only source of truth) ===
         pool_address = None
+        pool_discovery_source = "none"
+
         if tx_data:
             try:
                 from src.core.pool_detector import PoolDetector
-                detector = PoolDetector(RPC_HTTP)
+                # Phase 6: Read debug flag from environment (default: true for full diagnostics)
+                debug_mode = os.getenv("POOL_DETECTOR_DEBUG", "true").lower() == "true"
+                detector = PoolDetector(RPC_HTTP, debug=debug_mode)
                 pool_address = await detector.detect_pool_from_tx(tx_data, mint)
+
                 if pool_address:
+                    pool_discovery_source = "tx_primary"
                     log_print(f"[POOL_DETECT] ✅ Pool PDA identified: {pool_address[:16]}...", flush=True)
                 else:
-                    log_print(f"[POOL_DETECT] ⏳ Program-ownership detection found no AMM pool, trying vault scan...", flush=True)
-                    # Fallback to vault discovery as last resort
-                    try:
-                        vault = await self._find_pool_account(mint)
-                        if vault:
-                            log_print(f"[POOL_DETECT] ⚠️  Found vault account (fallback): {vault[:16]}...", flush=True)
-                            pool_address = vault
-                    except Exception as e:
-                        log_print(f"[POOL_DETECT] Fallback vault scan failed: {e}", flush=True)
+                    # ✅ NEW: Detector already ran complete detection (primary + fallback)
+                    # Accept None result - no second fallback
+                    log_print(f"[POOL_DETECT] No valid pool found (primary + fallback exhausted)", flush=True)
+                    pool_discovery_source = "none"
+
             except Exception as e:
                 log_print(f"[POOL_DETECT] ⚠️  Pool detection error: {e}", flush=True)
+                pool_discovery_source = "error"
+
+        # ✅ NEW: Emit single source-of-truth result
+        log_print(
+            f"[POOL_DETECT] Final discovery result: source={pool_discovery_source} pool={pool_address[:16] if pool_address else 'None'}",
+            flush=True
+        )
 
         # === AUTO-REGISTER POOL FOR WEBSOCKET PRICING ===
+        # ✅ NEW: Validate pool owner before registration (belt-and-suspenders check)
         if pool_address:
             try:
-                from src.core.pool_discovery import PoolDiscovery
-                discovery = PoolDiscovery(DB_PATH, RPC_HTTP)
-                registered = await discovery.discover_and_register_pool(pool_address, mint)
-                if registered:
-                    log_print(f"[POOL] 🚀 Auto-registered pool for WebSocket pricing", flush=True)
-                else:
-                    log_print(f"[POOL] ⚠️  Could not auto-register pool reserves", flush=True)
+                from src.core.pool_detector import AMMPrograms
+                # Check pool owner is actually an AMM program
+                account_info_payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getAccountInfo",
+                    "params": [pool_address, {"encoding": "base64"}]
+                }
+                acct = await self._post_rpc_with_fallback(account_info_payload, timeout=5)
+                pool_is_valid = False
+                if acct and "result" in acct and acct["result"]:
+                    owner = acct["result"].get("value", {}).get("owner")
+                    if owner in AMMPrograms.ALL:
+                        pool_is_valid = True
+                    else:
+                        log_print(
+                            f"[POOL_DETECT] ⚠️  Rejecting pool {pool_address[:16]}...: "
+                            f"owner {owner[:16] if owner else '???'}... is not AMM program",
+                            flush=True
+                        )
+                        pool_address = None  # Clear invalid pool
+
+                if pool_is_valid:
+                    # Pool passed validation - proceed with registration
+                    try:
+                        from src.core.pool_discovery import PoolDiscovery
+                        discovery = PoolDiscovery(DB_PATH, RPC_HTTP)
+                        registered = await discovery.discover_and_register_pool(pool_address, mint)
+                        if registered:
+                            log_print(f"[POOL] 🚀 Auto-registered pool for WebSocket pricing", flush=True)
+                        else:
+                            log_print(f"[POOL] ⚠️  Could not auto-register pool reserves", flush=True)
+                    except Exception as pool_err:
+                        log_print(f"[POOL] ⚠️  Pool auto-registration error: {pool_err}", flush=True)
             except Exception as pool_err:
-                log_print(f"[POOL] ⚠️  Pool auto-registration error: {pool_err}", flush=True)
+                log_print(f"[POOL_DETECT] ⚠️  Pool validation error: {pool_err}", flush=True)
 
         # Trigger immediate price fetch (don't wait for background task)
         # This ensures market cap appears quickly in UI regardless of analysis settings

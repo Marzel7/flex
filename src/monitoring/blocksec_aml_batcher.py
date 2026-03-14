@@ -263,6 +263,16 @@ class BlockSecAMLBatcher:
                         data = await resp.json()
                         print(f"[BLOCKSEC] Batch {batch_hash[:8]} submitted successfully")
 
+                        # Validate response format (should be dict, not list)
+                        if not isinstance(data, dict):
+                            print(f"[BLOCKSEC] Error: Expected dict response, got {type(data).__name__}")
+                            self._log_batch(batch_hash, addresses, str(data), "failed")
+                            return {
+                                "success": False,
+                                "error": f"Invalid response format: {type(data).__name__}",
+                                "count": len(addresses)
+                            }
+
                         # Parse and cache results
                         results = self._process_response(data, addresses)
 
@@ -330,16 +340,8 @@ class BlockSecAMLBatcher:
             conn = sqlite3.connect(self.db_path, timeout=5)
             cursor = conn.cursor()
 
-            # Handle both dict and list response formats
-            if isinstance(api_response, dict):
-                data = api_response.get("data", {})
-            elif isinstance(api_response, list):
-                # If response is a list, treat it as empty and skip processing
-                print("[BLOCKSEC] Warning: API returned unexpected list format")
-                conn.close()
-                return results
-            else:
-                data = {}
+            # Extract data from response (already validated as dict by caller)
+            data = api_response.get("data", {}) if isinstance(api_response, dict) else {}
 
             for addr in addresses:
                 addr_data = data.get(addr, {})

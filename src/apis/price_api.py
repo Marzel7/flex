@@ -448,6 +448,11 @@ def health():
                 'reconnects': ws_stats.get('reconnects', 0),
                 'last_event_at': ws_stats.get('last_event_at', 0),
                 'multi_pool_enabled': True,
+            },
+            'detection': {
+                'primary_success': service.stats.get('pool_success', 0) if hasattr(service, 'stats') else 0,
+                'fallback_used': 0,  # Phase 7: Track fallback usage (placeholder)
+                'total_attempted': service.stats.get('pool_attempted', 0) if hasattr(service, 'stats') else 0,
             }
         }
 

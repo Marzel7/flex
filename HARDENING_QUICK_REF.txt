@@ -1,0 +1,189 @@
+================================================================================
+POOL DETECTOR HARDENING: QUICK REFERENCE CARD
+================================================================================
+
+PROBLEM
+  Token pool not detected → Pool detection logs are opaque
+  "No AMM-owned pool found in 25 accounts" tells us NOTHING about why
+
+SOLUTION
+  Add 7 phases of hardening + debugging to make failures diagnosable
+
+================================================================================
+THE 7 PHASES
+================================================================================
+
+Phase 1: ACCOUNT KEY NORMALIZATION (5 min)
+  Add _normalize_account_key() helper
+  Handles: strings, dicts with "pubkey", dicts with "address"
+
+Phase 2: TRANSACTION SHAPE LOGGING (5 min)
+  Log: tx_version, base_keys, writable_loaded, readonly_loaded, has_lookups
+  Example: [POOL_DETECT] tx_version=None base_keys=25 writable_loaded=0 readonly_loaded=0 total=25
+
+Phase 3: PER-ACCOUNT DEBUG LOGGING (10 min)
+  For each account: log index, owner, data_len, amm_match
+  Behind POOL_DETECTOR_DEBUG flag (optional verbose output)
+
+Phase 4: AMM CANDIDATE VALIDATION (10 min)
+  Add AMMDataLengths class with minimum pool state sizes
+  Reject: owner in AMM but data_len < expected
+  Prevents: false positives from helper PDAs
+
+Phase 5: FALLBACK DISCOVERY PATH (20 min)
+  New method: _discover_pool_via_vaults()
+  getTokenLargestAccounts() → inspect vaults → resolve pool
+  Used only if primary tx path finds nothing
+
+Phase 6: LISTENER INTEGRATION (5 min)
+  Read POOL_DETECTOR_DEBUG env var
+  Pass debug flag to PoolDetector at init
+
+Phase 7: HEALTH ENDPOINT STATS (10 min)
+  Add detection metrics to /api/price/health
+  primary_success, fallback_used, total_attempted
+
+================================================================================
+THE 7 FAILURE MODES (NOW ANSWERABLE)
+================================================================================
+
+Q1: Is tx really v0?
+  Answer from: [POOL_DETECT] has_addressTableLookups=True/False
+
+Q2: Are loaded addresses populated?
+  Answer from: [POOL_DETECT] writable_loaded=X readonly_loaded=Y
+
+Q3: What accounts in the tx?
+  Answer from: [POOL_DETECT_DEBUG] idx=0...idx=N (one line per account)
+
+Q4: Are any accounts AMM-owned?
+  Answer from: [POOL_DETECT_DEBUG] amm_match=True/False (search for True)
+
+Q5: Do candidates pass validation?
+  Answer from: [POOL_DETECT] "invalid data_len=X (expected >= Y)"
+
+Q6: Is pool PDA completely absent?
+  Answer from: No "amm_match=True" anywhere in logs
+
+Q7: Does fallback work?
+  Answer from: [POOL_DETECT_FALLBACK] "succeeded" or "failed"
+
+================================================================================
+DEBUG MODE: QUICK START
+================================================================================
+
+Step 1: Kill listener
+  pkill -f pumpfun_curve_listener
+
+Step 2: Start with debug enabled
+  POOL_DETECTOR_DEBUG=true PYTHONPATH="." python -m src.core.pumpfun_curve_listener > /tmp/listener_debug.log 2>&1 &
+
+Step 3: Watch logs
+  tail -f /tmp/listener_debug.log | grep -E "(MIGRATION|POOL_DETECT)"
+
+Step 4: Answer the 7 questions from logs
+
+================================================================================
+DOCUMENT MAP
+================================================================================
+
+START HERE (Overview)
+  → HARDENING_COMPLETE.md (this is your status update)
+
+IMPLEMENT THIS
+  → POOL_DETECTOR_HARDENING_DESIGN.md (detailed code examples)
+
+DEBUG WITH THIS
+  → POOL_DETECTOR_DEBUG_CHECKLIST.md (actionable troubleshooting)
+
+UNDERSTAND VIA THIS
+  → POOL_DETECTOR_ARCHITECTURE.md (visual flows + diagrams)
+
+NAVIGATE WITH THIS
+  → POOL_DETECTOR_RESOURCES.md (index + navigation)
+
+================================================================================
+IMPLEMENTATION TIMELINE
+================================================================================
+
+Day 1 Coding: ~1 hour
+  Phase 1 (5 min) + Phase 2 (5 min) + Phase 3 (10 min) + Phase 4 (10 min) +
+  Phase 5 (20 min) + Phase 6 (5 min) + Phase 7 (10 min)
+
+Day 1-2 Testing: 2-3 hours
+  Syntax check, manual test, debug mode verify, regression test
+
+Day 2 Deployment
+  Code review, merge, restart, monitor
+
+Day 2-3 Validation
+  Track metrics, document edge cases, adjust thresholds
+
+================================================================================
+FILES TO MODIFY
+================================================================================
+
+src/core/pool_detector.py
+  +120 lines (phases 1-5: normalization, logging, validation, fallback)
+
+src/core/pumpfun_curve_listener.py
+  +5 lines (phase 6: read debug flag, pass to detector)
+
+src/apis/price_api.py
+  +10 lines (phase 7: add stats to health endpoint, optional)
+
+Total: ~135 lines across 3 files
+
+================================================================================
+CRITICAL STATS
+================================================================================
+
+Risk Level: LOW (fully backwards compatible, additive only)
+Rollback Time: <1 minute
+Performance Impact: Negligible (logging only, debug flag OFF by default)
+Backwards Compatibility: 100%
+Code Complexity: Medium
+Effort Estimate: 3-4 hours total
+Success Metrics: >95% detection success, 7 failure modes diagnosable
+
+================================================================================
+SUCCESS DEFINITION
+================================================================================
+
+After implementation, every pool detection failure will be answerable:
+
+SCENARIO 1: Pool found in tx → logs show which account and why ✅
+SCENARIO 2: Pool in loaded addresses (v0) → logs show all 3 sources ✅
+SCENARIO 3: Pool not in tx, fallback succeeds → logs show fallback path ✅
+SCENARIO 4: Pool not found, cause unclear → logs answer all 7 questions ✅
+SCENARIO 5: Data validation rejected candidate → logs show data_len mismatch ✅
+
+RESULT: Every failure is diagnosable. No more opaque failures.
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. Review HARDENING_COMPLETE.md (you are here)
+2. Share with team
+3. Schedule code review
+4. Begin implementation per POOL_DETECTOR_HARDENING_DESIGN.md
+5. Test per POOL_DETECTOR_DEBUG_CHECKLIST.md
+6. Deploy when ready
+
+================================================================================
+QUESTIONS?
+================================================================================
+
+Implementation Details → POOL_DETECTOR_HARDENING_DESIGN.md
+Debugging a Failure    → POOL_DETECTOR_DEBUG_CHECKLIST.md
+Architecture/Flows     → POOL_DETECTOR_ARCHITECTURE.md
+Executive Summary      → POOL_DETECTOR_HARDENING_SUMMARY.md
+Navigation/Index       → POOL_DETECTOR_RESOURCES.md
+
+================================================================================
+DESIGN PHASE: ✅ COMPLETE
+READY FOR IMPLEMENTATION: ✅ YES
+READY FOR CODE REVIEW: ✅ YES
+DATE: 2026-03-14
+================================================================================

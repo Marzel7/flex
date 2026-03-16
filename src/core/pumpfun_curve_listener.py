@@ -2101,6 +2101,15 @@ class PumpFunCurveListener:
             flush=True
         )
 
+        # === SCHEDULE RETRY DISCOVERY IF NO POOL FOUND ===
+        if pool_discovery_source == "none" and tx_data:
+            log_print(
+                f"[POOL_DETECT] Scheduling retry discovery in 10s, 30s, 60s",
+                flush=True
+            )
+            # Schedule retries at delays (don't await - fire and forget)
+            asyncio.create_task(self._retry_pool_discovery(mint, tx_data, delays=[10, 30, 60]))
+
         # === AUTO-REGISTER POOL FOR WEBSOCKET PRICING ===
         # ✅ NEW: Validate pool owner before registration (belt-and-suspenders check)
         if pool_address:
@@ -2251,6 +2260,85 @@ class PumpFunCurveListener:
             log_print(f"[BACKGROUND] 📤 Background tasks spawned (fire-and-forget)", flush=True)
         else:
             log_print(f"[BACKGROUND] ⏭️ Skipping background tasks (no creator found)", flush=True)
+
+    async def _retry_pool_discovery(self, mint: str, tx_data: Dict, delays: List[int]):
+        """
+        Retry pool discovery for a token at delayed intervals.
+        
+        When initial pool detection fails, some pools haven't been created yet.
+        This schedules retries at specified delays to catch delayed pool creation.
+        
+        Args:
+            mint: Token mint address
+            tx_data: Transaction data for detection
+            delays: List of delays in seconds (e.g., [10, 30, 60])
+        """
+        from src.core.pool_detector import PoolDetector
+        
+        for delay in delays:
+            try:
+                await asyncio.sleep(delay)
+                
+                log_print(
+                    f"[POOL_DETECT_RETRY] ⏱️  Retry attempt after {delay}s for {mint[:16]}...",
+                    flush=True
+                )
+                
+                # Run detection again
+                debug_mode = os.getenv("POOL_DETECTOR_DEBUG", "true").lower() == "true"
+                detector = PoolDetector(RPC_HTTP, debug=debug_mode)
+                pool_address = await detector.detect_pool_from_tx(tx_data, mint)
+                
+                if pool_address:
+                    log_print(
+                        f"[POOL_DETECT_RETRY] ✅ Pool found on retry #{delays.index(delay) + 1}: {pool_address[:16]}...",
+                        flush=True
+                    )
+                    
+                    # Validate and register the pool
+                    try:
+                        from src.core.pool_detector import AMMPrograms
+                        account_info_payload = {
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": "getAccountInfo",
+                            "params": [pool_address, {"encoding": "base64"}]
+                        }
+                        acct = await self._post_rpc_with_fallback(account_info_payload, timeout=5)
+                        
+                        pool_is_valid = False
+                        if acct and "result" in acct and acct["result"]:
+                            owner = acct["result"].get("value", {}).get("owner")
+                            if owner in AMMPrograms.ALL:
+                                pool_is_valid = True
+                        
+                        if pool_is_valid:
+                            try:
+                                from src.core.pool_discovery import PoolDiscovery
+                                discovery = PoolDiscovery(DB_PATH, RPC_HTTP)
+                                registered = await discovery.discover_and_register_pool(pool_address, mint)
+                                if registered:
+                                    log_print(
+                                        f"[POOL_DETECT_RETRY] 🚀 Retry succeeded: Pool registered for {mint[:16]}...",
+                                        flush=True
+                                    )
+                                    return  # Success - exit retry loop
+                            except Exception as e:
+                                log_print(f"[POOL_DETECT_RETRY] ⚠️  Registration failed: {e}", flush=True)
+                    except Exception as e:
+                        log_print(f"[POOL_DETECT_RETRY] ⚠️  Validation failed: {e}", flush=True)
+                else:
+                    log_print(
+                        f"[POOL_DETECT_RETRY] ⏭️  Still no pool after {delay}s",
+                        flush=True
+                    )
+            
+            except asyncio.CancelledError:
+                log_print(f"[POOL_DETECT_RETRY] Cancelled", flush=True)
+                break
+            except Exception as e:
+                log_print(f"[POOL_DETECT_RETRY] ⚠️  Error on {delay}s retry: {e}", flush=True)
+                continue
 
     async def handle_migration(self, signature: str, logs: list):
         """Process detected migration."""

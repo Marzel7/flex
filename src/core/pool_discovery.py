@@ -27,6 +27,9 @@ RAYDIUM_CPMM_PROGRAM = "CPMMoo8L3F4rn9aUYn2QRiPK5VrKMjstm69edQaMQAC"
 # Orca program ID
 ORCA_WHIRLPOOL_PROGRAM = "whirLbMiicVdio4KfUqKKvsLrZtSqwNAUafgJMYco"
 
+# PumpSwap program ID (uses Raydium AMM layout)
+PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+
 # SPL Token program
 SPL_TOKEN_PROGRAM = "TokenkegQfeZyiNwAJsyFbPVwwQQftas5LLppuCQqn"
 
@@ -136,6 +139,10 @@ class PoolDiscovery:
                 pool_data, pool_address, token_mint
             )
 
+        # PumpSwap (uses Raydium AMM layout)
+        if owner == PUMPSWAP_PROGRAM:
+            return await self._extract_raydium_amm(pool_data, pool_address, token_mint)
+
         logger.warning(f"Unknown pool program owner: {owner}")
         return None
 
@@ -143,40 +150,59 @@ class PoolDiscovery:
         self, pool_data: Dict, pool_address: str, token_mint: str
     ) -> Optional[Dict]:
         """
-        Extract reserves from Raydium AMM pool.
+        Extract vault accounts from Raydium AMM pool.
 
-        Raydium AMM state structure:
-        - Offset 0-8: nonce
-        - Offset 8-40: token_account_a (base)
-        - Offset 40-72: token_account_b (quote)
-        - ... other fields
+        Raydium AMM state structure (correct offsets):
+        - Offset 232-264: base_vault (32 bytes)
+        - Offset 264-296: quote_vault (32 bytes)
+
+        These are the actual token reserve accounts where liquidity is stored.
         """
         try:
-            data = pool_data.get("data", [None, None])[0]
-            if not data or len(data) < 200:
+            data_field = pool_data.get("data")
+            if not data_field:
+                logger.warning(f"No data in pool account")
                 return None
 
-            decoded = b64decode(data)
+            # RPC returns data as [base64_string, "base64"]
+            if isinstance(data_field, list) and len(data_field) > 0:
+                data = data_field[0]
+            else:
+                data = data_field
 
-            # Extract token accounts (public keys are 32 bytes)
-            # Raydium AMM: base at offset 8, quote at offset 40
-            base_account = self._bytes_to_pubkey(decoded[8:40])
-            quote_account = self._bytes_to_pubkey(decoded[40:72])
+            if isinstance(data, str):
+                # Base64-encoded data
+                decoded = b64decode(data)
+            else:
+                decoded = data
 
-            if not base_account or not quote_account:
+            if len(decoded) < 296:
+                logger.warning(f"Pool data too small: {len(decoded)} bytes")
                 return None
 
-            # Fetch token info for decimals
-            base_decimals = await self._get_token_decimals(base_account)
-            quote_decimals = await self._get_token_decimals(quote_account)
+            # Extract vault accounts (public keys are 32 bytes)
+            # Raydium AMM: base_vault at offset 232, quote_vault at offset 264
+            base_vault = self._bytes_to_pubkey(decoded[232:264])
+            quote_vault = self._bytes_to_pubkey(decoded[264:296])
 
-            # Determine which is the token and which is quote
+            if not base_vault or not quote_vault:
+                logger.warning(f"Could not extract vault addresses from pool {pool_address}")
+                return None
+
+            logger.info(f"✅ Extracted Raydium vaults: base={base_vault[:16]}... quote={quote_vault[:16]}...")
+
+            # Fetch token info from vault metadata
+            base_decimals = await self._get_token_decimals(base_vault)
+            quote_decimals = await self._get_token_decimals(quote_vault)
+
+            # For now, assume base is the token and quote is SOL
+            # (This may need refinement for non-SOL pairs)
             base_token = token_mint
             quote_token = SOL_MINT
 
             return {
-                "base_account": base_account,
-                "quote_account": quote_account,
+                "base_account": base_vault,
+                "quote_account": quote_vault,
                 "base_token": base_token,
                 "quote_token": quote_token,
                 "base_decimals": base_decimals or 6,

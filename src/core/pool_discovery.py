@@ -552,12 +552,45 @@ class PoolDiscovery:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
 
+            # Determine vault validation status
+            # If vaults don't exist on-chain, mark as pending for later resolution
+            vault_status = "pending"
+            vault_error = None
+            
+            base_account = reserves.get("base_account")
+            quote_account = reserves.get("quote_account")
+            
+            # Check if vaults actually exist and are valid
+            try:
+                base_info = await self._fetch_account(base_account)
+                quote_info = await self._fetch_account(quote_account)
+                
+                if base_info and quote_info:
+                    # Both vaults exist, try to validate they're SPL token accounts
+                    base_owner = base_info.get("owner")
+                    quote_owner = quote_info.get("owner")
+                    SPL_TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                    
+                    if base_owner == SPL_TOKEN_PROGRAM and quote_owner == SPL_TOKEN_PROGRAM:
+                        vault_status = "validated"
+                    else:
+                        vault_status = "pending"
+                        vault_error = "vaults exist but not SPL token accounts"
+                else:
+                    vault_status = "pending"
+                    vault_error = "vaults not yet created on-chain"
+            except Exception as e:
+                vault_status = "pending"
+                vault_error = str(e)
+
             cursor.execute(
                 """
                 INSERT OR REPLACE INTO token_pool_accounts
                 (mint, base_account, quote_account, base_token, quote_token,
-                 base_decimals, quote_decimals, pool_program, is_active, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 base_decimals, quote_decimals, pool_program, is_active, 
+                 vault_validation_status, vault_validation_error, vault_validation_attempts,
+                 last_vault_validation_at, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
                 (
                     token_mint,
@@ -569,22 +602,140 @@ class PoolDiscovery:
                     reserves["quote_decimals"],
                     reserves["pool_program"],
                     1,  # is_active
-                    int(__import__("time").time()),
-                    int(__import__("time").time()),
+                    vault_status,
+                    vault_error,
+                    1,  # vault_validation_attempts
+                    int(__import__("time").time()),  # last_vault_validation_at
+                    int(__import__("time").time()),  # created_at
+                    int(__import__("time").time()),  # updated_at
                 ),
             )
 
             conn.commit()
             conn.close()
 
+            status_str = "✅" if vault_status == "validated" else "⏳"
             logger.info(
-                f"✅ Registered pool for {token_mint} → "
-                f"{reserves['base_account'][:16]}... / {reserves['quote_account'][:16]}..."
+                f"{status_str} Registered pool for {token_mint} → "
+                f"{reserves['base_account'][:16]}... / {reserves['quote_account'][:16]}... "
+                f"(vaults: {vault_status})"
             )
+            if vault_error:
+                logger.debug(f"   Vault error: {vault_error}")
             return True
 
         except Exception as e:
             logger.error(f"Error registering pool to database: {e}")
+            return False
+
+    async def retry_vault_validation(self, token_mint: str, pool_account: str) -> bool:
+        """
+        Retry vault validation for a pool marked as 'pending'.
+        
+        Called periodically to check if vaults have been created on-chain
+        since initial registration. Updates vault_validation_status if vaults
+        become available.
+        
+        Returns True if vaults are now validated, False otherwise.
+        """
+        try:
+            import sqlite3
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            # Get the pool registration
+            cursor.execute(
+                """SELECT base_account, quote_account, pool_program, vault_validation_attempts
+                   FROM token_pool_accounts 
+                   WHERE mint = ? AND base_account = ?""",
+                (token_mint, pool_account)
+            )
+            row = cursor.fetchone()
+            conn.close()
+            
+            if not row:
+                logger.debug(f"[VAULT_RETRY] No pool found for {token_mint[:16]}... {pool_account[:16]}...")
+                return False
+            
+            base_account, quote_account, pool_program, attempts = row
+            
+            # Try to validate vaults
+            logger.info(
+                f"[VAULT_RETRY] Attempt {attempts + 1}: Validating vaults for {token_mint[:16]}... "
+                f"(pool: {pool_program})"
+            )
+            
+            base_info = await self._fetch_account(base_account)
+            quote_info = await self._fetch_account(quote_account)
+            
+            if not base_info or not quote_info:
+                logger.debug(
+                    f"[VAULT_RETRY] Vaults still not created for {token_mint[:16]}..."
+                )
+                # Update attempt count
+                conn = sqlite3.connect(self.db_path)
+                cursor = conn.cursor()
+                cursor.execute(
+                    """UPDATE token_pool_accounts 
+                       SET vault_validation_attempts = vault_validation_attempts + 1,
+                           last_vault_validation_at = ?
+                       WHERE mint = ? AND base_account = ?""",
+                    (int(__import__("time").time()), token_mint, pool_account)
+                )
+                conn.commit()
+                conn.close()
+                return False
+            
+            # Vaults exist, validate them
+            base_owner = base_info.get("owner")
+            quote_owner = quote_info.get("owner")
+            SPL_TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+            
+            if base_owner == SPL_TOKEN_PROGRAM and quote_owner == SPL_TOKEN_PROGRAM:
+                # Vaults are valid!
+                logger.info(
+                    f"[VAULT_RETRY] ✅ Vaults validated for {token_mint[:16]}... after {attempts + 1} attempts"
+                )
+                
+                conn = sqlite3.connect(self.db_path)
+                cursor = conn.cursor()
+                cursor.execute(
+                    """UPDATE token_pool_accounts 
+                       SET vault_validation_status = 'validated',
+                           vault_validation_attempts = ?,
+                           last_vault_validation_at = ?,
+                           updated_at = ?
+                       WHERE mint = ? AND base_account = ?""",
+                    (attempts + 1, int(__import__("time").time()), 
+                     int(__import__("time").time()), token_mint, pool_account)
+                )
+                conn.commit()
+                conn.close()
+                return True
+            else:
+                # Vaults exist but are wrong type
+                logger.warning(
+                    f"[VAULT_RETRY] ❌ Vaults exist but are not SPL token accounts for {token_mint[:16]}..."
+                )
+                
+                conn = sqlite3.connect(self.db_path)
+                cursor = conn.cursor()
+                cursor.execute(
+                    """UPDATE token_pool_accounts 
+                       SET vault_validation_status = 'rejected',
+                           vault_validation_error = 'vaults not SPL token accounts',
+                           vault_validation_attempts = ?,
+                           last_vault_validation_at = ?,
+                           is_active = 0
+                       WHERE mint = ? AND base_account = ?""",
+                    (attempts + 1, int(__import__("time").time()), token_mint, pool_account)
+                )
+                conn.commit()
+                conn.close()
+                return False
+        
+        except Exception as e:
+            logger.error(f"[VAULT_RETRY] Error: {e}")
             return False
 
     async def register_pumpfun_v1_pool(
@@ -638,58 +789,78 @@ class PoolDiscovery:
         self, pool_address: str, token_mint: str
     ) -> bool:
         """
-        Discover pool reserves and register in database.
+        Discover pool reserves and register in database with proper vault validation.
 
         Called when a token launches to automatically enable WebSocket pricing.
-        Falls back to vault pair discovery if standard extraction fails (PumpFun V1).
+        
+        Strategy:
+        1. Try vault pair discovery first (finds actual PumpSwap pools with real vaults)
+        2. Fall back to standard extraction (Raydium AMM)
+        3. Only register if vaults are either validated OR explicitly marked as pending for retry
+        4. Do NOT register with unverified vault addresses that will likely be wrong
         """
         logger.info(f"🔍 Discovering pool reserves for {token_mint}")
 
-        # Extract reserves from on-chain pool data
-        reserves = await self.extract_pool_reserves(pool_address, token_mint)
+        reserves = None
+        vault_source = None
 
-        # Fallback: If extraction failed, try PumpFun V1 vault pair discovery
+        # Strategy 1: Try PumpFun V1 vault pair discovery first
+        # This finds the actual PumpSwap pool account which is the correct vault pair
+        logger.info(
+            f"[DISCOVERY_CHAIN] Step 1: Attempting PumpFun V1 vault pair discovery"
+        )
+        try:
+            from src.core.post_migration_pool_discovery import PostMigrationPoolDiscovery
+            vault_discovery = PostMigrationPoolDiscovery(self.rpc_url)
+            vault_pair = await vault_discovery.discover_pumpfun_v1_vault_pair(
+                mint=token_mint,
+                pool_address=pool_address
+            )
+            
+            if vault_pair:
+                logger.info(
+                    f"[DISCOVERY_CHAIN] ✅ Found vault pair: {vault_pair[:16]}... "
+                    f"— extracting reserves from vault pair"
+                )
+                # Try to extract from vault pair
+                reserves = await self.extract_pool_reserves(vault_pair, token_mint)
+                if reserves:
+                    logger.info(
+                        f"[DISCOVERY_CHAIN] ✅ Successfully extracted reserves from vault pair"
+                    )
+                    vault_source = "pumpfun_v1_discovered"
+        except Exception as e:
+            logger.debug(f"[DISCOVERY_CHAIN] Vault pair discovery failed: {e}")
+
+        # Strategy 2: Try standard extraction from pool_address
         if not reserves:
             logger.info(
-                f"[FALLBACK] Standard extraction failed for {pool_address[:16]}... "
-                f"— attempting PumpFun V1 vault pair discovery"
+                f"[DISCOVERY_CHAIN] Step 2: Attempting standard pool extraction"
             )
-            try:
-                from src.core.post_migration_pool_discovery import PostMigrationPoolDiscovery
-                vault_discovery = PostMigrationPoolDiscovery(self.rpc_url)
-                vault_pair = await vault_discovery.discover_pumpfun_v1_vault_pair(
-                    mint=token_mint,
-                    pool_address=pool_address
+            reserves = await self.extract_pool_reserves(pool_address, token_mint)
+            
+            if reserves:
+                logger.info(
+                    f"[DISCOVERY_CHAIN] ✅ Successfully extracted reserves from pool"
                 )
-                
-                if vault_pair:
-                    logger.info(
-                        f"[FALLBACK] ✅ Found vault pair: {vault_pair[:16]}... "
-                        f"— extracting reserves from vault pair"
-                    )
-                    # Try to extract from vault pair instead
-                    reserves = await self.extract_pool_reserves(vault_pair, token_mint)
-                    if reserves:
-                        logger.info(
-                            f"[FALLBACK] ✅ Successfully extracted reserves from vault pair"
-                        )
-                else:
-                    logger.warning(
-                        f"[FALLBACK] Could not discover vault pair for {token_mint}"
-                    )
-            except Exception as e:
-                logger.warning(f"[FALLBACK] Vault pair discovery error: {e}")
+                vault_source = "standard_extraction"
 
+        # If no reserves found, stop here
         if not reserves:
             logger.warning(f"Failed to extract reserves from pool {pool_address}")
             return False
 
-        # Register in database (enables WebSocket subscription on next worker cycle)
+        logger.info(
+            f"[DISCOVERY_CHAIN] ✅ Pool extraction successful from {vault_source}"
+        )
+
+        # Register in database with vault validation status
+        # Vaults will be marked as 'pending' or 'validated' based on whether they exist on-chain
         success = await self.register_pool_to_db(token_mint, reserves)
 
         if success:
             logger.info(
-                f"🚀 Pool auto-registered! WebSocket will subscribe on next worker cycle"
+                f"🚀 Pool registered (WebSocket will subscribe when vaults are validated)"
             )
 
         return success

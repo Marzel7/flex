@@ -393,6 +393,10 @@ class TokenPriceService:
                 base_decimals     INTEGER NOT NULL DEFAULT 6,
                 quote_decimals    INTEGER NOT NULL DEFAULT 9,
                 last_reserve_fetch INTEGER DEFAULT 0,
+                vault_validation_status TEXT NOT NULL DEFAULT 'pending' CHECK(vault_validation_status IN ('pending', 'validated', 'rejected')),
+                vault_validation_error TEXT,
+                vault_validation_attempts INTEGER DEFAULT 0,
+                last_vault_validation_at INTEGER DEFAULT 0,
                 is_active         BOOLEAN DEFAULT 1,
                 created_at        INTEGER NOT NULL,
                 updated_at        INTEGER NOT NULL,
@@ -405,9 +409,14 @@ class TokenPriceService:
             ON token_pool_accounts(mint, is_active)
         """)
 
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_tpa_vault_status
+            ON token_pool_accounts(vault_validation_status, last_vault_validation_at)
+        """)
+
         conn.commit()
         conn.close()
-        logger.info("Database tables ensured (price snapshots + circuit breaker + pool accounts)")
+        logger.info("Database tables ensured (price snapshots + circuit breaker + pool accounts with vault tracking)")
     
     def _get_cached_price(self, mint: str) -> Optional[TokenPrice]:
         """Get most recent price from database cache."""

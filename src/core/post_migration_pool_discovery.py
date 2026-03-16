@@ -101,8 +101,13 @@ class PostMigrationPoolDiscovery:
         Strategy:
         1. Get migration TX
         2. Extract all account addresses
-        3. Filter by known pool program owners
-        4. Return first pool found (validation happens in caller)
+        3. Filter by known pool program owners, preferring larger accounts
+           (larger = more likely to be actual pool state, not helper/config)
+        4. Return pool address if found (validation happens in caller)
+
+        Note: Returns the largest pool-sized account, as this is typically
+        the actual pool state account. Helper/config accounts are usually
+        much smaller.
 
         Args:
             mint: Token mint address
@@ -156,29 +161,66 @@ class PostMigrationPoolDiscovery:
                 "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
             }
 
-            # Check each account's owner
+            # Check each account's owner and size
+            # Minimum size for Raydium AMM pool state: 296 bytes
+            MIN_POOL_STATE_SIZE = 296
+
+            # Collect all valid candidates, then return the largest (most likely to be real pool)
+            candidates = []
+
             for account_addr in accounts:
                 # Skip system programs
                 if account_addr in SYSTEM_PROGRAMS:
                     continue
 
-                # Get account info to check owner
+                # Get account info to check owner and size
                 try:
                     account_info = await self._fetch_account_info(account_addr)
                     if not account_info:
                         continue
 
                     owner = account_info.get("owner")
-                    if owner in POOL_PROGRAMS:
-                        logger.info(
-                            f"[POOL_DISCOVERY_MIGRATION_TX] ✅ Found pool: {account_addr[:20]}... "
-                            f"(owner={owner[:16]}...)"
+                    if owner not in POOL_PROGRAMS:
+                        continue
+
+                    # Check account size (filter out helper accounts which are typically small)
+                    data = account_info.get("data")
+                    if isinstance(data, list) and len(data) > 0:
+                        import base64
+                        try:
+                            decoded = base64.b64decode(data[0])
+                            data_size = len(decoded)
+                        except:
+                            data_size = 0
+                    else:
+                        data_size = 0
+
+                    # Reject accounts smaller than minimum pool state size
+                    if data_size < MIN_POOL_STATE_SIZE:
+                        logger.debug(
+                            f"[POOL_DISCOVERY_MIGRATION_TX] Skipping {account_addr[:16]}... "
+                            f"(size={data_size} < {MIN_POOL_STATE_SIZE})"
                         )
-                        return account_addr
+                        continue
+
+                    candidates.append((account_addr, owner, data_size))
 
                 except Exception as e:
                     logger.debug(f"[POOL_DISCOVERY_MIGRATION_TX] Error checking {account_addr[:16]}...: {e}")
                     continue
+
+            if not candidates:
+                logger.info("[POOL_DISCOVERY_MIGRATION_TX] No pool programs found in transaction")
+                return None
+
+            # Return the largest pool account (most likely to be real pool state, not a config account)
+            account_addr, owner, data_size = max(candidates, key=lambda x: x[2])
+
+            logger.info(
+                f"[POOL_DISCOVERY_MIGRATION_TX] ✅ Found pool: {account_addr[:20]}... "
+                f"(owner={owner[:16]}... size={data_size} bytes, selected from {len(candidates)} candidates)"
+            )
+            return account_addr
 
             logger.info("[POOL_DISCOVERY_MIGRATION_TX] No pool programs found in transaction")
             return None

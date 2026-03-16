@@ -30,6 +30,9 @@ ORCA_WHIRLPOOL_PROGRAM = "whirLbMiicVdio4KfUqKKvsLrZtSqwNAUafgJMYco"
 # PumpSwap program ID (uses Raydium AMM layout)
 PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
 
+# PumpFun V1 program ID (uses Raydium AMM layout)
+PUMPFUN_V1_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+
 # SPL Token program
 SPL_TOKEN_PROGRAM = "TokenkegQfeZyiNwAJsyFbPVwwQQftas5LLppuCQqn"
 
@@ -160,6 +163,10 @@ class PoolDiscovery:
         if owner == PUMPSWAP_PROGRAM:
             return await self._extract_raydium_amm(pool_data, pool_address, token_mint)
 
+        # PumpFun V1 (different structure, may use Raydium-like layout at different offsets)
+        if owner == PUMPFUN_V1_PROGRAM:
+            return await self._extract_pumpfun_v1(pool_data, pool_address, token_mint)
+
         logger.warning(f"Unknown pool program owner: {owner}")
         return None
 
@@ -192,7 +199,7 @@ class PoolDiscovery:
 
             # ===== STAGE 1: Owner validation =====
             owner = pool_data.get("owner")
-            if owner not in {PUMPSWAP_PROGRAM, RAYDIUM_AMM_PROGRAM, RAYDIUM_CPMM_PROGRAM}:
+            if owner not in {PUMPSWAP_PROGRAM, PUMPFUN_V1_PROGRAM, RAYDIUM_AMM_PROGRAM, RAYDIUM_CPMM_PROGRAM}:
                 logger.warning(
                     f"[POOL_EXTRACT] ❌ Invalid owner for candidate {pool_address[:16]}...: {owner}"
                 )
@@ -346,6 +353,13 @@ class PoolDiscovery:
                 f"quote_token={final_quote_token[:20]}..."
             )
 
+            # Determine program name for logging
+            program_name = "raydium_amm"
+            if owner == PUMPSWAP_PROGRAM:
+                program_name = "pumpswap"
+            elif owner == PUMPFUN_V1_PROGRAM:
+                program_name = "pumpfun_v1"
+
             return {
                 "base_account": final_base_account,
                 "quote_account": final_quote_account,
@@ -353,7 +367,7 @@ class PoolDiscovery:
                 "quote_token": final_quote_token,
                 "base_decimals": final_base_decimals,
                 "quote_decimals": final_quote_decimals,
-                "pool_program": "raydium_amm",
+                "pool_program": program_name,
             }
 
         except Exception as e:
@@ -432,6 +446,93 @@ class PoolDiscovery:
             logger.debug(f"Error extracting Orca Whirlpool: {e}")
             return None
 
+    async def _extract_pumpfun_v1(
+        self, pool_data: Dict, pool_address: str, token_mint: str
+    ) -> Optional[Dict]:
+        """
+        Extract reserves from PumpFun V1 pool.
+
+        PumpFun V1 pools have a different structure than Raydium AMM.
+        The vault addresses don't appear to be at the standard Raydium offsets.
+
+        For now, we attempt Raydium extraction but fall back gracefully
+        if it fails. This allows us to detect and register pools even if
+        we don't fully understand the data structure.
+
+        TODO: Reverse-engineer the actual PumpFun V1 pool structure and
+        implement proper extraction.
+        """
+        try:
+            logger.info(
+                f"[POOL_EXTRACT] Attempting PumpFun V1 extraction for {pool_address[:16]}..."
+            )
+
+            # Try Raydium-like layout first
+            result = await self._extract_raydium_amm(pool_data, pool_address, token_mint)
+
+            if result:
+                # Update program name to reflect it's PumpFun V1
+                result["pool_program"] = "pumpfun_v1"
+                return result
+
+            # If Raydium extraction failed, try alternative offsets
+            # (This is speculative - we may need to adjust based on actual structure)
+            data = pool_data.get("data", [None, None])[0]
+            if not data or len(data) < 200:
+                logger.warning(
+                    f"[POOL_EXTRACT] PumpFun V1 pool too small: {len(data) if data else 0} bytes"
+                )
+                return None
+
+            decoded = b64decode(data)
+
+            # Try different offset possibilities
+            # Standard Raydium is 232-264, 264-296, but PumpFun might use different layout
+            possible_offsets = [
+                (232, 264, 296),  # Standard Raydium
+                (8, 40, 72),      # Early in structure
+                (64, 96, 128),    # Shifted offsets
+            ]
+
+            for base_start, base_end, quote_end in possible_offsets:
+                if len(decoded) < quote_end:
+                    continue
+
+                base_vault = self._bytes_to_pubkey(decoded[base_start:base_end])
+                quote_vault = self._bytes_to_pubkey(decoded[base_end:quote_end])
+
+                if base_vault and quote_vault:
+                    # Verify these are actual accounts
+                    base_info = await self._fetch_account(base_vault)
+                    quote_info = await self._fetch_account(quote_vault)
+
+                    if base_info and quote_info:
+                        logger.info(
+                            f"[POOL_EXTRACT] Found valid vaults at offset {base_start}-{base_end}-{quote_end}"
+                        )
+
+                        base_decimals = await self._get_token_decimals(base_vault)
+                        quote_decimals = await self._get_token_decimals(quote_vault)
+
+                        return {
+                            "base_account": base_vault,
+                            "quote_account": quote_vault,
+                            "base_token": token_mint,
+                            "quote_token": SOL_MINT,
+                            "base_decimals": base_decimals or 6,
+                            "quote_decimals": quote_decimals or 9,
+                            "pool_program": "pumpfun_v1",
+                        }
+
+            logger.warning(
+                f"[POOL_EXTRACT] Could not extract PumpFun V1 pool structure"
+            )
+            return None
+
+        except Exception as e:
+            logger.debug(f"[POOL_EXTRACT] Error extracting PumpFun V1: {e}")
+            return None
+
     async def _get_token_decimals(self, token_mint: str) -> Optional[int]:
         """Fetch token decimals from on-chain token metadata."""
         try:
@@ -465,6 +566,11 @@ class PoolDiscovery:
 
             if len(data) != 32:
                 return None
+
+            # Reject placeholder/null pubkeys (all zeros or all ones)
+            if data == b'\x00' * 32 or data == b'\xff' * 32:
+                return None
+
             return str(Pubkey(data))
         except Exception:
             return None

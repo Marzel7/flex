@@ -294,12 +294,17 @@ class PostMigrationPoolDiscovery:
                 "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
             }
 
+            # Accounts to skip (shared state/config, not token-specific pools)
+            SKIP_ACCOUNTS = {
+                "4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf",  # Shared migration state (741 bytes)
+            }
+
             # Collect all valid candidates
             MIN_POOL_STATE_SIZE = 296
             candidates = []
 
             for account_addr in accounts:
-                if account_addr in SYSTEM_PROGRAMS:
+                if account_addr in SYSTEM_PROGRAMS or account_addr in SKIP_ACCOUNTS:
                     continue
 
                 try:

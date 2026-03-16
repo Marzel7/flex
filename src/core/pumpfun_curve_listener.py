@@ -2123,11 +2123,11 @@ class PumpFunCurveListener:
                         })()
                     return None
 
-                async def get_multiple_accounts(self, addresses: list, encoding: str = "base64"):
+                async def get_multiple_accounts(self, addresses: list, encoding: str = "base64", commitment: str = "confirmed"):
                     """Batch fetch account info for vault discovery"""
                     result = await self.call_async(
                         "getMultipleAccounts",
-                        [addresses, {"encoding": encoding, "commitment": "confirmed"}]
+                        [addresses, {"encoding": encoding, "commitment": commitment}]
                     )
                     if result and "value" in result:
                         accounts = []

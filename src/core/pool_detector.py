@@ -100,6 +100,9 @@ class AMMPrograms:
     # PumpSwap (uses Raydium AMM v4 underneath)
     PUMPSWAP = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
 
+    # PumpFun V1 (uses Raydium AMM v4 layout)
+    PUMPFUN_V1 = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+
     # Raydium AMM v4
     RAYDIUM_AMM = "675kPX9MHTjS2zt1qrXjVnYYtYEyojNMjuSofEMQSdt"
 
@@ -115,13 +118,14 @@ class AMMPrograms:
     # Solend (for future support)
     SOLEND = "So1endDq2YkqvdRWFLVm3BVqin6VPrxkkzpJ8UNqxWs"
 
-    ALL = {PUMPSWAP, RAYDIUM_AMM, RAYDIUM_CLMM, ORCA_WHIRLPOOL, METEORA_DLMM, SOLEND}
+    ALL = {PUMPSWAP, PUMPFUN_V1, RAYDIUM_AMM, RAYDIUM_CLMM, ORCA_WHIRLPOOL, METEORA_DLMM, SOLEND}
 
     @classmethod
     def identify_program(cls, owner: str) -> Optional[str]:
         """Identify AMM program name from owner address."""
         program_map = {
             cls.PUMPSWAP: "pumpswap",
+            cls.PUMPFUN_V1: "pumpfun_v1",
             cls.RAYDIUM_AMM: "raydium_amm",
             cls.RAYDIUM_CLMM: "raydium_clmm",
             cls.ORCA_WHIRLPOOL: "orca_whirlpool",

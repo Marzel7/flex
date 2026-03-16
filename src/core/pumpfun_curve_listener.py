@@ -2123,6 +2123,27 @@ class PumpFunCurveListener:
                         })()
                     return None
 
+                async def get_multiple_accounts(self, addresses: list, encoding: str = "base64"):
+                    """Batch fetch account info for vault discovery"""
+                    result = await self.call_async(
+                        "getMultipleAccounts",
+                        [addresses, {"encoding": encoding, "commitment": "confirmed"}]
+                    )
+                    if result and "value" in result:
+                        accounts = []
+                        for acct_data in result["value"]:
+                            if acct_data:
+                                accounts.append(type('AccountInfo', (), {
+                                    'data': acct_data.get('data', ''),
+                                    'owner': acct_data.get('owner', ''),
+                                    'lamports': acct_data.get('lamports', 0),
+                                    'executable': acct_data.get('executable', False)
+                                })())
+                            else:
+                                accounts.append(None)
+                        return accounts
+                    return None
+
             rpc_adapter = RPCClientAdapter(RPC_HTTP)
             vault_pair = await discover_vaults_rpc(
                 token_mint=mint,

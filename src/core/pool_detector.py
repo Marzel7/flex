@@ -246,11 +246,11 @@ class PoolDetector:
             candidates = []
             candidate_summary = {
                 'pumpswap_helpers': 0,
-                'pumpswap_valid': 0,
+                'pumpswap': 0,
                 'raydium_amm': 0,
                 'raydium_clmm': 0,
-                'orca': 0,
-                'meteora': 0,
+                'orca_whirlpool': 0,
+                'meteora_dlmm': 0,
             }
 
             for i, account_addr in enumerate(all_accounts_with_inner):
@@ -277,10 +277,8 @@ class PoolDetector:
                     if not account_info:
                         continue
 
-                    data = account_info.get("data", [])
-                    data_len = len(data) if isinstance(data, list) else (
-                        int(data) if isinstance(data, str) and data.isdigit() else 0
-                    )
+                    data = account_info.get("data", b"")
+                    data_len = account_info.get("data_len", len(data))
 
                     program_name = AMMPrograms.identify_program(owner)
                     min_len = AMMDataLengths.EXPECTED.get(owner, 200)
@@ -321,11 +319,11 @@ class PoolDetector:
             logger.info(
                 f"[POOL_DETECT] Candidate summary: "
                 f"pumpswap_helpers={candidate_summary['pumpswap_helpers']} "
-                f"pumpswap_valid={candidate_summary['pumpswap_valid']} "
+                f"pumpswap={candidate_summary['pumpswap']} "
                 f"raydium_amm={candidate_summary['raydium_amm']} "
                 f"raydium_clmm={candidate_summary['raydium_clmm']} "
-                f"orca={candidate_summary['orca']} "
-                f"meteora={candidate_summary['meteora']}"
+                f"orca_whirlpool={candidate_summary['orca_whirlpool']} "
+                f"meteora_dlmm={candidate_summary['meteora_dlmm']}"
             )
 
             # Log cache stats every Nth detection
@@ -459,8 +457,8 @@ class PoolDetector:
                         continue
 
                     # Try to parse vault as token account and extract authority
-                    vault_data = vault_info.get("data", [])
-                    if not isinstance(vault_data, list) or len(vault_data) < 72:
+                    vault_data = vault_info.get("data", b"")
+                    if len(vault_data) < 72:
                         logger.debug(
                             f"[POOL_DETECT_FALLBACK] Vault {vault_addr[:16]}... "
                             f"too small for token account ({len(vault_data)} bytes)"
@@ -584,17 +582,21 @@ class PoolDetector:
             logger.debug(f"[POOL_DETECT] Error extracting inner instruction accounts: {e}")
             return []
 
-    def _bytes_to_base58(self, data: List[int]) -> Optional[str]:
+    def _bytes_to_base58(self, data) -> Optional[str]:
         """
         Convert 32-byte pubkey to base58 string.
 
         Args:
-            data: List of ints (0-255) representing 32 bytes
+            data: bytes or List[int] of length 32
 
         Returns:
             Base58-encoded address string or None if invalid
         """
         try:
+            # Convert list to bytes if needed
+            if isinstance(data, list):
+                data = bytes(data)
+
             if not data or len(data) != 32:
                 return None
 
@@ -602,15 +604,11 @@ class PoolDetector:
             try:
                 import base58
             except ImportError:
-                # Fallback: implement minimal base58
                 logger.debug("[POOL_DETECT] base58 module not available for authority parsing")
                 return None
 
-            # Convert list of ints to bytes
-            data_bytes = bytes(data)
-
             # Encode to base58
-            return base58.b58encode(data_bytes).decode('ascii')
+            return base58.b58encode(data).decode('ascii')
 
         except Exception as e:
             logger.debug(f"[POOL_DETECT] Error converting bytes to base58: {e}")
@@ -651,28 +649,49 @@ class PoolDetector:
             return None
 
     async def _get_account_info_cached(self, address: str) -> Optional[Dict]:
-        """Fetch account info with caching."""
+        """Fetch account info with caching using raw account bytes."""
         if address in self.rpc_cache:
             return self.rpc_cache[address]
 
         try:
             import aiohttp
+            import base64
 
             payload = {
                 "jsonrpc": "2.0",
                 "id": 1,
                 "method": "getAccountInfo",
-                "params": [address, {"encoding": "jsonParsed"}]
+                "params": [address, {"encoding": "base64"}]
             }
 
             async with aiohttp.ClientSession() as session:
                 async with session.post(self.rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                    if resp.status == 200:
-                        result = await resp.json()
-                        if "result" in result and result["result"]:
-                            account_info = result["result"]["value"]
-                            self.rpc_cache[address] = account_info
-                            return account_info
+                    if resp.status != 200:
+                        return None
+
+                    result = await resp.json()
+                    value = result.get("result", {}).get("value")
+                    if not value:
+                        return None
+
+                    # Decode base64 data field
+                    raw_data = b""
+                    data_field = value.get("data")
+
+                    if isinstance(data_field, list) and len(data_field) >= 1:
+                        raw_data = base64.b64decode(data_field[0])
+
+                    account_info = {
+                        "owner": value.get("owner"),
+                        "lamports": value.get("lamports"),
+                        "executable": value.get("executable"),
+                        "rentEpoch": value.get("rentEpoch"),
+                        "data": raw_data,
+                        "data_len": len(raw_data),
+                    }
+
+                    self.rpc_cache[address] = account_info
+                    return account_info
         except Exception as e:
             logger.debug(f"[POOL_DETECT] RPC error fetching {address[:16]}...: {e}")
 

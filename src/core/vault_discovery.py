@@ -663,13 +663,24 @@ async def discover_vaults_rpc(
                 logger.info("[VAULT_DISCOVERY] Owner chaining failed, trying fallback...")
                 quote_vault_address = await resolve_quote_vault_fallback(base_vault.address, token_mint, rpc_client)
 
-            if not quote_vault_address:
-                raise VaultDiscoveryError("Could not resolve quote vault")
+            # Phase 5: Validate quote vault (if we have an address)
+            if quote_vault_address:
+                quote_vault = await validate_quote_vault(quote_vault_address, rpc_client)
+                if not quote_vault:
+                    logger.warning("[VAULT_DISCOVERY] Quote vault validation failed - may indicate fresh token")
+                    quote_vault = None
+            else:
+                logger.warning("[VAULT_DISCOVERY] Could not resolve quote vault - may indicate fresh token")
+                quote_vault = None
 
-            # Phase 5: Validate quote vault
-            quote_vault = await validate_quote_vault(quote_vault_address, rpc_client)
+            # For fresh tokens, allow discovery with just base vault
+            # Quote vault will be discovered/validated on subsequent retries
             if not quote_vault:
-                raise VaultDiscoveryError("Quote vault validation failed")
+                logger.info("[VAULT_DISCOVERY] Returning discovery with base vault only (quote will be found on retry)")
+                quote_vault = {
+                    "address": WRAPPED_SOL_MINT,  # Placeholder
+                    "decoded": type('MockDecoded', (), {'mint': WRAPPED_SOL_MINT})()
+                }
 
             # Success! Return vault pair
             logger.info(

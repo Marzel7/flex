@@ -272,6 +272,14 @@ class BackgroundPriceWorker:
             if not pools:
                 logger.info("No pools registered — skipping WebSocket client startup")
                 return
+            
+            # If already started, just refresh subscriptions
+            if self._ws_client and self._ws_started:
+                logger.info("WebSocket already running — refreshing subscriptions")
+                self._ws_client.refresh_pools(pools)
+                return
+            
+            # Create client if not already created
             self._ws_client = self._ws_client or __import__('src.core.pool_price_engine', fromlist=['PoolWebSocketClient']).PoolWebSocketClient(self._pool_state, self.db_path)
             self._ws_client.start(pools)
             self._ws_started = True
@@ -294,6 +302,16 @@ class BackgroundPriceWorker:
         """One complete refresh cycle with activity-based scheduling."""
         cycle_start = time.time()
         self.stats['cycles'] += 1
+
+        # Periodically reload pool subscriptions from database (every 30 cycles = ~5 minutes)
+        if self.stats['cycles'] % 30 == 1 and self._ws_client:
+            try:
+                fetcher = get_pool_fetcher(self.db_path)
+                pools = fetcher.get_active_pools()
+                if pools:
+                    self._ws_client.refresh_pools(pools)
+            except Exception as e:
+                logger.debug(f"Error refreshing WebSocket pools: {e}")
 
         # Reset activity distribution for this cycle
         self.stats['activity_distribution'] = {
@@ -527,6 +545,7 @@ class BackgroundPriceWorker:
                     ),
                     sol_price_usd=sol_price_usd,
                     last_cached_price=last_price,
+                    base_account=base_account,
                 )
                 if token_price:
                     candidate_prices.append(token_price)
@@ -608,6 +627,7 @@ class BackgroundPriceWorker:
                         ),
                         sol_price_usd=self._sol_price_usd,
                         last_cached_price=last_price_usd,
+                        base_account=base_account,
                     )
                     if token_price:
                         candidate_prices.append(token_price)
@@ -1013,6 +1033,35 @@ class BackgroundPriceWorker:
         except Exception as e:
             logger.error(f"Error in price fetch callback for {mint}: {e}")
             self.stats['errors'] += 1
+
+    def trigger_pool_refresh(self) -> None:
+        """Refresh WebSocket subscriptions with newly registered pools.
+        
+        Called after vault discovery registers new pools to enable real-time updates.
+        Reloads active pools from DB and refreshes WebSocket subscriptions.
+        If WebSocket is not yet started, starts it immediately instead of waiting.
+        """
+        try:
+            from src.core.pool_price_engine import get_pool_fetcher
+            
+            fetcher = get_pool_fetcher(self.db_path)
+            pools = fetcher.get_active_pools()
+            
+            if not pools:
+                logger.warning("No active pools found after registration")
+                return
+            
+            # If WebSocket client exists, refresh its pool list
+            if self._ws_client:
+                logger.info(f"Refreshing WebSocket with {len(pools)} pools")
+                self._ws_client.refresh_pools(pools)
+            else:
+                # Start WebSocket client immediately instead of waiting
+                logger.info(f"WebSocket not yet started — starting now with {len(pools)} pools")
+                self._start_ws_client()
+                
+        except Exception as e:
+            logger.error(f"Error refreshing pool WebSocket subscriptions: {e}")
 
     def get_stats(self) -> Dict:
         """Get worker statistics including circuit breaker and source metrics."""

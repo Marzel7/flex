@@ -397,6 +397,7 @@ class TokenPriceService:
                 vault_validation_error TEXT,
                 vault_validation_attempts INTEGER DEFAULT 0,
                 last_vault_validation_at INTEGER DEFAULT 0,
+                discovery_method  TEXT DEFAULT 'unknown',
                 is_active         BOOLEAN DEFAULT 1,
                 created_at        INTEGER NOT NULL,
                 updated_at        INTEGER NOT NULL,
@@ -413,6 +414,19 @@ class TokenPriceService:
             CREATE INDEX IF NOT EXISTS idx_tpa_vault_status
             ON token_pool_accounts(vault_validation_status, last_vault_validation_at)
         """)
+
+        # Migration: Add discovery_method column if missing
+        try:
+            cursor.execute("PRAGMA table_info(token_pool_accounts)")
+            columns = {row[1] for row in cursor.fetchall()}
+            if 'discovery_method' not in columns:
+                cursor.execute("""
+                    ALTER TABLE token_pool_accounts
+                    ADD COLUMN discovery_method TEXT DEFAULT 'unknown'
+                """)
+                logger.info("Migrated: Added discovery_method column to token_pool_accounts")
+        except Exception as e:
+            logger.debug(f"Migration check for discovery_method: {e}")
 
         conn.commit()
         conn.close()

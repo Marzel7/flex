@@ -489,7 +489,7 @@ class BackgroundPriceWorker:
             self.stats['ws_stats'] = dict(self._ws_client.stats)
 
     async def _fetch_pool_prices_async(self) -> None:
-        """Async implementation of pool price fetching with multi-pool aggregation."""
+        """Async implementation of pool price fetching with multi-pool aggregation and peak tracking."""
         from collections import defaultdict
         from src.core.pool_price_engine import (
             get_pool_fetcher,
@@ -521,6 +521,7 @@ class BackgroundPriceWorker:
             pools_by_mint[mint].append((base_account, base_raw, quote_raw))
 
         new_cache: Dict[str, TokenPrice] = {}
+        now = int(time.time())
 
         for mint, pool_list in pools_by_mint.items():
             last_price = None
@@ -553,6 +554,15 @@ class BackgroundPriceWorker:
             # Aggregate prices from all pools for this mint
             aggregated = PoolAggregator.aggregate(candidate_prices)
             if aggregated:
+                # Track peak market cap
+                if aggregated.market_cap > 0:
+                    self._update_peak_market_cap(mint, aggregated.market_cap, now)
+                    # Store peak info in token price for API response
+                    peak_info = self._get_peak_market_cap(mint)
+                    if peak_info:
+                        aggregated.peak_market_cap = peak_info[0]
+                        aggregated.peak_market_cap_at = peak_info[1]
+                
                 new_cache[mint] = aggregated
 
         # Atomic swap — GIL-safe for dict reference reassignment
@@ -566,6 +576,7 @@ class BackgroundPriceWorker:
         Called every refresh cycle (10s) — no RPC calls.
         Handles multiple pools per mint via aggregation.
         SOL price is fetched at most once per 30s (cached on self).
+        Tracks peak market cap for each token.
         """
         try:
             from src.core.pool_price_engine import (
@@ -635,6 +646,15 @@ class BackgroundPriceWorker:
                 # Aggregate prices from all pools for this mint
                 aggregated = PoolAggregator.aggregate(candidate_prices)
                 if aggregated:
+                    # Track peak market cap
+                    if aggregated.market_cap > 0:
+                        self._update_peak_market_cap(mint, aggregated.market_cap, int(now))
+                        # Store peak info in token price for API response
+                        peak_info = self._get_peak_market_cap(mint)
+                        if peak_info:
+                            aggregated.peak_market_cap = peak_info[0]
+                            aggregated.peak_market_cap_at = peak_info[1]
+                    
                     new_cache[mint] = aggregated
 
             self.price_service.pool_price_cache = new_cache
@@ -642,6 +662,52 @@ class BackgroundPriceWorker:
 
         except Exception as e:
             logger.error(f"Error recomputing prices from WS state: {e}")
+    
+    def _update_peak_market_cap(self, mint: str, market_cap: float, timestamp: int) -> None:
+        """Update peak market cap for a token if new value is higher."""
+        try:
+            import sqlite3
+            conn = sqlite3.connect(self.db_path, timeout=10)
+            cursor = conn.cursor()
+            
+            # Check current peak
+            cursor.execute(
+                "SELECT peak_market_cap FROM token_market_cap_peaks WHERE mint = ?",
+                (mint,)
+            )
+            row = cursor.fetchone()
+            
+            # Update if new peak or first time
+            if not row or market_cap > row[0]:
+                cursor.execute("""
+                    INSERT INTO token_market_cap_peaks (mint, peak_market_cap, peak_market_cap_at)
+                    VALUES (?, ?, ?)
+                    ON CONFLICT(mint) DO UPDATE SET
+                    peak_market_cap = ?,
+                    peak_market_cap_at = ?
+                """, (mint, market_cap, timestamp, market_cap, timestamp))
+                conn.commit()
+            
+            conn.close()
+        except Exception as e:
+            logger.debug(f"Error updating peak market cap for {mint}: {e}")
+    
+    def _get_peak_market_cap(self, mint: str) -> Optional[tuple]:
+        """Get peak market cap and timestamp for a token."""
+        try:
+            import sqlite3
+            conn = sqlite3.connect(self.db_path, timeout=10)
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT peak_market_cap, peak_market_cap_at FROM token_market_cap_peaks WHERE mint = ?",
+                (mint,)
+            )
+            row = cursor.fetchone()
+            conn.close()
+            return row
+        except Exception as e:
+            logger.debug(f"Error fetching peak market cap for {mint}: {e}")
+            return None
 
     def _sync_new_tokens(self) -> None:
         """

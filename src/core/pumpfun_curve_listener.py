@@ -2216,12 +2216,12 @@ class PumpFunCurveListener:
         # === SCHEDULE RETRY DISCOVERY IF NO POOL FOUND ===
         if pool_discovery_source == "none":
             log_print(
-                f"{Colors.DETECT}[POOL_DETECT] Scheduling retry discovery in 10s, 30s, 60s{Colors.RESET}",
+                f"{Colors.DETECT}[POOL_DETECT] Scheduling retry discovery in 3s, 8s, 20s, 45s{Colors.RESET}",
                 flush=True
             )
-            # Schedule retries at delays (don't await - fire and forget)
+            # Schedule retries at optimized delays (don't await - fire and forget)
             # Pass signature (not tx_data) so retry can search NEW transactions
-            asyncio.create_task(self._retry_pool_discovery(mint, signature, delays=[10, 30, 60]))
+            asyncio.create_task(self._retry_pool_discovery(mint, signature, delays=[3, 8, 20, 45]))
 
         # === AUTO-REGISTER POOL FOR WEBSOCKET PRICING ===
         # ✅ NEW: Validate pool owner before registration (belt-and-suspenders check)

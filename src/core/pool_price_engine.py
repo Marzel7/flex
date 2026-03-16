@@ -233,13 +233,17 @@ class PoolPriceCalculator:
                 )
                 return None
 
+        # Calculate market cap: price × 1 billion tokens
+        total_supply = 1_000_000_000
+        market_cap = price_usd * total_supply
+
         return TokenPrice(
             mint=mint,
             price_usd=price_usd,
             price_sol=price_sol,
             liquidity_usd=liquidity_usd,
             volume_24h=0,
-            market_cap=0,
+            market_cap=market_cap,
             source="pool",
             is_stale=False,
             pair_address=base_account,

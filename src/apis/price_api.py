@@ -337,6 +337,8 @@ def get_price(mint: str):
             'liquidity_usd': price.liquidity_usd,
             'volume_24h': price.volume_24h,
             'market_cap': price.market_cap,
+            'peak_market_cap': price.peak_market_cap,
+            'peak_market_cap_at': price.peak_market_cap_at,
             'source': price.source,
             'pair_address': price.pair_address,
             'timestamp': price.timestamp,

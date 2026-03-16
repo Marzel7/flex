@@ -2096,6 +2096,33 @@ class PumpFunCurveListener:
                         logger.debug(f"[POOL_DETECT] RPC adapter error: {e}")
                         return None
 
+                async def call_async(self, method: str, params):
+                    """Generic RPC call for vault discovery"""
+                    payload = {
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": method,
+                        "params": params
+                    }
+                    result = await self._post_rpc_with_fallback(payload)
+                    if result and "result" in result:
+                        return result["result"]
+                    return None
+
+                async def get_account_info(self, address: str, encoding: str = "base64"):
+                    """Fetch account info for vault discovery"""
+                    result = await self.call_async(
+                        "getAccountInfo",
+                        [address, {"encoding": encoding, "commitment": "confirmed"}]
+                    )
+                    if result:
+                        return type('AccountInfo', (), {
+                            'data': result.get('data', ''),
+                            'owner': result.get('owner', ''),
+                            'lamports': result.get('lamports', 0)
+                        })()
+                    return None
+
             rpc_adapter = RPCClientAdapter(RPC_HTTP)
             vault_pair = await discover_vaults_rpc(
                 token_mint=mint,

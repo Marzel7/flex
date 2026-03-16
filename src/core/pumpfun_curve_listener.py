@@ -2152,6 +2152,16 @@ class PumpFunCurveListener:
                         return accounts
                     return None
 
+                async def get_token_accounts_by_owner(self, owner: str, mint: str, encoding: str = "base64"):
+                    """Query for token accounts owned by a specific owner (for quote vault fallback)"""
+                    result = await self.call_async(
+                        "getTokenAccountsByOwner",
+                        [owner, {"mint": mint}, {"encoding": encoding}]
+                    )
+                    if result and "value" in result:
+                        return result
+                    return None
+
             rpc_adapter = RPCClientAdapter(RPC_HTTP)
             vault_pair = await discover_vaults_rpc(
                 token_mint=mint,

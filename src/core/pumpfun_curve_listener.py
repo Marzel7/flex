@@ -347,6 +347,10 @@ class PumpFunCurveListener:
         self.pool_detection_max_retries = 3
         self.pool_detection_retry_delay = 5  # seconds
 
+        # === NEW: Token state tracking (pending → resolved) ===
+        self.token_states = {}  # {mint: "pending" | "resolving" | "resolved"}
+        self.token_discovery_times = {}  # {mint: {"detected": time, "resolved": time}}
+
         self._ensure_db()
         log_print(f"[INIT] Pump.Fun → PumpSwap Migration Listener ready", flush=True)
         log_print(f"[INIT] ✅ TX Cache initialized (TTL: {self.tx_cache_ttl_seconds}s)", flush=True)
@@ -2072,6 +2076,12 @@ class PumpFunCurveListener:
         # Create minimal token entry immediately (so token appears in UI right away)
         await self._create_minimal_token_entry(mint)
 
+        # === NEW: Track token state (pending initially) ===
+        import time
+        self.token_states[mint] = "pending"
+        self.token_discovery_times[mint] = {"detected": time.time(), "resolved": None}
+        log_print(f"[STATE] Token {mint[:16]}... → pending", flush=True)
+
         # === Extract pool via multi-stage discovery (RPC-primary + TX-primary fallback) ===
         pool_address = None
         pool_discovery_source = "none"
@@ -2215,6 +2225,12 @@ class PumpFunCurveListener:
 
         # === SCHEDULE RETRY DISCOVERY IF NO POOL FOUND ===
         if pool_discovery_source == "none":
+            # Transition to "resolving" state (will be resolved on retry)
+            self.token_states[mint] = "resolving"
+            log_print(
+                f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolving (scheduling retries){Colors.RESET}",
+                flush=True
+            )
             log_print(
                 f"{Colors.DETECT}[POOL_DETECT] Scheduling retry discovery in 3s, 8s, 20s, 45s{Colors.RESET}",
                 flush=True
@@ -2256,6 +2272,11 @@ class PumpFunCurveListener:
                         registered = await discovery.discover_and_register_pool(pool_address, mint)
                         if registered:
                             log_print(f"[POOL] 🚀 Auto-registered pool for WebSocket pricing", flush=True)
+                            # NEW: Transition to "resolved" state
+                            self.token_states[mint] = "resolved"
+                            self.token_discovery_times[mint]["resolved"] = time.time()
+                            elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
+                            log_print(f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (in {elapsed:.1f}s){Colors.RESET}", flush=True)
                         else:
                             log_print(f"[POOL] ⚠️  Could not auto-register pool reserves", flush=True)
                     except Exception as pool_err:
@@ -2486,6 +2507,11 @@ class PumpFunCurveListener:
                                 f"{Colors.DETECT}[VAULT_DISCOVERY] ✅ RPC vault discovery succeeded for {mint[:16]}...{Colors.RESET}",
                                 flush=True
                             )
+                            # NEW: Transition to "resolved" state
+                            self.token_states[mint] = "resolved"
+                            self.token_discovery_times[mint]["resolved"] = time.time()
+                            elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
+                            log_print(f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (delayed discovery in {elapsed:.1f}s){Colors.RESET}", flush=True)
                             # Successfully registered via RPC discovery
                             return
                         else:

@@ -2292,80 +2292,69 @@ class PumpFunCurveListener:
                 # Priority: Direct extraction from migration TX > recent TX search > vault fallback
                 discovery = PostMigrationPoolDiscovery(RPC_HTTP)
 
-                # Strategy 1 (NEW): Extract directly from migration transaction (most reliable)
-                pool_address = await discovery.discover_pool_via_migration_transaction(
+                # Strategy 1 (NEW): Try all pool candidates from migration TX, in order of likelihood
+                pool_address = None
+                pool_candidates = await discovery.discover_pool_candidates_from_migration_tx(
                     mint=mint,
                     migration_sig=original_migration_sig
                 )
 
-                # Strategy 2: Fallback to other discovery methods
+                # Try each candidate for extraction
+                if pool_candidates:
+                    for candidate in pool_candidates:
+                        log_print(
+                            f"[POOL_DISCOVER_FALLBACK] 🔍 Trying candidate: {candidate[:16]}...",
+                            flush=True
+                        )
+                        # Check owner and attempt registration
+                        try:
+                            account_info_payload = {
+                                "jsonrpc": "2.0",
+                                "id": 1,
+                                "method": "getAccountInfo",
+                                "params": [candidate, {"encoding": "base64"}]
+                            }
+                            acct = await self._post_rpc_with_fallback(account_info_payload, timeout=5)
+
+                            if acct and "result" in acct and acct["result"]:
+                                owner = acct["result"].get("value", {}).get("owner")
+                                if owner in AMMPrograms.ALL:
+                                    # Try to register this pool
+                                    try:
+                                        from src.core.pool_discovery import PoolDiscovery
+                                        discovery_pipeline = PoolDiscovery(DB_PATH, RPC_HTTP)
+                                        registered = await discovery_pipeline.discover_and_register_pool(
+                                            candidate, mint
+                                        )
+                                        if registered:
+                                            pool_address = candidate
+                                            log_print(
+                                                f"[POOL_DISCOVER_FALLBACK] ✅ Pool registered: {candidate[:16]}...",
+                                                flush=True
+                                            )
+                                            break
+                                    except Exception as e:
+                                        log_print(
+                                            f"[POOL_DISCOVER_FALLBACK] ⏭️  Registration failed for {candidate[:16]}...: {e}",
+                                            flush=True
+                                        )
+                        except Exception as e:
+                            log_print(
+                                f"[POOL_DISCOVER_FALLBACK] ⏭️  Error checking candidate {candidate[:16]}...: {e}",
+                                flush=True
+                            )
+
+                # Strategy 2: Fallback to other discovery methods if no candidate worked
                 if not pool_address:
                     pool_address = await discovery.discover_pool_post_migration(
                         mint=mint,
                         original_migration_sig=original_migration_sig,
                         delays=[0]  # No additional delays (we already waited)
                     )
-                
+
                 if pool_address:
-                    log_print(
-                        f"[POOL_DISCOVER_FALLBACK] ✅ Pool found via post-migration discovery: "
-                        f"{pool_address[:16]}...",
-                        flush=True
-                    )
-                    
-                    # Validate pool owner before registration
-                    try:
-                        account_info_payload = {
-                            "jsonrpc": "2.0",
-                            "id": 1,
-                            "method": "getAccountInfo",
-                            "params": [pool_address, {"encoding": "base64"}]
-                        }
-                        acct = await self._post_rpc_with_fallback(account_info_payload, timeout=5)
-                        
-                        pool_is_valid = False
-                        if acct and "result" in acct and acct["result"]:
-                            owner = acct["result"].get("value", {}).get("owner")
-                            if owner in AMMPrograms.ALL:
-                                pool_is_valid = True
-                        
-                        if pool_is_valid:
-                            # Register the discovered pool
-                            try:
-                                from src.core.pool_discovery import PoolDiscovery
-                                discovery_pipeline = PoolDiscovery(DB_PATH, RPC_HTTP)
-                                registered = await discovery_pipeline.discover_and_register_pool(
-                                    pool_address, mint
-                                )
-                                
-                                if registered:
-                                    log_print(
-                                        f"[POOL_DISCOVER_FALLBACK] 🚀 Success: "
-                                        f"Pool registered for {mint[:16]}...",
-                                        flush=True
-                                    )
-                                    return  # Success - exit retry loop
-                                else:
-                                    log_print(
-                                        f"[POOL_DISCOVER_FALLBACK] ⚠️  Pool found but extraction failed",
-                                        flush=True
-                                    )
-                            except Exception as e:
-                                log_print(
-                                    f"[POOL_DISCOVER_FALLBACK] ⚠️  Registration failed: {e}",
-                                    flush=True
-                                )
-                        else:
-                            log_print(
-                                f"[POOL_DISCOVER_FALLBACK] ⚠️  Pool owner validation failed",
-                                flush=True
-                            )
-                    
-                    except Exception as e:
-                        log_print(
-                            f"[POOL_DISCOVER_FALLBACK] ⚠️  Owner verification failed: {e}",
-                            flush=True
-                        )
+                    # Pool was already registered in the candidate loop above
+                    return  # Success - exit retry loop
                 else:
                     log_print(
                         f"[POOL_DISCOVER_FALLBACK] ⏭️  No pool found after {delay}s",

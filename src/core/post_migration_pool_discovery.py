@@ -213,23 +213,144 @@ class PostMigrationPoolDiscovery:
                 logger.info("[POOL_DISCOVERY_MIGRATION_TX] No pool programs found in transaction")
                 return None
 
+            # Sort candidates by size (largest first - more likely to be real pool state)
+            candidates_sorted = sorted(candidates, key=lambda x: x[2], reverse=True)
+
             # Return the largest pool account (most likely to be real pool state, not a config account)
-            account_addr, owner, data_size = max(candidates, key=lambda x: x[2])
+            account_addr, owner, data_size = candidates_sorted[0]
 
             logger.info(
-                f"[POOL_DISCOVERY_MIGRATION_TX] ✅ Found pool: {account_addr[:20]}... "
-                f"(owner={owner[:16]}... size={data_size} bytes, selected from {len(candidates)} candidates)"
+                f"[POOL_DISCOVERY_MIGRATION_TX] ✅ Found {len(candidates)} pool candidates, "
+                f"returning largest: {account_addr[:20]}... "
+                f"(owner={owner[:16]}... size={data_size} bytes)"
             )
             return account_addr
-
-            logger.info("[POOL_DISCOVERY_MIGRATION_TX] No pool programs found in transaction")
-            return None
 
         except Exception as e:
             logger.warning(
                 f"[POOL_DISCOVERY_MIGRATION_TX] Error: {e}"
             )
             return None
+
+    async def discover_pool_candidates_from_migration_tx(
+        self,
+        mint: str,
+        migration_sig: str
+    ) -> list:
+        """
+        Extract ALL pool candidates from migration transaction, sorted by likelihood.
+
+        Returns a list of pool addresses sorted by size (largest first).
+        Caller can try each candidate for extraction until one succeeds.
+
+        This is useful when the largest pool (by size) doesn't extract properly
+        (e.g., PumpFun V1 with different structure), and we need to try the next best option.
+
+        Returns:
+            List of pool addresses, ordered by likelihood (largest first)
+        """
+        try:
+            logger.info(
+                f"[POOL_DISCOVERY_MIGRATION_TX_CANDIDATES] Extracting from {migration_sig[:20]}..."
+            )
+
+            # Fetch migration transaction
+            tx_data = await self._fetch_transaction(migration_sig)
+            if not tx_data:
+                logger.warning("[POOL_DISCOVERY_MIGRATION_TX_CANDIDATES] Could not fetch transaction")
+                return []
+
+            # Extract all account addresses from the transaction
+            try:
+                message = tx_data.get("transaction", {}).get("message", {})
+                accounts = message.get("accountKeys", [])
+                meta = tx_data.get("meta", {})
+
+                # Also include loaded addresses from versioned transactions
+                loaded_addrs = meta.get("loadedAddresses", {})
+                accounts = accounts + loaded_addrs.get("writable", []) + loaded_addrs.get("readonly", [])
+
+            except (KeyError, TypeError):
+                logger.warning("[POOL_DISCOVERY_MIGRATION_TX_CANDIDATES] Could not extract accounts")
+                return []
+
+            logger.debug(f"[POOL_DISCOVERY_MIGRATION_TX_CANDIDATES] Found {len(accounts)} accounts")
+
+            # Known pool program owners
+            POOL_PROGRAMS = {
+                "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap
+                "675kPX9MHTjS2zt1qrXrQVxwwp4W8gNzjX9oVhKt7Ck",  # Raydium
+                "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # PumpFun V1
+                "pmpA9A9n7CdrzJcm4E3rhZ4J8p9F3ZzK8Y9zCjR4Z5x",  # PumpFun V2
+            }
+
+            # System programs to skip
+            SYSTEM_PROGRAMS = {
+                "11111111111111111111111111111111",
+                "ComputeBudget111111111111111111111111111111",
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                "So11111111111111111111111111111111111111112",
+                "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+                "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+            }
+
+            # Collect all valid candidates
+            MIN_POOL_STATE_SIZE = 296
+            candidates = []
+
+            for account_addr in accounts:
+                if account_addr in SYSTEM_PROGRAMS:
+                    continue
+
+                try:
+                    account_info = await self._fetch_account_info(account_addr)
+                    if not account_info:
+                        continue
+
+                    owner = account_info.get("owner")
+                    if owner not in POOL_PROGRAMS:
+                        continue
+
+                    # Check account size
+                    data = account_info.get("data")
+                    if isinstance(data, list) and len(data) > 0:
+                        import base64
+                        try:
+                            decoded = base64.b64decode(data[0])
+                            data_size = len(decoded)
+                        except:
+                            data_size = 0
+                    else:
+                        data_size = 0
+
+                    if data_size < MIN_POOL_STATE_SIZE:
+                        continue
+
+                    candidates.append((account_addr, owner, data_size))
+
+                except Exception as e:
+                    logger.debug(f"[POOL_DISCOVERY_MIGRATION_TX_CANDIDATES] Error checking {account_addr[:16]}...: {e}")
+                    continue
+
+            if not candidates:
+                logger.info("[POOL_DISCOVERY_MIGRATION_TX_CANDIDATES] No valid pool candidates found")
+                return []
+
+            # Sort by size (largest first)
+            candidates_sorted = sorted(candidates, key=lambda x: x[2], reverse=True)
+            result = [addr for addr, owner, size in candidates_sorted]
+
+            logger.info(
+                f"[POOL_DISCOVERY_MIGRATION_TX_CANDIDATES] Found {len(result)} candidates: "
+                f"{', '.join(addr[:16] + '...' for addr in result)}"
+            )
+            return result
+
+        except Exception as e:
+            logger.warning(
+                f"[POOL_DISCOVERY_MIGRATION_TX_CANDIDATES] Error: {e}"
+            )
+            return []
 
     async def _discover_via_recent_transactions(
         self,

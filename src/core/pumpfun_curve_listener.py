@@ -2414,7 +2414,7 @@ class PumpFunCurveListener:
                 await asyncio.sleep(delay)
 
                 log_print(
-                    f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ⏱️  Attempt {attempt}/{len(delays)} (waited {delay}s) for {mint}{Colors.RESET}",
+                    f"{Colors.DISCOVER}[POOL_RETRY] ⏱️  Attempt {attempt}/{len(delays)} (waited {delay}s) for {mint}{Colors.RESET}",
                     flush=True
                 )
 
@@ -2505,12 +2505,12 @@ class PumpFunCurveListener:
                         return
                     else:
                         log_print(
-                            f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ⏭️  RPC vaults not yet available after {delay}s, will retry{Colors.RESET}",
+                            f"{Colors.DISCOVER}[POOL_RETRY] ⏭️  RPC vaults not yet available after {delay}s, will retry{Colors.RESET}",
                             flush=True
                         )
                 except Exception as rpc_err:
                     log_print(
-                        f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ⏭️  RPC attempt {attempt} failed: {rpc_err}{Colors.RESET}",
+                        f"{Colors.DISCOVER}[POOL_RETRY] ⏭️  RPC attempt {attempt} failed: {rpc_err}{Colors.RESET}",
                         flush=True
                     )
 

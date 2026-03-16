@@ -2072,11 +2072,56 @@ class PumpFunCurveListener:
         # Create minimal token entry immediately (so token appears in UI right away)
         await self._create_minimal_token_entry(mint)
 
-        # === Extract pool via hardened detection (only source of truth) ===
+        # === Extract pool via multi-stage discovery (RPC-primary + TX-primary fallback) ===
         pool_address = None
         pool_discovery_source = "none"
 
-        if tx_data:
+        # STAGE 1: RPC-based vault discovery (NEW PRIMARY METHOD)
+        # This is authoritative: uses getTokenLargestAccounts + validation
+        try:
+            from src.core.vault_discovery import discover_vaults_rpc
+
+            # Create simple RPC client adapter for vault discovery
+            class RPCClientAdapter:
+                def __init__(self, rpc_url: str):
+                    self.rpc_url = rpc_url
+
+                async def _post_rpc_with_fallback(self, payload):
+                    import aiohttp
+                    try:
+                        async with aiohttp.ClientSession() as session:
+                            async with session.post(self.rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=10.0)) as resp:
+                                return await resp.json()
+                    except Exception as e:
+                        logger.debug(f"[POOL_DETECT] RPC adapter error: {e}")
+                        return None
+
+            rpc_adapter = RPCClientAdapter(RPC_HTTP)
+            vault_pair = await discover_vaults_rpc(
+                token_mint=mint,
+                rpc_client=rpc_adapter,
+                ws_monitor=None,
+                max_retries=1  # Single attempt in listener context
+            )
+
+            if vault_pair:
+                pool_address = vault_pair.base_vault.address
+                pool_discovery_source = "rpc_vaults_primary"
+                log_print(
+                    f"{Colors.DETECT}[POOL_DETECT] ✅ Pool discovered via RPC vaults: {pool_address[:16]}...{Colors.RESET}",
+                    flush=True
+                )
+                # Store quote vault for later use if needed
+                if not hasattr(self, '_last_quote_vault'):
+                    self._last_quote_vault = {}
+                self._last_quote_vault[mint] = vault_pair.quote_vault.get('address') if hasattr(vault_pair.quote_vault, 'get') else vault_pair.quote_vault
+
+        except Exception as e:
+            logger.debug(f"[POOL_DETECT] RPC vault discovery failed: {e}")
+            pool_address = None
+
+        # STAGE 2: TX-based detection (FALLBACK when RPC fails)
+        if not pool_address and tx_data:
             try:
                 from src.core.pool_detector import PoolDetector
                 # Phase 6: Read debug flag from environment (default: true for full diagnostics)
@@ -2085,17 +2130,16 @@ class PumpFunCurveListener:
                 pool_address = await detector.detect_pool_from_tx(tx_data, mint)
 
                 if pool_address:
-                    pool_discovery_source = "tx_primary"
-                    log_print(f"{Colors.DETECT}[POOL_DETECT] ✅ Pool PDA identified: {pool_address}{Colors.RESET}", flush=True)
+                    pool_discovery_source = "tx_fallback"
+                    log_print(f"{Colors.DETECT}[POOL_DETECT] ✅ Pool PDA identified via TX: {pool_address}{Colors.RESET}", flush=True)
                 else:
-                    # ✅ NEW: Detector already ran complete detection (primary + fallback)
-                    # Accept None result - no second fallback
-                    log_print(f"{Colors.DETECT}[POOL_DETECT] No valid pool found (primary + fallback exhausted){Colors.RESET}", flush=True)
+                    # TX detection exhausted (includes its own fallback)
+                    log_print(f"{Colors.DETECT}[POOL_DETECT] No valid pool found (RPC + TX methods exhausted){Colors.RESET}", flush=True)
                     pool_discovery_source = "none"
 
             except Exception as e:
-                log_print(f"{Colors.DETECT}[POOL_DETECT] ⚠️  Pool detection error: {e}{Colors.RESET}", flush=True)
-                pool_discovery_source = "error"
+                log_print(f"{Colors.DETECT}[POOL_DETECT] ⚠️  TX pool detection error: {e}{Colors.RESET}", flush=True)
+                pool_discovery_source = "none"
 
         # ✅ NEW: Emit single source-of-truth result
         log_print(

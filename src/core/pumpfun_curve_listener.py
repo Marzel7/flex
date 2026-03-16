@@ -2085,6 +2085,7 @@ class PumpFunCurveListener:
             class RPCClientAdapter:
                 def __init__(self, rpc_url: str):
                     self.rpc_url = rpc_url
+                    logger.debug(f"[VAULT_DISCOVERY] Initialized RPC adapter with URL: {rpc_url[:50]}...")
 
                 async def _post_rpc_with_fallback(self, payload):
                     import aiohttp
@@ -2105,8 +2106,15 @@ class PumpFunCurveListener:
                         "params": params
                     }
                     result = await self._post_rpc_with_fallback(payload)
-                    if result and "result" in result:
+                    if not result:
+                        logger.debug(f"[VAULT_DISCOVERY] RPC call {method} returned None")
+                        return None
+                    if "error" in result:
+                        logger.debug(f"[VAULT_DISCOVERY] RPC error for {method}: {result['error']}")
+                        return None
+                    if "result" in result:
                         return result["result"]
+                    logger.debug(f"[VAULT_DISCOVERY] RPC call {method} has no result field")
                     return None
 
                 async def get_account_info(self, address: str, encoding: str = "base64"):

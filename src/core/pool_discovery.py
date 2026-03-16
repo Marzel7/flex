@@ -559,6 +559,7 @@ class PoolDiscovery:
             
             base_account = reserves.get("base_account")
             quote_account = reserves.get("quote_account")
+            pool_program = reserves.get("pool_program", "raydium_amm")
             
             # Check if vaults actually exist and are valid
             try:
@@ -566,16 +567,29 @@ class PoolDiscovery:
                 quote_info = await self._fetch_account(quote_account)
                 
                 if base_info and quote_info:
-                    # Both vaults exist, try to validate they're SPL token accounts
+                    # Both vaults exist, validate based on pool program type
                     base_owner = base_info.get("owner")
                     quote_owner = quote_info.get("owner")
                     SPL_TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                    PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
                     
-                    if base_owner == SPL_TOKEN_PROGRAM and quote_owner == SPL_TOKEN_PROGRAM:
-                        vault_status = "validated"
+                    # For Raydium/Orca: vaults must be SPL token accounts
+                    if pool_program in ("raydium_amm", "raydium_cpmm", "orca"):
+                        if base_owner == SPL_TOKEN_PROGRAM and quote_owner == SPL_TOKEN_PROGRAM:
+                            vault_status = "validated"
+                        else:
+                            vault_status = "pending"
+                            vault_error = "vaults exist but not SPL token accounts"
+                    
+                    # For PumpFun V1/PumpSwap: vaults ARE the PumpSwap pool accounts
+                    elif pool_program in ("pumpfun_v1", "pumpswap"):
+                        if base_owner == PUMPSWAP_PROGRAM and quote_owner == PUMPSWAP_PROGRAM:
+                            vault_status = "validated"
+                        else:
+                            vault_status = "pending"
+                            vault_error = "vaults exist but not PumpSwap pool accounts"
                     else:
                         vault_status = "pending"
-                        vault_error = "vaults exist but not SPL token accounts"
                 else:
                     vault_status = "pending"
                     vault_error = "vaults not yet created on-chain"
@@ -863,4 +877,55 @@ class PoolDiscovery:
                 f"🚀 Pool registered (WebSocket will subscribe when vaults are validated)"
             )
 
+        return success
+
+    async def register_pool_with_vaults(
+        self, pool_address: str, token_mint: str, 
+        base_account: str, quote_account: str,
+        base_token: str, quote_token: str,
+        base_decimals: int = 6, quote_decimals: int = 9,
+        pool_program: str = "pumpswap"
+    ) -> bool:
+        """
+        Register a pool when vault addresses are already known.
+        
+        Used for PumpFun V1 pools where vault discovery found the correct
+        vault pair address but standard extraction won't work.
+        
+        Args:
+            pool_address: The pool account address (for reference)
+            token_mint: The token mint
+            base_account: The base vault account (or PumpSwap pool itself)
+            quote_account: The quote vault account (or same as base for PumpFun V1)
+            base_token: The token mint for base
+            quote_token: The token mint for quote (usually SOL)
+            base_decimals: Decimals for base token
+            quote_decimals: Decimals for quote token (9 for SOL)
+            pool_program: Pool program name
+        
+        Returns True if registered successfully.
+        """
+        logger.info(
+            f"[REGISTER_WITH_VAULTS] Registering {token_mint[:16]}... "
+            f"with known vaults"
+        )
+        
+        reserves = {
+            "base_account": base_account,
+            "quote_account": quote_account,
+            "base_token": base_token,
+            "quote_token": quote_token,
+            "base_decimals": base_decimals,
+            "quote_decimals": quote_decimals,
+            "pool_program": pool_program,
+        }
+        
+        # Register with explicit vault validation
+        success = await self.register_pool_to_db(token_mint, reserves)
+        
+        if success:
+            logger.info(
+                f"✅ Pool registered with known vaults (vaults should be validated)"
+            )
+        
         return success

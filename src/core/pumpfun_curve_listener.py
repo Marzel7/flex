@@ -2390,25 +2390,25 @@ class PumpFunCurveListener:
 
     async def _retry_pool_discovery(self, mint: str, original_migration_sig: str, delays: List[int]):
         """
-        Retry pool discovery using post-migration strategies.
-        
-        When initial pool detection fails, the real pool may be in:
-        1. A later transaction (created after migration)
-        2. Program state not visible in migration tx
-        
-        Retry strategies:
-        1. Scan recent transactions for pool creation
-        2. Query AMM program accounts directly
-        
+        Retry pool discovery using RPC-primary approach with fallback.
+
+        Retry strategy:
+        1. Attempts 1-4: Try RPC-authoritative vault discovery only (getTokenLargestAccounts)
+        2. After ALL retries fail: Try fallback strategies (TX parsing, vault pair discovery)
+
+        This gives RPC time to discover vaults as token accumulates holders/trades.
+        Fallback strategies are resource-intensive and only used after RPC is exhausted.
+
         Args:
             mint: Token mint address
             original_migration_sig: Original migration transaction signature
-            delays: List of delays in seconds (e.g., [10, 30, 60])
+            delays: List of delays in seconds (e.g., [3, 8, 20, 45])
         """
         from src.core.post_migration_pool_discovery import PostMigrationPoolDiscovery
         from src.core.pool_detector import AMMPrograms
         from src.core.vault_discovery import discover_and_register_vaults_rpc
 
+        # ===== PHASE 1: RPC-ONLY RETRIES (4 attempts) =====
         for attempt, delay in enumerate(delays, 1):
             try:
                 await asyncio.sleep(delay)
@@ -2418,233 +2418,251 @@ class PumpFunCurveListener:
                     flush=True
                 )
 
-                # Strategy 0 (PRIORITY): Try RPC-authoritative vault discovery first
-                # This is more reliable than fixed-offset parsing
+                # ONLY RPC vault discovery during retries (no fallback)
                 log_print(
                     f"{Colors.DETECT}[VAULT_DISCOVERY] Attempting RPC-authoritative vault discovery for {mint[:16]}...{Colors.RESET}",
                     flush=True
                 )
                 try:
-                    # Skip RPC discovery on first retry (too soon)
-                    # Start using it on second attempt onward when we have more confidence
-                    if attempt >= 2:
-                        # Create a simple RPC client wrapper for vault discovery
-                        class SimpleRPCClient:
-                            def __init__(self, post_func):
-                                self.post = post_func
+                    # Create a simple RPC client wrapper for vault discovery
+                    class SimpleRPCClient:
+                        def __init__(self, post_func):
+                            self.post = post_func
 
-                            async def call_async(self, method, params):
-                                payload = {"jsonrpc": "2.0", "id": 1, "method": method, "params": params}
-                                result = await self.post(payload, timeout=10)
-                                return result.get("result") if result else None
+                        async def call_async(self, method, params):
+                            payload = {"jsonrpc": "2.0", "id": 1, "method": method, "params": params}
+                            result = await self.post(payload, timeout=10)
+                            return result.get("result") if result else None
 
-                            async def get_multiple_accounts(self, addresses, encoding="base64", commitment="confirmed"):
-                                payload = {
-                                    "jsonrpc": "2.0",
-                                    "id": 1,
-                                    "method": "getMultipleAccounts",
-                                    "params": [addresses, {"encoding": encoding, "commitment": commitment}]
-                                }
-                                result = await self.post(payload, timeout=10)
-                                if result and "result" in result:
-                                    # Convert response to account objects
-                                    accounts = []
-                                    for acct_data in result["result"].get("value", []):
-                                        if acct_data:
-                                            accounts.append(type('Account', (), {
-                                                'owner': acct_data.get('owner'),
-                                                'lamports': acct_data.get('lamports'),
-                                                'data': acct_data.get('data', ['', ''])[0],  # First element is base64
-                                            })())
-                                        else:
-                                            accounts.append(None)
-                                    return accounts
-                                return []
+                        async def get_multiple_accounts(self, addresses, encoding="base64", commitment="confirmed"):
+                            payload = {
+                                "jsonrpc": "2.0",
+                                "id": 1,
+                                "method": "getMultipleAccounts",
+                                "params": [addresses, {"encoding": encoding, "commitment": commitment}]
+                            }
+                            result = await self.post(payload, timeout=10)
+                            if result and "result" in result:
+                                # Convert response to account objects
+                                accounts = []
+                                for acct_data in result["result"].get("value", []):
+                                    if acct_data:
+                                        accounts.append(type('Account', (), {
+                                            'owner': acct_data.get('owner'),
+                                            'lamports': acct_data.get('lamports'),
+                                            'data': acct_data.get('data', ['', ''])[0],  # First element is base64
+                                        })())
+                                    else:
+                                        accounts.append(None)
+                                return accounts
+                            return []
 
-                            async def get_account_info(self, address, encoding="base64", commitment="confirmed"):
-                                payload = {
-                                    "jsonrpc": "2.0",
-                                    "id": 1,
-                                    "method": "getAccountInfo",
-                                    "params": [address, {"encoding": encoding, "commitment": commitment}]
-                                }
-                                result = await self.post(payload, timeout=10)
-                                if result and "result" in result and result["result"]:
-                                    acct_data = result["result"].get("value", {})
-                                    return type('Account', (), {
-                                        'owner': acct_data.get('owner'),
-                                        'lamports': acct_data.get('lamports'),
-                                        'data': acct_data.get('data', ['', ''])[0] if isinstance(acct_data.get('data'), list) else acct_data.get('data', ''),
-                                    })()
-                                return None
+                        async def get_account_info(self, address, encoding="base64", commitment="confirmed"):
+                            payload = {
+                                "jsonrpc": "2.0",
+                                "id": 1,
+                                "method": "getAccountInfo",
+                                "params": [address, {"encoding": encoding, "commitment": commitment}]
+                            }
+                            result = await self.post(payload, timeout=10)
+                            if result and "result" in result and result["result"]:
+                                acct_data = result["result"].get("value", {})
+                                return type('Account', (), {
+                                    'owner': acct_data.get('owner'),
+                                    'lamports': acct_data.get('lamports'),
+                                    'data': acct_data.get('data', ['', ''])[0] if isinstance(acct_data.get('data'), list) else acct_data.get('data', ''),
+                                })()
+                            return None
 
-                        rpc_client = SimpleRPCClient(self._post_rpc_with_fallback)
+                    rpc_client = SimpleRPCClient(self._post_rpc_with_fallback)
 
-                        # Get price worker if available to trigger WebSocket refresh
-                        price_worker = None
-                        try:
-                            from src.core.price_worker import get_price_worker
-                            price_worker = get_price_worker()
-                        except:
-                            pass
+                    # Get price worker if available to trigger WebSocket refresh
+                    price_worker = None
+                    try:
+                        from src.core.price_worker import get_price_worker
+                        price_worker = get_price_worker()
+                    except:
+                        pass
 
-                        rpc_success = await discover_and_register_vaults_rpc(
-                            token_mint=mint,
-                            rpc_client=rpc_client,
-                            db=DB_PATH,
-                            price_worker=price_worker,
-                            max_retries=1  # Single attempt per retry loop
+                    rpc_success = await discover_and_register_vaults_rpc(
+                        token_mint=mint,
+                        rpc_client=rpc_client,
+                        db=DB_PATH,
+                        price_worker=price_worker,
+                        max_retries=1  # Single attempt per retry loop
+                    )
+
+                    if rpc_success:
+                        log_print(
+                            f"{Colors.DETECT}[VAULT_DISCOVERY] ✅ RPC vault discovery succeeded for {mint[:16]}...{Colors.RESET}",
+                            flush=True
                         )
-
-                        if rpc_success:
-                            log_print(
-                                f"{Colors.DETECT}[VAULT_DISCOVERY] ✅ RPC vault discovery succeeded for {mint[:16]}...{Colors.RESET}",
-                                flush=True
-                            )
-                            # NEW: Transition to "resolved" state
-                            self.token_states[mint] = "resolved"
-                            self.token_discovery_times[mint]["resolved"] = time.time()
-                            elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
-                            log_print(f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (delayed discovery in {elapsed:.1f}s){Colors.RESET}", flush=True)
-                            # Successfully registered via RPC discovery
-                            return
-                        else:
-                            log_print(
-                                f"{Colors.DETECT}[VAULT_DISCOVERY] RPC discovery didn't find vaults, trying fallback strategies...{Colors.RESET}",
-                                flush=True
-                            )
+                        # Transition to "resolved" state
+                        self.token_states[mint] = "resolved"
+                        self.token_discovery_times[mint]["resolved"] = time.time()
+                        elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
+                        log_print(f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (delayed discovery in {elapsed:.1f}s){Colors.RESET}", flush=True)
+                        return
                     else:
                         log_print(
-                            f"{Colors.DETECT}[VAULT_DISCOVERY] Skipping RPC discovery on first attempt, will try on retry{Colors.RESET}",
+                            f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ⏭️  RPC vaults not yet available after {delay}s, will retry{Colors.RESET}",
                             flush=True
                         )
                 except Exception as rpc_err:
                     log_print(
-                        f"{Colors.DETECT}[VAULT_DISCOVERY] RPC discovery attempt failed: {rpc_err}, trying fallback...{Colors.RESET}",
+                        f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ⏭️  RPC attempt {attempt} failed: {rpc_err}{Colors.RESET}",
                         flush=True
                     )
 
-                # Use post-migration discovery strategies (fallback)
-                # Priority: Direct extraction from migration TX > recent TX search > vault fallback
-                discovery = PostMigrationPoolDiscovery(RPC_HTTP)
-
-                # Strategy 1 (NEW): Try all pool candidates from migration TX, in order of likelihood
-                pool_address = None
-                pool_candidates = await discovery.discover_pool_candidates_from_migration_tx(
-                    mint=mint,
-                    migration_sig=original_migration_sig
-                )
-
-                # Try each candidate for extraction
-                if pool_candidates:
-                    for candidate in pool_candidates:
-                        log_print(
-                            f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] 🔍 Trying candidate: {candidate}{Colors.RESET}",
-                            flush=True
-                        )
-                        # Check owner and attempt registration
-                        try:
-                            account_info_payload = {
-                                "jsonrpc": "2.0",
-                                "id": 1,
-                                "method": "getAccountInfo",
-                                "params": [candidate, {"encoding": "base64"}]
-                            }
-                            acct = await self._post_rpc_with_fallback(account_info_payload, timeout=5)
-
-                            if acct and "result" in acct and acct["result"]:
-                                owner = acct["result"].get("value", {}).get("owner")
-                                if owner in AMMPrograms.ALL:
-                                    # Try to register this pool
-                                    try:
-                                        from src.core.pool_discovery import PoolDiscovery
-                                        discovery_pipeline = PoolDiscovery(DB_PATH, RPC_HTTP)
-                                        registered = await discovery_pipeline.discover_and_register_pool(
-                                            candidate, mint
-                                        )
-                                        if registered:
-                                            pool_address = candidate
-                                            log_print(
-                                                f"[POOL_DISCOVER_FALLBACK] ✅ Pool registered: {candidate}",
-                                                flush=True
-                                            )
-                                            break
-                                    except Exception as e:
-                                        log_print(
-                                            f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ⏭️  Registration failed for {candidate}: {e}{Colors.RESET}",
-                                            flush=True
-                                        )
-                        except Exception as e:
-                            log_print(
-                                f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ⏭️  Error checking candidate {candidate}: {e}{Colors.RESET}",
-                                flush=True
-                            )
-
-                # Strategy 1b: If candidates didn't work, try PumpFun V1 vault pair discovery
-                if not pool_address:
-                    log_print(
-                        f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] 🔍 Attempting PumpFun V1 vault pair auto-discovery...{Colors.RESET}",
-                        flush=True
-                    )
-                    try:
-                        vault_pair = await discovery.discover_pumpfun_v1_vault_pair(
-                            mint=mint,
-                            pool_address=pool_candidates[0] if pool_candidates else ""
-                        )
-                        if vault_pair:
-                            log_print(
-                                f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ✅ Discovered vault pair: {vault_pair}{Colors.RESET}",
-                                flush=True
-                            )
-                            # Register the vault pair as the pool
-                            try:
-                                from src.core.pool_discovery import PoolDiscovery
-                                discovery_pipeline = PoolDiscovery(DB_PATH, RPC_HTTP)
-                                registered = await discovery_pipeline.discover_and_register_pool(
-                                    vault_pair, mint
-                                )
-                                if registered:
-                                    pool_address = vault_pair
-                                    log_print(
-                                        f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ✅ Vault pair registered as pool: {vault_pair}{Colors.RESET}",
-                                        flush=True
-                                    )
-                            except Exception as e:
-                                log_print(
-                                    f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ⏭️  Vault pair registration failed: {e}{Colors.RESET}",
-                                    flush=True
-                                )
-                    except Exception as e:
-                        log_print(
-                            f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ⏭️  Vault pair discovery failed: {e}{Colors.RESET}",
-                            flush=True
-                        )
-
-                # Strategy 2: Fallback to other discovery methods if no candidate worked
-                if not pool_address:
-                    pool_address = await discovery.discover_pool_post_migration(
-                        mint=mint,
-                        original_migration_sig=original_migration_sig,
-                        delays=[0]  # No additional delays (we already waited)
-                    )
-
-                if pool_address:
-                    # Pool was already registered in the candidate loop above
-                    return  # Success - exit retry loop
-                else:
-                    log_print(
-                        f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ⏭️  No pool found after {delay}s{Colors.RESET}",
-                        flush=True
-                    )
-            
             except asyncio.CancelledError:
                 log_print(f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] Cancelled{Colors.RESET}", flush=True)
-                break
+                return
             except Exception as e:
                 log_print(
-                    f"[POOL_DISCOVER_FALLBACK] ⚠️  Error on attempt {attempt}: {e}",
+                    f"[POOL_DISCOVER_FALLBACK] ⚠️  Error on RPC attempt {attempt}: {e}",
                     flush=True
                 )
+
+        # ===== PHASE 2: FALLBACK STRATEGIES (after ALL RPC retries exhausted) =====
+        log_print(
+            f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] All RPC attempts exhausted, trying fallback strategies...{Colors.RESET}",
+            flush=True
+        )
+
+        try:
+            discovery = PostMigrationPoolDiscovery(RPC_HTTP)
+
+            # Strategy 1: Try all pool candidates from migration TX, in order of likelihood
+            pool_address = None
+            pool_candidates = await discovery.discover_pool_candidates_from_migration_tx(
+                mint=mint,
+                migration_sig=original_migration_sig
+            )
+
+            # Try each candidate for extraction
+            if pool_candidates:
+                for candidate in pool_candidates:
+                    log_print(
+                        f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] 🔍 Trying candidate: {candidate}{Colors.RESET}",
+                        flush=True
+                    )
+                    # Check owner and attempt registration
+                    try:
+                        account_info_payload = {
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": "getAccountInfo",
+                            "params": [candidate, {"encoding": "base64"}]
+                        }
+                        acct = await self._post_rpc_with_fallback(account_info_payload, timeout=5)
+
+                        if acct and "result" in acct and acct["result"]:
+                            owner = acct["result"].get("value", {}).get("owner")
+                            if owner in AMMPrograms.ALL:
+                                # Try to register this pool
+                                try:
+                                    from src.core.pool_discovery import PoolDiscovery
+                                    discovery_pipeline = PoolDiscovery(DB_PATH, RPC_HTTP)
+                                    registered = await discovery_pipeline.discover_and_register_pool(
+                                        candidate, mint
+                                    )
+                                    if registered:
+                                        pool_address = candidate
+                                        log_print(
+                                            f"[POOL_DISCOVER_FALLBACK] ✅ Pool registered (fallback): {candidate}",
+                                            flush=True
+                                        )
+                                        self.token_states[mint] = "resolved"
+                                        self.token_discovery_times[mint]["resolved"] = time.time()
+                                        elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
+                                        log_print(f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (fallback in {elapsed:.1f}s){Colors.RESET}", flush=True)
+                                        return
+                                except Exception as e:
+                                    log_print(
+                                        f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ⏭️  Registration failed for {candidate}: {e}{Colors.RESET}",
+                                        flush=True
+                                    )
+                    except Exception as e:
+                        log_print(
+                            f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ⏭️  Error checking candidate {candidate}: {e}{Colors.RESET}",
+                            flush=True
+                        )
+
+            # Strategy 1b: If candidates didn't work, try PumpFun V1 vault pair discovery
+            log_print(
+                f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] 🔍 Attempting PumpFun V1 vault pair auto-discovery...{Colors.RESET}",
+                flush=True
+            )
+            try:
+                vault_pair = await discovery.discover_pumpfun_v1_vault_pair(
+                    mint=mint,
+                    pool_address=pool_candidates[0] if pool_candidates else ""
+                )
+                if vault_pair:
+                    log_print(
+                        f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ✅ Discovered vault pair: {vault_pair}{Colors.RESET}",
+                        flush=True
+                    )
+                    # Register the vault pair as the pool
+                    try:
+                        from src.core.pool_discovery import PoolDiscovery
+                        discovery_pipeline = PoolDiscovery(DB_PATH, RPC_HTTP)
+                        registered = await discovery_pipeline.discover_and_register_pool(
+                            vault_pair, mint
+                        )
+                        if registered:
+                            pool_address = vault_pair
+                            log_print(
+                                f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ✅ Vault pair registered as pool: {vault_pair}{Colors.RESET}",
+                                flush=True
+                            )
+                            self.token_states[mint] = "resolved"
+                            self.token_discovery_times[mint]["resolved"] = time.time()
+                            elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
+                            log_print(f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (vault fallback in {elapsed:.1f}s){Colors.RESET}", flush=True)
+                            return
+                    except Exception as e:
+                        log_print(
+                            f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ⏭️  Vault pair registration failed: {e}{Colors.RESET}",
+                            flush=True
+                        )
+            except Exception as e:
+                log_print(
+                    f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ⏭️  Vault pair discovery failed: {e}{Colors.RESET}",
+                    flush=True
+                )
+
+            # Strategy 2: Final fallback to other discovery methods
+            log_print(
+                f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] Trying final post-migration discovery...{Colors.RESET}",
+                flush=True
+            )
+            pool_address = await discovery.discover_pool_post_migration(
+                mint=mint,
+                original_migration_sig=original_migration_sig,
+                delays=[0]  # No additional delays (we already waited)
+            )
+
+            if pool_address:
+                log_print(
+                    f"[POOL_DISCOVER_FALLBACK] ✅ Pool found via post-migration discovery: {pool_address}",
+                    flush=True
+                )
+                self.token_states[mint] = "resolved"
+                self.token_discovery_times[mint]["resolved"] = time.time()
+                elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
+                log_print(f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (final fallback in {elapsed:.1f}s){Colors.RESET}", flush=True)
+                return
+            else:
+                log_print(
+                    f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ❌ All discovery methods exhausted, pool not found for {mint}{Colors.RESET}",
+                    flush=True
+                )
+        except Exception as e:
+            log_print(
+                f"[POOL_DISCOVER_FALLBACK] ⚠️  Error during fallback phase: {e}",
+                flush=True
+            )
 
     async def handle_migration(self, signature: str, logs: list):
         """Process detected migration."""

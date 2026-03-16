@@ -35,13 +35,24 @@ class PoolReserveFetcher:
         self.db_path = db_path
 
     def get_active_pools(self) -> List[Dict]:
-        """Load all active pool registrations from token_pool_accounts table."""
+        """Load all active pool registrations from token_pool_accounts table.
+        
+        Returns only:
+        - Validated pools (vaults confirmed to exist on-chain)
+        - Pending pools (vaults not yet confirmed, waiting for retry)
+        
+        Excludes:
+        - Rejected pools (extraction proved vaults are wrong/missing)
+        """
         import sqlite3
 
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             rows = conn.execute(
-                "SELECT * FROM token_pool_accounts WHERE is_active = 1"
+                """SELECT * FROM token_pool_accounts 
+                   WHERE is_active = 1 
+                   AND vault_validation_status IN ('validated', 'pending')
+                   ORDER BY vault_validation_status DESC"""
             ).fetchall()
         return [dict(r) for r in rows]
 

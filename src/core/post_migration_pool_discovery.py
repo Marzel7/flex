@@ -85,6 +85,110 @@ class PostMigrationPoolDiscovery:
         )
         return None
 
+    async def discover_pool_via_migration_transaction(
+        self,
+        mint: str,
+        migration_sig: str
+    ) -> Optional[str]:
+        """
+        Extract pool accounts directly from migration transaction.
+
+        This is the most reliable discovery method because:
+        1. Pool accounts are created/referenced IN the migration TX
+        2. No RPC API limitations (uses standard getTransaction)
+        3. Works even when RPC doesn't support filtered getProgramAccounts
+
+        Strategy:
+        1. Get migration TX
+        2. Extract all account addresses
+        3. Filter by known pool program owners
+        4. Return first pool found (validation happens in caller)
+
+        Args:
+            mint: Token mint address
+            migration_sig: Migration transaction signature
+
+        Returns:
+            Pool address if found, None otherwise
+        """
+        try:
+            logger.info(
+                f"[POOL_DISCOVERY_MIGRATION_TX] Extracting from {migration_sig[:20]}..."
+            )
+
+            # Fetch migration transaction
+            tx_data = await self._fetch_transaction(migration_sig)
+            if not tx_data:
+                logger.warning("[POOL_DISCOVERY_MIGRATION_TX] Could not fetch transaction")
+                return None
+
+            # Extract all account addresses from the transaction
+            try:
+                message = tx_data.get("transaction", {}).get("message", {})
+                accounts = message.get("accountKeys", [])
+                meta = tx_data.get("meta", {})
+
+                # Also include loaded addresses from versioned transactions
+                loaded_addrs = meta.get("loadedAddresses", {})
+                accounts = accounts + loaded_addrs.get("writable", []) + loaded_addrs.get("readonly", [])
+
+            except (KeyError, TypeError):
+                logger.warning("[POOL_DISCOVERY_MIGRATION_TX] Could not extract accounts")
+                return None
+
+            logger.debug(f"[POOL_DISCOVERY_MIGRATION_TX] Found {len(accounts)} accounts")
+
+            # Known pool program owners (where pools live)
+            POOL_PROGRAMS = {
+                "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap
+                "675kPX9MHTjS2zt1qrXrQVxwwp4W8gNzjX9oVhKt7Ck",  # Raydium
+                "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # PumpFun V1
+                "pmpA9A9n7CdrzJcm4E3rhZ4J8p9F3ZzK8Y9zCjR4Z5x",  # PumpFun V2
+            }
+
+            # System programs to skip
+            SYSTEM_PROGRAMS = {
+                "11111111111111111111111111111111",
+                "ComputeBudget111111111111111111111111111111",
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                "So11111111111111111111111111111111111111112",
+                "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+                "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+            }
+
+            # Check each account's owner
+            for account_addr in accounts:
+                # Skip system programs
+                if account_addr in SYSTEM_PROGRAMS:
+                    continue
+
+                # Get account info to check owner
+                try:
+                    account_info = await self._fetch_account_info(account_addr)
+                    if not account_info:
+                        continue
+
+                    owner = account_info.get("owner")
+                    if owner in POOL_PROGRAMS:
+                        logger.info(
+                            f"[POOL_DISCOVERY_MIGRATION_TX] ✅ Found pool: {account_addr[:20]}... "
+                            f"(owner={owner[:16]}...)"
+                        )
+                        return account_addr
+
+                except Exception as e:
+                    logger.debug(f"[POOL_DISCOVERY_MIGRATION_TX] Error checking {account_addr[:16]}...: {e}")
+                    continue
+
+            logger.info("[POOL_DISCOVERY_MIGRATION_TX] No pool programs found in transaction")
+            return None
+
+        except Exception as e:
+            logger.warning(
+                f"[POOL_DISCOVERY_MIGRATION_TX] Error: {e}"
+            )
+            return None
+
     async def _discover_via_recent_transactions(
         self,
         mint: str,

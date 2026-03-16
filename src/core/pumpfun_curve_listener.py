@@ -2289,14 +2289,22 @@ class PumpFunCurveListener:
                 )
                 
                 # Use post-migration discovery strategies
-                # This searches NEW transactions and program state, NOT the original tx
+                # Priority: Direct extraction from migration TX > recent TX search > vault fallback
                 discovery = PostMigrationPoolDiscovery(RPC_HTTP)
-                
-                pool_address = await discovery.discover_pool_post_migration(
+
+                # Strategy 1 (NEW): Extract directly from migration transaction (most reliable)
+                pool_address = await discovery.discover_pool_via_migration_transaction(
                     mint=mint,
-                    original_migration_sig=original_migration_sig,
-                    delays=[0]  # No additional delays (we already waited)
+                    migration_sig=original_migration_sig
                 )
+
+                # Strategy 2: Fallback to other discovery methods
+                if not pool_address:
+                    pool_address = await discovery.discover_pool_post_migration(
+                        mint=mint,
+                        original_migration_sig=original_migration_sig,
+                        delays=[0]  # No additional delays (we already waited)
+                    )
                 
                 if pool_address:
                     log_print(

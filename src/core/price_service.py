@@ -44,6 +44,8 @@ class TokenPrice:
     pair_address: Optional[str] = None
     timestamp: int = None
     is_stale: bool = False
+    peak_market_cap: float = 0  # NEW: Historical maximum market cap
+    peak_market_cap_at: Optional[int] = None  # NEW: Timestamp when peak reached
     
     def __post_init__(self):
         if self.timestamp is None:

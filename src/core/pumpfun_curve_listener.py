@@ -2344,6 +2344,46 @@ class PumpFunCurveListener:
                                 flush=True
                             )
 
+                # Strategy 1b: If candidates didn't work, try PumpFun V1 vault pair discovery
+                if not pool_address:
+                    log_print(
+                        f"[POOL_DISCOVER_FALLBACK] 🔍 Attempting PumpFun V1 vault pair auto-discovery...",
+                        flush=True
+                    )
+                    try:
+                        vault_pair = await discovery.discover_pumpfun_v1_vault_pair(
+                            mint=mint,
+                            pool_address=pool_candidates[0] if pool_candidates else ""
+                        )
+                        if vault_pair:
+                            log_print(
+                                f"[POOL_DISCOVER_FALLBACK] ✅ Discovered vault pair: {vault_pair[:16]}...",
+                                flush=True
+                            )
+                            # Register the vault pair as the pool
+                            try:
+                                from src.core.pool_discovery import PoolDiscovery
+                                discovery_pipeline = PoolDiscovery(DB_PATH, RPC_HTTP)
+                                registered = await discovery_pipeline.discover_and_register_pool(
+                                    vault_pair, mint
+                                )
+                                if registered:
+                                    pool_address = vault_pair
+                                    log_print(
+                                        f"[POOL_DISCOVER_FALLBACK] ✅ Vault pair registered as pool: {vault_pair[:16]}...",
+                                        flush=True
+                                    )
+                            except Exception as e:
+                                log_print(
+                                    f"[POOL_DISCOVER_FALLBACK] ⏭️  Vault pair registration failed: {e}",
+                                    flush=True
+                                )
+                    except Exception as e:
+                        log_print(
+                            f"[POOL_DISCOVER_FALLBACK] ⏭️  Vault pair discovery failed: {e}",
+                            flush=True
+                        )
+
                 # Strategy 2: Fallback to other discovery methods if no candidate worked
                 if not pool_address:
                     pool_address = await discovery.discover_pool_post_migration(

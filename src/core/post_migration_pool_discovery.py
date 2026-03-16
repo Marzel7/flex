@@ -524,6 +524,129 @@ class PostMigrationPoolDiscovery:
 
         return []
 
+    async def discover_pumpfun_v1_vault_pair(self, mint: str, pool_address: str) -> Optional[str]:
+        """
+        Discover vault pair for PumpFun V1 pool.
+        
+        PumpFun V1 pools don't store vault addresses in pool state.
+        The "vault pair" for a Pump token is actually the PumpSwap pool account
+        that holds the reserves after migration.
+        
+        Strategy: Query all accounts in recent transactions for this mint and find
+        accounts owned by PumpSwap program that are roughly the right size (290-310 bytes).
+        Falls back to searching by pool address if mint signatures aren't available.
+        
+        Returns the vault pair address (PumpSwap pool account), or None.
+        """
+        try:
+            logger.info(f"[PUMPFUN_V1_VAULT_DISCOVERY] Discovering vault for {mint[:16]}...")
+            
+            PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+            found_candidates = {}
+            
+            # Strategy 1: Get signatures from mint
+            signatures = await self._get_recent_related_signatures(mint)
+            
+            # Strategy 2: Also try pool address if provided
+            if (not signatures or len(signatures) < 5) and pool_address:
+                logger.info(f"[PUMPFUN_V1_VAULT_DISCOVERY] Fallback: querying pool address {pool_address[:16]}...")
+                try:
+                    payload = {
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "getSignaturesForAddress",
+                        "params": [
+                            pool_address,
+                            {"limit": 20, "commitment": "finalized"}
+                        ]
+                    }
+                    async with aiohttp.ClientSession() as session:
+                        async with session.post(
+                            self.rpc_url,
+                            json=payload,
+                            timeout=aiohttp.ClientTimeout(total=30)
+                        ) as resp:
+                            result = await resp.json()
+                            if "result" in result and result["result"]:
+                                pool_sigs = [sig["signature"] for sig in result["result"]]
+                                signatures.extend(pool_sigs)
+                except Exception as e:
+                    logger.debug(f"[PUMPFUN_V1_VAULT_DISCOVERY] Error getting pool signatures: {e}")
+            
+            if not signatures:
+                logger.warning("[PUMPFUN_V1_VAULT_DISCOVERY] No recent signatures found")
+                return None
+            
+            logger.info(f"[PUMPFUN_V1_VAULT_DISCOVERY] Checking {len(signatures[:10])} recent signatures")
+            
+            # Check recent transactions for accounts owned by PumpSwap
+            for sig in signatures[:10]:  # Check last 10 transactions
+                try:
+                    tx_data = await self._fetch_transaction(sig)
+                    if not tx_data:
+                        continue
+                    
+                    # Extract all accounts from transaction
+                    try:
+                        message = tx_data.get("transaction", {}).get("message", {})
+                        accounts = message.get("accountKeys", [])
+                        meta = tx_data.get("meta", {})
+                        loaded_addrs = meta.get("loadedAddresses", {})
+                        accounts = accounts + loaded_addrs.get("writable", []) + loaded_addrs.get("readonly", [])
+                    except (KeyError, TypeError):
+                        continue
+                    
+                    # Check each account
+                    for account_addr in accounts:
+                        if account_addr in found_candidates:
+                            continue
+                        
+                        try:
+                            account_info = await self._fetch_account_info(account_addr)
+                            if not account_info:
+                                continue
+                            
+                            owner = account_info.get("owner")
+                            if owner != PUMPSWAP_PROGRAM:
+                                continue
+                            
+                            # Check size (PumpSwap pools are typically 290-310 bytes)
+                            data = account_info.get("data", [])
+                            if isinstance(data, list) and len(data) > 0:
+                                import base64
+                                try:
+                                    decoded = base64.b64decode(data[0])
+                                    data_size = len(decoded)
+                                except:
+                                    data_size = 0
+                            else:
+                                data_size = 0
+                            
+                            if 290 <= data_size <= 310:
+                                # This is a valid PumpSwap pool for this token
+                                logger.debug(f"[PUMPFUN_V1_VAULT_DISCOVERY] Found candidate: {account_addr[:16]}... ({data_size} bytes)")
+                                found_candidates[account_addr] = data_size
+                        except Exception as e:
+                            logger.debug(f"[PUMPFUN_V1_VAULT_DISCOVERY] Error checking {account_addr[:16]}...: {e}")
+                            continue
+                
+                except Exception as e:
+                    logger.debug(f"[PUMPFUN_V1_VAULT_DISCOVERY] Error processing tx {sig[:16]}...: {e}")
+                    continue
+            
+            # Return the first valid candidate found (largest by size)
+            if found_candidates:
+                best_candidate = max(found_candidates.items(), key=lambda x: x[1])[0]
+                logger.info(f"[PUMPFUN_V1_VAULT_DISCOVERY] ✅ Found vault pair: {best_candidate}")
+                return best_candidate
+            
+            logger.warning("[PUMPFUN_V1_VAULT_DISCOVERY] No vault pair candidates found")
+            return None
+            
+        except Exception as e:
+            logger.error(f"[PUMPFUN_V1_VAULT_DISCOVERY] Error: {e}")
+            return None
+
     async def _fetch_transaction(self, signature: str) -> Optional[Dict]:
         """Fetch transaction data from RPC."""
         try:

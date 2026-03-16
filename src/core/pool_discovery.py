@@ -800,28 +800,32 @@ class PoolDiscovery:
             return False
 
     async def discover_and_register_pool(
-        self, pool_address: str, token_mint: str
+        self, pool_address: str, token_mint: str, migration_sig: str = None
     ) -> bool:
         """
         Discover pool reserves and register in database with proper vault validation.
 
         Called when a token launches to automatically enable WebSocket pricing.
         
+        Args:
+            pool_address: Candidate pool address (optional if migration_sig provided)
+            token_mint: The token mint address
+            migration_sig: Migration transaction signature (optional, enables full discovery)
+        
         Strategy:
-        1. Try vault pair discovery first (finds actual PumpSwap pools with real vaults)
-        2. If found, register directly (vault pair IS the vault account)
-        3. Fall back to standard extraction from the provided pool_address
-        4. Only register if vaults are either validated OR explicitly marked as pending for retry
-        5. Do NOT register with unverified vault addresses that will likely be wrong
+        1. If migration_sig provided, use vault pair discovery which searches transaction history
+           This finds the actual PumpSwap pool account
+        2. Otherwise, try vault pair discovery with provided pool_address
+        3. Fall back to standard extraction from pool_address
+        4. Register with vault_validation_status = pending/validated
         """
         logger.info(f"🔍 Discovering pool reserves for {token_mint}")
 
         reserves = None
         vault_source = None
 
-        # Strategy 1: Try PumpFun V1 vault pair discovery first
+        # Strategy 1: Try PumpFun V1 vault pair discovery
         # This finds the actual PumpSwap pool account which IS the vault pair
-        # This is the most reliable method for new tokens
         logger.info(
             f"[DISCOVERY_CHAIN] Step 1: Attempting PumpFun V1 vault pair discovery"
         )

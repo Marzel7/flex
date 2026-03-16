@@ -297,6 +297,7 @@ class PostMigrationPoolDiscovery:
             # Accounts to skip (shared state/config, not token-specific pools)
             SKIP_ACCOUNTS = {
                 "4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf",  # Shared migration state (741 bytes)
+                "ADyA8hdefvWN2dbGGWFotbzWxrAvLW83WG6QCVXvJKqw",  # Shared program state (643 bytes, extracts non-existent vaults)
             }
 
             # Collect all valid candidates

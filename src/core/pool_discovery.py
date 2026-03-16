@@ -810,7 +810,7 @@ class PoolDiscovery:
         Strategy:
         1. Try vault pair discovery first (finds actual PumpSwap pools with real vaults)
         2. If found, register directly (vault pair IS the vault account)
-        3. Fall back to standard extraction (Raydium AMM)
+        3. Fall back to standard extraction from the provided pool_address
         4. Only register if vaults are either validated OR explicitly marked as pending for retry
         5. Do NOT register with unverified vault addresses that will likely be wrong
         """
@@ -821,6 +821,7 @@ class PoolDiscovery:
 
         # Strategy 1: Try PumpFun V1 vault pair discovery first
         # This finds the actual PumpSwap pool account which IS the vault pair
+        # This is the most reliable method for new tokens
         logger.info(
             f"[DISCOVERY_CHAIN] Step 1: Attempting PumpFun V1 vault pair discovery"
         )
@@ -851,6 +852,10 @@ class PoolDiscovery:
                 }
                 vault_source = "pumpfun_v1_discovered"
                 logger.info(f"[DISCOVERY_CHAIN] ✅ Using discovered vault pair directly")
+            else:
+                logger.info(
+                    f"[DISCOVERY_CHAIN] ⏭️  No vault pair found, falling back to standard extraction"
+                )
                 
         except Exception as e:
             logger.debug(f"[DISCOVERY_CHAIN] Vault pair discovery failed: {e}")

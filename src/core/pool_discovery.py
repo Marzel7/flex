@@ -809,9 +809,10 @@ class PoolDiscovery:
         
         Strategy:
         1. Try vault pair discovery first (finds actual PumpSwap pools with real vaults)
-        2. Fall back to standard extraction (Raydium AMM)
-        3. Only register if vaults are either validated OR explicitly marked as pending for retry
-        4. Do NOT register with unverified vault addresses that will likely be wrong
+        2. If found, register directly (vault pair IS the vault account)
+        3. Fall back to standard extraction (Raydium AMM)
+        4. Only register if vaults are either validated OR explicitly marked as pending for retry
+        5. Do NOT register with unverified vault addresses that will likely be wrong
         """
         logger.info(f"🔍 Discovering pool reserves for {token_mint}")
 
@@ -819,7 +820,7 @@ class PoolDiscovery:
         vault_source = None
 
         # Strategy 1: Try PumpFun V1 vault pair discovery first
-        # This finds the actual PumpSwap pool account which is the correct vault pair
+        # This finds the actual PumpSwap pool account which IS the vault pair
         logger.info(
             f"[DISCOVERY_CHAIN] Step 1: Attempting PumpFun V1 vault pair discovery"
         )
@@ -834,15 +835,23 @@ class PoolDiscovery:
             if vault_pair:
                 logger.info(
                     f"[DISCOVERY_CHAIN] ✅ Found vault pair: {vault_pair[:16]}... "
-                    f"— extracting reserves from vault pair"
+                    f"(this IS the actual pool account)"
                 )
-                # Try to extract from vault pair
-                reserves = await self.extract_pool_reserves(vault_pair, token_mint)
-                if reserves:
-                    logger.info(
-                        f"[DISCOVERY_CHAIN] ✅ Successfully extracted reserves from vault pair"
-                    )
-                    vault_source = "pumpfun_v1_discovered"
+                
+                # For PumpFun V1, the vault pair IS the pool account
+                # Register it directly without trying to extract vaults from it
+                reserves = {
+                    "base_account": vault_pair,
+                    "quote_account": vault_pair,  # Same account for both
+                    "base_token": token_mint,
+                    "quote_token": "So11111111111111111111111111111111111111112",  # SOL
+                    "base_decimals": 6,
+                    "quote_decimals": 9,
+                    "pool_program": "pumpfun_v1",
+                }
+                vault_source = "pumpfun_v1_discovered"
+                logger.info(f"[DISCOVERY_CHAIN] ✅ Using discovered vault pair directly")
+                
         except Exception as e:
             logger.debug(f"[DISCOVERY_CHAIN] Vault pair discovery failed: {e}")
 

@@ -303,6 +303,14 @@ class BackgroundPriceWorker:
             'dormant': 0
         }
 
+        # Periodically retry vault validation for pending pools
+        if self.stats['cycles'] % 10 == 0:
+            logger.debug("Running periodic vault validation retry")
+            try:
+                asyncio.run(self._retry_pending_vault_validations())
+            except Exception as e:
+                logger.error(f"Error retrying vault validations: {e}")
+
         # First, fetch all pool prices into cache (primary source)
         self._fetch_pool_prices()
 
@@ -347,6 +355,48 @@ class BackgroundPriceWorker:
             f"low={self.stats['activity_distribution']['low']} "
             f"dormant={self.stats['activity_distribution']['dormant']}"
         )
+
+    async def _retry_pending_vault_validations(self) -> None:
+        """
+        Retry vault validation for pending pools.
+        
+        Called periodically to check if vaults have been created on-chain
+        since initial registration. Updates vault status when vaults appear.
+        """
+        try:
+            import sqlite3
+            import asyncio
+            
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            # Find all pending pools
+            cursor.execute(
+                """SELECT mint, base_account FROM token_pool_accounts 
+                   WHERE vault_validation_status = 'pending' AND is_active = 1
+                   ORDER BY last_vault_validation_at ASC LIMIT 10"""
+            )
+            pending_pools = cursor.fetchall()
+            conn.close()
+            
+            if not pending_pools:
+                return
+            
+            logger.info(f"[VAULT_RETRY] Retrying validation for {len(pending_pools)} pending pools")
+            
+            from src.core.pool_discovery import PoolDiscovery
+            discovery = PoolDiscovery(self.db_path, None)  # RPC URL not needed for retry
+            
+            for mint, pool_account in pending_pools:
+                validated = await discovery.retry_vault_validation(mint, pool_account)
+                if validated:
+                    logger.info(f"[VAULT_RETRY] ✅ Pool {mint[:16]}... vaults now validated")
+                    # Restart WebSocket to pick up newly validated pools
+                    self._ws_started = False
+                await asyncio.sleep(0.1)
+        
+        except Exception as e:
+            logger.error(f"[VAULT_RETRY] Error: {e}")
 
 
     def sync_source_metrics(self) -> None:

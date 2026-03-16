@@ -192,11 +192,15 @@ class PoolPriceCalculator:
         quote_is_sol: bool,
         sol_price_usd: float,
         last_cached_price: Optional[float] = None,
+        base_account: Optional[str] = None,
     ) -> Optional[TokenPrice]:
         """
         Compute TokenPrice from AMM reserves.
         Applies filters: minimum liquidity ($5000 USD) and max deviation (40%).
         Returns None if price is rejected by filters.
+
+        Args:
+            base_account: Pool/pair address for attribution (optional)
         """
         if base_reserve_raw == 0 or quote_reserve_raw == 0:
             return None
@@ -238,6 +242,7 @@ class PoolPriceCalculator:
             market_cap=0,
             source="pool",
             is_stale=False,
+            pair_address=base_account,
         )
 
     @staticmethod
@@ -547,6 +552,20 @@ class PoolWebSocketClient:
         if self._thread:
             self._thread.join(timeout=5)
 
+    def refresh_pools(self, pools: List[Dict]) -> None:
+        """Reload pool subscriptions from updated database."""
+        old_count = len(self._account_to_pool)
+        self._build_account_map(pools)
+        new_count = len(self._account_to_pool)
+        if new_count != old_count:
+            logger.info(
+                f"Pool subscriptions refreshed: {old_count} → {new_count} accounts. "
+                f"Reconnecting WebSocket to pick up changes..."
+            )
+            # Trigger reconnect by stopping the event loop
+            if self._loop and self._loop.is_running():
+                self._loop.call_soon_threadsafe(self._loop.stop)
+
     def _build_account_map(self, pools: List[Dict]) -> None:
         """Build pubkey->pool mapping from pool list."""
         self._account_to_pool = {}
@@ -656,11 +675,17 @@ class PoolWebSocketClient:
             self.stats["is_stale"] = False
 
             account_data = params.get("result", {}).get("value", {})
-            data_list = account_data.get("data", [])
-            if not data_list:
-                return
 
-            balance = PoolReserveFetcher._decode_spl_token_balance(data_list[0])
+            # Try to decode balance from SPL token account data first
+            data_list = account_data.get("data", [])
+            balance = None
+            if data_list:
+                balance = PoolReserveFetcher._decode_spl_token_balance(data_list[0])
+
+            # If no balance from data (native SOL account), try lamports field
+            if balance is None:
+                balance = account_data.get("lamports")
+
             if balance is None:
                 return
 

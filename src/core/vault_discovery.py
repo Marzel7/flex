@@ -334,7 +334,7 @@ def identify_base_vault(
     if candidates_scored:
         best = candidates_scored[0]
         logger.info(
-            f"[VAULT_DISCOVERY] ✅ Base vault identified: {best['account'].address[:16]}... "
+            f"[VAULT_DISCOVERY] ✅ Base vault identified: {best['account'].address} "
             f"(score={best['score']:.1f}, {', '.join(best['signals'])})"
         )
         return best["account"]
@@ -453,7 +453,7 @@ async def resolve_quote_vault_fallback(
             if len(accounts) > 0:
                 # The first (and usually only) wSOL account is the quote vault
                 quote_vault = accounts[0]["pubkey"]
-                logger.info(f"[VAULT_DISCOVERY] Quote vault found via wSOL query: {quote_vault[:16]}...")
+                logger.info(f"[VAULT_DISCOVERY] Quote vault found via wSOL query: {quote_vault}")
                 return quote_vault
 
         logger.debug("[VAULT_DISCOVERY] No wSOL token accounts found for pool authority")
@@ -581,7 +581,7 @@ async def validate_quote_vault(
 
         # Check for native SOL account
         elif acct.owner == SYSTEM_PROGRAM_ID:
-            logger.info(f"[VAULT_DISCOVERY] ✅ Quote vault (native SOL): {quote_vault_address[:16]}... (lamports={acct.lamports})")
+            logger.info(f"[VAULT_DISCOVERY] ✅ Quote vault (native SOL): {quote_vault_address} (lamports={acct.lamports})")
             return {
                 "address": quote_vault_address,
                 "type": "native_sol",
@@ -684,10 +684,10 @@ async def discover_vaults_rpc(
 
             # Success! Return vault pair
             logger.info(
-                f"[VAULT_DISCOVERY] ✅ Vault discovery successful for {token_mint[:16]}..."
+                f"[VAULT_DISCOVERY] ✅ Vault discovery successful for {token_mint}"
             )
-            logger.info(f"   Base:  {base_vault.address[:16]}...")
-            logger.info(f"   Quote: {quote_vault['address'][:16]}...")
+            logger.info(f"   Base:  {base_vault.address}")
+            logger.info(f"   Quote: {quote_vault['address']}")
 
             return VaultPair(
                 base_vault=base_vault,
@@ -794,9 +794,9 @@ async def register_vault_pair(
             conn.commit()
 
             logger.info(f"[VAULT_DISCOVERY] ✅ Registered vault pair:")
-            logger.info(f"   Token: {token_mint[:16]}...")
-            logger.info(f"   Base:  {base_vault.address[:16]}...")
-            logger.info(f"   Quote: {quote_vault['address'][:16]}...")
+            logger.info(f"   Token: {token_mint}")
+            logger.info(f"   Base:  {base_vault.address}")
+            logger.info(f"   Quote: {quote_vault['address']}")
 
             # Trigger WebSocket refresh
             if price_worker:

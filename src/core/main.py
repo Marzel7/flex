@@ -3656,6 +3656,34 @@ HTML_TEMPLATE = """
 
                 // Build table
                 buildTable(displayTokens);
+
+                // Fetch and display price sources for all tokens (icon only)
+                displayTokens.forEach(token => {
+                    fetch(`/api/token-metrics/${token.mint}`)
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.price && data.price.source) {
+                                const source = data.price.source;
+                                let sourceIcon = '';
+
+                                if (source === 'pool') {
+                                    sourceIcon = '📡';
+                                } else if (source.includes('pool')) {
+                                    sourceIcon = '📊';
+                                } else if (source === 'dexscreener') {
+                                    sourceIcon = '🔗';
+                                } else {
+                                    sourceIcon = '';
+                                }
+
+                                const sourceEl = document.getElementById(`source-${token.mint}`);
+                                if (sourceEl && sourceIcon) {
+                                    sourceEl.innerHTML = sourceIcon;
+                                }
+                            }
+                        })
+                        .catch(e => console.debug('Price source fetch error:', e));
+                });
             } catch (error) {
                 console.error('Error loading tokens:', error);
                 document.getElementById('tokens-container').innerHTML =
@@ -3958,8 +3986,12 @@ HTML_TEMPLATE = """
                                     <td class="cluster-name">
                                         ${token.cluster_name ? `<span style="color: var(--accent-orange); font-size: 12px;" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : ''}
                                     </td>
-                                    <td id="price-${token.mint}" style="color: var(--accent-cyan); font-size: 12px; transition: color 0.2s ease; min-width: 80px;">
-                                        ${token.price_current && token.price_current > 0 ? `$${token.price_current.toFixed(8)}` : '<span style="opacity: 0.5;">...</span>'}
+                                    <td id="price-${token.mint}" style="color: var(--accent-cyan); font-size: 12px; transition: color 0.2s ease; min-width: 120px;">
+                                        <div>
+                                            ${token.price_current && token.price_current > 0 ? `$${token.price_current.toFixed(8)}` : '<span style="opacity: 0.5;">...</span>'}
+                                        </div>
+                                        <div id="source-${token.mint}" style="font-size: 14px; margin-top: 2px; min-height: 14px;">
+                                        </div>
                                     </td>
                                     <td id="mc-${token.mint}" style="transition: color 0.2s ease; min-width: 60px;">
                                         ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">...</span>'}
@@ -4597,6 +4629,32 @@ function switchToTokensTab() {
                         <span>${marketCapHighest}</span>
                     </div>
                 `;
+
+                // Add price source indicator
+                let priceSourceDisplay = '';
+                if (data.price && data.price.source) {
+                    const source = data.price.source;
+                    let sourceIcon = '';
+                    let sourceLabel = source;
+
+                    if (source === 'pool') {
+                        sourceIcon = '📡';
+                        sourceLabel = 'WebSocket (Real-time)';
+                    } else if (source.includes('pool')) {
+                        sourceIcon = '📊';
+                        sourceLabel = source.charAt(0).toUpperCase() + source.slice(1);
+                    } else {
+                        sourceIcon = '⚪';
+                    }
+
+                    priceSourceDisplay = `
+                        <div class="metric">
+                            <label>Price Source</label>
+                            <span>${sourceIcon} ${sourceLabel}</span>
+                        </div>
+                    `;
+                    metricsHTML += priceSourceDisplay;
+                }
 
                 metricsGrid.innerHTML = metricsHTML;
 
@@ -7311,10 +7369,23 @@ def api_token_metrics(token_mint: str):
         """, (token_mint,))
 
         row = cursor.fetchone()
-        conn.close()
 
         if not row:
+            conn.close()
             return jsonify({'error': 'Token not found'}), 404
+
+        # Get most recent price source from token_price_snapshots
+        cursor.execute("""
+            SELECT source
+            FROM token_price_snapshots
+            WHERE mint = ?
+            ORDER BY created_at DESC
+            LIMIT 1
+        """, (token_mint,))
+
+        price_source_row = cursor.fetchone()
+        price_source = price_source_row['source'] if price_source_row else 'unknown'
+        conn.close()
 
         # Format response for post-migration analysis only
         response = jsonify({
@@ -7336,7 +7407,8 @@ def api_token_metrics(token_mint: str):
             },
             'price': {
                 'current': row['price_current'] if row['price_current'] else 0,
-                'highest': row['price_highest'] if row['price_highest'] else 0
+                'highest': row['price_highest'] if row['price_highest'] else 0,
+                'source': price_source
             },
             'market_cap': {
                 'current': row['market_cap_current'] if row['market_cap_current'] else 0,

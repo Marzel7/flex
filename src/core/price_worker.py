@@ -272,19 +272,20 @@ class BackgroundPriceWorker:
             if not pools:
                 logger.info("No pools registered — skipping WebSocket client startup")
                 return
-            
+
             # If already started, just refresh subscriptions
             if self._ws_client and self._ws_started:
                 logger.info("WebSocket already running — refreshing subscriptions")
                 self._ws_client.refresh_pools(pools)
                 return
-            
+
             # Create client if not already created
+            logger.info(f"Starting WebSocket client with {len(pools)} pools")
             self._ws_client = self._ws_client or __import__('src.core.pool_price_engine', fromlist=['PoolWebSocketClient']).PoolWebSocketClient(self._pool_state, self.db_path)
             self._ws_client.start(pools)
             self._ws_started = True
         except Exception as e:
-            logger.error(f"Failed to start pool WebSocket client: {e}")
+            logger.error(f"Failed to start pool WebSocket client: {e}", exc_info=True)
 
     def _run_loop(self) -> None:
         """Main worker loop."""
@@ -302,6 +303,14 @@ class BackgroundPriceWorker:
         """One complete refresh cycle with activity-based scheduling."""
         cycle_start = time.time()
         self.stats['cycles'] += 1
+
+        # Start WebSocket if not running but pools exist (handles post-startup pool registration)
+        if not self._ws_started:
+            from src.core.pool_price_engine import get_pool_fetcher
+            fetcher = get_pool_fetcher(self.db_path)
+            pools = fetcher.get_active_pools()
+            if pools:
+                self._start_ws_client()
 
         # Periodically reload pool subscriptions from database (every 30 cycles = ~5 minutes)
         if self.stats['cycles'] % 30 == 1 and self._ws_client:
@@ -659,6 +668,13 @@ class BackgroundPriceWorker:
 
             self.price_service.pool_price_cache = new_cache
             self.stats["pool_prices_fetched"] = len(new_cache)
+
+            # Store pool prices to database snapshots (for UI and historical tracking)
+            for mint, token_price in new_cache.items():
+                try:
+                    self.price_service._store_snapshot(token_price)
+                except Exception as e:
+                    logger.debug(f"Failed to store pool price snapshot for {mint[:16]}: {e}")
 
         except Exception as e:
             logger.error(f"Error recomputing prices from WS state: {e}")

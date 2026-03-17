@@ -673,14 +673,11 @@ async def discover_vaults_rpc(
                 logger.warning("[VAULT_DISCOVERY] Could not resolve quote vault - may indicate fresh token")
                 quote_vault = None
 
-            # For fresh tokens, allow discovery with just base vault
+            # Fresh tokens must have both vaults to be registered
             # Quote vault will be discovered/validated on subsequent retries
             if not quote_vault:
-                logger.info("[VAULT_DISCOVERY] Returning discovery with base vault only (quote will be found on retry)")
-                quote_vault = {
-                    "address": WRAPPED_SOL_MINT,  # Placeholder
-                    "decoded": type('MockDecoded', (), {'mint': WRAPPED_SOL_MINT})()
-                }
+                logger.warning("[VAULT_DISCOVERY] ❌ Cannot register token without valid quote vault - will retry on next discovery cycle")
+                return None
 
             # Success! Return vault pair
             logger.info(

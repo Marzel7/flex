@@ -203,6 +203,7 @@ class PoolPriceCalculator:
         sol_price_usd: float,
         last_cached_price: Optional[float] = None,
         base_account: Optional[str] = None,
+        total_supply: int = 0,
     ) -> Optional[TokenPrice]:
         """
         Compute TokenPrice from AMM reserves.
@@ -243,9 +244,12 @@ class PoolPriceCalculator:
                 )
                 return None
 
-        # Calculate market cap: price × 1 billion tokens
-        total_supply = 1_000_000_000
-        market_cap = price_usd * total_supply
+        # Calculate market cap: price × total_supply
+        # If total_supply not provided, use default 1B (for backwards compatibility)
+        if total_supply <= 0:
+            total_supply = 1_000_000_000
+
+        market_cap = price_usd * (total_supply / (10 ** base_decimals))
 
         return TokenPrice(
             mint=mint,

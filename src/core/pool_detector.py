@@ -104,13 +104,13 @@ class AMMPrograms:
     PUMPFUN_V1 = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
 
     # Raydium AMM v4
-    RAYDIUM_AMM = "675kPX9MHTjS2zt1qrXjVnYYtYEyojNMjuSofEMQSdt"
+    RAYDIUM_AMM = "675kPX9MHTjS2zt1qrVrrVrZg1ankqqgoerEmJlwQ1K"
 
     # Raydium Concentrated Liquidity Market Maker (CLMM)
     RAYDIUM_CLMM = "CAMMCzo5YL8w4VFF8EDCDqV1HqpW4GTonjfVNcNB5vp"
 
     # Orca Whirlpool
-    ORCA_WHIRLPOOL = "whirLbMiicVdio4KfUbuVrCo6XcnWcj7v5KbQmxxF6J"
+    ORCA_WHIRLPOOL = "whirLbMiicVdio4KfUqKKvsLrZtSqwNAUafgJMYco"
 
     # Meteora DLMM
     METEORA_DLMM = "Liq7fJg2yVHhbPPqqEDSVGMtPVaYYkSBPP8Y63QNhJS"

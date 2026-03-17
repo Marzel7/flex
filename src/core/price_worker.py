@@ -488,6 +488,10 @@ class BackgroundPriceWorker:
                     except:
                         return None
 
+                async def close(self):
+                    """No-op for compatibility with clients that call close()"""
+                    pass
+
             rpc_client = SimpleRPCClient(rpc_url)
 
             for mint, pool_account, quote_account in pending_pools:

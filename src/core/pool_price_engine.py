@@ -113,6 +113,47 @@ class PoolReserveFetcher:
 
         return reserves
 
+
+    async def fetch_token_supply(self, mints: List[str]) -> Dict[str, int]:
+        """
+        Fetch token supply for mints from their Mint accounts.
+        Returns {mint: supply_raw}.
+        """
+        if not mints:
+            return {}
+        
+        result = {}
+        for i in range(0, len(mints), self.MAX_PUBKEYS_PER_CALL):
+            batch = mints[i : i + self.MAX_PUBKEYS_PER_CALL]
+            try:
+                response = await self.rpc.get_multiple_accounts(batch)
+                if not response or "result" not in response:
+                    continue
+                
+                accounts = response.get("result", {}).get("value", [])
+                for idx, account in enumerate(accounts):
+                    if not account:
+                        continue
+                    
+                    mint = batch[idx]
+                    data = account.get("data", [None])[0]
+                    
+                    if not data:
+                        continue
+                    
+                    # SPL Token Mint account: supply is at offset 16, 8 bytes
+                    try:
+                        data_bytes = base64.b64decode(data) if isinstance(data, str) else data
+                        if len(data_bytes) >= 24:
+                            supply_raw = int.from_bytes(data_bytes[16:24], byteorder='little')
+                            result[mint] = supply_raw
+                    except Exception:
+                        pass
+            except Exception as e:
+                logger.debug(f"Error fetching token supply: {e}")
+        
+        return result
+
     async def _call_get_multiple_accounts(
         self, pubkeys: List[str]
     ) -> Dict[str, Optional[int]]:
@@ -244,12 +285,10 @@ class PoolPriceCalculator:
                 )
                 return None
 
-        # Calculate market cap: price × total_supply
-        # If total_supply not provided, use default 1B (for backwards compatibility)
-        if total_supply <= 0:
-            total_supply = 1_000_000_000
-
-        market_cap = price_usd * (total_supply / (10 ** base_decimals))
+        # Calculate market cap from liquidity and base reserve
+        # market_cap ≈ 2 * liquidity_usd (assuming base and quote have roughly equal value)
+        # This is more reliable than using total_supply which we often don't have
+        market_cap = 2 * liquidity_usd
 
         return TokenPrice(
             mint=mint,

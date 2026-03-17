@@ -2489,7 +2489,9 @@ class PumpFunCurveListener:
                     # Use price worker from listener instance (initialized at startup)
                     price_worker = self.price_worker
 
-                    rpc_success = await discover_and_register_vaults_rpc(
+                    # Use multi-pool discovery to find ALL pools for new launches
+                    from src.core.vault_discovery import discover_and_register_all_pools
+                    rpc_success = await discover_and_register_all_pools(
                         token_mint=mint,
                         rpc_client=rpc_client,
                         db=DB_PATH,

@@ -4549,7 +4549,7 @@ function switchToTokensTab() {
         (async () => {
             await initializeSettings();
             loadTokens();
-            setInterval(loadTokens, 10000);
+            setInterval(loadTokens, 60000);  // Reload token list every 60s (not constantly)
         })();
 
         // Metrics Modal Functions

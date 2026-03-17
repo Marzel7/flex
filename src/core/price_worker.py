@@ -548,6 +548,7 @@ class BackgroundPriceWorker:
             PoolReserveFetcher,
             PoolAggregator,
         )
+        import sqlite3
 
         fetcher = get_pool_fetcher(self.db_path)
         pools = fetcher.get_active_pools()
@@ -620,6 +621,23 @@ class BackgroundPriceWorker:
         self.price_service.pool_price_cache = new_cache
         self.stats["pool_prices_fetched"] = len(new_cache)
         logger.info(f"Pool prices fetched: {len(new_cache)} tokens from {len(pools)} pool registrations")
+        
+        # Update token_analysis table with fresh pool prices for tokens that exist there
+        if new_cache:
+            try:
+                conn = sqlite3.connect(self.db_path, timeout=5)
+                cursor = conn.cursor()
+                for mint, token_price in new_cache.items():
+                    cursor.execute("""
+                        UPDATE token_analysis
+                        SET price_current = ?,
+                            market_cap_current = ?
+                        WHERE mint = ?
+                    """, (token_price.price_usd, token_price.market_cap, mint))
+                conn.commit()
+                conn.close()
+            except Exception as e:
+                logger.debug(f"Failed to update token_analysis with pool prices: {e}")
 
     def _recompute_prices_from_ws_state(self) -> None:
         """
@@ -636,6 +654,7 @@ class BackgroundPriceWorker:
                 PoolReserveFetcher,
                 PoolAggregator,
             )
+            import sqlite3
 
             fetcher = get_pool_fetcher(self.db_path)
             pools = fetcher.get_active_pools()
@@ -720,6 +739,23 @@ class BackgroundPriceWorker:
                     self.price_service._store_snapshot(token_price)
                 except Exception as e:
                     logger.debug(f"Failed to store pool price snapshot for {mint[:16]}: {e}")
+            
+            # Update token_analysis table with fresh pool prices for tokens that exist there
+            if new_cache:
+                try:
+                    conn = sqlite3.connect(self.db_path, timeout=5)
+                    cursor = conn.cursor()
+                    for mint, token_price in new_cache.items():
+                        cursor.execute("""
+                            UPDATE token_analysis
+                            SET price_current = ?,
+                                market_cap_current = ?
+                            WHERE mint = ?
+                        """, (token_price.price_usd, token_price.market_cap, mint))
+                    conn.commit()
+                    conn.close()
+                except Exception as e:
+                    logger.debug(f"Failed to update token_analysis with pool prices: {e}")
 
         except Exception as e:
             logger.error(f"Error recomputing prices from WS state: {e}")

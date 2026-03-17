@@ -662,6 +662,7 @@ class BackgroundPriceWorker:
                 return
 
             new_cache: Dict[str, TokenPrice] = {}
+            now = int(time.time())
 
             for mint in mints:
                 # Get all pools for this mint
@@ -701,7 +702,7 @@ class BackgroundPriceWorker:
                 if aggregated:
                     # Track peak market cap
                     if aggregated.market_cap > 0:
-                        self._update_peak_market_cap(mint, aggregated.market_cap, int(now))
+                        self._update_peak_market_cap(mint, aggregated.market_cap, now)
                         # Store peak info in token price for API response
                         peak_info = self._get_peak_market_cap(mint)
                         if peak_info:

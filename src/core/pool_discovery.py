@@ -882,6 +882,15 @@ class PoolDiscovery:
             logger.warning(f"Failed to extract reserves from pool {pool_address}")
             return False
 
+        # CRITICAL: Validate that base and quote vaults are different
+        # If they're the same and this isn't a known PumpFun V1 vault pair, reject
+        if reserves.get("base_account") == reserves.get("quote_account"):
+            if vault_source != "pumpfun_v1_discovered":
+                logger.warning(
+                    f"[VALIDATION] ❌ Rejecting pool: base_account == quote_account (invalid pool state)"
+                )
+                return False
+
         logger.info(
             f"[DISCOVERY_CHAIN] ✅ Pool extraction successful from {vault_source}"
         )

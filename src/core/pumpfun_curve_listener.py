@@ -2127,7 +2127,8 @@ class PumpFunCurveListener:
                 # Try all pool candidates from migration TX
                 pool_candidates = await discovery.discover_pool_candidates_from_migration_tx(
                     mint=mint,
-                    migration_sig=signature
+                    migration_sig=signature,
+                    tx_data=tx_data
                 )
                 
                 if pool_candidates:

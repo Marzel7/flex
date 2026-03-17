@@ -235,7 +235,8 @@ class PostMigrationPoolDiscovery:
     async def discover_pool_candidates_from_migration_tx(
         self,
         mint: str,
-        migration_sig: str
+        migration_sig: str,
+        tx_data: Optional[Dict] = None
     ) -> list:
         """
         Extract ALL pool candidates from migration transaction, sorted by likelihood.
@@ -243,8 +244,10 @@ class PostMigrationPoolDiscovery:
         Returns a list of pool addresses sorted by size (largest first).
         Caller can try each candidate for extraction until one succeeds.
 
-        This is useful when the largest pool (by size) doesn't extract properly
-        (e.g., PumpFun V1 with different structure), and we need to try the next best option.
+        Args:
+            mint: Token mint address
+            migration_sig: Migration transaction signature
+            tx_data: Optional pre-fetched transaction data (avoids redundant RPC call)
 
         Returns:
             List of pool addresses, ordered by likelihood (largest first)
@@ -254,8 +257,10 @@ class PostMigrationPoolDiscovery:
                 f"[POOL_DISCOVERY_MIGRATION_TX_CANDIDATES] Extracting from {migration_sig[:20]}..."
             )
 
-            # Fetch migration transaction
-            tx_data = await self._fetch_transaction(migration_sig)
+            # Use provided tx_data or fetch it
+            if not tx_data:
+                tx_data = await self._fetch_transaction(migration_sig)
+            
             if not tx_data:
                 logger.warning("[POOL_DISCOVERY_MIGRATION_TX_CANDIDATES] Could not fetch transaction")
                 return []

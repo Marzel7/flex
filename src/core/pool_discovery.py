@@ -232,8 +232,32 @@ class PoolDiscovery:
                 return None
 
             # ===== STAGE 4: Extract vault addresses =====
-            base_vault = self._bytes_to_pubkey(decoded[232:264])
-            quote_vault = self._bytes_to_pubkey(decoded[264:296])
+            # Try multiple offset pairs (different pool layouts use different offsets)
+            vault_pairs = [
+                (72, 104, "Raydium AMM v4 standard"),      # Standard Raydium/PumpSwap layout
+                (232, 264, "PumpSwap documented offsets"),  # Some PumpSwap pools use this
+            ]
+
+            base_vault = None
+            quote_vault = None
+            used_offsets = None
+
+            for base_offset, quote_offset, layout_name in vault_pairs:
+                # Check if offsets are valid
+                if len(decoded) < quote_offset + 32:
+                    logger.debug(f"[POOL_EXTRACT] Skipping {layout_name}: data too small ({len(decoded)} < {quote_offset+32})")
+                    continue
+
+                candidate_base = self._bytes_to_pubkey(decoded[base_offset:base_offset+32])
+                candidate_quote = self._bytes_to_pubkey(decoded[quote_offset:quote_offset+32])
+
+                # Valid vaults must be non-zero addresses
+                if candidate_base and candidate_quote and candidate_base != "11111111111111111111111111111111" and candidate_quote != "11111111111111111111111111111111":
+                    base_vault = candidate_base
+                    quote_vault = candidate_quote
+                    used_offsets = (base_offset, quote_offset, layout_name)
+                    logger.info(f"[POOL_EXTRACT] ✓ Found valid vaults at {layout_name}: base_offset={base_offset}, quote_offset={quote_offset}")
+                    break
 
             if not base_vault or not quote_vault:
                 logger.warning(

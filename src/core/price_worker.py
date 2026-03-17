@@ -210,12 +210,21 @@ class BackgroundPriceWorker:
 
         # Pool WebSocket client lifecycle
         from src.core.pool_price_engine import PoolStateStore, PoolWebSocketClient
+        from src.core.sol_price_cache import get_sol_price_cache
+        from src.core.websocket_manager_sharded import get_websocket_manager_sharded
+        from src.core.market_cap_calculator import get_market_cap_calculator
+
         self._pool_state = PoolStateStore()
         self._ws_client: Optional[PoolWebSocketClient] = None
+        self._ws_manager = get_websocket_manager_sharded(self._pool_state, db_path)
         self._ws_started = False
         self._last_fallback_poll = 0
-        self._sol_price_usd = 0.0
-        self._sol_price_cached_at = 0
+
+        # Use new SOL price cache (20s TTL) instead of manual caching
+        self._sol_price_cache = get_sol_price_cache()
+
+        # Market cap calculator with supply caching
+        self._market_cap_calc = get_market_cap_calculator(db_path)
 
         # Priority queue: top tokens for WebSocket, others use Dexscreener fallback
         self._top_mints = set()  # Top 20-25 most recent tokens (from UI)
@@ -639,16 +648,17 @@ class BackgroundPriceWorker:
             # Get all distinct mints
             mints = self._pool_state.get_all_mints()
 
-            # Refresh SOL price at most once per 30s
-            now = time.time()
-            if now - self._sol_price_cached_at > 30:
-                try:
-                    self._sol_price_usd = asyncio.run(PoolPriceCalculator.fetch_sol_price_usd())
-                    self._sol_price_cached_at = now
-                except Exception:
-                    pass  # Keep cached value if fetch fails
+            # Get SOL price from cache (20s TTL, reduces API calls by ~95%)
+            async def fetch_sol():
+                return await PoolPriceCalculator.fetch_sol_price_usd()
 
-            if not self._sol_price_usd:
+            try:
+                sol_price_usd = asyncio.run(self._sol_price_cache.get_price(fetch_sol))
+            except Exception as e:
+                logger.error(f"Failed to get SOL price: {e}")
+                return
+
+            if not sol_price_usd or sol_price_usd <= 0:
                 return
 
             new_cache: Dict[str, TokenPrice] = {}
@@ -678,9 +688,10 @@ class BackgroundPriceWorker:
                         quote_is_sol=(
                             pool["quote_token"] == PoolReserveFetcher.SOL_MINT
                         ),
-                        sol_price_usd=self._sol_price_usd,
+                        sol_price_usd=sol_price_usd,
                         last_cached_price=last_price_usd,
                         base_account=base_account,
+                        total_supply=pool.get("token_supply", 0),
                     )
                     if token_price:
                         candidate_prices.append(token_price)

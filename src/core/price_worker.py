@@ -444,8 +444,15 @@ class BackgroundPriceWorker:
         try:
             import sqlite3
             import asyncio
+            import aiohttp
             from src.core.vault_discovery import discover_and_register_vaults_rpc
-            from solders.rpc.async_client import AsyncClient
+
+            # Skip if no RPC URL
+            import os
+            rpc_url = os.getenv("SOLANA_RPC_URL", "https://api.mainnet-beta.solana.com")
+            if not rpc_url:
+                logger.warning("[VAULT_RETRY] No RPC URL configured, skipping vault retry validation")
+                return
 
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -466,10 +473,22 @@ class BackgroundPriceWorker:
 
             logger.info(f"[VAULT_RETRY] Retrying validation for {len(pending_pools)} pending pools")
 
-            # Get RPC client for re-discovery
-            import os
-            rpc_url = os.getenv('HELIUS_RPC_URL', 'https://api.mainnet-beta.solana.com')
-            rpc_client = AsyncClient(rpc_url)
+            # Create simple RPC client for re-discovery
+            class SimpleRPCClient:
+                def __init__(self, url):
+                    self.url = url
+
+                async def call_async(self, method, params):
+                    payload = {"jsonrpc": "2.0", "id": 1, "method": method, "params": params}
+                    try:
+                        async with aiohttp.ClientSession() as session:
+                            async with session.post(self.url, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                                data = await resp.json()
+                                return data.get("result") if data else None
+                    except:
+                        return None
+
+            rpc_client = SimpleRPCClient(rpc_url)
 
             for mint, pool_account, quote_account in pending_pools:
                 is_broken_mint = quote_account == 'So11111111111111111111111111111111111111112'

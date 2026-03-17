@@ -687,6 +687,7 @@ class BackgroundPriceWorker:
         Handles multiple pools per mint via aggregation.
         SOL price is fetched at most once per 30s (cached on self).
         Tracks peak market cap for each token.
+        Fetches token supplies to compute accurate market caps.
         """
         try:
             from src.core.pool_price_engine import (
@@ -721,6 +722,16 @@ class BackgroundPriceWorker:
             if not sol_price_usd or sol_price_usd <= 0:
                 return
 
+            # Fetch token supplies for all mints (cached by MarketCapCalculator)
+            supply_cache = {}
+            for mint in mints:
+                try:
+                    supply = asyncio.run(self._market_cap_calc.get_token_supply(mint))
+                    if supply and supply > 0:
+                        supply_cache[mint] = supply
+                except Exception as e:
+                    logger.debug(f"Failed to get supply for {mint[:16]}: {e}")
+
             new_cache: Dict[str, TokenPrice] = {}
             now = int(time.time())
 
@@ -733,12 +744,18 @@ class BackgroundPriceWorker:
                 last_price = self.price_service.pool_price_cache.get(mint)
                 last_price_usd = last_price.price_usd if last_price else None
 
+                # Use cached supply or fallback to pool's token_supply
+                supply = supply_cache.get(mint, 0)
+
                 # Compute price for each pool
                 candidate_prices = []
                 for base_account, base_raw, quote_raw in pool_reserves:
                     pool = pool_map.get((mint, base_account))
                     if not pool:
                         continue
+
+                    # Use fetched supply, fallback to pool value, then default
+                    total_supply = supply or pool.get("token_supply", 0)
 
                     token_price = PoolPriceCalculator.compute_price(
                         mint=mint,
@@ -752,7 +769,7 @@ class BackgroundPriceWorker:
                         sol_price_usd=sol_price_usd,
                         last_cached_price=last_price_usd,
                         base_account=base_account,
-                        total_supply=pool.get("token_supply", 0),
+                        total_supply=total_supply,
                     )
                     if token_price:
                         candidate_prices.append(token_price)

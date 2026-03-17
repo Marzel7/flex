@@ -1360,6 +1360,7 @@ class BackgroundPriceWorker:
             logger.debug(f"[PRICE_WORKER] ⏱️ Refresh debounced (last was {now - self._last_pool_refresh:.1f}s ago)")
             return
 
+        print("[PRICE_WORKER] 🔔 trigger_pool_refresh() CALLED", flush=True)
         logger.info("[PRICE_WORKER] 🔔 trigger_pool_refresh() CALLED")
         self._last_pool_refresh = now
 
@@ -1375,10 +1376,12 @@ class BackgroundPriceWorker:
 
             # Full rebuild: stop old, start new
             if self._ws_client:
+                print(f"[PRICE_WORKER] 🛑 Stopping old WebSocket client for full rebuild", flush=True)
                 logger.info(f"[PRICE_WORKER] 🛑 Stopping old WebSocket client for full rebuild")
                 self._ws_client.stop()
                 self._ws_started = False
 
+            print(f"[PRICE_WORKER] 🚀 Starting fresh WebSocket with {len(pools)} pools", flush=True)
             logger.info(f"[PRICE_WORKER] 🚀 Starting fresh WebSocket with {len(pools)} pools")
             self._start_ws_client()
 

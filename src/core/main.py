@@ -3634,6 +3634,12 @@ HTML_TEMPLATE = """
 
                 // Display only top 25 of the filtered tokens
                 const displayTokens = filteredTokens.slice(0, 25);
+
+                // Check if token list changed (by comparing mints) to avoid unnecessary DOM rebuilds
+                const currentMints = (window.currentTokens || []).map(t => t.mint).join(',');
+                const newMints = displayTokens.map(t => t.mint).join(',');
+                const tokensChanged = currentMints !== newMints;
+
                 window.currentTokens = displayTokens;
 
                 // Register all displayed tokens for price tracking
@@ -3654,8 +3660,11 @@ HTML_TEMPLATE = """
                 // Update stats
                 updateStats({tokens: displayTokens});
 
-                // Build table
-                buildTable(displayTokens);
+                // Only rebuild table if token list changed
+                if (tokensChanged) {
+                    buildTable(displayTokens);
+                    console.log('Rebuilt table - token list changed');
+                }
 
                 // Fetch and display price sources for all tokens (icon only)
                 displayTokens.forEach(token => {

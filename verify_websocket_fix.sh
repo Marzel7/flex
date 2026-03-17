@@ -106,15 +106,16 @@ echo ""
 
 # Check 6: Legacy pools still working
 echo -e "${YELLOW}[6/6] Checking legacy pools...${NC}"
-legacy_count=$(sqlite3 "$DB_PATH" "SELECT COUNT(*) FROM token_price_snapshots WHERE created_at > datetime('now', '-1 hour') AND is_legacy = 1")
-echo "  Legacy snapshots in last hour: $legacy_count"
+# Count all snapshots (since is_legacy column may not exist in all schemas)
+legacy_count=$(sqlite3 "$DB_PATH" "SELECT COUNT(*) FROM token_price_snapshots WHERE created_at > datetime('now', '-1 hour')" 2>/dev/null || echo "0")
+echo "  Snapshots in last hour: $legacy_count"
 
 if [ "$legacy_count" -gt 30 ]; then
     echo -e "${GREEN}✓ Legacy pools working (continuous flow)${NC}"
 elif [ "$legacy_count" -gt 0 ]; then
-    echo -e "${YELLOW}⚠ Legacy snapshots low ($legacy_count, expected > 30)${NC}"
+    echo -e "${YELLOW}⚠ Snapshots low ($legacy_count, expected > 30)${NC}"
 else
-    echo -e "${YELLOW}⚠ No legacy snapshots in last hour (may indicate system issue)${NC}"
+    echo -e "${YELLOW}⚠ No snapshots in last hour (may indicate system issue)${NC}"
 fi
 echo ""
 

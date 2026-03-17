@@ -437,42 +437,72 @@ class BackgroundPriceWorker:
     async def _retry_pending_vault_validations(self) -> None:
         """
         Retry vault validation for pending pools.
-        
-        Called periodically to check if vaults have been created on-chain
-        since initial registration. Updates vault status when vaults appear.
+
+        For pools with broken quotes (MINT stored as account), re-discover vaults.
+        For other pending pools, check if vaults have been created on-chain.
         """
         try:
             import sqlite3
             import asyncio
-            
+            from src.core.vault_discovery import discover_and_register_vaults_rpc
+            from solders.rpc.async_client import AsyncClient
+
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
-            
-            # Find all pending pools
-            cursor.execute(
-                """SELECT mint, base_account FROM token_pool_accounts 
-                   WHERE vault_validation_status = 'pending' AND is_active = 1
-                   ORDER BY last_vault_validation_at ASC LIMIT 10"""
-            )
+
+            # Find all pending pools, prioritize those with broken quotes (MINT as account)
+            cursor.execute("""
+                SELECT mint, base_account, quote_account FROM token_pool_accounts
+                WHERE vault_validation_status = 'pending' AND is_active = 1
+                ORDER BY CASE WHEN quote_account = 'So11111111111111111111111111111111111111112' THEN 0 ELSE 1 END,
+                         last_vault_validation_at ASC
+                LIMIT 10
+            """)
             pending_pools = cursor.fetchall()
             conn.close()
-            
+
             if not pending_pools:
                 return
-            
+
             logger.info(f"[VAULT_RETRY] Retrying validation for {len(pending_pools)} pending pools")
-            
-            from src.core.pool_discovery import PoolDiscovery
-            discovery = PoolDiscovery(self.db_path, None)  # RPC URL not needed for retry
-            
-            for mint, pool_account in pending_pools:
-                validated = await discovery.retry_vault_validation(mint, pool_account)
-                if validated:
-                    logger.info(f"[VAULT_RETRY] ✅ Pool {mint[:16]}... vaults now validated")
-                    # Restart WebSocket to pick up newly validated pools
-                    self._ws_started = False
+
+            # Get RPC client for re-discovery
+            import os
+            rpc_url = os.getenv('HELIUS_RPC_URL', 'https://api.mainnet-beta.solana.com')
+            rpc_client = AsyncClient(rpc_url)
+
+            for mint, pool_account, quote_account in pending_pools:
+                is_broken_mint = quote_account == 'So11111111111111111111111111111111111111112'
+
+                if is_broken_mint:
+                    # This pool has MINT as account - re-discover to get real vaults
+                    logger.info(f"[VAULT_RETRY] Re-discovering vaults for {mint[:16]}... (has MINT bug)")
+                    try:
+                        success = await discover_and_register_vaults_rpc(
+                            token_mint=mint,
+                            rpc_client=rpc_client,
+                            db=self.db_path,
+                            price_worker=None,
+                            max_retries=1
+                        )
+                        if success:
+                            logger.info(f"[VAULT_RETRY] ✅ Pool {mint[:16]}... re-discovered with real vaults")
+                            self._ws_started = False  # Restart WS to pick up corrected pools
+                    except Exception as e:
+                        logger.debug(f"[VAULT_RETRY] Re-discovery failed for {mint[:16]}...: {e}")
+                else:
+                    # Pool has real accounts - just validate them
+                    from src.core.pool_discovery import PoolDiscovery
+                    discovery = PoolDiscovery(self.db_path, None)
+                    validated = await discovery.retry_vault_validation(mint, pool_account)
+                    if validated:
+                        logger.info(f"[VAULT_RETRY] ✅ Pool {mint[:16]}... vaults now validated")
+                        self._ws_started = False
+
                 await asyncio.sleep(0.1)
-        
+
+            await rpc_client.close()
+
         except Exception as e:
             logger.error(f"[VAULT_RETRY] Error: {e}")
 

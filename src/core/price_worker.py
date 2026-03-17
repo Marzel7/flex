@@ -260,11 +260,21 @@ class BackgroundPriceWorker:
         start_price_queue_worker(self._fetch_single_price)
 
         self.running = True
+        logger.info("[PRICE_WORKER] Creating thread")
+        print("[PRICE_WORKER] Creating thread", flush=True)
         self.thread = threading.Thread(target=self._run_loop, daemon=True)
+        logger.info("[PRICE_WORKER] thread created")
+        print("[PRICE_WORKER] thread created", flush=True)
         self.thread.start()
+        logger.info("[PRICE_WORKER] thread.start() executed")
+        print("[PRICE_WORKER] thread.start() executed", flush=True)
+        logger.info(f"[PRICE_WORKER] thread alive: {self.thread.is_alive()}")
+        print(f"[PRICE_WORKER] thread alive: {self.thread.is_alive()}", flush=True)
 
         # Start WebSocket client for pool subscriptions
+        logger.info("[PRICE_WORKER] Starting WebSocket client")
         self._start_ws_client()
+        logger.info("[PRICE_WORKER] WebSocket client started")
 
         logger.info(f"Background price worker started (interval={self.interval}s, using request queue)")
 
@@ -306,45 +316,55 @@ class BackgroundPriceWorker:
             logger.debug(f"Error refreshing top mints: {e}")
 
     def _start_ws_client(self) -> None:
-        """Start WebSocket client for registered pools."""
+        """Start WebSocket client for pool subscriptions."""
         try:
             from src.core.pool_price_engine import get_pool_fetcher
+
             fetcher = get_pool_fetcher(self.db_path)
             pools = fetcher.get_active_pools()
-            
+
             if not pools:
-                logger.info("[PRICE_WORKER] No pools registered — skipping WebSocket client startup")
+                logger.info("[PRICE_WORKER] No pools to subscribe to")
                 return
 
-            # If already started, just refresh subscriptions
-            if self._ws_client and self._ws_started:
-                logger.info(f"[PRICE_WORKER] 📡 WebSocket already running — refreshing subscriptions for {len(pools)} pools")
-                self._ws_client.refresh_pools(pools)
-                return
+            logger.info(f"[PRICE_WORKER] Creating WebSocket client for {len(pools)} pools")
+            self._ws_client = __import__('src.core.pool_price_engine', fromlist=['PoolWebSocketClient']).PoolWebSocketClient(self._pool_state, self.db_path)
 
-            # Create client if not already created
-            logger.info(f"[PRICE_WORKER] 🎬 Starting WebSocket client with {len(pools)} pools")
-            self._ws_client = self._ws_client or __import__('src.core.pool_price_engine', fromlist=['PoolWebSocketClient']).PoolWebSocketClient(self._pool_state, self.db_path)
+            logger.info(f"[PRICE_WORKER] Starting WebSocket subscriptions")
             self._ws_client.start(pools)
+
             self._ws_started = True
-            logger.info(f"[PRICE_WORKER] ✅ WebSocket client started and thread spawned")
+            logger.info(f"[PRICE_WORKER] ✅ WebSocket client started")
+
         except Exception as e:
-            logger.error(f"[PRICE_WORKER] ❌ Failed to start pool WebSocket client: {e}", exc_info=True)
+            logger.error(f"[PRICE_WORKER] Failed to start WebSocket: {e}", exc_info=True)
 
     def _run_loop(self) -> None:
         """Main worker loop."""
-        while self.running:
-            try:
-                self._refresh_cycle()
-                time.sleep(self.interval)
-            except Exception as e:
-                logger.error(f"Worker cycle error: {e}", exc_info=True)
-                self.stats['last_error'] = str(e)
-                self.stats['errors'] += 1
-                time.sleep(self.interval)
+        print("[PRICE_WORKER] _run_loop THREAD STARTED", flush=True)
+        logger.info("[PRICE_WORKER] _run_loop started")
+        print(f"[PRICE_WORKER] self.running = {self.running}", flush=True)
+        try:
+            while self.running:
+                print("[PRICE_WORKER] CYCLE LOOP ENTERED", flush=True)
+                try:
+                    logger.info(f"[PRICE_WORKER] cycle at {time.time()}")
+                    print(f"[PRICE_WORKER] cycle at {time.time()}", flush=True)
+                    self._refresh_cycle()
+                    time.sleep(self.interval)
+                except Exception as e:
+                    logger.error(f"Worker cycle error: {e}", exc_info=True)
+                    self.stats['last_error'] = str(e)
+                    self.stats['errors'] += 1
+                    time.sleep(self.interval)
+        except Exception as e:
+            print(f"[PRICE_WORKER] THREAD CRASHED: {e}", flush=True)
+            logger.exception("[PRICE_WORKER] THREAD CRASHED")
 
     def _refresh_cycle(self) -> None:
         """One complete refresh cycle with activity-based scheduling."""
+        print("[PRICE_DEBUG] refresh_cycle START", flush=True)
+        logger.info("[PRICE_DEBUG] refresh_cycle START")
         cycle_start = time.time()
         self.stats['cycles'] += 1
 
@@ -724,6 +744,7 @@ class BackgroundPriceWorker:
             fetcher = get_pool_fetcher(self.db_path)
             pools = fetcher.get_active_pools()
             if not pools:
+                print("[PRICE_DEBUG] No active pools found", flush=True)
                 return
 
             # Key by (mint, base_account) to support multiple pools per token
@@ -731,6 +752,7 @@ class BackgroundPriceWorker:
 
             # Get all distinct mints
             mints = self._pool_state.get_all_mints()
+            print(f"[PRICE_DEBUG] Mints in PoolStateStore: {len(mints)}", flush=True)
 
             # Get SOL price from cache (20s TTL, reduces API calls by ~95%)
             async def fetch_sol():
@@ -762,7 +784,10 @@ class BackgroundPriceWorker:
                 # Get all pools for this mint
                 pool_reserves = self._pool_state.get_pools_for_mint(mint)
                 if not pool_reserves:
+                    logger.debug(f"[PRICE_DEBUG] {mint[:16]}... no pool_reserves from state")
                     continue
+
+                logger.info(f"[PRICE_DEBUG] {mint[:16]}... ✓ reserves present: {len(pool_reserves)} pools")
 
                 last_price = self.price_service.pool_price_cache.get(mint)
                 last_price_usd = last_price.price_usd if last_price else None
@@ -775,7 +800,10 @@ class BackgroundPriceWorker:
                 for base_account, base_raw, quote_raw in pool_reserves:
                     pool = pool_map.get((mint, base_account))
                     if not pool:
+                        logger.debug(f"[PRICE_DEBUG] {mint[:16]}... ✗ pool metadata missing for {base_account[:16]}")
                         continue
+
+                    logger.info(f"[PRICE_DEBUG] {mint[:16]}... ✓ pool metadata loaded: decimals={pool.get('base_decimals')}/{pool.get('quote_decimals')}, quote={pool.get('quote_token')[:16]}")
 
                     # Use fetched supply, fallback to pool value, then default
                     total_supply = supply or pool.get("token_supply", 0)
@@ -795,11 +823,15 @@ class BackgroundPriceWorker:
                         total_supply=total_supply,
                     )
                     if token_price:
+                        logger.info(f"[PRICE_DEBUG] {mint[:16]}... ✓ price computed: ${token_price.price_usd}")
                         candidate_prices.append(token_price)
+                    else:
+                        logger.debug(f"[PRICE_DEBUG] {mint[:16]}... ✗ price calculation returned None")
 
                 # Aggregate prices from all pools for this mint
                 aggregated = PoolAggregator.aggregate(candidate_prices)
                 if aggregated:
+                    logger.info(f"[PRICE_DEBUG] {mint[:16]}... ✓ aggregated price: ${aggregated.price_usd}")
                     # Track peak market cap
                     if aggregated.market_cap > 0:
                         self._update_peak_market_cap(mint, aggregated.market_cap, now)
@@ -808,8 +840,10 @@ class BackgroundPriceWorker:
                         if peak_info:
                             aggregated.peak_market_cap = peak_info[0]
                             aggregated.peak_market_cap_at = peak_info[1]
-                    
+
                     new_cache[mint] = aggregated
+                else:
+                    logger.debug(f"[PRICE_DEBUG] {mint[:16]}... ✗ no candidate prices to aggregate")
 
             self.price_service.pool_price_cache = new_cache
             self.stats["pool_prices_fetched"] = len(new_cache)
@@ -817,9 +851,11 @@ class BackgroundPriceWorker:
             # Store pool prices to database snapshots (for UI and historical tracking)
             for mint, token_price in new_cache.items():
                 try:
+                    logger.info(f"[PRICE_DEBUG] {mint[:16]}... ✓ calling _store_snapshot()")
                     self.price_service._store_snapshot(token_price)
+                    logger.info(f"[PRICE_DEBUG] {mint[:16]}... ✓ snapshot stored")
                 except Exception as e:
-                    logger.debug(f"Failed to store pool price snapshot for {mint[:16]}: {e}")
+                    logger.error(f"[PRICE_DEBUG] {mint[:16]}... ✗ snapshot store failed: {e}")
             
             # Update token_analysis table with fresh pool prices for tokens that exist there
             if new_cache:
@@ -1305,36 +1341,33 @@ class BackgroundPriceWorker:
 
     def trigger_pool_refresh(self) -> None:
         """Refresh WebSocket subscriptions with newly registered pools.
-        
-        Called after vault discovery registers new pools to enable real-time updates.
-        Reloads active pools from DB and refreshes WebSocket subscriptions.
-        If WebSocket is not yet started, starts it immediately instead of waiting.
+
+        Called after vault discovery registers new pools. This performs a full
+        WebSocket rebuild to guarantee correct subscriptions (simpler than
+        incremental updates and eliminates edge cases).
         """
+        logger.info("[PRICE_WORKER] 🔔 trigger_pool_refresh() CALLED")
         try:
             from src.core.pool_price_engine import get_pool_fetcher
-            
+
             fetcher = get_pool_fetcher(self.db_path)
             pools = fetcher.get_active_pools()
-            
+
             if not pools:
-                logger.warning("[PRICE_WORKER] No active pools found after registration")
+                logger.warning("[PRICE_WORKER] No active pools found")
                 return
-            
-            # Log details about pool refresh
-            ws_status = "running" if (self._ws_client and self._ws_started) else "not started"
-            logger.info(f"[PRICE_WORKER] 🔄 Pool refresh triggered: {len(pools)} active pools, WebSocket {ws_status}")
-            
-            # If WebSocket client exists and is running, refresh its pool list
-            if self._ws_client and self._ws_started:
-                logger.info(f"[PRICE_WORKER] 📡 Refreshing WebSocket with {len(pools)} pools")
-                self._ws_client.refresh_pools(pools)
-            else:
-                # Start WebSocket client immediately instead of waiting
-                logger.info(f"[PRICE_WORKER] 🚀 WebSocket not yet started — starting now with {len(pools)} pools")
-                self._start_ws_client()
-                
+
+            # Full rebuild: stop old, start new
+            if self._ws_client:
+                logger.info(f"[PRICE_WORKER] 🛑 Stopping old WebSocket client for full rebuild")
+                self._ws_client.stop()
+                self._ws_started = False
+
+            logger.info(f"[PRICE_WORKER] 🚀 Starting fresh WebSocket with {len(pools)} pools")
+            self._start_ws_client()
+
         except Exception as e:
-            logger.error(f"[PRICE_WORKER] ❌ Error refreshing pool WebSocket subscriptions: {e}", exc_info=True)
+            logger.error(f"[PRICE_WORKER] ❌ Error refreshing: {e}", exc_info=True)
 
     def get_stats(self) -> Dict:
         """Get worker statistics including circuit breaker and source metrics."""

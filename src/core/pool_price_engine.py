@@ -637,33 +637,31 @@ class PoolWebSocketClient:
 
     def refresh_pools(self, pools: List[Dict]) -> None:
         """Reload pool subscriptions from updated database.
-        
+
         When new pools are discovered, this updates the subscription list
         and triggers an immediate reconnect to re-subscribe to the new accounts.
         """
         old_count = len(self._account_to_pools)
         self._build_account_map(pools)
         new_count = len(self._account_to_pools)
-        
+
+        logger.info(f"[POOL_WS] refresh_pools: {old_count} → {new_count} accounts")
+
         if new_count != old_count:
-            logger.info(
-                f"Pool subscriptions refreshed: {old_count} → {new_count} accounts. "
-                f"Triggering reconnect to pick up new pools..."
-            )
-            # Force reconnect by stopping the event loop
-            # This will cause _connect_loop to break and reconnect with new subscriptions
+            logger.info(f"[POOL_WS] Detected {new_count - old_count} new accounts, reconnecting")
             if self._loop and self._loop.is_running():
                 self._loop.call_soon_threadsafe(self._loop.stop)
-                logger.info(f"[POOL_WS] 🔄 Reconnecting to subscribe to {new_count - old_count} new pool accounts")
-        else:
-            logger.debug(f"Pool subscriptions unchanged: {new_count} accounts")
 
     def _build_account_map(self, pools: List[Dict]) -> None:
         """Build pubkey->pools mapping from pool list. Handles multiple pools per account (shared WSOL, etc)."""
         self._account_to_pools = {}
+        new_pool_count = 0
         for pool in pools:
             base_account = pool["base_account"]
             quote_account = pool["quote_account"]
+            is_new = pool.get("is_legacy") == 0
+            if is_new:
+                new_pool_count += 1
 
             if base_account not in self._account_to_pools:
                 self._account_to_pools[base_account] = []
@@ -673,7 +671,7 @@ class PoolWebSocketClient:
                 self._account_to_pools[quote_account] = []
             self._account_to_pools[quote_account].append(pool)
 
-        print(f"[POOL_WS] 🗺️  Built account map: {len(self._account_to_pools)} accounts → {len(pools)} pools", flush=True)
+        print(f"[POOL_WS] 🗺️  Built account map: {len(self._account_to_pools)} accounts → {len(pools)} pools ({new_pool_count} new)", flush=True)
 
     def _run_thread(self) -> None:
         """Entry point for daemon thread — owns its own event loop."""
@@ -727,8 +725,12 @@ class PoolWebSocketClient:
         """Send accountSubscribe for each tracked pool account."""
         self._sub_id_to_account = {}
         req_id = 1
-        logger.info(f"Pool WS subscribing to {len(self._account_to_pools)} accounts")
-        for pubkey in list(self._account_to_pools.keys()):
+        pubkeys_list = list(self._account_to_pools.keys())
+        logger.info(f"Pool WS subscribing to {len(pubkeys_list)} accounts (sample: {[p[:8] for p in pubkeys_list[:5]]}...)")
+
+        # Send all subscription requests and build mapping IMMEDIATELY (before responses arrive)
+        req_to_pubkey = {}
+        for pubkey in pubkeys_list:
             msg = {
                 "jsonrpc": "2.0",
                 "id": req_id,
@@ -736,32 +738,47 @@ class PoolWebSocketClient:
                 "params": [pubkey, {"encoding": "base64", "commitment": "confirmed"}],
             }
             await ws.send(json.dumps(msg))
+            req_to_pubkey[req_id] = pubkey  # Store IMMEDIATELY after send
             req_id += 1
 
         # Collect subscription confirmation responses
         confirmed = 0
-        needed = len(self._account_to_pools)
-        # Map req_id -> pubkey so we can match confirmations
-        req_to_pubkey = {i + 1: pk for i, pk in enumerate(self._account_to_pools.keys())}
+        needed = len(pubkeys_list)
+        start_confirm = time.time()
+        timeout_per_confirm = 30  # Increase timeout for large subscription sets
         while confirmed < needed and self._running:
             try:
-                raw = await asyncio.wait_for(ws.recv(), timeout=10)
+                raw = await asyncio.wait_for(ws.recv(), timeout=timeout_per_confirm)
                 data = json.loads(raw)
                 logger.debug(f"Subscription response: {json.dumps(data)}")
                 if "id" in data and "result" in data:
                     sub_id = data["result"]
-                    pubkey = req_to_pubkey.get(data["id"])
+                    req_id_from_response = data["id"]
+                    pubkey = req_to_pubkey.get(req_id_from_response)
                     if pubkey:
                         self._sub_id_to_account[sub_id] = pubkey
                         confirmed += 1
-                        logger.debug(f"Confirmed subscription {confirmed}/{needed}")
+                        if confirmed % 50 == 0 or confirmed == needed:
+                            logger.info(f"Pool WS subscriptions: {confirmed}/{needed} confirmed")
+                    else:
+                        logger.warning(f"Subscription response for unknown request ID {req_id_from_response}")
+                elif "id" in data and "error" in data:
+                    logger.warning(f"Subscription error for request {data['id']}: {data.get('error')}")
             except asyncio.TimeoutError:
-                logger.warning(f"Timeout waiting for accountSubscribe confirmations ({confirmed}/{needed} confirmed so far)")
-                break
+                elapsed = time.time() - start_confirm
+                logger.warning(f"Timeout waiting for accountSubscribe confirmations ({confirmed}/{needed} confirmed after {elapsed:.1f}s)")
+                # Don't break immediately — wait a bit longer for stragglers
+                if confirmed >= needed * 0.95:  # If we have 95%+ confirmations, proceed
+                    break
+                await asyncio.sleep(2)
 
         self.stats["subscriptions"] = len(self._sub_id_to_account)
         print(f"[POOL_WS] ✅ Subscribed to {confirmed}/{needed} pool accounts", flush=True)
-        logger.info(f"Pool WS subscribed to {confirmed}/{needed} accounts")
+        logger.info(f"Pool WS subscribed to {confirmed}/{needed} accounts ({len(self._sub_id_to_account)} subscription IDs mapped)")
+
+        if confirmed < needed:
+            unconfirmed_ids = [req_id for req_id in req_to_pubkey.keys() if req_to_pubkey[req_id] not in [v for v in self._sub_id_to_account.values()]]
+            logger.warning(f"[POOL_WS] ⚠️  {len(unconfirmed_ids)} subscriptions failed to confirm (request IDs: {unconfirmed_ids[:10]}...)")
 
     async def _receive_loop(self, ws) -> None:
         """Process incoming account notification events."""
@@ -780,11 +797,12 @@ class PoolWebSocketClient:
             if msg.get("method") != "accountNotification":
                 return
 
-
+            print(f"[POOL_WS_DEBUG] accountNotification received", flush=True)
             params = msg.get("params", {})
             sub_id = params.get("subscription")
             pubkey = self._sub_id_to_account.get(sub_id)
             if not pubkey:
+                print(f"[POOL_WS_DEBUG] Unknown subscription ID", flush=True)
                 return
 
             self.stats["events_received"] += 1
@@ -804,18 +822,26 @@ class PoolWebSocketClient:
                 balance = account_data.get("lamports")
 
             if balance is None:
+                print(f"[POOL_WS_DEBUG] No balance extracted from account", flush=True)
                 return
 
+            print(f"[POOL_WS_DEBUG] Got balance {balance} for {pubkey[:16]}...", flush=True)
             pools = self._account_to_pools.get(pubkey)
             if not pools:
+                # Log unexpected accounts (might be subscription confirmations, etc.)
+                print(f"[POOL_WS_DEBUG] Account NOT in account_to_pools map: {pubkey[:16]}... (map has {len(self._account_to_pools)} accounts)", flush=True)
                 return
 
             # Update all pools that use this account
+            print(f"[POOL_WS_DEBUG] Found {len(pools)} pools for account {pubkey[:16]}...", flush=True)
             for pool in pools:
                 mint = pool["mint"]
+                is_new = pool.get("is_legacy") == 0
                 account_type = (
                     "base" if pubkey == pool["base_account"] else "quote"
                 )
+                if is_new:
+                    logger.debug(f"[POOL_WS_DEBUG] NEW pool update: {mint[:16]}... {account_type} reserve on {pubkey[:16]}...")
 
                 # Extract slot for deduplication (optional in notification)
                 slot = params.get("result", {}).get("context", {}).get("slot")

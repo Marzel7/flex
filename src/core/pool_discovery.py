@@ -34,7 +34,7 @@ PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
 PUMPFUN_V1_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
 
 # SPL Token program
-SPL_TOKEN_PROGRAM = "TokenkegQfeZyiNwAJsyFbPVwwQQftas5LLppuCQqn"
+SPL_TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
 
 # SOL mint
 SOL_MINT = "So11111111111111111111111111111111111111112"
@@ -105,6 +105,8 @@ class PoolDiscovery:
                     f"base={reserves['base_account'][:16]}... "
                     f"quote={reserves['quote_account'][:16]}..."
                 )
+                # Add pool_address to the returned dict
+                reserves['pool_address'] = pool_address
                 return reserves
 
             logger.warning(f"Could not extract reserves from pool: {pool_address}")
@@ -545,7 +547,7 @@ class PoolDiscovery:
             return None
 
     async def register_pool_to_db(
-        self, token_mint: str, reserves: Dict
+        self, token_mint: str, reserves: Dict, discovery_method: str = "unknown"
     ) -> bool:
         """Register extracted pool in token_pool_accounts table."""
         try:
@@ -597,14 +599,22 @@ class PoolDiscovery:
                 vault_status = "pending"
                 vault_error = str(e)
 
+            # Compute pool_score
+            WSOL = "So11111111111111111111111111111111111111112"
+            USDC = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+            quote_token = reserves.get("quote_token", "")
+            quote_pref = 1.0 if quote_token == WSOL else 0.5 if quote_token == USDC else 0.1
+            validation_bonus = 0.3 if vault_status == "validated" else 0.0
+            pool_score = quote_pref + validation_bonus
+
             cursor.execute(
                 """
                 INSERT OR REPLACE INTO token_pool_accounts
                 (mint, base_account, quote_account, base_token, quote_token,
-                 base_decimals, quote_decimals, pool_program, is_active, 
+                 base_decimals, quote_decimals, pool_program, pool_address, is_active,
                  vault_validation_status, vault_validation_error, vault_validation_attempts,
-                 last_vault_validation_at, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 last_vault_validation_at, discovery_method, pool_score, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
                 (
                     token_mint,
@@ -615,11 +625,14 @@ class PoolDiscovery:
                     reserves["base_decimals"],
                     reserves["quote_decimals"],
                     reserves["pool_program"],
+                    reserves.get("pool_address"),
                     1,  # is_active
                     vault_status,
                     vault_error,
                     1,  # vault_validation_attempts
                     int(__import__("time").time()),  # last_vault_validation_at
+                    discovery_method,
+                    pool_score,
                     int(__import__("time").time()),  # created_at
                     int(__import__("time").time()),  # updated_at
                 ),
@@ -836,31 +849,36 @@ class PoolDiscovery:
                 mint=token_mint,
                 pool_address=pool_address
             )
-            
+
             if vault_pair:
                 logger.info(
                     f"[DISCOVERY_CHAIN] ✅ Found vault pair: {vault_pair[:16]}... "
-                    f"(this IS the actual pool account)"
+                    f"(attempting to extract actual vaults)"
                 )
-                
-                # For PumpFun V1, the vault pair IS the pool account
-                # Register it directly without trying to extract vaults from it
-                reserves = {
-                    "base_account": vault_pair,
-                    "quote_account": vault_pair,  # Same account for both
-                    "base_token": token_mint,
-                    "quote_token": "So11111111111111111111111111111111111111112",  # SOL
-                    "base_decimals": 6,
-                    "quote_decimals": 9,
-                    "pool_program": "pumpfun_v1",
-                }
-                vault_source = "pumpfun_v1_discovered"
-                logger.info(f"[DISCOVERY_CHAIN] ✅ Using discovered vault pair directly")
+
+                # Extract actual base and quote vaults from the pool account
+                extracted = await self.extract_pool_reserves(vault_pair, token_mint)
+
+                if extracted and extracted.get("base_account") != extracted.get("quote_account"):
+                    # Valid extraction with distinct vaults
+                    reserves = extracted
+                    vault_source = "pumpfun_v1_vault_extraction"
+                    logger.info(
+                        f"[DISCOVERY_CHAIN] ✅ Extracted vaults from vault pair: "
+                        f"base={reserves['base_account'][:16]}... "
+                        f"quote={reserves['quote_account'][:16]}..."
+                    )
+                else:
+                    # Extraction failed or returned invalid (same address for both)
+                    logger.info(
+                        f"[DISCOVERY_CHAIN] ⏭️  Vault pair extraction invalid or failed, "
+                        f"falling back to standard extraction"
+                    )
             else:
                 logger.info(
                     f"[DISCOVERY_CHAIN] ⏭️  No vault pair found, falling back to standard extraction"
                 )
-                
+
         except Exception as e:
             logger.debug(f"[DISCOVERY_CHAIN] Vault pair discovery failed: {e}")
 
@@ -895,9 +913,12 @@ class PoolDiscovery:
             f"[DISCOVERY_CHAIN] ✅ Pool extraction successful from {vault_source}"
         )
 
+        # Map vault_source to discovery_method for database
+        discovery_method = vault_source or "unknown"
+
         # Register in database with vault validation status
         # Vaults will be marked as 'pending' or 'validated' based on whether they exist on-chain
-        success = await self.register_pool_to_db(token_mint, reserves)
+        success = await self.register_pool_to_db(token_mint, reserves, discovery_method)
 
         if success:
             logger.info(

@@ -356,15 +356,22 @@ class BackgroundPriceWorker:
             if pools:
                 self._start_ws_client()
 
-        # Periodically reload pool subscriptions from database (every 30 cycles = ~5 minutes)
-        if self.stats['cycles'] % 30 == 1 and self._ws_client:
-            try:
-                fetcher = get_pool_fetcher(self.db_path)
-                pools = fetcher.get_active_pools()
-                if pools:
-                    self._ws_client.refresh_pools(pools)
-            except Exception as e:
-                logger.debug(f"Error refreshing WebSocket pools: {e}")
+        # Frequently reload pool subscriptions from database (every cycle = ~10s)
+        # This ensures new tokens discovered by the listener get subscribed quickly
+        try:
+            fetcher = get_pool_fetcher(self.db_path)
+            pools = fetcher.get_active_pools()
+
+            if not self._ws_client and pools:
+                # WebSocket not started but pools exist — start it now
+                logger.info(f"[PRICE_WORKER] 🚀 New pools detected, starting WebSocket")
+                self._start_ws_client()
+            elif self._ws_client and pools:
+                # WebSocket running — refresh subscriptions with latest pools
+                # This picks up newly discovered pools within ~10 seconds
+                self._ws_client.refresh_pools(pools)
+        except Exception as e:
+            logger.debug(f"Error refreshing WebSocket pools: {e}")
 
         # Reset activity distribution for this cycle
         self.stats['activity_distribution'] = {

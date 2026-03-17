@@ -640,9 +640,11 @@ class BackgroundPriceWorker:
                     cursor.execute("""
                         UPDATE token_analysis
                         SET price_current = ?,
-                            market_cap_current = ?
+                            market_cap_current = ?,
+                            price_source = ?,
+                            price_updated_at = ?
                         WHERE mint = ?
-                    """, (token_price.price_usd, token_price.market_cap, mint))
+                    """, (token_price.price_usd, token_price.market_cap, token_price.source, now, mint))
                 conn.commit()
                 conn.close()
             except Exception as e:
@@ -758,9 +760,11 @@ class BackgroundPriceWorker:
                         cursor.execute("""
                             UPDATE token_analysis
                             SET price_current = ?,
-                                market_cap_current = ?
+                                market_cap_current = ?,
+                                price_source = ?,
+                                price_updated_at = ?
                             WHERE mint = ?
-                        """, (token_price.price_usd, token_price.market_cap, mint))
+                        """, (token_price.price_usd, token_price.market_cap, token_price.source, now, mint))
                     conn.commit()
                     conn.close()
                 except Exception as e:

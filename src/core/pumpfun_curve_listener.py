@@ -2255,7 +2255,9 @@ class PumpFunCurveListener:
             )
             # Schedule retries at optimized delays (don't await - fire and forget)
             # Pass signature (not tx_data) so retry can search NEW transactions
-            asyncio.create_task(self._retry_pool_discovery(mint, signature, delays=[3, 8, 20, 45]))
+            # Faster delays: RPC indexing typically happens within 5-10s
+            # Fallback after 30s if RPC doesn't respond (quicker than 76s)
+            asyncio.create_task(self._retry_pool_discovery(mint, signature, delays=[1, 2, 4, 8, 15, 30]))
 
         # === AUTO-REGISTER POOL FOR WEBSOCKET PRICING ===
         # ✅ NEW: Validate pool owner before registration (belt-and-suspenders check)
@@ -2426,7 +2428,7 @@ class PumpFunCurveListener:
         Args:
             mint: Token mint address
             original_migration_sig: Original migration transaction signature
-            delays: List of delays in seconds (e.g., [3, 8, 20, 45])
+            delays: List of delays in seconds (e.g., [1, 2, 4, 8, 15, 30])
         """
         from src.core.post_migration_pool_discovery import PostMigrationPoolDiscovery
         from src.core.pool_detector import AMMPrograms

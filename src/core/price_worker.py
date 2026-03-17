@@ -220,6 +220,10 @@ class BackgroundPriceWorker:
         self._ws_started = False
         self._last_fallback_poll = 0
 
+        # Debounce WebSocket refresh to prevent reconnect storms
+        self._last_pool_refresh = 0
+        self._refresh_debounce_seconds = 5
+
         # Use new SOL price cache (20s TTL) instead of manual caching
         self._sol_price_cache = get_sol_price_cache()
 
@@ -1345,8 +1349,20 @@ class BackgroundPriceWorker:
         Called after vault discovery registers new pools. This performs a full
         WebSocket rebuild to guarantee correct subscriptions (simpler than
         incremental updates and eliminates edge cases).
+
+        Debounced to prevent reconnect storms when multiple pools discovered quickly.
         """
+        import time
+        now = time.time()
+
+        # Debounce: skip if refresh was triggered recently
+        if now - self._last_pool_refresh < self._refresh_debounce_seconds:
+            logger.debug(f"[PRICE_WORKER] ⏱️ Refresh debounced (last was {now - self._last_pool_refresh:.1f}s ago)")
+            return
+
         logger.info("[PRICE_WORKER] 🔔 trigger_pool_refresh() CALLED")
+        self._last_pool_refresh = now
+
         try:
             from src.core.pool_price_engine import get_pool_fetcher
 

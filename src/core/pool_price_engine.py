@@ -597,18 +597,27 @@ class PoolWebSocketClient:
             self._thread.join(timeout=10)
 
     def refresh_pools(self, pools: List[Dict]) -> None:
-        """Reload pool subscriptions from updated database."""
+        """Reload pool subscriptions from updated database.
+        
+        When new pools are discovered, this updates the subscription list
+        and triggers an immediate reconnect to re-subscribe to the new accounts.
+        """
         old_count = len(self._account_to_pools)
         self._build_account_map(pools)
         new_count = len(self._account_to_pools)
+        
         if new_count != old_count:
             logger.info(
                 f"Pool subscriptions refreshed: {old_count} → {new_count} accounts. "
-                f"Reconnecting WebSocket to pick up changes..."
+                f"Triggering reconnect to pick up new pools..."
             )
-            # Trigger reconnect by stopping the event loop
+            # Force reconnect by stopping the event loop
+            # This will cause _connect_loop to break and reconnect with new subscriptions
             if self._loop and self._loop.is_running():
                 self._loop.call_soon_threadsafe(self._loop.stop)
+                logger.info(f"[POOL_WS] 🔄 Reconnecting to subscribe to {new_count - old_count} new pool accounts")
+        else:
+            logger.debug(f"Pool subscriptions unchanged: {new_count} accounts")
 
     def _build_account_map(self, pools: List[Dict]) -> None:
         """Build pubkey->pools mapping from pool list. Handles multiple pools per account (shared WSOL, etc)."""

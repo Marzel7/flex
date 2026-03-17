@@ -369,6 +369,26 @@ class PumpFunCurveListener:
             log_print(f"[INIT] ⚠️  Price worker initialization failed: {e}", flush=True)
             self.price_worker = None
 
+    async def _write_resolution_telemetry(self, mint: str, resolve_source: str, pool_address: str = None, retry_count: int = 0):
+        """Write token resolution telemetry to database."""
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=10)
+            cursor = conn.cursor()
+            now = int(time.time())
+            detected_at = int(self.token_discovery_times.get(mint, {}).get("detected", now))
+            resolved_at = int(self.token_discovery_times.get(mint, {}).get("resolved", now))
+            resolve_seconds = resolved_at - detected_at if detected_at else 0
+            
+            cursor.execute("""
+                INSERT OR REPLACE INTO token_resolution_telemetry
+                (mint, detected_at, resolved_at, resolve_seconds, resolve_source, retry_count, pool_address, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (mint, detected_at, resolved_at, resolve_seconds, resolve_source, retry_count, pool_address, now, now))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            log_print(f"[TELEMETRY] ⚠️  Failed to write telemetry for {mint}: {e}", flush=True)
+
     async def _post_rpc_with_fallback(self, payload: dict, timeout: int = 10) -> Optional[dict]:
         """
         Post to RPC with automatic failover chain.
@@ -2106,6 +2126,21 @@ class PumpFunCurveListener:
         self.token_discovery_times[mint] = {"detected": time.time(), "resolved": None}
         log_print(f"[STATE] Token {mint[:16]}... → pending", flush=True)
 
+        # === Write initial telemetry entry ===
+        try:
+            now = int(time.time())
+            conn = sqlite3.connect(DB_PATH, timeout=10)
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT OR IGNORE INTO token_resolution_telemetry
+                (mint, detected_at, created_at, updated_at)
+                VALUES (?, ?, ?, ?)
+            """, (mint, now, now, now))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            log_print(f"[TELEMETRY] ⚠️  Failed to write initial telemetry for {mint}: {e}", flush=True)
+
         # === Extract pool via FALLBACK-FIRST approach for PumpSwap ===
         # Strategy: Try TX parsing (fast, works 85%+) BEFORE RPC retries (slow, often fails for PumpSwap)
         pool_address = None
@@ -2159,6 +2194,9 @@ class PumpFunCurveListener:
                                                 f"{Colors.DETECT}[POOL_DETECT] ✅ Pool discovered via TX parsing: {candidate[:16]}...{Colors.RESET}",
                                                 flush=True
                                             )
+                                            # Write telemetry
+                                            self.token_discovery_times[mint]["resolved"] = time.time()
+                                            await self._write_resolution_telemetry(mint, "tx_parsing", candidate, 0)
                                             break
                                     except Exception as e:
                                         log_print(
@@ -2568,6 +2606,8 @@ class PumpFunCurveListener:
                                         self.token_discovery_times[mint]["resolved"] = time.time()
                                         elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
                                         log_print(f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (fallback in {elapsed:.1f}s){Colors.RESET}", flush=True)
+                                        # Write telemetry
+                                        await self._write_resolution_telemetry(mint, "tx_parsing", candidate, 0)
                                         return
                                 except Exception as e:
                                     log_print(
@@ -2612,6 +2652,8 @@ class PumpFunCurveListener:
                             self.token_discovery_times[mint]["resolved"] = time.time()
                             elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
                             log_print(f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (vault fallback in {elapsed:.1f}s){Colors.RESET}", flush=True)
+                            # Write telemetry
+                            await self._write_resolution_telemetry(mint, "vault_inference", vault_pair, 0)
                             return
                     except Exception as e:
                         log_print(
@@ -2644,6 +2686,8 @@ class PumpFunCurveListener:
                 self.token_discovery_times[mint]["resolved"] = time.time()
                 elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
                 log_print(f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (final fallback in {elapsed:.1f}s){Colors.RESET}", flush=True)
+                # Write telemetry
+                await self._write_resolution_telemetry(mint, "post_migration_analysis", pool_address, 0)
                 return
             else:
                 log_print(
@@ -2753,6 +2797,8 @@ class PumpFunCurveListener:
                         self.token_discovery_times[mint]["resolved"] = time.time()
                         elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
                         log_print(f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (RPC discovery in {elapsed:.1f}s){Colors.RESET}", flush=True)
+                        # Write telemetry (pool_address unknown for RPC path, so None)
+                        await self._write_resolution_telemetry(mint, "rpc_discovery", None, attempt - 1)
                         return
                     else:
                         log_print(

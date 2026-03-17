@@ -23,6 +23,8 @@ import os
 
 load_dotenv()
 
+from src.core.pipeline_validator import PipelineValidator, PoolStateStore
+
 
 @dataclass
 class ReplayResult:
@@ -71,6 +73,8 @@ class ReplayTestHarness:
     def __init__(self, db_path: str):
         self.db = Database(db_path)
         self.results: List[ReplayResult] = []
+        self.ws_store = PoolStateStore()
+        self.pipeline_validator = PipelineValidator(db_path, self.ws_store)
 
     def replay_migration(self, mint: str, group: str) -> ReplayResult:
         """Replay a single token registration."""
@@ -305,6 +309,43 @@ class ReplayTestHarness:
                 }
                 for r in self.results if r.group == group_name
             ]
+        }
+
+    async def validate_pool_pipeline_async(
+        self,
+        mint: str,
+        timeout_seconds: int = 10,
+        confirmation_delay_seconds: int = 5,
+    ) -> Dict:
+        """
+        Validate full pool pipeline with delayed WebSocket confirmation.
+
+        Returns:
+            Dict with validation results including:
+            - ws_ready: WebSocket reserves received
+            - ws_confirmed: WebSocket reserves persisted after delay
+            - snapshot_count: Number of price snapshots written
+            - passed: Overall validation passed
+            - errors: List of validation errors
+        """
+        result = await self.pipeline_validator.validate_pool_pipeline(
+            token_mint=mint,
+            timeout_seconds=timeout_seconds,
+            confirmation_delay_seconds=confirmation_delay_seconds,
+        )
+        return {
+            'mint': result.mint,
+            'ws_ready': result.ws_ready,
+            'ws_confirmed': result.ws_confirmed,
+            'reserves_changed': result.reserves_changed,
+            'first_reserves': result.first_reserves,
+            'confirmed_reserves': result.confirmed_reserves,
+            'snapshot_source': result.snapshot_source,
+            'snapshot_price_usd': result.snapshot_price_usd,
+            'snapshot_count': result.snapshot_count,
+            'passed': result.passed,
+            'errors': result.errors,
+            'total_elapsed_ms': result.total_elapsed_ms,
         }
 
     def generate_report(self) -> Dict:

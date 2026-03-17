@@ -275,8 +275,11 @@ class PostMigrationPoolDiscovery:
                 loaded_addrs = meta.get("loadedAddresses", {})
                 accounts = accounts + loaded_addrs.get("writable", []) + loaded_addrs.get("readonly", [])
 
-            except (KeyError, TypeError):
-                logger.warning("[POOL_DISCOVERY_MIGRATION_TX_CANDIDATES] Could not extract accounts")
+                # Convert accounts to strings (in case they're dicts or objects)
+                accounts = [str(addr) if not isinstance(addr, str) else addr for addr in accounts]
+
+            except (KeyError, TypeError) as e:
+                logger.warning(f"[POOL_DISCOVERY_MIGRATION_TX_CANDIDATES] Could not extract accounts: {e}")
                 return []
 
             logger.debug(f"[POOL_DISCOVERY_MIGRATION_TX_CANDIDATES] Found {len(accounts)} accounts")
@@ -310,6 +313,10 @@ class PostMigrationPoolDiscovery:
             candidates = []
 
             for account_addr in accounts:
+                # Ensure account_addr is a string
+                if not isinstance(account_addr, str):
+                    account_addr = str(account_addr)
+                
                 if account_addr in SYSTEM_PROGRAMS or account_addr in SKIP_ACCOUNTS:
                     continue
 
@@ -340,7 +347,7 @@ class PostMigrationPoolDiscovery:
                     candidates.append((account_addr, owner, data_size))
 
                 except Exception as e:
-                    logger.debug(f"[POOL_DISCOVERY_MIGRATION_TX_CANDIDATES] Error checking {account_addr[:16]}...: {e}")
+                    logger.debug(f"[POOL_DISCOVERY_MIGRATION_TX_CANDIDATES] Error checking {str(account_addr)[:16]}...: {e}")
                     continue
 
             if not candidates:
@@ -361,6 +368,8 @@ class PostMigrationPoolDiscovery:
             logger.warning(
                 f"[POOL_DISCOVERY_MIGRATION_TX_CANDIDATES] Error: {e}"
             )
+            import traceback
+            logger.debug(traceback.format_exc())
             return []
 
     async def _discover_via_recent_transactions(

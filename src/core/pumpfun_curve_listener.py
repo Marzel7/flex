@@ -2118,7 +2118,7 @@ class PumpFunCurveListener:
                 from src.core.pool_detector import AMMPrograms
                 
                 log_print(
-                    f"{Colors.DISCOVER}[POOL_DETECT] 🔍 Trying TX parsing (fallback strategy 1) for {mint[:16]}...{Colors.RESET}",
+                    f"{Colors.DISCOVER}[POOL_DETECT] 🔍 PRIMARY: TX parsing (Strategy 1/3) for {mint[:16]}...{Colors.RESET}",
                     flush=True
                 )
                 
@@ -2174,7 +2174,7 @@ class PumpFunCurveListener:
                 # If TX parsing didn't find pool, try vault pair inference
                 if not pool_address:
                     log_print(
-                        f"{Colors.DISCOVER}[POOL_DETECT] 🔍 Trying vault pair inference (fallback strategy 1b)...{Colors.RESET}",
+                        f"{Colors.DISCOVER}[POOL_DETECT] 🔍 PRIMARY: Vault pair inference (Strategy 1b) for {mint[:16]}...{Colors.RESET}",
                         flush=True
                     )
                     try:
@@ -2216,7 +2216,7 @@ class PumpFunCurveListener:
                 from src.core.vault_discovery import discover_vaults_rpc
 
                 log_print(
-                    f"{Colors.DISCOVER}[POOL_DETECT] 🔍 Trying RPC vault discovery (fallback strategy 2) for {mint[:16]}...{Colors.RESET}",
+                    f"{Colors.DISCOVER}[POOL_DETECT] 🔍 SECONDARY: RPC vault discovery (Strategy 2/3) for {mint[:16]}...{Colors.RESET}",
                     flush=True
                 )
 
@@ -2515,9 +2515,9 @@ class PumpFunCurveListener:
         from src.core.pool_detector import AMMPrograms
         from src.core.vault_discovery import discover_and_register_vaults_rpc
 
-        # ===== PHASE 1: FALLBACK STRATEGIES (TX PARSING - fast path) =====
+        # ===== PHASE 1: PRIMARY STRATEGIES (TX PARSING - fast path) =====
         log_print(
-            f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] Starting fallback strategies for {mint}{Colors.RESET}",
+            f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] PRIMARY RETRY: Starting TX parsing strategies for {mint}{Colors.RESET}",
             flush=True
         )
 
@@ -2535,7 +2535,7 @@ class PumpFunCurveListener:
             if pool_candidates:
                 for candidate in pool_candidates:
                     log_print(
-                        f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] 🔍 Trying candidate: {candidate}{Colors.RESET}",
+                        f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] PRIMARY: Testing pool candidate {candidate[:16]}...{Colors.RESET}",
                         flush=True
                     )
                     # Check owner and attempt registration
@@ -2582,7 +2582,7 @@ class PumpFunCurveListener:
 
             # Strategy 1b: If candidates didn't work, try PumpFun V1 vault pair discovery
             log_print(
-                f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] 🔍 Attempting PumpFun V1 vault pair auto-discovery...{Colors.RESET}",
+                f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] PRIMARY: Vault pair inference (Strategy 1b) on retry...{Colors.RESET}",
                 flush=True
             )
             try:
@@ -2624,9 +2624,9 @@ class PumpFunCurveListener:
                     flush=True
                 )
 
-            # Strategy 2: Final fallback to other discovery methods
+            # Strategy 2: Final post-migration discovery (activity pattern analysis)
             log_print(
-                f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] Trying final post-migration discovery...{Colors.RESET}",
+                f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] PRIMARY: Post-migration analysis (Strategy 2/3)...{Colors.RESET}",
                 flush=True
             )
             pool_address = await discovery.discover_pool_post_migration(
@@ -2647,7 +2647,7 @@ class PumpFunCurveListener:
                 return
             else:
                 log_print(
-                    f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] ⏭️  All fallback strategies exhausted, will try RPC...",
+                    f"{Colors.DISCOVER}[POOL_DISCOVER_FALLBACK] PRIMARY strategies exhausted, switching to SECONDARY (RPC)...",
                     flush=True
                 )
 
@@ -2657,9 +2657,9 @@ class PumpFunCurveListener:
                 flush=True
             )
 
-        # ===== PHASE 2: RPC-ONLY RETRIES (after fallback exhausted) =====
+        # ===== PHASE 2: SECONDARY RETRIES (RPC - after PRIMARY exhausted) =====
         log_print(
-            f"{Colors.DISCOVER}[POOL_RETRY] Fallback strategies exhausted, trying RPC retries...{Colors.RESET}",
+            f"{Colors.DISCOVER}[POOL_RETRY] SECONDARY RETRY: Starting RPC discovery retries...{Colors.RESET}",
             flush=True
         )
 
@@ -2668,13 +2668,13 @@ class PumpFunCurveListener:
                 await asyncio.sleep(delay)
 
                 log_print(
-                    f"{Colors.DISCOVER}[POOL_RETRY] ⏱️  RPC Attempt {attempt}/{len(delays)} (waited {delay}s) for {mint}{Colors.RESET}",
+                    f"{Colors.DISCOVER}[POOL_RETRY] SECONDARY Attempt {attempt}/{len(delays)} (waited {delay}s) for {mint}{Colors.RESET}",
                     flush=True
                 )
 
-                # RPC vault discovery as fallback to TX parsing
+                # RPC vault discovery as secondary method
                 log_print(
-                    f"{Colors.DETECT}[VAULT_DISCOVERY] Attempting RPC-authoritative vault discovery for {mint[:16]}...{Colors.RESET}",
+                    f"{Colors.DETECT}[VAULT_DISCOVERY] SECONDARY: RPC-authoritative vault discovery (Strategy 3/3) for {mint[:16]}...{Colors.RESET}",
                     flush=True
                 )
                 try:

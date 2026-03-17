@@ -7393,7 +7393,14 @@ def api_token_metrics(token_mint: str):
         """, (token_mint,))
 
         price_source_row = cursor.fetchone()
-        price_source = price_source_row['source'] if price_source_row else 'unknown'
+        if price_source_row:
+            price_source = price_source_row['source']
+        elif row['price_current'] and row['price_current'] > 0:
+            # Token has a price but no snapshot history — it's cached/historical
+            price_source = 'cached'
+        else:
+            # Token has no price
+            price_source = 'none'
         conn.close()
 
         # Format response for post-migration analysis only

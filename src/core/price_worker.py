@@ -217,6 +217,10 @@ class BackgroundPriceWorker:
         self._sol_price_usd = 0.0
         self._sol_price_cached_at = 0
 
+        # Priority queue: top tokens for WebSocket, others use Dexscreener fallback
+        self._top_mints = set()  # Top 20-25 most recent tokens (from UI)
+        self._top_mints_updated = 0  # Last time we refreshed this list
+
         self.stats = {
             'cycles': 0,
             'tokens_prefetched': 0,
@@ -228,6 +232,7 @@ class BackgroundPriceWorker:
             'queue_stats': {},
             'pool_prices_fetched': 0,
             'ws_stats': {},
+            'top_mints_count': 0,  # Track number of priority tokens
             'activity_distribution': {
                 'high': 0,
                 'medium': 0,
@@ -262,6 +267,34 @@ class BackgroundPriceWorker:
         if self.thread:
             self.thread.join(timeout=5)
         logger.info("Background price worker stopped")
+
+    def _refresh_top_mints(self) -> None:
+        """
+        Refresh list of top 20-25 most recent tokens (those shown on main UI page).
+        Updated every 30 seconds.
+        """
+        now = time.time()
+        if now - self._top_mints_updated < 30:
+            return  # Update at most every 30 seconds
+
+        try:
+            conn = sqlite3.connect(self.db_path, timeout=5)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+
+            # Get top 25 most recent tokens
+            cursor.execute("""
+                SELECT mint FROM token_analysis
+                ORDER BY created_at DESC
+                LIMIT 25
+            """)
+            rows = cursor.fetchall()
+            self._top_mints = {row['mint'] for row in rows}
+            self._top_mints_updated = now
+            self.stats['top_mints_count'] = len(self._top_mints)
+            conn.close()
+        except Exception as e:
+            logger.debug(f"Error refreshing top mints: {e}")
 
     def _start_ws_client(self) -> None:
         """Start WebSocket client for registered pools."""
@@ -741,11 +774,17 @@ class BackgroundPriceWorker:
 
     def _get_tokens_for_refresh(self) -> List[Dict]:
         """
-        Get tokens for refresh based on priority_level.
+        Get tokens for refresh based on priority_level and UI visibility.
 
-        Uses explicit priority tiers (HIGH/MEDIUM/LOW/DORMANT) for scheduling.
+        Priority queue strategy:
+        - Top 20-25 tokens (UI page): WebSocket + Dexscreener sources
+        - Other tokens: Dexscreener fallback only (lighter weight)
+
         Each tier has a fixed refresh interval.
         """
+        # Refresh top mints list (updates every 30s)
+        self._refresh_top_mints()
+
         tokens_to_fetch = []
         now = int(time.time())
 
@@ -753,21 +792,38 @@ class BackgroundPriceWorker:
             # Get all active tokens
             all_tokens = self.registry.get_tracked_tokens(active_only=True)
 
+            # Separate top-priority from regular tokens
+            top_priority_tokens = []
+            regular_tokens = []
+
             for token in all_tokens:
+                mint = token.get('mint', '')
+                is_top = mint in self._top_mints
+
                 # Use priority_level directly
                 priority = token.get('priority_level', 'LOW').upper()
-                interval = self._get_refresh_interval_for_activity(priority)
+                # For top mints, use shorter interval; for others, use longer
+                if is_top:
+                    interval = self._get_refresh_interval_for_activity('HIGH')  # 10s
+                else:
+                    interval = self._get_refresh_interval_for_activity('LOW')  # 200s
 
                 # Check if this token is due for refresh
                 last_update = token.get('last_price_update', 0)
                 time_since_update = now - last_update
 
                 if time_since_update >= interval:
-                    tokens_to_fetch.append(token)
+                    if is_top:
+                        top_priority_tokens.append(token)
+                    else:
+                        regular_tokens.append(token)
 
                 # Track priority distribution
                 self.stats['activity_distribution'][priority.lower()] = \
                     self.stats['activity_distribution'].get(priority.lower(), 0) + 1
+
+            # Prioritize top tokens in the fetch queue
+            tokens_to_fetch = top_priority_tokens + regular_tokens
 
             # Limit batch size to prevent overload
             return tokens_to_fetch[:20]

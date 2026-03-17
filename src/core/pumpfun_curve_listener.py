@@ -2086,6 +2086,20 @@ class PumpFunCurveListener:
         # Create minimal token entry immediately (so token appears in UI right away)
         await self._create_minimal_token_entry(mint)
 
+        # Store migration TX signature (needed for retry discovery and analytics)
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=10)
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE token_analysis SET migration_tx = ? WHERE mint = ?",
+                (signature, mint)
+            )
+            conn.commit()
+            conn.close()
+            log_print(f"[DB] ✅ Stored migration TX: {signature[:20]}...", flush=True)
+        except Exception as e:
+            log_print(f"[DB] ⚠️  Failed to store migration TX: {e}", flush=True)
+
         # === NEW: Track token state (pending initially) ===
         import time
         self.token_states[mint] = "pending"

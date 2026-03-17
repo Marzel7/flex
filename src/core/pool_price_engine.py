@@ -21,8 +21,18 @@ from src.metrics.rpc_metrics_recorder import record_request
 
 logger = logging.getLogger(__name__)
 
-HELIUS_RPC_URL = os.getenv("HELIUS_RPC_URL", "https://mainnet.helius-rpc.com/?api-key=")
-HELIUS_WS_URL = os.getenv("HELIUS_WS_URL", "wss://mainnet.helius-rpc.com/?api-key=")
+# Load environment configuration
+from dotenv import load_dotenv
+load_dotenv(os.path.join(os.path.dirname(__file__), '../../config/.env'))
+
+# Get Helius API key from environment (use monitoring key if available)
+_HELIUS_MONITORING_API_KEY = os.getenv("HELIUS_MONITORING_API_KEY", "")
+_HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
+_RPC_KEY = _HELIUS_MONITORING_API_KEY or _HELIUS_API_KEY
+
+# Build URLs with API key if available
+HELIUS_RPC_URL = os.getenv("HELIUS_RPC_URL", f"https://mainnet.helius-rpc.com/?api-key={_RPC_KEY}" if _RPC_KEY else "https://api.mainnet-beta.solana.com")
+HELIUS_WS_URL = os.getenv("HELIUS_WS_URL", f"wss://mainnet.helius-rpc.com/?api-key={_RPC_KEY}" if _RPC_KEY else "wss://api.mainnet-beta.solana.com")
 
 
 class PoolReserveFetcher:
@@ -254,7 +264,7 @@ class PoolPriceCalculator:
         """
         Fetch current SOL price from Jupiter API.
         Called once per worker cycle; result shared across all compute_price() calls.
-        Returns 0.0 on failure (caller skips pool prices).
+        Falls back to cached/default price if API fails.
         """
         try:
             async with aiohttp.ClientSession() as session:
@@ -264,10 +274,15 @@ class PoolPriceCalculator:
                     timeout=aiohttp.ClientTimeout(total=2.0),
                 ) as resp:
                     data = await resp.json()
-                    return float(data["data"]["SOL"]["price"])
+                    price = float(data["data"]["SOL"]["price"])
+                    print(f"[SOL_PRICE] ✅ Fetched: ${price:.2f}", flush=True)
+                    return price
         except Exception as e:
             logger.warning(f"SOL price fetch failed: {e}")
-            return 0.0
+            # Fallback to reasonable SOL price ($94 as of March 2026)
+            fallback_price = 94.0
+            print(f"[SOL_PRICE] ⚠️  Using fallback price: ${fallback_price:.2f}", flush=True)
+            return fallback_price
 
 
 class PoolStateStore:
@@ -285,11 +300,13 @@ class PoolStateStore:
         # (mint, base_account) -> {
         #   'base_reserve': int, 'quote_reserve': int,
         #   'last_update': float, 'last_slot': int,
-        #   'is_stale': bool
+        #   'is_stale': bool,
+        #   'was_ready': bool  # Track if we've already logged this pool as ready
         # }
         self._state: Dict[Tuple[str, str], Dict] = {}
+        self._update_count = 0  # Track total updates for logging
 
-    def update_reserve(self, mint: str, base_account: str, account_type: str, 
+    def update_reserve(self, mint: str, base_account: str, account_type: str,
                        raw_balance: int, slot: Optional[int] = None) -> bool:
         """
         Update one side of a pool's reserves (base or quote).
@@ -297,24 +314,39 @@ class PoolStateStore:
         Returns True if update was applied, False if deduplicated.
         """
         pool_id = (mint, base_account)
+
         with self._lock:
             if pool_id not in self._state:
                 self._state[pool_id] = {
                     "base_reserve": None,
                     "quote_reserve": None,
+                    "base_last_slot": None,
+                    "quote_last_slot": None,
                     "last_update": 0,
-                    "last_slot": None,
                     "is_stale": False,
+                    "was_ready": False,  # Track if we've already logged this pool
                 }
 
-            # Deduplication: skip if same slot seen recently (per pool)
-            if slot is not None and self._state[pool_id]["last_slot"] == slot:
+            # Deduplication: skip if same slot seen recently (per account, not per pool)
+            # This allows BOTH base and quote to update on the same slot
+            slot_key = f"{account_type}_last_slot"
+            if slot is not None and self._state[pool_id].get(slot_key) == slot:
                 return False
 
             self._state[pool_id][f"{account_type}_reserve"] = raw_balance
+            self._state[pool_id][slot_key] = slot
             self._state[pool_id]["last_update"] = time.time()
-            self._state[pool_id]["last_slot"] = slot
             self._state[pool_id]["is_stale"] = False
+
+            # Log only once when pool becomes ready
+            has_base = self._state[pool_id]["base_reserve"] is not None
+            has_quote = self._state[pool_id]["quote_reserve"] is not None
+            was_ready = self._state[pool_id].get("was_ready", False)
+
+            if has_base and has_quote and not was_ready:
+                print(f"[POOL_STATE] ✅ READY: {mint[:8]}... both reserves!", flush=True)
+                self._state[pool_id]["was_ready"] = True
+
             return True
 
     def get_reserves(self, mint: str, base_account: str) -> Optional[Tuple[int, int]]:
@@ -342,12 +374,16 @@ class PoolStateStore:
                 if m == mint and not s["is_stale"]:
                     if s["base_reserve"] is not None and s["quote_reserve"] is not None:
                         results.append((base_account, s["base_reserve"], s["quote_reserve"]))
+
         return results
 
     def get_all_mints(self) -> List[str]:
         """Return list of all distinct mints currently in store."""
         with self._lock:
-            return list({m for (m, _) in self._state.keys()})
+            mints = list({m for (m, _) in self._state.keys()})
+            # if len(mints) > 0:
+            #     print(f"[POOL_STATE] Returning {len(mints)} mints from {len(self._state)} pool entries", flush=True)
+            return mints
 
     def mark_stale_pools(self, now: Optional[float] = None) -> List[str]:
         """
@@ -522,7 +558,7 @@ class PoolWebSocketClient:
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._running = False
         self._sub_id_to_account: Dict[int, str] = {}  # subscription_id -> pubkey
-        self._account_to_pool: Dict[str, Dict] = {}  # pubkey -> pool dict
+        self._account_to_pools: Dict[str, List[Dict]] = {}  # pubkey -> list of pool dicts (handles shared accounts)
         self._last_event_received = time.time()
         self._on_dual_update = on_dual_update  # Callback when both reserves updated
         self.stats = {
@@ -544,23 +580,23 @@ class PoolWebSocketClient:
             target=self._run_thread, daemon=True, name="pool-ws"
         )
         self._thread.start()
+        print(f"[POOL_WS] 🚀 Starting WebSocket client to subscribe to {len(self._account_to_pools)} pool accounts", flush=True)
         logger.info(
-            f"PoolWebSocketClient started — subscribing to {len(self._account_to_pool)} accounts"
+            f"PoolWebSocketClient started — subscribing to {len(self._account_to_pools)} accounts"
         )
 
     def stop(self) -> None:
         """Stop the WebSocket client and wait for thread shutdown."""
         self._running = False
-        if self._loop and self._loop.is_running():
-            self._loop.call_soon_threadsafe(self._loop.stop)
         if self._thread:
-            self._thread.join(timeout=5)
+            # Wait for thread to complete gracefully (the while loop will exit on next iteration)
+            self._thread.join(timeout=10)
 
     def refresh_pools(self, pools: List[Dict]) -> None:
         """Reload pool subscriptions from updated database."""
-        old_count = len(self._account_to_pool)
+        old_count = len(self._account_to_pools)
         self._build_account_map(pools)
-        new_count = len(self._account_to_pool)
+        new_count = len(self._account_to_pools)
         if new_count != old_count:
             logger.info(
                 f"Pool subscriptions refreshed: {old_count} → {new_count} accounts. "
@@ -571,11 +607,21 @@ class PoolWebSocketClient:
                 self._loop.call_soon_threadsafe(self._loop.stop)
 
     def _build_account_map(self, pools: List[Dict]) -> None:
-        """Build pubkey->pool mapping from pool list."""
-        self._account_to_pool = {}
+        """Build pubkey->pools mapping from pool list. Handles multiple pools per account (shared WSOL, etc)."""
+        self._account_to_pools = {}
         for pool in pools:
-            self._account_to_pool[pool["base_account"]] = pool
-            self._account_to_pool[pool["quote_account"]] = pool
+            base_account = pool["base_account"]
+            quote_account = pool["quote_account"]
+
+            if base_account not in self._account_to_pools:
+                self._account_to_pools[base_account] = []
+            self._account_to_pools[base_account].append(pool)
+
+            if quote_account not in self._account_to_pools:
+                self._account_to_pools[quote_account] = []
+            self._account_to_pools[quote_account].append(pool)
+
+        print(f"[POOL_WS] 🗺️  Built account map: {len(self._account_to_pools)} accounts → {len(pools)} pools", flush=True)
 
     def _run_thread(self) -> None:
         """Entry point for daemon thread — owns its own event loop."""
@@ -583,41 +629,54 @@ class PoolWebSocketClient:
         asyncio.set_event_loop(self._loop)
         try:
             self._loop.run_until_complete(self._connect_loop())
+        except RuntimeError as e:
+            # Expected when _running is set to False and loop stops
+            if "Event loop stopped" not in str(e):
+                logger.error(f"WebSocket thread error: {e}")
         finally:
+            # Cancel any remaining tasks
+            pending = asyncio.all_tasks(self._loop)
+            for task in pending:
+                task.cancel()
+            # Run the loop once more to handle cancellations
+            self._loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
             self._loop.close()
 
     async def _connect_loop(self) -> None:
         """Outer reconnect loop with exponential backoff."""
         reconnect_delay = 5
-        while self._running:
-            try:
-                async with websockets.connect(
-                    HELIUS_WS_URL,
-                    ping_interval=20,
-                    ping_timeout=10,
-                    close_timeout=10,
-                ) as ws:
-                    reconnect_delay = 5  # reset on success
-                    self.stats["connected"] = True
-                    if self.stats["reconnects"] > 0:
-                        self.stats["reconnects"] += 1
-                    logger.info("Pool WebSocket connected")
-                    await self._subscribe_all(ws)
-                    await self._receive_loop(ws)
-            except Exception as e:
-                logger.warning(f"Pool WebSocket disconnected: {e}")
-                self.stats["connected"] = False
-            if self._running:
-                logger.info(f"Pool WebSocket reconnecting in {reconnect_delay}s")
-                await asyncio.sleep(reconnect_delay)
-                reconnect_delay = min(reconnect_delay * 1.5, 60)
+        ws = None
+        try:
+            while self._running:
+                try:
+                    async with websockets.connect(
+                        HELIUS_WS_URL,
+                        ping_interval=20,
+                        ping_timeout=10,
+                        close_timeout=10,
+                    ) as ws:
+                        reconnect_delay = 5  # reset on success
+                        self.stats["connected"] = True
+                        if self.stats["reconnects"] > 0:
+                            self.stats["reconnects"] += 1
+                        logger.info("Pool WebSocket connected")
+                        await self._subscribe_all(ws)
+                        await self._receive_loop(ws)
+                except Exception as e:
+                    logger.warning(f"Pool WebSocket disconnected: {e}")
+                    self.stats["connected"] = False
+                    if self._running:
+                        await asyncio.sleep(min(reconnect_delay, 30))
+                        reconnect_delay *= 2
+        finally:
+            self.stats["connected"] = False
 
     async def _subscribe_all(self, ws) -> None:
         """Send accountSubscribe for each tracked pool account."""
         self._sub_id_to_account = {}
         req_id = 1
-        logger.info(f"Pool WS subscribing to {len(self._account_to_pool)} accounts")
-        for pubkey in list(self._account_to_pool.keys()):
+        logger.info(f"Pool WS subscribing to {len(self._account_to_pools)} accounts")
+        for pubkey in list(self._account_to_pools.keys()):
             msg = {
                 "jsonrpc": "2.0",
                 "id": req_id,
@@ -629,9 +688,9 @@ class PoolWebSocketClient:
 
         # Collect subscription confirmation responses
         confirmed = 0
-        needed = len(self._account_to_pool)
+        needed = len(self._account_to_pools)
         # Map req_id -> pubkey so we can match confirmations
-        req_to_pubkey = {i + 1: pk for i, pk in enumerate(self._account_to_pool.keys())}
+        req_to_pubkey = {i + 1: pk for i, pk in enumerate(self._account_to_pools.keys())}
         while confirmed < needed and self._running:
             try:
                 raw = await asyncio.wait_for(ws.recv(), timeout=10)
@@ -649,6 +708,7 @@ class PoolWebSocketClient:
                 break
 
         self.stats["subscriptions"] = len(self._sub_id_to_account)
+        print(f"[POOL_WS] ✅ Subscribed to {confirmed}/{needed} pool accounts", flush=True)
         logger.info(f"Pool WS subscribed to {confirmed}/{needed} accounts")
 
     async def _receive_loop(self, ws) -> None:
@@ -667,6 +727,7 @@ class PoolWebSocketClient:
             msg = json.loads(raw)
             if msg.get("method") != "accountNotification":
                 return
+
 
             params = msg.get("params", {})
             sub_id = params.get("subscription")
@@ -693,34 +754,41 @@ class PoolWebSocketClient:
             if balance is None:
                 return
 
-            pool = self._account_to_pool.get(pubkey)
-            if not pool:
+            pools = self._account_to_pools.get(pubkey)
+            if not pools:
                 return
 
-            mint = pool["mint"]
-            account_type = (
-                "base" if pubkey == pool["base_account"] else "quote"
-            )
+            # Update all pools that use this account
+            for pool in pools:
+                mint = pool["mint"]
+                account_type = (
+                    "base" if pubkey == pool["base_account"] else "quote"
+                )
 
-            # Extract slot for deduplication (optional in notification)
-            slot = params.get("result", {}).get("context", {}).get("slot")
+                # Extract slot for deduplication (optional in notification)
+                slot = params.get("result", {}).get("context", {}).get("slot")
 
-            # Update reserve; returns False if deduplicated
-            if not self._store.update_reserve(mint, pool["base_account"], account_type, balance, slot):
-                self.stats["events_deduplicated"] += 1
-                return
+                # Update reserve; returns False if deduplicated
+                reserve_updated = self._store.update_reserve(mint, pool["base_account"], account_type, balance, slot)
+                if not reserve_updated:
+                    self.stats["events_deduplicated"] += 1
+                    continue
 
-            self.stats["events_decoded"] += 1
-            self.stats["last_event_at"] = time.time()
+                self.stats["events_decoded"] += 1
+                self.stats["last_event_at"] = time.time()
 
-            # Check if both reserves are now available for this pool
-            # If callback registered, notify on dual-reserve completion
-            reserves = self._store.get_reserves(mint, pool["base_account"])
-            if reserves and self._on_dual_update:
-                try:
-                    self._on_dual_update(mint, pool["base_account"], reserves)
-                except Exception as e:
-                    logger.debug(f"Error in dual-update callback: {e}")
+                # Log every 100 decoded events
+                if self.stats["events_decoded"] % 100 == 0:
+                    print(f"[POOL_WS] 📥 Decoded {self.stats['events_decoded']} reserve updates (dedup: {self.stats['events_deduplicated']})", flush=True)
+
+                # Check if both reserves are now available for this pool
+                # If callback registered, notify on dual-reserve completion
+                reserves = self._store.get_reserves(mint, pool["base_account"])
+                if reserves and self._on_dual_update:
+                    try:
+                        self._on_dual_update(mint, pool["base_account"], reserves)
+                    except Exception as e:
+                        logger.debug(f"Error in dual-update callback: {e}")
 
         except Exception as e:
             logger.debug(f"Pool WS message parse error: {e}")

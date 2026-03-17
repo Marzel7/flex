@@ -80,10 +80,10 @@ def _get_or_create_keypair_file() -> str:
             # Restrict permissions to 600 (owner read/write only)
             os.chmod(temp_file.name, 0o600)
             
-            print(f"[HELIUS] 🔐 Using keypair from HELIUS_WALLET_KEYPAIR env var", flush=True)
+            pass  # Keypair loaded from env
             return temp_file.name
         except (json.JSONDecodeError, Exception) as e:
-            print(f"[HELIUS] ⚠️ Failed to parse HELIUS_WALLET_KEYPAIR: {str(e)[:100]}", flush=True)
+            pass  # Silent failure
     
     # Fall back to SOLANA_KEYPAIR or default
     return KEYPAIR_PATH
@@ -132,12 +132,12 @@ def ensure_helius_usage_table():
                     cur.execute(f"ALTER TABLE helius_usage_snapshots ADD COLUMN {col} REAL DEFAULT 0")
                 else:
                     cur.execute(f"ALTER TABLE helius_usage_snapshots ADD COLUMN {col} INTEGER DEFAULT 0")
-                print(f"[HELIUS] ✅ Added column {col}", flush=True)
+                pass  # Silent column addition
 
         conn.commit()
-        print("[HELIUS] ✅ Usage table ready", flush=True)
+        pass  # Table ready
     except Exception as e:
-        print(f"[HELIUS] ⚠️ Table creation error: {str(e)[:100]}", flush=True)
+        pass  # Silent failure
     finally:
         conn.close()
 
@@ -157,21 +157,18 @@ def get_helius_usage_cli() -> Optional[Dict]:
     """
     temp_keypair = None
     try:
-        print("[HELIUS] 📊 Capturing usage via CLI...", flush=True)
-
         # Use Helius project owner keypair if it exists, otherwise use default
         keypair_path = HELIUS_KEYPAIR_PATH if os.path.exists(HELIUS_KEYPAIR_PATH) else KEYPAIR_PATH
 
         # Authenticate with keypair if not already done
-        auth_result = subprocess.run(
-            ["helius", "login", "--keypair", keypair_path, "--json"],
-            capture_output=True,
-            text=True,
-            timeout=10,
-        )
-
-        if auth_result.returncode != 0:
-            print(f"[HELIUS] ⚠️ Auth warning (may be already authenticated): {auth_result.stderr[:100]}", flush=True)
+        with open(os.devnull, 'w') as devnull:
+            auth_result = subprocess.run(
+                ["helius", "login", "--keypair", keypair_path, "--json"],
+                stdout=devnull,
+                stderr=devnull,
+                text=True,
+                timeout=10,
+            )
 
         # Run helius usage command
         result = subprocess.run(
@@ -182,14 +179,7 @@ def get_helius_usage_cli() -> Optional[Dict]:
         )
 
         if result.returncode != 0:
-            stderr = result.stderr[:200] if result.stderr else result.stdout[:200]
-            # Check for common issues
-            if "NO_PROJECTS" in stderr or "no projects found" in stderr.lower():
-                print(f"[HELIUS] ⚠️ No projects found. Helius account may need setup.", flush=True)
-            elif "access denied" in stderr.lower() or "403" in stderr:
-                print(f"[HELIUS] ⚠️ Access denied to project. Check wallet authentication.", flush=True)
-            else:
-                print(f"[HELIUS] ⚠️ CLI error: {stderr}", flush=True)
+            # Silently fail on CLI errors (API rate limits, etc.)
             return None
 
         # Parse JSON output
@@ -223,19 +213,12 @@ def get_helius_usage_cli() -> Optional[Dict]:
         }
 
     except subprocess.TimeoutExpired:
-        print("[HELIUS] ⏱️ CLI command timed out", flush=True)
         return None
-    except json.JSONDecodeError as e:
-        print(f"[HELIUS] ⚠️ JSON parse error: {str(e)[:100]}", flush=True)
+    except json.JSONDecodeError:
         return None
     except FileNotFoundError:
-        print(
-            "[HELIUS] ❌ helius-cli not found. Install with: npm install -g helius-cli",
-            flush=True,
-        )
         return None
-    except Exception as e:
-        print(f"[HELIUS] ❌ Error: {str(e)[:200]}", flush=True)
+    except Exception:
         return None
     finally:
         # Clean up temp keypair if created
@@ -288,7 +271,7 @@ def record_usage_snapshot(usage: Dict):
         )
         conn.commit()
     except Exception as e:
-        print(f"[HELIUS] ⚠️ Recording error: {str(e)[:100]}", flush=True)
+        pass  # Silent failure
     finally:
         conn.close()
 
@@ -338,17 +321,14 @@ def sync_helius_to_config(usage: Dict):
         with open(config_path, 'w') as f:
             f.write(config_content)
         
-        print(f"[HELIUS] 🔄 Synced config: {credits_used_today} used, {credits_remaining} remaining", flush=True)
+        pass  # Config synced silently
     except Exception as e:
-        print(f"[HELIUS] ⚠️ Config sync error: {str(e)[:100]}", flush=True)
+        pass  # Silent failure
 
 
 def print_usage(usage: Dict):
     """Pretty print usage data"""
-    pass  # Suppress output
-    print(f"Project ID:         {usage.get('project_id', 'unknown')}", flush=True)
-    print(f"Captured At:        {usage.get('timestamp', 'unknown')}", flush=True)
-    print("=" * 80 + "\n", flush=True)
+    pass  # Suppress verbose output
 
 
 def get_latest_snapshot() -> Optional[Dict]:
@@ -422,13 +402,10 @@ if __name__ == "__main__":
     test_mode = "--test" in sys.argv or "--mock" in sys.argv
     continuous_mode = "--continuous" in sys.argv or len(sys.argv) == 1  # Default to continuous
 
-    # Capture usage
-    print("[HELIUS] 🌐 Helius CLI Usage Monitor", flush=True)
-
+    # Capture usage (suppress startup messages)
     if continuous_mode:
         # Run continuously, capturing every 30 seconds
         import time
-        print("[HELIUS] 🔄 Running in continuous mode (capture every 30s)", flush=True)
         try:
             while True:
                 if test_mode:
@@ -451,7 +428,7 @@ if __name__ == "__main__":
                     sync_helius_to_config(usage)
                     pass  # Snapshot captured successfully
                 else:
-                    print("[HELIUS] ⚠️ Failed to retrieve usage, retrying in 30s", flush=True)
+                    pass  # Silent retry
 
                 time.sleep(30)  # Wait 30 seconds before next capture
         except KeyboardInterrupt:

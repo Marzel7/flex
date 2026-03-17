@@ -359,6 +359,16 @@ class PumpFunCurveListener:
         log_print(f"[INIT] WebSocket: {HELIUS_RPC_WS[:60]}...", flush=True)
         log_print(f"[INIT] HTTP RPC: {RPC_HTTP[:60]}...", flush=True)
 
+        # === Initialize price worker with WebSocket for pool price streaming ===
+        try:
+            from src.core.price_worker import get_price_worker
+            self.price_worker = get_price_worker()
+            self.price_worker.start()  # Start background thread + WebSocket
+            log_print(f"[INIT] ✅ Price worker started with WebSocket pool subscriptions", flush=True)
+        except Exception as e:
+            log_print(f"[INIT] ⚠️  Price worker initialization failed: {e}", flush=True)
+            self.price_worker = None
+
     async def _post_rpc_with_fallback(self, payload: dict, timeout: int = 10) -> Optional[dict]:
         """
         Post to RPC with automatic failover chain.
@@ -2476,13 +2486,8 @@ class PumpFunCurveListener:
 
                     rpc_client = SimpleRPCClient(self._post_rpc_with_fallback)
 
-                    # Get price worker if available to trigger WebSocket refresh
-                    price_worker = None
-                    try:
-                        from src.core.price_worker import get_price_worker
-                        price_worker = get_price_worker()
-                    except:
-                        pass
+                    # Use price worker from listener instance (initialized at startup)
+                    price_worker = self.price_worker
 
                     rpc_success = await discover_and_register_vaults_rpc(
                         token_mint=mint,
@@ -2494,7 +2499,7 @@ class PumpFunCurveListener:
 
                     if rpc_success:
                         log_print(
-                            f"{Colors.DETECT}[VAULT_DISCOVERY] ✅ RPC vault discovery succeeded for {mint[:16]}...{Colors.RESET}",
+                            f"{Colors.DETECT}[VAULT_DISCOVERY] ✅ RPC vault discovery succeeded for {mint}{Colors.RESET}",
                             flush=True
                         )
                         # Transition to "resolved" state

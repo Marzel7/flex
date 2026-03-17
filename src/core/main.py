@@ -4047,7 +4047,7 @@ HTML_TEMPLATE = """
                 }, index * 20);  // Minimal stagger (20ms) for smoother initial load
             });
 
-            // Set up 30-second price refresh for qualified tokens (symbols NOT reloaded)
+            // Set up 5-second price refresh for qualified tokens (real-time feel)
             if (priceRefreshInterval) clearInterval(priceRefreshInterval);
             priceRefreshInterval = setInterval(() => {
                 // Batch all price refreshes with minimal stagger for cleaner updates
@@ -4057,9 +4057,9 @@ HTML_TEMPLATE = """
                         if (token.market_cap_current >= minMarketCap || !token.market_cap_current) {
                             loadPrice(token.mint);
                         }
-                    }, index * 15);  // Even less stagger (15ms) on refreshes
+                    }, index * 10);  // Minimal stagger (10ms) between requests
                 });
-            }, 30000);  // Refresh every 30 seconds
+            }, 5000);  // Refresh every 5 seconds for near real-time updates
         }
 
         async function loadPrice(mint) {

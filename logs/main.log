@@ -1,0 +1,27 @@
+[WEBHOOK_INIT] Tables created/verified
+[WEBHOOK_INTEGRATION] Routes registered: /helius/webhook, /api/webhook/status, /api/webhook/usage-snapshot
+[WORKER] Started
+[WEBHOOK_INTEGRATION] Worker thread started
+[WEBHOOK_INTEGRATION] Webhook system initialized
+[WEBHOOK_API] Enriched routes registered: /creator-recent-checks/enriched, /creators/top-risk, /creator/<>/risk-details
+[WEBHOOK] M5 Webhook-First Low-RPC Architecture initialized successfully
+[OPTIMIZATION] Helius optimization metrics API routes registered successfully
+[RPC_SAVINGS] RPC savings and efficiency dashboard APIs registered successfully
+[LAUNCH_PREDICTION] Phase 3.3+ launch prediction API routes registered successfully
+[ADVANCED_FARM_INTELLIGENCE] Phase 4 advanced farm intelligence API routes registered successfully
+[DEV_INTELLIGENCE] Dev intelligence graph API routes registered successfully
+[FLEX_UI] FLEX UI API routes registered successfully
+[DASHBOARD] FLEX Intelligence Dashboard routes registered successfully
+[PRICE_API] Token Price API routes registered successfully
+[FLASK] Starting Migration Tracker UI...
+[FLASK] Dashboard available at http://localhost:5002
+[FLASK] Database: database/flex_complete_database.db
+[POOL_WS] 🗺️  Built account map: 174 accounts → 134 pools
+[POOL_WS] 🚀 Starting WebSocket client to subscribe to 174 pool accounts
+[PRICE_WORKER] Background price worker started - fetching prices every 10s (HIGH), 30s (MEDIUM), 200s (LOW)
+[POOL_WS] 🗺️  Built account map: 174 accounts → 134 pools
+[LIQUIDITY_WORKER] Background liquidity worker started - updating every 60s
+ * Serving Flask app 'main'
+ * Debug mode: off
+Address already in use
+Port 5002 is in use by another program. Either identify and stop that program, or start the server with a different port.

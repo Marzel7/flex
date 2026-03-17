@@ -923,3 +923,205 @@ async def discover_and_register_vaults_rpc(
         logger.error(f"[VAULT_DISCOVERY] ❌ Registration failed for {token_mint[:16]}...")
 
     return success
+
+
+
+async def discover_and_register_all_pools(
+    token_mint: str,
+    rpc_client,
+    db,
+    price_worker=None,
+    ws_monitor=None,
+    max_retries: int = 3
+) -> bool:
+    """
+    Multi-pool discovery: Find and register ALL pools for a token.
+    
+    For tokens that migrate from Pump.Fun bonding curve to PumpSwap,
+    there may be multiple trading pairs (e.g., TOKEN/SOL, TOKEN/USDC).
+    
+    This function:
+    1. Discovers multiple vault pairs via RPC
+    2. Registers all valid pools in the database
+    3. Scores pools by: wSOL preference, liquidity, recent activity
+    4. Marks the highest-scoring pool as primary
+    5. Triggers WebSocket to subscribe to all pools
+    
+    Args:
+        token_mint: Token mint to discover pools for
+        rpc_client: Solana RPC client
+        db: Database connection
+        price_worker: Optional price worker to trigger WebSocket refresh
+        ws_monitor: Optional WebSocket event monitor for scoring
+        max_retries: Max discovery retry attempts
+    
+    Returns:
+        True if at least one pool registered, False otherwise
+    """
+    try:
+        import sqlite3
+        import time
+        
+        logger.info(f"[VAULT_DISCOVERY] Starting multi-pool discovery for {token_mint[:16]}...")
+        
+        # Handle both connection object and path string
+        if isinstance(db, str):
+            conn = sqlite3.connect(db, timeout=10)
+            should_close = True
+        else:
+            conn = db
+            should_close = False
+        
+        cursor = conn.cursor()
+        now = int(time.time())
+        
+        # Get top 20 largest token accounts (potential pools)
+        candidates = await get_token_largest_accounts(token_mint, rpc_client, limit=20)
+        if not candidates:
+            logger.warning(f"[VAULT_DISCOVERY] No candidate accounts found for {token_mint[:16]}...")
+            return False
+        
+        # Validate all candidates
+        validated = await validate_token_accounts(candidates, token_mint, rpc_client)
+        if not validated:
+            logger.warning(f"[VAULT_DISCOVERY] No validated accounts for {token_mint[:16]}...")
+            return False
+        
+        registered_pools = []
+        
+        # Try to discover multiple vault pairs from validated accounts
+        for i, validated_account in enumerate(validated):
+            try:
+                logger.info(f"[VAULT_DISCOVERY] Checking validated account {i+1}/{len(validated)}: {validated_account.address[:16]}...")
+                
+                # This account is a base vault - now find its quote vault
+                quote_vault_address = await resolve_quote_vault_from_base(
+                    validated_account, 
+                    token_mint, 
+                    rpc_client
+                )
+                
+                if not quote_vault_address:
+                    logger.debug(f"[VAULT_DISCOVERY] No quote vault found for {validated_account.address[:16]}...")
+                    continue
+                
+                # Validate quote vault
+                quote_vault = await validate_quote_vault(quote_vault_address, rpc_client)
+                if not quote_vault:
+                    logger.debug(f"[VAULT_DISCOVERY] Quote vault validation failed for {quote_vault_address[:16]}...")
+                    continue
+                
+                # This is a valid pool! Register it
+                vault_pair = VaultPair(
+                    base_vault=validated_account,
+                    quote_vault=quote_vault,
+                    pool_program="unknown",
+                    confidence_score=0.95
+                )
+                
+                # Insert pool (allow multiple per token)
+                cursor.execute("""
+                    INSERT INTO token_pool_accounts
+                    (mint, base_account, quote_account, pool_program, base_token, base_decimals, 
+                     quote_decimals, quote_token, vault_validation_status, discovery_method, 
+                     created_at, updated_at, is_primary)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(mint, base_account) DO UPDATE SET
+                        quote_account = excluded.quote_account,
+                        vault_validation_status = excluded.vault_validation_status,
+                        updated_at = excluded.updated_at
+                """, (
+                    token_mint,
+                    validated_account.address,
+                    quote_vault["address"],
+                    vault_pair.pool_program or "unknown",
+                    token_mint,
+                    6,
+                    9 if quote_vault.get("decoded") and quote_vault["decoded"].mint == WRAPPED_SOL_MINT else 6,
+                    quote_vault.get("decoded", {}).mint if quote_vault.get("decoded") else WRAPPED_SOL_MINT,
+                    "validated",
+                    "rpc_multipool_discovery",
+                    now,
+                    now,
+                    0  # Will be updated after scoring
+                ))
+                
+                registered_pools.append({
+                    'mint': token_mint,
+                    'base_account': validated_account.address,
+                    'quote_account': quote_vault["address"],
+                    'quote_mint': quote_vault.get("decoded", {}).mint if quote_vault.get("decoded") else WRAPPED_SOL_MINT,
+                })
+                
+                logger.info(f"[VAULT_DISCOVERY] ✅ Registered pool: {validated_account.address[:16]}... / {quote_vault['address'][:16]}...")
+                
+            except Exception as e:
+                logger.debug(f"[VAULT_DISCOVERY] Error processing account {i}: {e}")
+                continue
+        
+        if not registered_pools:
+            logger.error(f"[VAULT_DISCOVERY] ❌ No pools discovered for {token_mint[:16]}...")
+            if should_close:
+                conn.close()
+            return False
+        
+        conn.commit()
+        
+        # Score pools: prioritize wSOL, then by other factors
+        # For now, mark wSOL pools as primary
+        primary_updated = False
+        for pool in registered_pools:
+            is_primary = (pool['quote_mint'] == WRAPPED_SOL_MINT) and not primary_updated
+            
+            cursor.execute("""
+                UPDATE token_pool_accounts
+                SET is_primary = ?, 
+                    pool_score = ?,
+                    updated_at = ?
+                WHERE mint = ? AND base_account = ?
+            """, (
+                1 if is_primary else 0,
+                100.0 if is_primary else 50.0,  # Basic scoring
+                now,
+                pool['mint'],
+                pool['base_account']
+            ))
+            
+            if is_primary:
+                primary_updated = True
+                logger.info(f"[VAULT_DISCOVERY] 🏆 Marked as primary (wSOL pool): {pool['base_account'][:16]}...")
+        
+        conn.commit()
+        
+        logger.info(f"[VAULT_DISCOVERY] ✅ Registered {len(registered_pools)} pools for {token_mint[:16]}...")
+
+        # Update price_source to 'pool' now that pools are registered
+        cursor.execute("""
+            UPDATE token_analysis
+            SET price_source = 'pool'
+            WHERE mint = ?
+        """, (token_mint,))
+        conn.commit()
+        logger.info(f"[VAULT_DISCOVERY] ✅ Updated price_source to 'pool' for {token_mint[:16]}...")
+
+        # Trigger WebSocket refresh
+        if price_worker:
+            try:
+                price_worker.trigger_pool_refresh()
+                logger.info(f"[VAULT_DISCOVERY] ✅ WebSocket client refreshing with {len(registered_pools)} new pools")
+            except Exception as e:
+                logger.warning(f"[VAULT_DISCOVERY] WebSocket refresh failed: {e}")
+
+        if should_close:
+            conn.close()
+
+        return True
+        
+    except Exception as e:
+        logger.error(f"[VAULT_DISCOVERY] ❌ Multi-pool discovery failed: {e}")
+        if should_close:
+            try:
+                conn.close()
+            except:
+                pass
+        return False

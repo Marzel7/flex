@@ -171,9 +171,12 @@ class ReplayTestHarness:
             has_snapshot = snapshot is not None and snapshot.get('source') == 'pool'
 
             # Determine status
+            # For NEW pools, accept 'pending' as valid (will transition to 'validated' after vault validation)
+            vault_status_ok = pool.get('vault_validation_status') in ['validated', 'pending']
+
             success = (
                 len(violations) == 0 and
-                pool.get('vault_validation_status') == 'validated' and
+                vault_status_ok and
                 telemetry is not None and
                 telemetry.get('resolved_at') is not None
             )

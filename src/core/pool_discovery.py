@@ -274,6 +274,39 @@ class PoolDiscovery:
             base_info = await self._fetch_account(base_vault)
             quote_info = await self._fetch_account(quote_vault)
 
+            # Check if vaults are valid token accounts (if they exist)
+            base_is_valid_token_account = False
+            quote_is_valid_token_account = False
+
+            if base_info:
+                base_owner = base_info.get("owner")
+                # Verify owner is SPL Token program
+                if base_owner == SPL_TOKEN_PROGRAM:
+                    # Verify mint matches token_mint (base vault should hold the token)
+                    if len(base_info.get("data", [""])[0]) >= 72:
+                        try:
+                            base_data = b64decode(base_info["data"][0])
+                            base_mint = self._bytes_to_pubkey(base_data[0:32])
+                            if base_mint == token_mint:
+                                base_is_valid_token_account = True
+                        except:
+                            pass
+
+            if quote_info:
+                quote_owner = quote_info.get("owner")
+                # Verify owner is SPL Token program
+                if quote_owner == SPL_TOKEN_PROGRAM:
+                    # Quote vault should hold wSOL (or USDC, etc.)
+                    if len(quote_info.get("data", [""])[0]) >= 72:
+                        try:
+                            quote_data = b64decode(quote_info["data"][0])
+                            quote_mint = self._bytes_to_pubkey(quote_data[0:32])
+                            # Accept wSOL, USDC, or other known quote assets
+                            if quote_mint in ("So11111111111111111111111111111111111111112", "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"):
+                                quote_is_valid_token_account = True
+                        except:
+                            pass
+
             # If vaults don't exist yet (common for new launches), register with vault addresses anyway
             # The pool state is valid even if vaults aren't fully initialized
             if not base_info or not quote_info:

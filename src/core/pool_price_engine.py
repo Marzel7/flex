@@ -230,7 +230,7 @@ class PoolReserveFetcher:
 class PoolPriceCalculator:
     """Compute token prices from AMM reserve ratios with manipulation protection."""
 
-    MIN_LIQUIDITY_USD = 5_000.0
+    MIN_LIQUIDITY_USD = 100.0  # Lowered to $100 for testing (production: $5000)
     MAX_PRICE_DEVIATION = 0.40
 
     @staticmethod

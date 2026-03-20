@@ -2788,6 +2788,7 @@ class PumpFunCurveListener:
                             # Phase 3: Try follow-on transaction discovery if:
                             # - cached TX present but zero candidates
                             # - we're past Tier 1 (attempts 1-3)
+                            pool_candidates = []  # Initialize here to avoid uninitialized error
                             follow_on_max_txs = 0
                             if attempt >= 4:  # Tier 2+ (attempts 4+)
                                 follow_on_max_txs = 10 if attempt < 7 else 20

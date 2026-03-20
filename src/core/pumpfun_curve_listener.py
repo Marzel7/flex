@@ -409,27 +409,31 @@ class PumpFunCurveListener:
                 for mint in expired_mints:
                     del self.critical_window_tasks[mint]
 
-                # Process queued jobs if critical window expired
-                if not expired_mints:
+                # If any critical windows are still active, skip processing
+                # This ensures absolute deferral - no background work during critical window
+                if self.critical_window_tasks:
+                    # Windows still active - don't process jobs yet
                     await asyncio.sleep(0.5)
                     continue
 
-                # Process all queued jobs
+                # All critical windows expired - process all queued jobs
                 jobs_processed = 0
                 try:
                     while not self.background_job_queue.empty():
                         job_item = self.background_job_queue.get_nowait()
+                        mint = job_item.get('mint', '?')
                         try:
+                            log_print(f"[BACKGROUND] 🚀 Executing queued job (mint={mint[:8]}...)", flush=True)
                             await job_item['coro']
                             jobs_processed += 1
                         except Exception as e:
-                            logger.error(f"Background job failed: {e}")
+                            logger.error(f"[BACKGROUND] ❌ Job failed (mint={mint[:8]}...): {e}")
                         self.background_job_queue.task_done()
                 except asyncio.QueueEmpty:
                     pass
 
                 if jobs_processed > 0:
-                    logger.info(f"[BACKGROUND] Processed {jobs_processed} background jobs after critical windows")
+                    log_print(f"[BACKGROUND] ✅ Processed {jobs_processed} background jobs after critical windows expired", flush=True)
 
                 await asyncio.sleep(0.5)
             except Exception as e:
@@ -2487,8 +2491,8 @@ class PumpFunCurveListener:
             )
             # Schedule retries at optimized delays (don't await - fire and forget)
             # Optimized schedule: denser early retries + extended late retries (0.5s intervals for first 8, then 3-5s intervals)
-            # Pass tx_source to track if we have cached TX available
-            asyncio.create_task(self._retry_pool_discovery(mint, signature, delays=[0.5, 1, 1.5, 2, 3, 5, 8, 12, 18, 25, 35, 50], tx_source=tx_source))
+            # Pass tx_data and tx_source to use cached TX directly without re-fetching
+            asyncio.create_task(self._retry_pool_discovery(mint, signature, delays=[0.5, 1, 1.5, 2, 3, 5, 8, 12, 18, 25, 35, 50], tx_source=tx_source, tx_data=tx_data))
 
         # === AUTO-REGISTER POOL FOR WEBSOCKET PRICING ===
         # ✅ Validate pool owner before registration (belt-and-suspenders check)
@@ -2595,12 +2599,14 @@ class PumpFunCurveListener:
         except Exception as creator_err:
             log_print(f"[CREATOR] ⚠ Could not extract creator: {creator_err}", flush=True)
 
-        # Analyze token history (includes creator behavior from all token transactions) asynchronously (if enabled)
+        # Analyze token history (includes creator behavior from all token transactions) - MUST be deferred during critical window
+        # This is a background task that consumes RPC quota and must wait until critical window expires
         if get_migration_setting('token_history_check', True):
-            log_print(f"[SETTINGS] Token history ✅ ON - analyzing creator behavior from token history", flush=True)
-            asyncio.create_task(self.analyze_post_migration(mint, signature, pool_address))
+            log_print(f"[SETTINGS] Token history ✅ ON - queueing post-migration analysis (deferred)", flush=True)
+            # Queue for deferred execution after critical window expires (45s)
+            await self.queue_background_job(self.analyze_post_migration(mint, signature, pool_address), mint=mint, priority=5)
         else:
-            log_print(f"[SETTINGS] Token history ❌ OFF - skipping token history analysis", flush=True)
+            log_print(f"[SETTINGS] Token history ❌ OFF - skipping post-migration analysis", flush=True)
 
         log_print(f"[MIGRATION] ✅ CRITICAL PATH COMPLETE - Token {mint[:8]}... with creator {earliest_creator[:8] if earliest_creator else 'unknown'}... is now visible in UI", flush=True)
 
@@ -2650,7 +2656,7 @@ class PumpFunCurveListener:
         else:
             log_print(f"[BACKGROUND] ⏭️ Skipping background tasks (no creator found)", flush=True)
 
-    async def _retry_pool_discovery(self, mint: str, original_migration_sig: str, delays: List[int], tx_source: str = "miss"):
+    async def _retry_pool_discovery(self, mint: str, original_migration_sig: str, delays: List[int], tx_source: str = "miss", tx_data: Optional[Dict] = None):
         """
         PHASE 2: Critical-path protected retry discovery with tier-based strategies.
 
@@ -2669,6 +2675,7 @@ class PumpFunCurveListener:
             original_migration_sig: Original migration transaction signature
             delays: List of delays in seconds for retries
             tx_source: Where the TX came from: "cached", "rpc", or "miss"
+            tx_data: Optional pre-fetched transaction data (from cached handle_migration fetch)
         """
         from src.core.post_migration_pool_discovery import PostMigrationPoolDiscovery
         from src.core.pool_detector import AMMPrograms
@@ -2719,10 +2726,14 @@ class PumpFunCurveListener:
                     try:
                         discovery = PostMigrationPoolDiscovery(RPC_HTTP)
 
-                        # Fetch exact migration TX with discovery RPC quota
+                        # Parse candidates from cached TX (most critical optimization!)
+                        # If tx_data is available (from cached handle_migration fetch), use it directly
+                        # Otherwise falls back to RPC fetch (slower but still works)
+                        using_cached_payload = tx_data is not None
                         pool_candidates = await discovery.discover_pool_candidates_from_migration_tx(
                             mint=mint,
-                            migration_sig=original_migration_sig
+                            migration_sig=original_migration_sig,
+                            tx_data=tx_data  # Pass cached TX to avoid redundant fetch
                         )
 
                         candidates_tested = 0
@@ -2799,7 +2810,7 @@ class PumpFunCurveListener:
                             discovery_metrics['tx_parsing_attempts'] += 1
                             corr = self._correlation_id(mint, attempt=attempt)
                             log_print(
-                                f"{Colors.DISCOVER}[DISCOVERY_TX] corr={corr} candidates_tested={candidates_tested} rejections={','.join(set(rejection_reasons))}{Colors.RESET}",
+                                f"{Colors.DISCOVER}[DISCOVERY_TX] corr={corr} using_cached_payload={using_cached_payload} parsed_candidates={len(pool_candidates)} tested={candidates_tested} rejections={','.join(set(rejection_reasons))}{Colors.RESET}",
                                 flush=True
                             )
                         else:

@@ -2518,10 +2518,10 @@ class PumpFunCurveListener:
                 f"{Colors.DETECT}[POOL_DETECT] Initial discovery failed, scheduling optimized retries...{Colors.RESET}",
                 flush=True
             )
-            # Schedule retries at optimized delays (don't await - fire and forget)
-            # Optimized schedule: denser early retries + extended late retries (0.5s intervals for first 8, then 3-5s intervals)
-            # Pass tx_data and tx_source to use cached TX directly without re-fetching
-            asyncio.create_task(self._retry_pool_discovery(mint, signature, delays=[0.5, 1, 1.5, 2, 3, 5, 8, 12, 18, 25, 35, 50], tx_source=tx_source, tx_data=tx_data))
+            # Mark for retry scheduling after creator extraction (will schedule with full context)
+            schedule_retry_after_creator_extraction = True
+        else:
+            schedule_retry_after_creator_extraction = False
 
         # === AUTO-REGISTER POOL FOR WEBSOCKET PRICING ===
         # ✅ Validate pool owner before registration (belt-and-suspenders check)
@@ -2628,6 +2628,37 @@ class PumpFunCurveListener:
         except Exception as creator_err:
             log_print(f"[CREATOR] ⚠ Could not extract creator: {creator_err}", flush=True)
 
+        # === RETRY SCHEDULING (after creator extraction) ===
+        # If initial discovery failed, schedule optimized retries with full context
+        if schedule_retry_after_creator_extraction:
+            bonding_curve_for_retry = bonding_curve_pda if 'bonding_curve_pda' in locals() else None
+            creator_for_retry = earliest_creator if 'earliest_creator' in locals() and earliest_creator else None
+            migration_timestamp_for_retry = None
+            if tx_data and 'blockTime' in tx_data:
+                try:
+                    migration_timestamp_for_retry = int(tx_data['blockTime'])
+                except Exception:
+                    pass
+
+            log_print(
+                f"{Colors.DISCOVER}[RETRY_SCHEDULE] Scheduling retries with context: bonding_curve={bonding_curve_for_retry[:16] if bonding_curve_for_retry else 'None'}... creator={creator_for_retry[:16] if creator_for_retry else 'None'}...{Colors.RESET}",
+                flush=True
+            )
+
+            # Schedule retries at optimized delays (don't await - fire and forget)
+            # Optimized schedule: denser early retries + extended late retries (0.5s intervals for first 8, then 3-5s intervals)
+            # Pass tx_data, tx_source, and discovery context to maximize pool discovery success
+            asyncio.create_task(self._retry_pool_discovery(
+                mint,
+                signature,
+                delays=[0.5, 1, 1.5, 2, 3, 5, 8, 12, 18, 25, 35, 50],
+                tx_source=tx_source,
+                tx_data=tx_data,
+                bonding_curve=bonding_curve_for_retry,
+                creator=creator_for_retry,
+                migration_timestamp=migration_timestamp_for_retry
+            ))
+
         # Analyze token history (includes creator behavior from all token transactions) - MUST be deferred during critical window
         # This is a background task that consumes RPC quota and must wait until critical window expires
         if get_migration_setting('token_history_check', True):
@@ -2685,7 +2716,7 @@ class PumpFunCurveListener:
         else:
             log_print(f"[BACKGROUND] ⏭️ Skipping background tasks (no creator found)", flush=True)
 
-    async def _retry_pool_discovery(self, mint: str, original_migration_sig: str, delays: List[int], tx_source: str = "miss", tx_data: Optional[Dict] = None):
+    async def _retry_pool_discovery(self, mint: str, original_migration_sig: str, delays: List[int], tx_source: str = "miss", tx_data: Optional[Dict] = None, bonding_curve: Optional[str] = None, creator: Optional[str] = None, migration_timestamp: Optional[int] = None):
         """
         PHASE 2: Critical-path protected retry discovery with tier-based strategies.
 
@@ -2705,6 +2736,9 @@ class PumpFunCurveListener:
             delays: List of delays in seconds for retries
             tx_source: Where the TX came from: "cached", "rpc", or "miss"
             tx_data: Optional pre-fetched transaction data (from cached handle_migration fetch)
+            bonding_curve: Optional bonding curve PDA (primary anchor for follow-on discovery)
+            creator: Optional earliest creator address (secondary anchor for follow-on discovery)
+            migration_timestamp: Optional migration block time for context
         """
         from src.core.post_migration_pool_discovery import PostMigrationPoolDiscovery
         from src.core.pool_detector import AMMPrograms
@@ -2798,21 +2832,17 @@ class PumpFunCurveListener:
                             follow_on_txs_scanned = 0
 
                             if follow_on_max_txs > 0 and tx_data is not None and cached_candidate_count == 0:
-                                # Extract bonding curve and creator from context
-                                # These should have been captured during migration detection
-                                bonding_curve = None
-                                creator = None
-
-                                # Try to extract from discovery context if available
-                                # For now, we focus on TX-based search without these anchors
-                                # In production, bonding_curve and creator would be passed from handle_migration
+                                # Use bonding_curve and creator passed from migration context
+                                # These were extracted in _process_migration_with_mint
+                                bonding_curve_for_follow_on = bonding_curve  # Use the parameter passed to _retry_pool_discovery
+                                creator_for_follow_on = creator  # Use the parameter passed to _retry_pool_discovery
 
                                 try:
                                     follow_on_pool, follow_on_anchor, follow_on_offset, follow_on_txs_scanned = await discovery.discover_follow_on_pools(
                                         mint=mint,
                                         migration_sig=original_migration_sig,
-                                        bonding_curve=bonding_curve,
-                                        creator=creator,
+                                        bonding_curve=bonding_curve_for_follow_on,
+                                        creator=creator_for_follow_on,
                                         token_mint=mint,
                                         max_txs_per_anchor=follow_on_max_txs,
                                     )

@@ -515,7 +515,7 @@ class PumpFunCurveListener:
                     "method": method,
                     "params": params
                 }
-                result = await self._post_rpc_with_fallback(payload, timeout=timeout)
+                result = await self._post_rpc_with_fallback(payload, timeout=timeout, priority="critical")
                 return result
             except Exception as e:
                 logger.debug(f"Discovery RPC error ({method}): {e}")
@@ -531,7 +531,7 @@ class PumpFunCurveListener:
                     "method": method,
                     "params": params
                 }
-                result = await self._post_rpc_with_fallback(payload, timeout=timeout)
+                result = await self._post_rpc_with_fallback(payload, timeout=timeout, priority="background")
                 return result
             except Exception as e:
                 logger.debug(f"Background RPC error ({method}): {e}")
@@ -557,12 +557,15 @@ class PumpFunCurveListener:
         except Exception as e:
             log_print(f"[TELEMETRY] ⚠️  Failed to write telemetry for {mint}: {e}", flush=True)
 
-    async def _post_rpc_with_fallback(self, payload: dict, timeout: int = 10) -> Optional[dict]:
+    async def _post_rpc_with_fallback(self, payload: dict, timeout: int = 10, priority: str = "critical") -> Optional[dict]:
         """
         Post to RPC with automatic failover chain.
 
         Tries: Primary QuickNode -> Secondary QuickNode -> Helius -> Public Solana
         Returns: JSON response data or None if all fail
+
+        Args:
+            priority: "critical" (discovery RPC) or "background" (deferred work RPC)
         """
         try:
             rpc_method = payload.get("method", "unknown")
@@ -570,6 +573,7 @@ class PumpFunCurveListener:
             last_status = None
             last_error = None
             retry_count = 0
+            optimization_layer = "critical_discovery" if priority == "critical" else "background_deferred"
 
             async with aiohttp.ClientSession() as session:
                 for i, rpc_url in enumerate(RPC_URLS):
@@ -579,7 +583,7 @@ class PumpFunCurveListener:
                             latency_ms = (time.time() - start_time) * 1000
 
                             if resp.status == 200:
-                                # Success - record metrics
+                                # Success - record metrics with priority tag
                                 record_request(
                                     section="listener",
                                     provider="helius_rpc" if "helius" in rpc_url else "quicknode_rpc" if "quiknode" in rpc_url else "solana_rpc",
@@ -589,7 +593,7 @@ class PumpFunCurveListener:
                                     mode="realtime",
                                     retries=retry_count,
                                     source_file="pumpfun_curve_listener",
-
+                                    optimization_layer=optimization_layer,
                                     error=None,
                                 )
                                 return await resp.json()
@@ -605,7 +609,7 @@ class PumpFunCurveListener:
                                     mode="realtime",
                                     retries=retry_count,
                                     source_file="pumpfun_curve_listener",
-
+                                    optimization_layer=optimization_layer,
                                     error="Rate limited",
                                 )
                                 if i < len(RPC_URLS) - 1:
@@ -622,7 +626,7 @@ class PumpFunCurveListener:
                                     mode="realtime",
                                     retries=retry_count,
                                     source_file="pumpfun_curve_listener",
-
+                                    optimization_layer=optimization_layer,
                                     error=f"HTTP {resp.status}",
                                 )
                                 if i < len(RPC_URLS) - 1:
@@ -639,7 +643,7 @@ class PumpFunCurveListener:
                             mode="realtime",
                             retries=retry_count,
                             source_file="pumpfun_curve_listener",
-
+                            optimization_layer=optimization_layer,
                             error="Timeout",
                         )
                         if i < len(RPC_URLS) - 1:
@@ -656,7 +660,7 @@ class PumpFunCurveListener:
                             mode="realtime",
                             retries=retry_count,
                             source_file="pumpfun_curve_listener",
-
+                            optimization_layer=optimization_layer,
                             error=last_error,
                         )
                         if i < len(RPC_URLS) - 1:
@@ -673,7 +677,7 @@ class PumpFunCurveListener:
                     mode="realtime",
                     retries=retry_count,
                     source_file="pumpfun_curve_listener",
-
+                    optimization_layer=optimization_layer,
                     error=last_error or "All endpoints failed",
                 )
                 return None
@@ -690,7 +694,7 @@ class PumpFunCurveListener:
                 mode="realtime",
                 retries=0,
                 source_file="pumpfun_curve_listener",
-
+                optimization_layer=optimization_layer if 'optimization_layer' in locals() else "unknown",
                 error=str(e),
             )
             return None

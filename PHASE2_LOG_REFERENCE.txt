@@ -1,0 +1,238 @@
+================================================================================
+PHASE 2 LOG FORMAT REFERENCE - WHAT TO LOOK FOR
+================================================================================
+
+This document shows the exact log format you'll see after Phase 2 deployment.
+Use this to understand what's happening in pool discovery and spot patterns.
+
+================================================================================
+ATTEMPT HEADER
+================================================================================
+
+[POOL_RETRY] Attempt N/12 (waited Xs) - PRIMARY: TX parsing for MINT...
+
+Examples:
+[POOL_RETRY] Attempt 1/12 (waited 0.5s) - PRIMARY: TX parsing for 5cDhM...
+[POOL_RETRY] Attempt 2/12 (waited 1s) - PRIMARY: TX parsing for 5cDhM...
+[POOL_RETRY] Attempt 3/12 (waited 1.5s) - PRIMARY: TX parsing for 5cDhM...
+
+Interpretation:
+  Attempt 1/12 = This is attempt 1 out of 12 total
+  waited 0.5s = We waited 0.5 seconds since previous attempt
+  PRIMARY: TX parsing = We're about to try TX parsing strategy
+
+================================================================================
+TX PARSING - CANDIDATES AND REJECTIONS
+================================================================================
+
+Per-candidate logs (one per candidate):
+[POOL_RETRY] attempt=N strategy=tx_parsing candidate=ADDR... rejected=REASON
+
+Examples:
+[POOL_RETRY] attempt=1 strategy=tx_parsing candidate=5cDhM4v... rejected=not_found
+[POOL_RETRY] attempt=2 strategy=tx_parsing candidate=5cDhM4v... rejected=owner_mismatch (expected AMM, got TokenkegQ...)
+[POOL_RETRY] attempt=6 strategy=tx_parsing candidate=9XaBfT... accepted pool_registered
+
+Rejection reasons:
+  not_found ......................... Account doesn't exist yet (TX not indexed)
+  owner_mismatch .................... Account owner not in AMMPrograms.ALL
+  registration_failed ............... Valid pool but registration returned False
+  registration_error ............... Registration threw exception
+  check_error ....................... RPC getAccountInfo failed
+
+Summary after all candidates tested for an attempt:
+[POOL_RETRY] attempt=N strategy=tx_parsing candidates=M rejections=REASON1,REASON2
+
+Examples:
+[POOL_RETRY] attempt=1 strategy=tx_parsing candidates=2 rejections=not_found
+[POOL_RETRY] attempt=2 strategy=tx_parsing candidates=2 rejections=owner_mismatch
+[POOL_RETRY] attempt=6 strategy=tx_parsing candidates=2 rejections=owner_mismatch,registration_failed
+
+Interpretation:
+  attempt=6 = This was retry 6
+  candidates=2 = There were 2 pool candidates from the migration TX
+  rejections=owner_mismatch = One was rejected for owner mismatch (the other succeeded)
+
+================================================================================
+RPC FALLBACK - ATTEMPT
+================================================================================
+
+After TX parsing exhausted for an attempt:
+[POOL_RETRY] attempt=N strategy=rpc_fallback starting...
+[POOL_RETRY] attempt=N strategy=rpc_fallback accepted pool_registered
+                                        OR
+[POOL_RETRY] attempt=N strategy=rpc_fallback rejected=vaults_not_ready
+                                        OR
+[POOL_RETRY] attempt=N strategy=rpc_fallback error=...
+
+Examples:
+[POOL_RETRY] attempt=1 strategy=rpc_fallback starting...
+[POOL_RETRY] attempt=1 strategy=rpc_fallback rejected=vaults_not_ready
+
+[POOL_RETRY] attempt=8 strategy=rpc_fallback starting...
+[POOL_RETRY] attempt=8 strategy=rpc_fallback accepted pool_registered
+
+[POOL_RETRY] attempt=3 strategy=rpc_fallback starting...
+[POOL_RETRY] attempt=3 strategy=rpc_fallback error=RPC timeout
+
+Interpretation:
+  vaults_not_ready = Vaults haven't indexed yet, try again
+  accepted = Pool found via RPC and registered!
+  error = RPC call failed (RPC issue)
+
+================================================================================
+SUCCESS LOGS
+================================================================================
+
+When a token resolves:
+
+[POOL_RETRY] attempt=N strategy=STRATEGY candidate=ADDR... accepted pool_registered
+[STATE] Token MINT[:16]... → resolved (STRATEGY, attempt N in X.Xs)
+
+Examples:
+[POOL_RETRY] attempt=6 strategy=tx_parsing candidate=9XaBfT... accepted pool_registered
+[STATE] Token 5cDhM4v... → resolved (TX parsing, attempt 6 in 8.3s)
+
+[POOL_RETRY] attempt=3 strategy=rpc_fallback accepted pool_registered
+[STATE] Token 7FkL2W... → resolved (RPC fallback, attempt 3 in 4.2s)
+
+Interpretation:
+  attempt=6 = This was the 6th retry attempt overall
+  strategy=tx_parsing = TX parsing succeeded (not RPC)
+  in 8.3s = Total elapsed time from detection to resolution
+
+Key insight: If most tokens resolve at attempt 6-8, the retry schedule
+works well. If at attempt 1-2, even better! If at attempt 12, might need
+more retries or looser validation.
+
+================================================================================
+SUMMARY AT END (IF ALL RETRIES EXHAUSTED)
+================================================================================
+
+[POOL_RETRY] ❌ All 12 attempts exhausted for MINT[:16]..., giving up
+[POOL_RETRY_SUMMARY] MINT[:16]... metrics:
+  tx_parsing_attempts=12 rpc_attempts=12
+  total_candidates_tested=24
+  rejections={'not_found': 10, 'owner_mismatch': 8, 'registration_failed': 2, 'check_error': 4}
+
+Interpretation:
+  tx_parsing_attempts=12 = TX parsing was tried 12 times (all attempts)
+  rpc_attempts=12 = RPC fallback was tried 12 times (all attempts)
+  total_candidates_tested=24 = 24 candidates checked (avg 2 per attempt)
+  rejections breakdown:
+    not_found: 10 = Mostly timing issue (TX indexing delay)
+    owner_mismatch: 8 = Some candidates had wrong owner
+    registration_failed: 2 = Some valid pools but registration rejected
+    check_error: 4 = Some RPC errors
+
+Key insight: If "not_found" dominates, increase retry window. If "owner_mismatch"
+dominates, improve candidate extraction. If "registration_failed" dominates,
+loosen validation (Phase 3).
+
+================================================================================
+COMPLETE EXAMPLE: SUCCESSFUL TOKEN
+================================================================================
+
+[POOL_RETRY] Attempt 1/12 (waited 0.5s) - PRIMARY: TX parsing for 5cDhM...
+[POOL_RETRY] attempt=1 strategy=tx_parsing candidates=2 rejections=not_found
+[POOL_RETRY] attempt=1 strategy=tx_parsing candidate=5cDhM... rejected=not_found
+[POOL_RETRY] attempt=1 strategy=tx_parsing candidate=7FkL2W... rejected=not_found
+[POOL_RETRY] attempt=1 strategy=rpc_fallback starting...
+[POOL_RETRY] attempt=1 strategy=rpc_fallback rejected=vaults_not_ready
+
+[POOL_RETRY] Attempt 2/12 (waited 1s) - PRIMARY: TX parsing for 5cDhM...
+[POOL_RETRY] attempt=2 strategy=tx_parsing candidates=2 rejections=owner_mismatch
+[POOL_RETRY] attempt=2 strategy=tx_parsing candidate=5cDhM... rejected=owner_mismatch (expected AMM, got TokenkegQ...)
+[POOL_RETRY] attempt=2 strategy=tx_parsing candidate=7FkL2W... rejected=owner_mismatch
+[POOL_RETRY] attempt=2 strategy=rpc_fallback starting...
+[POOL_RETRY] attempt=2 strategy=rpc_fallback rejected=vaults_not_ready
+
+[POOL_RETRY] Attempt 3/12 (waited 1.5s) - PRIMARY: TX parsing for 5cDhM...
+[POOL_RETRY] attempt=3 strategy=tx_parsing candidates=2 rejections=not_found
+[POOL_RETRY] attempt=3 strategy=tx_parsing candidate=5cDhM... rejected=not_found
+[POOL_RETRY] attempt=3 strategy=tx_parsing candidate=7FkL2W... rejected=not_found
+[POOL_RETRY] attempt=3 strategy=rpc_fallback starting...
+[POOL_RETRY] attempt=3 strategy=rpc_fallback rejected=vaults_not_ready
+
+[POOL_RETRY] Attempt 4/12 (waited 2s) - PRIMARY: TX parsing for 5cDhM...
+[POOL_RETRY] attempt=4 strategy=tx_parsing candidates=2 rejections=not_found,owner_mismatch
+[POOL_RETRY] attempt=4 strategy=tx_parsing candidate=5cDhM... rejected=not_found
+[POOL_RETRY] attempt=4 strategy=tx_parsing candidate=7FkL2W... rejected=owner_mismatch
+[POOL_RETRY] attempt=4 strategy=rpc_fallback starting...
+[POOL_RETRY] attempt=4 strategy=rpc_fallback rejected=vaults_not_ready
+
+[POOL_RETRY] Attempt 5/12 (waited 3s) - PRIMARY: TX parsing for 5cDhM...
+[POOL_RETRY] attempt=5 strategy=tx_parsing candidates=2 rejections=owner_mismatch
+[POOL_RETRY] attempt=5 strategy=tx_parsing candidate=5cDhM... rejected=owner_mismatch
+[POOL_RETRY] attempt=5 strategy=tx_parsing candidate=7FkL2W... rejected=owner_mismatch
+[POOL_RETRY] attempt=5 strategy=rpc_fallback starting...
+[POOL_RETRY] attempt=5 strategy=rpc_fallback rejected=vaults_not_ready
+
+[POOL_RETRY] Attempt 6/12 (waited 5s) - PRIMARY: TX parsing for 5cDhM...
+[POOL_RETRY] attempt=6 strategy=tx_parsing candidates=2 rejections=owner_mismatch,registration_failed
+[POOL_RETRY] attempt=6 strategy=tx_parsing candidate=5cDhM... rejected=owner_mismatch
+[POOL_RETRY] attempt=6 strategy=tx_parsing candidate=7FkL2W... accepted pool_registered
+[POOL_RETRY] attempt=6 strategy=tx_parsing candidate=7FkL2W... accepted pool_registered
+[STATE] Token 5cDhM... → resolved (TX parsing, attempt 6 in 8.3s)
+
+INTERPRETATION:
+  - Attempts 1-5: Candidates not indexed yet (not_found) or wrong owner
+  - Attempt 6: TX finally indexed (T=8s), 7FkL2W candidate succeeds
+  - Strategy: TX parsing (not RPC)
+  - Time: 8.3 seconds (0.5+1+1.5+2+3 = 8s waiting + 0.3s processing)
+  - Next: Move to next token, this one resolved
+
+================================================================================
+KEY METRICS TO TRACK
+================================================================================
+
+From these logs, calculate:
+
+1. RETRY DISTRIBUTION
+   Count how many tokens resolve at each attempt:
+   - Attempt 1: ____%
+   - Attempt 2: ____%
+   - Attempt 3: ____%
+   - Attempt 6: ____%
+   - Attempt 12: ____%
+
+   Goal: 80%+ by attempt 5, <5% needing attempt 12
+
+2. STRATEGY DISTRIBUTION
+   Count strategy success:
+   - TX parsing: ____%
+   - RPC fallback: ____%
+
+   Goal: 85%+ TX parsing, <15% RPC
+
+3. REJECTION DISTRIBUTION
+   Sum all rejections by reason:
+   - not_found: ____%
+   - owner_mismatch: ____%
+   - registration_failed: ____%
+   - check_error: ____%
+   - registration_error: ____%
+
+   Goal: Understand bottleneck for Phase 3
+
+4. RESOLUTION TIME
+   Calculate from STATE logs:
+   - Median: ___s (target <12s, Phase 1 goal)
+   - P90: ___s (target <25s)
+   - P95: ___s
+
+   Verify Phase 1 (retry schedule) working
+
+================================================================================
+WHAT PHASE 2 DOESN'T CHANGE
+================================================================================
+
+These logs are NEW, but behavior is SAME as before:
+  ✓ Retry schedule unchanged [0.5, 1, 1.5, 2, 3, 5, 8, 12, 18, 25, 35, 50]
+  ✓ Strategy order unchanged (TX parsing primary, RPC fallback)
+  ✓ Expected latency unchanged (8-10x faster than before Phase 1)
+  ✓ Success rate unchanged (same algorithms)
+
+Phase 2 is PURE OBSERVABILITY - same behavior, better visibility.
+
+================================================================================

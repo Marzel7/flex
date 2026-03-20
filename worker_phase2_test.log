@@ -1,0 +1,986 @@
+[WEBHOOK_INIT] Tables created/verified
+[WEBHOOK_INTEGRATION] Routes registered: /helius/webhook, /api/webhook/status, /api/webhook/usage-snapshot
+[WORKER] Started
+[WEBHOOK_INTEGRATION] Worker thread started
+[WEBHOOK_INTEGRATION] Webhook system initialized
+[WEBHOOK_API] Enriched routes registered: /creator-recent-checks/enriched, /creators/top-risk, /creator/<>/risk-details
+[WEBHOOK] M5 Webhook-First Low-RPC Architecture initialized successfully
+[OPTIMIZATION] Helius optimization metrics API routes registered successfully
+[RPC_SAVINGS] RPC savings and efficiency dashboard APIs registered successfully
+[LAUNCH_PREDICTION] Phase 3.3+ launch prediction API routes registered successfully
+[ADVANCED_FARM_INTELLIGENCE] Phase 4 advanced farm intelligence API routes registered successfully
+[DEV_INTELLIGENCE] Dev intelligence graph API routes registered successfully
+[FLEX_UI] FLEX UI API routes registered successfully
+[DASHBOARD] FLEX Intelligence Dashboard routes registered successfully
+[PRICE_API] Token Price API routes registered successfully
+[FLASK] Starting Migration Tracker UI...
+[FLASK] Dashboard available at http://localhost:5002
+[FLASK] Database: database/flex_complete_database.db
+[PRICE_WORKER] Creating thread
+[PRICE_WORKER] thread created
+[PRICE_WORKER] _run_loop THREAD STARTED
+[PRICE_WORKER] thread.start() executed
+[PRICE_WORKER] self.running = True
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] thread alive: True
+[PRICE_WORKER] cycle at 1774011849.5632372
+[PRICE_DEBUG] refresh_cycle START
+[POOL_WS] 🗺️  Built account map: 54 accounts → 27 pools (0 new)
+[POOL_WS] 🚀 Starting WebSocket client to subscribe to 54 pool accounts
+[PRICE_WORKER] Background price worker started - fetching prices every 10s (HIGH), 30s (MEDIUM), 200s (LOW)
+[POOL_WS] 🗺️  Built account map: 54 accounts → 27 pools (0 new)
+[POOL_WS] 🚀 Starting WebSocket client to subscribe to 54 pool accounts
+[POOL_WS] 🗺️  Built account map: 54 accounts → 27 pools (0 new)
+[LIQUIDITY_WORKER] Background liquidity worker started - updating every 60s
+ * Serving Flask app 'main'
+ * Debug mode: off
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774011849.8388312
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[POOL_WS] ✅ Subscribed to 54/54 pool accounts
+[POOL_WS] ✅ Subscribed to 54/54 pool accounts
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774011859.902509
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774011869.9271839
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774011879.96194
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774011890.031168
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[CAPABILITY_CHECK] Phase 2A networks_release: ENABLED
+[CAPABILITY_CHECK] Phase 2A networks_release: ENABLED
+[CAPABILITY_CHECK] Phase 2A networks_release: ENABLED
+[CAPABILITY_CHECK] Phase 2A networks_release: ENABLED
+[CAPABILITY_CHECK] Phase 2A networks_release: ENABLED
+[CAPABILITY_CHECK] Phase 2A networks_release: ENABLED
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774011900.064089
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774011910.100357
+[PRICE_DEBUG] refresh_cycle START
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774011910.344348
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774011920.4249191
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774011930.454491
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774011940.490817
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774011952.027283
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774011962.066064
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774011972.087976
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 122s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774011972.294972
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774011982.361635
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774011992.390133
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012002.421516
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 153s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012002.595513
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012012.652694
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012022.6809669
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012032.706998
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 183s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012032.8687549
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012042.931543
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012054.643266
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012064.666123
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 215s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012064.8799272
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012074.9520562
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012084.982174
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012095.00256
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 245s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012095.144054
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012105.210572
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012115.2350469
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012125.2765162
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 276s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012125.404278
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012135.469708
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012145.503225
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012156.720371
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 307s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012156.882473
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012166.944491
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012176.968117
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012187.008791
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 337s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012187.170516
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012197.2378728
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012207.263676
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012217.287097
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 368s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012217.482208
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012227.5476968
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012237.574052
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012247.610498
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 399s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012248.996502
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012259.056113
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012269.0829802
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012279.1082969
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 430s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012279.255966
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012289.316304
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012299.332767
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012309.3730109
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 460s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012309.522138
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012319.583064
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012329.613067
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012339.639447
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 490s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012339.792004
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012349.8537621
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012361.086565
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012371.115083
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 522s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012371.370649
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012381.429059
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012391.4656022
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012401.49874
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 552s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012401.639035
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012411.6958919
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012421.719897
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012431.743724
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 582s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012431.899661
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012441.9471538
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012451.9741492
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012463.2048771
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 614s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012463.340441
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012473.5615108
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012483.867195
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012493.9245682
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 644s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012494.243497
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012504.528372
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012514.574235
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012525.839592
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 676s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012526.138767
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012536.281475
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012546.299267
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012556.329329
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 708s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012557.668876
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012567.727494
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012577.75359
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012587.785017
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 738s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012587.9660249
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012598.036972
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012608.056515
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012618.097962
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 769s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012618.260115
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012628.3076339
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[LISTENER] Executed update for listen_to_launches = true (rows affected: 1)
+[LISTENER] TOGGLED - Token Launch: ✅ ON
+[LISTENER] Database commit successful
+[LISTENER] VERIFY: listen_to_launches = true, updated at 2026-03-20 13:17:11
+[SETTINGS] Retrieved - Token History: ❌ OFF
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012638.337354
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012648.357847
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 799s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012648.514394
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012658.580418
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012669.741909
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012679.761055
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 830s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012679.940897
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012690.01041
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012700.037432
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012710.053612
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 860s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012710.244416
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012720.327085
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012730.350604
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012740.378736
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 891s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012740.521724
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012750.579423
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012760.6101499
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012771.828151
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 922s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012771.980175
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012782.041425
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012792.0671082
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012802.0968351
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 952s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012802.2464929
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012812.324712
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012822.3550599
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012832.383592
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 983s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012832.538759
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012842.6047528
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012852.634631
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012862.665306
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1014s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012864.08773
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012874.145864
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012884.176661
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012894.201272
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1045s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012894.357117
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012904.423425
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012914.442689
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012924.475185
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1075s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012924.631346
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012934.68627
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012944.7219589
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012954.745265
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1105s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012955.247518
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012965.312573
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012976.531439
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012986.559777
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1137s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774012986.7182562
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774012996.7775419
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013006.972492
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013016.993833
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1167s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774013017.154901
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013027.2137449
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013037.242074
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013047.274144
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1198s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774013047.441061
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013057.500722
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013067.5300019
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013078.7446961
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1229s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774013078.92664
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013088.9863281
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013099.008654
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013109.042258
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1259s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774013109.2087538
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013119.267157
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013129.297906
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013139.321862
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1290s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774013139.5130382
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013149.597873
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013159.62182
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013169.6495318
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1321s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774013171.0148108
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013181.071473
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013191.105006
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013201.131632
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1352s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774013201.311062
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013211.37148
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013221.3915362
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013231.4215
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1382s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774013231.5821629
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013241.637797
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013251.667305
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013261.690618
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1412s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774013261.857673
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013271.9162502
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013283.137155
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013293.166462
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1444s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774013293.308747
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013303.364646
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013313.396344
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013323.4130728
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1474s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774013323.572124
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013333.632493
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013343.654586
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013353.712024
+[PRICE_DEBUG] refresh_cycle START
+WS stale for 1504s — triggering fallback poll
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774013353.880803
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013363.940114
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0
+SOL price fetch failed: Cannot connect to host price.jup.ag:443 ssl:default [nodename nor servname provided, or not known]
+[SOL_PRICE] ⚠️  Using fallback price: $94.00
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774013373.976256
+[PRICE_DEBUG] refresh_cycle START
+[PRICE_DEBUG] Mints in PoolStateStore: 0

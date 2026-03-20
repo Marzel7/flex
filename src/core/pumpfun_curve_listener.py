@@ -449,6 +449,25 @@ class PumpFunCurveListener:
         """Mark when critical discovery window starts for a token."""
         self.critical_window_tasks[mint] = time.time() + self.DISCOVERY_CRITICAL_WINDOW_SECONDS
 
+    def any_token_in_critical_window(self) -> bool:
+        """Check if ANY token is currently in critical discovery window."""
+        now = time.time()
+        return any(
+            now < expiry
+            for expiry in self.critical_window_tasks.values()
+        )
+
+    def _correlation_id(self, mint: str, attempt: int = None, tier: str = None, elapsed: float = None) -> str:
+        """Generate correlation ID for log tracing: mint|attempt|tier|elapsed."""
+        parts = [mint[:8] if mint else "?"]
+        if attempt is not None:
+            parts.append(f"A{attempt}")
+        if tier:
+            parts.append(f"T{tier[:1]}")  # T=TX_ONLY, L=Light, F=Full
+        if elapsed is not None:
+            parts.append(f"{elapsed:.1f}s")
+        return "|".join(parts)
+
     def is_in_critical_window(self, mint: str) -> bool:
         """Check if mint is still in critical discovery window."""
         if mint not in self.critical_window_tasks:
@@ -2269,15 +2288,18 @@ class PumpFunCurveListener:
         # Strategy: Try TX parsing (fast, works 85%+) BEFORE RPC retries (slow, often fails for PumpSwap)
         pool_address = None
         pool_discovery_source = "none"
+        tx_source = "miss"  # Track where TX came from: cached, rpc, or miss
 
         # STAGE 1: TX-based detection (PRIMARY - faster + more reliable for PumpSwap)
+        # If tx_data was passed (from handle_migration's cache fetch), it came from cached
         if tx_data:
+            tx_source = "cached"  # Indicates this came from handle_migration's _get_transaction_cached
             try:
                 from src.core.post_migration_pool_discovery import PostMigrationPoolDiscovery
                 from src.core.pool_detector import AMMPrograms
                 
                 log_print(
-                    f"{Colors.DISCOVER}[POOL_DETECT] 🔍 PRIMARY: TX parsing (Strategy 1/3) for {mint[:16]}...{Colors.RESET}",
+                    f"{Colors.DISCOVER}[POOL_DETECT] 🔍 PRIMARY: TX parsing (tx_source={tx_source}) for {mint[:16]}...{Colors.RESET}",
                     flush=True
                 )
                 
@@ -2465,7 +2487,8 @@ class PumpFunCurveListener:
             )
             # Schedule retries at optimized delays (don't await - fire and forget)
             # Optimized schedule: denser early retries + extended late retries (0.5s intervals for first 8, then 3-5s intervals)
-            asyncio.create_task(self._retry_pool_discovery(mint, signature, delays=[0.5, 1, 1.5, 2, 3, 5, 8, 12, 18, 25, 35, 50]))
+            # Pass tx_source to track if we have cached TX available
+            asyncio.create_task(self._retry_pool_discovery(mint, signature, delays=[0.5, 1, 1.5, 2, 3, 5, 8, 12, 18, 25, 35, 50], tx_source=tx_source))
 
         # === AUTO-REGISTER POOL FOR WEBSOCKET PRICING ===
         # ✅ Validate pool owner before registration (belt-and-suspenders check)
@@ -2620,12 +2643,14 @@ class PumpFunCurveListener:
 
             # Queue background tasks for deferred execution (after critical window)
             # This allows pool discovery to complete before background RPC work starts
-            log_print(f"[BACKGROUND] 📤 Queueing background tasks (deferred after critical window)", flush=True)
+            critical_expiry = time.time() + self.DISCOVERY_CRITICAL_WINDOW_SECONDS
+            log_print(f"[BACKGROUND] 📤 Queueing: funding + funder_extraction + clustering (will execute at T+45s, not before)", flush=True)
+            log_print(f"[BACKGROUND] 🔒 DEFERRAL ABSOLUTE: no RPC work until critical_window expires at +{self.DISCOVERY_CRITICAL_WINDOW_SECONDS}s", flush=True)
             await self.queue_background_job(background_funding_and_clustering(), mint=mint, priority=10)
         else:
             log_print(f"[BACKGROUND] ⏭️ Skipping background tasks (no creator found)", flush=True)
 
-    async def _retry_pool_discovery(self, mint: str, original_migration_sig: str, delays: List[int]):
+    async def _retry_pool_discovery(self, mint: str, original_migration_sig: str, delays: List[int], tx_source: str = "miss"):
         """
         PHASE 2: Critical-path protected retry discovery with tier-based strategies.
 
@@ -2643,6 +2668,7 @@ class PumpFunCurveListener:
             mint: Token mint address
             original_migration_sig: Original migration transaction signature
             delays: List of delays in seconds for retries
+            tx_source: Where the TX came from: "cached", "rpc", or "miss"
         """
         from src.core.post_migration_pool_discovery import PostMigrationPoolDiscovery
         from src.core.pool_detector import AMMPrograms
@@ -2682,8 +2708,9 @@ class PumpFunCurveListener:
                     run_rpc = True
                     rpc_mode = "full"
 
+                corr_id = self._correlation_id(mint, attempt=attempt, tier=tier, elapsed=elapsed)
                 log_print(
-                    f"{Colors.DISCOVER}[DISCOVERY_T{attempt}] attempt={attempt}/{len(delays)} elapsed={elapsed:.1f}s tier={tier} critical_window={'ACTIVE' if in_critical_window else 'EXPIRED'}{Colors.RESET}",
+                    f"{Colors.DISCOVER}[DISCOVERY] corr={corr_id} tx_source={tx_source} window={'ACTIVE' if in_critical_window else 'EXPIRED'}{Colors.RESET}",
                     flush=True
                 )
 
@@ -2744,8 +2771,9 @@ class PumpFunCurveListener:
                                             self.token_discovery_times[mint]["resolved"] = time.time()
                                             elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
 
+                                            corr = self._correlation_id(mint, attempt=attempt, tier="TX", elapsed=elapsed)
                                             log_print(
-                                                f"{Colors.DISCOVER}[DISCOVERY_SUCCESS] attempt={attempt} strategy=tx_parsing elapsed={elapsed:.1f}s pool={candidate[:16]}...{Colors.RESET}",
+                                                f"{Colors.DISCOVER}[DISCOVERY_SUCCESS] corr={corr} strategy=tx_parsing pool={candidate[:16]}...{Colors.RESET}",
                                                 flush=True
                                             )
                                             log_print(
@@ -2769,8 +2797,9 @@ class PumpFunCurveListener:
 
                             # TX round summary
                             discovery_metrics['tx_parsing_attempts'] += 1
+                            corr = self._correlation_id(mint, attempt=attempt)
                             log_print(
-                                f"{Colors.DISCOVER}[DISCOVERY_TX] attempt={attempt} candidates_tested={candidates_tested} rejections={','.join(set(rejection_reasons))}{Colors.RESET}",
+                                f"{Colors.DISCOVER}[DISCOVERY_TX] corr={corr} candidates_tested={candidates_tested} rejections={','.join(set(rejection_reasons))}{Colors.RESET}",
                                 flush=True
                             )
                         else:
@@ -2851,8 +2880,9 @@ class PumpFunCurveListener:
                             elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
 
                             discovery_metrics['rpc_attempts'] += 1
+                            corr = self._correlation_id(mint, attempt=attempt, tier="RPC", elapsed=elapsed)
                             log_print(
-                                f"{Colors.DISCOVER}[DISCOVERY_RPC_SUCCESS] attempt={attempt} strategy={rpc_mode}_rpc elapsed={elapsed:.1f}s{Colors.RESET}",
+                                f"{Colors.DISCOVER}[DISCOVERY_RPC_SUCCESS] corr={corr} strategy={rpc_mode}_rpc{Colors.RESET}",
                                 flush=True
                             )
                             log_print(

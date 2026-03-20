@@ -2582,6 +2582,7 @@ class PumpFunCurveListener:
         # Extract earliest creator and creation date (always, regardless of analysis toggles)
         # This ensures creator and date are always visible in the UI
         earliest_creator = None
+        bonding_curve_pda = None
         created_at = None
         analyzer = None
         try:
@@ -2631,8 +2632,8 @@ class PumpFunCurveListener:
         # === RETRY SCHEDULING (after creator extraction) ===
         # If initial discovery failed, schedule optimized retries with full context
         if schedule_retry_after_creator_extraction:
-            bonding_curve_for_retry = bonding_curve_pda if 'bonding_curve_pda' in locals() else None
-            creator_for_retry = earliest_creator if 'earliest_creator' in locals() and earliest_creator else None
+            bonding_curve_for_retry = bonding_curve_pda if bonding_curve_pda else None
+            creator_for_retry = earliest_creator if earliest_creator else None
             migration_timestamp_for_retry = None
             if tx_data and 'blockTime' in tx_data:
                 try:

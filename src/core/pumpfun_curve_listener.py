@@ -472,6 +472,31 @@ class PumpFunCurveListener:
             parts.append(f"{elapsed:.1f}s")
         return "|".join(parts)
 
+    def assert_not_in_critical_window(self, job_type: str, mint: str = None) -> bool:
+        """
+        Assert that a non-discovery job is NOT running during critical window.
+
+        Returns True if OK to run (no active critical window).
+        Returns False if BLOCKED (active critical window detected).
+
+        Logs loudly if violation detected.
+        """
+        if not self.critical_window_tasks:
+            # No active critical windows - OK to proceed
+            return True
+
+        # Critical window is ACTIVE - this job must wait
+        active_mints = list(self.critical_window_tasks.keys())
+        log_print(
+            f"[CRITICAL_PATH_LEAK] ❌ BLOCKED: {job_type} tried to run during critical_window=ACTIVE for mints={active_mints[:3]}",
+            flush=True
+        )
+        log_print(
+            f"[CRITICAL_PATH_ASSERTION] Job={job_type} mint={mint} MUST be queued, not spawned, during critical window",
+            flush=True
+        )
+        return False
+
     def is_in_critical_window(self, mint: str) -> bool:
         """Check if mint is still in critical discovery window."""
         if mint not in self.critical_window_tasks:
@@ -2726,15 +2751,33 @@ class PumpFunCurveListener:
                     try:
                         discovery = PostMigrationPoolDiscovery(RPC_HTTP)
 
-                        # Parse candidates from cached TX (most critical optimization!)
-                        # If tx_data is available (from cached handle_migration fetch), use it directly
-                        # Otherwise falls back to RPC fetch (slower but still works)
-                        using_cached_payload = tx_data is not None
-                        pool_candidates = await discovery.discover_pool_candidates_from_migration_tx(
-                            mint=mint,
-                            migration_sig=original_migration_sig,
-                            tx_data=tx_data  # Pass cached TX to avoid redundant fetch
-                        )
+                        # CRITICAL: Parse cached TX directly (no RPC, no refetch)
+                        # This is the fastest path - pure extraction from cached payload
+                        candidates_from_cached = []
+                        cached_tx_parsed = False
+                        cached_candidate_count = 0
+
+                        if tx_data is not None:
+                            # Use cached-only parsing: no RPC, no fallback
+                            candidates_from_cached, cached_tx_parsed, cached_candidate_count = await discovery.parse_candidates_from_cached_tx(tx_data)
+                            log_print(
+                                f"{Colors.DISCOVER}[CACHED_TX_PARSE] cached_tx_present=yes cached_tx_parsed={cached_tx_parsed} cached_candidate_count={cached_candidate_count}{Colors.RESET}",
+                                flush=True
+                            )
+
+                        # If cached parsing yielded candidates, use them
+                        # Otherwise fall back to RPC fetch (slower path)
+                        if candidates_from_cached:
+                            pool_candidates = candidates_from_cached
+                            using_cached_payload = True
+                        else:
+                            # Cached parsing didn't yield candidates, try RPC fetch
+                            using_cached_payload = tx_data is not None
+                            pool_candidates = await discovery.discover_pool_candidates_from_migration_tx(
+                                mint=mint,
+                                migration_sig=original_migration_sig,
+                                tx_data=tx_data  # Pass cached TX to avoid redundant fetch
+                            )
 
                         candidates_tested = 0
                         rejection_reasons = []

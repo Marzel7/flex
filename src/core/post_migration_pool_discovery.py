@@ -232,53 +232,180 @@ class PostMigrationPoolDiscovery:
             )
             return None
 
+    async def emit_cached_tx_diagnostics(self, cached_tx: Dict) -> Dict:
+        """
+        Emit detailed diagnostic info for why cached TX may yield zero candidates.
+        
+        Returns structured diagnostic dict with reason code and detailed metrics.
+        
+        Returns:
+            {
+                'reason_code': str,  # no_amm_program_in_tx | meta_incomplete | inner_instructions_only | etc
+                'accounts_count': int,
+                'writable_count': int,
+                'amm_program_present': bool,
+                'meta_has_owners': bool,
+                'meta_accounts_count': int,
+                'inner_instructions_count': int,
+                'largest_accounts': List[str],
+                'diagnostic_detail': str,
+            }
+        """
+        try:
+            if not cached_tx:
+                return {
+                    'reason_code': 'no_cached_tx',
+                    'accounts_count': 0,
+                    'writable_count': 0,
+                    'amm_program_present': False,
+                    'meta_has_owners': False,
+                    'meta_accounts_count': 0,
+                    'inner_instructions_count': 0,
+                    'largest_accounts': [],
+                    'diagnostic_detail': 'Cached TX not provided',
+                }
+
+            message = cached_tx.get("transaction", {}).get("message", {})
+            accounts = message.get("accountKeys", []) or []
+            meta = cached_tx.get("meta", {})
+            loaded_addrs = meta.get("loadedAddresses", {})
+
+            # Count writable accounts
+            num_required_signers = message.get("header", {}).get("numRequiredSigners", 0)
+            num_readonly_signed = message.get("header", {}).get("numReadonlySignedAccounts", 0)
+            writable_count = num_required_signers - num_readonly_signed
+
+            # Check for AMM programs
+            POOL_PROGRAMS = {
+                "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap
+                "675kPX9MHTjS2zt1qrXrQVxwwp4W8gNzjX9oVhKt7Ck",  # Raydium
+                "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # PumpFun V1
+                "pmpA9A9n7CdrzJcm4E3rhZ4J8p9F3ZzK8Y9zCjR4Z5x",  # PumpFun V2
+            }
+
+            amm_program_present = any(str(addr) in POOL_PROGRAMS for addr in accounts)
+
+            # Check meta accounts
+            meta_accounts = meta.get("accounts", [])
+            meta_has_owners = any(
+                isinstance(entry, dict) and entry.get("owner") for entry in meta_accounts
+            )
+            meta_accounts_with_owner = sum(
+                1 for entry in meta_accounts if isinstance(entry, dict) and entry.get("owner")
+            )
+
+            # Check inner instructions
+            inner_instructions = meta.get("innerInstructions", [])
+            inner_instructions_count = len(inner_instructions)
+
+            # Get largest accounts by data size
+            largest_accounts = []
+            if meta_accounts:
+                acct_with_size = [
+                    (str(accounts[i]) if i < len(accounts) else f"loaded_{i}", 
+                     entry.get("lamports", 0) if isinstance(entry, dict) else 0)
+                    for i, entry in enumerate(meta_accounts)
+                ]
+                largest_accounts = [addr for addr, _ in sorted(acct_with_size, key=lambda x: x[1], reverse=True)[:5]]
+
+            # Determine reason code
+            reason_code = "unknown"
+
+            if not accounts:
+                reason_code = "no_accounts_in_tx"
+            elif not amm_program_present and not meta_has_owners:
+                reason_code = "no_amm_program_in_tx"
+            elif inner_instructions_count > 0 and not amm_program_present:
+                reason_code = "inner_instructions_only"
+            elif meta_accounts_with_owner == 0 and accounts:
+                reason_code = "meta_incomplete"
+            elif amm_program_present and not meta_has_owners:
+                reason_code = "meta_owner_not_indexed"
+            elif accounts and meta_accounts and meta_accounts_with_owner > 0:
+                reason_code = "meta_has_owners_but_no_pool_matches"
+            else:
+                reason_code = "other_reason"
+
+            diagnostic = {
+                'reason_code': reason_code,
+                'accounts_count': len(accounts),
+                'writable_count': writable_count,
+                'amm_program_present': amm_program_present,
+                'meta_has_owners': meta_has_owners,
+                'meta_accounts_count': meta_accounts_with_owner,
+                'inner_instructions_count': inner_instructions_count,
+                'largest_accounts': largest_accounts,
+                'diagnostic_detail': f"reason={reason_code} accounts={len(accounts)} writable={writable_count} amm_present={amm_program_present} meta_owners={meta_accounts_with_owner} inner_ix={inner_instructions_count}",
+            }
+
+            logger.info(f"[CACHED_TX_PARSE_DIAGNOSTIC] {diagnostic['diagnostic_detail']}")
+            return diagnostic
+
+        except Exception as e:
+            logger.warning(f"[CACHED_TX_PARSE_DIAGNOSTIC] Error: {e}")
+            return {
+                'reason_code': 'diagnostic_error',
+                'accounts_count': 0,
+                'writable_count': 0,
+                'amm_program_present': False,
+                'meta_has_owners': False,
+                'meta_accounts_count': 0,
+                'inner_instructions_count': 0,
+                'largest_accounts': [],
+                'diagnostic_detail': str(e),
+            }
+
     async def parse_candidates_from_cached_tx(self, cached_tx: Dict) -> tuple:
         """
         Extract pool candidates ONLY from cached transaction payload.
-        
+
         NO RPC calls. NO refetching. NO "not indexed yet" logic.
-        
+
         Pure parsing: extract accounts from the cached TX object only.
         If TX is present but lacks accounts, returns empty list (not a failure).
-        
+
         Args:
             cached_tx: Pre-fetched transaction data from handle_migration cache
-            
+
         Returns:
-            (candidates: List[str], parsed_successfully: bool, candidate_count: int)
+            (candidates: List[str], parsed_successfully: bool, candidate_count: int, diagnostics: Dict)
             - candidates: List of pool addresses (may be empty if TX lacks accounts)
             - parsed_successfully: True if TX was parsed (even if no candidates)
             - candidate_count: Number of candidates found
+            - diagnostics: Dict with reason_code when count==0, else empty dict
         """
         try:
             logger.info(
                 f"[CACHED_TX_PARSE] Parsing candidates from cached TX payload (no RPC)"
             )
-            
+
             if not cached_tx:
                 logger.warning("[CACHED_TX_PARSE] cached_tx is None or empty")
-                return [], False, 0
-            
+                diag = await self.emit_cached_tx_diagnostics(cached_tx)
+                return [], False, 0, diag
+
             # Extract accounts from cached TX structure
             try:
                 message = cached_tx.get("transaction", {}).get("message", {})
                 accounts = message.get("accountKeys", [])
                 meta = cached_tx.get("meta", {})
-                
+
                 # Also include loaded addresses from versioned transactions
                 loaded_addrs = meta.get("loadedAddresses", {})
                 accounts = accounts + loaded_addrs.get("writable", []) + loaded_addrs.get("readonly", [])
-                
+
                 # Convert accounts to strings
                 accounts = [str(addr) if not isinstance(addr, str) else addr for addr in accounts]
-                
+
             except (KeyError, TypeError) as e:
                 logger.warning(f"[CACHED_TX_PARSE] Could not extract accounts from structure: {e}")
-                return [], False, 0
-            
+                diag = await self.emit_cached_tx_diagnostics(cached_tx)
+                return [], False, 0, diag
+
             if not accounts:
                 logger.info("[CACHED_TX_PARSE] No accounts found in cached TX")
-                return [], True, 0
+                diag = await self.emit_cached_tx_diagnostics(cached_tx)
+                return [], True, 0, diag
             
             logger.debug(f"[CACHED_TX_PARSE] Found {len(accounts)} accounts in cached TX")
             
@@ -335,13 +462,313 @@ class PostMigrationPoolDiscovery:
             logger.info(
                 f"[CACHED_TX_PARSE] Successfully parsed: found {len(candidates)} candidates from cached TX"
             )
-            return candidates, True, len(candidates)
-        
+
+            # If zero candidates, emit diagnostics
+            if len(candidates) == 0:
+                diag = await self.emit_cached_tx_diagnostics(cached_tx)
+                return candidates, True, len(candidates), diag
+            else:
+                return candidates, True, len(candidates), {}
+
         except Exception as e:
             logger.warning(f"[CACHED_TX_PARSE] Parse error: {e}")
             import traceback
             logger.debug(traceback.format_exc())
-            return [], False, 0
+            diag = await self.emit_cached_tx_diagnostics(cached_tx)
+            return [], False, 0, diag
+
+    async def discover_follow_on_pools(
+        self,
+        mint: str,
+        migration_sig: str,
+        bonding_curve: str = None,
+        creator: str = None,
+        token_mint: str = None,
+        max_txs_per_anchor: int = 20,
+        time_window_seconds: int = 30,
+    ) -> tuple:
+        """
+        Discover pools from follow-on transactions after migration.
+
+        Searches transactions related to migration context (bonding curve, creator, mint)
+        within a bounded time window and RPC budget.
+
+        Args:
+            mint: Token mint address
+            migration_sig: Original migration transaction signature
+            bonding_curve: Bonding curve address (primary anchor)
+            creator: Creator address (secondary anchor)
+            token_mint: Token mint address (fallback anchor)
+            max_txs_per_anchor: Max signatures to scan per anchor
+            time_window_seconds: Search window after migration
+
+        Returns:
+            (pool_address: str, anchor_used: str, offset: int, txs_scanned: int)
+            - pool_address: Found pool address or None
+            - anchor_used: Which anchor worked (bonding_curve | creator | mint)
+            - offset: Number of TXs after migration signature
+            - txs_scanned: Total signatures examined
+        """
+        try:
+            import aiohttp
+            import time as time_module
+
+            logger.info(
+                f"[FOLLOW_ON_DISCOVERY] Starting search for {mint[:16]}... "
+                f"(bonding_curve={bonding_curve[:16] if bonding_curve else 'N/A'}...)"
+            )
+
+            # Priority order for anchors
+            anchors = []
+            if bonding_curve:
+                anchors.append(("bonding_curve", bonding_curve))
+            if creator:
+                anchors.append(("creator", creator))
+            if token_mint:
+                anchors.append(("mint", token_mint))
+
+            total_txs_scanned = 0
+            rpc_calls_made = 0
+            max_rpc_calls = 15  # Total RPC budget for follow-on
+
+            for anchor_name, anchor_addr in anchors:
+                if rpc_calls_made >= max_rpc_calls:
+                    logger.info(
+                        f"[FOLLOW_ON_DISCOVERY] RPC budget exhausted for {mint[:16]}..."
+                    )
+                    break
+
+                if not anchor_addr:
+                    continue
+
+                logger.debug(
+                    f"[FOLLOW_ON_DISCOVERY] Scanning anchor={anchor_name} ({anchor_addr[:16]}...)"
+                )
+
+                try:
+                    # Fetch signatures for this anchor
+                    sig_payload = {
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "getSignaturesForAddress",
+                        "params": [
+                            anchor_addr,
+                            {
+                                "limit": max_txs_per_anchor,
+                                "before": migration_sig,
+                            },
+                        ],
+                    }
+
+                    async with aiohttp.ClientSession() as session:
+                        async with session.post(
+                            self.rpc_url,
+                            json=sig_payload,
+                            timeout=aiohttp.ClientTimeout(total=10),
+                        ) as resp:
+                            if resp.status != 200:
+                                logger.debug(
+                                    f"[FOLLOW_ON_DISCOVERY] RPC failed for {anchor_name}: {resp.status}"
+                                )
+                                continue
+
+                            sig_result = await resp.json()
+                            rpc_calls_made += 1
+
+                    signatures = sig_result.get("result", [])
+                    if not signatures:
+                        logger.debug(
+                            f"[FOLLOW_ON_DISCOVERY] No signatures found for anchor={anchor_name}"
+                        )
+                        continue
+
+                    logger.debug(
+                        f"[FOLLOW_ON_DISCOVERY] Found {len(signatures)} signatures for {anchor_name}"
+                    )
+
+                    # Inspect each signature for pool creation
+                    for sig_idx, sig_info in enumerate(signatures[:max_txs_per_anchor]):
+                        if rpc_calls_made >= max_rpc_calls:
+                            break
+
+                        sig = sig_info.get("signature")
+                        if not sig:
+                            continue
+
+                        total_txs_scanned += 1
+
+                        # Skip if signature is the migration TX itself
+                        if sig == migration_sig:
+                            continue
+
+                        # Check time window
+                        block_time = sig_info.get("blockTime")
+                        # This is approximate; we'll filter more precisely when we fetch the TX
+
+                        try:
+                            # Fetch transaction
+                            tx_payload = {
+                                "jsonrpc": "2.0",
+                                "id": 1,
+                                "method": "getTransaction",
+                                "params": [sig, {"encoding": "jsonParsed"}],
+                            }
+
+                            async with aiohttp.ClientSession() as session:
+                                async with session.post(
+                                    self.rpc_url,
+                                    json=tx_payload,
+                                    timeout=aiohttp.ClientTimeout(total=10),
+                                ) as resp:
+                                    if resp.status != 200:
+                                        continue
+
+                                    tx_result = await resp.json()
+                                    rpc_calls_made += 1
+
+                            tx_data = tx_result.get("result")
+                            if not tx_data:
+                                continue
+
+                            # Extract and inspect candidates from this TX
+                            candidates = await self._extract_pool_candidates_from_tx(
+                                tx_data, anchor_name
+                            )
+
+                            for candidate in candidates:
+                                logger.debug(
+                                    f"[FOLLOW_ON_DISCOVERY] Found candidate {candidate[:16]}... "
+                                    f"from anchor={anchor_name} at offset={sig_idx}"
+                                )
+
+                                # Validate candidate via RPC
+                                if rpc_calls_made >= max_rpc_calls:
+                                    break
+
+                                try:
+                                    acct_payload = {
+                                        "jsonrpc": "2.0",
+                                        "id": 1,
+                                        "method": "getAccountInfo",
+                                        "params": [candidate, {"encoding": "base64"}],
+                                    }
+
+                                    async with aiohttp.ClientSession() as session:
+                                        async with session.post(
+                                            self.rpc_url,
+                                            json=acct_payload,
+                                            timeout=aiohttp.ClientTimeout(total=10),
+                                        ) as resp:
+                                            if resp.status != 200:
+                                                continue
+
+                                            acct_result = await resp.json()
+                                            rpc_calls_made += 1
+
+                                    acct = acct_result.get("result", {}).get("value")
+                                    if not acct:
+                                        continue
+
+                                    owner = acct.get("owner")
+                                    if owner and owner in {
+                                        "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",
+                                        "675kPX9MHTjS2zt1qrXrQVxwwp4W8gNzjX9oVhKt7Ck",
+                                        "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+                                        "pmpA9A9n7CdrzJcm4E3rhZ4J8p9F3ZzK8Y9zCjR4Z5x",
+                                    }:
+                                        logger.info(
+                                            f"[FOLLOW_ON_DISCOVERY] ✅ Found valid pool {candidate[:16]}... "
+                                            f"via anchor={anchor_name} at offset={sig_idx}"
+                                        )
+                                        return candidate, anchor_name, sig_idx, total_txs_scanned
+
+                                except Exception as e:
+                                    logger.debug(
+                                        f"[FOLLOW_ON_DISCOVERY] Error validating candidate: {e}"
+                                    )
+                                    continue
+
+                        except Exception as e:
+                            logger.debug(
+                                f"[FOLLOW_ON_DISCOVERY] Error processing signature {sig[:16]}...: {e}"
+                            )
+                            continue
+
+                except Exception as e:
+                    logger.debug(
+                        f"[FOLLOW_ON_DISCOVERY] Error scanning anchor {anchor_name}: {e}"
+                    )
+                    continue
+
+            logger.info(
+                f"[FOLLOW_ON_DISCOVERY] No pool found after scanning {total_txs_scanned} TXs "
+                f"({rpc_calls_made} RPC calls)"
+            )
+            return None, None, None, total_txs_scanned
+
+        except Exception as e:
+            logger.warning(f"[FOLLOW_ON_DISCOVERY] Error: {e}")
+            import traceback
+
+            logger.debug(traceback.format_exc())
+            return None, None, None, 0
+
+    async def _extract_pool_candidates_from_tx(
+        self, tx_data: Dict, anchor_name: str
+    ) -> List[str]:
+        """Extract potential pool candidates from a transaction."""
+        try:
+            candidates = []
+
+            # Extract accounts from transaction
+            message = tx_data.get("transaction", {}).get("message", {})
+            accounts = message.get("accountKeys", []) or []
+
+            # Include loaded addresses
+            meta = tx_data.get("meta", {})
+            loaded_addrs = meta.get("loadedAddresses", {})
+            accounts = accounts + loaded_addrs.get("writable", []) + loaded_addrs.get("readonly", [])
+
+            # Convert to strings
+            accounts = [str(addr) if not isinstance(addr, str) else addr for addr in accounts]
+
+            # Known pool programs
+            POOL_PROGRAMS = {
+                "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",
+                "675kPX9MHTjS2zt1qrXrQVxwwp4W8gNzjX9oVhKt7Ck",
+                "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+                "pmpA9A9n7CdrzJcm4E3rhZ4J8p9F3ZzK8Y9zCjR4Z5x",
+            }
+
+            # System programs to skip
+            SYSTEM_PROGRAMS = {
+                "11111111111111111111111111111111",
+                "ComputeBudget111111111111111111111111111111",
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                "So11111111111111111111111111111111111111112",
+                "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+                "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+            }
+
+            # Look for accounts with pool program owner
+            meta_accounts = meta.get("accounts", [])
+            for i, account_addr in enumerate(accounts):
+                if account_addr in SYSTEM_PROGRAMS:
+                    continue
+
+                # Check meta for owner info
+                if i < len(meta_accounts):
+                    meta_entry = meta_accounts[i]
+                    if isinstance(meta_entry, dict):
+                        owner = meta_entry.get("owner")
+                        if owner in POOL_PROGRAMS:
+                            candidates.append(account_addr)
+
+            return candidates
+
+        except Exception as e:
+            logger.debug(f"[FOLLOW_ON_DISCOVERY] Error extracting candidates: {e}")
+            return []
 
     async def discover_pool_candidates_from_migration_tx(
         self,

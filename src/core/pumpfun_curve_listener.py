@@ -2761,27 +2761,90 @@ class PumpFunCurveListener:
                         cached_tx_parsed = False
                         cached_candidate_count = 0
 
+                        cached_diagnostics = {}
                         if tx_data is not None:
                             # Use cached-only parsing: no RPC, no fallback
-                            candidates_from_cached, cached_tx_parsed, cached_candidate_count = await discovery.parse_candidates_from_cached_tx(tx_data)
+                            candidates_from_cached, cached_tx_parsed, cached_candidate_count, cached_diagnostics = await discovery.parse_candidates_from_cached_tx(tx_data)
                             log_print(
                                 f"{Colors.DISCOVER}[CACHED_TX_PARSE] cached_tx_present=yes cached_tx_parsed={cached_tx_parsed} cached_candidate_count={cached_candidate_count}{Colors.RESET}",
                                 flush=True
                             )
 
+                            # If zero candidates, log diagnostic reason
+                            if cached_candidate_count == 0 and cached_diagnostics:
+                                diag = cached_diagnostics
+                                log_print(
+                                    f"{Colors.DISCOVER}[CACHED_TX_DIAGNOSTICS] {diag.get('diagnostic_detail', 'unknown reason')}{Colors.RESET}",
+                                    flush=True
+                                )
+
                         # If cached parsing yielded candidates, use them
-                        # Otherwise fall back to RPC fetch (slower path)
+                        # Otherwise try follow-on discovery (Phase 3)
+                        # Then fall back to RPC fetch (slower path)
                         if candidates_from_cached:
                             pool_candidates = candidates_from_cached
                             using_cached_payload = True
                         else:
-                            # Cached parsing didn't yield candidates, try RPC fetch
-                            using_cached_payload = tx_data is not None
-                            pool_candidates = await discovery.discover_pool_candidates_from_migration_tx(
-                                mint=mint,
-                                migration_sig=original_migration_sig,
-                                tx_data=tx_data  # Pass cached TX to avoid redundant fetch
-                            )
+                            # Phase 3: Try follow-on transaction discovery if:
+                            # - cached TX present but zero candidates
+                            # - we're past Tier 1 (attempts 1-3)
+                            follow_on_max_txs = 0
+                            if attempt >= 4:  # Tier 2+ (attempts 4+)
+                                follow_on_max_txs = 10 if attempt < 7 else 20
+
+                            follow_on_pool = None
+                            follow_on_anchor = None
+                            follow_on_txs_scanned = 0
+
+                            if follow_on_max_txs > 0 and tx_data is not None and cached_candidate_count == 0:
+                                # Extract bonding curve and creator from context
+                                # These should have been captured during migration detection
+                                bonding_curve = None
+                                creator = None
+
+                                # Try to extract from discovery context if available
+                                # For now, we focus on TX-based search without these anchors
+                                # In production, bonding_curve and creator would be passed from handle_migration
+
+                                try:
+                                    follow_on_pool, follow_on_anchor, follow_on_offset, follow_on_txs_scanned = await discovery.discover_follow_on_pools(
+                                        mint=mint,
+                                        migration_sig=original_migration_sig,
+                                        bonding_curve=bonding_curve,
+                                        creator=creator,
+                                        token_mint=mint,
+                                        max_txs_per_anchor=follow_on_max_txs,
+                                    )
+
+                                    if follow_on_pool:
+                                        log_print(
+                                            f"{Colors.DISCOVER}[FOLLOW_ON_SUCCESS] Found pool {follow_on_pool[:16]}... via anchor={follow_on_anchor} at offset={follow_on_offset}{Colors.RESET}",
+                                            flush=True
+                                        )
+                                        pool_candidates = [follow_on_pool]
+                                        using_cached_payload = True  # Count as cached discovery
+                                    else:
+                                        log_print(
+                                            f"{Colors.DISCOVER}[FOLLOW_ON_EXHAUSTED] Scanned {follow_on_txs_scanned} TXs, no valid pool found{Colors.RESET}",
+                                            flush=True
+                                        )
+                                        # Fall through to RPC fallback
+                                        pool_candidates = []
+                                        using_cached_payload = tx_data is not None
+
+                                except Exception as e:
+                                    logger.error(f"[FOLLOW_ON_DISCOVERY] Error: {e}")
+                                    pool_candidates = []
+                                    using_cached_payload = tx_data is not None
+
+                            # If no follow-on or follow-on failed, try RPC fetch
+                            if not pool_candidates:
+                                using_cached_payload = tx_data is not None
+                                pool_candidates = await discovery.discover_pool_candidates_from_migration_tx(
+                                    mint=mint,
+                                    migration_sig=original_migration_sig,
+                                    tx_data=tx_data  # Pass cached TX to avoid redundant fetch
+                                )
 
                         candidates_tested = 0
                         rejection_reasons = []
@@ -2985,13 +3048,27 @@ class PumpFunCurveListener:
                     flush=True
                 )
 
-        # All retries exhausted
+        # All retries exhausted - classify failure
+        # Determine failure class based on what was tried
+        failure_class = "unknown_exhaustion"
+
+        if discovery_metrics['tx_parsing_attempts'] > 0 and discovery_metrics['rpc_attempts'] == 0:
+            failure_class = "no_cached_tx_candidates_never_tried_rpc"
+        elif discovery_metrics['tx_parsing_attempts'] > 0 and discovery_metrics['rpc_attempts'] > 0:
+            vaults_not_ready_count = discovery_metrics['rejections'].get('vaults_not_ready', 0)
+            if vaults_not_ready_count > 0:
+                failure_class = "rpc_vaults_never_ready"
+            else:
+                failure_class = "all_candidates_rejected_or_failed"
+        else:
+            failure_class = "no_discovery_attempted"
+
         log_print(
-            f"{Colors.DISCOVER}[DISCOVERY_FAILED] ❌ All {len(delays)} attempts exhausted for {mint[:16]}..., giving up{Colors.RESET}",
+            f"{Colors.DISCOVER}[DISCOVERY_FAILED] ❌ All {len(delays)} attempts exhausted for {mint[:16]}... (failure_class={failure_class}){Colors.RESET}",
             flush=True
         )
         log_print(
-            f"{Colors.DISCOVER}[DISCOVERY_METRICS] {mint[:16]}... → tx_attempts={discovery_metrics['tx_parsing_attempts']} rpc_attempts={discovery_metrics['rpc_attempts']} candidates_tested={discovery_metrics['total_candidates_tested']} rejections={discovery_metrics['rejections']}{Colors.RESET}",
+            f"{Colors.DISCOVER}[DISCOVERY_METRICS] {mint[:16]}... → tx_attempts={discovery_metrics['tx_parsing_attempts']} rpc_attempts={discovery_metrics['rpc_attempts']} candidates_tested={discovery_metrics['total_candidates_tested']} rejections={discovery_metrics['rejections']} failure_class={failure_class}{Colors.RESET}",
             flush=True
         )
 

@@ -596,15 +596,26 @@ class BackgroundPriceWorker:
 
         now = time.time()
 
+        # Check if any tokens are in critical discovery window
+        # If so, suppress stale fallback polls to avoid RPC contention during critical path
+        in_critical_window = False
+        try:
+            if hasattr(self, 'listener') and self.listener:
+                in_critical_window = self.listener.any_token_in_critical_window()
+        except Exception:
+            pass
+
         # Check for stale WS (no events >2 minutes) — force more frequent fallback poll
         ws_is_stale = False
-        if self._ws_client:
+        if self._ws_client and not in_critical_window:
             time_since_last_event = now - self._ws_client._last_event_received
             if time_since_last_event > self._ws_client.WS_STALE_THRESHOLD:
                 ws_is_stale = True
                 self._ws_client.stats["is_stale"] = True
                 if now - self._last_fallback_poll >= 30:
                     logger.warning(f"WS stale for {time_since_last_event:.0f}s — triggering fallback poll")
+        elif in_critical_window:
+            logger.debug(f"Suppressing stale WS fallback poll during critical discovery window")
 
         # Fallback poll: every 60s normally, every 30s if WS is stale
         poll_interval = 30 if ws_is_stale else 60

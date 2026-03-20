@@ -3075,8 +3075,8 @@ class PumpFunCurveListener:
 
     async def listen(self):
         """Main entry point - start WebSocket listener with live price updater"""
-        # HARDCODED: Price updater is OFF for now
-        PRICE_UPDATER_ENABLED = False
+        # ENABLED: Price updater is now ON
+        PRICE_UPDATER_ENABLED = True
 
         if PRICE_UPDATER_ENABLED:
             # Start live price updater in background

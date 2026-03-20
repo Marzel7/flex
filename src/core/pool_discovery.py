@@ -330,7 +330,7 @@ class PoolDiscovery:
                     "quote_token": "So11111111111111111111111111111111111111112",  # SOL
                     "base_decimals": 6,
                     "quote_decimals": 9,
-                    "pool_program": "pumpswap" if owner == PUMPSWAP_PROGRAM else "raydium_amm",
+                    "pool_program": PUMPSWAP_PROGRAM if owner == PUMPSWAP_PROGRAM else RAYDIUM_AMM_PROGRAM,
                 }
 
             # Verify both are owned by token program
@@ -431,12 +431,12 @@ class PoolDiscovery:
                 f"quote_token={final_quote_token[:20]}..."
             )
 
-            # Determine program name for logging
-            program_name = "raydium_amm"
+            # Determine program ID
+            pool_program = RAYDIUM_AMM_PROGRAM
             if owner == PUMPSWAP_PROGRAM:
-                program_name = "pumpswap"
+                pool_program = PUMPSWAP_PROGRAM
             elif owner == PUMPFUN_V1_PROGRAM:
-                program_name = "pumpfun_v1"
+                pool_program = PUMPFUN_V1_PROGRAM
 
             return {
                 "base_account": final_base_account,
@@ -445,7 +445,7 @@ class PoolDiscovery:
                 "quote_token": final_quote_token,
                 "base_decimals": final_base_decimals,
                 "quote_decimals": final_quote_decimals,
-                "pool_program": program_name,
+                "pool_program": pool_program,
             }
 
         except Exception as e:
@@ -481,7 +481,7 @@ class PoolDiscovery:
                 "quote_token": SOL_MINT,
                 "base_decimals": base_decimals or 6,
                 "quote_decimals": quote_decimals or 9,
-                "pool_program": "raydium_cpmm",
+                "pool_program": RAYDIUM_CPMM_PROGRAM,
             }
 
         except Exception as e:
@@ -517,7 +517,7 @@ class PoolDiscovery:
                 "quote_token": SOL_MINT,
                 "base_decimals": base_decimals or 6,
                 "quote_decimals": quote_decimals or 9,
-                "pool_program": "orca_whirlpool",
+                "pool_program": ORCA_WHIRLPOOL_PROGRAM,
             }
 
         except Exception as e:
@@ -545,7 +545,7 @@ class PoolDiscovery:
             result = await self._extract_raydium_amm(pool_data, pool_address, token_mint)
 
             if result:
-                result["pool_program"] = "pumpfun_v1"
+                result["pool_program"] = PUMPFUN_V1_PROGRAM
                 logger.info(f"[POOL_EXTRACT] PumpFun V1 extracted via Raydium-like structure")
                 return result
 
@@ -603,11 +603,65 @@ class PoolDiscovery:
         except Exception:
             return None
 
+    def validate_pool_registration(
+        self,
+        pool_address: str,
+        base_account: str,
+        quote_account: str,
+        pool_program: str,
+    ) -> Tuple[bool, Optional[str]]:
+        """
+        Validate pool registration before DB insert.
+        Returns: (is_valid, error_message)
+        """
+        # Check required fields exist
+        if not pool_address or pool_address.strip() == "":
+            return False, "pool_address is empty"
+        if not base_account or base_account.strip() == "":
+            return False, "base_account is empty"
+        if not quote_account or quote_account.strip() == "":
+            return False, "quote_account is empty"
+
+        # Check accounts are distinct
+        if pool_address == base_account:
+            return False, f"pool_address == base_account ({pool_address}), must be distinct"
+        if pool_address == quote_account:
+            return False, f"pool_address == quote_account ({pool_address}), must be distinct"
+        if base_account == quote_account:
+            return False, f"base_account == quote_account ({base_account}), must be distinct"
+
+        # Check pool_program is known
+        KNOWN_PROGRAMS = {
+            RAYDIUM_AMM_PROGRAM,
+            RAYDIUM_CPMM_PROGRAM,
+            ORCA_WHIRLPOOL_PROGRAM,
+            PUMPSWAP_PROGRAM,
+            PUMPFUN_V1_PROGRAM,
+        }
+        if not pool_program or pool_program not in KNOWN_PROGRAMS:
+            return False, f"pool_program unknown or invalid: {pool_program}"
+
+        return True, None
+
     async def register_pool_to_db(
         self, token_mint: str, reserves: Dict, discovery_method: str = "unknown"
     ) -> bool:
         """Register extracted pool in token_pool_accounts table."""
         try:
+            # ===== NEW: VALIDATE BEFORE PROCEEDING =====
+            pool_address = reserves.get("pool_address")
+            base_account = reserves.get("base_account")
+            quote_account = reserves.get("quote_account")
+            pool_program = reserves.get("pool_program")
+
+            is_valid, error_msg = self.validate_pool_registration(
+                pool_address, base_account, quote_account, pool_program
+            )
+            if not is_valid:
+                logger.error(f"❌ Registration validation failed for {token_mint}: {error_msg}")
+                return False
+            # ===== END NEW VALIDATION =====
+
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
 
@@ -615,10 +669,6 @@ class PoolDiscovery:
             # If vaults don't exist on-chain, mark as pending for later resolution
             vault_status = "pending"
             vault_error = None
-            
-            base_account = reserves.get("base_account")
-            quote_account = reserves.get("quote_account")
-            pool_program = reserves.get("pool_program", "raydium_amm")
             
             # Check if vaults actually exist and are valid
             try:
@@ -633,15 +683,15 @@ class PoolDiscovery:
                     PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
                     
                     # For Raydium/Orca: vaults must be SPL token accounts
-                    if pool_program in ("raydium_amm", "raydium_cpmm", "orca"):
+                    if pool_program in (RAYDIUM_AMM_PROGRAM, RAYDIUM_CPMM_PROGRAM, ORCA_WHIRLPOOL_PROGRAM):
                         if base_owner == SPL_TOKEN_PROGRAM and quote_owner == SPL_TOKEN_PROGRAM:
                             vault_status = "validated"
                         else:
                             vault_status = "pending"
                             vault_error = "vaults exist but not SPL token accounts"
-                    
+
                     # For PumpFun V1/PumpSwap: vaults ARE the PumpSwap pool accounts
-                    elif pool_program in ("pumpfun_v1", "pumpswap"):
+                    elif pool_program in (PUMPFUN_V1_PROGRAM, PUMPSWAP_PROGRAM):
                         if base_owner == PUMPSWAP_PROGRAM and quote_owner == PUMPSWAP_PROGRAM:
                             vault_status = "validated"
                         else:
@@ -860,7 +910,7 @@ class PoolDiscovery:
                 "quote_token": SOL_MINT,
                 "base_decimals": 6,
                 "quote_decimals": 9,
-                "pool_program": "pumpfun_v1",
+                "pool_program": PUMPFUN_V1_PROGRAM,
             }
 
             return await self.register_pool_to_db(token_mint, reserves)
@@ -916,19 +966,19 @@ class PoolDiscovery:
                 # Extract actual base and quote vaults from the pool account
                 extracted = await self.extract_pool_reserves(vault_pair, token_mint)
 
-                if extracted and extracted.get("base_account") != extracted.get("quote_account"):
-                    # Valid extraction with distinct vaults
+                if extracted:
                     reserves = extracted
-                    vault_source = "pumpfun_v1_vault_extraction"
+                    vault_source = "pumpfun_v1_discovered"  # Mark as PumpFun V1 (allows base==quote)
                     logger.info(
                         f"[DISCOVERY_CHAIN] ✅ Extracted vaults from vault pair: "
                         f"base={reserves['base_account'][:16]}... "
-                        f"quote={reserves['quote_account'][:16]}..."
+                        f"quote={reserves['quote_account'][:16]}... "
+                        f"(PumpFun V1 pool)"
                     )
                 else:
-                    # Extraction failed or returned invalid (same address for both)
+                    # Extraction failed
                     logger.info(
-                        f"[DISCOVERY_CHAIN] ⏭️  Vault pair extraction invalid or failed, "
+                        f"[DISCOVERY_CHAIN] ⏭️  Vault pair extraction failed, "
                         f"falling back to standard extraction"
                     )
             else:
@@ -972,6 +1022,10 @@ class PoolDiscovery:
 
         # Map vault_source to discovery_method for database
         discovery_method = vault_source or "unknown"
+
+        # ===== NEW: EXPLICITLY SET pool_address =====
+        reserves["pool_address"] = pool_address
+        # ===== END NEW =====
 
         # Register in database with vault validation status
         # Vaults will be marked as 'pending' or 'validated' based on whether they exist on-chain

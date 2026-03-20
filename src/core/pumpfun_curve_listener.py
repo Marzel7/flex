@@ -2372,11 +2372,12 @@ class PumpFunCurveListener:
                 flush=True
             )
             log_print(
-                f"{Colors.DETECT}[POOL_DETECT] Initial discovery failed, scheduling fallback-first retries: 1s, 2s, 4s, 8s, 15s, 30s{Colors.RESET}",
+                f"{Colors.DETECT}[POOL_DETECT] Initial discovery failed, scheduling optimized retries...{Colors.RESET}",
                 flush=True
             )
             # Schedule retries at optimized delays (don't await - fire and forget)
-            asyncio.create_task(self._retry_pool_discovery(mint, signature, delays=[1, 2, 4, 8, 15, 30]))
+            # Optimized schedule: denser early retries + extended late retries (0.5s intervals for first 8, then 3-5s intervals)
+            asyncio.create_task(self._retry_pool_discovery(mint, signature, delays=[0.5, 1, 1.5, 2, 3, 5, 8, 12, 18, 25, 35, 50]))
 
         # === AUTO-REGISTER POOL FOR WEBSOCKET PRICING ===
         # ✅ Validate pool owner before registration (belt-and-suspenders check)

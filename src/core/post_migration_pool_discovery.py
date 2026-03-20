@@ -232,6 +232,117 @@ class PostMigrationPoolDiscovery:
             )
             return None
 
+    async def parse_candidates_from_cached_tx(self, cached_tx: Dict) -> tuple:
+        """
+        Extract pool candidates ONLY from cached transaction payload.
+        
+        NO RPC calls. NO refetching. NO "not indexed yet" logic.
+        
+        Pure parsing: extract accounts from the cached TX object only.
+        If TX is present but lacks accounts, returns empty list (not a failure).
+        
+        Args:
+            cached_tx: Pre-fetched transaction data from handle_migration cache
+            
+        Returns:
+            (candidates: List[str], parsed_successfully: bool, candidate_count: int)
+            - candidates: List of pool addresses (may be empty if TX lacks accounts)
+            - parsed_successfully: True if TX was parsed (even if no candidates)
+            - candidate_count: Number of candidates found
+        """
+        try:
+            logger.info(
+                f"[CACHED_TX_PARSE] Parsing candidates from cached TX payload (no RPC)"
+            )
+            
+            if not cached_tx:
+                logger.warning("[CACHED_TX_PARSE] cached_tx is None or empty")
+                return [], False, 0
+            
+            # Extract accounts from cached TX structure
+            try:
+                message = cached_tx.get("transaction", {}).get("message", {})
+                accounts = message.get("accountKeys", [])
+                meta = cached_tx.get("meta", {})
+                
+                # Also include loaded addresses from versioned transactions
+                loaded_addrs = meta.get("loadedAddresses", {})
+                accounts = accounts + loaded_addrs.get("writable", []) + loaded_addrs.get("readonly", [])
+                
+                # Convert accounts to strings
+                accounts = [str(addr) if not isinstance(addr, str) else addr for addr in accounts]
+                
+            except (KeyError, TypeError) as e:
+                logger.warning(f"[CACHED_TX_PARSE] Could not extract accounts from structure: {e}")
+                return [], False, 0
+            
+            if not accounts:
+                logger.info("[CACHED_TX_PARSE] No accounts found in cached TX")
+                return [], True, 0
+            
+            logger.debug(f"[CACHED_TX_PARSE] Found {len(accounts)} accounts in cached TX")
+            
+            # Known pool program owners
+            POOL_PROGRAMS = {
+                "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap
+                "675kPX9MHTjS2zt1qrXrQVxwwp4W8gNzjX9oVhKt7Ck",  # Raydium
+                "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # PumpFun V1
+                "pmpA9A9n7CdrzJcm4E3rhZ4J8p9F3ZzK8Y9zCjR4Z5x",  # PumpFun V2
+            }
+            
+            # System programs to skip
+            SYSTEM_PROGRAMS = {
+                "11111111111111111111111111111111",
+                "ComputeBudget111111111111111111111111111111",
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                "So11111111111111111111111111111111111111112",
+                "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+                "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+            }
+            
+            # Skip accounts
+            SKIP_ACCOUNTS = {
+                "4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf",
+                "ADyA8hdefvWN2dbGGWFotbzWxrAvLW83WG6QCVXvJKqw",
+            }
+            
+            # Collect candidates by checking owner field from cached meta
+            # NOTE: We can only identify candidates if their owner is in meta, or we have to skip
+            # For cached-only parsing, we identify by message structure + metadata hints
+            candidates = []
+            meta_accounts = meta.get("accounts", [])  # Account info from meta if available
+            
+            for i, account_addr in enumerate(accounts):
+                if not isinstance(account_addr, str):
+                    account_addr = str(account_addr)
+                
+                if account_addr in SYSTEM_PROGRAMS or account_addr in SKIP_ACCOUNTS:
+                    continue
+                
+                # For cached TX, we can check if this account appears in meta with owner info
+                # Otherwise we mark it as a potential candidate (caller must validate via RPC)
+                if i < len(meta_accounts):
+                    meta_entry = meta_accounts[i]
+                    owner = meta_entry.get("owner") if isinstance(meta_entry, dict) else None
+                    if owner and owner in POOL_PROGRAMS:
+                        candidates.append(account_addr)
+                        logger.debug(f"[CACHED_TX_PARSE] Found pool candidate: {account_addr[:16]}... (owner={owner[:16]}...)")
+                        continue
+                
+                # Fallback: if owner not in meta, can't determine from cached TX alone
+                # Skip (caller should use RPC if needed)
+            
+            logger.info(
+                f"[CACHED_TX_PARSE] Successfully parsed: found {len(candidates)} candidates from cached TX"
+            )
+            return candidates, True, len(candidates)
+        
+        except Exception as e:
+            logger.warning(f"[CACHED_TX_PARSE] Parse error: {e}")
+            import traceback
+            logger.debug(traceback.format_exc())
+            return [], False, 0
+
     async def discover_pool_candidates_from_migration_tx(
         self,
         mint: str,

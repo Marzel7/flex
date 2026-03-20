@@ -359,6 +359,24 @@ class PumpFunCurveListener:
         log_print(f"[INIT] WebSocket: {HELIUS_RPC_WS[:60]}...", flush=True)
         log_print(f"[INIT] HTTP RPC: {RPC_HTTP[:60]}...", flush=True)
 
+        # === PHASE 2: Critical-path protection ===
+        # Protect pool discovery from background RPC contention
+        self.DISCOVERY_CRITICAL_WINDOW_SECONDS = 45
+        self.DISCOVERY_HARD_TIMEOUT_SECONDS = 60
+        self.critical_window_tasks = {}  # {mint: critical_window_expiry_time}
+
+        # RPC isolation: separate quotas for discovery vs background
+        self.discovery_rpc_semaphore = asyncio.Semaphore(8)  # 8 concurrent discovery calls
+        self.background_rpc_semaphore = asyncio.Semaphore(2)  # 2 concurrent background calls
+
+        # Background job queue (deferred execution during critical window)
+        self.background_job_queue = asyncio.Queue()
+        self.background_jobs_processing = False
+        asyncio.create_task(self._process_background_queue())
+
+        # Telemetry for discovery attempts
+        self.discovery_attempts = {}  # {mint: [attempt_1, attempt_2, ...]}
+
         # === Initialize price worker with WebSocket for pool price streaming ===
         try:
             from src.core.price_worker import get_price_worker
@@ -368,6 +386,108 @@ class PumpFunCurveListener:
         except Exception as e:
             log_print(f"[INIT] ⚠️  Price worker initialization failed: {e}", flush=True)
             self.price_worker = None
+
+        log_print(f"[INIT] ✅ Phase 2 critical-path protection initialized", flush=True)
+        log_print(f"[INIT]   • Discovery RPC: 8 concurrent slots", flush=True)
+        log_print(f"[INIT]   • Background RPC: 2 concurrent slots", flush=True)
+        log_print(f"[INIT]   • Critical window: {self.DISCOVERY_CRITICAL_WINDOW_SECONDS}s", flush=True)
+
+    # ===== PHASE 2: Background Job Queue Processing =====
+
+    async def _process_background_queue(self):
+        """Process background jobs after critical window expires."""
+        while True:
+            try:
+                # Check if any critical windows have expired
+                now = time.time()
+                expired_mints = [
+                    mint for mint, expiry in self.critical_window_tasks.items()
+                    if now >= expiry
+                ]
+
+                # Remove expired windows and allow their jobs to process
+                for mint in expired_mints:
+                    del self.critical_window_tasks[mint]
+
+                # Process queued jobs if critical window expired
+                if not expired_mints:
+                    await asyncio.sleep(0.5)
+                    continue
+
+                # Process all queued jobs
+                jobs_processed = 0
+                try:
+                    while not self.background_job_queue.empty():
+                        job_item = self.background_job_queue.get_nowait()
+                        try:
+                            await job_item['coro']
+                            jobs_processed += 1
+                        except Exception as e:
+                            logger.error(f"Background job failed: {e}")
+                        self.background_job_queue.task_done()
+                except asyncio.QueueEmpty:
+                    pass
+
+                if jobs_processed > 0:
+                    logger.info(f"[BACKGROUND] Processed {jobs_processed} background jobs after critical windows")
+
+                await asyncio.sleep(0.5)
+            except Exception as e:
+                logger.error(f"Background queue processor error: {e}")
+                await asyncio.sleep(1)
+
+    async def queue_background_job(self, coro, mint: str = None, priority: str = "normal"):
+        """Queue a background job for deferred execution."""
+        await self.background_job_queue.put({
+            'coro': coro,
+            'mint': mint,
+            'priority': priority,
+            'queued_at': time.time()
+        })
+
+    def start_critical_window(self, mint: str):
+        """Mark when critical discovery window starts for a token."""
+        self.critical_window_tasks[mint] = time.time() + self.DISCOVERY_CRITICAL_WINDOW_SECONDS
+
+    def is_in_critical_window(self, mint: str) -> bool:
+        """Check if mint is still in critical discovery window."""
+        if mint not in self.critical_window_tasks:
+            return False
+        return time.time() < self.critical_window_tasks[mint]
+
+    # ===== PHASE 2: RPC Isolation =====
+
+    async def call_discovery_rpc(self, method: str, params: list, timeout: float = 5.0):
+        """RPC call with discovery quota priority."""
+        async with self.discovery_rpc_semaphore:
+            try:
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": method,
+                    "params": params
+                }
+                result = await self._post_rpc_with_fallback(payload, timeout=timeout)
+                return result
+            except Exception as e:
+                logger.debug(f"Discovery RPC error ({method}): {e}")
+                return None
+
+    async def call_background_rpc(self, method: str, params: list, timeout: float = 10.0):
+        """RPC call with background quota (throttled during critical window)."""
+        async with self.background_rpc_semaphore:
+            try:
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": method,
+                    "params": params
+                }
+                result = await self._post_rpc_with_fallback(payload, timeout=timeout)
+                return result
+            except Exception as e:
+                logger.debug(f"Background RPC error ({method}): {e}")
+                return None
 
     async def _write_resolution_telemetry(self, mint: str, resolve_source: str, pool_address: str = None, retry_count: int = 0):
         """Write token resolution telemetry to database."""
@@ -2103,6 +2223,10 @@ class PumpFunCurveListener:
         log_print(f"[EVENT] 🚀 MIGRATION DETECTED: {mint}", flush=True)
         log_print(f"[EVENT] Migration signature: {signature}", flush=True)
 
+        # === PHASE 2: Start critical window for RPC isolation ===
+        # Discovery RPC calls use 8 concurrent slots, background jobs use only 2
+        self.start_critical_window(mint)
+
         # Create minimal token entry immediately (so token appears in UI right away)
         await self._create_minimal_token_entry(mint)
 
@@ -2457,12 +2581,14 @@ class PumpFunCurveListener:
 
         log_print(f"[MIGRATION] ✅ CRITICAL PATH COMPLETE - Token {mint[:8]}... with creator {earliest_creator[:8] if earliest_creator else 'unknown'}... is now visible in UI", flush=True)
 
-        # Background Task: Extract creator funding and clustering
+        # === PHASE 2: Queue background tasks for deferred execution ===
+        # These jobs wait until critical window expires before running
+        # This protects pool discovery RPC quota during the critical 45-second window
         if earliest_creator:
             create_tx_sig = analyzer._create_tx_signature if analyzer and hasattr(analyzer, '_create_tx_signature') else None
 
             async def background_funding_and_clustering():
-                """Background: funding extraction, funder extraction, and clustering"""
+                """Background: funding extraction, funder extraction, and clustering (deferred)"""
                 log_print(f"[BACKGROUND] 🚀 Starting background funding and clustering tasks...", flush=True)
 
                 # Extract creator funding
@@ -2492,23 +2618,26 @@ class PumpFunCurveListener:
                 except Exception as e:
                     log_print(f"[CLUSTERING] ⚠️ Error queueing clustering: {e}", flush=True)
 
-            # Fire-and-forget: don't wait for background tasks
-            asyncio.create_task(background_funding_and_clustering())
-            log_print(f"[BACKGROUND] 📤 Background tasks spawned (fire-and-forget)", flush=True)
+            # Queue background tasks for deferred execution (after critical window)
+            # This allows pool discovery to complete before background RPC work starts
+            log_print(f"[BACKGROUND] 📤 Queueing background tasks (deferred after critical window)", flush=True)
+            await self.queue_background_job(background_funding_and_clustering(), mint=mint, priority=10)
         else:
             log_print(f"[BACKGROUND] ⏭️ Skipping background tasks (no creator found)", flush=True)
 
     async def _retry_pool_discovery(self, mint: str, original_migration_sig: str, delays: List[int]):
         """
-        Retry pool discovery using PRIMARY-FIRST strategy (Phase 2 optimization).
+        PHASE 2: Critical-path protected retry discovery with tier-based strategies.
 
-        Retry strategy (PRIMARY FIRST):
-        1. Retry 1+: TX parsing primary (catches 85%+ of tokens in first 2-5s)
-        2. Fallback: RPC-authoritative vault discovery (when TX fails)
-        3. Vault inference: REMOVED (tested ~5% success rate, adds no value)
+        Retry Tiers:
+        1. Retries 1-5 (T=0.5-8s): TX-only (protect RPC quota, poll exact migration TX)
+        2. Retries 6-7 (T=13-21s): TX + light RPC fallback (single RPC call)
+        3. Retries 8-12 (T=33-161s): TX + full RPC fallback (complete discovery)
 
-        TX parsing is faster and more reliable for PumpSwap (pool is in migration TX).
-        RPC is only used after TX parsing fully exhausted.
+        Why tiers?
+        - Early window: TX not indexed yet, vaults not ready. Don't waste RPC.
+        - Middle window: TX indexed, vaults becoming ready. Light probing.
+        - Late window: Full RPC enabled, background jobs may start processing.
 
         Args:
             mint: Token mint address
@@ -2517,7 +2646,6 @@ class PumpFunCurveListener:
         """
         from src.core.post_migration_pool_discovery import PostMigrationPoolDiscovery
         from src.core.pool_detector import AMMPrograms
-        from src.core.vault_discovery import discover_and_register_vaults_rpc
 
         # Track metrics for this token's discovery
         discovery_metrics = {
@@ -2525,241 +2653,257 @@ class PumpFunCurveListener:
             'tx_parsing_attempts': 0,
             'rpc_attempts': 0,
             'total_candidates_tested': 0,
-            'rejections': {}  # reason -> count
+            'rejections': {}
         }
+
+        # Start critical window for this mint
+        self.start_critical_window(mint)
 
         for attempt, delay in enumerate(delays, 1):
             try:
                 await asyncio.sleep(delay)
 
-                # ===== PRIMARY STRATEGY: TX PARSING =====
+                elapsed = time.time() - self.token_discovery_times[mint]["detected"]
+                in_critical_window = self.is_in_critical_window(mint)
+
+                # Determine retry tier based on attempt number
+                if attempt <= 5:
+                    tier = "TX_ONLY"
+                    run_tx = True
+                    run_rpc = False
+                elif attempt <= 7:
+                    tier = "TX_PLUS_LIGHT_RPC"
+                    run_tx = True
+                    run_rpc = True
+                    rpc_mode = "light"
+                else:
+                    tier = "TX_PLUS_FULL_RPC"
+                    run_tx = True
+                    run_rpc = True
+                    rpc_mode = "full"
+
                 log_print(
-                    f"{Colors.DISCOVER}[POOL_RETRY] Attempt {attempt}/{len(delays)} (waited {delay}s) - PRIMARY: TX parsing for {mint[:16]}...{Colors.RESET}",
+                    f"{Colors.DISCOVER}[DISCOVERY_T{attempt}] attempt={attempt}/{len(delays)} elapsed={elapsed:.1f}s tier={tier} critical_window={'ACTIVE' if in_critical_window else 'EXPIRED'}{Colors.RESET}",
                     flush=True
                 )
 
-                try:
-                    discovery = PostMigrationPoolDiscovery(RPC_HTTP)
+                # ===== TIER: TX PARSING =====
+                if run_tx:
+                    try:
+                        discovery = PostMigrationPoolDiscovery(RPC_HTTP)
 
-                    # Strategy 1: Pool candidates from migration TX
-                    pool_candidates = await discovery.discover_pool_candidates_from_migration_tx(
-                        mint=mint,
-                        migration_sig=original_migration_sig
-                    )
+                        # Fetch exact migration TX with discovery RPC quota
+                        pool_candidates = await discovery.discover_pool_candidates_from_migration_tx(
+                            mint=mint,
+                            migration_sig=original_migration_sig
+                        )
 
-                    candidates_tested = 0
-                    rejection_reasons = []
+                        candidates_tested = 0
+                        rejection_reasons = []
 
-                    if pool_candidates:
-                        for candidate_idx, candidate in enumerate(pool_candidates, 1):
-                            candidates_tested += 1
-                            discovery_metrics['total_candidates_tested'] += 1
+                        if pool_candidates:
+                            for candidate in pool_candidates:
+                                candidates_tested += 1
+                                discovery_metrics['total_candidates_tested'] += 1
 
-                            try:
-                                # Check owner
-                                account_info_payload = {
-                                    "jsonrpc": "2.0",
-                                    "id": 1,
-                                    "method": "getAccountInfo",
-                                    "params": [candidate, {"encoding": "base64"}]
-                                }
-                                acct = await self._post_rpc_with_fallback(account_info_payload, timeout=5)
-
-                                if not acct or "result" not in acct or not acct["result"]:
-                                    rejection_reasons.append("not_found")
-                                    discovery_metrics['rejections']['not_found'] = discovery_metrics['rejections'].get('not_found', 0) + 1
-                                    continue
-
-                                owner = acct["result"].get("value", {}).get("owner")
-                                if owner not in AMMPrograms.ALL:
-                                    rejection_reasons.append("owner_mismatch")
-                                    discovery_metrics['rejections']['owner_mismatch'] = discovery_metrics['rejections'].get('owner_mismatch', 0) + 1
-                                    log_print(
-                                        f"{Colors.DISCOVER}[POOL_RETRY] attempt={attempt} strategy=tx_parsing candidate={candidate[:16]}... rejected=owner_mismatch (expected AMM, got {owner[:16] if owner else 'None'}){Colors.RESET}",
-                                        flush=True
-                                    )
-                                    continue
-
-                                # Owner is valid - try to register
                                 try:
-                                    from src.core.pool_discovery import PoolDiscovery
-                                    discovery_pipeline = PoolDiscovery(DB_PATH, RPC_HTTP)
-                                    registered = await discovery_pipeline.discover_and_register_pool(
-                                        candidate, mint
-                                    )
-                                    if registered:
-                                        # SUCCESS!
-                                        self.token_states[mint] = "resolved"
-                                        self.token_discovery_times[mint]["resolved"] = time.time()
-                                        elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
-                                        
-                                        log_print(
-                                            f"{Colors.DISCOVER}[POOL_RETRY] attempt={attempt} strategy=tx_parsing candidate={candidate[:16]}... accepted pool_registered{Colors.RESET}",
-                                            flush=True
-                                        )
-                                        log_print(
-                                            f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (TX parsing, attempt {attempt} in {elapsed:.1f}s){Colors.RESET}",
-                                            flush=True
-                                        )
-                                        await self._write_resolution_telemetry(mint, "tx_parsing", candidate, attempt - 1)
-                                        return
-                                    else:
-                                        rejection_reasons.append("registration_failed")
-                                        discovery_metrics['rejections']['registration_failed'] = discovery_metrics['rejections'].get('registration_failed', 0) + 1
-                                        log_print(
-                                            f"{Colors.DISCOVER}[POOL_RETRY] attempt={attempt} strategy=tx_parsing candidate={candidate[:16]}... rejected=registration_failed{Colors.RESET}",
-                                            flush=True
-                                        )
-                                except Exception as reg_err:
-                                    rejection_reasons.append("registration_error")
-                                    discovery_metrics['rejections']['registration_error'] = discovery_metrics['rejections'].get('registration_error', 0) + 1
-                                    log_print(
-                                        f"{Colors.DISCOVER}[POOL_RETRY] attempt={attempt} strategy=tx_parsing candidate={candidate[:16]}... rejected=registration_error ({str(reg_err)[:50]}){Colors.RESET}",
-                                        flush=True
+                                    # Check owner with discovery RPC quota
+                                    account_info_payload = {
+                                        "jsonrpc": "2.0",
+                                        "id": 1,
+                                        "method": "getAccountInfo",
+                                        "params": [candidate, {"encoding": "base64"}]
+                                    }
+                                    acct = await self.call_discovery_rpc(
+                                        "getAccountInfo",
+                                        [candidate, {"encoding": "base64"}],
+                                        timeout=5
                                     )
 
-                            except Exception as e:
-                                rejection_reasons.append("check_error")
-                                discovery_metrics['rejections']['check_error'] = discovery_metrics['rejections'].get('check_error', 0) + 1
-                                log_print(
-                                    f"{Colors.DISCOVER}[POOL_RETRY] attempt={attempt} strategy=tx_parsing candidate={candidate[:16]}... rejected=check_error ({str(e)[:50]}){Colors.RESET}",
-                                    flush=True
-                                )
+                                    if not acct or not acct.get("result"):
+                                        rejection_reasons.append("tx_not_indexed")
+                                        discovery_metrics['rejections']['tx_not_indexed'] = discovery_metrics['rejections'].get('tx_not_indexed', 0) + 1
+                                        continue
 
-                        # All TX parsing candidates exhausted for this attempt
+                                    owner = acct["result"].get("value", {}).get("owner")
+                                    if owner not in AMMPrograms.ALL:
+                                        rejection_reasons.append("owner_mismatch")
+                                        discovery_metrics['rejections']['owner_mismatch'] = discovery_metrics['rejections'].get('owner_mismatch', 0) + 1
+                                        continue
+
+                                    # Owner valid - try registration
+                                    try:
+                                        from src.core.pool_discovery import PoolDiscovery
+                                        discovery_pipeline = PoolDiscovery(DB_PATH, RPC_HTTP)
+                                        registered = await discovery_pipeline.discover_and_register_pool(
+                                            candidate, mint
+                                        )
+                                        if registered:
+                                            # SUCCESS!
+                                            self.token_states[mint] = "resolved"
+                                            self.token_discovery_times[mint]["resolved"] = time.time()
+                                            elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
+
+                                            log_print(
+                                                f"{Colors.DISCOVER}[DISCOVERY_SUCCESS] attempt={attempt} strategy=tx_parsing elapsed={elapsed:.1f}s pool={candidate[:16]}...{Colors.RESET}",
+                                                flush=True
+                                            )
+                                            log_print(
+                                                f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (TX parsing attempt {attempt} in {elapsed:.1f}s){Colors.RESET}",
+                                                flush=True
+                                            )
+                                            await self._write_resolution_telemetry(mint, "tx_parsing", candidate, attempt - 1)
+                                            return
+
+                                        else:
+                                            rejection_reasons.append("registration_failed")
+                                            discovery_metrics['rejections']['registration_failed'] = discovery_metrics['rejections'].get('registration_failed', 0) + 1
+
+                                    except Exception as reg_err:
+                                        rejection_reasons.append("registration_error")
+                                        discovery_metrics['rejections']['registration_error'] = discovery_metrics['rejections'].get('registration_error', 0) + 1
+
+                                except Exception as e:
+                                    rejection_reasons.append("check_error")
+                                    discovery_metrics['rejections']['check_error'] = discovery_metrics['rejections'].get('check_error', 0) + 1
+
+                            # TX round summary
+                            discovery_metrics['tx_parsing_attempts'] += 1
+                            log_print(
+                                f"{Colors.DISCOVER}[DISCOVERY_TX] attempt={attempt} candidates_tested={candidates_tested} rejections={','.join(set(rejection_reasons))}{Colors.RESET}",
+                                flush=True
+                            )
+                        else:
+                            # No candidates (TX not indexed yet)
+                            discovery_metrics['tx_parsing_attempts'] += 1
+                            log_print(
+                                f"{Colors.DISCOVER}[DISCOVERY_TX] attempt={attempt} candidates=0 (tx_not_indexed){Colors.RESET}",
+                                flush=True
+                            )
+
+                    except Exception as tx_err:
                         discovery_metrics['tx_parsing_attempts'] += 1
                         log_print(
-                            f"{Colors.DISCOVER}[POOL_RETRY] attempt={attempt} strategy=tx_parsing candidates={candidates_tested} rejections={','.join(set(rejection_reasons))}{Colors.RESET}",
-                            flush=True
-                        )
-                    else:
-                        # No candidates found
-                        log_print(
-                            f"{Colors.DISCOVER}[POOL_RETRY] attempt={attempt} strategy=tx_parsing candidates=0 (not indexed yet){Colors.RESET}",
+                            f"{Colors.DISCOVER}[DISCOVERY_TX_ERROR] attempt={attempt} error={str(tx_err)[:50]}{Colors.RESET}",
                             flush=True
                         )
 
-                except Exception as tx_err:
-                    discovery_metrics['tx_parsing_attempts'] += 1
-                    log_print(
-                        f"{Colors.DISCOVER}[POOL_RETRY] attempt={attempt} strategy=tx_parsing error={str(tx_err)[:50]}{Colors.RESET}",
-                        flush=True
-                    )
+                # ===== TIER: RPC FALLBACK =====
+                if run_rpc:
+                    try:
+                        from src.core.vault_discovery import discover_and_register_all_pools
 
-                # ===== FALLBACK STRATEGY: RPC VAULT DISCOVERY =====
-                # Only try RPC if TX parsing didn't work
-                log_print(
-                    f"{Colors.DISCOVER}[POOL_RETRY] attempt={attempt} strategy=rpc_fallback starting...{Colors.RESET}",
-                    flush=True
-                )
+                        class SimpleRPCClient:
+                            def __init__(self, listener_instance):
+                                self.listener = listener_instance
 
-                try:
-                    class SimpleRPCClient:
-                        def __init__(self, post_func):
-                            self.post = post_func
+                            async def call_async(self, method, params):
+                                result = await self.listener.call_discovery_rpc(method, params, timeout=10)
+                                return result.get("result") if result else None
 
-                        async def call_async(self, method, params):
-                            payload = {"jsonrpc": "2.0", "id": 1, "method": method, "params": params}
-                            result = await self.post(payload, timeout=10)
-                            return result.get("result") if result else None
+                            async def get_account_info(self, address, encoding="base64", commitment="confirmed"):
+                                result = await self.call_async(
+                                    "getAccountInfo",
+                                    [address, {"encoding": encoding, "commitment": commitment}]
+                                )
+                                if result:
+                                    acct_data = result.get("value", {})
+                                    return type('Account', (), {
+                                        'owner': acct_data.get('owner'),
+                                        'lamports': acct_data.get('lamports'),
+                                        'data': acct_data.get('data', ['', ''])[0] if isinstance(acct_data.get('data'), list) else acct_data.get('data', ''),
+                                    })()
+                                return None
 
-                        async def get_multiple_accounts(self, addresses, encoding="base64", commitment="confirmed"):
-                            payload = {
-                                "jsonrpc": "2.0",
-                                "id": 1,
-                                "method": "getMultipleAccounts",
-                                "params": [addresses, {"encoding": encoding, "commitment": commitment}]
-                            }
-                            result = await self.post(payload, timeout=10)
-                            if result and "result" in result:
-                                accounts = []
-                                for acct_data in result["result"].get("value", []):
-                                    if acct_data:
-                                        accounts.append(type('Account', (), {
-                                            'owner': acct_data.get('owner'),
-                                            'lamports': acct_data.get('lamports'),
-                                            'data': acct_data.get('data', ['', ''])[0],
-                                        })())
-                                    else:
-                                        accounts.append(None)
-                                return accounts
-                            return []
+                            async def get_multiple_accounts(self, addresses, encoding="base64", commitment="confirmed"):
+                                result = await self.call_async(
+                                    "getMultipleAccounts",
+                                    [addresses, {"encoding": encoding, "commitment": commitment}]
+                                )
+                                if result and "value" in result:
+                                    accounts = []
+                                    for acct_data in result["value"]:
+                                        if acct_data:
+                                            accounts.append(type('Account', (), {
+                                                'owner': acct_data.get('owner'),
+                                                'lamports': acct_data.get('lamports'),
+                                                'data': acct_data.get('data', ['', ''])[0],
+                                            })())
+                                        else:
+                                            accounts.append(None)
+                                    return accounts
+                                return []
 
-                        async def get_account_info(self, address, encoding="base64", commitment="confirmed"):
-                            payload = {
-                                "jsonrpc": "2.0",
-                                "id": 1,
-                                "method": "getAccountInfo",
-                                "params": [address, {"encoding": encoding, "commitment": commitment}]
-                            }
-                            result = await self.post(payload, timeout=10)
-                            if result and "result" in result and result["result"]:
-                                acct_data = result["result"].get("value", {})
-                                return type('Account', (), {
-                                    'owner': acct_data.get('owner'),
-                                    'lamports': acct_data.get('lamports'),
-                                    'data': acct_data.get('data', ['', ''])[0] if isinstance(acct_data.get('data'), list) else acct_data.get('data', ''),
-                                })()
-                            return None
+                        rpc_client = SimpleRPCClient(self)
+                        price_worker = self.price_worker
 
-                    rpc_client = SimpleRPCClient(self._post_rpc_with_fallback)
-                    price_worker = self.price_worker
+                        rpc_success = await discover_and_register_all_pools(
+                            token_mint=mint,
+                            rpc_client=rpc_client,
+                            db=DB_PATH,
+                            price_worker=price_worker,
+                            max_retries=1
+                        )
 
-                    from src.core.vault_discovery import discover_and_register_all_pools
-                    rpc_success = await discover_and_register_all_pools(
-                        token_mint=mint,
-                        rpc_client=rpc_client,
-                        db=DB_PATH,
-                        price_worker=price_worker,
-                        max_retries=1
-                    )
+                        if rpc_success:
+                            self.token_states[mint] = "resolved"
+                            self.token_discovery_times[mint]["resolved"] = time.time()
+                            elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
 
-                    if rpc_success:
-                        self.token_states[mint] = "resolved"
-                        self.token_discovery_times[mint]["resolved"] = time.time()
-                        elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
-                        
+                            discovery_metrics['rpc_attempts'] += 1
+                            log_print(
+                                f"{Colors.DISCOVER}[DISCOVERY_RPC_SUCCESS] attempt={attempt} strategy={rpc_mode}_rpc elapsed={elapsed:.1f}s{Colors.RESET}",
+                                flush=True
+                            )
+                            log_print(
+                                f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (RPC fallback attempt {attempt} in {elapsed:.1f}s){Colors.RESET}",
+                                flush=True
+                            )
+                            await self._write_resolution_telemetry(mint, "rpc_discovery", None, attempt - 1)
+                            return
+                        else:
+                            discovery_metrics['rpc_attempts'] += 1
+                            log_print(
+                                f"{Colors.DISCOVER}[DISCOVERY_RPC] attempt={attempt} strategy={rpc_mode}_rpc rejected=vaults_not_ready{Colors.RESET}",
+                                flush=True
+                            )
+
+                    except Exception as rpc_err:
                         discovery_metrics['rpc_attempts'] += 1
                         log_print(
-                            f"{Colors.DISCOVER}[POOL_RETRY] attempt={attempt} strategy=rpc_fallback accepted pool_registered{Colors.RESET}",
-                            flush=True
-                        )
-                        log_print(
-                            f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (RPC fallback, attempt {attempt} in {elapsed:.1f}s){Colors.RESET}",
-                            flush=True
-                        )
-                        await self._write_resolution_telemetry(mint, "rpc_discovery", None, attempt - 1)
-                        return
-                    else:
-                        discovery_metrics['rpc_attempts'] += 1
-                        log_print(
-                            f"{Colors.DISCOVER}[POOL_RETRY] attempt={attempt} strategy=rpc_fallback rejected=vaults_not_ready{Colors.RESET}",
+                            f"{Colors.DISCOVER}[DISCOVERY_RPC_ERROR] attempt={attempt} error={str(rpc_err)[:50]}{Colors.RESET}",
                             flush=True
                         )
 
-                except Exception as rpc_err:
-                    discovery_metrics['rpc_attempts'] += 1
-                    log_print(
-                        f"{Colors.DISCOVER}[POOL_RETRY] attempt={attempt} strategy=rpc_fallback error={str(rpc_err)[:50]}{Colors.RESET}",
-                        flush=True
-                    )
+                # Allow background jobs to process after critical window
+                if elapsed > self.DISCOVERY_CRITICAL_WINDOW_SECONDS and not in_critical_window:
+                    try:
+                        while not self.background_job_queue.empty():
+                            job_item = self.background_job_queue.get_nowait()
+                            try:
+                                await job_item['coro']
+                            except Exception as e:
+                                logger.error(f"Background job failed: {e}")
+                            self.background_job_queue.task_done()
+                    except asyncio.QueueEmpty:
+                        pass
 
             except asyncio.CancelledError:
-                log_print(f"{Colors.DISCOVER}[POOL_RETRY] Cancelled at attempt {attempt}{Colors.RESET}", flush=True)
+                log_print(f"{Colors.DISCOVER}[DISCOVERY_CANCELLED] Cancelled at attempt {attempt}{Colors.RESET}", flush=True)
                 return
             except Exception as e:
                 log_print(
-                    f"{Colors.DISCOVER}[POOL_RETRY] attempt={attempt} error={str(e)[:50]}{Colors.RESET}",
+                    f"{Colors.DISCOVER}[DISCOVERY_ERROR] attempt={attempt} error={str(e)[:50]}{Colors.RESET}",
                     flush=True
                 )
 
         # All retries exhausted
         log_print(
-            f"{Colors.DISCOVER}[POOL_RETRY] ❌ All {len(delays)} attempts exhausted for {mint[:16]}..., giving up{Colors.RESET}",
+            f"{Colors.DISCOVER}[DISCOVERY_FAILED] ❌ All {len(delays)} attempts exhausted for {mint[:16]}..., giving up{Colors.RESET}",
             flush=True
         )
         log_print(
-            f"{Colors.DISCOVER}[POOL_RETRY_SUMMARY] {mint[:16]}... metrics: tx_parsing_attempts={discovery_metrics['tx_parsing_attempts']} rpc_attempts={discovery_metrics['rpc_attempts']} total_candidates_tested={discovery_metrics['total_candidates_tested']} rejections={discovery_metrics['rejections']}{Colors.RESET}",
+            f"{Colors.DISCOVER}[DISCOVERY_METRICS] {mint[:16]}... → tx_attempts={discovery_metrics['tx_parsing_attempts']} rpc_attempts={discovery_metrics['rpc_attempts']} candidates_tested={discovery_metrics['total_candidates_tested']} rejections={discovery_metrics['rejections']}{Colors.RESET}",
             flush=True
         )
 

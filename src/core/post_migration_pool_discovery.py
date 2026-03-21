@@ -678,6 +678,9 @@ class PostMigrationPoolDiscovery:
 
                             tx_data = tx_result.get("result")
                             if not tx_data:
+                                logger.debug(
+                                    f"[FOLLOW_ON_DISCOVERY] TX {sig[:16]}... returned no data, skipping"
+                                )
                                 continue
 
                             # Extract and inspect candidates from this TX
@@ -781,19 +784,30 @@ class PostMigrationPoolDiscovery:
     ) -> List[str]:
         """Extract potential pool candidates from a transaction."""
         try:
+            logger.debug(f"[FOLLOW_ON_DISCOVERY] Extraction called for anchor={anchor_name}")
             candidates = []
 
             # Extract accounts from transaction
             message = tx_data.get("transaction", {}).get("message", {})
-            accounts = message.get("accountKeys", []) or []
+            account_keys = message.get("accountKeys", []) or []
 
-            # Include loaded addresses
+            # Convert to strings and build index map
+            accounts_indexed = []
+            for i, addr in enumerate(account_keys):
+                accounts_indexed.append((i, str(addr) if not isinstance(addr, str) else addr))
+
+            # Include loaded addresses (these come AFTER accountKeys in the indexing)
             meta = tx_data.get("meta", {})
             loaded_addrs = meta.get("loadedAddresses", {})
-            accounts = accounts + loaded_addrs.get("writable", []) + loaded_addrs.get("readonly", [])
+            next_idx = len(account_keys)
 
-            # Convert to strings
-            accounts = [str(addr) if not isinstance(addr, str) else addr for addr in accounts]
+            for addr in loaded_addrs.get("writable", []):
+                accounts_indexed.append((next_idx, str(addr) if not isinstance(addr, str) else addr))
+                next_idx += 1
+
+            for addr in loaded_addrs.get("readonly", []):
+                accounts_indexed.append((next_idx, str(addr) if not isinstance(addr, str) else addr))
+                next_idx += 1
 
             # Known pool programs
             POOL_PROGRAMS = {
@@ -815,22 +829,34 @@ class PostMigrationPoolDiscovery:
 
             # Look for accounts with pool program owner
             meta_accounts = meta.get("accounts", [])
-            for i, account_addr in enumerate(accounts):
+            for idx, account_addr in accounts_indexed:
                 if account_addr in SYSTEM_PROGRAMS:
                     continue
 
                 # Check meta for owner info
-                if i < len(meta_accounts):
-                    meta_entry = meta_accounts[i]
+                if idx < len(meta_accounts):
+                    meta_entry = meta_accounts[idx]
                     if isinstance(meta_entry, dict):
                         owner = meta_entry.get("owner")
                         if owner in POOL_PROGRAMS:
                             candidates.append(account_addr)
+                            logger.debug(
+                                f"[FOLLOW_ON_DISCOVERY] Extraction found: {account_addr[:16]}... "
+                                f"owner={owner[:16]}... (index={idx})"
+                            )
+
+            if not candidates:
+                logger.debug(
+                    f"[FOLLOW_ON_DISCOVERY] Extraction found {len(accounts_indexed)} accounts, "
+                    f"0 candidates (no pool program owners)"
+                )
 
             return candidates
 
         except Exception as e:
             logger.debug(f"[FOLLOW_ON_DISCOVERY] Error extracting candidates: {e}")
+            import traceback
+            logger.debug(traceback.format_exc())
             return []
 
     async def discover_pool_candidates_from_migration_tx(

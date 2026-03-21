@@ -528,15 +528,47 @@ class PostMigrationPoolDiscovery:
                 anchors.append(("mint", token_mint))
 
             total_txs_scanned = 0
-            rpc_calls_made = 0
-            max_rpc_calls = 15  # Total RPC budget for follow-on
+            rpc_calls_made_total = 0
+            max_rpc_calls_total = 15  # Total RPC budget for follow-on
+            # Allocate budget per anchor so fallbacks (creator) get a fair chance
+            num_anchors = len(anchors) if anchors else 1
+            max_rpc_calls_per_anchor = max(1, max_rpc_calls_total // num_anchors)
+
+            # Fetch migration blockTime for time-window filtering
+            migration_blocktime = None
+            try:
+                sig_payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getSignatureStatuses",
+                    "params": [[migration_sig], {"searchTransactionHistory": True}],
+                }
+                async with aiohttp.ClientSession() as session:
+                    async with session.post(
+                        self.rpc_url,
+                        json=sig_payload,
+                        timeout=aiohttp.ClientTimeout(total=10),
+                    ) as resp:
+                        if resp.status == 200:
+                            result = await resp.json()
+                            statuses = result.get("result", {}).get("value", [])
+                            if statuses and statuses[0]:
+                                migration_blocktime = statuses[0].get("blockTime")
+                                rpc_calls_made_total += 1
+                                logger.debug(
+                                    f"[FOLLOW_ON_DISCOVERY] Migration blockTime: {migration_blocktime}"
+                                )
+            except Exception as e:
+                logger.debug(f"[FOLLOW_ON_DISCOVERY] Failed to fetch migration blockTime: {e}")
 
             for anchor_name, anchor_addr in anchors:
-                if rpc_calls_made >= max_rpc_calls:
+                if rpc_calls_made_total >= max_rpc_calls_total:
                     logger.info(
-                        f"[FOLLOW_ON_DISCOVERY] RPC budget exhausted for {mint[:16]}..."
+                        f"[FOLLOW_ON_DISCOVERY] Total RPC budget exhausted for {mint[:16]}..."
                     )
                     break
+
+                rpc_calls_for_this_anchor = 0  # Reset per anchor
 
                 if not anchor_addr:
                     continue
@@ -547,6 +579,9 @@ class PostMigrationPoolDiscovery:
 
                 try:
                     # Fetch signatures for this anchor
+                    # CRITICAL: Do NOT use "before": migration_sig
+                    # Pool creation happens AFTER migration, not before
+                    # We need most recent signatures, which include post-migration TXs
                     sig_payload = {
                         "jsonrpc": "2.0",
                         "id": 1,
@@ -555,7 +590,6 @@ class PostMigrationPoolDiscovery:
                             anchor_addr,
                             {
                                 "limit": max_txs_per_anchor,
-                                "before": migration_sig,
                             },
                         ],
                     }
@@ -573,7 +607,8 @@ class PostMigrationPoolDiscovery:
                                 continue
 
                             sig_result = await resp.json()
-                            rpc_calls_made += 1
+                            rpc_calls_for_this_anchor += 1
+                            rpc_calls_made_total += 1
 
                     signatures = sig_result.get("result", [])
                     if not signatures:
@@ -588,7 +623,10 @@ class PostMigrationPoolDiscovery:
 
                     # Inspect each signature for pool creation
                     for sig_idx, sig_info in enumerate(signatures[:max_txs_per_anchor]):
-                        if rpc_calls_made >= max_rpc_calls:
+                        if rpc_calls_for_this_anchor >= max_rpc_calls_per_anchor:
+                            logger.debug(f"[FOLLOW_ON_DISCOVERY] RPC budget exhausted for anchor={anchor_name}")
+                            break
+                        if rpc_calls_made_total >= max_rpc_calls_total:
                             break
 
                         sig = sig_info.get("signature")
@@ -603,7 +641,11 @@ class PostMigrationPoolDiscovery:
 
                         # Check time window
                         block_time = sig_info.get("blockTime")
-                        # This is approximate; we'll filter more precisely when we fetch the TX
+                        if migration_blocktime and block_time:
+                            time_diff = block_time - migration_blocktime
+                            # Skip if TX is before migration or outside window
+                            if time_diff < 0 or time_diff > time_window_seconds:
+                                continue
 
                         try:
                             # Fetch transaction
@@ -624,7 +666,8 @@ class PostMigrationPoolDiscovery:
                                         continue
 
                                     tx_result = await resp.json()
-                                    rpc_calls_made += 1
+                                    rpc_calls_for_this_anchor += 1
+                            rpc_calls_made_total += 1
 
                             tx_data = tx_result.get("result")
                             if not tx_data:
@@ -642,7 +685,9 @@ class PostMigrationPoolDiscovery:
                                 )
 
                                 # Validate candidate via RPC
-                                if rpc_calls_made >= max_rpc_calls:
+                                if rpc_calls_for_this_anchor >= max_rpc_calls_per_anchor:
+                                    break
+                                if rpc_calls_made_total >= max_rpc_calls_total:
                                     break
 
                                 try:
@@ -663,7 +708,8 @@ class PostMigrationPoolDiscovery:
                                                 continue
 
                                             acct_result = await resp.json()
-                                            rpc_calls_made += 1
+                                            rpc_calls_for_this_anchor += 1
+                                            rpc_calls_made_total += 1
 
                                     acct = acct_result.get("result", {}).get("value")
                                     if not acct:

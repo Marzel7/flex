@@ -2778,6 +2778,31 @@ class PumpFunCurveListener:
             flush=True
         )
 
+        # CRITICAL: Validate tx_data structure (not just presence)
+        if tx_data:
+            has_meta = tx_data.get('meta') is not None
+            has_block_time = tx_data.get('blockTime') is not None
+            has_transaction = tx_data.get('transaction') is not None
+            has_meta_accounts = (tx_data.get('meta') or {}).get('accounts') is not None
+            tx_keys = list(tx_data.keys()) if tx_data else []
+
+            log_print(
+                f"🔴 [TX_DATA_VALIDATION] has_meta={has_meta} has_blockTime={has_block_time} "
+                f"has_transaction={has_transaction} has_meta_accounts={has_meta_accounts} "
+                f"keys={tx_keys[:5]}{'...' if len(tx_keys) > 5 else ''}",
+                flush=True
+            )
+
+            # If critical fields missing, log warning
+            if not (has_meta and has_block_time and has_transaction):
+                log_print(
+                    f"⚠️ [TX_DATA_INCOMPLETE] MISSING: "
+                    f"{'meta ' if not has_meta else ''}"
+                    f"{'blockTime ' if not has_block_time else ''}"
+                    f"{'transaction ' if not has_transaction else ''}",
+                    flush=True
+                )
+
         from src.core.post_migration_pool_discovery import PostMigrationPoolDiscovery
         from src.core.pool_detector import AMMPrograms
 
@@ -2876,6 +2901,19 @@ class PumpFunCurveListener:
                                 f"cached_count={cached_candidate_count}",
                                 flush=True
                             )
+
+                            # CRITICAL: Before triggering follow-on, verify tx_data integrity
+                            if tx_data is not None:
+                                tx_has_meta = tx_data.get('meta') is not None
+                                tx_has_block_time = tx_data.get('blockTime') is not None
+                                tx_has_transaction = tx_data.get('transaction') is not None
+
+                                if not (tx_has_meta and tx_has_transaction):
+                                    log_print(
+                                        f"⚠️ [FOLLOW_ON_SKIP] tx_data incomplete: "
+                                        f"meta={tx_has_meta} transaction={tx_has_transaction}",
+                                        flush=True
+                                    )
 
                             if follow_on_max_txs > 0 and tx_data is not None and cached_candidate_count == 0:
                                 # Use bonding_curve and creator passed from migration context

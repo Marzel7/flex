@@ -2741,6 +2741,16 @@ class PumpFunCurveListener:
             creator: Optional earliest creator address (secondary anchor for follow-on discovery)
             migration_timestamp: Optional migration block time for context
         """
+        log_print(
+            f"🔴 [RETRY_START] CRITICAL: Retry loop started for {mint[:16]}... "
+            f"sig={original_migration_sig[:16]}... "
+            f"delays={len(delays)} "
+            f"curve={bonding_curve[:16] if bonding_curve else 'None'}... "
+            f"creator={creator[:16] if creator else 'None'}... "
+            f"tx_data={'YES' if tx_data else 'NO'}",
+            flush=True
+        )
+
         from src.core.post_migration_pool_discovery import PostMigrationPoolDiscovery
         from src.core.pool_detector import AMMPrograms
 

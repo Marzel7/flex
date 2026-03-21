@@ -2507,6 +2507,11 @@ class PumpFunCurveListener:
         )
 
         # === SCHEDULE RETRY DISCOVERY IF NO POOL FOUND ===
+        log_print(
+            f"🔴 [DISCOVERY_CHECKPOINT] pool_discovery_source='{pool_discovery_source}' (none=retry, other=success)",
+            flush=True
+        )
+
         if pool_discovery_source == "none":
             # Transition to "resolving" state (will be resolved on retry)
             self.token_states[mint] = "resolving"
@@ -2515,7 +2520,7 @@ class PumpFunCurveListener:
                 flush=True
             )
             log_print(
-                f"🔴 [POOL_DETECT_CRITICAL] pool_discovery_source={pool_discovery_source}, will schedule retry after creator extraction",
+                f"🔴 [DECISION] pool_discovery_source=none → WILL SCHEDULE RETRIES",
                 flush=True
             )
             log_print(
@@ -2526,7 +2531,7 @@ class PumpFunCurveListener:
             schedule_retry_after_creator_extraction = True
         else:
             log_print(
-                f"🔴 [POOL_DETECT_CRITICAL] pool_discovery_source={pool_discovery_source}, NO retry scheduled",
+                f"🔴 [DECISION] pool_discovery_source='{pool_discovery_source}' → NO retries needed",
                 flush=True
             )
             schedule_retry_after_creator_extraction = False
@@ -2598,6 +2603,12 @@ class PumpFunCurveListener:
             analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
             provenance = await analyzer.get_creator_from_earliest_tx()
             earliest_creator = provenance.get('creator') if provenance else None
+
+            log_print(
+                f"🔴 [CREATOR_EXTRACTION] creator={earliest_creator[:16] if earliest_creator else 'NONE'}... "
+                f"provenance={provenance.get('status') if provenance else 'NONE'}",
+                flush=True
+            )
 
             # Prefer on-chain blockTime from provenance over migration tx blockTime
             if provenance and provenance.get('blockTime'):

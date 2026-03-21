@@ -34,6 +34,25 @@ When REAL token arrives, check these checkpoints IN ORDER:
 
 **If tx_data=NO** → THIS IS THE BUG (tx_data lost somewhere)
 
+### NEW Critical Checkpoint: [TX_DATA_VALIDATION]
+```
+🔴 [TX_DATA_VALIDATION] has_meta=True has_blockTime=True has_transaction=True has_meta_accounts=True
+```
+
+**MUST SEE ALL TRUE:**
+- has_meta=True → TX metadata present ✅
+- has_blockTime=True → TX blockTime present ✅
+- has_transaction=True → TX transaction structure present ✅
+- has_meta_accounts=True → metadata accounts present ✅
+
+**CRITICAL:** This catches the subtle bug where:
+- tx_data != None (passes surface check)
+- BUT tx_data['meta'] is None (fails downstream)
+- Follow-on appears not to run, but actually runs on corrupted data
+- Returns 0 candidates, looks like extraction failed
+
+**If any False** → `[TX_DATA_INCOMPLETE]` warning logged, follow-on likely to fail silently
+
 ### Critical Checkpoint: [FOLLOW_ON_CHECK]
 ```
 [FOLLOW_ON_CHECK] follow_on_max_txs=10 tx_data=True cached_count=0
@@ -58,11 +77,15 @@ When REAL token arrives, check these checkpoints IN ORDER:
 | Log Present? | Conclusion |
 |---|---|
 | [RETRY_START] with tx_data=YES | ✅ Code path reached |
+| [TX_DATA_VALIDATION] all True | ✅ TX data has integrity |
+| [TX_DATA_VALIDATION] has False | ⚠️ tx_data incomplete (meta/blockTime missing) |
 | [FOLLOW_ON_CHECK] all true | ✅ Trigger conditions met |
 | [FOLLOW_ON_DISCOVERY] Starting | ✅ Follow-on executing |
 | ✅ Found valid pool | ✅ SUCCESS |
 | [RETRY_START] missing | ❌ Retry task not running |
 | tx_data=NO in [RETRY_START] | ❌ tx_data lost in propagation |
+| [TX_DATA_VALIDATION] missing | ❌ tx_data never checked (won't run if bad) |
+| [TX_DATA_INCOMPLETE] warning | ⚠️ tx_data corrupted - follow-on will fail silently |
 | [FOLLOW_ON_CHECK] missing | ❌ Retry loop not reaching that point |
 | [FOLLOW_ON_DISCOVERY] missing | ❌ Trigger condition failing |
 
@@ -107,6 +130,17 @@ When a NEW token migration detected:
 - [ ] Check tx_data value in [RETRY_START]
   - [ ] YES → continue below
   - [ ] NO → **THIS IS THE BUG** (tx_data lost)
+
+- [ ] See [TX_DATA_VALIDATION] log?
+  - [ ] Yes → continue below
+  - [ ] No → tx_data validation skipped (something wrong)
+
+- [ ] Check all fields in [TX_DATA_VALIDATION]
+  - [ ] has_meta=True ✅
+  - [ ] has_blockTime=True ✅
+  - [ ] has_transaction=True ✅
+  - [ ] has_meta_accounts=True ✅
+  - [ ] Any False? → **ROOT CAUSE FOUND** (corrupted tx_data)
 
 - [ ] See [FOLLOW_ON_CHECK] log?
   - [ ] Yes → continue below

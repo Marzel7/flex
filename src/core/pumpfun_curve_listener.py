@@ -2832,6 +2832,14 @@ class PumpFunCurveListener:
                             follow_on_anchor = None
                             follow_on_txs_scanned = 0
 
+                            log_print(
+                                f"[FOLLOW_ON_CHECK] mint={mint[:16]}... "
+                                f"follow_on_max_txs={follow_on_max_txs} "
+                                f"tx_data={tx_data is not None} "
+                                f"cached_count={cached_candidate_count}",
+                                flush=True
+                            )
+
                             if follow_on_max_txs > 0 and tx_data is not None and cached_candidate_count == 0:
                                 # Use bonding_curve and creator passed from migration context
                                 # These were extracted in _process_migration_with_mint

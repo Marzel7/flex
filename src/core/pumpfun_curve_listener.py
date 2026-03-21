@@ -2515,12 +2515,20 @@ class PumpFunCurveListener:
                 flush=True
             )
             log_print(
+                f"🔴 [POOL_DETECT_CRITICAL] pool_discovery_source={pool_discovery_source}, will schedule retry after creator extraction",
+                flush=True
+            )
+            log_print(
                 f"{Colors.DETECT}[POOL_DETECT] Initial discovery failed, scheduling optimized retries...{Colors.RESET}",
                 flush=True
             )
             # Mark for retry scheduling after creator extraction (will schedule with full context)
             schedule_retry_after_creator_extraction = True
         else:
+            log_print(
+                f"🔴 [POOL_DETECT_CRITICAL] pool_discovery_source={pool_discovery_source}, NO retry scheduled",
+                flush=True
+            )
             schedule_retry_after_creator_extraction = False
 
         # === AUTO-REGISTER POOL FOR WEBSOCKET PRICING ===
@@ -2649,7 +2657,11 @@ class PumpFunCurveListener:
             # Schedule retries at optimized delays (don't await - fire and forget)
             # Optimized schedule: denser early retries + extended late retries (0.5s intervals for first 8, then 3-5s intervals)
             # Pass tx_data, tx_source, and discovery context to maximize pool discovery success
-            asyncio.create_task(self._retry_pool_discovery(
+            log_print(
+                f"🔴 [RETRY_CREATE_TASK] Creating asyncio task for {mint[:16]}... (THIS MUST LOG OR RETRY NEVER RUNS)",
+                flush=True
+            )
+            task = asyncio.create_task(self._retry_pool_discovery(
                 mint,
                 signature,
                 delays=[0.5, 1, 1.5, 2, 3, 5, 8, 12, 18, 25, 35, 50],
@@ -2659,6 +2671,10 @@ class PumpFunCurveListener:
                 creator=creator_for_retry,
                 migration_timestamp=migration_timestamp_for_retry
             ))
+            log_print(
+                f"🔴 [RETRY_CREATED] Task created: {task}, done={task.done()}",
+                flush=True
+            )
 
         # Analyze token history (includes creator behavior from all token transactions) - MUST be deferred during critical window
         # This is a background task that consumes RPC quota and must wait until critical window expires

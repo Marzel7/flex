@@ -515,7 +515,10 @@ class PostMigrationPoolDiscovery:
 
             logger.info(
                 f"[FOLLOW_ON_DISCOVERY] Starting search for {mint[:16]}... "
-                f"(bonding_curve={bonding_curve[:16] if bonding_curve else 'N/A'}...)"
+                f"migration_sig={migration_sig[:16]}... "
+                f"curve={bonding_curve[:16] if bonding_curve else 'None'}... "
+                f"creator={creator[:16] if creator else 'None'}... "
+                f"window={time_window_seconds}s"
             )
 
             # Priority order for anchors
@@ -645,6 +648,10 @@ class PostMigrationPoolDiscovery:
                             time_diff = block_time - migration_blocktime
                             # Skip if TX is before migration or outside window
                             if time_diff < 0 or time_diff > time_window_seconds:
+                                logger.debug(
+                                    f"[FOLLOW_ON_DISCOVERY] Skipped {sig[:16]}... "
+                                    f"time_diff={time_diff}s (outside {time_window_seconds}s window)"
+                                )
                                 continue
 
                         try:
@@ -716,6 +723,11 @@ class PostMigrationPoolDiscovery:
                                         continue
 
                                     owner = acct.get("owner")
+                                    logger.debug(
+                                        f"[FOLLOW_ON_DISCOVERY] Candidate {candidate[:16]}... "
+                                        f"owner={owner[:16] if owner else 'None'}... "
+                                        f"anchor={anchor_name} offset={sig_idx}"
+                                    )
                                     if owner and owner in {
                                         "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",
                                         "675kPX9MHTjS2zt1qrXrQVxwwp4W8gNzjX9oVhKt7Ck",
@@ -727,6 +739,11 @@ class PostMigrationPoolDiscovery:
                                             f"via anchor={anchor_name} at offset={sig_idx}"
                                         )
                                         return candidate, anchor_name, sig_idx, total_txs_scanned
+                                    else:
+                                        logger.debug(
+                                            f"[FOLLOW_ON_DISCOVERY] Rejected {candidate[:16]}... "
+                                            f"owner={owner} not in known programs"
+                                        )
 
                                 except Exception as e:
                                     logger.debug(
@@ -748,7 +765,7 @@ class PostMigrationPoolDiscovery:
 
             logger.info(
                 f"[FOLLOW_ON_DISCOVERY] No pool found after scanning {total_txs_scanned} TXs "
-                f"({rpc_calls_made} RPC calls)"
+                f"({rpc_calls_made_total} RPC calls)"
             )
             return None, None, None, total_txs_scanned
 

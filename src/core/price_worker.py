@@ -265,31 +265,49 @@ class BackgroundPriceWorker:
 
         self.running = True
         
-        # Initialize PoolStateStore BEFORE starting the worker thread
-        # This must happen before _run_loop starts cycling
-        logger.info("[PRICE_WORKER] Initializing PoolStateStore...")
+        # ✅ CRITICAL FIX: Bootstrap PoolStateStore with REAL reserves from RPC
+        # This must happen SYNCHRONOUSLY before worker thread starts
+        # (not in background thread like _initialize_pool_state_sync was doing)
+        logger.info("[PRICE_WORKER] Bootstrapping pool reserves from RPC...")
         try:
             from src.core.pool_price_engine import get_pool_fetcher
+            
             fetcher = get_pool_fetcher(self.db_path)
             pools = fetcher.get_active_pools()
+            
             if pools:
+                logger.info(f"[PRICE_WORKER] Fetching reserves for {len(pools)} pools...")
+                # ✅ Fetch REAL reserves from RPC
+                reserves_dict = asyncio.run(fetcher.fetch_reserves(pools))
+                logger.info(f"[PRICE_WORKER] ✅ Fetched {len(reserves_dict)} pool reserves from RPC")
+                
+                # Populate PoolStateStore with real reserves
+                populated_count = 0
                 for pool in pools:
                     mint = pool.get("mint")
                     base_account = pool.get("base_account")
                     if mint and base_account:
-                        # Initialize with zero reserves - WebSocket will populate real values
-                        self._pool_state.update_reserve(mint, base_account, "base", 0)
-                        self._pool_state.update_reserve(mint, base_account, "quote", 0)
+                        # Get real reserves from RPC fetch, not zeros
+                        (base_raw, quote_raw) = reserves_dict.get((mint, base_account), (0, 0))
+                        self._pool_state.update_reserve(mint, base_account, "base", base_raw)
+                        self._pool_state.update_reserve(mint, base_account, "quote", quote_raw)
+                        if base_raw > 0 or quote_raw > 0:
+                            logger.debug(f"[PRICE_WORKER] Pool {mint[:12]}... → base={base_raw}, quote={quote_raw}")
+                        populated_count += 1
+                
                 all_mints = self._pool_state.get_all_mints()
-                logger.info(f"[PRICE_INIT] ✅ Populated {len(all_mints)} mints in PoolStateStore")
-                print(f"[PRICE_INIT] ✅ Populated {len(all_mints)} mints in PoolStateStore", flush=True)
+                logger.info(f"[PRICE_WORKER] ✅ Bootstrapped {len(all_mints)} mints with REAL reserves")
+                print(f"[PRICE_WORKER] ✅ Bootstrapped {len(all_mints)} mints with REAL reserves", flush=True)
+            else:
+                logger.info("[PRICE_WORKER] No active pools found, skipping bootstrap")
+                
         except Exception as e:
-            logger.error(f"[PRICE_INIT] Failed: {e}", exc_info=True)
-            print(f"[PRICE_INIT] ERROR: {e}", flush=True)
+            logger.error(f"[PRICE_WORKER] ❌ Bootstrap failed: {e}", exc_info=True)
+            print(f"[PRICE_WORKER] ❌ Bootstrap failed: {e}", flush=True)
         
-        # NOW start the worker thread (pool state is already initialized)
-        logger.info("[PRICE_WORKER] Creating thread")
-        print("[PRICE_WORKER] Creating thread", flush=True)
+        # NOW start the worker thread (pool state is initialized with REAL data)
+        logger.info("[PRICE_WORKER] Creating worker thread")
+        print("[PRICE_WORKER] Creating worker thread", flush=True)
         self.thread = threading.Thread(target=self._run_loop, daemon=True)
         logger.info("[PRICE_WORKER] thread created")
         print("[PRICE_WORKER] thread created", flush=True)

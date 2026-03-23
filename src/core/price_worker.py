@@ -278,7 +278,20 @@ class BackgroundPriceWorker:
             if pools:
                 logger.info(f"[PRICE_WORKER] Fetching reserves for {len(pools)} pools...")
                 # ✅ Fetch REAL reserves from RPC
-                reserves_dict = asyncio.run(fetcher.fetch_reserves(pools))
+                # Note: Use asyncio.run() only if NOT in async context
+                # If already in event loop, create a new thread to run it
+                try:
+                    reserves_dict = asyncio.run(fetcher.fetch_reserves(pools))
+                except RuntimeError as e:
+                    if "asyncio.run() cannot be called from a running event loop" in str(e):
+                        # We're in an async context, run in new thread
+                        logger.debug("[PRICE_WORKER] Running RPC fetch in separate thread (already in event loop)")
+                        loop = asyncio.new_event_loop()
+                        reserves_dict = loop.run_until_complete(fetcher.fetch_reserves(pools))
+                        loop.close()
+                    else:
+                        raise
+                
                 logger.info(f"[PRICE_WORKER] ✅ Fetched {len(reserves_dict)} pool reserves from RPC")
                 
                 # Populate PoolStateStore with real reserves

@@ -287,12 +287,15 @@ class BackgroundPriceWorker:
                     finally:
                         loop.close()
                     
-                    logger.info(f"[PRICE_WORKER] ✅ Fetched {len(reserves_dict)} pool reserves from RPC")
+                    logger.info(f"[PRICE_WORKER] ✅ RPC returned {len(reserves_dict)} pools with reserves")
                     
                     # Populate PoolStateStore with real reserves
                     # ✅ CRITICAL: Skip pools with zero or missing liquidity
                     populated_count = 0
                     skipped_count = 0
+                    skipped_none = 0
+                    skipped_zero = 0
+                    
                     for pool in pools:
                         mint = pool.get("mint")
                         base_account = pool.get("base_account")
@@ -304,29 +307,28 @@ class BackgroundPriceWorker:
                             # ✅ Skip if RPC didn't return data (None)
                             if base_raw is None or quote_raw is None:
                                 skipped_count += 1
-                                logger.debug(f"[PRICE_WORKER] Skipping {mint[:12]}... (no RPC data)")
+                                skipped_none += 1
                                 continue
                             
                             # ✅ Skip if pool has zero liquidity (invalid for pricing)
                             if base_raw == 0 or quote_raw == 0:
                                 skipped_count += 1
-                                logger.debug(f"[PRICE_WORKER] Skipping {mint[:12]}... (zero liquidity: base={base_raw}, quote={quote_raw})")
+                                skipped_zero += 1
                                 continue
                             
                             # ✅ Only store valid pools with real liquidity
                             self._pool_state.update_reserve(mint, base_account, "base", base_raw)
                             self._pool_state.update_reserve(mint, base_account, "quote", quote_raw)
                             populated_count += 1
-                            logger.debug(f"[PRICE_WORKER] Pool {mint[:12]}... ✅ base={base_raw}, quote={quote_raw}")
                     
                     all_mints = self._pool_state.get_all_mints()
                     logger.info(
                         f"[PRICE_WORKER] ✅ Bootstrapped {len(all_mints)} mints "
-                        f"({populated_count} pools with liquidity, {skipped_count} skipped)"
+                        f"({populated_count} with liquidity, {skipped_none} missing RPC data, {skipped_zero} zero-liquidity)"
                     )
                     print(
                         f"[PRICE_WORKER] ✅ Bootstrapped {len(all_mints)} mints "
-                        f"({populated_count} pools with liquidity, {skipped_count} skipped)",
+                        f"({populated_count} with liquidity, {skipped_none} missing RPC data, {skipped_zero} zero-liquidity)",
                         flush=True
                     )
                 else:

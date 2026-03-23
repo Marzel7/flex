@@ -178,38 +178,22 @@ class PoolDetector:
         token_mint: str
     ) -> Optional[str]:
         """
-        Detect pool PDA from migration transaction via three-stage validation.
+        MINIMAL detector for debugging:
+        - scan all tx accounts (+ loaded addresses + inner instruction accounts)
+        - fetch owner
+        - return first account owned by a known AMM program
 
-        Handles both regular and versioned (v0) transactions by merging:
-        - message.accountKeys (regular tx accounts)
-        - meta.loadedAddresses.writable (v0 tx writable accounts)
-        - meta.loadedAddresses.readonly (v0 tx readonly accounts)
-        - meta.innerInstructions[].instructions[].accounts (nested accounts)
+        This intentionally skips:
+        - size thresholds
+        - parser validation
+        - helper-PDA filtering
 
-        Four-Stage Detection with Optimizations:
-        1. Normalize account keys
-        2. Scan main transaction accounts
-        3. Scan inner instruction accounts (catches pools in nested calls)
-        4. Three-stage validation: owner → size → parser
-
-        Optimizations:
-        - Owner caching (~80-90% RPC reduction)
-        - Inner instruction scanning (catches more pools)
-        - Parser validation (validates pool structure)
-
-        Args:
-            tx_data: Transaction data from getTransaction RPC call
-            token_mint: Token mint address for context
-
-        Returns:
-            Pool account address (validated and owned by AMM program) or None if not found
+        Use this to prove whether valid pools are being seen at all.
         """
         try:
-            # Extract account keys from both regular and versioned transactions
-            message = tx_data.get("transaction", {}).get("message", {})
-            meta = tx_data.get("meta", {})
+            message = tx_data.get("transaction", {}).get("message", {}) or {}
+            meta = tx_data.get("meta", {}) or {}
 
-            # PHASE 1: Normalize account keys (handle various RPC provider formats)
             account_keys_raw = message.get("accountKeys", []) or []
             account_keys = [_normalize_account_key(a) for a in account_keys_raw]
             account_keys = [a for a in account_keys if a]
@@ -223,176 +207,55 @@ class PoolDetector:
             readonly_accounts = [_normalize_account_key(a) for a in readonly_accounts_raw]
             readonly_accounts = [a for a in readonly_accounts if a]
 
-            # Merge all accounts (v0 tx support)
             all_accounts = account_keys + writable_accounts + readonly_accounts
 
-            if not all_accounts:
-                logger.warning(f"No account keys in transaction for {token_mint}")
-                return None
+            # keep your existing helper if present
+            try:
+                inner_instruction_accounts = self._extract_inner_instruction_accounts(tx_data, all_accounts)
+            except Exception:
+                inner_instruction_accounts = []
 
-            # OPTIMIZATION: Extract and include inner instruction accounts
-            inner_instruction_accounts = self._extract_inner_instruction_accounts(tx_data, all_accounts)
             all_accounts_with_inner = all_accounts + inner_instruction_accounts
 
-            # PHASE 2: Log transaction shape
-            tx_version = message.get("version")
-            has_lookups = bool(message.get("addressTableLookups"))
             logger.info(
-                f"[POOL_DETECT] tx_version={tx_version} base_keys={len(account_keys)} "
-                f"writable_loaded={len(writable_accounts)} readonly_loaded={len(readonly_accounts)} "
-                f"has_addressTableLookups={has_lookups} total={len(all_accounts)} "
-                f"inner_accounts={len(inner_instruction_accounts)}"
+                f"[POOL_DETECT_MINIMAL] token={token_mint[:16]}... "
+                f"accounts={len(all_accounts_with_inner)}"
             )
 
-            # ===== THREE-STAGE VALIDATION =====
-
-            # STAGE 1 & 2: Collect candidates (owner filter + size filter)
-            candidates = []
-            candidate_summary = {
-                'pumpswap_helpers': 0,
-                'pumpswap': 0,
-                'raydium_amm': 0,
-                'raydium_clmm': 0,
-                'orca_whirlpool': 0,
-                'meteora_dlmm': 0,
-            }
-
+            seen = set()
             for i, account_addr in enumerate(all_accounts_with_inner):
+                if not account_addr or account_addr in seen:
+                    continue
+                seen.add(account_addr)
+
                 try:
-                    # OPTIMIZATION: Use owner caching for reduced RPC calls
                     owner = await self._get_account_owner_cached(account_addr)
-
-                    if not owner:
-                        if self.debug:
-                            logger.debug(f"[POOL_DETECT_DEBUG] idx={i} addr={account_addr[:16]}... result=NOT_FOUND")
-                        continue
-
-                    # STAGE 1: Owner filter
-                    if owner not in AMMPrograms.ALL:
-                        if self.debug:
-                            logger.debug(
-                                f"[POOL_DETECT_DEBUG] idx={i} addr={account_addr[:16]}... "
-                                f"owner={owner[:16] if owner else 'None'}... not AMM"
-                            )
-                        continue
-
-                    # Get full account info for data_len and data
-                    account_info = await self._get_account_info_cached(account_addr)
-                    if not account_info:
-                        continue
-
-                    data = account_info.get("data", b"")
-                    data_len = account_info.get("data_len", len(data))
-
-                    program_name = AMMPrograms.identify_program(owner)
-                    min_len = AMMDataLengths.EXPECTED.get(owner, 200)
-
-                    # STAGE 2: Size filter
-                    if data_len < min_len:
-                        # Special handling for extremely small accounts (likely helper PDAs)
-                        if data_len < 32:
-                            candidate_summary['pumpswap_helpers'] = candidate_summary.get('pumpswap_helpers', 0) + 1
-                            logger.debug(
-                                f"[POOL_DETECT] Rejected PumpSwap helper PDA "
-                                f"{account_addr[:16]}... data_len={data_len}"
-                            )
-                        else:
-                            logger.debug(
-                                f"[POOL_DETECT] Candidate {program_name} account "
-                                f"{account_addr[:16]}... data_len={data_len} below minimum {min_len}"
-                            )
-                        continue
-
-                    # Candidate passed owner + size filters
-                    candidates.append({
-                        'address': account_addr,
-                        'owner': owner,
-                        'program': program_name,
-                        'data': data,
-                        'data_len': data_len,
-                        'idx': i
-                    })
-
-                    candidate_summary[program_name] = candidate_summary.get(program_name, 0) + 1
-
                 except Exception as e:
-                    logger.debug(f"[POOL_DETECT] Error checking account {i}: {e}")
+                    logger.debug(
+                        f"[POOL_DETECT_MINIMAL] idx={i} addr={account_addr[:16]}... owner_lookup_error={e}"
+                    )
                     continue
 
-            # Log candidate summary
-            logger.info(
-                f"[POOL_DETECT] Candidate summary: "
-                f"pumpswap_helpers={candidate_summary['pumpswap_helpers']} "
-                f"pumpswap={candidate_summary['pumpswap']} "
-                f"raydium_amm={candidate_summary['raydium_amm']} "
-                f"raydium_clmm={candidate_summary['raydium_clmm']} "
-                f"orca_whirlpool={candidate_summary['orca_whirlpool']} "
-                f"meteora_dlmm={candidate_summary['meteora_dlmm']}"
-            )
-
-            # Log cache stats every Nth detection
-            if len(candidates) > 0 or len(inner_instruction_accounts) > 0:
-                logger.debug(f"[POOL_DETECT] Owner cache: {self.owner_cache.stats_summary()}")
-
-            if not candidates:
-                logger.warning(
-                    f"[POOL_DETECT] No candidates passed ownership+size filters. "
-                    f"Trying fallback discovery..."
+                logger.info(
+                    f"[POOL_DETECT_MINIMAL] idx={i} addr={account_addr[:16]}... "
+                    f"owner={owner[:16] if owner else 'None'}..."
                 )
-            else:
-                # STAGE 3: Parser validation
-                from src.core.pool_parser_dispatcher import PoolParserDispatcher
 
-                for candidate in candidates:
-                    try:
-                        parser = PoolParserDispatcher.for_program(candidate['owner'])
+                if owner in AMMPrograms.ALL:
+                    program_name = AMMPrograms.identify_program(owner) or "unknown_amm"
+                    logger.info(
+                        f"[POOL_DETECT_MINIMAL] ✅ Returning first AMM-owned account: "
+                        f"{account_addr[:16]}... program={program_name}"
+                    )
+                    return account_addr
 
-                        if parser is None:
-                            logger.debug(
-                                f"[POOL_DETECT] No parser for program {candidate['program']}, "
-                                f"skipping {candidate['address'][:16]}..."
-                            )
-                            continue
-
-                        pool_state = parser.try_parse(candidate['data'])
-
-                        if pool_state:
-                            logger.info(
-                                f"[POOL_DETECT] ✅ Pool validated via {candidate['program']} parser: "
-                                f"{candidate['address'][:16]}... "
-                                f"(data_len={candidate['data_len']}, idx={candidate['idx']})"
-                            )
-                            return candidate['address']
-                        else:
-                            logger.debug(
-                                f"[POOL_DETECT] Parser rejected {candidate['program']} candidate "
-                                f"{candidate['address'][:16]}... (invalid structure)"
-                            )
-
-                    except Exception as e:
-                        logger.debug(
-                            f"[POOL_DETECT] Parser error for {candidate['program']} candidate "
-                            f"{candidate['address'][:16]}...: {e}"
-                        )
-                        continue
-
-            # All primary detection stages failed, attempt fallback
             logger.warning(
-                f"[POOL_DETECT] No valid pool found in transaction. "
-                f"Trying fallback vault discovery..."
+                f"[POOL_DETECT_MINIMAL] No AMM-owned accounts found for {token_mint[:16]}..."
             )
-
-            # FALLBACK: Vault-based discovery with parser validation
-            fallback_pool = await self._discover_pool_via_vaults_improved(token_mint)
-            if fallback_pool:
-                logger.info(f"[POOL_DETECT] ✅ Fallback vault discovery succeeded: {fallback_pool[:16]}...")
-                return fallback_pool
-
-            logger.warning(f"[POOL_DETECT] All pool discovery methods failed for {token_mint}")
             return None
 
         except Exception as e:
-            logger.error(f"[POOL_DETECT] Error detecting pool from TX: {e}")
+            logger.error(f"[POOL_DETECT_MINIMAL] Error detecting pool from TX: {e}")
             return None
 
     async def _discover_pool_via_vaults(self, token_mint: str) -> Optional[str]:

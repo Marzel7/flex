@@ -752,6 +752,8 @@ class TokenPriceService:
         Return list of sources ranked by success rate and latency.
 
         Pool is always first (if not circuit-broken) — fastest source (dict read, no HTTP).
+        DexScreener is second (if not circuit-broken) — first fallback priority.
+        Jupiter/Birdeye ranked by success rate + latency.
         Excludes circuit-broken sources.
         Always includes stale fallback (not in returned list).
         """
@@ -761,14 +763,24 @@ class TokenPriceService:
         if not self._is_circuit_broken('pool'):
             active_sources.append(('pool', 1.0))
 
-        # Dex/Jupiter/Birdeye: ranked by success + latency
-        for source in ['dexscreener', 'jupiter', 'birdeye']:
+        # DexScreener: pinned as first fallback option
+        if not self._is_circuit_broken('dexscreener'):
+            active_sources.append(('dexscreener', 1.0))
+
+        # Jupiter/Birdeye: ranked by success + latency
+        for source in ['jupiter', 'birdeye']:
             if not self._is_circuit_broken(source):
                 rank = self._get_source_rank(source)
                 active_sources.append((source, rank))
 
-        # Sort by rank descending (highest score first)
-        active_sources.sort(key=lambda x: x[1], reverse=True)
+        # Sort remaining sources (excluding pool & dexscreener) by rank descending
+        if len(active_sources) > 2:
+            # Keep pool and dexscreener pinned, sort the rest
+            pinned = active_sources[:2]
+            rest = active_sources[2:]
+            rest.sort(key=lambda x: x[1], reverse=True)
+            active_sources = pinned + rest
+
         return [source for source, _ in active_sources]
 
     def _update_latency_ewma(self, source: str, latency_ms: float) -> None:

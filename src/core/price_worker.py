@@ -280,7 +280,52 @@ class BackgroundPriceWorker:
         self._start_ws_client()
         logger.info("[PRICE_WORKER] WebSocket client started")
 
+        # Initialize PoolStateStore with current reserve data (RPC snapshot)
+        # This populates the state immediately, then WebSocket provides delta updates
+        logger.info("[PRICE_WORKER] Initializing PoolStateStore with RPC snapshot")
+        self._initialize_pool_state_sync()
+
         logger.info(f"Background price worker started (interval={self.interval}s, using request queue)")
+
+    def _initialize_pool_state_sync(self) -> None:
+        """Initialize PoolStateStore - populate it immediately so WebSocket updates can apply."""
+        def init_task():
+            try:
+                print("[PRICE_INIT] Starting...", flush=True)
+                logger.info("[PRICE_INIT] Starting pool state initialization")
+                
+                from src.core.pool_price_engine import get_pool_fetcher
+                
+                fetcher = get_pool_fetcher(self.db_path)
+                pools = fetcher.get_active_pools()
+                print(f"[PRICE_INIT] Found {len(pools)} pools", flush=True)
+                logger.info(f"[PRICE_INIT] Found {len(pools)} active pools")
+                
+                if not pools:
+                    print("[PRICE_INIT] No pools, skipping", flush=True)
+                    return
+                
+                # Initialize each pool with zero reserves
+                populated = 0
+                for pool in pools:
+                    mint = pool.get("mint")
+                    base_account = pool.get("base_account")
+                    if mint and base_account:
+                        self._pool_state.update_reserve(mint, base_account, "base", 0)
+                        self._pool_state.update_reserve(mint, base_account, "quote", 0)
+                        populated += 1
+                
+                all_mints = self._pool_state.get_all_mints()
+                print(f"[PRICE_INIT] ✅ Done! {len(all_mints)} mints ready for WebSocket", flush=True)
+                logger.info(f"[PRICE_INIT] ✅ Initialized {len(all_mints)} mints")
+                
+            except Exception as e:
+                print(f"[PRICE_INIT] ERROR: {e}", flush=True)
+                logger.error(f"[PRICE_INIT] Failed: {e}", exc_info=True)
+        
+        # Run in background thread
+        init_thread = threading.Thread(target=init_task, daemon=True)
+        init_thread.start()
 
     def stop(self) -> None:
         """Stop the background worker."""

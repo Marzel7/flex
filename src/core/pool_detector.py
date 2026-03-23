@@ -178,18 +178,28 @@ class PoolDetector:
         token_mint: str
     ) -> Optional[str]:
         """
-        MINIMAL detector for debugging:
+        🚨 DEBUG ONLY — DO NOT USE FOR PRODUCTION POOL REGISTRATION 🚨
+        
+        This is a MINIMAL detector for debugging only:
         - scan all tx accounts (+ loaded addresses + inner instruction accounts)
         - fetch owner
         - return first account owned by a known AMM program
 
-        This intentionally skips:
+        This intentionally skips (making it UNSAFE for production):
         - size thresholds
         - parser validation
         - helper-PDA filtering
 
-        Use this to prove whether valid pools are being seen at all.
+        ⚠️ CRITICAL: This function MUST NOT be called during production pool registration.
+        Use pumpfun_curve_listener's validated candidate selection instead.
+        
+        This exists ONLY for debugging/testing to verify if valid pools appear in TXs at all.
         """
+        logger.warning(
+            f"[POOL_DETECT_MINIMAL] ⚠️  DEBUG ONLY function called! "
+            f"This should NEVER be called in production flow!"
+        )
+        
         try:
             message = tx_data.get("transaction", {}).get("message", {}) or {}
             meta = tx_data.get("meta", {}) or {}
@@ -244,7 +254,7 @@ class PoolDetector:
                 if owner in AMMPrograms.ALL:
                     program_name = AMMPrograms.identify_program(owner) or "unknown_amm"
                     logger.info(
-                        f"[POOL_DETECT_MINIMAL] ✅ Returning first AMM-owned account: "
+                        f"[POOL_DETECT_MINIMAL] ✅ DEBUG: First AMM-owned account: "
                         f"{account_addr[:16]}... program={program_name}"
                     )
                     return account_addr

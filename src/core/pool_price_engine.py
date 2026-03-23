@@ -45,14 +45,17 @@ class PoolReserveFetcher:
         self.db_path = db_path
 
     def get_active_pools(self) -> List[Dict]:
-        """Load all active pool registrations from token_pool_accounts table.
+        """
+        Load all VALIDATED active pool registrations from token_pool_accounts.
         
-        Returns only:
-        - Validated pools (vaults confirmed to exist on-chain)
-        - Pending pools (vaults not yet confirmed, waiting for retry)
+        ✅ Only returns:
+        - Pools with vault_validation_status = 'validated' (confirmed on-chain)
         
-        Excludes:
-        - Rejected pools (extraction proved vaults are wrong/missing)
+        ❌ Excludes:
+        - Pending pools (not yet confirmed)
+        - Rejected pools (vaults proven invalid)
+        
+        This enforces: price worker ONLY works with confirmed, validated pools.
         """
         import sqlite3
 
@@ -61,8 +64,8 @@ class PoolReserveFetcher:
             rows = conn.execute(
                 """SELECT * FROM token_pool_accounts 
                    WHERE is_active = 1 
-                   AND vault_validation_status IN ('validated', 'pending')
-                   ORDER BY vault_validation_status DESC"""
+                   AND vault_validation_status = 'validated'
+                   ORDER BY created_at DESC"""
             ).fetchall()
         return [dict(r) for r in rows]
 

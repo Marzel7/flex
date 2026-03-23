@@ -329,16 +329,30 @@ class BackgroundPriceWorker:
                 if not pools:
                     print("[PRICE_INIT] No pools, skipping", flush=True)
                     return
-                
-                # Initialize each pool with zero reserves
+
+                # Fetch real reserves from RPC via fetcher
+                print(f"[PRICE_INIT] Fetching real reserves for {len(pools)} pools from RPC...", flush=True)
+                try:
+                    reserves_dict = asyncio.run(fetcher.fetch_reserves(pools))
+                    print(f"[PRICE_INIT] ✅ Fetched reserves for {len(reserves_dict)} pool pairs", flush=True)
+                except Exception as e:
+                    print(f"[PRICE_INIT] ⚠️  RPC fetch failed ({e}), falling back to zero initialization", flush=True)
+                    reserves_dict = {}
+
+                # Initialize PoolStateStore with fetched (or zero) reserves
                 print(f"[PRICE_INIT] Initializing {len(pools)} pools in PoolStateStore...", flush=True)
                 populated = 0
                 for i, pool in enumerate(pools):
                     mint = pool.get("mint")
                     base_account = pool.get("base_account")
-                    if mint and base_account:
-                        self._pool_state.update_reserve(mint, base_account, "base", 0)
-                        self._pool_state.update_reserve(mint, base_account, "quote", 0)
+                    quote_account = pool.get("quote_account")
+                    if mint and base_account and quote_account:
+                        # Try to get fetched reserves, fall back to 0
+                        (base_raw, quote_raw) = reserves_dict.get((mint, base_account), (0, 0))
+                        self._pool_state.update_reserve(mint, base_account, "base", base_raw)
+                        self._pool_state.update_reserve(mint, base_account, "quote", quote_raw)
+                        if base_raw > 0 or quote_raw > 0:
+                            print(f"[PRICE_INIT] Pool {mint[:12]}...: base={base_raw}, quote={quote_raw}", flush=True)
                         populated += 1
                     if (i + 1) % 20 == 0:
                         print(f"[PRICE_INIT] Initialized {i + 1}/{len(pools)} pools...", flush=True)
@@ -356,6 +370,61 @@ class BackgroundPriceWorker:
         # Run in background thread
         init_thread = threading.Thread(target=init_task, daemon=True)
         init_thread.start()
+
+    async def _periodic_pool_resync(self) -> None:
+        """
+        Periodically re-fetch reserves from RPC to repair any stale state.
+        Runs every 3 minutes. Guarantees pools stay fresh even if WebSocket is idle.
+        """
+        from src.core.pool_price_engine import get_pool_fetcher
+
+        while self.running:
+            try:
+                await asyncio.sleep(180)  # 3 minutes
+
+                fetcher = get_pool_fetcher(self.db_path)
+                pools = fetcher.get_active_pools()
+
+                if not pools:
+                    continue
+
+                logger.debug(f"[POOL_RESYNC] Running periodic resync ({len(pools)} pools)...")
+
+                reserves_dict = await fetcher.fetch_reserves(pools)
+                repaired_count = 0
+                zero_count = 0
+
+                for pool in pools:
+                    mint = pool.get("mint")
+                    base_account = pool.get("base_account")
+
+                    if not (mint and base_account):
+                        continue
+
+                    (base_raw, quote_raw) = reserves_dict.get((mint, base_account), (0, 0))
+
+                    # Update reserves
+                    self._pool_state.update_reserve(mint, base_account, "base", base_raw)
+                    self._pool_state.update_reserve(mint, base_account, "quote", quote_raw)
+
+                    if base_raw > 0 and quote_raw > 0:
+                        repaired_count += 1
+                    else:
+                        zero_count += 1
+
+                if repaired_count > 0:
+                    logger.info(
+                        f"[POOL_RESYNC] ✅ Resync complete: {repaired_count} active pools, "
+                        f"{zero_count} with zero liquidity"
+                    )
+                else:
+                    logger.debug(f"[POOL_RESYNC] ✅ All {len(pools)} pools in sync")
+
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                logger.error(f"[POOL_RESYNC] ❌ Error: {e}", exc_info=True)
+                # Continue on error (don't crash background task)
 
     def stop(self) -> None:
         """Stop the background worker."""
@@ -423,6 +492,16 @@ class BackgroundPriceWorker:
         print("[PRICE_WORKER] _run_loop THREAD STARTED", flush=True)
         logger.info("[PRICE_WORKER] _run_loop started")
         print(f"[PRICE_WORKER] self.running = {self.running}", flush=True)
+
+        # Start periodic resync in separate thread (3-min interval repair loop)
+        resync_thread = threading.Thread(
+            target=lambda: asyncio.run(self._periodic_pool_resync()),
+            daemon=True,
+            name="PriceWorkerResync"
+        )
+        resync_thread.start()
+        logger.info("[PRICE_WORKER] ✅ Periodic resync task started")
+
         try:
             while self.running:
                 print("[PRICE_WORKER] CYCLE LOOP ENTERED", flush=True)

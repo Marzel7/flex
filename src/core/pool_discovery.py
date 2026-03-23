@@ -139,6 +139,54 @@ class PoolDiscovery:
             logger.debug(f"Error fetching account {address}: {e}")
             return None
 
+    async def _get_token_accounts_by_owner(self, owner: str) -> list:
+        """
+        Get all token accounts (vaults) owned by an address.
+        
+        Returns list of (account_address, token_mint, balance) tuples.
+        """
+        try:
+            SPL_TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+            
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getTokenAccountsByOwner",
+                "params": [
+                    owner,
+                    {"programId": SPL_TOKEN_PROGRAM},
+                    {"encoding": "jsonParsed"}
+                ],
+            }
+
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    self.rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)
+                ) as resp:
+                    result = await resp.json()
+                    
+                    if "result" not in result or "value" not in result["result"]:
+                        return []
+                    
+                    accounts = []
+                    for acc_info in result["result"]["value"]:
+                        try:
+                            pubkey = acc_info.get("pubkey")
+                            parsed = acc_info.get("account", {}).get("data", {}).get("parsed", {})
+                            mint = parsed.get("info", {}).get("mint")
+                            balance = parsed.get("info", {}).get("tokenAmount", {}).get("uiAmount", 0)
+                            
+                            if mint and pubkey:
+                                accounts.append((pubkey, mint, balance))
+                        except:
+                            continue
+                    
+                    return accounts
+
+        except Exception as e:
+            logger.debug(f"Error getting token accounts for {owner}: {e}")
+            return []
+
     async def _extract_from_pool_data(
         self, pool_data: Dict, pool_address: str, token_mint: str
     ) -> Optional[Dict]:
@@ -176,25 +224,23 @@ class PoolDiscovery:
         self, pool_data: Dict, pool_address: str, token_mint: str
     ) -> Optional[Dict]:
         """
-        Extract vault accounts from Raydium AMM pool with STRICT validation.
-
-        10-stage validation pipeline:
-        1. Verify candidate owner is PumpSwap/Raydium program
-        2. Fetch raw account bytes
-        3. Verify minimum pool state size (296 bytes)
-        4. Extract vault pubkeys from offsets 232-296
-        5. Verify vault accounts exist and are SPL token accounts (skip if not yet created)
-        6. Verify token account size = 165 bytes (hardened check)
-        7. Extract token mints from vault accounts
-        8. Verify one mint matches the launched token
-        9. Determine base/quote pairing
-        10. Register pool
-
-        Validates that the candidate account is actually a pool state account
-        before attempting to decode vaults at fixed offsets.
+        Extract vault accounts for a token pair from a pool account.
+        
+        ✅ FIXED: Uses dynamic vault discovery instead of fixed offsets.
+        
+        For PumpSwap/Raydium pools:
+        1. The pool account is the PDA that manages multiple token pairs
+        2. It owns token accounts (vaults) for each pair it trades
+        3. We scan those owned accounts to find the ones for this token migration
+        
+        Process:
+        - Get all token accounts owned by the pool address
+        - Filter: must be SPL token accounts (size 165 bytes)
+        - Find: account holding the migrated token mint
+        - Pair with: account holding SOL (or other quote asset)
+        - Return: base_account, quote_account, verified vaults
         """
         try:
-            # ===== DIAGNOSTIC: Log pool candidate for detection verification =====
             logger.info(
                 f"[POOL_DETECT] mint={token_mint[:20]}... candidate_pool={pool_address}"
             )
@@ -207,228 +253,71 @@ class PoolDiscovery:
                 )
                 return None
 
-            # ===== STAGE 2: Get decoded data =====
-            data_field = pool_data.get("data")
-            if not data_field:
-                logger.warning(f"[POOL_EXTRACT] ❌ No data in pool account {pool_address[:16]}...")
-                return None
+            logger.info(f"[POOL_EXTRACT] ✅ Owner valid: {owner[:16]}...")
 
-            # RPC returns data as [base64_string, "base64"]
-            if isinstance(data_field, list) and len(data_field) > 0:
-                data = data_field[0]
-            else:
-                data = data_field
-
-            if isinstance(data, str):
-                decoded = b64decode(data)
-            else:
-                decoded = data
-
-            # ===== STAGE 3: Size validation =====
-            if len(decoded) < 296:
+            # ===== STAGE 2: Dynamic vault discovery (NO fixed offsets) =====
+            logger.info(f"[POOL_EXTRACT] Scanning for token vaults owned by pool...")
+            
+            try:
+                vault_accounts = await self._get_token_accounts_by_owner(pool_address)
+            except Exception as e:
+                logger.debug(f"[POOL_EXTRACT] Failed to get token accounts: {e}")
+                vault_accounts = []
+            
+            if not vault_accounts:
                 logger.warning(
-                    f"[POOL_EXTRACT] ❌ Candidate {pool_address[:16]}... too small for Raydium layout: {len(decoded)} bytes"
+                    f"[POOL_EXTRACT] ❌ No token accounts found owned by pool {pool_address[:16]}..."
                 )
                 return None
 
-            # ===== STAGE 4: Extract vault addresses =====
-            # Try multiple offset pairs (different pool layouts use different offsets)
-            vault_pairs = [
-                (72, 104, "Raydium AMM v4 standard"),      # Standard Raydium/PumpSwap layout
-                (232, 264, "PumpSwap documented offsets"),  # Some PumpSwap pools use this
-            ]
+            logger.info(f"[POOL_EXTRACT] Found {len(vault_accounts)} token accounts owned by pool")
 
-            base_vault = None
+            # ===== STAGE 3: Find vault for this specific token mint =====
+            token_vault = None
             quote_vault = None
-            used_offsets = None
+            
+            SOL_MINT = "So11111111111111111111111111111111111111112"
+            USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
 
-            for base_offset, quote_offset, layout_name in vault_pairs:
-                # Check if offsets are valid
-                if len(decoded) < quote_offset + 32:
-                    logger.debug(f"[POOL_EXTRACT] Skipping {layout_name}: data too small ({len(decoded)} < {quote_offset+32})")
-                    continue
+            for vault_addr, vault_mint, vault_balance in vault_accounts:
+                if vault_mint == token_mint:
+                    token_vault = (vault_addr, vault_mint, vault_balance)
+                    logger.info(f"[POOL_EXTRACT] ✓ Found token vault: {vault_addr[:16]}... (mint: {token_mint[:16]}...)")
+                elif vault_mint == SOL_MINT or vault_mint == USDC_MINT:
+                    if quote_vault is None or vault_balance > quote_vault[2]:
+                        quote_vault = (vault_addr, vault_mint, vault_balance)
 
-                candidate_base = self._bytes_to_pubkey(decoded[base_offset:base_offset+32])
-                candidate_quote = self._bytes_to_pubkey(decoded[quote_offset:quote_offset+32])
-
-                # Valid vaults must be non-zero addresses
-                if candidate_base and candidate_quote and candidate_base != "11111111111111111111111111111111" and candidate_quote != "11111111111111111111111111111111":
-                    base_vault = candidate_base
-                    quote_vault = candidate_quote
-                    used_offsets = (base_offset, quote_offset, layout_name)
-                    logger.info(f"[POOL_EXTRACT] ✓ Found valid vaults at {layout_name}: base_offset={base_offset}, quote_offset={quote_offset}")
-                    break
-
-            if not base_vault or not quote_vault:
+            if not token_vault:
                 logger.warning(
-                    f"[POOL_EXTRACT] ❌ Could not decode vault pubkeys from {pool_address[:16]}..."
+                    f"[POOL_EXTRACT] ❌ Could not find vault holding token {token_mint[:16]}..."
                 )
                 return None
+
+            if not quote_vault:
+                logger.warning(
+                    f"[POOL_EXTRACT] ❌ Could not find quote vault (SOL/USDC)"
+                )
+                return None
+
+            base_vault_addr = token_vault[0]
+            base_mint = token_vault[1]
+            quote_vault_addr = quote_vault[0]
+            quote_mint = quote_vault[1]
 
             logger.info(
-                f"[POOL_EXTRACT] 📍 Candidate {pool_address[:16]}... extracted: "
-                f"base={base_vault[:16]}... quote={quote_vault[:16]}..."
+                f"[POOL_EXTRACT] ✅ Vault pair identified: "
+                f"base={base_vault_addr[:16]}... (mint: {base_mint[:16]}...) "
+                f"quote={quote_vault_addr[:16]}... (mint: {quote_mint[:16]}...)"
             )
 
-            # ===== STAGE 5: Validate vaults are real SPL token accounts =====
-            base_info = await self._fetch_account(base_vault)
-            quote_info = await self._fetch_account(quote_vault)
+            # ===== STAGE 4: Get vault decimals =====
+            base_decimals = await self._get_token_decimals(base_vault_addr)
+            quote_decimals = await self._get_token_decimals(quote_vault_addr)
 
-            # Check if vaults are valid token accounts (if they exist)
-            base_is_valid_token_account = False
-            quote_is_valid_token_account = False
-
-            if base_info:
-                base_owner = base_info.get("owner")
-                # Verify owner is SPL Token program
-                if base_owner == SPL_TOKEN_PROGRAM:
-                    # Verify mint matches token_mint (base vault should hold the token)
-                    if len(base_info.get("data", [""])[0]) >= 72:
-                        try:
-                            base_data = b64decode(base_info["data"][0])
-                            base_mint = self._bytes_to_pubkey(base_data[0:32])
-                            if base_mint == token_mint:
-                                base_is_valid_token_account = True
-                        except:
-                            pass
-
-            if quote_info:
-                quote_owner = quote_info.get("owner")
-                # Verify owner is SPL Token program
-                if quote_owner == SPL_TOKEN_PROGRAM:
-                    # Quote vault should hold wSOL (or USDC, etc.)
-                    if len(quote_info.get("data", [""])[0]) >= 72:
-                        try:
-                            quote_data = b64decode(quote_info["data"][0])
-                            quote_mint = self._bytes_to_pubkey(quote_data[0:32])
-                            # Accept wSOL, USDC, or other known quote assets
-                            if quote_mint in ("So11111111111111111111111111111111111111112", "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"):
-                                quote_is_valid_token_account = True
-                        except:
-                            pass
-
-            # If vaults don't exist yet (common for new launches), register with vault addresses anyway
-            # The pool state is valid even if vaults aren't fully initialized
-            if not base_info or not quote_info:
-                logger.warning(
-                    f"[POOL_EXTRACT] ⚠️  Vaults not yet created for {pool_address[:16]}...: "
-                    f"base={base_vault[:16]}... quote={quote_vault[:16]}..."
-                )
-                
-                # For recently launched tokens, use the vault addresses as-is
-                # They will be populated later when the pool is fully initialized
-                logger.info(
-                    f"[POOL_EXTRACT] ✅ Using uninitialized vaults (will be ready soon): "
-                    f"base={base_vault[:16]}... quote={quote_vault[:16]}..."
-                )
-                
-                # Return with default decimals - will be corrected when vaults are created
-                return {
-                    "base_account": base_vault,
-                    "quote_account": quote_vault,
-                    "base_token": token_mint,
-                    "quote_token": "So11111111111111111111111111111111111111112",  # SOL
-                    "base_decimals": 6,
-                    "quote_decimals": 9,
-                    "pool_program": PUMPSWAP_PROGRAM if owner == PUMPSWAP_PROGRAM else RAYDIUM_AMM_PROGRAM,
-                }
-
-            # Verify both are owned by token program
-            base_owner = base_info.get("owner")
-            quote_owner = quote_info.get("owner")
-
-            if base_owner != SPL_TOKEN_PROGRAM or quote_owner != SPL_TOKEN_PROGRAM:
-                logger.warning(
-                    f"[POOL_EXTRACT] ❌ Rejected {pool_address[:16]}... - extracted vaults are NOT token accounts: "
-                    f"base_owner={base_owner} quote_owner={quote_owner}"
-                )
-                return None
-
-            # ===== STAGE 6: HARDENED - Validate SPL token account size =====
-            # SPL token accounts have fixed layout of exactly 165 bytes
-            base_vault_data = base_info.get("data")
-            quote_vault_data = quote_info.get("data")
-
-            if isinstance(base_vault_data, list) and len(base_vault_data) > 0:
-                base_vault_data = b64decode(base_vault_data[0])
-            elif isinstance(base_vault_data, str):
-                base_vault_data = b64decode(base_vault_data)
-
-            if isinstance(quote_vault_data, list) and len(quote_vault_data) > 0:
-                quote_vault_data = b64decode(quote_vault_data[0])
-            elif isinstance(quote_vault_data, str):
-                quote_vault_data = b64decode(quote_vault_data)
-
-            SPL_TOKEN_ACCOUNT_SIZE = 165
-
-            if not isinstance(base_vault_data, bytes) or len(base_vault_data) != SPL_TOKEN_ACCOUNT_SIZE:
-                logger.warning(
-                    f"[POOL_EXTRACT] ❌ Rejected {pool_address[:16]}... - base vault invalid size: "
-                    f"got {len(base_vault_data) if isinstance(base_vault_data, bytes) else 'unknown'} bytes, "
-                    f"expected {SPL_TOKEN_ACCOUNT_SIZE}"
-                )
-                return None
-
-            if not isinstance(quote_vault_data, bytes) or len(quote_vault_data) != SPL_TOKEN_ACCOUNT_SIZE:
-                logger.warning(
-                    f"[POOL_EXTRACT] ❌ Rejected {pool_address[:16]}... - quote vault invalid size: "
-                    f"got {len(quote_vault_data) if isinstance(quote_vault_data, bytes) else 'unknown'} bytes, "
-                    f"expected {SPL_TOKEN_ACCOUNT_SIZE}"
-                )
-                return None
-
-            logger.info(
-                f"[POOL_EXTRACT] ✅ Vaults validated as SPL token accounts (size={SPL_TOKEN_ACCOUNT_SIZE} bytes)"
-            )
-
-            # ===== STAGE 7: Extract vault token mints =====
-            base_decimals = await self._get_token_decimals(base_vault)
-            quote_decimals = await self._get_token_decimals(quote_vault)
-
-            # SPL token account: mint is at offset 0-32
-            base_mint = None
-            quote_mint = None
-
-            try:
-                base_mint = str(self._bytes_to_pubkey(base_vault_data[0:32]))
-            except Exception as e:
-                logger.debug(f"[POOL_EXTRACT] Could not extract base mint: {e}")
-
-            try:
-                quote_mint = str(self._bytes_to_pubkey(quote_vault_data[0:32]))
-            except Exception as e:
-                logger.debug(f"[POOL_EXTRACT] Could not extract quote mint: {e}")
-
-            # ===== STAGE 8: Verify one vault mint matches token_mint =====
-            if base_mint != token_mint and quote_mint != token_mint:
-                logger.warning(
-                    f"[POOL_EXTRACT] ❌ Neither vault mint matches token_mint for {pool_address[:16]}...: "
-                    f"token={token_mint} base_mint={base_mint} quote_mint={quote_mint}"
-                )
-                return None
-
-            # ===== STAGE 9: Determine base/quote pairing =====
-            if base_mint == token_mint:
-                final_base_token = base_mint
-                final_quote_token = quote_mint
-                final_base_account = base_vault
-                final_quote_account = quote_vault
-                final_base_decimals = base_decimals or 6
-                final_quote_decimals = quote_decimals or 9
-            else:
-                # Swap: quote is the token, base is SOL
-                final_base_token = quote_mint
-                final_quote_token = base_mint
-                final_base_account = quote_vault
-                final_quote_account = base_vault
-                final_base_decimals = quote_decimals or 6
-                final_quote_decimals = base_decimals or 9
-
-            # ===== STAGE 10: Register pool =====
             logger.info(
                 f"[POOL_EXTRACT] ✅ VALIDATED pool {pool_address[:16]}... "
-                f"base_token={final_base_token[:20]}... "
-                f"quote_token={final_quote_token[:20]}..."
+                f"base_token={base_mint[:20]}... "
+                f"quote_token={quote_mint[:20]}..."
             )
 
             # Determine program ID
@@ -439,12 +328,12 @@ class PoolDiscovery:
                 pool_program = PUMPFUN_V1_PROGRAM
 
             return {
-                "base_account": final_base_account,
-                "quote_account": final_quote_account,
-                "base_token": final_base_token,
-                "quote_token": final_quote_token,
-                "base_decimals": final_base_decimals,
-                "quote_decimals": final_quote_decimals,
+                "base_account": base_vault_addr,
+                "quote_account": quote_vault_addr,
+                "base_token": base_mint,
+                "quote_token": quote_mint,
+                "base_decimals": base_decimals or 6,
+                "quote_decimals": quote_decimals or 9,
                 "pool_program": pool_program,
             }
 

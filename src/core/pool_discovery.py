@@ -143,49 +143,72 @@ class PoolDiscovery:
         """
         Get all token accounts (vaults) owned by an address.
         
-        Returns list of (account_address, token_mint, balance) tuples.
+        Queries both Token Program and Token-2022 to find all vaults.
+        Layout-independent: works regardless of how PumpSwap struct changes.
+        
+        Returns list of dicts: [
+            {
+                "address": str,
+                "mint": str,
+                "amount_raw": int,
+                "decimals": int,
+                "program_id": str,
+            },
+            ...
+        ]
         """
-        try:
-            SPL_TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-            
-            payload = {
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "getTokenAccountsByOwner",
-                "params": [
-                    owner,
-                    {"programId": SPL_TOKEN_PROGRAM},
-                    {"encoding": "jsonParsed"}
-                ],
-            }
+        TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        TOKEN_2022_PROGRAM = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        
+        all_accounts = []
 
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    self.rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)
-                ) as resp:
-                    result = await resp.json()
-                    
-                    if "result" not in result or "value" not in result["result"]:
-                        return []
-                    
-                    accounts = []
-                    for acc_info in result["result"]["value"]:
-                        try:
-                            pubkey = acc_info.get("pubkey")
-                            parsed = acc_info.get("account", {}).get("data", {}).get("parsed", {})
-                            mint = parsed.get("info", {}).get("mint")
-                            balance = parsed.get("info", {}).get("tokenAmount", {}).get("uiAmount", 0)
-                            
-                            if mint and pubkey:
-                                accounts.append((pubkey, mint, balance))
-                        except:
+        # Query both Token Program and Token-2022
+        for program_id in (TOKEN_PROGRAM, TOKEN_2022_PROGRAM):
+            try:
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getTokenAccountsByOwner",
+                    "params": [
+                        owner,
+                        {"programId": program_id},
+                        {"encoding": "jsonParsed"},
+                    ],
+                }
+
+                async with aiohttp.ClientSession() as session:
+                    async with session.post(
+                        self.rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)
+                    ) as resp:
+                        result = await resp.json()
+                        
+                        if "result" not in result or "value" not in result["result"]:
                             continue
-                    
-                    return accounts
+                        
+                        for item in result["result"]["value"]:
+                            try:
+                                pubkey = item.get("pubkey")
+                                parsed = item.get("account", {}).get("data", {}).get("parsed", {})
+                                info = parsed.get("info", {})
+                                token_amount = info.get("tokenAmount", {}) or {}
+                                
+                                if pubkey and info.get("mint"):
+                                    all_accounts.append({
+                                        "address": pubkey,
+                                        "mint": info.get("mint"),
+                                        "authority": info.get("owner"),
+                                        "amount_raw": token_amount.get("amount"),
+                                        "decimals": token_amount.get("decimals"),
+                                        "program_id": program_id,
+                                    })
+                            except:
+                                continue
+                                
+            except Exception as e:
+                logger.debug(f"Error querying {program_id} for {owner}: {e}")
+                continue
 
-        except Exception as e:
-            logger.debug(f"Error getting token accounts for {owner}: {e}")
-            return []
+        return all_accounts
 
     async def _extract_from_pool_data(
         self, pool_data: Dict, pool_address: str, token_mint: str
@@ -224,21 +247,25 @@ class PoolDiscovery:
         self, pool_data: Dict, pool_address: str, token_mint: str
     ) -> Optional[Dict]:
         """
-        Extract vault accounts for a token pair from a pool account.
+        Extract vault accounts for a token pair using authority-based discovery.
         
-        ✅ FIXED: Uses dynamic vault discovery instead of fixed offsets.
+        ✅ AUTHORITY SCAN APPROACH (layout-independent):
         
-        For PumpSwap/Raydium pools:
-        1. The pool account is the PDA that manages multiple token pairs
-        2. It owns token accounts (vaults) for each pair it trades
-        3. We scan those owned accounts to find the ones for this token migration
+        Instead of guessing byte offsets in the pool struct:
+        - Query getTokenAccountsByOwner for the pool address
+        - Find the vault holding the token_mint (base_account)
+        - Find the vault holding WSOL/USDC (quote_account)
+        - Verify both exist on-chain
         
-        Process:
-        - Get all token accounts owned by the pool address
-        - Filter: must be SPL token accounts (size 165 bytes)
-        - Find: account holding the migrated token mint
-        - Pair with: account holding SOL (or other quote asset)
-        - Return: base_account, quote_account, verified vaults
+        This works regardless of:
+        - PumpSwap's internal struct layout
+        - Byte offset changes in future updates
+        - Token Program vs Token-2022 differences
+        
+        The vaults are guaranteed to be real because:
+        - RPC returns only accounts that exist on-chain
+        - RPC parses them as SPL token accounts
+        - Mint values come from chain state
         """
         try:
             logger.info(
@@ -255,14 +282,10 @@ class PoolDiscovery:
 
             logger.info(f"[POOL_EXTRACT] ✅ Owner valid: {owner[:16]}...")
 
-            # ===== STAGE 2: Dynamic vault discovery (NO fixed offsets) =====
-            logger.info(f"[POOL_EXTRACT] Scanning for token vaults owned by pool...")
+            # ===== STAGE 2: Discover vaults by authority scan =====
+            logger.info(f"[POOL_EXTRACT] Scanning for vaults owned by pool (authority scan)...")
             
-            try:
-                vault_accounts = await self._get_token_accounts_by_owner(pool_address)
-            except Exception as e:
-                logger.debug(f"[POOL_EXTRACT] Failed to get token accounts: {e}")
-                vault_accounts = []
+            vault_accounts = await self._get_token_accounts_by_owner(pool_address)
             
             if not vault_accounts:
                 logger.warning(
@@ -272,47 +295,54 @@ class PoolDiscovery:
 
             logger.info(f"[POOL_EXTRACT] Found {len(vault_accounts)} token accounts owned by pool")
 
-            # ===== STAGE 3: Find vault for this specific token mint =====
-            token_vault = None
-            quote_vault = None
-            
+            # ===== STAGE 3: Find vaults for this token pair =====
             SOL_MINT = "So11111111111111111111111111111111111111112"
             USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
 
-            for vault_addr, vault_mint, vault_balance in vault_accounts:
-                if vault_mint == token_mint:
-                    token_vault = (vault_addr, vault_mint, vault_balance)
-                    logger.info(f"[POOL_EXTRACT] ✓ Found token vault: {vault_addr[:16]}... (mint: {token_mint[:16]}...)")
-                elif vault_mint == SOL_MINT or vault_mint == USDC_MINT:
-                    if quote_vault is None or vault_balance > quote_vault[2]:
-                        quote_vault = (vault_addr, vault_mint, vault_balance)
-
-            if not token_vault:
+            # Find base vault (holding the token_mint)
+            base_candidates = [a for a in vault_accounts if a["mint"] == token_mint]
+            
+            if not base_candidates:
                 logger.warning(
-                    f"[POOL_EXTRACT] ❌ Could not find vault holding token {token_mint[:16]}..."
+                    f"[POOL_EXTRACT] ❌ No vault holding token {token_mint[:16]}..."
                 )
                 return None
 
-            if not quote_vault:
+            # Find quote vault (holding SOL or USDC, prefer larger balance)
+            quote_candidates = [
+                a for a in vault_accounts 
+                if a["mint"] in (SOL_MINT, USDC_MINT)
+            ]
+            
+            if not quote_candidates:
                 logger.warning(
-                    f"[POOL_EXTRACT] ❌ Could not find quote vault (SOL/USDC)"
+                    f"[POOL_EXTRACT] ❌ No quote vault (SOL/USDC)"
                 )
                 return None
 
-            base_vault_addr = token_vault[0]
-            base_mint = token_vault[1]
-            quote_vault_addr = quote_vault[0]
-            quote_mint = quote_vault[1]
+            # Sort by balance (raw amount) to prefer vaults with actual liquidity
+            def get_balance(acc):
+                try:
+                    return int(acc["amount_raw"] or 0)
+                except:
+                    return 0
+
+            base_vault = sorted(base_candidates, key=get_balance, reverse=True)[0]
+            quote_vault = sorted(quote_candidates, key=get_balance, reverse=True)[0]
+
+            base_vault_addr = base_vault["address"]
+            base_mint = base_vault["mint"]
+            base_decimals = base_vault["decimals"]
+            
+            quote_vault_addr = quote_vault["address"]
+            quote_mint = quote_vault["mint"]
+            quote_decimals = quote_vault["decimals"]
 
             logger.info(
                 f"[POOL_EXTRACT] ✅ Vault pair identified: "
-                f"base={base_vault_addr[:16]}... (mint: {base_mint[:16]}...) "
-                f"quote={quote_vault_addr[:16]}... (mint: {quote_mint[:16]}...)"
+                f"base={base_vault_addr[:16]}... (mint: {base_mint[:16]}..., bal: {get_balance(base_vault)}) "
+                f"quote={quote_vault_addr[:16]}... (mint: {quote_mint[:16]}..., bal: {get_balance(quote_vault)})"
             )
-
-            # ===== STAGE 4: Get vault decimals =====
-            base_decimals = await self._get_token_decimals(base_vault_addr)
-            quote_decimals = await self._get_token_decimals(quote_vault_addr)
 
             logger.info(
                 f"[POOL_EXTRACT] ✅ VALIDATED pool {pool_address[:16]}... "
@@ -338,7 +368,7 @@ class PoolDiscovery:
             }
 
         except Exception as e:
-            logger.debug(f"[POOL_EXTRACT] Error extracting Raydium AMM: {e}")
+            logger.debug(f"[POOL_EXTRACT] Error extracting pool: {e}")
             return None
 
     async def _extract_raydium_cpmm(

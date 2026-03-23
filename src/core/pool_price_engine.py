@@ -789,6 +789,7 @@ class PoolWebSocketClient:
         """Process incoming account notification events."""
         print(f"[POOL_WS] 🔄 _receive_loop started, waiting for account notifications...", flush=True)
         message_count = 0
+        timeout_count = 0
         while self._running:
             try:
                 raw = await asyncio.wait_for(ws.recv(), timeout=60)
@@ -797,6 +798,11 @@ class PoolWebSocketClient:
                     print(f"[POOL_WS] 📨 Received message #{message_count}: {raw[:100] if len(raw) > 100 else raw}...", flush=True)
             except asyncio.TimeoutError:
                 # keepalive — no event in 60s is normal
+                timeout_count += 1
+                if timeout_count == 1:
+                    print(f"[POOL_WS] ⚠️  No messages in 60s (Helius may not support accountSubscribe)", flush=True)
+                elif timeout_count % 10 == 0:
+                    print(f"[POOL_WS] ⚠️  Still no messages after {timeout_count * 60}s (fell back to RPC polling)", flush=True)
                 continue
             self._handle_message(raw)
 

@@ -842,21 +842,28 @@ class PoolDiscovery:
         self, pool_address: str, token_mint: str, migration_sig: str = None
     ) -> bool:
         """
-        Discover pool reserves and register in database with proper vault validation.
+        Discover pool reserves and register in database ONLY after validation.
 
-        Called when a token launches to automatically enable WebSocket pricing.
+        ✅ CRITICAL FIX: Validate that pool vaults contain the token mint BEFORE registering.
         
+        This prevents registering wrong pools (pools for other tokens).
+
+        Algorithm:
+        1. Extract all candidate pools
+        2. For each candidate:
+           a. Run authority-scan to get vaults
+           b. Check if any vault holds the token_mint
+           c. If yes: register this pool
+           d. If no: try next candidate
+        3. Only register if validation passes
+
         Args:
-            pool_address: Candidate pool address (optional if migration_sig provided)
+            pool_address: Candidate pool address
             token_mint: The token mint address
-            migration_sig: Migration transaction signature (optional, enables full discovery)
+            migration_sig: Migration transaction signature (optional)
         
-        Strategy:
-        1. If migration_sig provided, use vault pair discovery which searches transaction history
-           This finds the actual PumpSwap pool account
-        2. Otherwise, try vault pair discovery with provided pool_address
-        3. Fall back to standard extraction from pool_address
-        4. Register with vault_validation_status = pending/validated
+        Returns:
+            True if pool registered successfully, False otherwise
         """
         logger.info(f"🔍 Discovering pool reserves for {token_mint}")
 
@@ -864,10 +871,7 @@ class PoolDiscovery:
         vault_source = None
 
         # Strategy 1: Try PumpFun V1 vault pair discovery
-        # This finds the actual PumpSwap pool account which IS the vault pair
-        logger.info(
-            f"[DISCOVERY_CHAIN] Step 1: Attempting PumpFun V1 vault pair discovery"
-        )
+        logger.info(f"[DISCOVERY_CHAIN] Step 1: Attempting PumpFun V1 vault pair discovery")
         try:
             from src.core.post_migration_pool_discovery import PostMigrationPoolDiscovery
             vault_discovery = PostMigrationPoolDiscovery(self.rpc_url)
@@ -886,16 +890,25 @@ class PoolDiscovery:
                 extracted = await self.extract_pool_reserves(vault_pair, token_mint)
 
                 if extracted:
-                    reserves = extracted
-                    vault_source = "pumpfun_v1_discovered"  # Mark as PumpFun V1 (allows base==quote)
-                    logger.info(
-                        f"[DISCOVERY_CHAIN] ✅ Extracted vaults from vault pair: "
-                        f"base={reserves['base_account'][:16]}... "
-                        f"quote={reserves['quote_account'][:16]}... "
-                        f"(PumpFun V1 pool)"
-                    )
+                    # ✅ VALIDATE: Check that extracted vaults contain the token
+                    base_mint = extracted.get("base_token")
+                    quote_mint = extracted.get("quote_token")
+                    
+                    if base_mint == token_mint or quote_mint == token_mint:
+                        reserves = extracted
+                        vault_source = "pumpfun_v1_discovered"
+                        logger.info(
+                            f"[DISCOVERY_CHAIN] ✅ Validated vault pair: "
+                            f"base={reserves['base_account'][:16]}... "
+                            f"quote={reserves['quote_account'][:16]}..."
+                        )
+                    else:
+                        logger.warning(
+                            f"[DISCOVERY_CHAIN] ❌ Vault pair validation failed: "
+                            f"token {token_mint[:16]}... not in vaults "
+                            f"(base_mint={base_mint[:16]}..., quote_mint={quote_mint[:16]}...)"
+                        )
                 else:
-                    # Extraction failed
                     logger.info(
                         f"[DISCOVERY_CHAIN] ⏭️  Vault pair extraction failed, "
                         f"falling back to standard extraction"
@@ -910,20 +923,33 @@ class PoolDiscovery:
 
         # Strategy 2: Try standard extraction from pool_address
         if not reserves:
-            logger.info(
-                f"[DISCOVERY_CHAIN] Step 2: Attempting standard pool extraction"
-            )
-            reserves = await self.extract_pool_reserves(pool_address, token_mint)
+            logger.info(f"[DISCOVERY_CHAIN] Step 2: Attempting standard pool extraction")
+            extracted = await self.extract_pool_reserves(pool_address, token_mint)
             
-            if reserves:
-                logger.info(
-                    f"[DISCOVERY_CHAIN] ✅ Successfully extracted reserves from pool"
-                )
-                vault_source = "standard_extraction"
+            if extracted:
+                # ✅ VALIDATE: Check that extracted vaults contain the token
+                base_mint = extracted.get("base_token")
+                quote_mint = extracted.get("quote_token")
+                
+                if base_mint == token_mint or quote_mint == token_mint:
+                    reserves = extracted
+                    vault_source = "standard_extraction"
+                    logger.info(
+                        f"[DISCOVERY_CHAIN] ✅ Successfully extracted and validated vaults from pool"
+                    )
+                else:
+                    logger.warning(
+                        f"[DISCOVERY_CHAIN] ❌ Pool validation failed: "
+                        f"token {token_mint[:16]}... not in vaults "
+                        f"(base_mint={base_mint[:16]}..., quote_mint={quote_mint[:16]}...)"
+                    )
 
-        # If no reserves found, stop here
+        # If no valid reserves found, reject this candidate
         if not reserves:
-            logger.warning(f"Failed to extract reserves from pool {pool_address}")
+            logger.warning(
+                f"[DISCOVERY_CHAIN] ❌ Pool {pool_address[:16]}... rejected: "
+                f"no vaults containing token {token_mint[:16]}..."
+            )
             return False
 
         # CRITICAL: Validate that base and quote vaults are different
@@ -942,9 +968,8 @@ class PoolDiscovery:
         # Map vault_source to discovery_method for database
         discovery_method = vault_source or "unknown"
 
-        # ===== NEW: EXPLICITLY SET pool_address =====
+        # Explicitly set pool_address
         reserves["pool_address"] = pool_address
-        # ===== END NEW =====
 
         # Register in database with vault validation status
         # Vaults will be marked as 'pending' or 'validated' based on whether they exist on-chain

@@ -357,67 +357,49 @@ class PostMigrationPoolDiscovery:
 
     async def parse_candidates_from_cached_tx(self, cached_tx: Dict) -> tuple:
         """
-        Extract pool candidates ONLY from cached transaction payload.
+        Extract pool candidates ONLY from instruction-referenced accounts.
 
-        NO RPC calls. NO refetching. NO "not indexed yet" logic.
+        PRIORITY:
+        1. Accounts referenced by top-level instructions
+        2. Accounts referenced by inner instructions
+        3. Fallback to full account list only if instruction-derived set is empty
 
-        Pure parsing: extract accounts from the cached TX object only.
-        If TX is present but lacks accounts, returns empty list (not a failure).
-
-        Args:
-            cached_tx: Pre-fetched transaction data from handle_migration cache
-
-        Returns:
-            (candidates: List[str], parsed_successfully: bool, candidate_count: int, diagnostics: Dict)
-            - candidates: List of pool addresses (may be empty if TX lacks accounts)
-            - parsed_successfully: True if TX was parsed (even if no candidates)
-            - candidate_count: Number of candidates found
-            - diagnostics: Dict with reason_code when count==0, else empty dict
+        Returns candidates that are actually involved in execution, not the full tx account set.
         """
         try:
-            logger.info(
-                f"[CACHED_TX_PARSE] Parsing candidates from cached TX payload (no RPC)"
-            )
+            logger.info("[CACHED_TX_PARSE] Parsing candidates from cached TX payload (no RPC)")
 
             if not cached_tx:
                 logger.warning("[CACHED_TX_PARSE] cached_tx is None or empty")
                 diag = await self.emit_cached_tx_diagnostics(cached_tx)
                 return [], False, 0, diag
 
-            # Extract accounts from cached TX structure
             try:
-                message = cached_tx.get("transaction", {}).get("message", {})
-                accounts = message.get("accountKeys", [])
-                meta = cached_tx.get("meta", {})
+                tx = cached_tx.get("transaction", {}) or {}
+                message = tx.get("message", {}) or {}
+                meta = cached_tx.get("meta", {}) or {}
 
-                # Also include loaded addresses from versioned transactions
-                loaded_addrs = meta.get("loadedAddresses", {})
-                accounts = accounts + loaded_addrs.get("writable", []) + loaded_addrs.get("readonly", [])
+                raw_account_keys = message.get("accountKeys", []) or []
+                loaded_addrs = meta.get("loadedAddresses", {}) or {}
+                loaded_writable = loaded_addrs.get("writable", []) or []
+                loaded_readonly = loaded_addrs.get("readonly", []) or []
 
-                # Convert accounts to strings
-                accounts = [str(addr) if not isinstance(addr, str) else addr for addr in accounts]
+                # Normalize all accounts into a single ordered list
+                all_accounts = [
+                    str(a.get("pubkey") if isinstance(a, dict) else a)
+                    for a in (raw_account_keys + loaded_writable + loaded_readonly)
+                ]
 
             except (KeyError, TypeError) as e:
                 logger.warning(f"[CACHED_TX_PARSE] Could not extract accounts from structure: {e}")
                 diag = await self.emit_cached_tx_diagnostics(cached_tx)
                 return [], False, 0, diag
 
-            if not accounts:
+            if not all_accounts:
                 logger.info("[CACHED_TX_PARSE] No accounts found in cached TX")
                 diag = await self.emit_cached_tx_diagnostics(cached_tx)
                 return [], True, 0, diag
-            
-            logger.debug(f"[CACHED_TX_PARSE] Found {len(accounts)} accounts in cached TX")
-            
-            # Known pool program owners
-            POOL_PROGRAMS = {
-                "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap
-                "675kPX9MHTjS2zt1qrXrQVxwwp4W8gNzjX9oVhKt7Ck",  # Raydium
-                "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # PumpFun V1
-                "pmpA9A9n7CdrzJcm4E3rhZ4J8p9F3ZzK8Y9zCjR4Z5x",  # PumpFun V2
-            }
-            
-            # System programs to skip
+
             SYSTEM_PROGRAMS = {
                 "11111111111111111111111111111111",
                 "ComputeBudget111111111111111111111111111111",
@@ -426,49 +408,117 @@ class PostMigrationPoolDiscovery:
                 "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
                 "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
             }
-            
-            # Skip accounts
+
             SKIP_ACCOUNTS = {
                 "4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf",
                 "ADyA8hdefvWN2dbGGWFotbzWxrAvLW83WG6QCVXvJKqw",
             }
-            
-            # Collect candidates by checking owner field from cached meta
-            # NOTE: We can only identify candidates if their owner is in meta, or we have to skip
-            # For cached-only parsing, we identify by message structure + metadata hints
+
+            POOL_PROGRAMS = {
+                "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",
+                "675kPX9MHTjS2zt1qrXrQVxwwp4W8gNzjX9oVhKt7Ck",
+                "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+                "pmpA9A9n7CdrzJcm4E3rhZ4J8p9F3ZzK8Y9zCjR4Z5x",
+            }
+
+            def resolve_instruction_accounts(ix_obj):
+                """Return concrete pubkeys referenced by one instruction."""
+                resolved = []
+
+                # jsonParsed often has integer account indices
+                if isinstance(ix_obj, dict) and "accounts" in ix_obj:
+                    for ref in ix_obj.get("accounts", []):
+                        if isinstance(ref, int):
+                            if 0 <= ref < len(all_accounts):
+                                resolved.append(all_accounts[ref])
+                        elif isinstance(ref, str):
+                            resolved.append(ref)
+
+                # Sometimes parsed instructions expose programId directly
+                program_id = ix_obj.get("programId") if isinstance(ix_obj, dict) else None
+                if program_id:
+                    resolved.append(str(program_id))
+
+                return resolved
+
+            # 1) Top-level instruction accounts
+            instruction_accounts = []
+            top_level_ix = message.get("instructions", []) or []
+            for ix in top_level_ix:
+                instruction_accounts.extend(resolve_instruction_accounts(ix))
+
+            # 2) Inner instruction accounts
+            inner_ix_groups = meta.get("innerInstructions", []) or []
+            for group in inner_ix_groups:
+                for ix in group.get("instructions", []) or []:
+                    instruction_accounts.extend(resolve_instruction_accounts(ix))
+
+            # Deduplicate while preserving order
+            seen = set()
+            prioritized_accounts = []
+            for acc in instruction_accounts:
+                if not acc or acc in seen:
+                    continue
+                seen.add(acc)
+                prioritized_accounts.append(acc)
+
+            # Fallback only if instruction parsing found nothing
+            if not prioritized_accounts:
+                prioritized_accounts = all_accounts.copy()
+                logger.info(
+                    f"[CACHED_TX_PARSE] No instruction-derived accounts found; "
+                    f"falling back to full account list ({len(prioritized_accounts)})"
+                )
+            else:
+                logger.info(
+                    f"[CACHED_TX_PARSE] Using instruction-derived candidates: "
+                    f"{len(prioritized_accounts)} accounts from top-level + inner instructions"
+                )
+
+            meta_accounts = meta.get("accounts", []) or []
             candidates = []
-            meta_accounts = meta.get("accounts", [])  # Account info from meta if available
-            
-            for i, account_addr in enumerate(accounts):
-                if not isinstance(account_addr, str):
-                    account_addr = str(account_addr)
-                
+
+            for i, account_addr in enumerate(prioritized_accounts):
                 if account_addr in SYSTEM_PROGRAMS or account_addr in SKIP_ACCOUNTS:
                     continue
-                
-                # For cached TX, we can check if this account appears in meta with owner info
-                # Otherwise we mark it as a potential candidate (caller must validate via RPC)
+
+                # Fast-path if owner metadata exists
+                is_pool_by_owner = False
                 if i < len(meta_accounts):
                     meta_entry = meta_accounts[i]
                     owner = meta_entry.get("owner") if isinstance(meta_entry, dict) else None
                     if owner and owner in POOL_PROGRAMS:
-                        candidates.append(account_addr)
-                        logger.debug(f"[CACHED_TX_PARSE] Found pool candidate: {account_addr[:16]}... (owner={owner[:16]}...)")
-                        continue
-                
-                # Fallback: if owner not in meta, can't determine from cached TX alone
-                # Skip (caller should use RPC if needed)
-            
-            logger.info(
-                f"[CACHED_TX_PARSE] Successfully parsed: found {len(candidates)} candidates from cached TX"
-            )
+                        is_pool_by_owner = True
+                        logger.debug(
+                            f"[CACHED_TX_PARSE] ✅ Fast-path candidate: {account_addr[:16]}... "
+                            f"owner={owner[:16]}..."
+                        )
 
-            # If zero candidates, emit diagnostics
-            if len(candidates) == 0:
+                # Broad extraction, but from prioritized instruction accounts only
+                candidates.append(account_addr)
+
+                if not is_pool_by_owner:
+                    logger.debug(
+                        f"[CACHED_TX_PARSE] Added prioritized candidate: {account_addr[:16]}..."
+                    )
+
+            # Final dedupe
+            deduped = []
+            seen = set()
+            for c in candidates:
+                if c not in seen:
+                    seen.add(c)
+                    deduped.append(c)
+
+            if not deduped:
                 diag = await self.emit_cached_tx_diagnostics(cached_tx)
-                return candidates, True, len(candidates), diag
-            else:
-                return candidates, True, len(candidates), {}
+                return [], True, 0, diag
+
+            logger.info(
+                f"[CACHED_TX_PARSE] Extracted {len(deduped)} prioritized candidates "
+                f"(from instruction accounts, not full tx accounts)"
+            )
+            return deduped, True, len(deduped), {}
 
         except Exception as e:
             logger.warning(f"[CACHED_TX_PARSE] Parse error: {e}")
@@ -476,6 +526,7 @@ class PostMigrationPoolDiscovery:
             logger.debug(traceback.format_exc())
             diag = await self.emit_cached_tx_diagnostics(cached_tx)
             return [], False, 0, diag
+        return [], False, 0, diag
 
     async def discover_follow_on_pools(
         self,
@@ -615,13 +666,13 @@ class PostMigrationPoolDiscovery:
 
                     signatures = sig_result.get("result", [])
                     if not signatures:
-                        logger.debug(
+                        logger.info(
                             f"[FOLLOW_ON_DISCOVERY] No signatures found for anchor={anchor_name}"
                         )
                         continue
 
-                    logger.debug(
-                        f"[FOLLOW_ON_DISCOVERY] Found {len(signatures)} signatures for {anchor_name}"
+                    logger.info(
+                        f"[FOLLOW_ON_DISCOVERY] Found {len(signatures)} signatures for {anchor_name}, scanning up to {max_txs_per_anchor}"
                     )
 
                     # Inspect each signature for pool creation
@@ -688,10 +739,21 @@ class PostMigrationPoolDiscovery:
                                 tx_data, anchor_name
                             )
 
-                            for candidate in candidates:
+                            if not candidates:
                                 logger.debug(
-                                    f"[FOLLOW_ON_DISCOVERY] Found candidate {candidate[:16]}... "
-                                    f"from anchor={anchor_name} at offset={sig_idx}"
+                                    f"[FOLLOW_ON_DISCOVERY] TX {sig[:16]}... (offset={sig_idx}) "
+                                    f"anchor={anchor_name}: 0 candidates extracted"
+                                )
+                            else:
+                                logger.info(
+                                    f"[FOLLOW_ON_DISCOVERY] TX {sig[:16]}... (offset={sig_idx}) "
+                                    f"anchor={anchor_name}: {len(candidates)} candidate(s) extracted"
+                                )
+
+                            for candidate in candidates:
+                                logger.info(
+                                    f"[FOLLOW_ON_DISCOVERY] ✓ Candidate {candidate[:16]}... "
+                                    f"from anchor={anchor_name} (offset={sig_idx}), validating via RPC..."
                                 )
 
                                 # Validate candidate via RPC
@@ -723,11 +785,15 @@ class PostMigrationPoolDiscovery:
 
                                     acct = acct_result.get("result", {}).get("value")
                                     if not acct:
+                                        logger.info(
+                                            f"[FOLLOW_ON_DISCOVERY] ❌ Candidate {candidate[:16]}... "
+                                            f"anchor={anchor_name}: Account not found on-chain"
+                                        )
                                         continue
 
                                     owner = acct.get("owner")
                                     logger.debug(
-                                        f"[FOLLOW_ON_DISCOVERY] Candidate {candidate[:16]}... "
+                                        f"[FOLLOW_ON_DISCOVERY] Validating candidate {candidate[:16]}... "
                                         f"owner={owner[:16] if owner else 'None'}... "
                                         f"anchor={anchor_name} offset={sig_idx}"
                                     )
@@ -743,9 +809,10 @@ class PostMigrationPoolDiscovery:
                                         )
                                         return candidate, anchor_name, sig_idx, total_txs_scanned
                                     else:
-                                        logger.debug(
-                                            f"[FOLLOW_ON_DISCOVERY] Rejected {candidate[:16]}... "
-                                            f"owner={owner} not in known programs"
+                                        logger.info(
+                                            f"[FOLLOW_ON_DISCOVERY] ❌ Rejected {candidate[:16]}... "
+                                            f"anchor={anchor_name}: owner={owner[:16] if owner else 'None'}... "
+                                            f"NOT a pool program"
                                         )
 
                                 except Exception as e:
@@ -767,8 +834,8 @@ class PostMigrationPoolDiscovery:
                     continue
 
             logger.info(
-                f"[FOLLOW_ON_DISCOVERY] No pool found after scanning {total_txs_scanned} TXs "
-                f"({rpc_calls_made_total} RPC calls)"
+                f"[FOLLOW_ON_DISCOVERY] ⏹️ EXHAUSTED: Scanned {total_txs_scanned} TXs, "
+                f"0 valid pools found ({rpc_calls_made_total} RPC calls used of {max_rpc_calls_total})"
             )
             return None, None, None, total_txs_scanned
 
@@ -829,26 +896,58 @@ class PostMigrationPoolDiscovery:
 
             # Look for accounts with pool program owner
             meta_accounts = meta.get("accounts", [])
+            logger.debug(
+                f"[FOLLOW_ON_DISCOVERY] meta_accounts len={len(meta_accounts)}, "
+                f"accounts_indexed len={len(accounts_indexed)}"
+            )
+
             for idx, account_addr in accounts_indexed:
                 if account_addr in SYSTEM_PROGRAMS:
                     continue
 
-                # Check meta for owner info
+                # CRITICAL FIX: Extraction should be BROAD
+                # Fast path: if owner exists in meta and is a pool program, mark it
+                is_pool_by_owner = False
                 if idx < len(meta_accounts):
                     meta_entry = meta_accounts[idx]
                     if isinstance(meta_entry, dict):
                         owner = meta_entry.get("owner")
-                        if owner in POOL_PROGRAMS:
-                            candidates.append(account_addr)
+                        if owner:
                             logger.debug(
-                                f"[FOLLOW_ON_DISCOVERY] Extraction found: {account_addr[:16]}... "
-                                f"owner={owner[:16]}... (index={idx})"
+                                f"[FOLLOW_ON_DISCOVERY] Account [{idx}] {account_addr[:16]}... "
+                                f"owner={owner[:16]}..."
                             )
+                            if owner in POOL_PROGRAMS:
+                                is_pool_by_owner = True
+                                logger.debug(
+                                    f"[FOLLOW_ON_DISCOVERY] ✅ Fast-path: {account_addr[:16]}... "
+                                    f"owner={owner[:16]}... is pool program (index={idx})"
+                                )
+                    else:
+                        # Synthetic account (no owner field) - will validate via RPC
+                        logger.debug(
+                            f"[FOLLOW_ON_DISCOVERY] Account [{idx}] {account_addr[:16]}... "
+                            f"is synthetic (no owner info, will validate via RPC)"
+                        )
+                else:
+                    logger.debug(
+                        f"[FOLLOW_ON_DISCOVERY] Account [{idx}] {account_addr[:16]}... "
+                        f"OUT OF BOUNDS (meta_accounts len={len(meta_accounts)}), will validate via RPC"
+                    )
+
+                # Fallback: include ALL non-system accounts as candidates
+                # Validation happens later via RPC (PoolDetector will check owner, size, parsing)
+                candidates.append(account_addr)
 
             if not candidates:
                 logger.debug(
-                    f"[FOLLOW_ON_DISCOVERY] Extraction found {len(accounts_indexed)} accounts, "
-                    f"0 candidates (no pool program owners)"
+                    f"[FOLLOW_ON_DISCOVERY] Extraction scanned {len(accounts_indexed)} accounts, "
+                    f"meta_accounts has {len(meta_accounts)} entries, "
+                    f"0 candidates found (no non-system accounts)"
+                )
+            else:
+                logger.info(
+                    f"[FOLLOW_ON_DISCOVERY] Extraction: included {len(candidates)} candidates for RPC validation"
                 )
 
             return candidates
@@ -997,6 +1096,138 @@ class PostMigrationPoolDiscovery:
             )
             import traceback
             logger.debug(traceback.format_exc())
+            return []
+
+    async def extract_instruction_referenced_candidates(
+        self,
+        tx_data: Dict,
+        mint: str
+    ) -> list:
+        """
+        🔥 FAST PATH: Extract ONLY accounts referenced in PumpSwap instructions.
+        
+        Instead of checking all 25+ accounts, extract ~3-5 that are actually
+        used by PumpSwap instructions. Validate in batch. Return immediately
+        on first valid pool.
+        
+        Args:
+            tx_data: Transaction data
+            mint: Token mint address
+            
+        Returns:
+            List of pool candidates, already validated, ready for extraction
+        """
+        try:
+            message = tx_data.get("transaction", {}).get("message", {})
+            account_keys = message.get("accountKeys", [])
+            meta = tx_data.get("meta", {})
+            inner = meta.get("innerInstructions", [])
+            
+            # Find PumpSwap program index
+            PUMPSWAP = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+            program_idx = None
+            for i, acc in enumerate(account_keys):
+                if acc == PUMPSWAP:
+                    program_idx = i
+                    break
+            
+            if program_idx is None:
+                logger.debug("[FAST_EXTRACTION] PumpSwap program not found in tx")
+                return []
+            
+            # Extract accounts from PumpSwap instructions only
+            candidates = set()
+            for group in inner:
+                for ix in group.get("instructions", []):
+                    if ix.get("programIdIndex") != program_idx:
+                        continue
+                    
+                    # This instruction is a PumpSwap call
+                    for acc_idx in ix.get("accounts", []):
+                        if acc_idx < len(account_keys):
+                            candidates.add(account_keys[acc_idx])
+            
+            if not candidates:
+                logger.debug("[FAST_EXTRACTION] No PumpSwap instruction accounts found")
+                return []
+            
+            logger.info(f"[FAST_EXTRACTION] Found {len(candidates)} instruction-referenced candidates")
+            
+            # Filter out known non-pool accounts
+            SKIP = {
+                mint,  # The token mint itself
+                "11111111111111111111111111111111",  # System program
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # SPL token program
+                "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",  # Token2022
+                "ComputeBudget111111111111111111111111111111",  # Compute budget
+                "So11111111111111111111111111111111111111112",  # wSOL
+                "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",  # Associated token program
+            }
+            
+            candidates = [c for c in candidates if c not in SKIP]
+            
+            if not candidates:
+                logger.debug("[FAST_EXTRACTION] All candidates filtered out")
+                return []
+            
+            # BATCH validate all candidates at once (not serial RPC calls)
+            logger.info(f"[FAST_EXTRACTION] Batch validating {len(candidates)} candidates")
+            
+            try:
+                import aiohttp
+                batch_payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getMultipleAccounts",
+                    "params": [list(candidates), {"encoding": "base64"}]
+                }
+                
+                result = await self._post_rpc(batch_payload, timeout=10)
+                if not result or "result" not in result:
+                    logger.warning("[FAST_EXTRACTION] Batch RPC failed")
+                    return []
+                
+                POOL_PROGRAMS = {
+                    "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap
+                    "675kPX9MHTjS2zt1qrXrQVxwwp4W8gNzjX9oVhKt7Ck",  # Raydium
+                    "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # PumpFun V1
+                }
+                
+                valid_pools = []
+                for i, (candidate, info) in enumerate(zip(candidates, result.get("result", {}).get("value", []))):
+                    if not info:
+                        continue
+                    
+                    owner = info.get("owner")
+                    if owner not in POOL_PROGRAMS:
+                        continue
+                    
+                    # Check size
+                    data = info.get("data", [])
+                    if isinstance(data, list) and len(data) > 0:
+                        try:
+                            import base64
+                            decoded = base64.b64decode(data[0])
+                            if len(decoded) < 296:
+                                continue
+                        except:
+                            continue
+                    
+                    valid_pools.append(candidate)
+                    logger.info(f"[FAST_EXTRACTION] ✅ Valid pool found: {candidate[:16]}... owner={owner[:16]}...")
+                    
+                    # Return immediately on first valid pool (no need to check others)
+                    return [candidate]
+                
+                logger.info(f"[FAST_EXTRACTION] Tested {len(candidates)}, found {len(valid_pools)} valid")
+                return valid_pools
+                
+            except Exception as batch_err:
+                logger.warning(f"[FAST_EXTRACTION] Batch validation failed: {batch_err}")
+                return []
+        
+        except Exception as e:
+            logger.warning(f"[FAST_EXTRACTION] Error: {e}")
             return []
 
     async def _discover_via_recent_transactions(

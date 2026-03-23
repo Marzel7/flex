@@ -334,12 +334,19 @@ class PumpFunCurveListener:
         # === NEW: Transaction caching ===
         self.tx_cache = {}  # {signature: (tx_data, timestamp)}
         self.tx_cache_ttl_seconds = 1800  # 30 minutes TTL
+        self.tx_cache_max_size = 10000  # Prevent unbounded growth
         self.tx_inflight_locks = {}  # {signature: asyncio.Lock()} for singleflight
         self.tx_cache_pending_retries = {}  # {signature: retry_task} for delayed re-checks
         self.tx_cache_stats = {
             'hit': 0,
             'miss': 0,
             'wait': 0,
+        }
+
+        # === Price extraction metrics ===
+        self.price_stats = {
+            'onchain_success': 0,
+            'dexscreener_fallback': 0,
         }
 
         # === NEW: Deferred pool detection retries ===
@@ -373,6 +380,9 @@ class PumpFunCurveListener:
         self.background_job_queue = asyncio.Queue()
         self.background_jobs_processing = False
         asyncio.create_task(self._process_background_queue())
+
+        # Periodic TX cache cleanup (prevent memory leak on long-running listener)
+        asyncio.create_task(self._cleanup_tx_cache_periodic())
 
         # Telemetry for discovery attempts
         self.discovery_attempts = {}  # {mint: [attempt_1, attempt_2, ...]}
@@ -515,7 +525,7 @@ class PumpFunCurveListener:
                     "method": method,
                     "params": params
                 }
-                result = await self._post_rpc_with_fallback(payload, timeout=timeout, priority="critical")
+                result = await self.__internal_rpc(payload, timeout=timeout, priority="critical")
                 return result
             except Exception as e:
                 logger.debug(f"Discovery RPC error ({method}): {e}")
@@ -531,7 +541,7 @@ class PumpFunCurveListener:
                     "method": method,
                     "params": params
                 }
-                result = await self._post_rpc_with_fallback(payload, timeout=timeout, priority="background")
+                result = await self.__internal_rpc(payload, timeout=timeout, priority="background")
                 return result
             except Exception as e:
                 logger.debug(f"Background RPC error ({method}): {e}")
@@ -557,7 +567,7 @@ class PumpFunCurveListener:
         except Exception as e:
             log_print(f"[TELEMETRY] ⚠️  Failed to write telemetry for {mint}: {e}", flush=True)
 
-    async def _post_rpc_with_fallback(self, payload: dict, timeout: int = 10, priority: str = "critical") -> Optional[dict]:
+    async def __internal_rpc(self, payload: dict, timeout: int = 10, priority: str = "critical") -> Optional[dict]:
         """
         Post to RPC with automatic failover chain.
 
@@ -774,10 +784,17 @@ class PumpFunCurveListener:
                     ],
                 }
 
-                tx_data = await asyncio.wait_for(
-                    self._post_rpc_with_fallback(payload),
-                    timeout=timeout,
+                # Use discovery RPC tier with semaphore protection
+                result = await self.call_discovery_rpc(
+                    "getTransaction",
+                    [signature, {
+                        "encoding": "jsonParsed",
+                        "commitment": "confirmed",
+                        "maxSupportedTransactionVersion": 0,
+                    }],
+                    timeout=timeout
                 )
+                tx_data = result
 
                 # Check if we got a real result
                 if tx_data and "result" in tx_data and tx_data["result"]:
@@ -814,6 +831,44 @@ class PumpFunCurveListener:
             # Release lock for other waiters
             lock.release()
             self.tx_inflight_locks.pop(signature, None)
+
+    async def _cleanup_tx_cache_periodic(self):
+        """
+        Periodically clean up expired entries in TX cache to prevent memory leak.
+        Also enforces max size cap by evicting oldest entries.
+        Runs every 60 seconds.
+        """
+        import time
+        while True:
+            try:
+                await asyncio.sleep(60)
+                now = time.time()
+
+                # Remove expired entries
+                expired = [
+                    sig for sig, (_, cached_time) in self.tx_cache.items()
+                    if now - cached_time > self.tx_cache_ttl_seconds
+                ]
+                if expired:
+                    for sig in expired:
+                        del self.tx_cache[sig]
+                        self.tx_cache_pending_retries.pop(sig, None)
+                        self.tx_inflight_locks.pop(sig, None)
+                    log_print(f"[TX_CACHE_CLEANUP] Removed {len(expired)} expired entries (cache size: {len(self.tx_cache)})", flush=True)
+
+                # Enforce max size by evicting oldest entries
+                if len(self.tx_cache) > self.tx_cache_max_size:
+                    to_evict = len(self.tx_cache) - self.tx_cache_max_size
+                    # Sort by timestamp and evict oldest
+                    oldest = sorted(self.tx_cache.items(), key=lambda x: x[1][1])[:to_evict]
+                    for sig, _ in oldest:
+                        del self.tx_cache[sig]
+                        self.tx_cache_pending_retries.pop(sig, None)
+                        self.tx_inflight_locks.pop(sig, None)
+                    log_print(f"[TX_CACHE_CLEANUP] Evicted {to_evict} oldest entries (cache size: {len(self.tx_cache)})", flush=True)
+
+            except Exception as e:
+                log_print(f"[TX_CACHE_CLEANUP] Error during cleanup: {e}", flush=True)
 
     # --- Database ---
     def _ensure_db(self):
@@ -1183,14 +1238,12 @@ class PumpFunCurveListener:
 
         for attempt in range(max_retries):
             try:
-                payload = {
-                    "jsonrpc": "2.0",
-                    "id": 1,
-                    "method": "getTransaction",
-                    "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
-                }
-
-                data = await self._post_rpc_with_fallback(payload)
+                # Use discovery RPC tier for mint extraction (critical path)
+                data = await self.call_discovery_rpc(
+                    "getTransaction",
+                    [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}],
+                    timeout=15
+                )
 
                 if not data or "result" not in data or not data["result"]:
                     # Transaction not indexed yet, retry with backoff
@@ -1296,80 +1349,111 @@ class PumpFunCurveListener:
 
         return None
 
-    async def _extract_pool_from_migration_tx(self, signature: str) -> Optional[str]:
+    async def _extract_pool_from_migration_tx(self, signature: str) -> List[str]:
         """
-        Extract the PumpSwap pool address from a migration transaction.
-
-        The pool is the account that is OWNED BY the PumpSwap program.
-
-        Strategy:
-        1. Fetch the transaction
-        2. Look through all accounts in innerInstructions
-        3. Find accounts that are used by the PumpSwap program
-        4. Return the first writable PDA (index 0 of PumpSwap instruction accounts)
-
-        Returns: The pool address (string) or None if extraction fails
-        Uses RPC failover chain: Primary QuickNode -> Secondary QuickNode -> Helius -> Public.
+        Extract ALL PumpSwap pool candidates from migration transaction.
+        
+        Handles both int indices and string pubkey formats from different RPC providers.
+        Returns list of ALL candidate accounts (not filtered, not validated).
+        Caller is responsible for validation and filtering.
         """
         max_retries = 3
         retry_delays = [1.0, 3.0, 5.0]
 
         for attempt in range(max_retries):
             try:
-                payload = {
-                    "jsonrpc": "2.0",
-                    "id": 1,
-                    "method": "getTransaction",
-                    "params": [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}]
-                }
-
-                data = await self._post_rpc_with_fallback(payload)
+                # Use discovery RPC tier (still part of pool detection pipeline)
+                data = await self.call_discovery_rpc(
+                    "getTransaction",
+                    [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}],
+                    timeout=10
+                )
 
                 if not data or "result" not in data or not data["result"]:
-                    return None
+                    return []
 
                 tx_data = data["result"]
                 message = tx_data.get("transaction", {}).get("message", {})
                 account_keys = message.get("accountKeys", [])
                 
                 if not account_keys:
-                    return None
+                    return []
                 
                 meta = tx_data.get("meta", {})
-                inner_instructions = meta.get("innerInstructions", [])
+                inner = meta.get("innerInstructions", [])
                 
-                PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+                candidates = set()
                 
-                # Find PumpSwap program index in accountKeys
-                pumpswap_idx = -1
+                # Find program index
+                program_idx = None
                 for i, acc in enumerate(account_keys):
                     if acc == PUMPSWAP_PROGRAM:
-                        pumpswap_idx = i
+                        program_idx = i
                         break
                 
-                if pumpswap_idx < 0:
-                    return None
-                
-                # Search innerInstructions for PumpSwap calls using programIdIndex
-                for ix_group in inner_instructions:
-                    instructions = ix_group.get("instructions", [])
-                    for ix in instructions:
-                        program_id_idx = ix.get("programIdIndex")
-                        
-                        # Check if this instruction is calling PumpSwap
-                        if program_id_idx == pumpswap_idx:
-                            # This is a PumpSwap instruction
-                            accounts = ix.get("accounts", [])
-                            if accounts and len(accounts) > 0:
-                                # The first account in a PumpSwap instruction is typically the pool
-                                pool_idx = accounts[0]
-                                if isinstance(pool_idx, int) and pool_idx < len(account_keys):
-                                    pool_address = account_keys[pool_idx]
-                                    log_print(f"[POOL] ✅ Extracted pool from PumpSwap instruction: {pool_address}", flush=True)
-                                    return pool_address
+                # Extract ALL accounts from ALL PumpSwap instructions
+                if program_idx is not None:
+                    for group in inner:
+                        for ix in group.get("instructions", []):
+                            if ix.get("programIdIndex") != program_idx:
+                                continue
 
+                            raw_accounts = ix.get("accounts", [])
+                            if raw_accounts:
+                                log_print(
+                                    f"[IX_ACCOUNTS_SHAPE] types={[type(x).__name__ for x in raw_accounts[:5]]} sample={raw_accounts[:5]}",
+                                    flush=True
+                                )
 
-                return None
+                            for acc_ref in raw_accounts:
+                                # Case 1: classic indexed format (int)
+                                if isinstance(acc_ref, int):
+                                    if 0 <= acc_ref < len(account_keys):
+                                        candidates.add(account_keys[acc_ref])
+                                # Case 2: already-normalized pubkey string
+                                elif isinstance(acc_ref, str):
+                                    if len(acc_ref) >= 32:
+                                        candidates.add(acc_ref)
+                else:
+                    # Fallback: scan ALL instructions (not just by index)
+                    # Some migrations don't include PumpSwap in accountKeys
+                    for group in inner:
+                        for ix in group.get("instructions", []):
+                            raw_accounts = ix.get("accounts", [])
+                            if raw_accounts:
+                                log_print(
+                                    f"[IX_ACCOUNTS_SHAPE] types={[type(x).__name__ for x in raw_accounts[:5]]} sample={raw_accounts[:5]}",
+                                    flush=True
+                                )
+
+                            for acc_ref in raw_accounts:
+                                # Case 1: classic indexed format (int)
+                                if isinstance(acc_ref, int):
+                                    if 0 <= acc_ref < len(account_keys):
+                                        candidates.add(account_keys[acc_ref])
+                                # Case 2: already-normalized pubkey string
+                                elif isinstance(acc_ref, str):
+                                    if len(acc_ref) >= 32:
+                                        candidates.add(acc_ref)
+
+                # Exclude system programs
+                SKIP = {
+                    PUMPSWAP_PROGRAM,
+                    PUMPFUN_PROGRAM,
+                    "11111111111111111111111111111111",
+                    "So11111111111111111111111111111111111111112",
+                    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                    "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+                }
+                candidates = {c for c in candidates if c not in SKIP}
+
+                # Prevent pathological TX explosions (some migrations have 100+ accounts)
+                candidate_list = list(candidates)
+                if len(candidate_list) > 50:
+                    log_print(f"[EXTRACT_POOL] Limiting candidates from {len(candidate_list)} to 50", flush=True)
+                    candidate_list = candidate_list[:50]
+
+                return candidate_list
 
             except Exception as e:
                 if attempt < max_retries - 1:
@@ -1377,60 +1461,294 @@ class PumpFunCurveListener:
                     await asyncio.sleep(retry_delays[attempt])
                 else:
                     log_print(f"[POOL_ERROR] Failed to extract pool address after {max_retries} attempts: {e}", flush=True)
-                    return None
+                    return []
 
-        return None
+        return []
 
-    async def _extract_pool_from_tx(self, tx_data: Dict) -> Optional[str]:
+    async def batch_validate_candidates(self, candidates: list) -> list:
         """
-        Extract PumpSwap pool address from transaction data (no RPC call needed).
+        Batch validate all candidates with single RPC call.
+        
+        Returns list of valid pool addresses owned by PUMPSWAP program.
+        """
+        if not candidates:
+            return []
 
-        The pool is the account that is OWNED BY the PumpSwap program.
+        try:
+            result = await self.call_discovery_rpc(
+                "getMultipleAccounts",
+                [candidates, {"encoding": "base64"}],
+                timeout=10
+            )
+            
+            if not result or "result" not in result:
+                return []
 
-        Strategy:
-        1. Look through all accounts in innerInstructions
-        2. Find accounts used by the PumpSwap program
-        3. Return the first writable PDA (index 0 of PumpSwap instruction accounts)
+            PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+            values = result.get("result", {}).get("value", [])
+
+            valid = []
+            for addr, acc in zip(candidates, values):
+                if acc and acc.get("owner") == PUMPSWAP_PROGRAM:
+                    valid.append(addr)
+
+            return valid
+
+        except Exception as e:
+            log_print(f"[BATCH_VALIDATE] Error: {e}", flush=True)
+            return []
+
+    async def resolve_pool_from_tx(self, tx_data: Dict) -> Optional[str]:
+        """
+        Full pipeline: extract → filter → validate → return best pool
         """
         if not tx_data:
             return None
 
-        message = tx_data.get("transaction", {}).get("message", {})
-        account_keys = message.get("accountKeys", [])
+        candidates = await self._extract_pool_from_tx(tx_data)
 
-        if not account_keys:
+        if not candidates:
+            log_print("[RESOLVE_POOL] No candidates extracted", flush=True)
             return None
 
-        meta = tx_data.get("meta", {})
-        inner_instructions = meta.get("innerInstructions", [])
+        log_print(f"[RESOLVE_POOL] Extracted {len(candidates)} candidates, filtering...", flush=True)
 
-        PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+        # Ensure all candidates are strings (RPC may return dicts or other types)
+        candidates = [str(c) if not isinstance(c, str) else c for c in candidates]
 
-        # Find PumpSwap program index in accountKeys
-        pumpswap_idx = -1
-        for i, acc in enumerate(account_keys):
-            if acc == PUMPSWAP_PROGRAM:
-                pumpswap_idx = i
-                break
+        # Pre-filter obvious junk (saves RPC bandwidth)
+        candidates = [
+            c for c in candidates
+            if isinstance(c, str) and len(c) >= 32 and not c.startswith("111")
+        ]
 
-        if pumpswap_idx < 0:
+        if not candidates:
+            log_print("[RESOLVE_POOL] All candidates filtered out", flush=True)
             return None
 
-        # Search innerInstructions for PumpSwap calls
-        for ix_group in inner_instructions:
-            instructions = ix_group.get("instructions", [])
-            for ix in instructions:
-                program_id_idx = ix.get("programIdIndex")
-                if program_id_idx == pumpswap_idx:
-                    accounts = ix.get("accounts", [])
-                    if accounts and len(accounts) > 0:
-                        pool_idx = accounts[0]
-                        if isinstance(pool_idx, int) and pool_idx < len(account_keys):
-                            pool_address = account_keys[pool_idx]
-                            log_print(f"[POOL] ✅ Extracted pool from cached tx: {pool_address}", flush=True)
-                            return pool_address
+        log_print(f"[RESOLVE_POOL] After pre-filter: {len(candidates)} candidates, batch validating...", flush=True)
+
+        valid = await self.batch_validate_candidates(candidates)
+
+        if not valid:
+            log_print("[RESOLVE_POOL] No valid pools found after validation", flush=True)
+            return None
+
+        # Deterministic selection from multiple valid pools
+        pool = self.select_best_pool(valid, tx_data)
+        if pool:
+            log_print(f"[RESOLVE_POOL] ✅ Selected pool: {pool[:16]}...", flush=True)
+            return pool
 
         return None
+
+    async def resolve_pool_from_signature(self, signature: str) -> Optional[str]:
+        """
+        Full pipeline: extract from TX signature → filter → validate → return best pool
+
+        Uses TX cache for deduplication, retry/backoff, and singleflight.
+        """
+        # Fetch tx_data using cache (retry/backoff, dedup, singleflight)
+        tx_data = await self._get_transaction_cached(signature)
+
+        if not tx_data:
+            log_print("[RESOLVE_POOL_SIG] Could not fetch transaction", flush=True)
+            return None
+
+        # Extract candidates from CACHED tx_data (NOT a new RPC call)
+        candidates = await self._extract_pool_from_tx(tx_data)
+
+        if not candidates:
+            log_print("[RESOLVE_POOL_SIG] No candidates extracted", flush=True)
+            return None
+
+        log_print(f"[RESOLVE_POOL_SIG] Extracted {len(candidates)} candidates, filtering...", flush=True)
+
+        # Ensure all candidates are strings (RPC may return dicts or other types)
+        candidates = [str(c) if not isinstance(c, str) else c for c in candidates]
+
+        # Pre-filter obvious junk
+        candidates = [
+            c for c in candidates
+            if isinstance(c, str) and len(c) >= 32 and not c.startswith("111")
+        ]
+
+        if not candidates:
+            log_print("[RESOLVE_POOL_SIG] All candidates filtered out", flush=True)
+            return None
+
+        log_print(f"[RESOLVE_POOL_SIG] After pre-filter: {len(candidates)} candidates, batch validating...", flush=True)
+
+        valid = await self.batch_validate_candidates(candidates)
+
+        if not valid:
+            log_print("[RESOLVE_POOL_SIG] No valid pools found after validation", flush=True)
+            return None
+
+        # Deterministic selection requires TX structure
+        if not tx_data:
+            log_print("[RESOLVE_POOL_SIG] ⚠️  No TX data — cannot deterministically select pool", flush=True)
+            return None
+
+        pool = self.select_best_pool(valid, tx_data)
+        if pool:
+            log_print(f"[RESOLVE_POOL_SIG] ✅ Selected pool: {pool[:16]}...", flush=True)
+            return pool
+
+        return None
+
+    def select_best_pool(self, candidates: list, tx_data: dict) -> str:
+        """
+        Choose the correct pool PDA from validated candidates using scoring.
+
+        Multiple accounts can be owned by PumpSwap:
+        - pool PDA ✅ (correct)
+        - LP mint ❌
+        - vault ❌
+
+        Scoring prioritizes: earliest appearance > frequency in inner instructions > index position
+        """
+        if not candidates:
+            return None
+
+        if len(candidates) == 1:
+            return candidates[0]
+
+        try:
+            message = tx_data.get("transaction", {}).get("message", {})
+            account_keys = message.get("accountKeys", [])
+            meta = tx_data.get("meta", {})
+            inner = meta.get("innerInstructions", [])
+
+            # Build scores for each candidate (ensure all are strings)
+            scores = {}
+            for candidate in candidates:
+                # Ensure candidate is string
+                candidate_str = str(candidate) if not isinstance(candidate, str) else candidate
+                score = 0
+
+                # Score 1: earliest appearance in accountKeys (priority 5)
+                if candidate_str in account_keys:
+                    score += 5 + (100 - account_keys.index(candidate_str))
+
+                # Score 2: frequency in inner instructions (priority 3)
+                frequency = 0
+                for group in inner:
+                    for ix in group.get("instructions", []):
+                        if candidate_str in ix.get("accounts", []):
+                            frequency += 1
+                score += frequency * 3
+
+                scores[candidate_str] = score
+                log_print(f"[SELECT_POOL] Score {candidate_str[:16]}...: {score}", flush=True)
+
+            # Return highest scoring candidate
+            if not scores:
+                log_print("[SELECT_POOL] ❌ No candidates scored", flush=True)
+                return None
+
+            best = max(scores.items(), key=lambda x: x[1])[0]
+            log_print(f"[SELECT_POOL] Selected by scoring: {best[:16]}... (score: {scores[best]})", flush=True)
+            return best
+
+        except Exception as e:
+            log_print(f"[SELECT_POOL] Error analyzing TX structure: {e}", flush=True)
+
+        # No deterministic match found — strict mode
+        log_print("[SELECT_POOL] ❌ No deterministic match found in TX accountKeys", flush=True)
+        return None
+
+    async def _extract_pool_from_tx(self, tx_data: Dict) -> List[str]:
+        """
+        Extract ALL PumpSwap pool candidates from transaction data.
+        
+        Handles both int indices and string pubkey formats from different RPC providers.
+        Returns list of ALL candidate accounts (not filtered, not validated).
+        Caller is responsible for validation and filtering.
+        """
+        if not tx_data:
+            return []
+
+        message = tx_data.get("transaction", {}).get("message", {})
+        account_keys = message.get("accountKeys", [])
+        meta = tx_data.get("meta", {})
+        inner = meta.get("innerInstructions", [])
+
+        candidates = set()
+
+        # Find program index
+        program_idx = None
+        for i, acc in enumerate(account_keys):
+            if acc == PUMPSWAP_PROGRAM:
+                program_idx = i
+                break
+
+        # Extract ALL accounts from ALL PumpSwap instructions
+        if program_idx is not None:
+            for group in inner:
+                for ix in group.get("instructions", []):
+                    if ix.get("programIdIndex") != program_idx:
+                        continue
+
+                    raw_accounts = ix.get("accounts", [])
+                    if raw_accounts:
+                        log_print(
+                            f"[IX_ACCOUNTS_SHAPE] types={[type(x).__name__ for x in raw_accounts[:5]]} sample={raw_accounts[:5]}",
+                            flush=True
+                        )
+
+                    for acc_ref in raw_accounts:
+                        # Case 1: classic indexed format (int)
+                        if isinstance(acc_ref, int):
+                            if 0 <= acc_ref < len(account_keys):
+                                candidates.add(account_keys[acc_ref])
+                        # Case 2: already-normalized pubkey string
+                        elif isinstance(acc_ref, str):
+                            if len(acc_ref) >= 32:
+                                candidates.add(acc_ref)
+        else:
+            # Fallback: scan ALL instructions (not just by index)
+            # Some migrations don't include PumpSwap in accountKeys
+            for group in inner:
+                for ix in group.get("instructions", []):
+                    raw_accounts = ix.get("accounts", [])
+                    if raw_accounts:
+                        log_print(
+                            f"[IX_ACCOUNTS_SHAPE] types={[type(x).__name__ for x in raw_accounts[:5]]} sample={raw_accounts[:5]}",
+                            flush=True
+                        )
+
+                    for acc_ref in raw_accounts:
+                        # Case 1: classic indexed format (int)
+                        if isinstance(acc_ref, int):
+                            if 0 <= acc_ref < len(account_keys):
+                                candidates.add(account_keys[acc_ref])
+                        # Case 2: already-normalized pubkey string
+                        elif isinstance(acc_ref, str):
+                            if len(acc_ref) >= 32:
+                                candidates.add(acc_ref)
+
+        # Exclude system programs
+        SKIP = {
+            PUMPSWAP_PROGRAM,
+            PUMPFUN_PROGRAM,
+            "11111111111111111111111111111111",
+            "So11111111111111111111111111111111111111112",
+            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+        }
+        candidates = {c for c in candidates if c not in SKIP}
+
+        # Prevent pathological TX explosions
+        candidate_list = list(candidates)
+        if len(candidate_list) > 50:
+            log_print(f"[EXTRACT_POOL_SIG] Limiting candidates from {len(candidate_list)} to 50", flush=True)
+            candidate_list = candidate_list[:50]
+
+        # Ensure all candidates are strings (RPC may return dicts or other types)
+        candidate_list = [str(c) if not isinstance(c, str) else c for c in candidate_list]
+
+        return candidate_list
 
     async def _get_pool_address(self, token_mint: str, signature: str) -> Optional[str]:
         """Get pool address from database only.
@@ -1478,9 +1796,13 @@ class PumpFunCurveListener:
                 result = await self._get_price_from_pool_account(pool_address, token_mint)
                 if result is not None:
                     price, market_cap = result
+                    self.price_stats['onchain_success'] += 1
                     return (price, market_cap, "onchain")
-            
-            # Fall back to DexScreener (more reliable and always available)
+
+            # Fall back to DexScreener (on-chain price extraction failed)
+            self.price_stats['dexscreener_fallback'] += 1
+            fallback_rate = self.price_stats['dexscreener_fallback'] / (self.price_stats['onchain_success'] + self.price_stats['dexscreener_fallback'])
+            log_print(f"[PRICE_FALLBACK] mint={token_mint[:16]}... reason=onchain_failed (fallback_rate={fallback_rate:.2%})", flush=True)
             result = await self._fetch_dexscreener_price(token_mint)
             if result is not None:
                 price, market_cap = result
@@ -1523,14 +1845,11 @@ class PumpFunCurveListener:
             # WSOL mint: So11111111111111111111111111111111111111112
             wsol_mint = "So11111111111111111111111111111111111111112"
 
-            payload_wsol = {
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "getTokenAccountsByOwner",
-                "params": [pool_address, {"mint": wsol_mint}, {"encoding": "jsonParsed"}]
-            }
-
-            data = await self._post_rpc_with_fallback(payload_wsol)
+            # Use background RPC tier (price extraction is not critical path)
+            data = await self.call_background_rpc(
+                "getTokenAccountsByOwner",
+                [pool_address, {"mint": wsol_mint}, {"encoding": "jsonParsed"}]
+            )
 
             sol_balance = 0
             if data and "result" in data:
@@ -1555,14 +1874,11 @@ class PumpFunCurveListener:
 
             # If no WSOL, fall back to pool account lamports
             if sol_balance == 0:
-                payload = {
-                    "jsonrpc": "2.0",
-                    "id": 1,
-                    "method": "getAccountInfo",
-                    "params": [pool_address, {"encoding": "jsonParsed"}]
-                }
-
-                data = await self._post_rpc_with_fallback(payload)
+                # Use background RPC tier for fallback query
+                data = await self.call_background_rpc(
+                    "getAccountInfo",
+                    [pool_address, {"encoding": "jsonParsed"}]
+                )
                 if not data or "result" not in data or not data["result"]:
                     return None
 
@@ -1580,15 +1896,11 @@ class PumpFunCurveListener:
             if sol_balance == 0:
                 return None
 
-            # Query token accounts owned by this pool
-            payload2 = {
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "getTokenAccountsByOwner",
-                "params": [pool_address, {"mint": token_mint}, {"encoding": "jsonParsed"}]
-            }
-
-            data2 = await self._post_rpc_with_fallback(payload2)
+            # Query token accounts owned by this pool (use background RPC tier)
+            data2 = await self.call_background_rpc(
+                "getTokenAccountsByOwner",
+                [pool_address, {"mint": token_mint}, {"encoding": "jsonParsed"}]
+            )
             if not data2 or "result" not in data2:
                 return None
 
@@ -2348,13 +2660,12 @@ class PumpFunCurveListener:
                 if pool_candidates:
                     for candidate in pool_candidates:
                         try:
-                            account_info_payload = {
-                                "jsonrpc": "2.0",
-                                "id": 1,
-                                "method": "getAccountInfo",
-                                "params": [candidate, {"encoding": "base64"}]
-                            }
-                            acct = await self._post_rpc_with_fallback(account_info_payload, timeout=5)
+                            # Use discovery RPC (pool validation is critical path)
+                            acct = await self.call_discovery_rpc(
+                                "getAccountInfo",
+                                [candidate, {"encoding": "base64"}],
+                                timeout=5
+                            )
                             
                             if acct and "result" in acct and acct["result"]:
                                 owner = acct["result"].get("value", {}).get("owner")
@@ -2376,6 +2687,15 @@ class PumpFunCurveListener:
                                             # Write telemetry
                                             self.token_discovery_times[mint]["resolved"] = time.time()
                                             await self._write_resolution_telemetry(mint, "tx_parsing", candidate, 0)
+
+                                            # Trigger WebSocket refresh to subscribe to new pool
+                                            if self.price_worker:
+                                                log_print(f"[POOL_DETECT] Triggering price worker WebSocket refresh for {mint[:16]}...", flush=True)
+                                                try:
+                                                    self.price_worker.trigger_pool_refresh()
+                                                except Exception as e:
+                                                    log_print(f"[POOL_DETECT] ⚠️  Price worker refresh failed: {e}", flush=True)
+
                                             break
                                     except Exception as e:
                                         log_print(
@@ -2542,13 +2862,12 @@ class PumpFunCurveListener:
             try:
                 from src.core.pool_detector import AMMPrograms
                 # Check pool owner is actually an AMM program
-                account_info_payload = {
-                    "jsonrpc": "2.0",
-                    "id": 1,
-                    "method": "getAccountInfo",
-                    "params": [pool_address, {"encoding": "base64"}]
-                }
-                acct = await self._post_rpc_with_fallback(account_info_payload, timeout=5)
+                # Use discovery RPC (pool validation is critical)
+                acct = await self.call_discovery_rpc(
+                    "getAccountInfo",
+                    [pool_address, {"encoding": "base64"}],
+                    timeout=5
+                )
                 pool_is_valid = False
                 if acct and "result" in acct and acct["result"]:
                     owner = acct["result"].get("value", {}).get("owner")
@@ -2574,6 +2893,14 @@ class PumpFunCurveListener:
                             self.token_discovery_times[mint]["resolved"] = time.time()
                             elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
                             log_print(f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (in {elapsed:.1f}s){Colors.RESET}", flush=True)
+
+                            # Trigger WebSocket refresh to subscribe to new pool
+                            if self.price_worker:
+                                log_print(f"[POOL] Triggering price worker WebSocket refresh for {mint[:16]}...", flush=True)
+                                try:
+                                    self.price_worker.trigger_pool_refresh()
+                                except Exception as e:
+                                    log_print(f"[POOL] ⚠️  Price worker refresh failed: {e}", flush=True)
                         else:
                             log_print(f"[POOL] ⚠️  Could not auto-register pool reserves", flush=True)
                     except Exception as pool_err:
@@ -2659,6 +2986,16 @@ class PumpFunCurveListener:
                     migration_timestamp_for_retry = int(tx_data['blockTime'])
                 except Exception:
                     pass
+
+            # CRITICAL: Check if anchors are missing
+            if not bonding_curve_for_retry or not creator_for_retry:
+                log_print(
+                    f"⚠️ [RETRY_SCHEDULE] ⚠️ MISSING ANCHORS: "
+                    f"bonding_curve={'MISSING' if not bonding_curve_for_retry else bonding_curve_for_retry[:16]+'...'} "
+                    f"creator={'MISSING' if not creator_for_retry else creator_for_retry[:16]+'...'} "
+                    f"(follow-on discovery will be weaker or impossible)",
+                    flush=True
+                )
 
             log_print(
                 f"{Colors.DISCOVER}[RETRY_SCHEDULE] Scheduling retries with context: bonding_curve={bonding_curve_for_retry[:16] if bonding_curve_for_retry else 'None'}... creator={creator_for_retry[:16] if creator_for_retry else 'None'}...{Colors.RESET}",
@@ -2784,11 +3121,13 @@ class PumpFunCurveListener:
             has_block_time = tx_data.get('blockTime') is not None
             has_transaction = tx_data.get('transaction') is not None
             has_meta_accounts = (tx_data.get('meta') or {}).get('accounts') is not None
+            meta_accounts_count = len((tx_data.get('meta') or {}).get('accounts') or [])
             tx_keys = list(tx_data.keys()) if tx_data else []
 
             log_print(
                 f"🔴 [TX_DATA_VALIDATION] has_meta={has_meta} has_blockTime={has_block_time} "
                 f"has_transaction={has_transaction} has_meta_accounts={has_meta_accounts} "
+                f"meta_accounts_count={meta_accounts_count} "
                 f"keys={tx_keys[:5]}{'...' if len(tx_keys) > 5 else ''}",
                 flush=True
             )
@@ -2802,6 +3141,43 @@ class PumpFunCurveListener:
                     f"{'transaction ' if not has_transaction else ''}",
                     flush=True
                 )
+
+            # ENRICHMENT: If meta.accounts is missing, reconstruct from accountKeys + loadedAddresses
+            if has_meta and not has_meta_accounts:
+                try:
+                    message = tx_data.get('transaction', {}).get('message', {})
+                    account_keys = message.get('accountKeys', [])
+                    loaded_addresses = tx_data.get('meta', {}).get('loadedAddresses', {})
+
+                    # Build full account list (accountKeys + loaded addresses)
+                    all_accounts = []
+                    all_accounts.extend(account_keys)  # Original accounts
+                    all_accounts.extend(loaded_addresses.get('writable', []))  # Writable loaded
+                    all_accounts.extend(loaded_addresses.get('readonly', []))   # Readonly loaded
+
+                    # Create synthetic meta.accounts with owner info where available
+                    # This is a best-effort reconstruction
+                    synthetic_accounts = [{'pubkey': addr} for addr in all_accounts]
+
+                    if synthetic_accounts:
+                        tx_data['meta']['accounts'] = synthetic_accounts
+                        log_print(
+                            f"🔧 [TX_DATA_ENRICHMENT] Reconstructed meta.accounts from accountKeys + loadedAddresses: "
+                            f"{len(synthetic_accounts)} accounts",
+                            flush=True
+                        )
+                        # Re-check
+                        has_meta_accounts = (tx_data.get('meta') or {}).get('accounts') is not None
+                        meta_accounts_count = len((tx_data.get('meta') or {}).get('accounts') or [])
+                        log_print(
+                            f"✅ [TX_DATA_ENRICHMENT] has_meta_accounts now={has_meta_accounts}, count={meta_accounts_count}",
+                            flush=True
+                        )
+                except Exception as e:
+                    log_print(
+                        f"⚠️ [TX_DATA_ENRICHMENT] Failed to reconstruct accounts: {e}",
+                        flush=True
+                    )
 
         from src.core.post_migration_pool_discovery import PostMigrationPoolDiscovery
         from src.core.pool_detector import AMMPrograms
@@ -2862,6 +3238,29 @@ class PumpFunCurveListener:
                         if tx_data is not None:
                             # Use cached-only parsing: no RPC, no fallback
                             candidates_from_cached, cached_tx_parsed, cached_candidate_count, cached_diagnostics = await discovery.parse_candidates_from_cached_tx(tx_data)
+
+                            # 🔥 PATCH 4: Filter out garbage candidates before validation
+                            if candidates_from_cached:
+                                SKIP = {
+                                    mint,
+                                    bonding_curve,
+                                    "11111111111111111111111111111111",
+                                    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                                    "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+                                }
+                                candidates_from_cached = [c for c in candidates_from_cached if c not in SKIP]
+                                cached_candidate_count = len(candidates_from_cached)
+
+                                # 🔥 PATCH 5: Batch validate ALL candidates at once
+                                if candidates_from_cached:
+                                    valid_from_cached = await self.batch_validate_candidates(candidates_from_cached)
+                                    if valid_from_cached:
+                                        candidates_from_cached = valid_from_cached
+                                        log_print(
+                                            f"{Colors.DISCOVER}[BATCH_VALIDATED] Found {len(valid_from_cached)} valid pools from {len(candidates_from_cached)} candidates{Colors.RESET}",
+                                            flush=True
+                                        )
+
                             log_print(
                                 f"{Colors.DISCOVER}[CACHED_TX_PARSE] cached_tx_present=yes cached_tx_parsed={cached_tx_parsed} cached_candidate_count={cached_candidate_count}{Colors.RESET}",
                                 flush=True
@@ -2875,35 +3274,89 @@ class PumpFunCurveListener:
                                     flush=True
                                 )
 
-                        # If cached parsing yielded candidates, use them
-                        # Otherwise try follow-on discovery (Phase 3)
-                        # Then fall back to RPC fetch (slower path)
-                        if candidates_from_cached:
-                            pool_candidates = candidates_from_cached
-                            using_cached_payload = True
-                        else:
-                            # Phase 3: Try follow-on transaction discovery if:
-                            # - cached TX present but zero candidates
-                            # - we're past Tier 1 (attempts 1-3)
-                            pool_candidates = []  # Initialize here to avoid uninitialized error
-                            follow_on_max_txs = 0
-                            if attempt >= 4:  # Tier 2+ (attempts 4+)
-                                follow_on_max_txs = 10 if attempt < 7 else 20
+                        # === POST-PARSE ROUTING DECISION ===
+                        first_candidates = [c[:12] for c in candidates_from_cached[:5]] if candidates_from_cached else []
+                        log_print(
+                            f"[POST_PARSE_ROUTE] mint={mint[:16]}... "
+                            f"cached_candidate_count={cached_candidate_count} "
+                            f"first_candidates={first_candidates} "
+                            f"will_run_follow_on={attempt >= 2 if 'attempt' in locals() else 'N/A'} "
+                            f"curve_present={bonding_curve is not None} "
+                            f"creator_present={creator is not None} "
+                            f"tx_data_present={tx_data is not None}",
+                            flush=True
+                        )
 
+                        # If cached parsing yielded candidates, validate them
+                        # Otherwise try follow-on discovery (Phase 3)
+                        if candidates_from_cached:
+                            # 🔥 ORCHESTRATION: extract → validate → select
+                            log_print(f"🔴 [PRE_RESOLVE] Calling resolve_pool_from_tx with tx_data={tx_data is not None}", flush=True)
+                            pool = await self.resolve_pool_from_tx(tx_data)
+                            if pool:
+                                log_print(f"[POOL_RESOLVED] ✅ Found valid pool via cached TX: {pool[:16]}...", flush=True)
+                                pool_candidates = [pool]
+                                using_cached_payload = True
+                                log_print(f"🔴 [POST_RESOLVE] pool_candidates set to [{pool[:16]}...], will validate", flush=True)
+                            else:
+                                log_print(f"[POOL_RESOLVED] ⚠️  Cached candidates didn't validate, trying follow-on", flush=True)
+                                pool_candidates = []
+                                using_cached_payload = False
+                        else:
+                            pool_candidates = []
+                            using_cached_payload = False
+
+                        # If resolved, skip follow-on
+                        if not pool_candidates:
+                            # Phase 3: Try follow-on transaction discovery
+                            # KEY INSIGHT: Use cached diagnostics to determine strategy
+                            pool_candidates = []
                             follow_on_pool = None
                             follow_on_anchor = None
                             follow_on_txs_scanned = 0
 
+                            # Extract reason code from cached diagnostics
+                            reason_code = None
+                            if cached_diagnostics and isinstance(cached_diagnostics, dict):
+                                reason_code = cached_diagnostics.get("reason_code")
+
+                            # Runtime conditions for follow-on
+                            tx_data_present = tx_data is not None
+                            curve_present = bonding_curve is not None
+                            creator_present = creator is not None
+
+                            # 🔴 CRITICAL FIX: Routing logic
+                            # If no candidates in cached TX, check if we have anchors
+                            if cached_candidate_count == 0:
+                                if bonding_curve or creator:
+                                    follow_on_max_txs = 12  # immediately
+                                else:
+                                    follow_on_max_txs = 0
+                            else:
+                                follow_on_max_txs = 0
+
+                            log_print(
+                                f"[POST_PARSE_ROUTE] mint={mint[:16]}... "
+                                f"cached_candidate_count={cached_candidate_count} "
+                                f"candidates_from_cached={len(candidates_from_cached) if candidates_from_cached else 0} "
+                                f"will_run_follow_on={follow_on_max_txs > 0} "
+                                f"curve_present={curve_present} "
+                                f"creator_present={creator_present} "
+                                f"tx_data_present={tx_data_present} "
+                                f"reason_code={reason_code}",
+                                flush=True
+                            )
+
                             log_print(
                                 f"[FOLLOW_ON_CHECK] mint={mint[:16]}... "
                                 f"follow_on_max_txs={follow_on_max_txs} "
-                                f"tx_data={tx_data is not None} "
+                                f"tx_data={tx_data_present} "
                                 f"cached_count={cached_candidate_count}",
                                 flush=True
                             )
 
-                            # CRITICAL: Before triggering follow-on, verify tx_data integrity
-                            if tx_data is not None:
+                            # CRITICAL: Verify tx_data integrity before follow-on
+                            if tx_data_present:
                                 tx_has_meta = tx_data.get('meta') is not None
                                 tx_has_block_time = tx_data.get('blockTime') is not None
                                 tx_has_transaction = tx_data.get('transaction') is not None
@@ -2915,11 +3368,33 @@ class PumpFunCurveListener:
                                         flush=True
                                     )
 
-                            if follow_on_max_txs > 0 and tx_data is not None and cached_candidate_count == 0:
-                                # Use bonding_curve and creator passed from migration context
-                                # These were extracted in _process_migration_with_mint
-                                bonding_curve_for_follow_on = bonding_curve  # Use the parameter passed to _retry_pool_discovery
-                                creator_for_follow_on = creator  # Use the parameter passed to _retry_pool_discovery
+                            # Check follow-on condition
+                            follow_on_condition = (
+                                follow_on_max_txs > 0
+                                and tx_data_present
+                                and cached_candidate_count == 0
+                                and (curve_present or creator_present)
+                            )
+
+                            if not follow_on_condition:
+                                reasons = []
+                                if follow_on_max_txs == 0:
+                                    reasons.append(f"follow_on_max_txs={follow_on_max_txs}")
+                                if not tx_data_present:
+                                    reasons.append("tx_data=None")
+                                if cached_candidate_count > 0:
+                                    reasons.append(f"cached_candidate_count={cached_candidate_count}")
+                                if not (curve_present or creator_present):
+                                    reasons.append("no_anchor")
+                                log_print(
+                                    f"⏭️ [FOLLOW_ON_SKIP] Not running follow-on discovery: {', '.join(reasons)}",
+                                    flush=True
+                                )
+
+                            # Run follow-on if condition met
+                            if follow_on_condition:
+                                bonding_curve_for_follow_on = bonding_curve
+                                creator_for_follow_on = creator
 
                                 try:
                                     follow_on_pool, follow_on_anchor, follow_on_offset, follow_on_txs_scanned = await discovery.discover_follow_on_pools(
@@ -2933,103 +3408,154 @@ class PumpFunCurveListener:
 
                                     if follow_on_pool:
                                         log_print(
-                                            f"{Colors.DISCOVER}[FOLLOW_ON_SUCCESS] Found pool {follow_on_pool[:16]}... via anchor={follow_on_anchor} at offset={follow_on_offset}{Colors.RESET}",
+                                            f"{Colors.DISCOVER}[FOLLOW_ON_SUCCESS] Found pool {follow_on_pool[:16]}... "
+                                            f"via anchor={follow_on_anchor} at offset={follow_on_offset}{Colors.RESET}",
                                             flush=True
                                         )
                                         pool_candidates = [follow_on_pool]
-                                        using_cached_payload = True  # Count as cached discovery
+                                        using_cached_payload = True
                                     else:
                                         log_print(
-                                            f"{Colors.DISCOVER}[FOLLOW_ON_EXHAUSTED] Scanned {follow_on_txs_scanned} TXs, no valid pool found{Colors.RESET}",
+                                            f"{Colors.DISCOVER}[FOLLOW_ON_EXHAUSTED] "
+                                            f"reason_code={reason_code} "
+                                            f"anchor={follow_on_anchor} "
+                                            f"scanned={follow_on_txs_scanned} TXs, no valid pool found{Colors.RESET}",
                                             flush=True
                                         )
-                                        # Fall through to RPC fallback
                                         pool_candidates = []
-                                        using_cached_payload = tx_data is not None
+                                        using_cached_payload = tx_data_present
 
                                 except Exception as e:
                                     logger.error(f"[FOLLOW_ON_DISCOVERY] Error: {e}")
                                     pool_candidates = []
-                                    using_cached_payload = tx_data is not None
+                                    using_cached_payload = tx_data_present
 
-                            # If no follow-on or follow-on failed, try RPC fetch
+                            # IMPROVED: Only fall back to migration-TX parsing if reason was NOT "no_amm_program_in_tx"
+                            # If it was, we already know the pool isn't there - don't waste RPC calls re-parsing it
                             if not pool_candidates:
-                                using_cached_payload = tx_data is not None
-                                pool_candidates = await discovery.discover_pool_candidates_from_migration_tx(
-                                    mint=mint,
-                                    migration_sig=original_migration_sig,
-                                    tx_data=tx_data  # Pass cached TX to avoid redundant fetch
-                                )
+                                using_cached_payload = tx_data_present
+
+                                if reason_code == "no_amm_program_in_tx":
+                                    log_print(
+                                        f"[MIGRATION_TX_PARSE_SKIP] mint={mint[:16]}... "
+                                        f"reason_code=no_amm_program_in_tx so skipping re-parse of migration TX",
+                                        flush=True
+                                    )
+                                    pool_candidates = []
+                                else:
+                                    pool_candidates = await discovery.discover_pool_candidates_from_migration_tx(
+                                        mint=mint,
+                                        migration_sig=original_migration_sig,
+                                        tx_data=tx_data
+                                    )
 
                         candidates_tested = 0
                         rejection_reasons = []
 
+                        log_print(
+                            f"🔴 [VALIDATION_LOOP] mint={mint[:16]}... pool_candidates={len(pool_candidates) if pool_candidates else 0} "
+                            f"candidates_from_cached={len(candidates_from_cached) if candidates_from_cached else 0}",
+                            flush=True
+                        )
+
                         if pool_candidates:
-                            for candidate in pool_candidates:
-                                candidates_tested += 1
-                                discovery_metrics['total_candidates_tested'] += 1
+                            # 🔥 BATCH validate all candidates at once (not serial)
+                            log_print(
+                                f"[BATCH_VALIDATION] Validating {len(pool_candidates)} candidates in parallel",
+                                flush=True
+                            )
 
-                                try:
-                                    # Check owner with discovery RPC quota
-                                    account_info_payload = {
-                                        "jsonrpc": "2.0",
-                                        "id": 1,
-                                        "method": "getAccountInfo",
-                                        "params": [candidate, {"encoding": "base64"}]
-                                    }
-                                    acct = await self.call_discovery_rpc(
-                                        "getAccountInfo",
-                                        [candidate, {"encoding": "base64"}],
-                                        timeout=5
-                                    )
+                            try:
+                                batch_result = await self.call_discovery_rpc(
+                                    "getMultipleAccounts",
+                                    [pool_candidates, {"encoding": "base64"}],
+                                    timeout=10
+                                )
 
-                                    if not acct or not acct.get("result"):
-                                        rejection_reasons.append("tx_not_indexed")
-                                        discovery_metrics['rejections']['tx_not_indexed'] = discovery_metrics['rejections'].get('tx_not_indexed', 0) + 1
-                                        continue
+                                if batch_result and "result" in batch_result:
+                                    accounts_info = batch_result.get("result", {}).get("value", [])
 
-                                    owner = acct["result"].get("value", {}).get("owner")
-                                    if owner not in AMMPrograms.ALL:
-                                        rejection_reasons.append("owner_mismatch")
-                                        discovery_metrics['rejections']['owner_mismatch'] = discovery_metrics['rejections'].get('owner_mismatch', 0) + 1
-                                        continue
+                                    for candidate, acct in zip(pool_candidates, accounts_info):
+                                        candidates_tested += 1
+                                        discovery_metrics['total_candidates_tested'] += 1
 
-                                    # Owner valid - try registration
-                                    try:
-                                        from src.core.pool_discovery import PoolDiscovery
-                                        discovery_pipeline = PoolDiscovery(DB_PATH, RPC_HTTP)
-                                        registered = await discovery_pipeline.discover_and_register_pool(
-                                            candidate, mint
+                                        if not acct:
+                                            log_print(
+                                                f"[CANDIDATE_REJECT] {candidate[:16]}... reason=tx_not_indexed",
+                                                flush=True
+                                            )
+                                            rejection_reasons.append("tx_not_indexed")
+                                            discovery_metrics['rejections']['tx_not_indexed'] = discovery_metrics['rejections'].get('tx_not_indexed', 0) + 1
+                                            continue
+
+                                        owner = acct.get("owner")
+                                        log_print(
+                                            f"[CANDIDATE_OWNER] {candidate[:16]}... owner={owner[:16] if owner else 'None'}... valid={owner in AMMPrograms.ALL if owner else False}",
+                                            flush=True
                                         )
-                                        if registered:
-                                            # SUCCESS!
-                                            self.token_states[mint] = "resolved"
-                                            self.token_discovery_times[mint]["resolved"] = time.time()
-                                            elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
 
-                                            corr = self._correlation_id(mint, attempt=attempt, tier="TX", elapsed=elapsed)
-                                            log_print(
-                                                f"{Colors.DISCOVER}[DISCOVERY_SUCCESS] corr={corr} strategy=tx_parsing pool={candidate[:16]}...{Colors.RESET}",
-                                                flush=True
+                                        if owner not in AMMPrograms.ALL:
+                                            rejection_reasons.append("owner_mismatch")
+                                            discovery_metrics['rejections']['owner_mismatch'] = discovery_metrics['rejections'].get('owner_mismatch', 0) + 1
+                                            continue
+
+                                        # Owner valid - try registration
+                                        log_print(
+                                            f"[CANDIDATE_VALID] {candidate[:16]}... owner valid, attempting registration",
+                                            flush=True
+                                        )
+                                        try:
+                                            from src.core.pool_discovery import PoolDiscovery
+                                            discovery_pipeline = PoolDiscovery(DB_PATH, RPC_HTTP)
+                                            registered = await discovery_pipeline.discover_and_register_pool(
+                                                candidate, mint
                                             )
-                                            log_print(
-                                                f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (TX parsing attempt {attempt} in {elapsed:.1f}s){Colors.RESET}",
-                                                flush=True
-                                            )
-                                            await self._write_resolution_telemetry(mint, "tx_parsing", candidate, attempt - 1)
-                                            return
+                                            if registered:
+                                                # SUCCESS!
+                                                log_print(
+                                                    f"[POOL_REGISTERED] {candidate[:16]}... registered successfully",
+                                                    flush=True
+                                                )
+                                                self.token_states[mint] = "resolved"
+                                                self.token_discovery_times[mint]["resolved"] = time.time()
+                                                elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
 
-                                        else:
-                                            rejection_reasons.append("registration_failed")
-                                            discovery_metrics['rejections']['registration_failed'] = discovery_metrics['rejections'].get('registration_failed', 0) + 1
+                                                corr = self._correlation_id(mint, attempt=attempt, tier="TX", elapsed=elapsed)
+                                                log_print(
+                                                    f"{Colors.DISCOVER}[DISCOVERY_SUCCESS] corr={corr} strategy=tx_parsing pool={candidate[:16]}...{Colors.RESET}",
+                                                    flush=True
+                                                )
+                                                log_print(
+                                                    f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (TX parsing attempt {attempt} in {elapsed:.1f}s){Colors.RESET}",
+                                                    flush=True
+                                                )
+                                                await self._write_resolution_telemetry(mint, "tx_parsing", candidate, attempt - 1)
 
-                                    except Exception as reg_err:
-                                        rejection_reasons.append("registration_error")
-                                        discovery_metrics['rejections']['registration_error'] = discovery_metrics['rejections'].get('registration_error', 0) + 1
+                                                # Trigger WebSocket refresh to subscribe to new pool
+                                                if self.price_worker:
+                                                    log_print(f"[POOL_REGISTERED] Triggering price worker WebSocket refresh for {mint[:16]}...", flush=True)
+                                                    try:
+                                                        self.price_worker.trigger_pool_refresh()
+                                                    except Exception as e:
+                                                        log_print(f"[POOL_REGISTERED] ⚠️  Price worker refresh failed: {e}", flush=True)
 
-                                except Exception as e:
-                                    rejection_reasons.append("check_error")
-                                    discovery_metrics['rejections']['check_error'] = discovery_metrics['rejections'].get('check_error', 0) + 1
+                                                return
+
+                                            else:
+                                                rejection_reasons.append("registration_failed")
+                                                discovery_metrics['rejections']['registration_failed'] = discovery_metrics['rejections'].get('registration_failed', 0) + 1
+
+                                        except Exception as reg_err:
+                                            rejection_reasons.append("registration_error")
+                                            discovery_metrics['rejections']['registration_error'] = discovery_metrics['rejections'].get('registration_error', 0) + 1
+
+                            except Exception as batch_err:
+                                log_print(
+                                    f"[BATCH_VALIDATION] ⚠️  Batch validation failed: {batch_err}",
+                                    flush=True
+                                )
+                                rejection_reasons.append("batch_rpc_error")
+                                discovery_metrics['rejections']['batch_rpc_error'] = discovery_metrics['rejections'].get('batch_rpc_error', 0) + 1
 
                             # TX round summary
                             discovery_metrics['tx_parsing_attempts'] += 1
@@ -3217,11 +3743,10 @@ class PumpFunCurveListener:
                     """Re-attempt mint extraction after 45 seconds for delayed indexing"""
                     await asyncio.sleep(45)
                     try:
-                        payload = {
-                            "jsonrpc": "2.0",
-                            "id": 1,
-                            "method": "getTransaction",
-                            "params": [
+                        # Use discovery RPC for delayed re-check (still critical path)
+                        raw = await self.call_discovery_rpc(
+                            "getTransaction",
+                            [
                                 signature,
                                 {
                                     "encoding": "jsonParsed",
@@ -3229,9 +3754,8 @@ class PumpFunCurveListener:
                                     "maxSupportedTransactionVersion": 0,
                                 },
                             ],
-                        }
-
-                        raw = await self._post_rpc_with_fallback(payload, timeout=20)
+                            timeout=20
+                        )
                         tx_data_retry = raw.get("result") if raw and "result" in raw else None
 
                         if not tx_data_retry:

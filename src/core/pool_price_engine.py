@@ -645,12 +645,17 @@ class PoolWebSocketClient:
         self._build_account_map(pools)
         new_count = len(self._account_to_pools)
 
+        print(f"[POOL_WS] 🔄 refresh_pools: {old_count} → {new_count} accounts", flush=True)
         logger.info(f"[POOL_WS] refresh_pools: {old_count} → {new_count} accounts")
 
         if new_count != old_count:
+            print(f"[POOL_WS] ⚡ Detected {new_count - old_count} new accounts, stopping loop to trigger reconnect", flush=True)
             logger.info(f"[POOL_WS] Detected {new_count - old_count} new accounts, reconnecting")
             if self._loop and self._loop.is_running():
                 self._loop.call_soon_threadsafe(self._loop.stop)
+            else:
+                print(f"[POOL_WS] ⚠️  Loop not running - cannot trigger reconnect", flush=True)
+                logger.warning(f"[POOL_WS] Loop not running - cannot trigger reconnect")
 
     def _build_account_map(self, pools: List[Dict]) -> None:
         """Build pubkey->pools mapping from pool list. Handles multiple pools per account (shared WSOL, etc)."""

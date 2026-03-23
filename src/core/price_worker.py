@@ -209,12 +209,12 @@ class BackgroundPriceWorker:
         self.queue = get_price_queue()
 
         # Pool WebSocket client lifecycle
-        from src.core.pool_price_engine import PoolStateStore, PoolWebSocketClient
+        from src.core.pool_price_engine import PoolStateStore, PoolWebSocketClient, get_pool_state
         from src.core.sol_price_cache import get_sol_price_cache
         from src.core.websocket_manager_sharded import get_websocket_manager_sharded
         from src.core.market_cap_calculator import get_market_cap_calculator
 
-        self._pool_state = PoolStateStore()
+        self._pool_state = get_pool_state()  # Use singleton shared with listener
         self._ws_client: Optional[PoolWebSocketClient] = None
         self._ws_manager = get_websocket_manager_sharded(self._pool_state, db_path)
         self._ws_started = False
@@ -299,10 +299,13 @@ class BackgroundPriceWorker:
         logger.info(f"[PRICE_WORKER] thread alive: {self.thread.is_alive()}")
         print(f"[PRICE_WORKER] thread alive: {self.thread.is_alive()}", flush=True)
 
-        # Start WebSocket client for pool subscriptions
-        logger.info("[PRICE_WORKER] Starting WebSocket client")
-        self._start_ws_client()
-        logger.info("[PRICE_WORKER] WebSocket client started")
+        # NOTE: WebSocket client is started by the listener (pumpfun_curve_listener.py)
+        # and shares the singleton PoolStateStore. Flask should NOT start its own WS client
+        # to avoid competing subscriptions on Helius.
+        # This method still exists for backward compatibility, but is disabled for Flask.
+        # logger.info("[PRICE_WORKER] Starting WebSocket client")
+        # self._start_ws_client()
+        # logger.info("[PRICE_WORKER] WebSocket client started")
 
         logger.info(f"Background price worker started (interval={self.interval}s, using request queue)")
 
@@ -836,6 +839,7 @@ class BackgroundPriceWorker:
 
             # Key by (mint, base_account) to support multiple pools per token
             pool_map = {(p["mint"], p["base_account"]): p for p in pools}
+            print(f"[PRICE_DEBUG] Built pool_map with {len(pool_map)} pool entries", flush=True)
 
             # Get all distinct mints
             mints = self._pool_state.get_all_mints()
@@ -852,29 +856,31 @@ class BackgroundPriceWorker:
                 return
 
             if not sol_price_usd or sol_price_usd <= 0:
+                print(f"[PRICE_DEBUG] Invalid SOL price: {sol_price_usd}", flush=True)
                 return
 
+            print(f"[PRICE_DEBUG] SOL price valid: ${sol_price_usd:.2f}", flush=True)
+
             # Fetch token supplies for all mints (cached by MarketCapCalculator)
+            # NOTE: Skipping supply fetch to avoid slowdown — use pool token_supply instead
+            print(f"[PRICE_DEBUG] Skipping supply fetch (using pool defaults)", flush=True)
             supply_cache = {}
-            for mint in mints:
-                try:
-                    supply = asyncio.run(self._market_cap_calc.get_token_supply(mint))
-                    if supply and supply > 0:
-                        supply_cache[mint] = supply
-                except Exception as e:
-                    logger.debug(f"Failed to get supply for {mint[:16]}: {e}")
 
             new_cache: Dict[str, TokenPrice] = {}
             now = int(time.time())
 
+            print(f"[PRICE_DEBUG] Starting mint loop for {len(mints)} mints", flush=True)
+            processed = 0
             for mint in mints:
                 # Get all pools for this mint
                 pool_reserves = self._pool_state.get_pools_for_mint(mint)
+                processed += 1
+                if processed % 10 == 1:
+                    print(f"[PRICE_DEBUG] Processing mint {processed}/{len(mints)}: {mint[:16]}... reserves={len(pool_reserves) if pool_reserves else 0}", flush=True)
                 if not pool_reserves:
-                    logger.debug(f"[PRICE_DEBUG] {mint[:16]}... no pool_reserves from state")
                     continue
 
-                logger.info(f"[PRICE_DEBUG] {mint[:16]}... ✓ reserves present: {len(pool_reserves)} pools")
+                print(f"[PRICE_DEBUG] {mint[:16]}... ✓ reserves present: {len(pool_reserves)} pools", flush=True)
 
                 last_price = self.price_service.pool_price_cache.get(mint)
                 last_price_usd = last_price.price_usd if last_price else None
@@ -887,14 +893,15 @@ class BackgroundPriceWorker:
                 for base_account, base_raw, quote_raw in pool_reserves:
                     pool = pool_map.get((mint, base_account))
                     if not pool:
-                        logger.debug(f"[PRICE_DEBUG] {mint[:16]}... ✗ pool metadata missing for {base_account[:16]}")
+                        print(f"[PRICE_DEBUG] {mint[:16]}... ✗ pool metadata MISSING for base_account={base_account[:16]}... (looked in {len(pool_map)} pool entries)", flush=True)
                         continue
 
-                    logger.info(f"[PRICE_DEBUG] {mint[:16]}... ✓ pool metadata loaded: decimals={pool.get('base_decimals')}/{pool.get('quote_decimals')}, quote={pool.get('quote_token')[:16]}")
+                    print(f"[PRICE_DEBUG] {mint[:16]}... ✓ pool metadata loaded: decimals={pool.get('base_decimals')}/{pool.get('quote_decimals')}, quote={pool.get('quote_token')[:16]}", flush=True)
 
                     # Use fetched supply, fallback to pool value, then default
                     total_supply = supply or pool.get("token_supply", 0)
 
+                    print(f"[PRICE_DEBUG] {mint[:16]}... Computing price: base_raw={base_raw}, quote_raw={quote_raw}, total_supply={total_supply}", flush=True)
                     token_price = PoolPriceCalculator.compute_price(
                         mint=mint,
                         base_reserve_raw=base_raw,

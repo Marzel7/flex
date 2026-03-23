@@ -305,27 +305,48 @@ class PoolPriceCalculator:
     @staticmethod
     async def fetch_sol_price_usd() -> float:
         """
-        Fetch current SOL price from Jupiter API.
+        Fetch current SOL price from CoinGecko API (fallback to Binance if unavailable).
         Called once per worker cycle; result shared across all compute_price() calls.
         Falls back to cached/default price if API fails.
         """
+        # Try CoinGecko first
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(
-                    "https://price.jup.ag/v4/price",
-                    params={"ids": "SOL"},
+                    "https://api.coingecko.com/api/v3/simple/price",
+                    params={"ids": "solana", "vs_currencies": "usd"},
                     timeout=aiohttp.ClientTimeout(total=2.0),
                 ) as resp:
-                    data = await resp.json()
-                    price = float(data["data"]["SOL"]["price"])
-                    print(f"[SOL_PRICE] ✅ Fetched: ${price:.2f}", flush=True)
-                    return price
+                    if resp.status == 200:
+                        data = await resp.json()
+                        if "solana" in data and "usd" in data["solana"]:
+                            price = float(data["solana"]["usd"])
+                            print(f"[SOL_PRICE] ✅ Fetched from CoinGecko: ${price:.2f}", flush=True)
+                            return price
         except Exception as e:
-            logger.warning(f"SOL price fetch failed: {e}")
-            # Fallback to reasonable SOL price ($94 as of March 2026)
-            fallback_price = 94.0
-            print(f"[SOL_PRICE] ⚠️  Using fallback price: ${fallback_price:.2f}", flush=True)
-            return fallback_price
+            logger.debug(f"CoinGecko SOL price fetch failed: {e}")
+
+        # Try Binance as fallback
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    "https://api.binance.com/api/v3/avgPrice",
+                    params={"symbol": "SOLUSDT"},
+                    timeout=aiohttp.ClientTimeout(total=2.0),
+                ) as resp:
+                    if resp.status == 200:
+                        data = await resp.json()
+                        if "price" in data:
+                            price = float(data["price"])
+                            print(f"[SOL_PRICE] ✅ Fetched from Binance: ${price:.2f}", flush=True)
+                            return price
+        except Exception as e:
+            logger.debug(f"Binance SOL price fetch failed: {e}")
+
+        # Fallback to reasonable SOL price ($94 as of March 2026)
+        fallback_price = 94.0
+        print(f"[SOL_PRICE] ⚠️  Using fallback price: ${fallback_price:.2f}", flush=True)
+        return fallback_price
 
 
 class PoolStateStore:
@@ -889,6 +910,7 @@ class PoolWebSocketClient:
 
 
 _fetcher_instance: Optional[PoolReserveFetcher] = None
+_pool_state_instance: Optional[PoolStateStore] = None
 
 
 def get_pool_fetcher(db_path: str) -> PoolReserveFetcher:
@@ -897,3 +919,11 @@ def get_pool_fetcher(db_path: str) -> PoolReserveFetcher:
     if _fetcher_instance is None:
         _fetcher_instance = PoolReserveFetcher(db_path)
     return _fetcher_instance
+
+
+def get_pool_state() -> PoolStateStore:
+    """Get or create singleton PoolStateStore instance."""
+    global _pool_state_instance
+    if _pool_state_instance is None:
+        _pool_state_instance = PoolStateStore()
+    return _pool_state_instance

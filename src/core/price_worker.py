@@ -264,6 +264,30 @@ class BackgroundPriceWorker:
         start_price_queue_worker(self._fetch_single_price)
 
         self.running = True
+        
+        # Initialize PoolStateStore BEFORE starting the worker thread
+        # This must happen before _run_loop starts cycling
+        logger.info("[PRICE_WORKER] Initializing PoolStateStore...")
+        try:
+            from src.core.pool_price_engine import get_pool_fetcher
+            fetcher = get_pool_fetcher(self.db_path)
+            pools = fetcher.get_active_pools()
+            if pools:
+                for pool in pools:
+                    mint = pool.get("mint")
+                    base_account = pool.get("base_account")
+                    if mint and base_account:
+                        # Initialize with zero reserves - WebSocket will populate real values
+                        self._pool_state.update_reserve(mint, base_account, "base", 0)
+                        self._pool_state.update_reserve(mint, base_account, "quote", 0)
+                all_mints = self._pool_state.get_all_mints()
+                logger.info(f"[PRICE_INIT] ✅ Populated {len(all_mints)} mints in PoolStateStore")
+                print(f"[PRICE_INIT] ✅ Populated {len(all_mints)} mints in PoolStateStore", flush=True)
+        except Exception as e:
+            logger.error(f"[PRICE_INIT] Failed: {e}", exc_info=True)
+            print(f"[PRICE_INIT] ERROR: {e}", flush=True)
+        
+        # NOW start the worker thread (pool state is already initialized)
         logger.info("[PRICE_WORKER] Creating thread")
         print("[PRICE_WORKER] Creating thread", flush=True)
         self.thread = threading.Thread(target=self._run_loop, daemon=True)
@@ -280,11 +304,6 @@ class BackgroundPriceWorker:
         self._start_ws_client()
         logger.info("[PRICE_WORKER] WebSocket client started")
 
-        # Initialize PoolStateStore with current reserve data (RPC snapshot)
-        # This populates the state immediately, then WebSocket provides delta updates
-        logger.info("[PRICE_WORKER] Initializing PoolStateStore with RPC snapshot")
-        self._initialize_pool_state_sync()
-
         logger.info(f"Background price worker started (interval={self.interval}s, using request queue)")
 
     def _initialize_pool_state_sync(self) -> None:
@@ -296,7 +315,10 @@ class BackgroundPriceWorker:
                 
                 from src.core.pool_price_engine import get_pool_fetcher
                 
+                print("[PRICE_INIT] Getting fetcher...", flush=True)
                 fetcher = get_pool_fetcher(self.db_path)
+                
+                print("[PRICE_INIT] Fetching active pools...", flush=True)
                 pools = fetcher.get_active_pools()
                 print(f"[PRICE_INIT] Found {len(pools)} pools", flush=True)
                 logger.info(f"[PRICE_INIT] Found {len(pools)} active pools")
@@ -306,14 +328,17 @@ class BackgroundPriceWorker:
                     return
                 
                 # Initialize each pool with zero reserves
+                print(f"[PRICE_INIT] Initializing {len(pools)} pools in PoolStateStore...", flush=True)
                 populated = 0
-                for pool in pools:
+                for i, pool in enumerate(pools):
                     mint = pool.get("mint")
                     base_account = pool.get("base_account")
                     if mint and base_account:
                         self._pool_state.update_reserve(mint, base_account, "base", 0)
                         self._pool_state.update_reserve(mint, base_account, "quote", 0)
                         populated += 1
+                    if (i + 1) % 20 == 0:
+                        print(f"[PRICE_INIT] Initialized {i + 1}/{len(pools)} pools...", flush=True)
                 
                 all_mints = self._pool_state.get_all_mints()
                 print(f"[PRICE_INIT] ✅ Done! {len(all_mints)} mints ready for WebSocket", flush=True)
@@ -322,6 +347,8 @@ class BackgroundPriceWorker:
             except Exception as e:
                 print(f"[PRICE_INIT] ERROR: {e}", flush=True)
                 logger.error(f"[PRICE_INIT] Failed: {e}", exc_info=True)
+                import traceback
+                traceback.print_exc()
         
         # Run in background thread
         init_thread = threading.Thread(target=init_task, daemon=True)

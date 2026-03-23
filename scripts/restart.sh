@@ -65,7 +65,7 @@ echo "✓ Helius CLI monitor started (PID: $HELIUS_PID)"
 
 echo ""
 echo "🚀 Starting listener..."
-python -m src.core.pumpfun_curve_listener &
+python -u -m src.core.pumpfun_curve_listener | tee listener.log &
 LISTENER_PID=$!
 sleep 4
 echo "✓ Listener started (PID: $LISTENER_PID)"

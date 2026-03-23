@@ -1357,9 +1357,8 @@ class BackgroundPriceWorker:
     def trigger_pool_refresh(self) -> None:
         """Refresh WebSocket subscriptions with newly registered pools.
 
-        Called after vault discovery registers new pools. This performs a full
-        WebSocket rebuild to guarantee correct subscriptions (simpler than
-        incremental updates and eliminates edge cases).
+        Called after vault discovery registers new pools. Uses incremental refresh
+        if WebSocket is running, or full rebuild if not started yet.
 
         Debounced to prevent reconnect storms when multiple pools discovered quickly.
         """
@@ -1385,16 +1384,22 @@ class BackgroundPriceWorker:
                 logger.warning("[PRICE_WORKER] No active pools found")
                 return
 
-            # Full rebuild: stop old, start new
-            if self._ws_client:
-                print(f"[PRICE_WORKER] 🛑 Stopping old WebSocket client for full rebuild", flush=True)
-                logger.info(f"[PRICE_WORKER] 🛑 Stopping old WebSocket client for full rebuild")
-                self._ws_client.stop()
-                self._ws_started = False
+            # If WebSocket already running, refresh incrementally (faster)
+            if self._ws_client and self._ws_started:
+                print(f"[PRICE_WORKER] 🔄 Refreshing WebSocket with {len(pools)} pools (incremental)", flush=True)
+                logger.info(f"[PRICE_WORKER] 🔄 Refreshing WebSocket with {len(pools)} pools (incremental)")
+                self._ws_client.refresh_pools(pools)
+            else:
+                # Full rebuild: stop old, start new
+                if self._ws_client:
+                    print(f"[PRICE_WORKER] 🛑 Stopping old WebSocket client for full rebuild", flush=True)
+                    logger.info(f"[PRICE_WORKER] 🛑 Stopping old WebSocket client for full rebuild")
+                    self._ws_client.stop()
+                    self._ws_started = False
 
-            print(f"[PRICE_WORKER] 🚀 Starting fresh WebSocket with {len(pools)} pools", flush=True)
-            logger.info(f"[PRICE_WORKER] 🚀 Starting fresh WebSocket with {len(pools)} pools")
-            self._start_ws_client()
+                print(f"[PRICE_WORKER] 🚀 Starting fresh WebSocket with {len(pools)} pools", flush=True)
+                logger.info(f"[PRICE_WORKER] 🚀 Starting fresh WebSocket with {len(pools)} pools")
+                self._start_ws_client()
 
         except Exception as e:
             logger.error(f"[PRICE_WORKER] ❌ Error refreshing: {e}", exc_info=True)

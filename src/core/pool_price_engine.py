@@ -787,9 +787,14 @@ class PoolWebSocketClient:
 
     async def _receive_loop(self, ws) -> None:
         """Process incoming account notification events."""
+        print(f"[POOL_WS] 🔄 _receive_loop started, waiting for account notifications...", flush=True)
+        message_count = 0
         while self._running:
             try:
                 raw = await asyncio.wait_for(ws.recv(), timeout=60)
+                message_count += 1
+                if message_count % 100 == 1 or message_count <= 3:  # Log first few and every 100th
+                    print(f"[POOL_WS] 📨 Received message #{message_count}: {raw[:100] if len(raw) > 100 else raw}...", flush=True)
             except asyncio.TimeoutError:
                 # keepalive — no event in 60s is normal
                 continue

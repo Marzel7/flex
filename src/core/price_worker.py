@@ -351,7 +351,12 @@ class BackgroundPriceWorker:
         logger.info(f"Background price worker started (interval={self.interval}s, using request queue)")
 
     def _initialize_pool_state_sync(self) -> None:
-        """Initialize PoolStateStore - populate it immediately so WebSocket updates can apply."""
+        """
+        Legacy bootstrap method - DEPRECATED.
+        The actual bootstrap now happens synchronously in start() method.
+        This method is kept for reference/fallback but is no longer called.
+        See start() for the active bootstrap logic.
+        """
         def init_task():
             try:
                 print("[PRICE_INIT] Starting...", flush=True)
@@ -380,27 +385,53 @@ class BackgroundPriceWorker:
                     print(f"[PRICE_INIT] ⚠️  RPC fetch failed ({e}), falling back to zero initialization", flush=True)
                     reserves_dict = {}
 
-                # Initialize PoolStateStore with fetched (or zero) reserves
+                # Initialize PoolStateStore with fetched reserves
+                # ✅ Apply same three-layer filtering as start() method
                 print(f"[PRICE_INIT] Initializing {len(pools)} pools in PoolStateStore...", flush=True)
-                populated = 0
+                populated_count = 0
+                skipped_count = 0
+                
                 for i, pool in enumerate(pools):
                     mint = pool.get("mint")
                     base_account = pool.get("base_account")
                     quote_account = pool.get("quote_account")
+                    
                     if mint and base_account and quote_account:
-                        # Try to get fetched reserves, fall back to 0
-                        (base_raw, quote_raw) = reserves_dict.get((mint, base_account), (0, 0))
+                        # ✅ Layer 1 filter: Check if RPC returned data
+                        reserve_pair = reserves_dict.get((mint, base_account), (None, None))
+                        base_raw, quote_raw = reserve_pair
+                        
+                        # ✅ Skip if RPC didn't return data
+                        if base_raw is None or quote_raw is None:
+                            skipped_count += 1
+                            logger.debug(f"[PRICE_INIT] Skipping {mint[:12]}... (no RPC data)")
+                            continue
+                        
+                        # ✅ Skip if pool has zero liquidity
+                        if base_raw == 0 or quote_raw == 0:
+                            skipped_count += 1
+                            logger.debug(f"[PRICE_INIT] Skipping {mint[:12]}... (zero liquidity: base={base_raw}, quote={quote_raw})")
+                            continue
+                        
+                        # ✅ Only store valid pools with real liquidity
                         self._pool_state.update_reserve(mint, base_account, "base", base_raw)
                         self._pool_state.update_reserve(mint, base_account, "quote", quote_raw)
-                        if base_raw > 0 or quote_raw > 0:
-                            print(f"[PRICE_INIT] Pool {mint[:12]}...: base={base_raw}, quote={quote_raw}", flush=True)
-                        populated += 1
+                        populated_count += 1
+                        logger.debug(f"[PRICE_INIT] Pool {mint[:12]}...: base={base_raw}, quote={quote_raw}")
+                    
                     if (i + 1) % 20 == 0:
-                        print(f"[PRICE_INIT] Initialized {i + 1}/{len(pools)} pools...", flush=True)
+                        print(f"[PRICE_INIT] Processed {i + 1}/{len(pools)} pools ({populated_count} valid, {skipped_count} skipped)...", flush=True)
                 
                 all_mints = self._pool_state.get_all_mints()
-                print(f"[PRICE_INIT] ✅ Done! {len(all_mints)} mints ready for WebSocket", flush=True)
-                logger.info(f"[PRICE_INIT] ✅ Initialized {len(all_mints)} mints")
+                print(
+                    f"[PRICE_INIT] ✅ Done! {len(all_mints)} mints ready "
+                    f"({populated_count} pools with liquidity, {skipped_count} skipped)",
+                    flush=True
+                )
+                logger.info(
+                    f"[PRICE_INIT] ✅ Initialized {len(all_mints)} mints "
+                    f"({populated_count} with liquidity, {skipped_count} skipped)"
+                )
                 
             except Exception as e:
                 print(f"[PRICE_INIT] ERROR: {e}", flush=True)
@@ -621,6 +652,10 @@ class BackgroundPriceWorker:
             logger.debug("No tracked tokens to refresh")
             # Update queue stats even if nothing to fetch
             self.stats['queue_stats'] = self.queue.get_stats()
+            self.sync_source_metrics()
+            # ✅ Log system health metrics every cycle
+            if self.stats['cycles'] % 3 == 0:  # Every ~30 seconds
+                self.log_system_health_metrics()
             return
 
         # Enqueue tokens to fetch (instead of batch fetching directly)
@@ -642,6 +677,10 @@ class BackgroundPriceWorker:
         self.stats['last_run'] = duration
         self.stats['queue_stats'] = self.queue.get_stats()
         self.sync_source_metrics()
+        
+        # ✅ Log system health metrics every cycle
+        if self.stats['cycles'] % 3 == 0:  # Every ~30 seconds
+            self.log_system_health_metrics()
 
         logger.debug(
             f"Prefetch cycle {self.stats['cycles']}: "
@@ -753,6 +792,71 @@ class BackgroundPriceWorker:
         """Sync source attempt metrics from price_service to worker stats."""
         if hasattr(self.price_service, 'stats'):
             self.stats['source_stats'] = self.price_service.stats.copy()
+
+    def log_system_health_metrics(self) -> None:
+        """
+        Log system health metrics: pool vs fallback price ratio.
+        Called every refresh cycle to show operator real-time system status.
+        """
+        try:
+            import sqlite3
+            
+            # Query last 100 price updates to calculate ratio
+            conn = sqlite3.connect(self.db_path, timeout=5)
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+                SELECT price_source, COUNT(*) as count
+                FROM token_analysis
+                WHERE price_current > 0 AND updated_at > datetime('now', '-5 minutes')
+                GROUP BY price_source
+                ORDER BY count DESC
+            """)
+            
+            source_counts = {row[0]: row[1] for row in cursor.fetchall()}
+            conn.close()
+            
+            pool_count = source_counts.get('pool', 0)
+            fallback_count = source_counts.get('dexscreener_fallback', 0)
+            other_count = sum(v for k, v in source_counts.items() if k not in ('pool', 'dexscreener_fallback'))
+            
+            total = pool_count + fallback_count + other_count
+            
+            if total > 0:
+                pool_pct = (pool_count / total) * 100
+                fallback_pct = (fallback_count / total) * 100
+                
+                # Health status based on pool ratio
+                if pool_pct >= 90:
+                    health = "✅ HEALTHY"
+                elif pool_pct >= 70:
+                    health = "⚠️  DEGRADED"
+                elif pool_pct >= 50:
+                    health = "⚠️  CONCERNING"
+                else:
+                    health = "❌ CRITICAL"
+                
+                logger.info(
+                    f"[SYSTEM_HEALTH] {health} | Pool: {pool_pct:.1f}% ({pool_count}) | "
+                    f"Fallback: {fallback_pct:.1f}% ({fallback_count}) | "
+                    f"Other: {(other_count/total)*100:.1f}% ({other_count}) | "
+                    f"Last 5min: {total} prices"
+                )
+                
+                # Store for later querying
+                self.stats['health_metrics'] = {
+                    'pool_pct': pool_pct,
+                    'fallback_pct': fallback_pct,
+                    'pool_count': pool_count,
+                    'fallback_count': fallback_count,
+                    'total_count': total,
+                    'health_status': health,
+                }
+            else:
+                logger.debug("[SYSTEM_HEALTH] No prices in last 5 minutes")
+                
+        except Exception as e:
+            logger.debug(f"Failed to log health metrics: {e}")
 
     def _warm_snapshot_cache(self, tokens: list) -> None:
         """

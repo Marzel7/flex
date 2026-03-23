@@ -980,6 +980,14 @@ class PoolDiscovery:
                 f"🚀 Pool registered (WebSocket will subscribe when vaults are validated)"
             )
 
+            # ✅ Audit trail for traceability
+            logger.info(
+                f"[POOL_CONFIRMED] mint={token_mint} pool={pool_address} "
+                f"base_account={reserves.get('base_account')[:16]}... "
+                f"quote_account={reserves.get('quote_account')[:16]}... "
+                f"source=authority_scan discovery_method={discovery_method}"
+            )
+
         return success
 
     async def register_pool_with_vaults(

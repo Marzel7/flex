@@ -266,82 +266,81 @@ class BackgroundPriceWorker:
         self.running = True
         
         # ✅ CRITICAL FIX: Bootstrap PoolStateStore with REAL reserves from RPC
-        # This must happen SYNCHRONOUSLY before worker thread starts
-        # (not in background thread like _initialize_pool_state_sync was doing)
-        logger.info("[PRICE_WORKER] Bootstrapping pool reserves from RPC...")
-        try:
-            from src.core.pool_price_engine import get_pool_fetcher
-            
-            fetcher = get_pool_fetcher(self.db_path)
-            pools = fetcher.get_active_pools()
-            
-            if pools:
-                logger.info(f"[PRICE_WORKER] Fetching reserves for {len(pools)} pools...")
-                # ✅ Fetch REAL reserves from RPC
-                # Note: Use asyncio.run() only if NOT in async context
-                # If already in event loop, create a new thread to run it
-                try:
-                    reserves_dict = asyncio.run(fetcher.fetch_reserves(pools))
-                except RuntimeError as e:
-                    if "asyncio.run() cannot be called from a running event loop" in str(e):
-                        # We're in an async context, run in new thread
-                        logger.debug("[PRICE_WORKER] Running RPC fetch in separate thread (already in event loop)")
-                        loop = asyncio.new_event_loop()
+        # Since start() is called from async context (listener), we must run bootstrap
+        # in a background thread, but BEFORE the worker thread starts pricing
+        def bootstrap_task():
+            """Background bootstrap task - populates PoolStateStore with real reserves."""
+            logger.info("[PRICE_WORKER] Bootstrapping pool reserves from RPC...")
+            try:
+                from src.core.pool_price_engine import get_pool_fetcher
+                
+                fetcher = get_pool_fetcher(self.db_path)
+                pools = fetcher.get_active_pools()
+                
+                if pools:
+                    logger.info(f"[PRICE_WORKER] Fetching reserves for {len(pools)} pools...")
+                    # Create new event loop for this thread
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    try:
                         reserves_dict = loop.run_until_complete(fetcher.fetch_reserves(pools))
+                    finally:
                         loop.close()
-                    else:
-                        raise
-                
-                logger.info(f"[PRICE_WORKER] ✅ Fetched {len(reserves_dict)} pool reserves from RPC")
-                
-                # Populate PoolStateStore with real reserves
-                # ✅ CRITICAL: Skip pools with zero or missing liquidity
-                populated_count = 0
-                skipped_count = 0
-                for pool in pools:
-                    mint = pool.get("mint")
-                    base_account = pool.get("base_account")
-                    if mint and base_account:
-                        # ✅ Get reserves, but check validity first
-                        reserve_pair = reserves_dict.get((mint, base_account), (None, None))
-                        base_raw, quote_raw = reserve_pair
-                        
-                        # ✅ Skip if RPC didn't return data (None)
-                        if base_raw is None or quote_raw is None:
-                            skipped_count += 1
-                            logger.debug(f"[PRICE_WORKER] Skipping {mint[:12]}... (no RPC data)")
-                            continue
-                        
-                        # ✅ Skip if pool has zero liquidity (invalid for pricing)
-                        if base_raw == 0 or quote_raw == 0:
-                            skipped_count += 1
-                            logger.debug(f"[PRICE_WORKER] Skipping {mint[:12]}... (zero liquidity: base={base_raw}, quote={quote_raw})")
-                            continue
-                        
-                        # ✅ Only store valid pools with real liquidity
-                        self._pool_state.update_reserve(mint, base_account, "base", base_raw)
-                        self._pool_state.update_reserve(mint, base_account, "quote", quote_raw)
-                        populated_count += 1
-                        logger.debug(f"[PRICE_WORKER] Pool {mint[:12]}... ✅ base={base_raw}, quote={quote_raw}")
-                
-                all_mints = self._pool_state.get_all_mints()
-                logger.info(
-                    f"[PRICE_WORKER] ✅ Bootstrapped {len(all_mints)} mints "
-                    f"({populated_count} pools with liquidity, {skipped_count} skipped)"
-                )
-                print(
-                    f"[PRICE_WORKER] ✅ Bootstrapped {len(all_mints)} mints "
-                    f"({populated_count} pools with liquidity, {skipped_count} skipped)",
-                    flush=True
-                )
-            else:
-                logger.info("[PRICE_WORKER] No active pools found, skipping bootstrap")
-                
-        except Exception as e:
-            logger.error(f"[PRICE_WORKER] ❌ Bootstrap failed: {e}", exc_info=True)
-            print(f"[PRICE_WORKER] ❌ Bootstrap failed: {e}", flush=True)
+                    
+                    logger.info(f"[PRICE_WORKER] ✅ Fetched {len(reserves_dict)} pool reserves from RPC")
+                    
+                    # Populate PoolStateStore with real reserves
+                    # ✅ CRITICAL: Skip pools with zero or missing liquidity
+                    populated_count = 0
+                    skipped_count = 0
+                    for pool in pools:
+                        mint = pool.get("mint")
+                        base_account = pool.get("base_account")
+                        if mint and base_account:
+                            # ✅ Get reserves, but check validity first
+                            reserve_pair = reserves_dict.get((mint, base_account), (None, None))
+                            base_raw, quote_raw = reserve_pair
+                            
+                            # ✅ Skip if RPC didn't return data (None)
+                            if base_raw is None or quote_raw is None:
+                                skipped_count += 1
+                                logger.debug(f"[PRICE_WORKER] Skipping {mint[:12]}... (no RPC data)")
+                                continue
+                            
+                            # ✅ Skip if pool has zero liquidity (invalid for pricing)
+                            if base_raw == 0 or quote_raw == 0:
+                                skipped_count += 1
+                                logger.debug(f"[PRICE_WORKER] Skipping {mint[:12]}... (zero liquidity: base={base_raw}, quote={quote_raw})")
+                                continue
+                            
+                            # ✅ Only store valid pools with real liquidity
+                            self._pool_state.update_reserve(mint, base_account, "base", base_raw)
+                            self._pool_state.update_reserve(mint, base_account, "quote", quote_raw)
+                            populated_count += 1
+                            logger.debug(f"[PRICE_WORKER] Pool {mint[:12]}... ✅ base={base_raw}, quote={quote_raw}")
+                    
+                    all_mints = self._pool_state.get_all_mints()
+                    logger.info(
+                        f"[PRICE_WORKER] ✅ Bootstrapped {len(all_mints)} mints "
+                        f"({populated_count} pools with liquidity, {skipped_count} skipped)"
+                    )
+                    print(
+                        f"[PRICE_WORKER] ✅ Bootstrapped {len(all_mints)} mints "
+                        f"({populated_count} pools with liquidity, {skipped_count} skipped)",
+                        flush=True
+                    )
+                else:
+                    logger.info("[PRICE_WORKER] No active pools found, skipping bootstrap")
+                    
+            except Exception as e:
+                logger.error(f"[PRICE_WORKER] ❌ Bootstrap failed: {e}", exc_info=True)
+                print(f"[PRICE_WORKER] ❌ Bootstrap failed: {e}", flush=True)
         
-        # NOW start the worker thread (pool state is initialized with REAL data)
+        # Start bootstrap in background thread
+        bootstrap_thread = threading.Thread(target=bootstrap_task, daemon=True, name="PriceWorkerBootstrap")
+        bootstrap_thread.start()
+        
+        # Start worker thread (will use whatever reserves are in PoolStateStore, which bootstrap is populating)
         logger.info("[PRICE_WORKER] Creating worker thread")
         print("[PRICE_WORKER] Creating worker thread", flush=True)
         self.thread = threading.Thread(target=self._run_loop, daemon=True)

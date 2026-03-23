@@ -441,13 +441,20 @@ class PoolStateStore:
     def get_pools_for_mint(self, mint: str) -> List[Tuple[str, int, int]]:
         """
         Return [(base_account, base_raw, quote_raw), ...] for all valid pools of a mint.
-        Only includes pools with both reserves known and not stale.
+        ✅ Only includes pools with BOTH reserves > 0 (has actual liquidity).
+        Filters out: stale pools, missing reserves, zero-liquidity pools.
         """
         results = []
         with self._lock:
             for (m, base_account), s in self._state.items():
                 if m == mint and not s["is_stale"]:
-                    if s["base_reserve"] is not None and s["quote_reserve"] is not None:
+                    # ✅ CRITICAL: Only return pools with REAL liquidity (> 0)
+                    if (
+                        s["base_reserve"] is not None
+                        and s["quote_reserve"] is not None
+                        and s["base_reserve"] > 0
+                        and s["quote_reserve"] > 0
+                    ):
                         results.append((base_account, s["base_reserve"], s["quote_reserve"]))
 
         return results

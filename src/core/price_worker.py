@@ -282,22 +282,45 @@ class BackgroundPriceWorker:
                 logger.info(f"[PRICE_WORKER] ✅ Fetched {len(reserves_dict)} pool reserves from RPC")
                 
                 # Populate PoolStateStore with real reserves
+                # ✅ CRITICAL: Skip pools with zero or missing liquidity
                 populated_count = 0
+                skipped_count = 0
                 for pool in pools:
                     mint = pool.get("mint")
                     base_account = pool.get("base_account")
                     if mint and base_account:
-                        # Get real reserves from RPC fetch, not zeros
-                        (base_raw, quote_raw) = reserves_dict.get((mint, base_account), (0, 0))
+                        # ✅ Get reserves, but check validity first
+                        reserve_pair = reserves_dict.get((mint, base_account), (None, None))
+                        base_raw, quote_raw = reserve_pair
+                        
+                        # ✅ Skip if RPC didn't return data (None)
+                        if base_raw is None or quote_raw is None:
+                            skipped_count += 1
+                            logger.debug(f"[PRICE_WORKER] Skipping {mint[:12]}... (no RPC data)")
+                            continue
+                        
+                        # ✅ Skip if pool has zero liquidity (invalid for pricing)
+                        if base_raw == 0 or quote_raw == 0:
+                            skipped_count += 1
+                            logger.debug(f"[PRICE_WORKER] Skipping {mint[:12]}... (zero liquidity: base={base_raw}, quote={quote_raw})")
+                            continue
+                        
+                        # ✅ Only store valid pools with real liquidity
                         self._pool_state.update_reserve(mint, base_account, "base", base_raw)
                         self._pool_state.update_reserve(mint, base_account, "quote", quote_raw)
-                        if base_raw > 0 or quote_raw > 0:
-                            logger.debug(f"[PRICE_WORKER] Pool {mint[:12]}... → base={base_raw}, quote={quote_raw}")
                         populated_count += 1
+                        logger.debug(f"[PRICE_WORKER] Pool {mint[:12]}... ✅ base={base_raw}, quote={quote_raw}")
                 
                 all_mints = self._pool_state.get_all_mints()
-                logger.info(f"[PRICE_WORKER] ✅ Bootstrapped {len(all_mints)} mints with REAL reserves")
-                print(f"[PRICE_WORKER] ✅ Bootstrapped {len(all_mints)} mints with REAL reserves", flush=True)
+                logger.info(
+                    f"[PRICE_WORKER] ✅ Bootstrapped {len(all_mints)} mints "
+                    f"({populated_count} pools with liquidity, {skipped_count} skipped)"
+                )
+                print(
+                    f"[PRICE_WORKER] ✅ Bootstrapped {len(all_mints)} mints "
+                    f"({populated_count} pools with liquidity, {skipped_count} skipped)",
+                    flush=True
+                )
             else:
                 logger.info("[PRICE_WORKER] No active pools found, skipping bootstrap")
                 
@@ -988,6 +1011,11 @@ class BackgroundPriceWorker:
                 # Compute price for each pool
                 candidate_prices = []
                 for base_account, base_raw, quote_raw in pool_reserves:
+                    # ✅ CRITICAL: Guard against invalid reserves (shouldn't reach here but double-check)
+                    if base_raw <= 0 or quote_raw <= 0:
+                        logger.debug(f"[PRICE_DEBUG] {mint[:16]}... ✗ skipping invalid reserves: base={base_raw}, quote={quote_raw}")
+                        continue
+                    
                     pool = pool_map.get((mint, base_account))
                     if not pool:
                         print(f"[PRICE_DEBUG] {mint[:16]}... ✗ pool metadata MISSING for base_account={base_account[:16]}... (looked in {len(pool_map)} pool entries)", flush=True)
@@ -1023,6 +1051,13 @@ class BackgroundPriceWorker:
                 aggregated = PoolAggregator.aggregate(candidate_prices)
                 if aggregated:
                     logger.info(f"[PRICE_DEBUG] {mint[:16]}... ✓ aggregated price: ${aggregated.price_usd}")
+                    
+                    # ✅ OPTIONAL: Log price source for visibility into system health
+                    logger.info(
+                        f"[PRICE_SOURCE] mint={mint[:16]}... source={aggregated.source} "
+                        f"price=${aggregated.price_usd:.8f} liquidity=${aggregated.liquidity_usd:.2f}"
+                    )
+                    
                     # Track peak market cap
                     if aggregated.market_cap > 0:
                         self._update_peak_market_cap(mint, aggregated.market_cap, now)

@@ -2640,6 +2640,7 @@ HTML_TEMPLATE = """
             <a class="sidebar-item" href="/webhook-monitor">Transfers</a>
             <a class="sidebar-item green" href="/rpc-savings-dashboard">RPC</a>
             <a class="sidebar-item" href="/early-signals" style="background: rgba(167, 139, 250, 0.15); color: #a78bfa; font-weight: bold;">🧠 Early Predictions</a>
+            <a class="sidebar-item" href="/token-behaviour" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6; font-weight: bold;">📊 Token Behaviour</a>
             <a class="sidebar-item" href="/system-health" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; font-weight: bold;">💚 System Health</a>
             <hr style="margin: 10px 0; border: none; border-top: 1px solid rgba(255,255,255,0.1);">
             <a class="sidebar-item" href="/launch-radar" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; font-weight: bold;">📊 Intelligence</a>
@@ -7177,8 +7178,12 @@ def highlight_infra_in_funding(funders_list):
 
 @app.route('/')
 def index():
-    """Serve the main dashboard"""
-    return render_template('flex_dashboard.html', page='dashboard')
+    """Serve the migration tracking dashboard"""
+    # Return HTML directly without Jinja2 processing
+    # The template contains ${{ }} which looks like Jinja2 escaping but is actually
+    # incorrect - Jinja2 would interpret {{ }} as a print statement regardless of the $
+    # Since there are no actual Jinja2 variables in the template, return it as-is
+    return HTML_TEMPLATE
 
 
 @app.route('/coordinated-funder-analysis/<creator_address>')

@@ -20417,8 +20417,7 @@ def api_early_signals():
                         started_at,
                         early_score,
                         early_rug_score,
-                        early_success_score,
-                        confidence
+                        early_success_score
                     FROM token_monitoring_state
                     WHERE mint = ?
                 """, (token['mint'],))
@@ -20429,7 +20428,7 @@ def api_early_signals():
                     token['early_score'] = row['early_score'] or 0
                     token['early_rug_score'] = row['early_rug_score'] or 0
                     token['early_success_score'] = row['early_success_score'] or 0
-                    token['confidence'] = row['confidence'] or 0.5
+                    token['confidence'] = row['early_score'] or 0.5
 
         conn.close()
 
@@ -20520,16 +20519,21 @@ def api_early_signal_detail(mint):
 def api_dashboard():
     """Get dashboard overview data including early signals stats"""
     try:
+        logger.info("[DASHBOARD_API] Starting api_dashboard")
         from src.core.lifecycle_early_signals import EarlySignalEngine, EarlyLabel
 
         db_path = DB_PATH
+        logger.info(f"[DASHBOARD_API] DB path: {db_path}")
         engine = EarlySignalEngine(db_path)
 
         # Get early signal counts
+        logger.info("[DASHBOARD_API] Getting early signals")
         early_rugs = engine.get_early_signals_by_label(EarlyLabel.RUG, limit=1000)
         early_runners = engine.get_early_signals_by_label(EarlyLabel.RUNNER, limit=1000)
 
-        return jsonify({
+        logger.info(f"[DASHBOARD_API] Found {len(early_rugs)} rugs and {len(early_runners)} runners")
+
+        result = {
             'critical_alerts': 5,  # Placeholder - would come from real alert system
             'high_alerts': 12,
             'organizations_monitored': 150,
@@ -20546,10 +20550,12 @@ def api_dashboard():
                     'organization_id': 1
                 }
             ]
-        })
+        }
+        logger.info(f"[DASHBOARD_API] Returning result: {result}")
+        return jsonify(result)
 
     except Exception as e:
-        logger.error(f"[DASHBOARD_API] Error: {e}")
+        logger.error(f"[DASHBOARD_API] Error: {e}", exc_info=True)
         return jsonify({
             'error': str(e),
             'critical_alerts': 0,

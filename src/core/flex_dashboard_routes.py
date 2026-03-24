@@ -18,8 +18,15 @@ import sqlite3
 import time
 from typing import Any, Dict, List
 from flask import Blueprint, render_template, jsonify, request, make_response
+from src.core.shared_vault_classifier import get_classifier
 
 logger = logging.getLogger(__name__)
+
+DB_PATH = 'database/flex_complete_database.db'
+VALID_BEHAVIOUR_CATEGORIES = {
+    'immediate_rug', 'rug', 'slow_rug', 'runner', 'choppy_runner', 'unknown'
+}
+VALID_TRACKING_QUALITY = {'good', 'possibly_late', 'likely_late'}
 
 dashboard_routes = Blueprint('dashboard', __name__, url_prefix='')
 
@@ -466,339 +473,6 @@ def vaults_page():
     except Exception as e:
         logger.error(f"Error rendering vaults page: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
-
-
-@dashboard_routes.route('/api/vaults/stats/summary', methods=['GET'])
-def api_vaults_stats():
-    """
-    Get summary statistics on vault discovery.
-
-    Returns: {
-        "total_vaults": N,
-        "validated": N,
-        "pending": N,
-        "rejected": N,
-        "avg_discovery_time_secs": X,
-        "avg_discovery_attempts": X,
-        "pct_possibly_late": X,
-        "pct_likely_late": X
-    }
-    """
-    try:
-        conn = sqlite3.connect('database/flex_complete_database.db')
-        conn.row_factory = sqlite3.Row
-
-        # Get vault counts by status
-        stats = conn.execute("""
-            SELECT
-                COUNT(*) as total,
-                SUM(CASE WHEN vault_validation_status = 'validated' THEN 1 ELSE 0 END) as validated,
-                SUM(CASE WHEN vault_validation_status = 'pending' THEN 1 ELSE 0 END) as pending,
-                SUM(CASE WHEN vault_validation_status = 'rejected' THEN 1 ELSE 0 END) as rejected,
-                AVG(CASE WHEN vault_discovery_time_secs IS NOT NULL THEN vault_discovery_time_secs
-                         ELSE (last_vault_validation_at - created_at) END) as avg_discovery_time,
-                AVG(COALESCE(vault_discovery_attempts, 0)) as avg_attempts
-            FROM token_pool_accounts
-        """).fetchone()
-
-        # Get tracking quality percentages
-        quality_stats = conn.execute("""
-            SELECT
-                COUNT(DISTINCT tpa.mint) as total_with_tracking,
-                SUM(CASE WHEN tb.tracking_quality = 'possibly_late' THEN 1 ELSE 0 END) as possibly_late,
-                SUM(CASE WHEN tb.tracking_quality = 'likely_late' THEN 1 ELSE 0 END) as likely_late
-            FROM token_pool_accounts tpa
-            LEFT JOIN token_behavior tb ON tpa.mint = tb.mint
-            WHERE tpa.vault_validation_status = 'validated'
-        """).fetchone()
-
-        conn.close()
-
-        total = stats['total'] or 0
-        total_tracking = quality_stats['total_with_tracking'] or 0
-
-        return no_cache_json({
-            'total_vaults': total,
-            'validated': stats['validated'] or 0,
-            'pending': stats['pending'] or 0,
-            'rejected': stats['rejected'] or 0,
-            'avg_discovery_time_secs': round(stats['avg_discovery_time'], 1) if stats['avg_discovery_time'] else None,
-            'avg_discovery_attempts': round(stats['avg_attempts'], 1) if stats['avg_attempts'] else None,
-            'pct_possibly_late': round(100.0 * (quality_stats['possibly_late'] or 0) / total_tracking, 1) if total_tracking > 0 else 0,
-            'pct_likely_late': round(100.0 * (quality_stats['likely_late'] or 0) / total_tracking, 1) if total_tracking > 0 else 0,
-        })
-
-    except Exception as e:
-        logger.error(f"Error fetching vaults stats: {e}", exc_info=True)
-        return no_cache_json({'error': str(e)}), 500
-
-
-@dashboard_routes.route('/api/vaults', methods=['GET'])
-def api_vaults_list():
-    """
-    Get list of vaults with discovery and token information.
-
-    Query params:
-    - status: Filter by validation status (validated, pending, rejected)
-    - strategy: Filter by discovery strategy
-    - mint: Search by token mint
-    - pool: Search by pool address
-    - tracking_quality: Filter by tracking quality (good, possibly_late, likely_late)
-    - category: Filter by token behaviour category
-    - sort_by: Sort field (discovery_time, attempts, category) - default discovery_time
-    - limit: Max results (default 100)
-    """
-    try:
-        status = request.args.get('status', None)
-        strategy = request.args.get('strategy', None)
-        mint = request.args.get('mint', None)
-        pool = request.args.get('pool', None)
-        tracking_quality = request.args.get('tracking_quality', None)
-        category = request.args.get('category', None)
-        sort_by = request.args.get('sort_by', 'discovery_time')
-        limit = int(request.args.get('limit', 100))
-
-        conn = sqlite3.connect('database/flex_complete_database.db')
-        conn.row_factory = sqlite3.Row
-
-        # Build query
-        query = """
-            SELECT
-                tpa.mint,
-                tpa.pool_address,
-                tpa.base_account,
-                tpa.quote_account,
-                tpa.vault_validation_status,
-                tpa.vault_resolution_state,
-                tpa.vault_discovery_strategy,
-                tpa.discovery_method,
-                tpa.vault_discovery_attempts,
-                COALESCE(tpa.vault_discovery_time_secs, (tpa.last_vault_validation_at - tpa.created_at)) as vault_discovery_time_secs,
-                tpa.created_at,
-                tpa.last_vault_validation_at,
-                tpa.vault_resolved_at,
-                tb.tracking_quality,
-                tb.initial_price_observed_usd,
-                tb.initial_price_robust_usd,
-                tb.peak_price_usd,
-                tb.latest_price_usd,
-                tb.max_return_multiple_observed,
-                tb.max_return_multiple,
-                tb.category,
-                tb.confidence
-            FROM token_pool_accounts tpa
-            LEFT JOIN token_behavior tb ON tpa.mint = tb.mint
-            WHERE 1=1
-        """
-        params = []
-
-        if status:
-            query += " AND tpa.vault_validation_status = ?"
-            params.append(status)
-
-        if strategy:
-            query += " AND tpa.vault_discovery_strategy = ?"
-            params.append(strategy)
-
-        if mint:
-            query += " AND tpa.mint LIKE ?"
-            params.append(f"%{mint}%")
-
-        if pool:
-            query += " AND tpa.pool_address LIKE ?"
-            params.append(f"%{pool}%")
-
-        if tracking_quality:
-            query += " AND tb.tracking_quality = ?"
-            params.append(tracking_quality)
-
-        if category:
-            query += " AND tb.category = ?"
-            params.append(category)
-
-        # Sort
-        if sort_by == 'attempts':
-            query += " ORDER BY tpa.vault_discovery_attempts DESC"
-        elif sort_by == 'category':
-            query += " ORDER BY tb.category ASC"
-        else:  # discovery_time
-            query += " ORDER BY vault_discovery_time_secs DESC NULLS LAST"
-
-        query += f" LIMIT {limit}"
-
-        rows = conn.execute(query, params).fetchall()
-        conn.close()
-
-        vaults = []
-        for row in rows:
-            vaults.append({
-                'mint': row['mint'],
-                'pool_address': row['pool_address'],
-                'base_account': row['base_account'],
-                'quote_account': row['quote_account'],
-                'vault_validation_status': row['vault_validation_status'],
-                'vault_resolution_state': row['vault_resolution_state'],
-                'vault_discovery_strategy': row['vault_discovery_strategy'],
-                'discovery_method': row['discovery_method'],
-                'vault_discovery_attempts': row['vault_discovery_attempts'],
-                'vault_discovery_time_secs': row['vault_discovery_time_secs'],
-                'created_at': row['created_at'],
-                'last_vault_validation_at': row['last_vault_validation_at'],
-                'vault_resolved_at': row['vault_resolved_at'],
-                'tracking_quality': row['tracking_quality'],
-                'initial_price_observed_usd': round(row['initial_price_observed_usd'], 8) if row['initial_price_observed_usd'] else None,
-                'initial_price_robust_usd': round(row['initial_price_robust_usd'], 8) if row['initial_price_robust_usd'] else None,
-                'peak_price_usd': round(row['peak_price_usd'], 8) if row['peak_price_usd'] else None,
-                'latest_price_usd': round(row['latest_price_usd'], 8) if row['latest_price_usd'] else None,
-                'max_return_observed': row['max_return_multiple_observed'],
-                'max_return_robust': row['max_return_multiple'],
-                'category': row['category'],
-                'confidence': round(row['confidence'], 3) if row['confidence'] else None,
-            })
-
-        return no_cache_json({
-            'vaults': vaults,
-            'total': len(vaults),
-            'filters': {
-                'status': status,
-                'strategy': strategy,
-                'tracking_quality': tracking_quality,
-                'category': category,
-            }
-        })
-
-    except Exception as e:
-        logger.error(f"Error fetching vaults: {e}", exc_info=True)
-        return no_cache_json({'error': str(e)}), 500
-
-
-@dashboard_routes.route('/api/vaults/<mint>', methods=['GET'])
-def api_vaults_detail(mint):
-    """
-    Get detailed vault and token information for a specific mint.
-    """
-    try:
-        conn = sqlite3.connect('database/flex_complete_database.db')
-        conn.row_factory = sqlite3.Row
-
-        vault_row = conn.execute("""
-            SELECT
-                mint,
-                pool_address,
-                base_account,
-                quote_account,
-                base_token,
-                quote_token,
-                base_decimals,
-                quote_decimals,
-                vault_validation_status,
-                vault_resolution_state,
-                vault_discovery_strategy,
-                discovery_method,
-                vault_discovery_attempts,
-                COALESCE(vault_discovery_time_secs, (last_vault_validation_at - created_at)) as vault_discovery_time_secs,
-                created_at,
-                last_vault_validation_at,
-                vault_resolved_at
-            FROM token_pool_accounts
-            WHERE mint = ?
-            LIMIT 1
-        """, (mint,)).fetchone()
-
-        if not vault_row:
-            conn.close()
-            return jsonify({'error': 'Vault not found', 'mint': mint}), 404
-
-        token_row = conn.execute("""
-            SELECT
-                mint,
-                category,
-                confidence,
-                tracking_quality,
-                initial_price_observed_usd,
-                initial_price_robust_usd,
-                peak_price_usd,
-                latest_price_usd,
-                max_return_multiple_observed,
-                max_return_multiple,
-                drawdown_from_peak,
-                recovery_ratio,
-                time_to_peak_secs,
-                lifetime_secs,
-                snapshot_count
-            FROM token_behavior
-            WHERE mint = ?
-        """, (mint,)).fetchone()
-
-        conn.close()
-
-        return jsonify({
-            'mint': vault_row['mint'],
-            'vault': {
-                'pool_address': vault_row['pool_address'],
-                'base_account': vault_row['base_account'],
-                'quote_account': vault_row['quote_account'],
-                'base_token': vault_row['base_token'],
-                'quote_token': vault_row['quote_token'],
-                'base_decimals': vault_row['base_decimals'],
-                'quote_decimals': vault_row['quote_decimals'],
-                'validation_status': vault_row['vault_validation_status'],
-                'resolution_state': vault_row['vault_resolution_state'],
-                'discovery_strategy': vault_row['vault_discovery_strategy'],
-                'discovery_method': vault_row['discovery_method'],
-                'discovery_attempts': vault_row['vault_discovery_attempts'],
-                'discovery_time_secs': vault_row['vault_discovery_time_secs'],
-                'created_at': vault_row['created_at'],
-                'last_validation_at': vault_row['last_vault_validation_at'],
-                'resolved_at': vault_row['vault_resolved_at'],
-            },
-            'token': {
-                'category': token_row['category'] if token_row else None,
-                'confidence': round(token_row['confidence'], 3) if token_row and token_row['confidence'] else None,
-                'tracking_quality': token_row['tracking_quality'] if token_row else None,
-                'initial_price_observed_usd': round(token_row['initial_price_observed_usd'], 8) if token_row and token_row['initial_price_observed_usd'] else None,
-                'initial_price_robust_usd': round(token_row['initial_price_robust_usd'], 8) if token_row and token_row['initial_price_robust_usd'] else None,
-                'peak_price_usd': round(token_row['peak_price_usd'], 8) if token_row and token_row['peak_price_usd'] else None,
-                'latest_price_usd': round(token_row['latest_price_usd'], 8) if token_row and token_row['latest_price_usd'] else None,
-                'max_return_observed': token_row['max_return_multiple_observed'] if token_row else None,
-                'max_return_robust': token_row['max_return_multiple'] if token_row else None,
-                'drawdown_from_peak': round(token_row['drawdown_from_peak'], 3) if token_row and token_row['drawdown_from_peak'] else None,
-                'recovery_ratio': round(token_row['recovery_ratio'], 3) if token_row and token_row['recovery_ratio'] else None,
-                'time_to_peak_secs': token_row['time_to_peak_secs'] if token_row else None,
-                'lifetime_secs': token_row['lifetime_secs'] if token_row else None,
-                'snapshot_count': token_row['snapshot_count'] if token_row else None,
-            } if token_row else None
-        })
-
-    except Exception as e:
-        logger.error(f"Error fetching vault detail: {e}", exc_info=True)
-        return jsonify({'error': str(e)}), 500
-
-
-# =========================================================================
-# VAULTS API - Improved Implementation
-# =========================================================================
-
-DB_PATH = 'database/flex_complete_database.db'
-
-VALID_BEHAVIOUR_CATEGORIES = {
-    'immediate_rug',
-    'runner',
-    'faded_runner',
-    'choppy_runner',
-    'rug',
-    'slow_rug',
-    'insufficient_history',
-    'unknown',
-}
-
-VALID_TRACKING_QUALITY = {
-    'good',
-    'possibly_late',
-    'likely_late',
-}
-
-
 def _table_columns(conn: sqlite3.Connection, table_name: str) -> set:
     """Return the set of column names for a table."""
     rows = conn.execute(f"PRAGMA table_info({table_name})").fetchall()
@@ -889,14 +563,9 @@ def _build_vaults_select(conn: sqlite3.Connection) -> str:
         )
     """
 
-    # pool_address is not guaranteed, so use base_account as fallback identifier.
-    pool_address_sql = f"""
-        COALESCE(
-            {tpa_col('pool_address')},
-            {tpa_col('base_account')},
-            NULL
-        )
-    """
+    # pool_address only - no fallback to base_account
+    # base_account is a separate field (may be shared vault)
+    pool_address_sql = tpa_col('pool_address')
 
     return f"""
         SELECT
@@ -945,6 +614,7 @@ def _build_vaults_select(conn: sqlite3.Connection) -> str:
 def _vault_row_to_dict(row: sqlite3.Row) -> Dict[str, Any]:
     """
     Normalize one merged vault/token row into API-safe JSON.
+    Includes account type classification for shared vaults.
     """
     category = _normalize_category(row['category'])
     tracking_quality = _normalize_tracking_quality(row['tracking_quality'])
@@ -963,10 +633,24 @@ def _vault_row_to_dict(row: sqlite3.Row) -> Dict[str, Any]:
         except (TypeError, ValueError):
             attempts_out = None
 
+    # Classify the pool_address (may be shared vault like ADyA)
+    pool_address = row['pool_address']
+    account_type = 'unknown'
+    account_type_label = 'Unknown'
+    if pool_address:
+        try:
+            classifier = get_classifier()
+            account_type = classifier.classify_account(pool_address)
+            account_type_label = classifier.get_account_type_label(account_type)
+        except Exception as e:
+            logger.warning(f"Error classifying account {pool_address}: {e}")
+
     return {
         'mint': row['mint'],
-        'pool_address': row['pool_address'],
+        'pool_address': pool_address,
         'base_account': row['base_account'],
+        'base_account_type': account_type,
+        'base_account_type_label': account_type_label,
         'quote_account': row['quote_account'],
         'base_token': row['base_token'],
         'quote_token': row['quote_token'],
@@ -1166,6 +850,92 @@ def api_vaults_stats_summary():
 
     except Exception as e:
         logger.error(f"Error fetching vault summary stats: {e}", exc_info=True)
+        return no_cache_json({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/api/vaults/shared-vaults', methods=['GET'])
+def api_shared_vaults():
+    """
+    List all shared vault accounts and their token counts.
+
+    Returns:
+        - account_address
+        - token_count
+        - classification (shared_vault_signature / shared_program_vault / token_vault)
+        - label (human-readable)
+    """
+    try:
+        classifier = get_classifier()
+        min_reuse = request.args.get('min_reuse', default=5, type=int)
+
+        vaults = classifier.get_shared_vaults(min_reuse=min_reuse)
+
+        return no_cache_json({
+            'shared_vaults': vaults,
+            'total': len(vaults),
+            'filters': {
+                'min_reuse': min_reuse,
+            },
+            'last_updated': int(time.time()),
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching shared vaults: {e}", exc_info=True)
+        return no_cache_json({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/api/vaults/shared-vaults/<vault_address>/tokens', methods=['GET'])
+def api_vault_tokens(vault_address):
+    """
+    Get all tokens using a specific shared vault.
+
+    Returns:
+        - mint
+        - discovery_method
+        - created_at
+    """
+    try:
+        classifier = get_classifier()
+        tokens = classifier.get_tokens_by_shared_vault(vault_address)
+
+        return no_cache_json({
+            'vault_address': vault_address,
+            'tokens': tokens,
+            'total': len(tokens),
+            'last_updated': int(time.time()),
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching tokens for vault {vault_address}: {e}", exc_info=True)
+        return no_cache_json({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/api/vaults/launch-clusters', methods=['GET'])
+def api_launch_clusters():
+    """
+    Detect and return token clusters (coordinated launches via shared vault).
+
+    Returns:
+        - vault_address
+        - vault_label
+        - token_count
+        - time_window_minutes (first to last token creation)
+        - first_token_created_at
+        - last_token_created_at
+        - tokens (list)
+    """
+    try:
+        classifier = get_classifier()
+        clusters = classifier.detect_launch_clusters()
+
+        return no_cache_json({
+            'clusters': clusters,
+            'total': len(clusters),
+            'last_updated': int(time.time()),
+        })
+
+    except Exception as e:
+        logger.error(f"Error detecting launch clusters: {e}", exc_info=True)
         return no_cache_json({'error': str(e)}), 500
 
 

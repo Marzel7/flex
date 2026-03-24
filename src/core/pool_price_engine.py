@@ -21,6 +21,9 @@ from src.metrics.rpc_metrics_recorder import record_request
 
 logger = logging.getLogger(__name__)
 
+# Debug flag - set to False to disable verbose debug logging
+DEBUG_LOGGING = False
+
 # Load environment configuration
 from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(__file__), '../../config/.env'))
@@ -409,10 +412,10 @@ class PoolStateStore:
             # This allows BOTH base and quote to update on the same slot
             slot_key = f"{account_type}_last_slot"
             if slot is not None and self._state[pool_id].get(slot_key) == slot:
-                print(f"[POOL_STATE_DEBUG] ⏭️  DEDUP: {mint[:8]}... {account_type} slot {slot} already seen", flush=True)
+                if DEBUG_LOGGING: print(f"[POOL_STATE_DEBUG] ⏭️  DEDUP: {mint[:8]}... {account_type} slot {slot} already seen", flush=True)
                 return False
 
-            print(f"[POOL_STATE_DEBUG] 📝 Storing {account_type}_reserve={raw_balance} for {mint[:8]}... slot={slot}", flush=True)
+            if DEBUG_LOGGING: print(f"[POOL_STATE_DEBUG] 📝 Storing {account_type}_reserve={raw_balance} for {mint[:8]}... slot={slot}", flush=True)
             self._state[pool_id][f"{account_type}_reserve"] = raw_balance
             self._state[pool_id][slot_key] = slot
             self._state[pool_id]["last_update"] = time.time()
@@ -430,7 +433,7 @@ class PoolStateStore:
             )
             was_ready = self._state[pool_id].get("was_ready", False)
 
-            print(f"[POOL_STATE_DEBUG] State after update: base={self._state[pool_id]['base_reserve']}, quote={self._state[pool_id]['quote_reserve']}", flush=True)
+            if DEBUG_LOGGING: print(f"[POOL_STATE_DEBUG] State after update: base={self._state[pool_id]['base_reserve']}, quote={self._state[pool_id]['quote_reserve']}", flush=True)
 
             if has_base and has_quote and not was_ready:
                 print(f"[POOL_STATE] ✅ READY: {mint[:8]}... (base={self._state[pool_id]['base_reserve']}, quote={self._state[pool_id]['quote_reserve']})", flush=True)
@@ -866,12 +869,12 @@ class PoolWebSocketClient:
             if msg.get("method") != "accountNotification":
                 return
 
-            print(f"[POOL_WS_DEBUG] accountNotification received", flush=True)
+            if DEBUG_LOGGING: print(f"[POOL_WS_DEBUG] accountNotification received", flush=True)
             params = msg.get("params", {})
             sub_id = params.get("subscription")
             pubkey = self._sub_id_to_account.get(sub_id)
             if not pubkey:
-                print(f"[POOL_WS_DEBUG] Unknown subscription ID", flush=True)
+                if DEBUG_LOGGING: print(f"[POOL_WS_DEBUG] Unknown subscription ID", flush=True)
                 return
 
             self.stats["events_received"] += 1
@@ -882,33 +885,33 @@ class PoolWebSocketClient:
 
             # Try to decode balance from SPL token account data first
             data_list = account_data.get("data", [])
-            print(f"[POOL_WS_DEBUG] account_data keys: {account_data.keys()}, data_list length: {len(data_list) if data_list else 0}", flush=True)
+            if DEBUG_LOGGING: print(f"[POOL_WS_DEBUG] account_data keys: {account_data.keys()}, data_list length: {len(data_list) if data_list else 0}", flush=True)
 
             balance = None
             if data_list:
-                print(f"[POOL_WS_DEBUG] Attempting to decode data[0], length={len(data_list[0]) if isinstance(data_list[0], (str, bytes, list)) else 'unknown'}", flush=True)
+                if DEBUG_LOGGING: print(f"[POOL_WS_DEBUG] Attempting to decode data[0], length={len(data_list[0]) if isinstance(data_list[0], (str, bytes, list)) else 'unknown'}", flush=True)
                 balance = PoolReserveFetcher._decode_spl_token_balance(data_list[0])
-                print(f"[POOL_WS_DEBUG] Decoded balance from data: {balance}", flush=True)
+                if DEBUG_LOGGING: print(f"[POOL_WS_DEBUG] Decoded balance from data: {balance}", flush=True)
 
             # If no balance from data (native SOL account), try lamports field
             if balance is None:
                 lamports = account_data.get("lamports")
-                print(f"[POOL_WS_DEBUG] No balance from data, trying lamports: {lamports}", flush=True)
+                if DEBUG_LOGGING: print(f"[POOL_WS_DEBUG] No balance from data, trying lamports: {lamports}", flush=True)
                 balance = lamports
 
             if balance is None:
-                print(f"[POOL_WS_DEBUG] No balance extracted from account at all", flush=True)
+                if DEBUG_LOGGING: print(f"[POOL_WS_DEBUG] No balance extracted from account at all", flush=True)
                 return
 
-            print(f"[POOL_WS_DEBUG] Final balance {balance} for {pubkey[:16]}...", flush=True)
+            if DEBUG_LOGGING: print(f"[POOL_WS_DEBUG] Final balance {balance} for {pubkey[:16]}...", flush=True)
             pools = self._account_to_pools.get(pubkey)
             if not pools:
                 # Log unexpected accounts (might be subscription confirmations, etc.)
-                print(f"[POOL_WS_DEBUG] Account NOT in account_to_pools map: {pubkey[:16]}... (map has {len(self._account_to_pools)} accounts)", flush=True)
+                if DEBUG_LOGGING: print(f"[POOL_WS_DEBUG] Account NOT in account_to_pools map: {pubkey[:16]}... (map has {len(self._account_to_pools)} accounts)", flush=True)
                 return
 
             # Update all pools that use this account
-            print(f"[POOL_WS_DEBUG] Found {len(pools)} pools for account {pubkey[:16]}...", flush=True)
+            if DEBUG_LOGGING: print(f"[POOL_WS_DEBUG] Found {len(pools)} pools for account {pubkey[:16]}...", flush=True)
             for pool in pools:
                 mint = pool["mint"]
                 is_new = pool.get("is_legacy") == 0
@@ -922,9 +925,9 @@ class PoolWebSocketClient:
                 slot = params.get("result", {}).get("context", {}).get("slot")
 
                 # Update reserve; returns False if deduplicated
-                print(f"[POOL_WS_DEBUG] Calling update_reserve: mint={mint[:16]}..., base_account={pool['base_account'][:16]}..., type={account_type}, balance={balance}, slot={slot}", flush=True)
+                if DEBUG_LOGGING: print(f"[POOL_WS_DEBUG] Calling update_reserve: mint={mint[:16]}..., base_account={pool['base_account'][:16]}..., type={account_type}, balance={balance}, slot={slot}", flush=True)
                 reserve_updated = self._store.update_reserve(mint, pool["base_account"], account_type, balance, slot)
-                print(f"[POOL_WS_DEBUG] update_reserve returned: {reserve_updated}", flush=True)
+                if DEBUG_LOGGING: print(f"[POOL_WS_DEBUG] update_reserve returned: {reserve_updated}", flush=True)
                 if not reserve_updated:
                     self.stats["events_deduplicated"] += 1
                     continue

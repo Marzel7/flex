@@ -513,6 +513,15 @@
             color: #ef4444 !important;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
+
+        /* Stable sort with FLIP animation */
+        [data-mint] {
+            will-change: transform;
+        }
+
+        [data-mint] * {
+            pointer-events: auto;
+        }
     </style>
 </head>
 <body>
@@ -593,25 +602,39 @@
         };
 
         // =====================================================================
-        // REAL-TIME PRICE STREAMING (SSE)
+        // REAL-TIME PRICE STREAMING (SSE) WITH STABLE SORT
         // =====================================================================
 
-        function updateTokenPrice(update) {
-            console.log(`[UPDATE_DEBUG] Looking for row with data-mint="${update.mint}"`);
-            const row = document.querySelector(`[data-mint="${update.mint}"]`);
-            if (!row) {
-                console.warn(`[UPDATE_DEBUG] ⚠️  No DOM element found with data-mint="${update.mint}"`);
-                return;
-            }
-            console.log(`[UPDATE_DEBUG] ✅ Found row for ${update.mint.slice(0, 8)}...`);
+        // In-memory token map: mint → {price, marketCap, source, updatedAt}
+        const tokenMap = new Map();
+        let needsResort = false;
+        let userInteracting = false;
+        let sortColumn = 'price'; // 'price' or 'marketCap'
+        let sortDirection = 'desc'; // 'asc' or 'desc'
 
-            // Update price
+        function updateTokenPrice(update) {
+            const mint = update.mint;
+            const row = document.querySelector(`[data-mint="${mint}"]`);
+            if (!row) return;
+
+            // Update in-memory data
+            if (!tokenMap.has(mint)) {
+                tokenMap.set(mint, {});
+            }
+            const token = tokenMap.get(mint);
+            token.price = update.price_usd;
+            token.marketCap = update.market_cap;
+            token.source = update.source;
+            token.updatedAt = Date.now();
+
+            // Update price display with flash effect
             const priceElem = row.querySelector('.token-price');
             if (priceElem) {
-                const oldPrice = parseFloat(priceElem.textContent) || 0;
+                const oldPrice = parseFloat(priceElem.dataset.lastPrice || 0);
                 const newPrice = update.price_usd;
 
                 priceElem.textContent = newPrice.toFixed(8);
+                priceElem.dataset.lastPrice = newPrice;
 
                 if (newPrice > oldPrice && oldPrice > 0) {
                     priceElem.classList.add('price-up');
@@ -621,20 +644,107 @@
 
                 setTimeout(() => {
                     priceElem.classList.remove('price-up', 'price-down');
-                }, 800);
-
-                console.log(`[PRICE_UPDATE] ${update.mint.slice(0, 8)}... → $${newPrice.toFixed(8)} (was $${oldPrice.toFixed(8)})`);
-            } else {
-                console.warn(`[UPDATE_DEBUG] ⚠️  No .token-price element found in row`);
+                }, 500);
             }
 
             // Update source badge
             const sourceCells = row.querySelectorAll('td');
             if (sourceCells.length >= 3) {
-                const sourceCell = sourceCells[2]; // Third column is Source
+                const sourceCell = sourceCells[2];
                 const badgeColor = update.source === 'pool' ? 'bg-success' : 'bg-secondary';
                 const badgeText = update.source === 'pool' ? '🌊 Pool' : '📊 DexScreener';
                 sourceCell.innerHTML = `<span class="badge ${badgeColor}" style="font-size: 0.75rem;">${badgeText}</span>`;
+            }
+
+            // Mark for resort (don't sort immediately)
+            needsResort = true;
+        }
+
+        // Batched sort loop - runs every 500ms
+        function startSortLoop() {
+            setInterval(() => {
+                if (!needsResort || userInteracting) return;
+
+                needsResort = false;
+                resortTokenTable();
+            }, 500);
+        }
+
+        // FLIP animation for smooth row movement
+        function applyFLIPAnimation(oldRows, newOrder) {
+            const parent = oldRows[0]?.parentNode;
+            if (!parent) return;
+
+            // Step 1: Record FIRST positions
+            const firstPositions = new Map();
+            oldRows.forEach(row => {
+                firstPositions.set(row.dataset.mint, row.getBoundingClientRect());
+            });
+
+            // Step 2: Reorder DOM
+            newOrder.forEach(row => parent.appendChild(row));
+
+            // Step 3: Apply transforms and animate
+            requestAnimationFrame(() => {
+                newOrder.forEach(row => {
+                    const first = firstPositions.get(row.dataset.mint);
+                    const last = row.getBoundingClientRect();
+
+                    const dx = first.left - last.left;
+                    const dy = first.top - last.top;
+
+                    if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+                        row.style.transform = `translate(${dx}px, ${dy}px)`;
+                        row.style.transition = 'none';
+
+                        // Trigger reflow
+                        row.offsetHeight;
+
+                        row.style.transform = '';
+                        row.style.transition = 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    }
+                });
+            });
+        }
+
+        function resortTokenTable() {
+            const tbody = document.querySelector('table tbody');
+            if (!tbody) return;
+
+            const rows = Array.from(tbody.querySelectorAll('[data-mint]'));
+            if (rows.length === 0) return;
+
+            // Sort rows based on column
+            const sorted = rows.sort((a, b) => {
+                const aMint = a.dataset.mint;
+                const bMint = b.dataset.mint;
+                const aData = tokenMap.get(aMint) || {};
+                const bData = tokenMap.get(bMint) || {};
+
+                let aVal, bVal;
+                if (sortColumn === 'price') {
+                    aVal = aData.price || 0;
+                    bVal = bData.price || 0;
+                } else if (sortColumn === 'marketCap') {
+                    aVal = aData.marketCap || 0;
+                    bVal = bData.marketCap || 0;
+                }
+
+                return sortDirection === 'desc' ? bVal - aVal : aVal - bVal;
+            });
+
+            // Check if order actually changed
+            let orderChanged = false;
+            for (let i = 0; i < rows.length; i++) {
+                if (rows[i] !== sorted[i]) {
+                    orderChanged = true;
+                    break;
+                }
+            }
+
+            if (orderChanged) {
+                console.log('[RESORT] Reordering table with FLIP animation');
+                applyFLIPAnimation(rows, sorted);
             }
         }
 
@@ -642,6 +752,19 @@
             console.log('[PRICE_STREAM] Initializing connection...');
             const es = new EventSource('/api/price-stream');
             let eventCount = 0;
+
+            // Start batched sort loop
+            startSortLoop();
+
+            // Track user interaction
+            document.addEventListener('mouseenter', () => { userInteracting = true; }, true);
+            document.addEventListener('mouseleave', () => { userInteracting = false; }, true);
+            document.addEventListener('touchstart', () => { userInteracting = true; }, true);
+            document.addEventListener('touchend', () => {
+                userInteracting = false;
+                // Resume sorting after touch
+                needsResort = true;
+            }, true);
 
             es.onopen = () => {
                 console.log('[PRICE_STREAM] ✅ EventSource opened successfully');

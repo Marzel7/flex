@@ -772,7 +772,16 @@
             }
         }
 
+        let priceStreamInitialized = false;
+
         function initPriceStream() {
+            // Prevent duplicate initialization
+            if (priceStreamInitialized) {
+                console.log('[PRICE_STREAM] Already initialized, skipping...');
+                return;
+            }
+            priceStreamInitialized = true;
+
             console.log('[PRICE_STREAM] Initializing connection...');
             const es = new EventSource('/api/price-stream');
             let eventCount = 0;
@@ -1922,6 +1931,10 @@
                 `;
 
                 content.innerHTML = html;
+
+                // Initialize price streaming after wallet content is rendered
+                // This ensures token rows exist when SSE messages arrive
+                initPriceStream();
 
             } catch (error) {
                 content.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;

@@ -1254,6 +1254,7 @@ def get_sidebar_html(active_page: str = "tokens") -> str:
         "creator-analysis": ("Creator Analysis", "/creator-analysis"),
         "webhook": ("Transfers", "/webhook-monitor"),
         "rpc-savings": ("RPC", "/rpc-savings-dashboard"),
+        "early-signals": ("🧠 Early Predictions", "/early-signals"),
     }
 
     items = ""
@@ -2638,6 +2639,7 @@ HTML_TEMPLATE = """
             <a class="sidebar-item" href="/creator-analysis">Creator Analysis</a>
             <a class="sidebar-item" href="/webhook-monitor">Transfers</a>
             <a class="sidebar-item green" href="/rpc-savings-dashboard">RPC</a>
+            <a class="sidebar-item" href="/early-signals" style="background: rgba(167, 139, 250, 0.15); color: #a78bfa; font-weight: bold;">🧠 Early Predictions</a>
             <a class="sidebar-item" href="/system-health" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; font-weight: bold;">💚 System Health</a>
             <hr style="margin: 10px 0; border: none; border-top: 1px solid rgba(255,255,255,0.1);">
             <a class="sidebar-item" href="/launch-radar" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; font-weight: bold;">📊 Intelligence</a>

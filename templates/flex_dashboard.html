@@ -3351,18 +3351,21 @@
                                         <th>Rank</th>
                                         <th>Token Mint</th>
                                         <th>Confidence</th>
-                                        <th>Max Return</th>
+                                        <th>Max Return (Robust)</th>
                                         <th>Drawdown</th>
+                                        <th>Quality</th>
                                         <th>Snapshots</th>
-                                        <th>Lifetime</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tokens-${cat}">
                                     ${tokens.length === 0 ? `
                                         <tr>
-                                            <td colspan="7" class="text-center text-muted">No tokens classified yet</td>
+                                            <td colspan="8" class="text-center text-muted">No tokens classified yet</td>
                                         </tr>
-                                    ` : tokens.map((token, idx) => `
+                                    ` : tokens.map((token, idx) => {
+                                        const qualityIcon = token.tracking_quality === 'good' ? '✓' : token.tracking_quality === 'possibly_late' ? '⚠' : '⚠⚠';
+                                        const qualityColor = token.tracking_quality === 'good' ? '#22c55e' : token.tracking_quality === 'possibly_late' ? '#eab308' : '#ef4444';
+                                        return `
                                         <tr style="cursor: pointer;" onclick="showTokenBehaviourDetail('${token.mint}')">
                                             <td><strong>#${idx + 1}</strong></td>
                                             <td style="font-size: 0.85rem; color: var(--text-secondary); font-family: monospace;">${token.mint}</td>
@@ -3371,12 +3374,13 @@
                                                     ${(token.confidence * 100).toFixed(0)}%
                                                 </div>
                                             </td>
-                                            <td>${token.max_return_multiple ? token.max_return_multiple.toFixed(2) + 'x' : 'N/A'}</td>
+                                            <td>${token.max_return_robust ? token.max_return_robust.toFixed(2) + 'x' : 'N/A'}</td>
                                             <td>${token.drawdown_from_peak ? (token.drawdown_from_peak * 100).toFixed(0) + '%' : 'N/A'}</td>
+                                            <td><small style="color: ${qualityColor};">${qualityIcon} ${token.tracking_quality}</small></td>
                                             <td><small>${token.snapshot_count || 0}</small></td>
-                                            <td><small>${token.lifetime_secs ? Math.round(token.lifetime_secs / 60) + ' min' : 'N/A'}</small></td>
                                         </tr>
-                                    `).join('')}
+                                        `;
+                                    }).join('')}
                                 </tbody>
                             </table>
                         </div>
@@ -3445,9 +3449,12 @@
                     const info = CATEGORY_INFO[cat];
 
                     if (tokens.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No tokens classified yet</td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No tokens classified yet</td></tr>`;
                     } else {
-                        tbody.innerHTML = tokens.map((token, idx) => `
+                        tbody.innerHTML = tokens.map((token, idx) => {
+                            const qualityIcon = token.tracking_quality === 'good' ? '✓' : token.tracking_quality === 'possibly_late' ? '⚠' : '⚠⚠';
+                            const qualityColor = token.tracking_quality === 'good' ? '#22c55e' : token.tracking_quality === 'possibly_late' ? '#eab308' : '#ef4444';
+                            return `
                             <tr style="cursor: pointer;" onclick="showTokenBehaviourDetail('${token.mint}')">
                                 <td><strong>#${idx + 1}</strong></td>
                                 <td style="font-size: 0.85rem; color: var(--text-secondary); font-family: monospace;">${token.mint}</td>
@@ -3456,12 +3463,13 @@
                                         ${(token.confidence * 100).toFixed(0)}%
                                     </div>
                                 </td>
-                                <td>${token.max_return_multiple ? token.max_return_multiple.toFixed(2) + 'x' : 'N/A'}</td>
+                                <td>${token.max_return_robust ? token.max_return_robust.toFixed(2) + 'x' : 'N/A'}</td>
                                 <td>${token.drawdown_from_peak ? (token.drawdown_from_peak * 100).toFixed(0) + '%' : 'N/A'}</td>
+                                <td><small style="color: ${qualityColor};">${qualityIcon} ${token.tracking_quality}</small></td>
                                 <td><small>${token.snapshot_count || 0}</small></td>
-                                <td><small>${token.lifetime_secs ? Math.round(token.lifetime_secs / 60) + ' min' : 'N/A'}</small></td>
                             </tr>
-                        `).join('');
+                            `;
+                        }).join('');
                     }
                 }
             }

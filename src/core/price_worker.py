@@ -1084,13 +1084,26 @@ class BackgroundPriceWorker:
             print(f"[PRICE_DEBUG] Mints in PoolStateStore: {len(mints)}", flush=True)
 
             # Get SOL price from cache (20s TTL, reduces API calls by ~95%)
-            async def fetch_sol():
-                return await PoolPriceCalculator.fetch_sol_price_usd()
-
+            # NOTE: Don't use asyncio.run() here — we're in a thread, not async context
+            # Instead, directly get from cache without async
             try:
-                sol_price_usd = asyncio.run(self._sol_price_cache.get_price(fetch_sol))
+                # Try to get cached SOL price or fetch synchronously
+                sol_price_usd = self._sol_price_cache.get_price_sync()
+                if not sol_price_usd:
+                    print("[PRICE_DEBUG] SOL price cache empty, attempting async fetch", flush=True)
+                    # Fallback: create a new event loop for this thread
+                    import asyncio
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    try:
+                        sol_price_usd = loop.run_until_complete(
+                            PoolPriceCalculator.fetch_sol_price_usd()
+                        )
+                    finally:
+                        loop.close()
             except Exception as e:
                 logger.error(f"Failed to get SOL price: {e}")
+                print(f"[PRICE_DEBUG] SOL price fetch error: {e}", flush=True)
                 return
 
             if not sol_price_usd or sol_price_usd <= 0:
@@ -1160,15 +1173,16 @@ class BackgroundPriceWorker:
                         total_supply=total_supply,
                     )
                     if token_price:
-                        logger.info(f"[PRICE_DEBUG] {mint[:16]}... ✓ price computed: ${token_price.price_usd}")
+                        print(f"[PRICE_DEBUG] {mint[:16]}... ✓ price computed: ${token_price.price_usd:.8f}", flush=True)
                         candidate_prices.append(token_price)
                     else:
-                        logger.debug(f"[PRICE_DEBUG] {mint[:16]}... ✗ price calculation returned None")
+                        print(f"[PRICE_DEBUG] {mint[:16]}... ✗ price calculation returned None", flush=True)
 
                 # Aggregate prices from all pools for this mint
+                print(f"[PRICE_DEBUG] {mint[:16]}... Aggregating {len(candidate_prices)} candidate prices", flush=True)
                 aggregated = PoolAggregator.aggregate(candidate_prices)
                 if aggregated:
-                    logger.info(f"[PRICE_DEBUG] {mint[:16]}... ✓ aggregated price: ${aggregated.price_usd}")
+                    print(f"[PRICE_DEBUG] {mint[:16]}... ✓ aggregated price: ${aggregated.price_usd:.8f}", flush=True)
                     
                     # ✅ OPTIONAL: Log price source for visibility into system health
                     logger.info(
@@ -1187,7 +1201,7 @@ class BackgroundPriceWorker:
 
                     new_cache[mint] = aggregated
                 else:
-                    logger.debug(f"[PRICE_DEBUG] {mint[:16]}... ✗ no candidate prices to aggregate")
+                    print(f"[PRICE_DEBUG] {mint[:16]}... ✗ no candidate prices to aggregate", flush=True)
 
             self.price_service.pool_price_cache = new_cache
             self.stats["pool_prices_fetched"] = len(new_cache)
@@ -1202,6 +1216,7 @@ class BackgroundPriceWorker:
                     logger.error(f"[PRICE_DEBUG] {mint[:16]}... ✗ snapshot store failed: {e}")
             
             # Update token_analysis table with fresh pool prices for tokens that exist there
+            print(f"[PRICE_CYCLE] new_cache has {len(new_cache)} prices, about to update DB", flush=True)
             if new_cache:
                 try:
                     conn = sqlite3.connect(self.db_path, timeout=5)
@@ -1217,6 +1232,49 @@ class BackgroundPriceWorker:
                         """, (token_price.price_usd, token_price.market_cap, token_price.source, now, mint))
                     conn.commit()
                     conn.close()
+                    print(f"[PRICE_CYCLE] DB updated, about to broadcast {len(new_cache)} prices", flush=True)
+
+                    # 🚀 BROADCAST TO UI VIA SSE (real-time price updates)
+                    try:
+                        from src.core.price_stream import get_price_stream
+                        price_stream = get_price_stream()
+                        subscriber_count = price_stream.get_subscriber_count()
+
+                        print(f"[BROADCAST_DEBUG] Have {len(new_cache)} prices, {subscriber_count} subscribers", flush=True)
+                        logger.info(f"[BROADCAST_DEBUG] Have {len(new_cache)} prices, {subscriber_count} subscribers")
+
+                        # Broadcast each price update
+                        if subscriber_count > 0:
+                            import asyncio
+
+                            for mint, token_price in new_cache.items():
+                                event = {
+                                    "type": "price_update",
+                                    "mint": mint,
+                                    "price_usd": token_price.price_usd,
+                                    "price_sol": token_price.price_sol,
+                                    "market_cap": token_price.market_cap,
+                                    "liquidity_usd": token_price.liquidity_usd,
+                                    "source": token_price.source,
+                                    "updated_at": int(time.time())
+                                }
+
+                                # Broadcast asynchronously
+                                try:
+                                    print(f"[BROADCAST_DEBUG] Broadcasting {mint[:16]}...", flush=True)
+                                    asyncio.create_task(price_stream.broadcast(event))
+                                except RuntimeError:
+                                    loop = asyncio.new_event_loop()
+                                    asyncio.set_event_loop(loop)
+                                    loop.run_until_complete(price_stream.broadcast(event))
+                                    loop.close()
+                        else:
+                            print(f"[BROADCAST_DEBUG] No subscribers connected, skipping broadcast", flush=True)
+
+                    except Exception as e:
+                        logger.error(f"[PRICE_STREAM] Failed to broadcast: {e}", exc_info=True)
+                        print(f"[BROADCAST_ERROR] {e}", flush=True)
+
                 except Exception as e:
                     logger.debug(f"Failed to update token_analysis with pool prices: {e}")
 
@@ -1678,6 +1736,39 @@ class BackgroundPriceWorker:
 
                 # Update timestamp
                 self.registry.update_price_timestamp(mint)
+
+                # 🚀 BROADCAST TO UI VIA SSE
+                try:
+                    from src.core.price_stream import get_price_stream
+                    price_stream = get_price_stream()
+
+                    # Only broadcast if there are subscribers
+                    if price_stream.get_subscriber_count() > 0:
+                        import asyncio
+
+                        event = {
+                            "type": "price_update",
+                            "mint": mint,
+                            "price_usd": price.price_usd,
+                            "price_sol": price.price_sol,
+                            "market_cap": market_cap,
+                            "liquidity_usd": price.liquidity_usd,
+                            "source": price.source,
+                            "updated_at": int(time.time())
+                        }
+
+                        # Broadcast asynchronously (non-blocking)
+                        try:
+                            asyncio.create_task(price_stream.broadcast(event))
+                        except RuntimeError:
+                            # No event loop in current thread, create one
+                            loop = asyncio.new_event_loop()
+                            asyncio.set_event_loop(loop)
+                            loop.run_until_complete(price_stream.broadcast(event))
+                            loop.close()
+
+                except Exception as e:
+                    logger.debug(f"[PRICE_STREAM] Failed to broadcast price update: {e}")
 
         except Exception as e:
             logger.error(f"Error in price fetch callback for {mint}: {e}")

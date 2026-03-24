@@ -278,9 +278,9 @@ class PoolPriceCalculator:
         liquidity_usd = 2 * quote_human * (
             sol_price_usd if quote_is_sol else 1.0
         )
-        print(f"[PRICE_DEBUG] {mint[:16]}... liquidity=${liquidity_usd:.2f}, min=${PoolPriceCalculator.MIN_LIQUIDITY_USD}", flush=True)
+        if DEBUG_LOGGING: print(f"[PRICE_DEBUG] {mint[:16]}... liquidity=${liquidity_usd:.2f}, min=${PoolPriceCalculator.MIN_LIQUIDITY_USD}", flush=True)
         if liquidity_usd < PoolPriceCalculator.MIN_LIQUIDITY_USD:
-            print(
+            if DEBUG_LOGGING: print(
                 f"[PRICE_DEBUG] {mint[:16]}... ✗ rejected: liquidity ${liquidity_usd:.2f} < ${PoolPriceCalculator.MIN_LIQUIDITY_USD}",
                 flush=True
             )
@@ -306,7 +306,7 @@ class PoolPriceCalculator:
             # Liquidity is NOT market cap, but it's a useful metric
             market_cap = liquidity_usd
 
-        print(f"[PRICE_DEBUG] {mint[:16]}... ✓ price computed: ${price_usd:.8f}", flush=True)
+        if DEBUG_LOGGING: print(f"[PRICE_DEBUG] {mint[:16]}... ✓ price computed: ${price_usd:.8f}", flush=True)
         return TokenPrice(
             mint=mint,
             price_usd=price_usd,

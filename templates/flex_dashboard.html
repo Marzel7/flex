@@ -894,6 +894,9 @@
             <a class="nav-link" onclick="loadPage('early_signals')">
                 <i class="fas fa-brain"></i> <span>Early Predictions</span>
             </a>
+            <a class="nav-link" onclick="loadPage('token_behaviour')">
+                <i class="fas fa-chart-line"></i> <span>Token Behaviour</span>
+            </a>
             <a class="nav-link" onclick="loadPage('wallet')">
                 <i class="fas fa-wallet"></i> <span>Wallet Intelligence</span>
             </a>
@@ -976,6 +979,7 @@
                 'fingerprint': () => loadDeveloperFingerprint(PAGE_ORG_ID),
                 'api_reference': loadAPIReference,
                 'early_signals': loadEarlySignals,
+                'token_behaviour': loadTokenBehaviourLeaderboard,
             };
             (routes[page] || loadDashboard)();
         };
@@ -3175,6 +3179,149 @@
             }
         }
 
+        async function loadTokenBehaviourLeaderboard() {
+            const content = document.getElementById('page-content');
+            content.innerHTML = showLoading('Token Behaviour Leaderboard');
+
+            try {
+                // Fetch summary stats
+                const statsResp = await fetch(`${API_BASE}/token-behaviour/stats/summary`);
+                const stats = await statsResp.json();
+
+                // Fetch tokens for each category
+                const categories = ['immediate_rug', 'runner', 'choppy_runner', 'rug', 'slow_rug'];
+                const categoryTokens = {};
+
+                for (const cat of categories) {
+                    const resp = await fetch(`${API_BASE}/token-behaviour?category=${cat}&limit=10&min_confidence=0.1`);
+                    const data = await resp.json();
+                    categoryTokens[cat] = data.tokens || [];
+                }
+
+                const categoryInfo = {
+                    'immediate_rug': { icon: '💥', color: '#ef4444', label: 'Immediate Rug', description: 'Spike then crash in first 5 minutes' },
+                    'runner': { icon: '🚀', color: '#22c55e', label: 'Runner', description: 'Strong sustained growth' },
+                    'choppy_runner': { icon: '📈', color: '#eab308', label: 'Choppy Runner', description: 'Volatile but upward trending' },
+                    'rug': { icon: '📉', color: '#f97316', label: 'Rug Pull', description: 'Classic rug: pump then dump' },
+                    'slow_rug': { icon: '⬇️', color: '#8b5cf6', label: 'Slow Rug', description: 'Gradual decline' },
+                };
+
+                let html = `
+                    <div class="page-header">
+                        <h1>Token Behaviour Leaderboard</h1>
+                        <p class="subtitle">Top tokens by historical price behaviour classification</p>
+                    </div>
+
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.total_classified || 0}</div>
+                            <div class="stat-label">Total Classified</div>
+                        </div>
+                `;
+
+                // Add stat cards for each category
+                for (const cat of categories) {
+                    if (stats.by_category && stats.by_category[cat]) {
+                        const info = stats.by_category[cat];
+                        html += `
+                            <div class="stat-card">
+                                <div class="stat-value" style="color: ${categoryInfo[cat].color};">${info.count || 0}</div>
+                                <div class="stat-label">${categoryInfo[cat].label}</div>
+                                <small style="color: #999; margin-top: 4px;">Avg: ${(info.avg_confidence || 0).toFixed(2)}</small>
+                            </div>
+                        `;
+                    }
+                }
+
+                html += `
+                    </div>
+                `;
+
+                // Add leaderboard cards for each category
+                for (const cat of categories) {
+                    const info = categoryInfo[cat];
+                    const tokens = categoryTokens[cat] || [];
+
+                    html += `
+                        <div class="card" style="border-left: 4px solid ${info.color};">
+                            <div class="card-header" style="background: linear-gradient(90deg, rgba(0,0,0,0.02), rgba(0,0,0,0));">
+                                <h5 class="mb-0">
+                                    <span style="font-size: 1.5rem; margin-right: 8px;">${info.icon}</span>
+                                    ${info.label}
+                                </h5>
+                                <small style="color: #666;">${info.description}</small>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Rank</th>
+                                            <th>Token Mint</th>
+                                            <th>Confidence</th>
+                                            <th>Max Return</th>
+                                            <th>Drawdown</th>
+                                            <th>Snapshots</th>
+                                            <th>Lifetime</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${tokens.length === 0 ? `
+                                            <tr>
+                                                <td colspan="7" class="text-center text-muted">No tokens classified yet</td>
+                                            </tr>
+                                        ` : tokens.map((token, idx) => `
+                                            <tr style="cursor: pointer;" onclick="showTokenBehaviourDetail('${token.mint}')">
+                                                <td><strong>#${idx + 1}</strong></td>
+                                                <td><code style="font-size: 0.85rem; color: #666;">${token.mint.substring(0, 16)}...</code></td>
+                                                <td>
+                                                    <div style="font-weight: 600; color: ${info.color};">
+                                                        ${(token.confidence * 100).toFixed(0)}%
+                                                    </div>
+                                                </td>
+                                                <td>${token.max_return_multiple ? token.max_return_multiple.toFixed(2) + 'x' : 'N/A'}</td>
+                                                <td>${token.drawdown_from_peak ? (token.drawdown_from_peak * 100).toFixed(0) + '%' : 'N/A'}</td>
+                                                <td><small>${token.snapshot_count || 0}</small></td>
+                                                <td><small>${token.lifetime_secs ? Math.round(token.lifetime_secs / 60) + ' min' : 'N/A'}</small></td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="card" style="margin-top: 20px; background: #f5f5f5;">
+                        <div class="card-header">
+                            <h5 class="mb-0">ℹ️ About Token Behaviour Classification</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Forward-looking monitoring:</strong> Tokens are classified as they accumulate price history.</p>
+                            <ul style="margin: 0; padding-left: 20px;">
+                                <li><strong>Immediate Rug:</strong> Price spikes in first 5 minutes, then crashes 85%+</li>
+                                <li><strong>Runner:</strong> Sustained growth (5x+) with strong recovery and low drawdown</li>
+                                <li><strong>Choppy Runner:</strong> Good gains (3x+) but volatile with oscillations</li>
+                                <li><strong>Rug Pull:</strong> Classic rug pattern: 2x+ gain followed by 90%+ crash</li>
+                                <li><strong>Slow Rug:</strong> Gradual decline with 70%+ drawdown, slow death</li>
+                            </ul>
+                            <p style="margin-top: 10px; color: #666;"><small>Based on historical price snapshots and linear regression analysis.</small></p>
+                        </div>
+                    </div>
+                `;
+
+                content.innerHTML = html;
+            } catch (e) {
+                console.error('Error loading token behaviour:', e);
+                content.innerHTML = `<div class="alert alert-danger">Error loading token behaviour: ${e.message}</div>`;
+            }
+        }
+
+        function showTokenBehaviourDetail(mint) {
+            // Placeholder for detail view
+            alert(`Token details for: ${mint}\n\nFull detail view coming soon.`);
+        }
+
         // Signal Details Modal
         window.showSignalDetails = (mint, label) => {
             fetch(`${API_BASE}/early-signals/${mint}`)
@@ -3303,6 +3450,7 @@
                 'fingerprint': () => loadDeveloperFingerprint(PAGE_ORG_ID),
                 'api_reference': loadAPIReference,
                 'early_signals': loadEarlySignals,
+                'token_behaviour': loadTokenBehaviourLeaderboard,
             };
 
             (routes[PAGE] || routes['dashboard'])();

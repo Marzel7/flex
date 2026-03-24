@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLEX Live Price Update Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0f172a;
+            color: #f1f5f9;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #60a5fa;
+            margin-bottom: 30px;
+        }
+
+        .status-panel {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-weight: bold;
+            color: #cbd5e1;
+        }
+
+        .status-value {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .status-value.connected {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-value.disconnected {
+            background: #ef4444;
+            color: white;
+        }
+
+        .status-value.pending {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .log-container {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            height: 500px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .log-entry {
+            padding: 8px;
+            border-left: 3px solid #334155;
+            margin-bottom: 5px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .log-entry.info {
+            border-left-color: #60a5fa;
+            color: #93c5fd;
+        }
+
+        .log-entry.success {
+            border-left-color: #10b981;
+            color: #86efac;
+        }
+
+        .log-entry.error {
+            border-left-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        .log-entry.price-update {
+            border-left-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+            color: #fbbf24;
+        }
+
+        .log-timestamp {
+            color: #94a3b8;
+            margin-right: 10px;
+            font-size: 10px;
+        }
+
+        .price-updates {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .price-update-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .price-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 15px;
+            font-size: 12px;
+        }
+
+        .price-card.price-up {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .price-card.price-down {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .price-card-mint {
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .price-card-value {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        .price-card-label {
+            color: #94a3b8;
+        }
+
+        .price-card-data {
+            color: #f1f5f9;
+            font-weight: bold;
+        }
+
+        .controls {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .stats {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 FLEX Live Price Update Test</h1>
+
+        <!-- Status Panel -->
+        <div class="status-panel">
+            <div class="status-item">
+                <span class="status-label">Connection Status:</span>
+                <span class="status-value disconnected" id="connectionStatus">DISCONNECTED</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Events Received:</span>
+                <span class="status-value" id="eventCount" style="background: #3b82f6;">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Last Event:</span>
+                <span style="color: #94a3b8;" id="lastEvent">Never</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Unique Tokens:</span>
+                <span class="status-value" id="tokenCount" style="background: #3b82f6;">0</span>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button onclick="startTest()">▶ Start Test</button>
+            <button onclick="stopTest()">⏹ Stop Test</button>
+            <button onclick="clearLogs()">🗑 Clear Logs</button>
+            <button onclick="exportData()">💾 Export Data</button>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Price Updates</div>
+                <div class="stat-value" id="priceUpdateCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Event Time</div>
+                <div class="stat-value" id="avgEventTime">0ms</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Updates/Min</div>
+                <div class="stat-value" id="updateRate">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Connection Time</div>
+                <div class="stat-value" id="connectionTime">--</div>
+            </div>
+        </div>
+
+        <!-- Price Updates -->
+        <div class="price-updates">
+            <h2 style="margin-top: 0; color: #60a5fa;">Latest Price Updates</h2>
+            <div class="price-update-grid" id="priceGrid"></div>
+        </div>
+
+        <!-- Logs -->
+        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <h2 style="margin-top: 0; color: #60a5fa;">Live Event Log</h2>
+            <div class="log-container" id="logContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let eventSource = null;
+        let eventCount = 0;
+        let priceUpdates = new Map();
+        let startTime = null;
+        let testRunning = false;
+        let eventTimes = [];
+
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString('en-US', {
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                fractionalSecondDigits: 3
+            });
+
+            entry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span> ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function updateStats() {
+            document.getElementById('eventCount').textContent = eventCount;
+            document.getElementById('tokenCount').textContent = priceUpdates.size;
+            document.getElementById('priceUpdateCount').textContent = eventCount;
+
+            if (eventTimes.length > 0) {
+                const avgTime = eventTimes.reduce((a, b) => a + b, 0) / eventTimes.length;
+                document.getElementById('avgEventTime').textContent = avgTime.toFixed(1) + 'ms';
+            }
+
+            if (startTime && eventCount > 0) {
+                const elapsedSecs = (Date.now() - startTime) / 1000;
+                const updateRate = (eventCount / elapsedSecs * 60).toFixed(1);
+                document.getElementById('updateRate').textContent = updateRate;
+
+                const hours = Math.floor(elapsedSecs / 3600);
+                const mins = Math.floor((elapsedSecs % 3600) / 60);
+                const secs = Math.floor(elapsedSecs % 60);
+                document.getElementById('connectionTime').textContent =
+                    `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }
+        }
+
+        function updatePriceDisplay() {
+            const priceGrid = document.getElementById('priceGrid');
+            priceGrid.innerHTML = '';
+
+            const sorted = Array.from(priceUpdates.entries())
+                .sort((a, b) => b[1].timestamp - a[1].timestamp)
+                .slice(0, 12);
+
+            sorted.forEach(([mint, data]) => {
+                const card = document.createElement('div');
+                const isUp = data.direction === 'up';
+                card.className = `price-card ${isUp ? 'price-up' : isUp === false ? 'price-down' : ''}`;
+
+                card.innerHTML = `
+                    <div class="price-card-mint">${mint.slice(0, 8)}...</div>
+                    <div class="price-card-value">
+                        <span class="price-card-label">Price:</span>
+                        <span class="price-card-data">$${data.price_usd?.toFixed(8) || 'N/A'}</span>
+                    </div>
+                    <div class="price-card-value">
+                        <span class="price-card-label">Source:</span>
+                        <span class="price-card-data">${data.source || 'N/A'}</span>
+                    </div>
+                    <div class="price-card-value">
+                        <span class="price-card-label">MCap:</span>
+                        <span class="price-card-data">$${formatNumber(data.market_cap) || 'N/A'}</span>
+                    </div>
+                `;
+
+                priceGrid.appendChild(card);
+            });
+        }
+
+        function formatNumber(num) {
+            if (!num) return '0';
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+            return num.toFixed(2);
+        }
+
+        function startTest() {
+            if (testRunning) {
+                log('Test already running', 'info');
+                return;
+            }
+
+            testRunning = true;
+            eventCount = 0;
+            priceUpdates.clear();
+            eventTimes = [];
+            startTime = Date.now();
+
+            log('🚀 Connecting to /api/price-stream...', 'info');
+            document.getElementById('connectionStatus').textContent = 'CONNECTING...';
+            document.getElementById('connectionStatus').className = 'status-value pending';
+
+            // Detect server port (support both 5000 and 5002)
+            const serverUrl = window.location.hostname === 'localhost'
+                ? 'http://localhost:5002/api/price-stream'
+                : `http://${window.location.hostname}:5002/api/price-stream`;
+
+            log(`📡 Server URL: ${serverUrl}`, 'info');
+
+            eventSource = new EventSource(serverUrl);
+
+            eventSource.onopen = () => {
+                log('✅ EventSource connection opened successfully', 'success');
+                document.getElementById('connectionStatus').textContent = 'CONNECTED';
+                document.getElementById('connectionStatus').className = 'status-value connected';
+                startTime = Date.now();
+            };
+
+            eventSource.onmessage = (event) => {
+                try {
+                    const startProcessing = Date.now();
+                    const update = JSON.parse(event.data);
+                    const processingTime = Date.now() - startProcessing;
+
+                    eventCount++;
+                    eventTimes.push(processingTime);
+
+                    const prevData = priceUpdates.get(update.mint);
+                    let direction = null;
+                    if (prevData && prevData.price_usd) {
+                        direction = update.price_usd > prevData.price_usd ? 'up' : update.price_usd < prevData.price_usd ? 'down' : null;
+                    }
+
+                    priceUpdates.set(update.mint, {
+                        ...update,
+                        timestamp: Date.now(),
+                        direction: direction
+                    });
+
+                    log(`[PRICE_UPDATE #${eventCount}] ${update.mint.slice(0, 8)}... → $${update.price_usd?.toFixed(8) || 'N/A'} (${update.source})`, 'price-update');
+
+                    document.getElementById('lastEvent').textContent =
+                        new Date().toLocaleTimeString('en-US', { hour12: false });
+
+                    updateStats();
+                    updatePriceDisplay();
+                } catch (error) {
+                    log(`❌ Parse error: ${error.message}`, 'error');
+                }
+            };
+
+            eventSource.onerror = (error) => {
+                log('❌ EventSource connection error', 'error');
+                document.getElementById('connectionStatus').textContent = 'DISCONNECTED';
+                document.getElementById('connectionStatus').className = 'status-value disconnected';
+                eventSource?.close();
+            };
+        }
+
+        function stopTest() {
+            if (!testRunning) return;
+            testRunning = false;
+
+            if (eventSource) {
+                eventSource.close();
+                log('⏹ Test stopped', 'info');
+            }
+
+            document.getElementById('connectionStatus').textContent = 'DISCONNECTED';
+            document.getElementById('connectionStatus').className = 'status-value disconnected';
+        }
+
+        function clearLogs() {
+            document.getElementById('logContainer').innerHTML = '';
+            log('🗑 Logs cleared', 'info');
+        }
+
+        function exportData() {
+            const data = {
+                eventCount: eventCount,
+                totalTokens: priceUpdates.size,
+                priceUpdates: Array.from(priceUpdates.entries()).map(([mint, data]) => ({
+                    mint,
+                    ...data
+                })),
+                avgEventTime: eventTimes.length > 0
+                    ? (eventTimes.reduce((a, b) => a + b, 0) / eventTimes.length).toFixed(1)
+                    : 0
+            };
+
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `flex-price-test-${new Date().toISOString().slice(0, 19)}.json`;
+            a.click();
+
+            log('💾 Data exported to file', 'success');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/Dev/claude/flex/src/core/main.py", line 22, in <module>
+    from src.utils.infra_mapping import highlight_infra_in_funding
+ModuleNotFoundError: No module named 'src'

@@ -284,13 +284,28 @@ class PoolDiscovery:
 
             # ===== STAGE 2: Discover vaults by authority scan =====
             logger.info(f"[POOL_EXTRACT] Scanning for vaults owned by pool (authority scan)...")
-            
+
             vault_accounts = await self._get_token_accounts_by_owner(pool_address)
-            
+
             if not vault_accounts:
+                # 🚨 CRITICAL: Authority scan returned empty
+                # Possible reasons:
+                # 1. Pool uses PDA-derived authority (not pool_address)
+                # 2. Pool uses delegated authority pattern
+                # 3. Pool vaults owned by program, not pool
+                # 4. Pool simply has no vaults yet (new/broken)
+
                 logger.warning(
-                    f"[POOL_EXTRACT] ❌ No token accounts found owned by pool {pool_address[:16]}..."
+                    f"[POOL_EXTRACT] ❌ Authority scan failed: no vaults owned by pool {pool_address[:16]}... "
+                    f"(may use PDA/delegated authority - future enhancement needed)"
                 )
+                logger.info(
+                    f"[POOL_REJECTED] mint={token_mint[:20]}... pool={pool_address[:16]}... "
+                    f"reason=authority_scan_empty source=pda_delegation_likely"
+                )
+
+                # Fallback strategy: Mark for retry instead of hard reject
+                # TODO: Future enhancement - derive PDA authority or use TX accounts
                 return None
 
             logger.info(f"[POOL_EXTRACT] Found {len(vault_accounts)} token accounts owned by pool")
@@ -301,22 +316,31 @@ class PoolDiscovery:
 
             # Find base vault (holding the token_mint)
             base_candidates = [a for a in vault_accounts if a["mint"] == token_mint]
-            
+
             if not base_candidates:
                 logger.warning(
                     f"[POOL_EXTRACT] ❌ No vault holding token {token_mint[:16]}..."
                 )
+                logger.info(
+                    f"[POOL_REJECTED] mint={token_mint[:20]}... pool={pool_address[:16]}... "
+                    f"reason=no_base_vault available_mints={[a['mint'][:8] for a in vault_accounts]}"
+                )
                 return None
 
-            # Find quote vault (holding SOL or USDC, prefer larger balance)
+            # Find quote vault (any non-base token, prefer SOL/USDC by balance)
+            # ✅ FIXED: Accept any non-base token, not just SOL/USDC
             quote_candidates = [
-                a for a in vault_accounts 
-                if a["mint"] in (SOL_MINT, USDC_MINT)
+                a for a in vault_accounts
+                if a["mint"] != token_mint
             ]
-            
+
             if not quote_candidates:
                 logger.warning(
-                    f"[POOL_EXTRACT] ❌ No quote vault (SOL/USDC)"
+                    f"[POOL_EXTRACT] ❌ No quote vault found"
+                )
+                logger.info(
+                    f"[POOL_REJECTED] mint={token_mint[:20]}... pool={pool_address[:16]}... "
+                    f"reason=no_quote_vault available_mints={[a['mint'][:8] for a in vault_accounts]}"
                 )
                 return None
 
@@ -327,8 +351,18 @@ class PoolDiscovery:
                 except:
                     return 0
 
+            # Score quote vaults: prefer SOL/USDC, then by balance
+            def score_quote(acc):
+                mint = acc.get("mint", "")
+                balance = get_balance(acc)
+                if mint == SOL_MINT:
+                    return (3, balance)  # Highest preference
+                if mint == USDC_MINT:
+                    return (2, balance)  # Medium preference
+                return (1, balance)  # Accept any other quote
+
             base_vault = sorted(base_candidates, key=get_balance, reverse=True)[0]
-            quote_vault = sorted(quote_candidates, key=get_balance, reverse=True)[0]
+            quote_vault = sorted(quote_candidates, key=score_quote, reverse=True)[0]
 
             base_vault_addr = base_vault["address"]
             base_mint = base_vault["mint"]
@@ -599,25 +633,16 @@ class PoolDiscovery:
                     base_owner = base_info.get("owner")
                     quote_owner = quote_info.get("owner")
                     SPL_TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-                    PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
-                    
-                    # For Raydium/Orca: vaults must be SPL token accounts
-                    if pool_program in (RAYDIUM_AMM_PROGRAM, RAYDIUM_CPMM_PROGRAM, ORCA_WHIRLPOOL_PROGRAM):
-                        if base_owner == SPL_TOKEN_PROGRAM and quote_owner == SPL_TOKEN_PROGRAM:
-                            vault_status = "validated"
-                        else:
-                            vault_status = "pending"
-                            vault_error = "vaults exist but not SPL token accounts"
+                    TOKEN_2022_PROGRAM = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+                    VALID_TOKEN_OWNERS = (SPL_TOKEN_PROGRAM, TOKEN_2022_PROGRAM)
 
-                    # For PumpFun V1/PumpSwap: vaults ARE the PumpSwap pool accounts
-                    elif pool_program in (PUMPFUN_V1_PROGRAM, PUMPSWAP_PROGRAM):
-                        if base_owner == PUMPSWAP_PROGRAM and quote_owner == PUMPSWAP_PROGRAM:
-                            vault_status = "validated"
-                        else:
-                            vault_status = "pending"
-                            vault_error = "vaults exist but not PumpSwap pool accounts"
+                    # All vault accounts are SPL token accounts (owned by Token Program or Token-2022)
+                    # This applies to Raydium, Orca, PumpFun V1, PumpSwap, etc.
+                    if base_owner in VALID_TOKEN_OWNERS and quote_owner in VALID_TOKEN_OWNERS:
+                        vault_status = "validated"
                     else:
                         vault_status = "pending"
+                        vault_error = f"vaults exist but owners are wrong: base={base_owner}, quote={quote_owner}"
                 else:
                     vault_status = "pending"
                     vault_error = "vaults not yet created on-chain"

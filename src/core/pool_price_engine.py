@@ -293,10 +293,15 @@ class PoolPriceCalculator:
                 )
                 return None
 
-        # Calculate market cap from liquidity and base reserve
-        # market_cap ≈ 2 * liquidity_usd (assuming base and quote have roughly equal value)
-        # This is more reliable than using total_supply which we often don't have
-        market_cap = 2 * liquidity_usd
+        # Calculate market cap: price × total supply
+        # If we don't have total_supply, we can't calculate accurate market cap
+        # Use liquidity_usd as a fallback for now, but this is NOT market cap
+        if total_supply > 0:
+            market_cap = price_usd * total_supply
+        else:
+            # Fallback: without supply we can't calculate real market cap
+            # Liquidity is NOT market cap, but it's a useful metric
+            market_cap = liquidity_usd
 
         print(f"[PRICE_DEBUG] {mint[:16]}... ✓ price computed: ${price_usd:.8f}", flush=True)
         return TokenPrice(

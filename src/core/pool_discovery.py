@@ -232,9 +232,11 @@ class PoolDiscovery:
                 pool_data, pool_address, token_mint
             )
 
-        # PumpSwap (uses Raydium AMM layout)
+        # PumpSwap: Use authority-scan instead of fixed-offset extraction
+        # The old Raydium-style extraction produced wrong vaults for new launches
+        # Authority-scan works regardless of struct layout changes
         if owner == PUMPSWAP_PROGRAM:
-            return await self._extract_raydium_amm(pool_data, pool_address, token_mint)
+            return await self._extract_vaults_by_mint(pool_address, token_mint)
 
         # PumpFun V1 (different structure, may use Raydium-like layout at different offsets)
         if owner == PUMPFUN_V1_PROGRAM:
@@ -242,6 +244,80 @@ class PoolDiscovery:
 
         logger.warning(f"Unknown pool program owner: {owner}")
         return None
+
+    async def _extract_vaults_by_mint(
+        self, pool_address: str, token_mint: str
+    ) -> Optional[Dict]:
+        """
+        Extract vault accounts using authority-scan (layout-independent).
+
+        For PumpSwap pools, directly query which token accounts the pool owns
+        instead of trying to parse fixed offsets in the pool struct.
+
+        This works regardless of PumpSwap layout changes and is the recommended
+        approach for all authority-based pools.
+        """
+        try:
+            # Get all token accounts owned by the pool
+            accounts = await self._get_token_accounts_by_owner(pool_address)
+
+            if not accounts:
+                logger.warning(f"[POOL_EXTRACT] No token accounts found for pool {pool_address[:16]}...")
+                return None
+
+            # Find base vault (owns the token being launched)
+            base_candidates = [acc for acc in accounts if acc.get("mint") == token_mint]
+            if not base_candidates:
+                logger.warning(f"[POOL_EXTRACT] No vault for token {token_mint[:16]}... in pool {pool_address[:16]}...")
+                return None
+
+            # Find quote vault (owns SOL or USDC)
+            USDC_MINT = "EPjFWaLb3hyccVhVQAdS4jNA3LEjfZ3c6zDs8KKukQx"
+            quote_candidates = [
+                acc for acc in accounts
+                if acc.get("mint") in {SOL_MINT, USDC_MINT} or acc.get("mint") != token_mint
+            ]
+
+            if not quote_candidates:
+                logger.warning(f"[POOL_EXTRACT] No quote vault found in pool {pool_address[:16]}...")
+                return None
+
+            # Select highest balance vaults
+            def get_balance(acc):
+                try:
+                    return int(acc.get("amount_raw") or 0)
+                except:
+                    return 0
+
+            def score_quote(acc):
+                mint = acc.get("mint", "")
+                balance = get_balance(acc)
+                if mint == SOL_MINT:
+                    return (3, balance)
+                if mint == USDC_MINT:
+                    return (2, balance)
+                return (1, balance)
+
+            base_vault = max(base_candidates, key=lambda a: get_balance(a))
+            quote_vault = max(quote_candidates, key=score_quote)
+
+            logger.info(
+                f"[POOL_EXTRACT] ✅ Authority-scan found vaults for {pool_address[:16]}... "
+                f"(base={base_vault['address'][:16]}..., quote={quote_vault['address'][:16]}...)"
+            )
+
+            return {
+                "base_account": base_vault["address"],
+                "quote_account": quote_vault["address"],
+                "base_mint": base_vault["mint"],
+                "quote_mint": quote_vault["mint"],
+                "base_decimals": base_vault["decimals"],
+                "quote_decimals": quote_vault["decimals"],
+            }
+
+        except Exception as e:
+            logger.error(f"[POOL_EXTRACT] Authority-scan failed for {pool_address[:16]}...: {e}")
+            return None
 
     async def _extract_raydium_amm(
         self, pool_data: Dict, pool_address: str, token_mint: str

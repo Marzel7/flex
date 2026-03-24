@@ -4054,29 +4054,32 @@ HTML_TEMPLATE = """
                 }, index * 20);  // Minimal stagger (20ms)
             });
 
-            // Load initial prices
-            tokens.forEach((token, index) => {
-                setTimeout(() => {
-                    // Only fetch price if market cap >= $2k or unknown
-                    if (token.market_cap_current >= minMarketCap || !token.market_cap_current) {
-                        loadPrice(token.mint);
-                    }
-                }, index * 20);  // Minimal stagger (20ms) for smoother initial load
-            });
+            // DISABLED: Price polling endpoints no longer available
+            // The wallet page uses SSE for real-time prices instead
+            //
+            // // Load initial prices
+            // tokens.forEach((token, index) => {
+            //     setTimeout(() => {
+            //         // Only fetch price if market cap >= $2k or unknown
+            //         if (token.market_cap_current >= minMarketCap || !token.market_cap_current) {
+            //             loadPrice(token.mint);
+            //         }
+            //     }, index * 20);  // Minimal stagger (20ms) for smoother initial load
+            // });
 
-            // Set up 5-second price refresh for qualified tokens (real-time feel)
-            if (priceRefreshInterval) clearInterval(priceRefreshInterval);
-            priceRefreshInterval = setInterval(() => {
-                // Batch all price refreshes with minimal stagger for cleaner updates
-                tokens.forEach((token, index) => {
-                    setTimeout(() => {
-                        // Only refresh prices for tokens with market cap >= $2k or unknown
-                        if (token.market_cap_current >= minMarketCap || !token.market_cap_current) {
-                            loadPrice(token.mint);
-                        }
-                    }, index * 10);  // Minimal stagger (10ms) between requests
-                });
-            }, 5000);  // Refresh every 5 seconds for near real-time updates
+            // // Set up 5-second price refresh for qualified tokens (real-time feel)
+            // if (priceRefreshInterval) clearInterval(priceRefreshInterval);
+            // priceRefreshInterval = setInterval(() => {
+            //     // Batch all price refreshes with minimal stagger for cleaner updates
+            //     tokens.forEach((token, index) => {
+            //         setTimeout(() => {
+            //             // Only refresh prices for tokens with market cap >= $2k or unknown
+            //             if (token.market_cap_current >= minMarketCap || !token.market_cap_current) {
+            //                 loadPrice(token.mint);
+            //             }
+            //         }, index * 10);  // Minimal stagger (10ms) between requests
+            //     });
+            // }, 5000);  // Refresh every 5 seconds for near real-time updates
         }
 
         async function loadPrice(mint) {

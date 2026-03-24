@@ -3961,7 +3961,7 @@
                         <div class="stat-label">Rejected</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">${stats.avg_discovery_time_secs ? formatVaultDiscoveryTime(stats.avg_discovery_time_secs) : 'N/A'}</div>
+                        <div class="stat-value">${stats.avg_discovery_time_secs !== null && stats.avg_discovery_time_secs !== undefined ? formatVaultDiscoveryTime(stats.avg_discovery_time_secs) : 'N/A'}</div>
                         <div class="stat-label">Avg Discovery Time</div>
                     </div>
                     <div class="stat-card">
@@ -3987,8 +3987,57 @@
                 // Render table
                 const tbody = document.querySelector('#vaults-table tbody');
                 tbody.innerHTML = vaultsData.vaults.map(v => {
-                    const qualityIcon = v.tracking_quality === 'good' ? '✓' : v.tracking_quality === 'possibly_late' ? '⚠' : '⚠⚠';
-                    const qualityColor = v.tracking_quality === 'good' ? '#22c55e' : v.tracking_quality === 'possibly_late' ? '#eab308' : '#ef4444';
+                    // Render tracking quality
+                    let qualityIcon, qualityColor, qualityText;
+                    if (!v.tracking_quality) {
+                        qualityIcon = '?';
+                        qualityColor = '#999';
+                        qualityText = 'N/A';
+                    } else if (v.tracking_quality === 'good') {
+                        qualityIcon = '✓';
+                        qualityColor = '#22c55e';
+                        qualityText = v.tracking_quality;
+                    } else if (v.tracking_quality === 'possibly_late') {
+                        qualityIcon = '⚠';
+                        qualityColor = '#eab308';
+                        qualityText = v.tracking_quality;
+                    } else if (v.tracking_quality === 'likely_late') {
+                        qualityIcon = '⚠⚠';
+                        qualityColor = '#ef4444';
+                        qualityText = v.tracking_quality;
+                    } else {
+                        qualityIcon = '?';
+                        qualityColor = '#999';
+                        qualityText = 'N/A';
+                    }
+
+                    // Render strategy (use discovery_method as fallback)
+                    const strategy = v.vault_discovery_strategy ?? v.discovery_method ?? 'N/A';
+
+                    // Render attempts (not fallback to 0)
+                    const attempts = v.vault_discovery_attempts !== null && v.vault_discovery_attempts !== undefined
+                        ? v.vault_discovery_attempts
+                        : 'N/A';
+
+                    // Render discovery time
+                    let discoveryTime;
+                    if (v.vault_discovery_time_secs !== null && v.vault_discovery_time_secs !== undefined) {
+                        discoveryTime = formatVaultDiscoveryTime(v.vault_discovery_time_secs);
+                    } else if (v.vault_validation_status === 'pending') {
+                        discoveryTime = 'Pending';
+                    } else {
+                        discoveryTime = 'N/A';
+                    }
+
+                    // Render category
+                    const VALID_CATEGORIES = new Set(['immediate_rug', 'runner', 'faded_runner', 'choppy_runner', 'rug', 'slow_rug', 'insufficient_history', 'unknown']);
+                    const category = (v.category && VALID_CATEGORIES.has(v.category)) ? v.category : 'N/A';
+
+                    // Render confidence
+                    const confidence = v.confidence !== null && v.confidence !== undefined
+                        ? `${Math.round(v.confidence * 100)}%`
+                        : 'N/A';
+
                     const statusColor = v.vault_validation_status === 'validated' ? '#22c55e' : v.vault_validation_status === 'pending' ? '#eab308' : '#ef4444';
 
                     return `
@@ -3996,12 +4045,12 @@
                             <td style="font-size: 0.85rem; color: var(--text-secondary); font-family: monospace;">${v.mint.substring(0, 20)}...</td>
                             <td style="font-size: 0.85rem; color: var(--text-secondary);">${v.pool_address ? v.pool_address.substring(0, 20) + '...' : 'N/A'}</td>
                             <td><small style="color: ${statusColor};">${v.vault_validation_status}</small></td>
-                            <td><small>${v.vault_discovery_strategy || 'unknown'}</small></td>
-                            <td><small>${v.vault_discovery_attempts || 0}</small></td>
-                            <td><small>${v.vault_discovery_time_secs ? formatVaultDiscoveryTime(v.vault_discovery_time_secs) : 'N/A'}</small></td>
-                            <td><small style="color: ${qualityColor};">${qualityIcon} ${v.tracking_quality || 'N/A'}</small></td>
-                            <td><small>${v.category || 'N/A'}</small></td>
-                            <td><small>${v.confidence ? (v.confidence * 100).toFixed(0) + '%' : 'N/A'}</small></td>
+                            <td><small>${strategy}</small></td>
+                            <td><small>${attempts}</small></td>
+                            <td><small>${discoveryTime}</small></td>
+                            <td><small style="color: ${qualityColor};">${qualityIcon} ${qualityText}</small></td>
+                            <td><small>${category}</small></td>
+                            <td><small>${confidence}</small></td>
                         </tr>
                     `;
                 }).join('');
@@ -4085,7 +4134,7 @@
                                                 </div>
                                                 <div>
                                                     <small style="color: var(--text-secondary);">Vault Discovery Time</small>
-                                                    <div style="font-weight: 600; margin-top: 4px; font-size: 1.1rem;">${vault.discovery_time_secs ? formatVaultDiscoveryTime(vault.discovery_time_secs) : 'N/A'}</div>
+                                                    <div style="font-weight: 600; margin-top: 4px; font-size: 1.1rem;">${vault.discovery_time_secs !== null && vault.discovery_time_secs !== undefined ? formatVaultDiscoveryTime(vault.discovery_time_secs) : 'N/A'}</div>
                                                 </div>
                                             </div>
                                         </div>

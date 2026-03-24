@@ -2775,6 +2775,23 @@ HTML_TEMPLATE = """
                 <!-- Populated by JavaScript -->
             </div>
 
+            <h3>Pools & Vaults</h3>
+            <div id="poolsSection" style="margin-bottom: 20px;">
+                <table class="cex-funders-table">
+                    <thead>
+                        <tr>
+                            <th>Pool Address</th>
+                            <th>Base Vault</th>
+                            <th>Quote Vault</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="poolsBody">
+                        <tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">Loading pools...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
             <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(6, 182, 212, 0.2);">
                 <p style="color: var(--text-secondary); font-size: 12px;">
                     💡 <strong>Tip:</strong> Click "DexTools" link below to view live trading data
@@ -4569,6 +4586,9 @@ function switchToTokensTab() {
             const modal = document.getElementById('metricsModal');
             document.getElementById('modalMint').textContent = mint;
 
+            // Load pools for this token
+            loadTokenPools(mint);
+
             try {
                 const response = await fetch(`/api/token-metrics/${mint}`);
                 const data = await response.json();
@@ -4693,6 +4713,43 @@ function switchToTokensTab() {
 
         function closeTokenMetrics() {
             document.getElementById('metricsModal').style.display = 'none';
+        }
+
+        async function loadTokenPools(mint) {
+            try {
+                const response = await fetch(`/api/token/${mint}/pools`);
+                const data = await response.json();
+
+                const poolsBody = document.getElementById('poolsBody');
+
+                if (!data.pools || data.pools.length === 0) {
+                    poolsBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">No pools found</td></tr>';
+                    return;
+                }
+
+                poolsBody.innerHTML = data.pools.map(pool => `
+                    <tr>
+                        <td><code style="font-size: 10px; color: var(--accent-cyan); word-break: break-all;">${pool.pool_address}</code></td>
+                        <td><code style="font-size: 10px; color: var(--accent-purple); word-break: break-all;">${pool.base_account}</code></td>
+                        <td><code style="font-size: 10px; color: var(--accent-green); word-break: break-all;">${pool.quote_account}</code></td>
+                        <td>
+                            <span style="
+                                padding: 4px 8px;
+                                border-radius: 4px;
+                                font-size: 11px;
+                                font-weight: bold;
+                                white-space: nowrap;
+                                ${pool.vault_validation_status === 'validated' ? 'background: rgba(74, 222, 128, 0.2); color: #4ade80;' : 'background: rgba(251, 146, 60, 0.2); color: #fda34b;'}
+                            ">
+                                ${pool.vault_validation_status}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading pools:', error);
+                document.getElementById('poolsBody').innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--color-critical);">Error loading pools</td></tr>';
+            }
         }
 
         async function showCreatorDetails(creatorAddress) {
@@ -20172,6 +20229,484 @@ except ImportError as e:
     print(f"[WARNING] Price API not available: {e}")
 except Exception as e:
     print(f"[ERROR] Failed to initialize Price API: {e}")
+
+# =========================================================================
+# REAL-TIME PRICE STREAMING (SSE)
+# =========================================================================
+
+@app.route('/api/token/<mint>/pools')
+def get_token_pools(mint):
+    """Get all pools and vault addresses for a token"""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Get all pools for this mint
+        cursor.execute("""
+            SELECT 
+                pool_address,
+                base_account,
+                quote_account,
+                vault_validation_status,
+                discovery_method,
+                created_at
+            FROM token_pool_accounts
+            WHERE mint = ?
+            ORDER BY created_at DESC
+        """, (mint,))
+
+        pools = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        if not pools:
+            return jsonify({"pools": [], "message": "No pools found for this token"}), 200
+
+        return jsonify({
+            "mint": mint,
+            "total_pools": len(pools),
+            "pools": pools
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error fetching pools for {mint}: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/price-stream')
+def price_stream():
+    """
+    Server-Sent Events endpoint for real-time price updates.
+
+    Browser connects via: const es = new EventSource('/api/price-stream')
+
+    Receives events:
+    {
+        "type": "price_update",
+        "mint": "...",
+        "price_usd": 0.00123,
+        "market_cap": 1000000,
+        "source": "pool",
+        "updated_at": 1774286512
+    }
+    """
+    try:
+        from src.core.price_stream import get_price_stream
+
+        price_stream_instance = get_price_stream()
+
+        def event_generator():
+            """Generate SSE events from the price stream"""
+            import time
+            queue = price_stream_instance.subscribe()
+            logger_inst = logging.getLogger(__name__)
+
+            try:
+                print(f"[SSE_ENDPOINT] New browser client connected, subscriber count: {price_stream_instance.get_subscriber_count()}", flush=True)
+                logger_inst.info(f"[PRICE_STREAM] New browser client connected, subscriber count: {price_stream_instance.get_subscriber_count()}")
+
+                while True:
+                    try:
+                        # Get next event from queue with timeout (non-blocking with timeout)
+                        try:
+                            event = queue.get(timeout=30)  # 30 second timeout to detect dead connections
+                            print(f"[SSE_SEND] Sending event for {event.get('mint', '?')[:16]}...", flush=True)
+                            yield f"data: {json.dumps(event)}\n\n"
+                        except:
+                            # Queue timeout - send a comment to keep connection alive
+                            yield f": keepalive\n\n"
+                            continue
+
+                    except GeneratorExit:
+                        # Client disconnected
+                        break
+                    except Exception as e:
+                        logger_inst.debug(f"[PRICE_STREAM] Event error: {e}")
+                        break
+
+            finally:
+                price_stream_instance.unsubscribe(queue)
+                print(f"[SSE_ENDPOINT] Browser client disconnected, remaining: {price_stream_instance.get_subscriber_count()}", flush=True)
+                logger_inst.info(f"[PRICE_STREAM] Browser client disconnected, remaining: {price_stream_instance.get_subscriber_count()}")
+
+        return Response(
+            event_generator(),
+            mimetype='text/event-stream',
+            headers={
+                'Cache-Control': 'no-cache',
+                'X-Accel-Buffering': 'no',
+                'Connection': 'keep-alive'
+            }
+        )
+
+    except Exception as e:
+        logger.error(f"[PRICE_STREAM] Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/test-prices')
+def test_prices():
+    """Serve the live price update test dashboard"""
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>FLEX Live Price Update Test</title>
+        <style>
+            body {
+                font-family: 'Courier New', monospace;
+                background: #0f172a;
+                color: #f1f5f9;
+                padding: 20px;
+                margin: 0;
+            }
+            .container { max-width: 1200px; margin: 0 auto; }
+            h1 { color: #60a5fa; margin-bottom: 30px; }
+            .status-panel {
+                background: #1e293b;
+                border: 1px solid #334155;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            .status-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px;
+                border-bottom: 1px solid #334155;
+            }
+            .status-item:last-child { border-bottom: none; }
+            .status-label { font-weight: bold; color: #cbd5e1; }
+            .status-value {
+                font-weight: bold;
+                padding: 5px 10px;
+                border-radius: 4px;
+            }
+            .status-value.connected { background: #10b981; color: white; }
+            .status-value.disconnected { background: #ef4444; color: white; }
+            .status-value.pending { background: #f59e0b; color: white; }
+            .log-container {
+                background: #0f172a;
+                border: 1px solid #334155;
+                border-radius: 8px;
+                padding: 20px;
+                height: 500px;
+                overflow-y: auto;
+                margin-bottom: 20px;
+            }
+            .log-entry {
+                padding: 8px;
+                border-left: 3px solid #334155;
+                margin-bottom: 5px;
+                font-size: 12px;
+            }
+            .log-entry.info { border-left-color: #60a5fa; color: #93c5fd; }
+            .log-entry.success { border-left-color: #10b981; color: #86efac; }
+            .log-entry.error { border-left-color: #ef4444; color: #fca5a5; }
+            .log-entry.price-update {
+                border-left-color: #f59e0b;
+                background: rgba(245, 158, 11, 0.1);
+                color: #fbbf24;
+            }
+            .log-timestamp { color: #94a3b8; margin-right: 10px; font-size: 10px; }
+            .price-updates {
+                background: #1e293b;
+                border: 1px solid #334155;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            .price-update-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 15px;
+            }
+            .price-card {
+                background: #0f172a;
+                border: 1px solid #334155;
+                border-radius: 6px;
+                padding: 15px;
+                font-size: 12px;
+            }
+            .price-card.price-up { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+            .price-card.price-down { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+            .price-card-mint { font-weight: bold; color: #60a5fa; margin-bottom: 8px; word-break: break-all; }
+            .price-card-value { display: flex; justify-content: space-between; margin: 5px 0; }
+            .price-card-label { color: #94a3b8; }
+            .price-card-data { color: #f1f5f9; font-weight: bold; }
+            .controls {
+                background: #1e293b;
+                border: 1px solid #334155;
+                border-radius: 8px;
+                padding: 20px;
+                display: flex;
+                gap: 10px;
+            }
+            button {
+                background: #3b82f6;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+                transition: all 0.2s;
+            }
+            button:hover { background: #2563eb; transform: translateY(-1px); }
+            .stats {
+                background: #1e293b;
+                border: 1px solid #334155;
+                border-radius: 8px;
+                padding: 20px;
+                margin-top: 20px;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            }
+            .stat-card { text-align: center; }
+            .stat-label { color: #94a3b8; font-size: 12px; margin-bottom: 5px; }
+            .stat-value { font-size: 24px; font-weight: bold; color: #60a5fa; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🚀 FLEX Live Price Update Test</h1>
+
+            <div class="status-panel">
+                <div class="status-item">
+                    <span class="status-label">Connection Status:</span>
+                    <span class="status-value disconnected" id="connectionStatus">DISCONNECTED</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Events Received:</span>
+                    <span class="status-value" id="eventCount" style="background: #3b82f6;">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Last Event:</span>
+                    <span style="color: #94a3b8;" id="lastEvent">Never</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Unique Tokens:</span>
+                    <span class="status-value" id="tokenCount" style="background: #3b82f6;">0</span>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button onclick="startTest()">▶ Start Test</button>
+                <button onclick="stopTest()">⏹ Stop Test</button>
+                <button onclick="clearLogs()">🗑 Clear Logs</button>
+                <button onclick="exportData()">💾 Export Data</button>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-label">Price Updates</div>
+                    <div class="stat-value" id="priceUpdateCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Event Time</div>
+                    <div class="stat-value" id="avgEventTime">0ms</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Updates/Min</div>
+                    <div class="stat-value" id="updateRate">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Connection Time</div>
+                    <div class="stat-value" id="connectionTime">--</div>
+                </div>
+            </div>
+
+            <div class="price-updates">
+                <h2 style="margin-top: 0; color: #60a5fa;">Latest Price Updates</h2>
+                <div class="price-update-grid" id="priceGrid"></div>
+            </div>
+
+            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <h2 style="margin-top: 0; color: #60a5fa;">Live Event Log</h2>
+                <div class="log-container" id="logContainer"></div>
+            </div>
+        </div>
+
+        <script>
+            let eventSource = null;
+            let eventCount = 0;
+            let priceUpdates = new Map();
+            let startTime = null;
+            let testRunning = false;
+            let eventTimes = [];
+
+            function log(message, type = 'info') {
+                const logContainer = document.getElementById('logContainer');
+                const entry = document.createElement('div');
+                entry.className = `log-entry ${type}`;
+                const now = new Date();
+                const timestamp = now.toLocaleTimeString('en-US', {
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    fractionalSecondDigits: 3
+                });
+                entry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span> ${message}`;
+                logContainer.appendChild(entry);
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+
+            function updateStats() {
+                document.getElementById('eventCount').textContent = eventCount;
+                document.getElementById('tokenCount').textContent = priceUpdates.size;
+                document.getElementById('priceUpdateCount').textContent = eventCount;
+                if (eventTimes.length > 0) {
+                    const avgTime = eventTimes.reduce((a, b) => a + b, 0) / eventTimes.length;
+                    document.getElementById('avgEventTime').textContent = avgTime.toFixed(1) + 'ms';
+                }
+                if (startTime && eventCount > 0) {
+                    const elapsedSecs = (Date.now() - startTime) / 1000;
+                    const updateRate = (eventCount / elapsedSecs * 60).toFixed(1);
+                    document.getElementById('updateRate').textContent = updateRate;
+                    const hours = Math.floor(elapsedSecs / 3600);
+                    const mins = Math.floor((elapsedSecs % 3600) / 60);
+                    const secs = Math.floor(elapsedSecs % 60);
+                    document.getElementById('connectionTime').textContent =
+                        `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                }
+            }
+
+            function updatePriceDisplay() {
+                const priceGrid = document.getElementById('priceGrid');
+                priceGrid.innerHTML = '';
+                const sorted = Array.from(priceUpdates.entries())
+                    .sort((a, b) => b[1].timestamp - a[1].timestamp)
+                    .slice(0, 12);
+                sorted.forEach(([mint, data]) => {
+                    const card = document.createElement('div');
+                    const isUp = data.direction === 'up';
+                    card.className = `price-card ${isUp ? 'price-up' : isUp === false ? 'price-down' : ''}`;
+                    card.innerHTML = `
+                        <div class="price-card-mint">${mint.slice(0, 8)}...</div>
+                        <div class="price-card-value">
+                            <span class="price-card-label">Price:</span>
+                            <span class="price-card-data">$${data.price_usd?.toFixed(8) || 'N/A'}</span>
+                        </div>
+                        <div class="price-card-value">
+                            <span class="price-card-label">Source:</span>
+                            <span class="price-card-data">${data.source || 'N/A'}</span>
+                        </div>
+                        <div class="price-card-value">
+                            <span class="price-card-label">MCap:</span>
+                            <span class="price-card-data">$${formatNumber(data.market_cap) || 'N/A'}</span>
+                        </div>
+                    `;
+                    priceGrid.appendChild(card);
+                });
+            }
+
+            function formatNumber(num) {
+                if (!num) return '0';
+                if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+                if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+                if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+                return num.toFixed(2);
+            }
+
+            function startTest() {
+                if (testRunning) {
+                    log('Test already running', 'info');
+                    return;
+                }
+                testRunning = true;
+                eventCount = 0;
+                priceUpdates.clear();
+                eventTimes = [];
+                startTime = Date.now();
+                log('🚀 Connecting to /api/price-stream...', 'info');
+                document.getElementById('connectionStatus').textContent = 'CONNECTING...';
+                document.getElementById('connectionStatus').className = 'status-value pending';
+
+                const serverUrl = 'http://localhost:5002/api/price-stream';
+                log(`📡 Server URL: ${serverUrl}`, 'info');
+
+                eventSource = new EventSource(serverUrl);
+                eventSource.onopen = () => {
+                    log('✅ EventSource connection opened successfully', 'success');
+                    document.getElementById('connectionStatus').textContent = 'CONNECTED';
+                    document.getElementById('connectionStatus').className = 'status-value connected';
+                    startTime = Date.now();
+                };
+                eventSource.onmessage = (event) => {
+                    try {
+                        const startProcessing = Date.now();
+                        const update = JSON.parse(event.data);
+                        const processingTime = Date.now() - startProcessing;
+                        eventCount++;
+                        eventTimes.push(processingTime);
+                        const prevData = priceUpdates.get(update.mint);
+                        let direction = null;
+                        if (prevData && prevData.price_usd) {
+                            direction = update.price_usd > prevData.price_usd ? 'up' : update.price_usd < prevData.price_usd ? 'down' : null;
+                        }
+                        priceUpdates.set(update.mint, {
+                            ...update,
+                            timestamp: Date.now(),
+                            direction: direction
+                        });
+                        log(`[PRICE_UPDATE #${eventCount}] ${update.mint.slice(0, 8)}... → $${update.price_usd?.toFixed(8) || 'N/A'} (${update.source})`, 'price-update');
+                        document.getElementById('lastEvent').textContent = new Date().toLocaleTimeString('en-US', { hour12: false });
+                        updateStats();
+                        updatePriceDisplay();
+                    } catch (error) {
+                        log(`❌ Parse error: ${error.message}`, 'error');
+                    }
+                };
+                eventSource.onerror = (error) => {
+                    log('❌ EventSource connection error', 'error');
+                    document.getElementById('connectionStatus').textContent = 'DISCONNECTED';
+                    document.getElementById('connectionStatus').className = 'status-value disconnected';
+                    eventSource?.close();
+                };
+            }
+
+            function stopTest() {
+                if (!testRunning) return;
+                testRunning = false;
+                if (eventSource) {
+                    eventSource.close();
+                    log('⏹ Test stopped', 'info');
+                }
+                document.getElementById('connectionStatus').textContent = 'DISCONNECTED';
+                document.getElementById('connectionStatus').className = 'status-value disconnected';
+            }
+
+            function clearLogs() {
+                document.getElementById('logContainer').innerHTML = '';
+                log('🗑 Logs cleared', 'info');
+            }
+
+            function exportData() {
+                const data = {
+                    eventCount: eventCount,
+                    totalTokens: priceUpdates.size,
+                    priceUpdates: Array.from(priceUpdates.entries()).map(([mint, data]) => ({mint, ...data})),
+                    avgEventTime: eventTimes.length > 0 ? (eventTimes.reduce((a, b) => a + b, 0) / eventTimes.length).toFixed(1) : 0
+                };
+                const json = JSON.stringify(data, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `flex-price-test-${new Date().toISOString().slice(0, 19)}.json`;
+                a.click();
+                log('💾 Data exported to file', 'success');
+            }
+        </script>
+    </body>
+    </html>
+    """)
 
 # =========================================================================
 # START BACKGROUND WORKERS

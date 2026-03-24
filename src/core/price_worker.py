@@ -217,6 +217,7 @@ class BackgroundPriceWorker:
         from src.core.sol_price_cache import get_sol_price_cache
         from src.core.websocket_manager_sharded import get_websocket_manager_sharded
         from src.core.market_cap_calculator import get_market_cap_calculator
+        from src.core.token_inactivity_manager import TokenInactivityManager
 
         self._pool_state = get_pool_state()  # Use singleton shared with listener
         self._ws_client: Optional[PoolWebSocketClient] = None
@@ -233,6 +234,9 @@ class BackgroundPriceWorker:
 
         # Market cap calculator with supply caching
         self._market_cap_calc = get_market_cap_calculator(db_path)
+
+        # Token inactivity manager (detects and stops monitoring dead tokens)
+        self._inactivity_manager = TokenInactivityManager(db_path)
 
         # Priority queue: top tokens for WebSocket, others use Dexscreener fallback
         self._top_mints = set()  # Top 20-25 most recent tokens (from UI)
@@ -695,7 +699,15 @@ class BackgroundPriceWorker:
         self.stats['last_run'] = duration
         self.stats['queue_stats'] = self.queue.get_stats()
         self.sync_source_metrics()
-        
+
+        # Run inactivity detection (marks soft inactive, stops hard inactive)
+        from src.core.token_inactivity_manager import inactivity_detection
+        inactivity_stats = inactivity_detection(self._inactivity_manager, self)
+
+        # Log if tokens were stopped and WebSocket refresh is needed
+        if inactivity_stats['tokens_stopped'] > 0:
+            logger.info(f"[INACTIVITY] Stopped {inactivity_stats['tokens_stopped']} inactive tokens, WebSocket will refresh on next cycle")
+
         # ✅ Log system health metrics every cycle
         if self.stats['cycles'] % 3 == 0:  # Every ~30 seconds
             self.log_system_health_metrics()
@@ -1655,6 +1667,8 @@ class BackgroundPriceWorker:
             return prices.get(mint)
         except Exception as e:
             logger.error(f"Error fetching price for {mint}: {e}")
+            # Record fetch failure for inactivity tracking
+            self._inactivity_manager.record_fetch_failure(mint)
             # Return unavailable placeholder
             return TokenPrice(
                 mint=mint,
@@ -1740,6 +1754,9 @@ class BackgroundPriceWorker:
 
                 # Update timestamp
                 self.registry.update_price_timestamp(mint)
+
+                # Record activity for inactivity tracking (reset inactivity timer)
+                self._inactivity_manager.record_activity(mint)
 
                 # 🚀 BROADCAST TO UI VIA SSE
                 try:

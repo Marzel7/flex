@@ -1021,7 +1021,7 @@
         };
 
         // Utility: Load page
-        const loadPage = (page) => {
+        window.loadPage = (page) => {
             // Stop auto-refresh for pages that have it
             if (currentPage === 'token_behaviour') {
                 stopTokenBehaviourAutoRefresh();
@@ -1050,7 +1050,7 @@
         };
 
         // Go home (from sidebar brand click)
-        const goHome = () => {
+        window.goHome = () => {
             currentPage = 'dashboard';
             document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
             const dashboardLink = document.querySelector('.nav-link[onclick*="dashboard"]');

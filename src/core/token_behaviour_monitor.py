@@ -26,10 +26,13 @@ def classify_recent_tokens(
     """
     Classify tokens that have been updated since last classification run.
 
+    Uses tiered classification: early (8+ snapshots), mid (30+), full (100+).
+    Supports reclassification as tokens age and accumulate more data.
+
     Only classifies tokens with:
-    - At least 8 price snapshots
-    - At least 5 minutes (300 secs) of history
-    - Not yet classified OR classified more than 10 minutes ago
+    - At least 8 price snapshots (minimum for early classification)
+    - Configurable minimum age (default 300 secs = 5 min before first classification)
+    - Not yet classified OR classified more than 10 minutes ago (allows reclassification)
 
     Args:
         db_path: Path to database
@@ -40,7 +43,7 @@ def classify_recent_tokens(
     Returns:
         {"classified": N, "by_category": {...}, "errors": [...]}
     """
-    from src.core.token_behavior import classify_mint
+    from token_behavior import classify_mint
 
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
@@ -49,35 +52,37 @@ def classify_recent_tokens(
     try:
         now = int(time.time())
 
-        # Find candidates: tokens with enough snapshots and age
-        # that haven't been classified recently
+        # Find candidates: tokens that have snapshots available
+        # and haven't been classified recently (or not yet classified)
+        # Allows rolling window of data with tiered classification at 8+ snapshots
+
         query = """
             SELECT p.mint
             FROM token_price_snapshots p
             WHERE (
-                -- Either not yet classified
-                NOT EXISTS (
-                    SELECT 1 FROM token_behavior b WHERE b.mint = p.mint
+                    -- Either not yet classified
+                    NOT EXISTS (
+                        SELECT 1 FROM token_behavior b WHERE b.mint = p.mint
+                    )
+                    -- Or classified more than 10 minutes ago (allow reclassification as data improves)
+                    OR EXISTS (
+                        SELECT 1 FROM token_behavior b
+                        WHERE b.mint = p.mint
+                        AND b.classified_at < ?
+                    )
                 )
-                -- Or classified more than 10 minutes ago
-                OR EXISTS (
-                    SELECT 1 FROM token_behavior b
-                    WHERE b.mint = p.mint
-                    AND b.classified_at < ?
-                )
-            )
             GROUP BY p.mint
             HAVING
-                -- Token must have minimum age
+                -- Token must have minimum age for most categories, but immediate_rug can happen fast
                 (? - MIN(p.captured_at)) >= ?
-                -- Token must have enough snapshots
+                -- Token must have enough snapshots (8 minimum for early classification)
                 AND COUNT(*) >= 8
             LIMIT ?
         """
 
         candidates = cursor.execute(
             query,
-            (now - 600, now, min_age_secs, batch_size)  # 10 min = 600 secs
+            (now - 600, now, min_age_secs, batch_size)
         ).fetchall()
 
         logger.info(f"[TOKEN_BEHAVIOUR] Found {len(candidates)} candidates for classification")

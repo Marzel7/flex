@@ -7177,12 +7177,8 @@ def highlight_infra_in_funding(funders_list):
 
 @app.route('/')
 def index():
-    """Serve the migration tracking dashboard"""
-    # Return HTML directly without Jinja2 processing
-    # The template contains ${{ }} which looks like Jinja2 escaping but is actually
-    # incorrect - Jinja2 would interpret {{ }} as a print statement regardless of the $
-    # Since there are no actual Jinja2 variables in the template, return it as-is
-    return HTML_TEMPLATE
+    """Serve the main dashboard"""
+    return render_template('flex_dashboard.html', page='dashboard')
 
 
 @app.route('/coordinated-funder-analysis/<creator_address>')

@@ -1,0 +1,95 @@
+[WEBHOOK_INIT] Tables created/verified
+[WEBHOOK_INTEGRATION] Routes registered: /helius/webhook, /api/webhook/status, /api/webhook/usage-snapshot
+[WORKER] Started
+[WEBHOOK_INTEGRATION] Worker thread started
+[WEBHOOK_INTEGRATION] Webhook system initialized
+[WEBHOOK_API] Enriched routes registered: /creator-recent-checks/enriched, /creators/top-risk, /creator/<>/risk-details
+[WEBHOOK] M5 Webhook-First Low-RPC Architecture initialized successfully
+[OPTIMIZATION] Helius optimization metrics API routes registered successfully
+[RPC_SAVINGS] RPC savings and efficiency dashboard APIs registered successfully
+[LAUNCH_PREDICTION] Phase 3.3+ launch prediction API routes registered successfully
+[ADVANCED_FARM_INTELLIGENCE] Phase 4 advanced farm intelligence API routes registered successfully
+[DEV_INTELLIGENCE] Dev intelligence graph API routes registered successfully
+[FLEX_UI] FLEX UI API routes registered successfully
+[DASHBOARD] FLEX Intelligence Dashboard routes registered successfully
+[PRICE_API] Token Price API routes registered successfully
+[FLASK] Starting Migration Tracker UI...
+[FLASK] Dashboard available at http://localhost:5002
+[FLASK] Database: database/flex_complete_database.db
+[PRICE_WORKER] Creating worker thread
+[PRICE_WORKER] thread created
+[PRICE_WORKER] _run_loop THREAD STARTED
+[PRICE_WORKER] thread.start() executed
+[PRICE_WORKER] self.running = True
+[PRICE_WORKER] thread alive: True
+[PRICE_WORKER] Background price worker started - fetching prices every 10s (HIGH), 30s (MEDIUM), 200s (LOW)
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774385415.666388
+[POOL_WS] 🗺️  Built account map: 58 accounts → 29 pools (0 new)
+[POOL_WS] 🚀 Starting WebSocket client to subscribe to 58 pool accounts
+[LIQUIDITY_WORKER] Background liquidity worker started - updating every 60s
+ * Serving Flask app 'main'
+ * Debug mode: off
+[POOL_WS] 🗺️  Built account map: 58 accounts → 29 pools (0 new)
+[POOL_WS] 🔄 refresh_pools: 58 → 58 accounts
+[POOL_WS] ✅ Subscribed to 58/58 pool accounts
+[POOL_WS] 🔄 _receive_loop started, waiting for account notifications...
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774385416.014103
+[POOL_STATE] ✅ READY: 2XECEfdz... (base=457913377171094, quote=38599512813)
+[POOL_STATE] ✅ READY: 7kSVgw4A... (base=820406234008286, quote=21458656758)
+[POOL_STATE] ✅ READY: AtuBSitR... (base=1204633780961718, quote=34407342)
+[POOL_STATE] ✅ READY: 9tohbPwL... (base=1237585356723183, quote=31267947)
+[POOL_STATE] ✅ READY: D2K5Q1z5... (base=918177833742827, quote=34386722)
+[POOL_STATE] ✅ READY: 45u3Yjkr... (base=1068215606303832, quote=36247177)
+[POOL_STATE] ✅ READY: HGmfix9B... (base=915373217238171, quote=19279229956)
+[POOL_STATE] ✅ READY: DwzmkB7M... (base=143261525184469, quote=124922157808)
+[POOL_STATE] ✅ READY: AEFzPhKZ... (base=899613914994794, quote=31199314)
+[POOL_STATE] ✅ READY: DGgmS6aH... (base=357400965064674, quote=49274179844)
+[POOL_STATE] ✅ READY: CPfQbJ6e... (base=432638904847903, quote=40891279470)
+[POOL_STATE] ✅ READY: EkMfHYVU... (base=677641359898224, quote=26047809215)
+[POOL_STATE] ✅ READY: 21QbR466... (base=879082976090345, quote=21966597359)
+[POOL_STATE] ✅ READY: CR8w8WPt... (base=56051215363864, quote=398930813795)
+[POOL_STATE] ✅ READY: EF3nG8hn... (base=382265583181504, quote=46060318552)
+[POOL_STATE] ✅ READY: 53gpsbra... (base=1182342923525748, quote=30991355)
+[POOL_STATE] ✅ READY: HTuMVVHe... (base=994637266397124, quote=18091240790)
+[POOL_STATE] ✅ READY: 52p34AKX... (base=791483437750520, quote=24074508382)
+[POOL_STATE] ✅ READY: qYcmq6ZU... (base=1121470182563708, quote=13939813)
+[POOL_STATE] ✅ READY: 6k7YUpKg... (base=895080823343567, quote=76274763)
+[POOL_STATE] ✅ READY: 27EhRFRB... (base=397343240049126, quote=44478336060)
+[POOL_STATE] ✅ READY: 6RE8tX7k... (base=688732176775778, quote=27094896900)
+[POOL_STATE] ✅ READY: GfXVT6i8... (base=591755596953111, quote=31019477773)
+[POOL_STATE] ✅ READY: 7jAZvneR... (base=719286418374685, quote=24529924133)
+[POOL_STATE] ✅ READY: 5x7pbyYs... (base=310620427202214, quote=57893430521)
+[POOL_STATE] ✅ READY: 6gPALH8g... (base=735523233792544, quote=24684706726)
+[POOL_STATE] ✅ READY: 3qa6zByv... (base=1528274893330842, quote=18934526)
+[POOL_STATE] ✅ READY: 4UPUXWLe... (base=200626482436471, quote=88066991211)
+[POOL_STATE] ✅ READY: FVNediAc... (base=405637938507296, quote=46035817412)
+[PRICE_WORKER] ✅ Bootstrapped 29 mints (29 with liquidity, 0 missing RPC data, 0 zero-liquidity)
+[SOL_PRICE] ✅ Fetched from Binance: $89.89
+[POOL_WS] 📨 Received message #1: {"jsonrpc":"2.0","method":"accountNotification","params":{"subscription":118129787,"result":{"contex...
+[POOL_WS] 📨 Received message #2: {"jsonrpc":"2.0","method":"accountNotification","params":{"subscription":118129786,"result":{"contex...
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774385416.256072
+[POOL_WS] 📨 Received message #3: {"jsonrpc":"2.0","method":"accountNotification","params":{"subscription":118129786,"result":{"contex...
+[SOL_PRICE] ✅ Fetched from Binance: $89.88
+[CAPABILITY_CHECK] Phase 2A networks_release: ENABLED
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774385427.952427
+[SOL_PRICE] ✅ Fetched from CoinGecko: $89.85
+[POOL_WS] 📥 Decoded 100 reserve updates (dedup: 0)
+[POOL_WS] 📨 Received message #101: {"jsonrpc":"2.0","method":"accountNotification","params":{"subscription":118129786,"result":{"contex...
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774385438.3450282
+[SOL_PRICE] ✅ Fetched from Binance: $89.88
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774385449.1231868
+[SOL_PRICE] ✅ Fetched from Binance: $89.89
+[POOL_WS] 📥 Decoded 200 reserve updates (dedup: 0)
+[POOL_WS] 📨 Received message #201: {"jsonrpc":"2.0","method":"accountNotification","params":{"subscription":118129786,"result":{"contex...
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774385459.8065128
+[SOL_PRICE] ✅ Fetched from Binance: $89.88
+[POOL_WS] 📥 Decoded 300 reserve updates (dedup: 0)
+[POOL_WS] 📨 Received message #301: {"jsonrpc":"2.0","method":"accountNotification","params":{"subscription":118129761,"result":{"contex...
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774385470.5083919
+[SOL_PRICE] ✅ Fetched from Binance: $89.89

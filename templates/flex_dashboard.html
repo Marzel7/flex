@@ -3251,6 +3251,7 @@
         const CATEGORY_INFO = {
             'immediate_rug': { icon: '💥', color: '#ef4444', label: 'Immediate Rug', description: 'Spike then crash in first 5 minutes' },
             'runner': { icon: '🚀', color: '#22c55e', label: 'Runner', description: 'Strong sustained growth' },
+            'faded_runner': { icon: '⬇️🚀', color: '#84cc16', label: 'Faded Runner', description: 'Strong upside then material decline' },
             'choppy_runner': { icon: '📈', color: '#eab308', label: 'Choppy Runner', description: 'Volatile but upward trending' },
             'rug': { icon: '📉', color: '#f97316', label: 'Rug Pull', description: 'Classic rug: pump then dump' },
             'slow_rug': { icon: '⬇️', color: '#8b5cf6', label: 'Slow Rug', description: 'Gradual decline' },
@@ -3267,7 +3268,7 @@
                 const stats = await statsResp.json();
 
                 // Fetch tokens for each category
-                const categories = ['immediate_rug', 'runner', 'choppy_runner', 'rug', 'slow_rug'];
+                const categories = ['immediate_rug', 'runner', 'faded_runner', 'choppy_runner', 'rug', 'slow_rug'];
                 const categoryTokens = {};
 
                 for (const cat of categories) {
@@ -3392,13 +3393,14 @@
                         <p><strong>Forward-looking monitoring:</strong> Tokens are classified as they accumulate price history. Classifications use tiered thresholds based on data quality (8+ snapshots = early, 30+ = mid, 100+ = full).</p>
                         <ul style="margin: 0; padding-left: 20px;">
                             <li><strong>Immediate Rug:</strong> Price spikes in first 5 minutes, then crashes 85%+</li>
-                            <li><strong>Runner:</strong> Sustained growth (5x+) with strong recovery and low drawdown</li>
-                            <li><strong>Choppy Runner:</strong> Good gains (3x+) but volatile with oscillations</li>
+                            <li><strong>Runner:</strong> Sustained growth (5x+) with strong recovery (≥50%) and low drawdown (≤50%)</li>
+                            <li><strong>Faded Runner:</strong> Strong upside (3x+) then material decline (50-85% drawdown) but not terminal</li>
+                            <li><strong>Choppy Runner:</strong> Good gains (3x+) but volatile with oscillations, still reasonably alive</li>
                             <li><strong>Rug Pull:</strong> Classic rug pattern: 2x+ gain followed by 90%+ crash</li>
-                            <li><strong>Slow Rug:</strong> Gradual decline with 70%+ drawdown, slow death</li>
+                            <li><strong>Slow Rug:</strong> Gradual decline with 70%+ drawdown, weak upside or no upside</li>
                             <li><strong>Insufficient History:</strong> Less than 8 snapshots - too early to classify confidently</li>
                         </ul>
-                        <p style="margin-top: 10px; color: var(--text-secondary);"><small><strong>Confidence tiers:</strong> Early data (8-30 snapshots) has lower confidence, mid data (30-100) has moderate confidence, full data (100+) has highest confidence. Confidence is penalized for tokens with &lt;10 minutes of history.</small></p>
+                        <p style="margin-top: 10px; color: var(--text-secondary);"><small><strong>Confidence tiers:</strong> Early data (8-30 snapshots) has lower confidence, mid data (30-100) has moderate confidence, full data (100+) has highest confidence. Confidence is penalized for tokens with &lt;10 minutes of history. Faded runners are inherently uncertain (max 0.85 confidence).</small></p>
                         <p style="margin: 10px 0 0 0; color: var(--text-secondary);"><small>Based on historical price snapshots and linear regression analysis.</small></p>
                     </div>
                 </div>

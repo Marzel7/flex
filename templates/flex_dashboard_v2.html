@@ -500,6 +500,19 @@
             background: rgba(34, 197, 94, 0.1);
             color: #86efac;
         }
+
+        /* Real-time price stream visual feedback */
+        .price-up {
+            background: rgba(34, 197, 94, 0.2) !important;
+            color: #22c55e !important;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .price-down {
+            background: rgba(239, 68, 68, 0.2) !important;
+            color: #ef4444 !important;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -578,6 +591,88 @@
             };
             return badges[level] || '<span class="badge badge-neutral">UNKNOWN</span>';
         };
+
+        // =====================================================================
+        // REAL-TIME PRICE STREAMING (SSE)
+        // =====================================================================
+
+        function updateTokenPrice(update) {
+            console.log(`[UPDATE_DEBUG] Looking for row with data-mint="${update.mint}"`);
+            const row = document.querySelector(`[data-mint="${update.mint}"]`);
+            if (!row) {
+                console.warn(`[UPDATE_DEBUG] ⚠️  No DOM element found with data-mint="${update.mint}"`);
+                return;
+            }
+            console.log(`[UPDATE_DEBUG] ✅ Found row for ${update.mint.slice(0, 8)}...`);
+
+            // Update price
+            const priceElem = row.querySelector('.token-price');
+            if (priceElem) {
+                const oldPrice = parseFloat(priceElem.textContent) || 0;
+                const newPrice = update.price_usd;
+
+                priceElem.textContent = newPrice.toFixed(8);
+
+                if (newPrice > oldPrice && oldPrice > 0) {
+                    priceElem.classList.add('price-up');
+                } else if (newPrice < oldPrice && oldPrice > 0) {
+                    priceElem.classList.add('price-down');
+                }
+
+                setTimeout(() => {
+                    priceElem.classList.remove('price-up', 'price-down');
+                }, 800);
+
+                console.log(`[PRICE_UPDATE] ${update.mint.slice(0, 8)}... → $${newPrice.toFixed(8)} (was $${oldPrice.toFixed(8)})`);
+            } else {
+                console.warn(`[UPDATE_DEBUG] ⚠️  No .token-price element found in row`);
+            }
+
+            // Update source badge
+            const sourceCells = row.querySelectorAll('td');
+            if (sourceCells.length >= 3) {
+                const sourceCell = sourceCells[2]; // Third column is Source
+                const badgeColor = update.source === 'pool' ? 'bg-success' : 'bg-secondary';
+                const badgeText = update.source === 'pool' ? '🌊 Pool' : '📊 DexScreener';
+                sourceCell.innerHTML = `<span class="badge ${badgeColor}" style="font-size: 0.75rem;">${badgeText}</span>`;
+            }
+        }
+
+        function initPriceStream() {
+            console.log('[PRICE_STREAM] Initializing connection...');
+            const es = new EventSource('/api/price-stream');
+            let eventCount = 0;
+
+            es.onopen = () => {
+                console.log('[PRICE_STREAM] ✅ EventSource opened successfully');
+            };
+
+            es.onmessage = (event) => {
+                try {
+                    const update = JSON.parse(event.data);
+                    eventCount++;
+                    console.log(`[PRICE_STREAM] Event #${eventCount}: ${update.mint.slice(0, 8)}... @ $${update.price_usd.toFixed(8)}`);
+
+                    if (update.type === 'price_update') {
+                        updateTokenPrice(update);
+                    }
+                } catch (error) {
+                    console.error('[PRICE_STREAM] Parse error:', error, 'Raw data:', event.data);
+                }
+            };
+
+            es.onerror = (error) => {
+                console.error('[PRICE_STREAM] ❌ Connection error:', error);
+                console.log('[PRICE_STREAM] Browser will attempt auto-reconnect...');
+            };
+
+            window.addEventListener('beforeunload', () => {
+                es.close();
+                console.log(`[PRICE_STREAM] Connection closed. Received ${eventCount} events.`);
+            });
+
+            console.log('[PRICE_STREAM] ✅ Connected to /api/price-stream');
+        }
 
         // Utility: Load page
         const loadPage = (page) => {
@@ -1657,14 +1752,18 @@
                                 <thead>
                                     <tr>
                                         <th>Mint</th>
+                                        <th>Live Price</th>
+                                        <th>Source</th>
                                         <th>Rug Probability</th>
                                         <th>Created</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     ${(wallet.tokens || []).map(t => `
-                                        <tr>
+                                        <tr data-mint="${t.mint}">
                                             <td><code>${t.mint?.substring(0, 8)}...</code></td>
+                                            <td class="token-price" style="font-weight: 600;">-</td>
+                                            <td><span class="badge bg-secondary" style="font-size: 0.75rem;">Loading...</span></td>
                                             <td>${formatPercent(t.rug_probability)}</td>
                                             <td>${formatDate(t.created_at)}</td>
                                         </tr>
@@ -1688,6 +1787,9 @@
         const PAGE_WALLET = '{{ wallet_address | default("") }}';
 
         window.addEventListener('load', () => {
+            // Initialize real-time price streaming
+            initPriceStream();
+
             const routes = {
                 'dashboard': loadDashboard,
                 'radar': loadLaunchRadar,

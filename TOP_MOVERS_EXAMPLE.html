@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Movers Panel - Example</title>
+
+    <style>
+        :root {
+            --color-critical: #ef4444;
+            --color-high: #f97316;
+            --color-watch: #eab308;
+            --color-low: #84cc16;
+            --color-neutral: #6b7280;
+            --color-primary: #3b82f6;
+            --color-secondary: #6366f1;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text-secondary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        h1 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .demo-section {
+            margin-bottom: 3rem;
+        }
+
+        /* Paste the top_movers_styles.css content below */
+        .top-movers-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .movers-card {
+            background: var(--bg-card, #1e293b);
+            border: 1px solid var(--border-color, #334155);
+            border-radius: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .movers-card:hover {
+            border-color: var(--color-primary, #3b82f6);
+            box-shadow: 0 1px 8px rgba(59, 130, 246, 0.1);
+        }
+
+        .movers-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color, #334155);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .movers-header h6 {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary, #f1f5f9);
+        }
+
+        .movers-header small {
+            color: var(--text-secondary, #cbd5e1);
+            font-size: 0.8rem;
+        }
+
+        .movers-body {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 400px;
+            padding: 0;
+        }
+
+        .movers-row {
+            display: grid;
+            grid-template-columns: 2.5rem 1fr 4rem 5rem 2rem;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color, #334155);
+            font-size: 0.85rem;
+            transition: background-color 0.15s;
+        }
+
+        .movers-row:last-child {
+            border-bottom: none;
+        }
+
+        .movers-row:hover {
+            background-color: rgba(59, 130, 246, 0.05);
+            cursor: pointer;
+        }
+
+        .movers-rank {
+            font-weight: 700;
+            color: var(--color-primary, #3b82f6);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .movers-mint {
+            color: var(--text-secondary, #cbd5e1);
+            font-family: 'Monaco', 'Courier', monospace;
+            font-size: 0.8rem;
+        }
+
+        .movers-price {
+            text-align: right;
+            color: var(--text-primary, #f1f5f9);
+            font-weight: 500;
+            font-family: 'Monaco', 'Courier', monospace;
+            font-size: 0.8rem;
+        }
+
+        .movers-change {
+            text-align: right;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .movers-source {
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .bg-success {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .bg-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        .control-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-panel label {
+            color: var(--text-primary);
+            margin-right: 1rem;
+        }
+
+        button {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        button.active {
+            background: var(--color-secondary);
+        }
+
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid var(--color-primary);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.25rem;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <h1>Top Movers Panel - Live Demo</h1>
+    <p class="subtitle">Real-time token rankings powered by SSE price stream</p>
+
+    <div class="info-box">
+        <p>
+            <strong>ℹ️ Demo Mode:</strong> This page simulates price updates.
+            In production, it connects to <code>/api/price-stream</code> (SSE endpoint).
+        </p>
+    </div>
+
+    <div class="demo-section">
+        <h2>Controls</h2>
+        <div class="control-panel">
+            <label for="window-select">Rolling Window:</label>
+            <button onclick="setWindow(1*60*1000)" class="active">1m</button>
+            <button onclick="setWindow(5*60*1000)">5m</button>
+            <button onclick="setWindow(15*60*1000)">15m</button>
+
+            <br style="margin: 0.5rem 0;">
+
+            <label for="render-speed">Simulation Speed:</label>
+            <button onclick="setSimulationSpeed(100)">Fast</button>
+            <button onclick="setSimulationSpeed(500)" class="active">Normal</button>
+            <button onclick="setSimulationSpeed(1000)">Slow</button>
+
+            <br style="margin: 0.5rem 0;">
+
+            <button onclick="resetDemo()">Reset</button>
+            <button onclick="simulateMore()">Inject 50 Updates</button>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Top Movers Panel</h2>
+        <div id="top-movers-container"></div>
+    </div>
+
+    <script>
+        /**
+         * TOP MOVERS - Embedded for demo
+         */
+
+        const TOP_MOVERS = {
+          config: {
+            windowMs: 5 * 60 * 1000,
+            renderIntervalMs: 1000,
+            maxTokensPerCategory: 10,
+            minUpdatesForRanking: 2,
+          },
+
+          tokenMap: new Map(),
+          lastRendered: 0,
+          renderScheduled: false,
+          needsRender: false,
+
+          onPriceUpdate(update) {
+            const { mint, price_usd, source } = update;
+
+            let token = this.tokenMap.get(mint);
+            if (!token) {
+              token = {
+                mint,
+                updates: [],
+                currentPrice: price_usd,
+                previousPrice: price_usd,
+                source,
+                lastUpdatedAt: Date.now(),
+              };
+              this.tokenMap.set(mint, token);
+            }
+
+            token.previousPrice = token.currentPrice || price_usd;
+            token.currentPrice = price_usd;
+            token.source = source;
+            token.lastUpdatedAt = Date.now();
+
+            token.updates.push({
+              price: price_usd,
+              time: Date.now(),
+            });
+
+            this.pruneHistory(token);
+            this.scheduleRender();
+          },
+
+          pruneHistory(token) {
+            const cutoff = Date.now() - this.config.windowMs;
+            token.updates = token.updates.filter(u => u.time > cutoff);
+          },
+
+          getPercentChange(token) {
+            if (token.updates.length < this.config.minUpdatesForRanking) {
+              return 0;
+            }
+
+            const first = token.updates[0].price;
+            const last = token.currentPrice;
+
+            if (first === 0) return 0;
+            return ((last - first) / first) * 100;
+          },
+
+          getUpdateCount(token) {
+            return token.updates.length;
+          },
+
+          getTopMovers() {
+            const tokens = Array.from(this.tokenMap.values());
+            const validTokens = tokens.filter(
+              t => this.getUpdateCount(t) >= this.config.minUpdatesForRanking
+            );
+
+            const gainers = validTokens
+              .sort((a, b) => this.getPercentChange(b) - this.getPercentChange(a))
+              .slice(0, this.config.maxTokensPerCategory);
+
+            const losers = validTokens
+              .sort((a, b) => this.getPercentChange(a) - this.getPercentChange(b))
+              .slice(0, this.config.maxTokensPerCategory);
+
+            const active = tokens
+              .sort((a, b) => this.getUpdateCount(b) - this.getUpdateCount(a))
+              .slice(0, this.config.maxTokensPerCategory);
+
+            return { gainers, losers, active };
+          },
+
+          scheduleRender() {
+            this.needsRender = true;
+
+            if (this.renderScheduled) return;
+            this.renderScheduled = true;
+
+            const timeSinceLastRender = Date.now() - this.lastRendered;
+            const delayMs = Math.max(0, this.config.renderIntervalMs - timeSinceLastRender);
+
+            setTimeout(() => {
+              this.renderScheduled = false;
+              if (this.needsRender) {
+                this.render();
+              }
+            }, delayMs);
+          },
+
+          render() {
+            this.needsRender = false;
+            this.lastRendered = Date.now();
+
+            const container = document.getElementById('top-movers-container');
+            if (!container) return;
+
+            const { gainers, losers, active } = this.getTopMovers();
+
+            container.innerHTML = `
+              <div class="top-movers-panel">
+                ${this.renderCategory('Top Gainers', gainers, 'gainers')}
+                ${this.renderCategory('Top Losers', losers, 'losers')}
+                ${this.renderCategory('Most Active', active, 'active')}
+              </div>
+            `;
+          },
+
+          renderCategory(title, tokens, type) {
+            if (tokens.length === 0) {
+              return `
+                <div class="movers-card">
+                  <div class="movers-header">
+                    <h6>${title}</h6>
+                  </div>
+                  <div class="movers-body">
+                    <p style="color: var(--text-secondary); padding: 2rem 1rem; text-align: center; font-size: 0.9rem;">Waiting for data...</p>
+                  </div>
+                </div>
+              `;
+            }
+
+            const rows = tokens.map((token, idx) => {
+              const change = type === 'active'
+                ? token.updates.length
+                : this.getPercentChange(token);
+
+              const changeColor = type === 'active'
+                ? '#6b7280'
+                : change >= 0
+                  ? '#22c55e'
+                  : '#ef4444';
+
+              const changeText = type === 'active'
+                ? `${token.updates.length} updates`
+                : `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+
+              const sourceIcon = token.source === 'pool' ? '🌊' : '📊';
+              const sourceBg = token.source === 'pool' ? 'bg-success' : 'bg-secondary';
+
+              return `
+                <div class="movers-row">
+                  <div class="movers-rank">${idx + 1}</div>
+                  <div class="movers-mint">${token.mint.substring(0, 8)}...</div>
+                  <div class="movers-price">$${token.currentPrice.toExponential(2)}</div>
+                  <div class="movers-change" style="color: ${changeColor};">
+                    ${changeText}
+                  </div>
+                  <div class="movers-source">
+                    <span class="badge ${sourceBg}">${sourceIcon}</span>
+                  </div>
+                </div>
+              `;
+            }).join('');
+
+            return `
+              <div class="movers-card">
+                <div class="movers-header">
+                  <h6>${title}</h6>
+                  <small>${tokens.length} tokens</small>
+                </div>
+                <div class="movers-body">
+                  ${rows}
+                </div>
+              </div>
+            `;
+          },
+
+          init() {
+            console.log('[TOP_MOVERS] ✅ Initialized');
+          },
+        };
+
+        /**
+         * DEMO SIMULATION
+         */
+
+        const DEMO_TOKENS = [
+          '6gPALH8gVNoNdNzs3s7NtpxX6uC49t5iud714Tb2pump',
+          '7jAZvneRqgNoKEmdducXzxgKoAoqX2sDRX81Mwefpump',
+          '5x7pbyYs8ZgD2dGYdPXTdYN8MH62YswBEv7LB8RWpump',
+          '6RE8tX7kYCv29fdK9LZKzmi9QcYpxJ39Pdvw6cbtpump',
+          '27EhRFRBVPXL1K3LCSueaxbNFbxFhZPPT9nFwdTHpump',
+          'GfXVT6i8L23iUT4KBUSZVisHBQBsvZ6B35mY89V8pump',
+          'FVNediAcMzQ69RsnYLnijFRqT7tC7u1yYmiYsx3Gpump',
+          '52p34AKXxkUnosTXage4eCHbxAVuugbwHVEB8YZRpump',
+          '4UPUXWLeyuvm2cKbVVtfnRFmCs19tRFixwoeZnK3pump',
+        ];
+
+        let simulationSpeed = 500;
+        let simulationActive = false;
+
+        function startSimulation() {
+          if (simulationActive) return;
+          simulationActive = true;
+
+          const interval = setInterval(() => {
+            const token = DEMO_TOKENS[Math.floor(Math.random() * DEMO_TOKENS.length)];
+            const basePrice = Math.random() * 1e-5 + 1e-6;
+            const drift = (Math.random() - 0.5) * 0.1;
+            const price = basePrice * (1 + drift);
+
+            TOP_MOVERS.onPriceUpdate({
+              mint: token,
+              price_usd: price,
+              source: Math.random() > 0.3 ? 'pool' : 'dexscreener',
+            });
+          }, simulationSpeed);
+
+          window.addEventListener('beforeunload', () => clearInterval(interval));
+        }
+
+        function setWindow(ms) {
+          TOP_MOVERS.config.windowMs = ms;
+          document.querySelectorAll('.control-panel button').forEach((btn, idx) => {
+            btn.classList.toggle('active', idx < 3 && (
+              (ms === 1*60*1000 && idx === 0) ||
+              (ms === 5*60*1000 && idx === 1) ||
+              (ms === 15*60*1000 && idx === 2)
+            ));
+          });
+        }
+
+        function setSimulationSpeed(speed) {
+          simulationSpeed = speed;
+          document.querySelectorAll('.control-panel button').forEach((btn, idx) => {
+            btn.classList.toggle('active', idx > 5 && idx < 9 && (
+              (speed === 100 && idx === 6) ||
+              (speed === 500 && idx === 7) ||
+              (speed === 1000 && idx === 8)
+            ));
+          });
+        }
+
+        function resetDemo() {
+          TOP_MOVERS.tokenMap.clear();
+          TOP_MOVERS.render();
+        }
+
+        function simulateMore() {
+          for (let i = 0; i < 50; i++) {
+            setTimeout(() => {
+              const token = DEMO_TOKENS[Math.floor(Math.random() * DEMO_TOKENS.length)];
+              const basePrice = Math.random() * 1e-5 + 1e-6;
+              const drift = (Math.random() - 0.5) * 0.1;
+              const price = basePrice * (1 + drift);
+
+              TOP_MOVERS.onPriceUpdate({
+                mint: token,
+                price_usd: price,
+                source: Math.random() > 0.3 ? 'pool' : 'dexscreener',
+              });
+            }, i * 50);
+          }
+        }
+
+        // Initialize
+        TOP_MOVERS.init();
+        startSimulation();
+    </script>
+</body>
+</html>

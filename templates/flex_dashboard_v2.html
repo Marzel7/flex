@@ -522,6 +522,18 @@
         [data-mint] * {
             pointer-events: auto;
         }
+
+        /* Fixed table layout to prevent column width shifts during animation */
+        .token-table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        /* Lock price column width to prevent layout thrashing */
+        .token-price {
+            min-width: 110px;
+            font-variant-numeric: tabular-nums;
+        }
     </style>
 </head>
 <body>
@@ -609,6 +621,7 @@
         const tokenMap = new Map();
         let needsResort = false;
         let userInteracting = false;
+        let isAnimating = false;
         let sortColumn = 'price'; // 'price' or 'marketCap'
         let sortDirection = 'desc'; // 'asc' or 'desc'
 
@@ -627,7 +640,7 @@
             token.source = update.source;
             token.updatedAt = Date.now();
 
-            // Update price display with flash effect
+            // Update price display with flash effect (skip flash during animation)
             const priceElem = row.querySelector('.token-price');
             if (priceElem) {
                 const oldPrice = parseFloat(priceElem.dataset.lastPrice || 0);
@@ -636,15 +649,18 @@
                 priceElem.textContent = newPrice.toFixed(8);
                 priceElem.dataset.lastPrice = newPrice;
 
-                if (newPrice > oldPrice && oldPrice > 0) {
-                    priceElem.classList.add('price-up');
-                } else if (newPrice < oldPrice && oldPrice > 0) {
-                    priceElem.classList.add('price-down');
-                }
+                // Only apply flash colors if not currently animating rows
+                if (!isAnimating) {
+                    if (newPrice > oldPrice && oldPrice > 0) {
+                        priceElem.classList.add('price-up');
+                    } else if (newPrice < oldPrice && oldPrice > 0) {
+                        priceElem.classList.add('price-down');
+                    }
 
-                setTimeout(() => {
-                    priceElem.classList.remove('price-up', 'price-down');
-                }, 500);
+                    setTimeout(() => {
+                        priceElem.classList.remove('price-up', 'price-down');
+                    }, 500);
+                }
             }
 
             // Update source badge
@@ -684,25 +700,28 @@
             // Step 2: Reorder DOM
             newOrder.forEach(row => parent.appendChild(row));
 
-            // Step 3: Apply transforms and animate
+            // Step 3: Set up transforms WITHOUT reflow, then animate in separate frame
+            const rowsToAnimate = [];
+            newOrder.forEach(row => {
+                const first = firstPositions.get(row.dataset.mint);
+                const last = row.getBoundingClientRect();
+
+                const dx = first.left - last.left;
+                const dy = first.top - last.top;
+
+                // Only animate if movement threshold exceeded (2px to avoid jitter)
+                if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
+                    row.style.transform = `translate(${dx}px, ${dy}px)`;
+                    row.style.transition = 'none';
+                    rowsToAnimate.push(row);
+                }
+            });
+
+            // Step 4: Trigger animation in separate frame (no offsetHeight reflow)
             requestAnimationFrame(() => {
-                newOrder.forEach(row => {
-                    const first = firstPositions.get(row.dataset.mint);
-                    const last = row.getBoundingClientRect();
-
-                    const dx = first.left - last.left;
-                    const dy = first.top - last.top;
-
-                    if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
-                        row.style.transform = `translate(${dx}px, ${dy}px)`;
-                        row.style.transition = 'none';
-
-                        // Trigger reflow
-                        row.offsetHeight;
-
-                        row.style.transform = '';
-                        row.style.transition = 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)';
-                    }
+                rowsToAnimate.forEach(row => {
+                    row.style.transform = '';
+                    row.style.transition = 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)';
                 });
             });
         }
@@ -744,7 +763,12 @@
 
             if (orderChanged) {
                 console.log('[RESORT] Reordering table with FLIP animation');
+                isAnimating = true;
                 applyFLIPAnimation(rows, sorted);
+                // Clear flag after animation completes (300ms + buffer)
+                setTimeout(() => {
+                    isAnimating = false;
+                }, 350);
             }
         }
 
@@ -1871,7 +1895,7 @@
                             <h5 class="mb-0">Tokens</h5>
                         </div>
                         <div class="card-body">
-                            <table class="table table-sm">
+                            <table class="table table-sm token-table">
                                 <thead>
                                     <tr>
                                         <th>Mint</th>

@@ -23,6 +23,10 @@ from src.core.price_service import get_price_service, TokenPrice
 from src.core.price_fetch_queue import get_price_queue, FetchTask, start_price_queue_worker
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)  # Suppress DEBUG and INFO logs
+
+# Debug flag - set to False to disable verbose debug logging
+DEBUG_LOGGING = False
 
 
 class PriceWorkerRegistry:
@@ -607,7 +611,7 @@ class BackgroundPriceWorker:
 
     def _refresh_cycle(self) -> None:
         """One complete refresh cycle with activity-based scheduling."""
-        print("[PRICE_DEBUG] refresh_cycle START", flush=True)
+        if DEBUG_LOGGING: print("[PRICE_DEBUG] refresh_cycle START", flush=True)
         logger.info("[PRICE_DEBUG] refresh_cycle START")
         cycle_start = time.time()
         self.stats['cycles'] += 1
@@ -1072,16 +1076,16 @@ class BackgroundPriceWorker:
             fetcher = get_pool_fetcher(self.db_path)
             pools = fetcher.get_active_pools()
             if not pools:
-                print("[PRICE_DEBUG] No active pools found", flush=True)
+                if DEBUG_LOGGING: print("[PRICE_DEBUG] No active pools found", flush=True)
                 return
 
             # Key by (mint, base_account) to support multiple pools per token
             pool_map = {(p["mint"], p["base_account"]): p for p in pools}
-            print(f"[PRICE_DEBUG] Built pool_map with {len(pool_map)} pool entries", flush=True)
+            if DEBUG_LOGGING: print(f"[PRICE_DEBUG] Built pool_map with {len(pool_map)} pool entries", flush=True)
 
             # Get all distinct mints
             mints = self._pool_state.get_all_mints()
-            print(f"[PRICE_DEBUG] Mints in PoolStateStore: {len(mints)}", flush=True)
+            if DEBUG_LOGGING: print(f"[PRICE_DEBUG] Mints in PoolStateStore: {len(mints)}", flush=True)
 
             # Get SOL price from cache (20s TTL, reduces API calls by ~95%)
             # NOTE: Don't use asyncio.run() here — we're in a thread, not async context
@@ -1090,7 +1094,7 @@ class BackgroundPriceWorker:
                 # Try to get cached SOL price or fetch synchronously
                 sol_price_usd = self._sol_price_cache.get_price_sync()
                 if not sol_price_usd:
-                    print("[PRICE_DEBUG] SOL price cache empty, attempting async fetch", flush=True)
+                    if DEBUG_LOGGING: print("[PRICE_DEBUG] SOL price cache empty, attempting async fetch", flush=True)
                     # Fallback: create a new event loop for this thread
                     import asyncio
                     loop = asyncio.new_event_loop()
@@ -1103,35 +1107,35 @@ class BackgroundPriceWorker:
                         loop.close()
             except Exception as e:
                 logger.error(f"Failed to get SOL price: {e}")
-                print(f"[PRICE_DEBUG] SOL price fetch error: {e}", flush=True)
+                if DEBUG_LOGGING: print(f"[PRICE_DEBUG] SOL price fetch error: {e}", flush=True)
                 return
 
             if not sol_price_usd or sol_price_usd <= 0:
-                print(f"[PRICE_DEBUG] Invalid SOL price: {sol_price_usd}", flush=True)
+                if DEBUG_LOGGING: print(f"[PRICE_DEBUG] Invalid SOL price: {sol_price_usd}", flush=True)
                 return
 
-            print(f"[PRICE_DEBUG] SOL price valid: ${sol_price_usd:.2f}", flush=True)
+            if DEBUG_LOGGING: print(f"[PRICE_DEBUG] SOL price valid: ${sol_price_usd:.2f}", flush=True)
 
             # Fetch token supplies for all mints (cached by MarketCapCalculator)
             # NOTE: Skipping supply fetch to avoid slowdown — use pool token_supply instead
-            print(f"[PRICE_DEBUG] Skipping supply fetch (using pool defaults)", flush=True)
+            if DEBUG_LOGGING: print(f"[PRICE_DEBUG] Skipping supply fetch (using pool defaults)", flush=True)
             supply_cache = {}
 
             new_cache: Dict[str, TokenPrice] = {}
             now = int(time.time())
 
-            print(f"[PRICE_DEBUG] Starting mint loop for {len(mints)} mints", flush=True)
+            if DEBUG_LOGGING: print(f"[PRICE_DEBUG] Starting mint loop for {len(mints)} mints", flush=True)
             processed = 0
             for mint in mints:
                 # Get all pools for this mint
                 pool_reserves = self._pool_state.get_pools_for_mint(mint)
                 processed += 1
                 if processed % 10 == 1:
-                    print(f"[PRICE_DEBUG] Processing mint {processed}/{len(mints)}: {mint[:16]}... reserves={len(pool_reserves) if pool_reserves else 0}", flush=True)
+                    if DEBUG_LOGGING: print(f"[PRICE_DEBUG] Processing mint {processed}/{len(mints)}: {mint[:16]}... reserves={len(pool_reserves) if pool_reserves else 0}", flush=True)
                 if not pool_reserves:
                     continue
 
-                print(f"[PRICE_DEBUG] {mint[:16]}... ✓ reserves present: {len(pool_reserves)} pools", flush=True)
+                if DEBUG_LOGGING: print(f"[PRICE_DEBUG] {mint[:16]}... ✓ reserves present: {len(pool_reserves)} pools", flush=True)
 
                 last_price = self.price_service.pool_price_cache.get(mint)
                 last_price_usd = last_price.price_usd if last_price else None
@@ -1149,15 +1153,15 @@ class BackgroundPriceWorker:
                     
                     pool = pool_map.get((mint, base_account))
                     if not pool:
-                        print(f"[PRICE_DEBUG] {mint[:16]}... ✗ pool metadata MISSING for base_account={base_account[:16]}... (looked in {len(pool_map)} pool entries)", flush=True)
+                        if DEBUG_LOGGING: print(f"[PRICE_DEBUG] {mint[:16]}... ✗ pool metadata MISSING for base_account={base_account[:16]}... (looked in {len(pool_map)} pool entries)", flush=True)
                         continue
 
-                    print(f"[PRICE_DEBUG] {mint[:16]}... ✓ pool metadata loaded: decimals={pool.get('base_decimals')}/{pool.get('quote_decimals')}, quote={pool.get('quote_token')[:16]}", flush=True)
+                    if DEBUG_LOGGING: print(f"[PRICE_DEBUG] {mint[:16]}... ✓ pool metadata loaded: decimals={pool.get('base_decimals')}/{pool.get('quote_decimals')}, quote={pool.get('quote_token')[:16]}", flush=True)
 
                     # Use fetched supply, fallback to pool value, then default
                     total_supply = supply or pool.get("token_supply", 0)
 
-                    print(f"[PRICE_DEBUG] {mint[:16]}... Computing price: base_raw={base_raw}, quote_raw={quote_raw}, total_supply={total_supply}", flush=True)
+                    if DEBUG_LOGGING: print(f"[PRICE_DEBUG] {mint[:16]}... Computing price: base_raw={base_raw}, quote_raw={quote_raw}, total_supply={total_supply}", flush=True)
                     token_price = PoolPriceCalculator.compute_price(
                         mint=mint,
                         base_reserve_raw=base_raw,
@@ -1173,16 +1177,16 @@ class BackgroundPriceWorker:
                         total_supply=total_supply,
                     )
                     if token_price:
-                        print(f"[PRICE_DEBUG] {mint[:16]}... ✓ price computed: ${token_price.price_usd:.8f}", flush=True)
+                        if DEBUG_LOGGING: print(f"[PRICE_DEBUG] {mint[:16]}... ✓ price computed: ${token_price.price_usd:.8f}", flush=True)
                         candidate_prices.append(token_price)
                     else:
-                        print(f"[PRICE_DEBUG] {mint[:16]}... ✗ price calculation returned None", flush=True)
+                        if DEBUG_LOGGING: print(f"[PRICE_DEBUG] {mint[:16]}... ✗ price calculation returned None", flush=True)
 
                 # Aggregate prices from all pools for this mint
-                print(f"[PRICE_DEBUG] {mint[:16]}... Aggregating {len(candidate_prices)} candidate prices", flush=True)
+                if DEBUG_LOGGING: print(f"[PRICE_DEBUG] {mint[:16]}... Aggregating {len(candidate_prices)} candidate prices", flush=True)
                 aggregated = PoolAggregator.aggregate(candidate_prices)
                 if aggregated:
-                    print(f"[PRICE_DEBUG] {mint[:16]}... ✓ aggregated price: ${aggregated.price_usd:.8f}", flush=True)
+                    if DEBUG_LOGGING: print(f"[PRICE_DEBUG] {mint[:16]}... ✓ aggregated price: ${aggregated.price_usd:.8f}", flush=True)
                     
                     # ✅ OPTIONAL: Log price source for visibility into system health
                     logger.info(
@@ -1201,7 +1205,7 @@ class BackgroundPriceWorker:
 
                     new_cache[mint] = aggregated
                 else:
-                    print(f"[PRICE_DEBUG] {mint[:16]}... ✗ no candidate prices to aggregate", flush=True)
+                    if DEBUG_LOGGING: print(f"[PRICE_DEBUG] {mint[:16]}... ✗ no candidate prices to aggregate", flush=True)
 
             self.price_service.pool_price_cache = new_cache
             self.stats["pool_prices_fetched"] = len(new_cache)
@@ -1216,7 +1220,7 @@ class BackgroundPriceWorker:
                     logger.error(f"[PRICE_DEBUG] {mint[:16]}... ✗ snapshot store failed: {e}")
             
             # Update token_analysis table with fresh pool prices for tokens that exist there
-            print(f"[PRICE_CYCLE] new_cache has {len(new_cache)} prices, about to update DB", flush=True)
+            if DEBUG_LOGGING: print(f"[PRICE_CYCLE] new_cache has {len(new_cache)} prices, about to update DB", flush=True)
             if new_cache:
                 try:
                     conn = sqlite3.connect(self.db_path, timeout=5)
@@ -1232,7 +1236,7 @@ class BackgroundPriceWorker:
                         """, (token_price.price_usd, token_price.market_cap, token_price.source, now, mint))
                     conn.commit()
                     conn.close()
-                    print(f"[PRICE_CYCLE] DB updated, about to broadcast {len(new_cache)} prices", flush=True)
+                    if DEBUG_LOGGING: print(f"[PRICE_CYCLE] DB updated, about to broadcast {len(new_cache)} prices", flush=True)
 
                     # 🚀 BROADCAST TO UI VIA SSE (real-time price updates)
                     try:
@@ -1240,7 +1244,7 @@ class BackgroundPriceWorker:
                         price_stream = get_price_stream()
                         subscriber_count = price_stream.get_subscriber_count()
 
-                        print(f"[BROADCAST_DEBUG] Have {len(new_cache)} prices, {subscriber_count} subscribers", flush=True)
+                        if DEBUG_LOGGING: print(f"[BROADCAST_DEBUG] Have {len(new_cache)} prices, {subscriber_count} subscribers", flush=True)
                         logger.info(f"[BROADCAST_DEBUG] Have {len(new_cache)} prices, {subscriber_count} subscribers")
 
                         # Broadcast each price update
@@ -1261,7 +1265,7 @@ class BackgroundPriceWorker:
 
                                 # Broadcast asynchronously
                                 try:
-                                    print(f"[BROADCAST_DEBUG] Broadcasting {mint[:16]}...", flush=True)
+                                    if DEBUG_LOGGING: print(f"[BROADCAST_DEBUG] Broadcasting {mint[:16]}...", flush=True)
                                     asyncio.create_task(price_stream.broadcast(event))
                                 except RuntimeError:
                                     loop = asyncio.new_event_loop()
@@ -1269,7 +1273,7 @@ class BackgroundPriceWorker:
                                     loop.run_until_complete(price_stream.broadcast(event))
                                     loop.close()
                         else:
-                            print(f"[BROADCAST_DEBUG] No subscribers connected, skipping broadcast", flush=True)
+                            if DEBUG_LOGGING: print(f"[BROADCAST_DEBUG] No subscribers connected, skipping broadcast", flush=True)
 
                     except Exception as e:
                         logger.error(f"[PRICE_STREAM] Failed to broadcast: {e}", exc_info=True)

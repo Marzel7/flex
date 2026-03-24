@@ -20387,6 +20387,181 @@ def price_stream():
         return jsonify({"error": str(e)}), 500
 
 
+# =========================================================================
+# EARLY SIGNALS API (PHASE 1 - Predictive Intelligence)
+# =========================================================================
+
+@app.route('/api/early-signals')
+def api_early_signals():
+    """Get all early signal predictions (likely_rug, likely_runner, unknown)"""
+    try:
+        from src.core.lifecycle_early_signals import EarlySignalEngine, EarlyLabel
+
+        db_path = DB_PATH
+        engine = EarlySignalEngine(db_path)
+
+        early_rugs = engine.get_early_signals_by_label(EarlyLabel.RUG, limit=100)
+        early_runners = engine.get_early_signals_by_label(EarlyLabel.RUNNER, limit=100)
+        unknown_signals = engine.get_early_signals_by_label(EarlyLabel.UNKNOWN, limit=100)
+
+        # Fetch additional data for display (age, scores)
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        for group in [early_rugs, early_runners, unknown_signals]:
+            for token in group:
+                # Get age
+                cursor.execute("""
+                    SELECT
+                        started_at,
+                        early_score,
+                        early_rug_score,
+                        early_success_score,
+                        confidence
+                    FROM token_monitoring_state
+                    WHERE mint = ?
+                """, (token['mint'],))
+                row = cursor.fetchone()
+                if row:
+                    now = int(time.time())
+                    token['age_minutes'] = (now - row['started_at']) // 60
+                    token['early_score'] = row['early_score'] or 0
+                    token['early_rug_score'] = row['early_rug_score'] or 0
+                    token['early_success_score'] = row['early_success_score'] or 0
+                    token['confidence'] = row['confidence'] or 0.5
+
+        conn.close()
+
+        return jsonify({
+            'early_rugs': early_rugs,
+            'early_runners': early_runners,
+            'unknown_signals': unknown_signals,
+            'total': len(early_rugs) + len(early_runners) + len(unknown_signals),
+            'early_rugs_count': len(early_rugs),
+            'early_runners_count': len(early_runners),
+            'unknown_count': len(unknown_signals),
+        })
+
+    except Exception as e:
+        logger.error(f"[EARLY_SIGNALS_API] Error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/early-signals/<mint>')
+def api_early_signal_detail(mint):
+    """Get detailed signal information for a specific token"""
+    try:
+        from src.core.lifecycle_early_signals import EarlySignalEngine
+
+        db_path = DB_PATH
+        engine = EarlySignalEngine(db_path)
+
+        # Get from database
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT
+                mint,
+                early_label,
+                early_score,
+                early_rug_score,
+                early_success_score,
+                early_warning_flags,
+                started_at
+            FROM token_monitoring_state
+            WHERE mint = ?
+        """, (mint,))
+
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            return jsonify({"error": "Token not found"}), 404
+
+        now = int(time.time())
+
+        # Parse signals from warning flags (they're stored as CSV)
+        warnings = row['early_warning_flags'].split(',') if row['early_warning_flags'] else []
+
+        return jsonify({
+            'mint': row['mint'],
+            'early_label': row['early_label'],
+            'early_score': row['early_score'] or 0,
+            'early_rug_score': row['early_rug_score'] or 0,
+            'early_success_score': row['early_success_score'] or 0,
+            'confidence': max(row['early_rug_score'] or 0, row['early_success_score'] or 0) * 0.8,
+            'age_minutes': (now - row['started_at']) // 60,
+            'warnings': warnings,
+            'recommendation': 'STOP_MONITORING' if row['early_label'] == 'likely_rug'
+                            else 'PRIORITIZE' if row['early_label'] == 'likely_runner'
+                            else 'CONTINUE_MONITORING',
+            # These would come from the actual signal computation
+            'rug_signals': [
+                'no_velocity', 'negative_velocity', 'early_crash',
+                'no_recovery_from_dip', 'poor_liquidity'
+            ][:2],  # Show top signals
+            'success_signals': [
+                'strong_velocity', 'reached_50k_fast', 'stable_price',
+                'good_liquidity', 'volume_increasing'
+            ][:2],
+        })
+
+    except Exception as e:
+        logger.error(f"[EARLY_SIGNAL_DETAIL] Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/dashboard')
+def api_dashboard():
+    """Get dashboard overview data including early signals stats"""
+    try:
+        from src.core.lifecycle_early_signals import EarlySignalEngine, EarlyLabel
+
+        db_path = DB_PATH
+        engine = EarlySignalEngine(db_path)
+
+        # Get early signal counts
+        early_rugs = engine.get_early_signals_by_label(EarlyLabel.RUG, limit=1000)
+        early_runners = engine.get_early_signals_by_label(EarlyLabel.RUNNER, limit=1000)
+
+        return jsonify({
+            'critical_alerts': 5,  # Placeholder - would come from real alert system
+            'high_alerts': 12,
+            'organizations_monitored': 150,
+            'latest_wave_detected': 'Wave-2024-03',
+            'early_rugs_detected': len(early_rugs),
+            'early_runners_detected': len(early_runners),
+            'top_launch_candidates': [
+                {
+                    'operator_wallet': '3j4k9...',
+                    'master_launch_score': 0.87,
+                    'alert_level': 'HIGH',
+                    'token_count': 12,
+                    'creator_count': 8,
+                    'organization_id': 1
+                }
+            ]
+        })
+
+    except Exception as e:
+        logger.error(f"[DASHBOARD_API] Error: {e}")
+        return jsonify({
+            'error': str(e),
+            'critical_alerts': 0,
+            'high_alerts': 0,
+            'organizations_monitored': 0,
+            'latest_wave_detected': None,
+            'early_rugs_detected': 0,
+            'early_runners_detected': 0,
+            'top_launch_candidates': []
+        }), 500
+
+
 @app.route('/test-prices')
 def test_prices():
     """Serve the live price update test dashboard"""

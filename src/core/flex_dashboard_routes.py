@@ -16,6 +16,7 @@ Routes:
 import logging
 import sqlite3
 import time
+from typing import Any, Dict, List
 from flask import Blueprint, render_template, jsonify, request, make_response
 
 logger = logging.getLogger(__name__)
@@ -772,6 +773,470 @@ def api_vaults_detail(mint):
     except Exception as e:
         logger.error(f"Error fetching vault detail: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
+
+
+# =========================================================================
+# VAULTS API - Improved Implementation
+# =========================================================================
+
+DB_PATH = 'database/flex_complete_database.db'
+
+VALID_BEHAVIOUR_CATEGORIES = {
+    'immediate_rug',
+    'runner',
+    'faded_runner',
+    'choppy_runner',
+    'rug',
+    'slow_rug',
+    'insufficient_history',
+    'unknown',
+}
+
+VALID_TRACKING_QUALITY = {
+    'good',
+    'possibly_late',
+    'likely_late',
+}
+
+
+def _table_columns(conn: sqlite3.Connection, table_name: str) -> set:
+    """Return the set of column names for a table."""
+    rows = conn.execute(f"PRAGMA table_info({table_name})").fetchall()
+    return {row[1] for row in rows}
+
+
+def _has_column(conn: sqlite3.Connection, table_name: str, column_name: str) -> bool:
+    """Check whether a table contains a given column."""
+    return column_name in _table_columns(conn, table_name)
+
+
+def _format_nullable_float(value, digits: int = 3):
+    """Format a nullable float to fixed decimal places."""
+    if value is None:
+        return None
+    try:
+        return round(float(value), digits)
+    except (TypeError, ValueError):
+        return None
+
+
+def _normalize_category(value):
+    """Validate category against approved list."""
+    if value in VALID_BEHAVIOUR_CATEGORIES:
+        return value
+    return None
+
+
+def _normalize_tracking_quality(value):
+    """Validate tracking quality against approved list."""
+    if value in VALID_TRACKING_QUALITY:
+        return value
+    return None
+
+
+def _build_vaults_select(conn: sqlite3.Connection) -> str:
+    """
+    Build a SELECT that works whether or not the newer explicit vault-discovery
+    columns have been migrated yet.
+    """
+    tpa_cols = _table_columns(conn, 'token_pool_accounts')
+    tb_cols = _table_columns(conn, 'token_behavior')
+
+    def tpa_col(name: str, fallback_sql: str = "NULL"):
+        return f"tpa.{name}" if name in tpa_cols else fallback_sql
+
+    def tb_col(name: str, fallback_sql: str = "NULL"):
+        return f"tb.{name}" if name in tb_cols else fallback_sql
+
+    # Prefer explicit persisted discovery time, otherwise derive from timestamps.
+    explicit_discovery_time = tpa_col('vault_discovery_time_secs')
+    discovery_time_sql = f"""
+        CASE
+            WHEN {explicit_discovery_time} IS NOT NULL THEN {explicit_discovery_time}
+            WHEN {tpa_col('last_vault_validation_at')} IS NOT NULL
+                 AND {tpa_col('created_at')} IS NOT NULL
+            THEN CAST(({tpa_col('last_vault_validation_at')} - {tpa_col('created_at')}) AS REAL)
+            ELSE NULL
+        END
+    """
+
+    # Prefer explicit strategy, otherwise fall back to discovery_method.
+    strategy_sql = f"""
+        COALESCE(
+            {tpa_col('vault_discovery_strategy')},
+            {tpa_col('discovery_method')},
+            NULL
+        )
+    """
+
+    attempts_sql = tpa_col('vault_discovery_attempts')
+    resolution_state_sql = f"""
+        COALESCE(
+            {tpa_col('vault_resolution_state')},
+            CASE
+                WHEN {tpa_col('vault_validation_status')} = 'validated' THEN 'resolved'
+                WHEN {tpa_col('vault_validation_status')} = 'pending' THEN 'pending'
+                WHEN {tpa_col('vault_validation_status')} = 'rejected' THEN 'rejected'
+                ELSE NULL
+            END
+        )
+    """
+
+    resolved_at_sql = f"""
+        COALESCE(
+            {tpa_col('vault_resolved_at')},
+            {tpa_col('last_vault_validation_at')}
+        )
+    """
+
+    # pool_address is not guaranteed, so use base_account as fallback identifier.
+    pool_address_sql = f"""
+        COALESCE(
+            {tpa_col('pool_address')},
+            {tpa_col('base_account')},
+            NULL
+        )
+    """
+
+    return f"""
+        SELECT
+            tpa.mint                                      AS mint,
+            {pool_address_sql}                            AS pool_address,
+            {tpa_col('base_account')}                     AS base_account,
+            {tpa_col('quote_account')}                    AS quote_account,
+            {tpa_col('base_token')}                       AS base_token,
+            {tpa_col('quote_token')}                      AS quote_token,
+            {tpa_col('base_decimals')}                    AS base_decimals,
+            {tpa_col('quote_decimals')}                   AS quote_decimals,
+            {tpa_col('pool_program')}                     AS pool_program,
+
+            {tpa_col('vault_validation_status')}          AS vault_validation_status,
+            {resolution_state_sql}                        AS vault_resolution_state,
+            {strategy_sql}                                AS vault_discovery_strategy,
+            {tpa_col('discovery_method')}                 AS vault_discovery_method,
+            {attempts_sql}                                AS vault_discovery_attempts,
+            {discovery_time_sql}                          AS vault_discovery_time_secs,
+            {tpa_col('created_at')}                       AS created_at,
+            {tpa_col('last_vault_validation_at')}         AS last_vault_validation_at,
+            {resolved_at_sql}                             AS vault_resolved_at,
+
+            {tb_col('initial_price_observed_usd')}        AS initial_price_observed_usd,
+            {tb_col('initial_price_robust_usd')}          AS initial_price_robust_usd,
+            {tb_col('peak_price_usd')}                    AS peak_price_usd,
+            {tb_col('latest_price_usd')}                  AS latest_price_usd,
+            {tb_col('max_return_multiple')}               AS max_return_multiple,
+            {tb_col('max_return_multiple_observed')}      AS max_return_multiple_observed,
+            {tb_col('tracking_quality')}                  AS tracking_quality,
+            {tb_col('category')}                          AS category,
+            {tb_col('confidence')}                        AS confidence,
+            {tb_col('drawdown_from_peak')}                AS drawdown_from_peak,
+            {tb_col('recovery_ratio')}                    AS recovery_ratio,
+            {tb_col('time_to_peak_secs')}                 AS time_to_peak_secs,
+            {tb_col('snapshot_count')}                    AS snapshot_count,
+            {tb_col('lifetime_secs')}                     AS lifetime_secs,
+            {tb_col('classified_at')}                     AS classified_at
+
+        FROM token_pool_accounts tpa
+        LEFT JOIN token_behavior tb
+            ON tb.mint = tpa.mint
+    """
+
+
+def _vault_row_to_dict(row: sqlite3.Row) -> Dict[str, Any]:
+    """
+    Normalize one merged vault/token row into API-safe JSON.
+    """
+    category = _normalize_category(row['category'])
+    tracking_quality = _normalize_tracking_quality(row['tracking_quality'])
+
+    strategy = row['vault_discovery_strategy'] or row['vault_discovery_method']
+    attempts = row['vault_discovery_attempts']
+    discovery_time = _format_nullable_float(row['vault_discovery_time_secs'], 1)
+    confidence = _format_nullable_float(row['confidence'], 3)
+
+    # Avoid misleading defaults: unknown/0/N/A should reflect actual state.
+    if attempts is None:
+        attempts_out = None
+    else:
+        try:
+            attempts_out = int(attempts)
+        except (TypeError, ValueError):
+            attempts_out = None
+
+    return {
+        'mint': row['mint'],
+        'pool_address': row['pool_address'],
+        'base_account': row['base_account'],
+        'quote_account': row['quote_account'],
+        'base_token': row['base_token'],
+        'quote_token': row['quote_token'],
+        'base_decimals': row['base_decimals'],
+        'quote_decimals': row['quote_decimals'],
+        'pool_program': row['pool_program'],
+
+        'vault_validation_status': row['vault_validation_status'],
+        'vault_resolution_state': row['vault_resolution_state'],
+        'vault_discovery_strategy': strategy,
+        'vault_discovery_method': row['vault_discovery_method'],
+        'vault_discovery_attempts': attempts_out,
+        'vault_discovery_time_secs': discovery_time,
+        'created_at': row['created_at'],
+        'last_vault_validation_at': row['last_vault_validation_at'],
+        'vault_resolved_at': row['vault_resolved_at'],
+
+        'tracking_quality': tracking_quality,
+        'initial_price_observed_usd': _format_nullable_float(row['initial_price_observed_usd'], 12),
+        'initial_price_robust_usd': _format_nullable_float(row['initial_price_robust_usd'], 12),
+        'peak_price_usd': _format_nullable_float(row['peak_price_usd'], 12),
+        'latest_price_usd': _format_nullable_float(row['latest_price_usd'], 12),
+        'max_return_multiple': _format_nullable_float(row['max_return_multiple'], 3),
+        'max_return_multiple_observed': _format_nullable_float(row['max_return_multiple_observed'], 3),
+
+        'category': category,
+        'confidence': confidence,
+        'drawdown_from_peak': _format_nullable_float(row['drawdown_from_peak'], 3),
+        'recovery_ratio': _format_nullable_float(row['recovery_ratio'], 3),
+        'time_to_peak_secs': row['time_to_peak_secs'],
+        'snapshot_count': row['snapshot_count'],
+        'lifetime_secs': row['lifetime_secs'],
+        'classified_at': row['classified_at'],
+    }
+
+
+@dashboard_routes.route('/api/vaults', methods=['GET'])
+def api_vaults():
+    """
+    List vault/token rows for the Vaults page.
+
+    Query params:
+    - status: validated | pending | rejected | all
+    - strategy: tx_parsing | rpc | ... | all
+    - tracking_quality: good | possibly_late | likely_late | all
+    - category: behaviour category or all
+    - mint: substring match on mint
+    - pool: substring match on pool/base account
+    - limit: default 100
+    - sort_by: discovery_time | confidence | classified_at | created_at
+    - sort_dir: asc | desc
+    """
+    try:
+        status = request.args.get('status', 'all')
+        strategy = request.args.get('strategy', 'all')
+        tracking_quality = request.args.get('tracking_quality', 'all')
+        category = request.args.get('category', 'all')
+        mint = request.args.get('mint', '').strip()
+        pool = request.args.get('pool', '').strip()
+        limit = min(int(request.args.get('limit', 100)), 500)
+        sort_by = request.args.get('sort_by', 'created_at')
+        sort_dir = request.args.get('sort_dir', 'desc').lower()
+
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+
+        base_sql = _build_vaults_select(conn)
+        query = f"SELECT * FROM ({base_sql}) v WHERE 1=1"
+        params: List[Any] = []
+
+        if status != 'all':
+            query += " AND v.vault_validation_status = ?"
+            params.append(status)
+
+        if strategy != 'all':
+            query += " AND COALESCE(v.vault_discovery_strategy, '') = ?"
+            params.append(strategy)
+
+        if tracking_quality != 'all':
+            query += " AND COALESCE(v.tracking_quality, '') = ?"
+            params.append(tracking_quality)
+
+        if category != 'all':
+            query += " AND COALESCE(v.category, '') = ?"
+            params.append(category)
+
+        if mint:
+            query += " AND v.mint LIKE ?"
+            params.append(f"%{mint}%")
+
+        if pool:
+            query += " AND COALESCE(v.pool_address, '') LIKE ?"
+            params.append(f"%{pool}%")
+
+        sortable = {
+            'discovery_time': 'v.vault_discovery_time_secs',
+            'confidence': 'v.confidence',
+            'classified_at': 'v.classified_at',
+            'created_at': 'v.created_at',
+        }
+        order_col = sortable.get(sort_by, 'v.created_at')
+        order_dir = 'ASC' if sort_dir == 'asc' else 'DESC'
+
+        # Keep NULLs at the end for discovery/confidence sorting.
+        query += f" ORDER BY ({order_col} IS NULL) ASC, {order_col} {order_dir}, v.mint ASC LIMIT ?"
+        params.append(limit)
+
+        rows = conn.execute(query, params).fetchall()
+        conn.close()
+
+        data = [_vault_row_to_dict(row) for row in rows]
+
+        return no_cache_json({
+            'vaults': data,
+            'total': len(data),
+            'filters': {
+                'status': status,
+                'strategy': strategy,
+                'tracking_quality': tracking_quality,
+                'category': category,
+                'mint': mint,
+                'pool': pool,
+                'limit': limit,
+                'sort_by': sort_by,
+                'sort_dir': order_dir.lower(),
+            },
+            'last_updated': int(time.time()),
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching vaults: {e}", exc_info=True)
+        return no_cache_json({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/api/vaults/stats/summary', methods=['GET'])
+def api_vaults_stats_summary():
+    """
+    Summary stats for Vaults page cards.
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+
+        base_sql = _build_vaults_select(conn)
+
+        totals_row = conn.execute(f"""
+            SELECT
+                COUNT(*) AS total_records,
+                SUM(CASE WHEN vault_validation_status = 'validated' THEN 1 ELSE 0 END) AS validated_count,
+                SUM(CASE WHEN vault_validation_status = 'pending' THEN 1 ELSE 0 END) AS pending_count,
+                SUM(CASE WHEN vault_validation_status = 'rejected' THEN 1 ELSE 0 END) AS rejected_count,
+                ROUND(AVG(vault_discovery_time_secs), 1) AS avg_discovery_time_secs,
+                ROUND(AVG(vault_discovery_attempts), 2) AS avg_attempts
+            FROM ({base_sql}) v
+        """).fetchone()
+
+        quality_rows = conn.execute(f"""
+            SELECT
+                tracking_quality,
+                COUNT(*) AS count
+            FROM ({base_sql}) v
+            WHERE tracking_quality IS NOT NULL
+            GROUP BY tracking_quality
+        """).fetchall()
+
+        conn.close()
+
+        total_records = totals_row['total_records'] or 0
+        quality_counts = {
+            'good': 0,
+            'possibly_late': 0,
+            'likely_late': 0,
+        }
+        for row in quality_rows:
+            q = row['tracking_quality']
+            if q in quality_counts:
+                quality_counts[q] = row['count']
+
+        late_denominator = sum(quality_counts.values())
+
+        return no_cache_json({
+            'total_records': total_records,
+            'validated_count': totals_row['validated_count'] or 0,
+            'pending_count': totals_row['pending_count'] or 0,
+            'rejected_count': totals_row['rejected_count'] or 0,
+            'avg_discovery_time_secs': _format_nullable_float(totals_row['avg_discovery_time_secs'], 1),
+            'avg_attempts': _format_nullable_float(totals_row['avg_attempts'], 2),
+            'tracking_quality': {
+                'good_count': quality_counts['good'],
+                'possibly_late_count': quality_counts['possibly_late'],
+                'likely_late_count': quality_counts['likely_late'],
+                'possibly_late_pct': round(100.0 * quality_counts['possibly_late'] / late_denominator, 1) if late_denominator else 0.0,
+                'likely_late_pct': round(100.0 * quality_counts['likely_late'] / late_denominator, 1) if late_denominator else 0.0,
+            },
+            'last_updated': int(time.time()),
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching vault summary stats: {e}", exc_info=True)
+        return no_cache_json({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/api/vaults/<mint>', methods=['GET'])
+def api_vault_detail(mint):
+    """
+    Detail endpoint for a single token/vault merged view.
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+
+        base_sql = _build_vaults_select(conn)
+        row = conn.execute(
+            f"SELECT * FROM ({base_sql}) v WHERE v.mint = ? LIMIT 1",
+            (mint,)
+        ).fetchone()
+
+        if not row:
+            conn.close()
+            return jsonify({'error': 'Vault/token not found', 'mint': mint}), 404
+
+        data = _vault_row_to_dict(row)
+
+        # Optional lightweight history if behaviour history exists.
+        history = []
+        if _has_column(conn, 'token_behavior_history', 'mint'):
+            history_rows = conn.execute("""
+                SELECT
+                    category,
+                    confidence,
+                    max_return_multiple,
+                    drawdown_from_peak,
+                    recovery_ratio,
+                    time_to_peak_secs,
+                    lifetime_secs,
+                    snapshot_count,
+                    classified_at
+                FROM token_behavior_history
+                WHERE mint = ?
+                ORDER BY classified_at DESC
+                LIMIT 20
+            """, (mint,)).fetchall()
+
+            history = [
+                {
+                    'category': _normalize_category(r['category']),
+                    'confidence': _format_nullable_float(r['confidence'], 3),
+                    'max_return_multiple': _format_nullable_float(r['max_return_multiple'], 3),
+                    'drawdown_from_peak': _format_nullable_float(r['drawdown_from_peak'], 3),
+                    'recovery_ratio': _format_nullable_float(r['recovery_ratio'], 3),
+                    'time_to_peak_secs': r['time_to_peak_secs'],
+                    'lifetime_secs': r['lifetime_secs'],
+                    'snapshot_count': r['snapshot_count'],
+                    'classified_at': r['classified_at'],
+                }
+                for r in history_rows
+            ]
+
+        conn.close()
+
+        return no_cache_json({
+            'mint': mint,
+            'vault': data,
+            'history': history,
+            'last_updated': int(time.time()),
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching vault detail for {mint}: {e}", exc_info=True)
+        return no_cache_json({'error': str(e)}), 500
 
 
 def register_dashboard_routes(app):

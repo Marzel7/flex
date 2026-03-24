@@ -5,7 +5,7 @@ Derived analytics layer that classifies tokens from historical price snapshots.
 Reads from token_price_snapshots (read-only). Writes to token_behavior and
 token_behavior_history tables.
 
-Categories: immediate_rug | rug | slow_rug | runner | choppy_runner | unknown
+Categories: immediate_rug | runner | faded_runner | choppy_runner | rug | slow_rug | insufficient_history | unknown
 
 This module is separate from the live monitoring pipeline (token_lifecycle.py,
 lifecycle_classification_v2.py). It operates post-hoc on historical data only.
@@ -62,6 +62,13 @@ SLOW_RUG_DRAWDOWN_MIN = 0.70              # Fraction of peak lost
 RUNNER_MAX_RETURN_MIN = 5.0               # Multiple of initial price
 RUNNER_DRAWDOWN_MAX = 0.50                # Fraction of peak lost
 RUNNER_RECOVERY_MIN = 0.50                # Latest as fraction of peak
+
+# faded_runner: strong upside, then material decline but not terminal
+FADED_RUNNER_MAX_RETURN_MIN = 3.0         # Multiple of initial price
+FADED_RUNNER_DRAWDOWN_MIN = 0.50          # Fraction of peak lost (lower bound)
+FADED_RUNNER_DRAWDOWN_MAX = 0.85          # Fraction of peak lost (upper bound)
+FADED_RUNNER_RECOVERY_MIN = 0.15          # Latest as fraction of peak (lower bound)
+FADED_RUNNER_RECOVERY_MAX = 0.50          # Latest as fraction of peak (upper bound)
 
 # choppy_runner: large upside with big retracements, still alive
 CHOPPY_RUNNER_MAX_RETURN_MIN = 3.0        # Multiple of initial price
@@ -168,6 +175,33 @@ def _runner_confidence(f: TokenBehaviorFeatures) -> float:
     return round((multiple_excess + recovery_quality) / 2.0, 4)
 
 
+def _faded_runner_confidence(f: TokenBehaviorFeatures) -> float:
+    """
+    Confidence for faded_runner: had strong upside, then material decline.
+
+    Higher confidence when:
+    - Multiple is well above 3.0x
+    - Drawdown is clearly in the 50-85% range (not too shallow, not too deep)
+    - Recovery is in the 15-50% range (not completely dead, not still strong)
+    """
+    # Multiple quality: how much above the 3.0x threshold
+    multiple_excess = min((f.max_return_multiple - FADED_RUNNER_MAX_RETURN_MIN) / 7.0, 1.0)
+
+    # Drawdown quality: how clearly centered in the 50-85% range
+    drawdown_range = FADED_RUNNER_DRAWDOWN_MAX - FADED_RUNNER_DRAWDOWN_MIN
+    drawdown_mid = (FADED_RUNNER_DRAWDOWN_MIN + FADED_RUNNER_DRAWDOWN_MAX) / 2.0
+    drawdown_quality = max(0.0, 1.0 - abs(f.drawdown_from_peak - drawdown_mid) / (drawdown_range / 2.0))
+
+    # Recovery quality: how clearly centered in the 15-50% range
+    recovery_range = FADED_RUNNER_RECOVERY_MAX - FADED_RUNNER_RECOVERY_MIN
+    recovery_mid = (FADED_RUNNER_RECOVERY_MIN + FADED_RUNNER_RECOVERY_MAX) / 2.0
+    recovery_quality = max(0.0, 1.0 - abs(f.recovery_ratio - recovery_mid) / (recovery_range / 2.0))
+
+    # Blend: multiple matters most for faded runners (to distinguish from choppy)
+    confidence = round(multiple_excess * 0.4 + drawdown_quality * 0.3 + recovery_quality * 0.3, 4)
+    return min(confidence, 0.85)  # Cap at 0.85 since faded runners are inherently uncertain
+
+
 def _choppy_runner_confidence(f: TokenBehaviorFeatures) -> float:
     """Confidence for choppy_runner: higher multiple + recovery = higher."""
     multiple_excess = min((f.max_return_multiple - CHOPPY_RUNNER_MAX_RETURN_MIN) / 7.0, 1.0)
@@ -195,8 +229,9 @@ def create_schema(db_path: str) -> None:
                 mint                TEXT PRIMARY KEY,
                 category            TEXT NOT NULL
                                         CHECK(category IN (
-                                            'immediate_rug','rug','slow_rug',
-                                            'runner','choppy_runner','insufficient_history','unknown'
+                                            'immediate_rug','runner','faded_runner',
+                                            'choppy_runner','rug','slow_rug',
+                                            'insufficient_history','unknown'
                                         )),
                 confidence          REAL NOT NULL DEFAULT 0.0,
                 initial_price_usd   REAL,
@@ -356,7 +391,7 @@ def classify_token(features: TokenBehaviorFeatures) -> Tuple[str, float]:
     - 0.3-0.7: medium (reasonable confidence)
     - 0.7-1.0: high (strong signal, mature data)
 
-    Priority order: immediate_rug > runner > choppy_runner > rug > slow_rug > insufficient_history > unknown
+    Priority order: immediate_rug > runner > faded_runner > choppy_runner > rug > slow_rug > insufficient_history > unknown
     """
     f = features
 
@@ -391,29 +426,38 @@ def classify_token(features: TokenBehaviorFeatures) -> Tuple[str, float]:
     if (f.max_return_multiple >= RUNNER_MAX_RETURN_MIN
             and f.drawdown_from_peak <= RUNNER_DRAWDOWN_MAX
             and f.recovery_ratio >= RUNNER_RECOVERY_MIN):
-        conf = _runner_confidence(f)
+        conf = _runner_confidence(f) * confidence_penalty
         return ("runner", conf)
 
-    # 3. choppy_runner
+    # 3. faded_runner (strong upside, then material decline)
+    if (f.max_return_multiple >= FADED_RUNNER_MAX_RETURN_MIN
+            and f.drawdown_from_peak >= FADED_RUNNER_DRAWDOWN_MIN
+            and f.drawdown_from_peak <= FADED_RUNNER_DRAWDOWN_MAX
+            and f.recovery_ratio >= FADED_RUNNER_RECOVERY_MIN
+            and f.recovery_ratio <= FADED_RUNNER_RECOVERY_MAX):
+        conf = _faded_runner_confidence(f) * confidence_penalty
+        return ("faded_runner", conf)
+
+    # 4. choppy_runner
     if (f.max_return_multiple >= CHOPPY_RUNNER_MAX_RETURN_MIN
             and f.recovery_ratio >= CHOPPY_RUNNER_RECOVERY_MIN):
-        conf = _choppy_runner_confidence(f)
+        conf = _choppy_runner_confidence(f) * confidence_penalty
         return ("choppy_runner", conf)
 
-    # 4. rug
+    # 5. rug
     if (f.max_return_multiple >= RUG_MAX_RETURN_MIN
             and f.drawdown_from_peak >= RUG_DRAWDOWN_MIN):
-        conf = _rug_confidence(f)
+        conf = _rug_confidence(f) * confidence_penalty
         return ("rug", conf)
 
-    # 5. slow_rug
+    # 6. slow_rug
     if (f.max_return_multiple < SLOW_RUG_MAX_RETURN_MAX
             and f.slope_total < SLOW_RUG_SLOPE_MAX
             and f.drawdown_from_peak >= SLOW_RUG_DRAWDOWN_MIN):
-        conf = _slow_rug_confidence(f)
+        conf = _slow_rug_confidence(f) * confidence_penalty
         return ("slow_rug", conf)
 
-    # 6. unknown (conflicting or ambiguous signals)
+    # 7. unknown (conflicting or ambiguous signals)
     return ("unknown", 0.0)
 
 

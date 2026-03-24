@@ -194,7 +194,7 @@ def api_token_behaviour():
     Get classified tokens by behaviour category.
 
     Query params:
-    - category: Filter by category (immediate_rug, rug, slow_rug, runner, choppy_runner, insufficient_history, unknown)
+    - category: Filter by category (immediate_rug, runner, faded_runner, choppy_runner, rug, slow_rug, insufficient_history, unknown)
     - min_confidence: Minimum confidence threshold (0-1)
     - min_snapshots: Minimum snapshot count for data quality (default 8, early classification tier)
     - limit: Max results (default 100)

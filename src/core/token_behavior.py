@@ -87,12 +87,20 @@ class TokenBehaviorFeatures:
     """
     Derived features for a token from its price history.
     All fields are concrete (no Optional); defensive defaults used in compute_features.
+
+    Dual initial price handling:
+    - initial_price_observed_usd: first snapshot price (objective, may be late)
+    - initial_price_robust_usd: median of first 5 snapshots (noise-resistant)
+    - max_return_multiple: calculated from robust initial (used for classification)
+    - max_return_multiple_observed: calculated from observed initial (for UI transparency)
     """
     mint: str
-    initial_price_usd: float
+    initial_price_observed_usd: float       # first snapshot
+    initial_price_robust_usd: float         # median of first 5 (or first if <5)
     peak_price_usd: float
     latest_price_usd: float
-    max_return_multiple: float              # peak / initial
+    max_return_multiple: float              # peak / robust_initial (for classification)
+    max_return_multiple_observed: float     # peak / observed_initial (for UI)
     drawdown_from_peak: float               # (peak - latest) / peak
     recovery_ratio: float                   # latest / peak
     time_to_peak_secs: int                  # seconds from first to peak
@@ -101,6 +109,7 @@ class TokenBehaviorFeatures:
     volatility: float                       # std dev of percentage changes
     slope_early: float                      # linear slope, first 5 minutes
     slope_total: float                      # linear slope, full lifetime
+    tracking_quality: str                   # "good" | "possibly_late" | "likely_late"
 
 
 # =========================================================================
@@ -234,10 +243,12 @@ def create_schema(db_path: str) -> None:
                                             'insufficient_history','unknown'
                                         )),
                 confidence          REAL NOT NULL DEFAULT 0.0,
-                initial_price_usd   REAL,
+                initial_price_observed_usd REAL,
+                initial_price_robust_usd REAL,
                 peak_price_usd      REAL,
                 latest_price_usd    REAL,
                 max_return_multiple REAL,
+                max_return_multiple_observed REAL,
                 drawdown_from_peak  REAL,
                 recovery_ratio      REAL,
                 time_to_peak_secs   INTEGER,
@@ -246,6 +257,7 @@ def create_schema(db_path: str) -> None:
                 volatility          REAL,
                 slope_early         REAL,
                 slope_total         REAL,
+                tracking_quality    TEXT DEFAULT 'good',
                 classified_at       INTEGER NOT NULL,
                 created_at          INTEGER NOT NULL
             );
@@ -312,6 +324,10 @@ def compute_features(mint: str, snapshots: List) -> TokenBehaviorFeatures:
     lifetime_secs >= MIN_LIFETIME_SECS before relying on the result.
 
     Handles edge cases: zero initial price, zero peak price, single snapshot, etc.
+
+    Dual initial price tracking:
+    - observed_initial: first snapshot (objective but may be late)
+    - robust_initial: median of first 5 (noise-resistant, better for classification)
     """
     prices = [row['price_usd'] for row in snapshots]
     times = [row['captured_at'] for row in snapshots]
@@ -320,18 +336,27 @@ def compute_features(mint: str, snapshots: List) -> TokenBehaviorFeatures:
     t_first, t_last = times[0], times[-1]
     lifetime_secs = t_last - t_first
 
-    initial_price = prices[0]
+    # Dual initial price handling
+    observed_initial_price = prices[0]
+    robust_initial_price = statistics.median(prices[:5]) if n >= 5 else observed_initial_price
+
     latest_price = prices[-1]
     peak_price = max(prices)
     peak_idx = prices.index(peak_price)
     t_peak = times[peak_idx]
     time_to_peak = t_peak - t_first
 
-    # max_return_multiple: guard against zero initial
-    if initial_price > 0:
-        max_return_multiple = peak_price / initial_price
+    # max_return_multiple: use robust initial for classification
+    if robust_initial_price > 0:
+        max_return_multiple = peak_price / robust_initial_price
     else:
         max_return_multiple = 0.0
+
+    # max_return_multiple_observed: use observed initial for UI transparency
+    if observed_initial_price > 0:
+        max_return_multiple_observed = peak_price / observed_initial_price
+    else:
+        max_return_multiple_observed = 0.0
 
     # drawdown and recovery: guard against zero peak
     if peak_price > 0:
@@ -362,12 +387,33 @@ def compute_features(mint: str, snapshots: List) -> TokenBehaviorFeatures:
     all_pts = [(t - t_first, p) for t, p in zip(times, prices)]
     slope_total = _linear_slope(all_pts)
 
+    # Tracking quality heuristic
+    if time_to_peak < 60:
+        tracking_quality = "likely_late"
+    elif n >= 5:
+        # Check if early prices are already near peak
+        early_prices = prices[:5]
+        early_max = max(early_prices)
+        early_min = min(early_prices)
+        if early_min > 0 and (early_max / early_min) > 2.0:
+            # Big spread in early data suggests we caught the run
+            tracking_quality = "good"
+        elif early_max / peak_price > 0.9:
+            # Early max is already 90%+ of peak, likely late entry
+            tracking_quality = "possibly_late"
+        else:
+            tracking_quality = "good"
+    else:
+        tracking_quality = "good"
+
     return TokenBehaviorFeatures(
         mint=mint,
-        initial_price_usd=initial_price,
+        initial_price_observed_usd=observed_initial_price,
+        initial_price_robust_usd=robust_initial_price,
         peak_price_usd=peak_price,
         latest_price_usd=latest_price,
         max_return_multiple=max_return_multiple,
+        max_return_multiple_observed=max_return_multiple_observed,
         drawdown_from_peak=drawdown_from_peak,
         recovery_ratio=recovery_ratio,
         time_to_peak_secs=time_to_peak,
@@ -376,6 +422,7 @@ def compute_features(mint: str, snapshots: List) -> TokenBehaviorFeatures:
         volatility=volatility,
         slope_early=slope_early,
         slope_total=slope_total,
+        tracking_quality=tracking_quality,
     )
 
 
@@ -487,34 +534,43 @@ def upsert_behavior(
         cursor.execute("""
             INSERT INTO token_behavior (
                 mint, category, confidence,
-                initial_price_usd, peak_price_usd, latest_price_usd,
-                max_return_multiple, drawdown_from_peak, recovery_ratio,
+                initial_price_observed_usd, initial_price_robust_usd,
+                peak_price_usd, latest_price_usd,
+                max_return_multiple, max_return_multiple_observed,
+                drawdown_from_peak, recovery_ratio,
                 time_to_peak_secs, lifetime_secs, snapshot_count,
                 volatility, slope_early, slope_total,
+                tracking_quality,
                 classified_at, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(mint) DO UPDATE SET
-                category            = excluded.category,
-                confidence          = excluded.confidence,
-                initial_price_usd   = excluded.initial_price_usd,
-                peak_price_usd      = excluded.peak_price_usd,
-                latest_price_usd    = excluded.latest_price_usd,
-                max_return_multiple = excluded.max_return_multiple,
-                drawdown_from_peak  = excluded.drawdown_from_peak,
-                recovery_ratio      = excluded.recovery_ratio,
-                time_to_peak_secs   = excluded.time_to_peak_secs,
-                lifetime_secs       = excluded.lifetime_secs,
-                snapshot_count      = excluded.snapshot_count,
-                volatility          = excluded.volatility,
-                slope_early         = excluded.slope_early,
-                slope_total         = excluded.slope_total,
-                classified_at       = excluded.classified_at
+                category                      = excluded.category,
+                confidence                    = excluded.confidence,
+                initial_price_observed_usd    = excluded.initial_price_observed_usd,
+                initial_price_robust_usd      = excluded.initial_price_robust_usd,
+                peak_price_usd                = excluded.peak_price_usd,
+                latest_price_usd              = excluded.latest_price_usd,
+                max_return_multiple           = excluded.max_return_multiple,
+                max_return_multiple_observed  = excluded.max_return_multiple_observed,
+                drawdown_from_peak            = excluded.drawdown_from_peak,
+                recovery_ratio                = excluded.recovery_ratio,
+                time_to_peak_secs            = excluded.time_to_peak_secs,
+                lifetime_secs                 = excluded.lifetime_secs,
+                snapshot_count                = excluded.snapshot_count,
+                volatility                    = excluded.volatility,
+                slope_early                   = excluded.slope_early,
+                slope_total                   = excluded.slope_total,
+                tracking_quality              = excluded.tracking_quality,
+                classified_at                 = excluded.classified_at
         """, (
             f.mint, category, confidence,
-            f.initial_price_usd, f.peak_price_usd, f.latest_price_usd,
-            f.max_return_multiple, f.drawdown_from_peak, f.recovery_ratio,
+            f.initial_price_observed_usd, f.initial_price_robust_usd,
+            f.peak_price_usd, f.latest_price_usd,
+            f.max_return_multiple, f.max_return_multiple_observed,
+            f.drawdown_from_peak, f.recovery_ratio,
             f.time_to_peak_secs, f.lifetime_secs, f.snapshot_count,
             f.volatility, f.slope_early, f.slope_total,
+            f.tracking_quality,
             now, now
         ))
 

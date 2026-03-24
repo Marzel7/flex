@@ -24,9 +24,25 @@ logger = logging.getLogger(__name__)
 # THRESHOLD CONSTANTS (all tunable — adjust for dataset characteristics)
 # =========================================================================
 
-# Minimum data quality gates — below these, always unknown
-MIN_SNAPSHOTS = 8           # Fewer snapshots → insufficient data
-MIN_LIFETIME_SECS = 180     # Shorter lifetime → insufficient data
+# =========================================================================
+# TIERED DATA QUALITY THRESHOLDS (for progressive classification)
+# =========================================================================
+
+# Early classification (noisy but informative)
+EARLY_MIN_SNAPSHOTS = 8
+EARLY_MIN_LIFETIME_SECS = 120      # 2 minutes
+
+# Mid-quality classification (reasonable confidence)
+MID_MIN_SNAPSHOTS = 30
+MID_MIN_LIFETIME_SECS = 300        # 5 minutes
+
+# Full classification (high confidence)
+FULL_MIN_SNAPSHOTS = 100
+FULL_MIN_LIFETIME_SECS = 600       # 10 minutes
+
+# Default gates for system (allow early signals, but flag as low confidence)
+MIN_SNAPSHOTS = EARLY_MIN_SNAPSHOTS
+MIN_LIFETIME_SECS = EARLY_MIN_LIFETIME_SECS
 
 # immediate_rug: very early peak, then major collapse (pump-and-dump)
 IMMEDIATE_RUG_TIME_TO_PEAK_MAX = 300      # Peak must occur within this many seconds
@@ -180,7 +196,7 @@ def create_schema(db_path: str) -> None:
                 category            TEXT NOT NULL
                                         CHECK(category IN (
                                             'immediate_rug','rug','slow_rug',
-                                            'runner','choppy_runner','unknown'
+                                            'runner','choppy_runner','insufficient_history','unknown'
                                         )),
                 confidence          REAL NOT NULL DEFAULT 0.0,
                 initial_price_usd   REAL,
@@ -335,25 +351,41 @@ def classify_token(features: TokenBehaviorFeatures) -> Tuple[str, float]:
     Returns:
         (category: str, confidence: float)
 
-    Confidence is a float in [0, 1] (higher = more certain).
-    Priority order: immediate_rug > runner > choppy_runner > rug > slow_rug > unknown
+    Confidence tiers:
+    - 0.0-0.3: low (early signal, noisy data)
+    - 0.3-0.7: medium (reasonable confidence)
+    - 0.7-1.0: high (strong signal, mature data)
 
-    Gates:
-    - snapshot_count < MIN_SNAPSHOTS → unknown
-    - lifetime_secs < MIN_LIFETIME_SECS → unknown
+    Priority order: immediate_rug > runner > choppy_runner > rug > slow_rug > insufficient_history > unknown
     """
     f = features
 
-    # Gate: insufficient data
-    if f.snapshot_count < MIN_SNAPSHOTS or f.lifetime_secs < MIN_LIFETIME_SECS:
-        return ("unknown", 0.0)
-
-    # 1. immediate_rug (highest priority)
-    if (f.time_to_peak_secs <= IMMEDIATE_RUG_TIME_TO_PEAK_MAX
+    # 1. immediate_rug (highest priority) — check first, before lifetime gate
+    # Immediate rugs can happen within minutes, no lifetime requirement
+    if (f.snapshot_count >= EARLY_MIN_SNAPSHOTS
+            and f.time_to_peak_secs <= IMMEDIATE_RUG_TIME_TO_PEAK_MAX
             and f.drawdown_from_peak >= IMMEDIATE_RUG_DRAWDOWN_MIN
             and f.recovery_ratio <= IMMEDIATE_RUG_RECOVERY_MAX):
         conf = _immediate_rug_confidence(f)
         return ("immediate_rug", conf)
+
+    # Gate: insufficient data
+    if f.snapshot_count < EARLY_MIN_SNAPSHOTS:
+        return ("insufficient_history", 0.0)
+
+    # If barely enough snapshots, reduce confidence
+    if f.snapshot_count < MID_MIN_SNAPSHOTS:
+        confidence_penalty = 0.5
+    elif f.snapshot_count < FULL_MIN_SNAPSHOTS:
+        confidence_penalty = 0.8
+    else:
+        confidence_penalty = 1.0
+
+    # Also penalize if lifetime is short (noisy data)
+    if f.lifetime_secs < MID_MIN_LIFETIME_SECS:
+        confidence_penalty *= 0.6
+    elif f.lifetime_secs < FULL_MIN_LIFETIME_SECS:
+        confidence_penalty *= 0.85
 
     # 2. runner
     if (f.max_return_multiple >= RUNNER_MAX_RETURN_MIN

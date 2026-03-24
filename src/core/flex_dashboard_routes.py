@@ -163,6 +163,19 @@ def api_reference():
         return jsonify({'error': str(e)}), 500
 
 
+@dashboard_routes.route('/early-signals', methods=['GET'])
+def early_signals_page():
+    """
+    Render Early Signal Predictions page (Phase 1).
+    Shows tokens with early rug/runner predictions at 5-15 minutes.
+    """
+    try:
+        return render_template('flex_dashboard_v2.html', page='early_signals')
+    except Exception as e:
+        logger.error(f"Error rendering early signals: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
 def register_dashboard_routes(app):
     """Register dashboard routes with Flask app."""
     app.register_blueprint(dashboard_routes)

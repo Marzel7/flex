@@ -16,11 +16,20 @@ Routes:
 import logging
 import sqlite3
 import time
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, jsonify, request, make_response
 
 logger = logging.getLogger(__name__)
 
 dashboard_routes = Blueprint('dashboard', __name__, url_prefix='')
+
+
+def no_cache_json(data):
+    """Return JSON response with no-cache headers."""
+    response = make_response(jsonify(data))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 
 @dashboard_routes.route('/', methods=['GET'])
@@ -183,39 +192,44 @@ def early_signals_page():
 def api_token_behaviour():
     """
     Get classified tokens by behaviour category.
-    
+
     Query params:
-    - category: Filter by category (immediate_rug, rug, slow_rug, runner, choppy_runner, unknown)
+    - category: Filter by category (immediate_rug, rug, slow_rug, runner, choppy_runner, insufficient_history, unknown)
     - min_confidence: Minimum confidence threshold (0-1)
+    - min_snapshots: Minimum snapshot count for data quality (default 8, early classification tier)
     - limit: Max results (default 100)
-    
-    Returns: {"tokens": [...], "total": N, "category": "...", "confidence_threshold": N}
+
+    Returns: {"tokens": [...], "total": N, "category_filter": "...", "min_confidence": N, "min_snapshots": N}
     """
     try:
         category = request.args.get('category', None)
         min_confidence = float(request.args.get('min_confidence', 0.0))
+        min_snapshots = int(request.args.get('min_snapshots', 8))
         limit = int(request.args.get('limit', 100))
 
         conn = sqlite3.connect('database/flex_complete_database.db')
         conn.row_factory = sqlite3.Row
-        
+
         query = "SELECT * FROM token_behavior WHERE 1=1"
         params = []
-        
+
         if category and category != 'all':
             query += " AND category = ?"
             params.append(category)
-        
+
         if min_confidence > 0:
             query += " AND confidence >= ?"
             params.append(min_confidence)
-        
+
+        query += " AND snapshot_count >= ?"
+        params.append(min_snapshots)
+
         query += " ORDER BY confidence DESC, classified_at DESC LIMIT ?"
         params.append(limit)
-        
+
         rows = conn.execute(query, params).fetchall()
         conn.close()
-        
+
         tokens = []
         for row in rows:
             tokens.append({
@@ -228,17 +242,18 @@ def api_token_behaviour():
                 'lifetime_secs': row['lifetime_secs'],
                 'classified_at': row['classified_at'],
             })
-        
-        return jsonify({
+
+        return no_cache_json({
             'tokens': tokens,
             'total': len(tokens),
             'category_filter': category,
             'min_confidence': min_confidence,
+            'min_snapshots': min_snapshots,
         })
-    
+
     except Exception as e:
         logger.error(f"Error fetching token behaviour: {e}", exc_info=True)
-        return jsonify({'error': str(e)}), 500
+        return no_cache_json({'error': str(e)}), 500
 
 
 @dashboard_routes.route('/api/token-behaviour/<mint>', methods=['GET'])
@@ -356,16 +371,16 @@ def api_token_behaviour_stats():
             }
         
         conn.close()
-        
-        return jsonify({
+
+        return no_cache_json({
             'total_classified': total,
             'by_category': by_category,
             'last_updated': int(time.time()),
         })
-    
+
     except Exception as e:
         logger.error(f"Error fetching token behaviour stats: {e}", exc_info=True)
-        return jsonify({'error': str(e)}), 500
+        return no_cache_json({'error': str(e)}), 500
 
 
 @dashboard_routes.route('/token-behaviour', methods=['GET'])

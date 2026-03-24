@@ -22,24 +22,42 @@
 
     <style>
         :root {
+            /* Primary Colors - SolanaFM Professional Dark */
+            --primary: #7c3aed;
+            --primary-dark: #6d28d9;
+            --primary-light: rgba(124, 58, 237, 0.15);
+
+            /* Text Colors - Professional Gray Scale */
+            --text-primary: #e5e7eb;
+            --text-secondary: #9ca3af;
+            --text-dark: #1f2937;
+            --text-light: #f3f4f6;
+
+            /* Risk & Reuse Levels - Professional Palette */
             --color-critical: #ef4444;
             --color-high: #f97316;
-            --color-watch: #eab308;
-            --color-low: #84cc16;
-            --color-neutral: #6b7280;
-            --color-primary: #3b82f6;
-            --color-secondary: #6366f1;
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --border-color: #334155;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
+            --color-medium: #eab308;
+            --color-low: #22c55e;
+            --color-none: #6b7280;
+
+            /* Backgrounds - SolanaFM Dark Navy/Purple */
+            --bg-primary: #1a1a24;
+            --bg-secondary: rgba(20, 20, 32, 0.85);
+            --bg-overlay: rgba(124, 58, 237, 0.08);
+
+            /* Accents - SolanaFM Vibrant */
+            --accent-cyan: #06b6d4;
+            --accent-green: #22c55e;
+            --accent-purple: #a78bfa;
+            --color-purple: #a78bfa;
+            --address-color: #a78bfa;
+            --border-color: rgba(167, 139, 250, 0.3);
         }
 
         * { box-sizing: border-box; }
 
         body {
-            background: var(--bg-dark);
+            background: var(--bg-primary);
             color: var(--text-secondary);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0;
@@ -53,7 +71,7 @@
             top: 0;
             width: 260px;
             height: 100vh;
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            background: linear-gradient(180deg, rgba(26, 26, 36, 0.95) 0%, #1a1a24 100%);
             border-right: 1px solid var(--border-color);
             overflow-y: auto;
             padding: 1rem 0;
@@ -82,7 +100,7 @@
             font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
-            color: #94a3b8;
+            color: var(--text-secondary);
             letter-spacing: 0.05em;
         }
 
@@ -132,14 +150,14 @@
         }
 
         .page-header .subtitle {
-            color: #94a3b8;
+            color: var(--text-secondary);
             font-size: 0.95rem;
             margin-top: 0.5rem;
         }
 
         /* Cards */
         .card {
-            background: var(--bg-card);
+            background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 0.75rem;
             margin-bottom: 1.5rem;
@@ -153,6 +171,7 @@
 
         .card-body {
             padding: 1.5rem;
+            background: var(--bg-secondary);
         }
 
         /* Stats Grid */
@@ -164,7 +183,7 @@
         }
 
         .stat-card {
-            background: var(--bg-card);
+            background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 0.75rem;
             padding: 1.5rem;
@@ -180,7 +199,7 @@
 
         .stat-label {
             font-size: 0.9rem;
-            color: #94a3b8;
+            color: var(--text-secondary);
             margin-top: 0.5rem;
         }
 
@@ -201,6 +220,43 @@
         .badge-watch { background: rgba(234, 179, 8, 0.2); color: #fde047; }
         .badge-low { background: rgba(132, 204, 22, 0.2); color: #bef264; }
 
+        /* Tables - Override Bootstrap defaults */
+        .table {
+            background: var(--bg-secondary) !important;
+            color: var(--text-secondary) !important;
+        }
+
+        .table thead th {
+            background: var(--bg-primary) !important;
+            border-bottom: 2px solid var(--border-color) !important;
+            color: var(--text-secondary) !important;
+            padding: 12px !important;
+        }
+
+        .table tbody {
+            background: var(--bg-secondary) !important;
+        }
+
+        .table tbody tr {
+            background: var(--bg-secondary) !important;
+            border-bottom: 1px solid rgba(167, 139, 250, 0.1) !important;
+        }
+
+        .table tbody tr:hover {
+            background: var(--bg-overlay) !important;
+        }
+
+        .table tbody td {
+            background: var(--bg-secondary) !important;
+            color: var(--text-secondary) !important;
+            border-color: rgba(167, 139, 250, 0.1) !important;
+            padding: 12px !important;
+        }
+
+        .table-hover tbody tr:hover td {
+            background: var(--bg-overlay) !important;
+        }
+
         /* Signal Grid */
         .signal-grid {
             display: grid;
@@ -220,7 +276,7 @@
         .signal-name {
             font-size: 0.85rem;
             font-weight: 600;
-            color: #94a3b8;
+            color: var(--text-secondary);
             margin-bottom: 0.5rem;
             text-transform: uppercase;
         }
@@ -317,7 +373,7 @@
 
         .timeline-card-date {
             font-size: 0.85rem;
-            color: #94a3b8;
+            color: var(--text-secondary);
             margin-top: 0.25rem;
         }
 
@@ -422,7 +478,7 @@
             justify-content: center;
             gap: 1rem;
             padding: 3rem;
-            color: #94a3b8;
+            color: var(--text-secondary);
         }
 
         /* Animations */
@@ -963,6 +1019,11 @@
 
         // Utility: Load page
         const loadPage = (page) => {
+            // Stop auto-refresh for pages that have it
+            if (currentPage === 'token_behaviour') {
+                stopTokenBehaviourAutoRefresh();
+            }
+
             currentPage = page;
             document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
             event.target.closest('.nav-link').classList.add('active');
@@ -2890,7 +2951,7 @@
                     </button>
                 </div>
                 <div class="dev-tools-log" id="devToolsLog">
-                    <div style="color: #94a3b8; font-size: 0.85rem;">API calls will appear here...</div>
+                    <div style="color: var(--text-secondary); font-size: 0.85rem;">API calls will appear here...</div>
                 </div>
             `;
             document.body.appendChild(panel);
@@ -2909,7 +2970,7 @@
                         <span class="dev-tools-method">${entry.method}</span>
                         <span class="dev-tools-endpoint">${entry.endpoint}</span>
                         <span class="dev-tools-status status-${entry.statusCode}">${entry.statusCode}</span>
-                        <span style="font-size: 0.7rem; color: #94a3b8; margin-left: 0.5rem;">${entry.duration}ms ${entry.payloadSize}B</span>
+                        <span style="font-size: 0.7rem; color: var(--text-secondary); margin-left: 0.5rem;">${entry.duration}ms ${entry.payloadSize}B</span>
                     </div>
                 `;
             }).join('');
@@ -3021,7 +3082,7 @@
                     </div>
                 </div>
 
-                <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
                     <strong>How this score is calculated:</strong>
                     <div style="margin-top: 0.5rem;">Each signal contributes a weighted percentage to the final master score. Higher values indicate higher probability of launch.</div>
                 </div>
@@ -3179,13 +3240,30 @@
             }
         }
 
-        async function loadTokenBehaviourLeaderboard() {
-            const content = document.getElementById('page-content');
-            content.innerHTML = showLoading('Token Behaviour Leaderboard');
+        // Page-scoped state for Token Behaviour auto-refresh
+        let tokenBehaviourState = {
+            intervalId: null,
+            isInFlight: false,
+            lastData: null,
+            pageActive: true
+        };
 
+        const CATEGORY_INFO = {
+            'immediate_rug': { icon: '💥', color: '#ef4444', label: 'Immediate Rug', description: 'Spike then crash in first 5 minutes' },
+            'runner': { icon: '🚀', color: '#22c55e', label: 'Runner', description: 'Strong sustained growth' },
+            'choppy_runner': { icon: '📈', color: '#eab308', label: 'Choppy Runner', description: 'Volatile but upward trending' },
+            'rug': { icon: '📉', color: '#f97316', label: 'Rug Pull', description: 'Classic rug: pump then dump' },
+            'slow_rug': { icon: '⬇️', color: '#8b5cf6', label: 'Slow Rug', description: 'Gradual decline' },
+            'insufficient_history': { icon: '⏳', color: '#64748b', label: 'Insufficient History', description: 'Less than 8 snapshots - too early to classify' },
+        };
+
+        async function fetchTokenBehaviourData() {
             try {
+                // Bust cache with timestamp query param
+                const cacheKey = Date.now();
+
                 // Fetch summary stats
-                const statsResp = await fetch(`${API_BASE}/token-behaviour/stats/summary`);
+                const statsResp = await fetch(`${API_BASE}/token-behaviour/stats/summary?t=${cacheKey}`);
                 const stats = await statsResp.json();
 
                 // Fetch tokens for each category
@@ -3193,124 +3271,256 @@
                 const categoryTokens = {};
 
                 for (const cat of categories) {
-                    const resp = await fetch(`${API_BASE}/token-behaviour?category=${cat}&limit=10&min_confidence=0.1`);
+                    const resp = await fetch(`${API_BASE}/token-behaviour?category=${cat}&limit=10&min_confidence=0.1&t=${cacheKey}`);
                     const data = await resp.json();
                     categoryTokens[cat] = data.tokens || [];
                 }
 
-                const categoryInfo = {
-                    'immediate_rug': { icon: '💥', color: '#ef4444', label: 'Immediate Rug', description: 'Spike then crash in first 5 minutes' },
-                    'runner': { icon: '🚀', color: '#22c55e', label: 'Runner', description: 'Strong sustained growth' },
-                    'choppy_runner': { icon: '📈', color: '#eab308', label: 'Choppy Runner', description: 'Volatile but upward trending' },
-                    'rug': { icon: '📉', color: '#f97316', label: 'Rug Pull', description: 'Classic rug: pump then dump' },
-                    'slow_rug': { icon: '⬇️', color: '#8b5cf6', label: 'Slow Rug', description: 'Gradual decline' },
-                };
+                return { stats, categoryTokens, categories, timestamp: Date.now() };
+            } catch (e) {
+                console.error('Error fetching token behaviour data:', e);
+                throw e;
+            }
+        }
 
-                let html = `
-                    <div class="page-header">
-                        <h1>Token Behaviour Leaderboard</h1>
-                        <p class="subtitle">Top tokens by historical price behaviour classification</p>
-                    </div>
+        function renderTokenBehaviourPage(data) {
+            const content = document.getElementById('page-content');
+            const { stats, categoryTokens, categories } = data;
 
-                    <div class="stats-row">
-                        <div class="stat-card">
-                            <div class="stat-value">${stats.total_classified || 0}</div>
-                            <div class="stat-label">Total Classified</div>
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString();
+
+            let html = `
+                <div class="page-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1>Token Behaviour Leaderboard</h1>
+                            <p class="subtitle">Top tokens by historical price behaviour classification</p>
                         </div>
-                `;
-
-                // Add stat cards for each category
-                for (const cat of categories) {
-                    if (stats.by_category && stats.by_category[cat]) {
-                        const info = stats.by_category[cat];
-                        html += `
-                            <div class="stat-card">
-                                <div class="stat-value" style="color: ${categoryInfo[cat].color};">${info.count || 0}</div>
-                                <div class="stat-label">${categoryInfo[cat].label}</div>
-                                <small style="color: #999; margin-top: 4px;">Avg: ${(info.avg_confidence || 0).toFixed(2)}</small>
-                            </div>
-                        `;
-                    }
-                }
-
-                html += `
+                        <div style="text-align: right; font-size: 0.9rem; color: var(--text-secondary);">
+                            <div>Last updated: <strong style="color: var(--text-secondary);">${timeStr}</strong></div>
+                            <div style="font-size: 0.85rem; margin-top: 4px;">🔄 Auto-refreshing every 10s</div>
+                        </div>
                     </div>
-                `;
+                </div>
 
-                // Add leaderboard cards for each category
-                for (const cat of categories) {
-                    const info = categoryInfo[cat];
-                    const tokens = categoryTokens[cat] || [];
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.total_classified || 0}</div>
+                        <div class="stat-label">Total Classified</div>
+                    </div>
+            `;
 
+            // Add stat cards for each category
+            for (const cat of categories) {
+                if (stats.by_category && stats.by_category[cat]) {
+                    const info = stats.by_category[cat];
                     html += `
-                        <div class="card" style="border-left: 4px solid ${info.color};">
-                            <div class="card-header" style="background: linear-gradient(90deg, rgba(0,0,0,0.02), rgba(0,0,0,0));">
-                                <h5 class="mb-0">
-                                    <span style="font-size: 1.5rem; margin-right: 8px;">${info.icon}</span>
-                                    ${info.label}
-                                </h5>
-                                <small style="color: #666;">${info.description}</small>
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Rank</th>
-                                            <th>Token Mint</th>
-                                            <th>Confidence</th>
-                                            <th>Max Return</th>
-                                            <th>Drawdown</th>
-                                            <th>Snapshots</th>
-                                            <th>Lifetime</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${tokens.length === 0 ? `
-                                            <tr>
-                                                <td colspan="7" class="text-center text-muted">No tokens classified yet</td>
-                                            </tr>
-                                        ` : tokens.map((token, idx) => `
-                                            <tr style="cursor: pointer;" onclick="showTokenBehaviourDetail('${token.mint}')">
-                                                <td><strong>#${idx + 1}</strong></td>
-                                                <td><code style="font-size: 0.85rem; color: #666;">${token.mint.substring(0, 16)}...</code></td>
-                                                <td>
-                                                    <div style="font-weight: 600; color: ${info.color};">
-                                                        ${(token.confidence * 100).toFixed(0)}%
-                                                    </div>
-                                                </td>
-                                                <td>${token.max_return_multiple ? token.max_return_multiple.toFixed(2) + 'x' : 'N/A'}</td>
-                                                <td>${token.drawdown_from_peak ? (token.drawdown_from_peak * 100).toFixed(0) + '%' : 'N/A'}</td>
-                                                <td><small>${token.snapshot_count || 0}</small></td>
-                                                <td><small>${token.lifetime_secs ? Math.round(token.lifetime_secs / 60) + ' min' : 'N/A'}</small></td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: ${CATEGORY_INFO[cat].color};">${info.count || 0}</div>
+                            <div class="stat-label">${CATEGORY_INFO[cat].label}</div>
+                            <small style="color: var(--text-secondary); margin-top: 4px;">Avg: ${(info.avg_confidence || 0).toFixed(2)}</small>
                         </div>
                     `;
                 }
+            }
+
+            html += `
+                </div>
+            `;
+
+            // Add leaderboard cards for each category
+            for (const cat of categories) {
+                const info = CATEGORY_INFO[cat];
+                const tokens = categoryTokens[cat] || [];
 
                 html += `
-                    <div class="card" style="margin-top: 20px; background: #f5f5f5;">
-                        <div class="card-header">
-                            <h5 class="mb-0">ℹ️ About Token Behaviour Classification</h5>
+                    <div class="card" style="border-left: 4px solid ${info.color};" id="category-${cat}">
+                        <div class="card-header" style="background: rgba(0, 0, 0, 0.3);">
+                            <h5 class="mb-0">
+                                <span style="font-size: 1.5rem; margin-right: 8px;">${info.icon}</span>
+                                ${info.label}
+                            </h5>
+                            <small style="color: var(--text-secondary);">${info.description}</small>
                         </div>
                         <div class="card-body">
-                            <p><strong>Forward-looking monitoring:</strong> Tokens are classified as they accumulate price history.</p>
-                            <ul style="margin: 0; padding-left: 20px;">
-                                <li><strong>Immediate Rug:</strong> Price spikes in first 5 minutes, then crashes 85%+</li>
-                                <li><strong>Runner:</strong> Sustained growth (5x+) with strong recovery and low drawdown</li>
-                                <li><strong>Choppy Runner:</strong> Good gains (3x+) but volatile with oscillations</li>
-                                <li><strong>Rug Pull:</strong> Classic rug pattern: 2x+ gain followed by 90%+ crash</li>
-                                <li><strong>Slow Rug:</strong> Gradual decline with 70%+ drawdown, slow death</li>
-                            </ul>
-                            <p style="margin-top: 10px; color: #666;"><small>Based on historical price snapshots and linear regression analysis.</small></p>
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Token Mint</th>
+                                        <th>Confidence</th>
+                                        <th>Max Return</th>
+                                        <th>Drawdown</th>
+                                        <th>Snapshots</th>
+                                        <th>Lifetime</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tokens-${cat}">
+                                    ${tokens.length === 0 ? `
+                                        <tr>
+                                            <td colspan="7" class="text-center text-muted">No tokens classified yet</td>
+                                        </tr>
+                                    ` : tokens.map((token, idx) => `
+                                        <tr style="cursor: pointer;" onclick="showTokenBehaviourDetail('${token.mint}')">
+                                            <td><strong>#${idx + 1}</strong></td>
+                                            <td style="font-size: 0.85rem; color: var(--text-secondary); font-family: monospace;">${token.mint}</td>
+                                            <td>
+                                                <div style="font-weight: 600; color: ${info.color};">
+                                                    ${(token.confidence * 100).toFixed(0)}%
+                                                </div>
+                                            </td>
+                                            <td>${token.max_return_multiple ? token.max_return_multiple.toFixed(2) + 'x' : 'N/A'}</td>
+                                            <td>${token.drawdown_from_peak ? (token.drawdown_from_peak * 100).toFixed(0) + '%' : 'N/A'}</td>
+                                            <td><small>${token.snapshot_count || 0}</small></td>
+                                            <td><small>${token.lifetime_secs ? Math.round(token.lifetime_secs / 60) + ' min' : 'N/A'}</small></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 `;
+            }
 
-                content.innerHTML = html;
+            html += `
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h5 class="mb-0">ℹ️ About Token Behaviour Classification</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Forward-looking monitoring:</strong> Tokens are classified as they accumulate price history. Classifications use tiered thresholds based on data quality (8+ snapshots = early, 30+ = mid, 100+ = full).</p>
+                        <ul style="margin: 0; padding-left: 20px;">
+                            <li><strong>Immediate Rug:</strong> Price spikes in first 5 minutes, then crashes 85%+</li>
+                            <li><strong>Runner:</strong> Sustained growth (5x+) with strong recovery and low drawdown</li>
+                            <li><strong>Choppy Runner:</strong> Good gains (3x+) but volatile with oscillations</li>
+                            <li><strong>Rug Pull:</strong> Classic rug pattern: 2x+ gain followed by 90%+ crash</li>
+                            <li><strong>Slow Rug:</strong> Gradual decline with 70%+ drawdown, slow death</li>
+                            <li><strong>Insufficient History:</strong> Less than 8 snapshots - too early to classify confidently</li>
+                        </ul>
+                        <p style="margin-top: 10px; color: var(--text-secondary);"><small><strong>Confidence tiers:</strong> Early data (8-30 snapshots) has lower confidence, mid data (30-100) has moderate confidence, full data (100+) has highest confidence. Confidence is penalized for tokens with &lt;10 minutes of history.</small></p>
+                        <p style="margin: 10px 0 0 0; color: var(--text-secondary);"><small>Based on historical price snapshots and linear regression analysis.</small></p>
+                    </div>
+                </div>
+            `;
+
+            content.innerHTML = html;
+        }
+
+        function patchTokenBehaviourPage(newData) {
+            const { stats, categoryTokens, categories } = newData;
+
+            // Update timestamp
+            const header = document.querySelector('.page-header');
+            if (header) {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString();
+                const timeEl = header.querySelector('strong');
+                if (timeEl) timeEl.textContent = timeStr;
+            }
+
+            // Update stat cards
+            const statCards = document.querySelectorAll('.stat-card');
+            let idx = 0;
+            if (idx < statCards.length) {
+                statCards[idx++].querySelector('.stat-value').textContent = stats.total_classified || 0;
+            }
+
+            for (const cat of categories) {
+                if (stats.by_category && stats.by_category[cat] && idx < statCards.length) {
+                    const card = statCards[idx++];
+                    card.querySelector('.stat-value').textContent = stats.by_category[cat].count || 0;
+                    const avgEl = card.querySelector('small');
+                    if (avgEl) avgEl.textContent = `Avg: ${(stats.by_category[cat].avg_confidence || 0).toFixed(2)}`;
+                }
+            }
+
+            // Update token tables for each category
+            for (const cat of categories) {
+                const tbody = document.getElementById(`tokens-${cat}`);
+                if (tbody) {
+                    const tokens = categoryTokens[cat] || [];
+                    const info = CATEGORY_INFO[cat];
+
+                    if (tokens.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No tokens classified yet</td></tr>`;
+                    } else {
+                        tbody.innerHTML = tokens.map((token, idx) => `
+                            <tr style="cursor: pointer;" onclick="showTokenBehaviourDetail('${token.mint}')">
+                                <td><strong>#${idx + 1}</strong></td>
+                                <td style="font-size: 0.85rem; color: var(--text-secondary); font-family: monospace;">${token.mint}</td>
+                                <td>
+                                    <div style="font-weight: 600; color: ${info.color};">
+                                        ${(token.confidence * 100).toFixed(0)}%
+                                    </div>
+                                </td>
+                                <td>${token.max_return_multiple ? token.max_return_multiple.toFixed(2) + 'x' : 'N/A'}</td>
+                                <td>${token.drawdown_from_peak ? (token.drawdown_from_peak * 100).toFixed(0) + '%' : 'N/A'}</td>
+                                <td><small>${token.snapshot_count || 0}</small></td>
+                                <td><small>${token.lifetime_secs ? Math.round(token.lifetime_secs / 60) + ' min' : 'N/A'}</small></td>
+                            </tr>
+                        `).join('');
+                    }
+                }
+            }
+        }
+
+        async function refreshTokenBehaviourData() {
+            // Skip if already fetching
+            if (tokenBehaviourState.isInFlight) return;
+
+            // Skip if page is hidden
+            if (document.hidden) return;
+
+            tokenBehaviourState.isInFlight = true;
+            try {
+                const newData = await fetchTokenBehaviourData();
+                tokenBehaviourState.lastData = newData;
+
+                // Use patching to update in-place instead of full redraw
+                patchTokenBehaviourPage(newData);
+            } catch (e) {
+                console.error('Error refreshing token behaviour:', e);
+            } finally {
+                tokenBehaviourState.isInFlight = false;
+            }
+        }
+
+        function startTokenBehaviourAutoRefresh() {
+            // Stop any existing interval
+            stopTokenBehaviourAutoRefresh();
+
+            // Refresh every 10 seconds
+            tokenBehaviourState.intervalId = setInterval(refreshTokenBehaviourData, 10000);
+            console.log('[TOKEN_BEHAVIOUR] Auto-refresh started (10s interval)');
+
+            // Listen for visibility changes
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    console.log('[TOKEN_BEHAVIOUR] Page hidden, pausing refresh');
+                } else {
+                    console.log('[TOKEN_BEHAVIOUR] Page visible, resuming refresh');
+                }
+            });
+        }
+
+        function stopTokenBehaviourAutoRefresh() {
+            if (tokenBehaviourState.intervalId) {
+                clearInterval(tokenBehaviourState.intervalId);
+                tokenBehaviourState.intervalId = null;
+                console.log('[TOKEN_BEHAVIOUR] Auto-refresh stopped');
+            }
+        }
+
+        async function loadTokenBehaviourLeaderboard() {
+            const content = document.getElementById('page-content');
+            content.innerHTML = showLoading('Token Behaviour Leaderboard');
+
+            try {
+                const data = await fetchTokenBehaviourData();
+                tokenBehaviourState.lastData = data;
+                renderTokenBehaviourPage(data);
+                startTokenBehaviourAutoRefresh();
             } catch (e) {
                 console.error('Error loading token behaviour:', e);
                 content.innerHTML = `<div class="alert alert-danger">Error loading token behaviour: ${e.message}</div>`;

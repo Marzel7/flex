@@ -14,6 +14,8 @@ Routes:
 """
 
 import logging
+import sqlite3
+import time
 from flask import Blueprint, render_template, jsonify, request
 
 logger = logging.getLogger(__name__)
@@ -175,6 +177,208 @@ def early_signals_page():
         logger.error(f"Error rendering early signals: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
+
+
+@dashboard_routes.route('/api/token-behaviour', methods=['GET'])
+def api_token_behaviour():
+    """
+    Get classified tokens by behaviour category.
+    
+    Query params:
+    - category: Filter by category (immediate_rug, rug, slow_rug, runner, choppy_runner, unknown)
+    - min_confidence: Minimum confidence threshold (0-1)
+    - limit: Max results (default 100)
+    
+    Returns: {"tokens": [...], "total": N, "category": "...", "confidence_threshold": N}
+    """
+    try:
+        category = request.args.get('category', None)
+        min_confidence = float(request.args.get('min_confidence', 0.0))
+        limit = int(request.args.get('limit', 100))
+
+        conn = sqlite3.connect('database/flex_complete_database.db')
+        conn.row_factory = sqlite3.Row
+        
+        query = "SELECT * FROM token_behavior WHERE 1=1"
+        params = []
+        
+        if category and category != 'all':
+            query += " AND category = ?"
+            params.append(category)
+        
+        if min_confidence > 0:
+            query += " AND confidence >= ?"
+            params.append(min_confidence)
+        
+        query += " ORDER BY confidence DESC, classified_at DESC LIMIT ?"
+        params.append(limit)
+        
+        rows = conn.execute(query, params).fetchall()
+        conn.close()
+        
+        tokens = []
+        for row in rows:
+            tokens.append({
+                'mint': row['mint'],
+                'category': row['category'],
+                'confidence': round(row['confidence'], 3),
+                'max_return_multiple': row['max_return_multiple'],
+                'drawdown_from_peak': round(row['drawdown_from_peak'], 3) if row['drawdown_from_peak'] else None,
+                'snapshot_count': row['snapshot_count'],
+                'lifetime_secs': row['lifetime_secs'],
+                'classified_at': row['classified_at'],
+            })
+        
+        return jsonify({
+            'tokens': tokens,
+            'total': len(tokens),
+            'category_filter': category,
+            'min_confidence': min_confidence,
+        })
+    
+    except Exception as e:
+        logger.error(f"Error fetching token behaviour: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/api/token-behaviour/<mint>', methods=['GET'])
+def api_token_behaviour_detail(mint):
+    """
+    Get detailed behaviour classification for a specific token.
+    
+    Returns: {
+        "mint": "...",
+        "category": "...",
+        "confidence": 0.85,
+        "features": {
+            "initial_price_usd": 0.001,
+            "peak_price_usd": 0.010,
+            ...
+        },
+        "history": [
+            {"category": "...", "confidence": ..., "classified_at": ...}
+        ]
+    }
+    """
+    try:
+        conn = sqlite3.connect('database/flex_complete_database.db')
+        conn.row_factory = sqlite3.Row
+        
+        # Get current classification
+        row = conn.execute(
+            "SELECT * FROM token_behavior WHERE mint = ?",
+            (mint,)
+        ).fetchone()
+        
+        if not row:
+            conn.close()
+            return jsonify({'error': 'Token not classified', 'mint': mint}), 404
+        
+        # Get history
+        history_rows = conn.execute(
+            "SELECT category, confidence, classified_at FROM token_behavior_history WHERE mint = ? ORDER BY classified_at DESC LIMIT 10",
+            (mint,)
+        ).fetchall()
+        
+        conn.close()
+        
+        return jsonify({
+            'mint': row['mint'],
+            'category': row['category'],
+            'confidence': round(row['confidence'], 3),
+            'features': {
+                'initial_price_usd': row['initial_price_usd'],
+                'peak_price_usd': row['peak_price_usd'],
+                'latest_price_usd': row['latest_price_usd'],
+                'max_return_multiple': row['max_return_multiple'],
+                'drawdown_from_peak': round(row['drawdown_from_peak'], 3) if row['drawdown_from_peak'] else None,
+                'recovery_ratio': round(row['recovery_ratio'], 3) if row['recovery_ratio'] else None,
+                'time_to_peak_secs': row['time_to_peak_secs'],
+                'lifetime_secs': row['lifetime_secs'],
+                'snapshot_count': row['snapshot_count'],
+                'volatility': round(row['volatility'], 3) if row['volatility'] else None,
+                'slope_early': round(row['slope_early'], 6) if row['slope_early'] else None,
+                'slope_total': round(row['slope_total'], 6) if row['slope_total'] else None,
+            },
+            'history': [
+                {
+                    'category': h['category'],
+                    'confidence': round(h['confidence'], 3),
+                    'classified_at': h['classified_at'],
+                }
+                for h in history_rows
+            ],
+            'classified_at': row['classified_at'],
+            'created_at': row['created_at'],
+        })
+    
+    except Exception as e:
+        logger.error(f"Error fetching token behaviour detail: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/api/token-behaviour/stats/summary', methods=['GET'])
+def api_token_behaviour_stats():
+    """
+    Get summary statistics on token behaviour classifications.
+    
+    Returns: {
+        "total_classified": N,
+        "by_category": {
+            "immediate_rug": {"count": N, "avg_confidence": 0.7, "pct": 2.1},
+            ...
+        }
+    }
+    """
+    try:
+        conn = sqlite3.connect('database/flex_complete_database.db')
+        
+        # Get summary by category
+        rows = conn.execute("""
+            SELECT 
+                category,
+                COUNT(*) as count,
+                ROUND(AVG(confidence), 3) as avg_confidence
+            FROM token_behavior
+            GROUP BY category
+            ORDER BY count DESC
+        """).fetchall()
+        
+        total = sum(row[1] for row in rows)
+        
+        by_category = {}
+        for row in rows:
+            cat, count, avg_conf = row
+            by_category[cat] = {
+                'count': count,
+                'avg_confidence': avg_conf,
+                'pct': round(100.0 * count / total, 1) if total > 0 else 0,
+            }
+        
+        conn.close()
+        
+        return jsonify({
+            'total_classified': total,
+            'by_category': by_category,
+            'last_updated': int(time.time()),
+        })
+    
+    except Exception as e:
+        logger.error(f"Error fetching token behaviour stats: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/token-behaviour', methods=['GET'])
+def token_behaviour_page():
+    """
+    Render Token Behaviour page.
+    Shows tokens classified by their historical price behaviour.
+    """
+    try:
+        return render_template('flex_dashboard.html', page='token_behaviour')
+    except Exception as e:
+        logger.error(f"Error rendering token behaviour page: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
 
 def register_dashboard_routes(app):
     """Register dashboard routes with Flask app."""

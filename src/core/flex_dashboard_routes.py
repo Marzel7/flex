@@ -170,7 +170,7 @@ def early_signals_page():
     Shows tokens with early rug/runner predictions at 5-15 minutes.
     """
     try:
-        return render_template('flex_dashboard_v2.html', page='early_signals')
+        return render_template('flex_dashboard.html', page='early_signals')
     except Exception as e:
         logger.error(f"Error rendering early signals: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500

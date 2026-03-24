@@ -275,7 +275,12 @@ class PoolPriceCalculator:
         liquidity_usd = 2 * quote_human * (
             sol_price_usd if quote_is_sol else 1.0
         )
+        print(f"[PRICE_DEBUG] {mint[:16]}... liquidity=${liquidity_usd:.2f}, min=${PoolPriceCalculator.MIN_LIQUIDITY_USD}", flush=True)
         if liquidity_usd < PoolPriceCalculator.MIN_LIQUIDITY_USD:
+            print(
+                f"[PRICE_DEBUG] {mint[:16]}... ✗ rejected: liquidity ${liquidity_usd:.2f} < ${PoolPriceCalculator.MIN_LIQUIDITY_USD}",
+                flush=True
+            )
             return None
 
         # Manipulation filter 2: max deviation from last known price
@@ -293,6 +298,7 @@ class PoolPriceCalculator:
         # This is more reliable than using total_supply which we often don't have
         market_cap = 2 * liquidity_usd
 
+        print(f"[PRICE_DEBUG] {mint[:16]}... ✓ price computed: ${price_usd:.8f}", flush=True)
         return TokenPrice(
             mint=mint,
             price_usd=price_usd,

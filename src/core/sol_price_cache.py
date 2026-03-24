@@ -66,6 +66,20 @@ class SolPriceCache:
                 logger.warning(f"Using stale price: ${self.price:.2f} (age={age:.1f}s)")
                 return self.price
 
+    def get_price_sync(self) -> Optional[float]:
+        """
+        Get cached SOL price synchronously (no async, no fetch).
+        Returns the cached price if available, None if cache is stale/empty.
+        Safe to call from sync threads.
+        """
+        now = time.time()
+        age = now - self.last_update
+        if self.price is not None and age < self.ttl:
+            logger.debug(f"SOL price (sync) cache hit: ${self.price:.2f} (age={age:.1f}s)")
+            return self.price
+        logger.debug(f"SOL price (sync) cache miss: stale or empty (age={age:.1f}s)")
+        return None
+
     def get_stats(self) -> dict:
         """Get cache statistics."""
         now = time.time()

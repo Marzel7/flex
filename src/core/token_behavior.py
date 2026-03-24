@@ -442,13 +442,23 @@ def classify_token(features: TokenBehaviorFeatures) -> Tuple[str, float]:
     """
     f = features
 
+    # Tracking quality multiplier:
+    # - good: full trust
+    # - possibly_late: reduce confidence moderately
+    # - likely_late: reduce confidence more aggressively
+    tracking_quality_multiplier = {
+        "good": 1.0,
+        "possibly_late": 0.85,
+        "likely_late": 0.65,
+    }.get(f.tracking_quality, 1.0)
+
     # 1. immediate_rug (highest priority) — check first, before lifetime gate
     # Immediate rugs can happen within minutes, no lifetime requirement
     if (f.snapshot_count >= EARLY_MIN_SNAPSHOTS
             and f.time_to_peak_secs <= IMMEDIATE_RUG_TIME_TO_PEAK_MAX
             and f.drawdown_from_peak >= IMMEDIATE_RUG_DRAWDOWN_MIN
             and f.recovery_ratio <= IMMEDIATE_RUG_RECOVERY_MAX):
-        conf = _immediate_rug_confidence(f)
+        conf = _immediate_rug_confidence(f) * tracking_quality_multiplier
         return ("immediate_rug", conf)
 
     # Gate: insufficient data
@@ -473,7 +483,7 @@ def classify_token(features: TokenBehaviorFeatures) -> Tuple[str, float]:
     if (f.max_return_multiple >= RUNNER_MAX_RETURN_MIN
             and f.drawdown_from_peak <= RUNNER_DRAWDOWN_MAX
             and f.recovery_ratio >= RUNNER_RECOVERY_MIN):
-        conf = _runner_confidence(f) * confidence_penalty
+        conf = _runner_confidence(f) * confidence_penalty * tracking_quality_multiplier
         return ("runner", conf)
 
     # 3. faded_runner (strong upside, then material decline)
@@ -482,26 +492,26 @@ def classify_token(features: TokenBehaviorFeatures) -> Tuple[str, float]:
             and f.drawdown_from_peak <= FADED_RUNNER_DRAWDOWN_MAX
             and f.recovery_ratio >= FADED_RUNNER_RECOVERY_MIN
             and f.recovery_ratio <= FADED_RUNNER_RECOVERY_MAX):
-        conf = _faded_runner_confidence(f) * confidence_penalty
+        conf = _faded_runner_confidence(f) * confidence_penalty * tracking_quality_multiplier
         return ("faded_runner", conf)
 
     # 4. choppy_runner
     if (f.max_return_multiple >= CHOPPY_RUNNER_MAX_RETURN_MIN
             and f.recovery_ratio >= CHOPPY_RUNNER_RECOVERY_MIN):
-        conf = _choppy_runner_confidence(f) * confidence_penalty
+        conf = _choppy_runner_confidence(f) * confidence_penalty * tracking_quality_multiplier
         return ("choppy_runner", conf)
 
     # 5. rug
     if (f.max_return_multiple >= RUG_MAX_RETURN_MIN
             and f.drawdown_from_peak >= RUG_DRAWDOWN_MIN):
-        conf = _rug_confidence(f) * confidence_penalty
+        conf = _rug_confidence(f) * confidence_penalty * tracking_quality_multiplier
         return ("rug", conf)
 
     # 6. slow_rug
     if (f.max_return_multiple < SLOW_RUG_MAX_RETURN_MAX
             and f.slope_total < SLOW_RUG_SLOPE_MAX
             and f.drawdown_from_peak >= SLOW_RUG_DRAWDOWN_MIN):
-        conf = _slow_rug_confidence(f) * confidence_penalty
+        conf = _slow_rug_confidence(f) * confidence_penalty * tracking_quality_multiplier
         return ("slow_rug", conf)
 
     # 7. unknown (conflicting or ambiguous signals)

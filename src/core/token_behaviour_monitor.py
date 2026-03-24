@@ -52,7 +52,7 @@ def classify_recent_tokens(
         # Find candidates: tokens with enough snapshots and age
         # that haven't been classified recently
         query = """
-            SELECT DISTINCT p.mint
+            SELECT p.mint
             FROM token_price_snapshots p
             WHERE (
                 -- Either not yet classified
@@ -66,11 +66,12 @@ def classify_recent_tokens(
                     AND b.classified_at < ?
                 )
             )
-            -- Token must have minimum age
-            AND (? - MIN(p.captured_at)) >= ?
-            -- Token must have enough snapshots
-            AND COUNT(*) >= 8
             GROUP BY p.mint
+            HAVING
+                -- Token must have minimum age
+                (? - MIN(p.captured_at)) >= ?
+                -- Token must have enough snapshots
+                AND COUNT(*) >= 8
             LIMIT ?
         """
 

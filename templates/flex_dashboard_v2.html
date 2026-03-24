@@ -628,6 +628,7 @@
         function updateTokenPrice(update) {
             const mint = update.mint;
             const row = document.querySelector(`[data-mint="${mint}"]`);
+            console.log('[UPDATE_TOKEN_PRICE] mint:', mint, 'found row:', !!row, 'price:', update.price_usd);
             if (!row) return;
 
             // Update in-memory data

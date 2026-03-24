@@ -4574,10 +4574,49 @@ function switchToTokensTab() {
             }
         }
 
+        // Initialize SSE price streaming
+        function initDashboardPriceStream() {
+            console.log('[SSE_PRICE] Connecting to price stream...');
+            const es = new EventSource('/api/price-stream');
+            let eventCount = 0;
+
+            es.onopen = () => {
+                console.log('[SSE_PRICE] ✅ Connected');
+            };
+
+            es.onmessage = (event) => {
+                try {
+                    const update = JSON.parse(event.data);
+                    if (update.type === 'price_update') {
+                        eventCount++;
+                        const mint = update.mint;
+                        const priceElem = document.getElementById(`price-${mint}`);
+                        const mcElem = document.getElementById(`mc-${mint}`);
+
+                        if (priceElem) {
+                            priceElem.textContent = `$${update.price_usd.toFixed(8)}`;
+                        }
+                        if (mcElem && update.market_cap) {
+                            const formattedMC = '$' + formatMarketCap(update.market_cap);
+                            mcElem.textContent = formattedMC;
+                        }
+                    }
+                } catch (error) {
+                    console.error('[SSE_PRICE] Parse error:', error);
+                }
+            };
+
+            es.onerror = () => {
+                console.log('[SSE_PRICE] Connection closed, will auto-reconnect...');
+                es.close();
+            };
+        }
+
         // Load tokens immediately and then every 10 seconds
         (async () => {
             await initializeSettings();
             loadTokens();
+            initDashboardPriceStream();  // Start SSE price stream
             setInterval(loadTokens, 60000);  // Reload token list every 60s (not constantly)
         })();
 

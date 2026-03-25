@@ -98,6 +98,28 @@ class DashboardService:
             except Exception:
                 pass
 
+            # Get early signal counts
+            early_rugs_count = 0
+            early_runners_count = 0
+            try:
+                cursor = self._get_conn().cursor()
+                cursor.execute("""
+                    SELECT COUNT(*) as count FROM token_monitoring_state
+                    WHERE early_label = 'likely_rug'
+                """)
+                rug_row = cursor.fetchone()
+                early_rugs_count = dict(rug_row)['count'] if rug_row else 0
+
+                cursor.execute("""
+                    SELECT COUNT(*) as count FROM token_monitoring_state
+                    WHERE early_label = 'likely_runner'
+                """)
+                runner_row = cursor.fetchone()
+                early_runners_count = dict(runner_row)['count'] if runner_row else 0
+            except Exception:
+                # Early signal columns don't exist yet
+                pass
+
             conn.close()
 
             return {
@@ -106,6 +128,8 @@ class DashboardService:
                 'organizations_monitored': organizations_monitored,
                 'latest_wave_detected': latest_wave,
                 'top_launch_candidates': top_candidates,
+                'early_rugs_detected': early_rugs_count,
+                'early_runners_detected': early_runners_count,
                 'status': 'operational'
             }
         except Exception as e:

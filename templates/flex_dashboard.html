@@ -22,24 +22,42 @@
 
     <style>
         :root {
+            /* Primary Colors - SolanaFM Professional Dark */
+            --primary: #7c3aed;
+            --primary-dark: #6d28d9;
+            --primary-light: rgba(124, 58, 237, 0.15);
+
+            /* Text Colors - Professional Gray Scale */
+            --text-primary: #e5e7eb;
+            --text-secondary: #9ca3af;
+            --text-dark: #1f2937;
+            --text-light: #f3f4f6;
+
+            /* Risk & Reuse Levels - Professional Palette */
             --color-critical: #ef4444;
             --color-high: #f97316;
-            --color-watch: #eab308;
-            --color-low: #84cc16;
-            --color-neutral: #6b7280;
-            --color-primary: #3b82f6;
-            --color-secondary: #6366f1;
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --border-color: #334155;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
+            --color-medium: #eab308;
+            --color-low: #22c55e;
+            --color-none: #6b7280;
+
+            /* Backgrounds - SolanaFM Dark Navy/Purple */
+            --bg-primary: #1a1a24;
+            --bg-secondary: rgba(20, 20, 32, 0.85);
+            --bg-overlay: rgba(124, 58, 237, 0.08);
+
+            /* Accents - SolanaFM Vibrant */
+            --accent-cyan: #06b6d4;
+            --accent-green: #22c55e;
+            --accent-purple: #a78bfa;
+            --color-purple: #a78bfa;
+            --address-color: #a78bfa;
+            --border-color: rgba(167, 139, 250, 0.3);
         }
 
         * { box-sizing: border-box; }
 
         body {
-            background: var(--bg-dark);
+            background: var(--bg-primary);
             color: var(--text-secondary);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0;
@@ -53,7 +71,7 @@
             top: 0;
             width: 260px;
             height: 100vh;
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            background: linear-gradient(180deg, rgba(26, 26, 36, 0.95) 0%, #1a1a24 100%);
             border-right: 1px solid var(--border-color);
             overflow-y: auto;
             padding: 1rem 0;
@@ -82,7 +100,7 @@
             font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
-            color: #94a3b8;
+            color: var(--text-secondary);
             letter-spacing: 0.05em;
         }
 
@@ -132,14 +150,14 @@
         }
 
         .page-header .subtitle {
-            color: #94a3b8;
+            color: var(--text-secondary);
             font-size: 0.95rem;
             margin-top: 0.5rem;
         }
 
         /* Cards */
         .card {
-            background: var(--bg-card);
+            background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 0.75rem;
             margin-bottom: 1.5rem;
@@ -153,6 +171,7 @@
 
         .card-body {
             padding: 1.5rem;
+            background: var(--bg-secondary);
         }
 
         /* Stats Grid */
@@ -164,7 +183,7 @@
         }
 
         .stat-card {
-            background: var(--bg-card);
+            background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 0.75rem;
             padding: 1.5rem;
@@ -180,7 +199,7 @@
 
         .stat-label {
             font-size: 0.9rem;
-            color: #94a3b8;
+            color: var(--text-secondary);
             margin-top: 0.5rem;
         }
 
@@ -201,6 +220,43 @@
         .badge-watch { background: rgba(234, 179, 8, 0.2); color: #fde047; }
         .badge-low { background: rgba(132, 204, 22, 0.2); color: #bef264; }
 
+        /* Tables - Override Bootstrap defaults */
+        .table {
+            background: var(--bg-secondary) !important;
+            color: var(--text-secondary) !important;
+        }
+
+        .table thead th {
+            background: var(--bg-primary) !important;
+            border-bottom: 2px solid var(--border-color) !important;
+            color: var(--text-secondary) !important;
+            padding: 12px !important;
+        }
+
+        .table tbody {
+            background: var(--bg-secondary) !important;
+        }
+
+        .table tbody tr {
+            background: var(--bg-secondary) !important;
+            border-bottom: 1px solid rgba(167, 139, 250, 0.1) !important;
+        }
+
+        .table tbody tr:hover {
+            background: var(--bg-overlay) !important;
+        }
+
+        .table tbody td {
+            background: var(--bg-secondary) !important;
+            color: var(--text-secondary) !important;
+            border-color: rgba(167, 139, 250, 0.1) !important;
+            padding: 12px !important;
+        }
+
+        .table-hover tbody tr:hover td {
+            background: var(--bg-overlay) !important;
+        }
+
         /* Signal Grid */
         .signal-grid {
             display: grid;
@@ -220,7 +276,7 @@
         .signal-name {
             font-size: 0.85rem;
             font-weight: 600;
-            color: #94a3b8;
+            color: var(--text-secondary);
             margin-bottom: 0.5rem;
             text-transform: uppercase;
         }
@@ -317,7 +373,7 @@
 
         .timeline-card-date {
             font-size: 0.85rem;
-            color: #94a3b8;
+            color: var(--text-secondary);
             margin-top: 0.25rem;
         }
 
@@ -422,7 +478,7 @@
             justify-content: center;
             gap: 1rem;
             padding: 3rem;
-            color: #94a3b8;
+            color: var(--text-secondary);
         }
 
         /* Animations */
@@ -891,6 +947,15 @@
             <a class="nav-link" onclick="loadPage('signal_explorer')">
                 <i class="fas fa-sliders-h"></i> <span>Signals</span>
             </a>
+            <a class="nav-link" onclick="loadPage('early_signals')">
+                <i class="fas fa-brain"></i> <span>Early Predictions</span>
+            </a>
+            <a class="nav-link" onclick="loadPage('token_behaviour')">
+                <i class="fas fa-chart-line"></i> <span>Token Behaviour</span>
+            </a>
+            <a class="nav-link" onclick="loadPage('vaults')">
+                <i class="fas fa-vault"></i> <span>Vaults</span>
+            </a>
             <a class="nav-link" onclick="loadPage('wallet')">
                 <i class="fas fa-wallet"></i> <span>Wallet Intelligence</span>
             </a>
@@ -956,7 +1021,12 @@
         };
 
         // Utility: Load page
-        const loadPage = (page) => {
+        window.loadPage = (page) => {
+            // Stop auto-refresh for pages that have it
+            if (currentPage === 'token_behaviour') {
+                stopTokenBehaviourAutoRefresh();
+            }
+
             currentPage = page;
             document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
             event.target.closest('.nav-link').classList.add('active');
@@ -972,12 +1042,15 @@
                 'wallet': () => loadWalletIntelligence(PAGE_WALLET),
                 'fingerprint': () => loadDeveloperFingerprint(PAGE_ORG_ID),
                 'api_reference': loadAPIReference,
+                'early_signals': loadEarlySignals,
+                'token_behaviour': loadTokenBehaviourLeaderboard,
+                'vaults': loadVaultsPage,
             };
             (routes[page] || loadDashboard)();
         };
 
         // Go home (from sidebar brand click)
-        const goHome = () => {
+        window.goHome = () => {
             currentPage = 'dashboard';
             document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
             const dashboardLink = document.querySelector('.nav-link[onclick*="dashboard"]');
@@ -1141,6 +1214,14 @@
                         <div class="stat-card">
                             <div class="stat-value" style="color: var(--color-primary);">${data.latest_wave_detected || 'None'}</div>
                             <div class="stat-label">Latest Wave</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #ef4444;">${data.early_rugs_detected || 0}</div>
+                            <div class="stat-label">Early Rugs</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #22c55e;">${data.early_runners_detected || 0}</div>
+                            <div class="stat-label">Early Runners</div>
                         </div>
                     </div>
 
@@ -2874,7 +2955,7 @@
                     </button>
                 </div>
                 <div class="dev-tools-log" id="devToolsLog">
-                    <div style="color: #94a3b8; font-size: 0.85rem;">API calls will appear here...</div>
+                    <div style="color: var(--text-secondary); font-size: 0.85rem;">API calls will appear here...</div>
                 </div>
             `;
             document.body.appendChild(panel);
@@ -2893,7 +2974,7 @@
                         <span class="dev-tools-method">${entry.method}</span>
                         <span class="dev-tools-endpoint">${entry.endpoint}</span>
                         <span class="dev-tools-status status-${entry.statusCode}">${entry.statusCode}</span>
-                        <span style="font-size: 0.7rem; color: #94a3b8; margin-left: 0.5rem;">${entry.duration}ms ${entry.payloadSize}B</span>
+                        <span style="font-size: 0.7rem; color: var(--text-secondary); margin-left: 0.5rem;">${entry.duration}ms ${entry.payloadSize}B</span>
                     </div>
                 `;
             }).join('');
@@ -3005,12 +3086,1292 @@
                     </div>
                 </div>
 
-                <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
                     <strong>How this score is calculated:</strong>
                     <div style="margin-top: 0.5rem;">Each signal contributes a weighted percentage to the final master score. Higher values indicate higher probability of launch.</div>
                 </div>
             `;
         }
+
+        // Load Early Signals Predictions Page (Phase 1)
+        async function loadEarlySignals() {
+            const content = document.getElementById('page-content');
+            content.innerHTML = showLoading('Early Signal Predictions');
+
+            try {
+                const response = await fetch(`${API_BASE}/early-signals`);
+                const data = await response.json();
+
+                const { early_rugs = [], early_runners = [], unknown_signals = [] } = data;
+
+                let html = `
+                    <div class="page-header">
+                        <h1>Early Signal Predictions</h1>
+                        <p class="subtitle">Token outcome predictions at 5-15 minutes</p>
+                    </div>
+
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #ef4444;">${early_rugs.length}</div>
+                            <div class="stat-label">Likely Rugs</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #22c55e;">${early_runners.length}</div>
+                            <div class="stat-label">Likely Runners</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #eab308;">${unknown_signals.length}</div>
+                            <div class="stat-label">Unknown</div>
+                        </div>
+                    </div>
+
+                    <!-- LIKELY RUGS -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>
+                                Likely Rugs (Early Detection)
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Token</th>
+                                        <th>Score</th>
+                                        <th>Confidence</th>
+                                        <th>Age</th>
+                                        <th>Signals</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${early_rugs.map(token => `
+                                        <tr>
+                                            <td><code style="font-size: 0.85rem;">${token.mint.substring(0, 16)}...</code></td>
+                                            <td><div style="color: #ef4444; font-weight: 600;">${(token.early_rug_score * 100).toFixed(0)}%</div></td>
+                                            <td><div style="color: #f97316;">${(token.confidence * 100).toFixed(0)}%</div></td>
+                                            <td>${token.age_minutes || '?'} min</td>
+                                            <td><button class="btn btn-sm btn-secondary" onclick="showSignalDetails('${token.mint}', 'likely_rug')"><i class="fas fa-info-circle"></i> Signals</button></td>
+                                            <td><button class="btn btn-sm btn-danger" onclick="notifyRug('${token.mint}')"><i class="fas fa-bell"></i> Alert</button></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                            ${early_rugs.length === 0 ? '<p class="text-muted">No likely rugs detected</p>' : ''}
+                        </div>
+                    </div>
+
+                    <!-- LIKELY RUNNERS -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-rocket" style="color: #22c55e;"></i>
+                                Likely Runners (Early Opportunity)
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Token</th>
+                                        <th>Score</th>
+                                        <th>Confidence</th>
+                                        <th>Age</th>
+                                        <th>Signals</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${early_runners.map(token => `
+                                        <tr>
+                                            <td><code style="font-size: 0.85rem;">${token.mint.substring(0, 16)}...</code></td>
+                                            <td><div style="color: #22c55e; font-weight: 600;">${(token.early_success_score * 100).toFixed(0)}%</div></td>
+                                            <td><div style="color: #10b981;">${(token.confidence * 100).toFixed(0)}%</div></td>
+                                            <td>${token.age_minutes || '?'} min</td>
+                                            <td><button class="btn btn-sm btn-secondary" onclick="showSignalDetails('${token.mint}', 'likely_runner')"><i class="fas fa-info-circle"></i> Signals</button></td>
+                                            <td><button class="btn btn-sm btn-success" onclick="prioritizeToken('${token.mint}')"><i class="fas fa-eye"></i> Watch</button></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                            ${early_runners.length === 0 ? '<p class="text-muted">No likely runners detected</p>' : ''}
+                        </div>
+                    </div>
+
+                    <!-- MIXED SIGNALS -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-balance-scale" style="color: #eab308;"></i>
+                                Mixed Signals (Continue Monitoring)
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Token</th>
+                                        <th>Rug Score</th>
+                                        <th>Success Score</th>
+                                        <th>Confidence</th>
+                                        <th>Age</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${unknown_signals.map(token => `
+                                        <tr>
+                                            <td><code style="font-size: 0.85rem;">${token.mint.substring(0, 16)}...</code></td>
+                                            <td><div style="color: #ef4444;">${(token.early_rug_score * 100).toFixed(0)}%</div></td>
+                                            <td><div style="color: #22c55e;">${(token.early_success_score * 100).toFixed(0)}%</div></td>
+                                            <td><div style="color: #eab308;">${(token.confidence * 100).toFixed(0)}%</div></td>
+                                            <td>${token.age_minutes || '?'} min</td>
+                                            <td><button class="btn btn-sm btn-secondary" onclick="showSignalDetails('${token.mint}', 'unknown')"><i class="fas fa-info-circle"></i> Details</button></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                            ${unknown_signals.length === 0 ? '<p class="text-muted">No mixed signals detected</p>' : ''}
+                        </div>
+                    </div>
+                `;
+
+                content.innerHTML = html;
+            } catch (e) {
+                console.error('Error loading early signals:', e);
+                content.innerHTML = `<div class="alert alert-danger">Error loading early signals: ${e.message}</div>`;
+            }
+        }
+
+        // Page-scoped state for Token Behaviour auto-refresh
+        let tokenBehaviourState = {
+            intervalId: null,
+            isInFlight: false,
+            lastData: null,
+            pageActive: true
+        };
+
+        const CATEGORY_INFO = {
+            'immediate_rug': { icon: '💥', color: '#ef4444', label: 'Immediate Rug', description: 'Spike then crash in first 5 minutes' },
+            'runner': { icon: '🚀', color: '#22c55e', label: 'Runner', description: 'Strong sustained growth' },
+            'faded_runner': { icon: '⬇️🚀', color: '#84cc16', label: 'Faded Runner', description: 'Strong upside then material decline' },
+            'choppy_runner': { icon: '📈', color: '#eab308', label: 'Choppy Runner', description: 'Volatile but upward trending' },
+            'rug': { icon: '📉', color: '#f97316', label: 'Rug Pull', description: 'Classic rug: pump then dump' },
+            'slow_rug': { icon: '⬇️', color: '#8b5cf6', label: 'Slow Rug', description: 'Gradual decline' },
+            'insufficient_history': { icon: '⏳', color: '#64748b', label: 'Insufficient History', description: 'Less than 8 snapshots - too early to classify' },
+        };
+
+        async function fetchTokenBehaviourData() {
+            try {
+                // Bust cache with timestamp query param
+                const cacheKey = Date.now();
+
+                // Fetch summary stats
+                const statsResp = await fetch(`${API_BASE}/token-behaviour/stats/summary?t=${cacheKey}`);
+                const stats = await statsResp.json();
+
+                // Fetch tokens for each category
+                const categories = ['immediate_rug', 'runner', 'faded_runner', 'choppy_runner', 'rug', 'slow_rug'];
+                const categoryTokens = {};
+
+                for (const cat of categories) {
+                    const resp = await fetch(`${API_BASE}/token-behaviour?category=${cat}&limit=10&min_confidence=0.1&t=${cacheKey}`);
+                    const data = await resp.json();
+                    categoryTokens[cat] = data.tokens || [];
+                }
+
+                return { stats, categoryTokens, categories, timestamp: Date.now() };
+            } catch (e) {
+                console.error('Error fetching token behaviour data:', e);
+                throw e;
+            }
+        }
+
+        function renderTokenBehaviourPage(data) {
+            const content = document.getElementById('page-content');
+            const { stats, categoryTokens, categories } = data;
+
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString();
+
+            let html = `
+                <div class="page-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1>Token Behaviour Leaderboard</h1>
+                            <p class="subtitle">Top tokens by historical price behaviour classification</p>
+                        </div>
+                        <div style="text-align: right; font-size: 0.9rem; color: var(--text-secondary);">
+                            <div>Last updated: <strong style="color: var(--text-secondary);">${timeStr}</strong></div>
+                            <div style="font-size: 0.85rem; margin-top: 4px;">🔄 Auto-refreshing every 10s</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.total_classified || 0}</div>
+                        <div class="stat-label">Total Classified</div>
+                    </div>
+            `;
+
+            // Add stat cards for each category
+            for (const cat of categories) {
+                if (stats.by_category && stats.by_category[cat]) {
+                    const info = stats.by_category[cat];
+                    html += `
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: ${CATEGORY_INFO[cat].color};">${info.count || 0}</div>
+                            <div class="stat-label">${CATEGORY_INFO[cat].label}</div>
+                            <small style="color: var(--text-secondary); margin-top: 4px;">Avg: ${(info.avg_confidence || 0).toFixed(2)}</small>
+                        </div>
+                    `;
+                }
+            }
+
+            html += `
+                </div>
+            `;
+
+            // Add leaderboard cards for each category
+            for (const cat of categories) {
+                const info = CATEGORY_INFO[cat];
+                const tokens = categoryTokens[cat] || [];
+
+                html += `
+                    <div class="card" style="border-left: 4px solid ${info.color};" id="category-${cat}">
+                        <div class="card-header" style="background: rgba(0, 0, 0, 0.3);">
+                            <h5 class="mb-0">
+                                <span style="font-size: 1.5rem; margin-right: 8px;">${info.icon}</span>
+                                ${info.label}
+                            </h5>
+                            <small style="color: var(--text-secondary);">${info.description}</small>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Token Mint</th>
+                                        <th>Confidence</th>
+                                        <th>Max Return (Robust)</th>
+                                        <th>Drawdown</th>
+                                        <th>Quality</th>
+                                        <th>Snapshots</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tokens-${cat}">
+                                    ${tokens.length === 0 ? `
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted">No tokens classified yet</td>
+                                        </tr>
+                                    ` : tokens.map((token, idx) => {
+                                        const qualityIcon = token.tracking_quality === 'good' ? '✓' : token.tracking_quality === 'possibly_late' ? '⚠' : '⚠⚠';
+                                        const qualityColor = token.tracking_quality === 'good' ? '#22c55e' : token.tracking_quality === 'possibly_late' ? '#eab308' : '#ef4444';
+                                        return `
+                                        <tr style="cursor: pointer;" onclick="showTokenBehaviourDetail('${token.mint}')">
+                                            <td><strong>#${idx + 1}</strong></td>
+                                            <td style="font-size: 0.85rem; color: var(--text-secondary); font-family: monospace;">${token.mint}</td>
+                                            <td>
+                                                <div style="font-weight: 600; color: ${info.color};">
+                                                    ${(token.confidence * 100).toFixed(0)}%
+                                                </div>
+                                            </td>
+                                            <td>${token.max_return_robust ? token.max_return_robust.toFixed(2) + 'x' : 'N/A'}</td>
+                                            <td>${token.drawdown_from_peak ? (token.drawdown_from_peak * 100).toFixed(0) + '%' : 'N/A'}</td>
+                                            <td><small style="color: ${qualityColor};">${qualityIcon} ${token.tracking_quality}</small></td>
+                                            <td><small>${token.snapshot_count || 0}</small></td>
+                                        </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h5 class="mb-0">ℹ️ About Token Behaviour Classification</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Forward-looking monitoring:</strong> Tokens are classified as they accumulate price history. Classifications use tiered thresholds based on data quality (8+ snapshots = early, 30+ = mid, 100+ = full).</p>
+                        <ul style="margin: 0; padding-left: 20px;">
+                            <li><strong>Immediate Rug:</strong> Price spikes in first 5 minutes, then crashes 85%+</li>
+                            <li><strong>Runner:</strong> Sustained growth (5x+) with strong recovery (≥50%) and low drawdown (≤50%)</li>
+                            <li><strong>Faded Runner:</strong> Strong upside (3x+) then material decline (50-85% drawdown) but not terminal</li>
+                            <li><strong>Choppy Runner:</strong> Good gains (3x+) but volatile with oscillations, still reasonably alive</li>
+                            <li><strong>Rug Pull:</strong> Classic rug pattern: 2x+ gain followed by 90%+ crash</li>
+                            <li><strong>Slow Rug:</strong> Gradual decline with 70%+ drawdown, weak upside or no upside</li>
+                            <li><strong>Insufficient History:</strong> Less than 8 snapshots - too early to classify confidently</li>
+                        </ul>
+                        <p style="margin-top: 10px; color: var(--text-secondary);"><small><strong>Confidence tiers:</strong> Early data (8-30 snapshots) has lower confidence, mid data (30-100) has moderate confidence, full data (100+) has highest confidence. Confidence is penalized for tokens with &lt;10 minutes of history. Faded runners are inherently uncertain (max 0.85 confidence).</small></p>
+                        <p style="margin: 10px 0 0 0; color: var(--text-secondary);"><small>Based on historical price snapshots and linear regression analysis.</small></p>
+                    </div>
+                </div>
+            `;
+
+            content.innerHTML = html;
+        }
+
+        function patchTokenBehaviourPage(newData) {
+            const { stats, categoryTokens, categories } = newData;
+
+            // Update timestamp
+            const header = document.querySelector('.page-header');
+            if (header) {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString();
+                const timeEl = header.querySelector('strong');
+                if (timeEl) timeEl.textContent = timeStr;
+            }
+
+            // Update stat cards
+            const statCards = document.querySelectorAll('.stat-card');
+            let idx = 0;
+            if (idx < statCards.length) {
+                statCards[idx++].querySelector('.stat-value').textContent = stats.total_classified || 0;
+            }
+
+            for (const cat of categories) {
+                if (stats.by_category && stats.by_category[cat] && idx < statCards.length) {
+                    const card = statCards[idx++];
+                    card.querySelector('.stat-value').textContent = stats.by_category[cat].count || 0;
+                    const avgEl = card.querySelector('small');
+                    if (avgEl) avgEl.textContent = `Avg: ${(stats.by_category[cat].avg_confidence || 0).toFixed(2)}`;
+                }
+            }
+
+            // Update token tables for each category
+            for (const cat of categories) {
+                const tbody = document.getElementById(`tokens-${cat}`);
+                if (tbody) {
+                    const tokens = categoryTokens[cat] || [];
+                    const info = CATEGORY_INFO[cat];
+
+                    if (tokens.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No tokens classified yet</td></tr>`;
+                    } else {
+                        tbody.innerHTML = tokens.map((token, idx) => {
+                            const qualityIcon = token.tracking_quality === 'good' ? '✓' : token.tracking_quality === 'possibly_late' ? '⚠' : '⚠⚠';
+                            const qualityColor = token.tracking_quality === 'good' ? '#22c55e' : token.tracking_quality === 'possibly_late' ? '#eab308' : '#ef4444';
+                            return `
+                            <tr style="cursor: pointer;" onclick="showTokenBehaviourDetail('${token.mint}')">
+                                <td><strong>#${idx + 1}</strong></td>
+                                <td style="font-size: 0.85rem; color: var(--text-secondary); font-family: monospace;">${token.mint}</td>
+                                <td>
+                                    <div style="font-weight: 600; color: ${info.color};">
+                                        ${(token.confidence * 100).toFixed(0)}%
+                                    </div>
+                                </td>
+                                <td>${token.max_return_robust ? token.max_return_robust.toFixed(2) + 'x' : 'N/A'}</td>
+                                <td>${token.drawdown_from_peak ? (token.drawdown_from_peak * 100).toFixed(0) + '%' : 'N/A'}</td>
+                                <td><small style="color: ${qualityColor};">${qualityIcon} ${token.tracking_quality}</small></td>
+                                <td><small>${token.snapshot_count || 0}</small></td>
+                            </tr>
+                            `;
+                        }).join('');
+                    }
+                }
+            }
+        }
+
+        async function refreshTokenBehaviourData() {
+            // Skip if already fetching
+            if (tokenBehaviourState.isInFlight) return;
+
+            // Skip if page is hidden
+            if (document.hidden) return;
+
+            tokenBehaviourState.isInFlight = true;
+            try {
+                const newData = await fetchTokenBehaviourData();
+                tokenBehaviourState.lastData = newData;
+
+                // Use patching to update in-place instead of full redraw
+                patchTokenBehaviourPage(newData);
+            } catch (e) {
+                console.error('Error refreshing token behaviour:', e);
+            } finally {
+                tokenBehaviourState.isInFlight = false;
+            }
+        }
+
+        function startTokenBehaviourAutoRefresh() {
+            // Stop any existing interval
+            stopTokenBehaviourAutoRefresh();
+
+            // Refresh every 10 seconds
+            tokenBehaviourState.intervalId = setInterval(refreshTokenBehaviourData, 10000);
+            console.log('[TOKEN_BEHAVIOUR] Auto-refresh started (10s interval)');
+
+            // Listen for visibility changes
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    console.log('[TOKEN_BEHAVIOUR] Page hidden, pausing refresh');
+                } else {
+                    console.log('[TOKEN_BEHAVIOUR] Page visible, resuming refresh');
+                }
+            });
+        }
+
+        function stopTokenBehaviourAutoRefresh() {
+            if (tokenBehaviourState.intervalId) {
+                clearInterval(tokenBehaviourState.intervalId);
+                tokenBehaviourState.intervalId = null;
+                console.log('[TOKEN_BEHAVIOUR] Auto-refresh stopped');
+            }
+        }
+
+        async function loadTokenBehaviourLeaderboard() {
+            const content = document.getElementById('page-content');
+            content.innerHTML = showLoading('Token Behaviour Leaderboard');
+
+            try {
+                const data = await fetchTokenBehaviourData();
+                tokenBehaviourState.lastData = data;
+                renderTokenBehaviourPage(data);
+                startTokenBehaviourAutoRefresh();
+            } catch (e) {
+                console.error('Error loading token behaviour:', e);
+                content.innerHTML = `<div class="alert alert-danger">Error loading token behaviour: ${e.message}</div>`;
+            }
+        }
+
+        // Format vault discovery time into human-readable format
+        function formatVaultDiscoveryTime(secs) {
+            if (secs === null || secs === undefined) return 'N/A';
+            if (secs < 60) return `${secs}s`;
+            if (secs < 3600) {
+                const mins = Math.floor(secs / 60);
+                const remaining = secs % 60;
+                return remaining > 0 ? `${mins}m ${remaining}s` : `${mins}m`;
+            }
+            const hours = Math.floor(secs / 3600);
+            const mins = Math.floor((secs % 3600) / 60);
+            return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+        }
+
+        // Format price for display
+        function formatPrice(price) {
+            if (price === null || price === undefined || price === 0) return 'N/A';
+            if (price < 0.000001) return `$${price.toExponential(2)}`;
+            if (price < 0.01) return `$${price.toFixed(8)}`;
+            return `$${price.toFixed(4)}`;
+        }
+
+        // Format market cap for display
+        function formatMarketCap(mcap) {
+            if (mcap === null || mcap === undefined || mcap === 0) return 'N/A';
+            if (mcap >= 1_000_000) return `$${(mcap / 1_000_000).toFixed(2)}M`;
+            if (mcap >= 1_000) return `$${(mcap / 1_000).toFixed(2)}K`;
+            return `$${mcap.toFixed(2)}`;
+        }
+
+        function showTokenBehaviourDetail(mint) {
+            fetch(`${API_BASE}/token-behaviour/${mint}`)
+                .then(r => r.json())
+                .then(token => {
+                    const categoryInfo = CATEGORY_INFO[token.category] || { label: token.category, color: '#888', icon: '?' };
+                    const qualityIcon = token.tracking_quality === 'good' ? '✓' : token.tracking_quality === 'possibly_late' ? '⚠' : '⚠⚠';
+                    const qualityColor = token.tracking_quality === 'good' ? '#22c55e' : token.tracking_quality === 'possibly_late' ? '#eab308' : '#ef4444';
+
+                    // Format vault discovery time
+                    const vaultDiscoveryTime = token.vault && token.vault.discovery_secs !== null
+                        ? formatVaultDiscoveryTime(token.vault.discovery_secs)
+                        : (token.vault && token.vault.validation_status === 'pending' ? 'Pending' : 'N/A');
+
+                    const modalHtml = `
+                        <div class="modal fade" id="tokenDetailModal" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+                                    <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+                                        <div>
+                                            <h5 class="modal-title">
+                                                <span style="font-size: 1.3rem; margin-right: 8px;">${categoryInfo.icon}</span>
+                                                Token Behaviour Detail
+                                            </h5>
+                                            <small style="color: var(--text-secondary);">${mint}</small>
+                                        </div>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                                        <!-- Classification Info -->
+                                        <div style="margin-bottom: 1.5rem;">
+                                            <h6 style="color: var(--text-light); margin-bottom: 1rem;">Classification</h6>
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Category</small>
+                                                    <div style="color: ${categoryInfo.color}; font-weight: 600; margin-top: 4px;">
+                                                        ${categoryInfo.label}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Confidence</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">
+                                                        ${(token.confidence * 100).toFixed(1)}%
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Tracking Quality</small>
+                                                    <div style="color: ${qualityColor}; font-weight: 600; margin-top: 4px;">
+                                                        ${qualityIcon} ${token.tracking_quality}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Data Points</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">
+                                                        ${token.features.snapshot_count} snapshots
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Price Information -->
+                                        <div style="margin-bottom: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                                            <h6 style="color: var(--text-light); margin-bottom: 1rem;">Price History</h6>
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Observed Start Price</small>
+                                                    <div style="font-weight: 600; font-family: monospace; margin-top: 4px;">
+                                                        ${formatPrice(token.prices.observed_start)}
+                                                    </div>
+                                                    <small style="color: var(--text-secondary); display: block; margin-top: 2px;">First snapshot</small>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Robust Start Price</small>
+                                                    <div style="font-weight: 600; font-family: monospace; margin-top: 4px;">
+                                                        ${formatPrice(token.prices.robust_start)}
+                                                    </div>
+                                                    <small style="color: var(--text-secondary); display: block; margin-top: 2px;">Median of first 5</small>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Peak Price</small>
+                                                    <div style="font-weight: 600; font-family: monospace; margin-top: 4px;">
+                                                        ${formatPrice(token.prices.peak)}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Latest Price</small>
+                                                    <div style="font-weight: 600; font-family: monospace; margin-top: 4px;">
+                                                        ${formatPrice(token.prices.latest)}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">First Market Cap</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">
+                                                        ${token.market_cap && token.market_cap.first ? formatMarketCap(token.market_cap.first) : 'N/A'}
+                                                    </div>
+                                                    <small style="color: var(--text-secondary); display: block; margin-top: 2px;">At first snapshot</small>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Peak Market Cap</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">
+                                                        ${token.market_cap && token.market_cap.peak ? formatMarketCap(token.market_cap.peak) : 'N/A'}
+                                                    </div>
+                                                    ${token.market_cap && token.market_cap.peak_at ? `<small style="color: var(--text-secondary); display: block; margin-top: 2px;">Reached at ${new Date(token.market_cap.peak_at).toLocaleString()}</small>` : ''}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Returns & Performance -->
+                                        <div style="margin-bottom: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                                            <h6 style="color: var(--text-light); margin-bottom: 1rem;">Performance Metrics</h6>
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Max Return (Observed)</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">
+                                                        ${token.returns.max_observed ? token.returns.max_observed.toFixed(2) + 'x' : 'N/A'}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Max Return (Robust)</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">
+                                                        ${token.returns.max_robust ? token.returns.max_robust.toFixed(2) + 'x' : 'N/A'}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Drawdown from Peak</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">
+                                                        ${token.features.drawdown_from_peak ? (token.features.drawdown_from_peak * 100).toFixed(1) + '%' : 'N/A'}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Recovery Ratio</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">
+                                                        ${token.features.recovery_ratio ? (token.features.recovery_ratio * 100).toFixed(1) + '%' : 'N/A'}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Time to Peak</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">
+                                                        ${token.features.time_to_peak_secs ? formatVaultDiscoveryTime(token.features.time_to_peak_secs) : 'N/A'}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Lifetime</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">
+                                                        ${token.features.lifetime_secs ? formatVaultDiscoveryTime(token.features.lifetime_secs) : 'N/A'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        ${token.vault ? `
+                                        <!-- Vault Discovery Information -->
+                                        <div style="margin-bottom: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                                            <h6 style="color: var(--text-light); margin-bottom: 1rem;">Vault Discovery</h6>
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Validation Status</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">
+                                                        ${token.vault.validation_status === 'validated' ? '✓ Validated' :
+                                                          token.vault.validation_status === 'pending' ? '⏳ Pending' : token.vault.validation_status}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Discovery Method</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">
+                                                        ${token.vault.discovery_method || 'unknown'}
+                                                    </div>
+                                                </div>
+                                                <div style="grid-column: 1 / -1;">
+                                                    <small style="color: var(--text-secondary);">Vault Discovery Time</small>
+                                                    <div style="font-weight: 600; margin-top: 4px; font-size: 1.1rem;">
+                                                        ${vaultDiscoveryTime}
+                                                    </div>
+                                                    <small style="color: var(--text-secondary); display: block; margin-top: 2px;">
+                                                        Time from pool account creation to vault validation
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        ` : ''}
+
+                                        <!-- Additional Metrics -->
+                                        <div style="padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                                            <h6 style="color: var(--text-light); margin-bottom: 1rem;">Analysis Metrics</h6>
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Volatility</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">
+                                                        ${token.features.volatility ? token.features.volatility.toFixed(3) : 'N/A'}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Early Slope (5m)</small>
+                                                    <div style="font-weight: 600; font-family: monospace; margin-top: 4px;">
+                                                        ${token.features.slope_early ? token.features.slope_early.toFixed(6) : 'N/A'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Remove old modal if exists
+                    const oldModal = document.getElementById('tokenDetailModal');
+                    if (oldModal) oldModal.remove();
+
+                    // Add new modal to DOM
+                    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+                    // Show modal
+                    const modal = new bootstrap.Modal(document.getElementById('tokenDetailModal'));
+                    modal.show();
+
+                    // Clean up modal after hiding
+                    document.getElementById('tokenDetailModal').addEventListener('hidden.bs.modal', function() {
+                        this.remove();
+                    });
+                })
+                .catch(err => {
+                    console.error('Error loading token detail:', err);
+                    alert(`Failed to load token details for: ${mint}`);
+                });
+        }
+
+        // Signal Details Modal
+        window.showSignalDetails = (mint, label) => {
+            fetch(`${API_BASE}/early-signals/${mint}`)
+                .then(r => r.json())
+                .then(signal => {
+                    const modalHtml = `
+                        <div class="modal fade" id="signalModal" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Signal Details: ${mint.substring(0, 16)}...</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                                            <div>
+                                                <div style="color: var(--text-secondary); font-size: 0.875rem;">Rug Score</div>
+                                                <div style="font-size: 1.5rem; font-weight: bold; color: #ef4444;">${(signal.early_rug_score * 100).toFixed(0)}%</div>
+                                            </div>
+                                            <div>
+                                                <div style="color: var(--text-secondary); font-size: 0.875rem;">Success Score</div>
+                                                <div style="font-size: 1.5rem; font-weight: bold; color: #22c55e;">${(signal.early_success_score * 100).toFixed(0)}%</div>
+                                            </div>
+                                            <div>
+                                                <div style="color: var(--text-secondary); font-size: 0.875rem;">Confidence</div>
+                                                <div style="font-size: 1.5rem; font-weight: bold; color: #f97316;">${(signal.confidence * 100).toFixed(0)}%</div>
+                                            </div>
+                                            <div>
+                                                <div style="color: var(--text-secondary); font-size: 0.875rem;">Age</div>
+                                                <div style="font-size: 1.5rem; font-weight: bold;">${signal.age_minutes || '?'} min</div>
+                                            </div>
+                                        </div>
+                                        <div style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(59, 130, 246, 0.1); border-radius: 0.375rem;">
+                                            <strong>Recommendation:</strong> <span style="color: ${signal.recommendation === 'STOP_MONITORING' ? '#ef4444' : signal.recommendation === 'PRIORITIZE' ? '#22c55e' : '#eab308'};">${signal.recommendation}</span>
+                                        </div>
+                                        ${signal.rug_signals && signal.rug_signals.length > 0 ? `
+                                            <div style="margin-bottom: 1rem;">
+                                                <div style="font-weight: 600; margin-bottom: 0.5rem;">Rug Signals (${signal.rug_signals.length}):</div>
+                                                <ul style="margin: 0; padding-left: 1.5rem;">
+                                                    ${signal.rug_signals.map(s => `<li>${s}</li>`).join('')}
+                                                </ul>
+                                            </div>
+                                        ` : ''}
+                                        ${signal.success_signals && signal.success_signals.length > 0 ? `
+                                            <div style="margin-bottom: 1rem;">
+                                                <div style="font-weight: 600; margin-bottom: 0.5rem;">Success Signals (${signal.success_signals.length}):</div>
+                                                <ul style="margin: 0; padding-left: 1.5rem;">
+                                                    ${signal.success_signals.map(s => `<li>${s}</li>`).join('')}
+                                                </ul>
+                                            </div>
+                                        ` : ''}
+                                        ${signal.warnings && signal.warnings.length > 0 ? `
+                                            <div style="padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border-radius: 0.375rem;">
+                                                <div style="font-weight: 600; margin-bottom: 0.5rem; color: #ef4444;">⚠️ Warnings:</div>
+                                                <ul style="margin: 0; padding-left: 1.5rem;">
+                                                    ${signal.warnings.map(w => `<li>${w}</li>`).join('')}
+                                                </ul>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    const container = document.getElementById('page-content');
+                    const oldModal = container.querySelector('#signalModal');
+                    if (oldModal) oldModal.remove();
+                    container.insertAdjacentHTML('afterbegin', modalHtml);
+                    new bootstrap.Modal(document.getElementById('signalModal')).show();
+                })
+                .catch(e => console.error('Error fetching signal details:', e));
+        };
+
+        // VAULTS PAGE
+        async function loadVaultsPage() {
+            const content = document.getElementById('page-content');
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString();
+
+            content.innerHTML = `
+                <div class="page-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1>Vault Discovery & Validation</h1>
+                            <p class="subtitle">Token/pool vault discovery latency and tracking quality</p>
+                        </div>
+                        <div style="text-align: right; font-size: 0.9rem; color: var(--text-secondary);">
+                            <div>Last updated: <strong style="color: var(--text-secondary);">${timeStr}</strong></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="vaults-stats" class="stats-row"></div>
+                <div id="vaults-discovery-health-stats" class="stats-row" style="margin-top: 12px;"></div>
+                <div id="vaults-strategy-table-container" style="margin-top: 20px;"></div>
+                <div id="vaults-table-container" class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h5 class="mb-0">Vaults</h5>
+                            <div>
+                                <input type="text" id="vault-search-mint" placeholder="Search mint..." style="width: 200px; padding: 4px 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px;">
+                                <select id="vault-filter-status" style="width: 150px; padding: 4px 8px; margin-left: 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px;">
+                                    <option value="">All Status</option>
+                                    <option value="validated">Validated</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="rejected">Rejected</option>
+                                </select>
+                                <select id="vault-filter-quality" style="width: 150px; padding: 4px 8px; margin-left: 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px;">
+                                    <option value="">All Quality</option>
+                                    <option value="good">Good</option>
+                                    <option value="possibly_late">Possibly Late</option>
+                                    <option value="likely_late">Likely Late</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover" id="vaults-table">
+                            <thead>
+                                <tr>
+                                    <th>Token Mint</th>
+                                    <th>Base Account</th>
+                                    <th>Account Type</th>
+                                    <th>Pool Address</th>
+                                    <th>Status</th>
+                                    <th>Strategy</th>
+                                    <th>Attempts</th>
+                                    <th>Discovery Time</th>
+                                    <th>Quality</th>
+                                    <th>Category</th>
+                                    <th>Confidence</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            try {
+                // Fetch stats
+                const statsResp = await fetch(`${API_BASE}/vaults/stats/summary`);
+                const stats = await statsResp.json();
+
+                // Render stats
+                const statsHtml = `
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.total_records}</div>
+                        <div class="stat-label">Total Vaults</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: #22c55e;">${stats.validated_count}</div>
+                        <div class="stat-label">Validated</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: #eab308;">${stats.pending_count}</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: #ef4444;">${stats.rejected_count}</div>
+                        <div class="stat-label">Rejected</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.avg_discovery_time_secs !== null && stats.avg_discovery_time_secs !== undefined ? formatVaultDiscoveryTime(stats.avg_discovery_time_secs) : 'N/A'}</div>
+                        <div class="stat-label">Avg Discovery Time</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.avg_attempts ? Number(stats.avg_attempts).toFixed(1) : 'N/A'}</div>
+                        <div class="stat-label">Avg Attempts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: #eab308;">${stats.tracking_quality?.possibly_late_pct ?? 'N/A'}%</div>
+                        <div class="stat-label">Possibly Late</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: #ef4444;">${stats.tracking_quality?.likely_late_pct ?? 'N/A'}%</div>
+                        <div class="stat-label">Likely Late</div>
+                    </div>
+                `;
+
+                document.getElementById('vaults-stats').innerHTML = statsHtml;
+
+                // --- Discovery Health Stats ---
+                const healthResp = await fetch(`${API_BASE}/vaults/stats/discovery-health`);
+                const health = await healthResp.json();
+                const ho = health.overall || {};
+
+                const healthStatsHtml = `
+                    <div class="stat-card">
+                        <div class="stat-value">${ho.explicit_data_count ?? 'N/A'} / ${ho.total_records ?? 'N/A'}</div>
+                        <div class="stat-label">Explicit Data</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: ${(ho.fallback_only_count || 0) > 0 ? '#eab308' : '#22c55e'};">${ho.fallback_only_count ?? 'N/A'}</div>
+                        <div class="stat-label">Fallback Only</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${ho.avg_attempts !== null && ho.avg_attempts !== undefined ? Number(ho.avg_attempts).toFixed(1) : 'N/A'}</div>
+                        <div class="stat-label">Avg Attempts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${ho.avg_resolution_time_secs !== null && ho.avg_resolution_time_secs !== undefined ? formatVaultDiscoveryTime(ho.avg_resolution_time_secs) : 'N/A'}</div>
+                        <div class="stat-label">Avg Resolution Time</div>
+                    </div>
+                `;
+                document.getElementById('vaults-discovery-health-stats').innerHTML = healthStatsHtml;
+
+                const byStrategy = health.by_strategy || [];
+                if (byStrategy.length > 0) {
+                    const rows = byStrategy.map(s => {
+                        const fr = s.failure_rate;
+                        const frColor = fr === null ? '#999' : fr < 2 ? '#22c55e' : fr < 5 ? '#eab308' : '#ef4444';
+                        const frText  = fr !== null && fr !== undefined ? Number(fr).toFixed(1) + '%' : 'N/A';
+                        const timeText = s.avg_resolution_time_secs !== null && s.avg_resolution_time_secs !== undefined
+                            ? formatVaultDiscoveryTime(s.avg_resolution_time_secs) : 'N/A';
+                        return `<tr>
+                            <td><small>${s.strategy}</small></td>
+                            <td><small>${s.total}</small></td>
+                            <td><small style="color:#22c55e;">${s.resolved}</small></td>
+                            <td><small style="color:#ef4444;">${s.rejected}</small></td>
+                            <td><small style="color:#eab308;">${s.pending}</small></td>
+                            <td><small>${s.avg_attempts !== null ? Number(s.avg_attempts).toFixed(1) : 'N/A'}</small></td>
+                            <td><small>${timeText}</small></td>
+                            <td><small style="color:${frColor}; font-weight:600;">${frText}</small></td>
+                        </tr>`;
+                    }).join('');
+                    document.getElementById('vaults-strategy-table-container').innerHTML = `
+                        <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 0.75rem; overflow: hidden;">
+                            <div style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+                                <strong>Discovery Strategy Breakdown</strong>
+                            </div>
+                            <div style="overflow-x: auto;">
+                                <table class="table table-hover" style="margin-bottom:0;">
+                                    <thead><tr>
+                                        <th>Strategy</th><th>Total</th><th>Resolved</th><th>Rejected</th>
+                                        <th>Pending</th><th>Avg Attempts</th><th>Avg Time</th><th>Failure Rate</th>
+                                    </tr></thead>
+                                    <tbody>${rows}</tbody>
+                                </table>
+                            </div>
+                        </div>`;
+                }
+
+                // Fetch vaults
+                const vaultsResp = await fetch(`${API_BASE}/vaults?limit=500`);
+                const vaultsData = await vaultsResp.json();
+
+                // Render table
+                const tbody = document.querySelector('#vaults-table tbody');
+                tbody.innerHTML = vaultsData.vaults.map(v => {
+                    // Render tracking quality
+                    let qualityIcon, qualityColor, qualityText;
+                    if (!v.tracking_quality) {
+                        qualityIcon = '?';
+                        qualityColor = '#999';
+                        qualityText = 'N/A';
+                    } else if (v.tracking_quality === 'good') {
+                        qualityIcon = '✓';
+                        qualityColor = '#22c55e';
+                        qualityText = v.tracking_quality;
+                    } else if (v.tracking_quality === 'possibly_late') {
+                        qualityIcon = '⚠';
+                        qualityColor = '#eab308';
+                        qualityText = v.tracking_quality;
+                    } else if (v.tracking_quality === 'likely_late') {
+                        qualityIcon = '⚠⚠';
+                        qualityColor = '#ef4444';
+                        qualityText = v.tracking_quality;
+                    } else {
+                        qualityIcon = '?';
+                        qualityColor = '#999';
+                        qualityText = 'N/A';
+                    }
+
+                    // Render strategy (use discovery_method as fallback)
+                    const strategy = v.vault_discovery_strategy ?? v.discovery_method ?? 'N/A';
+
+                    // Render attempts (not fallback to 0)
+                    const attempts = v.vault_discovery_attempts !== null && v.vault_discovery_attempts !== undefined
+                        ? v.vault_discovery_attempts
+                        : 'N/A';
+
+                    // Render discovery time
+                    let discoveryTime;
+                    if (v.vault_discovery_time_secs !== null && v.vault_discovery_time_secs !== undefined) {
+                        discoveryTime = formatVaultDiscoveryTime(v.vault_discovery_time_secs);
+                    } else if (v.vault_validation_status === 'pending') {
+                        discoveryTime = 'Pending';
+                    } else {
+                        discoveryTime = 'N/A';
+                    }
+
+                    // Render category
+                    const VALID_CATEGORIES = new Set(['immediate_rug', 'runner', 'faded_runner', 'choppy_runner', 'rug', 'slow_rug', 'insufficient_history', 'unknown']);
+                    const category = (v.category && VALID_CATEGORIES.has(v.category)) ? v.category : 'N/A';
+
+                    // Render confidence
+                    const confidence = v.confidence !== null && v.confidence !== undefined
+                        ? `${Math.round(v.confidence * 100)}%`
+                        : 'N/A';
+
+                    const statusColor = v.vault_validation_status === 'validated' ? '#22c55e' : v.vault_validation_status === 'pending' ? '#eab308' : '#ef4444';
+
+                    // Account type with color coding
+                    let accountTypeColor = '#999';
+                    let accountTypeIcon = '?';
+                    if (v.base_account_type === 'shared_vault_signature') {
+                        accountTypeColor = '#ef4444';
+                        accountTypeIcon = '⚠';
+                    } else if (v.base_account_type === 'shared_program_vault') {
+                        accountTypeColor = '#eab308';
+                        accountTypeIcon = '⚙';
+                    } else if (v.base_account_type === 'token_vault') {
+                        accountTypeColor = '#22c55e';
+                        accountTypeIcon = '✓';
+                    }
+
+                    return `
+                        <tr style="cursor: pointer;" onclick="showVaultDetail('${v.mint}')">
+                            <td style="font-size: 0.85rem; color: var(--text-secondary); font-family: monospace;">${v.mint.substring(0, 20)}...</td>
+                            <td style="font-size: 0.75rem; color: var(--text-secondary); font-family: monospace; max-width: 150px; overflow: hidden; text-overflow: ellipsis;">${v.base_account || 'N/A'}</td>
+                            <td><small style="color: ${accountTypeColor};" title="${v.base_account_type_label}">${accountTypeIcon} ${v.base_account_type_label}</small></td>
+                            <td style="font-size: 0.85rem; color: var(--text-secondary);">${v.pool_address ? v.pool_address.substring(0, 15) + '...' : 'N/A'}</td>
+                            <td><small style="color: ${statusColor};">${v.vault_validation_status}</small></td>
+                            <td><small>${strategy}</small></td>
+                            <td><small>${attempts}</small></td>
+                            <td><small>${discoveryTime}</small></td>
+                            <td><small style="color: ${qualityColor};">${qualityIcon} ${qualityText}</small></td>
+                            <td><small>${category}</small></td>
+                            <td><small>${confidence}</small></td>
+                        </tr>
+                    `;
+                }).join('');
+
+                // Add filter listeners
+                document.getElementById('vault-search-mint').addEventListener('input', filterVaultsTable);
+                document.getElementById('vault-filter-status').addEventListener('change', filterVaultsTable);
+                document.getElementById('vault-filter-quality').addEventListener('change', filterVaultsTable);
+
+            } catch (e) {
+                console.error('Error loading vaults:', e);
+                content.innerHTML = `<div class="alert alert-danger">Error loading vaults: ${e.message}</div>`;
+            }
+        }
+
+        function filterVaultsTable() {
+            const mint = document.getElementById('vault-search-mint').value.toLowerCase();
+            const status = document.getElementById('vault-filter-status').value;
+            const quality = document.getElementById('vault-filter-quality').value;
+            const rows = document.querySelectorAll('#vaults-table tbody tr');
+
+            rows.forEach(row => {
+                const rowMint = row.querySelector('td:first-child').textContent.toLowerCase();
+                const rowStatus = row.querySelector('td:nth-child(3)').textContent.trim();
+                const rowQuality = row.querySelector('td:nth-child(7)').textContent.trim();
+
+                const mintMatch = !mint || rowMint.includes(mint);
+                const statusMatch = !status || rowStatus === status;
+                const qualityMatch = !quality || rowQuality.includes(quality);
+
+                row.style.display = (mintMatch && statusMatch && qualityMatch) ? '' : 'none';
+            });
+        }
+
+        function showVaultDetail(mint) {
+            fetch(`${API_BASE}/vaults/${mint}`)
+                .then(r => r.json())
+                .then(data => {
+                    const vault = data.vault;
+                    const token = data.token;
+
+                    const qualityIcon = token && token.tracking_quality === 'good' ? '✓' : token && token.tracking_quality === 'possibly_late' ? '⚠' : '⚠⚠';
+                    const qualityColor = token && token.tracking_quality === 'good' ? '#22c55e' : token && token.tracking_quality === 'possibly_late' ? '#eab308' : '#ef4444';
+                    const statusColor = vault.vault_validation_status === 'validated' ? '#22c55e' : vault.vault_validation_status === 'pending' ? '#eab308' : '#ef4444';
+
+                    // Debug helpers
+                    const debug = data.debug || {};
+                    const raw = debug.raw || {};
+                    const fmtTs = ts => ts ? new Date(ts * 1000).toISOString().replace('T', ' ').slice(0, 19) + ' UTC' : 'N/A';
+                    const fmtFlag = v => v ? '<span style="color:#22c55e;">✓ yes</span>' : '<span style="color:#ef4444;">✗ no</span>';
+
+                    const modalHtml = `
+                        <div class="modal fade" id="vaultDetailModal" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+                                    <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+                                        <div>
+                                            <h5 class="modal-title">Vault Discovery Detail</h5>
+                                            <small style="color: var(--text-secondary);">${mint}</small>
+                                        </div>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                                        <!-- Vault Discovery Section -->
+                                        <div style="margin-bottom: 1.5rem;">
+                                            <h6 style="color: var(--text-light); margin-bottom: 1rem;">Vault Discovery</h6>
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Validation Status</small>
+                                                    <div style="font-weight: 600; color: ${statusColor}; margin-top: 4px;">${vault.vault_validation_status}</div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Resolution State</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">${vault.vault_resolution_state || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Discovery Strategy</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">${vault.vault_discovery_strategy || 'unknown'}</div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Discovery Method</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">${vault.vault_discovery_method || 'unknown'}</div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Discovery Attempts</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">${vault.vault_discovery_attempts || 0}</div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Vault Discovery Time</small>
+                                                    <div style="font-weight: 600; margin-top: 4px; font-size: 1.1rem;">${vault.vault_discovery_time_secs !== null && vault.vault_discovery_time_secs !== undefined ? formatVaultDiscoveryTime(vault.vault_discovery_time_secs) : 'N/A'}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Timestamps -->
+                                        <div style="margin-bottom: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                                            <h6 style="color: var(--text-light); margin-bottom: 1rem;">Timeline</h6>
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Pool Record Created</small>
+                                                    <div style="font-size: 0.9rem; margin-top: 4px;">${new Date(vault.created_at * 1000).toLocaleString()}</div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Last Vault Validation</small>
+                                                    <div style="font-size: 0.9rem; margin-top: 4px;">${vault.last_vault_validation_at ? new Date(vault.last_vault_validation_at * 1000).toLocaleString() : 'N/A'}</div>
+                                                </div>
+                                                <div style="grid-column: 1 / -1;">
+                                                    <small style="color: var(--text-secondary);">Vault Resolved At</small>
+                                                    <div style="font-size: 0.9rem; margin-top: 4px;">${vault.vault_resolved_at ? new Date(vault.vault_resolved_at * 1000).toLocaleString() : 'N/A'}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Pool / Liquidity Info -->
+                                        <div style="margin-bottom: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                                            <h6 style="color: var(--text-light); margin-bottom: 1rem;">Liquidity & Program Accounts</h6>
+                                            <div style="font-size: 0.9rem; word-break: break-all;">
+                                                <div style="margin-bottom: 8px;">
+                                                    <strong>Pool Address:</strong>
+                                                    <div style="margin-top: 4px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 4px; font-family: monospace; font-size: 0.85rem;">
+                                                        ${vault.pool_address || '(N/A)'}
+                                                    </div>
+                                                </div>
+                                                <div style="margin-bottom: 8px; margin-top: 12px;">
+                                                    <strong>Base Account:</strong>
+                                                    <div style="margin-top: 4px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 4px; font-family: monospace; font-size: 0.85rem;">
+                                                        ${vault.base_account || 'N/A'}
+                                                    </div>
+                                                    <small style="color: ${vault.base_account_type === 'shared_vault_signature' ? '#ef4444' : vault.base_account_type === 'shared_program_vault' ? '#eab308' : vault.base_account_type === 'token_vault' ? '#22c55e' : '#999'}; margin-top: 4px; display: block;">
+                                                        ${vault.base_account_type_label || 'Unknown'}
+                                                    </small>
+                                                </div>
+                                                <div style="margin-bottom: 8px;"><strong>Quote Account (SOL Liquidity):</strong> ${vault.quote_account || 'N/A'}</div>
+                                                <div style="margin-bottom: 8px; margin-top: 12px;"><strong>Base Token:</strong> ${vault.base_token || 'N/A'}</div>
+                                                <div style="margin-bottom: 8px;"><strong>Quote Token:</strong> ${vault.quote_token || 'N/A'}</div>
+                                            </div>
+                                        </div>
+
+                                        ${token ? `
+                                        <!-- Token Tracking -->
+                                        <div style="margin-bottom: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                                            <h6 style="color: var(--text-light); margin-bottom: 1rem;">Token Tracking</h6>
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Tracking Quality</small>
+                                                    <div style="color: ${qualityColor}; font-weight: 600; margin-top: 4px;">${qualityIcon} ${token.tracking_quality || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Category</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">${token.category || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Confidence</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">${token.confidence ? (token.confidence * 100).toFixed(0) + '%' : 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Observed Start Price</small>
+                                                    <div style="font-weight: 600; font-family: monospace; margin-top: 4px;">${formatPrice(token.initial_price_observed_usd)}</div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Robust Start Price</small>
+                                                    <div style="font-weight: 600; font-family: monospace; margin-top: 4px;">${formatPrice(token.initial_price_robust_usd)}</div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Peak Price</small>
+                                                    <div style="font-weight: 600; font-family: monospace; margin-top: 4px;">${formatPrice(token.peak_price_usd)}</div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Latest Price</small>
+                                                    <div style="font-weight: 600; font-family: monospace; margin-top: 4px;">${formatPrice(token.latest_price_usd)}</div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Max Return (Observed)</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">${token.max_return_observed ? token.max_return_observed.toFixed(2) + 'x' : 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Max Return (Robust)</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">${token.max_return_robust ? token.max_return_robust.toFixed(2) + 'x' : 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <small style="color: var(--text-secondary);">Drawdown From Peak</small>
+                                                    <div style="font-weight: 600; margin-top: 4px;">${token.drawdown_from_peak ? (token.drawdown_from_peak * 100).toFixed(1) + '%' : 'N/A'}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Debug Panel -->
+                                        <details style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-color);">
+                                            <summary style="cursor:pointer; color:var(--text-secondary); font-size:0.85rem; user-select:none; list-style:none;">
+                                                ▶ Debug
+                                            </summary>
+                                            <div style="margin-top:1rem; font-family:monospace; font-size:0.78rem; color:var(--text-secondary);">
+                                                <div style="font-weight:600; color:var(--text-light); margin-bottom:0.5rem;">Raw DB fields</div>
+                                                <table style="border-collapse:collapse; width:100%; margin-bottom:1rem;">
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">vault_discovery_strategy</td><td>${raw.vault_discovery_strategy ?? 'null'}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">vault_discovery_attempts</td><td>${raw.vault_discovery_attempts ?? 'null'}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">vault_discovery_time_secs</td><td>${raw.vault_discovery_time_secs ?? 'null'}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">vault_resolution_state</td><td>${raw.vault_resolution_state ?? 'null'}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">vault_resolved_at</td><td>${fmtTs(raw.vault_resolved_at)}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">discovery_method</td><td>${raw.discovery_method ?? 'null'}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">vault_validation_status</td><td>${raw.vault_validation_status ?? 'null'}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">created_at</td><td>${fmtTs(raw.created_at)}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">last_vault_validation_at</td><td>${fmtTs(raw.last_vault_validation_at)}</td></tr>
+                                                </table>
+                                                <div style="font-weight:600; color:var(--text-light); margin-bottom:0.5rem;">Data Health</div>
+                                                <table style="border-collapse:collapse;">
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">has_explicit_discovery_data</td><td>${fmtFlag(debug.has_explicit_discovery_data)}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">using_fallback_strategy</td><td>${fmtFlag(debug.using_fallback_strategy)}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">using_fallback_time</td><td>${fmtFlag(debug.using_fallback_time)}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">row_updated</td><td>${fmtFlag(debug.row_updated)}</td></tr>
+                                                </table>
+                                            </div>
+                                        </details>
+                                        ` : ''}\}
+                                    </div>
+                                    <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    const oldModal = document.getElementById('vaultDetailModal');
+                    if (oldModal) oldModal.remove();
+                    document.body.insertAdjacentHTML('beforeend', modalHtml);
+                    new bootstrap.Modal(document.getElementById('vaultDetailModal')).show();
+
+                    document.getElementById('vaultDetailModal').addEventListener('hidden.bs.modal', function() {
+                        this.remove();
+                    });
+                })
+                .catch(err => {
+                    console.error('Error loading vault detail:', err);
+                    alert(`Failed to load vault details for: ${mint}`);
+                });
+        }
+
+        // Placeholder action handlers
+        window.notifyRug = (mint) => alert(`Alert set for ${mint.substring(0, 16)}... (placeholder)`);
+        window.prioritizeToken = (mint) => alert(`Added ${mint.substring(0, 16)}... to watchlist (placeholder)`);
 
         // Intercept fetch calls
         const originalFetch = window.fetch;
@@ -3059,6 +4420,9 @@
                 'signal_explorer': loadSignalExplorer,
                 'fingerprint': () => loadDeveloperFingerprint(PAGE_ORG_ID),
                 'api_reference': loadAPIReference,
+                'early_signals': loadEarlySignals,
+                'token_behaviour': loadTokenBehaviourLeaderboard,
+                'vaults': loadVaultsPage,
             };
 
             (routes[PAGE] || routes['dashboard'])();

@@ -3895,6 +3895,8 @@
                     </div>
                 </div>
                 <div id="vaults-stats" class="stats-row"></div>
+                <div id="vaults-discovery-health-stats" class="stats-row" style="margin-top: 12px;"></div>
+                <div id="vaults-strategy-table-container" style="margin-top: 20px;"></div>
                 <div id="vaults-table-container" class="card" style="margin-top: 20px;">
                     <div class="card-header">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -3921,8 +3923,9 @@
                             <thead>
                                 <tr>
                                     <th>Token Mint</th>
-                                    <th>Liquidity Account</th>
-                                    <th style="font-size: 0.85rem; color: var(--text-secondary);">(Program / Vault)</th>
+                                    <th>Base Account</th>
+                                    <th>Account Type</th>
+                                    <th>Pool Address</th>
                                     <th>Status</th>
                                     <th>Strategy</th>
                                     <th>Attempts</th>
@@ -3946,19 +3949,19 @@
                 // Render stats
                 const statsHtml = `
                     <div class="stat-card">
-                        <div class="stat-value">${stats.total_vaults}</div>
+                        <div class="stat-value">${stats.total_records}</div>
                         <div class="stat-label">Total Vaults</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" style="color: #22c55e;">${stats.validated}</div>
+                        <div class="stat-value" style="color: #22c55e;">${stats.validated_count}</div>
                         <div class="stat-label">Validated</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" style="color: #eab308;">${stats.pending}</div>
+                        <div class="stat-value" style="color: #eab308;">${stats.pending_count}</div>
                         <div class="stat-label">Pending</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" style="color: #ef4444;">${stats.rejected}</div>
+                        <div class="stat-value" style="color: #ef4444;">${stats.rejected_count}</div>
                         <div class="stat-label">Rejected</div>
                     </div>
                     <div class="stat-card">
@@ -3966,20 +3969,81 @@
                         <div class="stat-label">Avg Discovery Time</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">${stats.avg_discovery_attempts ? stats.avg_discovery_attempts.toFixed(1) : 'N/A'}</div>
+                        <div class="stat-value">${stats.avg_attempts ? Number(stats.avg_attempts).toFixed(1) : 'N/A'}</div>
                         <div class="stat-label">Avg Attempts</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" style="color: #eab308;">${stats.pct_possibly_late}%</div>
+                        <div class="stat-value" style="color: #eab308;">${stats.tracking_quality?.possibly_late_pct ?? 'N/A'}%</div>
                         <div class="stat-label">Possibly Late</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" style="color: #ef4444;">${stats.pct_likely_late}%</div>
+                        <div class="stat-value" style="color: #ef4444;">${stats.tracking_quality?.likely_late_pct ?? 'N/A'}%</div>
                         <div class="stat-label">Likely Late</div>
                     </div>
                 `;
 
                 document.getElementById('vaults-stats').innerHTML = statsHtml;
+
+                // --- Discovery Health Stats ---
+                const healthResp = await fetch(`${API_BASE}/vaults/stats/discovery-health`);
+                const health = await healthResp.json();
+                const ho = health.overall || {};
+
+                const healthStatsHtml = `
+                    <div class="stat-card">
+                        <div class="stat-value">${ho.explicit_data_count ?? 'N/A'} / ${ho.total_records ?? 'N/A'}</div>
+                        <div class="stat-label">Explicit Data</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: ${(ho.fallback_only_count || 0) > 0 ? '#eab308' : '#22c55e'};">${ho.fallback_only_count ?? 'N/A'}</div>
+                        <div class="stat-label">Fallback Only</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${ho.avg_attempts !== null && ho.avg_attempts !== undefined ? Number(ho.avg_attempts).toFixed(1) : 'N/A'}</div>
+                        <div class="stat-label">Avg Attempts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${ho.avg_resolution_time_secs !== null && ho.avg_resolution_time_secs !== undefined ? formatVaultDiscoveryTime(ho.avg_resolution_time_secs) : 'N/A'}</div>
+                        <div class="stat-label">Avg Resolution Time</div>
+                    </div>
+                `;
+                document.getElementById('vaults-discovery-health-stats').innerHTML = healthStatsHtml;
+
+                const byStrategy = health.by_strategy || [];
+                if (byStrategy.length > 0) {
+                    const rows = byStrategy.map(s => {
+                        const fr = s.failure_rate;
+                        const frColor = fr === null ? '#999' : fr < 2 ? '#22c55e' : fr < 5 ? '#eab308' : '#ef4444';
+                        const frText  = fr !== null && fr !== undefined ? Number(fr).toFixed(1) + '%' : 'N/A';
+                        const timeText = s.avg_resolution_time_secs !== null && s.avg_resolution_time_secs !== undefined
+                            ? formatVaultDiscoveryTime(s.avg_resolution_time_secs) : 'N/A';
+                        return `<tr>
+                            <td><small>${s.strategy}</small></td>
+                            <td><small>${s.total}</small></td>
+                            <td><small style="color:#22c55e;">${s.resolved}</small></td>
+                            <td><small style="color:#ef4444;">${s.rejected}</small></td>
+                            <td><small style="color:#eab308;">${s.pending}</small></td>
+                            <td><small>${s.avg_attempts !== null ? Number(s.avg_attempts).toFixed(1) : 'N/A'}</small></td>
+                            <td><small>${timeText}</small></td>
+                            <td><small style="color:${frColor}; font-weight:600;">${frText}</small></td>
+                        </tr>`;
+                    }).join('');
+                    document.getElementById('vaults-strategy-table-container').innerHTML = `
+                        <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 0.75rem; overflow: hidden;">
+                            <div style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+                                <strong>Discovery Strategy Breakdown</strong>
+                            </div>
+                            <div style="overflow-x: auto;">
+                                <table class="table table-hover" style="margin-bottom:0;">
+                                    <thead><tr>
+                                        <th>Strategy</th><th>Total</th><th>Resolved</th><th>Rejected</th>
+                                        <th>Pending</th><th>Avg Attempts</th><th>Avg Time</th><th>Failure Rate</th>
+                                    </tr></thead>
+                                    <tbody>${rows}</tbody>
+                                </table>
+                            </div>
+                        </div>`;
+                }
 
                 // Fetch vaults
                 const vaultsResp = await fetch(`${API_BASE}/vaults?limit=500`);
@@ -4041,10 +4105,26 @@
 
                     const statusColor = v.vault_validation_status === 'validated' ? '#22c55e' : v.vault_validation_status === 'pending' ? '#eab308' : '#ef4444';
 
+                    // Account type with color coding
+                    let accountTypeColor = '#999';
+                    let accountTypeIcon = '?';
+                    if (v.base_account_type === 'shared_vault_signature') {
+                        accountTypeColor = '#ef4444';
+                        accountTypeIcon = '⚠';
+                    } else if (v.base_account_type === 'shared_program_vault') {
+                        accountTypeColor = '#eab308';
+                        accountTypeIcon = '⚙';
+                    } else if (v.base_account_type === 'token_vault') {
+                        accountTypeColor = '#22c55e';
+                        accountTypeIcon = '✓';
+                    }
+
                     return `
                         <tr style="cursor: pointer;" onclick="showVaultDetail('${v.mint}')">
                             <td style="font-size: 0.85rem; color: var(--text-secondary); font-family: monospace;">${v.mint.substring(0, 20)}...</td>
-                            <td style="font-size: 0.85rem; color: var(--text-secondary);">${v.pool_address ? v.pool_address.substring(0, 20) + '...' : 'N/A'}</td>
+                            <td style="font-size: 0.75rem; color: var(--text-secondary); font-family: monospace; max-width: 150px; overflow: hidden; text-overflow: ellipsis;">${v.base_account || 'N/A'}</td>
+                            <td><small style="color: ${accountTypeColor};" title="${v.base_account_type_label}">${accountTypeIcon} ${v.base_account_type_label}</small></td>
+                            <td style="font-size: 0.85rem; color: var(--text-secondary);">${v.pool_address ? v.pool_address.substring(0, 15) + '...' : 'N/A'}</td>
                             <td><small style="color: ${statusColor};">${v.vault_validation_status}</small></td>
                             <td><small>${strategy}</small></td>
                             <td><small>${attempts}</small></td>
@@ -4095,7 +4175,13 @@
 
                     const qualityIcon = token && token.tracking_quality === 'good' ? '✓' : token && token.tracking_quality === 'possibly_late' ? '⚠' : '⚠⚠';
                     const qualityColor = token && token.tracking_quality === 'good' ? '#22c55e' : token && token.tracking_quality === 'possibly_late' ? '#eab308' : '#ef4444';
-                    const statusColor = vault.validation_status === 'validated' ? '#22c55e' : vault.validation_status === 'pending' ? '#eab308' : '#ef4444';
+                    const statusColor = vault.vault_validation_status === 'validated' ? '#22c55e' : vault.vault_validation_status === 'pending' ? '#eab308' : '#ef4444';
+
+                    // Debug helpers
+                    const debug = data.debug || {};
+                    const raw = debug.raw || {};
+                    const fmtTs = ts => ts ? new Date(ts * 1000).toISOString().replace('T', ' ').slice(0, 19) + ' UTC' : 'N/A';
+                    const fmtFlag = v => v ? '<span style="color:#22c55e;">✓ yes</span>' : '<span style="color:#ef4444;">✗ no</span>';
 
                     const modalHtml = `
                         <div class="modal fade" id="vaultDetailModal" tabindex="-1">
@@ -4115,27 +4201,27 @@
                                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                                                 <div>
                                                     <small style="color: var(--text-secondary);">Validation Status</small>
-                                                    <div style="font-weight: 600; color: ${statusColor}; margin-top: 4px;">${vault.validation_status}</div>
+                                                    <div style="font-weight: 600; color: ${statusColor}; margin-top: 4px;">${vault.vault_validation_status}</div>
                                                 </div>
                                                 <div>
                                                     <small style="color: var(--text-secondary);">Resolution State</small>
-                                                    <div style="font-weight: 600; margin-top: 4px;">${vault.resolution_state || 'N/A'}</div>
+                                                    <div style="font-weight: 600; margin-top: 4px;">${vault.vault_resolution_state || 'N/A'}</div>
                                                 </div>
                                                 <div>
                                                     <small style="color: var(--text-secondary);">Discovery Strategy</small>
-                                                    <div style="font-weight: 600; margin-top: 4px;">${vault.discovery_strategy || 'unknown'}</div>
+                                                    <div style="font-weight: 600; margin-top: 4px;">${vault.vault_discovery_strategy || 'unknown'}</div>
                                                 </div>
                                                 <div>
                                                     <small style="color: var(--text-secondary);">Discovery Method</small>
-                                                    <div style="font-weight: 600; margin-top: 4px;">${vault.discovery_method || 'unknown'}</div>
+                                                    <div style="font-weight: 600; margin-top: 4px;">${vault.vault_discovery_method || 'unknown'}</div>
                                                 </div>
                                                 <div>
                                                     <small style="color: var(--text-secondary);">Discovery Attempts</small>
-                                                    <div style="font-weight: 600; margin-top: 4px;">${vault.discovery_attempts || 0}</div>
+                                                    <div style="font-weight: 600; margin-top: 4px;">${vault.vault_discovery_attempts || 0}</div>
                                                 </div>
                                                 <div>
                                                     <small style="color: var(--text-secondary);">Vault Discovery Time</small>
-                                                    <div style="font-weight: 600; margin-top: 4px; font-size: 1.1rem;">${vault.discovery_time_secs !== null && vault.discovery_time_secs !== undefined ? formatVaultDiscoveryTime(vault.discovery_time_secs) : 'N/A'}</div>
+                                                    <div style="font-weight: 600; margin-top: 4px; font-size: 1.1rem;">${vault.vault_discovery_time_secs !== null && vault.vault_discovery_time_secs !== undefined ? formatVaultDiscoveryTime(vault.vault_discovery_time_secs) : 'N/A'}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -4150,11 +4236,11 @@
                                                 </div>
                                                 <div>
                                                     <small style="color: var(--text-secondary);">Last Vault Validation</small>
-                                                    <div style="font-size: 0.9rem; margin-top: 4px;">${vault.last_validation_at ? new Date(vault.last_validation_at * 1000).toLocaleString() : 'N/A'}</div>
+                                                    <div style="font-size: 0.9rem; margin-top: 4px;">${vault.last_vault_validation_at ? new Date(vault.last_vault_validation_at * 1000).toLocaleString() : 'N/A'}</div>
                                                 </div>
                                                 <div style="grid-column: 1 / -1;">
                                                     <small style="color: var(--text-secondary);">Vault Resolved At</small>
-                                                    <div style="font-size: 0.9rem; margin-top: 4px;">${vault.resolved_at ? new Date(vault.resolved_at * 1000).toLocaleString() : 'N/A'}</div>
+                                                    <div style="font-size: 0.9rem; margin-top: 4px;">${vault.vault_resolved_at ? new Date(vault.vault_resolved_at * 1000).toLocaleString() : 'N/A'}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -4164,13 +4250,20 @@
                                             <h6 style="color: var(--text-light); margin-bottom: 1rem;">Liquidity & Program Accounts</h6>
                                             <div style="font-size: 0.9rem; word-break: break-all;">
                                                 <div style="margin-bottom: 8px;">
-                                                    <strong>Liquidity Pool Address:</strong>
+                                                    <strong>Pool Address:</strong>
                                                     <div style="margin-top: 4px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 4px; font-family: monospace; font-size: 0.85rem;">
-                                                        ${vault.pool_address || '(N/A - may be bonding curve or shared vault)'}
+                                                        ${vault.pool_address || '(N/A)'}
                                                     </div>
-                                                    <small style="color: var(--text-secondary); margin-top: 4px; display: block;">⚠️ May be shared across multiple tokens (e.g., pump.fun bonding curve)</small>
                                                 </div>
-                                                <div style="margin-bottom: 8px; margin-top: 12px;"><strong>Base Account (Token Mint):</strong> ${vault.base_account || 'N/A'}</div>
+                                                <div style="margin-bottom: 8px; margin-top: 12px;">
+                                                    <strong>Base Account:</strong>
+                                                    <div style="margin-top: 4px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 4px; font-family: monospace; font-size: 0.85rem;">
+                                                        ${vault.base_account || 'N/A'}
+                                                    </div>
+                                                    <small style="color: ${vault.base_account_type === 'shared_vault_signature' ? '#ef4444' : vault.base_account_type === 'shared_program_vault' ? '#eab308' : vault.base_account_type === 'token_vault' ? '#22c55e' : '#999'}; margin-top: 4px; display: block;">
+                                                        ${vault.base_account_type_label || 'Unknown'}
+                                                    </small>
+                                                </div>
                                                 <div style="margin-bottom: 8px;"><strong>Quote Account (SOL Liquidity):</strong> ${vault.quote_account || 'N/A'}</div>
                                                 <div style="margin-bottom: 8px; margin-top: 12px;"><strong>Base Token:</strong> ${vault.base_token || 'N/A'}</div>
                                                 <div style="margin-bottom: 8px;"><strong>Quote Token:</strong> ${vault.quote_token || 'N/A'}</div>
@@ -4224,6 +4317,33 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <!-- Debug Panel -->
+                                        <details style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-color);">
+                                            <summary style="cursor:pointer; color:var(--text-secondary); font-size:0.85rem; user-select:none; list-style:none;">
+                                                ▶ Debug
+                                            </summary>
+                                            <div style="margin-top:1rem; font-family:monospace; font-size:0.78rem; color:var(--text-secondary);">
+                                                <div style="font-weight:600; color:var(--text-light); margin-bottom:0.5rem;">Raw DB fields</div>
+                                                <table style="border-collapse:collapse; width:100%; margin-bottom:1rem;">
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">vault_discovery_strategy</td><td>${raw.vault_discovery_strategy ?? 'null'}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">vault_discovery_attempts</td><td>${raw.vault_discovery_attempts ?? 'null'}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">vault_discovery_time_secs</td><td>${raw.vault_discovery_time_secs ?? 'null'}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">vault_resolution_state</td><td>${raw.vault_resolution_state ?? 'null'}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">vault_resolved_at</td><td>${fmtTs(raw.vault_resolved_at)}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">discovery_method</td><td>${raw.discovery_method ?? 'null'}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">vault_validation_status</td><td>${raw.vault_validation_status ?? 'null'}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">created_at</td><td>${fmtTs(raw.created_at)}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">last_vault_validation_at</td><td>${fmtTs(raw.last_vault_validation_at)}</td></tr>
+                                                </table>
+                                                <div style="font-weight:600; color:var(--text-light); margin-bottom:0.5rem;">Data Health</div>
+                                                <table style="border-collapse:collapse;">
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">has_explicit_discovery_data</td><td>${fmtFlag(debug.has_explicit_discovery_data)}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">using_fallback_strategy</td><td>${fmtFlag(debug.using_fallback_strategy)}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">using_fallback_time</td><td>${fmtFlag(debug.using_fallback_time)}</td></tr>
+                                                    <tr><td style="padding:2px 12px 2px 0; white-space:nowrap; color:var(--text-secondary);">row_updated</td><td>${fmtFlag(debug.row_updated)}</td></tr>
+                                                </table>
+                                            </div>
+                                        </details>
                                         ` : ''}\}
                                     </div>
                                     <div class="modal-footer" style="border-top: 1px solid var(--border-color);">

@@ -245,49 +245,62 @@ class PoolDiscovery:
         logger.warning(f"Unknown pool program owner: {owner}")
         return None
 
-    async def _is_shared_account(self, account_address: str, threshold: int = 10) -> bool:
+    async def _is_shared_account(self, account_address: str, threshold: int = 3) -> bool:
         """
-        Check if an account is used as base_account or quote_account in many tokens.
-        
+        Check if an account is used across many tokens in ANY role.
+
+        Checks ALL roles:
+        - base_account (vault)
+        - quote_account (vault)
+        - pool_address (pool)
+
         Shared accounts are typically:
         - Program PDAs (not token-specific)
         - Authority accounts
-        - Misidentified vaults
-        
-        If an account appears in >threshold tokens, reject it.
-        
+        - Misidentified vaults/pools
+
+        Real pools/vaults appear in 1 token.
+        Shared accounts show up across MANY tokens very quickly.
+
+        If an account appears in >threshold tokens across any role, reject it.
+
         Args:
             account_address: Account to check
-            threshold: Number of tokens before marking as shared (default 10)
-        
+            threshold: Number of tokens before marking as shared (default 3)
+                      - Real vault: 1 token only
+                      - Shared PDA: appears in 3+ tokens quickly
+
         Returns:
             True if shared (should reject), False if token-specific
         """
         try:
             conn = sqlite3.connect(self.db_path, timeout=10)
             cursor = conn.cursor()
-            
+
+            # Check ALL roles: vault base, vault quote, pool address
             cursor.execute(
                 """
                 SELECT COUNT(DISTINCT mint)
                 FROM token_pool_accounts
-                WHERE base_account = ? OR quote_account = ?
+                WHERE base_account = ?
+                   OR quote_account = ?
+                   OR pool_address = ?
                 """,
-                (account_address, account_address),
+                (account_address, account_address, account_address),
             )
-            
+
             count = cursor.fetchone()[0]
             conn.close()
-            
+
             if count > threshold:
                 logger.warning(
                     f"[SHARED_ACCOUNT_CHECK] ⚠️  Account {account_address[:16]}... "
-                    f"appears in {count} tokens (marked as shared)"
+                    f"appears in {count} tokens across roles (marked as shared)"
                 )
                 return True
-            
+
             return False
-            
+
         except Exception as e:
             logger.debug(f"[SHARED_ACCOUNT_CHECK] Could not check account {account_address[:16]}...: {e}")
             # On error, don't reject (false negative is safer than false positive)
@@ -305,11 +318,20 @@ class PoolDiscovery:
         from the pool struct first.
 
         For now, we accept vaults from pool_address but validate rigorously:
-        1. Reject shared accounts (used across many tokens)
-        2. Only accept specific known quotes (SOL, USDC)
-        3. Validate token is actually in the vault
+        1. Reject pool_address if it's shared (prevents ADyA misidentification)
+        2. Reject shared accounts as vaults (both base and quote)
+        3. Only accept specific known quotes (SOL, USDC)
+        4. Validate token is actually in the vault
         """
         try:
+            # 🚨 PATCH 1: REJECT POOL if it's shared/program account
+            if await self._is_shared_account(pool_address):
+                logger.warning(
+                    f"[POOL_EXTRACT] ❌ Rejecting pool {pool_address[:16]}... "
+                    f"(appears to be shared/program account, not a pool)"
+                )
+                return None
+
             # Get all token accounts owned by the pool
             accounts = await self._get_token_accounts_by_owner(pool_address)
 
@@ -353,12 +375,19 @@ class PoolDiscovery:
             base_vault = max(base_candidates, key=lambda a: get_balance(a))
             quote_vault = max(quote_candidates, key=score_quote)
 
-            # 🚨 VALIDATION: Check if base vault is shared across many tokens
-            # Reject if it's used in >10 other tokens (likely a shared authority)
+            # 🚨 PATCH 2: REJECT BASE VAULT if shared
             if await self._is_shared_account(base_vault["address"]):
                 logger.warning(
                     f"[POOL_EXTRACT] ❌ Rejecting base vault {base_vault['address'][:16]}... "
-                    f"(appears to be shared across many tokens)"
+                    f"(appears to be shared across tokens)"
+                )
+                return None
+
+            # 🚨 PATCH 3: REJECT QUOTE VAULT if shared
+            if await self._is_shared_account(quote_vault["address"]):
+                logger.warning(
+                    f"[POOL_EXTRACT] ❌ Rejecting quote vault {quote_vault['address'][:16]}... "
+                    f"(appears to be shared across tokens)"
                 )
                 return None
 

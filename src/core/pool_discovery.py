@@ -327,7 +327,7 @@ class PoolDiscovery:
             # 🚨 PATCH 1: REJECT POOL if it's shared/program account
             if await self._is_shared_account(pool_address):
                 logger.warning(
-                    f"[POOL_EXTRACT] ❌ Rejecting pool {pool_address[:16]}... "
+                    f"[POOL_REJECTED] reason=shared_pool pool={pool_address[:16]}... "
                     f"(appears to be shared/program account, not a pool)"
                 )
                 return None
@@ -336,13 +336,19 @@ class PoolDiscovery:
             accounts = await self._get_token_accounts_by_owner(pool_address)
 
             if not accounts:
-                logger.warning(f"[POOL_EXTRACT] No token accounts found for pool {pool_address[:16]}...")
+                logger.warning(
+                    f"[POOL_REJECTED] reason=no_vaults pool={pool_address[:16]}... "
+                    f"(no token accounts found)"
+                )
                 return None
 
             # Find base vault (owns the token being launched)
             base_candidates = [acc for acc in accounts if acc.get("mint") == token_mint]
             if not base_candidates:
-                logger.warning(f"[POOL_EXTRACT] No vault for token {token_mint[:16]}... in pool {pool_address[:16]}...")
+                logger.warning(
+                    f"[POOL_REJECTED] reason=no_base_vault pool={pool_address[:16]}... "
+                    f"token={token_mint[:16]}... (base vault not found)"
+                )
                 return None
 
             # Find quote vault (ONLY SOL or USDC, strict selection)
@@ -353,7 +359,10 @@ class PoolDiscovery:
             ]
 
             if not quote_candidates:
-                logger.warning(f"[POOL_EXTRACT] No SOL/USDC vault found in pool {pool_address[:16]}...")
+                logger.warning(
+                    f"[POOL_REJECTED] reason=no_quote_vault pool={pool_address[:16]}... "
+                    f"(no SOL/USDC vault found)"
+                )
                 return None
 
             # Select highest balance vaults
@@ -378,22 +387,23 @@ class PoolDiscovery:
             # 🚨 PATCH 2: REJECT BASE VAULT if shared
             if await self._is_shared_account(base_vault["address"]):
                 logger.warning(
-                    f"[POOL_EXTRACT] ❌ Rejecting base vault {base_vault['address'][:16]}... "
-                    f"(appears to be shared across tokens)"
+                    f"[POOL_REJECTED] reason=shared_base_vault pool={pool_address[:16]}... "
+                    f"vault={base_vault['address'][:16]}... (shared across tokens)"
                 )
                 return None
 
             # 🚨 PATCH 3: REJECT QUOTE VAULT if shared
             if await self._is_shared_account(quote_vault["address"]):
                 logger.warning(
-                    f"[POOL_EXTRACT] ❌ Rejecting quote vault {quote_vault['address'][:16]}... "
-                    f"(appears to be shared across tokens)"
+                    f"[POOL_REJECTED] reason=shared_quote_vault pool={pool_address[:16]}... "
+                    f"vault={quote_vault['address'][:16]}... (shared across tokens)"
                 )
                 return None
 
             logger.info(
-                f"[POOL_EXTRACT] ✅ Authority-scan found vaults for {pool_address[:16]}... "
-                f"(base={base_vault['address'][:16]}..., quote={quote_vault['address'][:16]}...)"
+                f"[POOL_EXTRACTED] pool={pool_address[:16]}... "
+                f"base={base_vault['address'][:16]}... quote={quote_vault['address'][:16]}... "
+                f"token={token_mint[:16]}..."
             )
 
             return {
@@ -406,7 +416,7 @@ class PoolDiscovery:
             }
 
         except Exception as e:
-            logger.error(f"[POOL_EXTRACT] Authority-scan failed for {pool_address[:16]}...: {e}")
+            logger.error(f"[POOL_EXTRACT_ERROR] pool={pool_address[:16]}... error={str(e)}")
             return None
 
     async def _extract_raydium_amm(

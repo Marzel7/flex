@@ -569,6 +569,9 @@
             <a class="nav-link" onclick="loadPage('signal_explorer')">
                 <i class="fas fa-sliders-h"></i> <span>Signals</span>
             </a>
+            <a class="nav-link" onclick="loadPage('early_signals')">
+                <i class="fas fa-brain"></i> <span>Early Predictions</span>
+            </a>
         </div>
 
         <!-- Tools -->
@@ -844,6 +847,7 @@
                 'waves': loadLaunchWaves,
                 'clusters': loadClusterExplorer,
                 'signal_explorer': loadSignalExplorer,
+                'early_signals': loadEarlySignals,
             };
             (routes[page] || loadDashboard)();
         };
@@ -906,6 +910,14 @@
                         <div class="stat-card">
                             <div class="stat-value" style="color: var(--color-primary);">${data.latest_wave_detected || 'None'}</div>
                             <div class="stat-label">Latest Wave</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #ef4444;">${data.early_rugs_detected || 0}</div>
+                            <div class="stat-label">Early Rugs</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #22c55e;">${data.early_runners_detected || 0}</div>
+                            <div class="stat-label">Early Runners</div>
                         </div>
                     </div>
 
@@ -1947,6 +1959,289 @@
         const PAGE_ORG_ID = '{{ org_id | default("") }}';
         const PAGE_WALLET = '{{ wallet_address | default("") }}';
 
+        // =====================================================================
+        // EARLY SIGNALS PAGE (PHASE 1 INTEGRATION)
+        // =====================================================================
+
+        async function loadEarlySignals() {
+            const content = document.getElementById('page-content');
+            content.innerHTML = showLoading('Early Signal Predictions');
+
+            try {
+                const response = await fetch(`${API_BASE}/early-signals`);
+                const data = await response.json();
+
+                const { early_rugs = [], early_runners = [], unknown_signals = [] } = data;
+
+                let html = `
+                    <div class="page-header">
+                        <h1>Early Signal Predictions</h1>
+                        <p class="subtitle">Token outcome predictions at 5-15 minutes</p>
+                    </div>
+
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #ef4444;">${early_rugs.length}</div>
+                            <div class="stat-label">Likely Rugs</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #22c55e;">${early_runners.length}</div>
+                            <div class="stat-label">Likely Runners</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #eab308;">${unknown_signals.length}</div>
+                            <div class="stat-label">Unknown</div>
+                        </div>
+                    </div>
+
+                    <!-- LIKELY RUGS -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>
+                                Likely Rugs (Early Detection)
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-hover token-table">
+                                <thead>
+                                    <tr>
+                                        <th>Token</th>
+                                        <th>Score</th>
+                                        <th>Confidence</th>
+                                        <th>Age</th>
+                                        <th>Rug Signals</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${early_rugs.map(token => `
+                                        <tr data-mint="${token.mint}">
+                                            <td>
+                                                <code style="font-size: 0.85rem;">${token.mint.substring(0, 16)}...</code>
+                                            </td>
+                                            <td>
+                                                <div style="font-weight: 600; color: #ef4444;">${(token.early_rug_score * 100).toFixed(0)}%</div>
+                                            </td>
+                                            <td>
+                                                <div style="color: #f97316;">${(token.confidence * 100).toFixed(0)}%</div>
+                                            </td>
+                                            <td>${token.age_minutes || '?'} min</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-secondary" onclick="showSignalDetails('${token.mint}', 'likely_rug')">
+                                                    <i class="fas fa-info-circle"></i> Signals
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-danger" onclick="notifyRug('${token.mint}')">
+                                                    <i class="fas fa-bell"></i> Alert
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                            ${early_rugs.length === 0 ? '<p class="text-muted">No likely rugs detected</p>' : ''}
+                        </div>
+                    </div>
+
+                    <!-- LIKELY RUNNERS -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-rocket" style="color: #22c55e;"></i>
+                                Likely Runners (Early Opportunity)
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-hover token-table">
+                                <thead>
+                                    <tr>
+                                        <th>Token</th>
+                                        <th>Score</th>
+                                        <th>Confidence</th>
+                                        <th>Age</th>
+                                        <th>Success Signals</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${early_runners.map(token => `
+                                        <tr data-mint="${token.mint}">
+                                            <td>
+                                                <code style="font-size: 0.85rem;">${token.mint.substring(0, 16)}...</code>
+                                            </td>
+                                            <td>
+                                                <div style="font-weight: 600; color: #22c55e;">${(token.early_success_score * 100).toFixed(0)}%</div>
+                                            </td>
+                                            <td>
+                                                <div style="color: #84cc16;">${(token.confidence * 100).toFixed(0)}%</div>
+                                            </td>
+                                            <td>${token.age_minutes || '?'} min</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-secondary" onclick="showSignalDetails('${token.mint}', 'likely_runner')">
+                                                    <i class="fas fa-info-circle"></i> Signals
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-success" onclick="prioritizeToken('${token.mint}')">
+                                                    <i class="fas fa-star"></i> Watch
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                            ${early_runners.length === 0 ? '<p class="text-muted">No likely runners detected</p>' : ''}
+                        </div>
+                    </div>
+
+                    <!-- UNKNOWN SIGNALS -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-question-circle" style="color: #eab308;"></i>
+                                Mixed Signals (Continue Monitoring)
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-hover token-table">
+                                <thead>
+                                    <tr>
+                                        <th>Token</th>
+                                        <th>Rug Score</th>
+                                        <th>Success Score</th>
+                                        <th>Confidence</th>
+                                        <th>Age</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${unknown_signals.map(token => `
+                                        <tr data-mint="${token.mint}">
+                                            <td>
+                                                <code style="font-size: 0.85rem;">${token.mint.substring(0, 16)}...</code>
+                                            </td>
+                                            <td>
+                                                <div style="color: #f97316;">${(token.early_rug_score * 100).toFixed(0)}%</div>
+                                            </td>
+                                            <td>
+                                                <div style="color: #84cc16;">${(token.early_success_score * 100).toFixed(0)}%</div>
+                                            </td>
+                                            <td>
+                                                <div style="color: #94a3b8;">${(token.confidence * 100).toFixed(0)}%</div>
+                                            </td>
+                                            <td>${token.age_minutes || '?'} min</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-secondary" onclick="showSignalDetails('${token.mint}', 'unknown')">
+                                                    <i class="fas fa-info-circle"></i> Signals
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                            ${unknown_signals.length === 0 ? '<p class="text-muted">No mixed signals detected</p>' : ''}
+                        </div>
+                    </div>
+                `;
+
+                content.innerHTML = html;
+
+            } catch (error) {
+                console.error('[EARLY_SIGNALS] Error loading early signals:', error);
+                content.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Error loading early signals: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Show signal details in modal
+        window.showSignalDetails = (mint, label) => {
+            fetch(`${API_BASE}/early-signals/${mint}`)
+                .then(r => r.json())
+                .then(signal => {
+                    const rugs = signal.rug_signals || [];
+                    const successes = signal.success_signals || [];
+                    const warnings = signal.warnings || [];
+
+                    let detailsHtml = `
+                        <div class="modal fade" id="signalModal" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Signal Details: ${mint.substring(0, 16)}...</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <strong>Rug Score:</strong> ${(signal.early_rug_score * 100).toFixed(0)}%
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>Success Score:</strong> ${(signal.early_success_score * 100).toFixed(0)}%
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <strong>Confidence:</strong> ${(signal.confidence * 100).toFixed(0)}%
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>Recommendation:</strong> <code>${signal.recommendation}</code>
+                                            </div>
+                                        </div>
+
+                                        ${rugs.length > 0 ? `
+                                            <h6 style="color: #ef4444; margin-top: 1.5rem;">Rug Signals (${rugs.length})</h6>
+                                            <ul class="list-unstyled" style="color: #f97316;">
+                                                ${rugs.map(s => `<li>• ${s}</li>`).join('')}
+                                            </ul>
+                                        ` : ''}
+
+                                        ${successes.length > 0 ? `
+                                            <h6 style="color: #22c55e; margin-top: 1.5rem;">Success Signals (${successes.length})</h6>
+                                            <ul class="list-unstyled" style="color: #84cc16;">
+                                                ${successes.map(s => `<li>• ${s}</li>`).join('')}
+                                            </ul>
+                                        ` : ''}
+
+                                        ${warnings.length > 0 ? `
+                                            <h6 style="color: #eab308; margin-top: 1.5rem;">Warnings</h6>
+                                            <ul class="list-unstyled" style="color: #facc15;">
+                                                ${warnings.map(w => `<li>⚠️ ${w}</li>`).join('')}
+                                            </ul>
+                                        ` : ''}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Remove old modal if exists
+                    const oldModal = document.getElementById('signalModal');
+                    if (oldModal) oldModal.remove();
+
+                    document.body.insertAdjacentHTML('beforeend', detailsHtml);
+                    new bootstrap.Modal(document.getElementById('signalModal')).show();
+                });
+        };
+
+        window.notifyRug = (mint) => {
+            alert(`Alert set for potential rug: ${mint}`);
+            // TODO: Implement notification system
+        };
+
+        window.prioritizeToken = (mint) => {
+            alert(`Token prioritized for monitoring: ${mint}`);
+            // TODO: Implement priority tracking
+        };
+
         window.addEventListener('load', () => {
             // Initialize real-time price streaming
             initPriceStream();
@@ -1963,6 +2258,7 @@
                     loadWalletIntelligence(PAGE_WALLET);
                 },
                 'signal_explorer': loadSignalExplorer,
+                'early_signals': loadEarlySignals,
             };
 
             (routes[PAGE] || routes['dashboard'])();

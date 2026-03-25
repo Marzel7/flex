@@ -550,6 +550,9 @@ class PumpFunCurveListener:
     async def _write_resolution_telemetry(self, mint: str, resolve_source: str, pool_address: str = None, retry_count: int = 0):
         """Write token resolution telemetry to database."""
         try:
+            import time
+            from src.core.vault_discovery_persistence import record_vault_discovery_result
+
             conn = sqlite3.connect(DB_PATH, timeout=10)
             cursor = conn.cursor()
             now = int(time.time())
@@ -564,6 +567,36 @@ class PumpFunCurveListener:
             """, (mint, detected_at, resolved_at, resolve_seconds, resolve_source, retry_count, pool_address, now, now))
             conn.commit()
             conn.close()
+
+            # IMPORTANT: Also persist vault discovery metadata to token_pool_accounts
+            # This ensures the Vaults page shows real discovery data, not defaults
+            if pool_address:
+                # Attempt is retry_count + 1 (attempts are 1-indexed)
+                attempts = retry_count + 1
+                
+                success = record_vault_discovery_result(
+                    db_path=DB_PATH,
+                    mint=mint,
+                    base_account=pool_address,
+                    strategy=resolve_source,
+                    attempts=attempts,
+                    elapsed_secs=float(resolve_seconds),
+                    pool_address=pool_address,
+                )
+                
+                if success:
+                    log_print(
+                        f"[VAULT_PERSISTENCE] ✅ Persisted discovery: "
+                        f"strategy={resolve_source} attempts={attempts} elapsed={resolve_seconds}s",
+                        flush=True
+                    )
+                else:
+                    log_print(
+                        f"[VAULT_PERSISTENCE] ⚠️  Failed to persist discovery data "
+                        f"for {mint[:16]}... / {pool_address[:16]}...",
+                        flush=True
+                    )
+
         except Exception as e:
             log_print(f"[TELEMETRY] ⚠️  Failed to write telemetry for {mint}: {e}", flush=True)
 

@@ -245,17 +245,69 @@ class PoolDiscovery:
         logger.warning(f"Unknown pool program owner: {owner}")
         return None
 
+    async def _is_shared_account(self, account_address: str, threshold: int = 10) -> bool:
+        """
+        Check if an account is used as base_account or quote_account in many tokens.
+        
+        Shared accounts are typically:
+        - Program PDAs (not token-specific)
+        - Authority accounts
+        - Misidentified vaults
+        
+        If an account appears in >threshold tokens, reject it.
+        
+        Args:
+            account_address: Account to check
+            threshold: Number of tokens before marking as shared (default 10)
+        
+        Returns:
+            True if shared (should reject), False if token-specific
+        """
+        try:
+            conn = sqlite3.connect(self.db_path, timeout=10)
+            cursor = conn.cursor()
+            
+            cursor.execute(
+                """
+                SELECT COUNT(DISTINCT mint)
+                FROM token_pool_accounts
+                WHERE base_account = ? OR quote_account = ?
+                """,
+                (account_address, account_address),
+            )
+            
+            count = cursor.fetchone()[0]
+            conn.close()
+            
+            if count > threshold:
+                logger.warning(
+                    f"[SHARED_ACCOUNT_CHECK] ⚠️  Account {account_address[:16]}... "
+                    f"appears in {count} tokens (marked as shared)"
+                )
+                return True
+            
+            return False
+            
+        except Exception as e:
+            logger.debug(f"[SHARED_ACCOUNT_CHECK] Could not check account {account_address[:16]}...: {e}")
+            # On error, don't reject (false negative is safer than false positive)
+            return False
+
     async def _extract_vaults_by_mint(
         self, pool_address: str, token_mint: str
     ) -> Optional[Dict]:
         """
         Extract vault accounts using authority-scan (layout-independent).
 
-        For PumpSwap pools, directly query which token accounts the pool owns
-        instead of trying to parse fixed offsets in the pool struct.
+        🚨 CRITICAL: This queries accounts owned by pool_address directly.
+        In reality, vaults are often owned by a PDA authority (not the pool).
+        This is a known limitation - proper fix requires deriving the authority
+        from the pool struct first.
 
-        This works regardless of PumpSwap layout changes and is the recommended
-        approach for all authority-based pools.
+        For now, we accept vaults from pool_address but validate rigorously:
+        1. Reject shared accounts (used across many tokens)
+        2. Only accept specific known quotes (SOL, USDC)
+        3. Validate token is actually in the vault
         """
         try:
             # Get all token accounts owned by the pool
@@ -271,15 +323,15 @@ class PoolDiscovery:
                 logger.warning(f"[POOL_EXTRACT] No vault for token {token_mint[:16]}... in pool {pool_address[:16]}...")
                 return None
 
-            # Find quote vault (owns SOL or USDC)
+            # Find quote vault (ONLY SOL or USDC, strict selection)
             USDC_MINT = "EPjFWaLb3hyccVhVQAdS4jNA3LEjfZ3c6zDs8KKukQx"
             quote_candidates = [
                 acc for acc in accounts
-                if acc.get("mint") in {SOL_MINT, USDC_MINT} or acc.get("mint") != token_mint
+                if acc.get("mint") in {SOL_MINT, USDC_MINT}
             ]
 
             if not quote_candidates:
-                logger.warning(f"[POOL_EXTRACT] No quote vault found in pool {pool_address[:16]}...")
+                logger.warning(f"[POOL_EXTRACT] No SOL/USDC vault found in pool {pool_address[:16]}...")
                 return None
 
             # Select highest balance vaults
@@ -300,6 +352,15 @@ class PoolDiscovery:
 
             base_vault = max(base_candidates, key=lambda a: get_balance(a))
             quote_vault = max(quote_candidates, key=score_quote)
+
+            # 🚨 VALIDATION: Check if base vault is shared across many tokens
+            # Reject if it's used in >10 other tokens (likely a shared authority)
+            if await self._is_shared_account(base_vault["address"]):
+                logger.warning(
+                    f"[POOL_EXTRACT] ❌ Rejecting base vault {base_vault['address'][:16]}... "
+                    f"(appears to be shared across many tokens)"
+                )
+                return None
 
             logger.info(
                 f"[POOL_EXTRACT] ✅ Authority-scan found vaults for {pool_address[:16]}... "

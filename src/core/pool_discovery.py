@@ -309,8 +309,8 @@ class PoolDiscovery:
             return {
                 "base_account": base_vault["address"],
                 "quote_account": quote_vault["address"],
-                "base_mint": base_vault["mint"],
-                "quote_mint": quote_vault["mint"],
+                "base_token": base_vault["mint"],
+                "quote_token": quote_vault["mint"],
                 "base_decimals": base_vault["decimals"],
                 "quote_decimals": quote_vault["decimals"],
             }

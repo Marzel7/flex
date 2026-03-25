@@ -687,6 +687,37 @@ def _vault_row_to_dict(row: sqlite3.Row) -> Dict[str, Any]:
     }
 
 
+def _build_vault_debug(row: sqlite3.Row) -> dict:
+    """Derive debug/health flags from a vault row for the detail API."""
+    strategy_val = row['vault_discovery_strategy']
+    time_val     = row['vault_discovery_time_secs']
+    created_at   = row['created_at']
+    last_val     = row['last_vault_validation_at']
+
+    has_explicit   = bool(strategy_val and strategy_val != 'unknown')
+    fallback_strat = not has_explicit
+    fallback_time  = time_val is None
+    row_updated    = bool(last_val and created_at and last_val > created_at)
+
+    return {
+        'has_explicit_discovery_data': has_explicit,
+        'using_fallback_strategy':     fallback_strat,
+        'using_fallback_time':         fallback_time,
+        'row_updated':                 row_updated,
+        'raw': {
+            'vault_discovery_strategy':  strategy_val,
+            'vault_discovery_attempts':  row['vault_discovery_attempts'],
+            'vault_discovery_time_secs': time_val,
+            'vault_resolution_state':    row['vault_resolution_state'],
+            'vault_resolved_at':         row['vault_resolved_at'],
+            'discovery_method':          row['vault_discovery_method'],
+            'vault_validation_status':   row['vault_validation_status'],
+            'created_at':                created_at,
+            'last_vault_validation_at':  last_val,
+        },
+    }
+
+
 @dashboard_routes.route('/api/vaults', methods=['GET'])
 def api_vaults():
     """
@@ -853,6 +884,89 @@ def api_vaults_stats_summary():
         return no_cache_json({'error': str(e)}), 500
 
 
+@dashboard_routes.route('/api/vaults/stats/discovery-health', methods=['GET'])
+def api_vaults_stats_discovery_health():
+    """Aggregated discovery health stats overall and by strategy."""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        tpa_cols = _table_columns(conn, 'token_pool_accounts')
+
+        # Guard: return empty response if key columns missing
+        required = {'vault_resolution_state', 'vault_discovery_strategy',
+                    'vault_discovery_attempts', 'vault_discovery_time_secs'}
+        if not required.issubset(tpa_cols):
+            conn.close()
+            return no_cache_json({
+                'overall': {}, 'by_strategy': [],
+                'last_updated': int(time.time())
+            })
+
+        overall_row = conn.execute("""
+            SELECT
+                COUNT(*) AS total_records,
+                SUM(CASE WHEN vault_resolution_state = 'resolved' THEN 1 ELSE 0 END) AS resolved_count,
+                SUM(CASE WHEN vault_resolution_state = 'pending'  THEN 1 ELSE 0 END) AS pending_count,
+                SUM(CASE WHEN vault_resolution_state = 'rejected' THEN 1 ELSE 0 END) AS rejected_count,
+                ROUND(AVG(vault_discovery_attempts), 2)    AS avg_attempts,
+                ROUND(AVG(vault_discovery_time_secs), 1)   AS avg_resolution_time_secs,
+                SUM(CASE WHEN vault_discovery_strategy IS NOT NULL
+                          AND vault_discovery_strategy != 'unknown' THEN 1 ELSE 0 END) AS explicit_data_count,
+                SUM(CASE WHEN vault_discovery_strategy IS NULL
+                          OR  vault_discovery_strategy  = 'unknown' THEN 1 ELSE 0 END) AS fallback_only_count
+            FROM token_pool_accounts
+        """).fetchone()
+
+        strategy_rows = conn.execute("""
+            SELECT
+                COALESCE(vault_discovery_strategy, discovery_method, 'unknown') AS strategy,
+                COUNT(*) AS total,
+                SUM(CASE WHEN vault_resolution_state = 'resolved' THEN 1 ELSE 0 END) AS resolved,
+                SUM(CASE WHEN vault_resolution_state = 'pending'  THEN 1 ELSE 0 END) AS pending,
+                SUM(CASE WHEN vault_resolution_state = 'rejected' THEN 1 ELSE 0 END) AS rejected,
+                ROUND(AVG(vault_discovery_attempts), 2)  AS avg_attempts,
+                ROUND(AVG(vault_discovery_time_secs), 1) AS avg_resolution_time_secs,
+                ROUND(100.0 * SUM(CASE WHEN vault_resolution_state = 'rejected' THEN 1 ELSE 0 END)
+                              / COUNT(*), 1)             AS failure_rate
+            FROM token_pool_accounts
+            GROUP BY COALESCE(vault_discovery_strategy, discovery_method, 'unknown')
+            ORDER BY total DESC
+        """).fetchall()
+
+        conn.close()
+
+        return no_cache_json({
+            'overall': {
+                'total_records':            overall_row['total_records'] or 0,
+                'resolved_count':           overall_row['resolved_count'] or 0,
+                'pending_count':            overall_row['pending_count'] or 0,
+                'rejected_count':           overall_row['rejected_count'] or 0,
+                'avg_attempts':             _format_nullable_float(overall_row['avg_attempts'], 2),
+                'avg_resolution_time_secs': _format_nullable_float(overall_row['avg_resolution_time_secs'], 1),
+                'explicit_data_count':      overall_row['explicit_data_count'] or 0,
+                'fallback_only_count':      overall_row['fallback_only_count'] or 0,
+            },
+            'by_strategy': [
+                {
+                    'strategy':                r['strategy'],
+                    'total':                   r['total'],
+                    'resolved':                r['resolved'] or 0,
+                    'pending':                 r['pending'] or 0,
+                    'rejected':                r['rejected'] or 0,
+                    'avg_attempts':            _format_nullable_float(r['avg_attempts'], 2),
+                    'avg_resolution_time_secs': _format_nullable_float(r['avg_resolution_time_secs'], 1),
+                    'failure_rate':            _format_nullable_float(r['failure_rate'], 1),
+                }
+                for r in strategy_rows
+            ],
+            'last_updated': int(time.time()),
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching discovery health stats: {e}", exc_info=True)
+        return no_cache_json({'error': str(e)}), 500
+
+
 @dashboard_routes.route('/api/vaults/shared-vaults', methods=['GET'])
 def api_shared_vaults():
     """
@@ -959,6 +1073,7 @@ def api_vault_detail(mint):
             return jsonify({'error': 'Vault/token not found', 'mint': mint}), 404
 
         data = _vault_row_to_dict(row)
+        data['debug'] = _build_vault_debug(row)
 
         # Optional lightweight history if behaviour history exists.
         history = []

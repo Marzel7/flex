@@ -1498,12 +1498,17 @@ class PumpFunCurveListener:
 
         return []
 
-    async def batch_validate_candidates(self, candidates: list) -> list:
+    async def batch_validate_candidates(self, candidates: list, strict_mode: bool = True) -> list:
         """
         Batch validate all candidates with single RPC call.
 
         Returns list of valid pool addresses owned by PUMPSWAP program.
         Filters out shared accounts (known PDAs used across many tokens).
+
+        Args:
+            candidates: List of account addresses to validate
+            strict_mode: If True, apply all filters (first pass)
+                        If False, looser validation for retries (never allow shared accounts)
         """
         if not candidates:
             return []
@@ -1516,38 +1521,60 @@ class PumpFunCurveListener:
             )
 
             if not result or "result" not in result:
+                log_print(f"[BATCH_VALIDATE] ❌ RPC call failed or empty result", flush=True)
                 return []
 
             PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
             values = result.get("result", {}).get("value", [])
 
+            log_print(f"[BATCH_VALIDATE] Validating {len(candidates)} candidates (strict_mode={strict_mode})", flush=True)
+
             valid = []
             for addr, acc in zip(candidates, values):
-                if not acc or acc.get("owner") != PUMPSWAP_PROGRAM:
+                addr_short = addr[:16] if isinstance(addr, str) else str(addr)[:16]
+
+                # Check 1: Account must exist
+                if not acc:
+                    log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=account_not_found", flush=True)
                     continue
 
-                # CRITICAL: Check if this is a known shared account before accepting
-                # Shared accounts (like ADyA) appear across many tokens and are PDAs, not real pools
+                # Check 2: Owner must be PUMPSWAP program
+                owner = acc.get("owner")
+                if owner != PUMPSWAP_PROGRAM:
+                    log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=wrong_owner owner={owner[:16] if owner else 'null'}...", flush=True)
+                    continue
+
+                # Check 3: Shared account check (always enforce, never accept ADyA-like accounts)
                 try:
                     from src.core.pool_discovery import PoolDiscovery
                     db_path = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), '../../database/flex_complete_database.db'))
                     pd = PoolDiscovery(db_path, "")
 
-                    is_shared = await pd._is_shared_account(addr, threshold=2)
+                    # Use stricter threshold in strict mode
+                    threshold = 2 if strict_mode else 3
+                    is_shared = await pd._is_shared_account(addr, threshold=threshold)
                     if is_shared:
-                        log_print(f"[BATCH_VALIDATE] 🚫 Rejecting {addr[:16]}... (shared account across many tokens)", flush=True)
+                        log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=shared_account threshold={threshold}", flush=True)
                         continue
 
-                    valid.append(addr)
                 except Exception as check_error:
-                    log_print(f"[BATCH_VALIDATE] ⚠️  Could not check if {addr[:16]} is shared: {check_error}", flush=True)
-                    # On error, accept conservatively (fail open, let pool_discovery reject later if needed)
+                    log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=shared_check_failed error={str(check_error)[:40]}", flush=True)
+                    # Only skip in strict mode; in retry mode, accept if check fails
+                    if strict_mode:
+                        continue
+                    log_print(f"[CANDIDATE_ACCEPTED] addr={addr_short}... (shared check failed but accepting in retry mode)", flush=True)
                     valid.append(addr)
+                    continue
 
+                # All checks passed
+                log_print(f"[CANDIDATE_ACCEPTED] addr={addr_short}... passed all validation checks", flush=True)
+                valid.append(addr)
+
+            log_print(f"[BATCH_VALIDATE] Result: {len(valid)} valid candidates from {len(candidates)} input", flush=True)
             return valid
 
         except Exception as e:
-            log_print(f"[BATCH_VALIDATE] Error: {e}", flush=True)
+            log_print(f"[BATCH_VALIDATE] ❌ Fatal error during validation: {e}", flush=True)
             return []
 
     async def resolve_pool_from_tx(self, tx_data: Dict) -> Optional[str]:
@@ -1578,13 +1605,23 @@ class PumpFunCurveListener:
             log_print("[RESOLVE_POOL] All candidates filtered out", flush=True)
             return None
 
-        log_print(f"[RESOLVE_POOL] After pre-filter: {len(candidates)} candidates, batch validating...", flush=True)
+        log_print(f"[RESOLVE_POOL] After pre-filter: {len(candidates)} candidates, batch validating (strict mode)...", flush=True)
 
-        valid = await self.batch_validate_candidates(candidates)
+        # First pass: strict validation
+        valid = await self.batch_validate_candidates(candidates, strict_mode=True)
 
+        # Fallback: if strict mode found nothing, try again with looser validation
         if not valid:
-            log_print("[RESOLVE_POOL] No valid pools found after validation", flush=True)
-            return None
+            log_print("[RESOLVE_POOL] ⚠️  No valid pools in strict mode, trying looser validation for retry recovery...", flush=True)
+            valid = await self.batch_validate_candidates(candidates, strict_mode=False)
+
+            if not valid:
+                log_print("[RESOLVE_POOL] ❌ No valid pools found even with loose validation", flush=True)
+                return None
+
+            log_print(f"[RESOLVE_POOL] ✅ Found {len(valid)} candidates in loose mode", flush=True)
+
+        log_print(f"[RESOLVE_POOL] Proceeding with {len(valid)} valid candidates to selection phase", flush=True)
 
         # Deterministic selection from multiple valid pools
         pool = self.select_best_pool(valid, tx_data)
@@ -1592,6 +1629,7 @@ class PumpFunCurveListener:
             log_print(f"[RESOLVE_POOL] ✅ Selected pool: {pool[:16]}...", flush=True)
             return pool
 
+        log_print("[RESOLVE_POOL] ❌ No pool selected from candidates", flush=True)
         return None
 
     async def resolve_pool_from_signature(self, signature: str) -> Optional[str]:

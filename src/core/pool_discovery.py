@@ -413,6 +413,7 @@ class PoolDiscovery:
                 "quote_token": quote_vault["mint"],
                 "base_decimals": base_vault["decimals"],
                 "quote_decimals": quote_vault["decimals"],
+                "pool_program": PUMPSWAP_PROGRAM,
             }
 
         except Exception as e:

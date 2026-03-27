@@ -4197,31 +4197,33 @@
                                     <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                                         <!-- Vault Discovery Section -->
                                         <div style="margin-bottom: 1.5rem;">
-                                            <h6 style="color: var(--text-light); margin-bottom: 1rem;">Vault Discovery</h6>
+                                            <h6 style="color: var(--text-light); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                                <span style="font-size: 1.1rem;">🔍</span> Vault Discovery Status
+                                            </h6>
                                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                                                 <div>
-                                                    <small style="color: var(--text-secondary);">Validation Status</small>
-                                                    <div style="font-weight: 600; color: ${statusColor}; margin-top: 4px;">${vault.vault_validation_status}</div>
+                                                    <small style="color: var(--text-secondary); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px;">Validation Status</small>
+                                                    <div style="font-weight: 600; color: ${statusColor}; margin-top: 4px; font-size: 1rem;">${vault.vault_validation_status}</div>
                                                 </div>
                                                 <div>
-                                                    <small style="color: var(--text-secondary);">Resolution State</small>
-                                                    <div style="font-weight: 600; margin-top: 4px;">${vault.vault_resolution_state || 'N/A'}</div>
+                                                    <small style="color: var(--text-secondary); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px;">Resolution State</small>
+                                                    <div style="font-weight: 600; margin-top: 4px; font-size: 1rem;">${vault.vault_resolution_state || 'N/A'}</div>
                                                 </div>
                                                 <div>
-                                                    <small style="color: var(--text-secondary);">Discovery Strategy</small>
-                                                    <div style="font-weight: 600; margin-top: 4px;">${vault.vault_discovery_strategy || 'unknown'}</div>
+                                                    <small style="color: var(--text-secondary); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px;">Discovery Strategy</small>
+                                                    <div style="font-weight: 600; margin-top: 4px; font-size: 1rem;">${vault.vault_discovery_strategy || 'unknown'}</div>
                                                 </div>
                                                 <div>
-                                                    <small style="color: var(--text-secondary);">Discovery Method</small>
-                                                    <div style="font-weight: 600; margin-top: 4px;">${vault.vault_discovery_method || 'unknown'}</div>
+                                                    <small style="color: var(--text-secondary); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px;">Discovery Method</small>
+                                                    <div style="font-weight: 600; margin-top: 4px; font-size: 1rem;">${vault.vault_discovery_method || 'unknown'}</div>
                                                 </div>
                                                 <div>
-                                                    <small style="color: var(--text-secondary);">Discovery Attempts</small>
-                                                    <div style="font-weight: 600; margin-top: 4px;">${vault.vault_discovery_attempts || 0}</div>
+                                                    <small style="color: var(--text-secondary); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px;">Discovery Attempts</small>
+                                                    <div style="font-weight: 600; margin-top: 4px; font-size: 1rem;">${vault.vault_discovery_attempts || 0}</div>
                                                 </div>
                                                 <div>
-                                                    <small style="color: var(--text-secondary);">Vault Discovery Time</small>
-                                                    <div style="font-weight: 600; margin-top: 4px; font-size: 1.1rem;">${vault.vault_discovery_time_secs !== null && vault.vault_discovery_time_secs !== undefined ? formatVaultDiscoveryTime(vault.vault_discovery_time_secs) : 'N/A'}</div>
+                                                    <small style="color: var(--text-secondary); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px;">Discovery Time</small>
+                                                    <div style="font-weight: 600; margin-top: 4px; font-size: 1.1rem; color: var(--accent-cyan);">${vault.vault_discovery_time_secs !== null && vault.vault_discovery_time_secs !== undefined ? formatVaultDiscoveryTime(vault.vault_discovery_time_secs) : 'N/A'}</div>
                                                 </div>
                                             </div>
                                         </div>

@@ -62,7 +62,45 @@ def record_vault_discovery_result(
         cursor = conn.cursor()
         now = int(time.time())
 
-        # Update token_pool_accounts with discovery metadata
+        # First try: Update by mint + pool_address (most stable key)
+        if pool_address:
+            cursor.execute(
+                """
+                UPDATE token_pool_accounts
+                SET
+                    vault_discovery_strategy = ?,
+                    vault_discovery_attempts = ?,
+                    vault_discovery_time_secs = ?,
+                    vault_resolution_state = 'resolved',
+                    vault_resolved_at = ?,
+                    last_vault_validation_at = ?
+                WHERE
+                    mint = ?
+                    AND pool_address = ?
+                """,
+                (
+                    strategy,           # vault_discovery_strategy
+                    attempts,           # vault_discovery_attempts
+                    elapsed_secs,       # vault_discovery_time_secs
+                    now,                # vault_resolved_at
+                    now,                # last_vault_validation_at
+                    mint,               # WHERE mint
+                    pool_address,       # WHERE pool_address
+                ),
+            )
+            rows_affected = cursor.rowcount
+
+            if rows_affected > 0:
+                conn.commit()
+                conn.close()
+                logger.info(
+                    f"[VAULT_DISCOVERY_PERSIST] ✅ Recorded discovery result (by pool): "
+                    f"mint={mint[:16]}... pool={pool_address[:16]}... "
+                    f"strategy={strategy} attempts={attempts} elapsed={elapsed_secs:.1f}s"
+                )
+                return True
+
+        # Fallback: Update by mint + base_account
         cursor.execute(
             """
             UPDATE token_pool_accounts
@@ -94,7 +132,7 @@ def record_vault_discovery_result(
 
         if rows_affected > 0:
             logger.info(
-                f"[VAULT_DISCOVERY_PERSIST] ✅ Recorded discovery result: "
+                f"[VAULT_DISCOVERY_PERSIST] ✅ Recorded discovery result (by base): "
                 f"mint={mint[:16]}... base={base_account[:16]}... "
                 f"strategy={strategy} attempts={attempts} elapsed={elapsed_secs:.1f}s"
             )
@@ -102,8 +140,8 @@ def record_vault_discovery_result(
         else:
             logger.warning(
                 f"[VAULT_DISCOVERY_PERSIST] ⚠️  No rows updated: "
-                f"mint={mint[:16]}... base={base_account[:16]}... "
-                f"(account may not exist in database yet)"
+                f"mint={mint[:16]}... pool={pool_address[:16] if pool_address else 'null'}... "
+                f"base={base_account[:16]}... (row may not exist or already resolved)"
             )
             return False
 
@@ -115,7 +153,7 @@ def record_vault_discovery_result(
 
 
 def increment_vault_discovery_attempts(
-    db_path: str, mint: str, base_account: str
+    db_path: str, mint: str, base_account: str = None, pool_address: str = None
 ) -> bool:
     """
     Increment the vault_discovery_attempts counter for a token.
@@ -125,7 +163,8 @@ def increment_vault_discovery_attempts(
     Args:
         db_path: Path to the database
         mint: Token mint address
-        base_account: Base vault account
+        base_account: Optional base vault account
+        pool_address: Optional pool address
 
     Returns:
         True if successful, False otherwise
@@ -134,18 +173,51 @@ def increment_vault_discovery_attempts(
         conn = sqlite3.connect(db_path, timeout=10)
         cursor = conn.cursor()
 
+        # Try by pool_address first (more stable)
+        if pool_address:
+            cursor.execute(
+                """
+                UPDATE token_pool_accounts
+                SET vault_discovery_attempts = COALESCE(vault_discovery_attempts, 0) + 1
+                WHERE mint = ? AND pool_address = ?
+                """,
+                (mint, pool_address),
+            )
+            if cursor.rowcount > 0:
+                conn.commit()
+                conn.close()
+                return True
+
+        # Fallback to base_account
+        if base_account:
+            cursor.execute(
+                """
+                UPDATE token_pool_accounts
+                SET vault_discovery_attempts = COALESCE(vault_discovery_attempts, 0) + 1
+                WHERE mint = ? AND base_account = ?
+                """,
+                (mint, base_account),
+            )
+            if cursor.rowcount > 0:
+                conn.commit()
+                conn.close()
+                return True
+
+        # Last resort: just by mint (should only match one active row per mint)
         cursor.execute(
             """
             UPDATE token_pool_accounts
             SET vault_discovery_attempts = COALESCE(vault_discovery_attempts, 0) + 1
-            WHERE mint = ? AND base_account = ?
+            WHERE mint = ? AND is_active = 1
+            LIMIT 1
             """,
-            (mint, base_account),
+            (mint,),
         )
 
+        success = cursor.rowcount > 0
         conn.commit()
         conn.close()
-        return cursor.rowcount > 0
+        return success
 
     except Exception as e:
         logger.error(f"[VAULT_DISCOVERY_ATTEMPTS] ❌ Failed to increment attempts: {e}")

@@ -1501,8 +1501,9 @@ class PumpFunCurveListener:
     async def batch_validate_candidates(self, candidates: list) -> list:
         """
         Batch validate all candidates with single RPC call.
-        
+
         Returns list of valid pool addresses owned by PUMPSWAP program.
+        Filters out shared accounts (known PDAs used across many tokens).
         """
         if not candidates:
             return []
@@ -1513,7 +1514,7 @@ class PumpFunCurveListener:
                 [candidates, {"encoding": "base64"}],
                 timeout=10
             )
-            
+
             if not result or "result" not in result:
                 return []
 
@@ -1522,7 +1523,25 @@ class PumpFunCurveListener:
 
             valid = []
             for addr, acc in zip(candidates, values):
-                if acc and acc.get("owner") == PUMPSWAP_PROGRAM:
+                if not acc or acc.get("owner") != PUMPSWAP_PROGRAM:
+                    continue
+
+                # CRITICAL: Check if this is a known shared account before accepting
+                # Shared accounts (like ADyA) appear across many tokens and are PDAs, not real pools
+                try:
+                    from src.core.pool_discovery import PoolDiscovery
+                    db_path = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), '../../database/flex_complete_database.db'))
+                    pd = PoolDiscovery(db_path, "")
+
+                    is_shared = await pd._is_shared_account(addr, threshold=2)
+                    if is_shared:
+                        log_print(f"[BATCH_VALIDATE] 🚫 Rejecting {addr[:16]}... (shared account across many tokens)", flush=True)
+                        continue
+
+                    valid.append(addr)
+                except Exception as check_error:
+                    log_print(f"[BATCH_VALIDATE] ⚠️  Could not check if {addr[:16]} is shared: {check_error}", flush=True)
+                    # On error, accept conservatively (fail open, let pool_discovery reject later if needed)
                     valid.append(addr)
 
             return valid
@@ -1639,7 +1658,10 @@ class PumpFunCurveListener:
         - LP mint ❌
         - vault ❌
 
-        Scoring prioritizes: earliest appearance > frequency in inner instructions > index position
+        Scoring prioritizes:
+        1. Proximity to token mint + SOL mint (strongest signal)
+        2. Earliest appearance in accountKeys
+        3. Frequency in inner instructions
         """
         if not candidates:
             return None
@@ -1653,12 +1675,26 @@ class PumpFunCurveListener:
             meta = tx_data.get("meta", {})
             inner = meta.get("innerInstructions", [])
 
+            SOL_MINT = "So11111111111111111111111111111111111111112"
+
             # Build scores for each candidate (ensure all are strings)
             scores = {}
             for candidate in candidates:
                 # Ensure candidate is string
                 candidate_str = str(candidate) if not isinstance(candidate, str) else candidate
                 score = 0
+
+                # Score 0: Proximity to SOL mint (highest priority - strong signal of real pool)
+                # Real pools appear near their token mint and SOL in the account list
+                if SOL_MINT in account_keys:
+                    sol_index = account_keys.index(SOL_MINT)
+                    if candidate_str in account_keys:
+                        candidate_index = account_keys.index(candidate_str)
+                        # Distance: pools are usually within 5 slots of SOL
+                        distance = abs(candidate_index - sol_index)
+                        if distance <= 5:
+                            score += 20  # Strong bonus for proximity to SOL
+                            log_print(f"[SELECT_POOL] {candidate_str[:16]}... has SOL proximity bonus (distance={distance})", flush=True)
 
                 # Score 1: earliest appearance in accountKeys (priority 5)
                 if candidate_str in account_keys:

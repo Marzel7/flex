@@ -84,3 +84,53 @@
 [POOL_WS] 📨 Received message #2: {"jsonrpc":"2.0","method":"accountNotification","params":{"subscription":3422768,"result":{"context"...
 [SOL_PRICE] ✅ Fetched from CoinGecko: $91.50
 [POOL_WS] 📨 Received message #3: {"jsonrpc":"2.0","method":"accountNotification","params":{"subscription":3422767,"result":{"context"...
+[CAPABILITY_CHECK] Phase 2A networks_release: ENABLED
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774473744.0636559
+[SOL_PRICE] ✅ Fetched from Binance: $91.51
+[POOL_WS] 📥 Decoded 100 reserve updates (dedup: 0)
+[POOL_WS] 📨 Received message #101: {"jsonrpc":"2.0","method":"accountNotification","params":{"subscription":3422712,"result":{"context"...
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774473754.7826161
+[SOL_PRICE] ✅ Fetched from Binance: $91.51
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774473765.380805
+[POOL_WS] 📥 Decoded 200 reserve updates (dedup: 0)
+[POOL_WS] 📨 Received message #201: {"jsonrpc":"2.0","method":"accountNotification","params":{"subscription":3422767,"result":{"context"...
+[SOL_PRICE] ✅ Fetched from Binance: $91.51
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774473775.979218
+[SOL_PRICE] ✅ Fetched from Binance: $91.51
+[POOL_WS] 📥 Decoded 300 reserve updates (dedup: 0)
+[POOL_WS] 📨 Received message #301: {"jsonrpc":"2.0","method":"accountNotification","params":{"subscription":3422767,"result":{"context"...
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774473786.5601962
+[SOL_PRICE] ✅ Fetched from Binance: $91.51
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774473797.149896
+[SOL_PRICE] ✅ Fetched from Binance: $91.50
+[RPC_METRICS] record_request source_file=pool_price_engine method=getMultipleAccounts credits=1 cache_action=none ts=1774473797.706051
+[SOL_PRICE] ✅ Fetched from Binance: $91.50
+[POOL_WS] 📥 Decoded 400 reserve updates (dedup: 0)
+[POOL_WS] 📨 Received message #401: {"jsonrpc":"2.0","method":"accountNotification","params":{"subscription":3422712,"result":{"context"...
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774473808.453263
+[SOL_PRICE] ✅ Fetched from CoinGecko: $91.50
+[POOL_WS] 📥 Decoded 500 reserve updates (dedup: 0)
+[POOL_WS] 📨 Received message #501: {"jsonrpc":"2.0","method":"accountNotification","params":{"subscription":3422768,"result":{"context"...
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774473818.783747
+[SOL_PRICE] ✅ Fetched from Binance: $91.50
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774473829.375155
+[SOL_PRICE] ✅ Fetched from Binance: $91.50
+[POOL_WS] 📥 Decoded 600 reserve updates (dedup: 0)
+[POOL_WS] 📨 Received message #601: {"jsonrpc":"2.0","method":"accountNotification","params":{"subscription":3422767,"result":{"context"...
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774473839.950388
+[SOL_PRICE] ✅ Fetched from Binance: $91.49
+[PRICE_WORKER] CYCLE LOOP ENTERED
+[PRICE_WORKER] cycle at 1774473850.633761
+[POOL_WS] 📥 Decoded 700 reserve updates (dedup: 0)
+[POOL_WS] 📨 Received message #701: {"jsonrpc":"2.0","method":"accountNotification","params":{"subscription":3422768,"result":{"context"...
+[SOL_PRICE] ✅ Fetched from Binance: $91.49

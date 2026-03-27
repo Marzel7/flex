@@ -3001,6 +3001,9 @@ class PumpFunCurveListener:
                             elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
                             log_print(f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (in {elapsed:.1f}s){Colors.RESET}", flush=True)
 
+                            # Persist discovery metadata
+                            await self._write_resolution_telemetry(mint, "rpc_discovery", pool_address, 0)
+
                             # Trigger WebSocket refresh to subscribe to new pool
                             if self.price_worker:
                                 log_print(f"[POOL] Triggering price worker WebSocket refresh for {mint[:16]}...", flush=True)

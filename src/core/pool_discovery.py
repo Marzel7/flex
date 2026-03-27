@@ -232,10 +232,15 @@ class PoolDiscovery:
                 pool_data, pool_address, token_mint
             )
 
-        # PumpSwap: Use authority-scan instead of fixed-offset extraction
-        # The old Raydium-style extraction produced wrong vaults for new launches
-        # Authority-scan works regardless of struct layout changes
+        # PumpSwap: Primary: extract vault addresses directly from pool struct bytes
+        # Fallback: query by ownership if struct extraction fails
         if owner == PUMPSWAP_PROGRAM:
+            # Try struct-based extraction first (faster, more reliable)
+            result = await self._extract_pumpswap_from_struct(pool_data, pool_address, token_mint)
+            if result:
+                return result
+            # Fallback: query by ownership (works if struct read fails)
+            logger.info(f"[POOL_EXTRACT] Struct extraction failed, falling back to ownership scan")
             return await self._extract_vaults_by_mint(pool_address, token_mint)
 
         # PumpFun V1 (different structure, may use Raydium-like layout at different offsets)
@@ -418,6 +423,111 @@ class PoolDiscovery:
 
         except Exception as e:
             logger.error(f"[POOL_EXTRACT_ERROR] pool={pool_address[:16]}... error={str(e)}")
+            return None
+
+    async def _extract_pumpswap_from_struct(
+        self, pool_data: Dict, pool_address: str, token_mint: str
+    ) -> Optional[Dict]:
+        """
+        Extract PumpSwap vault addresses directly from pool struct bytes.
+
+        PumpSwap pool layout (301 bytes):
+          [0:8]     discriminator
+          [8:40]    pool_authority  (usually same as pool_address for SPL authority)
+          [40:72]   token_0_mint
+          [72:104]  token_1_mint
+          [104:136] lp_mint
+          [139:171] base_vault (Token-2022 account)
+          [171:203] quote_vault (SPL Token account)
+
+        Confirmed offsets with pools: GcpyrpRqx9, 95GFe6r7, DjsMacDDm
+        """
+        try:
+            raw = pool_data.get("data")
+            if not raw:
+                return None
+            if isinstance(raw, list):
+                data = b64decode(raw[0])
+            else:
+                data = b64decode(raw)
+
+            if len(data) < 203:
+                logger.debug(f"[STRUCT_EXTRACT] Pool data too short ({len(data)} bytes), expected 301")
+                return None
+
+            base_vault_addr  = self._bytes_to_pubkey(data[139:171])
+            quote_vault_addr = self._bytes_to_pubkey(data[171:203])
+
+            if not base_vault_addr or not quote_vault_addr:
+                logger.debug(f"[STRUCT_EXTRACT] Could not decode vault pubkeys from struct")
+                return None
+
+            if base_vault_addr == quote_vault_addr:
+                logger.warning(f"[STRUCT_EXTRACT] base == quote ({base_vault_addr[:16]}), rejecting")
+                return None
+
+            # Verify base vault holds the right token mint
+            base_info = await self._fetch_account(base_vault_addr)
+            if not base_info:
+                logger.debug(f"[STRUCT_EXTRACT] base vault {base_vault_addr[:16]} not found on-chain")
+                return None
+
+            # Parse base vault mint from raw SPL/Token-2022 account bytes
+            base_raw = base_info.get("data")
+            if isinstance(base_raw, list):
+                base_bytes = b64decode(base_raw[0])
+            else:
+                base_bytes = b64decode(base_raw) if base_raw else b""
+
+            if len(base_bytes) < 32:
+                return None
+
+            base_mint = self._bytes_to_pubkey(base_bytes[0:32])
+            if base_mint != token_mint:
+                # Try flipping: maybe quote vault is the token vault
+                quote_info = await self._fetch_account(quote_vault_addr)
+                if quote_info:
+                    qraw = quote_info.get("data")
+                    qbytes = b64decode(qraw[0] if isinstance(qraw, list) else qraw)
+                    if len(qbytes) >= 32:
+                        quote_mint_check = self._bytes_to_pubkey(qbytes[0:32])
+                        if quote_mint_check == token_mint:
+                            # Swap base and quote
+                            base_vault_addr, quote_vault_addr = quote_vault_addr, base_vault_addr
+                            base_mint = quote_mint_check
+                        else:
+                            logger.debug(
+                                f"[STRUCT_EXTRACT] Neither vault holds token {token_mint[:16]}: "
+                                f"base_mint={base_mint[:16] if base_mint else 'null'}"
+                            )
+                            return None
+
+            # Get quote vault mint
+            quote_info = await self._fetch_account(quote_vault_addr)
+            if not quote_info:
+                return None
+            qraw = quote_info.get("data")
+            qbytes = b64decode(qraw[0] if isinstance(qraw, list) else qraw)
+            quote_mint = self._bytes_to_pubkey(qbytes[0:32]) if len(qbytes) >= 32 else SOL_MINT
+
+            logger.info(
+                f"[STRUCT_EXTRACT] ✅ pool={pool_address[:16]} "
+                f"base={base_vault_addr[:16]} quote={quote_vault_addr[:16]}"
+            )
+
+            return {
+                "base_account":   base_vault_addr,
+                "quote_account":  quote_vault_addr,
+                "base_token":     base_mint,
+                "quote_token":    quote_mint or SOL_MINT,
+                "base_decimals":  6,
+                "quote_decimals": 9,
+                "pool_program":   PUMPSWAP_PROGRAM,
+                "authority_account": pool_address,
+            }
+
+        except Exception as e:
+            logger.debug(f"[STRUCT_EXTRACT] Error: {e}")
             return None
 
     async def _extract_raydium_amm(
@@ -841,8 +951,9 @@ class PoolDiscovery:
                 (mint, base_account, quote_account, base_token, quote_token,
                  base_decimals, quote_decimals, pool_program, pool_address, is_active,
                  vault_validation_status, vault_validation_error, vault_validation_attempts,
-                 last_vault_validation_at, discovery_method, pool_score, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 last_vault_validation_at, discovery_method, pool_score, created_at, updated_at,
+                 authority_account)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
                 (
                     token_mint,
@@ -863,6 +974,7 @@ class PoolDiscovery:
                     pool_score,
                     int(__import__("time").time()),  # created_at
                     int(__import__("time").time()),  # updated_at
+                    reserves.get("authority_account"),
                 ),
             )
 

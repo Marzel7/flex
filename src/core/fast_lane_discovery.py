@@ -262,29 +262,31 @@ class FastLaneDiscovery:
                     self._log_fl(f"[FAST_LANE] Early exit: valid candidate found for {mint[:16]}")
                     return self.select_best_pool(valid_candidates, tx_data)
 
-                # 🔥 CRITICAL: Always attempt retry with top candidates by confidence
-                # Don't wait for timers - aggressive retry on EVERY iteration
-                pending = self.pending_candidates.pending.get(mint, {})
-                if pending:
-                    sorted_candidates = sorted(
-                        pending.values(),
-                        key=lambda c: (-c.confidence_score, c.retry_count)
-                    )
-                    retry_candidates = [
-                        c.address
-                        for c in sorted_candidates
-                        if not c.is_permanent_reject and not c.validation_passed
-                    ][:2]
+                # Get candidates ready to retry
+                retry_candidates = self.pending_candidates.get_ready_for_retry(mint)
+                use_fallback_retry = False
 
-                    use_fallback_retry = True
-                else:
-                    retry_candidates = self.pending_candidates.get_ready_for_retry(mint)
-                    use_fallback_retry = False
+                # 🔥 CRITICAL FIX: break retry starvation
+                if not retry_candidates:
+                    pending = self.pending_candidates.pending.get(mint, {})
 
-                if retry_candidates:
-                    self._log_fl(
-                        f"[FAST_LANE] 🔄 Retry: {len(retry_candidates)} candidates (attempt {attempt})"
-                    )
+                    if pending:
+                        sorted_candidates = sorted(
+                            pending.values(),
+                            key=lambda c: (-c.confidence_score, c.retry_count)
+                        )
+
+                        retry_candidates = [
+                            c.address
+                            for c in sorted_candidates
+                            if not c.is_permanent_reject and not c.validation_passed
+                        ][:2]
+
+                        if retry_candidates:
+                            use_fallback_retry = True
+                            self._log_fl(
+                                f"[FAST_LANE] 🔥 Forced retry fallback: {len(retry_candidates)} candidates"
+                            )
 
                 if not retry_candidates:
                     # No candidates to retry at all

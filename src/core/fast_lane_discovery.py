@@ -184,21 +184,46 @@ class FastLaneDiscovery:
                     self._save_valid_and_cleanup(mint, [top_candidate], top_candidate)
                     return top_candidate
 
-            # Step 2: Validate all candidates directly (skip visibility probe to save RPC time)
-            valid, rejections = await self.batch_validate_candidates_with_reasons(candidates, strict_mode=True)
+            # Step 2: Validate top-4 first; widen to remaining only if top-4 all fail.
+            # Avoids one large RPC call for 17 candidates when the winner is typically
+            # in the first few highest-scored addresses.
+            hot_candidates  = [addr for addr, _ in scored[:2]]
+            cold_candidates = [addr for addr, _ in scored[2:]]
 
-            if valid:
-                # Found valid candidates immediately
+            valid_rich, rejections = await self.batch_validate_candidates_with_reasons(
+                hot_candidates, strict_mode=True
+            )
+
+            if not valid_rich and cold_candidates:
+                self._log_fl(
+                    f"[FAST_LANE] Top-2 failed, widening to {len(cold_candidates)} remaining candidates"
+                )
+                valid2, rejections2 = await self.batch_validate_candidates_with_reasons(
+                    cold_candidates, strict_mode=True
+                )
+                valid_rich = valid2
+                rejections.update(rejections2)
+
+            if valid_rich:
+                # Normalise: valid_rich may be dicts (rich) or plain strings (legacy callers)
+                valid_addrs = [
+                    v["address"] if isinstance(v, dict) else v for v in valid_rich
+                ]
                 elapsed = time.time() - start_time
                 self._log_fl(
-                    f"[FAST_LANE] ✅ Found {len(valid)} valid candidates immediately "
+                    f"[FAST_LANE] ✅ Found {len(valid_addrs)} valid candidates immediately "
                     f"for {mint[:16]} in {elapsed:.2f}s"
                 )
-                for addr in valid:
+                for addr in valid_addrs:
                     self.pending_candidates.record_valid(mint, addr)
-                best = self.select_best_pool(valid, tx_data)
-                self._save_valid_and_cleanup(mint, valid, best)
-                return best
+                best = self.select_best_pool(valid_addrs, tx_data)
+                self._save_valid_and_cleanup(mint, valid_addrs, best)
+                # Return rich object for the winner if available so caller can skip re-fetch
+                best_rich = next(
+                    (v for v in valid_rich if (v["address"] if isinstance(v, dict) else v) == best),
+                    best,
+                )
+                return best_rich
 
             # Step 3: Classify rejections into permanent vs transient
             # Transient: account_not_found (pool not yet indexed/visible)
@@ -287,10 +312,11 @@ class FastLaneDiscovery:
                         if visible:
                             # OWNER GATE: visible accounts must also pass strict validation
                             # (existence alone is not enough — Tokenz... accounts are visible but wrong owner)
-                            valid, _ = await self.batch_validate_candidates_with_reasons(
+                            valid_r, _ = await self.batch_validate_candidates_with_reasons(
                                 visible, strict_mode=True
                             )
-                            if valid:
+                            if valid_r:
+                                valid = [v["address"] if isinstance(v, dict) else v for v in valid_r]
                                 best = self.select_best_pool(valid, tx_data)
                                 elapsed = time.time() - start_time
                                 self._log_fl(
@@ -369,11 +395,12 @@ class FastLaneDiscovery:
                 )
 
                 # Validate candidates directly (no visibility probe)
-                valid, rejections_retry = await self.batch_validate_candidates_with_reasons(
+                valid_r, rejections_retry = await self.batch_validate_candidates_with_reasons(
                     retry_candidates, strict_mode=True
                 )
 
-                if valid:
+                if valid_r:
+                    valid = [v["address"] if isinstance(v, dict) else v for v in valid_r]
                     elapsed = time.time() - start_time
                     self._log_fl(
                         f"[FAST_LANE] ✅ Found {len(valid)} valid candidates for {mint[:16]} "
@@ -401,8 +428,9 @@ class FastLaneDiscovery:
                 f"trying loose validation"
             )
 
-            valid, _ = await self.batch_validate_candidates_with_reasons(candidates, strict_mode=False)
-            if valid:
+            valid_r, _ = await self.batch_validate_candidates_with_reasons(candidates, strict_mode=False)
+            if valid_r:
+                valid = [v["address"] if isinstance(v, dict) else v for v in valid_r]
                 elapsed = time.time() - start_time
                 self._log_fl(
                     f"[FAST_LANE] ✅ Found {len(valid)} candidates in loose mode "

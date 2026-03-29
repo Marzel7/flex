@@ -458,6 +458,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
         self._primary_attempted_by_mint = {}            # {mint: timestamp}
         # Candidates that failed registration (timeout or validation) — never retry these
         self._failed_registration: dict = {}            # {mint: set(addr)}
+        # Account info fetched during batch validation — reused in registration to skip re-fetch
+        self._validated_account_cache: dict = {}        # {addr: account_info}
 
     def _log_fl(self, msg: str):
         """Override fast-lane logging to use log_print for consistent output."""
@@ -1655,9 +1657,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     valid.append(addr)
                     continue
 
-                # All checks passed
+                # All checks passed — return rich object so registration skips re-fetch
                 log_print(f"[CANDIDATE_ACCEPTED] addr={addr_short}... passed all validation checks", flush=True)
-                valid.append(addr)
+                valid.append({"address": addr, "account_info": acc, "owner": owner})
+                self._validated_account_cache[addr] = acc
 
             log_print(f"[BATCH_VALIDATE_REASONS] Result: {len(valid)} valid, {len(rejections)} rejected from {len(candidates)} input", flush=True)
             return valid, rejections
@@ -2898,6 +2901,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         pool_address: str,
         discovery_source: str = "tx_parsing",
         timeout: float = 8.0,
+        pool_account_info=None,
     ) -> RegisterResult:
         """
         Register a pool and mark token as resolved.
@@ -2907,9 +2911,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
             RETRY   — not yet visible on-chain; caller should wait briefly and re-attempt
             FAIL    — permanent failure (wrong owner, extraction error); add to blacklist
         """
+        # Priority: explicit pool_account_info arg > cache from batch validation > RPC fetch
+        cached_account_info = (
+            pool_account_info
+            or self._validated_account_cache.pop(pool_address, None)
+        )
         try:
             result = await asyncio.wait_for(
-                self._register_pool_inner(mint, pool_address, discovery_source),
+                self._register_pool_inner(mint, pool_address, discovery_source, cached_account_info),
                 timeout=timeout,
             )
             if result == RegisterResult.FAIL:
@@ -2940,21 +2949,33 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # excludes it from get_ready_for_retry, forced fallback, and soft accept.
         self.pending_candidates.record_rejection(mint, addr, "registration_failed")
 
-    async def _register_pool_inner(self, mint: str, pool_address: str, discovery_source: str) -> RegisterResult:
+    async def _register_pool_inner(
+        self,
+        mint: str,
+        pool_address: str,
+        discovery_source: str,
+        cached_account_info=None,
+    ) -> RegisterResult:
         """Inner registration logic — called via _register_pool_and_mark_resolved with a timeout."""
         try:
             from src.core.pool_discovery import PoolDiscovery
             from src.core.pool_detector import AMMPrograms
 
-            # Quick ownership validation (reconfirm it's a pool)
-            acct = await self.call_discovery_rpc(
-                "getAccountInfo",
-                [pool_address, {"encoding": "base64", "commitment": "processed"}],
-                timeout=5
-            )
-
-            result = (acct or {}).get("result") or {}
-            value = result.get("value")
+            # Reuse account info from batch validation when available (saves one RPC round-trip)
+            if cached_account_info is not None:
+                value = cached_account_info
+                log_print(
+                    f"[FAST_PATH_REGISTER] ♻️  Reusing cached account info for {pool_address[:16]}...",
+                    flush=True
+                )
+            else:
+                acct = await self.call_discovery_rpc(
+                    "getAccountInfo",
+                    [pool_address, {"encoding": "base64", "commitment": "processed"}],
+                    timeout=5
+                )
+                result = (acct or {}).get("result") or {}
+                value = result.get("value")
 
             if not value:
                 # Pool not yet indexed at processed commitment — transient, safe to retry
@@ -2993,17 +3014,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
             # Persist telemetry (retry_count=0 for primary fast-lane path)
             await self._write_resolution_telemetry(mint, discovery_source, pool_address, 0)
 
-            # HYDRATION GUARD: Wait for pool data to be ready before triggering price extraction
-            # Signal-based: poll until pool_address has real reserves, max 5 attempts (1.0s total)
-            pool_ready = False
-            for attempt in range(5):
-                if self.price_worker and self.price_worker.has_pool_data(pool_address):
-                    pool_ready = True
-                    break
-                await asyncio.sleep(0.2)
-
-            if not pool_ready:
-                log_print(f"[FAST_PATH_REGISTER] ⚠️  Pool {pool_address[:16]}... reserves not ready after 1.0s (continuing anyway)", flush=True)
+            # Non-blocking reserve check — warmup is async, no reason to block the critical path
+            if self.price_worker and self.price_worker.has_pool_data(pool_address):
+                log_print(f"[FAST_PATH_REGISTER] ✅ Pool {pool_address[:16]}... reserves ready", flush=True)
+            else:
+                log_print(f"[FAST_PATH_REGISTER] ℹ️  Pool {pool_address[:16]}... reserves not ready yet (async warmup)", flush=True)
 
             # Trigger WebSocket refresh (pool data should now be ready for price extraction)
             if self.price_worker:
@@ -3122,10 +3137,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 # CRITICAL: Enrich tx_data before fast-lane (reconstruct meta.accounts from accountKeys + loadedAddresses)
                 tx_data = await self._enrich_tx_data(tx_data)
 
-                # READINESS: Minimal delay before fast-lane (improved retry logic handles hydration)
-                # Fresh pools take 100-300ms to index; fast-lane retry handles this
-                await asyncio.sleep(0.4)
-
                 log_print(
                     f"{Colors.DISCOVER}[FAST_LANE_PRIMARY] 🚀 Starting fast-lane discovery (PRIMARY PATH) for {mint[:16]}...{Colors.RESET}",
                     flush=True
@@ -3145,6 +3156,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         first_valid_pool_at = time.time()
                         self.token_discovery_times[mint]["first_valid_pool_at"] = first_valid_pool_at
 
+                        # Unwrap rich object returned by fast-lane (dict with address + cached account info)
+                        if isinstance(pool, dict):
+                            pool_addr = pool["address"]
+                            winner_account_info = pool.get("account_info")
+                        else:
+                            pool_addr = pool
+                            winner_account_info = None
+                        pool = pool_addr  # normalise to string for the rest of this block
+
                         # pop_valid_candidates returns all valid candidates from the fast-lane run
                         # (best first), then falls back to [pool] if somehow empty.
                         # Try each in order until one registers successfully — never fall back to
@@ -3160,18 +3180,40 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
                         registered = False
 
+                        # Single-candidate fast path: no parallel overhead needed
+                        if len(ranked) == 1:
+                            res = await self._register_pool_and_mark_resolved(
+                                mint, ranked[0], "tx_parsing", timeout=8.0,
+                                pool_account_info=winner_account_info if ranked[0] == pool else None,
+                            )
+                            if res == RegisterResult.SUCCESS:
+                                registered = True
+                            elif res == RegisterResult.RETRY:
+                                retry_pending = [ranked[0]]
+                                for _a in range(3):
+                                    await asyncio.sleep(0.2)
+                                    res = await self._register_pool_and_mark_resolved(
+                                        mint, ranked[0], "tx_parsing", timeout=8.0
+                                    )
+                                    if res == RegisterResult.SUCCESS:
+                                        registered = True
+                                        break
+
                         # PARALLEL REGISTRATION: race top 2 candidates simultaneously.
                         # First SUCCESS wins and cancels the other.
                         # RETRY results are collected for a brief local re-attempt window.
                         # FAIL results are permanently blacklisted.
-                        if len(ranked) >= 2:
+                        elif len(ranked) >= 2:
                             top2 = ranked[:2]
                             self._log_fl(
                                 f"[FAST_LANE_PRIMARY] ⚡ Parallel registration: {top2[0][:16]}... vs {top2[1][:16]}..."
                             )
                             tasks = {
                                 asyncio.ensure_future(
-                                    self._register_pool_and_mark_resolved(mint, c, "tx_parsing", timeout=8.0)
+                                    self._register_pool_and_mark_resolved(
+                                        mint, c, "tx_parsing", timeout=8.0,
+                                        pool_account_info=winner_account_info if c == pool else None,
+                                    )
                                 ): c
                                 for c in top2
                             }
@@ -3204,19 +3246,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                         break
                                     elif res == RegisterResult.RETRY:
                                         retry_pending.append(candidate)
-                        else:
-                            # Single candidate — register directly
-                            res = await self._register_pool_and_mark_resolved(
-                                mint, ranked[0], "tx_parsing", timeout=8.0
-                            )
-                            if res == RegisterResult.SUCCESS:
-                                registered = True
-                                pool = ranked[0]
-                            elif res == RegisterResult.RETRY:
-                                retry_pending = [ranked[0]]
-                            else:
-                                retry_pending = []
-
                         # VISIBILITY MICRO-RETRY: candidates that returned RETRY were not yet
                         # indexed at processed commitment. They are almost certainly valid —
                         # wait briefly and re-attempt rather than falling to inline retry / secondary.

@@ -33,10 +33,40 @@ class FastLaneDiscovery:
         super().__init__(*args, **kwargs)
         self.pending_candidates = PendingCandidateShortlist(max_retries=5)
         self.discovery_start_times: Dict[str, float] = {}
+        # Stores all valid candidates from the most recent fast-lane run per mint.
+        # Written just before cleanup so the caller can try each one for registration.
+        self._last_valid_candidates: Dict[str, List[str]] = {}
 
     def _log_fl(self, msg: str):
         """Log fast-lane message. Override by subclass for custom logging."""
         logger.info(msg)
+
+    def _filter_failed(self, mint: str, candidates: List[str]) -> List[str]:
+        """
+        Remove candidates that previously failed registration.
+        Base implementation is a no-op; subclass overrides to apply _failed_registration.
+        """
+        return candidates
+
+    def _save_valid_and_cleanup(self, mint: str, valid: List[str], best: str) -> None:
+        """
+        Save the full valid candidate list before cleanup so the caller can try
+        all candidates for registration, not just the best pick.
+        Ordered: best first, then remaining by their shortlist confidence score.
+        """
+        shortlist = self.pending_candidates.pending.get(mint, {})
+
+        def _score(addr: str) -> float:
+            entry = shortlist.get(addr)
+            return entry.confidence_score if entry else 0.0
+
+        rest = sorted([a for a in valid if a != best], key=_score, reverse=True)
+        self._last_valid_candidates[mint] = [best] + rest
+        self.pending_candidates.cleanup_mint(mint)
+
+    def pop_valid_candidates(self, mint: str) -> List[str]:
+        """Return (and clear) the saved valid candidate list for a mint."""
+        return self._last_valid_candidates.pop(mint, [])
 
     async def _probe_candidate_visibility(self, candidates: List[str]) -> List[str]:
         """
@@ -56,9 +86,10 @@ class FastLaneDiscovery:
 
         try:
             # Cheap multi-account fetch with short timeout
+            # processed commitment: ~100-300ms visibility vs 5-20s for finalized
             result = await self.call_discovery_rpc(
                 "getMultipleAccounts",
-                [candidates, {"encoding": "base64"}],
+                [candidates, {"encoding": "base64", "commitment": "processed"}],
                 timeout=5.0,
             )
             values = (result or {}).get("result", {}).get("value", []) if result else []
@@ -81,7 +112,7 @@ class FastLaneDiscovery:
         self,
         mint: str,
         tx_data: Dict,
-        max_wait_secs: float = 4.0,
+        max_wait_secs: float = 8.0,  # RPC visibility lag can exceed 5-10s for slower-indexing migrations
     ) -> Optional[str]:
         """
         Fast-lane pool resolution with optimized retry logic.
@@ -96,7 +127,7 @@ class FastLaneDiscovery:
         Args:
             mint: Token mint address
             tx_data: Transaction data dict
-            max_wait_secs: Maximum total time to spend retrying (default 10s)
+            max_wait_secs: Maximum total time to spend retrying (default 8s)
 
         Returns:
             Valid pool address or None if discovery fails
@@ -119,6 +150,8 @@ class FastLaneDiscovery:
                 c for c in candidates
                 if isinstance(c, str) and len(c) >= 32 and not c.startswith("111")
             ]
+            # Strip candidates that already failed registration — never retry them
+            candidates = self._filter_failed(mint, candidates)
 
             if not candidates:
                 self._log_fl(f"[FAST_LANE] All candidates filtered out for {mint[:16]}")
@@ -148,7 +181,7 @@ class FastLaneDiscovery:
                         f"(score={top_score:.0f}) in {elapsed:.2f}s"
                     )
                     self.pending_candidates.record_valid(mint, top_candidate)
-                    self.pending_candidates.cleanup_mint(mint)
+                    self._save_valid_and_cleanup(mint, [top_candidate], top_candidate)
                     return top_candidate
 
             # Step 2: Validate all candidates directly (skip visibility probe to save RPC time)
@@ -163,8 +196,9 @@ class FastLaneDiscovery:
                 )
                 for addr in valid:
                     self.pending_candidates.record_valid(mint, addr)
-                self.pending_candidates.cleanup_mint(mint)
-                return self.select_best_pool(valid, tx_data)
+                best = self.select_best_pool(valid, tx_data)
+                self._save_valid_and_cleanup(mint, valid, best)
+                return best
 
             # Step 3: Classify rejections into permanent vs transient
             # Transient: account_not_found (pool not yet indexed/visible)
@@ -224,18 +258,49 @@ class FastLaneDiscovery:
                 attempt += 1
                 elapsed = time.time() - start_time
 
-                # ⚡ SOFT ACCEPT FALLBACK: After 3 attempts, accept top scored candidate
-                # This is aggressive but necessary to break out of validation loops
-                if attempt >= 3 and scored:
-                    best = scored[0][0]
-                    elapsed = time.time() - start_time
-                    self._log_fl(
-                        f"[FAST_LANE] ⚡ Soft accept fallback → {best[:16]}... "
-                        f"(score={scored[0][1]:.0f}) after {attempt} attempts in {elapsed:.2f}s"
-                    )
-                    self.pending_candidates.record_valid(mint, best)
-                    self.pending_candidates.cleanup_mint(mint)
-                    return best
+                # ⚡ VISIBLE SOFT ACCEPT: After 3 attempts, only accept candidates that RPC can see
+                # Requires retry_count >= 1 AND on-chain visibility confirmed via probe.
+                # Prevents returning account_not_found candidates that crash registration.
+                if attempt >= 3:
+                    pending = self.pending_candidates.pending.get(mint, {})
+                    soft_candidates = [
+                        c for c in pending.values()
+                        if not c.is_permanent_reject
+                        and not c.validation_passed
+                        and c.retry_count >= 1
+                    ]
+                    soft_candidates.sort(key=lambda c: (-c.confidence_score, c.retry_count))
+
+                    if soft_candidates:
+                        candidate_addresses = self._filter_failed(
+                            mint, [c.address for c in soft_candidates[:3]]
+                        )
+                        if not candidate_addresses:
+                            soft_candidates = []  # all failed — skip soft accept this iteration
+
+                    if soft_candidates:
+                        candidate_addresses = candidate_addresses  # already filtered above
+
+                        # VISIBILITY GATE: account must exist on-chain
+                        visible = await self._probe_candidate_visibility(candidate_addresses)
+
+                        if visible:
+                            # OWNER GATE: visible accounts must also pass strict validation
+                            # (existence alone is not enough — Tokenz... accounts are visible but wrong owner)
+                            valid, _ = await self.batch_validate_candidates_with_reasons(
+                                visible, strict_mode=True
+                            )
+                            if valid:
+                                best = self.select_best_pool(valid, tx_data)
+                                elapsed = time.time() - start_time
+                                self._log_fl(
+                                    f"[FAST_LANE] ⚡ Visible soft accept → {best[:16]}... "
+                                    f"after {attempt} attempts in {elapsed:.2f}s"
+                                )
+                                for addr in valid:
+                                    self.pending_candidates.record_valid(mint, addr)
+                                self._save_valid_and_cleanup(mint, valid, best)
+                                return best
 
                 # ⚡ SOFT VALIDATION: If top candidate has high confidence and proven stable, accept it
                 if self.pending_candidates.pending.get(mint):
@@ -253,7 +318,7 @@ class FastLaneDiscovery:
                                 f"in {elapsed:.2f}s"
                             )
                             self.pending_candidates.record_valid(mint, top_candidate.address)
-                            self.pending_candidates.cleanup_mint(mint)
+                            self._save_valid_and_cleanup(mint, [top_candidate.address], top_candidate.address)
                             return top_candidate.address
 
                 # EARLY EXIT: Check if valid candidate was found elsewhere (critical window resolution)
@@ -263,7 +328,9 @@ class FastLaneDiscovery:
                     return self.select_best_pool(valid_candidates, tx_data)
 
                 # Get candidates ready to retry
-                retry_candidates = self.pending_candidates.get_ready_for_retry(mint)
+                retry_candidates = self._filter_failed(
+                    mint, self.pending_candidates.get_ready_for_retry(mint)
+                )
                 use_fallback_retry = False
 
                 # 🔥 CRITICAL FIX: break retry starvation
@@ -276,11 +343,11 @@ class FastLaneDiscovery:
                             key=lambda c: (-c.confidence_score, c.retry_count)
                         )
 
-                        retry_candidates = [
+                        retry_candidates = self._filter_failed(mint, [
                             c.address
                             for c in sorted_candidates
                             if not c.is_permanent_reject and not c.validation_passed
-                        ][:2]
+                        ][:2])
 
                         if retry_candidates:
                             use_fallback_retry = True
@@ -314,8 +381,9 @@ class FastLaneDiscovery:
                     )
                     for addr in valid:
                         self.pending_candidates.record_valid(mint, addr)
-                    self.pending_candidates.cleanup_mint(mint)
-                    return self.select_best_pool(valid, tx_data)
+                    best = self.select_best_pool(valid, tx_data)
+                    self._save_valid_and_cleanup(mint, valid, best)
+                    return best
 
                 # Record rejections ONLY if not using fallback retry
                 # (fallback retries happen too soon; don't update retry timers)
@@ -342,8 +410,9 @@ class FastLaneDiscovery:
                 )
                 for addr in valid:
                     self.pending_candidates.record_valid(mint, addr)
-                self.pending_candidates.cleanup_mint(mint)
-                return self.select_best_pool(valid, tx_data)
+                best = self.select_best_pool(valid, tx_data)
+                self._save_valid_and_cleanup(mint, valid, best)
+                return best
 
             # Complete failure
             elapsed = time.time() - start_time

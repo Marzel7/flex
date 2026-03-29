@@ -30,6 +30,7 @@ PERMANENT_REJECTS = {
     "invalid_shape",
     "executable_account",
     "token_mint_itself",
+    "registration_failed",  # Registration attempt failed or timed out — never retry
 }
 
 TRANSIENT_REJECTS = {
@@ -134,8 +135,9 @@ class PendingCandidateShortlist:
         if reason in PERMANENT_REJECTS:
             candidate.mark_permanent_reject(reason)
         elif reason in TRANSIENT_REJECTS:
-            # Retry delays: 0.1s, 0.2s, 0.4s, 0.8s (ultra-aggressive cadence)
-            retry_delays = [0.1, 0.2, 0.4, 0.8]
+            # Distributed across real RPC visibility lag window (pools can take 5-10s to index).
+            # Early retries are fast; later retries cover slower-indexing migrations.
+            retry_delays = [0.1, 0.3, 0.7, 1.5, 2.5, 4.0]
             delay = (
                 retry_delays[min(candidate.retry_count, len(retry_delays) - 1)]
             )
@@ -231,12 +233,12 @@ def score_candidate(
 
     Returns a score from 0-100 (higher = more likely to be the real pool).
 
-    Scoring factors:
+    Scoring factors (pre-validation structural signals only):
     - Near token mint in account keys (+30)
     - Near SOL mint in account keys (+20)
-    - Valid pool program owner (+15)
     - In same instruction as token mint (+20)
-    - Appears in migration instruction cluster (+15)
+
+    Note: no owner bonus — ownership is not known until after RPC validation.
 
     Penalties:
     - System program account (-100)
@@ -317,9 +319,6 @@ def score_candidate(
                 if address in instr_accounts and token_mint in instr_accounts:
                     score += 20
                     break
-
-    # Base bonus for valid pool program ownership (verified separately)
-    score += 15
 
     return max(0, min(100, score))  # Clamp to 0-100
 

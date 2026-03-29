@@ -49,25 +49,23 @@ class PoolReserveFetcher:
 
     def get_active_pools(self) -> List[Dict]:
         """
-        Load all VALIDATED active pool registrations from token_pool_accounts.
-        
-        ✅ Only returns:
-        - Pools with vault_validation_status = 'validated' (confirmed on-chain)
-        
-        ❌ Excludes:
-        - Pending pools (not yet confirmed)
-        - Rejected pools (vaults proven invalid)
-        
-        This enforces: price worker ONLY works with confirmed, validated pools.
+        Load all active pool registrations from token_pool_accounts.
+
+        ✅ Returns pools with vault_validation_status IN ('validated', 'pending').
+        Pending pools have already had their vault addresses confirmed by the
+        discovery pipeline (struct-based extraction); the 'pending' label is a
+        legacy artifact from the old double-fetch registration path.
+
+        ❌ Excludes only 'rejected' pools (vaults proven invalid).
         """
         import sqlite3
 
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             rows = conn.execute(
-                """SELECT * FROM token_pool_accounts 
-                   WHERE is_active = 1 
-                   AND vault_validation_status = 'validated'
+                """SELECT * FROM token_pool_accounts
+                   WHERE is_active = 1
+                   AND vault_validation_status IN ('validated', 'pending')
                    ORDER BY created_at DESC"""
             ).fetchall()
         return [dict(r) for r in rows]

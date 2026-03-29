@@ -349,8 +349,21 @@ class BackgroundPriceWorker:
         # Start bootstrap in background thread
         bootstrap_thread = threading.Thread(target=bootstrap_task, daemon=True, name="PriceWorkerBootstrap")
         bootstrap_thread.start()
-        
-        # Start worker thread (will use whatever reserves are in PoolStateStore, which bootstrap is populating)
+
+        # ✅ CRITICAL: Wait for bootstrap to complete before starting worker loop
+        # This prevents race condition where worker tries to price with empty PoolStateStore
+        # Timeout: 2.0s (covers RPC fetch of 50-100 pools)
+        logger.info("[PRICE_WORKER] Waiting for bootstrap to complete...")
+        print("[PRICE_WORKER] Waiting for bootstrap to complete...", flush=True)
+        bootstrap_thread.join(timeout=2.0)
+        if bootstrap_thread.is_alive():
+            logger.warning("[PRICE_WORKER] ⚠️  Bootstrap still running after 2.0s (continuing anyway)")
+            print("[PRICE_WORKER] ⚠️  Bootstrap still running after 2.0s (continuing anyway)", flush=True)
+        else:
+            logger.info("[PRICE_WORKER] ✅ Bootstrap complete, starting worker loop")
+            print("[PRICE_WORKER] ✅ Bootstrap complete, starting worker loop", flush=True)
+
+        # Start worker thread (PoolStateStore now has reserves from bootstrap)
         logger.info("[PRICE_WORKER] Creating worker thread")
         print("[PRICE_WORKER] Creating worker thread", flush=True)
         self.thread = threading.Thread(target=self._run_loop, daemon=True)
@@ -1158,9 +1171,10 @@ class BackgroundPriceWorker:
                 # Compute price for each pool
                 candidate_prices = []
                 for base_account, base_raw, quote_raw in pool_reserves:
-                    # ✅ CRITICAL: Guard against invalid reserves (shouldn't reach here but double-check)
-                    if base_raw <= 0 or quote_raw <= 0:
-                        logger.debug(f"[PRICE_DEBUG] {mint[:16]}... ✗ skipping invalid reserves: base={base_raw}, quote={quote_raw}")
+                    # ✅ HYDRATION GUARD: Require both base AND quote reserves to be fully hydrated
+                    # Zero or missing reserves indicate pool not yet ready for pricing (race condition)
+                    if not base_raw or not quote_raw or base_raw <= 0 or quote_raw <= 0:
+                        logger.debug(f"[PRICE_DEBUG] {mint[:16]}... ✗ skipping unhydrated reserves: base={base_raw}, quote={quote_raw}")
                         continue
                     
                     pool = pool_map.get((mint, base_account))
@@ -1282,8 +1296,13 @@ class BackgroundPriceWorker:
                                 except RuntimeError:
                                     loop = asyncio.new_event_loop()
                                     asyncio.set_event_loop(loop)
-                                    loop.run_until_complete(price_stream.broadcast(event))
-                                    loop.close()
+                                    try:
+                                        loop.run_until_complete(price_stream.broadcast(event))
+                                        pending = asyncio.all_tasks(loop)
+                                        if pending:
+                                            loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+                                    finally:
+                                        loop.close()
                         else:
                             if DEBUG_LOGGING: print(f"[BROADCAST_DEBUG] No subscribers connected, skipping broadcast", flush=True)
 
@@ -1785,8 +1804,14 @@ class BackgroundPriceWorker:
                             # No event loop in current thread, create one
                             loop = asyncio.new_event_loop()
                             asyncio.set_event_loop(loop)
-                            loop.run_until_complete(price_stream.broadcast(event))
-                            loop.close()
+                            try:
+                                loop.run_until_complete(price_stream.broadcast(event))
+                                # Drain any tasks scheduled during broadcast before closing
+                                pending = asyncio.all_tasks(loop)
+                                if pending:
+                                    loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+                            finally:
+                                loop.close()
 
                 except Exception as e:
                     logger.debug(f"[PRICE_STREAM] Failed to broadcast price update: {e}")
@@ -1844,6 +1869,35 @@ class BackgroundPriceWorker:
 
         except Exception as e:
             logger.error(f"[PRICE_WORKER] ❌ Error refreshing: {e}", exc_info=True)
+
+    def has_pool_data(self, pool_address: str = None) -> bool:
+        """
+        Check if PoolStateStore has been hydrated with real reserve data.
+
+        If pool_address provided, check that specific pool.
+        If None, check if ANY pool data exists (bootstrap readiness indicator).
+        """
+        if pool_address:
+            # Check specific pool
+            reserves = self._pool_state.get_pools_for_mint(pool_address)
+            if reserves:
+                for base_account, base_raw, quote_raw in reserves:
+                    if base_raw and quote_raw and base_raw > 0 and quote_raw > 0:
+                        return True
+            return False
+        else:
+            # Check if any pool data exists
+            all_mints = self._pool_state.get_all_mints()
+            if not all_mints:
+                return False
+            # Check at least one mint has hydrated reserves
+            for mint in all_mints:
+                reserves = self._pool_state.get_pools_for_mint(mint)
+                if reserves:
+                    for base_account, base_raw, quote_raw in reserves:
+                        if base_raw and quote_raw and base_raw > 0 and quote_raw > 0:
+                            return True
+            return False
 
     def get_stats(self) -> Dict:
         """Get worker statistics including circuit breaker and source metrics."""

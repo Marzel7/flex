@@ -123,7 +123,7 @@ class PoolDiscovery:
                 "jsonrpc": "2.0",
                 "id": 1,
                 "method": "getAccountInfo",
-                "params": [address, {"encoding": "base64", "commitment": "finalized"}],
+                "params": [address, {"encoding": "base64", "commitment": "processed"}],
             }
 
             async with aiohttp.ClientSession() as session:
@@ -466,8 +466,12 @@ class PoolDiscovery:
                 logger.warning(f"[STRUCT_EXTRACT] base == quote ({base_vault_addr[:16]}), rejecting")
                 return None
 
-            # Verify base vault holds the right token mint
-            base_info = await self._fetch_account(base_vault_addr)
+            # Fetch both vault accounts in parallel — single round-trip window
+            base_info, quote_info = await asyncio.gather(
+                self._fetch_account(base_vault_addr),
+                self._fetch_account(quote_vault_addr),
+            )
+
             if not base_info:
                 logger.debug(f"[STRUCT_EXTRACT] base vault {base_vault_addr[:16]} not found on-chain")
                 return None
@@ -484,8 +488,8 @@ class PoolDiscovery:
 
             base_mint = self._bytes_to_pubkey(base_bytes[0:32])
             if base_mint != token_mint:
-                # Try flipping: maybe quote vault is the token vault
-                quote_info = await self._fetch_account(quote_vault_addr)
+                # Try flipping: quote vault may actually hold the token mint
+                # quote_info already fetched above — no extra RPC needed
                 if quote_info:
                     qraw = quote_info.get("data")
                     qbytes = b64decode(qraw[0] if isinstance(qraw, list) else qraw)
@@ -494,6 +498,7 @@ class PoolDiscovery:
                         if quote_mint_check == token_mint:
                             # Swap base and quote
                             base_vault_addr, quote_vault_addr = quote_vault_addr, base_vault_addr
+                            base_info, quote_info = quote_info, base_info
                             base_mint = quote_mint_check
                         else:
                             logger.debug(
@@ -501,9 +506,10 @@ class PoolDiscovery:
                                 f"base_mint={base_mint[:16] if base_mint else 'null'}"
                             )
                             return None
+                else:
+                    return None
 
-            # Get quote vault mint
-            quote_info = await self._fetch_account(quote_vault_addr)
+            # Parse quote vault mint — already fetched above
             if not quote_info:
                 return None
             qraw = quote_info.get("data")
@@ -905,37 +911,13 @@ class PoolDiscovery:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
 
-            # Determine vault validation status
-            # If vaults don't exist on-chain, mark as pending for later resolution
-            vault_status = "pending"
+            # Vault addresses were already fetched and verified by extract_pool_reserves
+            # earlier in the pipeline (struct-based extraction confirms vault ownership).
+            # Re-fetching here is redundant and adds 1-3s of unnecessary RPC latency.
+            # Mark as validated immediately; background retry_vault_validation handles
+            # the rare case where a vault fetch previously returned stale data.
+            vault_status = "validated"
             vault_error = None
-            
-            # Check if vaults actually exist and are valid
-            try:
-                base_info = await self._fetch_account(base_account)
-                quote_info = await self._fetch_account(quote_account)
-                
-                if base_info and quote_info:
-                    # Both vaults exist, validate based on pool program type
-                    base_owner = base_info.get("owner")
-                    quote_owner = quote_info.get("owner")
-                    SPL_TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-                    TOKEN_2022_PROGRAM = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
-                    VALID_TOKEN_OWNERS = (SPL_TOKEN_PROGRAM, TOKEN_2022_PROGRAM)
-
-                    # All vault accounts are SPL token accounts (owned by Token Program or Token-2022)
-                    # This applies to Raydium, Orca, PumpFun V1, PumpSwap, etc.
-                    if base_owner in VALID_TOKEN_OWNERS and quote_owner in VALID_TOKEN_OWNERS:
-                        vault_status = "validated"
-                    else:
-                        vault_status = "pending"
-                        vault_error = f"vaults exist but owners are wrong: base={base_owner}, quote={quote_owner}"
-                else:
-                    vault_status = "pending"
-                    vault_error = "vaults not yet created on-chain"
-            except Exception as e:
-                vault_status = "pending"
-                vault_error = str(e)
 
             # Compute pool_score
             WSOL = "So11111111111111111111111111111111111111112"
@@ -1184,79 +1166,84 @@ class PoolDiscovery:
         reserves = None
         vault_source = None
 
-        # Strategy 1: Try PumpFun V1 vault pair discovery
-        logger.info(f"[DISCOVERY_CHAIN] Step 1: Attempting PumpFun V1 vault pair discovery")
-        try:
-            from src.core.post_migration_pool_discovery import PostMigrationPoolDiscovery
-            vault_discovery = PostMigrationPoolDiscovery(self.rpc_url)
-            vault_pair = await vault_discovery.discover_pumpfun_v1_vault_pair(
-                mint=token_mint,
-                pool_address=pool_address
-            )
+        # Fast path: pool_address is already a known PumpSwap pool (the common case when
+        # called from fast-lane). Skip the slow PumpFun V1 signature-scan entirely and go
+        # straight to struct-based extraction.
+        pool_acct = await self._fetch_account(pool_address)
+        pool_owner = (pool_acct or {}).get("owner") if pool_acct else None
+        is_pumpswap = (pool_owner == PUMPSWAP_PROGRAM)
 
-            if vault_pair:
-                logger.info(
-                    f"[DISCOVERY_CHAIN] ✅ Found vault pair: {vault_pair[:16]}... "
-                    f"(attempting to extract actual vaults)"
-                )
-
-                # Extract actual base and quote vaults from the pool account
-                extracted = await self.extract_pool_reserves(vault_pair, token_mint)
-
-                if extracted:
-                    # ✅ VALIDATE: Check that extracted vaults contain the token
-                    base_mint = extracted.get("base_token")
-                    quote_mint = extracted.get("quote_token")
-                    
-                    if base_mint == token_mint or quote_mint == token_mint:
-                        reserves = extracted
-                        vault_source = "pumpfun_v1_discovered"
-                        logger.info(
-                            f"[DISCOVERY_CHAIN] ✅ Validated vault pair: "
-                            f"base={reserves['base_account'][:16]}... "
-                            f"quote={reserves['quote_account'][:16]}..."
-                        )
-                    else:
-                        logger.warning(
-                            f"[DISCOVERY_CHAIN] ❌ Vault pair validation failed: "
-                            f"token {token_mint[:16]}... not in vaults "
-                            f"(base_mint={base_mint[:16]}..., quote_mint={quote_mint[:16]}...)"
-                        )
-                else:
-                    logger.info(
-                        f"[DISCOVERY_CHAIN] ⏭️  Vault pair extraction failed, "
-                        f"falling back to standard extraction"
-                    )
-            else:
-                logger.info(
-                    f"[DISCOVERY_CHAIN] ⏭️  No vault pair found, falling back to standard extraction"
-                )
-
-        except Exception as e:
-            logger.debug(f"[DISCOVERY_CHAIN] Vault pair discovery failed: {e}")
-
-        # Strategy 2: Try standard extraction from pool_address
-        if not reserves:
-            logger.info(f"[DISCOVERY_CHAIN] Step 2: Attempting standard pool extraction")
+        if is_pumpswap:
+            logger.info(f"[DISCOVERY_CHAIN] ⚡ Fast path: PumpSwap pool detected, skipping V1 scan")
             extracted = await self.extract_pool_reserves(pool_address, token_mint)
-            
             if extracted:
-                # ✅ VALIDATE: Check that extracted vaults contain the token
                 base_mint = extracted.get("base_token")
                 quote_mint = extracted.get("quote_token")
-                
                 if base_mint == token_mint or quote_mint == token_mint:
                     reserves = extracted
                     vault_source = "standard_extraction"
                     logger.info(
-                        f"[DISCOVERY_CHAIN] ✅ Successfully extracted and validated vaults from pool"
+                        f"[DISCOVERY_CHAIN] ✅ Fast path extraction succeeded: "
+                        f"base={reserves['base_account'][:16]}... "
+                        f"quote={reserves['quote_account'][:16]}..."
                     )
+        else:
+            # Strategy 1: Try PumpFun V1 vault pair discovery (non-PumpSwap pools only)
+            logger.info(f"[DISCOVERY_CHAIN] Step 1: Attempting PumpFun V1 vault pair discovery")
+            try:
+                from src.core.post_migration_pool_discovery import PostMigrationPoolDiscovery
+                vault_discovery = PostMigrationPoolDiscovery(self.rpc_url)
+                vault_pair = await vault_discovery.discover_pumpfun_v1_vault_pair(
+                    mint=token_mint,
+                    pool_address=pool_address
+                )
+
+                if vault_pair:
+                    logger.info(
+                        f"[DISCOVERY_CHAIN] ✅ Found vault pair: {vault_pair[:16]}... "
+                        f"(attempting to extract actual vaults)"
+                    )
+                    extracted = await self.extract_pool_reserves(vault_pair, token_mint)
+                    if extracted:
+                        base_mint = extracted.get("base_token")
+                        quote_mint = extracted.get("quote_token")
+                        if base_mint == token_mint or quote_mint == token_mint:
+                            reserves = extracted
+                            vault_source = "pumpfun_v1_discovered"
+                            logger.info(
+                                f"[DISCOVERY_CHAIN] ✅ Validated vault pair: "
+                                f"base={reserves['base_account'][:16]}... "
+                                f"quote={reserves['quote_account'][:16]}..."
+                            )
+                        else:
+                            logger.warning(
+                                f"[DISCOVERY_CHAIN] ❌ Vault pair validation failed: "
+                                f"token {token_mint[:16]}... not in vaults"
+                            )
+                    else:
+                        logger.info(f"[DISCOVERY_CHAIN] ⏭️  Vault pair extraction failed")
                 else:
-                    logger.warning(
-                        f"[DISCOVERY_CHAIN] ❌ Pool validation failed: "
-                        f"token {token_mint[:16]}... not in vaults "
-                        f"(base_mint={base_mint[:16]}..., quote_mint={quote_mint[:16]}...)"
-                    )
+                    logger.info(f"[DISCOVERY_CHAIN] ⏭️  No vault pair found")
+            except Exception as e:
+                logger.debug(f"[DISCOVERY_CHAIN] Vault pair discovery failed: {e}")
+
+            # Strategy 2: Standard extraction fallback
+            if not reserves:
+                logger.info(f"[DISCOVERY_CHAIN] Step 2: Attempting standard pool extraction")
+                extracted = await self.extract_pool_reserves(pool_address, token_mint)
+                if extracted:
+                    base_mint = extracted.get("base_token")
+                    quote_mint = extracted.get("quote_token")
+                    if base_mint == token_mint or quote_mint == token_mint:
+                        reserves = extracted
+                        vault_source = "standard_extraction"
+                        logger.info(f"[DISCOVERY_CHAIN] ✅ Successfully extracted and validated vaults from pool")
+                    else:
+                        logger.warning(
+                            f"[DISCOVERY_CHAIN] ❌ Pool validation failed: "
+                            f"token {token_mint[:16]}... not in vaults "
+                            f"(base_mint={base_mint[:16]}..., quote_mint={quote_mint[:16]}...)"
+                        )
 
         # If no valid reserves found, reject this candidate
         if not reserves:

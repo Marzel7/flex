@@ -57,6 +57,11 @@ echo "✓ Cleanup verified"
 echo ""
 cd "$PROJECT_ROOT"
 
+# Clear migration log on each restart so it only contains the current session
+> "$PROJECT_ROOT/migration.log"
+echo "✓ migration.log cleared"
+echo ""
+
 echo "🚀 Starting Helius CLI monitor..."
 python -m src.monitoring.helius_cli_monitor &
 HELIUS_PID=$!
@@ -101,6 +106,7 @@ echo "║  ✅ WebSocket pool subscriptions                                     
 echo "║                                                                            ║"
 echo "║  Logs:                                                                     ║"
 echo "║  - listener.log (pool discovery + price computation)                      ║"
+echo "║  - migration.log (pool migration/detection events only)                   ║"
 echo "║  - flask.log (Flask app + SSE endpoint)                                   ║"
 echo "║                                                                            ║"
 echo "╚════════════════════════════════════════════════════════════════════════════╝"

@@ -1,0 +1,30 @@
+<div class="sidebar">
+    <div class="sidebar-logo">FLEX</div>
+
+    <nav class="sidebar-nav">
+        <div class="sidebar-section">
+            <div class="sidebar-section-label">Tokens</div>
+            <a class="sidebar-item {% if active_page == 'tokens' %}active{% endif %}" href="/">Tokens</a>
+            <a class="sidebar-item {% if active_page == 'networks' %}active{% endif %}" href="/networks">Networks</a>
+            <a class="sidebar-item {% if active_page == 'clusters' %}active{% endif %}" href="/clusters">Clusters</a>
+            <a class="sidebar-item {% if active_page == 'coordinated-funders' %}active{% endif %}" href="/coordinated-funders">Coordinated Funders</a>
+            <a class="sidebar-item {% if active_page == 'hubs' %}active{% endif %}" href="/top-funding-hubs">Hubs</a>
+            <a class="sidebar-item {% if active_page == 'creator-analysis' %}active{% endif %}" href="/creator-analysis">Creator Analysis</a>
+            <a class="sidebar-item {% if active_page == 'webhook' %}active{% endif %}" href="/webhook-monitor">Transfers</a>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-label">Intelligence</div>
+            <a class="sidebar-item flex-link {% if active_page == 'radar' %}active{% endif %}" href="/launch-radar">&#x1F9E0; Intelligence</a>
+            <a class="sidebar-item flex-link {% if active_page == 'early_signals' %}active{% endif %}" href="/early-signals">&#x1F9E0; Early Predictions</a>
+            <a class="sidebar-item flex-link {% if active_page == 'token_behaviour' %}active{% endif %}" href="/token-behaviour">&#x1F4CA; Token Behaviour</a>
+            <a class="sidebar-item flex-link {% if active_page == 'system_health' %}active{% endif %}" href="/system-health">&#x1F4BB; System Health</a>
+            <a class="sidebar-item flex-link {% if active_page == 'vaults' %}active{% endif %}" href="/vaults">&#x1F511; Vaults</a>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-label">System</div>
+            <a class="sidebar-item {% if active_page == 'rpc' %}active{% endif %}" href="/rpc-savings-dashboard">RPC</a>
+        </div>
+    </nav>
+</div>

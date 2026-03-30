@@ -1,0 +1,184 @@
+{% extends "base_shell.html" %}
+
+{% block title %}Cross-Funding Clusters{% endblock %}
+
+{% block extra_styles %}
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.stat-box {
+    background: var(--bg-card);
+    padding: 18px 20px;
+    border-radius: 8px;
+    border-left: 3px solid var(--border-color);
+}
+
+.stat-box.funders  { border-left-color: rgba(22, 163, 74, 0.6); }
+.stat-box.creators { border-left-color: rgba(251, 191, 36, 0.6); }
+.stat-box.tokens   { border-left-color: rgba(167, 139, 250, 0.6); }
+.stat-box.volume   { border-left-color: rgba(22, 163, 74, 0.6); }
+
+.stat-box .stat-label { color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; font-weight: 600; }
+.stat-box .stat-value { font-size: 2rem; font-weight: 700; line-height: 1; }
+.stat-box.funders  .stat-value { color: var(--color-low); }
+.stat-box.creators .stat-value { color: var(--color-yellow); }
+.stat-box.tokens   .stat-value { color: var(--color-purple); }
+.stat-box.volume   .stat-value { color: var(--color-low); }
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.75);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal-box {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 32px;
+    max-width: 860px;
+    max-height: 80vh;
+    overflow-y: auto;
+    width: 90%;
+}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Cross-Funding Clusters</h1>
+    <p class="subtitle">Coordinated funder networks detected by the cross-funding analyzer. Shows clusters of funders that fund overlapping sets of creators with unusual density.</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-box funders">
+        <div class="stat-label">Clusters</div>
+        <div class="stat-value">{{ clusters|length }}</div>
+    </div>
+    <div class="stat-box funders">
+        <div class="stat-label">Funders</div>
+        <div class="stat-value">{{ total_funders }}</div>
+    </div>
+    <div class="stat-box creators">
+        <div class="stat-label">Creators</div>
+        <div class="stat-value">{{ total_creators }}</div>
+    </div>
+    <div class="stat-box volume">
+        <div class="stat-label">Volume (SOL)</div>
+        <div class="stat-value">{{ '%.0f'|format(total_volume) }}</div>
+    </div>
+</div>
+
+<h2>Cluster Details</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Cluster Name</th>
+            <th>Funders</th>
+            <th>Creators</th>
+            <th>Tokens</th>
+            <th>Volume (SOL)</th>
+            <th>Avg Rug Risk</th>
+            <th>Rug Count</th>
+            <th>Multiplier</th>
+            <th>Risk Level</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cluster in clusters %}
+        {% set color = {'CRITICAL': '#EF4444', 'HIGH': '#F97316', 'MEDIUM': '#EAB308', 'CLEAN': '#16A34A'}.get(cluster.risk_level, '#8B5CF6') %}
+        {% set rug_color = '#EF4444' if cluster.rug_probability > 0.7 else ('#F97316' if cluster.rug_probability > 0.4 else '#16A34A') %}
+        <tr style="cursor:pointer" onclick="showClusterDetails('{{ cluster.cluster_id }}')">
+            <td style="color:var(--color-purple);font-weight:600">{{ cluster.cluster_name }}</td>
+            <td style="text-align:center;color:var(--color-cyan)">{{ cluster.funder_count }}</td>
+            <td style="text-align:center;color:var(--color-yellow)">{{ cluster.creator_count }}</td>
+            <td style="text-align:center;color:var(--color-purple)">{{ cluster.token_count }}</td>
+            <td style="text-align:right;color:var(--color-green)">${{ '%.2f'|format(cluster.total_volume_sol) }}</td>
+            <td style="text-align:center;color:{{ rug_color }}">{{ '%.1f'|format(cluster.rug_probability * 100) }}%</td>
+            <td style="text-align:center;color:var(--color-critical)">{{ cluster.rug_count }}</td>
+            <td style="text-align:center">
+                <span style="background:rgba(255,0,0,0.1);color:{{ color }};padding:5px 10px;border-radius:4px;font-weight:700">
+                    {{ '%.1f'|format(cluster.risk_multiplier) }}x
+                </span>
+            </td>
+            <td style="font-size:12px">{{ cluster.risk_label }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Cluster Details Modal -->
+<div id="clusterModal" class="modal-overlay" onclick="if(event.target===this)closeClusterModal()">
+    <div class="modal-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+            <h2 id="modalTitle" style="margin:0"></h2>
+            <button onclick="closeClusterModal()" style="background:none;border:none;color:var(--accent-cyan);font-size:22px;cursor:pointer;line-height:1">&#x2715;</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
+            <div style="background:rgba(6,182,212,0.08);padding:14px;border-radius:8px;border-left:3px solid var(--accent-cyan)">
+                <div style="color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Funders</div>
+                <div id="modalFunders" style="color:var(--accent-cyan);font-size:20px;font-weight:700"></div>
+            </div>
+            <div style="background:rgba(251,191,36,0.08);padding:14px;border-radius:8px;border-left:3px solid var(--color-yellow)">
+                <div style="color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Creators</div>
+                <div id="modalCreators" style="color:var(--color-yellow);font-size:20px;font-weight:700"></div>
+            </div>
+            <div style="background:rgba(22,163,74,0.08);padding:14px;border-radius:8px;border-left:3px solid var(--color-green)">
+                <div style="color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Volume (SOL)</div>
+                <div id="modalVolume" style="color:var(--color-green);font-size:20px;font-weight:700"></div>
+            </div>
+            <div style="background:rgba(249,115,22,0.08);padding:14px;border-radius:8px;border-left:3px solid var(--color-high)">
+                <div style="color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Risk Level</div>
+                <div id="modalRiskLevel" style="color:var(--color-high);font-size:20px;font-weight:700"></div>
+            </div>
+        </div>
+        <h2 style="color:var(--color-yellow);margin-bottom:12px">Creators in this Cluster</h2>
+        <div id="creatorsList" style="background:rgba(255,255,255,0.02);padding:12px;border-radius:8px;max-height:280px;overflow-y:auto">
+            <p style="color:var(--text-secondary)">Loading&hellip;</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showClusterDetails(clusterId) {
+    fetch('/api/funder-cluster/' + clusterId)
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('modalTitle').textContent = data.cluster_name;
+            document.getElementById('modalFunders').textContent = data.funder_count;
+            document.getElementById('modalCreators').textContent = data.creator_count;
+            document.getElementById('modalVolume').textContent = data.total_volume_sol.toFixed(2) + ' SOL';
+            document.getElementById('modalRiskLevel').textContent = data.risk_label;
+
+            const list = document.getElementById('creatorsList');
+            if (data.creators && data.creators.length > 0) {
+                list.innerHTML = data.creators.map(c =>
+                    '<div style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);font-family:monospace;font-size:12px;color:var(--accent-cyan);word-break:break-all">' +
+                    c.substring(0, 12) + '&hellip;' + c.substring(c.length - 8) +
+                    '</div>'
+                ).join('');
+            } else {
+                list.innerHTML = '<p style="color:var(--text-secondary)">No creators found</p>';
+            }
+            document.getElementById('clusterModal').classList.add('active');
+        })
+        .catch(e => alert('Error: ' + e.message));
+}
+
+function closeClusterModal() {
+    document.getElementById('clusterModal').classList.remove('active');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,1304 @@
+{% extends "base_shell.html" %}
+{% block title %}Creator Analysis{% endblock %}
+
+{% block extra_styles %}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border-left: 4px solid var(--accent-cyan);
+}
+h1 { color: var(--accent-cyan); font-size: 28px; }
+.back-btn {
+    background: rgba(124, 58, 237, 0.2);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(124, 58, 237, 0.5);
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Segoe UI', sans-serif;
+}
+.back-btn:hover { background: rgba(124, 58, 237, 0.3); }
+.search-section {
+    margin-bottom: 30px;
+    display: flex;
+    gap: 15px;
+}
+.search-input {
+    flex: 1;
+    background: var(--bg-secondary);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    color: var(--text-primary);
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 14px;
+}
+.search-input:focus {
+    outline: none;
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+}
+.search-btn {
+    background: rgba(124, 58, 237, 0.2);
+    color: var(--primary);
+    border: 1px solid rgba(124, 58, 237, 0.5);
+    padding: 12px 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 600;
+}
+.search-btn:hover { background: rgba(124, 58, 237, 0.3); }
+.creator-section {
+    background: var(--bg-secondary);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+.scan-meta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.meta-item {
+    background: rgba(124, 58, 237, 0.1);
+    border-left: 3px solid var(--primary);
+    padding: 15px;
+    border-radius: 6px;
+}
+.meta-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; }
+.meta-value { font-size: 13px; color: var(--text-primary); margin-top: 6px; word-break: break-all; }
+.findings-section {
+    margin-top: 25px;
+}
+.findings-title {
+    color: var(--accent-purple);
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.finding-card {
+    background: rgba(239, 68, 68, 0.05);
+    border-left: 3px solid var(--color-critical);
+    padding: 15px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.finding-card.clean {
+    background: rgba(34, 197, 94, 0.05);
+    border-left-color: var(--color-low);
+    border-color: rgba(34, 197, 94, 0.2);
+}
+.finding-card.critical {
+    background: rgba(239, 68, 68, 0.15);
+    border-left-color: #ff0000;
+    border-color: rgba(239, 68, 68, 0.5);
+    animation: critical-pulse 1s infinite;
+}
+@keyframes critical-pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+    50% { opacity: 0.9; box-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
+}
+.finding-type {
+    display: inline-block;
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--color-critical);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 8px;
+}
+.finding-type.clean {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--color-low);
+}
+.finding-details {
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-top: 8px;
+    line-height: 1.5;
+}
+.network-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+.network-badge {
+    background: rgba(168, 139, 250, 0.15);
+    color: var(--accent-purple);
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    border: 1px solid rgba(168, 139, 250, 0.3);
+    font-weight: 500;
+}
+.network-link {
+    color: var(--accent-purple);
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 600;
+    border-bottom: 2px solid var(--accent-purple);
+    transition: all 0.2s;
+    display: inline-block;
+}
+.network-link:hover {
+    color: var(--accent-cyan);
+    border-bottom-color: var(--accent-cyan);
+}
+.network-link:active {
+    color: var(--accent-cyan);
+}
+.tokens-section {
+    margin-top: 25px;
+}
+.tokens-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+.token-card {
+    background: var(--bg-secondary);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+.token-card:hover {
+    border-color: rgba(124, 58, 237, 0.4);
+    background: rgba(20, 20, 32, 1);
+}
+.recipients-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-secondary);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+.recipients-table thead {
+    background: var(--bg-secondary);
+    border-bottom: 2px solid rgba(124, 58, 237, 0.3);
+    border-left: 3px solid rgba(124, 58, 237, 0.5);
+}
+.recipients-table th {
+    padding: 12px 15px;
+    text-align: left;
+    color: var(--accent-purple);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.recipients-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+    font-size: 12px;
+}
+.recipients-table tbody tr:hover {
+    background: rgba(124, 58, 237, 0.08);
+}
+.recipients-table tr:last-child td {
+    border-bottom: none;
+}
+.recipient-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.recipient-address {
+    color: var(--accent-cyan);
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+    word-break: break-all;
+}
+.recipient-network {
+    color: var(--accent-purple);
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(168, 139, 250, 0.15);
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid rgba(168, 139, 250, 0.3);
+    width: fit-content;
+}
+.recipient-labels {
+    color: var(--text-secondary);
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.recipient-amount {
+    color: var(--accent-cyan);
+    font-weight: 600;
+    text-align: right;
+}
+.funded-creator-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 6px;
+    padding: 0;
+    background: transparent;
+    border-left: none;
+}
+.funded-creator-row:last-child {
+    margin-bottom: 0;
+}
+.funded-creator-address {
+    color: var(--accent-cyan);
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.creator-network {
+    color: var(--accent-purple);
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(168, 139, 250, 0.15);
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid rgba(168, 139, 250, 0.3);
+    white-space: nowrap;
+    width: fit-content;
+}
+.creator-labels {
+    color: var(--text-secondary);
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.creator-items {
+    display: flex;
+    gap: 8px;
+    flex-direction: column;
+}
+.collapse-toggle {
+    cursor: pointer;
+    color: var(--accent-cyan);
+    font-weight: 700;
+    user-select: none;
+    font-size: 12px;
+}
+.flag-badge {
+    display: inline-block;
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--color-critical);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.flag-badge.creator {
+    background: rgba(234, 179, 8, 0.15);
+    color: var(--color-medium);
+    border-color: rgba(234, 179, 8, 0.3);
+}
+.flag-badge.funds {
+    background: rgba(168, 139, 250, 0.15);
+    color: var(--accent-purple);
+    border-color: rgba(168, 139, 250, 0.3);
+}
+.flag-badge.cross-funder {
+    background: rgba(239, 68, 68, 0.25);
+    color: #ff4444;
+    border-color: rgba(239, 68, 68, 0.5);
+    font-weight: 700;
+    animation: pulse 2s infinite;
+}
+.flag-badge.sender {
+    background: rgba(251, 146, 60, 0.15);
+    color: #f97316;
+    border-color: rgba(251, 146, 60, 0.3);
+}
+.flag-badge.multi-funded {
+    background: rgba(168, 139, 250, 0.15);
+    color: var(--accent-purple);
+    border-color: rgba(168, 139, 250, 0.3);
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+.flag-badge.network {
+    background: rgba(6, 182, 212, 0.15);
+    color: var(--accent-cyan);
+    border-color: rgba(6, 182, 212, 0.3);
+}
+.flag-badge.cex {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--color-low);
+    border-color: rgba(34, 197, 94, 0.3);
+}
+.recipient-info-toggle {
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 10px;
+    color: var(--accent-cyan);
+    border: 1px solid rgba(6, 182, 212, 0.5);
+    background: rgba(6, 182, 212, 0.1);
+    font-weight: 600;
+}
+.recipient-info-toggle:hover {
+    background: rgba(6, 182, 212, 0.2);
+}
+.recipient-details {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex: 1;
+    font-size: 10px;
+}
+.recipient-details.show {
+    display: flex;
+}
+.recipient-details.collapsed {
+    display: none;
+}
+.recipient-details-title {
+    color: var(--accent-cyan);
+    font-weight: 700;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+.collapse-toggle {
+    cursor: pointer;
+    font-size: 10px;
+    color: var(--accent-cyan);
+    font-weight: 700;
+    user-select: none;
+    transition: transform 0.2s;
+    min-width: 18px;
+    text-align: center;
+}
+.recipient-details.collapsed .collapse-toggle {
+    transform: rotate(-90deg);
+}
+.creator-items {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+.creator-item {
+    color: var(--accent-cyan);
+    font-size: 10px;
+    font-family: 'Courier New', monospace;
+}
+.chains-section {
+    margin-top: 25px;
+}
+.chain-item {
+    background: var(--bg-secondary);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    padding: 14px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+.chain-flow {
+    color: var(--accent-cyan);
+    margin-bottom: 10px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-family: 'Courier New', monospace;
+}
+.chain-address {
+    background: rgba(6, 182, 212, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+.chain-address-hint {
+    font-size: 9px;
+    color: var(--text-secondary);
+    margin-left: -5px;
+    margin-top: -2px;
+}
+.chain-arrow {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+.chain-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    font-size: 12px;
+}
+.chain-detail {
+    background: rgba(124, 58, 237, 0.1);
+    padding: 8px 10px;
+    border-radius: 4px;
+    border-left: 2px solid var(--primary);
+    border: 1px solid rgba(124, 58, 237, 0.15);
+}
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+.stat-box {
+    background: var(--bg-secondary);
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    text-align: center;
+}
+.stat-num { font-size: 20px; color: var(--primary); font-weight: 700; }
+.stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 8px; text-transform: uppercase; font-weight: 600; }
+.loading { text-align: center; color: var(--primary); padding: 40px; font-size: 14px; }
+.error {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-left: 3px solid var(--color-critical);
+    color: var(--color-critical);
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+.recent-checks-section {
+    margin-bottom: 30px;
+}
+.recent-checks-title {
+    color: var(--accent-purple);
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.recent-checks-list {
+    display: grid;
+    gap: 12px;
+}
+.recent-check-row {
+    background: var(--bg-secondary);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: 6px;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 100px 120px;
+    gap: 15px;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 0;
+}
+.recent-check-row:hover {
+    background: rgba(20, 20, 32, 1);
+    border-color: rgba(124, 58, 237, 0.4);
+}
+.check-address {
+    font-family: 'Courier New', 'Segoe UI', monospace;
+    font-size: 12px;
+    color: var(--accent-purple);
+    font-weight: 500;
+    min-width: 0;
+    word-break: break-all;
+}
+.check-findings {
+    font-size: 13px;
+    color: var(--text-primary);
+}
+.check-finding-badge {
+    display: inline-block;
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--color-critical);
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    margin-right: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.check-finding-badge.clean {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--color-low);
+}
+.check-findings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.check-chains {
+    font-size: 13px;
+    color: var(--accent-cyan);
+    text-align: center;
+    font-weight: 600;
+}
+.check-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: right;
+}
+.queue-status-section {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+.queue-status-title {
+    color: var(--accent-purple);
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.queue-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 15px;
+}
+.queue-stat-box {
+    background: rgba(124, 58, 237, 0.1);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: 6px;
+    padding: 12px;
+    text-align: center;
+}
+.queue-stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+}
+.queue-stat-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+.queue-top-items {
+    margin-top: 15px;
+}
+.queue-top-title {
+    color: var(--accent-purple);
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+.queue-item {
+    background: rgba(20, 20, 32, 0.5);
+    border: 1px solid rgba(124, 58, 237, 0.15);
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.queue-item-address {
+    color: var(--accent-cyan);
+    font-family: 'Courier New', monospace;
+    flex: 1;
+    margin-right: 10px;
+}
+.queue-item-status {
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.queue-item-status.pending {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+}
+.queue-item-status.analyzing {
+    background: rgba(234, 179, 8, 0.15);
+    color: #eab308;
+    animation: pulse 1s infinite;
+}
+.queue-item-status.complete {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+}
+.queue-item-risk {
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+.queue-item-risk.HIGH {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+.queue-item-risk.MEDIUM {
+    background: rgba(251, 146, 60, 0.15);
+    color: #f97316;
+}
+.queue-item-risk.LOW {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+{% endblock %}
+
+{% block content %}
+<div class="container">
+<header>
+    <h1>🔍 Creator Outgoing Transfer Analysis</h1>
+    <button class="back-btn" onclick="window.location='/'">← Back to Dashboard</button>
+</header>
+
+<div class="search-section">
+    <input type="text" class="search-input" id="creatorInput" placeholder="Enter creator address (e.g., abc123...)">
+    <button class="search-btn" onclick="searchCreator()">Search</button>
+</div>
+
+<div id="content">
+    <div class="loading">Loading creator analysis...</div>
+</div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load recent checks on page load
+document.addEventListener('DOMContentLoaded', loadRecentChecks);
+
+async function loadRecentChecks() {
+    const content = document.getElementById('content');
+    try {
+        const response = await fetch('/api/creator-recent-checks');
+        const data = await response.json();
+
+        if (data.error || !data.recent_checks || data.recent_checks.length === 0) {
+            content.innerHTML = '<div class="loading">No recent checks yet. Search for a creator to begin.</div>';
+            return;
+        }
+
+        // Load scan statistics
+        const statsResponse = await fetch('/api/creator-scan-stats');
+        const statsData = await statsResponse.json();
+
+        // Load queue status
+        const queueResponse = await fetch('/api/creator-analysis-queue-status');
+        const queueData = await queueResponse.json();
+
+        let html = `
+            ${queueData.total_queued > 0 ? `
+            <div class="queue-status-section">
+                <div class="queue-status-title">⚙️ Analysis Queue Status</div>
+                <div class="queue-stats-grid">
+                    <div class="queue-stat-box">
+                        <div class="queue-stat-value">${queueData.total_queued || 0}</div>
+                        <div class="queue-stat-label">Active Items</div>
+                    </div>
+                    ${Object.entries(queueData.status_breakdown || {}).map(([status, info]) => `
+                        <div class="queue-stat-box">
+                            <div class="queue-stat-value">${info.count}</div>
+                            <div class="queue-stat-label">${status}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                ${queueData.top_priority && queueData.top_priority.length > 0 ? `
+                    <div class="queue-top-items">
+                        <div class="queue-top-title">🔝 Top Priority</div>
+                        ${queueData.top_priority.map(item => `
+                            <div class="queue-item">
+                                <div class="queue-item-address">${item.creator_address}</div>
+                                <span class="queue-item-status ${item.status.toLowerCase()}">${item.status}</span>
+                                ${item.risk_level ? `<span class="queue-item-risk ${item.risk_level}">${item.risk_level}</span>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            </div>
+            ` : ''}
+
+            <div class="scan-stats-section" style="background: var(--bg-secondary); border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.2); padding: 20px; margin-bottom: 20px;">
+                <div style="color: var(--accent-purple); font-size: 16px; font-weight: 700; margin-bottom: 15px;">📊 Coverage</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="padding: 10px; background: rgba(59, 130, 246, 0.1); border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">Scan Coverage</div>
+                        <div style="font-size: 18px; font-weight: 700; color: #3b82f6;">${statsData.scanned_percentage.toFixed(1)}%</div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">${statsData.scanned_creators} of ${statsData.total_creators}</div>
+                    </div>
+                    <div style="padding: 10px; background: rgba(124, 58, 237, 0.1); border-radius: 6px;">
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">Total Creators</div>
+                        <div style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">${statsData.total_creators || 0}</div>
+                    </div>
+                    ${Object.entries(statsData.tier_stats || {}).map(([tier, stats]) => `
+                        <div style="padding: 10px; background: rgba(124, 58, 237, 0.1); border-radius: 6px;">
+                            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">${statsData.tier_labels[tier]}</div>
+                            <div style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">${stats.percentage.toFixed(1)}%</div>
+                            <div style="font-size: 11px; color: var(--text-secondary);">${stats.count} creators</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <div class="recent-checks-section">
+                <div class="recent-checks-title">📋 Most Recent Checks</div>
+                <div class="recent-checks-list">
+        `;
+
+        data.recent_checks.forEach(check => {
+            const findings = check.findings || [];
+            let findingsBadges = findings.map(f => {
+                const isClean = f.includes('CLEAN');
+                const classes = isClean ? 'check-finding-badge clean' : 'check-finding-badge';
+                return `<span class="${classes}">${f}</span>`;
+            }).join('');
+            if (!findingsBadges) findingsBadges = '<span class="check-finding-badge clean">✅ CLEAN</span>';
+
+            html += `
+                <div class="recent-check-row" onclick="loadCreatorAnalysisFrom('${check.creator_address}')">
+                    <div class="check-address">${check.creator_address}</div>
+                    <div class="check-findings">${findingsBadges}</div>
+                    <div class="check-chains">${check.chain_count} chains</div>
+                    <div class="check-time">${formatTime(check.last_scanned)}</div>
+                </div>
+            `;
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+
+        content.innerHTML = html;
+    } catch (error) {
+        content.innerHTML = '<div class="loading">Unable to load recent checks</div>';
+    }
+}
+
+function formatTime(timestamp) {
+    if (!timestamp) return 'Never';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now - date;
+
+    if (diff < 60000) return 'Just now';
+    if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+    return Math.floor(diff / 86400000) + 'd ago';
+}
+
+function loadCreatorAnalysisFrom(creator) {
+    document.getElementById('creatorInput').value = creator;
+    loadCreatorAnalysis(creator);
+}
+
+function closeAnalysis() {
+    loadRecentChecks();
+}
+
+async function searchCreator() {
+    const creator = document.getElementById('creatorInput').value.trim();
+    if (!creator) {
+        alert('Please enter a creator address');
+        return;
+    }
+    loadCreatorAnalysis(creator);
+}
+
+async function loadCreatorAnalysis(creator) {
+    const content = document.getElementById('content');
+    content.innerHTML = '<div class="loading">Loading analysis...</div>';
+
+    try {
+        const response = await fetch(`/api/creator-outgoing-analysis/${creator}`);
+        const data = await response.json();
+
+        if (data.error) {
+            content.innerHTML = `<div class="error">⚠️ ${data.error}</div>`;
+            return;
+        }
+
+        renderAnalysis(data);
+    } catch (error) {
+        content.innerHTML = `<div class="error">❌ Error loading analysis: ${error.message}</div>`;
+    }
+}
+
+function renderAnalysis(data) {
+    let html = `
+        <div class="creator-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <button class="back-btn" onclick="closeAnalysis()" style="background: rgba(124, 58, 237, 0.2); color: var(--accent-cyan); border: 1px solid rgba(124, 58, 237, 0.5); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px;">← Back to List</button>
+            </div>
+            <div class="scan-meta">
+                <div class="meta-item">
+                    <div class="meta-label">Creator Address</div>
+                    <div class="meta-value">${data.creator_address}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Last Scanned</div>
+                    <div class="meta-value">${data.last_scanned || 'Never'}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Scan Status</div>
+                    <div class="meta-value">${data.scan_status}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Network Membership</div>
+                    <div class="meta-value">
+                        ${data.networks && data.networks.length > 0 ?
+                            `<div style="display: flex; flex-direction: column; gap: 8px;">
+                                ${data.networks.map(net => {
+                                    let badgeColor = '#808080';
+                                    let badgeEmoji = '';
+                                    let badgeText = '';
+                                    if (net.type === 'cex_connected') {
+                                        badgeColor = '#ef4444';
+                                        badgeEmoji = '🏦';
+                                        badgeText = 'CEX';
+                                    } else if (net.type === 'infra_connected') {
+                                        badgeColor = '#f97316';
+                                        badgeEmoji = '🔧';
+                                        badgeText = 'INFRA';
+                                    } else if (net.type === 'mixed') {
+                                        badgeColor = '#d97706';
+                                        badgeEmoji = '⚠️';
+                                        badgeText = 'MIXED';
+                                    } else if (net.type === 'organic') {
+                                        badgeColor = '#22c55e';
+                                        badgeEmoji = '✓';
+                                        badgeText = 'ORGANIC';
+                                    }
+                                    return `
+                                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                        <span class="network-link" onclick="window.location='/creator-network/${encodeURIComponent(net.name)}';" style="cursor: pointer; background: ${badgeColor}; color: white; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; display: inline-block;">${net.name} ${badgeEmoji} ${badgeText}</span>
+                                    </div>
+                                    `;
+                                }).join('')}
+                            </div>`
+                            : 'None'
+                        }
+                    </div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Last Activity</div>
+                    <div class="meta-value">${
+                        data.outgoing_transfer_count > 0 && data.last_transaction_time
+                            ? (() => {
+                                const now = Math.floor(Date.now() / 1000);
+                                const secondsAgo = now - data.last_transaction_time;
+
+                                if (secondsAgo < 60) {
+                                    return Math.max(1, Math.floor(secondsAgo)) + ' min';
+                                } else if (secondsAgo < 3600) {
+                                    return Math.floor(secondsAgo / 60) + ' hour' + (Math.floor(secondsAgo / 60) !== 1 ? 's' : '');
+                                } else if (secondsAgo < 86400) {
+                                    return Math.floor(secondsAgo / 3600) + ' hour' + (Math.floor(secondsAgo / 3600) !== 1 ? 's' : '');
+                                } else {
+                                    return Math.floor(secondsAgo / 86400) + ' day' + (Math.floor(secondsAgo / 86400) !== 1 ? 's' : '');
+                                }
+                            })()
+                            : 'No outgoing transfers'
+                    }</div>
+                </div>
+            </div>
+    `;
+
+    // Findings section
+    if (data.findings && data.findings.length > 0) {
+        html += `
+            <div class="findings-section">
+                <div class="findings-title">🚨 Findings</div>
+        `;
+
+        data.findings.forEach(finding => {
+            const isClean = finding.type === 'CLEAN';
+            const isCritical = finding.type.includes('SUSPICIOUS_CROSS_FUNDING');
+            html += `
+                <div class="finding-card ${isClean ? 'clean' : ''} ${isCritical ? 'critical' : ''}">
+                    <span class="finding-type ${isClean ? 'clean' : ''}">${finding.type}</span>
+                    <div class="finding-details">${finding.description}</div>
+`;
+            if (finding.networks_enriched && finding.networks_enriched.length > 0) {
+                html += `
+                    <div class="network-list">
+                        ${finding.networks_enriched.map(n => {
+                            let badge = `<div class="network-badge">${n.name}`;
+                            if (n.type === 'cex_connected') {
+                                badge += ' 🏦 CEX';
+                            } else if (n.type === 'infra_connected') {
+                                badge += ' 🔧 INFRA';
+                            } else if (n.type === 'mixed') {
+                                badge += ' ⚠️ MIXED';
+                            } else if (n.type === 'organic') {
+                                badge += ' ✓ ORGANIC';
+                            }
+                            badge += '</div>';
+                            return badge;
+                        }).join('')}
+                    </div>
+                `;
+            } else if (finding.networks && finding.networks.length > 0) {
+                html += `
+                    <div class="network-list">
+                        ${finding.networks.map(n => `<div class="network-badge">${n}</div>`).join('')}
+                    </div>
+                `;
+            }
+            html += `</div>`;
+        });
+
+        html += `</div>`;
+    }
+
+    // Incoming funders section
+    if (data.incoming_funders && data.incoming_funders.length > 0) {
+        html += `
+            <div class="funders-section" style="margin-top: 25px;">
+                <div class="findings-title">📥 Incoming Funders (Who Funded This Creator)</div>
+                <table class="recipients-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Funder Address</th>
+                            <th style="width: 40%;">Details</th>
+                            <th style="width: 20%; text-align: right;">Amount SOL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        data.incoming_funders.forEach((funder, idx) => {
+            let funderInfo = `<div class="recipient-info">`;
+
+            // Display name (CEX/INFRA) if available, otherwise address
+            if (funder.display_name) {
+                funderInfo += `<div class="recipient-address" style="color: var(--accent-cyan); font-weight: 600;">${funder.display_name}</div>`;
+                funderInfo += `<div class="recipient-address" style="font-size: 10px; color: var(--text-secondary);">${funder.address}</div>`;
+            } else {
+                funderInfo += `<div class="recipient-address">${funder.address}</div>`;
+            }
+
+            if (funder.network) {
+                let networkBadge = '';
+                if (funder.network_type === 'cex_connected') {
+                    networkBadge = ' <span style="color: #ef4444; font-weight: 600;">🏦 CEX</span>';
+                } else if (funder.network_type === 'infra_connected') {
+                    networkBadge = ' <span style="color: #f97316; font-weight: 600;">🔧 INFRA</span>';
+                } else if (funder.network_type === 'mixed') {
+                    networkBadge = ' <span style="color: #eab308; font-weight: 600;">⚠️ MIXED</span>';
+                } else if (funder.network_type === 'organic') {
+                    networkBadge = ' <span style="color: #22c55e; font-weight: 600;">✓ ORGANIC</span>';
+                }
+                funderInfo += `<div class="recipient-network">[${funder.network}]${networkBadge}</div>`;
+            }
+
+            if (funder.labels && funder.labels.length > 0) {
+                funderInfo += `<div class="recipient-labels">${funder.labels.join(' • ')}</div>`;
+            }
+
+            funderInfo += `</div>`;
+
+            let detailsColumn = `<div style="font-size: 12px; color: var(--text-secondary);">${funder.transfer_count} transfer(s)</div>`;
+
+            html += `
+                <tr>
+                    <td>${funderInfo}</td>
+                    <td>${detailsColumn}</td>
+                    <td class="recipient-amount">${(funder.amount_sol || 0).toFixed(4)} SOL</td>
+                </tr>
+            `;
+        });
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // Tokens created by this creator
+    if (data.tokens && data.tokens.length > 0) {
+        html += `
+            <div class="tokens-section" style="margin-top: 25px;">
+                <div class="findings-title">🪙 Tokens Created</div>
+                <table class="recipients-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50%;">Mint Address</th>
+                            <th style="width: 30%;">Created</th>
+                            <th style="width: 20%; text-align: right;">Risk Level</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        data.tokens.forEach(token => {
+            const riskColor = token.risk_level === 'HIGH' ? 'var(--color-critical)' :
+                            token.risk_level === 'MEDIUM' ? 'var(--color-medium)' :
+                            'var(--color-low)';
+            const createdDate = token.created_at ? new Date(token.created_at).toLocaleDateString() : 'N/A';
+
+            html += `
+                <tr>
+                    <td style="font-family: 'Courier New', monospace; font-size: 12px; color: var(--accent-cyan); word-break: break-all;">${token.mint}</td>
+                    <td style="color: var(--text-secondary);">${createdDate}</td>
+                    <td style="text-align: right; color: ${riskColor}; font-weight: 600;">${token.risk_level || 'N/A'}</td>
+                </tr>
+            `;
+        });
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // Recipients section
+    if (data.tokens && data.tokens.length > 0) {
+        html += `
+            <div class="tokens-section">
+                <div class="findings-title">📤 Recipient Addresses & Funding Details</div>
+        `;
+
+        data.tokens.forEach(token => {
+            if (!token.recipients || token.recipients.length === 0) return;
+
+            html += `
+                <table class="recipients-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Recipient Address</th>
+                            <th style="width: 50%;">Funded Creators</th>
+                            <th style="width: 10%; text-align: right;">Amount SOL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            token.recipients.forEach((recipient, idx) => {
+                // Build recipient info with labels and network
+                let recipientInfo = `<div class="recipient-info">`;
+
+                // Display name (CEX/INFRA) if available, otherwise address
+                if (recipient.display_name) {
+                    recipientInfo += `<div class="recipient-address" style="color: var(--accent-cyan); font-weight: 600;">${recipient.display_name}</div>`;
+                    recipientInfo += `<div class="recipient-address" style="font-size: 10px; color: var(--text-secondary);">${recipient.address}</div>`;
+                } else {
+                    recipientInfo += `<div class="recipient-address">${recipient.address}</div>`;
+                }
+
+                if (recipient.network) {
+                    recipientInfo += `<div class="recipient-network">[${recipient.network}]</div>`;
+                }
+
+                if (recipient.labels && recipient.labels.length > 0) {
+                    recipientInfo += `<div class="recipient-labels">${recipient.labels.join(' • ')}</div>`;
+                }
+
+                recipientInfo += `</div>`;
+
+                // Build funded creators column
+                let creatorsColumn = '-';
+                if (recipient.funded_creators && recipient.funded_creators.length > 0) {
+                    creatorsColumn = recipient.funded_creators.map(c => {
+                        let creatorHtml = `<div class="funded-creator-row">`;
+
+                        // Display name (CEX/INFRA) if available, otherwise address
+                        if (c.display_name) {
+                            creatorHtml += `<div class="funded-creator-address" style="color: var(--accent-cyan); font-weight: 600;">${c.display_name}</div>`;
+                            creatorHtml += `<div class="funded-creator-address" style="font-size: 9px; color: var(--text-secondary);">${c.address}</div>`;
+                        } else {
+                            creatorHtml += `<div class="funded-creator-address">${c.address}</div>`;
+                        }
+
+                        if (c.network) {
+                            creatorHtml += `<div class="creator-network">[${c.network}]</div>`;
+                        }
+
+                        if (c.labels && c.labels.length > 0) {
+                            creatorHtml += `<div class="funded-creator-labels" style="font-size: 9px; color: var(--text-secondary);">${c.labels.join(' • ')}</div>`;
+                        }
+
+                        creatorHtml += `</div>`;
+                        return creatorHtml;
+                    }).join('');
+                }
+
+                html += `
+                    <tr>
+                        <td>${recipientInfo}</td>
+                        <td>${creatorsColumn}</td>
+                        <td class="recipient-amount">${recipient.amount_sol.toFixed(4)} SOL</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+        });
+
+        html += `
+            </div>
+        `;
+    }
+
+    // Funding chains section
+    if (data.funding_chains && data.funding_chains.length > 0) {
+        html += `
+            <div class="chains-section">
+                <div class="findings-title">⛓️ Funding Chains Detected</div>
+        `;
+
+        data.funding_chains.forEach(chain => {
+            // Get display names or use addresses
+            const sourceDisplay = chain.source_creator_display || chain.source_creator;
+            const bridgeDisplay = chain.bridge_funder_display || chain.bridge_funder;
+            const targetDisplay = chain.target_creator_display || chain.target_creator;
+
+            let chainFlowHtml = `<div class="chain-flow">`;
+            chainFlowHtml += `<div class="chain-address">${sourceDisplay}</div>`;
+            if (chain.source_creator_display) {
+                chainFlowHtml += `<div class="chain-address-hint">${chain.source_creator}</div>`;
+            }
+            chainFlowHtml += `<div class="chain-arrow">→</div>`;
+            chainFlowHtml += `<div class="chain-address">${bridgeDisplay}</div>`;
+            if (chain.bridge_funder_display) {
+                chainFlowHtml += `<div class="chain-address-hint">${chain.bridge_funder}</div>`;
+            }
+            chainFlowHtml += `<div class="chain-arrow">→</div>`;
+            chainFlowHtml += `<div class="chain-address">${targetDisplay}</div>`;
+            if (chain.target_creator_display) {
+                chainFlowHtml += `<div class="chain-address-hint">${chain.target_creator}</div>`;
+            }
+            chainFlowHtml += `</div>`;
+
+            html += `
+                <div class="chain-item">
+                    ${chainFlowHtml}
+                    <div class="chain-details">
+                        <div class="chain-detail">
+                            <strong>Amount:</strong> ${chain.amount_sol.toFixed(2)} SOL
+                        </div>
+                        <div class="chain-detail">
+                            <strong>Confidence:</strong> ${chain.confidence}%
+                        </div>
+                        <div class="chain-detail">
+                            <strong>Time:</strong> ${new Date(chain.timestamp * 1000).toLocaleString()}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `</div>`;
+    }
+
+    // Statistics
+    html += `
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-num">${data.outgoing_transfer_count}</div>
+                <div class="stat-label">Outgoing Transfers</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num">${data.funding_chain_count}</div>
+                <div class="stat-label">Detected Chains</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num">${data.coordinated_edge_count}</div>
+                <div class="stat-label">Coordinated Edges</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num">${(data.total_sol_sent || 0).toFixed(1)}</div>
+                <div class="stat-label">SOL Sent</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num">${data.unique_recipients}</div>
+                <div class="stat-label">Unique Recipients</div>
+            </div>
+        </div>
+    `;
+
+    html += `</div>`;
+
+    document.getElementById('content').innerHTML = html;
+}
+
+// Auto-refresh queue status every 5 seconds
+let autoRefreshInterval = setInterval(() => {
+    fetch('/api/creator-analysis-queue-status')
+        .then(r => r.json())
+        .then(queueData => {
+            // Update only the queue section if it exists
+            const queueSection = document.querySelector('.queue-status-section');
+            if (!queueSection) return; // Skip if not on main view
+
+            // If queue became empty, reload the whole page
+            if (queueData.total_queued === 0 && queueSection) {
+                loadRecentChecks();
+                return;
+            }
+
+            // Update stats grid
+            const statsBoxes = queueSection.querySelectorAll('.queue-stat-box');
+            let boxIndex = 0;
+
+            // Update "Active Items" count
+            if (statsBoxes[boxIndex]) {
+                statsBoxes[boxIndex].querySelector('.queue-stat-value').textContent = queueData.total_queued;
+                boxIndex++;
+            }
+
+            // Update status counts
+            Object.entries(queueData.status_breakdown || {}).forEach(([status, info]) => {
+                if (statsBoxes[boxIndex]) {
+                    statsBoxes[boxIndex].querySelector('.queue-stat-value').textContent = info.count;
+                    boxIndex++;
+                }
+            });
+
+            // Update top priority items
+            const topPriorityDiv = queueSection.querySelector('.queue-top-items');
+            if (topPriorityDiv && queueData.top_priority) {
+                const itemsHtml = queueData.top_priority.map(item => `
+                    <div class="queue-item">
+                        <div class="queue-item-address">${item.creator_address}</div>
+                        <span class="queue-item-status ${item.status.toLowerCase()}">${item.status}</span>
+                        ${item.risk_level ? `<span class="queue-item-risk ${item.risk_level}">${item.risk_level}</span>` : ''}
+                    </div>
+                `).join('');
+                topPriorityDiv.innerHTML = '<div class="queue-top-title">🔝 Top Priority</div>' + itemsHtml;
+            }
+        })
+        .catch(err => console.log('Queue refresh failed:', err));
+}, 5000); // Refresh every 5 seconds
+
+// Clean up interval when user leaves page
+window.addEventListener('beforeunload', () => clearInterval(autoRefreshInterval));
+</script>
+{% endblock %}

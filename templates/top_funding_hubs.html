@@ -1,0 +1,53 @@
+{% extends "base_shell.html" %}
+
+{% block title %}Top Funding Hubs{% endblock %}
+
+{% block extra_styles %}
+.badge-count {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(22, 163, 74, 0.2);
+    color: var(--color-low);
+}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Top Funding Distribution Senders</h1>
+    <p class="subtitle">Wallets that send funds to the most funders. These represent major coordination hubs distributing capital.</p>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width:40px;text-align:center">#</th>
+            <th>Sender Address</th>
+            <th style="text-align:center">Funders Funded</th>
+            <th style="text-align:center">Creators Funded</th>
+            <th style="text-align:center">Total Tokens</th>
+            <th style="text-align:right">SOL Sent</th>
+            <th style="text-align:center">Tokens Created</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for idx, hub in hubs %}
+        <tr>
+            <td style="text-align:center;color:var(--color-purple);font-weight:700">{{ idx }}</td>
+            <td>
+                <a href="/funding-hub/{{ hub.address }}" style="color:var(--blue);text-decoration:none;font-family:monospace;font-size:12px;word-break:break-all">
+                    {{ hub.address }}
+                </a>
+            </td>
+            <td style="text-align:center;color:var(--blue);font-weight:600">{{ hub.funder_count }}</td>
+            <td style="text-align:center;color:var(--color-yellow);font-weight:600">{% if hub.is_likely_self_funded %}&mdash;{% else %}{{ hub.creator_count }}{% endif %}</td>
+            <td style="text-align:center;color:var(--color-purple);font-weight:600">{{ hub.token_count }}</td>
+            <td style="text-align:right;color:var(--accent-cyan);font-weight:600">{{ '%.2f'|format(hub.total_sol_sent) }} SOL</td>
+            <td style="text-align:center">{% if hub.created_tokens > 0 %}<span class="badge-count">{{ hub.created_tokens }}</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

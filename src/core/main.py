@@ -15,6 +15,7 @@ import requests
 import threading
 from datetime import datetime
 from flask import Flask, jsonify, render_template, render_template_string, request, Response, abort
+from flask_compress import Compress
 from typing import Dict, List, Optional
 import os
 import time
@@ -36,6 +37,7 @@ DB_PATH = os.environ.get('DB_PATH', 'database/flex_complete_database.db')
 # Flask app - set template folder to project root templates/
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 app = Flask(__name__, template_folder=os.path.join(PROJECT_ROOT, 'templates'))
+Compress(app)  # gzip all text/html and application/json responses automatically
 
 # Suppress Werkzeug request logging
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
@@ -660,16 +662,22 @@ def route_phase2c(endpoint_name, new_fn, legacy_fn):
 # DATABASE QUERIES
 # =========================================================================
 
-def get_migrated_tokens() -> List[Dict]:
-    """Get all analyzed post-migration tokens"""
+def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
+    """
+    Get recent migrated tokens for UI display.
+
+    light=True:
+        Fast homepage path. One main query only, no per-token enrichment queries.
+    light=False:
+        Full enrichment path for detail-heavy pages.
+    """
     try:
         from src.utils.infra_mapping import CEX_ACCOUNTS
-        
-        conn = sqlite3.connect(DB_PATH, timeout=30)
+
+        conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
-        # Query post-migration analysis data - LIMIT to 25 most recent tokens for UI display
         cursor.execute("""
             SELECT
                 ta.mint,
@@ -697,22 +705,69 @@ def get_migrated_tokens() -> List[Dict]:
                 ta.network_tier,
                 ta.network_is_cex
             FROM token_analysis ta
-            LEFT JOIN creator_networks cn ON ta.earliest_tx_creator = cn.creator_address
+            LEFT JOIN creator_networks cn
+                ON ta.earliest_tx_creator = cn.creator_address
+            WHERE ta.mint IS NOT NULL
             ORDER BY ta.created_at DESC
-            LIMIT 200
-        """)
+            LIMIT ?
+        """, (limit,))
 
+        rows = cursor.fetchall()
+
+        if light:
+            tokens = []
+            for row in rows:
+                tokens.append({
+                    'mint': row['mint'],
+                    'analyzed_at': row['analyzed_at'],
+                    'created_at': row['created_at'],
+                    'rug_probability': row['rug_probability'] if row['rug_probability'] else 0,
+                    'risk_level': row['risk_level'],
+                    'total_txs': 0,
+                    'total_events': row['events_parsed'] if row['events_parsed'] else 0,
+                    'coverage': row['post_migration_coverage'] if row['post_migration_coverage'] else 0,
+                    'price_current': row['price_current'] if row['price_current'] else None,
+                    'price_highest': row['price_highest'] if row['price_highest'] else None,
+                    'market_cap_current': row['market_cap_current'] if row['market_cap_current'] else None,
+                    'market_cap_highest': row['market_cap_highest'] if row['market_cap_highest'] else None,
+                    'market_cap_highest_at': row['market_cap_highest_at'] if row['market_cap_highest_at'] else None,
+                    'rug_indicator': row['rug_indicator'],
+                    'creator': row['earliest_tx_creator'] if row['earliest_tx_creator'] else None,
+                    'creator_is_blocked': bool(row['creator_is_blocked']) if row['creator_is_blocked'] else False,
+                    'network_risk': bool(row['network_risk']) if row['network_risk'] else False,
+                    'connected_malicious_count': row['connected_malicious_count'] if row['connected_malicious_count'] else 0,
+                    'creator_infra_tags': [],
+                    'top_funder': None,
+                    'funding_checked': False,
+                    'funding_progress': {
+                        'status': 'skipped',
+                        'progress_percent': 0,
+                        'funder_count': 0,
+                        'sources_extracted': 0,
+                        'completion_ratio': '0/0',
+                    },
+                    'network_name': row['cluster_name'],
+                    'network_id': row['cluster_id'],
+                    'cluster_id': row['cluster_id'] if row['cluster_id'] else None,
+                    'cluster_name': row['cluster_name'] if row['cluster_name'] else None,
+                    'cluster_risk_multiplier': row['cluster_risk_multiplier'] if row['cluster_risk_multiplier'] else 1.0,
+                    'atomic_network_name': row['network_name'] if row['network_name'] else None,
+                    'atomic_network_tier': row['network_tier'] if row['network_tier'] else None,
+                    'atomic_network_is_cex': bool(row['network_is_cex']) if row['network_is_cex'] else False,
+                })
+            conn.close()
+            return tokens
+
+        # Full enrichment path
         tokens = []
-        for row in cursor.fetchall():
-            # Get creator infrastructure tags if creator exists
+        for row in rows:
             creator_infra_tags = []
+            top_funder = None
+            funding_checked = False
+
             if row['earliest_tx_creator']:
-                # Deduplicate tags across sources
                 seen_tags = set()
 
-                # Get tags from creator_tags (domain tags, infrastructure markers)
-                # FILTER: Only allow valid tags from CEX/INFRA detection
-                valid_tags = {'uses_jitotip', 'uses_axiom', 'uses_debridge', 'uses_meteora'}
                 cursor.execute("""
                     SELECT tag, description, amount_sol FROM creator_tags
                     WHERE creator_address = ? AND tag IN (?, ?, ?, ?)
@@ -723,17 +778,14 @@ def get_migrated_tokens() -> List[Dict]:
                         seen_tags.add(tag_name)
                         creator_infra_tags.append({'tag': tag_name, 'description': tag_row[1], 'amount_sol': tag_row[2]})
 
-                # Also get service tags from creator_service_history (uses_jitotip, uses_meteora, etc.)
                 cursor.execute("""
                     SELECT DISTINCT tag FROM creator_service_history
                     WHERE creator_address = ?
                 """, (row['earliest_tx_creator'],))
-                service_tags = cursor.fetchall()
-                for service_tag_row in service_tags:
+                for service_tag_row in cursor.fetchall():
                     tag_name = service_tag_row[0]
-                    if tag_name not in seen_tags:  # Skip if already added from creator_tags
+                    if tag_name not in seen_tags:
                         seen_tags.add(tag_name)
-                        # Create description for service tags
                         tag_desc = {
                             'uses_jitotip': 'Uses Jito tips on CREATE transaction',
                             'uses_jitotip_other': 'Uses Jito MEV tips on transactions',
@@ -743,28 +795,18 @@ def get_migrated_tokens() -> List[Dict]:
                         }.get(tag_name, f'Uses {tag_name}')
                         creator_infra_tags.append({'tag': tag_name, 'description': tag_desc, 'amount_sol': None})
 
-                # Check if creator is funded by multi-creator funders (coordinated funding)
-                # Only tag if funder is NOT CEX/INFRA (exclude exchanges and infrastructure)
-                # Add as regular green tag alongside service tags
                 cursor.execute("""
                     SELECT COUNT(DISTINCT cf.funder_address) as coordinated_count
                     FROM creator_funders cf
                     WHERE cf.creator_address = ?
-                    AND cf.is_cex = 0
-                    AND cf.funder_address IN (SELECT funder_address FROM coordinated_funders)
+                      AND cf.is_cex = 0
+                      AND cf.funder_address IN (SELECT funder_address FROM coordinated_funders)
                 """, (row['earliest_tx_creator'],))
                 coordinated_result = cursor.fetchone()
                 if coordinated_result and coordinated_result[0] > 0 and 'Multi-Funder' not in seen_tags:
                     seen_tags.add('Multi-Funder')
                     creator_infra_tags.append({'tag': 'Multi-Funder', 'description': 'Funded by account(s) supporting multiple creators', 'amount_sol': None})
 
-                # Network membership is now indicated by network_name field, not a tag
-                # No need for Network-Coordinator tag since all network creators show their network name
-
-            # Get top funder for creator (to show CEX funding info)
-            top_funder = None
-            funding_checked = False
-            if row['earliest_tx_creator']:
                 cursor.execute("""
                     SELECT funder_address, cex_exchange, cex_type, amount_sol, is_cex
                     FROM creator_funders
@@ -778,14 +820,11 @@ def get_migrated_tokens() -> List[Dict]:
                     is_cex = bool(funder_row[4])
                     cex_exchange = funder_row[1]
                     cex_type = funder_row[2]
-
-                    # Check if funder is in live CEX_ACCOUNTS mapping
                     if not is_cex and funder_addr in CEX_ACCOUNTS:
                         is_cex = True
                         cex_info = CEX_ACCOUNTS[funder_addr]
                         cex_exchange = cex_info.get('exchange', cex_info.get('name', 'CEX'))
                         cex_type = cex_info.get('category', 'Wallet')
-
                     top_funder = {
                         'address': funder_addr,
                         'cex_exchange': cex_exchange,
@@ -794,7 +833,6 @@ def get_migrated_tokens() -> List[Dict]:
                         'is_cex': is_cex
                     }
 
-                # Check if funding has been extracted (has funder records)
                 cursor.execute("""
                     SELECT COUNT(*) as funding_count FROM creator_funders
                     WHERE creator_address = ?
@@ -802,19 +840,17 @@ def get_migrated_tokens() -> List[Dict]:
                 funding_result = cursor.fetchone()
                 funding_checked = funding_result[0] > 0 if funding_result else False
 
-            # Calculate funding extraction progress
-            funding_progress = calculate_funding_progress(row['earliest_tx_creator']) if row['earliest_tx_creator'] else {
-                'status': 'unknown',
-                'progress_percent': 0,
-                'funder_count': 0,
-                'sources_extracted': 0
-            }
-
-            # Network is the cluster (clusters are funding networks)
-            # Use cluster_name as network_name since clusters ARE networks
-            network_name = row['cluster_name']
-            network_id = row['cluster_id']
-
+            funding_progress = (
+                calculate_funding_progress(row['earliest_tx_creator'])
+                if row['earliest_tx_creator']
+                else {
+                    'status': 'unknown',
+                    'progress_percent': 0,
+                    'funder_count': 0,
+                    'sources_extracted': 0,
+                    'completion_ratio': '0/0'
+                }
+            )
 
             tokens.append({
                 'mint': row['mint'],
@@ -822,7 +858,7 @@ def get_migrated_tokens() -> List[Dict]:
                 'created_at': row['created_at'],
                 'rug_probability': row['rug_probability'] if row['rug_probability'] else 0,
                 'risk_level': row['risk_level'],
-                'total_txs': 0,  # Not used in new schema
+                'total_txs': 0,
                 'total_events': row['events_parsed'] if row['events_parsed'] else 0,
                 'coverage': row['post_migration_coverage'] if row['post_migration_coverage'] else 0,
                 'price_current': row['price_current'] if row['price_current'] else None,
@@ -839,8 +875,8 @@ def get_migrated_tokens() -> List[Dict]:
                 'top_funder': top_funder,
                 'funding_checked': funding_checked,
                 'funding_progress': funding_progress,
-                'network_name': network_name,
-                'network_id': network_id,
+                'network_name': row['cluster_name'],
+                'network_id': row['cluster_id'],
                 'cluster_id': row['cluster_id'] if row['cluster_id'] else None,
                 'cluster_name': row['cluster_name'] if row['cluster_name'] else None,
                 'cluster_risk_multiplier': row['cluster_risk_multiplier'] if row['cluster_risk_multiplier'] else 1.0,
@@ -2700,7 +2736,7 @@ HTML_TEMPLATE = """
         </div>
 
         <div id="tokens-container">
-            <div class="loading">Loading migrated tokens...</div>
+            <div class="loading">Loading...</div>
         </div>
 
         <!-- CEX Funders View -->
@@ -4603,6 +4639,17 @@ function switchToTokensTab() {
                             const formattedMC = '$' + formatMarketCap(update.market_cap);
                             mcElem.textContent = formattedMC;
                         }
+                    } else if (update.type === 'pool_registered') {
+                        console.log(`[SSE] Pool registered for ${update.mint?.substring(0, 16)}... (${update.elapsed_secs}s) — registering for price tracking + refreshing token list`);
+                        // Register immediately for price tracking so snapshots start before loadTokens fires
+                        if (update.mint) {
+                            fetch('/api/price/batch/register', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({mints: [update.mint]})
+                            }).catch(() => {});
+                        }
+                        loadTokens();
                     }
                 } catch (error) {
                     console.error('[SSE_PRICE] Parse error:', error);
@@ -7179,11 +7226,7 @@ def highlight_infra_in_funding(funders_list):
 @app.route('/')
 def index():
     """Serve the migration tracking dashboard"""
-    # Return HTML directly without Jinja2 processing
-    # The template contains ${{ }} which looks like Jinja2 escaping but is actually
-    # incorrect - Jinja2 would interpret {{ }} as a print statement regardless of the $
-    # Since there are no actual Jinja2 variables in the template, return it as-is
-    return HTML_TEMPLATE
+    return render_template('dashboard_home.html', active_page='tokens')
 
 
 @app.route('/coordinated-funder-analysis/<creator_address>')
@@ -7438,7 +7481,7 @@ def coordinated_funder_analysis_view(creator_address: str):
 @app.route('/api/migrated-tokens')
 def api_migrated_tokens():
     """Get all migrated tokens with analysis data"""
-    tokens = get_migrated_tokens()
+    tokens = get_migrated_tokens(limit=25, light=True)
     response = jsonify({'tokens': tokens})
     # Disable caching to ensure fresh data
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
@@ -9682,133 +9725,14 @@ def coordinated_funders_view():
             </tr>
             """
 
-        html = f"""
-        <html>
-        <head>
-            <title>Coordinated Funders</title>
-            <style>
-                :root {{
-                    --color-purple: #a78bfa;
-                    --color-cyan: #06b6d4;
-                    --color-green: #16a34a;
-                    --color-yellow: #fbbf24;
-                    --text-primary: #e5e7eb;
-                    --text-secondary: #9ca3af;
-                    --bg-dark: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
-                    --bg-card: rgba(30, 30, 40, 0.8);
-                    --bg-hover: rgba(167, 139, 250, 0.05);
-                    --border-color: rgba(167, 139, 250, 0.3);
-                    --border-hover: rgba(167, 139, 250, 0.6);
-                    --bg-secondary: rgba(20, 20, 30, 0.9);
-                    --accent-cyan: #06b6d4;
-                }}
-                body {{
-                    background: var(--bg-dark);
-                    color: var(--text-primary);
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
-                    padding: 30px;
-                    padding-left: 196px;
-                    margin: 0;
-                }}
-                {get_sidebar_css("rgba(30, 30, 40, 0.8)")}
-                .container {{
-                    max-width: 100%;
-                    margin: 0;
-                    padding: 0;
-                    width: 100%;
-                    box-sizing: border-box;
-                }}
-                h1 {{
-                    color: var(--color-purple);
-                    margin-bottom: 10px;
-                    margin-left: 0;
-                }}
-                .subtitle {{
-                    color: var(--text-secondary);
-                    font-size: 14px;
-                    margin-bottom: 30px;
-                    margin-left: 0;
-                }}
-                table {{
-                    width: 100%;
-                    border-collapse: collapse;
-                    background: var(--bg-card);
-                    border: 1px solid var(--border-color);
-                    border-radius: 8px;
-                    overflow: hidden;
-                }}
-                thead {{
-                    background: var(--bg-card);
-                    border-bottom: 2px solid var(--border-color);
-                    border-left: 3px solid var(--border-hover);
-                }}
-                th {{
-                    padding: 15px;
-                    text-align: left;
-                    color: var(--color-purple);
-                    font-weight: 600;
-                    font-size: 13px;
-                    text-transform: uppercase;
-                }}
-                td {{
-                    border-bottom: 1px solid rgba(167, 139, 250, 0.2);
-                }}
-                tr:hover {{
-                    background: var(--bg-hover);
-                }}
-                .back-link {{
-                    display: inline-block;
-                    margin-bottom: 20px;
-                    color: var(--color-cyan);
-                    text-decoration: none;
-                    font-size: 13px;
-                }}
-                .back-link:hover {{
-                    color: var(--color-purple);
-                    text-decoration: underline;
-                }}
-                .button {{
-                    background: rgba(167, 139, 250, 0.2);
-                    color: var(--color-purple);
-                    padding: 10px 20px;
-                    border: none;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    margin-top: 20px;
-                    font-weight: bold;
-                }}
-                .button:hover {{
-                    background: rgba(167, 139, 250, 0.3);
-                }}
-            </style>
-        </head>
-        <body>
-            {get_sidebar_html("coordinated-funders")}
-            <div class="container">
-                <h1>🔗 Coordinated Funders ({len(multi_funders)} total)</h1>
-                <p class="subtitle">Wallets that fund multiple creators, indicating coordination or network relationships</p>
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Funder Address</th>
-                            <th style="text-align: right;">Creators Funded</th>
-                            <th style="text-align: right;">Total SOL Sent</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {html_rows}
-                    </tbody>
-                </table>
-            </div>
-        </body>
-        </html>
-        """
-
-        return html
+        return render_template(
+            'coordinated_funders.html',
+            active_page='coordinated-funders',
+            funders=multi_funders,
+        )
 
     except Exception as e:
-        return f"<html><body style='background: var(--bg-dark); color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
+        return f"<html><body style='background:#0a0a0e; color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
 
 
 @app.route('/clusters')
@@ -9906,300 +9830,14 @@ def clusters_dashboard():
 
         conn.close()
 
-        # Build cluster rows HTML
-        cluster_rows = ""
-        for cluster in clusters:
-            color = {
-                'CRITICAL': '#EF4444',
-                'HIGH': '#F97316',
-                'MEDIUM': '#EAB308',
-                'CLEAN': '#16A34A'
-            }.get(cluster['risk_level'], '#8B5CF6')
-
-            rug_risk_color = '#EF4444' if cluster['rug_probability'] > 0.7 else ('#F97316' if cluster['rug_probability'] > 0.4 else '#16A34A')
-
-            cluster_rows += f"""
-            <tr style="cursor: pointer; transition: background-color 0.2s;" onclick="showClusterDetails('{cluster['cluster_id']}')" onmouseover="this.style.backgroundColor='rgba(167, 139, 250, 0.05)'" onmouseout="this.style.backgroundColor='transparent'">
-                <td style="padding: 12px; color: var(--color-purple); font-weight: bold;">{cluster['cluster_name']}</td>
-                <td style="padding: 12px; text-align: center; color: var(--color-cyan);">{cluster['funder_count']}</td>
-                <td style="padding: 12px; text-align: center; color: var(--color-yellow);">{cluster['creator_count']}</td>
-                <td style="padding: 12px; text-align: center; color: var(--color-purple);">{cluster['token_count']}</td>
-                <td style="padding: 12px; text-align: right; color: var(--color-green);">${cluster['total_volume_sol']:.2f}</td>
-                <td style="padding: 12px; text-align: center; color: {rug_risk_color};">{cluster['rug_probability']:.1%}</td>
-                <td style="padding: 12px; text-align: center; color: #ef4444;">{cluster['rug_count']}</td>
-                <td style="padding: 12px; text-align: center;">
-                    <span style="background: rgba(255, 0, 0, 0.1); color: {color}; padding: 6px 12px; border-radius: 4px; font-weight: bold;">
-                        {cluster['risk_multiplier']:.1f}x
-                    </span>
-                </td>
-                <td style="padding: 12px; font-size: 12px;">{cluster['risk_label']}</td>
-            </tr>
-            """
-
-        html = f"""
-        <html>
-        <head>
-            <title>Cross-Funding Clusters Dashboard</title>
-            <style>
-                :root {{
-                    --color-purple: #a78bfa;
-                    --color-cyan: #06b6d4;
-                    --color-green: #16a34a;
-                    --color-yellow: #fbbf24;
-                    --text-primary: #e5e7eb;
-                    --text-secondary: #9ca3af;
-                    --bg-dark: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
-                    --bg-card: rgba(30, 30, 40, 0.8);
-                    --bg-hover: rgba(167, 139, 250, 0.05);
-                    --border-color: rgba(167, 139, 250, 0.3);
-                    --border-hover: rgba(167, 139, 250, 0.6);
-                    --bg-secondary: rgba(20, 20, 30, 0.9);
-                    --accent-cyan: #06b6d4;
-                }}
-                body {{
-                    background: var(--bg-dark);
-                    color: var(--text-primary);
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
-                    padding: 30px;
-                    margin: 0;
-                    padding-left: 196px;
-                }}
-                {get_sidebar_css("rgba(30, 30, 40, 0.8)")}
-                .container {{
-                    max-width: 100%;
-                    margin: 0;
-                    padding: 0;
-                    width: 100%;
-                    box-sizing: border-box;
-                }}
-                h1 {{
-                    color: var(--color-purple);
-                    margin-bottom: 10px;
-                    margin-left: 0;
-                }}
-                h2 {{
-                    color: var(--color-purple);
-                    margin-bottom: 20px;
-                    margin-left: 0;
-                }}
-                .subtitle {{
-                    color: var(--text-secondary);
-                    font-size: 14px;
-                    margin-bottom: 30px;
-                    margin-left: 0;
-                }}
-                .stats-grid {{
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                    gap: 20px;
-                    margin-bottom: 40px;
-                }}
-                .stat-box {{
-                    background: var(--bg-card);
-                    padding: 20px;
-                    border-radius: 8px;
-                    border-left: 3px solid;
-                }}
-                .stat-box.funders {{
-                    border-left-color: rgba(22, 163, 74, 0.5);
-                }}
-                .stat-box.creators {{
-                    border-left-color: rgba(251, 191, 36, 0.5);
-                }}
-                .stat-box.tokens {{
-                    border-left-color: rgba(167, 139, 250, 0.5);
-                }}
-                .stat-box.volume {{
-                    border-left-color: rgba(22, 163, 74, 0.5);
-                }}
-                .stat-label {{
-                    color: var(--text-secondary);
-                    font-size: 11px;
-                    text-transform: uppercase;
-                    margin-bottom: 8px;
-                    font-weight: 600;
-                }}
-                .stat-value {{
-                    font-size: 28px;
-                    font-weight: bold;
-                }}
-                .stat-box.funders .stat-value {{
-                    color: var(--color-green);
-                }}
-                .stat-box.creators .stat-value {{
-                    color: var(--color-yellow);
-                }}
-                .stat-box.tokens .stat-value {{
-                    color: var(--color-purple);
-                }}
-                .stat-box.volume .stat-value {{
-                    color: var(--color-green);
-                }}
-                table {{
-                    width: 100%;
-                    border-collapse: collapse;
-                    background: var(--bg-card);
-                    border: 1px solid var(--border-color);
-                    border-radius: 8px;
-                    overflow: hidden;
-                }}
-                thead {{
-                    background: var(--bg-card);
-                    border-bottom: 2px solid var(--border-color);
-                    border-left: 3px solid var(--border-hover);
-                }}
-                th {{
-                    padding: 15px 12px;
-                    text-align: left;
-                    color: var(--color-purple);
-                    font-weight: bold;
-                    font-size: 13px;
-                    text-transform: uppercase;
-                }}
-                tr:hover {{
-                    background: var(--bg-hover);
-                }}
-                .back-link {{
-                    display: inline-block;
-                    margin-bottom: 20px;
-                    color: var(--color-cyan);
-                    text-decoration: none;
-                    font-size: 13px;
-                }}
-                .back-link:hover {{
-                    color: var(--color-purple);
-                    text-decoration: underline;
-                }}
-            </style>
-        </head>
-        <body>
-            {get_sidebar_html("clusters")}
-            <div class="container">
-                <h1>🚨 Cross-Funding Clusters</h1>
-                <p class="subtitle">
-                    Coordinated funder networks detected by the cross-funding analyzer.
-                    Shows clusters of funders that fund overlapping sets of creators with unusual density.
-                </p>
-
-                <div class="stats-grid">
-                    <div class="stat-box funders">
-                        <div class="stat-label">Clusters</div>
-                        <div class="stat-value">{len(clusters)}</div>
-                    </div>
-                    <div class="stat-box funders">
-                        <div class="stat-label">Funders</div>
-                        <div class="stat-value">{total_funders}</div>
-                    </div>
-                    <div class="stat-box creators">
-                        <div class="stat-label">Creators</div>
-                        <div class="stat-value">{total_creators}</div>
-                    </div>
-                    <div class="stat-box volume">
-                        <div class="stat-label">Volume (SOL)</div>
-                        <div class="stat-value">{total_volume:.0f}</div>
-                    </div>
-                </div>
-
-                <h2>Cluster Details</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Cluster Name</th>
-                            <th>Funders</th>
-                            <th>Creators</th>
-                            <th>Tokens</th>
-                            <th>Volume (SOL)</th>
-                            <th>Avg Rug Risk</th>
-                            <th>Rug Count</th>
-                            <th>Multiplier</th>
-                            <th>Risk Level</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {cluster_rows}
-                    </tbody>
-                </table>
-
-                <!-- Cluster Details Modal -->
-                <div id="clusterModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000;">
-                    <div class="modal-content" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 12px; padding: 40px; max-width: 900px; max-height: 80vh; overflow-y: auto; width: 90%;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                            <h2 id="modalTitle" style="color: var(--color-purple); margin: 0;"></h2>
-                            <button onclick="closeClusterModal()" style="background: none; border: none; color: var(--color-cyan); font-size: 24px; cursor: pointer;">✕</button>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;">
-                            <div style="background: rgba(6, 182, 212, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-cyan);">
-                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">FUNDERS</div>
-                                <div id="modalFunders" style="color: var(--color-cyan); font-size: 20px; font-weight: bold;"></div>
-                            </div>
-                            <div style="background: rgba(251, 191, 36, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-yellow);">
-                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">CREATORS</div>
-                                <div id="modalCreators" style="color: var(--color-yellow); font-size: 20px; font-weight: bold;"></div>
-                            </div>
-                            <div style="background: rgba(22, 163, 74, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-green);">
-                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">VOLUME (SOL)</div>
-                                <div id="modalVolume" style="color: var(--color-green); font-size: 20px; font-weight: bold;"></div>
-                            </div>
-                            <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #F97316;">
-                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">RISK LEVEL</div>
-                                <div id="modalRiskLevel" style="color: #F97316; font-size: 20px; font-weight: bold;"></div>
-                            </div>
-                        </div>
-
-                        <h3 style="color: var(--color-yellow); margin-top: 30px; margin-bottom: 15px;">Creators in this Cluster</h3>
-                        <div id="creatorsList" style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; max-height: 300px; overflow-y: auto;">
-                            <p style="color: var(--text-secondary);">Loading...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </body>
-        <script>
-            function showClusterDetails(clusterId) {{
-                fetch(`/api/funder-cluster/${{clusterId}}`)
-                    .then(r => r.json())
-                    .then(data => {{
-                        document.getElementById('modalTitle').textContent = data.cluster_name;
-                        document.getElementById('modalFunders').textContent = data.funder_count;
-                        document.getElementById('modalCreators').textContent = data.creator_count;
-                        document.getElementById('modalVolume').textContent = data.total_volume_sol.toFixed(2) + ' SOL';
-                        document.getElementById('modalRiskLevel').textContent = data.risk_label;
-
-                        const creatorsList = document.getElementById('creatorsList');
-                        if (data.creators && data.creators.length > 0) {{
-                            creatorsList.innerHTML = data.creators.map(c => `
-                                <div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: monospace; font-size: 12px; color: var(--color-cyan); word-break: break-all;">
-                                    ${{c.substring(0, 12)}}...${{c.substring(c.length - 8)}}
-                                </div>
-                            `).join('');
-                        }} else {{
-                            creatorsList.innerHTML = '<p style="color: var(--text-secondary);">No creators found</p>';
-                        }}
-
-                        document.getElementById('clusterModal').style.display = 'block';
-                    }})
-                    .catch(e => {{
-                        alert('Error loading cluster details: ' + e.message);
-                    }});
-            }}
-
-            function closeClusterModal() {{
-                document.getElementById('clusterModal').style.display = 'none';
-            }}
-
-            // Close modal when clicking outside
-            document.addEventListener('click', function(event) {{
-                const modal = document.getElementById('clusterModal');
-                if (event.target === modal) {{
-                    modal.style.display = 'none';
-                }}
-            }});
-        </script>
-        </html>
-        """
-
-        return html
+        return render_template(
+            'clusters.html',
+            active_page='clusters',
+            clusters=clusters,
+            total_funders=total_funders,
+            total_creators=total_creators,
+            total_volume=total_volume,
+        )
 
     except Exception as e:
         return f"<html><body style='background: var(--bg-dark); color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
@@ -14145,379 +13783,15 @@ def networks_dashboard():
     total_sol = context['total_sol']
     total_networks = context['total_networks']
 
-    # Build network cards HTML
-    network_cards = ""
-    for net in networks:
-        network_name_escaped = net['name'].replace("'", "\\'")
-        is_cex = "true" if net['is_cex'] else "false"
-        # Build score badge HTML (if score exists)
-        score_badge_html = ""
-        if net['score'] is not None:
-            badge_color_map = {
-                'high': '#ef4444',    # red
-                'medium': '#eab308',  # yellow
-                'low': '#22c55e'      # green
-            }
-            badge_color = badge_color_map.get(net['score_badge'], '#eab308')
-            score_badge_html = f"""<span style="display: inline-block; background-color: {badge_color}; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-left: 8px;">{net['score']}</span>"""
-
-        network_cards += f"""
-        <div data-is-cex="{is_cex}" data-token-count="{net['token_count']}" data-creators-funded="{net['creators_funded']}" data-sol-amount="{net['sol_amount']:.0f}" style="background: rgba(167, 139, 250, 0.08); border: 1px solid rgba(167, 139, 250, 0.3); border-radius: 8px; padding: 20px; cursor: pointer; transition: all 0.2s ease;" onclick="showNetworkDetails('{network_name_escaped}')" onmouseover="this.style.borderColor='rgba(167, 139, 250, 0.6)'; this.style.background='rgba(167, 139, 250, 0.15)';" onmouseout="this.style.borderColor='rgba(167, 139, 250, 0.3)'; this.style.background='rgba(167, 139, 250, 0.08)';">
-            <h3 style="margin: 0 0 20px 0; color: var(--text-primary); font-size: 16px;">{net['name']}{score_badge_html}</h3>
-
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
-                <!-- Network Members -->
-                <div style="background: rgba(30, 30, 40, 0.8); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(22, 163, 74, 0.5);">
-                    <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Members</div>
-                    <div style="font-weight: bold; font-size: 18px; color: var(--color-green);">{net.get('network_size', 0)}</div>
-                </div>
-
-                <!-- Creators -->
-                <div style="background: rgba(30, 30, 40, 0.8); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(251, 191, 36, 0.5);">
-                    <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Creators</div>
-                    <div style="font-weight: bold; font-size: 18px; color: var(--color-yellow);">{net.get('creators_funded', 0)}</div>
-                </div>
-
-                <!-- Tokens -->
-                <div style="background: rgba(30, 30, 40, 0.8); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(22, 163, 74, 0.5);">
-                    <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">💰 Tokens</div>
-                    <div style="font-weight: bold; font-size: 18px; color: var(--color-green);">{net.get('token_count', 0)}</div>
-                </div>
-
-                <!-- SOL -->
-                <div style="background: rgba(30, 30, 40, 0.8); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(167, 139, 250, 0.5);">
-                    <div style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">SOL</div>
-                    <div style="font-weight: bold; font-size: 18px; color: var(--color-purple);">{net.get('sol_amount', 0):.0f}</div>
-                </div>
-
-                {f'<!-- CEX/INFRA Label --><div style="background: rgba(30, 30, 40, 0.8); padding: 12px; border-radius: 6px; border-left: 3px solid rgba(167, 139, 250, 0.5); grid-column: span 2;"><div style="font-weight: bold; font-size: 12px; color: var(--color-purple);">{net["cex_label"]}</div></div>' if net['cex_label'] else ''}
-            </div>
-        </div>
-        """
-
-    html = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Atomic Funder Networks Dashboard</title>
-        <style>
-            :root {{
-                --color-purple: #a78bfa;
-                --color-cyan: #06b6d4;
-                --color-green: #16a34a;
-                --color-yellow: #fbbf24;
-                --text-primary: #e5e7eb;
-                --text-secondary: #9ca3af;
-                --bg-dark: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
-                --bg-card: rgba(30, 30, 40, 0.8);
-                --bg-hover: rgba(167, 139, 250, 0.05);
-                --border-color: rgba(167, 139, 250, 0.3);
-                --bg-secondary: rgba(20, 20, 30, 0.9);
-                --accent-cyan: #06b6d4;
-            }}
-            body {{
-                background: var(--bg-dark);
-                color: var(--text-primary);
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
-                padding: 30px;
-                margin: 0;
-                padding-left: 196px;
-            }}
-            {get_sidebar_css("rgba(30, 30, 40, 0.8)")}
-            .container {{
-                max-width: 100%;
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                box-sizing: border-box;
-            }}
-            h1 {{
-                color: var(--color-purple);
-                margin-bottom: 10px;
-                margin-left: 0;
-            }}
-            .subtitle {{
-                color: var(--text-secondary);
-                font-size: 14px;
-                margin-bottom: 30px;
-                margin-left: 0;
-            }}
-            .back-link {{
-                display: inline-block;
-                margin-left: 0;
-                margin-bottom: 20px;
-                color: var(--color-cyan);
-                text-decoration: none;
-                font-size: 13px;
-            }}
-            .back-link:hover {{
-                color: var(--color-purple);
-                text-decoration: underline;
-            }}
-            .stats-grid {{
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 20px;
-                margin-bottom: 30px;
-            }}
-            .stat-card {{
-                background: var(--bg-card);
-                border: 1px solid var(--border-color);
-                border-radius: 8px;
-                padding: 20px;
-            }}
-            .stat-value {{
-                font-size: 28px;
-                font-weight: bold;
-                color: var(--color-purple);
-                margin-bottom: 5px;
-            }}
-            .stat-label {{
-                font-size: 12px;
-                color: var(--text-secondary);
-                text-transform: uppercase;
-            }}
-            #networksGrid {{
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-                gap: 20px;
-            }}
-            .network-card {{
-                background: rgba(167, 139, 250, 0.08);
-                border: 1px solid var(--border-color);
-                border-radius: 8px;
-                padding: 20px;
-                cursor: pointer;
-                transition: all 0.2s ease;
-            }}
-            .network-card:hover {{
-                border-color: rgba(167, 139, 250, 0.6);
-                background: rgba(167, 139, 250, 0.15);
-            }}
-            .network-card h3 {{
-                margin: 0 0 20px 0;
-                color: var(--text-primary);
-                font-size: 16px;
-            }}
-            .network-grid {{
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-            }}
-            .stat-box {{
-                background: var(--bg-card);
-                padding: 12px;
-                border-radius: 6px;
-                border-left: 3px solid var(--border-color);
-            }}
-            .stat-box-label {{
-                color: var(--text-secondary);
-                font-size: 11px;
-                text-transform: uppercase;
-                margin-bottom: 5px;
-            }}
-            .stat-box-value {{
-                font-weight: bold;
-                font-size: 18px;
-                color: var(--color-purple);
-            }}
-            #networkModal {{
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.7);
-                z-index: 10000;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-            }}
-            #networkModal.show {{
-                display: flex;
-            }}
-            .modal-content {{
-                background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
-                border-radius: 12px;
-                max-width: 1000px;
-                width: 100%;
-                max-height: 90vh;
-                overflow-y: auto;
-                padding: 30px;
-                position: relative;
-                border: 1px solid var(--border-color);
-            }}
-            .modal-close {{
-                position: absolute;
-                top: 15px;
-                right: 15px;
-                background: transparent;
-                border: none;
-                font-size: 24px;
-                cursor: pointer;
-                color: var(--text-secondary);
-                z-index: 10001;
-            }}
-        </style>
-    </head>
-    <body>
-        {get_sidebar_html("networks")}
-        <div class="container">
-            <h1>🔗 Funding Networks</h1>
-            <p class="subtitle">Coordinated funding groups across {total_networks} networks.</p>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value">{total_networks}</div>
-                    <div class="stat-label">Total Networks</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">{total_creators_funded:,.0f}</div>
-                    <div class="stat-label">Creators Tracked</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">{total_tokens}</div>
-                    <div class="stat-label">Tokens</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">~{total_sol/1000:.1f}k</div>
-                    <div class="stat-label">SOL Traced</div>
-                </div>
-            </div>
-
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 30px; margin-bottom: 20px;">
-                <h2 style="color: var(--color-purple); margin: 0;">All Networks</h2>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <span style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; font-weight: bold;">Filter CEX:</span>
-                    <button id="networksToggleCex" onclick="toggleNetworksCex()" style="padding: 6px 12px; border-radius: 4px; border: 1px solid rgba(167, 139, 250, 0.5); background: rgba(167, 139, 250, 0.1); color: var(--color-purple); font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
-                        ✓ ON
-                    </button>
-                </div>
-            </div>
-            <div id="networksGrid">
-                {network_cards}
-            </div>
-        </div>
-
-        <!-- Network Details Modal -->
-        <div id="networkModal">
-            <div class="modal-content">
-                <button class="modal-close" onclick="closeNetworkModal()">✕</button>
-                <h2 style="margin: 0 0 25px 0; color: var(--text-primary);" id="networkModalTitle">Network Details</h2>
-                <div id="networkModalContent" style="color: var(--text-primary);">
-                    Loading...
-                </div>
-            </div>
-        </div>
-
-        <script>
-            let showCexNetworks = true;
-
-            function toggleNetworksCex() {{
-                showCexNetworks = !showCexNetworks;
-                const button = document.getElementById('networksToggleCex');
-                const grid = document.getElementById('networksGrid');
-
-                if (showCexNetworks) {{
-                    button.textContent = '✓ ON';
-                    button.style.background = 'rgba(167, 139, 250, 0.1)';
-                    button.style.color = 'var(--color-purple)';
-                    button.style.borderColor = 'rgba(167, 139, 250, 0.5)';
-                }} else {{
-                    button.textContent = '✗ OFF';
-                    button.style.background = 'rgba(239, 68, 68, 0.1)';
-                    button.style.color = '#ef4444';
-                    button.style.borderColor = 'rgba(239, 68, 68, 0.5)';
-                }}
-
-                // Filter network cards based on CEX toggle
-                const cards = grid.querySelectorAll('[data-is-cex]');
-                cards.forEach(card => {{
-                    const isCex = card.getAttribute('data-is-cex') === 'true';
-                    if (showCexNetworks) {{
-                        // Show all networks
-                        card.style.display = '';
-                    }} else {{
-                        // Hide CEX networks, show only non-CEX
-                        card.style.display = isCex ? 'none' : '';
-                    }}
-                }});
-            }}
-
-            function showNetworkDetails(networkName) {{
-                const modal = document.getElementById('networkModal');
-                const content = document.getElementById('networkModalContent');
-                const title = document.getElementById('networkModalTitle');
-
-                modal.classList.add('show');
-                title.textContent = 'Network: ' + networkName;
-                content.innerHTML = '<div style="padding: 20px; text-align: center;">Loading network details...</div>';
-
-                // Try to fetch network details from API
-                fetch(`/api/network-tokens/${{encodeURIComponent(networkName)}}`)
-                    .then(r => r.json())
-                    .then(data => {{
-                        if (data.error) {{
-                            content.innerHTML = `<div style="color: #ef4444;">Error: ${{data.error}}</div>`;
-                            return;
-                        }}
-
-                        let html = '<div style="padding: 20px;">';
-
-                        // Show network info
-                        html += '<div style="background: var(--bg-card); padding: 15px; border-radius: 6px; margin-bottom: 20px;">';
-                        html += '<div style="color: var(--color-purple); font-size: 11px; text-transform: uppercase; margin-bottom: 10px; font-weight: 600;">Network Composition</div>';
-                        if (data.network_type) html += '<div style="margin-bottom: 8px;"><strong>Type:</strong> ' + data.network_type + '</div>';
-                        if (data.network_size) html += '<div style="margin-bottom: 8px; padding: 8px; background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6; border-radius: 3px;"><strong>👥 Network Members (Funders):</strong> ' + data.network_size + '</div>';
-                        html += '</div>';
-
-                        // Show stats
-                        html += '<div style="background: var(--bg-card); padding: 15px; border-radius: 6px; margin-bottom: 15px;">';
-                        html += '<div style="color: var(--color-yellow); font-size: 11px; text-transform: uppercase; margin-bottom: 10px; font-weight: 600;">Funding Impact</div>';
-                        html += '<div style="margin-bottom: 8px;"><strong>👤 Creators Funded:</strong> ' + ((data.creators_count !== undefined) ? data.creators_count : 0) + '</div>';
-                        html += '<div style="margin-bottom: 8px;"><strong>🎯 Creators with Tokens:</strong> ' + ((data.creators_with_tokens !== undefined) ? data.creators_with_tokens : 0) + '</div>';
-                        html += '<div style="margin-bottom: 8px; padding: 8px; background: rgba(22, 163, 74, 0.1); border-left: 3px solid var(--color-green); border-radius: 3px;"><strong>💰 Tokens Launched:</strong> ' + ((data.token_count !== undefined) ? data.token_count : 0) + '</div>';
-                        html += '</div>';
-
-                        // Show tokens if available
-                        if (data.tokens && data.tokens.length > 0) {{
-                            html += '<div style="margin-top: 20px;">';
-                            html += '<h3 style="color: var(--color-purple); margin-top: 0;">Tokens (' + data.tokens.length + ')</h3>';
-                            html += '<div style="max-height: 400px; overflow-y: auto;">';
-                            for (let token of data.tokens.slice(0, 20)) {{
-                                html += '<div style="padding: 10px; background: rgba(167, 139, 250, 0.1); border-radius: 6px; margin-bottom: 10px; font-size: 12px;">';
-                                html += '<div style="font-family: monospace; word-break: break-all; color: #3b82f6; margin-bottom: 5px;">Mint: ' + token.mint + '</div>';
-                                if (token.creator) html += '<div>Creator: ' + token.creator.substring(0, 8) + '...</div>';
-                                if (token.market_cap) html += '<div>Market Cap: $' + (token.market_cap / 1000000).toFixed(2) + 'M</div>';
-                                html += '</div>';
-                            }}
-                            html += '</div></div>';
-                        }}
-
-                        content.innerHTML = html + '</div>';
-                    }})
-                    .catch(e => {{
-                        // Fallback if API not available
-                        content.innerHTML = `<div style="padding: 20px;"><p>Network: <strong>${{networkName}}</strong></p><p style="color: var(--text-secondary); font-size: 14px;">Click on a network to see more details.</p></div>`;
-                    }});
-            }}
-
-            function closeNetworkModal() {{
-                document.getElementById('networkModal').classList.remove('show');
-            }}
-
-            // Close modal when clicking outside
-            document.getElementById('networkModal').addEventListener('click', function(e) {{
-                if (e.target === this) {{
-                    closeNetworkModal();
-                }}
-            }});
-        </script>
-    </body>
-    </html>
-    """
-    return html
+    return render_template(
+        "networks_dashboard.html",
+        networks=networks,
+        total_networks=total_networks,
+        total_creators_funded=total_creators_funded,
+        total_tokens=total_tokens,
+        total_sol=total_sol,
+        active_page="networks"
+    )
 
 
 @app.route('/top-funding-hubs')
@@ -14600,223 +13874,14 @@ def top_funding_hubs():
 
         conn.close()
 
-        html = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Top Funding Hubs</title>
-            <style>
-                :root {
-                    --color-purple: #a78bfa;
-                    --color-cyan: #06b6d4;
-                    --color-green: #16a34a;
-                    --color-yellow: #fbbf24;
-                    --text-primary: #e5e7eb;
-                    --text-secondary: #9ca3af;
-                    --bg-dark: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
-                    --bg-card: rgba(30, 30, 40, 0.8);
-                    --bg-hover: rgba(167, 139, 250, 0.05);
-                    --border-color: rgba(167, 139, 250, 0.3);
-                    --blue: #3b82f6;
-                    --bg-secondary: rgba(20, 20, 30, 0.9);
-                    --accent-cyan: #06b6d4;
-                }
-
-                * {
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
-
-                body {
-                    background: var(--bg-dark);
-                    color: var(--text-primary);
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
-                    padding: 30px;
-                    padding-left: 196px;
-                    margin: 0;
-                }
-                """ + get_sidebar_css("rgba(30, 30, 40, 0.8)") + """
-
-                .container {
-                    max-width: 100%;
-                    margin: 0;
-                    padding: 0;
-                    width: 100%;
-                    box-sizing: border-box;
-                }
-
-                h1 {
-                    color: var(--color-purple);
-                    margin-left: 0;
-                    margin-bottom: 10px;
-                    font-size: 32px;
-                }
-
-                .subtitle {
-                    color: var(--text-secondary);
-                    margin-bottom: 30px;
-                    font-size: 14px;
-                }
-
-                .back-link {
-                    display: inline-block;
-                    margin-bottom: 20px;
-                    color: var(--color-cyan);
-                    text-decoration: none;
-                    font-size: 13px;
-                }
-
-                .back-link:hover {
-                    color: var(--color-purple);
-                    text-decoration: underline;
-                }
-
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    background: var(--bg-card);
-                    border: 1px solid var(--border-color);
-                    border-radius: 8px;
-                    overflow: hidden;
-                }
-
-                thead {
-                    background: var(--bg-card);
-                    border-bottom: 2px solid var(--border-color);
-                    border-left: 3px solid rgba(167, 139, 250, 0.5);
-                }
-
-                th {
-                    padding: 15px;
-                    text-align: left;
-                    color: var(--color-purple);
-                    font-weight: 600;
-                    font-size: 13px;
-                    text-transform: uppercase;
-                }
-
-                td {
-                    padding: 15px;
-                    border-bottom: 1px solid rgba(167, 139, 250, 0.2);
-                    font-size: 13px;
-                }
-
-                tr:last-child td {
-                    border-bottom: none;
-                }
-
-                tbody tr:hover {
-                    background: var(--bg-hover);
-                }
-
-                .address {
-                    font-family: monospace;
-                    font-size: 11px;
-                    word-break: break-all;
-                }
-
-                .address-link {
-                    color: var(--blue);
-                    text-decoration: none;
-                    cursor: pointer;
-                }
-
-                .address-link:hover {
-                    color: var(--color-purple);
-                    text-decoration: underline;
-                }
-
-                .stat-number {
-                    font-weight: bold;
-                }
-
-                .stat-funders {
-                    color: var(--blue);
-                }
-
-                .stat-creators {
-                    color: var(--color-yellow);
-                }
-
-                .stat-tokens {
-                    color: var(--color-purple);
-                }
-
-                .stat-sol {
-                    color: var(--color-cyan);
-                }
-
-                .badge {
-                    display: inline-block;
-                    padding: 4px 8px;
-                    border-radius: 4px;
-                    font-size: 11px;
-                    font-weight: 600;
-                    background-color: rgba(22, 163, 74, 0.2);
-                    color: var(--color-green);
-                }
-
-                .rank {
-                    font-weight: bold;
-                    color: var(--color-purple);
-                    font-size: 14px;
-                    text-align: center;
-                }
-            </style>
-        </head>
-        <body>
-            """ + get_sidebar_html("hubs") + """
-            <div class="container">
-                <h1>Top Funding Distribution Senders</h1>
-                <p class="subtitle">Wallets that send funds to the most funders. These represent major coordination hubs distributing capital.</p>
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="text-align: center; width: 40px;">#</th>
-                            <th>Sender Address</th>
-                            <th style="text-align: center;">Funders Funded</th>
-                            <th style="text-align: center;">Creators Funded</th>
-                            <th style="text-align: center;">Total Tokens Launched</th>
-                            <th style="text-align: right;">SOL Sent</th>
-                            <th style="text-align: center;">Tokens Created</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        """
-
-        for idx, hub in enumerate(hubs, 1):
-            hub_link = f'<a href="/funding-hub/{hub["address"]}" class="address-link">{hub["address"]}</a>'
-            created_badge = f'<span class="badge">{hub["created_tokens"]}</span>' if hub["created_tokens"] > 0 else ''
-
-            # Show blank for self-funded creators (no count display)
-            creator_display = '-' if hub["is_likely_self_funded"] else str(hub["creator_count"])
-
-            html += f"""
-                        <tr>
-                            <td class="rank">{idx}</td>
-                            <td><span class="address">{hub_link}</span></td>
-                            <td style="text-align: center;"><span class="stat-number stat-funders">{hub["funder_count"]}</span></td>
-                            <td style="text-align: center;"><span class="stat-number stat-creators">{creator_display}</span></td>
-                            <td style="text-align: center;"><span class="stat-number stat-tokens">{hub["token_count"]}</span></td>
-                            <td style="text-align: right;"><span class="stat-number stat-sol">{hub["total_sol_sent"]:.2f} SOL</span></td>
-                            <td style="text-align: center;">{created_badge}</td>
-                        </tr>
-            """
-
-        html += """
-                    </tbody>
-                </table>
-            </div>
-        </body>
-        </html>
-        """
-
-        return html
+        return render_template(
+            'top_funding_hubs.html',
+            active_page='hubs',
+            hubs=list(enumerate(hubs, 1)),
+        )
 
     except Exception as e:
-        return f"<html><body style='background: var(--bg-dark); color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
+        return f"<html><body style='background:#0a0a0e; color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
 
 
 @app.route('/funding-hub/<hub_address>')
@@ -15295,1379 +14360,7 @@ def api_creator_analysis_queue_status():
 @app.route('/creator-analysis')
 def creator_analysis_page():
     """Display creator scan history, findings, and network impacts"""
-    try:
-        html = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Creator Outgoing Transfer Analysis</title>
-            <style>
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                :root {
-                    --primary: #7c3aed;
-                    --primary-dark: #6d28d9;
-                    --text-primary: #e5e7eb;
-                    --text-secondary: #a1a5b4;
-                    --bg-primary: #1a1a24;
-                    --bg-secondary: rgba(20, 20, 32, 0.85);
-                    --accent-cyan: #06b6d4;
-                    --accent-purple: #a78bfa;
-                    --color-critical: #ef4444;
-                    --color-high: #f97316;
-                    --color-medium: #eab308;
-                    --color-low: #22c55e;
-                    --color-none: #3b82f6;
-                }
-                body {
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
-                    background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
-                    color: var(--text-primary);
-                    padding: 20px;
-                    padding-left: 196px;
-                    margin: 0;
-                }
-                """ + get_sidebar_css("rgba(20, 20, 32, 0.85)") + """
-                .container { max-width: 100%; margin: 0; padding: 0; width: 100%; box-sizing: border-box; }
-                header {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-left: 0;
-                    align-items: center;
-                    margin-bottom: 30px;
-                    padding: 20px;
-                    background: var(--bg-secondary);
-                    border-radius: 8px;
-                    border-left: 4px solid var(--accent-cyan);
-                }
-                h1 { color: var(--accent-cyan); font-size: 28px; }
-                .back-btn {
-                    background: rgba(124, 58, 237, 0.2);
-                    color: var(--accent-cyan);
-                    border: 1px solid rgba(124, 58, 237, 0.5);
-                    padding: 10px 20px;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-size: 12px;
-                    font-family: 'Segoe UI', sans-serif;
-                }
-                .back-btn:hover { background: rgba(124, 58, 237, 0.3); }
-
-                .search-section {
-                    margin-bottom: 30px;
-                    display: flex;
-                    gap: 15px;
-                }
-                .search-input {
-                    flex: 1;
-                    background: var(--bg-secondary);
-                    border: 1px solid rgba(124, 58, 237, 0.3);
-                    color: var(--text-primary);
-                    padding: 12px 16px;
-                    border-radius: 6px;
-                    font-family: 'Segoe UI', sans-serif;
-                    font-size: 14px;
-                }
-                .search-input:focus {
-                    outline: none;
-                    border-color: var(--accent-cyan);
-                    box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
-                }
-                .search-btn {
-                    background: rgba(124, 58, 237, 0.2);
-                    color: var(--primary);
-                    border: 1px solid rgba(124, 58, 237, 0.5);
-                    padding: 12px 28px;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-family: 'Segoe UI', sans-serif;
-                    font-weight: 600;
-                }
-                .search-btn:hover { background: rgba(124, 58, 237, 0.3); }
-
-                .creator-section {
-                    background: var(--bg-secondary);
-                    border: 1px solid rgba(124, 58, 237, 0.2);
-                    border-radius: 8px;
-                    padding: 20px;
-                    margin-bottom: 20px;
-                }
-
-                .scan-meta {
-                    display: grid;
-                    grid-template-columns: repeat(4, 1fr);
-                    gap: 15px;
-                    margin-bottom: 20px;
-                }
-                .meta-item {
-                    background: rgba(124, 58, 237, 0.1);
-                    border-left: 3px solid var(--primary);
-                    padding: 15px;
-                    border-radius: 6px;
-                }
-                .meta-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; }
-                .meta-value { font-size: 13px; color: var(--text-primary); margin-top: 6px; word-break: break-all; }
-
-                .findings-section {
-                    margin-top: 25px;
-                }
-                .findings-title {
-                    color: var(--accent-purple);
-                    font-size: 14px;
-                    font-weight: 700;
-                    margin-bottom: 15px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                }
-
-                .finding-card {
-                    background: rgba(239, 68, 68, 0.05);
-                    border-left: 3px solid var(--color-critical);
-                    padding: 15px;
-                    margin-bottom: 12px;
-                    border-radius: 6px;
-                    border: 1px solid rgba(239, 68, 68, 0.2);
-                }
-                .finding-card.clean {
-                    background: rgba(34, 197, 94, 0.05);
-                    border-left-color: var(--color-low);
-                    border-color: rgba(34, 197, 94, 0.2);
-                }
-                .finding-card.critical {
-                    background: rgba(239, 68, 68, 0.15);
-                    border-left-color: #ff0000;
-                    border-color: rgba(239, 68, 68, 0.5);
-                    animation: critical-pulse 1s infinite;
-                }
-                @keyframes critical-pulse {
-                    0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
-                    50% { opacity: 0.9; box-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
-                }
-
-                .finding-type {
-                    display: inline-block;
-                    background: rgba(239, 68, 68, 0.15);
-                    color: var(--color-critical);
-                    padding: 4px 10px;
-                    border-radius: 4px;
-                    font-size: 11px;
-                    font-weight: 600;
-                    margin-right: 8px;
-                }
-                .finding-type.clean {
-                    background: rgba(34, 197, 94, 0.15);
-                    color: var(--color-low);
-                }
-
-                .finding-details {
-                    font-size: 13px;
-                    color: var(--text-primary);
-                    margin-top: 8px;
-                    line-height: 1.5;
-                }
-
-                .network-list {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 8px;
-                    margin-top: 10px;
-                }
-                .network-badge {
-                    background: rgba(168, 139, 250, 0.15);
-                    color: var(--accent-purple);
-                    padding: 5px 12px;
-                    border-radius: 4px;
-                    font-size: 11px;
-                    border: 1px solid rgba(168, 139, 250, 0.3);
-                    font-weight: 500;
-                }
-
-                .network-link {
-                    color: var(--accent-purple);
-                    text-decoration: underline;
-                    cursor: pointer;
-                    font-weight: 600;
-                    border-bottom: 2px solid var(--accent-purple);
-                    transition: all 0.2s;
-                    display: inline-block;
-                }
-
-                .network-link:hover {
-                    color: var(--accent-cyan);
-                    border-bottom-color: var(--accent-cyan);
-                }
-
-                .network-link:active {
-                    color: var(--accent-cyan);
-                }
-
-                .tokens-section {
-                    margin-top: 25px;
-                }
-                .tokens-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                    gap: 15px;
-                    margin-top: 15px;
-                }
-                .token-card {
-                    background: var(--bg-secondary);
-                    border: 1px solid rgba(124, 58, 237, 0.2);
-                    padding: 16px;
-                    border-radius: 8px;
-                    font-size: 13px;
-                    transition: all 0.2s;
-                }
-                .token-card:hover {
-                    border-color: rgba(124, 58, 237, 0.4);
-                    background: rgba(20, 20, 32, 1);
-                }
-                .recipients-table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    background: var(--bg-secondary);
-                    border: 1px solid rgba(124, 58, 237, 0.3);
-                    border-radius: 8px;
-                    overflow: hidden;
-                    margin-bottom: 12px;
-                }
-
-                .recipients-table thead {
-                    background: var(--bg-secondary);
-                    border-bottom: 2px solid rgba(124, 58, 237, 0.3);
-                    border-left: 3px solid rgba(124, 58, 237, 0.5);
-                }
-
-                .recipients-table th {
-                    padding: 12px 15px;
-                    text-align: left;
-                    color: var(--accent-purple);
-                    font-weight: 600;
-                    font-size: 12px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                }
-
-                .recipients-table td {
-                    padding: 12px 15px;
-                    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
-                    font-size: 12px;
-                }
-
-                .recipients-table tbody tr:hover {
-                    background: rgba(124, 58, 237, 0.08);
-                }
-
-                .recipients-table tr:last-child td {
-                    border-bottom: none;
-                }
-
-                .recipient-info {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 4px;
-                }
-
-                .recipient-address {
-                    color: var(--accent-cyan);
-                    font-size: 11px;
-                    font-family: 'Courier New', monospace;
-                    word-break: break-all;
-                }
-
-                .recipient-network {
-                    color: var(--accent-purple);
-                    font-size: 10px;
-                    font-weight: 600;
-                    background: rgba(168, 139, 250, 0.15);
-                    padding: 2px 6px;
-                    border-radius: 3px;
-                    border: 1px solid rgba(168, 139, 250, 0.3);
-                    width: fit-content;
-                }
-
-                .recipient-labels {
-                    color: var(--text-secondary);
-                    font-size: 9px;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                }
-
-                .recipient-amount {
-                    color: var(--accent-cyan);
-                    font-weight: 600;
-                    text-align: right;
-                }
-
-                .funded-creator-row {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 2px;
-                    margin-bottom: 6px;
-                    padding: 0;
-                    background: transparent;
-                    border-left: none;
-                }
-
-                .funded-creator-row:last-child {
-                    margin-bottom: 0;
-                }
-
-                .funded-creator-address {
-                    color: var(--accent-cyan);
-                    font-size: 11px;
-                    font-family: 'Courier New', monospace;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
-
-                .creator-network {
-                    color: var(--accent-purple);
-                    font-size: 10px;
-                    font-weight: 600;
-                    background: rgba(168, 139, 250, 0.15);
-                    padding: 2px 6px;
-                    border-radius: 3px;
-                    border: 1px solid rgba(168, 139, 250, 0.3);
-                    white-space: nowrap;
-                    width: fit-content;
-                }
-
-                .creator-labels {
-                    color: var(--text-secondary);
-                    font-size: 9px;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                    white-space: nowrap;
-                }
-
-                .creator-items {
-                    display: flex;
-                    gap: 8px;
-                    flex-direction: column;
-                }
-
-                .collapse-toggle {
-                    cursor: pointer;
-                    color: var(--accent-cyan);
-                    font-weight: 700;
-                    user-select: none;
-                    font-size: 12px;
-                }
-                .flag-badge {
-                    display: inline-block;
-                    background: rgba(239, 68, 68, 0.15);
-                    color: var(--color-critical);
-                    padding: 2px 6px;
-                    border-radius: 3px;
-                    font-size: 9px;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                    border: 1px solid rgba(239, 68, 68, 0.3);
-                }
-                .flag-badge.creator {
-                    background: rgba(234, 179, 8, 0.15);
-                    color: var(--color-medium);
-                    border-color: rgba(234, 179, 8, 0.3);
-                }
-                .flag-badge.funds {
-                    background: rgba(168, 139, 250, 0.15);
-                    color: var(--accent-purple);
-                    border-color: rgba(168, 139, 250, 0.3);
-                }
-                .flag-badge.cross-funder {
-                    background: rgba(239, 68, 68, 0.25);
-                    color: #ff4444;
-                    border-color: rgba(239, 68, 68, 0.5);
-                    font-weight: 700;
-                    animation: pulse 2s infinite;
-                }
-                .flag-badge.sender {
-                    background: rgba(251, 146, 60, 0.15);
-                    color: #f97316;
-                    border-color: rgba(251, 146, 60, 0.3);
-                }
-                .flag-badge.multi-funded {
-                    background: rgba(168, 139, 250, 0.15);
-                    color: var(--accent-purple);
-                    border-color: rgba(168, 139, 250, 0.3);
-                }
-                @keyframes pulse {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.7; }
-                }
-                .flag-badge.network {
-                    background: rgba(6, 182, 212, 0.15);
-                    color: var(--accent-cyan);
-                    border-color: rgba(6, 182, 212, 0.3);
-                }
-                .flag-badge.cex {
-                    background: rgba(34, 197, 94, 0.15);
-                    color: var(--color-low);
-                    border-color: rgba(34, 197, 94, 0.3);
-                }
-                .recipient-info-toggle {
-                    cursor: pointer;
-                    padding: 2px 4px;
-                    border-radius: 3px;
-                    font-size: 10px;
-                    color: var(--accent-cyan);
-                    border: 1px solid rgba(6, 182, 212, 0.5);
-                    background: rgba(6, 182, 212, 0.1);
-                    font-weight: 600;
-                }
-                .recipient-info-toggle:hover {
-                    background: rgba(6, 182, 212, 0.2);
-                }
-                .recipient-details {
-                    display: flex;
-                    gap: 8px;
-                    align-items: center;
-                    flex: 1;
-                    font-size: 10px;
-                }
-                .recipient-details.show {
-                    display: flex;
-                }
-                .recipient-details.collapsed {
-                    display: none;
-                }
-                .recipient-details-title {
-                    color: var(--accent-cyan);
-                    font-weight: 700;
-                    text-transform: uppercase;
-                    display: flex;
-                    align-items: center;
-                    gap: 4px;
-                    white-space: nowrap;
-                }
-                .collapse-toggle {
-                    cursor: pointer;
-                    font-size: 10px;
-                    color: var(--accent-cyan);
-                    font-weight: 700;
-                    user-select: none;
-                    transition: transform 0.2s;
-                    min-width: 18px;
-                    text-align: center;
-                }
-                .recipient-details.collapsed .collapse-toggle {
-                    transform: rotate(-90deg);
-                }
-                .creator-items {
-                    display: flex;
-                    gap: 6px;
-                    align-items: center;
-                }
-                .creator-item {
-                    color: var(--accent-cyan);
-                    font-size: 10px;
-                    font-family: 'Courier New', monospace;
-                }
-
-                .chains-section {
-                    margin-top: 25px;
-                }
-                .chain-item {
-                    background: var(--bg-secondary);
-                    border: 1px solid rgba(124, 58, 237, 0.2);
-                    padding: 14px;
-                    margin-bottom: 12px;
-                    border-radius: 6px;
-                    font-size: 13px;
-                }
-                .chain-flow {
-                    color: var(--accent-cyan);
-                    margin-bottom: 10px;
-                    font-weight: 600;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    flex-wrap: wrap;
-                    font-family: 'Courier New', monospace;
-                }
-                .chain-address {
-                    background: rgba(6, 182, 212, 0.1);
-                    padding: 4px 8px;
-                    border-radius: 4px;
-                    white-space: nowrap;
-                }
-                .chain-address-hint {
-                    font-size: 9px;
-                    color: var(--text-secondary);
-                    margin-left: -5px;
-                    margin-top: -2px;
-                }
-                .chain-arrow {
-                    color: var(--text-secondary);
-                    font-weight: 600;
-                }
-                .chain-details {
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 10px;
-                    font-size: 12px;
-                }
-                .chain-detail {
-                    background: rgba(124, 58, 237, 0.1);
-                    padding: 8px 10px;
-                    border-radius: 4px;
-                    border-left: 2px solid var(--primary);
-                    border: 1px solid rgba(124, 58, 237, 0.15);
-                }
-
-                .stats-grid {
-                    display: grid;
-                    grid-template-columns: repeat(5, 1fr);
-                    gap: 15px;
-                    margin-top: 20px;
-                }
-                .stat-box {
-                    background: var(--bg-secondary);
-                    padding: 15px;
-                    border-radius: 6px;
-                    border: 1px solid rgba(124, 58, 237, 0.2);
-                    text-align: center;
-                }
-                .stat-num { font-size: 20px; color: var(--primary); font-weight: 700; }
-                .stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 8px; text-transform: uppercase; font-weight: 600; }
-
-                .loading { text-align: center; color: var(--primary); padding: 40px; font-size: 14px; }
-                .error {
-                    background: rgba(239, 68, 68, 0.08);
-                    border: 1px solid rgba(239, 68, 68, 0.3);
-                    border-left: 3px solid var(--color-critical);
-                    color: var(--color-critical);
-                    padding: 15px;
-                    border-radius: 6px;
-                    margin-bottom: 20px;
-                    font-size: 13px;
-                }
-
-                .recent-checks-section {
-                    margin-bottom: 30px;
-                }
-                .recent-checks-title {
-                    color: var(--accent-purple);
-                    font-size: 16px;
-                    font-weight: 700;
-                    margin-bottom: 15px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                }
-                .recent-checks-list {
-                    display: grid;
-                    gap: 12px;
-                }
-                .recent-check-row {
-                    background: var(--bg-secondary);
-                    border: 1px solid rgba(124, 58, 237, 0.2);
-                    border-radius: 6px;
-                    padding: 14px;
-                    display: grid;
-                    grid-template-columns: 1fr 1fr 100px 120px;
-                    gap: 15px;
-                    align-items: center;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                    min-width: 0;
-                }
-                .recent-check-row:hover {
-                    background: rgba(20, 20, 32, 1);
-                    border-color: rgba(124, 58, 237, 0.4);
-                }
-                .check-address {
-                    font-family: 'Courier New', 'Segoe UI', monospace;
-                    font-size: 12px;
-                    color: var(--accent-purple);
-                    font-weight: 500;
-                    min-width: 0;
-                    word-break: break-all;
-                }
-                .check-findings {
-                    font-size: 13px;
-                    color: var(--text-primary);
-                }
-                .check-finding-badge {
-                    display: inline-block;
-                    background: rgba(239, 68, 68, 0.15);
-                    color: var(--color-critical);
-                    padding: 4px 8px;
-                    border-radius: 3px;
-                    font-size: 10px;
-                    margin-right: 6px;
-                    font-weight: 600;
-                    white-space: nowrap;
-                }
-                .check-finding-badge.clean {
-                    background: rgba(34, 197, 94, 0.15);
-                    color: var(--color-low);
-                }
-                .check-findings {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 6px;
-                }
-                .check-chains {
-                    font-size: 13px;
-                    color: var(--accent-cyan);
-                    text-align: center;
-                    font-weight: 600;
-                }
-                .check-time {
-                    font-size: 12px;
-                    color: var(--text-secondary);
-                    text-align: right;
-                }
-
-                .queue-status-section {
-                    background: var(--bg-secondary);
-                    border-radius: 8px;
-                    border: 1px solid rgba(124, 58, 237, 0.2);
-                    padding: 20px;
-                    margin-bottom: 20px;
-                }
-                .queue-status-title {
-                    color: var(--accent-purple);
-                    font-size: 16px;
-                    font-weight: 700;
-                    margin-bottom: 15px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                }
-                .queue-stats-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                    gap: 12px;
-                    margin-bottom: 15px;
-                }
-                .queue-stat-box {
-                    background: rgba(124, 58, 237, 0.1);
-                    border: 1px solid rgba(124, 58, 237, 0.2);
-                    border-radius: 6px;
-                    padding: 12px;
-                    text-align: center;
-                }
-                .queue-stat-value {
-                    font-size: 20px;
-                    font-weight: 700;
-                    color: var(--accent-cyan);
-                }
-                .queue-stat-label {
-                    font-size: 11px;
-                    color: var(--text-secondary);
-                    margin-top: 6px;
-                    text-transform: uppercase;
-                    font-weight: 600;
-                }
-                .queue-top-items {
-                    margin-top: 15px;
-                }
-                .queue-top-title {
-                    color: var(--accent-purple);
-                    font-size: 12px;
-                    font-weight: 700;
-                    margin-bottom: 10px;
-                    text-transform: uppercase;
-                }
-                .queue-item {
-                    background: rgba(20, 20, 32, 0.5);
-                    border: 1px solid rgba(124, 58, 237, 0.15);
-                    border-radius: 4px;
-                    padding: 10px;
-                    margin-bottom: 8px;
-                    font-size: 12px;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-                .queue-item-address {
-                    color: var(--accent-cyan);
-                    font-family: 'Courier New', monospace;
-                    flex: 1;
-                    margin-right: 10px;
-                }
-                .queue-item-status {
-                    padding: 3px 8px;
-                    border-radius: 3px;
-                    font-size: 10px;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                }
-                .queue-item-status.pending {
-                    background: rgba(59, 130, 246, 0.15);
-                    color: #3b82f6;
-                }
-                .queue-item-status.analyzing {
-                    background: rgba(234, 179, 8, 0.15);
-                    color: #eab308;
-                    animation: pulse 1s infinite;
-                }
-                .queue-item-status.complete {
-                    background: rgba(34, 197, 94, 0.15);
-                    color: #22c55e;
-                }
-                .queue-item-risk {
-                    padding: 3px 8px;
-                    border-radius: 3px;
-                    font-size: 10px;
-                    font-weight: 600;
-                    margin-left: 8px;
-                }
-                .queue-item-risk.HIGH {
-                    background: rgba(239, 68, 68, 0.15);
-                    color: #ef4444;
-                }
-                .queue-item-risk.MEDIUM {
-                    background: rgba(251, 146, 60, 0.15);
-                    color: #f97316;
-                }
-                .queue-item-risk.LOW {
-                    background: rgba(34, 197, 94, 0.15);
-                    color: #22c55e;
-                }
-            </style>
-        </head>
-        <body>
-            """ + get_sidebar_html("creator-analysis") + """
-            <div class="container">
-                <header>
-                    <h1>🔍 Creator Outgoing Transfer Analysis</h1>
-                    <button class="back-btn" onclick="window.location='/'">← Back to Dashboard</button>
-                </header>
-
-                <div class="search-section">
-                    <input type="text" class="search-input" id="creatorInput" placeholder="Enter creator address (e.g., abc123...)">
-                    <button class="search-btn" onclick="searchCreator()">Search</button>
-                </div>
-
-                <div id="content">
-                    <div class="loading">Loading creator analysis...</div>
-                </div>
-            </div>
-
-
-            <script>
-                // Load recent checks on page load
-                document.addEventListener('DOMContentLoaded', loadRecentChecks);
-
-                async function loadRecentChecks() {
-                    const content = document.getElementById('content');
-                    try {
-                        const response = await fetch('/api/creator-recent-checks');
-                        const data = await response.json();
-
-                        if (data.error || !data.recent_checks || data.recent_checks.length === 0) {
-                            content.innerHTML = '<div class="loading">No recent checks yet. Search for a creator to begin.</div>';
-                            return;
-                        }
-
-                        // Load scan statistics
-                        const statsResponse = await fetch('/api/creator-scan-stats');
-                        const statsData = await statsResponse.json();
-
-                        // Load queue status
-                        const queueResponse = await fetch('/api/creator-analysis-queue-status');
-                        const queueData = await queueResponse.json();
-
-                        let html = `
-                            ${queueData.total_queued > 0 ? `
-                            <div class="queue-status-section">
-                                <div class="queue-status-title">⚙️ Analysis Queue Status</div>
-                                <div class="queue-stats-grid">
-                                    <div class="queue-stat-box">
-                                        <div class="queue-stat-value">${queueData.total_queued || 0}</div>
-                                        <div class="queue-stat-label">Active Items</div>
-                                    </div>
-                                    ${Object.entries(queueData.status_breakdown || {}).map(([status, info]) => `
-                                        <div class="queue-stat-box">
-                                            <div class="queue-stat-value">${info.count}</div>
-                                            <div class="queue-stat-label">${status}</div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                                ${queueData.top_priority && queueData.top_priority.length > 0 ? `
-                                    <div class="queue-top-items">
-                                        <div class="queue-top-title">🔝 Top Priority</div>
-                                        ${queueData.top_priority.map(item => `
-                                            <div class="queue-item">
-                                                <div class="queue-item-address">${item.creator_address}</div>
-                                                <span class="queue-item-status ${item.status.toLowerCase()}">${item.status}</span>
-                                                ${item.risk_level ? `<span class="queue-item-risk ${item.risk_level}">${item.risk_level}</span>` : ''}
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                ` : ''}
-                            </div>
-                            ` : ''}
-
-                            <div class="scan-stats-section" style="background: var(--bg-secondary); border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.2); padding: 20px; margin-bottom: 20px;">
-                                <div style="color: var(--accent-purple); font-size: 16px; font-weight: 700; margin-bottom: 15px;">📊 Coverage</div>
-                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                                    <div style="padding: 10px; background: rgba(59, 130, 246, 0.1); border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.3);">
-                                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">Scan Coverage</div>
-                                        <div style="font-size: 18px; font-weight: 700; color: #3b82f6;">${statsData.scanned_percentage.toFixed(1)}%</div>
-                                        <div style="font-size: 11px; color: var(--text-secondary);">${statsData.scanned_creators} of ${statsData.total_creators}</div>
-                                    </div>
-                                    <div style="padding: 10px; background: rgba(124, 58, 237, 0.1); border-radius: 6px;">
-                                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">Total Creators</div>
-                                        <div style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">${statsData.total_creators || 0}</div>
-                                    </div>
-                                    ${Object.entries(statsData.tier_stats || {}).map(([tier, stats]) => `
-                                        <div style="padding: 10px; background: rgba(124, 58, 237, 0.1); border-radius: 6px;">
-                                            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">${statsData.tier_labels[tier]}</div>
-                                            <div style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">${stats.percentage.toFixed(1)}%</div>
-                                            <div style="font-size: 11px; color: var(--text-secondary);">${stats.count} creators</div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>
-
-                            <div class="recent-checks-section">
-                                <div class="recent-checks-title">📋 Most Recent Checks</div>
-                                <div class="recent-checks-list">
-                        `;
-
-                        data.recent_checks.forEach(check => {
-                            const findings = check.findings || [];
-                            let findingsBadges = findings.map(f => {
-                                const isClean = f.includes('CLEAN');
-                                const classes = isClean ? 'check-finding-badge clean' : 'check-finding-badge';
-                                return `<span class="${classes}">${f}</span>`;
-                            }).join('');
-                            if (!findingsBadges) findingsBadges = '<span class="check-finding-badge clean">✅ CLEAN</span>';
-
-                            html += `
-                                <div class="recent-check-row" onclick="loadCreatorAnalysisFrom('${check.creator_address}')">
-                                    <div class="check-address">${check.creator_address}</div>
-                                    <div class="check-findings">${findingsBadges}</div>
-                                    <div class="check-chains">${check.chain_count} chains</div>
-                                    <div class="check-time">${formatTime(check.last_scanned)}</div>
-                                </div>
-                            `;
-                        });
-
-                        html += `
-                                </div>
-                            </div>
-                        `;
-
-                        content.innerHTML = html;
-                    } catch (error) {
-                        content.innerHTML = '<div class="loading">Unable to load recent checks</div>';
-                    }
-                }
-
-                function formatTime(timestamp) {
-                    if (!timestamp) return 'Never';
-                    const date = new Date(timestamp);
-                    const now = new Date();
-                    const diff = now - date;
-
-                    if (diff < 60000) return 'Just now';
-                    if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
-                    if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
-                    return Math.floor(diff / 86400000) + 'd ago';
-                }
-
-                function loadCreatorAnalysisFrom(creator) {
-                    document.getElementById('creatorInput').value = creator;
-                    loadCreatorAnalysis(creator);
-                }
-
-                function closeAnalysis() {
-                    loadRecentChecks();
-                }
-
-                async function searchCreator() {
-                    const creator = document.getElementById('creatorInput').value.trim();
-                    if (!creator) {
-                        alert('Please enter a creator address');
-                        return;
-                    }
-                    loadCreatorAnalysis(creator);
-                }
-
-                async function loadCreatorAnalysis(creator) {
-                    const content = document.getElementById('content');
-                    content.innerHTML = '<div class="loading">Loading analysis...</div>';
-
-                    try {
-                        const response = await fetch(`/api/creator-outgoing-analysis/${creator}`);
-                        const data = await response.json();
-
-                        if (data.error) {
-                            content.innerHTML = `<div class="error">⚠️ ${data.error}</div>`;
-                            return;
-                        }
-
-                        renderAnalysis(data);
-                    } catch (error) {
-                        content.innerHTML = `<div class="error">❌ Error loading analysis: ${error.message}</div>`;
-                    }
-                }
-
-                function renderAnalysis(data) {
-                    let html = `
-                        <div class="creator-section">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                <button class="back-btn" onclick="closeAnalysis()" style="background: rgba(124, 58, 237, 0.2); color: var(--accent-cyan); border: 1px solid rgba(124, 58, 237, 0.5); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px;">← Back to List</button>
-                            </div>
-                            <div class="scan-meta">
-                                <div class="meta-item">
-                                    <div class="meta-label">Creator Address</div>
-                                    <div class="meta-value">${data.creator_address}</div>
-                                </div>
-                                <div class="meta-item">
-                                    <div class="meta-label">Last Scanned</div>
-                                    <div class="meta-value">${data.last_scanned || 'Never'}</div>
-                                </div>
-                                <div class="meta-item">
-                                    <div class="meta-label">Scan Status</div>
-                                    <div class="meta-value">${data.scan_status}</div>
-                                </div>
-                                <div class="meta-item">
-                                    <div class="meta-label">Network Membership</div>
-                                    <div class="meta-value">
-                                        ${data.networks && data.networks.length > 0 ?
-                                            `<div style="display: flex; flex-direction: column; gap: 8px;">
-                                                ${data.networks.map(net => {
-                                                    let badgeColor = '#808080';
-                                                    let badgeEmoji = '';
-                                                    let badgeText = '';
-                                                    if (net.type === 'cex_connected') {
-                                                        badgeColor = '#ef4444';
-                                                        badgeEmoji = '🏦';
-                                                        badgeText = 'CEX';
-                                                    } else if (net.type === 'infra_connected') {
-                                                        badgeColor = '#f97316';
-                                                        badgeEmoji = '🔧';
-                                                        badgeText = 'INFRA';
-                                                    } else if (net.type === 'mixed') {
-                                                        badgeColor = '#d97706';
-                                                        badgeEmoji = '⚠️';
-                                                        badgeText = 'MIXED';
-                                                    } else if (net.type === 'organic') {
-                                                        badgeColor = '#22c55e';
-                                                        badgeEmoji = '✓';
-                                                        badgeText = 'ORGANIC';
-                                                    }
-                                                    return `
-                                                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                                        <span class="network-link" onclick="window.location='/creator-network/${encodeURIComponent(net.name)}';" style="cursor: pointer; background: ${badgeColor}; color: white; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; display: inline-block;">${net.name} ${badgeEmoji} ${badgeText}</span>
-                                                    </div>
-                                                    `;
-                                                }).join('')}
-                                            </div>`
-                                            : 'None'
-                                        }
-                                    </div>
-                                </div>
-                                <div class="meta-item">
-                                    <div class="meta-label">Last Activity</div>
-                                    <div class="meta-value">${
-                                        data.outgoing_transfer_count > 0 && data.last_transaction_time
-                                            ? (() => {
-                                                const now = Math.floor(Date.now() / 1000);
-                                                const secondsAgo = now - data.last_transaction_time;
-
-                                                if (secondsAgo < 60) {
-                                                    return Math.max(1, Math.floor(secondsAgo)) + ' min';
-                                                } else if (secondsAgo < 3600) {
-                                                    return Math.floor(secondsAgo / 60) + ' hour' + (Math.floor(secondsAgo / 60) !== 1 ? 's' : '');
-                                                } else if (secondsAgo < 86400) {
-                                                    return Math.floor(secondsAgo / 3600) + ' hour' + (Math.floor(secondsAgo / 3600) !== 1 ? 's' : '');
-                                                } else {
-                                                    return Math.floor(secondsAgo / 86400) + ' day' + (Math.floor(secondsAgo / 86400) !== 1 ? 's' : '');
-                                                }
-                                            })()
-                                            : 'No outgoing transfers'
-                                    }</div>
-                                </div>
-                            </div>
-                    `;
-
-                    // Findings section
-                    if (data.findings && data.findings.length > 0) {
-                        html += `
-                            <div class="findings-section">
-                                <div class="findings-title">🚨 Findings</div>
-                        `;
-
-                        data.findings.forEach(finding => {
-                            const isClean = finding.type === 'CLEAN';
-                            const isCritical = finding.type.includes('SUSPICIOUS_CROSS_FUNDING');
-                            html += `
-                                <div class="finding-card ${isClean ? 'clean' : ''} ${isCritical ? 'critical' : ''}">
-                                    <span class="finding-type ${isClean ? 'clean' : ''}">${finding.type}</span>
-                                    <div class="finding-details">${finding.description}</div>
-            `;
-                            if (finding.networks_enriched && finding.networks_enriched.length > 0) {
-                                html += `
-                                    <div class="network-list">
-                                        ${finding.networks_enriched.map(n => {
-                                            let badge = `<div class="network-badge">${n.name}`;
-                                            if (n.type === 'cex_connected') {
-                                                badge += ' 🏦 CEX';
-                                            } else if (n.type === 'infra_connected') {
-                                                badge += ' 🔧 INFRA';
-                                            } else if (n.type === 'mixed') {
-                                                badge += ' ⚠️ MIXED';
-                                            } else if (n.type === 'organic') {
-                                                badge += ' ✓ ORGANIC';
-                                            }
-                                            badge += '</div>';
-                                            return badge;
-                                        }).join('')}
-                                    </div>
-                                `;
-                            } else if (finding.networks && finding.networks.length > 0) {
-                                html += `
-                                    <div class="network-list">
-                                        ${finding.networks.map(n => `<div class="network-badge">${n}</div>`).join('')}
-                                    </div>
-                                `;
-                            }
-                            html += `</div>`;
-                        });
-
-                        html += `</div>`;
-                    }
-
-                    // Incoming funders section
-                    if (data.incoming_funders && data.incoming_funders.length > 0) {
-                        html += `
-                            <div class="funders-section" style="margin-top: 25px;">
-                                <div class="findings-title">📥 Incoming Funders (Who Funded This Creator)</div>
-                                <table class="recipients-table">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 40%;">Funder Address</th>
-                                            <th style="width: 40%;">Details</th>
-                                            <th style="width: 20%; text-align: right;">Amount SOL</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                        `;
-
-                        data.incoming_funders.forEach((funder, idx) => {
-                            let funderInfo = `<div class="recipient-info">`;
-
-                            // Display name (CEX/INFRA) if available, otherwise address
-                            if (funder.display_name) {
-                                funderInfo += `<div class="recipient-address" style="color: var(--accent-cyan); font-weight: 600;">${funder.display_name}</div>`;
-                                funderInfo += `<div class="recipient-address" style="font-size: 10px; color: var(--text-secondary);">${funder.address}</div>`;
-                            } else {
-                                funderInfo += `<div class="recipient-address">${funder.address}</div>`;
-                            }
-
-                            if (funder.network) {
-                                let networkBadge = '';
-                                if (funder.network_type === 'cex_connected') {
-                                    networkBadge = ' <span style="color: #ef4444; font-weight: 600;">🏦 CEX</span>';
-                                } else if (funder.network_type === 'infra_connected') {
-                                    networkBadge = ' <span style="color: #f97316; font-weight: 600;">🔧 INFRA</span>';
-                                } else if (funder.network_type === 'mixed') {
-                                    networkBadge = ' <span style="color: #eab308; font-weight: 600;">⚠️ MIXED</span>';
-                                } else if (funder.network_type === 'organic') {
-                                    networkBadge = ' <span style="color: #22c55e; font-weight: 600;">✓ ORGANIC</span>';
-                                }
-                                funderInfo += `<div class="recipient-network">[${funder.network}]${networkBadge}</div>`;
-                            }
-
-                            if (funder.labels && funder.labels.length > 0) {
-                                funderInfo += `<div class="recipient-labels">${funder.labels.join(' • ')}</div>`;
-                            }
-
-                            funderInfo += `</div>`;
-
-                            let detailsColumn = `<div style="font-size: 12px; color: var(--text-secondary);">${funder.transfer_count} transfer(s)</div>`;
-
-                            html += `
-                                <tr>
-                                    <td>${funderInfo}</td>
-                                    <td>${detailsColumn}</td>
-                                    <td class="recipient-amount">${(funder.amount_sol || 0).toFixed(4)} SOL</td>
-                                </tr>
-                            `;
-                        });
-
-                        html += `
-                                    </tbody>
-                                </table>
-                            </div>
-                        `;
-                    }
-
-                    // Tokens created by this creator
-                    if (data.tokens && data.tokens.length > 0) {
-                        html += `
-                            <div class="tokens-section" style="margin-top: 25px;">
-                                <div class="findings-title">🪙 Tokens Created</div>
-                                <table class="recipients-table">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 50%;">Mint Address</th>
-                                            <th style="width: 30%;">Created</th>
-                                            <th style="width: 20%; text-align: right;">Risk Level</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                        `;
-
-                        data.tokens.forEach(token => {
-                            const riskColor = token.risk_level === 'HIGH' ? 'var(--color-critical)' :
-                                            token.risk_level === 'MEDIUM' ? 'var(--color-medium)' :
-                                            'var(--color-low)';
-                            const createdDate = token.created_at ? new Date(token.created_at).toLocaleDateString() : 'N/A';
-
-                            html += `
-                                <tr>
-                                    <td style="font-family: 'Courier New', monospace; font-size: 12px; color: var(--accent-cyan); word-break: break-all;">${token.mint}</td>
-                                    <td style="color: var(--text-secondary);">${createdDate}</td>
-                                    <td style="text-align: right; color: ${riskColor}; font-weight: 600;">${token.risk_level || 'N/A'}</td>
-                                </tr>
-                            `;
-                        });
-
-                        html += `
-                                    </tbody>
-                                </table>
-                            </div>
-                        `;
-                    }
-
-                    // Recipients section
-                    if (data.tokens && data.tokens.length > 0) {
-                        html += `
-                            <div class="tokens-section">
-                                <div class="findings-title">📤 Recipient Addresses & Funding Details</div>
-                        `;
-
-                        data.tokens.forEach(token => {
-                            if (!token.recipients || token.recipients.length === 0) return;
-
-                            html += `
-                                <table class="recipients-table">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 40%;">Recipient Address</th>
-                                            <th style="width: 50%;">Funded Creators</th>
-                                            <th style="width: 10%; text-align: right;">Amount SOL</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                            `;
-
-                            token.recipients.forEach((recipient, idx) => {
-                                // Build recipient info with labels and network
-                                let recipientInfo = `<div class="recipient-info">`;
-
-                                // Display name (CEX/INFRA) if available, otherwise address
-                                if (recipient.display_name) {
-                                    recipientInfo += `<div class="recipient-address" style="color: var(--accent-cyan); font-weight: 600;">${recipient.display_name}</div>`;
-                                    recipientInfo += `<div class="recipient-address" style="font-size: 10px; color: var(--text-secondary);">${recipient.address}</div>`;
-                                } else {
-                                    recipientInfo += `<div class="recipient-address">${recipient.address}</div>`;
-                                }
-
-                                if (recipient.network) {
-                                    recipientInfo += `<div class="recipient-network">[${recipient.network}]</div>`;
-                                }
-
-                                if (recipient.labels && recipient.labels.length > 0) {
-                                    recipientInfo += `<div class="recipient-labels">${recipient.labels.join(' • ')}</div>`;
-                                }
-
-                                recipientInfo += `</div>`;
-
-                                // Build funded creators column
-                                let creatorsColumn = '-';
-                                if (recipient.funded_creators && recipient.funded_creators.length > 0) {
-                                    creatorsColumn = recipient.funded_creators.map(c => {
-                                        let creatorHtml = `<div class="funded-creator-row">`;
-
-                                        // Display name (CEX/INFRA) if available, otherwise address
-                                        if (c.display_name) {
-                                            creatorHtml += `<div class="funded-creator-address" style="color: var(--accent-cyan); font-weight: 600;">${c.display_name}</div>`;
-                                            creatorHtml += `<div class="funded-creator-address" style="font-size: 9px; color: var(--text-secondary);">${c.address}</div>`;
-                                        } else {
-                                            creatorHtml += `<div class="funded-creator-address">${c.address}</div>`;
-                                        }
-
-                                        if (c.network) {
-                                            creatorHtml += `<div class="creator-network">[${c.network}]</div>`;
-                                        }
-
-                                        if (c.labels && c.labels.length > 0) {
-                                            creatorHtml += `<div class="funded-creator-labels" style="font-size: 9px; color: var(--text-secondary);">${c.labels.join(' • ')}</div>`;
-                                        }
-
-                                        creatorHtml += `</div>`;
-                                        return creatorHtml;
-                                    }).join('');
-                                }
-
-                                html += `
-                                    <tr>
-                                        <td>${recipientInfo}</td>
-                                        <td>${creatorsColumn}</td>
-                                        <td class="recipient-amount">${recipient.amount_sol.toFixed(4)} SOL</td>
-                                    </tr>
-                                `;
-                            });
-
-                            html += `
-                                    </tbody>
-                                </table>
-                            `;
-                        });
-
-                        html += `
-                            </div>
-                        `;
-                    }
-
-                    // Funding chains section
-                    if (data.funding_chains && data.funding_chains.length > 0) {
-                        html += `
-                            <div class="chains-section">
-                                <div class="findings-title">⛓️ Funding Chains Detected</div>
-                        `;
-
-                        data.funding_chains.forEach(chain => {
-                            // Get display names or use addresses
-                            const sourceDisplay = chain.source_creator_display || chain.source_creator;
-                            const bridgeDisplay = chain.bridge_funder_display || chain.bridge_funder;
-                            const targetDisplay = chain.target_creator_display || chain.target_creator;
-
-                            let chainFlowHtml = `<div class="chain-flow">`;
-                            chainFlowHtml += `<div class="chain-address">${sourceDisplay}</div>`;
-                            if (chain.source_creator_display) {
-                                chainFlowHtml += `<div class="chain-address-hint">${chain.source_creator}</div>`;
-                            }
-                            chainFlowHtml += `<div class="chain-arrow">→</div>`;
-                            chainFlowHtml += `<div class="chain-address">${bridgeDisplay}</div>`;
-                            if (chain.bridge_funder_display) {
-                                chainFlowHtml += `<div class="chain-address-hint">${chain.bridge_funder}</div>`;
-                            }
-                            chainFlowHtml += `<div class="chain-arrow">→</div>`;
-                            chainFlowHtml += `<div class="chain-address">${targetDisplay}</div>`;
-                            if (chain.target_creator_display) {
-                                chainFlowHtml += `<div class="chain-address-hint">${chain.target_creator}</div>`;
-                            }
-                            chainFlowHtml += `</div>`;
-
-                            html += `
-                                <div class="chain-item">
-                                    ${chainFlowHtml}
-                                    <div class="chain-details">
-                                        <div class="chain-detail">
-                                            <strong>Amount:</strong> ${chain.amount_sol.toFixed(2)} SOL
-                                        </div>
-                                        <div class="chain-detail">
-                                            <strong>Confidence:</strong> ${chain.confidence}%
-                                        </div>
-                                        <div class="chain-detail">
-                                            <strong>Time:</strong> ${new Date(chain.timestamp * 1000).toLocaleString()}
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-                        });
-
-                        html += `</div>`;
-                    }
-
-                    // Statistics
-                    html += `
-                        <div class="stats-grid">
-                            <div class="stat-box">
-                                <div class="stat-num">${data.outgoing_transfer_count}</div>
-                                <div class="stat-label">Outgoing Transfers</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-num">${data.funding_chain_count}</div>
-                                <div class="stat-label">Detected Chains</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-num">${data.coordinated_edge_count}</div>
-                                <div class="stat-label">Coordinated Edges</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-num">${(data.total_sol_sent || 0).toFixed(1)}</div>
-                                <div class="stat-label">SOL Sent</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-num">${data.unique_recipients}</div>
-                                <div class="stat-label">Unique Recipients</div>
-                            </div>
-                        </div>
-                    `;
-
-                    html += `</div>`;
-
-                    document.getElementById('content').innerHTML = html;
-                }
-
-                // Auto-refresh queue status every 5 seconds
-                let autoRefreshInterval = setInterval(() => {
-                    fetch('/api/creator-analysis-queue-status')
-                        .then(r => r.json())
-                        .then(queueData => {
-                            // Update only the queue section if it exists
-                            const queueSection = document.querySelector('.queue-status-section');
-                            if (!queueSection) return; // Skip if not on main view
-
-                            // If queue became empty, reload the whole page
-                            if (queueData.total_queued === 0 && queueSection) {
-                                loadRecentChecks();
-                                return;
-                            }
-
-                            // Update stats grid
-                            const statsBoxes = queueSection.querySelectorAll('.queue-stat-box');
-                            let boxIndex = 0;
-
-                            // Update "Active Items" count
-                            if (statsBoxes[boxIndex]) {
-                                statsBoxes[boxIndex].querySelector('.queue-stat-value').textContent = queueData.total_queued;
-                                boxIndex++;
-                            }
-
-                            // Update status counts
-                            Object.entries(queueData.status_breakdown || {}).forEach(([status, info]) => {
-                                if (statsBoxes[boxIndex]) {
-                                    statsBoxes[boxIndex].querySelector('.queue-stat-value').textContent = info.count;
-                                    boxIndex++;
-                                }
-                            });
-
-                            // Update top priority items
-                            const topPriorityDiv = queueSection.querySelector('.queue-top-items');
-                            if (topPriorityDiv && queueData.top_priority) {
-                                const itemsHtml = queueData.top_priority.map(item => `
-                                    <div class="queue-item">
-                                        <div class="queue-item-address">${item.creator_address}</div>
-                                        <span class="queue-item-status ${item.status.toLowerCase()}">${item.status}</span>
-                                        ${item.risk_level ? `<span class="queue-item-risk ${item.risk_level}">${item.risk_level}</span>` : ''}
-                                    </div>
-                                `).join('');
-                                topPriorityDiv.innerHTML = '<div class="queue-top-title">🔝 Top Priority</div>' + itemsHtml;
-                            }
-                        })
-                        .catch(err => console.log('Queue refresh failed:', err));
-                }, 5000); // Refresh every 5 seconds
-
-                // Clean up interval when user leaves page
-                window.addEventListener('beforeunload', () => clearInterval(autoRefreshInterval));
-            </script>
-        </body>
-        </html>
-        """
-        return html
-    except Exception as e:
-        return f"<h1>Error</h1><p>{str(e)}</p>", 500
+    return render_template("creator_analysis.html", active_page="creator-analysis")
 
 
 @app.route('/api/creator-outgoing-analysis/<creator_address>')
@@ -18223,7 +15916,7 @@ def creator_network_page(network_name: str):
 @app.route('/system-health')
 def system_health():
     """System health dashboard with real-time monitoring."""
-    return render_template('system_health_dashboard.html')
+    return render_template('system_health_dashboard.html', active_page='health')
 
 
 @app.route('/network-monitoring')
@@ -18389,7 +16082,8 @@ def network_monitoring():
                              q_filter=q,
                              show_filter=show,
                              sort_param=sort_param,
-                             band_filter=band_filter)
+                             band_filter=band_filter,
+                             active_page='networks')
 
     except Exception as e:
         print(f"[ERROR] network_monitoring: {e}", flush=True)
@@ -18665,7 +16359,7 @@ def rpc_savings_dashboard():
     RPC Savings Dashboard - Visualizes real savings from optimization.
     Displays KPI cards, trends, and efficiency metrics.
     """
-    return render_template('rpc_savings_dashboard.html')
+    return render_template('rpc_savings_dashboard.html', active_page='rpc')
 
 
 @app.route('/api/rpc-savings/reset', methods=['POST'])
@@ -19089,530 +16783,7 @@ def webhook_monitor():
     Webhook monitoring dashboard page.
     Shows real-time metrics about webhook activity.
     """
-    html = """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Webhook Monitor</title>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
-                background: linear-gradient(135deg, #0a0a0e 0%, #0d0d15 100%);
-                color: #e5e7eb;
-                min-height: 100vh;
-                padding: 20px;
-                padding-left: 196px;
-                margin: 0;
-            }
-            """ + get_sidebar_css("rgba(20, 20, 32, 0.9)") + """
-
-            .container {
-                max-width: 100%;
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                box-sizing: border-box;
-            }
-
-            .header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 30px;
-                margin-left: 0;
-                padding-bottom: 20px;
-                border-bottom: 2px solid rgba(167, 139, 250, 0.3);
-            }
-
-            .header h1 {
-                font-size: 28px;
-                color: #a78bfa;
-            }
-
-            .back-btn {
-                background: rgba(59, 130, 246, 0.2);
-                color: #06b6d4;
-                border: 1px solid rgba(59, 130, 246, 0.5);
-                padding: 8px 16px;
-                border-radius: 6px;
-                cursor: pointer;
-                text-decoration: none;
-                font-size: 14px;
-                transition: all 0.2s;
-            }
-
-            .back-btn:hover {
-                background: rgba(59, 130, 246, 0.3);
-                border-color: rgba(59, 130, 246, 0.8);
-            }
-
-            .metrics-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 20px;
-                margin-bottom: 30px;
-            }
-
-            .metric-card {
-                background: rgba(30, 30, 40, 0.8);
-                border: 1px solid rgba(167, 139, 250, 0.3);
-                border-radius: 8px;
-                padding: 20px;
-                transition: all 0.2s;
-            }
-
-            .metric-card:hover {
-                border-color: rgba(167, 139, 250, 0.6);
-                background: rgba(30, 30, 40, 0.95);
-            }
-
-            .metric-label {
-                color: #a78bfa;
-                font-size: 12px;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                margin-bottom: 8px;
-            }
-
-            .metric-value {
-                font-size: 32px;
-                font-weight: bold;
-                color: #06b6d4;
-                margin-bottom: 8px;
-            }
-
-            .metric-subtext {
-                font-size: 12px;
-                color: #9ca3af;
-            }
-
-            .metric-status {
-                display: inline-block;
-                padding: 4px 12px;
-                border-radius: 4px;
-                font-size: 11px;
-                margin-top: 10px;
-                font-weight: bold;
-            }
-
-            .status-active {
-                background: rgba(34, 197, 94, 0.2);
-                color: #22c55e;
-                border: 1px solid rgba(34, 197, 94, 0.5);
-            }
-
-            .status-idle {
-                background: rgba(156, 163, 175, 0.2);
-                color: #d1d5db;
-                border: 1px solid rgba(156, 163, 175, 0.5);
-            }
-
-            .section-title {
-                color: #a78bfa;
-                font-size: 18px;
-                margin-top: 30px;
-                margin-bottom: 15px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid rgba(167, 139, 250, 0.2);
-            }
-
-            .transfers-table {
-                background: rgba(30, 30, 40, 0.6);
-                border: 1px solid rgba(167, 139, 250, 0.3);
-                border-radius: 8px;
-                overflow: hidden;
-            }
-
-            .transfers-table table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-
-            .transfers-table th {
-                background: rgba(167, 139, 250, 0.1);
-                color: #a78bfa;
-                padding: 12px;
-                text-align: left;
-                font-size: 12px;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                border-bottom: 2px solid rgba(167, 139, 250, 0.3);
-            }
-
-            .transfers-table td {
-                padding: 12px;
-                border-bottom: 1px solid rgba(167, 139, 250, 0.15);
-                font-size: 13px;
-            }
-
-            .transfers-table tr:hover {
-                background: rgba(167, 139, 250, 0.05);
-            }
-
-            .amount-positive {
-                color: #22c55e;
-                font-weight: bold;
-            }
-
-            .address {
-                color: #a78bfa;
-                font-family: 'Courier New', monospace;
-                font-size: 11px;
-                word-break: break-all;
-                max-width: 300px;
-            }
-
-            .timestamp {
-                color: #9ca3af;
-                font-size: 11px;
-            }
-
-            .loading {
-                color: #9ca3af;
-                padding: 20px;
-                text-align: center;
-            }
-
-            .error {
-                background: rgba(239, 68, 68, 0.1);
-                border: 1px solid rgba(239, 68, 68, 0.5);
-                color: #ef4444;
-                padding: 15px;
-                border-radius: 6px;
-                margin-bottom: 20px;
-            }
-
-            .auto-refresh {
-                display: flex;
-                gap: 10px;
-                align-items: center;
-                margin-bottom: 20px;
-            }
-
-            .refresh-btn {
-                background: rgba(59, 130, 246, 0.2);
-                color: #06b6d4;
-                border: 1px solid rgba(59, 130, 246, 0.5);
-                padding: 8px 16px;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 13px;
-                transition: all 0.2s;
-            }
-
-            .refresh-btn:hover {
-                background: rgba(59, 130, 246, 0.3);
-            }
-
-            .last-updated {
-                color: #9ca3af;
-                font-size: 12px;
-            }
-
-            @keyframes spin {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(360deg); }
-            }
-
-            .spinner {
-                display: inline-block;
-                width: 14px;
-                height: 14px;
-                border: 2px solid rgba(6, 182, 212, 0.3);
-                border-top-color: #06b6d4;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-            }
-        </style>
-    </head>
-    <body>
-        """ + get_sidebar_html("webhook") + """
-        <div class="container">
-            <div class="header">
-                <h1>📡 Webhook Monitor</h1>
-            </div>
-
-            <div class="auto-refresh">
-                <button class="refresh-btn" onclick="loadStatus()">🔄 Refresh Now</button>
-                <span class="last-updated">Auto-refreshing every 5 seconds</span>
-            </div>
-
-            <div id="error-container"></div>
-
-            <div class="metrics-grid" id="metrics">
-                <div class="metric-card">
-                    <div class="metric-label">Webhooks Received</div>
-                    <div class="metric-value loading">
-                        <span class="spinner"></span>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Transfers Processed</div>
-                    <div class="metric-value loading">
-                        <span class="spinner"></span>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Transfers (24h)</div>
-                    <div class="metric-value loading">
-                        <span class="spinner"></span>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Last Activity</div>
-                    <div class="metric-value loading">
-                        <span class="spinner"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section-title">Recent Transfers</div>
-            <div class="transfers-table" id="transfers">
-                <div class="loading">Loading transfers...</div>
-            </div>
-
-            <div class="section-title">📋 Creator Queue Status</div>
-            <div class="metrics-grid" id="queue-metrics">
-                <div class="metric-card">
-                    <div class="metric-label">Total in Queue</div>
-                    <div class="metric-value loading">
-                        <span class="spinner"></span>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Critical Priority</div>
-                    <div class="metric-value loading">
-                        <span class="spinner"></span>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Currently Processing</div>
-                    <div class="metric-value loading">
-                        <span class="spinner"></span>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Never Checked</div>
-                    <div class="metric-value loading">
-                        <span class="spinner"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section-title">Top Priority Creators</div>
-            <div class="transfers-table" id="queue-table">
-                <div class="loading">Loading queue...</div>
-            </div>
-        </div>
-
-        <script>
-            function formatTime(timestamp) {
-                if (!timestamp) return 'Never';
-                const date = new Date(timestamp);
-                return date.toLocaleString();
-            }
-
-            function timeSinceNow(timestamp) {
-                if (!timestamp) return 'Never';
-                const now = new Date();
-                const then = new Date(timestamp);
-                const seconds = Math.floor((now - then) / 1000);
-                
-                if (seconds < 60) return seconds + 's ago';
-                if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
-                if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
-                return Math.floor(seconds / 86400) + 'd ago';
-            }
-
-            async function loadStatus() {
-                try {
-                    const response = await fetch('/api/webhook/status');
-                    const data = await response.json();
-
-                    if (!data.ok) {
-                        document.getElementById('error-container').innerHTML =
-                            '<div class="error">Error loading status: ' + (data.error || 'Unknown error') + '</div>';
-                        return;
-                    }
-
-                    document.getElementById('error-container').innerHTML = '';
-
-                    // Update metrics
-                    const metricsHtml = `
-                        <div class="metric-card">
-                            <div class="metric-label">Webhooks Received</div>
-                            <div class="metric-value">${data.total_signatures}</div>
-                            <div class="metric-subtext">Unique transaction signatures</div>
-                            <div class="metric-status ${data.total_signatures > 0 ? 'status-active' : 'status-idle'}">
-                                ${data.total_signatures > 0 ? '● Active' : '● Idle'}
-                            </div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">Transfers Processed</div>
-                            <div class="metric-value">${data.total_transfers}</div>
-                            <div class="metric-subtext">Total SOL movements recorded</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">Transfers (24h)</div>
-                            <div class="metric-value">${data.transfers_today}</div>
-                            <div class="metric-subtext">From last 24 hours</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">Last Activity</div>
-                            <div class="metric-value">${data.last_webhook ? timeSinceNow(data.last_webhook) : 'Never'}</div>
-                            <div class="metric-subtext">${formatTime(data.last_webhook)}</div>
-                        </div>
-                    `;
-                    document.getElementById('metrics').innerHTML = metricsHtml;
-
-                    // Update transfers table
-                    if (data.recent_transfers && data.recent_transfers.length > 0) {
-                        let tableHtml = '<table><thead><tr><th>Sender</th><th>Receiver</th><th>Amount</th><th>Time</th></tr></thead><tbody>';
-
-                        for (const transfer of data.recent_transfers) {
-                            // Color code: creator (yellow), labeled/CEX (cyan), others (purple)
-                            const senderColor = transfer.sender_is_creator ? '#fbbf24' : transfer.sender_has_label ? '#06b6d4' : '#a78bfa';
-                            const receiverColor = transfer.receiver_is_creator ? '#fbbf24' : transfer.receiver_has_label ? '#06b6d4' : '#a78bfa';
-
-                            // Create display with tooltip for full address if labeled
-                            const senderDisplay = transfer.sender_has_label
-                                ? `<span title="${transfer.sender_address}" style="cursor: help;">${transfer.sender}</span>`
-                                : transfer.sender;
-
-                            const receiverDisplay = transfer.receiver_has_label
-                                ? `<span title="${transfer.receiver_address}" style="cursor: help;">${transfer.receiver}</span>`
-                                : transfer.receiver;
-
-                            tableHtml += `
-                                <tr>
-                                    <td><span class="address" style="color: ${senderColor};">${senderDisplay}</span></td>
-                                    <td><span class="address" style="color: ${receiverColor};">${receiverDisplay}</span></td>
-                                    <td><span class="amount-positive">◆ ${transfer.amount_sol} SOL</span></td>
-                                    <td><span class="timestamp">${timeSinceNow(transfer.timestamp * 1000)}</span></td>
-                                </tr>
-                            `;
-                        }
-
-                        tableHtml += '</tbody></table>';
-                        document.getElementById('transfers').innerHTML = tableHtml;
-                    } else {
-                        document.getElementById('transfers').innerHTML = '<div class="loading">No transfers yet</div>';
-                    }
-
-                    // Load queue status
-                    await loadQueueStatus();
-
-                } catch (error) {
-                    document.getElementById('error-container').innerHTML =
-                        '<div class="error">Connection error: ' + error.message + '</div>';
-                }
-            }
-
-            async function loadQueueStatus() {
-                try {
-                    const response = await fetch('/api/creator-queue-status');
-                    const data = await response.json();
-
-                    if (!data.ok) {
-                        console.error('Queue status error:', data.error);
-                        return;
-                    }
-
-                    // Update queue metrics
-                    const queueMetricsHtml = `
-                        <div class="metric-card">
-                            <div class="metric-label">Total in Queue</div>
-                            <div class="metric-value">${data.total_in_queue}</div>
-                            <div class="metric-subtext">Creators awaiting processing</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">Critical Priority</div>
-                            <div class="metric-value">${data.critical_count}</div>
-                            <div class="metric-subtext">Priority ≥ 80</div>
-                            <div class="metric-status ${data.critical_count > 0 ? 'status-active' : 'status-idle'}">
-                                ${data.critical_count > 0 ? '🔴 Active' : '⚪ None'}
-                            </div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">Currently Processing</div>
-                            <div class="metric-value">${data.currently_processing}</div>
-                            <div class="metric-subtext">Locked by worker</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">Never Checked</div>
-                            <div class="metric-value">${data.never_checked}</div>
-                            <div class="metric-subtext">Attempts = 0</div>
-                        </div>
-                    `;
-                    document.getElementById('queue-metrics').innerHTML = queueMetricsHtml;
-
-                    // Update queue table
-                    if (data.top_creators && data.top_creators.length > 0) {
-                        let tableHtml = '<table><thead><tr><th>Creator Address</th><th>Outbound TX</th><th>Inbound TX</th><th>Total Activity</th><th>Priority</th><th>Status</th><th>Attempts</th></tr></thead><tbody>';
-
-                        for (const creator of data.top_creators) {
-                            let statusBadge = '⚪ WAITING';
-                            let statusColor = '#9ca3af';
-
-                            if (creator.locked_until > Date.now() / 1000) {
-                                statusBadge = '🔒 PROCESSING';
-                                statusColor = '#f59e0b';
-                            } else if (creator.next_run_at <= Date.now() / 1000) {
-                                statusBadge = '✅ READY';
-                                statusColor = '#22c55e';
-                            }
-
-                            let activityEmoji = creator.total_activity > 50 ? '⭐' : '';
-
-                            // Display label if available, otherwise address with tooltip
-                            const creatorDisplay = creator.label
-                                ? `<span style="color: #06b6d4; font-weight: bold;" title="${creator.address}" style="cursor: help;">${creator.label}</span>`
-                                : `<span class="address">${creator.address}</span>`;
-
-                            tableHtml += `
-                                <tr>
-                                    <td>${creatorDisplay}</td>
-                                    <td style="color: #06b6d4; font-weight: bold;">${creator.outbound_tx}</td>
-                                    <td style="color: #22c55e; font-weight: bold;">${creator.inbound_tx}</td>
-                                    <td style="color: #fbbf24; font-weight: bold;">${creator.total_activity} ${activityEmoji}</td>
-                                    <td><span style="color: ${creator.priority >= 80 ? '#ef4444' : creator.priority >= 60 ? '#f59e0b' : '#22c55e'}; font-weight: bold;">${creator.priority.toFixed(1)}</span></td>
-                                    <td><span style="color: ${statusColor};">${statusBadge}</span></td>
-                                    <td>${creator.attempts}</td>
-                                </tr>
-                            `;
-                        }
-
-                        tableHtml += '</tbody></table>';
-                        document.getElementById('queue-table').innerHTML = tableHtml;
-                    } else {
-                        document.getElementById('queue-table').innerHTML = '<div class="loading">Queue is empty</div>';
-                    }
-
-                } catch (error) {
-                    console.error('Queue status fetch error:', error);
-                    document.getElementById('queue-table').innerHTML = '<div class="loading">Could not load queue status</div>';
-                }
-            }
-
-            // Initial load
-            loadStatus();
-
-            // Auto-refresh every 5 seconds
-            setInterval(loadStatus, 5000);
-        </script>
-    </body>
-    </html>
-    """
-
-    return html
+    return render_template("webhook_monitor.html", active_page="webhook")
 
 
 @app.route('/webhook-metrics')
@@ -20938,8 +18109,30 @@ def test_prices():
 # START BACKGROUND WORKERS
 # =========================================================================
 
+def _sync_validated_tokens_to_tracker():
+    """Register all validated token_pool_accounts into tracked_tokens on startup."""
+    try:
+        import sqlite3 as _sq
+        from src.core.price_worker import PriceWorkerRegistry
+        conn = _sq.connect(DB_PATH)
+        mints = [r[0] for r in conn.execute(
+            "SELECT DISTINCT mint FROM token_pool_accounts WHERE vault_validation_status IN ('validated','pending') AND is_active = 1"
+        ).fetchall()]
+        conn.close()
+        if not mints:
+            return
+        registry = PriceWorkerRegistry(DB_PATH)
+        for mint in mints:
+            registry.register_token(mint, priority_level='MEDIUM')
+        print(f"[PRICE_WORKER] Synced {len(mints)} validated tokens into tracked_tokens")
+    except Exception as e:
+        print(f"[WARNING] Token sync failed: {e}")
+
+
 def start_background_workers():
     """Start price and liquidity workers in background threads"""
+    _sync_validated_tokens_to_tracker()
+
     try:
         from src.core.price_worker import start_price_worker
         price_worker = start_price_worker(db_path=DB_PATH)
@@ -20953,6 +18146,26 @@ def start_background_workers():
         print("[LIQUIDITY_WORKER] Background liquidity worker started - updating every 60s")
     except Exception as e:
         print(f"[WARNING] Liquidity worker failed to start: {e}")
+
+    try:
+        import subprocess, sys as _sys
+        def _run_monitor():
+            import time as _time
+            while True:
+                _time.sleep(600)
+                try:
+                    subprocess.run(
+                        [_sys.executable, '-m', 'src.core.token_behaviour_monitor', DB_PATH],
+                        timeout=120,
+                        capture_output=True,
+                    )
+                except Exception:
+                    pass
+        behaviour_thread = threading.Thread(target=_run_monitor, daemon=True)
+        behaviour_thread.start()
+        print("[TOKEN_BEHAVIOUR] Background classification monitor started - running every 10 min (subprocess)")
+    except Exception as e:
+        print(f"[WARNING] Token behaviour monitor failed to start: {e}")
 
 # =========================================================================
 # MAIN
@@ -20970,4 +18183,4 @@ if __name__ == '__main__':
     # Start background workers before Flask
     start_background_workers()
 
-    app.run(host='0.0.0.0', port=5002, debug=False)
+    app.run(host='0.0.0.0', port=5002, debug=False, threaded=True)

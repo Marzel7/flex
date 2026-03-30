@@ -1,0 +1,33 @@
+{% extends "base_shell.html" %}
+
+{% block title %}Coordinated Funders{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Coordinated Funders <span style="font-size:1rem;font-weight:400;color:var(--text-secondary)">({{ funders|length }} total)</span></h1>
+    <p class="subtitle">Wallets that fund multiple creators, indicating coordination or network relationships</p>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Funder Address</th>
+            <th style="text-align:right">Creators Funded</th>
+            <th style="text-align:right">Total SOL Sent</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for funder in funders %}
+        <tr>
+            <td>
+                <a href="/funding-hub/{{ funder.funder_address }}" style="color:var(--accent-cyan);text-decoration:none;font-family:monospace;font-size:12px;word-break:break-all">
+                    {{ funder.funder_address }}
+                </a>
+            </td>
+            <td style="text-align:right;color:var(--color-yellow);font-weight:600">{{ funder.creator_count }}</td>
+            <td style="text-align:right;color:var(--color-low);font-weight:600">{{ '%.2f'|format(funder.total_sol_sent) }} SOL</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

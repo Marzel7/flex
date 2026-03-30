@@ -1,43 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Network Monitoring Dashboard</title>
-    <style>
-        :root {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --text-primary: #e2e8f0;
-            --text-secondary: #94a3b8;
-            --accent-purple: #a78bfa;
-            --accent-blue: #3b82f6;
-            --color-high: #ef4444;
-            --color-medium: #eab308;
-            --color-low: #22c55e;
-            --color-positive: #10b981;
-            --color-negative: #ef4444;
-        }
+{% extends "base_shell.html" %}
+{% block title %}Network Monitoring Dashboard{% endblock %}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
+{% block extra_styles %}
         header {
             display: flex;
             justify-content: space-between;
@@ -49,11 +13,11 @@
 
         h1 {
             font-size: 24px;
-            color: var(--accent-purple);
+            color: var(--color-purple);
         }
 
         .back-link {
-            color: var(--accent-blue);
+            color: var(--accent-cyan);
             text-decoration: none;
             font-size: 14px;
             padding: 6px 12px;
@@ -75,7 +39,7 @@
         }
 
         .section {
-            background: var(--bg-secondary);
+            background: var(--bg-card);
             border: 1px solid rgba(124, 58, 237, 0.2);
             border-radius: 8px;
             padding: 20px;
@@ -83,50 +47,11 @@
 
         .section-title {
             font-size: 18px;
-            color: var(--accent-purple);
+            color: var(--color-purple);
             margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background: rgba(124, 58, 237, 0.1);
-        }
-
-        th {
-            padding: 12px 8px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--accent-purple);
-            border-bottom: 1px solid rgba(124, 58, 237, 0.2);
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        td {
-            padding: 12px 8px;
-            border-bottom: 1px solid rgba(124, 58, 237, 0.1);
-            font-size: 13px;
-        }
-
-        tbody tr:hover {
-            background: rgba(124, 58, 237, 0.05);
-        }
-
-        a {
-            color: var(--accent-blue);
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
         }
 
         .badge {
@@ -139,47 +64,14 @@
             letter-spacing: 0.5px;
         }
 
-        .badge-high {
-            background: rgba(239, 68, 68, 0.2);
-            color: #fca5a5;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
+        .badge-high     { background: rgba(239, 68, 68, 0.2);  color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-medium   { background: rgba(234, 179, 8, 0.2);  color: #fde047; border: 1px solid rgba(234, 179, 8, 0.3); }
+        .badge-low      { background: rgba(34, 197, 94, 0.2);  color: #86efac; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .badge-positive { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-negative { background: rgba(239, 68, 68, 0.2);  color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
 
-        .badge-medium {
-            background: rgba(234, 179, 8, 0.2);
-            color: #fde047;
-            border: 1px solid rgba(234, 179, 8, 0.3);
-        }
-
-        .badge-low {
-            background: rgba(34, 197, 94, 0.2);
-            color: #86efac;
-            border: 1px solid rgba(34, 197, 94, 0.3);
-        }
-
-        .badge-positive {
-            background: rgba(16, 185, 129, 0.2);
-            color: #6ee7b7;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .badge-negative {
-            background: rgba(239, 68, 68, 0.2);
-            color: #fca5a5;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .delta {
-            font-weight: 600;
-        }
-
-        .delta-positive {
-            color: var(--color-positive);
-        }
-
-        .delta-negative {
-            color: var(--color-negative);
-        }
+        .delta-positive { color: #10b981; font-weight: 600; }
+        .delta-negative { color: #ef4444; font-weight: 600; }
 
         .empty-message {
             text-align: center;
@@ -214,21 +106,16 @@
             font-family: inherit;
         }
 
-        .filter-controls select:hover,
-        .filter-controls input:hover {
-            border-color: rgba(124, 58, 237, 0.5);
-        }
-
         .filter-controls select:focus,
         .filter-controls input:focus {
             outline: none;
-            border-color: var(--accent-purple);
+            border-color: var(--color-purple);
             box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.1);
         }
 
         .filter-button {
             background: rgba(59, 130, 246, 0.2);
-            color: var(--accent-blue);
+            color: var(--accent-cyan);
             border: 1px solid rgba(59, 130, 246, 0.3);
             border-radius: 4px;
             padding: 6px 12px;
@@ -259,25 +146,9 @@
             background: rgba(34, 197, 94, 0.3);
             border-color: rgba(34, 197, 94, 0.5);
         }
+{% endblock %}
 
-        @media (max-width: 1024px) {
-            .container {
-                padding: 15px;
-            }
-
-            h1 {
-                font-size: 20px;
-            }
-
-            th, td {
-                font-size: 12px;
-                padding: 10px 6px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
+{% block content %}
         <header>
             <h1>📊 Network Monitoring Dashboard</h1>
             <a href="/" class="back-link">← Back to Dashboard</a>
@@ -422,7 +293,6 @@
                                     <strong>{{ network['smoothed_score'] }}/100</strong>
                                 {% endif %}
                             </td>
-                            <!-- Risk Band Column (Phase 7E) -->
                             <td>
                                 {% set risk_band = network['risk_band'] or 'LOW' %}
                                 {% if risk_band == 'CRITICAL' %}
@@ -435,7 +305,6 @@
                                     <span class="badge badge-low">🟢 LOW</span>
                                 {% endif %}
                             </td>
-                            <!-- Trend Direction Column (Phase 7E) -->
                             <td>
                                 {% set trend = network['trend_direction'] or 'FLAT' %}
                                 {% if trend == 'UP' %}
@@ -528,6 +397,4 @@
                 {% endif %}
             </div>
         </div>
-    </div>
-</body>
-</html>
+{% endblock %}

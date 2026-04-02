@@ -215,10 +215,11 @@
         <div class="grid">
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-title"><i class="fas fa-pulse"></i> Overall Service Status</div>
-                <div style="display: flex; gap: 2rem;">
+                <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
                     <div id="overallStatus"></div>
                     <div id="workerStatus"></div>
                     <div id="wsStatus"></div>
+                    <div id="ingressStatus"></div>
                 </div>
             </div>
         </div>
@@ -226,7 +227,7 @@
         <!-- WebSocket & Pool Stats -->
         <div class="grid">
             <div class="card">
-                <div class="card-title"><i class="fas fa-wifi"></i> WebSocket Pool Stats</div>
+                <div class="card-title"><i class="fas fa-wifi"></i> WebSocket Ingress</div>
                 <div id="wsPoolStats" class="loading"><span class="spinner"></span> Loading...</div>
             </div>
             <div class="card">
@@ -278,6 +279,25 @@
                 <div id="rollingWindow"></div>
             </div>
         </div>
+
+        <!-- Snapshot Cleanup Stats -->
+        <div class="grid">
+            <div class="card wide-card">
+                <div class="card-title"><i class="fas fa-broom"></i> Snapshot Cleanup (24h)</div>
+                <div id="snapshotCleanup" class="loading"><span class="spinner"></span> Loading...</div>
+            </div>
+        </div>
+
+        <!-- Local Flask Process Diagnostics (NOT global system health) -->
+        <div class="grid">
+            <div class="card wide-card" style="border-color: rgba(234,179,8,0.3);">
+                <div class="card-title" style="color: var(--color-watch);">
+                    <i class="fas fa-flask"></i> Local Flask Process Diagnostics
+                    <span style="font-size:0.75rem;font-weight:400;color:var(--text-secondary);margin-left:1rem;">⚠ Flask-process only — does NOT reflect listener/worker state</span>
+                </div>
+                <div id="localDiagnostics" class="loading"><span class="spinner"></span> Loading...</div>
+            </div>
+        </div>
 {% endblock %}
 
 {% block scripts %}
@@ -311,12 +331,19 @@
             return healthy ? 'healthy' : 'critical';
         }
 
+        function statusColor(s) {
+            if (s === 'healthy' || s === 'CONNECTED' || s === 'RUNNING') return 'healthy';
+            if (s === 'degraded' || s === 'DEGRADED') return 'warning';
+            return 'critical';
+        }
+
         function renderOverallStatus(data) {
-            const healthy = data?.status === 'healthy' && data?.worker_running;
+            const s = data?.status || 'unknown';
+            const color = statusColor(s);
             const html = `
-                <div class="status-indicator status-${getStatusColor(healthy)}">
-                    <span class="status-dot ${getStatusColor(healthy)}"></span>
-                    Service: ${data?.status?.toUpperCase() || 'UNKNOWN'}
+                <div class="status-indicator status-${color}">
+                    <span class="status-dot ${color}"></span>
+                    Service: ${s.toUpperCase()}
                 </div>
             `;
             document.getElementById('overallStatus').innerHTML = html;
@@ -324,33 +351,67 @@
 
         function renderWorkerStatus(data) {
             const running = data?.worker_running;
+            const secs = data?.db_signals?.seconds_since_last_update;
+            const staleness = secs != null ? ` (${Math.round(secs)}s ago)` : '';
+            const writer = data?.db_signals?.inferred_active_writer || '';
             const html = `
                 <div class="status-indicator status-${getStatusColor(running)}">
                     <span class="status-dot ${getStatusColor(running)}"></span>
-                    Worker: ${running ? 'RUNNING' : 'STOPPED'}
+                    Worker: ${running ? 'RUNNING' : 'STOPPED'}${staleness}
+                    ${writer ? `<span style="font-size:0.8rem;opacity:0.7;margin-left:0.5rem;">[${writer}]</span>` : ''}
                 </div>
             `;
             document.getElementById('workerStatus').innerHTML = html;
         }
 
         function renderWSStatus(data) {
-            const connected = data?.pool_stats?.ws?.connected;
+            const ws = data?.pool_stats?.ws || {};
+            const wsStatus = ws.status || (ws.connected ? 'CONNECTED' : 'DISCONNECTED');
+            const color = statusColor(wsStatus);
+            const secs = data?.db_signals?.seconds_since_last_update;
+            const lag = secs != null ? ` (${Math.round(secs)}s lag)` : '';
             const html = `
-                <div class="status-indicator status-${getStatusColor(connected)}">
-                    <span class="status-dot ${getStatusColor(connected)}"></span>
-                    WebSocket: ${connected ? 'CONNECTED' : 'DISCONNECTED'}
+                <div class="status-indicator status-${color}">
+                    <span class="status-dot ${color}"></span>
+                    Snapshot Freshness: ${wsStatus}${lag}
                 </div>
             `;
             document.getElementById('wsStatus').innerHTML = html;
         }
 
+        function renderIngressStatus(data) {
+            const ws = data?.pool_stats?.ws || {};
+            const subs = ws.subscriptions || 0;
+            const lastEvent = ws.last_event_at || 0;
+            const now = Math.floor(Date.now() / 1000);
+            const secsAgo = lastEvent ? now - lastEvent : null;
+            let ingressStatus, color;
+            if (subs > 0 && secsAgo != null && secsAgo <= 30) {
+                ingressStatus = 'HEALTHY'; color = 'healthy';
+            } else if (subs > 0 && secsAgo != null && secsAgo <= 120) {
+                ingressStatus = 'DEGRADED'; color = 'warning';
+            } else if (subs > 0) {
+                ingressStatus = 'IDLE'; color = 'warning';
+            } else {
+                ingressStatus = 'DISCONNECTED'; color = 'critical';
+            }
+            const html = `
+                <div class="status-indicator status-${color}">
+                    <span class="status-dot ${color}"></span>
+                    WebSocket Ingress: ${ingressStatus}
+                </div>
+            `;
+            document.getElementById('ingressStatus').innerHTML = html;
+        }
+
         function renderWSPoolStats(data) {
             const ws = data?.pool_stats?.ws || {};
-            const stale = ws.is_stale ? 'warning' : 'healthy';
+            const wsStatus = ws.status || 'DISCONNECTED';
+            const stale = wsStatus === 'DISCONNECTED' ? 'warning' : wsStatus === 'DEGRADED' ? 'warning' : 'healthy';
             const html = `
                 <div class="metric">
                     <div class="metric-label">Connected</div>
-                    <div class="metric-value small">${ws.connected ? '✓ Yes' : '✗ No'}</div>
+                    <div class="metric-value small">${ws.status || (ws.connected ? '✓ Yes' : '✗ No')}</div>
                 </div>
                 <div class="metric">
                     <div class="metric-label">Subscriptions</div>
@@ -375,7 +436,7 @@
                 <div class="metric">
                     <div class="metric-label">Status</div>
                     <div style="margin-top: 0.5rem;">
-                        <span class="badge badge-${stale}">${ws.is_stale ? '⚠ STALE' : '✓ HEALTHY'}</span>
+                        <span class="badge badge-${stale}">${wsStatus === 'CONNECTED' ? '✓ HEALTHY' : wsStatus === 'DEGRADED' ? '⚠ DEGRADED' : '✗ STALE'}</span>
                     </div>
                 </div>
                 <div class="metric">
@@ -388,8 +449,8 @@
 
         function renderPoolPricingStats(data) {
             const pool = data?.pool_stats || {};
-            const total = (pool.pool_attempted || 0) + 1;
-            const successRate = pool.pool_success ? Math.round((pool.pool_success / total) * 100) : 0;
+            const attempted = pool.pool_attempted || 0;
+            const successRate = attempted > 0 ? Math.round((pool.pool_success || 0) / attempted * 100) : null;
             const html = `
                 <div class="metric">
                     <div class="metric-label">Pools Registered</div>
@@ -405,14 +466,14 @@
                 </div>
                 <div class="metric">
                     <div class="metric-label">Success Rate</div>
-                    <div class="metric-value small">${successRate}%</div>
+                    <div class="metric-value small">${successRate !== null ? successRate + '%' : '—'}</div>
                     <div class="metric-bar">
-                        <div class="metric-bar-fill" style="width: ${successRate}%;"></div>
+                        <div class="metric-bar-fill" style="width: ${successRate || 0}%;"></div>
                     </div>
                 </div>
                 <div class="list-item">
                     <span class="list-label">Attempted</span>
-                    <span class="list-value">${pool.pool_attempted || 0}</span>
+                    <span class="list-value">${attempted}</span>
                 </div>
                 <div class="list-item">
                     <span class="list-label">Success</span>
@@ -429,8 +490,7 @@
         function renderAggregationStats(data) {
             const ws = data?.pool_stats?.ws || {};
             const enabled = ws.multi_pool_enabled;
-            const subCount = ws.subscriptions || 0;
-            const poolCount = Math.floor(subCount / 2);
+            const poolCount = data?.db_signals?.active_pools || data?.pool_stats?.pools_registered || 0;
             const html = `
                 <div class="metric">
                     <div class="metric-label">Multi-Pool</div>
@@ -455,166 +515,204 @@
         }
 
         function renderWorkerDetails(data) {
-            const worker = data?.worker_stats?.worker || {};
-            const cycles = worker.cycles || 0;
-            const errors = worker.errors || 0;
-            const errorRate = cycles ? Math.round((errors / cycles) * 100) : 0;
+            const db = data?.db_signals || {};
+            const secs = db.seconds_since_last_update;
+            const lastRunStr = secs != null ? `${Math.round(secs)}s ago` : '—';
             const html = `
                 <div class="metric">
-                    <div class="metric-label">Cycles Completed</div>
-                    <div class="metric-value small">${cycles}</div>
+                    <div class="metric-label">Snapshots (60s)</div>
+                    <div class="metric-value small">${db.snapshots_in_window || 0}</div>
                 </div>
                 <div class="metric">
-                    <div class="metric-label">Errors</div>
-                    <div class="metric-value small" style="color: errors > 0 ? 'var(--color-critical)' : 'var(--text-primary)';">${errors}</div>
+                    <div class="metric-label">Tokens Priced (60s)</div>
+                    <div class="metric-value small">${db.tokens_priced_in_window || 0}</div>
                 </div>
                 <div class="metric">
-                    <div class="metric-label">Error Rate</div>
-                    <div class="metric-value small">${errorRate}%</div>
-                    <div class="metric-bar">
-                        <div class="metric-bar-fill ${errorRate > 5 ? 'critical' : errorRate > 2 ? 'warning' : ''}" style="width: ${Math.min(errorRate * 10, 100)}%;"></div>
-                    </div>
+                    <div class="metric-label">Active Pools (DB)</div>
+                    <div class="metric-value small">${db.active_pools || 0}</div>
                 </div>
                 <div class="metric">
-                    <div class="metric-label">Last Run</div>
-                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${worker.last_run ? Math.round(worker.last_run * 1000) : 0}ms ago</div>
+                    <div class="metric-label">Last Snapshot</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${lastRunStr}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Active Writer</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${db.inferred_active_writer || '—'}</div>
                 </div>
             `;
             document.getElementById('workerDetails').innerHTML = html;
         }
 
         function renderCacheStats(data) {
-            const cache = data?.cache_size || 0;
-            const hits = data?.worker_stats?.worker?.cache_hits || 0;
-            const total = hits + 1;
-            const hitRate = Math.round((hits / total) * 100);
+            // DB-backed: unique mints priced in last 60s
+            const db = data?.db_signals || {};
             const html = `
                 <div class="metric">
-                    <div class="metric-label">Cache Size</div>
-                    <div class="metric-value small">${cache}</div>
+                    <div class="metric-label">Unique Mints Priced (60s)</div>
+                    <div class="metric-value small">${db.unique_mints_60s || 0}</div>
                 </div>
                 <div class="metric">
-                    <div class="metric-label">Cache Hits</div>
-                    <div class="metric-value small">${hits}</div>
+                    <div class="metric-label">Tokens w/ Recent Update (60s)</div>
+                    <div class="metric-value small">${db.tokens_priced_in_window || 0}</div>
                 </div>
                 <div class="metric">
-                    <div class="metric-label">Hit Rate</div>
-                    <div class="metric-value small">${hitRate}%</div>
-                    <div class="metric-bar">
-                        <div class="metric-bar-fill" style="width: ${hitRate}%;"></div>
-                    </div>
+                    <div class="metric-label">Active Pools (DB)</div>
+                    <div class="metric-value small">${db.active_pools || 0}</div>
                 </div>
             `;
             document.getElementById('cacheStats').innerHTML = html;
         }
 
         function renderQueueStats(data) {
-            const queue = data?.worker_stats?.worker?.queue_stats || {};
-            const depth = queue.queue_depth || 0;
-            const processed = queue.processed || 0;
-            const failed = queue.failed || 0;
-            const avgLatency = queue.avg_latency_ms || 0;
+            // DB-backed: snapshot throughput as proxy for queue activity
+            const db = data?.db_signals || {};
+            const secs = db.seconds_since_last_update;
             const html = `
                 <div class="metric">
-                    <div class="metric-label">Queue Depth</div>
-                    <div class="metric-value small">${depth}</div>
+                    <div class="metric-label">Snapshots Written (60s)</div>
+                    <div class="metric-value small">${db.snapshots_in_window || 0}</div>
                 </div>
                 <div class="metric">
-                    <div class="metric-label">Processed</div>
-                    <div class="metric-value small">${processed}</div>
+                    <div class="metric-label">Last Snapshot</div>
+                    <div class="metric-value small">${secs != null ? Math.round(secs) + 's ago' : '—'}</div>
                 </div>
                 <div class="metric">
-                    <div class="metric-label">Failed</div>
-                    <div class="metric-value small" style="color: failed > 0 ? 'var(--color-critical)' : 'var(--text-primary)';">${failed}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Avg Latency</div>
-                    <div class="metric-value small">${avgLatency.toFixed(1)}ms</div>
-                    <div class="metric-bar">
-                        <div class="metric-bar-fill" style="width: ${Math.min(avgLatency / 5, 100)}%;"></div>
-                    </div>
+                    <div class="metric-label">Active Writer</div>
+                    <div class="metric-value small" style="font-size:1rem;">${db.inferred_active_writer || '—'}</div>
                 </div>
             `;
             document.getElementById('queueStats').innerHTML = html;
         }
 
         function renderSourceHealth(data) {
-            const stats = data?.worker_stats?.worker?.source_stats || {};
-            const sources = ['pool', 'dexscreener', 'jupiter', 'birdeye', 'stale_fallback', 'unavailable'];
+            // Pool pricing DB-backed; other sources are Flask-local (shown in diagnostics below)
+            const pool = data?.pool_stats || {};
+            const attempted = pool.pool_attempted || 0;
+            const success = pool.pool_success || 0;
+            const fail = pool.pool_fail || 0;
+            const rate = attempted ? Math.round(success / attempted * 100) : 0;
+            const color = rate >= 90 ? 'var(--color-success)' : rate >= 50 ? 'var(--color-watch)' : 'var(--color-critical)';
             let html = '<div style="overflow-x: auto;">';
-            html += '<table class="pool-health-table"><thead><tr><th>Source</th><th>Attempted</th><th>Success</th><th>Failed</th><th>Success Rate</th></tr></thead><tbody>';
-
-            sources.forEach(source => {
-                const attempted = stats[`${source}_attempted`] || 0;
-                const success = stats[`${source}_success`] || 0;
-                const failed = stats[`${source}_fail`] || 0;
-                const rate = attempted ? Math.round((success / attempted) * 100) : 0;
-                const color = rate >= 90 ? 'var(--color-success)' : rate >= 70 ? 'var(--color-watch)' : 'var(--color-critical)';
-
-                html += `<tr>
-                    <td><strong>${source.replace(/_/g, ' ').toUpperCase()}</strong></td>
-                    <td>${attempted}</td>
-                    <td style="color: var(--color-success);">+${success}</td>
-                    <td style="color: var(--color-critical);">-${failed}</td>
-                    <td><span style="color: ${color}; font-weight: 600;">${rate}%</span></td>
+            html += '<table class="pool-health-table"><thead><tr><th>Source</th><th>Attempted</th><th>Success</th><th>Failed</th><th>Success Rate</th><th>Note</th></tr></thead><tbody>';
+            html += `<tr>
+                <td><strong>POOL (DB-backed)</strong></td>
+                <td>${attempted}</td>
+                <td style="color:var(--color-success);">+${success}</td>
+                <td style="color:var(--color-critical);">-${fail}</td>
+                <td><span style="color:${color};font-weight:600;">${rate}%</span></td>
+                <td style="color:var(--text-secondary);font-size:0.8rem;">DB signal (60s window)</td>
+            </tr>`;
+            const local = data?.local_process_diagnostics || {};
+            const rw = local?.rolling_window_stats || {};
+            ['dexscreener', 'jupiter', 'birdeye'].forEach(source => {
+                const stat = rw[source] || {};
+                const a = stat.attempts_in_window || 0;
+                const sr = stat.success_rate ? Math.round(stat.success_rate * 100) : 0;
+                const fr = stat.failure_rate ? Math.round(stat.failure_rate * 100) : 0;
+                html += `<tr style="opacity:0.6;">
+                    <td><strong>${source.toUpperCase()}</strong></td>
+                    <td>${a}</td>
+                    <td style="color:var(--color-success);">—</td>
+                    <td style="color:var(--color-critical);">—</td>
+                    <td>${sr}%</td>
+                    <td style="color:var(--color-watch);font-size:0.8rem;">Flask-local only</td>
                 </tr>`;
             });
-
             html += '</tbody></table></div>';
             document.getElementById('sourceHealth').innerHTML = html;
         }
 
         function renderCircuitBreaker(data) {
-            const cb = data?.worker_stats?.worker?.circuit_breaker || {};
+            const cb = data?.local_process_diagnostics?.worker_stats?.worker?.circuit_breaker || {};
             const sources = ['pool', 'dexscreener', 'jupiter', 'birdeye'];
-            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">';
-
+            let html = '<div style="margin-bottom:0.5rem;font-size:0.8rem;color:var(--color-watch);">⚠ Flask-process local state only</div>';
+            html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">';
             sources.forEach(source => {
                 const disabled = cb[source]?.disabled;
                 const cooldown = cb[source]?.cooldown_remaining_secs || 0;
-                const status = disabled ? 'DISABLED' : 'ACTIVE';
-
                 html += `<div style="padding: 1rem; background: rgba(59, 130, 246, 0.05); border: 1px solid var(--border-color); border-radius: 0.375rem;">
                     <div style="font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.85rem;">${source}</div>
-                    <div class="badge badge-${disabled ? 'inactive' : 'active'}">${status}</div>
+                    <div class="badge badge-${disabled ? 'inactive' : 'active'}">${disabled ? 'DISABLED' : 'ACTIVE'}</div>
                     ${cooldown > 0 ? `<div style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--color-watch);">Cooldown: ${Math.round(cooldown)}s</div>` : ''}
                 </div>`;
             });
-
             html += '</div>';
             document.getElementById('circuitBreaker').innerHTML = html;
         }
 
         function renderRollingWindow(data) {
-            const rw = data?.rolling_window_stats || {};
+            const rw = data?.local_process_diagnostics?.rolling_window_stats || data?.rolling_window_stats || {};
             const sources = ['pool', 'dexscreener', 'jupiter', 'birdeye'];
-            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">';
-
+            let html = '<div style="margin-bottom:0.5rem;font-size:0.8rem;color:var(--color-watch);">⚠ Flask-process rolling window — reflects Flask-local API calls only</div>';
+            html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">';
             sources.forEach(source => {
                 const stat = rw[source] || {};
                 const attempts = stat.attempts_in_window || 0;
                 const successRate = stat.success_rate ? Math.round(stat.success_rate * 100) : 0;
                 const failureRate = stat.failure_rate ? Math.round(stat.failure_rate * 100) : 0;
-
-                html += `<div style="padding: 1rem; background: rgba(59, 130, 246, 0.05); border: 1px solid var(--border-color); border-radius: 0.375rem;">
+                html += `<div style="padding: 1rem; background: rgba(59, 130, 246, 0.05); border: 1px solid var(--border-color); border-radius: 0.375rem; opacity: 0.7;">
                     <div style="font-weight: 600; margin-bottom: 1rem; text-transform: uppercase; font-size: 0.85rem;">${source}</div>
-                    <div class="metric">
-                        <div class="metric-label">Attempts</div>
-                        <div class="metric-value small">${attempts}</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">Success Rate</div>
-                        <div class="metric-value small" style="color: var(--color-success);">${successRate}%</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">Failure Rate</div>
-                        <div class="metric-value small" style="color: var(--color-critical);">${failureRate}%</div>
-                    </div>
+                    <div class="metric"><div class="metric-label">Attempts</div><div class="metric-value small">${attempts}</div></div>
+                    <div class="metric"><div class="metric-label">Success Rate</div><div class="metric-value small" style="color:var(--color-success);">${successRate}%</div></div>
+                    <div class="metric"><div class="metric-label">Failure Rate</div><div class="metric-value small" style="color:var(--color-critical);">${failureRate}%</div></div>
                 </div>`;
             });
-
             html += '</div>';
             document.getElementById('rollingWindow').innerHTML = html;
+        }
+
+        function renderLocalDiagnostics(data) {
+            const loc = data?.local_process_diagnostics || {};
+            const w = loc.worker_stats?.worker || {};
+            const html = `
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;">
+                    <div class="metric">
+                        <div class="metric-label">Flask PID</div>
+                        <div class="metric-value small" style="font-size:1rem;">${loc.pid || '—'}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Local Cache Size</div>
+                        <div class="metric-value small">${loc.cache_size || 0}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Local Worker Cycles</div>
+                        <div class="metric-value small">${loc.worker_cycles || 0}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Local Worker Running Flag</div>
+                        <div class="metric-value small">${loc.worker_running_flag ? '✓ true' : '✗ false'}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Note</div>
+                        <div style="font-size:0.8rem;color:var(--color-watch);margin-top:0.25rem;">${loc.note || 'Flask-process singleton only'}</div>
+                    </div>
+                </div>`;
+            document.getElementById('localDiagnostics').innerHTML = html;
+        }
+
+        function renderSnapshotCleanup(data) {
+            const sc = data?.snapshot_cleanup || {};
+            const fmt = n => (n ?? 0).toLocaleString();
+            const fmtTs = ts => ts ? new Date(ts * 1000).toLocaleTimeString() : '—';
+            document.getElementById('snapshotCleanup').innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem;">
+                    <div class="metric">
+                        <div class="metric-label">Snapshots Deleted</div>
+                        <div class="metric-value small">${fmt(sc.snapshots_deleted_24h)}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Tokens Deleted</div>
+                        <div class="metric-value small">${fmt(sc.tokens_deleted_24h)}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Snapshots Downsampled</div>
+                        <div class="metric-value small">${fmt(sc.snapshots_downsampled_24h)}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Last Cleanup</div>
+                        <div class="metric-value small" style="font-size: 0.85rem;">${fmtTs(sc.last_cleanup_at)}</div>
+                    </div>
+                </div>`;
         }
 
         async function updateDashboard() {
@@ -636,6 +734,9 @@
             renderSourceHealth(data);
             renderCircuitBreaker(data);
             renderRollingWindow(data);
+            renderSnapshotCleanup(data);
+            renderLocalDiagnostics(data);
+            renderIngressStatus(data);
 
             const now = new Date();
             document.getElementById('lastUpdate').textContent = `Last updated: ${now.toLocaleTimeString()}`;

@@ -538,7 +538,7 @@ async function loadVaultsPage() {
                                     <td>${v.vault_validation_status || 'N/A'}</td>
                                     <td>${v.vault_discovery_strategy || 'N/A'}</td>
                                     <td>${v.vault_discovery_time_secs ?? 'N/A'}</td>
-                                    <td>${v.category || 'N/A'}</td>
+                                    <td>${v.category ?? 'N/A'}</td>
                                     <td>${v.confidence ?? 'N/A'}</td>
                                 </tr>
                             `).join('')}

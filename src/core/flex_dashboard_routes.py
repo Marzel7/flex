@@ -18,13 +18,16 @@ import sqlite3
 import time
 from typing import Any, Dict, List
 from flask import Blueprint, render_template, jsonify, request, make_response
+
+# Shared threshold: tokens below this market cap are excluded from homepage and live systems.
+MIN_LIVE_MARKET_CAP = 5000
 from src.core.shared_vault_classifier import get_classifier
 
 logger = logging.getLogger(__name__)
 
 DB_PATH = 'database/flex_complete_database.db'
 VALID_BEHAVIOUR_CATEGORIES = {
-    'immediate_rug', 'rug', 'slow_rug', 'runner', 'choppy_runner', 'unknown'
+    'immediate_rug', 'rug', 'slow_rug', 'runner', 'choppy_runner', 'faded_runner', 'unknown'
 }
 VALID_TRACKING_QUALITY = {'good', 'possibly_late', 'likely_late'}
 
@@ -204,8 +207,8 @@ def api_token_behaviour():
     Query params:
     - category: Filter by category (immediate_rug, runner, faded_runner, choppy_runner, rug, slow_rug, insufficient_history, unknown)
     - min_confidence: Minimum confidence threshold (0-1)
-    - min_snapshots: Minimum snapshot count for data quality (default 8, early classification tier)
-    - limit: Max results (default 100)
+    - min_snapshots: Minimum live snapshot count for data quality (default 8)
+    - limit: Max results returned (default 100)
 
     Returns: {"tokens": [...], "total": N, "category_filter": "...", "min_confidence": N, "min_snapshots": N}
     """
@@ -213,26 +216,32 @@ def api_token_behaviour():
         category = request.args.get('category', None)
         min_confidence = float(request.args.get('min_confidence', 0.0))
         min_snapshots = int(request.args.get('min_snapshots', 8))
-        limit = int(request.args.get('limit', 100))
+        limit = min(int(request.args.get('limit', 100)), 500)
 
-        conn = sqlite3.connect('database/flex_complete_database.db')
+        conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
 
-        query = "SELECT * FROM token_behavior WHERE 1=1"
-        params = []
+        # Join the pre-computed summary table — O(1) per row, never scans token_price_snapshots.
+        # token_snapshot_counts is kept in sync by price_service._store_snapshot on every write.
+        query = """
+            SELECT
+                tb.*,
+                COALESCE(tsc.snap_count, 0) AS live_snapshot_count
+            FROM token_behavior tb
+            LEFT JOIN token_snapshot_counts tsc ON tsc.mint = tb.mint
+            WHERE COALESCE(tsc.snap_count, 0) >= ?
+        """
+        params: List[Any] = [min_snapshots]
 
         if category and category != 'all':
-            query += " AND category = ?"
+            query += " AND tb.category = ?"
             params.append(category)
 
         if min_confidence > 0:
-            query += " AND confidence >= ?"
+            query += " AND tb.confidence >= ?"
             params.append(min_confidence)
 
-        query += " AND snapshot_count >= ?"
-        params.append(min_snapshots)
-
-        query += " ORDER BY confidence DESC, classified_at DESC LIMIT ?"
+        query += " ORDER BY tb.confidence DESC, tb.classified_at DESC LIMIT ?"
         params.append(limit)
 
         rows = conn.execute(query, params).fetchall()
@@ -243,14 +252,14 @@ def api_token_behaviour():
             tokens.append({
                 'mint': row['mint'],
                 'category': row['category'],
-                'confidence': round(row['confidence'], 3),
+                'confidence': round(row['confidence'], 3) if row['confidence'] is not None else None,
                 'price_observed_start': round(row['initial_price_observed_usd'], 8) if row['initial_price_observed_usd'] else None,
                 'price_robust_start': round(row['initial_price_robust_usd'], 8) if row['initial_price_robust_usd'] else None,
                 'price_peak': round(row['peak_price_usd'], 8) if row['peak_price_usd'] else None,
                 'max_return_observed': row['max_return_multiple_observed'],
                 'max_return_robust': row['max_return_multiple'],
                 'drawdown_from_peak': round(row['drawdown_from_peak'], 3) if row['drawdown_from_peak'] else None,
-                'snapshot_count': row['snapshot_count'],
+                'snapshot_count': row['live_snapshot_count'],
                 'lifetime_secs': row['lifetime_secs'],
                 'tracking_quality': row['tracking_quality'],
                 'classified_at': row['classified_at'],
@@ -290,7 +299,7 @@ def api_token_behaviour_detail(mint):
     }
     """
     try:
-        conn = sqlite3.connect('database/flex_complete_database.db')
+        conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         
         # Get current classification
@@ -304,9 +313,11 @@ def api_token_behaviour_detail(mint):
             return jsonify({'error': 'Token not classified', 'mint': mint}), 404
         
         # Get vault discovery info from token_pool_accounts
+        tpa_cols = {r[1] for r in conn.execute("PRAGMA table_info(token_pool_accounts)").fetchall()}
+        extra = ", vault_discovery_strategy, vault_discovery_time_secs, pool_address" if 'vault_discovery_strategy' in tpa_cols else ""
         vault_row = conn.execute(
-            "SELECT created_at, vault_validation_status, discovery_method, "
-            "last_vault_validation_at FROM token_pool_accounts WHERE mint = ? "
+            f"SELECT created_at, vault_validation_status, discovery_method, "
+            f"last_vault_validation_at{extra} FROM token_pool_accounts WHERE mint = ? "
             "ORDER BY created_at ASC LIMIT 1",
             (mint,)
         ).fetchone()
@@ -336,18 +347,27 @@ def api_token_behaviour_detail(mint):
         # Build vault metadata
         vault_metadata = None
         if vault_row:
-            vault_discovery_secs = None
-            if (vault_row['vault_validation_status'] == 'validated' 
-                and vault_row['created_at'] 
-                and vault_row['last_vault_validation_at']):
+            # Prefer explicit discovery time; fall back to timestamp diff
+            explicit_secs = vault_row['vault_discovery_time_secs'] if 'vault_discovery_time_secs' in vault_row.keys() else None
+            if explicit_secs is not None:
+                vault_discovery_secs = explicit_secs
+            elif (vault_row['vault_validation_status'] == 'validated'
+                  and vault_row['created_at']
+                  and vault_row['last_vault_validation_at']):
                 vault_discovery_secs = max(0, vault_row['last_vault_validation_at'] - vault_row['created_at'])
-            
+            else:
+                vault_discovery_secs = None
+
+            strategy = vault_row['vault_discovery_strategy'] if 'vault_discovery_strategy' in vault_row.keys() else None
+            pool_address = vault_row['pool_address'] if 'pool_address' in vault_row.keys() else None
+
             vault_metadata = {
                 'validation_status': vault_row['vault_validation_status'],
-                'discovery_method': vault_row['discovery_method'] or 'unknown',
+                'discovery_method': strategy or vault_row['discovery_method'] or 'unknown',
                 'discovery_secs': vault_discovery_secs,
+                'pool_address': pool_address,
                 'created_at': vault_row['created_at'],
-                'last_validation_at': vault_row['last_vault_validation_at']
+                'last_validation_at': vault_row['last_vault_validation_at'],
             }
         
         return jsonify({
@@ -412,11 +432,11 @@ def api_token_behaviour_stats():
     }
     """
     try:
-        conn = sqlite3.connect('database/flex_complete_database.db')
-        
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+
         # Get summary by category
         rows = conn.execute("""
-            SELECT 
+            SELECT
                 category,
                 COUNT(*) as count,
                 ROUND(AVG(confidence), 3) as avg_confidence
@@ -449,6 +469,99 @@ def api_token_behaviour_stats():
         return no_cache_json({'error': str(e)}), 500
 
 
+@dashboard_routes.route('/api/token-behaviour/all', methods=['GET'])
+def api_token_behaviour_all():
+    """
+    Single endpoint that returns stats + top tokens for every category in one DB round-trip.
+
+    Replaces the 6 sequential per-category fetches the frontend was making.
+    Uses token_snapshot_counts summary table — never scans token_price_snapshots.
+
+    Query params:
+    - per_category: tokens per category (default 10)
+    - min_confidence: minimum confidence (default 0.1)
+    - min_snapshots: minimum live snapshot count (default 8)
+    """
+    try:
+        per_category = min(int(request.args.get('per_category', 10)), 50)
+        min_confidence = float(request.args.get('min_confidence', 0.1))
+        min_snapshots = int(request.args.get('min_snapshots', 8))
+
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+
+        CATEGORIES = ['immediate_rug', 'runner', 'faded_runner', 'choppy_runner', 'rug', 'slow_rug']
+
+        # Stats (cheap — 386 rows)
+        stat_rows = conn.execute("""
+            SELECT category, COUNT(*) AS count, ROUND(AVG(confidence), 3) AS avg_confidence
+            FROM token_behavior
+            GROUP BY category
+            ORDER BY count DESC
+        """).fetchall()
+        total = sum(r['count'] for r in stat_rows)
+        by_category = {
+            r['category']: {
+                'count': r['count'],
+                'avg_confidence': r['avg_confidence'],
+                'pct': round(100.0 * r['count'] / total, 1) if total > 0 else 0,
+            }
+            for r in stat_rows
+        }
+
+        # All qualifying tokens in one query, ranked per category with ROW_NUMBER
+        rows = conn.execute("""
+            SELECT tb.*, COALESCE(tsc.snap_count, 0) AS live_snapshot_count,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY tb.category
+                       ORDER BY tb.confidence DESC, tb.classified_at DESC
+                   ) AS rn
+            FROM token_behavior tb
+            LEFT JOIN token_snapshot_counts tsc ON tsc.mint = tb.mint
+            WHERE tb.category IN ('immediate_rug','runner','faded_runner','choppy_runner','rug','slow_rug')
+              AND COALESCE(tsc.snap_count, 0) >= ?
+              AND (? = 0 OR tb.confidence >= ?)
+        """, (min_snapshots, min_confidence, min_confidence)).fetchall()
+
+        category_tokens: Dict[str, list] = {cat: [] for cat in CATEGORIES}
+        for row in rows:
+            if row['rn'] > per_category:
+                continue
+            cat = row['category']
+            if cat not in category_tokens:
+                continue
+            category_tokens[cat].append({
+                'mint': row['mint'],
+                'category': cat,
+                'confidence': round(row['confidence'], 3) if row['confidence'] is not None else None,
+                'price_observed_start': round(row['initial_price_observed_usd'], 8) if row['initial_price_observed_usd'] else None,
+                'price_robust_start': round(row['initial_price_robust_usd'], 8) if row['initial_price_robust_usd'] else None,
+                'price_peak': round(row['peak_price_usd'], 8) if row['peak_price_usd'] else None,
+                'max_return_observed': row['max_return_multiple_observed'],
+                'max_return_robust': row['max_return_multiple'],
+                'drawdown_from_peak': round(row['drawdown_from_peak'], 3) if row['drawdown_from_peak'] else None,
+                'snapshot_count': row['live_snapshot_count'],
+                'lifetime_secs': row['lifetime_secs'],
+                'tracking_quality': row['tracking_quality'],
+                'classified_at': row['classified_at'],
+            })
+
+        conn.close()
+
+        return no_cache_json({
+            'stats': {
+                'total_classified': total,
+                'by_category': by_category,
+            },
+            'category_tokens': category_tokens,
+            'last_updated': int(time.time()),
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching token behaviour all: {e}", exc_info=True)
+        return no_cache_json({'error': str(e)}), 500
+
+
 @dashboard_routes.route('/token-behaviour', methods=['GET'])
 def token_behaviour_page():
     """
@@ -459,6 +572,117 @@ def token_behaviour_page():
         return render_template('flex_dashboard.html', page='token_behaviour')
     except Exception as e:
         logger.error(f"Error rendering token behaviour page: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/snapshots', methods=['GET'])
+def snapshots_page():
+    """Render Snapshots page — latest price snapshot per token."""
+    return render_template('snapshots.html', active_page='snapshots')
+
+
+def _get_snapshots_conn():
+    """Open a fresh connection per request — correlated subquery needs up-to-date WAL view."""
+    conn = sqlite3.connect(DB_PATH, timeout=10)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+@dashboard_routes.route('/api/snapshots', methods=['GET'])
+def api_snapshots():
+    """Return latest snapshot per token, ordered by most recently snapshotted."""
+    import time as _time
+    try:
+        conn = _get_snapshots_conn()
+        # Read price/market_cap directly from token_price_snapshots (latest row per mint).
+        # Avoids stale/corrupt values in token_analysis written by listener paths.
+        now = int(_time.time())
+        rows = conn.execute("""
+            SELECT tsc.mint, tsc.snap_count, tsc.last_updated,
+                   tps.price_usd, tps.market_cap, tps.source,
+                   COALESCE(tt.symbol, mc.symbol) AS symbol,
+                   mc.name,
+                   ta.created_at
+            FROM token_snapshot_counts tsc
+            LEFT JOIN token_price_snapshots tps ON tps.snapshot_id = (
+                SELECT snapshot_id FROM token_price_snapshots
+                WHERE mint = tsc.mint
+                ORDER BY captured_at DESC
+                LIMIT 1
+            )
+            LEFT JOIN tracked_tokens tt ON tt.mint = tsc.mint
+            LEFT JOIN metadata_cache mc ON mc.mint = tsc.mint
+            LEFT JOIN token_analysis ta ON ta.mint = tsc.mint
+            ORDER BY (tsc.last_updated > ?) DESC, tsc.last_updated DESC
+        """, (now - 60,)).fetchall()
+        data = []
+        backfill = []  # (mint, symbol) pairs to write into tracked_tokens
+        for r in rows:
+            last_ts = r['last_updated'] or 0
+            price = r['price_usd']
+            mc = r['market_cap']
+            # Reject clearly bad values before sending to UI
+            if price is not None and price <= 0:
+                price = None
+            if mc is not None and mc <= 0:
+                mc = None
+            if mc is None or mc < MIN_LIVE_MARKET_CAP:
+                continue
+            symbol = r['symbol'] or None
+            # Backfill tracked_tokens.symbol if it came from metadata_cache (was NULL in tracked_tokens)
+            if symbol and not r['symbol']:
+                backfill.append((symbol, r['mint']))
+            data.append({
+                'mint': r['mint'],
+                'symbol': symbol,
+                'name': r['name'] or None,
+                'price_usd': price,
+                'market_cap': mc,
+                'source': r['source'] or 'pool',
+                'last_snapshot': last_ts,
+                'snap_count': r['snap_count'],
+                'age_seconds': now - last_ts if last_ts else 99999,
+                'created_at': r['created_at'] or None,
+            })
+
+        if backfill:
+            try:
+                conn.executemany(
+                    "UPDATE tracked_tokens SET symbol = ? WHERE mint = ? AND (symbol IS NULL OR symbol = '')",
+                    backfill
+                )
+                conn.commit()
+            except Exception:
+                pass  # Non-critical; best-effort only
+
+        return jsonify({'data': data, 'total': len(data)})
+    except Exception as e:
+        logger.error(f"Error fetching snapshots: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/api/boost-tokens', methods=['POST'])
+def api_boost_tokens():
+    """Temporarily boost listed tokens to HIGH-priority refresh."""
+    try:
+        body = request.get_json(silent=True) or {}
+        mints = body.get('mints', [])
+        ttl = int(body.get('ttl', 30))
+
+        if not mints or not isinstance(mints, list):
+            return jsonify({'error': 'mints must be a non-empty list'}), 400
+        if ttl < 1 or ttl > 300:
+            return jsonify({'error': 'ttl must be 1–300 seconds'}), 400
+
+        import src.core.price_worker as _pw
+        worker = _pw._price_worker
+        if worker is None:
+            return jsonify({'error': 'price worker not running'}), 503
+
+        boosted = worker.registry.boost_tokens(mints, ttl)
+        return jsonify({'boosted': boosted, 'ttl': ttl})
+    except Exception as e:
+        logger.error(f"Error boosting tokens: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 
@@ -484,6 +708,45 @@ def _has_column(conn: sqlite3.Connection, table_name: str, column_name: str) -> 
     return column_name in _table_columns(conn, table_name)
 
 
+def _get_first_seen_by_mint(conn: sqlite3.Connection, mints: List[str]) -> Dict[str, int]:
+    """Bulk fetch MIN(captured_at) per mint from token_price_snapshots."""
+    if not mints:
+        return {}
+    unique_mints = list({m for m in mints if m})
+    if not unique_mints:
+        return {}
+    placeholders = ",".join("?" * len(unique_mints))
+    rows = conn.execute(
+        f"SELECT mint, MIN(captured_at) AS first_seen FROM token_price_snapshots "
+        f"WHERE mint IN ({placeholders}) GROUP BY mint",
+        unique_mints,
+    ).fetchall()
+    return {row["mint"]: row["first_seen"] for row in rows}
+
+
+def _get_snapshot_counts_by_mint(conn: sqlite3.Connection, mints: List[str]) -> Dict[str, int]:
+    """
+    Bulk fetch live snapshot counts from token_snapshot_counts summary table.
+
+    token_snapshot_counts is maintained by price_service._store_snapshot on every write,
+    so it is always current without scanning the 2.9M-row token_price_snapshots table.
+    """
+    if not mints:
+        return {}
+
+    unique_mints = list({m for m in mints if m})
+    if not unique_mints:
+        return {}
+
+    placeholders = ",".join("?" * len(unique_mints))
+    rows = conn.execute(
+        f"SELECT mint, snap_count AS cnt FROM token_snapshot_counts "
+        f"WHERE mint IN ({placeholders})",
+        unique_mints,
+    ).fetchall()
+    return {row["mint"]: row["cnt"] for row in rows}
+
+
 def _format_nullable_float(value, digits: int = 3):
     """Format a nullable float to fixed decimal places."""
     if value is None:
@@ -495,10 +758,10 @@ def _format_nullable_float(value, digits: int = 3):
 
 
 def _normalize_category(value):
-    """Validate category against approved list."""
-    if value in VALID_BEHAVIOUR_CATEGORIES:
-        return value
-    return None
+    """Return category as-is if non-empty; only null/empty becomes None."""
+    if value is None or value == '':
+        return None
+    return value
 
 
 def _normalize_tracking_quality(value):
@@ -611,17 +874,31 @@ def _build_vaults_select(conn: sqlite3.Connection) -> str:
     """
 
 
-def _vault_row_to_dict(row: sqlite3.Row) -> Dict[str, Any]:
+def _vault_row_to_dict(
+    row: sqlite3.Row,
+    base_account_counts: Dict[str, int] = None,
+    snap_counts: Dict[str, int] = None,
+) -> Dict[str, Any]:
     """
     Normalize one merged vault/token row into API-safe JSON.
     Includes account type classification for shared vaults.
     """
-    category = _normalize_category(row['category'])
+    raw_category = _normalize_category(row['category'])
+    if raw_category is None:
+        _snap = snap_counts.get(row['mint'], 0) if snap_counts is not None else 0
+        if _snap == 0:
+            category = 'no_data'
+        elif _snap < 8:
+            category = 'collecting'
+        else:
+            category = None
+    else:
+        category = raw_category
     tracking_quality = _normalize_tracking_quality(row['tracking_quality'])
 
     strategy = row['vault_discovery_strategy'] or row['vault_discovery_method']
     attempts = row['vault_discovery_attempts']
-    discovery_time = _format_nullable_float(row['vault_discovery_time_secs'], 1)
+    discovery_time = _format_nullable_float(row['vault_discovery_time_secs'], 3)
     confidence = _format_nullable_float(row['confidence'], 3)
 
     # Avoid misleading defaults: unknown/0/N/A should reflect actual state.
@@ -633,17 +910,32 @@ def _vault_row_to_dict(row: sqlite3.Row) -> Dict[str, Any]:
         except (TypeError, ValueError):
             attempts_out = None
 
-    # Classify the pool_address (may be shared vault like ADyA)
+    # Classify the base_account using pre-computed counts (no per-row DB calls)
     pool_address = row['pool_address']
+    base_account = row['base_account']
+    _ACCOUNT_TYPE_LABELS = {
+        'shared_vault_signature': 'Shared Vault (pump.fun)',
+        'shared_program_vault': 'Shared Vault (Program)',
+        'token_vault': 'Token Vault',
+        'unknown': 'Unknown',
+    }
     account_type = 'unknown'
-    account_type_label = 'Unknown'
-    if pool_address:
+    if base_account and base_account_counts is not None:
+        cnt = base_account_counts.get(base_account, 0)
+        if cnt >= 10:
+            account_type = 'shared_vault_signature'
+        elif cnt >= 5:
+            account_type = 'shared_program_vault'
+        elif cnt >= 1:
+            account_type = 'token_vault'
+    elif base_account:
+        # Single-row path (detail endpoint) — use classifier
         try:
             classifier = get_classifier()
-            account_type = classifier.classify_account(pool_address)
-            account_type_label = classifier.get_account_type_label(account_type)
-        except Exception as e:
-            logger.warning(f"Error classifying account {pool_address}: {e}")
+            account_type = classifier.classify_account(base_account)
+        except Exception:
+            pass
+    account_type_label = _ACCOUNT_TYPE_LABELS.get(account_type, 'Unknown')
 
     return {
         'mint': row['mint'],
@@ -681,7 +973,11 @@ def _vault_row_to_dict(row: sqlite3.Row) -> Dict[str, Any]:
         'drawdown_from_peak': _format_nullable_float(row['drawdown_from_peak'], 3),
         'recovery_ratio': _format_nullable_float(row['recovery_ratio'], 3),
         'time_to_peak_secs': row['time_to_peak_secs'],
-        'snapshot_count': row['snapshot_count'],
+        'snapshot_count': (
+            snap_counts.get(row['mint'], 0)
+            if snap_counts is not None
+            else row['snapshot_count']
+        ),
         'lifetime_secs': row['lifetime_secs'],
         'classified_at': row['classified_at'],
     }
@@ -735,6 +1031,7 @@ def api_vaults():
     - sort_dir: asc | desc
     """
     try:
+
         status = request.args.get('status', 'all')
         strategy = request.args.get('strategy', 'all')
         tracking_quality = request.args.get('tracking_quality', 'all')
@@ -745,7 +1042,7 @@ def api_vaults():
         sort_by = request.args.get('sort_by', 'created_at')
         sort_dir = request.args.get('sort_dir', 'desc').lower()
 
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
 
         base_sql = _build_vaults_select(conn)
@@ -790,9 +1087,31 @@ def api_vaults():
         params.append(limit)
 
         rows = conn.execute(query, params).fetchall()
+
+        # Live snapshot counts (replaces stale token_behavior.snapshot_count)
+        mints = [r['mint'] for r in rows if r['mint']]
+        snap_counts = _get_snapshot_counts_by_mint(conn, mints)
+        first_seen_map = _get_first_seen_by_mint(conn, mints)
+
+        # Pre-compute base_account usage counts in one query (avoids N per-row DB calls)
+        base_accounts = [r['base_account'] for r in rows if r['base_account']]
+        base_account_counts: Dict[str, int] = {}
+        if base_accounts:
+            placeholders = ','.join('?' * len(base_accounts))
+            cnt_rows = conn.execute(
+                f"SELECT base_account, COUNT(DISTINCT mint) AS cnt FROM token_pool_accounts "
+                f"WHERE base_account IN ({placeholders}) GROUP BY base_account",
+                base_accounts,
+            ).fetchall()
+            base_account_counts = {r['base_account']: r['cnt'] for r in cnt_rows}
+
         conn.close()
 
-        data = [_vault_row_to_dict(row) for row in rows]
+        data = [_vault_row_to_dict(row, base_account_counts, snap_counts) for row in rows]
+
+        # Sort by first_seen DESC (tokens with snapshots first, newest at top)
+        data.sort(key=lambda d: (first_seen_map.get(d['mint']) is None, -(first_seen_map.get(d['mint']) or 0)))
+
 
         return no_cache_json({
             'vaults': data,
@@ -822,7 +1141,7 @@ def api_vaults_stats_summary():
     Summary stats for Vaults page cards.
     """
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
 
         base_sql = _build_vaults_select(conn)
@@ -888,7 +1207,7 @@ def api_vaults_stats_summary():
 def api_vaults_stats_discovery_health():
     """Aggregated discovery health stats overall and by strategy."""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         tpa_cols = _table_columns(conn, 'token_pool_accounts')
 
@@ -1059,7 +1378,7 @@ def api_vault_detail(mint):
     Detail endpoint for a single token/vault merged view.
     """
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
 
         base_sql = _build_vaults_select(conn)
@@ -1072,7 +1391,8 @@ def api_vault_detail(mint):
             conn.close()
             return jsonify({'error': 'Vault/token not found', 'mint': mint}), 404
 
-        data = _vault_row_to_dict(row)
+        snap_counts = _get_snapshot_counts_by_mint(conn, [mint])
+        data = _vault_row_to_dict(row, {}, snap_counts)
         data['debug'] = _build_vault_debug(row)
 
         # Optional lightweight history if behaviour history exists.

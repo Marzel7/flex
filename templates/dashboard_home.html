@@ -97,12 +97,38 @@
             padding: 15px;
             border-bottom: 1px solid rgba(6, 182, 212, 0.1);
             font-size: 12px;
+            text-align: left;
         }
 
 
         .tokens-table tbody tr:hover {
             background: rgba(6, 182, 212, 0.05);
         }
+
+        /* Freshness dot */
+        .snap-dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:5px; vertical-align:middle; flex-shrink:0; }
+        .snap-dot-fresh  { background:#4ade80; box-shadow:0 0 5px #4ade80; }
+        .snap-dot-recent { background:#fbbf24; }
+        .snap-dot-grey   { background:#6b7280; opacity:0.5; }
+
+        /* Active row subtle highlight */
+        tr.row-active-snap { background: rgba(74, 222, 128, 0.04); }
+
+        /* Stale row de-emphasis */
+        tr.row-stale-snap td { opacity: 0.55; }
+
+        /* Compact first column */
+        .token-primary { display: flex; align-items: center; gap: 5px; }
+        .token-symbol  { color: var(--accent-purple); font-weight: bold; font-size: 13px; white-space: nowrap; }
+        .badge-new { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.05em; padding: 1px 4px; border-radius: 3px; background: rgba(74, 222, 128, 0.18); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.35); vertical-align: middle; margin-left: 4px; line-height: 1.4; }
+        .token-links   { display: flex; gap: 8px; margin-top: 3px; }
+        .token-links a { font-size: 10px; color: var(--text-secondary); text-decoration: none; border-bottom: 1px dotted var(--text-secondary); white-space: nowrap; }
+        .token-links a:hover { color: var(--accent-cyan); }
+
+        /* Single-line tags */
+        .tags-cell     { max-width: 160px; overflow: hidden; white-space: nowrap; padding-left: 4px; }
+        .tags-inner    { display: flex; gap: 4px; align-items: center; flex-wrap: nowrap; overflow: hidden; }
+        .tag-overflow  { font-size: 10px; color: var(--text-secondary); white-space: nowrap; flex-shrink: 0; }
 
         .tokens-table td {
             transition: opacity 0.2s ease;
@@ -312,47 +338,23 @@
             /* Table cell - flex styles applied via wrapper div */
         }
 
-        /* Base creator tag styling */
+        /* Base creator tag — quiet, compact, single-line */
         .creator-tag {
             display: inline-block;
-            padding: 3px 6px;
+            padding: 2px 5px;
             border-radius: 3px;
             font-size: 10px;
-            font-weight: 600;
+            font-weight: 500;
             white-space: nowrap;
-            border: 1px solid rgba(6, 182, 212, 0.3);
-            background: rgba(6, 182, 212, 0.15);
-            color: var(--accent-cyan);
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: var(--text-secondary);
+            opacity: 0.8;
         }
-
-        /* Network size tag (cyan) */
-        .tag-network {
-            background: rgba(6, 182, 212, 0.15);
-            color: var(--accent-cyan);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-        }
-
-        /* Funding tag (cyan) */
-        .tag-funding {
-            background: rgba(6, 182, 212, 0.15);
-            color: var(--accent-cyan);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-        }
-
-        /* Repeat launcher tag (cyan) */
-        .tag-repeat {
-            background: rgba(6, 182, 212, 0.15);
-            color: var(--accent-cyan);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-        }
-
-        /* Blocked tag (cyan) */
-        .tag-blocked {
-            background: rgba(6, 182, 212, 0.15);
-            color: var(--accent-cyan);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            font-weight: 700;
-        }
+        .tag-network  { color: var(--text-secondary); border-color: rgba(6,182,212,0.2); }
+        .tag-funding  { color: var(--text-secondary); border-color: rgba(6,182,212,0.2); }
+        .tag-repeat   { color: var(--text-secondary); border-color: rgba(255,255,255,0.1); }
+        .tag-blocked  { color: rgba(239,68,68,0.8); border-color: rgba(239,68,68,0.3); font-weight: 700; opacity: 1; }
 
         /* Creator infrastructure tags container */
         .creator-infra-tags {
@@ -2150,9 +2152,9 @@
                     creatorData: creatorData[token.creator] || {}
                 }));
 
-                // Filter out tokens with market cap < $2000 entirely
-                // But allow very new tokens (created in last 60 minutes) to display even if low market cap
-                const minMarketCap = 2000;
+                // Filter out tokens below MIN_LIVE_MARKET_CAP — must match backend threshold
+                // so every visible token is guaranteed to receive SSE/WS live updates.
+                const minMarketCap = 5000;
                 const now = Math.floor(Date.now() / 1000);
                 const filteredTokens = enrichedTokens.filter(t => {
                     const tokenAgeSeconds = now - new Date(t.created_at).getTime() / 1000;
@@ -2164,10 +2166,10 @@
                 // Display only top 25 of the filtered tokens
                 const displayTokens = filteredTokens.slice(0, 25);
 
-                // Check if token list changed (by comparing mints) to avoid unnecessary DOM rebuilds
-                const currentMints = (window.currentTokens || []).map(t => t.mint).join(',');
-                const newMints = displayTokens.map(t => t.mint).join(',');
-                const tokensChanged = currentMints !== newMints;
+                // Check if token list or prices changed to avoid unnecessary DOM rebuilds
+                const currentSig = (window.currentTokens || []).map(t => `${t.mint}:${t.price_current}:${t.market_cap_current}`).join('|');
+                const newSig = displayTokens.map(t => `${t.mint}:${t.price_current}:${t.market_cap_current}`).join('|');
+                const tokensChanged = currentSig !== newSig;
 
                 window.currentTokens = displayTokens;
 
@@ -2189,39 +2191,24 @@
                 // Update stats
                 updateStats({tokens: displayTokens});
 
-                // Only rebuild table if token list changed
                 if (tokensChanged) {
+                    // Mint set changed — full rebuild required
                     buildTable(displayTokens);
-                    console.log('Rebuilt table - token list changed');
+                    console.log('[TABLE] Full rebuild — mint set changed');
+                } else {
+                    // Same mints — patch price/mc/dot in-place, no DOM rebuild
+                    displayTokens.forEach(token => updateOrInsertRow(token));
                 }
 
-                // Fetch and display price sources for all tokens (icon only)
-                displayTokens.forEach(token => {
-                    fetch(`/api/token-metrics/${token.mint}`)
-                        .then(r => r.json())
-                        .then(data => {
-                            if (data.price && data.price.source) {
-                                const source = data.price.source;
-                                let sourceIcon = '';
+                // Boost visible tokens so worker prioritises them for ~30s
+                if (mints.length > 0) {
+                    fetch('/api/boost-tokens', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({mints, ttl: 30})
+                    }).catch(() => {});
+                }
 
-                                if (source === 'pool') {
-                                    sourceIcon = '📡';
-                                } else if (source.includes('pool')) {
-                                    sourceIcon = '📊';
-                                } else if (source === 'dexscreener') {
-                                    sourceIcon = '🔗';
-                                } else {
-                                    sourceIcon = '';
-                                }
-
-                                const sourceEl = document.getElementById(`source-${token.mint}`);
-                                if (sourceEl && sourceIcon) {
-                                    sourceEl.innerHTML = sourceIcon;
-                                }
-                            }
-                        })
-                        .catch(e => console.debug('Price source fetch error:', e));
-                });
             } catch (error) {
                 console.error('Error loading tokens:', error);
                 document.getElementById('tokens-container').innerHTML =
@@ -2255,14 +2242,73 @@
             document.getElementById('repeat-launchers').textContent = repeatLaunchers;
         }
 
+        // ---------------------------------------------------------------------------
+        // Live row patch — update price/mc/dot without rebuilding the table
+        // ---------------------------------------------------------------------------
+        function patchRowByMint(mint, priceUsd, marketCap, ageSeconds) {
+            const row = document.querySelector(`tr[data-mint="${mint}"]`);
+            if (!row) {
+                console.debug(`[PATCH] row not found for mint ${mint.substring(0,16)}...`);
+                return false;
+            }
+
+            // Price
+            const priceElem = document.getElementById(`price-${mint}`);
+            if (priceElem && priceUsd) {
+                priceElem.textContent = `$${formatPrice(priceUsd)}`;
+            }
+
+            // Market cap
+            const mcElem = document.getElementById(`mc-${mint}`);
+            if (mcElem && marketCap) {
+                mcElem.textContent = '$' + formatMarketCap(marketCap);
+            }
+
+            // Freshness dot + row class
+            const dot = row.querySelector('.snap-dot');
+            const age = ageSeconds ?? 99999;
+            if (dot) {
+                dot.className = age < 15 ? 'snap-dot snap-dot-fresh'
+                              : age < 60  ? 'snap-dot snap-dot-recent'
+                              :             'snap-dot snap-dot-grey';
+            }
+            row.classList.toggle('row-active-snap', age < 60);
+            row.classList.toggle('row-stale-snap',  age > 120);
+
+            // Move to top if fresh and not already first
+            const tbody = row.parentElement;
+            if (age < 15 && tbody && tbody.firstElementChild !== row) {
+                tbody.prepend(row);
+                row.style.transition = 'background 0.3s';
+                row.style.background = 'rgba(74,222,128,0.10)';
+                setTimeout(() => { row.style.background = ''; }, 700);
+            }
+
+            return true;
+        }
+
+        // Update live price fields on an existing row; skip if row absent (no insert on poll)
+        function updateOrInsertRow(token) {
+            const found = patchRowByMint(
+                token.mint,
+                token.price_current,
+                token.market_cap_current,
+                token.snap_age ?? 99999
+            );
+            if (!found) {
+                console.debug(`[POLL] mint not in table: ${token.mint.substring(0,16)}...`);
+            }
+        }
+
         let sortConfig = {
             column: 'created_at',
             direction: 'desc'
         };
+        let hasUserSorted = false;
 
         function buildTable(tokens) {
-            // Sort tokens based on current sort config
-            const sortedTokens = [...tokens].sort((a, b) => {
+            // Use backend order until user clicks a column header
+            const sortedTokens = hasUserSorted ? [...tokens].sort((a, b) => {
                 const aVal = a[sortConfig.column];
                 const bVal = b[sortConfig.column];
 
@@ -2287,23 +2333,19 @@
                 return sortConfig.direction === 'asc'
                     ? String(aVal).localeCompare(String(bVal))
                     : String(bVal).localeCompare(String(aVal));
-            });
+            }) : [...tokens];
 
             const html = `
                 <table class="tokens-table">
                     <thead>
                         <tr>
-                            <th onclick="sortBy('mint')" class="sortable ${sortConfig.column === 'mint' ? 'sorted-' + sortConfig.direction : ''}">Token Mint</th>
-                            <th style="min-width: 80px;">Symbol</th>
-                            <th></th>
+                            <th onclick="sortBy('mint')" class="sortable ${sortConfig.column === 'mint' ? 'sorted-' + sortConfig.direction : ''}"></th>
+                            <th style="max-width:160px;padding-left:4px"></th>
                             <th onclick="sortBy('network_name')" class="sortable ${sortConfig.column === 'network_name' ? 'sorted-' + sortConfig.direction : ''}">Network</th>
                             <th onclick="sortBy('cluster_name')" class="sortable ${sortConfig.column === 'cluster_name' ? 'sorted-' + sortConfig.direction : ''}">Cluster</th>
-                            <th>Live Price</th>
                             <th onclick="sortBy('market_cap_current')" class="sortable ${sortConfig.column === 'market_cap_current' ? 'sorted-' + sortConfig.direction : ''}">Market Cap</th>
                             <th onclick="sortBy('market_cap_highest')" class="sortable ${sortConfig.column === 'market_cap_highest' ? 'sorted-' + sortConfig.direction : ''}">Peak MC</th>
                             <th onclick="sortBy('market_cap_highest_at')" class="sortable ${sortConfig.column === 'market_cap_highest_at' ? 'sorted-' + sortConfig.direction : ''}">Peak Timing</th>
-                            <th onclick="sortBy('total_events')" class="sortable ${sortConfig.column === 'total_events' ? 'sorted-' + sortConfig.direction : ''}">Events</th>
-                            <th onclick="sortBy('coverage')" class="sortable ${sortConfig.column === 'coverage' ? 'sorted-' + sortConfig.direction : ''}">Coverage</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -2314,27 +2356,41 @@
                             // Tags for the "Creator Tags" column (non-infrastructure)
                             const columnTags = [];
 
+                            // Label-shortening map (UI display only — raw data unchanged)
+                            const TAG_SHORT = {
+                                'axiom': 'Ax', 'uses_axiom': 'Ax',
+                                'jitotip': 'JT', 'uses_jitotip': 'JT', 'uses_jitotip_other': 'JT',
+                                'changenow': 'CN', 'ChangeNow': 'CN',
+                                'meteora': 'Me', 'uses_meteora': 'Me',
+                                'debridge': 'dB', 'uses_debridge': 'dB',
+                                'multi-funder': 'MF', 'Multi-Funder': 'MF',
+                            };
+                            function shortenTag(raw) {
+                                const key = raw.toLowerCase().replace('uses_', '');
+                                return TAG_SHORT[raw] || TAG_SHORT[raw.toLowerCase()] || TAG_SHORT['uses_' + key] || raw;
+                            }
+
                             // Network size tag (show if > 10 wallets)
                             if (creatorData.network_size > 10) {
                                 const hop0 = creatorData.cluster_hops?.hop0 || 0;
                                 const hop1 = creatorData.cluster_hops?.hop1 || 0;
-                                columnTags.push(`<span class="creator-tag tag-network" title="Wallet cluster: ${hop0} hop-0, ${hop1} hop-1">${creatorData.network_size} wallets</span>`);
+                                columnTags.push(`<span class="creator-tag tag-network" title="Wallet cluster: ${hop0} hop-0, ${hop1} hop-1">${creatorData.network_size}w</span>`);
                             }
 
                             // Funding tag (show if > 10 SOL)
                             if (creatorData.inbound_sol > 10) {
                                 const sources = creatorData.inbound_sources || 0;
-                                columnTags.push(`<span class="creator-tag tag-funding" title="Pre-launch funding">${creatorData.inbound_sol.toFixed(1)} SOL from ${sources} source${sources > 1 ? 's' : ''}</span>`);
+                                columnTags.push(`<span class="creator-tag tag-funding" title="Pre-launch funding: ${creatorData.inbound_sol.toFixed(1)} SOL from ${sources} source${sources > 1 ? 's' : ''}">${creatorData.inbound_sol.toFixed(0)}◎</span>`);
                             }
 
                             // Repeat launcher tag (show if > 1 token)
                             if (creatorData.token_count > 1) {
-                                columnTags.push(`<span class="creator-tag tag-repeat" title="Repeat launcher">Multi-token (${creatorData.token_count})</span>`);
+                                columnTags.push(`<span class="creator-tag tag-repeat" title="Repeat launcher: ${creatorData.token_count} tokens">M${creatorData.token_count}</span>`);
                             }
 
                             // Blocked tag
                             if (creatorData.is_blocked || token.creator_is_blocked) {
-                                columnTags.push('<span class="creator-tag tag-blocked" title="On blocklist">BLOCKED</span>');
+                                columnTags.push('<span class="creator-tag tag-blocked" title="On blocklist">BLK</span>');
                             }
 
                             // CEX/Infrastructure funders - add to Creator Tags column
@@ -2360,9 +2416,9 @@
                                 }
                             }
 
-                            // Add funder labels to columnTags (all cyan)
+                            // Add funder labels to columnTags
                             for (let label of funderLabels) {
-                                columnTags.push(`<span class="creator-tag tag-funding" title="${label.description}">${label.name}</span>`);
+                                columnTags.push(`<span class="creator-tag tag-funding" title="${label.description}">${shortenTag(label.name)}</span>`);
                             }
 
                             // Service tags (uses_axiom, uses_jitotip, uses_meteora, uses_debridge, Multi-Funder, etc.)
@@ -2377,15 +2433,7 @@
                                     if (!seenServiceTags.has(tagName) && !serviceTag.tag.match(/^[1-9A-HJ-NP-Za-km-z]{30,}\.?$/)) {
                                         seenServiceTags.add(tagName);
 
-                                        // Custom display names for service tags
-                                        let displayName = serviceTag.tag.replace('uses_', '');
-                                        if (serviceTag.tag === 'uses_jitotip') {
-                                            displayName = 'JitoTip (CREATE)';
-                                        } else if (serviceTag.tag === 'uses_jitotip_other') {
-                                            displayName = 'JitoTip';
-                                        }
-                                        // Keep Multi-Funder as-is
-
+                                        const displayName = shortenTag(serviceTag.tag);
                                         columnTags.push(`<span class="creator-tag tag-funding" title="${serviceTag.description}">${displayName}</span>`);
                                     }
                                 }
@@ -2496,40 +2544,44 @@
                                         tagColor = '#4ade80';
                                         bgColor = 'rgba(74, 222, 128, 0.15)';
                                     }
-                                    infraTagsHTML += `<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor}; background-color: ${bgColor}; display: inline-block; margin-right: 5px;" title="${infraTag.description}">${infraTag.tag.replace('uses_', '')}</span>`;
+                                    infraTagsHTML += `<span class="creator-tag" style="border-color: ${tagColor}; color: ${tagColor}; background-color: ${bgColor}; display: inline-block; margin-right: 5px;" title="${infraTag.description}">${shortenTag(infraTag.tag)}</span>`;
                                 }
                             }
 
                             // Append creator infrastructure tags to infraTags
                             if (infraTagsHTML) {
-                                infraTags += `<div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 3px;">${infraTagsHTML}</div>`;
+                                infraTags += `<div style="display:flex;flex-wrap:nowrap;gap:4px;margin-top:3px;overflow:hidden">${infraTagsHTML}</div>`;
                             }
 
+                            const snapAge = token.snap_age ?? 99999;
+                            const rowSnapClass = snapAge > 120 ? 'row-stale-snap' : (snapAge < 60 ? 'row-active-snap' : '');
+                            const MAX_TAGS = 2;
+                            const visibleTags = columnTags.slice(0, MAX_TAGS);
+                            const hiddenCount = columnTags.length - visibleTags.length;
+                            const allTagText = columnTags.map(t => t.replace(/<[^>]+>/g, '')).join(', ');
                             return `
-                                <tr>
-                                    <td class="mint-with-creator">
-                                        <a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="Click for metrics">${token.mint}</a>
-                                        <div class="creator-address-embedded">
-                                            ${creatorElement}
-                                            ${infraTags}
+                                <tr class="${rowSnapClass}" data-mint="${token.mint}">
+                                    <td class="mint-with-creator" style="min-width:130px;max-width:200px">
+                                        <div class="token-primary">
+                                            ${snapDotHtml(snapAge)}
+                                            <span id="symbol-${token.mint}" class="token-symbol" title="${token.mint}">…</span>${isNewToken(token.created_at) ? '<span class="badge-new">NEW</span>' : ''}
+                                        </div>
+                                        <div class="token-links">
+                                            <a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" title="${token.mint}">Token ↗</a>
+                                            <a href="#" onclick="showCreatorDetails('${token.creator}'); return false;" title="${token.creator || ''}">Creator ↗</a>
+                                        </div>
+                                        ${infraTags}
+                                    </td>
+                                    <td class="tags-cell" title="${allTagText}">
+                                        <div class="tags-inner">
+                                            ${visibleTags.join('')}${hiddenCount > 0 ? `<span class="tag-overflow">+${hiddenCount}</span>` : ''}
                                         </div>
                                     </td>
-                                    <td id="symbol-${token.mint}" style="color: var(--accent-purple); font-weight: bold; font-size: 12px;">
-                                        <span style="opacity: 0.5;">...</span>
-                                    </td>
-                                    <td class="creator-tags"><div style="display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">${columnTags.join('')}</div></td>
                                     <td class="network-name">
                                         ${token.atomic_network_name ? `<a href="/networks?network=${encodeURIComponent(token.atomic_network_name)}" style="color: var(--accent-purple); font-weight: bold; font-size: 12px; cursor: pointer; text-decoration: none; border-bottom: 1px dotted var(--accent-purple);" title="${token.atomic_network_tier || ''}">${token.atomic_network_name}</a>` : ''}
                                     </td>
                                     <td class="cluster-name">
                                         ${token.cluster_name ? `<span style="color: var(--accent-orange); font-size: 12px;" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : ''}
-                                    </td>
-                                    <td id="price-${token.mint}" style="color: var(--accent-cyan); font-size: 12px; transition: color 0.2s ease; min-width: 120px;">
-                                        <div>
-                                            ${token.price_current && token.price_current > 0 ? `$${token.price_current.toFixed(8)}` : '<span style="opacity: 0.5;">...</span>'}
-                                        </div>
-                                        <div id="source-${token.mint}" style="font-size: 14px; margin-top: 2px; min-height: 14px;">
-                                        </div>
                                     </td>
                                     <td id="mc-${token.mint}" style="transition: color 0.2s ease; min-width: 60px;">
                                         ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">...</span>'}
@@ -2539,12 +2591,6 @@
                                     </td>
                                     <td>
                                         ${token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : ''}
-                                    </td>
-                                    <td>
-                                        ${token.total_events > 0 ? token.total_events : ''}
-                                    </td>
-                                    <td>
-                                        ${token.coverage ? token.coverage.toFixed(1) + '%' : ''}
                                     </td>
                                     <td title="Launched: ${formatDate(token.created_at)}" style="font-size: 11px;">
                                         ${timeSinceLaunch(token.created_at)}
@@ -2623,7 +2669,7 @@
                     if (priceElement) {
                         // Use textContent for better performance and fade transition
                         priceElement.style.opacity = '0.5';
-                        priceElement.textContent = `$${price.toFixed(8)}`;
+                        priceElement.textContent = `$${formatPrice(price)}`;
                         // Fade to full opacity
                         setTimeout(() => {
                             priceElement.style.opacity = '1';
@@ -2708,6 +2754,7 @@
         }
 
         function sortBy(column) {
+            hasUserSorted = true;
             // If clicking same column, toggle direction
             if (sortConfig.column === column) {
                 sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
@@ -2745,6 +2792,12 @@
             const minutes = Math.floor(seconds / 60);
             const secs = seconds % 60;
             return `${minutes}m ${secs}s`;
+        }
+
+        function isNewToken(createdAt) {
+            if (!createdAt) return false;
+            const ts = typeof createdAt === 'number' ? createdAt : new Date(createdAt).getTime() / 1000;
+            return (Math.floor(Date.now() / 1000) - ts) < 1800;
         }
 
         function timeSinceLaunch(createdAtTimestamp) {
@@ -2796,6 +2849,19 @@
                 const hours = Math.floor((secondsAgo % 86400) / 3600);
                 return `${days}d${hours}h`;
             }
+        }
+
+        function snapDotHtml(age) {
+            if (age < 15)  return '<span class="snap-dot snap-dot-fresh"></span>';
+            if (age < 60)  return '<span class="snap-dot snap-dot-recent"></span>';
+            return '<span class="snap-dot snap-dot-grey"></span>';
+        }
+
+        function formatPrice(p) {
+            if (!p || p <= 0) return null;
+            if (p < 1e-8) return p.toExponential(3);
+            if (p < 1e-4) return p.toFixed(10).replace(/0+$/, '').replace(/\.$/, '');
+            return p.toFixed(8);
         }
 
         function formatMarketCap(value) {
@@ -3092,55 +3158,37 @@ function switchToTokensTab() {
             const es = new EventSource('/api/price-stream');
             let eventCount = 0;
 
-            es.onopen = () => {
-                console.log('[SSE_PRICE] ✅ Connected');
-            };
+            es.onopen = () => console.log('[SSE_PRICE] open');
 
-            es.onmessage = (event) => {
-                try {
-                    const update = JSON.parse(event.data);
-                    if (update.type === 'price_update') {
-                        eventCount++;
-                        const mint = update.mint;
-                        const priceElem = document.getElementById(`price-${mint}`);
-                        const mcElem = document.getElementById(`mc-${mint}`);
-
-                        if (priceElem) {
-                            priceElem.textContent = `$${update.price_usd.toFixed(8)}`;
-                        }
-                        if (mcElem && update.market_cap) {
-                            const formattedMC = '$' + formatMarketCap(update.market_cap);
-                            mcElem.textContent = formattedMC;
-                        }
-                    } else if (update.type === 'pool_registered') {
-                        console.log(`[SSE] Pool registered for ${update.mint?.substring(0, 16)}... (${update.elapsed_secs}s) — registering for price tracking + refreshing token list`);
-                        // Register immediately for price tracking so snapshots start before loadTokens fires
-                        if (update.mint) {
-                            fetch('/api/price/batch/register', {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({mints: [update.mint]})
-                            }).catch(() => {});
-                        }
-                        loadTokens();
+            es.onmessage = (e) => {
+                console.log('[SSE_PRICE] message', e.data?.slice?.(0, 200) || e.data);
+                const update = JSON.parse(e.data);
+                if (update.type === 'price_update') {
+                    patchRowByMint(update.mint, update.price_usd, update.market_cap, update.age_seconds ?? 0);
+                } else if (update.type === 'pool_registered') {
+                    console.log(`[SSE] Pool registered for ${update.mint?.substring(0, 16)}... (${update.elapsed_secs}s) — registering for price tracking + refreshing token list`);
+                    if (update.mint) {
+                        fetch('/api/price/batch/register', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({mints: [update.mint]})
+                        }).catch(() => {});
                     }
-                } catch (error) {
-                    console.error('[SSE_PRICE] Parse error:', error);
+                    loadTokens();
                 }
             };
 
-            es.onerror = () => {
-                console.log('[SSE_PRICE] Connection closed, will auto-reconnect...');
-                es.close();
+            es.onerror = (err) => {
+                console.log('[SSE_PRICE] error — browser will auto-reconnect', err);
             };
         }
 
         // Load tokens immediately and then every 10 seconds
         (async () => {
             await initializeSettings();
-            loadTokens();
-            initDashboardPriceStream();  // Start SSE price stream
-            setInterval(loadTokens, 60000);  // Reload token list every 60s (not constantly)
+            await loadTokens();            // await so data-mint rows exist before SSE starts
+            initDashboardPriceStream();    // Start SSE price stream
+            setInterval(loadTokens, 10000);
         })();
 
         // Metrics Modal Functions

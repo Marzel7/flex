@@ -1135,7 +1135,8 @@ class PoolDiscovery:
             return False
 
     async def discover_and_register_pool(
-        self, pool_address: str, token_mint: str, migration_sig: str = None
+        self, pool_address: str, token_mint: str, migration_sig: str = None,
+        pool_account_info=None,
     ) -> bool:
         """
         Discover pool reserves and register in database ONLY after validation.
@@ -1169,7 +1170,8 @@ class PoolDiscovery:
         # Fast path: pool_address is already a known PumpSwap pool (the common case when
         # called from fast-lane). Skip the slow PumpFun V1 signature-scan entirely and go
         # straight to struct-based extraction.
-        pool_acct = await self._fetch_account(pool_address)
+        # Reuse caller-supplied account info when available (saves one RPC round-trip).
+        pool_acct = pool_account_info if pool_account_info is not None else await self._fetch_account(pool_address)
         pool_owner = (pool_acct or {}).get("owner") if pool_acct else None
         is_pumpswap = (pool_owner == PUMPSWAP_PROGRAM)
 

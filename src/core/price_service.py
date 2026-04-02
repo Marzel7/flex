@@ -365,6 +365,11 @@ class TokenPriceService:
             ON token_price_snapshots(mint, captured_at DESC)
         """)
 
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_tps_captured_at
+            ON token_price_snapshots(captured_at)
+        """)
+
         # NEW: Circuit breaker persistence table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS circuit_breaker_state (
@@ -477,14 +482,24 @@ class TokenPriceService:
             return None
     
     def _store_snapshot(self, price: TokenPrice) -> None:
-        """Store price snapshot in database."""
+        """Store price snapshot in database.
+
+        Writes to two tables with different purposes:
+          - token_price_snapshots: full history row, written in batches every ~10-20s per worker cycle.
+            Used by health endpoint (MAX(captured_at)) and historical queries.
+            NOTE: During startup (~60s after restart), no rows are written here while the worker
+            bootstraps reserves. The health endpoint may briefly show DEGRADED/CRITICAL during
+            this window — this is expected and not data loss.
+          - token_snapshot_counts: lightweight per-mint counter, always current.
+            Used by /snapshots UI and token-behaviour endpoints to avoid scanning the full table.
+        """
         try:
             conn = self._get_conn()
             cursor = conn.cursor()
-            
+
             cursor.execute("""
                 INSERT INTO token_price_snapshots
-                (mint, price_usd, price_sol, liquidity_usd, volume_24h, 
+                (mint, price_usd, price_sol, liquidity_usd, volume_24h,
                  market_cap, source, pair_address, captured_at, created_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
@@ -499,12 +514,57 @@ class TokenPriceService:
                 price.timestamp,
                 int(time.time())
             ))
-            
+
+            # Keep summary table in sync so /api/token-behaviour never scans 2.9M rows
+            cursor.execute("""
+                INSERT INTO token_snapshot_counts (mint, snap_count, last_updated)
+                VALUES (?, 1, ?)
+                ON CONFLICT(mint) DO UPDATE SET
+                    snap_count   = snap_count + 1,
+                    last_updated = excluded.last_updated
+            """, (price.mint, int(time.time())))
+
             conn.commit()
+
+            # Periodic WAL checkpoint to prevent WAL from growing unbounded
+            # (66 writes/sec = ~4000 writes/min; checkpoint every 5000 writes keeps WAL <50MB)
+            if not hasattr(self, '_snapshot_write_count'):
+                self._snapshot_write_count = 0
+            self._snapshot_write_count += 1
+            if self._snapshot_write_count % 5000 == 0:
+                try:
+                    conn.execute("PRAGMA wal_checkpoint(PASSIVE)")
+                except Exception:
+                    pass
+
             conn.close()
+
+            self._maybe_classify_after_snapshot(price.mint)
         except Exception as e:
             logger.error(f"Error storing price snapshot for {price.mint}: {e}")
-    
+
+    def _maybe_classify_after_snapshot(self, mint: str) -> None:
+        # Skip if already queued for classification this session
+        if not hasattr(self, '_classified_mints'):
+            self._classified_mints = set()
+        if mint in self._classified_mints:
+            return
+        try:
+            conn = sqlite3.connect(self.db_path, timeout=3)
+            row = conn.execute(
+                "SELECT snap_count FROM token_snapshot_counts WHERE mint = ?",
+                (mint,)
+            ).fetchone()
+            conn.close()
+            snap_count = row[0] if row else 0
+            if snap_count < 8:
+                return
+            # Mark as classified to avoid re-running on every subsequent snapshot
+            self._classified_mints.add(mint)
+            from src.core.token_behavior import classify_mint
+            classify_mint(mint, self.db_path, skip_upsert=False)
+        except Exception as e:
+            logger.debug(f"[CLASSIFY_AFTER_SNAP] {mint[:16]}: {e}")
 
     def _fetch_birdeye_sync(self, mint: str) -> Optional[TokenPrice]:
         """

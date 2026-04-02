@@ -60,6 +60,10 @@ cd "$PROJECT_ROOT"
 # Clear migration log on each restart so it only contains the current session
 > "$PROJECT_ROOT/migration.log"
 echo "✓ migration.log cleared"
+
+# Rotate ws_snapshot.log so it only contains the current session
+> "$PROJECT_ROOT/logs/ws_snapshot.log"
+echo "✓ logs/ws_snapshot.log cleared"
 echo ""
 
 echo "🚀 Starting Helius CLI monitor..."
@@ -80,6 +84,7 @@ echo "🚀 Starting Flask app with Token Price System + WebSocket Pools..."
 PYTHONPATH="$PROJECT_ROOT" \
 HELIUS_RPC_URL="$HELIUS_RPC_URL" \
 HELIUS_WS_URL="$HELIUS_WS_URL" \
+FLEX_WS_DISABLED=1 \
 python src/core/main.py &
 FLASK_PID=$!
 sleep 3
@@ -108,6 +113,7 @@ echo "║  Logs:                                                                
 echo "║  - listener.log (pool discovery + price computation)                      ║"
 echo "║  - migration.log (pool migration/detection events only)                   ║"
 echo "║  - flask.log (Flask app + SSE endpoint)                                   ║"
+echo "║  - logs/ws_snapshot.log (WS subscriptions + snapshot lifecycle)           ║"
 echo "║                                                                            ║"
 echo "╚════════════════════════════════════════════════════════════════════════════╝"
 echo ""

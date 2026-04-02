@@ -18,6 +18,7 @@ from typing import Dict, List, Optional, Tuple
 
 from .price_service import TokenPrice
 from src.metrics.rpc_metrics_recorder import record_request
+from src.core.ws_snapshot_logger import ws_log
 
 logger = logging.getLogger(__name__)
 
@@ -63,10 +64,13 @@ class PoolReserveFetcher:
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             rows = conn.execute(
-                """SELECT * FROM token_pool_accounts
-                   WHERE is_active = 1
-                   AND vault_validation_status IN ('validated', 'pending')
-                   ORDER BY created_at DESC"""
+                """SELECT tpa.*
+                   FROM token_pool_accounts tpa
+                   LEFT JOIN tracked_tokens tt ON tt.mint = tpa.mint
+                   WHERE tpa.is_active = 1
+                     AND tpa.vault_validation_status IN ('validated', 'pending')
+                     AND (tt.mint IS NULL OR tt.is_active = 1)
+                   ORDER BY tpa.created_at DESC"""
             ).fetchall()
         return [dict(r) for r in rows]
 
@@ -695,21 +699,40 @@ class PoolWebSocketClient:
         When new pools are discovered, this updates the subscription list
         and triggers an immediate reconnect to re-subscribe to the new accounts.
         """
-        old_count = len(self._account_to_pools)
+        old_accounts = set(self._account_to_pools.keys())
+        old_count = len(old_accounts)
         self._build_account_map(pools)
-        new_count = len(self._account_to_pools)
+        new_accounts = set(self._account_to_pools.keys())
+        new_count = len(new_accounts)
 
-        print(f"[POOL_WS] 🔄 refresh_pools: {old_count} → {new_count} accounts", flush=True)
-        logger.info(f"[POOL_WS] refresh_pools: {old_count} → {new_count} accounts")
+        to_add = new_accounts - old_accounts
+        to_remove = old_accounts - new_accounts
+        ws_log.info(
+            f"[WS_REFRESH] accounts: {old_count} → {new_count} "
+            f"added={len(to_add)} removed={len(to_remove)}"
+        )
+        if to_add:
+            ws_log.debug(f"[WS_REFRESH] accounts_added={sorted(to_add)}")
+        if to_remove:
+            ws_log.debug(f"[WS_REFRESH] accounts_removed={sorted(to_remove)}")
 
-        if new_count != old_count:
-            print(f"[POOL_WS] ⚡ Detected {new_count - old_count} new accounts, stopping loop to trigger reconnect", flush=True)
-            logger.info(f"[POOL_WS] Detected {new_count - old_count} new accounts, reconnecting")
+        if to_add or to_remove:
+            ws_log.info(f"[WS_RECONNECT] triggering reconnect to apply diff (+{len(to_add)} -{len(to_remove)})")
             if self._loop and self._loop.is_running():
                 self._loop.call_soon_threadsafe(self._loop.stop)
+                ws_log.debug("[WS_RECONNECT] applied via async loop stop")
             else:
-                print(f"[POOL_WS] ⚠️  Loop not running - cannot trigger reconnect", flush=True)
-                logger.warning(f"[POOL_WS] Loop not running - cannot trigger reconnect")
+                # Loop is between reconnect attempts or not yet started — restart thread
+                ws_log.info("[WS_RECONNECT] loop not running — restarting thread to apply diff")
+                self._running = False
+                if self._thread and self._thread.is_alive():
+                    self._thread.join(timeout=3)
+                self._running = True
+                self._thread = threading.Thread(
+                    target=self._run_thread, daemon=True, name="pool-ws"
+                )
+                self._thread.start()
+                ws_log.info("[WS_RECONNECT] thread restarted with updated account map")
 
     def _build_account_map(self, pools: List[Dict]) -> None:
         """Build pubkey->pools mapping from pool list. Handles multiple pools per account (shared WSOL, etc)."""
@@ -766,15 +789,16 @@ class PoolWebSocketClient:
                     ) as ws:
                         reconnect_delay = 5  # reset on success
                         self.stats["connected"] = True
-                        if self.stats["reconnects"] > 0:
-                            self.stats["reconnects"] += 1
+                        ws_log.info(f"[WS_CONNECT] connected reconnects={self.stats['reconnects']}")
                         logger.info("Pool WebSocket connected")
                         await self._subscribe_all(ws)
                         await self._receive_loop(ws)
                 except Exception as e:
+                    ws_log.warning(f"[WS_DISCONNECT] {type(e).__name__}: {e} reconnects={self.stats['reconnects']}")
                     logger.warning(f"Pool WebSocket disconnected: {e}")
                     self.stats["connected"] = False
                     if self._running:
+                        self.stats["reconnects"] += 1
                         await asyncio.sleep(min(reconnect_delay, 30))
                         reconnect_delay *= 2
         finally:
@@ -785,6 +809,7 @@ class PoolWebSocketClient:
         self._sub_id_to_account = {}
         req_id = 1
         pubkeys_list = list(self._account_to_pools.keys())
+        ws_log.info(f"[WS_SUBSCRIBE] subscribing to {len(pubkeys_list)} accounts")
         logger.info(f"Pool WS subscribing to {len(pubkeys_list)} accounts (sample: {[p[:8] for p in pubkeys_list[:5]]}...)")
 
         # Send all subscription requests and build mapping IMMEDIATELY (before responses arrive)

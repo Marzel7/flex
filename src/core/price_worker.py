@@ -159,6 +159,32 @@ class PriceWorkerRegistry:
             logger.error(f"Error deactivating token {mint}: {e}")
             return False
 
+    def boost_tokens(self, mints: list, ttl: int = 30) -> int:
+        """Elevate tokens to HIGH priority. Inserts if not present. ttl accepted for API compat."""
+        if not mints:
+            return 0
+        unique = list(dict.fromkeys(mints))  # deduplicate, preserve order
+        now = int(time.time())
+        count = 0
+        try:
+            conn = self._get_conn()
+            cursor = conn.cursor()
+            for mint in unique:
+                cursor.execute("""
+                    INSERT INTO tracked_tokens (mint, priority_level, is_active, created_at, updated_at)
+                    VALUES (?, 'HIGH', 1, ?, ?)
+                    ON CONFLICT(mint) DO UPDATE SET
+                        priority_level = 'HIGH',
+                        is_active = 1,
+                        updated_at = excluded.updated_at
+                """, (mint, now, now))
+                count += 1
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            logger.error(f"Error boosting tokens: {e}")
+        return count
+
     def get_stats(self) -> Dict:
         """Get registry statistics."""
         try:
@@ -223,7 +249,12 @@ class BackgroundPriceWorker:
         self._ws_client: Optional[PoolWebSocketClient] = None
         self._ws_manager = get_websocket_manager_sharded(self._pool_state, db_path)
         self._ws_started = False
-        self._last_fallback_poll = 0
+        # Set to now so the first cycle skips the RPC fallback poll.
+        # Bootstrap already populated PoolStateStore with fresh reserves via getMultipleAccounts.
+        # Running _fetch_pool_prices_async() immediately would block the worker thread for ~5 minutes
+        # (one RPC batch per ~316 pools), delaying all snapshot writes until the batch completes.
+        # The fallback poll will begin normally after the configured interval (60s / 30s if WS stale).
+        self._last_fallback_poll = time.time()
 
         # Debounce WebSocket refresh to prevent reconnect storms
         self._last_pool_refresh = 0
@@ -362,6 +393,16 @@ class BackgroundPriceWorker:
         else:
             logger.info("[PRICE_WORKER] ✅ Bootstrap complete, starting worker loop")
             print("[PRICE_WORKER] ✅ Bootstrap complete, starting worker loop", flush=True)
+
+        logger.info(
+            "[PRICE_WORKER] First-cycle RPC fallback poll skipped — reserves already populated by bootstrap. "
+            "Fallback poll begins after normal interval (60s, or 30s if WS stale)."
+        )
+        print(
+            "[PRICE_WORKER] First-cycle RPC fallback poll skipped — using bootstrap reserves. "
+            "Fallback begins in ~60s.",
+            flush=True,
+        )
 
         # Start worker thread (PoolStateStore now has reserves from bootstrap)
         logger.info("[PRICE_WORKER] Creating worker thread")

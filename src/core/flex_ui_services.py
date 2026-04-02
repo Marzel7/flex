@@ -31,11 +31,33 @@ class DashboardService:
         conn.row_factory = sqlite3.Row
         return conn
 
+    def get_recent_tokens(self, limit: int = 25) -> List[Dict]:
+        """Return most recently seen tokens from token_analysis."""
+        conn = None
+        try:
+            conn = self._get_conn()
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT mint, created_at, market_cap, liquidity, earliest_tx_creator
+                FROM token_analysis
+                WHERE mint IS NOT NULL
+                ORDER BY created_at DESC
+                LIMIT ?
+            """, (limit,))
+            return [dict(row) for row in cursor.fetchall()]
+        except Exception as e:
+            logger.error(f"Error fetching recent tokens: {e}", exc_info=True)
+            return []
+        finally:
+            if conn:
+                conn.close()
+
     def get_dashboard_overview(self) -> Dict:
         """
         Return high-level system status and top alerts.
         Falls back gracefully if master_launch_signals table doesn't exist.
         """
+        conn = None
         try:
             conn = self._get_conn()
             cursor = conn.cursor()
@@ -44,7 +66,6 @@ class DashboardService:
             high_alerts = 0
             top_candidates = []
 
-            # Try to get alerts from master_launch_signals if it exists
             try:
                 cursor.execute("""
                     SELECT
@@ -58,7 +79,6 @@ class DashboardService:
                     critical_alerts = dict(alert_row)['critical_count']
                     high_alerts = dict(alert_row)['high_count']
 
-                # Get top launch candidates
                 cursor.execute("""
                     SELECT
                         mls.organization_id,
@@ -75,18 +95,15 @@ class DashboardService:
                 """)
                 top_candidates = [dict(row) for row in cursor.fetchall()]
             except Exception:
-                # master_launch_signals table doesn't exist yet - fallback to empty
                 logger.debug("master_launch_signals table not found, using empty alerts")
                 critical_alerts = 0
                 high_alerts = 0
                 top_candidates = []
 
-            # Count monitored organizations
             cursor.execute("SELECT COUNT(*) as count FROM dev_organizations")
             org_row = cursor.fetchone()
             organizations_monitored = dict(org_row)['count'] if org_row else 0
 
-            # Get latest waves
             latest_wave = None
             try:
                 cursor.execute("""
@@ -98,29 +115,21 @@ class DashboardService:
             except Exception:
                 pass
 
-            # Get early signal counts
             early_rugs_count = 0
             early_runners_count = 0
             try:
-                cursor = self._get_conn().cursor()
                 cursor.execute("""
-                    SELECT COUNT(*) as count FROM token_monitoring_state
-                    WHERE early_label = 'likely_rug'
+                    SELECT
+                        SUM(CASE WHEN early_label = 'likely_rug'    THEN 1 ELSE 0 END) AS rugs,
+                        SUM(CASE WHEN early_label = 'likely_runner' THEN 1 ELSE 0 END) AS runners
+                    FROM token_monitoring_state
                 """)
-                rug_row = cursor.fetchone()
-                early_rugs_count = dict(rug_row)['count'] if rug_row else 0
-
-                cursor.execute("""
-                    SELECT COUNT(*) as count FROM token_monitoring_state
-                    WHERE early_label = 'likely_runner'
-                """)
-                runner_row = cursor.fetchone()
-                early_runners_count = dict(runner_row)['count'] if runner_row else 0
+                sig_row = cursor.fetchone()
+                if sig_row:
+                    early_rugs_count    = sig_row['rugs']    or 0
+                    early_runners_count = sig_row['runners'] or 0
             except Exception:
-                # Early signal columns don't exist yet
                 pass
-
-            conn.close()
 
             return {
                 'critical_alerts': critical_alerts,
@@ -132,6 +141,7 @@ class DashboardService:
                 'early_runners_detected': early_runners_count,
                 'status': 'operational'
             }
+
         except Exception as e:
             logger.error(f"Error getting dashboard overview: {e}", exc_info=True)
             return {
@@ -143,6 +153,9 @@ class DashboardService:
                 'top_launch_candidates': [],
                 'status': 'error'
             }
+        finally:
+            if conn:
+                conn.close()
 
 
 class OrganizationService:

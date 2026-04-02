@@ -12,11 +12,12 @@ live price updates as they're computed.
 """
 
 import asyncio
-import threading
-from typing import Set, Dict, Any, Optional
-from queue import Queue  # Use thread-safe Queue instead of asyncio.Queue
 import json
 import logging
+import threading
+from collections import defaultdict
+from queue import Queue  # Use thread-safe Queue instead of asyncio.Queue
+from typing import Any, Dict, Optional, Set
 
 logger = logging.getLogger(__name__)
 
@@ -112,3 +113,75 @@ price_stream = PriceStream()
 def get_price_stream() -> PriceStream:
     """Get the global price stream instance"""
     return price_stream
+
+
+# ---------------------------------------------------------------------------
+# Mint-filtered WebSocket hub (flask-sock, per-mint subscriptions)
+# ---------------------------------------------------------------------------
+
+class TokenHub:
+    """
+    Push price updates only to WebSocket clients subscribed to a specific mint.
+    Thread-safe: publish() is called from the price worker thread.
+    """
+
+    def __init__(self):
+        # mint -> set of ws objects
+        self._subs: Dict[str, Set] = defaultdict(set)
+        # ws -> set of mints (fast cleanup on disconnect)
+        self._client_mints: Dict[Any, Set[str]] = defaultdict(set)
+        self._lock = threading.Lock()
+
+    def subscribe(self, ws, mints: list) -> None:
+        with self._lock:
+            for mint in mints:
+                self._subs[mint].add(ws)
+                self._client_mints[ws].add(mint)
+
+    def unsubscribe(self, ws, mints: list) -> None:
+        with self._lock:
+            for mint in mints:
+                self._subs[mint].discard(ws)
+                self._client_mints[ws].discard(mint)
+                if not self._subs[mint]:
+                    del self._subs[mint]
+
+    def remove_client(self, ws) -> None:
+        """Remove all subscriptions for a disconnected client."""
+        with self._lock:
+            mints = list(self._client_mints.pop(ws, []))
+            for mint in mints:
+                self._subs[mint].discard(ws)
+                if not self._subs[mint]:
+                    del self._subs[mint]
+
+    def publish(self, mint: str, payload: dict) -> None:
+        """Send payload to all WS clients subscribed to this mint. Non-blocking."""
+        with self._lock:
+            targets = list(self._subs.get(mint, []))
+
+        if not targets:
+            return
+
+        message = json.dumps(payload)
+        dead = []
+        for ws in targets:
+            try:
+                ws.send(message)
+            except Exception:
+                dead.append(ws)
+
+        if dead:
+            for ws in dead:
+                self.remove_client(ws)
+
+    def client_count(self) -> int:
+        with self._lock:
+            return len(self._client_mints)
+
+
+token_hub = TokenHub()
+
+
+def get_token_hub() -> TokenHub:
+    return token_hub

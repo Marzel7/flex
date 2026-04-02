@@ -70,3 +70,5 @@ flex_addresses_export.xlsx
 *.csv
 network_analysis_output/
 top_funding_distribution_senders.csv
+*.log
+logs/

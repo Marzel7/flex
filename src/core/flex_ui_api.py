@@ -85,6 +85,19 @@ def get_dashboard():
         return jsonify({'error': str(e), 'status': 'error'}), 500
 
 
+@flex_ui_api.route('/dashboard/recent-tokens', methods=['GET'])
+def get_dashboard_recent_tokens():
+    """GET /api/dashboard/recent-tokens — Most recently seen tokens."""
+    try:
+        limit = int(request.args.get('limit', 25))
+        service = DashboardService(_DB_PATH)
+        data = service.get_recent_tokens(limit=limit)
+        return jsonify(data), 200
+    except Exception as e:
+        logger.error(f"Recent tokens error: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
 # ============================================================================
 # Launch Leaderboard Endpoints
 # ============================================================================

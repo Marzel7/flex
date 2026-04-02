@@ -21,6 +21,7 @@ import os
 import time
 import logging
 from src.utils.infra_mapping import highlight_infra_in_funding
+from src.core.flex_dashboard_routes import MIN_LIVE_MARKET_CAP
 
 # Webhook system - M5 webhook-first low-RPC architecture
 try:
@@ -38,6 +39,9 @@ DB_PATH = os.environ.get('DB_PATH', 'database/flex_complete_database.db')
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 app = Flask(__name__, template_folder=os.path.join(PROJECT_ROOT, 'templates'))
 Compress(app)  # gzip all text/html and application/json responses automatically
+
+from flask_sock import Sock as _Sock
+sock = _Sock(app)
 
 # Suppress Werkzeug request logging
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
@@ -678,6 +682,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
+        now_ts = int(time.time())
         cursor.execute("""
             SELECT
                 ta.mint,
@@ -703,14 +708,31 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 ta.network_funder_address,
                 COALESCE(cn.network_name, ta.network_name) as network_name,
                 ta.network_tier,
-                ta.network_is_cex
+                ta.network_is_cex,
+                COALESCE(tsc.last_updated, 0) as snap_last_updated,
+                tps.price_usd as snap_price_usd,
+                tps.market_cap as snap_market_cap
             FROM token_analysis ta
             LEFT JOIN creator_networks cn
                 ON ta.earliest_tx_creator = cn.creator_address
+            LEFT JOIN token_snapshot_counts tsc
+                ON tsc.mint = ta.mint
+            LEFT JOIN token_price_snapshots tps
+                ON tps.snapshot_id = (
+                    SELECT snapshot_id FROM token_price_snapshots
+                    WHERE mint = ta.mint
+                    ORDER BY captured_at DESC LIMIT 1
+                )
             WHERE ta.mint IS NOT NULL
-            ORDER BY ta.created_at DESC
+              AND COALESCE(tps.market_cap, 0) >= ?
+            ORDER BY
+                (ta.created_at >= ?) DESC,
+                (COALESCE(tsc.last_updated, 0) > ?) DESC,
+                COALESCE(tsc.last_updated, 0) DESC,
+                COALESCE(tps.market_cap, 0) DESC,
+                ta.created_at DESC
             LIMIT ?
-        """, (limit,))
+        """, (MIN_LIVE_MARKET_CAP, now_ts - 1800, now_ts - 60, limit,))
 
         rows = cursor.fetchall()
 
@@ -726,9 +748,9 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     'total_txs': 0,
                     'total_events': row['events_parsed'] if row['events_parsed'] else 0,
                     'coverage': row['post_migration_coverage'] if row['post_migration_coverage'] else 0,
-                    'price_current': row['price_current'] if row['price_current'] else None,
+                    'price_current': row['snap_price_usd'] or None,
                     'price_highest': row['price_highest'] if row['price_highest'] else None,
-                    'market_cap_current': row['market_cap_current'] if row['market_cap_current'] else None,
+                    'market_cap_current': row['snap_market_cap'] or None,
                     'market_cap_highest': row['market_cap_highest'] if row['market_cap_highest'] else None,
                     'market_cap_highest_at': row['market_cap_highest_at'] if row['market_cap_highest_at'] else None,
                     'rug_indicator': row['rug_indicator'],
@@ -754,6 +776,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     'atomic_network_name': row['network_name'] if row['network_name'] else None,
                     'atomic_network_tier': row['network_tier'] if row['network_tier'] else None,
                     'atomic_network_is_cex': bool(row['network_is_cex']) if row['network_is_cex'] else False,
+                    'snap_age': (now_ts - row['snap_last_updated']) if row['snap_last_updated'] else 99999,
                 })
             conn.close()
             return tokens
@@ -861,9 +884,9 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 'total_txs': 0,
                 'total_events': row['events_parsed'] if row['events_parsed'] else 0,
                 'coverage': row['post_migration_coverage'] if row['post_migration_coverage'] else 0,
-                'price_current': row['price_current'] if row['price_current'] else None,
+                'price_current': row['snap_price_usd'] or None,
                 'price_highest': row['price_highest'] if row['price_highest'] else None,
-                'market_cap_current': row['market_cap_current'] if row['market_cap_current'] else None,
+                'market_cap_current': row['snap_market_cap'] or None,
                 'market_cap_highest': row['market_cap_highest'] if row['market_cap_highest'] else None,
                 'market_cap_highest_at': row['market_cap_highest_at'] if row['market_cap_highest_at'] else None,
                 'rug_indicator': row['rug_indicator'],
@@ -3723,37 +3746,7 @@ HTML_TEMPLATE = """
                 }
 
                 // Fetch and display price sources for all tokens (icon only)
-                displayTokens.forEach(token => {
-                    fetch(`/api/token-metrics/${token.mint}`)
-                        .then(r => r.json())
-                        .then(data => {
-                            if (data.price && data.price.source) {
-                                const source = data.price.source;
-                                let sourceIcon = '';
-
-                                if (source === 'pool') {
-                                    sourceIcon = '📡';
-                                } else if (source.includes('pool')) {
-                                    sourceIcon = '📊';
-                                } else if (source === 'dexscreener') {
-                                    sourceIcon = '🔗';
-                                } else {
-                                    sourceIcon = '';
-                                }
-
-                                const sourceEl = document.getElementById(`source-${token.mint}`);
-                                if (sourceEl && sourceIcon) {
-                                    sourceEl.innerHTML = sourceIcon;
-                                }
-                            }
-                        })
-                        .catch(e => console.debug('Price source fetch error:', e));
-                });
-            } catch (error) {
-                console.error('Error loading tokens:', error);
-                document.getElementById('tokens-container').innerHTML =
-                    '<div class="no-data">Error loading data. Please refresh.</div>';
-            }
+                
         }
 
         function updateStats(data) {
@@ -17562,6 +17555,47 @@ def price_stream():
 
 
 # =========================================================================
+# WEBSOCKET: mint-filtered real-time price hub (/ws/tokens)
+# =========================================================================
+
+@sock.route('/ws/tokens')
+def ws_tokens(ws):
+    """
+    Mint-filtered WebSocket endpoint.
+
+    Protocol:
+      c->s  {"type":"subscribe",   "mints":["abc...", ...]}
+      c->s  {"type":"unsubscribe", "mints":["abc...", ...]}
+      s->c  {"type":"price_update","mint":"...","price_usd":...,"market_cap":...,"source":"...","last_snapshot":...,"age_seconds":0}
+
+    Only subscribed mints are pushed; no global broadcast.
+    """
+    from src.core.price_stream import get_token_hub
+    hub = get_token_hub()
+    try:
+        while True:
+            raw = ws.receive()
+            if raw is None:
+                break
+            try:
+                msg = json.loads(raw)
+            except (ValueError, TypeError):
+                continue
+
+            msg_type = msg.get("type")
+            mints = msg.get("mints", [])
+            if not isinstance(mints, list):
+                continue
+
+            if msg_type == "subscribe":
+                hub.subscribe(ws, mints)
+            elif msg_type == "unsubscribe":
+                hub.unsubscribe(ws, mints)
+    finally:
+        hub.remove_client(ws)
+
+
+# =========================================================================
 # EARLY SIGNALS API (PHASE 1 - Predictive Intelligence)
 # =========================================================================
 
@@ -18133,12 +18167,16 @@ def start_background_workers():
     """Start price and liquidity workers in background threads"""
     _sync_validated_tokens_to_tracker()
 
-    try:
-        from src.core.price_worker import start_price_worker
-        price_worker = start_price_worker(db_path=DB_PATH)
-        print("[PRICE_WORKER] Background price worker started - fetching prices every 10s (HIGH), 30s (MEDIUM), 200s (LOW)")
-    except Exception as e:
-        print(f"[WARNING] Price worker failed to start: {e}")
+    import os
+    if os.environ.get('FLEX_WS_DISABLED', '0') == '1':
+        print("[PRICE_WORKER] Skipping worker start — listener process owns pricing (FLEX_WS_DISABLED=1)")
+    else:
+        try:
+            from src.core.price_worker import start_price_worker
+            price_worker = start_price_worker(db_path=DB_PATH)
+            print(f"[PRICE_WORKER] Background price worker started pid={os.getpid()}")
+        except Exception as e:
+            print(f"[WARNING] Price worker failed to start: {e}")
 
     try:
         from src.core.liquidity_worker import start_liquidity_worker
@@ -18176,9 +18214,22 @@ if __name__ == '__main__':
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)
 
+    import os as _os
+    try:
+        from src.core.ws_snapshot_logger import _LOG_PATH as _ws_log_path
+        _ws_log_abs = _os.path.abspath(_ws_log_path)
+    except Exception:
+        _ws_log_abs = '(unavailable)'
+    print("[STARTUP] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    print(f"[STARTUP] role=flask pid={_os.getpid()}")
+    print(f"[STARTUP] db={_os.path.abspath(DB_PATH)}")
+    print(f"[STARTUP] ws_snapshot_log={_ws_log_abs}")
+    print(f"[STARTUP] cwd={_os.getcwd()}")
+    print(f"[STARTUP] FLEX_WS_DISABLED={_os.environ.get('FLEX_WS_DISABLED','0')}")
+    print("[STARTUP] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     print("[FLASK] Starting Migration Tracker UI...")
     print("[FLASK] Dashboard available at http://localhost:5002")
-    print("[FLASK] Database: " + DB_PATH)
+    print(f"[FLASK] Database: {_os.path.abspath(DB_PATH)}")
 
     # Start background workers before Flask
     start_background_workers()

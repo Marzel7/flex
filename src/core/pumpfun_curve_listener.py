@@ -439,9 +439,20 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # === Initialize price worker with WebSocket for pool price streaming ===
         try:
             from src.core.price_worker import get_price_worker
+            import os
+            import sys
+            from src.core.ws_snapshot_logger import _LOG_PATH as _ws_log_path
+            _db_abs = os.path.abspath(self.db_path if hasattr(self, 'db_path') else 'database/flex_complete_database.db')
+            _ws_log_abs = os.path.abspath(_ws_log_path)
+            log_print(f"[STARTUP] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", flush=True)
+            log_print(f"[STARTUP] role=listener pid={os.getpid()}", flush=True)
+            log_print(f"[STARTUP] db={_db_abs}", flush=True)
+            log_print(f"[STARTUP] ws_snapshot_log={_ws_log_abs}", flush=True)
+            log_print(f"[STARTUP] cwd={os.getcwd()}", flush=True)
+            log_print(f"[STARTUP] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", flush=True)
             self.price_worker = get_price_worker()
             self.price_worker.start()  # Start background thread + WebSocket
-            log_print(f"[INIT] ✅ Price worker started with WebSocket pool subscriptions", flush=True)
+            log_print(f"[INIT] ✅ Price worker started pid={os.getpid()} worker=0x{id(self.price_worker):x}", flush=True)
         except Exception as e:
             log_print(f"[INIT] ⚠️  Price worker initialization failed: {e}", flush=True)
             self.price_worker = None
@@ -634,20 +645,20 @@ class PumpFunCurveListener(FastLaneDiscovery):
             cursor = conn.cursor()
             now = int(time.time())
             times = self.token_discovery_times.get(mint, {})
-            detected_at = int(times.get("detected") or now)
-            resolved_at = int(times.get("resolved") or now)
+            detected_at = times.get("detected") or now
+            resolved_at = times.get("resolved") or now
 
             # CRITICAL: Use pool_registered_at (not resolved_at) for discovery time
             # resolved_at includes post-registration delays (background jobs, state transitions)
             # pool_registered_at is when discovery actually succeeded
-            pool_registered_at = int(times.get("pool_registered_at") or resolved_at)
-            resolve_seconds = pool_registered_at - detected_at if detected_at else 0
-            
+            pool_registered_at = times.get("pool_registered_at") or resolved_at
+            resolve_seconds = pool_registered_at - detected_at if detected_at else 0.0
+
             cursor.execute("""
                 INSERT OR REPLACE INTO token_resolution_telemetry
                 (mint, detected_at, resolved_at, resolve_seconds, resolve_source, retry_count, pool_address, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (mint, detected_at, resolved_at, resolve_seconds, resolve_source, retry_count, pool_address, now, now))
+            """, (mint, int(detected_at), int(resolved_at), resolve_seconds, resolve_source, retry_count, pool_address, now, now))
             conn.commit()
             conn.close()
 
@@ -2993,9 +3004,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 )
                 return RegisterResult.FAIL
 
-            # Register the pool
+            # Register the pool — pass cached account info to skip redundant RPC fetch
             discovery = PoolDiscovery(DB_PATH, RPC_HTTP)
-            registered = await discovery.discover_and_register_pool(pool_address, mint)
+            registered = await discovery.discover_and_register_pool(
+                pool_address, mint, pool_account_info=value
+            )
 
             if not registered:
                 log_print(f"[FAST_PATH_REGISTER] ❌ Pool registration failed: {pool_address[:16]}...", flush=True)
@@ -3010,6 +3023,19 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 f"{Colors.DETECT}[FAST_PATH_REGISTER] ✅ Pool {pool_address[:16]}... registered (resolved in {elapsed:.1f}s){Colors.RESET}",
                 flush=True
             )
+
+            # Write pool_address to token_analysis so _get_pool_address can find it for price extraction
+            try:
+                with DB_WRITE_LOCK:
+                    _conn = sqlite3.connect(DB_PATH, timeout=10)
+                    _conn.execute(
+                        "UPDATE token_analysis SET pool_address = ? WHERE mint = ?",
+                        (pool_address, mint),
+                    )
+                    _conn.commit()
+                    _conn.close()
+            except Exception as _e:
+                log_print(f"[FAST_PATH_REGISTER] ⚠️  Failed to write pool_address to token_analysis: {_e}", flush=True)
 
             # Persist telemetry (retry_count=0 for primary fast-lane path)
             await self._write_resolution_telemetry(mint, discovery_source, pool_address, 0)
@@ -3026,6 +3052,30 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     self.price_worker.trigger_pool_refresh()
                 except Exception as e:
                     log_print(f"[FAST_PATH_REGISTER] ⚠️  WebSocket refresh failed: {e}", flush=True)
+
+            # Register mint for price tracking immediately (don't wait for dashboard load)
+            try:
+                from src.core.price_worker import PriceWorkerRegistry
+                PriceWorkerRegistry(DB_PATH).register_token(mint, priority_level='HIGH')
+                log_print(f"[FAST_PATH_REGISTER] 📈 Registered {mint[:16]}... for price tracking (HIGH priority)", flush=True)
+            except Exception as _e:
+                log_print(f"[FAST_PATH_REGISTER] ⚠️  Price tracking registration failed: {_e}", flush=True)
+
+            # Broadcast pool_registered event so the UI refreshes immediately
+            try:
+                from src.core.price_stream import get_price_stream
+                import asyncio as _asyncio
+                _ps = get_price_stream()
+                if _ps.get_subscriber_count() > 0:
+                    _event = {
+                        "type": "pool_registered",
+                        "mint": mint,
+                        "pool_address": pool_address,
+                        "elapsed_secs": round(elapsed, 3),
+                    }
+                    _asyncio.create_task(_ps.broadcast(_event))
+            except Exception as e:
+                log_print(f"[FAST_PATH_REGISTER] ⚠️  SSE broadcast failed: {e}", flush=True)
 
             return RegisterResult.SUCCESS
 

@@ -1,0 +1,295 @@
+{% extends "base_shell.html" %}
+
+{% block title %}Snapshots — FLEX{% endblock %}
+
+{% block extra_styles %}
+.age-fresh  { color: var(--color-green); }
+.age-recent { color: var(--color-yellow); }
+.age-stale  { color: var(--color-orange); }
+.age-dead   { color: var(--color-red); }
+
+/* Freshness dot */
+.dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:5px; vertical-align:middle; flex-shrink:0; }
+.dot-fresh  { background:var(--color-green);  box-shadow:0 0 5px var(--color-green); }
+.dot-recent { background:var(--color-yellow); }
+.dot-grey   { background:var(--text-secondary); opacity:0.5; }
+
+/* Top-strip active row */
+tr.row-active { background: rgba(0,255,136,0.04); }
+
+/* Stale row de-emphasis */
+tr.row-stale td { opacity: 0.45; }
+
+.badge-new { display:inline-block; font-size:9px; font-weight:700; letter-spacing:0.05em; padding:1px 4px; border-radius:3px; background:rgba(74,222,128,0.18); color:#4ade80; border:1px solid rgba(74,222,128,0.35); vertical-align:middle; margin-left:4px; line-height:1.4; }
+
+.filter-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+.filter-bar input {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-size: 13px;
+    width: 260px;
+}
+.filter-bar input:focus {
+    outline: none;
+    border-color: var(--accent-purple);
+}
+.count-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-left: auto;
+}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Price Snapshots</h1>
+    <p class="subtitle">Latest recorded snapshot per token — most recent first</p>
+</div>
+
+<div class="filter-bar">
+    <input id="search" type="text" placeholder="Filter by mint…" oninput="filterTable()">
+    <span class="count-label" id="count-label"></span>
+</div>
+
+<div class="card" style="overflow: hidden;">
+    <table id="snap-table">
+        <thead>
+            <tr>
+                <th>Mint</th>
+                <th>Price USD</th>
+                <th>Market Cap</th>
+                <th>Snapshots</th>
+                <th>Source</th>
+                <th>Last Snapshot</th>
+                <th>Age</th>
+            </tr>
+        </thead>
+        <tbody id="snap-body">
+            <tr><td colspan="7" style="text-align:center; padding: 40px; color: var(--text-secondary);">Loading…</td></tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let allRows = [];
+
+    function formatPrice(p) {
+        if (!p || p <= 0) return '—';
+        if (p < 1e-8) return '$' + p.toExponential(3);
+        if (p < 1e-4) return '$' + p.toFixed(10).replace(/0+$/, '').replace(/\.$/, '');
+        return '$' + p.toFixed(8);
+    }
+
+    function formatMC(v) {
+        if (!v || v <= 0) return '—';
+        if (v >= 1e6) return '$' + (v / 1e6).toFixed(2) + 'M';
+        if (v >= 1e3) return '$' + (v / 1e3).toFixed(1) + 'K';
+        return '$' + v.toFixed(0);
+    }
+
+    function ageClass(sec) {
+        if (sec < 30)   return 'age-fresh';
+        if (sec < 120)  return 'age-recent';
+        if (sec < 600)  return 'age-stale';
+        return 'age-dead';
+    }
+
+    function formatAge(sec) {
+        if (sec < 60)   return sec + 's ago';
+        if (sec < 3600) return Math.floor(sec / 60) + 'm ago';
+        if (sec < 86400) return Math.floor(sec / 3600) + 'h ago';
+        return Math.floor(sec / 86400) + 'd ago';
+    }
+
+    function formatTs(ts) {
+        if (!ts) return '—';
+        return new Date(ts * 1000).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+    }
+
+    function dotHtml(age) {
+        if (age < 15)  return '<span class="dot dot-fresh"></span>';
+        if (age < 60)  return '<span class="dot dot-recent"></span>';
+        return '<span class="dot dot-grey"></span>';
+    }
+
+    function isNew(createdAt) {
+        if (!createdAt) return false;
+        const ts = typeof createdAt === 'number' ? createdAt : new Date(createdAt).getTime() / 1000;
+        return (Math.floor(Date.now() / 1000) - ts) < 1800;
+    }
+
+    function renderRows(rows) {
+        const tbody = document.getElementById('snap-body');
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-secondary);padding:30px">No snapshots found</td></tr>';
+            return;
+        }
+        // Top strip: rows updated in last 60s (backend already sorts these first)
+        const activeSet = new Set(rows.filter(r => r.age_seconds < 60).map(r => r.mint));
+        tbody.innerHTML = rows.map(r => {
+            const rowClass = r.age_seconds > 120 ? 'row-stale' : (activeSet.has(r.mint) ? 'row-active' : '');
+            const label = r.symbol || shortMint(r.mint);
+            const secondaryLine = r.symbol
+                ? `<span style="display:block;font-size:10px;color:var(--text-secondary);margin-top:1px" title="${r.mint}">${shortMint(r.mint)}</span>`
+                : '';
+            return `
+            <tr class="${rowClass}" data-mint="${r.mint}">
+                <td class="mint" data-mint="${r.mint}" style="display:flex;align-items:center;gap:6px">
+                    ${dotHtml(r.age_seconds)}
+                    <span>
+                        <span style="font-weight:600;color:var(--text-primary)">${label}</span>${isNew(r.created_at) ? '<span class="badge-new">NEW</span>' : ''}
+                        ${secondaryLine}
+                    </span>
+                </td>
+                <td class="price live-price">${formatPrice(r.price_usd)}</td>
+                <td class="market-cap">${formatMC(r.market_cap)}</td>
+                <td class="number" style="color:var(--text-secondary)">${r.snap_count.toLocaleString()}</td>
+                <td><span class="badge" style="font-size:10px">${r.source || '—'}</span></td>
+                <td style="font-size:11px;color:var(--text-secondary)">${formatTs(r.last_snapshot)}</td>
+                <td class="number ${ageClass(r.age_seconds)}">${formatAge(r.age_seconds)}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    function shortMint(mint) {
+        if (!mint || mint.length < 12) return mint;
+        return mint.slice(0, 4) + '…' + mint.slice(-4);
+    }
+
+    function filterTable() {
+        const q = document.getElementById('search').value.trim().toLowerCase();
+        const filtered = q ? allRows.filter(r =>
+            r.mint.toLowerCase().includes(q) ||
+            (r.symbol && r.symbol.toLowerCase().includes(q))
+        ) : allRows;
+        document.getElementById('count-label').textContent = `${filtered.length} of ${allRows.length} tokens`;
+        renderRows(filtered);
+        syncWsSubscriptions();
+    }
+
+    async function load() {
+        try {
+            const res = await fetch('/api/snapshots');
+            const json = await res.json();
+            allRows = json.data || [];
+            document.getElementById('count-label').textContent = `${allRows.length} tokens`;
+            renderRows(allRows);
+            syncWsSubscriptions();
+        } catch (e) {
+            document.getElementById('snap-body').innerHTML =
+                '<tr><td colspan="7" style="text-align:center;color:var(--color-red);padding:30px">Failed to load snapshots</td></tr>';
+        }
+    }
+
+    load();
+    // Polling fallback — keeps working if WS unavailable
+    const pollInterval = setInterval(load, 15000);
+
+    // -----------------------------------------------------------------------
+    // WebSocket: mint-filtered live updates
+    // -----------------------------------------------------------------------
+    let ws = null;
+    let subscribedMints = new Set();
+
+    function wsConnect() {
+        const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+        ws = new WebSocket(`${proto}://${location.host}/ws/tokens`);
+
+        ws.onopen = () => {
+            // Subscribe to whatever is currently visible
+            const visible = getVisibleMints();
+            if (visible.length) wsSend('subscribe', visible);
+        };
+
+        ws.onmessage = (evt) => {
+            let msg;
+            try { msg = JSON.parse(evt.data); } catch { return; }
+            if (msg.type !== 'price_update') return;
+            patchRow(msg);
+            // Mirror into allRows cache so polling re-render stays consistent
+            const entry = allRows.find(r => r.mint === msg.mint);
+            if (entry) {
+                entry.price_usd    = msg.price_usd;
+                entry.market_cap   = msg.market_cap;
+                entry.source       = msg.source;
+                entry.last_snapshot = msg.last_snapshot;
+                entry.age_seconds  = 0;
+            }
+        };
+
+        ws.onclose = () => {
+            subscribedMints.clear();
+            // Reconnect after 5s; polling fallback covers the gap
+            setTimeout(wsConnect, 5000);
+        };
+
+        ws.onerror = () => ws.close();
+    }
+
+    function wsSend(type, mints) {
+        if (ws && ws.readyState === WebSocket.OPEN)
+            ws.send(JSON.stringify({ type, mints }));
+    }
+
+    function getVisibleMints() {
+        return Array.from(document.querySelectorAll('#snap-body tr[data-mint]'))
+                    .map(tr => tr.dataset.mint)
+                    .filter(Boolean);
+    }
+
+    function patchRow(msg) {
+        for (const tr of document.querySelectorAll('#snap-body tr[data-mint]')) {
+            if (tr.dataset.mint !== msg.mint) continue;
+            const td = tr.querySelector('td.mint');
+            const row = tr;
+            const tbody = tr.parentElement;
+
+            // Update values
+            row.querySelector('.price').textContent = formatPrice(msg.price_usd);
+            row.querySelector('.market-cap').textContent = formatMC(msg.market_cap);
+            const ageTd = row.querySelector('.number:last-child');
+            if (ageTd) { ageTd.textContent = '0s ago'; ageTd.className = `number ${ageClass(0)}`; }
+
+            // Update dot + classes
+            const dot = td.querySelector('.dot');
+            if (dot) { dot.className = 'dot dot-fresh'; }
+            row.classList.remove('row-stale');
+            row.classList.add('row-active');
+
+            // Move to top if fresh and not already first
+            const age = msg.age_seconds ?? 0;
+            if (age < 15 && tbody.firstElementChild !== row) {
+                tbody.prepend(row);
+            }
+
+            // Brief flash
+            row.style.transition = 'background 0.3s';
+            row.style.background = 'rgba(0,255,136,0.12)';
+            setTimeout(() => { row.style.background = ''; }, 600);
+            break;
+        }
+    }
+
+    // Re-subscribe when filter changes (visible mints change)
+    function syncWsSubscriptions() {
+        const visible = new Set(getVisibleMints());
+        const toSub   = [...visible].filter(m => !subscribedMints.has(m));
+        const toUnsub = [...subscribedMints].filter(m => !visible.has(m));
+        if (toSub.length)   { wsSend('subscribe',   toSub);   toSub.forEach(m => subscribedMints.add(m)); }
+        if (toUnsub.length) { wsSend('unsubscribe', toUnsub); toUnsub.forEach(m => subscribedMints.delete(m)); }
+    }
+
+    wsConnect();
+</script>
+{% endblock %}

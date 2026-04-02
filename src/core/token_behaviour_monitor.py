@@ -22,6 +22,7 @@ def classify_recent_tokens(
     min_age_secs: int = 300,  # Token must be at least 5 minutes old
     batch_size: int = 50,
     dry_run: bool = False,
+    reclassify_cooldown_secs: int = 600,  # Min seconds between reclassifications (0 = always)
 ) -> dict:
     """
     Classify tokens that have been updated since last classification run.
@@ -82,7 +83,7 @@ def classify_recent_tokens(
 
         candidates = cursor.execute(
             query,
-            (now - 600, now, min_age_secs, batch_size)
+            (now - reclassify_cooldown_secs, now, min_age_secs, batch_size)
         ).fetchall()
 
         logger.info(f"[TOKEN_BEHAVIOUR] Found {len(candidates)} candidates for classification")

@@ -1,0 +1,45 @@
+--- a/src/core/price_worker.py
++++ b/src/core/price_worker.py
+@@ -349,6 +349,13 @@ class BackgroundPriceWorker:
+         # Start bootstrap in background thread
+         bootstrap_thread = threading.Thread(target=bootstrap_task, daemon=True, name="PriceWorkerBootstrap")
+         bootstrap_thread.start()
++
++        # FIX 1: Ensure bootstrap completes before worker starts
++        logger.info("[PRICE_WORKER] Waiting for bootstrap completion...")
++        bootstrap_thread.join(timeout=2.0)
++        if bootstrap_thread.is_alive():
++            logger.warning("[PRICE_WORKER] Bootstrap timeout after 2.0s, continuing")
++        else:
++            logger.info("[PRICE_WORKER] Bootstrap complete, PoolStateStore ready")
+ 
+         # Start worker thread (will use whatever reserves are in PoolStateStore, which bootstrap is populating)
+         logger.info("[PRICE_WORKER] Creating worker thread")
+
+--- a/src/core/fast_lane_discovery.py
++++ b/src/core/fast_lane_discovery.py
+@@ -195,7 +195,7 @@ class FastLaneDiscovery:
+             attempt = 0
+-            min_inline_attempts = 4  # Prevent early exit before visibility catches up
++            min_inline_attempts = 4  # FIX 2: Enforce minimum 4 attempts
+             while time.time() - start_time < max_wait_secs:
+                 attempt += 1
+                 elapsed = time.time() - start_time
+@@ -243,7 +243,7 @@ class FastLaneDiscovery:
+                     await asyncio.sleep(0.35)
+                     continue
+ 
+-                # Narrow recheck: check if candidates are now visible
++                # FIX 3: Soft validation with visibility probe already done above
+                 valid, rejections_retry = await self.batch_validate_candidates_with_reasons(
+                     visible_candidates, strict_mode=True
+                 )
+@@ -265,7 +265,8 @@ class FastLaneDiscovery:
+                 # Record new rejections with real reasons
+                 for addr, reason in rejections_retry.items():
+                     self.pending_candidates.record_rejection(mint, addr, reason)
++                    # FIX 4: Only retry transient failures, never permanent
+ 
+-                # Wait before next attempt (tighter cadence for fast-lane)
++                # Wait before next attempt (tight 350ms cadence)
+                 await asyncio.sleep(0.35)

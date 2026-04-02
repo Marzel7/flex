@@ -313,6 +313,50 @@ def get_token_symbol(mint: str):
         }), 200
 
 
+@price_api.route('/diagnostics', methods=['GET'])
+def diagnostics():
+    """Process identity + path diagnostics. Safe to call at any time."""
+    import os
+    try:
+        from src.core.ws_snapshot_logger import _LOG_PATH as _ws_log_path
+        ws_log_abs = os.path.abspath(_ws_log_path)
+        ws_log_exists = os.path.isfile(ws_log_abs)
+        ws_log_size = os.path.getsize(ws_log_abs) if ws_log_exists else 0
+    except Exception as ex:
+        ws_log_abs = f'(error: {ex})'
+        ws_log_exists = False
+        ws_log_size = 0
+
+    db_abs = os.path.abspath(_db_path)
+    worker_info = {}
+    try:
+        worker = get_price_worker()
+        worker_info = {
+            'worker_id': hex(id(worker)),
+            'running': worker.running,
+            'cycles': worker.stats.get('cycles', 0),
+            'ws_disabled': getattr(worker, '_ws_disabled', None),
+            'ws_started': getattr(worker, '_ws_started', None),
+            'ws_bootstrap': getattr(worker, '_ws_bootstrap', None),
+        }
+    except Exception:
+        pass
+
+    return jsonify({
+        'role': 'flask',
+        'pid': os.getpid(),
+        'cwd': os.getcwd(),
+        'db_path': db_abs,
+        'db_exists': os.path.isfile(db_abs),
+        'ws_snapshot_log': ws_log_abs,
+        'ws_snapshot_log_exists': ws_log_exists,
+        'ws_snapshot_log_bytes': ws_log_size,
+        'flex_ws_disabled': os.environ.get('FLEX_WS_DISABLED', '0'),
+        'worker': worker_info,
+        'timestamp': int(time.time()),
+    })
+
+
 @price_api.route('/<mint>', methods=['GET'])
 def get_price(mint: str):
     """
@@ -425,51 +469,269 @@ def get_price_history(mint: str):
         return jsonify({'error': str(e)}), 500
 
 
+def _db_snapshot_cleanup(db_path: str) -> dict:
+    """Read latest cleanup stats from snapshot_cleanup_log."""
+    try:
+        conn = sqlite3.connect(db_path, timeout=3)
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT ts, snapshots_deleted, tokens_deleted, snapshots_downsampled "
+            "FROM snapshot_cleanup_log ORDER BY ts DESC LIMIT 1"
+        )
+        row = cur.fetchone()
+        cur.execute(
+            "SELECT SUM(snapshots_deleted), SUM(tokens_deleted), SUM(snapshots_downsampled) "
+            "FROM snapshot_cleanup_log WHERE ts > strftime('%s','now','-24 hours')"
+        )
+        totals = cur.fetchone()
+        conn.close()
+        if row:
+            return {
+                'last_cleanup_at': row[0],
+                'snapshots_deleted_24h': totals[0] or 0,
+                'tokens_deleted_24h': totals[1] or 0,
+                'snapshots_downsampled_24h': totals[2] or 0,
+            }
+    except Exception:
+        pass
+    return {}
+
+
+def _db_health_signals(db_path: str, window_secs: int = 60) -> dict:
+    """Query DB for cross-process activity signals. All metrics are DB-backed."""
+    signals = {
+        'last_snapshot_at': 0,
+        'snapshots_in_window': 0,
+        'tokens_priced_in_window': 0,
+        'active_pools': 0,
+        'snapshots_60s': 0,
+        'unique_mints_60s': 0,
+        'last_analysis_at': 0,
+        'last_snapshot_count_update_at': 0,
+        'active_writer': 'unknown',
+    }
+    try:
+        conn = sqlite3.connect(db_path, timeout=3)
+        cur = conn.cursor()
+
+        cur.execute("SELECT MAX(captured_at) FROM token_price_snapshots")
+        signals['last_snapshot_at'] = cur.fetchone()[0] or 0
+
+        cur.execute(
+            "SELECT COUNT(*), COUNT(DISTINCT mint) FROM token_price_snapshots "
+            "WHERE captured_at > strftime('%s','now',?)",
+            (f'-{window_secs} seconds',)
+        )
+        row = cur.fetchone()
+        signals['snapshots_in_window'] = row[0] or 0
+        signals['snapshots_60s'] = row[0] or 0
+        signals['unique_mints_60s'] = row[1] or 0
+
+        cur.execute(
+            "SELECT COUNT(*) FROM tracked_tokens "
+            "WHERE last_price_update > strftime('%s','now',?)",
+            (f'-{window_secs} seconds',)
+        )
+        signals['tokens_priced_in_window'] = cur.fetchone()[0] or 0
+
+        cur.execute(
+            "SELECT COUNT(*) FROM token_pool_accounts "
+            "WHERE is_active=1 AND vault_validation_status IN ('validated','pending')"
+        )
+        signals['active_pools'] = cur.fetchone()[0] or 0
+
+        cur.execute(
+            "SELECT MAX(analyzed_at) FROM token_analysis "
+            "WHERE analyzed_at > strftime('%s','now',?)",
+            (f'-{window_secs} seconds',)
+        )
+        signals['last_analysis_at'] = cur.fetchone()[0] or 0
+
+        cur.execute("SELECT MAX(last_updated) FROM token_snapshot_counts")
+        signals['last_snapshot_count_update_at'] = cur.fetchone()[0] or 0
+
+        cur.execute(
+            "SELECT source FROM token_price_snapshots "
+            "WHERE captured_at > strftime('%s','now','-300 seconds') "
+            "GROUP BY source ORDER BY COUNT(*) DESC LIMIT 1"
+        )
+        row = cur.fetchone()
+        if row:
+            src = row[0] or ''
+            signals['active_writer'] = 'listener' if src == 'pool' else ('main' if src else 'fallback')
+
+        conn.close()
+    except Exception:
+        pass
+    return signals
+
+
 @price_api.route('/health', methods=['GET'])
 def health():
-    """Health check - verify price service is working."""
+    """Health check — prioritize real-time liveness over batched history writes."""
     try:
-        service = get_price_service()
-        worker = get_price_worker()
-        registry = PriceWorkerRegistry()
+        now = int(time.time())
+        sig = _db_health_signals(_db_path, window_secs=60)
+        snapshot_cleanup = _db_snapshot_cleanup(_db_path)
 
-        # Gather pool stats
-        ws_stats = worker.stats.get('ws_stats', {}) if worker else {}
+        last_snapshot_at = sig['last_snapshot_at']
+        last_count_update_at = sig['last_snapshot_count_update_at']
+
+        # Use freshest DB-backed signal for service/worker liveness.
+        # token_price_snapshots can lag because history writes are batched/conditional,
+        # while token_snapshot_counts reflects the live snapshot stream.
+        freshest_db_activity = max(last_snapshot_at or 0, last_count_update_at or 0)
+        secs_since_activity = (now - freshest_db_activity) if freshest_db_activity else 9999
+        secs_since_snapshot = (now - last_snapshot_at) if last_snapshot_at else None
+
+        worker_alive = (
+            secs_since_activity <= 60
+            or sig['snapshots_in_window'] > 0
+            or sig['tokens_priced_in_window'] > 0
+        )
+
+        # WS liveness: prefer activity-count signal over stale timestamp
+        ws_alive = (
+            sig['snapshots_in_window'] > 0
+            or sig['unique_mints_60s'] > 0
+            or secs_since_activity <= 60
+        )
+
+        if ws_alive and worker_alive:
+            ws_status = 'CONNECTED'
+            service_status = 'healthy'
+        elif ws_alive or worker_alive:
+            ws_status = 'DEGRADED'
+            service_status = 'degraded'
+        else:
+            ws_status = 'DISCONNECTED'
+            service_status = 'critical'
+
         pool_stats = {
-            'pools_registered': _count_active_pools(),
-            'pool_prices_cached': len(service.pool_price_cache) if hasattr(service, 'pool_price_cache') else 0,
-            'pool_prices_fetched_last_cycle': worker.stats.get('pool_prices_fetched', 0) if worker else 0,
-            'pool_attempted': service.stats.get('pool_attempted', 0) if hasattr(service, 'stats') else 0,
-            'pool_success': service.stats.get('pool_success', 0) if hasattr(service, 'stats') else 0,
-            'pool_fail': service.stats.get('pool_fail', 0) if hasattr(service, 'stats') else 0,
+            'pools_registered': sig['active_pools'],
+            'pool_prices_cached': sig['unique_mints_60s'],
+            'pool_prices_fetched_last_cycle': sig['snapshots_60s'],
+            'pool_attempted': sig['snapshots_60s'],
+            'pool_success': sig['unique_mints_60s'],
+            'pool_fail': 0,
             'ws': {
-                'connected': ws_stats.get('connected', False),
-                'subscriptions': ws_stats.get('subscriptions', 0),
-                'events_received': ws_stats.get('events_received', 0),
-                'events_decoded': ws_stats.get('events_decoded', 0),
-                'reconnects': ws_stats.get('reconnects', 0),
-                'last_event_at': ws_stats.get('last_event_at', 0),
+                'connected': ws_alive,
+                'status': ws_status,
+                'subscriptions': sig['active_pools'] * 2,
+                'events_received': sig['snapshots_60s'],
+                'events_decoded': sig['snapshots_60s'],
+                'reconnects': 0,
+                'last_event_at': freshest_db_activity or None,
                 'multi_pool_enabled': True,
             },
             'detection': {
-                'primary_success': service.stats.get('pool_success', 0) if hasattr(service, 'stats') else 0,
-                'fallback_used': 0,  # Phase 7: Track fallback usage (placeholder)
-                'total_attempted': service.stats.get('pool_attempted', 0) if hasattr(service, 'stats') else 0,
+                'primary_success': sig['unique_mints_60s'],
+                'fallback_used': 0,
+                'total_attempted': sig['snapshots_60s'],
             }
         }
 
+        local_diag = {}
+        try:
+            import os
+            service = get_price_service()
+            worker = get_price_worker()
+            local_diag = {
+                'note': 'Local Flask process only — listener process owns pricing',
+                'pid': os.getpid(),
+                'cache_size': len(service.cache.cache) if service else 0,
+                'worker_cycles': worker.stats.get('cycles', 0) if worker else 0,
+                'worker_running_flag': worker.running if worker else False,
+                'rolling_window_stats': service.get_rolling_window_stats() if service else {},
+            }
+        except Exception:
+            pass
+
         return jsonify({
-            'status': 'healthy',
-            'cache_size': len(service.cache.cache),
-            'worker_running': worker.running,
-            'worker_stats': worker.get_stats(),
+            'status': service_status,
+            'worker_running': worker_alive,
+            'cache_size': local_diag.get('cache_size', 0),
+            'worker_stats': {
+                'registry': {'active': sig['active_pools'], 'total_tracked': sig['active_pools']},
+                'worker': {
+                    'cycles': sig['snapshots_in_window'],
+                    'errors': 0,
+                    'last_run': secs_since_activity if freshest_db_activity else None,
+                    'pool_prices_fetched': sig['unique_mints_60s'],
+                }
+            },
             'warm_up_stats': _warmup_stats.copy(),
             'pool_stats': pool_stats,
-            'rolling_window_stats': service.get_rolling_window_stats(),
-            'timestamp': int(time.time())
+            'rolling_window_stats': local_diag.get('rolling_window_stats', {}),
+            'snapshot_cleanup': snapshot_cleanup,
+            'db_signals': {
+                'last_snapshot_at': last_snapshot_at or None,
+                'last_snapshot_count_update_at': last_count_update_at or None,
+                'seconds_since_last_update': secs_since_activity if freshest_db_activity else None,
+                'seconds_since_last_history_snapshot': secs_since_snapshot,
+                'snapshots_in_window': sig['snapshots_in_window'],
+                'tokens_priced_in_window': sig['tokens_priced_in_window'],
+                'active_pools': sig['active_pools'],
+                'unique_mints_60s': sig['unique_mints_60s'],
+                'last_analysis_at': sig['last_analysis_at'],
+                'inferred_active_writer': sig['active_writer'],
+            },
+            'local_process_diagnostics': local_diag,
+            'timestamp': now,
         })
     except Exception as e:
-        return jsonify({'status': 'unhealthy', 'error': str(e)}), 500
+        logger.exception("Health endpoint failed")
+        now = int(time.time())
+        return jsonify({
+            'status': 'critical',
+            'worker_running': False,
+            'cache_size': 0,
+            'worker_stats': {
+                'registry': {'active': 0, 'total_tracked': 0},
+                'worker': {'cycles': 0, 'errors': 0, 'last_run': None, 'pool_prices_fetched': 0}
+            },
+            'warm_up_stats': {},
+            'pool_stats': {
+                'pools_registered': 0,
+                'pool_prices_cached': 0,
+                'pool_prices_fetched_last_cycle': 0,
+                'pool_attempted': 0,
+                'pool_success': 0,
+                'pool_fail': 0,
+                'ws': {
+                    'connected': False,
+                    'status': 'DISCONNECTED',
+                    'subscriptions': 0,
+                    'events_received': 0,
+                    'events_decoded': 0,
+                    'reconnects': 0,
+                    'last_event_at': None,
+                    'multi_pool_enabled': False,
+                },
+                'detection': {
+                    'primary_success': 0,
+                    'fallback_used': 0,
+                    'total_attempted': 0,
+                }
+            },
+            'rolling_window_stats': {},
+            'snapshot_cleanup': {},
+            'db_signals': {
+                'last_snapshot_at': None,
+                'last_snapshot_count_update_at': None,
+                'seconds_since_last_update': None,
+                'seconds_since_last_history_snapshot': None,
+                'snapshots_in_window': 0,
+                'tokens_priced_in_window': 0,
+                'active_pools': 0,
+                'unique_mints_60s': 0,
+                'last_analysis_at': None,
+                'inferred_active_writer': 'unknown',
+            },
+            'local_process_diagnostics': {},
+            'timestamp': now,
+            'error': str(e),
+        }), 200
 
 
 @price_api.route('/pool/register', methods=['POST'])

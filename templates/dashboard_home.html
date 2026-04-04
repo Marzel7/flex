@@ -2802,31 +2802,10 @@
 
         function timeSinceLaunch(createdAtTimestamp) {
             if (!createdAtTimestamp) return '-';
-
+            const parsed = parseTs(createdAtTimestamp);
+            if (!parsed || isNaN(parsed.getTime())) return '-';
             const now = Math.floor(Date.now() / 1000);
-            let createdSeconds;
-
-            // Handle multiple input formats
-            if (typeof createdAtTimestamp === 'string') {
-                // ISO format string: "2026-02-10T10:38:19Z"
-                const parsedDate = new Date(createdAtTimestamp);
-                if (isNaN(parsedDate.getTime())) {
-                    return '-'; // Invalid date string
-                }
-                createdSeconds = Math.floor(parsedDate.getTime() / 1000);
-            } else if (typeof createdAtTimestamp === 'number') {
-                // Numeric timestamp
-                if (createdAtTimestamp > 10000000000) {
-                    // Milliseconds
-                    createdSeconds = Math.floor(createdAtTimestamp / 1000);
-                } else {
-                    // Unix seconds
-                    createdSeconds = createdAtTimestamp;
-                }
-            } else {
-                return '-'; // Invalid type
-            }
-
+            const createdSeconds = Math.floor(parsed.getTime() / 1000);
             const secondsAgo = now - createdSeconds;
 
             // Validate that result makes sense
@@ -2874,16 +2853,28 @@
             return value.toFixed(0);
         }
 
+        // Parse any timestamp format to a Date object
+        function parseTs(v) {
+            if (!v) return null;
+            const n = parseFloat(v);
+            if (!isNaN(n) && (typeof v === 'number' || /^[\d.]+$/.test(String(v)))) {
+                // Unix seconds (possibly float)
+                return new Date(n * 1000);
+            }
+            // ISO or space-separated datetime string
+            return new Date(String(v).replace(' ', 'T').replace(/\.\d+(?=Z|$)/, '') + (String(v).endsWith('Z') ? '' : 'Z'));
+        }
+
         function getTimeToPeak(migrationTime, peakTime) {
             if (!migrationTime || !peakTime) return '';
             try {
-                const migration = new Date(migrationTime);
-                const peak = new Date(peakTime);
+                const migration = parseTs(migrationTime);
+                const peak = parseTs(peakTime);
                 const diffSeconds = (peak - migration) / 1000;
 
                 if (diffSeconds < 0) return '';
                 if (diffSeconds < 60) return `${Math.floor(diffSeconds)}s`;
-                if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)}m`;
+                if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)}m${String(Math.floor(diffSeconds % 60)).padStart(2,'0')}s`;
                 const hours = diffSeconds / 3600;
                 if (hours < 24) return `${hours.toFixed(1)}h`;
                 return `${(hours / 24).toFixed(1)}d`;

@@ -1099,14 +1099,17 @@ def api_token_intelligence():
 
         # ── Sort ───────────────────────────────────────────────────────────────
         if sort == 'newest':
+            import datetime as _dt
             def _newest_key(t):
-                if t.get('detected_at'):
-                    return t['detected_at']  # ISO string — lexicographic sort works for ISO-8601
+                d = t.get('detected_at')
+                if d and isinstance(d, str):
+                    return d  # ISO-8601 string — lexicographic sort works
                 fin = t.get('finalized_at')
-                # Convert unix int to comparable ISO string
                 if fin:
-                    import datetime
-                    return datetime.datetime.utcfromtimestamp(fin).strftime('%Y-%m-%dT%H:%M:%SZ')
+                    try:
+                        return _dt.datetime.utcfromtimestamp(float(fin)).strftime('%Y-%m-%dT%H:%M:%SZ')
+                    except Exception:
+                        pass
                 return ''
             tokens.sort(key=_newest_key, reverse=True)
         elif sort == 'rating_peak_mc' or sort == 'rating':

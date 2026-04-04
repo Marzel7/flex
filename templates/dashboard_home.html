@@ -3152,6 +3152,54 @@ function switchToTokensTab() {
             }
         }
 
+        // Insert a placeholder row immediately on token_detected SSE event.
+        // Subsequent price_update / pool_registered events patch the same row via patchRowByMint.
+        function insertDetectedTokenRow(update) {
+            const mint = update.mint;
+            if (!mint) return;
+            // Skip if row already exists (token was loaded by loadTokens before event arrived)
+            if (document.querySelector(`tr[data-mint="${mint}"]`)) return;
+
+            const tbody = document.querySelector('#tokens-container tbody');
+            if (!tbody) return;
+
+            const shortMint = mint.slice(0, 14) + '…';
+            const symbol = update.symbol || shortMint;
+            const creator = update.creator || '';
+            const now = Math.floor(Date.now() / 1000);
+
+            const tr = document.createElement('tr');
+            tr.dataset.mint = mint;
+            tr.classList.add('row-active-snap');
+            tr.style.background = 'rgba(74,222,128,0.10)';
+            tr.innerHTML = `
+                <td class="mint-with-creator" style="min-width:130px;max-width:200px">
+                    <div class="token-primary">
+                        <span class="snap-dot snap-dot-fresh"></span>
+                        <span id="symbol-${mint}" class="token-symbol" title="${mint}">${symbol}</span>
+                        <span class="badge-new">NEW</span>
+                    </div>
+                    <div class="token-links">
+                        <a href="#" onclick="showTokenMetrics('${mint}'); return false;" title="${mint}">Token ↗</a>
+                        ${creator ? `<a href="#" onclick="showCreatorDetails('${creator}'); return false;" title="${creator}">Creator ↗</a>` : ''}
+                    </div>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td id="mc-${mint}" style="opacity:0.4">—</td>
+                <td id="peak-mc-${mint}" style="opacity:0.4">—</td>
+                <td></td>
+                <td style="font-size:11px">just now</td>
+            `;
+            tbody.prepend(tr);
+            setTimeout(() => { tr.style.background = ''; }, 1500);
+
+            // Load symbol if not already known
+            if (!update.symbol) loadSymbol(mint);
+            console.log(`[TOKEN_DETECTED] Inserted placeholder row for ${mint.slice(0,16)}…`);
+        }
+
         // Initialize SSE price streaming
         function initDashboardPriceStream() {
             console.log('[SSE_PRICE] Connecting to price stream...');
@@ -3163,7 +3211,9 @@ function switchToTokensTab() {
             es.onmessage = (e) => {
                 console.log('[SSE_PRICE] message', e.data?.slice?.(0, 200) || e.data);
                 const update = JSON.parse(e.data);
-                if (update.type === 'price_update') {
+                if (update.type === 'token_detected') {
+                    insertDetectedTokenRow(update);
+                } else if (update.type === 'price_update') {
                     patchRowByMint(update.mint, update.price_usd, update.market_cap, update.age_seconds ?? 0);
                 } else if (update.type === 'pool_registered') {
                     console.log(`[SSE] Pool registered for ${update.mint?.substring(0, 16)}... (${update.elapsed_secs}s) — registering for price tracking + refreshing token list`);
@@ -3173,6 +3223,9 @@ function switchToTokensTab() {
                             headers: {'Content-Type': 'application/json'},
                             body: JSON.stringify({mints: [update.mint]})
                         }).catch(() => {});
+                        // Patch placeholder row with pool_address if now known
+                        const r = document.querySelector(`tr[data-mint="${update.mint}"]`);
+                        if (r) r.dataset.poolAddress = update.pool_address || '';
                     }
                     loadTokens();
                 }

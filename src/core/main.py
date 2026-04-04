@@ -17555,6 +17555,37 @@ def price_stream():
 
 
 # =========================================================================
+# INTERNAL BROADCAST: cross-process SSE injection
+# Called by the listener process to push events into Flask's SSE stream.
+# =========================================================================
+
+@app.route('/api/internal/broadcast', methods=['POST'])
+def internal_broadcast():
+    """
+    Accepts a JSON event from the listener process and broadcasts it
+    to all connected SSE subscribers in this Flask process.
+    Only accepts connections from localhost.
+    """
+    import asyncio as _asyncio
+    remote = request.remote_addr
+    if remote not in ('127.0.0.1', '::1', 'localhost'):
+        return jsonify({'error': 'forbidden'}), 403
+    try:
+        event = request.get_json(force=True, silent=True)
+        if not event or 'type' not in event:
+            return jsonify({'error': 'invalid event'}), 400
+        from src.core.price_stream import get_price_stream
+        ps = get_price_stream()
+        # broadcast is async; run synchronously in a new event loop
+        loop = _asyncio.new_event_loop()
+        loop.run_until_complete(ps.broadcast(event))
+        loop.close()
+        return jsonify({'ok': True, 'subscribers': ps.get_subscriber_count()})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# =========================================================================
 # WEBSOCKET: mint-filtered real-time price hub (/ws/tokens)
 # =========================================================================
 

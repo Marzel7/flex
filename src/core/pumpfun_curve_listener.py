@@ -63,6 +63,29 @@ _MIGRATION_LOG_PREFIXES = (
     "[FAST_LANE_PRIMARY]",
 )
 
+_FLASK_BROADCAST_URL = "http://127.0.0.1:5002/api/internal/broadcast"
+
+def _broadcast_to_flask(event: dict) -> None:
+    """
+    Fire-and-forget HTTP POST to Flask's internal broadcast endpoint.
+    Flask runs in a separate process so we cannot use the in-process PriceStream.
+    Never raises — failures are logged and ignored.
+    """
+    try:
+        import urllib.request as _urllib_req, json as _json
+        _body = _json.dumps(event).encode()
+        _req = _urllib_req.Request(
+            _FLASK_BROADCAST_URL,
+            data=_body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with _urllib_req.urlopen(_req, timeout=1) as _resp:
+            log_print(f"[SSE_BROADCAST] → {event.get('type')} subscribers={_json.loads(_resp.read()).get('subscribers', '?')}", flush=True)
+    except Exception as _e:
+        log_print(f"[SSE_BROADCAST] ⚠️  {event.get('type')} failed: {_e}", flush=True)
+
+
 def _write_migration_log(line: str) -> None:
     """Append a line to migration.log (fire-and-forget, never raises)."""
     try:
@@ -3062,20 +3085,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 log_print(f"[FAST_PATH_REGISTER] ⚠️  Price tracking registration failed: {_e}", flush=True)
 
             # Broadcast pool_registered event so the UI refreshes immediately
-            try:
-                from src.core.price_stream import get_price_stream
-                import asyncio as _asyncio
-                _ps = get_price_stream()
-                if _ps.get_subscriber_count() > 0:
-                    _event = {
-                        "type": "pool_registered",
-                        "mint": mint,
-                        "pool_address": pool_address,
-                        "elapsed_secs": round(elapsed, 3),
-                    }
-                    _asyncio.create_task(_ps.broadcast(_event))
-            except Exception as e:
-                log_print(f"[FAST_PATH_REGISTER] ⚠️  SSE broadcast failed: {e}", flush=True)
+            _broadcast_to_flask({
+                "type": "pool_registered",
+                "mint": mint,
+                "pool_address": pool_address,
+                "elapsed_secs": round(elapsed, 3),
+            })
 
             return RegisterResult.SUCCESS
 
@@ -3127,6 +3142,30 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
             # Create minimal token entry immediately (so token appears in UI right away)
             await self._create_minimal_token_entry(mint)
+
+            # === INSTANT UI: broadcast token_detected before any discovery ===
+            _det_event = {
+                "type": "token_detected",
+                "mint": mint,
+                "detected_at": int(time.time()),
+                "status": "detecting",
+                "source": "migration",
+            }
+            # Enrich with any data already in DB from minimal entry
+            try:
+                _conn = sqlite3.connect(DB_PATH, timeout=3)
+                _row = _conn.execute(
+                    "SELECT symbol, earliest_tx_creator, pool_address FROM token_analysis WHERE mint = ?",
+                    (mint,)
+                ).fetchone()
+                _conn.close()
+                if _row:
+                    if _row[0]: _det_event["symbol"] = _row[0]
+                    if _row[1]: _det_event["creator"] = _row[1]
+                    if _row[2]: _det_event["pool_address"] = _row[2]
+            except Exception:
+                pass
+            _broadcast_to_flask(_det_event)
 
             # Store migration TX signature (needed for retry discovery and analytics)
             try:

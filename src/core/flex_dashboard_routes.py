@@ -1022,9 +1022,10 @@ def api_token_intelligence():
                        snapshot_count_final AS snapshot_count,
                        tracking_quality,
                        drop_reason, confidence, max_return_multiple, drawdown_from_peak,
-                       finalized_at, 'finalized' AS status
+                       finalized_at, NULL AS detected_at, 'finalized' AS status
                 FROM token_outcomes
                 {where_clause}
+                ORDER BY finalized_at DESC
                 LIMIT ?
             """, params + [limit]).fetchall()
             from src.core.token_behavior import compute_token_class, compute_outcome
@@ -1077,12 +1078,14 @@ def api_token_intelligence():
                        NULL AS drop_reason, tb.confidence,
                        tb.max_return_multiple, tb.drawdown_from_peak,
                        tb.classified_at AS finalized_at,
+                       ta.created_at AS detected_at,
                        'active' AS status
                 FROM token_behavior tb
                 LEFT JOIN token_snapshot_counts tsc ON tsc.mint = tb.mint
                 JOIN token_market_cap_peaks tmp ON tmp.mint = tb.mint AND tmp.peak_market_cap > 0 AND tmp.peak_market_cap <= 100000000
+                LEFT JOIN token_analysis ta ON ta.mint = tb.mint
                 {where_clause}
-                ORDER BY tb.classified_at DESC
+                ORDER BY ta.created_at DESC
                 LIMIT ?
             """, params + [limit]).fetchall()
             tokens += [dict(r) for r in act_rows]
@@ -1096,7 +1099,16 @@ def api_token_intelligence():
 
         # ── Sort ───────────────────────────────────────────────────────────────
         if sort == 'newest':
-            tokens.sort(key=lambda t: t.get('finalized_at') or 0, reverse=True)
+            def _newest_key(t):
+                if t.get('detected_at'):
+                    return t['detected_at']  # ISO string — lexicographic sort works for ISO-8601
+                fin = t.get('finalized_at')
+                # Convert unix int to comparable ISO string
+                if fin:
+                    import datetime
+                    return datetime.datetime.utcfromtimestamp(fin).strftime('%Y-%m-%dT%H:%M:%SZ')
+                return ''
+            tokens.sort(key=_newest_key, reverse=True)
         elif sort == 'rating_peak_mc' or sort == 'rating':
             tokens.sort(key=lambda t: (t.get('rating') or 0, t.get('peak_market_cap_usd') or 0), reverse=True)
         elif sort == 'peak_mc':

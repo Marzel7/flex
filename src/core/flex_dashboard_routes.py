@@ -27,7 +27,9 @@ logger = logging.getLogger(__name__)
 
 DB_PATH = 'database/flex_complete_database.db'
 VALID_BEHAVIOUR_CATEGORIES = {
-    'immediate_rug', 'rug', 'slow_rug', 'runner', 'choppy_runner', 'faded_runner', 'unknown'
+    'immediate_rug', 'rug', 'slow_rug', 'runner', 'choppy_runner', 'faded_runner',
+    'unknown', 'collecting', 'late_start', 'low_peak', 'unclassified',
+    'rugged_later', 'small_runner',
 }
 VALID_TRACKING_QUALITY = {'good', 'possibly_late', 'likely_late'}
 
@@ -197,6 +199,176 @@ def early_signals_page():
         logger.error(f"Error rendering early signals: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
+
+
+@dashboard_routes.route('/api/token-behaviour/outcomes', methods=['GET'])
+def api_token_behaviour_outcomes():
+    """
+    Finalized token outcomes (tokens whose snapshots have been deleted).
+
+    Query params:
+    - category: filter by behaviour_category
+    - min_rating: minimum rating_1_to_10 (default 1)
+    - drop_reason: filter by drop_reason
+    - limit: max results (default 200)
+    - offset: pagination offset
+    """
+    try:
+        category = request.args.get('category')
+        min_rating = int(request.args.get('min_rating', 1))
+        drop_reason = request.args.get('drop_reason')
+        limit = min(int(request.args.get('limit', 200)), 1000)
+        offset = int(request.args.get('offset', 0))
+
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+
+        where = ['rating_1_to_10 >= ?']
+        params: List[Any] = [min_rating]
+        if category:
+            where.append('behaviour_category = ?')
+            params.append(category)
+        if drop_reason:
+            where.append('drop_reason = ?')
+            params.append(drop_reason)
+
+        where_clause = ' AND '.join(where)
+        rows = conn.execute(f"""
+            SELECT * FROM token_outcomes
+            WHERE {where_clause}
+            ORDER BY finalized_at DESC
+            LIMIT ? OFFSET ?
+        """, params + [limit, offset]).fetchall()
+
+        total = conn.execute(f"SELECT COUNT(*) FROM token_outcomes WHERE {where_clause}", params).fetchone()[0]
+        conn.close()
+
+        tokens = []
+        for r in rows:
+            tokens.append({
+                'mint': r['mint'],
+                'behaviour_category': r['behaviour_category'],
+                'rating': r['rating_1_to_10'],
+                'rating_reason': r['rating_reason'],
+                'confidence': round(r['confidence'], 3) if r['confidence'] else None,
+                'tracking_quality': r['tracking_quality'],
+                'peak_market_cap_usd': r['peak_market_cap_usd'],
+                'peak_market_cap_at': r['peak_market_cap_at'],
+                'time_to_peak_secs': r['time_to_peak_secs'],
+                'latest_market_cap_usd': r['latest_market_cap_usd'],
+                'latest_price_usd': r['latest_price_usd'],
+                'lifetime_secs': r['lifetime_secs'],
+                'snapshot_count_final': r['snapshot_count_final'],
+                'max_return_multiple': r['max_return_multiple'],
+                'drawdown_from_peak': round(r['drawdown_from_peak'], 3) if r['drawdown_from_peak'] else None,
+                'drop_reason': r['drop_reason'],
+                'first_seen_at': r['first_seen_at'],
+                'last_seen_at': r['last_seen_at'],
+                'finalized_at': r['finalized_at'],
+            })
+
+        return no_cache_json({'tokens': tokens, 'total': total, 'offset': offset, 'limit': limit})
+    except Exception as e:
+        logger.error(f"Error fetching token outcomes: {e}", exc_info=True)
+        return no_cache_json({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/api/token-behaviour/outcomes/summary', methods=['GET'])
+def api_token_outcomes_summary():
+    """
+    Aggregate summary of finalized token outcomes.
+
+    Returns category counts/pct, rating distribution, % 5M+, avg/median time-to-peak and lifetime.
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+
+        total_row = conn.execute("SELECT COUNT(*) AS n FROM token_outcomes").fetchone()
+        total = total_row['n'] if total_row else 0
+
+        cat_rows = conn.execute("""
+            SELECT behaviour_category, COUNT(*) AS n,
+                   ROUND(AVG(rating_1_to_10), 2) AS avg_rating,
+                   ROUND(AVG(confidence), 3) AS avg_confidence
+            FROM token_outcomes
+            WHERE behaviour_category IS NOT NULL
+            GROUP BY behaviour_category ORDER BY n DESC
+        """).fetchall()
+
+        rating_rows = conn.execute("""
+            SELECT rating_1_to_10, COUNT(*) AS n
+            FROM token_outcomes
+            WHERE rating_1_to_10 IS NOT NULL
+            GROUP BY rating_1_to_10 ORDER BY rating_1_to_10
+        """).fetchall()
+
+        peak5m_row = conn.execute(
+            "SELECT COUNT(*) AS n FROM token_outcomes WHERE peak_market_cap_usd >= 5000000"
+        ).fetchone()
+
+        timing_row = conn.execute("""
+            SELECT AVG(time_to_peak_secs) AS avg_ttp,
+                   AVG(lifetime_secs) AS avg_lifetime
+            FROM token_outcomes
+            WHERE time_to_peak_secs IS NOT NULL AND lifetime_secs IS NOT NULL
+        """).fetchone()
+
+        # Median via percentile approximation
+        ttp_vals = [r[0] for r in conn.execute(
+            "SELECT time_to_peak_secs FROM token_outcomes WHERE time_to_peak_secs IS NOT NULL ORDER BY time_to_peak_secs"
+        ).fetchall()]
+        lt_vals = [r[0] for r in conn.execute(
+            "SELECT lifetime_secs FROM token_outcomes WHERE lifetime_secs IS NOT NULL ORDER BY lifetime_secs"
+        ).fetchall()]
+
+        def median(vals):
+            if not vals: return None
+            n = len(vals)
+            return vals[n // 2] if n % 2 else (vals[n // 2 - 1] + vals[n // 2]) / 2
+
+        # Active token count from token_behavior (still has snapshots)
+        active_row = conn.execute(
+            "SELECT COUNT(*) AS n FROM token_behavior tb "
+            "JOIN token_snapshot_counts tsc ON tsc.mint = tb.mint"
+        ).fetchone()
+
+        quality_rows = conn.execute("""
+            SELECT tracking_quality, COUNT(*) AS n FROM token_behavior
+            GROUP BY tracking_quality
+        """).fetchall()
+        conn.close()
+        quality_dist = {r['tracking_quality']: r['n'] for r in quality_rows}
+
+        by_category = {}
+        for r in cat_rows:
+            cat = r['behaviour_category'] or 'unknown'
+            by_category[cat] = {
+                'count': r['n'],
+                'pct': round(100.0 * r['n'] / total, 1) if total else 0,
+                'avg_rating': r['avg_rating'],
+                'avg_confidence': r['avg_confidence'],
+            }
+
+        rating_dist = {str(r['rating_1_to_10']): r['n'] for r in rating_rows}
+
+        return no_cache_json({
+            'active_count': active_row['n'] if active_row else 0,
+            'finalized_count': total,
+            'by_category': by_category,
+            'rating_distribution': rating_dist,
+            'pct_5m_plus': round(100.0 * peak5m_row['n'] / total, 1) if total and peak5m_row else 0,
+            'timing': {
+                'avg_time_to_peak_secs': round(timing_row['avg_ttp']) if timing_row and timing_row['avg_ttp'] else None,
+                'median_time_to_peak_secs': median(ttp_vals),
+                'avg_lifetime_secs': round(timing_row['avg_lifetime']) if timing_row and timing_row['avg_lifetime'] else None,
+                'median_lifetime_secs': median(lt_vals),
+            },
+            'last_updated': int(time.time()),
+        })
+    except Exception as e:
+        logger.error(f"Error fetching outcomes summary: {e}", exc_info=True)
+        return no_cache_json({'error': str(e)}), 500
 
 
 @dashboard_routes.route('/api/token-behaviour', methods=['GET'])
@@ -490,7 +662,8 @@ def api_token_behaviour_all():
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
 
-        CATEGORIES = ['immediate_rug', 'runner', 'faded_runner', 'choppy_runner', 'rug', 'slow_rug']
+        CATEGORIES = ['immediate_rug', 'runner', 'faded_runner', 'choppy_runner', 'rug', 'slow_rug',
+                      'rugged_later', 'small_runner']
 
         # Stats (cheap — 386 rows)
         stat_rows = conn.execute("""
@@ -518,7 +691,7 @@ def api_token_behaviour_all():
                    ) AS rn
             FROM token_behavior tb
             LEFT JOIN token_snapshot_counts tsc ON tsc.mint = tb.mint
-            WHERE tb.category IN ('immediate_rug','runner','faded_runner','choppy_runner','rug','slow_rug')
+            WHERE tb.category IN ('immediate_rug','runner','faded_runner','choppy_runner','rug','slow_rug','rugged_later','small_runner')
               AND COALESCE(tsc.snap_count, 0) >= ?
               AND (? = 0 OR tb.confidence >= ?)
         """, (min_snapshots, min_confidence, min_confidence)).fetchall()
@@ -530,36 +703,475 @@ def api_token_behaviour_all():
             cat = row['category']
             if cat not in category_tokens:
                 continue
+            peak_mc = row['peak_price_usd']  # price only in token_behavior; mc in outcomes
             category_tokens[cat].append({
                 'mint': row['mint'],
                 'category': cat,
+                'state': 'active',
                 'confidence': round(row['confidence'], 3) if row['confidence'] is not None else None,
-                'price_observed_start': round(row['initial_price_observed_usd'], 8) if row['initial_price_observed_usd'] else None,
-                'price_robust_start': round(row['initial_price_robust_usd'], 8) if row['initial_price_robust_usd'] else None,
                 'price_peak': round(row['peak_price_usd'], 8) if row['peak_price_usd'] else None,
                 'max_return_observed': row['max_return_multiple_observed'],
                 'max_return_robust': row['max_return_multiple'],
                 'drawdown_from_peak': round(row['drawdown_from_peak'], 3) if row['drawdown_from_peak'] else None,
+                'time_to_peak_secs': row['time_to_peak_secs'],
                 'snapshot_count': row['live_snapshot_count'],
                 'lifetime_secs': row['lifetime_secs'],
                 'tracking_quality': row['tracking_quality'],
                 'classified_at': row['classified_at'],
+                'rating': None,  # not yet finalized
             })
 
+        # Top finalized tokens per category from token_outcomes
+        fin_rows = conn.execute("""
+            SELECT *, ROW_NUMBER() OVER (
+                PARTITION BY behaviour_category
+                ORDER BY rating_1_to_10 DESC, finalized_at DESC
+            ) AS rn
+            FROM token_outcomes
+            WHERE behaviour_category IN ('immediate_rug','runner','faded_runner','choppy_runner','rug','slow_rug','rugged_later','small_runner')
+        """).fetchall()
+
+        finalized_tokens: Dict[str, list] = {cat: [] for cat in CATEGORIES}
+        for row in fin_rows:
+            if row['rn'] > per_category:
+                continue
+            cat = row['behaviour_category']
+            if cat not in finalized_tokens:
+                continue
+            finalized_tokens[cat].append({
+                'mint': row['mint'],
+                'category': cat,
+                'state': 'finalized',
+                'confidence': round(row['confidence'], 3) if row['confidence'] else None,
+                'peak_market_cap_usd': row['peak_market_cap_usd'],
+                'time_to_peak_secs': row['time_to_peak_secs'],
+                'max_return_robust': row['max_return_multiple'],
+                'drawdown_from_peak': round(row['drawdown_from_peak'], 3) if row['drawdown_from_peak'] else None,
+                'lifetime_secs': row['lifetime_secs'],
+                'tracking_quality': row['tracking_quality'],
+                'drop_reason': row['drop_reason'],
+                'finalized_at': row['finalized_at'],
+                'rating': row['rating_1_to_10'],
+                'rating_reason': row['rating_reason'],
+            })
+
+        # Outcome summary counts
+        out_total_row = conn.execute("SELECT COUNT(*) AS n FROM token_outcomes").fetchone()
+        out_cat_rows = conn.execute("""
+            SELECT behaviour_category, COUNT(*) AS n,
+                   ROUND(AVG(rating_1_to_10), 2) AS avg_rating
+            FROM token_outcomes WHERE behaviour_category IS NOT NULL
+            GROUP BY behaviour_category
+        """).fetchall()
         conn.close()
+
+        finalized_by_category = {
+            r['behaviour_category']: {'count': r['n'], 'avg_rating': r['avg_rating']}
+            for r in out_cat_rows
+        }
 
         return no_cache_json({
             'stats': {
                 'total_classified': total,
                 'by_category': by_category,
+                'finalized_total': out_total_row['n'] if out_total_row else 0,
+                'finalized_by_category': finalized_by_category,
             },
             'category_tokens': category_tokens,
+            'finalized_tokens': finalized_tokens,
             'last_updated': int(time.time()),
         })
 
     except Exception as e:
         logger.error(f"Error fetching token behaviour all: {e}", exc_info=True)
         return no_cache_json({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/api/token-intelligence/summary', methods=['GET'])
+def api_token_intelligence_summary():
+    """Unified summary for the Token Intelligence dashboard."""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+
+        active_row = conn.execute(
+            "SELECT COUNT(*) AS n FROM token_behavior tb "
+            "JOIN token_snapshot_counts tsc ON tsc.mint = tb.mint "
+            "JOIN token_market_cap_peaks tmp ON tmp.mint = tb.mint AND tmp.peak_market_cap > 0 AND tmp.peak_market_cap <= 100000000"
+        ).fetchone()
+
+        total_row = conn.execute(
+            "SELECT COUNT(*) AS n FROM token_outcomes WHERE peak_market_cap_usd IS NOT NULL AND peak_market_cap_usd > 0"
+        ).fetchone()
+        total_fin = total_row['n'] if total_row else 0
+
+        cat_rows = conn.execute("""
+            SELECT behaviour_category AS cat, COUNT(*) AS n
+            FROM token_outcomes WHERE behaviour_category IS NOT NULL
+            GROUP BY behaviour_category
+        """).fetchall()
+        by_cat = {r['cat']: r['n'] for r in cat_rows}
+
+        rating_rows = conn.execute("""
+            SELECT rating_1_to_10 AS r, COUNT(*) AS n
+            FROM token_outcomes WHERE rating_1_to_10 IS NOT NULL
+            GROUP BY rating_1_to_10 ORDER BY r
+        """).fetchall()
+        rating_dist = {str(r['r']): r['n'] for r in rating_rows}
+
+        mc_rows = conn.execute("""
+            SELECT
+                SUM(CASE WHEN peak_market_cap_usd < 25000 THEN 1 ELSE 0 END) AS u25k,
+                SUM(CASE WHEN peak_market_cap_usd >= 25000 AND peak_market_cap_usd < 100000 THEN 1 ELSE 0 END) AS u100k,
+                SUM(CASE WHEN peak_market_cap_usd >= 100000 AND peak_market_cap_usd < 500000 THEN 1 ELSE 0 END) AS u500k,
+                SUM(CASE WHEN peak_market_cap_usd >= 500000 AND peak_market_cap_usd < 1000000 THEN 1 ELSE 0 END) AS u1m,
+                SUM(CASE WHEN peak_market_cap_usd >= 1000000 AND peak_market_cap_usd < 5000000 THEN 1 ELSE 0 END) AS u5m,
+                SUM(CASE WHEN peak_market_cap_usd >= 5000000 THEN 1 ELSE 0 END) AS over5m,
+                AVG(peak_market_cap_usd) AS avg_peak_mc,
+                COUNT(*) AS n_mc
+            FROM token_outcomes WHERE peak_market_cap_usd IS NOT NULL
+        """).fetchone()
+
+        # Active token stats (join peaks, exclude G?)
+        act_mc_rows = conn.execute("""
+            SELECT
+                SUM(CASE WHEN tmp.peak_market_cap < 25000 THEN 1 ELSE 0 END) AS u25k,
+                SUM(CASE WHEN tmp.peak_market_cap >= 25000  AND tmp.peak_market_cap < 100000 THEN 1 ELSE 0 END) AS u100k,
+                SUM(CASE WHEN tmp.peak_market_cap >= 100000 AND tmp.peak_market_cap < 500000 THEN 1 ELSE 0 END) AS u500k,
+                SUM(CASE WHEN tmp.peak_market_cap >= 500000 AND tmp.peak_market_cap < 1000000 THEN 1 ELSE 0 END) AS u1m,
+                SUM(CASE WHEN tmp.peak_market_cap >= 1000000 AND tmp.peak_market_cap < 5000000 THEN 1 ELSE 0 END) AS u5m,
+                SUM(CASE WHEN tmp.peak_market_cap >= 5000000 THEN 1 ELSE 0 END) AS over5m,
+                AVG(tmp.peak_market_cap) AS avg_peak_mc,
+                COUNT(*) AS n_mc
+            FROM token_behavior tb
+            JOIN token_snapshot_counts tsc ON tsc.mint = tb.mint
+            JOIN token_market_cap_peaks tmp ON tmp.mint = tb.mint
+                AND tmp.peak_market_cap > 0 AND tmp.peak_market_cap <= 100000000
+        """).fetchone()
+
+        act_cat_rows = conn.execute("""
+            SELECT tb.category AS cat, COUNT(*) AS n
+            FROM token_behavior tb
+            JOIN token_snapshot_counts tsc ON tsc.mint = tb.mint
+            JOIN token_market_cap_peaks tmp ON tmp.mint = tb.mint
+                AND tmp.peak_market_cap > 0 AND tmp.peak_market_cap <= 100000000
+            WHERE tb.category IS NOT NULL
+            GROUP BY tb.category
+        """).fetchall()
+        act_by_cat = {r['cat']: r['n'] for r in act_cat_rows}
+
+        ttp_vals = [r[0] for r in conn.execute(
+            "SELECT time_to_peak_secs FROM token_behavior tb "
+            "JOIN token_snapshot_counts tsc ON tsc.mint = tb.mint "
+            "JOIN token_market_cap_peaks tmp ON tmp.mint = tb.mint AND tmp.peak_market_cap > 0 AND tmp.peak_market_cap <= 100000000 "
+            "WHERE tb.time_to_peak_secs IS NOT NULL AND tb.time_to_peak_secs > 0 ORDER BY tb.time_to_peak_secs"
+        ).fetchall()]
+        lt_vals = [r[0] for r in conn.execute(
+            "SELECT lifetime_secs FROM token_behavior tb "
+            "JOIN token_snapshot_counts tsc ON tsc.mint = tb.mint "
+            "JOIN token_market_cap_peaks tmp ON tmp.mint = tb.mint AND tmp.peak_market_cap > 0 AND tmp.peak_market_cap <= 100000000 "
+            "WHERE tb.lifetime_secs IS NOT NULL AND tb.lifetime_secs > 0 ORDER BY tb.lifetime_secs"
+        ).fetchall()]
+
+        quality_rows = conn.execute("""
+            SELECT tb.tracking_quality AS q, COUNT(*) AS n
+            FROM token_behavior tb
+            JOIN token_snapshot_counts tsc ON tsc.mint = tb.mint
+            JOIN token_market_cap_peaks tmp ON tmp.mint = tb.mint
+                AND tmp.peak_market_cap > 0 AND tmp.peak_market_cap <= 100000000
+            WHERE tb.tracking_quality IS NOT NULL
+            GROUP BY tb.tracking_quality
+        """).fetchall()
+        quality_dist = {r['q']: r['n'] for r in quality_rows}
+
+        conn.close()
+
+        def median(vals):
+            if not vals: return None
+            n = len(vals)
+            return vals[n // 2] if n % 2 else (vals[n // 2 - 1] + vals[n // 2]) / 2
+
+        # Combine active + finalized for aggregate stats
+        combined_by_cat = dict(act_by_cat)
+        for k, v in by_cat.items():
+            combined_by_cat[k] = combined_by_cat.get(k, 0) + v
+        total_classified = total_fin + (active_row['n'] if active_row else 0)
+
+        rugs = sum(combined_by_cat.get(c, 0) for c in ('immediate_rug', 'rug', 'slow_rug'))
+        runners = sum(combined_by_cat.get(c, 0) for c in ('runner', 'choppy_runner', 'faded_runner', 'small_runner'))
+
+        combined_over5m = (mc_rows['over5m'] or 0) + (act_mc_rows['over5m'] or 0)
+        combined_n = (mc_rows['n_mc'] or 0) + (act_mc_rows['n_mc'] or 0)
+
+        # Weighted avg peak MC
+        fin_avg = mc_rows['avg_peak_mc'] or 0
+        act_avg = act_mc_rows['avg_peak_mc'] or 0
+        fin_n = mc_rows['n_mc'] or 0
+        act_n = act_mc_rows['n_mc'] or 0
+        combined_avg_mc = ((fin_avg * fin_n) + (act_avg * act_n)) / (fin_n + act_n) if (fin_n + act_n) else None
+
+        return no_cache_json({
+            'active_count': active_row['n'] if active_row else 0,
+            'finalized_count': total_fin,
+            'pct_rugs': round(100.0 * rugs / total_classified, 1) if total_classified else 0,
+            'pct_runners': round(100.0 * runners / total_classified, 1) if total_classified else 0,
+            'pct_5m_plus': round(100.0 * combined_over5m / combined_n, 1) if combined_n else 0,
+            'avg_peak_market_cap': round(combined_avg_mc) if combined_avg_mc else None,
+            'avg_time_to_peak_secs': round(sum(ttp_vals) / len(ttp_vals)) if ttp_vals else None,
+            'median_lifetime_secs': median(lt_vals),
+            'by_category': combined_by_cat,
+            'rating_distribution': rating_dist,
+            'mc_buckets': {
+                '<25K':    (mc_rows['u25k']  or 0) + (act_mc_rows['u25k']  or 0),
+                '25K-100K':(mc_rows['u100k'] or 0) + (act_mc_rows['u100k'] or 0),
+                '100K-500K':(mc_rows['u500k'] or 0) + (act_mc_rows['u500k'] or 0),
+                '500K-1M': (mc_rows['u1m']   or 0) + (act_mc_rows['u1m']   or 0),
+                '1M-5M':   (mc_rows['u5m']   or 0) + (act_mc_rows['u5m']   or 0),
+                '5M+':     (mc_rows['over5m'] or 0) + (act_mc_rows['over5m'] or 0),
+            },
+            'quality_distribution': quality_dist,
+            'last_updated': int(time.time()),
+        })
+    except Exception as e:
+        logger.error(f"Error fetching token intelligence summary: {e}", exc_info=True)
+        return no_cache_json({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/api/token-intelligence', methods=['GET'])
+def api_token_intelligence():
+    """
+    Unified paginated token list (active + finalized) for the intelligence table.
+
+    Active tokens join token_market_cap_peaks for real peak MC data.
+    Finalized tokens come from token_outcomes (with rating + MC already stored).
+
+    Query params:
+    - status: all | active | finalized (default all)
+    - category: filter (supports comma-separated group aliases: rugs, runners)
+    - min_rating: 1-10
+    - min_peak_mc: minimum peak_market_cap_usd
+    - max_ttp: maximum time_to_peak_secs
+    - tracking_quality: good | possibly_late | likely_late
+    - hide_late: 1 to exclude possibly_late and likely_late
+    - search: mint prefix/substring
+    - sort: peak_mc | time_to_peak | lifetime | rating | snapshot_count (default: rating,peak_mc)
+    - limit: max rows (default 200)
+    """
+    # Aliases for quick filter chips
+    CATEGORY_GROUPS = {
+        'rugs': ['immediate_rug', 'rug', 'slow_rug'],
+        'runners': ['runner', 'choppy_runner', 'faded_runner', 'small_runner'],
+        'weak': ['collecting', 'late_start', 'low_peak', 'unclassified', 'unknown'],
+        'classified': ['immediate_rug', 'rug', 'slow_rug', 'runner', 'choppy_runner',
+                       'faded_runner', 'rugged_later', 'small_runner'],
+    }
+    try:
+        status = request.args.get('status', 'all')
+        category_raw = request.args.get('category', '').strip()
+        min_rating = request.args.get('min_rating', type=int)
+        min_peak_mc = request.args.get('min_peak_mc', type=float)
+        max_ttp = request.args.get('max_ttp', type=int)
+        tracking_quality = request.args.get('tracking_quality')
+        hide_late = request.args.get('hide_late') == '1'
+        search = request.args.get('search', '').strip()
+        sort = request.args.get('sort', 'newest')
+        limit = min(int(request.args.get('limit', 500)), 1000)
+
+        # Resolve category group aliases
+        category_list: List[str] = []
+        if category_raw:
+            if category_raw in CATEGORY_GROUPS:
+                category_list = CATEGORY_GROUPS[category_raw]
+            else:
+                category_list = [c.strip() for c in category_raw.split(',') if c.strip()]
+
+        conn = sqlite3.connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+
+        tokens = []
+
+        # ── Finalized tokens (token_outcomes has rating + peak MC) ──────────
+        if status in ('all', 'finalized'):
+            where: List[str] = ['peak_market_cap_usd IS NOT NULL', 'peak_market_cap_usd > 0']
+            params: List[Any] = []
+
+            if category_list:
+                placeholders = ','.join('?' * len(category_list))
+                where.append(f'behaviour_category IN ({placeholders})')
+                params.extend(category_list)
+            if min_rating is not None:
+                where.append('rating_1_to_10 >= ?'); params.append(min_rating)
+            if min_peak_mc is not None:
+                where.append('peak_market_cap_usd >= ?'); params.append(min_peak_mc)
+            if max_ttp is not None:
+                where.append('time_to_peak_secs <= ?'); params.append(max_ttp)
+            if tracking_quality:
+                where.append('tracking_quality = ?'); params.append(tracking_quality)
+            if hide_late:
+                where.append("tracking_quality = 'good'")
+            if search:
+                where.append('mint LIKE ?'); params.append(f'%{search}%')
+
+            where_clause = ('WHERE ' + ' AND '.join(where)) if where else ''
+            fin_rows = conn.execute(f"""
+                SELECT mint,
+                       COALESCE(behaviour_category, 'unclassified') AS category,
+                       rating_1_to_10 AS rating, rating_reason,
+                       peak_market_cap_usd, peak_market_cap_at,
+                       time_to_peak_secs, lifetime_secs,
+                       snapshot_count_final AS snapshot_count,
+                       tracking_quality,
+                       drop_reason, confidence, max_return_multiple, drawdown_from_peak,
+                       finalized_at, 'finalized' AS status
+                FROM token_outcomes
+                {where_clause}
+                LIMIT ?
+            """, params + [limit]).fetchall()
+            from src.core.token_behavior import compute_token_class, compute_outcome
+            for r in fin_rows:
+                d = dict(r)
+                d['token_class'] = compute_token_class(d.get('peak_market_cap_usd') or 0)
+                d['outcome'] = compute_outcome(
+                    drawdown_from_peak=d.get('drawdown_from_peak') or 0,
+                    recovery_ratio=1.0 - (d.get('drawdown_from_peak') or 0),
+                    time_to_peak_secs=d.get('time_to_peak_secs') or 0,
+                    snapshot_count=d.get('snapshot_count') or 0,
+                    is_active=False,
+                )
+                tokens.append(d)
+
+        # ── Active tokens (join token_market_cap_peaks for real MC) ─────────
+        if status in ('all', 'active'):
+            where = []
+            params = []
+
+            if category_list:
+                placeholders = ','.join('?' * len(category_list))
+                where.append(f'tb.category IN ({placeholders})')
+                params.extend(category_list)
+            if min_peak_mc is not None:
+                # cap unrealistic peaks (bad supply data) at $100M
+                where.append('tmp.peak_market_cap >= ? AND tmp.peak_market_cap <= 100000000')
+                params.append(min_peak_mc)
+            if max_ttp is not None:
+                where.append('tb.time_to_peak_secs <= ?'); params.append(max_ttp)
+            if tracking_quality:
+                where.append('tb.tracking_quality = ?'); params.append(tracking_quality)
+            if hide_late:
+                where.append("tb.tracking_quality = 'good'")
+            if search:
+                where.append('tb.mint LIKE ?'); params.append(f'%{search}%')
+
+            where_clause = ('WHERE ' + ' AND '.join(where)) if where else ''
+            act_rows = conn.execute(f"""
+                SELECT tb.mint,
+                       COALESCE(tb.category, 'unclassified') AS category,
+                       tb.token_class,
+                       tb.outcome,
+                       NULL AS rating, NULL AS rating_reason,
+                       CASE WHEN tmp.peak_market_cap <= 100000000 THEN tmp.peak_market_cap ELSE NULL END AS peak_market_cap_usd,
+                       tmp.peak_market_cap_at,
+                       tb.time_to_peak_secs, tb.lifetime_secs,
+                       COALESCE(tsc.snap_count, tb.snapshot_count, 0) AS snapshot_count,
+                       tb.tracking_quality,
+                       NULL AS drop_reason, tb.confidence,
+                       tb.max_return_multiple, tb.drawdown_from_peak,
+                       tb.classified_at AS finalized_at,
+                       'active' AS status
+                FROM token_behavior tb
+                LEFT JOIN token_snapshot_counts tsc ON tsc.mint = tb.mint
+                JOIN token_market_cap_peaks tmp ON tmp.mint = tb.mint AND tmp.peak_market_cap > 0 AND tmp.peak_market_cap <= 100000000
+                {where_clause}
+                ORDER BY tb.classified_at DESC
+                LIMIT ?
+            """, params + [limit]).fetchall()
+            tokens += [dict(r) for r in act_rows]
+
+        conn.close()
+
+        # ── Apply min_peak_mc filter post-join for active (NULL-safe) ────────
+        if min_peak_mc is not None and status in ('all', 'active'):
+            tokens = [t for t in tokens if t['status'] == 'finalized'
+                      or (t.get('peak_market_cap_usd') or 0) >= min_peak_mc]
+
+        # ── Sort ───────────────────────────────────────────────────────────────
+        if sort == 'newest':
+            tokens.sort(key=lambda t: t.get('finalized_at') or 0, reverse=True)
+        elif sort == 'rating_peak_mc' or sort == 'rating':
+            tokens.sort(key=lambda t: (t.get('rating') or 0, t.get('peak_market_cap_usd') or 0), reverse=True)
+        elif sort == 'peak_mc':
+            tokens.sort(key=lambda t: t.get('peak_market_cap_usd') or 0, reverse=True)
+        elif sort == 'time_to_peak':
+            tokens.sort(key=lambda t: t.get('time_to_peak_secs') or 999999)
+        elif sort == 'lifetime':
+            tokens.sort(key=lambda t: t.get('lifetime_secs') or 0, reverse=True)
+        elif sort == 'snapshot_count':
+            tokens.sort(key=lambda t: t.get('snapshot_count') or 0, reverse=True)
+
+        # quality distribution for the strip
+        total = len(tokens)
+        q_good = sum(1 for t in tokens if t.get('tracking_quality') == 'good')
+        q_late = sum(1 for t in tokens if t.get('tracking_quality') == 'possibly_late')
+        q_very_late = sum(1 for t in tokens if t.get('tracking_quality') == 'likely_late')
+
+        return no_cache_json({
+            'tokens': tokens[:limit],
+            'total': total,
+            'quality_counts': {'good': q_good, 'possibly_late': q_late, 'likely_late': q_very_late},
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching token intelligence: {e}", exc_info=True)
+        return no_cache_json({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/api/token-intelligence/<mint>', methods=['GET'])
+def api_token_intelligence_detail(mint):
+    """Fetch full detail for a single token (finalized preferred, else active)."""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+
+        out_row = conn.execute("SELECT * FROM token_outcomes WHERE mint = ?", (mint,)).fetchone()
+        tb_row = conn.execute("SELECT * FROM token_behavior WHERE mint = ?", (mint,)).fetchone()
+
+        # Price history (up to 500 points)
+        hist_rows = conn.execute("""
+            SELECT captured_at, price_usd, market_cap
+            FROM token_price_snapshots WHERE mint = ?
+            ORDER BY captured_at ASC LIMIT 500
+        """, (mint,)).fetchall()
+
+        conn.close()
+
+        detail = {}
+        if out_row:
+            detail.update(dict(out_row))
+            detail['status'] = 'finalized'
+            detail['rating'] = out_row['rating_1_to_10']
+            detail['category'] = out_row['behaviour_category']
+        elif tb_row:
+            detail.update(dict(tb_row))
+            detail['status'] = 'active'
+            detail['rating'] = None
+
+        if not detail:
+            return no_cache_json({'error': 'Not found'}), 404
+
+        detail['history'] = [
+            {'t': r['captured_at'], 'p': r['price_usd'], 'mc': r['market_cap']}
+            for r in hist_rows
+        ]
+        return no_cache_json(detail)
+    except Exception as e:
+        logger.error(f"Error fetching token intelligence detail: {e}", exc_info=True)
+        return no_cache_json({'error': str(e)}), 500
+
+
+@dashboard_routes.route('/token-intelligence', methods=['GET'])
+def token_intelligence_page():
+    """Render Token Intelligence dashboard."""
+    return render_template('token_intelligence.html', active_page='token_intelligence')
 
 
 @dashboard_routes.route('/token-behaviour', methods=['GET'])

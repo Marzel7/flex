@@ -60,6 +60,157 @@ class SnapshotRetentionManager:
             "snapshots_downsampled": 0,
         }
 
+        def _compute_rating(peak_mc, drawdown, recovery_ratio, category):
+            """Rating 1..10 based on peak MC. Immediate rugs capped low, recoveries can add +1."""
+            if not peak_mc or peak_mc <= 0:
+                return 1, 'no_peak_mc'
+            if peak_mc < 25_000:
+                base = 1
+            elif peak_mc < 100_000:
+                base = 2
+            elif peak_mc < 250_000:
+                base = 3
+            elif peak_mc < 500_000:
+                base = 4
+            elif peak_mc < 1_000_000:
+                base = 5
+            elif peak_mc < 2_000_000:
+                base = 6
+            elif peak_mc < 5_000_000:
+                base = 8
+            else:
+                base = 10
+            reason = f'peak_mc={peak_mc:.0f}'
+            if category == 'immediate_rug':
+                base = min(base, 2)
+                reason += ',immediate_rug_cap'
+            elif recovery_ratio and recovery_ratio > 0.5 and base < 10:
+                base = min(base + 1, 10)
+                reason += ',recovery_bonus'
+            return max(1, min(base, 10)), reason
+
+        def _finalize_outcome(conn, mint, drop_reason):
+            """Aggregate snapshot data into token_outcomes before deleting snapshots."""
+            try:
+                row = conn.execute("""
+                    SELECT
+                        MIN(captured_at) AS first_seen_at,
+                        MAX(captured_at) AS last_seen_at,
+                        COUNT(*) AS snap_count,
+                        MAX(market_cap) AS peak_mc,
+                        MIN(CASE WHEN market_cap = MAX(market_cap) OVER() THEN captured_at END) AS peak_mc_at,
+                        price_usd AS latest_price,
+                        market_cap AS latest_mc
+                    FROM token_price_snapshots
+                    WHERE mint = ?
+                    ORDER BY captured_at DESC LIMIT 1
+                """, (mint,)).fetchone()
+                # Simpler reliable version:
+                agg = conn.execute("""
+                    SELECT MIN(captured_at) AS first_seen_at,
+                           MAX(captured_at) AS last_seen_at,
+                           COUNT(*) AS snap_count
+                    FROM token_price_snapshots WHERE mint = ?
+                """, (mint,)).fetchone()
+                peak_row = conn.execute(
+                    "SELECT market_cap, captured_at FROM token_price_snapshots WHERE mint = ? ORDER BY market_cap DESC LIMIT 1",
+                    (mint,)
+                ).fetchone()
+                latest_row = conn.execute(
+                    "SELECT price_usd, market_cap FROM token_price_snapshots WHERE mint = ? ORDER BY captured_at DESC LIMIT 1",
+                    (mint,)
+                ).fetchone()
+                tb = conn.execute(
+                    "SELECT category, confidence, tracking_quality, max_return_multiple, drawdown_from_peak, recovery_ratio, time_to_peak_secs FROM token_behavior WHERE mint = ?",
+                    (mint,)
+                ).fetchone()
+                tt = conn.execute(
+                    "SELECT created_at FROM tracked_tokens WHERE mint = ?", (mint,)
+                ).fetchone()
+
+                if not agg:
+                    return
+
+                first_seen = agg['first_seen_at']
+                last_seen = agg['last_seen_at']
+                snap_count = agg['snap_count']
+                peak_mc = peak_row['market_cap'] if peak_row else None
+                peak_mc_at = peak_row['captured_at'] if peak_row else None
+                latest_price = latest_row['price_usd'] if latest_row else None
+                latest_mc = latest_row['market_cap'] if latest_row else None
+                lifetime = (last_seen - first_seen) if (first_seen and last_seen) else None
+                time_to_peak = (peak_mc_at - first_seen) if (peak_mc_at and first_seen) else None
+                if tb:
+                    category = tb['category']
+                    confidence = tb['confidence']
+                    tracking_quality = tb['tracking_quality']
+                    max_return = tb['max_return_multiple']
+                    drawdown = tb['drawdown_from_peak']
+                    recovery = tb['recovery_ratio']
+                    ttp = tb['time_to_peak_secs'] or time_to_peak
+                else:
+                    category = None
+                    confidence = None
+                    tracking_quality = None
+                    max_return = None
+                    drawdown = None
+                    recovery = None
+                    ttp = time_to_peak
+
+                rating, rating_reason = _compute_rating(peak_mc, drawdown, recovery, category)
+
+                # Preserve peak MC before snapshots are deleted
+                if peak_mc and peak_mc > 0:
+                    conn.execute("""
+                        INSERT INTO token_market_cap_peaks (mint, peak_market_cap, peak_market_cap_at)
+                        VALUES (?, ?, ?)
+                        ON CONFLICT(mint) DO UPDATE SET
+                            peak_market_cap = MAX(peak_market_cap, excluded.peak_market_cap),
+                            peak_market_cap_at = CASE WHEN excluded.peak_market_cap > peak_market_cap
+                                                      THEN excluded.peak_market_cap_at
+                                                      ELSE peak_market_cap_at END
+                    """, (mint, peak_mc, peak_mc_at or now))
+
+                conn.execute("""
+                    INSERT INTO token_outcomes (
+                        mint, first_seen_at, last_seen_at, tracking_ended_at, drop_reason,
+                        peak_market_cap_usd, peak_market_cap_at, time_to_peak_secs,
+                        latest_market_cap_usd, latest_price_usd, lifetime_secs,
+                        snapshot_count_final, max_return_multiple, drawdown_from_peak,
+                        behaviour_category, confidence, tracking_quality,
+                        rating_1_to_10, rating_reason, finalized_at
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    ON CONFLICT(mint) DO UPDATE SET
+                        last_seen_at=excluded.last_seen_at,
+                        tracking_ended_at=excluded.tracking_ended_at,
+                        drop_reason=excluded.drop_reason,
+                        peak_market_cap_usd=excluded.peak_market_cap_usd,
+                        peak_market_cap_at=excluded.peak_market_cap_at,
+                        time_to_peak_secs=excluded.time_to_peak_secs,
+                        latest_market_cap_usd=excluded.latest_market_cap_usd,
+                        latest_price_usd=excluded.latest_price_usd,
+                        lifetime_secs=excluded.lifetime_secs,
+                        snapshot_count_final=excluded.snapshot_count_final,
+                        max_return_multiple=excluded.max_return_multiple,
+                        drawdown_from_peak=excluded.drawdown_from_peak,
+                        behaviour_category=excluded.behaviour_category,
+                        confidence=excluded.confidence,
+                        tracking_quality=excluded.tracking_quality,
+                        rating_1_to_10=excluded.rating_1_to_10,
+                        rating_reason=excluded.rating_reason,
+                        finalized_at=excluded.finalized_at
+                """, (
+                    mint, first_seen, last_seen, now, drop_reason,
+                    peak_mc, peak_mc_at, ttp,
+                    latest_mc, latest_price, lifetime,
+                    snap_count, max_return, drawdown,
+                    category, confidence, tracking_quality,
+                    rating, rating_reason, now
+                ))
+                ws_log.info(f"[OUTCOME] finalized mint={mint[:16]} category={category} rating={rating} peak_mc={peak_mc:.0f if peak_mc else 'None'} reason={drop_reason}")
+            except Exception as e:
+                ws_log.warning(f"[OUTCOME] finalize failed for {mint[:16]}: {e}")
+
         def _deactivate_pools(conn, mint, reason):
             """Deactivate pool rows after snapshot history is removed. Returns count."""
             n = conn.execute(
@@ -97,6 +248,7 @@ class SnapshotRetentionManager:
                 last_change = last_meaningful_change.get(mint, last_updated or 0)
                 if (below_since and now - below_since >= self.LIFECYCLE_DELETE_AFTER) or \
                    (now - last_change >= self.LIFECYCLE_DELETE_AFTER):
+                    _finalize_outcome(conn, mint, 'lifecycle')
                     deleted = _lifecycle_delete(conn, mint)
                     _deactivate_pools(conn, mint, 'lifecycle')
                     stats["snapshots_deleted"] += deleted
@@ -115,6 +267,7 @@ class SnapshotRetentionManager:
 
                 # --- RULE 2: Delete entire history if very old ---
                 if age > self.DELETE_AFTER_INACTIVE_SECS:
+                    _finalize_outcome(conn, mint, 'inactive')
                     deleted = conn.execute(
                         "DELETE FROM token_price_snapshots WHERE mint = ?",
                         (mint,)
@@ -151,6 +304,7 @@ class SnapshotRetentionManager:
 
                 for row in stale_low:
                     mint = row["mint"]
+                    _finalize_outcome(conn, mint, 'stale_low_snap')
                     deleted = conn.execute(
                         "DELETE FROM token_price_snapshots WHERE mint = ?", (mint,)
                     ).rowcount
@@ -183,6 +337,7 @@ class SnapshotRetentionManager:
 
             for row in candidates:
                 mint = row["mint"]
+                _finalize_outcome(conn, mint, 'low_value_12h')
                 deleted = conn.execute(
                     "DELETE FROM token_price_snapshots WHERE mint = ?", (mint,)
                 ).rowcount

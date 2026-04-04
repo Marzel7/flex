@@ -711,12 +711,16 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 ta.network_is_cex,
                 COALESCE(tsc.last_updated, 0) as snap_last_updated,
                 tps.price_usd as snap_price_usd,
-                tps.market_cap as snap_market_cap
+                tps.market_cap as snap_market_cap,
+                tmp.peak_market_cap as peaks_market_cap,
+                tmp.peak_market_cap_at as peaks_market_cap_at
             FROM token_analysis ta
             LEFT JOIN creator_networks cn
                 ON ta.earliest_tx_creator = cn.creator_address
             LEFT JOIN token_snapshot_counts tsc
                 ON tsc.mint = ta.mint
+            LEFT JOIN token_market_cap_peaks tmp
+                ON tmp.mint = ta.mint
             LEFT JOIN token_price_snapshots tps
                 ON tps.snapshot_id = (
                     SELECT snapshot_id FROM token_price_snapshots
@@ -751,7 +755,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     'price_current': row['snap_price_usd'] or None,
                     'price_highest': row['price_highest'] if row['price_highest'] else None,
                     'market_cap_current': row['snap_market_cap'] or None,
-                    'market_cap_highest': row['market_cap_highest'] if row['market_cap_highest'] else None,
+                    'market_cap_highest': row['peaks_market_cap'] or row['market_cap_highest'] or None,
                     'market_cap_highest_at': row['market_cap_highest_at'] if row['market_cap_highest_at'] else None,
                     'rug_indicator': row['rug_indicator'],
                     'creator': row['earliest_tx_creator'] if row['earliest_tx_creator'] else None,
@@ -887,7 +891,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 'price_current': row['snap_price_usd'] or None,
                 'price_highest': row['price_highest'] if row['price_highest'] else None,
                 'market_cap_current': row['snap_market_cap'] or None,
-                'market_cap_highest': row['market_cap_highest'] if row['market_cap_highest'] else None,
+                'market_cap_highest': row['peaks_market_cap'] or row['market_cap_highest'] or None,
                 'market_cap_highest_at': row['market_cap_highest_at'] if row['market_cap_highest_at'] else None,
                 'rug_indicator': row['rug_indicator'],
                 'creator': row['earliest_tx_creator'] if row['earliest_tx_creator'] else None,

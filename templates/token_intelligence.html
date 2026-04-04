@@ -1,0 +1,900 @@
+{% extends "base_shell.html" %}
+
+{% block title %}Token Intelligence — FLEX{% endblock %}
+
+{% block extra_styles %}
+:root {
+    --ti-red: #ef4444;
+    --ti-amber: #f59e0b;
+    --ti-green: #22c55e;
+    --ti-gray: #6b7280;
+    --ti-row-red: rgba(239,68,68,0.06);
+    --ti-row-amber: rgba(245,158,11,0.06);
+    --ti-row-green: rgba(34,197,94,0.06);
+    /* G-class colors */
+    --g1: #f59e0b;   /* Elite */
+    --g2: #a78bfa;   /* Strong */
+    --g3: #60a5fa;   /* High Opp */
+    --g4: #34d399;   /* Pre-Runner */
+    --g5: #86efac;   /* Mid Tier */
+    --g6: #6b7280;   /* Weak */
+    --g7: #374151;   /* Low/Noise */
+    --gq: #1f2937;   /* unknown */
+}
+
+/* ── Summary bar ── */
+.ti-summary {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+.ti-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px 16px;
+    min-width: 120px;
+    flex: 1;
+}
+.ti-stat-val {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+.ti-stat-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+}
+
+/* ── Distributions ── */
+.ti-dist-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.ti-dist-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 12px 16px;
+}
+.ti-dist-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+.ti-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+.ti-bar-label {
+    width: 90px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+}
+.ti-bar-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.ti-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s;
+}
+.ti-bar-count {
+    width: 28px;
+    text-align: right;
+    color: var(--text-secondary);
+    font-size: 11px;
+}
+
+/* ── Filters ── */
+.ti-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px 12px;
+}
+.ti-filters select, .ti-filters input {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    padding: 4px 8px;
+    outline: none;
+    height: 28px;
+}
+.ti-filters select:focus, .ti-filters input:focus {
+    border-color: var(--accent-purple);
+    color: var(--text-primary);
+}
+.ti-filters label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-right: 2px;
+}
+.ti-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.ti-btn {
+    background: rgba(139,92,246,0.15);
+    border: 1px solid rgba(139,92,246,0.3);
+    border-radius: 4px;
+    color: #a78bfa;
+    font-size: 12px;
+    padding: 4px 10px;
+    cursor: pointer;
+    height: 28px;
+}
+.ti-btn:hover { background: rgba(139,92,246,0.25); }
+
+/* ── Chips ── */
+.ti-chip {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    color: var(--text-secondary);
+    font-size: 11px;
+    padding: 3px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.ti-chip:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+.ti-chip.ti-chip-active {
+    background: rgba(59,130,246,0.15);
+    border-color: rgba(59,130,246,0.4);
+    color: #93c5fd;
+}
+
+/* ── Quality strip ── */
+.ti-quality-strip {
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding: 5px 0 8px;
+    display: flex;
+    gap: 14px;
+}
+.ti-qs-good { color: #22c55e; }
+.ti-qs-late { color: #f59e0b; }
+.ti-qs-very-late { color: #ef4444; }
+
+/* ── Table ── */
+.ti-table-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+}
+.ti-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.ti-table thead th {
+    background: rgba(0,0,0,0.3);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+}
+.ti-table thead th:hover { color: var(--text-primary); }
+.ti-table thead th.sort-asc::after { content: ' ↑'; color: var(--accent-purple); }
+.ti-table thead th.sort-desc::after { content: ' ↓'; color: var(--accent-purple); }
+.ti-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    cursor: pointer;
+    transition: background 0.1s;
+}
+.ti-table tbody tr:hover { background: rgba(255,255,255,0.04); }
+.ti-table tbody tr.rating-green { background: var(--ti-row-green); }
+.ti-table tbody tr.rating-amber { background: var(--ti-row-amber); }
+.ti-table tbody tr.rating-red { background: var(--ti-row-red); }
+.ti-table tbody tr.row-muted { opacity: 0.45; }
+.ti-table td {
+    padding: 7px 10px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+.ti-table td.td-mono { font-family: 'Monaco','Menlo','Consolas',monospace; font-size: 11px; }
+.ti-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+.ti-badge-live { background: rgba(34,197,94,0.15); color: #22c55e; }
+.ti-badge-done { background: rgba(107,114,128,0.15); color: #9ca3af; }
+.ti-badge-5m { background: rgba(139,92,246,0.2); color: #a78bfa; }
+
+/* ── Detail panel ── */
+.ti-detail {
+    position: fixed;
+    right: 0; top: 0; bottom: 0;
+    width: 420px;
+    background: #0d1117;
+    border-left: 1px solid var(--border-color);
+    z-index: 200;
+    overflow-y: auto;
+    padding: 20px;
+    transform: translateX(100%);
+    transition: transform 0.2s ease;
+}
+.ti-detail.open { transform: translateX(0); }
+.ti-detail-close {
+    position: absolute;
+    top: 14px; right: 16px;
+    background: none; border: none;
+    color: var(--text-secondary);
+    font-size: 18px; cursor: pointer;
+}
+.ti-detail-close:hover { color: var(--text-primary); }
+.ti-detail h3 { font-size: 13px; color: var(--text-primary); margin-bottom: 14px; word-break: break-all; }
+.ti-detail-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.ti-detail-metric {
+    background: rgba(255,255,255,0.03);
+    border-radius: 5px;
+    padding: 8px 10px;
+}
+.ti-detail-metric-val { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.ti-detail-metric-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; margin-top: 2px; }
+.ti-chart-wrap {
+    background: rgba(0,0,0,0.2);
+    border-radius: 5px;
+    height: 140px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+.ti-chart-svg { width: 100%; height: 100%; }
+
+/* ── Loading / empty ── */
+.ti-loading {
+    padding: 40px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+.ti-count {
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 8px 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+@media (max-width: 900px) {
+    .ti-dist-row { grid-template-columns: 1fr; }
+    .ti-detail { width: 100%; }
+}
+{% endblock %}
+
+{% block content %}
+<div style="padding-bottom: 20px;">
+
+    <div class="page-header" style="margin-bottom:14px">
+        <h1>Token Intelligence</h1>
+        <p class="subtitle">Lifecycle outcomes — rugs, runners, peak market cap, timing</p>
+    </div>
+
+    <!-- Summary Bar -->
+    <div class="ti-summary" id="tiSummary">
+        <div class="ti-loading">Loading summary…</div>
+    </div>
+
+    <!-- Distribution Row -->
+    <div class="ti-dist-row" id="tiDists">
+        <div class="ti-dist-panel"><div class="ti-loading" style="padding:20px 0">…</div></div>
+        <div class="ti-dist-panel"><div class="ti-loading" style="padding:20px 0">…</div></div>
+        <div class="ti-dist-panel"><div class="ti-loading" style="padding:20px 0">…</div></div>
+    </div>
+
+    <!-- Quick Filter Chips -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
+        <span style="font-size:11px;color:var(--text-secondary);margin-right:2px">Quick:</span>
+        <button class="ti-chip ti-chip-active" data-chip="all" onclick="applyChip(this,'all','','','')">All</button>
+        <button class="ti-chip" data-chip="classified" onclick="applyChip(this,'all','classified','','')">⚡ Classified</button>
+        <button class="ti-chip" data-chip="rugs" onclick="applyChip(this,'all','rugs','','')">🔴 Rugs</button>
+        <button class="ti-chip" data-chip="runners" onclick="applyChip(this,'all','runners','','')">🟢 Runners</button>
+        <button class="ti-chip" data-chip="5m" onclick="applyChip(this,'all','','5000000','')">💎 5M+</button>
+        <button class="ti-chip" data-chip="good" onclick="applyChip(this,'all','','','good')">✅ Good Tracking</button>
+        <button class="ti-chip" data-chip="active" onclick="applyChip(this,'active','','','')">Live</button>
+        <button class="ti-chip" data-chip="finalized" onclick="applyChip(this,'finalized','','','')">Finalized</button>
+        <label style="margin-left:auto;font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:5px;cursor:pointer">
+            <input type="checkbox" id="fHideLate" onchange="onFilterChange()"> Hide Late
+        </label>
+    </div>
+
+    <!-- Filters -->
+    <div class="ti-filters">
+        <div class="ti-filter-group">
+            <label>Status</label>
+            <select id="fStatus" onchange="onFilterChange()">
+                <option value="all">All</option>
+                <option value="finalized">Finalized</option>
+                <option value="active">Active</option>
+            </select>
+        </div>
+        <div class="ti-filter-group">
+            <label>Category</label>
+            <select id="fCategory" onchange="onFilterChange()">
+                <option value="">All</option>
+                <option value="runner">Runner</option>
+                <option value="choppy_runner">Choppy Runner</option>
+                <option value="faded_runner">Faded Runner</option>
+                <option value="small_runner">Small Runner</option>
+                <option value="rugged_later">Rugged Later</option>
+                <option value="immediate_rug">Immediate Rug</option>
+                <option value="rug">Rug</option>
+                <option value="slow_rug">Slow Rug</option>
+                <option value="unknown">Unknown (legacy)</option>
+            <option disabled>── Sub-states ──</option>
+            <option value="collecting">Collecting</option>
+            <option value="late_start">Late Start</option>
+            <option value="low_peak">Low Peak</option>
+            <option value="unclassified">Unclassified</option>
+            </select>
+        </div>
+        <div class="ti-filter-group">
+            <label>Min Rating</label>
+            <select id="fRating" onchange="onFilterChange()">
+                <option value="">Any</option>
+                <option value="3">3+</option>
+                <option value="5">5+</option>
+                <option value="7">7+</option>
+                <option value="9">9+</option>
+            </select>
+        </div>
+        <div class="ti-filter-group">
+            <label>Min Peak MC</label>
+            <select id="fMinMc" onchange="onFilterChange()">
+                <option value="">Any</option>
+                <option value="25000">$25K+</option>
+                <option value="100000">$100K+</option>
+                <option value="500000">$500K+</option>
+                <option value="1000000">$1M+</option>
+                <option value="5000000">$5M+</option>
+            </select>
+        </div>
+        <div class="ti-filter-group">
+            <label>Max →Peak</label>
+            <select id="fMaxTtp" onchange="onFilterChange()">
+                <option value="">Any</option>
+                <option value="300">5m</option>
+                <option value="600">10m</option>
+                <option value="1800">30m</option>
+                <option value="3600">1h</option>
+            </select>
+        </div>
+        <div class="ti-filter-group">
+            <label>Quality</label>
+            <select id="fQuality" onchange="onFilterChange()">
+                <option value="">Any</option>
+                <option value="good">Good</option>
+                <option value="possibly_late">Possibly Late</option>
+                <option value="likely_late">Likely Late</option>
+            </select>
+        </div>
+        <div class="ti-filter-group">
+            <input id="fSearch" type="text" placeholder="Search mint…" style="width:140px">
+        </div>
+        <button class="ti-btn" onclick="resetFilters()">Reset</button>
+    </div>
+
+    <!-- Quality strip -->
+    <div class="ti-quality-strip" id="tiQualityStrip" style="display:none"></div>
+
+    <!-- Table -->
+    <div class="ti-table-wrap">
+        <table class="ti-table">
+            <thead>
+                <tr>
+                    <th data-col="newest" class="sort-desc">Mint</th>
+                    <th data-col="token_class">Class</th>
+                    <th data-col="outcome">Outcome</th>
+                    <th data-col="rating">Rating</th>
+                    <th data-col="peak_mc">Peak MC</th>
+                    <th data-col="time_to_peak">→Peak</th>
+                    <th data-col="lifetime">Lifetime</th>
+                    <th data-col="snapshots">Snaps</th>
+                    <th data-col="quality">Quality</th>
+                    <th data-col="drop_reason">Drop</th>
+                </tr>
+            </thead>
+            <tbody id="tiTableBody">
+                <tr><td colspan="10" class="ti-loading">Loading…</td></tr>
+            </tbody>
+        </table>
+        <div class="ti-count" id="tiCount"></div>
+    </div>
+
+</div>
+
+<!-- Detail Panel -->
+<div class="ti-detail" id="tiDetail">
+    <button class="ti-detail-close" onclick="closeDetail()">✕</button>
+    <div id="tiDetailContent"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const API = '/api/token-intelligence';
+let _summary = null;
+let _sortCol = 'newest';  // default: newest first
+let _sortAsc = false;
+let _debounceTimer = null;
+let _currentTokens = [];
+
+// ── Formatters ────────────────────────────────────────────────────
+const fmtMc = v => {
+    if (v == null) return null;
+    if (v >= 1e6) return `$${(v/1e6).toFixed(2)}M`;
+    if (v >= 1e3) return `$${(v/1e3).toFixed(0)}K`;
+    return `$${v.toFixed(0)}`;
+};
+const fmtSecs = s => {
+    if (s == null) return null;
+    if (s < 60) return `${s}s`;
+    if (s < 3600) return `${Math.floor(s/60)}m${String(s%60).padStart(2,'0')}s`;
+    return `${Math.floor(s/3600)}h${Math.floor((s%3600)/60)}m`;
+};
+const fmtNum = n => n == null ? '—' : n.toLocaleString();
+const fmtPct = v => v == null ? '—' : `${(v*100).toFixed(1)}%`;
+const ratingColor = r => r >= 7 ? 'var(--ti-green)' : r >= 4 ? 'var(--ti-amber)' : r >= 1 ? 'var(--ti-red)' : 'var(--ti-gray)';
+const WEAK_CATS = new Set(['unknown', 'collecting', 'late_start', 'low_peak', 'unclassified']);
+
+// ── G-class system ────────────────────────────────────────────────
+const G_COLOR = {'G1':'var(--g1)','G2':'var(--g2)','G3':'var(--g3)','G4':'var(--g4)','G5':'var(--g5)','G6':'var(--g6)','G7':'var(--g7)','G?':'var(--gq)'};
+const G_BG    = {'G1':'rgba(245,158,11,0.12)','G2':'rgba(167,139,250,0.12)','G3':'rgba(96,165,250,0.12)',
+                 'G4':'rgba(52,211,153,0.12)','G5':'rgba(134,239,172,0.10)','G6':'rgba(107,114,128,0.08)',
+                 'G7':'rgba(55,65,81,0.06)','G?':'rgba(31,41,55,0.06)'};
+const G_LABEL = {'G1':'G1 ≥5M','G2':'G2 ≥2M','G3':'G3 ≥500K','G4':'G4 ≥300K','G5':'G5 ≥150K','G6':'G6 ≥75K','G7':'G7 <75K','G?':'G?'};
+const G_TOOLTIP = {
+    'G1':'Elite (5M+)',
+    'G2':'Strong (2–5M)',
+    'G3':'High Opportunity (500K–2M)',
+    'G4':'Pre-Runner (300–500K)',
+    'G5':'Mid Tier (150–300K)',
+    'G6':'Weak (75–150K)',
+    'G7':'Low / Noise (<75K)',
+    'G?':'No peak MC data available',
+};
+const gBadge = g => {
+    if (!g) g = 'G?';
+    return `<span style="font-weight:700;font-size:12px;color:${G_COLOR[g]||'var(--gq)'};background:${G_BG[g]||G_BG['G?']};padding:1px 6px;border-radius:3px" title="${G_TOOLTIP[g]||''}">${g}</span>`;
+};
+
+// ── Outcome system ────────────────────────────────────────────────
+const OUTCOME_COLOR = {
+    'Held':          '#22c55e',
+    'Live':          '#22d3ee',
+    'Faded':         '#f59e0b',
+    'Choppy':        '#fb923c',
+    'Crashed Later': '#ef4444',
+    'Immediate Fail':'#7f1d1d',
+    'Collecting':    '#374151',
+};
+const outcomeBadge = o => {
+    const color = OUTCOME_COLOR[o] || '#6b7280';
+    const isWeak = o === 'Collecting' || !o;
+    return `<span style="font-size:10px;font-weight:600;color:${color};${isWeak?'opacity:0.5':''}">${o||'—'}</span>`;
+};
+
+// Row color driven by outcome (not rating for primary color)
+const outcomeRowClass = (o, r) => {
+    if (o === 'Held') return 'rating-green';
+    if (o === 'Immediate Fail' || o === 'Crashed Later') return 'rating-red';
+    if (o === 'Faded' || o === 'Choppy') return 'rating-amber';
+    // Fall back to rating if outcome is neutral
+    if (r >= 7) return 'rating-green';
+    if (r >= 4) return 'rating-amber';
+    if (r != null && r >= 1) return 'rating-red';
+    return '';
+};
+
+const CAT_TOOLTIPS = {
+    runner: 'Strong run, still holding well',
+    faded_runner: 'Strong run then material fade — was tradeable',
+    choppy_runner: 'Large upside, volatile retracements, still alive',
+    small_runner: 'Moderate run (100k-500k peak) — real opportunity',
+    rugged_later: 'Ran to 500k+ peak — real buy opportunity existed — then near-total collapse',
+    immediate_rug: 'Pumped fast then collapsed within minutes (peak < 25k)',
+    rug: 'Pumped then collapsed 90%+ (peak 25k-100k)',
+    slow_rug: 'Gradual bleed lower with no significant upside',
+    collecting: 'Gathering data — too few snapshots',
+    late_start: 'Tracking started after peak — classification unreliable',
+    low_peak: 'Token never developed (return < 1.5x)',
+    unclassified: 'Sufficient data but no pattern matched',
+    unknown: 'Legacy unknown category',
+};
+
+const catShort = c => ({
+    immediate_rug: 'Imm.Rug', rug: 'Rug', slow_rug: 'SlowRug',
+    runner: 'Runner', choppy_runner: 'Choppy', faded_runner: 'Faded',
+    rugged_later: 'Ran+Crashed', small_runner: 'SmRunner',
+    // sub-states
+    collecting: 'Collecting', late_start: 'Late Start',
+    low_peak: 'Low Peak', unclassified: 'Ambiguous',
+    unknown: 'Unknown',
+}[c] || c || '—');
+
+const catColor = c => ({
+    runner: '#22c55e', choppy_runner: '#86efac', faded_runner: '#fbbf24',
+    immediate_rug: '#ef4444', rug: '#f97316', slow_rug: '#fb923c',
+    rugged_later: '#c084fc',   // purple — was tradeable, then collapsed
+    small_runner: '#6ee7b7',   // soft green — modest opportunity
+    // sub-states — all muted
+    collecting: '#374151', late_start: '#4b5563', low_peak: '#374151', unclassified: '#4b5563',
+}[c] || '#374151');
+
+const qualityBadge = q => {
+    if (q === 'good') return `<span style="color:#22c55e;font-size:10px;font-weight:600">✓ good</span>`;
+    if (q === 'possibly_late') return `<span style="color:#f59e0b;font-size:10px">~ late?</span>`;
+    if (q === 'likely_late') return `<span style="color:#ef4444;font-size:10px">⚠ late</span>`;
+    return `<span style="color:#4b5563;font-size:10px">${q || '—'}</span>`;
+};
+
+// ── Quick filter chip state ───────────────────────────────────────
+function applyChip(el, status, category, minMc, quality) {
+    document.querySelectorAll('.ti-chip').forEach(c => c.classList.remove('ti-chip-active'));
+    el.classList.add('ti-chip-active');
+    document.getElementById('fStatus').value = status || 'all';
+    document.getElementById('fCategory').value = category || '';
+    document.getElementById('fMinMc').value = minMc || '';
+    document.getElementById('fQuality').value = quality || '';
+    loadTable();
+}
+
+// ── Summary Bar ───────────────────────────────────────────────────
+async function loadSummary() {
+    try {
+        const d = await fetch(`${API}/summary`).then(r => r.json());
+        _summary = d;
+
+        document.getElementById('tiSummary').innerHTML = [
+            ['Active', fmtNum(d.active_count), ''],
+            ['Finalized', fmtNum(d.finalized_count), ''],
+            ['% Rugs', `${d.pct_rugs ?? 0}%`, d.pct_rugs > 50 ? 'color:var(--ti-red)' : ''],
+            ['% Runners', `${d.pct_runners ?? 0}%`, d.pct_runners > 20 ? 'color:var(--ti-green)' : ''],
+            ['5M+ Tokens', `${d.pct_5m_plus ?? 0}%`, 'color:#a78bfa'],
+            ['Avg Peak MC', fmtMc(d.avg_peak_market_cap) || '—', ''],
+            ['Avg →Peak', fmtSecs(d.avg_time_to_peak_secs) || '—', ''],
+            ['Median Life', fmtSecs(d.median_lifetime_secs) || '—', ''],
+        ].map(([label, val, style]) => `
+            <div class="ti-stat">
+                <div class="ti-stat-val" style="${style}">${val}</div>
+                <div class="ti-stat-label">${label}</div>
+            </div>
+        `).join('');
+
+        renderDists(d);
+    } catch (e) {
+        document.getElementById('tiSummary').innerHTML = `<div style="color:var(--ti-red);font-size:12px">Failed to load summary</div>`;
+    }
+}
+
+function renderDists(d) {
+    const maxCat = Math.max(...Object.values(d.by_category || {}).map(Number), 1);
+    const catColors = { runner:'#22c55e', choppy_runner:'#86efac', faded_runner:'#fbbf24',
+        immediate_rug:'#ef4444', rug:'#f97316', slow_rug:'#fb923c', unknown:'#4b5563' };
+
+    const catPanel = `
+        <div class="ti-dist-title">Category Breakdown</div>
+        ${Object.entries(d.by_category || {}).sort((a,b) => b[1]-a[1]).map(([cat, n]) => `
+            <div class="ti-bar-row">
+                <div class="ti-bar-label" style="color:${catColors[cat]||'#4b5563'}">${catShort(cat)}</div>
+                <div class="ti-bar-track"><div class="ti-bar-fill" style="width:${Math.round(100*n/maxCat)}%;background:${catColors[cat]||'#4b5563'}"></div></div>
+                <div class="ti-bar-count">${n}</div>
+            </div>
+        `).join('')}
+    `;
+
+    const maxR = Math.max(...Object.values(d.rating_distribution || {}).map(Number), 1);
+    const rColors = ['','#ef4444','#ef4444','#ef4444','#f59e0b','#f59e0b','#f59e0b','#22c55e','#22c55e','#22c55e','#22c55e'];
+    const ratingPanel = `
+        <div class="ti-dist-title">Rating Distribution (1–10) — finalized only</div>
+        ${[...Array(10)].map((_,i) => {
+            const r = i+1, n = d.rating_distribution?.[r] || 0;
+            return `<div class="ti-bar-row">
+                <div class="ti-bar-label">${r}</div>
+                <div class="ti-bar-track"><div class="ti-bar-fill" style="width:${n?Math.max(Math.round(100*n/maxR),2):0}%;background:${rColors[r]}"></div></div>
+                <div class="ti-bar-count">${n}</div>
+            </div>`;
+        }).join('')}
+    `;
+
+    const buckets = d.mc_buckets || {};
+    const maxMc = Math.max(...Object.values(buckets).map(Number), 1);
+    const mcPanel = `
+        <div class="ti-dist-title">Peak MC Buckets</div>
+        ${Object.entries(buckets).map(([label, n]) => `
+            <div class="ti-bar-row">
+                <div class="ti-bar-label">${label}</div>
+                <div class="ti-bar-track"><div class="ti-bar-fill" style="width:${n?Math.max(Math.round(100*n/maxMc),2):0}%;background:#8b5cf6"></div></div>
+                <div class="ti-bar-count">${n}</div>
+            </div>
+        `).join('')}
+    `;
+
+    document.getElementById('tiDists').innerHTML = [catPanel, ratingPanel, mcPanel]
+        .map(h => `<div class="ti-dist-panel">${h}</div>`).join('');
+}
+
+// ── Table ─────────────────────────────────────────────────────────
+function buildParams() {
+    const p = new URLSearchParams();
+    const status = document.getElementById('fStatus').value;
+    const cat = document.getElementById('fCategory').value;
+    const rating = document.getElementById('fRating').value;
+    const minMc = document.getElementById('fMinMc').value;
+    const maxTtp = document.getElementById('fMaxTtp').value;
+    const quality = document.getElementById('fQuality').value;
+    const search = document.getElementById('fSearch').value.trim();
+    const hideLate = document.getElementById('fHideLate').checked;
+
+    if (status) p.set('status', status);
+    if (cat) p.set('category', cat);
+    if (rating) p.set('min_rating', rating);
+    if (minMc) p.set('min_peak_mc', minMc);
+    if (maxTtp) p.set('max_ttp', maxTtp);
+    if (quality) p.set('tracking_quality', quality);
+    if (hideLate) p.set('hide_late', '1');
+    if (search) p.set('search', search);
+    p.set('sort', _sortCol);
+    p.set('limit', '200');
+    return p;
+}
+
+async function loadTable() {
+    const body = document.getElementById('tiTableBody');
+    body.innerHTML = `<tr><td colspan="10" class="ti-loading">Loading…</td></tr>`;
+    try {
+        const data = await fetch(`${API}?${buildParams()}`).then(r => r.json());
+        _currentTokens = data.tokens || [];
+        renderTable(_currentTokens);
+
+        // Quality strip
+        const qc = data.quality_counts || {};
+        const total = _currentTokens.length || 1;
+        const strip = document.getElementById('tiQualityStrip');
+        strip.style.display = 'flex';
+        strip.innerHTML = `
+            <span>Data quality:</span>
+            <span class="ti-qs-good">✓ Good ${qc.good || 0} (${Math.round(100*(qc.good||0)/total)}%)</span>
+            <span class="ti-qs-late">~ Possibly late ${qc.possibly_late || 0} (${Math.round(100*(qc.possibly_late||0)/total)}%)</span>
+            <span class="ti-qs-very-late">⚠ Likely late ${qc.likely_late || 0} (${Math.round(100*(qc.likely_late||0)/total)}%)</span>
+        `;
+
+        document.getElementById('tiCount').textContent =
+            `${_currentTokens.length} shown · ${data.total ?? _currentTokens.length} total`;
+    } catch (e) {
+        body.innerHTML = `<tr><td colspan="10" style="color:var(--ti-red);padding:20px;text-align:center">Error: ${e.message}</td></tr>`;
+    }
+}
+
+function renderTable(tokens) {
+    const body = document.getElementById('tiTableBody');
+    if (!tokens.length) {
+        body.innerHTML = `<tr><td colspan="10" class="ti-loading">No tokens match filters</td></tr>`;
+        return;
+    }
+
+    // Build all rows as a single string — no reflows
+    const rows = tokens.map(t => {
+        const r = t.rating;
+        const tc = t.token_class || 'G?';
+        const outcome = t.outcome || '—';
+        const isWeak = tc === 'G?' || tc === 'G5';
+        const rowClass = isWeak && outcome === 'Live' ? 'row-muted' : outcomeRowClass(outcome, r);
+        const mc = t.peak_market_cap_usd;
+        const mcStr = fmtMc(mc);
+        const ttp = t.time_to_peak_secs;
+        const ttpStr = fmtSecs(ttp);
+        const isFast = ttp != null && ttp < 300;
+        const ltStr = fmtSecs(t.lifetime_secs);
+
+        // Rating cell
+        let ratingCell;
+        if (r != null) {
+            ratingCell = `<span style="font-weight:700;color:${ratingColor(r)}">${r}/10</span>`;
+        } else if (t.status === 'active') {
+            ratingCell = `<span style="color:#374151;font-size:10px">—</span>`;
+        } else {
+            ratingCell = `<span style="color:#374151">—</span>`;
+        }
+
+        // MC cell — color matches G-class
+        let mcCell;
+        if (mcStr) {
+            mcCell = `<span style="color:${G_COLOR[tc]||'var(--text-secondary)'};font-weight:${isWeak?'400':'600'}">${mcStr}</span>`;
+        } else {
+            mcCell = `<span style="color:#374151">—</span>`;
+        }
+
+        return `<tr class="${rowClass}" onclick="openDetail('${t.mint}')">
+            <td class="td-mono" style="${isWeak?'opacity:0.55':''}">${t.mint ? t.mint.slice(0,14)+'…' : '—'}</td>
+            <td>${gBadge(tc)}</td>
+            <td>${outcomeBadge(outcome)}</td>
+            <td>${ratingCell}</td>
+            <td>${mcCell}</td>
+            <td style="${isFast?'color:#fbbf24':''}${ttpStr?'':'color:#374151'}">${isFast?'⚡ ':''}${ttpStr||'—'}</td>
+            <td style="${ltStr?'':'color:#374151'}">${ltStr||'—'}</td>
+            <td style="${isWeak?'color:#374151':''}">${t.snapshot_count ?? '—'}</td>
+            <td>${qualityBadge(t.tracking_quality)}</td>
+            <td style="color:#4b5563;font-size:11px">${t.drop_reason||'—'}</td>
+        </tr>`;
+    }).join('');
+    body.innerHTML = rows;
+}
+
+// ── Sort ──────────────────────────────────────────────────────────
+const colToSort = {
+    token_class: 'peak_mc',   // G-class sort = sort by peak MC
+    outcome: 'rating_peak_mc',
+    newest: 'newest', peak_mc: 'peak_mc', time_to_peak: 'time_to_peak', lifetime: 'lifetime',
+    rating: 'rating_peak_mc', snapshots: 'snapshot_count'
+};
+
+document.querySelectorAll('.ti-table thead th[data-col]').forEach(th => {
+    th.addEventListener('click', () => {
+        const col = colToSort[th.dataset.col];
+        if (!col) return;
+        if (_sortCol === col) { _sortAsc = !_sortAsc; }
+        else { _sortCol = col; _sortAsc = col === 'time_to_peak'; }
+        document.querySelectorAll('.ti-table thead th').forEach(h => h.classList.remove('sort-asc','sort-desc'));
+        th.classList.add(_sortAsc ? 'sort-asc' : 'sort-desc');
+        loadTable();
+    });
+});
+
+// Mark initial sort column
+document.querySelector('.ti-table thead th[data-col="newest"]')?.classList.add('sort-desc');
+
+// ── Filter debounce ───────────────────────────────────────────────
+function onFilterChange() {
+    // Clear active chip when manually filtering
+    document.querySelectorAll('.ti-chip').forEach(c => c.classList.remove('ti-chip-active'));
+    clearTimeout(_debounceTimer);
+    _debounceTimer = setTimeout(loadTable, 200);
+}
+document.getElementById('fSearch').addEventListener('input', onFilterChange);
+
+function resetFilters() {
+    ['fStatus','fCategory','fRating','fMinMc','fMaxTtp','fQuality'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('fSearch').value = '';
+    document.getElementById('fHideLate').checked = false;
+    _sortCol = 'newest';
+    document.querySelectorAll('.ti-chip').forEach(c => c.classList.remove('ti-chip-active'));
+    document.querySelector('.ti-chip[data-chip="all"]')?.classList.add('ti-chip-active');
+    loadTable();
+}
+
+// ── Detail Panel ──────────────────────────────────────────────────
+async function openDetail(mint) {
+    const panel = document.getElementById('tiDetail');
+    const content = document.getElementById('tiDetailContent');
+    panel.classList.add('open');
+    content.innerHTML = `<div class="ti-loading" style="margin-top:40px">Loading…</div>`;
+
+    try {
+        const d = await fetch(`${API}/${mint}`).then(r => r.json());
+        const r = d.rating || d.rating_1_to_10;
+        const mc = d.peak_market_cap_usd;
+        const hist = d.history || [];
+
+        const tc = d.token_class || 'G?';
+        const outcome = d.outcome || '—';
+        content.innerHTML = `
+            <h3>${mint}</h3>
+            <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <span class="ti-badge ${d.status==='active'?'ti-badge-live':'ti-badge-done'}">${d.status==='active'?'LIVE':'DONE'}</span>
+                ${gBadge(tc)}
+                ${outcomeBadge(outcome)}
+                ${r != null ? `<span style="color:${ratingColor(r)};font-weight:700;font-size:14px">${r}/10</span>` : ''}
+            </div>
+            <div class="ti-detail-metrics">
+                ${metric('Peak MC', fmtMc(mc) || '—', G_COLOR[tc] || '')}
+                ${metric('→ Peak', fmtSecs(d.time_to_peak_secs) || '—')}
+                ${metric('Lifetime', fmtSecs(d.lifetime_secs) || '—')}
+                ${metric('Return', d.max_return_multiple != null ? `${d.max_return_multiple.toFixed(1)}x` : '—')}
+                ${metric('Drawdown', d.drawdown_from_peak != null ? fmtPct(d.drawdown_from_peak) : '—')}
+                ${metric('Confidence', d.confidence != null ? `${(d.confidence*100).toFixed(0)}%` : '—')}
+                ${metric('Snapshots', fmtNum(d.snapshot_count_final || d.snapshot_count))}
+                ${metric('Quality', d.tracking_quality || '—', d.tracking_quality === 'likely_late' ? 'color:var(--ti-amber)' : '')}
+            </div>
+            ${d.rating_reason ? `<div style="font-size:11px;color:var(--text-secondary);margin-bottom:12px;line-height:1.5">${d.rating_reason}</div>` : ''}
+            ${d.drop_reason ? `<div style="font-size:11px;color:var(--text-secondary);margin-bottom:12px">Drop: <span style="color:var(--text-primary)">${d.drop_reason}</span></div>` : ''}
+            <div class="ti-dist-title" style="margin-bottom:8px">Price History</div>
+            <div class="ti-chart-wrap">${renderSparkline(hist)}</div>
+        `;
+    } catch (e) {
+        content.innerHTML = `<div style="color:var(--ti-red);font-size:12px">Error: ${e.message}</div>`;
+    }
+}
+
+function metric(label, val, style='') {
+    return `<div class="ti-detail-metric">
+        <div class="ti-detail-metric-val" style="${style}">${val}</div>
+        <div class="ti-detail-metric-label">${label}</div>
+    </div>`;
+}
+
+function renderSparkline(hist) {
+    if (!hist.length) return `<div class="ti-loading" style="padding:40px 0">No price history</div>`;
+    const mcs = hist.map(h => h.mc || 0).filter(v => v > 0);
+    if (!mcs.length) return `<div class="ti-loading" style="padding:40px 0">No market cap data</div>`;
+
+    const W = 380, H = 130, pad = 10;
+    const minV = Math.min(...mcs), maxV = Math.max(...mcs);
+    const range = maxV - minV || 1;
+    const pts = mcs.map((v, i) => {
+        const x = pad + (i / Math.max(mcs.length-1,1)) * (W - 2*pad);
+        const y = H - pad - ((v - minV) / range) * (H - 2*pad);
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+
+    return `<svg class="ti-chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+        <defs>
+            <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0"/>
+            </linearGradient>
+        </defs>
+        <polyline points="${pts}" fill="none" stroke="#8b5cf6" stroke-width="1.5"/>
+        <text x="${pad}" y="${H-2}" fill="#6b7280" font-size="9">${fmtMc(minV)}</text>
+        <text x="${pad}" y="12" fill="#6b7280" font-size="9">${fmtMc(maxV)}</text>
+    </svg>`;
+}
+
+function closeDetail() {
+    document.getElementById('tiDetail').classList.remove('open');
+}
+
+// close on escape
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+
+// ── Init ──────────────────────────────────────────────────────────
+loadSummary();
+loadTable();
+</script>
+{% endblock %}

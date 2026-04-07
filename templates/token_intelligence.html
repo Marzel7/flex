@@ -1065,6 +1065,14 @@ function patchTiMc(mint, marketCap, priceUsd) {
             _tiPinStore.patch(mint, 'pool_registered');
             loadTable(); // refresh to get classification data once pool known
 
+        } else if (update.type === 'symbol_resolved') {
+            // Patch symbol in any visible row for this mint
+            const symEl = document.querySelector(`.ti-table tbody tr[data-mint="${mint}"] td:first-child`);
+            if (symEl && update.symbol && update.symbol !== 'UNKNOWN') {
+                // symbol_resolved fires after DB write; next loadTable will pick it up
+                loadTable();
+            }
+
         } else if (update.type === 'price_update') {
             _tiPinStore.patch(mint, 'price_update');
             // Patch live MC in-place — covers both NEW rows and any visible active token

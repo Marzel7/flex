@@ -2533,7 +2533,7 @@
                     </div>
                     <div class="token-links">
                         <a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" title="${token.mint}">Token ↗</a>
-                        <a href="#" onclick="showCreatorDetails('${token.creator}'); return false;" title="${token.creator || ''}">Creator ↗</a>
+                        ${token.creator ? `<a href="#" class="creator-link-btn" onclick="showCreatorDetails('${token.creator}'); return false;" title="${token.creator}">Creator ↗</a>` : ''}
                     </div>
                     ${infraTags}
                 </td>
@@ -2666,6 +2666,19 @@
                             const isMintPrefix = cur.length <= 8 && mint.toUpperCase().startsWith(cur);
                             const isPlaceholder = isMintPrefix || cur === '…' || cur === '';
                             if (isPlaceholder) symEl.textContent = token.symbol;
+                        }
+                        // Patch Creator link if missing and creator is now known
+                        if (token.creator) {
+                            const linksDiv = row.querySelector('.token-links');
+                            if (linksDiv && !linksDiv.querySelector('.creator-link-btn')) {
+                                const a = document.createElement('a');
+                                a.href = '#';
+                                a.className = 'creator-link-btn';
+                                a.title = token.creator;
+                                a.textContent = 'Creator ↗';
+                                a.onclick = (e) => { e.preventDefault(); showCreatorDetails(token.creator); };
+                                linksDiv.appendChild(a);
+                            }
                         }
                     }
                 } else {
@@ -3378,7 +3391,7 @@ function switchToTokensTab() {
                     </div>
                     <div class="token-links">
                         <a href="#" onclick="showTokenMetrics('${mint}'); return false;" title="${mint}">Token ↗</a>
-                        ${creator ? `<a href="#" onclick="showCreatorDetails('${creator}'); return false;" title="${creator}">Creator ↗</a>` : ''}
+                        ${creator ? `<a href="#" class="creator-link-btn" onclick="showCreatorDetails('${creator}'); return false;" title="${creator}">Creator ↗</a>` : ''}
                     </div>
                 </td>
                 <td></td>
@@ -3488,6 +3501,17 @@ function switchToTokensTab() {
                         if (r) r.dataset.poolAddress = update.pool_address || '';
                     }
                     loadTokens();
+                } else if (update.type === 'symbol_resolved') {
+                    const m = update.mint;
+                    const sym = update.symbol;
+                    if (m && sym && sym !== 'UNKNOWN') {
+                        const symEl = document.getElementById(`symbol-${m}`);
+                        if (symEl) {
+                            symEl.textContent = sym;
+                            symEl.title = update.name || sym;
+                            console.log(`[SSE] symbol_resolved mint=${m.slice(0,16)}… symbol=${sym}`);
+                        }
+                    }
                 }
             };
 
@@ -3679,6 +3703,10 @@ function switchToTokensTab() {
         }
 
         async function showCreatorDetails(creatorAddress) {
+            if (!creatorAddress || creatorAddress.length < 30) {
+                alert('Creator address not available for this token yet');
+                return;
+            }
             // Cancel ongoing price fetches to free up bandwidth for modal
             priceLoadController.abort();
             priceLoadController = new AbortController();

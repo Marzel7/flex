@@ -672,16 +672,21 @@ class BackgroundPriceWorker:
         Pool map is cached on the worker and refreshed each cycle — not per-event.
         """
         try:
+            from src.core.ws_price_tracer import trace as _wst
+            _wst('WS_CALLBACK_ENTRY', mint, f"worker_ws_client_id={id(self._ws_client)} cache_size={len(self._pool_map_cache)}")
             pool = self._pool_map_cache.get((mint, base_account))
             if not pool:
+                _wst('WS_CACHE_MISS', mint, f"base={base_account[:16]} cache_size={len(self._pool_map_cache)}")
                 return
 
             base_raw, quote_raw = reserves
             if not base_raw or not quote_raw:
+                _wst('WS_ZERO_RESERVES', mint, f"base={base_raw} quote={quote_raw}")
                 return
 
-            sol_price_usd = self._sol_price_cache.get_price_sync()
+            sol_price_usd = self._sol_price_cache.price  # set each cycle by price loop
             if not sol_price_usd:
+                _wst('WS_NO_SOL_PRICE', mint, f"sol_price_cache.price is None/zero")
                 return
 
             from src.core.pool_price_engine import PoolPriceCalculator, PoolReserveFetcher
@@ -698,8 +703,12 @@ class BackgroundPriceWorker:
                 total_supply=pool.get("token_supply", 0),
             )
             if not token_price:
+                from src.core.ws_price_tracer import trace as _wst
+                _wst('WS_PRICE_COMPUTE_FAIL', mint, f"base={base_raw} quote={quote_raw} sol={sol_price_usd}")
                 return
 
+            from src.core.ws_price_tracer import trace as _wst
+            _wst('WS_PRICE_COMPUTED', mint, f"price=${token_price.price_usd:.8f} source={token_price.source}")
             # Update in-memory cache (no lock needed — dict assignment is atomic in CPython)
             self.price_service.pool_price_cache[mint] = token_price
 
@@ -709,31 +718,31 @@ class BackgroundPriceWorker:
             except Exception:
                 pass  # Queue full — worker cycle will persist on next pass
 
-            # Broadcast to SSE subscribers
+            # Broadcast to SSE subscribers via internal HTTP endpoint
+            # (avoids creating a nested asyncio loop inside the WS thread)
             try:
-                from src.core.price_stream import get_price_stream
-                price_stream = get_price_stream()
-                if price_stream.get_subscriber_count() > 0:
-                    import asyncio as _asyncio
-                    loop = _asyncio.new_event_loop()
-                    try:
-                        loop.run_until_complete(price_stream.broadcast({
-                            "type": "price_update",
-                            "mint": mint,
-                            "price_usd": token_price.price_usd,
-                            "price_sol": token_price.price_sol,
-                            "market_cap": token_price.market_cap,
-                            "liquidity_usd": token_price.liquidity_usd,
-                            "source": token_price.source,
-                            "timestamp": token_price.timestamp,
-                        }))
-                    finally:
-                        loop.close()
+                import requests as _requests
+                _requests.post(
+                    "http://127.0.0.1:5002/api/internal/broadcast",
+                    json={
+                        "type": "price_update",
+                        "mint": mint,
+                        "price_usd": token_price.price_usd,
+                        "price_sol": token_price.price_sol,
+                        "market_cap": token_price.market_cap,
+                        "liquidity_usd": token_price.liquidity_usd,
+                        "source": token_price.source,
+                        "timestamp": token_price.timestamp,
+                    },
+                    timeout=0.5,
+                )
             except Exception:
                 pass
             _log_first_price(mint, token_price.price_usd, token_price.market_cap or 0, token_price.source or "ws_fast_path")
 
         except Exception as e:
+            from src.core.ws_price_tracer import trace as _wst
+            _wst('WS_FAST_PATH_ERROR', mint, f"{type(e).__name__}: {e}")
             logger.debug(f"[WS_FAST_PATH] {mint[:16]}: {e}")
 
     def _start_ws_client(self) -> None:
@@ -748,10 +757,24 @@ class BackgroundPriceWorker:
                 logger.info("[PRICE_WORKER] No pools to subscribe to")
                 return
 
+            # Pre-fetch SOL price so WS fast path has it from first reserve update
+            try:
+                import asyncio as _aio
+                from src.core.pool_price_engine import PoolPriceCalculator as _PPC
+                sol_now = _aio.run(_PPC.fetch_sol_price_usd())
+                if sol_now:
+                    self._sol_price_cache.price = sol_now
+                    self._sol_price_cache.last_update = time.time()
+                    logger.info(f"[PRICE_WORKER] SOL price pre-fetched: ${sol_now:.2f}")
+            except Exception as _e:
+                logger.warning(f"[PRICE_WORKER] SOL price pre-fetch failed: {_e}")
+
             logger.info(f"[PRICE_WORKER] Creating WebSocket client for {len(pools)} pools")
             self._ws_client = __import__('src.core.pool_price_engine', fromlist=['PoolWebSocketClient']).PoolWebSocketClient(
                 self._pool_state, self.db_path, on_dual_update=self._on_ws_reserve_update
             )
+            from src.core.ws_price_tracer import trace as _wst
+            _wst('WS_CLIENT_CREATED', 'system', f"id={id(self._ws_client)}")
 
             logger.info(f"[PRICE_WORKER] Starting WebSocket subscriptions")
             self._ws_client.start(pools)
@@ -1183,6 +1206,9 @@ class BackgroundPriceWorker:
         if sol_price_usd == 0:
             logger.warning("Skipping pool price fetch — SOL price unavailable")
             return
+        # Store in shared cache so WS fast path can use it without a separate fetch
+        self._sol_price_cache.price = sol_price_usd
+        self._sol_price_cache.last_update = time.time()
 
         # Batch-fetch all reserves: now keyed by (mint, base_account)
         reserves = await fetcher.fetch_reserves(pools)
@@ -2096,6 +2122,8 @@ class BackgroundPriceWorker:
                 print(f"[PRICE_WORKER] 🔄 Refreshing WebSocket with {len(pools)} pools (incremental)", flush=True)
                 logger.info(f"[PRICE_WORKER] 🔄 Refreshing WebSocket with {len(pools)} pools (incremental)")
                 self._ws_client.refresh_pools(pools)
+                # Sync pool map cache so WS fast-path doesn't miss new tokens
+                self._pool_map_cache = {(p["mint"], p["base_account"]): p for p in pools}
             else:
                 # Full rebuild: stop old, start new
                 if self._ws_client:

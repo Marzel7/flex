@@ -26,6 +26,7 @@ from src.extractors.funder_incoming_extractor import extract_for_creator as extr
 from src.analysis.clustering_task_queue import enqueue_clustering
 from src.core.fast_candidate_retry import PendingCandidateShortlist, score_candidate
 from src.core.fast_lane_discovery import FastLaneDiscovery
+from src.core.ws_price_tracer import trace as _wstrace
 from dotenv import load_dotenv
 
 class RegisterResult(str, Enum):
@@ -84,6 +85,103 @@ def _broadcast_to_flask(event: dict) -> None:
             log_print(f"[SSE_BROADCAST] → {event.get('type')} subscribers={_json.loads(_resp.read()).get('subscribers', '?')}", flush=True)
     except Exception as _e:
         log_print(f"[SSE_BROADCAST] ⚠️  {event.get('type')} failed: {_e}", flush=True)
+
+
+def _fetch_and_store_symbol(mint: str, db_path: str) -> None:
+    """
+    Background thread: fetch token symbol from Dexscreener and write it to
+    metadata_cache and tracked_tokens.symbol. No-op if already cached.
+    """
+    try:
+        import sqlite3 as _sqlite3, requests as _requests, time as _time
+        # Check metadata_cache first
+        try:
+            _c = _sqlite3.connect(db_path, timeout=3)
+            _row = _c.execute(
+                "SELECT symbol FROM metadata_cache WHERE mint = ?", (mint,)
+            ).fetchone()
+            _c.close()
+            if _row and _row[0] and _row[0] not in ('UNKNOWN', ''):
+                # Already cached — just backfill tracked_tokens if needed
+                _c2 = _sqlite3.connect(db_path, timeout=3)
+                _c2.execute(
+                    "UPDATE tracked_tokens SET symbol = ? WHERE mint = ? AND (symbol IS NULL OR symbol = '')",
+                    (_row[0], mint)
+                )
+                _c2.commit()
+                _c2.close()
+                log_print(f"[SYMBOL_FETCH] ✅ Symbol from cache: {_row[0]} ({mint[:16]}...)", flush=True)
+                return
+        except Exception:
+            pass
+
+        # Fetch from pump.fun first (available immediately at migration)
+        symbol = None
+        name = None
+        try:
+            resp = _requests.get(
+                f"https://frontend-api.pump.fun/coins/{mint}",
+                timeout=5,
+                headers={"Accept": "application/json"}
+            )
+            if resp.status_code == 200:
+                coin = resp.json()
+                symbol = coin.get("symbol") or None
+                name   = coin.get("name") or symbol
+                log_print(f"[SYMBOL_FETCH] pump.fun: {symbol} for {mint[:16]}...", flush=True)
+        except Exception:
+            pass
+
+        # Fallback: Dexscreener
+        if not symbol:
+            try:
+                resp2 = _requests.get(
+                    f"https://api.dexscreener.com/latest/dex/tokens/{mint}",
+                    timeout=8
+                )
+                if resp2.status_code == 200:
+                    pairs = resp2.json().get("pairs") or []
+                    if pairs:
+                        base = pairs[0].get("baseToken", {})
+                        symbol = base.get("symbol") or None
+                        name   = base.get("name") or symbol
+                        log_print(f"[SYMBOL_FETCH] dexscreener: {symbol} for {mint[:16]}...", flush=True)
+            except Exception:
+                pass
+
+        if not symbol:
+            log_print(f"[SYMBOL_FETCH] ⚠️  No symbol found for {mint[:16]}...", flush=True)
+            return
+
+        now = int(_time.time())
+        _c3 = _sqlite3.connect(db_path, timeout=3)
+        _c3.execute(
+            "INSERT OR REPLACE INTO metadata_cache (mint, symbol, name, cached_at, cached_source) VALUES (?, ?, ?, ?, ?)",
+            (mint, symbol, name, now, "dexscreener_listener")
+        )
+        _c3.execute(
+            "UPDATE tracked_tokens SET symbol = ? WHERE mint = ? AND (symbol IS NULL OR symbol = '')",
+            (symbol, mint)
+        )
+        _c3.commit()
+        _c3.close()
+        log_print(f"[SYMBOL_FETCH] ✅ {symbol} ({mint[:16]}...) written to DB", flush=True)
+
+        # Broadcast so the UI can update the symbol without a page reload
+        _broadcast_to_flask({
+            "type": "symbol_resolved",
+            "mint": mint,
+            "symbol": symbol,
+            "name": name,
+        })
+    except Exception as _e:
+        log_print(f"[SYMBOL_FETCH] ⚠️  {mint[:16]}...: {_e}", flush=True)
+
+
+def _spawn_symbol_fetch(mint: str, db_path: str) -> None:
+    """Fire-and-forget thread to fetch + store token symbol."""
+    import threading as _t
+    _t.Thread(target=_fetch_and_store_symbol, args=(mint, db_path), daemon=True).start()
 
 
 def _write_migration_log(line: str) -> None:
@@ -716,6 +814,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         except Exception as e:
             log_print(f"[TELEMETRY] ⚠️  Failed to write telemetry for {mint}: {e}", flush=True)
+
+        # Fire-and-forget symbol fetch for every resolved token (covers all resolution paths)
+        _spawn_symbol_fetch(mint, DB_PATH)
 
     async def __internal_rpc(self, payload: dict, timeout: int = 10, priority: str = "critical") -> Optional[dict]:
         """
@@ -2165,6 +2266,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             self.price_stats['dexscreener_fallback'] += 1
             fallback_rate = self.price_stats['dexscreener_fallback'] / (self.price_stats['onchain_success'] + self.price_stats['dexscreener_fallback'])
             log_print(f"[PRICE_FALLBACK] mint={token_mint[:16]}... reason=onchain_failed (fallback_rate={fallback_rate:.2%})", flush=True)
+            _wstrace('ONCHAIN_FAILED', token_mint, f"fallback_rate={fallback_rate:.2%}")
             result = await self._fetch_dexscreener_price(token_mint)
             if result is not None:
                 price, market_cap = result
@@ -2787,12 +2889,16 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         # Parse created_at timestamp
                         if isinstance(created_at, str):
                             created_dt = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                        elif isinstance(created_at, (int, float)):
+                            created_dt = datetime.utcfromtimestamp(created_at)
                         else:
                             created_dt = created_at
-                        
+
                         # Parse peak timestamp
                         if isinstance(market_cap_highest_at, str):
                             peak_dt = datetime.fromisoformat(market_cap_highest_at.replace('Z', '+00:00'))
+                        elif isinstance(market_cap_highest_at, (int, float)):
+                            peak_dt = datetime.utcfromtimestamp(market_cap_highest_at)
                         else:
                             peak_dt = market_cap_highest_at
                         
@@ -3058,6 +3164,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 f"{Colors.DETECT}[FAST_PATH_REGISTER] ✅ Pool {pool_address[:16]}... registered (resolved in {elapsed:.1f}s){Colors.RESET}",
                 flush=True
             )
+            _wstrace('POOL_REGISTERED', mint, f"pool={pool_address[:20]} elapsed={elapsed:.1f}s")
 
             # Write pool_address to token_analysis so _get_pool_address can find it for price extraction
             try:
@@ -3093,6 +3200,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 from src.core.price_worker import PriceWorkerRegistry
                 PriceWorkerRegistry(DB_PATH).register_token(mint, priority_level='HIGH')
                 log_print(f"[FAST_PATH_REGISTER] 📈 Registered {mint[:16]}... for price tracking (HIGH priority)", flush=True)
+                _spawn_symbol_fetch(mint, DB_PATH)
             except Exception as _e:
                 log_print(f"[FAST_PATH_REGISTER] ⚠️  Price tracking registration failed: {_e}", flush=True)
 
@@ -3147,6 +3255,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             self.seen_mints.add(mint)
             log_print(f"[EVENT] 🚀 MIGRATION DETECTED: {mint}", flush=True)
             log_print(f"[EVENT] Migration signature: {signature}", flush=True)
+            _wstrace('MIGRATION_DETECTED', mint, f"sig={signature[:20]}")
 
             # === PHASE 2: Start critical window for RPC isolation ===
             # Discovery RPC calls use 8 concurrent slots, background jobs use only 2
@@ -3160,6 +3269,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 from src.core.price_worker import PriceWorkerRegistry
                 PriceWorkerRegistry(DB_PATH).register_token(mint, priority_level='HIGH')
                 log_print(f"[MIGRATION] 📈 Registered {mint[:16]}... for price tracking (HIGH priority)", flush=True)
+                _spawn_symbol_fetch(mint, DB_PATH)
             except Exception as _reg_err:
                 log_print(f"[MIGRATION] ⚠️  Price tracking registration skipped: {_reg_err}", flush=True)
 
@@ -3176,11 +3286,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             if price and price.source != 'unavailable' and price.price_usd > 0:
                                 worker._on_price_fetched(mint, price)
                                 log_print(f"[FAST_PRICE] ✅ {mint[:16]}... first price ${price.price_usd:.8f} (source={price.source})", flush=True)
+                                _wstrace('FAST_LANE_PRICE', mint, f"price=${price.price_usd:.8f} source={price.source}")
                                 return
                         except Exception:
                             pass
                         time.sleep(interval)
                     log_print(f"[FAST_PRICE] ⏱ {mint[:16]}... gave up after 60s", flush=True)
+                    _wstrace('FAST_LANE_TIMEOUT', mint, "no price after 60s")
                 except Exception as _e:
                     log_print(f"[FAST_PRICE] ⚠️  fast-lane failed: {_e}", flush=True)
 
@@ -3449,6 +3561,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     tx_data=tx_data,
                     max_wait_secs=5.0  # Inline retry: shorter than primary but still covers mid-range visibility lag
                 )
+                # Unwrap rich object: fast_lane_resolve_with_retries may return {"address": ..., ...}
+                if isinstance(candidate, dict):
+                    candidate = candidate.get("address") or None
                 _inline_failed = self._failed_registration.get(mint, set())
                 if candidate and candidate not in _inline_failed:
                     pool_address = candidate
@@ -4158,6 +4273,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             # 🔥 ORCHESTRATION: extract → validate → select (FAST-LANE OPTIMIZED)
                             log_print(f"🔴 [PRE_RESOLVE] Calling fast_lane_resolve_with_retries with tx_data={tx_data is not None}", flush=True)
                             pool = await self.fast_lane_resolve_with_retries(mint=mint, tx_data=tx_data, max_wait_secs=10.0)
+                            if isinstance(pool, dict):
+                                pool = pool.get("address") or None
                             if pool:
                                 log_print(f"[POOL_RESOLVED] ✅ Found valid pool via cached TX: {pool[:16]}...", flush=True)
                                 pool_candidates = [pool]

@@ -19,6 +19,7 @@ from typing import Dict, List, Optional, Tuple
 from .price_service import TokenPrice
 from src.metrics.rpc_metrics_recorder import record_request
 from src.core.ws_snapshot_logger import ws_log
+from src.core.ws_price_tracer import trace as _wstrace
 
 logger = logging.getLogger(__name__)
 
@@ -440,6 +441,7 @@ class PoolStateStore:
             if has_base and has_quote and not was_ready:
                 print(f"[POOL_STATE] ✅ READY: {mint[:8]}... (base={self._state[pool_id]['base_reserve']}, quote={self._state[pool_id]['quote_reserve']})", flush=True)
                 self._state[pool_id]["was_ready"] = True
+                _wstrace('POOL_STATE_READY', mint, f"base={self._state[pool_id]['base_reserve']} quote={self._state[pool_id]['quote_reserve']}")
 
             return True
 
@@ -660,6 +662,11 @@ class PoolWebSocketClient:
         self._running = False
         self._sub_id_to_account: Dict[int, str] = {}  # subscription_id -> pubkey
         self._account_to_pools: Dict[str, List[Dict]] = {}  # pubkey -> list of pool dicts (handles shared accounts)
+        self._subscribed_accounts: set = set()  # accounts actually subscribed on live WS
+        self._pending_subscribe: asyncio.Queue = None  # incremental subscribe queue (set when loop starts)
+        self._ws_ref = None  # live websocket reference for incremental subscribes
+        self._next_req_id: int = 100000  # monotonic counter for incremental subscribe req IDs
+        self._pending_req_to_pubkey: Dict[int, str] = {}  # req_id -> pubkey awaiting confirmation
         self._last_event_received = time.time()
         self._on_dual_update = on_dual_update  # Callback when both reserves updated
         self.stats = {
@@ -716,13 +723,26 @@ class PoolWebSocketClient:
         if to_remove:
             ws_log.debug(f"[WS_REFRESH] accounts_removed={sorted(to_remove)}")
 
-        if to_add or to_remove:
-            ws_log.info(f"[WS_RECONNECT] triggering reconnect to apply diff (+{len(to_add)} -{len(to_remove)})")
+        if to_add:
+            # Incremental subscribe: enqueue new accounts for the live WS loop to send
+            if self._loop and self._loop.is_running() and self._pending_subscribe is not None and self._ws_ref is not None:
+                ws_log.info(f"[WS_SUBSCRIBE] +{len(to_add)} new accounts (incremental)")
+                for acct in to_add:
+                    # Find which mint owns this vault account for tracing
+                    pools_for_acct = self._account_to_pools.get(acct, [])
+                    mint_for_trace = pools_for_acct[0].get('mint', 'unknown') if pools_for_acct else 'unknown'
+                    _wstrace('WS_SUBSCRIBE_QUEUED', mint_for_trace, f"vault={acct[:20]}")
+                    self._loop.call_soon_threadsafe(self._pending_subscribe.put_nowait, acct)
+            else:
+                # WS not connected yet — accounts now in _account_to_pools, will be picked up on next connect
+                ws_log.info(f"[WS_RECONNECT] WS not ready — {len(to_add)} new accounts will subscribe on next connect")
+
+        if to_remove:
+            ws_log.info(f"[WS_RECONNECT] triggering reconnect to remove {len(to_remove)} accounts")
             if self._loop and self._loop.is_running():
                 self._loop.call_soon_threadsafe(self._loop.stop)
                 ws_log.debug("[WS_RECONNECT] applied via async loop stop")
             else:
-                # Loop is between reconnect attempts or not yet started — restart thread
                 ws_log.info("[WS_RECONNECT] loop not running — restarting thread to apply diff")
                 self._running = False
                 if self._thread and self._thread.is_alive():
@@ -778,6 +798,8 @@ class PoolWebSocketClient:
         """Outer reconnect loop with exponential backoff."""
         reconnect_delay = 5
         ws = None
+        self._pending_subscribe = asyncio.Queue()
+        self._subscribed_accounts = set()
         try:
             while self._running:
                 try:
@@ -789,11 +811,14 @@ class PoolWebSocketClient:
                     ) as ws:
                         reconnect_delay = 5  # reset on success
                         self.stats["connected"] = True
+                        self._ws_ref = ws
                         ws_log.info(f"[WS_CONNECT] connected reconnects={self.stats['reconnects']}")
                         logger.info("Pool WebSocket connected")
                         await self._subscribe_all(ws)
                         await self._receive_loop(ws)
                 except Exception as e:
+                    self._ws_ref = None
+                    self._subscribed_accounts = set()
                     ws_log.warning(f"[WS_DISCONNECT] {type(e).__name__}: {e} reconnects={self.stats['reconnects']}")
                     logger.warning(f"Pool WebSocket disconnected: {e}")
                     self.stats["connected"] = False
@@ -807,6 +832,7 @@ class PoolWebSocketClient:
     async def _subscribe_all(self, ws) -> None:
         """Send accountSubscribe for each tracked pool account."""
         self._sub_id_to_account = {}
+        self._subscribed_accounts = set()
         req_id = 1
         pubkeys_list = list(self._account_to_pools.keys())
         ws_log.info(f"[WS_SUBSCRIBE] subscribing to {len(pubkeys_list)} accounts")
@@ -857,6 +883,7 @@ class PoolWebSocketClient:
                 await asyncio.sleep(2)
 
         self.stats["subscriptions"] = len(self._sub_id_to_account)
+        self._subscribed_accounts = set(self._sub_id_to_account.values())
         print(f"[POOL_WS] ✅ Subscribed to {confirmed}/{needed} pool accounts", flush=True)
         logger.info(f"Pool WS subscribed to {confirmed}/{needed} accounts ({len(self._sub_id_to_account)} subscription IDs mapped)")
 
@@ -864,12 +891,38 @@ class PoolWebSocketClient:
             unconfirmed_ids = [req_id for req_id in req_to_pubkey.keys() if req_to_pubkey[req_id] not in [v for v in self._sub_id_to_account.values()]]
             logger.warning(f"[POOL_WS] ⚠️  {len(unconfirmed_ids)} subscriptions failed to confirm (request IDs: {unconfirmed_ids[:10]}...)")
 
+    async def _send_incremental_subscribe(self, ws, pubkey: str) -> None:
+        """Fire-and-forget accountSubscribe for a newly registered vault.
+        Confirmation is handled in _handle_message via _pending_req_to_pubkey."""
+        self._next_req_id += 1
+        req_id = self._next_req_id
+        self._pending_req_to_pubkey[req_id] = pubkey
+        msg = {
+            "jsonrpc": "2.0",
+            "id": req_id,
+            "method": "accountSubscribe",
+            "params": [pubkey, {"encoding": "base64", "commitment": "confirmed"}],
+        }
+        await ws.send(json.dumps(msg))
+        ws_log.info(f"[WS_SUBSCRIBE] sent incremental subscribe req_id={req_id} pubkey={pubkey[:16]}...")
+        pools_for_acct = self._account_to_pools.get(pubkey, [])
+        mint_for_trace = pools_for_acct[0].get('mint', 'unknown') if pools_for_acct else 'unknown'
+        _wstrace('WS_SUBSCRIBE_SENT', mint_for_trace, f"vault={pubkey[:20]} req_id={req_id}")
+
     async def _receive_loop(self, ws) -> None:
         """Process incoming account notification events."""
         print(f"[POOL_WS] 🔄 _receive_loop started, waiting for account notifications...", flush=True)
         message_count = 0
         no_message_timeout = 0
         while self._running:
+            # Drain incremental subscribe queue before waiting for messages
+            while self._pending_subscribe is not None and not self._pending_subscribe.empty():
+                try:
+                    pubkey = self._pending_subscribe.get_nowait()
+                    if pubkey not in self._subscribed_accounts:
+                        await self._send_incremental_subscribe(ws, pubkey)
+                except asyncio.QueueEmpty:
+                    break
             try:
                 raw = await asyncio.wait_for(ws.recv(), timeout=60)
                 no_message_timeout = 0  # Reset on any message
@@ -889,6 +942,22 @@ class PoolWebSocketClient:
         """Parse accountNotification and update PoolStateStore. Deduplicates by slot."""
         try:
             msg = json.loads(raw)
+            # Handle incremental subscribe confirmations
+            if "id" in msg and "result" in msg and isinstance(msg["result"], int):
+                req_id = msg["id"]
+                pending = self._pending_req_to_pubkey
+                if req_id in pending:
+                    pubkey = pending.pop(req_id)
+                    sub_id = msg["result"]
+                    self._sub_id_to_account[sub_id] = pubkey
+                    self._subscribed_accounts.add(pubkey)
+                    self.stats["subscriptions"] = len(self._sub_id_to_account)
+                    print(f"[WS_SUBSCRIBE] account={pubkey[:16]}... confirmed (sub_id={sub_id})", flush=True)
+                    ws_log.info(f"[WS_SUBSCRIBE] incremental subscribe confirmed: {pubkey[:16]}... sub_id={sub_id}")
+                    pools_for_acct = self._account_to_pools.get(pubkey, [])
+                    mint_for_trace = pools_for_acct[0].get('mint', 'unknown') if pools_for_acct else 'unknown'
+                    _wstrace('WS_SUBSCRIBE_CONFIRMED', mint_for_trace, f"vault={pubkey[:20]} sub_id={sub_id}")
+                return
             if msg.get("method") != "accountNotification":
                 return
 
@@ -955,6 +1024,7 @@ class PoolWebSocketClient:
                     self.stats["events_deduplicated"] += 1
                     continue
 
+                _wstrace('RESERVE_UPDATE', mint, f"vault={pubkey[:20]} type={account_type} balance={balance}")
                 self.stats["events_decoded"] += 1
                 self.stats["last_event_at"] = time.time()
 
@@ -967,9 +1037,15 @@ class PoolWebSocketClient:
                 reserves = self._store.get_reserves(mint, pool["base_account"])
                 if reserves and self._on_dual_update:
                     try:
+                        from src.core.ws_price_tracer import trace as _wst2
+                        _wst2('DUAL_UPDATE_FIRING', mint, f"client_id={id(self)}")
                         self._on_dual_update(mint, pool["base_account"], reserves)
                     except Exception as e:
+                        _wst2('DUAL_UPDATE_ERROR', mint, f"{type(e).__name__}: {e}")
                         logger.debug(f"Error in dual-update callback: {e}")
+                elif not reserves and self._on_dual_update:
+                    from src.core.ws_price_tracer import trace as _wst2
+                    _wst2('DUAL_UPDATE_NO_RESERVES', mint, f"get_reserves returned None after update")
 
         except Exception as e:
             logger.debug(f"Pool WS message parse error: {e}")

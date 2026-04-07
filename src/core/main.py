@@ -3967,12 +3967,13 @@ HTML_TEMPLATE = """
                             // Create creator element - ALWAYS show creator address (either label or address)
                             // The creator address is essential for accessing the creator modal
                             let creatorElement;
-                            if (creatorIsLabeled && displayName && !displayName.match(/^[1-9A-HJ-NP-Z]{32,}$/)) {
+                            if (!token.creator) {
+                                creatorElement = `<span class="mint-link" style="opacity:0.4">N/A</span>`;
+                            } else if (creatorIsLabeled && displayName && !displayName.match(/^[1-9A-HJ-NP-Z]{32,}$/)) {
                                 // Creator itself is labeled (CEX/Infrastructure) - show label name with clickable link to details
                                 creatorElement = `<a href="#" onclick="showCreatorDetails('${token.creator}'); return false;" class="mint-link creator-address-link" title="Creator: ${creatorTitle}">${displayName}</a>`;
                             } else {
                                 // No direct label on creator - always show creator address so user can click to modal
-                                // This is required even if there are tags or labeled funders
                                 creatorElement = `<a href="#" onclick="showCreatorDetails('${token.creator}'); return false;" class="mint-link creator-address-link" title="Creator: ${creatorTitle}">${creatorShort}</a>`;
                             }
 
@@ -4853,6 +4854,10 @@ function switchToTokensTab() {
         }
 
         async function showCreatorDetails(creatorAddress) {
+            if (!creatorAddress || creatorAddress.length < 30) {
+                alert('Creator address not available for this token yet');
+                return;
+            }
             // Cancel ongoing price fetches to free up bandwidth for modal
             priceLoadController.abort();
             priceLoadController = new AbortController();

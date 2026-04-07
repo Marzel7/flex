@@ -1640,6 +1640,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 return [], {}
 
             PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+            # Vault token accounts are owned by SPL Token or Token-2022 — accept both
+            ALLOWED_POOL_OWNERS = {
+                PUMPSWAP_PROGRAM,
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # SPL Token
+                "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",  # Token-2022
+            }
             values = result.get("result", {}).get("value", [])
 
             log_print(f"[BATCH_VALIDATE_REASONS] Validating {len(candidates)} candidates (strict_mode={strict_mode})", flush=True)
@@ -1657,9 +1663,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     rejections[addr] = reason
                     continue
 
-                # Check 2: Owner must be PUMPSWAP program
+                # Check 2: Owner must be PumpSwap pool program or a token vault program (SPL/Token-2022)
                 owner = acc.get("owner")
-                if owner != PUMPSWAP_PROGRAM:
+                if owner not in ALLOWED_POOL_OWNERS:
                     reason = "wrong_owner"
                     log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason={reason} owner={owner[:16] if owner else 'null'}...", flush=True)
                     rejections[addr] = reason
@@ -1730,6 +1736,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 return []
 
             PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+            # Vault token accounts are owned by SPL Token or Token-2022 — accept both
+            ALLOWED_POOL_OWNERS = {
+                PUMPSWAP_PROGRAM,
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # SPL Token
+                "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",  # Token-2022
+            }
             values = result.get("result", {}).get("value", [])
 
             log_print(f"[BATCH_VALIDATE] Validating {len(candidates)} candidates (strict_mode={strict_mode})", flush=True)
@@ -1743,9 +1755,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=account_not_found", flush=True)
                     continue
 
-                # Check 2: Owner must be PUMPSWAP program
+                # Check 2: Owner must be PumpSwap pool program or a token vault program (SPL/Token-2022)
                 owner = acc.get("owner")
-                if owner != PUMPSWAP_PROGRAM:
+                if owner not in ALLOWED_POOL_OWNERS:
                     log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=wrong_owner owner={owner[:16] if owner else 'null'}...", flush=True)
                     continue
 

@@ -222,6 +222,9 @@
 .ti-table tbody tr.rating-amber { background: var(--ti-row-amber); }
 .ti-table tbody tr.rating-red { background: var(--ti-row-red); }
 .ti-table tbody tr.row-muted { opacity: 0.45; }
+.ti-table tbody tr.row-new-pin { background: rgba(74,222,128,0.06); }
+.ti-table tbody tr.row-new-pin:hover { background: rgba(74,222,128,0.10); }
+.badge-new { display:inline-block; font-size:9px; font-weight:700; letter-spacing:0.05em; padding:1px 4px; border-radius:3px; background:rgba(74,222,128,0.18); color:#4ade80; border:1px solid rgba(74,222,128,0.35); vertical-align:middle; line-height:1.4; }
 .ti-table td {
     padding: 7px 10px;
     color: var(--text-secondary);
@@ -499,7 +502,7 @@ const G_TOOLTIP = {
 };
 const gBadge = g => {
     if (!g) g = 'G?';
-    return `<span style="font-weight:700;font-size:12px;color:${G_COLOR[g]||'var(--gq)'};background:${G_BG[g]||G_BG['G?']};padding:1px 6px;border-radius:3px" title="${G_TOOLTIP[g]||''}">${g}</span>`;
+    return `<span class="ti-g-badge" data-tc="${g}" style="font-weight:700;font-size:12px;color:${G_COLOR[g]||'var(--gq)'};background:${G_BG[g]||G_BG['G?']};padding:1px 6px;border-radius:3px" title="${G_TOOLTIP[g]||''}">${g}</span>`;
 };
 
 // ── Outcome system ────────────────────────────────────────────────
@@ -679,7 +682,7 @@ function buildParams() {
     if (hideLate) p.set('hide_late', '1');
     if (search) p.set('search', search);
     p.set('sort', _sortCol);
-    p.set('limit', '200');
+    p.set('limit', '1000');
     return p;
 }
 
@@ -708,61 +711,6 @@ async function loadTable() {
     } catch (e) {
         body.innerHTML = `<tr><td colspan="10" style="color:var(--ti-red);padding:20px;text-align:center">Error: ${e.message}</td></tr>`;
     }
-}
-
-function renderTable(tokens) {
-    const body = document.getElementById('tiTableBody');
-    if (!tokens.length) {
-        body.innerHTML = `<tr><td colspan="10" class="ti-loading">No tokens match filters</td></tr>`;
-        return;
-    }
-
-    // Build all rows as a single string — no reflows
-    const rows = tokens.map(t => {
-        const r = t.rating;
-        const tc = t.token_class || 'G?';
-        const outcome = t.outcome || '—';
-        const isWeak = tc === 'G?' || tc === 'G5';
-        const rowClass = isWeak && outcome === 'Live' ? 'row-muted' : outcomeRowClass(outcome, r);
-        const mc = t.peak_market_cap_usd;
-        const mcStr = fmtMc(mc);
-        const ttp = t.time_to_peak_secs;
-        const ttpStr = fmtSecs(ttp);
-        const isFast = ttp != null && ttp < 300;
-        const ltStr = fmtSecs(t.lifetime_secs);
-
-        // Rating cell
-        let ratingCell;
-        if (r != null) {
-            ratingCell = `<span style="font-weight:700;color:${ratingColor(r)}">${r}/10</span>`;
-        } else if (t.status === 'active') {
-            ratingCell = `<span style="color:#374151;font-size:10px">—</span>`;
-        } else {
-            ratingCell = `<span style="color:#374151">—</span>`;
-        }
-
-        // MC cell — color matches G-class
-        let mcCell;
-        if (mcStr) {
-            mcCell = `<span style="color:${G_COLOR[tc]||'var(--text-secondary)'};font-weight:${isWeak?'400':'600'}">${mcStr}</span>`;
-        } else {
-            mcCell = `<span style="color:#374151">—</span>`;
-        }
-
-        return `<tr class="${rowClass}" onclick="openDetail('${t.mint}')">
-            <td class="td-mono" style="${isWeak?'opacity:0.55':''}">${t.mint ? t.mint.slice(0,14)+'…' : '—'}</td>
-            <td>${gBadge(tc)}</td>
-            <td>${outcomeBadge(outcome)}</td>
-            <td>${ratingCell}</td>
-            <td>${mcCell}</td>
-            <td style="${isFast?'color:#fbbf24':''}${ttpStr?'':'color:#374151'}">${isFast?'⚡ ':''}${ttpStr||'—'}</td>
-            <td style="${ltStr?'':'color:#374151'}">${ltStr||'—'}</td>
-            <td style="${isWeak?'color:#374151':''}">${t.snapshot_count ?? '—'}</td>
-            <td>${qualityBadge(t.tracking_quality)}</td>
-            <td style="color:#4b5563;font-size:11px">${t.drop_reason||'—'}</td>
-        </tr>`;
-    }).join('');
-    body.innerHTML = rows;
 }
 
 // ── Sort ──────────────────────────────────────────────────────────
@@ -892,6 +840,240 @@ function closeDetail() {
 
 // close on escape
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+
+// ── NEW-token pin store (shared sessionStorage key with dashboard) ─
+const NEW_TOKEN_TIMEOUT_MS = 120_000;
+
+const _tiPinStore = (() => {
+    const KEY = 'flex_new_pins';
+    let store = {};
+    try { store = JSON.parse(sessionStorage.getItem(KEY) || '{}'); } catch (_) {}
+    function _save() { try { sessionStorage.setItem(KEY, JSON.stringify(store)); } catch (_) {} }
+    const now = () => Date.now();
+    return {
+        pin(mint, detectedAtMs) {
+            const newUntil = detectedAtMs + NEW_TOKEN_TIMEOUT_MS;
+            store[mint] = { newUntil, detectedAt: detectedAtMs };
+            _save();
+            console.log(`[NEW_TOKEN][TI] inserted mint=${mint.slice(0,16)}… newUntil=${new Date(newUntil).toISOString()}`);
+        },
+        patch(mint, source) {
+            if (store[mint]) console.log(`[NEW_TOKEN][TI] patched mint=${mint.slice(0,16)}… source=${source}`);
+        },
+        isNew(mint) { const e = store[mint]; return !!(e && now() < e.newUntil); },
+        newUntil(mint) { return store[mint]?.newUntil ?? 0; },
+        expire(mint) {
+            if (store[mint]) {
+                console.log(`[NEW_TOKEN][TI] expired mint=${mint.slice(0,16)}…`);
+                delete store[mint];
+                _save();
+            }
+        },
+        prune() { Object.keys(store).forEach(m => { if (store[m].newUntil <= now()) this.expire(m); }); },
+        all() { return store; },
+    };
+})();
+
+// Wrap renderTable to inject pin-sorted pinned rows and protect them
+function renderTable(tokens) {
+    _tiPinStore.prune();
+
+    // Preserve pinned mints not in the fetched list
+    const mintSet = new Set(tokens.map(t => t.mint));
+    const extras = [];
+    Object.entries(_tiPinStore.all()).forEach(([mint, pin]) => {
+        if (!mintSet.has(mint)) {
+            console.log(`[NEW_TOKEN][TI] preserved mint=${mint.slice(0,16)}… reason=below_live_mc_threshold`);
+            extras.push({ mint, _pinned: true, token_class: 'G?', outcome: 'Live', status: 'active',
+                          peak_market_cap_usd: null, time_to_peak_secs: null, lifetime_secs: null,
+                          snapshot_count: null, tracking_quality: null, drop_reason: null, rating: null });
+        }
+    });
+
+    const all = [...tokens, ...extras];
+    const pinned = all.filter(t => _tiPinStore.isNew(t.mint));
+    const rest   = all.filter(t => !_tiPinStore.isNew(t.mint));
+    pinned.sort((a, b) => _tiPinStore.newUntil(b.mint) - _tiPinStore.newUntil(a.mint));
+    const sorted = [...pinned, ...rest];
+    console.log(`[NEW_TOKEN][TI] sorted pinned_count=${pinned.length} total=${sorted.length}`);
+
+    // Schedule expiry for each pinned row
+    pinned.forEach(t => {
+        const msLeft = _tiPinStore.newUntil(t.mint) - Date.now();
+        if (msLeft <= 0) {
+            _tiPinStore.expire(t.mint);
+            console.log(`[NEW_TOKEN][TI] pruned mint=${t.mint.slice(0,16)}… reason=timeout_expired`);
+            return;
+        }
+        setTimeout(() => {
+            _tiPinStore.expire(t.mint);
+            console.log(`[NEW_TOKEN][TI] pruned mint=${t.mint.slice(0,16)}… reason=timeout_expired`);
+            const row = document.querySelector(`.ti-table tbody tr[data-mint="${t.mint}"]`);
+            if (row) { row.querySelector('.badge-new')?.remove(); }
+            loadTable(); // re-sort after expiry
+        }, msLeft);
+    });
+
+    if (!sorted.length) {
+        document.getElementById('tiTableBody').innerHTML =
+            `<tr><td colspan="10" class="ti-loading">No tokens match filters</td></tr>`;
+        return;
+    }
+
+    const rows = sorted.map(t => {
+        const isPin = _tiPinStore.isNew(t.mint);
+        const r = t.rating;
+        const tc = t.token_class || 'G?';
+        const outcome = t.outcome || '—';
+        const isWeak = tc === 'G?' || tc === 'G5';
+        const rowClass = (isPin ? 'row-new-pin ' : '') +
+            (isWeak && outcome === 'Live' ? 'row-muted' : outcomeRowClass(outcome, r));
+        const mc = t.peak_market_cap_usd;
+        const mcStr = fmtMc(mc);
+        const ttp = t.time_to_peak_secs;
+        const ttpStr = fmtSecs(ttp);
+        const isFast = ttp != null && ttp < 300;
+        const ltStr = fmtSecs(t.lifetime_secs);
+
+        let ratingCell;
+        if (r != null) {
+            ratingCell = `<span style="font-weight:700;color:${ratingColor(r)}">${r}/10</span>`;
+        } else if (t.status === 'active') {
+            ratingCell = `<span style="color:#374151;font-size:10px">—</span>`;
+        } else {
+            ratingCell = `<span style="color:#374151">—</span>`;
+        }
+
+        let mcCell;
+        if (mcStr) {
+            mcCell = `<span style="color:${G_COLOR[tc]||'var(--text-secondary)'};font-weight:${isWeak?'400':'600'}">${mcStr}</span>`;
+        } else {
+            mcCell = `<span style="color:#374151">—</span>`;
+        }
+
+        const newBadge = isPin ? `<span class="badge-new" style="margin-left:5px">NEW</span>` : '';
+        return `<tr class="${rowClass}" data-mint="${t.mint}" onclick="openDetail('${t.mint}')">
+            <td class="td-mono" style="${isWeak&&!isPin?'opacity:0.55':''}">${t.mint ? t.mint.slice(0,14)+'…' : '—'}${newBadge}</td>
+            <td>${gBadge(tc)}</td>
+            <td>${outcomeBadge(outcome)}</td>
+            <td>${ratingCell}</td>
+            <td id="ti-mc-${t.mint}">${mcCell}</td>
+            <td style="${isFast?'color:#fbbf24':''}${ttpStr?'':'color:#374151'}">${isFast?'⚡ ':''}${ttpStr||'—'}</td>
+            <td style="${ltStr?'':'color:#374151'}">${ltStr||'—'}</td>
+            <td style="${isWeak&&!isPin?'color:#374151':''}">${t.snapshot_count ?? '—'}</td>
+            <td>${qualityBadge(t.tracking_quality)}</td>
+            <td style="color:#4b5563;font-size:11px">${t.drop_reason||'—'}</td>
+        </tr>`;
+    }).join('');
+    document.getElementById('tiTableBody').innerHTML = rows;
+}
+
+// ── Live MC patch for a single row ────────────────────────────────
+function patchTiMc(mint, marketCap, priceUsd) {
+    const cell = document.getElementById(`ti-mc-${mint}`);
+    if (!cell) return;
+    const mcStr = fmtMc(marketCap);
+    if (!mcStr) return;
+    // Read G-class badge text from row to pick color, fall back to neutral
+    const row = cell.closest('tr');
+    const badgeEl = row?.querySelector('.ti-g-badge');
+    const tc = badgeEl?.dataset.tc || 'G?';
+    cell.innerHTML = `<span style="color:${G_COLOR[tc]||'var(--text-secondary)'};font-weight:600">${mcStr}</span>`;
+    const pfx = _tiPinStore.isNew(mint) ? '[NEW_TOKEN][TI]' : '[LIVE][TI]';
+    console.log(`${pfx} live_update mint=${mint.slice(0,16)}… price=${priceUsd ? '$'+priceUsd.toFixed(6) : '—'} mc=${mcStr}`);
+}
+
+// ── SSE connection for live token events ───────────────────────────
+(function initTiSSE() {
+    const es = new EventSource('/api/price-stream');
+    es.onopen = () => console.log('[SSE][TI] connected');
+    es.onerror = () => console.log('[SSE][TI] error — will auto-reconnect');
+    es.onmessage = (e) => {
+        let update;
+        try { update = JSON.parse(e.data); } catch (_) { return; }
+        const mint = update.mint;
+        if (!mint) return;
+
+        if (update.type === 'token_detected') {
+            const detectedAtMs = update.detected_at ? update.detected_at * 1000 : Date.now();
+            const alreadyPinned = _tiPinStore.isNew(mint);
+            if (!alreadyPinned) {
+                _tiPinStore.pin(mint, detectedAtMs);
+            } else {
+                _tiPinStore.patch(mint, 'token_detected');
+            }
+
+            // Insert placeholder row at top if not already in table
+            const existing = document.querySelector(`.ti-table tbody tr[data-mint="${mint}"]`);
+            if (!existing) {
+                const body = document.getElementById('tiTableBody');
+                if (body) {
+                    const tr = document.createElement('tr');
+                    tr.className = 'row-new-pin';
+                    tr.dataset.mint = mint;
+                    tr.setAttribute('onclick', `openDetail('${mint}')`);
+                    tr.innerHTML = `
+                        <td class="td-mono">${mint.slice(0,14)}… <span class="badge-new">NEW</span></td>
+                        <td>—</td><td>—</td><td>—</td>
+                        <td id="ti-mc-${mint}" style="color:#6b7280">—</td>
+                        <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>`;
+                    // Remove stale loading row if it's the only content
+                    if (body.children.length === 1 && body.querySelector('.ti-loading')) {
+                        body.innerHTML = '';
+                    }
+                    body.prepend(tr);
+                    console.log(`[NEW_TOKEN][TI] inserted mint=${mint.slice(0,16)}… newUntil=${new Date(_tiPinStore.newUntil(mint)).toISOString()}`);
+                    // Schedule expiry
+                    const msLeft = _tiPinStore.newUntil(mint) - Date.now();
+                    if (msLeft > 0) {
+                        setTimeout(() => {
+                            _tiPinStore.expire(mint);
+                            console.log(`[NEW_TOKEN][TI] pruned mint=${mint.slice(0,16)}… reason=timeout_expired`);
+                            loadTable();
+                        }, msLeft);
+                    }
+                }
+            } else {
+                // Row exists — ensure badge and pin to top
+                if (!existing.querySelector('.badge-new')) {
+                    const td = existing.querySelector('td');
+                    if (td) {
+                        const b = document.createElement('span');
+                        b.className = 'badge-new';
+                        b.style.marginLeft = '5px';
+                        b.textContent = 'NEW';
+                        td.appendChild(b);
+                    }
+                }
+                existing.parentElement?.prepend(existing);
+                console.log(`[NEW_TOKEN][TI] inserted mint=${mint.slice(0,16)}… (row existed, re-pinned to top)`);
+            }
+
+            // Register immediately so worker prioritises price fetch for this mint
+            fetch('/api/price/batch/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({mints: [mint]})
+            }).catch(() => {});
+            fetch('/api/boost-tokens', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({mints: [mint], ttl: 60})
+            }).catch(() => {});
+
+        } else if (update.type === 'pool_registered') {
+            _tiPinStore.patch(mint, 'pool_registered');
+            loadTable(); // refresh to get classification data once pool known
+
+        } else if (update.type === 'price_update') {
+            _tiPinStore.patch(mint, 'price_update');
+            // Patch live MC in-place — covers both NEW rows and any visible active token
+            if (update.market_cap != null) {
+                patchTiMc(mint, update.market_cap, update.price_usd ?? null);
+            }
+        }
+    };
+})();
 
 // ── Init ──────────────────────────────────────────────────────────
 loadSummary();

@@ -728,15 +728,26 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     ORDER BY captured_at DESC LIMIT 1
                 )
             WHERE ta.mint IS NOT NULL
-              AND COALESCE(tps.market_cap, 0) >= ?
+              AND (
+                  COALESCE(tps.market_cap, 0) >= ?
+                  OR CAST(COALESCE(
+                      CASE WHEN CAST(ta.created_at AS REAL) > 1000000000
+                           THEN CAST(ta.created_at AS INTEGER)
+                           ELSE CAST(strftime('%s', ta.created_at) AS INTEGER)
+                      END, 0) AS INTEGER) >= ?
+              )
             ORDER BY
-                (ta.created_at >= ?) DESC,
+                CAST(COALESCE(
+                    CASE WHEN CAST(ta.created_at AS REAL) > 1000000000
+                         THEN CAST(ta.created_at AS INTEGER)
+                         ELSE CAST(strftime('%s', ta.created_at) AS INTEGER)
+                    END, 0) AS INTEGER) >= ? DESC,
                 (COALESCE(tsc.last_updated, 0) > ?) DESC,
                 COALESCE(tsc.last_updated, 0) DESC,
                 COALESCE(tps.market_cap, 0) DESC,
                 ta.created_at DESC
             LIMIT ?
-        """, (MIN_LIVE_MARKET_CAP, now_ts - 1800, now_ts - 60, limit,))
+        """, (MIN_LIVE_MARKET_CAP, now_ts - 900, now_ts - 1800, now_ts - 60, limit,))
 
         rows = cursor.fetchall()
 
@@ -16627,6 +16638,14 @@ def metrics_rpc_comparison_proxy():
 def restart_services():
     """Kill and restart Flask, listener, and all services"""
     try:
+        # Clear launch price log on restart for a fresh start
+        import src.core.launch_price_logger as _lpl
+        try:
+            open(_lpl._LOG_PATH, 'w').close()
+            _lpl._first_price_logged.clear()
+        except Exception:
+            pass
+
         from src.core.pumpfun_curve_listener import cleanup_and_restart
         # Run in background so response can be sent
         import threading

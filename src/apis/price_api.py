@@ -29,6 +29,20 @@ _metadata_cache_time = {}
 # Database path (will be initialized when register_price_api is called)
 _db_path = 'database/flex_complete_database.db'
 
+import os as _os
+_WS_STATS_PATH = _os.path.normpath(
+    _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', '..', 'logs', 'ws_stats.json')
+)
+
+def _read_ws_stats() -> dict:
+    """Read real WS counters written by the listener process. Returns empty dict on any error."""
+    try:
+        import json as _json
+        with open(_WS_STATS_PATH) as _f:
+            return _json.load(_f)
+    except Exception:
+        return {}
+
 
 def _configure_sqlite_wal(db_path: str) -> None:
     """Enable WAL mode for safer concurrent access."""
@@ -178,6 +192,25 @@ def get_token_symbol_cached(db_path: str, mint: str) -> dict:
             'is_fresh': True,
             'is_stale': False
         }
+
+    # 2b. Check token_analysis + tracked_tokens (available immediately after detection)
+    try:
+        conn = sqlite3.connect(db_path, timeout=2)
+        row = conn.execute("""
+            SELECT COALESCE(tt.symbol, ta.symbol) AS symbol,
+                   ta.name
+            FROM (SELECT ? AS mint) m
+            LEFT JOIN tracked_tokens tt ON tt.mint = m.mint
+            LEFT JOIN token_analysis ta ON ta.mint = m.mint
+        """, (mint,)).fetchone()
+        conn.close()
+        if row and row[0] and row[0] not in ('UNKNOWN', ''):
+            sym, nm = row[0], row[1] or row[0]
+            _metadata_cache[mint] = {'symbol': sym, 'name': nm}
+            _metadata_cache_time[mint] = time.time()
+            return {'symbol': sym, 'name': nm, 'source': 'db_analysis', 'is_fresh': True, 'is_stale': False}
+    except Exception:
+        pass
 
     # 3. Try upstream fetch
     try:
@@ -607,6 +640,10 @@ def health():
             ws_status = 'DISCONNECTED'
             service_status = 'critical'
 
+        # Real WS counters from listener process (written to disk each worker cycle)
+        ws_file = _read_ws_stats()
+        ws_file_age = (now - ws_file['written_at']) if ws_file.get('written_at') else None
+
         pool_stats = {
             'pools_registered': sig['active_pools'],
             'pool_prices_cached': sig['unique_mints_60s'],
@@ -615,13 +652,15 @@ def health():
             'pool_success': sig['unique_mints_60s'],
             'pool_fail': 0,
             'ws': {
-                'connected': ws_alive,
+                'connected': ws_file.get('connected', ws_alive),
                 'status': ws_status,
-                'subscriptions': sig['active_pools'] * 2,
-                'events_received': sig['snapshots_60s'],
-                'events_decoded': sig['snapshots_60s'],
-                'reconnects': 0,
-                'last_event_at': freshest_db_activity or None,
+                'subscriptions': ws_file.get('subscriptions', sig['active_pools'] * 2),
+                'events_received': ws_file.get('events_received', 0),
+                'events_decoded': ws_file.get('events_decoded', 0),
+                'events_deduplicated': ws_file.get('events_deduplicated', 0),
+                'reconnects': ws_file.get('reconnects', 0),
+                'last_event_at': ws_file.get('last_event_at') or freshest_db_activity or None,
+                'stats_age_secs': ws_file_age,
                 'multi_pool_enabled': True,
             },
             'detection': {
@@ -704,8 +743,10 @@ def health():
                     'subscriptions': 0,
                     'events_received': 0,
                     'events_decoded': 0,
+                    'events_deduplicated': 0,
                     'reconnects': 0,
                     'last_event_at': None,
+                    'stats_age_secs': None,
                     'multi_pool_enabled': False,
                 },
                 'detection': {
@@ -1283,6 +1324,29 @@ def register_tokens_batch():
                 f"skipping metadata warm-ups for {len(mints)} mints"
             )
 
+        # Immediately fetch + broadcast price for each mint (bypasses worker delay)
+        service = get_price_service()
+        from src.core.launch_price_logger import record_first_price as _record_fp
+        import requests as _req
+        for mint in mints:
+            try:
+                price = service.get_token_price_sync(mint)
+                if price and price.price_usd:
+                    _record_fp(mint, price.price_usd, price.market_cap or 0, price.source or 'register_batch')
+                    try:
+                        _req.post('http://127.0.0.1:5002/api/internal/broadcast', json={
+                            'type': 'price_update',
+                            'mint': mint,
+                            'price_usd': price.price_usd,
+                            'market_cap': price.market_cap,
+                            'source': price.source or 'register_batch',
+                            'updated_at': int(time.time()),
+                        }, timeout=1)
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+
         return jsonify({
             'registered': registered,
             'total': len(mints),
@@ -1310,6 +1374,13 @@ def fetch_price_now(mint: str):
 
         if price.source == 'unavailable':
             return jsonify({'error': 'Could not fetch price'}), 404
+
+        # Log first-price gap for new token launches
+        try:
+            from src.core.launch_price_logger import record_first_price as _record_fp
+            _record_fp(mint, price.price_usd, price.market_cap or 0, price.source or 'fetch_now')
+        except Exception:
+            pass
 
         # Get confidence
         scorer = get_confidence_scorer()

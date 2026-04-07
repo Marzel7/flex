@@ -49,60 +49,66 @@
             color: #06b6d4;
         }
 
-        .tokens-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: var(--bg-secondary);
-            border-radius: 8px;
+        .tokens-table-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
             overflow: hidden;
         }
 
-        .tokens-table thead {
-            background: var(--bg-secondary);
-            border-bottom: 2px solid rgba(124, 58, 237, 0.3);
+        .tokens-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
         }
 
-        .tokens-table th {
-            padding: 15px;
+        .tokens-table thead th {
+            background: rgba(0,0,0,0.3);
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
             text-align: left;
-            font-size: 13px;
-            color: #a78bfa;
-            font-weight: bold;
         }
 
         .tokens-table th.sortable {
             cursor: pointer;
             user-select: none;
-            position: relative;
-            transition: background-color 0.2s;
         }
 
-        .tokens-table th.sortable:hover {
-            background: rgba(124, 58, 237, 0.1);
-        }
+        .tokens-table th.sortable:hover { color: var(--text-primary); }
 
         .tokens-table th.sorted-asc::after {
             content: ' ↑';
-            font-size: 12px;
-            margin-left: 5px;
+            color: var(--accent-purple);
         }
 
         .tokens-table th.sorted-desc::after {
             content: ' ↓';
-            font-size: 12px;
-            margin-left: 5px;
+            color: var(--accent-purple);
         }
 
         .tokens-table td {
-            padding: 15px;
-            border-bottom: 1px solid rgba(6, 182, 212, 0.1);
+            padding: 7px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
             font-size: 12px;
+            color: var(--text-secondary);
             text-align: left;
+            white-space: nowrap;
         }
 
+        .tokens-table tbody tr {
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            cursor: default;
+            transition: background 0.1s;
+        }
 
         .tokens-table tbody tr:hover {
-            background: rgba(6, 182, 212, 0.05);
+            background: rgba(255,255,255,0.04);
         }
 
         /* Freshness dot */
@@ -132,7 +138,6 @@
 
         .tokens-table td {
             transition: opacity 0.2s ease;
-            opacity: 1;
         }
 
         .mint {
@@ -2157,19 +2162,22 @@
                 const minMarketCap = 5000;
                 const now = Math.floor(Date.now() / 1000);
                 const filteredTokens = enrichedTokens.filter(t => {
+                    // Always keep NEW-pinned tokens regardless of MC
+                    if (_newPinStore.isNew(t.mint)) return true;
                     const tokenAgeSeconds = now - new Date(t.created_at).getTime() / 1000;
-                    const isNewToken = tokenAgeSeconds < 3600; // Less than 60 minutes old
-                    // Display if: market cap >= $2k OR unknown market cap OR very new token
-                    return t.market_cap_current >= minMarketCap || !t.market_cap_current || isNewToken;
+                    const isRecentToken = tokenAgeSeconds < 3600;
+                    return t.market_cap_current >= minMarketCap || !t.market_cap_current || isRecentToken;
                 });
 
-                // Display only top 25 of the filtered tokens
-                const displayTokens = filteredTokens.slice(0, 25);
+                // Display top 25, but always include NEW-pinned tokens even if beyond 25
+                const pinnedInList = filteredTokens.filter(t => _newPinStore.isNew(t.mint));
+                const nonPinned = filteredTokens.filter(t => !_newPinStore.isNew(t.mint));
+                const displayTokens = [...pinnedInList, ...nonPinned].slice(0, 25 + pinnedInList.length);
 
-                // Check if token list or prices changed to avoid unnecessary DOM rebuilds
-                const currentSig = (window.currentTokens || []).map(t => `${t.mint}:${t.price_current}:${t.market_cap_current}`).join('|');
-                const newSig = displayTokens.map(t => `${t.mint}:${t.price_current}:${t.market_cap_current}`).join('|');
-                const tokensChanged = currentSig !== newSig;
+                // Rebuild only when the mint SET changes — price/MC churn is handled by SSE patches
+                const currentMints = (window.currentTokens || []).map(t => t.mint).join('|');
+                const newMints = displayTokens.map(t => t.mint).join('|');
+                const tokensChanged = currentMints !== newMints;
 
                 window.currentTokens = displayTokens;
 
@@ -2192,11 +2200,10 @@
                 updateStats({tokens: displayTokens});
 
                 if (tokensChanged) {
-                    // Mint set changed — full rebuild required
+                    console.log(`[TABLE] full_rebuild reason=mint_set_changed`);
                     buildTable(displayTokens);
-                    console.log('[TABLE] Full rebuild — mint set changed');
                 } else {
-                    // Same mints — patch price/mc/dot in-place, no DOM rebuild
+                    console.log(`[TABLE] patch_only reason=same_mint_set`);
                     displayTokens.forEach(token => updateOrInsertRow(token));
                 }
 
@@ -2252,16 +2259,11 @@
                 return false;
             }
 
-            // Price
-            const priceElem = document.getElementById(`price-${mint}`);
-            if (priceElem && priceUsd) {
-                priceElem.textContent = `$${formatPrice(priceUsd)}`;
-            }
-
-            // Market cap
+            // Market cap (table has no price column — MC is the live value)
             const mcElem = document.getElementById(`mc-${mint}`);
-            if (mcElem && marketCap) {
+            if (mcElem && marketCap !== undefined && marketCap !== null && marketCap > 0) {
                 mcElem.textContent = '$' + formatMarketCap(marketCap);
+                mcElem.style.opacity = '';
             }
 
             // Freshness dot + row class
@@ -2275,10 +2277,27 @@
             row.classList.toggle('row-active-snap', age < 60);
             row.classList.toggle('row-stale-snap',  age > 120);
 
-            // Move to top if fresh and not already first
+            // Log live update
+            if (_newPinStore.isNew(mint) || marketCap) {
+                const pfx = _newPinStore.isNew(mint) ? '[NEW_TOKEN]' : '[LIVE]';
+                console.log(`${pfx} live_update mint=${mint.slice(0,16)}… mc=${marketCap != null ? '$'+formatMarketCap(marketCap) : '—'}`);
+            }
+
+            // Only NEW-pinned rows may force themselves to top — non-NEW rows must not reorder
             const tbody = row.parentElement;
-            if (age < 15 && tbody && tbody.firstElementChild !== row) {
-                tbody.prepend(row);
+            if (_newPinStore.isNew(mint)) {
+                _newPinStore.patch(mint, 'price_update');
+                if (tbody && tbody.firstElementChild !== row) {
+                    // Only prepend if there are no NEW rows already at the very top
+                    const firstNew = tbody.querySelector('tr[data-mint]') &&
+                        _newPinStore.isNew(tbody.querySelector('tr[data-mint]').dataset.mint);
+                    if (!firstNew || _newPinStore.isNew(mint)) {
+                        tbody.prepend(row);
+                        console.log(`[NEW_TOKEN] pinned_stays_top mint=${mint.slice(0,16)}…`);
+                    }
+                }
+            } else if (age < 15) {
+                // Highlight only — no reorder
                 row.style.transition = 'background 0.3s';
                 row.style.background = 'rgba(74,222,128,0.10)';
                 setTimeout(() => { row.style.background = ''; }, 700);
@@ -2306,95 +2325,39 @@
         };
         let hasUserSorted = false;
 
-        function buildTable(tokens) {
-            // Use backend order until user clicks a column header
-            const sortedTokens = hasUserSorted ? [...tokens].sort((a, b) => {
-                const aVal = a[sortConfig.column];
-                const bVal = b[sortConfig.column];
+        // Build HTML for a single token row (used by reconcileTable)
+        function buildTokenRow(token) {
+            const creatorData = token.creatorData || {};
+            const columnTags = [];
+            const TAG_SHORT = {
+                'axiom': 'Ax', 'uses_axiom': 'Ax',
+                'jitotip': 'JT', 'uses_jitotip': 'JT', 'uses_jitotip_other': 'JT',
+                'changenow': 'CN', 'ChangeNow': 'CN',
+                'meteora': 'Me', 'uses_meteora': 'Me',
+                'debridge': 'dB', 'uses_debridge': 'dB',
+                'multi-funder': 'MF', 'Multi-Funder': 'MF',
+            };
+            function shortenTag(raw) {
+                const key = raw.toLowerCase().replace('uses_', '');
+                return TAG_SHORT[raw] || TAG_SHORT[raw.toLowerCase()] || TAG_SHORT['uses_' + key] || raw;
+            }
+            if (creatorData.network_size > 10) {
+                const hop0 = creatorData.cluster_hops?.hop0 || 0;
+                const hop1 = creatorData.cluster_hops?.hop1 || 0;
+                columnTags.push(`<span class="creator-tag tag-network" title="Wallet cluster: ${hop0} hop-0, ${hop1} hop-1">${creatorData.network_size}w</span>`);
+            }
+            if (creatorData.inbound_sol > 10) {
+                const sources = creatorData.inbound_sources || 0;
+                columnTags.push(`<span class="creator-tag tag-funding" title="Pre-launch funding: ${creatorData.inbound_sol.toFixed(1)} SOL from ${sources} source${sources > 1 ? 's' : ''}">${creatorData.inbound_sol.toFixed(0)}◎</span>`);
+            }
+            if (creatorData.token_count > 1) {
+                columnTags.push(`<span class="creator-tag tag-repeat" title="Repeat launcher: ${creatorData.token_count} tokens">M${creatorData.token_count}</span>`);
+            }
+            if (creatorData.is_blocked || token.creator_is_blocked) {
+                columnTags.push('<span class="creator-tag tag-blocked" title="On blocklist">BLK</span>');
+            }
 
-                // Handle null/undefined values
-                if (aVal == null && bVal == null) return 0;
-                if (aVal == null) return sortConfig.direction === 'asc' ? 1 : -1;
-                if (bVal == null) return sortConfig.direction === 'asc' ? -1 : 1;
-
-                // Numeric comparison
-                if (typeof aVal === 'number' && typeof bVal === 'number') {
-                    return sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
-                }
-
-                // Timestamp comparison for analyzed_at and created_at
-                if (sortConfig.column === 'analyzed_at' || sortConfig.column === 'created_at') {
-                    const aTime = new Date(String(aVal)).getTime();
-                    const bTime = new Date(String(bVal)).getTime();
-                    return sortConfig.direction === 'asc' ? aTime - bTime : bTime - aTime;
-                }
-
-                // String comparison
-                return sortConfig.direction === 'asc'
-                    ? String(aVal).localeCompare(String(bVal))
-                    : String(bVal).localeCompare(String(aVal));
-            }) : [...tokens];
-
-            const html = `
-                <table class="tokens-table">
-                    <thead>
-                        <tr>
-                            <th onclick="sortBy('mint')" class="sortable ${sortConfig.column === 'mint' ? 'sorted-' + sortConfig.direction : ''}"></th>
-                            <th style="max-width:160px;padding-left:4px"></th>
-                            <th onclick="sortBy('network_name')" class="sortable ${sortConfig.column === 'network_name' ? 'sorted-' + sortConfig.direction : ''}">Network</th>
-                            <th onclick="sortBy('cluster_name')" class="sortable ${sortConfig.column === 'cluster_name' ? 'sorted-' + sortConfig.direction : ''}">Cluster</th>
-                            <th onclick="sortBy('market_cap_current')" class="sortable ${sortConfig.column === 'market_cap_current' ? 'sorted-' + sortConfig.direction : ''}">Market Cap</th>
-                            <th onclick="sortBy('market_cap_highest')" class="sortable ${sortConfig.column === 'market_cap_highest' ? 'sorted-' + sortConfig.direction : ''}">Peak MC</th>
-                            <th onclick="sortBy('market_cap_highest_at')" class="sortable ${sortConfig.column === 'market_cap_highest_at' ? 'sorted-' + sortConfig.direction : ''}">Peak Timing</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${sortedTokens.map(token => {
-                            const creatorData = token.creatorData || {};
-                            const tags = [];
-
-                            // Tags for the "Creator Tags" column (non-infrastructure)
-                            const columnTags = [];
-
-                            // Label-shortening map (UI display only — raw data unchanged)
-                            const TAG_SHORT = {
-                                'axiom': 'Ax', 'uses_axiom': 'Ax',
-                                'jitotip': 'JT', 'uses_jitotip': 'JT', 'uses_jitotip_other': 'JT',
-                                'changenow': 'CN', 'ChangeNow': 'CN',
-                                'meteora': 'Me', 'uses_meteora': 'Me',
-                                'debridge': 'dB', 'uses_debridge': 'dB',
-                                'multi-funder': 'MF', 'Multi-Funder': 'MF',
-                            };
-                            function shortenTag(raw) {
-                                const key = raw.toLowerCase().replace('uses_', '');
-                                return TAG_SHORT[raw] || TAG_SHORT[raw.toLowerCase()] || TAG_SHORT['uses_' + key] || raw;
-                            }
-
-                            // Network size tag (show if > 10 wallets)
-                            if (creatorData.network_size > 10) {
-                                const hop0 = creatorData.cluster_hops?.hop0 || 0;
-                                const hop1 = creatorData.cluster_hops?.hop1 || 0;
-                                columnTags.push(`<span class="creator-tag tag-network" title="Wallet cluster: ${hop0} hop-0, ${hop1} hop-1">${creatorData.network_size}w</span>`);
-                            }
-
-                            // Funding tag (show if > 10 SOL)
-                            if (creatorData.inbound_sol > 10) {
-                                const sources = creatorData.inbound_sources || 0;
-                                columnTags.push(`<span class="creator-tag tag-funding" title="Pre-launch funding: ${creatorData.inbound_sol.toFixed(1)} SOL from ${sources} source${sources > 1 ? 's' : ''}">${creatorData.inbound_sol.toFixed(0)}◎</span>`);
-                            }
-
-                            // Repeat launcher tag (show if > 1 token)
-                            if (creatorData.token_count > 1) {
-                                columnTags.push(`<span class="creator-tag tag-repeat" title="Repeat launcher: ${creatorData.token_count} tokens">M${creatorData.token_count}</span>`);
-                            }
-
-                            // Blocked tag
-                            if (creatorData.is_blocked || token.creator_is_blocked) {
-                                columnTags.push('<span class="creator-tag tag-blocked" title="On blocklist">BLK</span>');
-                            }
-
-                            // CEX/Infrastructure funders - add to Creator Tags column
-                            let funderLabels = [];
+            let funderLabels = [];
                             if (creatorData.funders && creatorData.funders.length > 0) {
                                 for (let funder of creatorData.funders) {
                                     // Check if this funder is marked as CEX and has an exchange name
@@ -2548,68 +2511,234 @@
                                 }
                             }
 
-                            // Append creator infrastructure tags to infraTags
-                            if (infraTagsHTML) {
-                                infraTags += `<div style="display:flex;flex-wrap:nowrap;gap:4px;margin-top:3px;overflow:hidden">${infraTagsHTML}</div>`;
-                            }
+            // Append creator infrastructure tags to infraTags
+            if (infraTagsHTML) {
+                infraTags += `<div style="display:flex;flex-wrap:nowrap;gap:4px;margin-top:3px;overflow:hidden">${infraTagsHTML}</div>`;
+            }
 
-                            const snapAge = token.snap_age ?? 99999;
-                            const rowSnapClass = snapAge > 120 ? 'row-stale-snap' : (snapAge < 60 ? 'row-active-snap' : '');
-                            const MAX_TAGS = 2;
-                            const visibleTags = columnTags.slice(0, MAX_TAGS);
-                            const hiddenCount = columnTags.length - visibleTags.length;
-                            const allTagText = columnTags.map(t => t.replace(/<[^>]+>/g, '')).join(', ');
-                            return `
-                                <tr class="${rowSnapClass}" data-mint="${token.mint}">
-                                    <td class="mint-with-creator" style="min-width:130px;max-width:200px">
-                                        <div class="token-primary">
-                                            ${snapDotHtml(snapAge)}
-                                            <span id="symbol-${token.mint}" class="token-symbol" title="${token.mint}">…</span>${isNewToken(token.created_at) ? '<span class="badge-new">NEW</span>' : ''}
-                                        </div>
-                                        <div class="token-links">
-                                            <a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" title="${token.mint}">Token ↗</a>
-                                            <a href="#" onclick="showCreatorDetails('${token.creator}'); return false;" title="${token.creator || ''}">Creator ↗</a>
-                                        </div>
-                                        ${infraTags}
-                                    </td>
-                                    <td class="tags-cell" title="${allTagText}">
-                                        <div class="tags-inner">
-                                            ${visibleTags.join('')}${hiddenCount > 0 ? `<span class="tag-overflow">+${hiddenCount}</span>` : ''}
-                                        </div>
-                                    </td>
-                                    <td class="network-name">
-                                        ${token.atomic_network_name ? `<a href="/networks?network=${encodeURIComponent(token.atomic_network_name)}" style="color: var(--accent-purple); font-weight: bold; font-size: 12px; cursor: pointer; text-decoration: none; border-bottom: 1px dotted var(--accent-purple);" title="${token.atomic_network_tier || ''}">${token.atomic_network_name}</a>` : ''}
-                                    </td>
-                                    <td class="cluster-name">
-                                        ${token.cluster_name ? `<span style="color: var(--accent-orange); font-size: 12px;" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : ''}
-                                    </td>
-                                    <td id="mc-${token.mint}" style="transition: color 0.2s ease; min-width: 60px;">
-                                        ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">...</span>'}
-                                    </td>
-                                    <td id="peak-mc-${token.mint}" style="transition: color 0.2s ease; min-width: 60px;">
-                                        ${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '<span style="opacity: 0.5;">...</span>'}
-                                    </td>
-                                    <td>
-                                        ${token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : ''}
-                                    </td>
-                                    <td title="Launched: ${formatDate(token.created_at)}" style="font-size: 11px;">
-                                        ${timeSinceLaunch(token.created_at)}
-                                    </td>
-                                </tr>
-                            `;
-                        }).join('')}
-                    </tbody>
-                </table>
-            `;
+            const snapAge = token.snap_age ?? 99999;
+            const rowSnapClass = snapAge > 120 ? 'row-stale-snap' : (snapAge < 60 ? 'row-active-snap' : '');
+            const MAX_TAGS = 2;
+            const visibleTags = columnTags.slice(0, MAX_TAGS);
+            const hiddenCount = columnTags.length - visibleTags.length;
+            const allTagText = columnTags.map(t => t.replace(/<[^>]+>/g, '')).join(', ');
+            const isPin = _newPinStore.isNew(token.mint);
+            // Placeholder symbol — will be kept if already set, or fetched after render
+            const symPlaceholder = token.symbol || token.mint.slice(0, 8).toUpperCase();
+            return `<tr class="${rowSnapClass}" data-mint="${token.mint}">
+                <td class="mint-with-creator" style="min-width:130px;max-width:200px">
+                    <div class="token-primary">
+                        ${snapDotHtml(snapAge)}
+                        <span id="symbol-${token.mint}" class="token-symbol" title="${token.mint}">${symPlaceholder}</span>${isPin ? `<span class="badge-new" id="badge-new-${token.mint}">NEW</span>` : ''}
+                    </div>
+                    <div class="token-links">
+                        <a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" title="${token.mint}">Token ↗</a>
+                        <a href="#" onclick="showCreatorDetails('${token.creator}'); return false;" title="${token.creator || ''}">Creator ↗</a>
+                    </div>
+                    ${infraTags}
+                </td>
+                <td class="tags-cell" title="${allTagText}">
+                    <div class="tags-inner">
+                        ${visibleTags.join('')}${hiddenCount > 0 ? `<span class="tag-overflow">+${hiddenCount}</span>` : ''}
+                    </div>
+                </td>
+                <td class="network-name">
+                    ${token.atomic_network_name ? `<a href="/networks?network=${encodeURIComponent(token.atomic_network_name)}" style="color: var(--accent-purple); font-weight: bold; font-size: 12px; cursor: pointer; text-decoration: none; border-bottom: 1px dotted var(--accent-purple);" title="${token.atomic_network_tier || ''}">${token.atomic_network_name}</a>` : ''}
+                </td>
+                <td class="cluster-name">
+                    ${token.cluster_name ? `<span style="color: var(--accent-orange); font-size: 12px;" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : ''}
+                </td>
+                <td id="mc-${token.mint}" style="transition: color 0.2s ease; min-width: 60px;">
+                    ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">...</span>'}
+                </td>
+                <td id="peak-mc-${token.mint}" style="transition: color 0.2s ease; min-width: 60px;">
+                    ${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '<span style="opacity: 0.5;">...</span>'}
+                </td>
+                <td>
+                    ${token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : ''}
+                </td>
+                <td title="Launched: ${formatDate(token.created_at)}" style="font-size: 11px;">
+                    ${timeSinceLaunch(token.created_at)}
+                </td>
+            </tr>`;
+        }
 
-            document.getElementById('tokens-container').innerHTML = html;
+        function buildTable(tokens) {
+            _newPinStore.prune();
 
-            // Load symbols once (don't reload on every refresh)
-            const minMarketCap = 2000;
-            tokens.forEach((token, index) => {
+            // Merge in pinned mints not returned by server (e.g. dropped below MC threshold)
+            // Use last-known full token data from currentTokens cache to avoid thin placeholders
+            const tokenMints = new Set(tokens.map(t => t.mint));
+            const _cachedByMint = new Map((window._pinnedTokenCache || []).map(t => [t.mint, t]));
+            // Update cache with fresh server data
+            tokens.forEach(t => _cachedByMint.set(t.mint, t));
+            window._pinnedTokenCache = [..._cachedByMint.values()];
+
+            const pinnedExtra = [];
+            Object.entries(_newPinStore.all()).forEach(([mint, pin]) => {
+                if (!tokenMints.has(mint)) {
+                    const cached = _cachedByMint.get(mint);
+                    if (cached) {
+                        console.log(`[NEW_TOKEN] preserved_full_row mint=${mint.slice(0,16)}… reason=missing_from_api_but_still_new`);
+                        pinnedExtra.push({ ...cached, _pinned: true, _newUntil: pin.newUntil });
+                    } else {
+                        console.log(`[NEW_TOKEN] skipped_prune mint=${mint.slice(0,16)}… reason=missing_from_api_but_still_new`);
+                        pinnedExtra.push({ mint, _pinned: true, _newUntil: pin.newUntil });
+                    }
+                }
+            });
+
+            const allTokens = [...tokens, ...pinnedExtra];
+
+            const normalSort = (a, b) => {
+                if (!hasUserSorted) return 0;
+                const aVal = a[sortConfig.column];
+                const bVal = b[sortConfig.column];
+                if (aVal == null && bVal == null) return 0;
+                if (aVal == null) return sortConfig.direction === 'asc' ? 1 : -1;
+                if (bVal == null) return sortConfig.direction === 'asc' ? -1 : 1;
+                if (typeof aVal === 'number' && typeof bVal === 'number')
+                    return sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
+                if (sortConfig.column === 'analyzed_at' || sortConfig.column === 'created_at')
+                    return sortConfig.direction === 'asc'
+                        ? new Date(String(aVal)).getTime() - new Date(String(bVal)).getTime()
+                        : new Date(String(bVal)).getTime() - new Date(String(aVal)).getTime();
+                return sortConfig.direction === 'asc'
+                    ? String(aVal).localeCompare(String(bVal))
+                    : String(bVal).localeCompare(String(aVal));
+            };
+
+            const pinned = allTokens.filter(t => _newPinStore.isNew(t.mint));
+            const rest   = allTokens.filter(t => !_newPinStore.isNew(t.mint));
+            pinned.sort((a, b) => _newPinStore.newUntil(b.mint) - _newPinStore.newUntil(a.mint));
+            rest.sort(normalSort);
+            const sortedTokens = [...pinned, ...rest];
+            console.log(`[NEW_TOKEN] sorted pinned_count=${pinned.length} total=${sortedTokens.length}`);
+
+            // ── Ensure table shell exists ─────────────────────────────────────
+            let container = document.getElementById('tokens-container');
+            if (!container.querySelector('table.tokens-table')) {
+                container.innerHTML = `<div class="tokens-table-wrap"><table class="tokens-table">
+                    <thead><tr>
+                        <th onclick="sortBy('mint')" class="sortable"></th>
+                        <th style="max-width:160px;padding-left:4px"></th>
+                        <th onclick="sortBy('network_name')" class="sortable">Network</th>
+                        <th onclick="sortBy('cluster_name')" class="sortable">Cluster</th>
+                        <th onclick="sortBy('market_cap_current')" class="sortable">Market Cap</th>
+                        <th onclick="sortBy('market_cap_highest')" class="sortable">Peak MC</th>
+                        <th onclick="sortBy('market_cap_highest_at')" class="sortable">Peak Timing</th>
+                        <th>Age</th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table></div>`;
+            }
+            const tbody = container.querySelector('tbody');
+
+            // ── Reconcile rows — reuse existing DOM nodes, create only new ones ─
+            const existingRows = new Map();
+            tbody.querySelectorAll('tr[data-mint]').forEach(r => existingRows.set(r.dataset.mint, r));
+
+            const nowMs = Date.now();
+            sortedTokens.forEach((token, idx) => {
+                const mint = token.mint;
+                let row = existingRows.get(mint);
+
+                if (row) {
+                    // Row exists — preserve it, log if it was a NEW-pinned survivor
+                    if (_newPinStore.isNew(mint)) {
+                        console.log(`[NEW_TOKEN] preserved mint=${mint.slice(0,16)}… reason=pinned_row_survived_refresh`);
+                        // Ensure badge is present
+                        if (!document.getElementById(`badge-new-${mint}`)) {
+                            const sym = row.querySelector('.token-symbol');
+                            if (sym) { const b = document.createElement('span'); b.className='badge-new'; b.id=`badge-new-${mint}`; b.textContent='NEW'; sym.after(b); }
+                        }
+                    }
+                    // Patch MC/peak from server data if available (don't overwrite live SSE patches)
+                    if (!token._pinned) {
+                        const mcEl = document.getElementById(`mc-${mint}`);
+                        if (mcEl && token.market_cap_current) mcEl.textContent = '$' + formatMarketCap(token.market_cap_current);
+                        const pkEl = document.getElementById(`peak-mc-${mint}`);
+                        if (pkEl && token.market_cap_highest) pkEl.textContent = '$' + formatMarketCap(token.market_cap_highest);
+                        // Patch symbol only if server has a better value than current placeholder
+                        const symEl = document.getElementById(`symbol-${mint}`);
+                        if (symEl && token.symbol) {
+                            const cur = symEl.textContent.trim();
+                            const isMintPrefix = cur.length <= 8 && mint.toUpperCase().startsWith(cur);
+                            const isPlaceholder = isMintPrefix || cur === '…' || cur === '';
+                            if (isPlaceholder) symEl.textContent = token.symbol;
+                        }
+                    }
+                } else {
+                    // New row — create from template
+                    if (token._pinned) {
+                        // Pinned-only placeholder (not in server list)
+                        row = document.createElement('tr');
+                        row.dataset.mint = mint;
+                        row.classList.add('row-active-snap');
+                        row.innerHTML = `
+                            <td class="mint-with-creator" style="min-width:130px;max-width:200px">
+                                <div class="token-primary">
+                                    <span class="snap-dot snap-dot-grey"></span>
+                                    <span id="symbol-${mint}" class="token-symbol" title="${mint}">${mint.slice(0,8).toUpperCase()}</span>
+                                    <span class="badge-new" id="badge-new-${mint}">NEW</span>
+                                </div>
+                                <div class="token-links">
+                                    <a href="#" onclick="showTokenMetrics('${mint}'); return false;">Token ↗</a>
+                                </div>
+                            </td>
+                            <td></td><td></td><td></td>
+                            <td id="mc-${mint}" style="opacity:0.4">—</td>
+                            <td id="peak-mc-${mint}" style="opacity:0.4">—</td>
+                            <td></td><td style="font-size:11px">just now</td>`;
+                    } else {
+                        const tmp = document.createElement('tbody');
+                        tmp.innerHTML = buildTokenRow(token);
+                        row = tmp.firstElementChild;
+                    }
+                }
+
+                // Move/append to correct position
+                const currentAtIdx = tbody.children[idx];
+                if (currentAtIdx !== row) tbody.insertBefore(row, currentAtIdx || null);
+
+                // Remove from existingRows map so we know what to clean up
+                existingRows.delete(mint);
+            });
+
+            // Remove rows no longer in sortedTokens (and not NEW-pinned)
+            existingRows.forEach((row, mint) => {
+                if (_newPinStore.isNew(mint)) {
+                    console.log(`[NEW_TOKEN] preserved mint=${mint.slice(0,16)}… reason=pinned_row_survived_refresh`);
+                } else {
+                    row.remove();
+                }
+            });
+
+            // ── Schedule expiry timers ────────────────────────────────────────
+            sortedTokens.forEach(token => {
+                const until = _newPinStore.newUntil(token.mint);
+                if (!until) return;
+                const msLeft = until - nowMs;
+                if (msLeft <= 0) {
+                    _newPinStore.expire(token.mint);
+                    console.log(`[NEW_TOKEN] pruned mint=${token.mint.slice(0,16)}… reason=timeout_expired`);
+                    return;
+                }
                 setTimeout(() => {
-                    loadSymbol(token.mint);
-                }, index * 20);  // Minimal stagger (20ms)
+                    _newPinStore.expire(token.mint);
+                    console.log(`[NEW_TOKEN] pruned mint=${token.mint.slice(0,16)}… reason=timeout_expired`);
+                    document.getElementById(`badge-new-${token.mint}`)?.remove();
+                }, msLeft);
+            });
+
+            // ── Symbol hydration — only for rows without a real symbol yet ────
+            sortedTokens.filter(t => !t._pinned).forEach((token, index) => {
+                const symEl = document.getElementById(`symbol-${token.mint}`);
+                // Skip if already has a real symbol (not just mint prefix)
+                const currentSym = symEl?.textContent || '';
+                const isMintPrefix = currentSym === token.mint.slice(0,8).toUpperCase() || currentSym === '…';
+                if (!symEl || (!isMintPrefix && currentSym.length > 0)) return;
+                setTimeout(() => loadSymbol(token.mint), index * 20);
             });
 
             // DISABLED: Price polling endpoints no longer available
@@ -2794,10 +2923,51 @@
             return `${minutes}m ${secs}s`;
         }
 
-        function isNewToken(createdAt) {
-            if (!createdAt) return false;
-            const ts = typeof createdAt === 'number' ? createdAt : new Date(createdAt).getTime() / 1000;
-            return (Math.floor(Date.now() / 1000) - ts) < 1800;
+        // ── New-token pin state ────────────────────────────────────────────────
+        // keyed by mint → { newUntil: ms, detectedAt: ms }
+        // survives table rebuilds; restored from sessionStorage on reload
+        const NEW_TOKEN_TIMEOUT_MS = 900_000; // 15 minutes
+
+        const _newPinStore = (() => {
+            const KEY = 'flex_new_pins';
+            let store = {};
+            try { store = JSON.parse(sessionStorage.getItem(KEY) || '{}'); } catch (_) {}
+            function _save() { try { sessionStorage.setItem(KEY, JSON.stringify(store)); } catch (_) {} }
+            return {
+                pin(mint, detectedAtMs) {
+                    const newUntil = detectedAtMs + NEW_TOKEN_TIMEOUT_MS;
+                    store[mint] = { newUntil, detectedAt: detectedAtMs };
+                    _save();
+                    console.log(`[NEW_TOKEN] inserted mint=${mint.slice(0,16)}… newUntil=${new Date(newUntil).toISOString()}`);
+                },
+                patch(mint, source) {
+                    if (store[mint]) console.log(`[NEW_TOKEN] patched mint=${mint.slice(0,16)}… source=${source}`);
+                },
+                isNew(mint) {
+                    const e = store[mint];
+                    return e && Date.now() < e.newUntil;
+                },
+                newUntil(mint) { return store[mint]?.newUntil ?? 0; },
+                expire(mint) {
+                    if (store[mint]) {
+                        console.log(`[NEW_TOKEN] expired mint=${mint.slice(0,16)}…`);
+                        delete store[mint];
+                        _save();
+                    }
+                },
+                // Remove pins that have already expired
+                prune() {
+                    const now = Date.now();
+                    Object.keys(store).forEach(m => { if (store[m].newUntil <= now) this.expire(m); });
+                },
+                all() { return store; },
+            };
+        })();
+
+        function isNewToken(mint) {
+            // mint-based check (used in table render)
+            if (mint && _newPinStore.isNew(mint)) return true;
+            return false;
         }
 
         function timeSinceLaunch(createdAtTimestamp) {
@@ -3148,16 +3318,52 @@ function switchToTokensTab() {
         function insertDetectedTokenRow(update) {
             const mint = update.mint;
             if (!mint) return;
-            // Skip if row already exists (token was loaded by loadTokens before event arrived)
-            if (document.querySelector(`tr[data-mint="${mint}"]`)) return;
+
+            // Register pin FIRST (so buildTable sorting can use it even if row already exists)
+            const detectedAtMs = update.detected_at ? update.detected_at * 1000 : Date.now();
+            if (!_newPinStore.isNew(mint)) {
+                _newPinStore.pin(mint, detectedAtMs);
+            } else {
+                _newPinStore.patch(mint, 'token_detected');
+            }
+
+            // Schedule expiry timer for this pin
+            const msLeft = _newPinStore.newUntil(mint) - Date.now();
+            if (msLeft > 0) {
+                setTimeout(() => {
+                    _newPinStore.expire(mint);
+                    const badge = document.getElementById(`badge-new-${mint}`);
+                    if (badge) badge.remove();
+                }, msLeft);
+            }
+
+            // If row already exists (token was loaded by poll before SSE arrived), just patch badge
+            if (document.querySelector(`tr[data-mint="${mint}"]`)) {
+                _newPinStore.patch(mint, 'token_detected');
+                // Ensure badge is present and row is at top
+                const existingRow = document.querySelector(`tr[data-mint="${mint}"]`);
+                if (existingRow && !document.getElementById(`badge-new-${mint}`)) {
+                    const sym = existingRow.querySelector('.token-symbol');
+                    if (sym) {
+                        const badge = document.createElement('span');
+                        badge.className = 'badge-new';
+                        badge.id = `badge-new-${mint}`;
+                        badge.textContent = 'NEW';
+                        sym.after(badge);
+                    }
+                }
+                if (existingRow) {
+                    const tbody = existingRow.parentElement;
+                    if (tbody && tbody.firstElementChild !== existingRow) tbody.prepend(existingRow);
+                }
+                return;
+            }
 
             const tbody = document.querySelector('#tokens-container tbody');
             if (!tbody) return;
 
-            const shortMint = mint.slice(0, 14) + '…';
-            const symbol = update.symbol || shortMint;
+            const symbol = update.symbol || mint.slice(0, 8).toUpperCase();
             const creator = update.creator || '';
-            const now = Math.floor(Date.now() / 1000);
 
             const tr = document.createElement('tr');
             tr.dataset.mint = mint;
@@ -3168,7 +3374,7 @@ function switchToTokensTab() {
                     <div class="token-primary">
                         <span class="snap-dot snap-dot-fresh"></span>
                         <span id="symbol-${mint}" class="token-symbol" title="${mint}">${symbol}</span>
-                        <span class="badge-new">NEW</span>
+                        <span class="badge-new" id="badge-new-${mint}">NEW</span>
                     </div>
                     <div class="token-links">
                         <a href="#" onclick="showTokenMetrics('${mint}'); return false;" title="${mint}">Token ↗</a>
@@ -3186,9 +3392,71 @@ function switchToTokensTab() {
             tbody.prepend(tr);
             setTimeout(() => { tr.style.background = ''; }, 1500);
 
-            // Load symbol if not already known
-            if (!update.symbol) loadSymbol(mint);
-            console.log(`[TOKEN_DETECTED] Inserted placeholder row for ${mint.slice(0,16)}…`);
+            // — Symbol hydration —
+            if (!update.symbol) {
+                console.log(`[NEW_TOKEN] symbol_fetch_start mint=${mint.slice(0,16)}…`);
+                fetch(`/api/price/symbol/${mint}`)
+                    .then(r => r.ok ? r.json() : null)
+                    .then(data => {
+                        const symEl = document.getElementById(`symbol-${mint}`);
+                        if (!symEl) return;
+                        const real = data?.symbol;
+                        const isMintPrefix = symEl.textContent === mint.slice(0,8).toUpperCase();
+                        if (real && real !== 'UNKNOWN' && !real.startsWith(mint.slice(0,4))) {
+                            symEl.textContent = real;
+                            symEl.title = data.name || real;
+                            console.log(`[NEW_TOKEN] symbol_patched mint=${mint.slice(0,16)}… symbol=${real}`);
+                        } else {
+                            console.log(`[NEW_TOKEN] symbol_still_placeholder mint=${mint.slice(0,16)}…`);
+                        }
+                    })
+                    .catch(() => console.log(`[NEW_TOKEN] symbol_still_placeholder mint=${mint.slice(0,16)}…`));
+            }
+
+            // Register immediately for price tracking so worker prioritises this mint
+            fetch('/api/price/batch/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({mints: [mint]})
+            }).catch(() => {});
+            fetch('/api/boost-tokens', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({mints: [mint], ttl: 60})
+            }).catch(() => {});
+
+            // — Fallback price hydration: /full → fetch-now escalation if SSE hasn't patched —
+            setTimeout(() => {
+                const mcEl = document.getElementById(`mc-${mint}`);
+                const mcText = mcEl ? mcEl.textContent.trim() : '';
+                const hasMc = mcText && mcText !== '—' && mcText !== '...' && !mcText.includes('opacity');
+                if (hasMc) return; // SSE already patched it
+                console.log(`[NEW_TOKEN] live_price_fallback_fetch mint=${mint.slice(0,16)}…`);
+                // Step 1: try cached /full
+                fetch(`/api/price/${mint}/full`)
+                    .then(r => r.ok ? r.json() : null)
+                    .then(data => {
+                        if (data && data.price_usd && data.market_cap) {
+                            patchRowByMint(mint, data.price_usd, data.market_cap, 0);
+                            console.log(`[NEW_TOKEN] fetch_now_success mint=${mint.slice(0,16)}… price=${data.price_usd} mc=${data.market_cap}`);
+                            return;
+                        }
+                        // Step 2: cache miss — force-fetch via fetch-now
+                        console.log(`[NEW_TOKEN] fetch_now_trigger mint=${mint.slice(0,16)}…`);
+                        fetch(`/api/price/${mint}/fetch-now`, { method: 'POST' })
+                            .then(r => r.ok ? r.json() : null)
+                            .then(d => {
+                                if (d && d.price_usd) {
+                                    patchRowByMint(mint, d.price_usd, d.market_cap, 0);
+                                    console.log(`[NEW_TOKEN] fetch_now_success mint=${mint.slice(0,16)}… price=${d.price_usd} mc=${d.market_cap}`);
+                                } else {
+                                    console.log(`[NEW_TOKEN] fetch_now_empty mint=${mint.slice(0,16)}…`);
+                                }
+                            })
+                            .catch(() => console.log(`[NEW_TOKEN] fetch_now_empty mint=${mint.slice(0,16)}…`));
+                    })
+                    .catch(() => {});
+            }, 1000);
         }
 
         // Initialize SSE price streaming
@@ -3207,15 +3475,16 @@ function switchToTokensTab() {
                 } else if (update.type === 'price_update') {
                     patchRowByMint(update.mint, update.price_usd, update.market_cap, update.age_seconds ?? 0);
                 } else if (update.type === 'pool_registered') {
-                    console.log(`[SSE] Pool registered for ${update.mint?.substring(0, 16)}... (${update.elapsed_secs}s) — registering for price tracking + refreshing token list`);
-                    if (update.mint) {
+                    const m = update.mint;
+                    console.log(`[SSE] Pool registered for ${m?.substring(0, 16)}... (${update.elapsed_secs}s)`);
+                    if (m) {
+                        _newPinStore.patch(m, 'pool_registered');
                         fetch('/api/price/batch/register', {
                             method: 'POST',
                             headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({mints: [update.mint]})
+                            body: JSON.stringify({mints: [m]})
                         }).catch(() => {});
-                        // Patch placeholder row with pool_address if now known
-                        const r = document.querySelector(`tr[data-mint="${update.mint}"]`);
+                        const r = document.querySelector(`tr[data-mint="${m}"]`);
                         if (r) r.dataset.poolAddress = update.pool_address || '';
                     }
                     loadTokens();

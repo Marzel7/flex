@@ -1224,24 +1224,41 @@ def api_snapshots():
         # Read price/market_cap directly from token_price_snapshots (latest row per mint).
         # Avoids stale/corrupt values in token_analysis written by listener paths.
         now = int(_time.time())
+        fresh_cutoff = now - 900
         rows = conn.execute("""
-            SELECT tsc.mint, tsc.snap_count, tsc.last_updated,
-                   tps.price_usd, tps.market_cap, tps.source,
-                   COALESCE(tt.symbol, mc.symbol) AS symbol,
-                   mc.name,
-                   ta.created_at
-            FROM token_snapshot_counts tsc
-            LEFT JOIN token_price_snapshots tps ON tps.snapshot_id = (
-                SELECT snapshot_id FROM token_price_snapshots
-                WHERE mint = tsc.mint
-                ORDER BY captured_at DESC
-                LIMIT 1
+            SELECT * FROM (
+                SELECT tsc.mint, tsc.snap_count, tsc.last_updated,
+                       tps.price_usd, tps.market_cap, tps.source,
+                       COALESCE(tt.symbol, mc.symbol) AS symbol,
+                       mc.name,
+                       ta.created_at
+                FROM token_snapshot_counts tsc
+                LEFT JOIN token_price_snapshots tps ON tps.snapshot_id = (
+                    SELECT snapshot_id FROM token_price_snapshots
+                    WHERE mint = tsc.mint
+                    ORDER BY captured_at DESC
+                    LIMIT 1
+                )
+                LEFT JOIN tracked_tokens tt ON tt.mint = tsc.mint
+                LEFT JOIN metadata_cache mc ON mc.mint = tsc.mint
+                LEFT JOIN token_analysis ta ON ta.mint = tsc.mint
+
+                UNION
+
+                SELECT tt2.mint, 0 AS snap_count, NULL AS last_updated,
+                       NULL AS price_usd, NULL AS market_cap, NULL AS source,
+                       COALESCE(tt2.symbol, mc2.symbol) AS symbol,
+                       mc2.name,
+                       ta2.created_at
+                FROM tracked_tokens tt2
+                LEFT JOIN metadata_cache mc2 ON mc2.mint = tt2.mint
+                LEFT JOIN token_analysis ta2 ON ta2.mint = tt2.mint
+                WHERE tt2.is_active = 1
+                  AND tt2.created_at >= ?
+                  AND tt2.mint NOT IN (SELECT mint FROM token_snapshot_counts)
             )
-            LEFT JOIN tracked_tokens tt ON tt.mint = tsc.mint
-            LEFT JOIN metadata_cache mc ON mc.mint = tsc.mint
-            LEFT JOIN token_analysis ta ON ta.mint = tsc.mint
-            ORDER BY (tsc.last_updated > ?) DESC, tsc.last_updated DESC
-        """, (now - 60,)).fetchall()
+            ORDER BY (last_updated > ?) DESC, last_updated DESC
+        """, (fresh_cutoff, now - 60,)).fetchall()
         data = []
         backfill = []  # (mint, symbol) pairs to write into tracked_tokens
         for r in rows:
@@ -1253,7 +1270,19 @@ def api_snapshots():
                 price = None
             if mc is not None and mc <= 0:
                 mc = None
-            if mc is None or mc < MIN_LIVE_MARKET_CAP:
+            # Allow fresh tokens (created within 2 min) even with no/low MC
+            created_at_raw = r['created_at']
+            is_fresh = False
+            if created_at_raw:
+                try:
+                    import datetime as _dt
+                    ca = float(created_at_raw) if str(created_at_raw).replace('.','').isdigit() \
+                        else _dt.datetime.fromisoformat(str(created_at_raw).rstrip('Z')).replace(
+                            tzinfo=_dt.timezone.utc).timestamp()
+                    is_fresh = (now - ca) < 900
+                except Exception:
+                    pass
+            if not is_fresh and (mc is None or mc < MIN_LIVE_MARKET_CAP):
                 continue
             symbol = r['symbol'] or None
             # Backfill tracked_tokens.symbol if it came from metadata_cache (was NULL in tracked_tokens)

@@ -23,6 +23,22 @@ from src.core.price_service import get_price_service, TokenPrice
 from src.core.price_fetch_queue import get_price_queue, FetchTask, start_price_queue_worker
 
 logger = logging.getLogger(__name__)
+
+# Track which mints have had their first price broadcast logged
+_first_price_logged: set[str] = set()
+_first_price_lock = threading.Lock()
+
+def _log_first_price(mint: str, price_usd: float, market_cap: float, source: str) -> None:
+    """Fire-once: log the gap between detection and first price for a mint."""
+    with _first_price_lock:
+        if mint in _first_price_logged:
+            return
+        _first_price_logged.add(mint)
+    try:
+        from src.core.launch_price_logger import record_first_price
+        record_first_price(mint, price_usd, market_cap, source)
+    except Exception:
+        pass
 logger.setLevel(logging.WARNING)  # Suppress DEBUG and INFO logs
 
 # Debug flag - set to False to disable verbose debug logging
@@ -220,7 +236,7 @@ class BackgroundPriceWorker:
     """Background worker that continuously refreshes prices."""
 
     def __init__(self, db_path: str = 'database/flex_complete_database.db',
-                 interval: int = 10, batch_size: int = 20):
+                 interval: int = 3, batch_size: int = 20):
         """
         Initialize worker.
 
@@ -269,9 +285,21 @@ class BackgroundPriceWorker:
         # Token inactivity manager (detects and stops monitoring dead tokens)
         self._inactivity_manager = TokenInactivityManager(db_path)
 
+        # Filtered peak MC tracker state: mint → {raw, effective, candidate, count}
+        # Kept in-memory; persisted to token_market_cap_peaks on each update.
+        self._peak_state: dict = {}  # mint -> dict
+
         # Priority queue: top tokens for WebSocket, others use Dexscreener fallback
         self._top_mints = set()  # Top 20-25 most recent tokens (from UI)
         self._top_mints_updated = 0  # Last time we refreshed this list
+
+        # Cached pool map for WS fast path — refreshed each worker cycle, not per-event
+        self._pool_map_cache: dict = {}  # (mint, base_account) -> pool dict
+        self._pool_map_updated: float = 0
+
+        # Single-writer snapshot queue — WS fast path enqueues, one thread drains
+        import queue as _queue
+        self._snapshot_queue: _queue.Queue = _queue.Queue(maxsize=2000)
 
         self.stats = {
             'cycles': 0,
@@ -423,6 +451,10 @@ class BackgroundPriceWorker:
         # logger.info("[PRICE_WORKER] Starting WebSocket client")
         # self._start_ws_client()
         # logger.info("[PRICE_WORKER] WebSocket client started")
+
+        # Start single-writer snapshot drainer thread
+        snapshot_drainer = threading.Thread(target=self._drain_snapshot_queue, daemon=True, name="SnapshotDrainer")
+        snapshot_drainer.start()
 
         logger.info(f"Background price worker started (interval={self.interval}s, using request queue)")
 
@@ -611,6 +643,99 @@ class BackgroundPriceWorker:
         except Exception as e:
             logger.debug(f"Error refreshing top mints: {e}")
 
+    def _drain_snapshot_queue(self) -> None:
+        """Single-writer thread that serializes all snapshot DB writes.
+
+        WS fast path enqueues TokenPrice objects here instead of writing directly,
+        eliminating SQLite lock contention from concurrent daemon threads.
+        """
+        import queue as _queue
+        while True:
+            try:
+                token_price = self._snapshot_queue.get(timeout=5)
+                try:
+                    self.price_service._store_snapshot(token_price)
+                except Exception as e:
+                    logger.warning(f"[SNAPSHOT_DRAINER] write failed for {token_price.mint[:16]}: {e}")
+                finally:
+                    self._snapshot_queue.task_done()
+            except _queue.Empty:
+                continue
+            except Exception as e:
+                logger.error(f"[SNAPSHOT_DRAINER] unexpected error: {e}")
+
+    def _on_ws_reserve_update(self, mint: str, base_account: str, reserves: tuple) -> None:
+        """Called by PoolWebSocketClient on every dual-reserve update.
+
+        Fast path: recompute price from cached pool map (no RPC, no DB), update
+        in-memory cache, enqueue snapshot for single-writer drainer, broadcast SSE.
+        Pool map is cached on the worker and refreshed each cycle — not per-event.
+        """
+        try:
+            pool = self._pool_map_cache.get((mint, base_account))
+            if not pool:
+                return
+
+            base_raw, quote_raw = reserves
+            if not base_raw or not quote_raw:
+                return
+
+            sol_price_usd = self._sol_price_cache.get_price_sync()
+            if not sol_price_usd:
+                return
+
+            from src.core.pool_price_engine import PoolPriceCalculator, PoolReserveFetcher
+            token_price = PoolPriceCalculator.compute_price(
+                mint=mint,
+                base_reserve_raw=base_raw,
+                quote_reserve_raw=quote_raw,
+                base_decimals=pool["base_decimals"],
+                quote_decimals=pool["quote_decimals"],
+                quote_is_sol=(pool["quote_token"] == PoolReserveFetcher.SOL_MINT),
+                sol_price_usd=sol_price_usd,
+                last_cached_price=None,
+                base_account=base_account,
+                total_supply=pool.get("token_supply", 0),
+            )
+            if not token_price:
+                return
+
+            # Update in-memory cache (no lock needed — dict assignment is atomic in CPython)
+            self.price_service.pool_price_cache[mint] = token_price
+
+            # Enqueue for single-writer drainer (non-blocking, drop if queue full)
+            try:
+                self._snapshot_queue.put_nowait(token_price)
+            except Exception:
+                pass  # Queue full — worker cycle will persist on next pass
+
+            # Broadcast to SSE subscribers
+            try:
+                from src.core.price_stream import get_price_stream
+                price_stream = get_price_stream()
+                if price_stream.get_subscriber_count() > 0:
+                    import asyncio as _asyncio
+                    loop = _asyncio.new_event_loop()
+                    try:
+                        loop.run_until_complete(price_stream.broadcast({
+                            "type": "price_update",
+                            "mint": mint,
+                            "price_usd": token_price.price_usd,
+                            "price_sol": token_price.price_sol,
+                            "market_cap": token_price.market_cap,
+                            "liquidity_usd": token_price.liquidity_usd,
+                            "source": token_price.source,
+                            "timestamp": token_price.timestamp,
+                        }))
+                    finally:
+                        loop.close()
+            except Exception:
+                pass
+            _log_first_price(mint, token_price.price_usd, token_price.market_cap or 0, token_price.source or "ws_fast_path")
+
+        except Exception as e:
+            logger.debug(f"[WS_FAST_PATH] {mint[:16]}: {e}")
+
     def _start_ws_client(self) -> None:
         """Start WebSocket client for pool subscriptions."""
         try:
@@ -624,7 +749,9 @@ class BackgroundPriceWorker:
                 return
 
             logger.info(f"[PRICE_WORKER] Creating WebSocket client for {len(pools)} pools")
-            self._ws_client = __import__('src.core.pool_price_engine', fromlist=['PoolWebSocketClient']).PoolWebSocketClient(self._pool_state, self.db_path)
+            self._ws_client = __import__('src.core.pool_price_engine', fromlist=['PoolWebSocketClient']).PoolWebSocketClient(
+                self._pool_state, self.db_path, on_dual_update=self._on_ws_reserve_update
+            )
 
             logger.info(f"[PRICE_WORKER] Starting WebSocket subscriptions")
             self._ws_client.start(pools)
@@ -696,6 +823,10 @@ class BackgroundPriceWorker:
                 # WebSocket running — refresh subscriptions with latest pools
                 # This picks up newly discovered pools within ~10 seconds
                 self._ws_client.refresh_pools(pools)
+
+            # Refresh pool map cache used by WS fast path (avoids per-event DB query)
+            if pools:
+                self._pool_map_cache = {(p["mint"], p["base_account"]): p for p in pools}
         except Exception as e:
             logger.debug(f"Error refreshing WebSocket pools: {e}")
 
@@ -1015,9 +1146,21 @@ class BackgroundPriceWorker:
         # Primary: compute prices from WebSocket-maintained reserve state
         self._recompute_prices_from_ws_state()
 
-        # Sync WS stats to worker stats
+        # Sync WS stats to worker stats and persist to disk for Flask to read
         if self._ws_client:
             self.stats['ws_stats'] = dict(self._ws_client.stats)
+            try:
+                import json as _json, os as _os
+                _ws_stats_path = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', '..', 'logs', 'ws_stats.json')
+                _ws_stats_path = _os.path.normpath(_ws_stats_path)
+                _payload = dict(self._ws_client.stats)
+                _payload['written_at'] = int(time.time())
+                _tmp = _ws_stats_path + '.tmp'
+                with open(_tmp, 'w') as _f:
+                    _json.dump(_payload, _f)
+                _os.replace(_tmp, _ws_stats_path)
+            except Exception:
+                pass
 
     async def _fetch_pool_prices_async(self) -> None:
         """Async implementation of pool price fetching with multi-pool aggregation and peak tracking."""
@@ -1088,7 +1231,8 @@ class BackgroundPriceWorker:
             if aggregated:
                 # Track peak market cap
                 if aggregated.market_cap > 0:
-                    self._update_peak_market_cap(mint, aggregated.market_cap, now)
+                    self._update_peak_market_cap(mint, aggregated.market_cap, now,
+                                                 liquidity_usd=aggregated.liquidity_usd or 0.0)
                     # Store peak info in token price for API response
                     peak_info = self._get_peak_market_cap(mint)
                     if peak_info:
@@ -1263,7 +1407,8 @@ class BackgroundPriceWorker:
                     
                     # Track peak market cap
                     if aggregated.market_cap > 0:
-                        self._update_peak_market_cap(mint, aggregated.market_cap, now)
+                        self._update_peak_market_cap(mint, aggregated.market_cap, now,
+                                                     liquidity_usd=aggregated.liquidity_usd or 0.0)
                         # Store peak info in token price for API response
                         peak_info = self._get_peak_market_cap(mint)
                         if peak_info:
@@ -1329,6 +1474,7 @@ class BackgroundPriceWorker:
                                     "source": token_price.source,
                                     "updated_at": int(time.time())
                                 }
+                                _log_first_price(mint, token_price.price_usd, token_price.market_cap or 0, token_price.source or "pool_cycle")
 
                                 # Broadcast asynchronously
                                 try:
@@ -1357,31 +1503,73 @@ class BackgroundPriceWorker:
         except Exception as e:
             logger.error(f"Error recomputing prices from WS state: {e}")
     
-    def _update_peak_market_cap(self, mint: str, market_cap: float, timestamp: int) -> None:
-        """Update peak market cap for a token if new value is higher."""
+    # ── Filtered peak MC constants ────────────────────────────────────────────
+    _PEAK_MIN_LIQ     = 5_000   # ignore snapshots with liquidity below this
+    _PEAK_CONFIRM     = 3       # snapshots required to promote candidate
+    _PEAK_TOLERANCE   = 0.95    # candidate stays valid if MC >= candidate * this
+
+    def _update_peak_market_cap(self, mint: str, market_cap: float, timestamp: int,
+                                liquidity_usd: float = 0.0) -> None:
+        """Filtered peak MC update. raw_peak = absolute max; effective_peak = confirmed peak."""
+        if market_cap <= 0:
+            return
         try:
-            import sqlite3
-            conn = sqlite3.connect(self.db_path, timeout=10)
-            cursor = conn.cursor()
-            
-            # Check current peak
-            cursor.execute(
-                "SELECT peak_market_cap FROM token_market_cap_peaks WHERE mint = ?",
-                (mint,)
-            )
-            row = cursor.fetchone()
-            
-            # Update if new peak or first time
-            if not row or market_cap > row[0]:
-                cursor.execute("""
-                    INSERT INTO token_market_cap_peaks (mint, peak_market_cap, peak_market_cap_at)
-                    VALUES (?, ?, ?)
-                    ON CONFLICT(mint) DO UPDATE SET
-                    peak_market_cap = ?,
-                    peak_market_cap_at = ?
-                """, (mint, market_cap, timestamp, market_cap, timestamp))
-                conn.commit()
-            
+            # Load or initialise in-memory state for this mint
+            if mint not in self._peak_state:
+                import sqlite3 as _sq
+                conn = _sq.connect(self.db_path, timeout=5)
+                row = conn.execute(
+                    "SELECT raw_peak_mc, effective_peak_mc, candidate_peak_mc, candidate_peak_count "
+                    "FROM token_market_cap_peaks WHERE mint = ?", (mint,)
+                ).fetchone()
+                conn.close()
+                if row:
+                    self._peak_state[mint] = {
+                        'raw': row[0] or 0.0, 'effective': row[1] or 0.0,
+                        'candidate': row[2], 'count': row[3] or 0,
+                    }
+                else:
+                    self._peak_state[mint] = {'raw': 0.0, 'effective': 0.0, 'candidate': None, 'count': 0}
+
+            s = self._peak_state[mint]
+
+            # Always update raw peak
+            s['raw'] = max(s['raw'], market_cap)
+
+            # Filtered peak: skip low-liquidity snapshots
+            if liquidity_usd >= self._PEAK_MIN_LIQ:
+                if s['candidate'] is None or market_cap > s['candidate']:
+                    s['candidate'] = market_cap
+                    s['count'] = 1
+                elif market_cap >= s['candidate'] * self._PEAK_TOLERANCE:
+                    s['count'] += 1
+                    if s['count'] >= self._PEAK_CONFIRM:
+                        if s['candidate'] > s['effective']:
+                            s['effective'] = s['candidate']
+                else:
+                    s['candidate'] = None
+                    s['count'] = 0
+
+            # Persist — effective_peak_mc is also written to legacy peak_market_cap for compat
+            import sqlite3 as _sq
+            conn = _sq.connect(self.db_path, timeout=5)
+            conn.execute("""
+                INSERT INTO token_market_cap_peaks
+                    (mint, peak_market_cap, peak_market_cap_at,
+                     raw_peak_mc, effective_peak_mc, candidate_peak_mc, candidate_peak_count)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(mint) DO UPDATE SET
+                    peak_market_cap      = excluded.effective_peak_mc,
+                    peak_market_cap_at   = CASE WHEN excluded.effective_peak_mc > effective_peak_mc
+                                               THEN ? ELSE peak_market_cap_at END,
+                    raw_peak_mc          = excluded.raw_peak_mc,
+                    effective_peak_mc    = excluded.effective_peak_mc,
+                    candidate_peak_mc    = excluded.candidate_peak_mc,
+                    candidate_peak_count = excluded.candidate_peak_count
+            """, (mint, s['effective'], timestamp,
+                  s['raw'], s['effective'], s['candidate'], s['count'],
+                  timestamp))
+            conn.commit()
             conn.close()
         except Exception as e:
             logger.debug(f"Error updating peak market cap for {mint}: {e}")
@@ -1417,61 +1605,72 @@ class BackgroundPriceWorker:
         """
         pass  # No-op: relying on explicit registration only
 
+    # Tier intervals (seconds between refreshes)
+    _TIER0_INTERVAL = 3    # new tokens (<120s) — fast lane supplement
+    _TIER1_INTERVAL = 5    # homepage tokens
+    _TIER2_INTERVAL = 20   # everything else
+    _TIER2_CAP = 5         # max Tier-2 tasks enqueued per cycle
+    _TIER2_QUEUE_THRESHOLD = 15  # skip Tier-2 entirely if queue is this deep
+
     def _get_tokens_for_refresh(self) -> List[Dict]:
         """
-        Get tokens for refresh based on priority_level and UI visibility.
-
-        Priority queue strategy:
-        - Top 20-25 tokens (UI page): WebSocket + Dexscreener sources
-        - Other tokens: Dexscreener fallback only (lighter weight)
-
-        Each tier has a fixed refresh interval.
+        Three-tier scheduling:
+          Tier 0 — tokens detected <120s ago  → every 3s
+          Tier 1 — homepage top-25 mints      → every 5s
+          Tier 2 — all other tracked tokens   → every 20s, capped at 5/cycle
         """
-        # Refresh top mints list (updates every 30s)
         self._refresh_top_mints()
 
-        tokens_to_fetch = []
         now = int(time.time())
+        tier0, tier1, tier2 = [], [], []
 
         try:
-            # Get all active tokens
             all_tokens = self.registry.get_tracked_tokens(active_only=True)
-
-            # Separate top-priority from regular tokens
-            top_priority_tokens = []
-            regular_tokens = []
 
             for token in all_tokens:
                 mint = token.get('mint', '')
-                is_top = mint in self._top_mints
-
-                # Use priority_level directly
-                priority = token.get('priority_level', 'LOW').upper()
-                # For top mints, use shorter interval; for others, use longer
-                if is_top:
-                    interval = self._get_refresh_interval_for_activity('HIGH')  # 10s
-                else:
-                    interval = self._get_refresh_interval_for_activity('LOW')  # 200s
-
-                # Check if this token is due for refresh
                 last_update = token.get('last_price_update', 0)
-                time_since_update = now - last_update
+                age = now - last_update
 
-                if time_since_update >= interval:
-                    if is_top:
-                        top_priority_tokens.append(token)
+                # Determine tier
+                created_raw = token.get('created_at') or 0
+                try:
+                    if isinstance(created_raw, (int, float)):
+                        token_age = now - int(created_raw)
                     else:
-                        regular_tokens.append(token)
+                        import datetime as _dt
+                        ts = _dt.datetime.fromisoformat(
+                            str(created_raw).rstrip('Z').replace(' ', 'T')
+                        ).replace(tzinfo=_dt.timezone.utc).timestamp()
+                        token_age = now - int(ts)
+                except Exception:
+                    token_age = 9999
 
-                # Track priority distribution
-                self.stats['activity_distribution'][priority.lower()] = \
-                    self.stats['activity_distribution'].get(priority.lower(), 0) + 1
+                is_new    = token_age < 120 and mint in self._top_mints
+                is_top    = mint in self._top_mints
 
-            # Prioritize top tokens in the fetch queue
-            tokens_to_fetch = top_priority_tokens + regular_tokens
+                priority = token.get('priority_level', 'LOW').lower()
+                self.stats['activity_distribution'][priority] = \
+                    self.stats['activity_distribution'].get(priority, 0) + 1
 
-            # Limit batch size to prevent overload
-            return tokens_to_fetch[:20]
+                if is_new and age >= self._TIER0_INTERVAL:
+                    tier0.append(token)
+                elif is_top and age >= self._TIER1_INTERVAL:
+                    tier1.append(token)
+                elif not is_top and age >= self._TIER2_INTERVAL:
+                    tier2.append(token)
+
+            # Tier 2: skip entirely if queue is backed up, cap otherwise
+            queue_depth = self.queue.queue.qsize()
+            if queue_depth >= self._TIER2_QUEUE_THRESHOLD:
+                tier2 = []
+                logger.debug(f"[TIERS] t2 suppressed queue_depth={queue_depth}")
+            else:
+                tier2 = tier2[:self._TIER2_CAP]
+
+            result = tier0 + tier1 + tier2
+            logger.debug(f"[TIERS] t0={len(tier0)} t1={len(tier1)} t2={len(tier2)} q={queue_depth}")
+            return result
 
         except Exception as e:
             logger.error(f"Error getting tokens for refresh: {e}")
@@ -1837,6 +2036,7 @@ class BackgroundPriceWorker:
                             "source": price.source,
                             "updated_at": int(time.time())
                         }
+                        _log_first_price(mint, price.price_usd, market_cap or 0, price.source or "prefetch")
 
                         # Broadcast asynchronously (non-blocking)
                         try:

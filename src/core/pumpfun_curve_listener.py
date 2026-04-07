@@ -3143,6 +3143,38 @@ class PumpFunCurveListener(FastLaneDiscovery):
             # Create minimal token entry immediately (so token appears in UI right away)
             await self._create_minimal_token_entry(mint)
 
+            # Register for price tracking immediately — HIGH priority, fail-safe
+            try:
+                from src.core.price_worker import PriceWorkerRegistry
+                PriceWorkerRegistry(DB_PATH).register_token(mint, priority_level='HIGH')
+                log_print(f"[MIGRATION] 📈 Registered {mint[:16]}... for price tracking (HIGH priority)", flush=True)
+            except Exception as _reg_err:
+                log_print(f"[MIGRATION] ⚠️  Price tracking registration skipped: {_reg_err}", flush=True)
+
+            # Fast-lane first-price: bypass the queue, retry every 3s for up to 60s
+            def _first_price_fast_lane(mint: str) -> None:
+                try:
+                    from src.core.price_worker import get_price_worker
+                    worker = get_price_worker()
+                    deadline = time.time() + 60
+                    interval = 3.0
+                    while time.time() < deadline:
+                        try:
+                            price = worker._fetch_single_price(mint)
+                            if price and price.source != 'unavailable' and price.price_usd > 0:
+                                worker._on_price_fetched(mint, price)
+                                log_print(f"[FAST_PRICE] ✅ {mint[:16]}... first price ${price.price_usd:.8f} (source={price.source})", flush=True)
+                                return
+                        except Exception:
+                            pass
+                        time.sleep(interval)
+                    log_print(f"[FAST_PRICE] ⏱ {mint[:16]}... gave up after 60s", flush=True)
+                except Exception as _e:
+                    log_print(f"[FAST_PRICE] ⚠️  fast-lane failed: {_e}", flush=True)
+
+            import threading as _threading
+            _threading.Thread(target=_first_price_fast_lane, args=(mint,), daemon=True).start()
+
             # === INSTANT UI: broadcast token_detected before any discovery ===
             _det_event = {
                 "type": "token_detected",
